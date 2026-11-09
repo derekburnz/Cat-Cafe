@@ -51,6 +51,7 @@ local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
+local Signal = require(ReplicatedStorage.Shared.Signal)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
@@ -63,6 +64,9 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 type Profile = Types.PlayerProfile
 
 local CafeService = {}
+
+-- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
+CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
 
 -- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
 local function ownsPassOf(player: Player): (number) -> boolean
@@ -1316,6 +1320,7 @@ function CafeService.advanceTutorial(player: Player, profile: Profile, step: num
 		for passed = from + 1, step do
 			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
 		end
+		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end
 
@@ -2231,12 +2236,14 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 		return
 	end
 	if step == profile.tutorialStep + 1 then
+		local from = profile.tutorialStep
 		profile.tutorialStep = step
 		if step == 1 then
 			Telemetry.onboarding(player, profile, "entered_alley") -- #1273: tutorial card 0 done
 		end
 		Telemetry.custom(player, "tutorial_step", 1, { tostring(step) })
 		CafeService.sync(player)
+		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end
 

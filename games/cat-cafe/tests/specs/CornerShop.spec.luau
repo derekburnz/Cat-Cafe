@@ -676,6 +676,32 @@ return function()
 			end
 		)
 
+		it("tells the card how many more of a limited row today allows (leftToday)", function()
+			for _, row in Catalog.cornerShop do
+				local limit = CornerShop.perDay(row.family)
+				local window = windowWith(row.id, WINDOW)
+				if window == nil then
+					continue
+				end
+				local state = fresh(window)
+				local function left(): number?
+					for _, item in CornerShop.view(state, window, 5).stock do
+						if item.itemId == row.id then
+							return item.leftToday
+						end
+					end
+					error("row not stocked")
+				end
+				if limit == nil then
+					expect(left()).to.equal(nil)
+				else
+					expect(left()).to.equal(limit)
+					state.today[row.id] = limit
+					expect(left()).to.equal(0)
+				end
+			end
+		end)
+
 		it(
 			"buys what fits with few coins, and nothing above the tier, the Bag or LURE_MAX",
 			function()

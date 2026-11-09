@@ -960,6 +960,9 @@ export type CornerShopItem = {
 	size: CornerShopSize,
 	needsTier: number?,
 	outToday: boolean?, -- #1435: true when the row has hit its family's daily limit today (#1712: per row); nil otherwise
+	-- #2593: how many more of the row today's family limit allows (0 when outToday), nil for a family with no limit. For
+	-- the Buy all card's plan only: the row itself still never shows the limit (#1190)
+	leftToday: number?,
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).

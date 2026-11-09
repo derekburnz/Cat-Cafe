@@ -175,6 +175,9 @@ function CornerShop.view(
 		-- counts on its own, so buying one size never uses up another.
 		local limit = CornerShop.perDay(row.family)
 		local outToday = limit ~= nil and (state.today[row.id] or 0) >= limit
+		local leftToday = if limit ~= nil
+			then math.max(0, limit - (state.today[row.id] or 0))
+			else nil
 		table.insert(stock, {
 			itemId = item.itemId,
 			price = CornerShop.priceOf(row, tier or 1),
@@ -183,6 +186,7 @@ function CornerShop.view(
 			size = row.size,
 			needsTier = row.needsTier,
 			outToday = if outToday then true else nil,
+			leftToday = leftToday, -- #2593
 		})
 	end
 	return {

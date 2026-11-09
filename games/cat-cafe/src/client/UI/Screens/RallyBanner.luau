@@ -130,9 +130,13 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 		Parent = title,
 	})
 	Outline.text(name, 2)
+	self._name = name
+	-- #2608: "Lap 3: bigger prizes!", as wide as its words; the name steps down to the flag beside it
 	local lap = text({
 		Name = "Lap",
-		Size = UDim2.fromOffset(54, 18), -- "Lap 12" fits
+		Size = UDim2.fromOffset(0, 18),
+		AutomaticSize = Enum.AutomaticSize.X,
+		TextTruncate = Enum.TextTruncate.None,
 		BackgroundTransparency = 0,
 		BackgroundColor3 = Theme.colors.gold,
 		TextSize = Theme.sizes.textTiny,
@@ -143,6 +147,10 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 		Parent = title,
 	})
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = lap })
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7), Parent = lap }
+	)
 	self._lap = lap
 	self._left = text({
 		Name = "Left",
@@ -222,6 +230,9 @@ function RallyBanner._render(self: any)
 	if view ~= nil then
 		self._lap.Text = view.lap or ""
 		self._lap.Visible = view.lap ~= nil
+		self._name.Text = if view.lap ~= nil
+			then RallyLogic.ICON
+			else RallyLogic.ICON .. " " .. RallyLogic.TITLE
 		self._left.Text = view.left
 		self._mine.Text = view.mine
 		self._mine.TextColor3 = if view.done then Theme.colors.gold else Theme.chalk

@@ -74,7 +74,13 @@ export type DecorShop = {
 }
 
 local CARD_WIDTH = 164
-local CARD_TOP = 152 -- the card above its button: art, name, effect
+-- #2735 (Derek2 11-09: "see which decor images to make more clear/bigger since so many players are on mobile (make sure
+-- they don't go out of bounds tho)"): on touch the window's scale shrinks every card, so the picture is taller there
+-- (104 design px, about 70 on a phone, was about 50) and the card grows down with it; the width, and so the cards per
+-- row, stays
+local ART_H = if Scale.isTouch() then 104 else 76
+local ART_LIFT = ART_H - 76 -- how far the name, effect and button move down
+local CARD_TOP = 152 + ART_LIFT -- the card above its button: art, name, effect
 local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished")
 local CHIP_GAP = 10 -- the chips share the row's width equally (#1120), so none is squished or scrolled off
 local EQUIP_W = 156 -- Equip Best, in the header left of the X
@@ -532,7 +538,7 @@ function DecorShop._build(self: any)
 			BackgroundTransparency = if piece.kind then 1 else 0,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(10, 10),
-			Size = UDim2.new(1, -20, 0, 76),
+			Size = UDim2.new(1, -20, 0, ART_H),
 			Parent = card,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
 		local icon: ItemIcon.ItemIcon? = nil
@@ -540,7 +546,7 @@ function DecorShop._build(self: any)
 			-- a crate piece: its model (or its kind's glyph) on a tile in its rarity colour, and the rarity
 			local pieceIcon = ItemIcon.new({
 				parent = art,
-				size = UDim2.fromOffset(76, 76),
+				size = UDim2.fromOffset(ART_H, ART_H),
 				anchorPoint = Vector2.new(0.5, 0),
 				position = UDim2.fromScale(0.5, 0),
 			})
@@ -557,7 +563,7 @@ function DecorShop._build(self: any)
 			local letter = text({
 				Size = UDim2.fromScale(1, 1),
 				FontFace = Theme.fonts.display,
-				TextSize = 34,
+				TextSize = if ART_H > 76 then 44 else 34,
 				TextColor3 = Theme.colors.paper,
 				TextXAlignment = Enum.TextXAlignment.Center,
 				Text = decor.name:sub(1, 1),
@@ -652,7 +658,7 @@ function DecorShop._build(self: any)
 
 		text({
 			Name = "Name",
-			Position = UDim2.fromOffset(10, 92),
+			Position = UDim2.fromOffset(10, 92 + ART_LIFT),
 			Size = UDim2.new(1, -20, 0, 22),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
@@ -661,7 +667,7 @@ function DecorShop._build(self: any)
 		})
 		text({
 			Name = "Effect",
-			Position = UDim2.fromOffset(10, 114),
+			Position = UDim2.fromOffset(10, 114 + ART_LIFT),
 			Size = UDim2.new(1, -20, 0, 18),
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = PAL.subtext,

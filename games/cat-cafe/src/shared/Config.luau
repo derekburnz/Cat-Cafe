@@ -250,6 +250,12 @@ local Config = {
 	NetReachStuds = 7,
 	NetSlackStuds = 1.5,
 	NetArcDegrees = 60,
+	-- #2693 (Derek2 2026-11-09: easier to hit on mobile): within NetNearStuds of the feet the arc is NetNearArcDegrees
+	-- either side, and within NetFrontArcDegrees of straight ahead the reach is NetFrontExtraStuds longer
+	NetNearStuds = 4,
+	NetNearArcDegrees = 80,
+	NetFrontArcDegrees = 25,
+	NetFrontExtraStuds = 0.5,
 	NetMissHopStuds = 12,
 	NetMissHopShare = 0.25,
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
@@ -318,7 +324,15 @@ local Config = {
 	EventShowerMax = 12,
 	EventShowerGapMinSeconds = 300,
 	EventShowerDefaults = { count = 8, gapSeconds = 900, firstAfter = 600 },
-	EventShowerAreaWeights = { alley = 20, park = 20, neighbourhood = 20, woods = 20, sewer = 20 } :: { [string]: number },
+	EventShowerAreaWeights = {
+		alley = 20,
+		park = 20,
+		neighbourhood = 20,
+		woods = 20,
+		sewer = 20,
+		desert = 20, -- #2651 (tier6-7-areas.md section 7): the same as every area
+		ruins = 20,
+	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
 	EventBigMinGapSeconds = 518400,
@@ -338,6 +352,8 @@ local Config = {
 		neighbourhood = 20,
 		woods = 25,
 		sewer = 30,
+		desert = 35, -- #2651 (tier6-7-areas.md section 7)
+		ruins = 40,
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
@@ -353,6 +369,7 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	TownWalkSpeedBonus = 4, -- #2706 (Derek2 2026-11-09: "increase walking/running speed in spawn by a bit"): no cat, on the Town Square
 	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
 	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
 	CameraMaxZoomStuds = 60,
@@ -635,7 +652,8 @@ local Config = {
 	FishFirstCatch = { Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 } :: { [string]: number }, -- was 1/3/8/20/40
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5 } :: { [string]: number }, -- #2237: was 1/3/8
-	FishRankUp = { 5, 15, 30, 60 } :: { number }, -- reaching Tier 2, 3, 4 and 5 (#2237: was 10/25/50/100)
+	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
+	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.

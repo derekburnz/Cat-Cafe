@@ -37,7 +37,7 @@ return function()
 					end
 				end
 			end
-			expect(mythicals).to.equal(7) -- one a crate, the Rally Crate's since F101
+			expect(mythicals).to.equal(9) -- one a crate, the Rally Crate's since F101, Desert and Ruins since #2651
 		end)
 
 		it("keeps the Mythical decor inside the steady emitter budget", function()

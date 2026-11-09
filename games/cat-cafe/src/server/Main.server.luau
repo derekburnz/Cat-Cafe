@@ -69,6 +69,7 @@ local TipPileService = require(script.Parent.Services.TipPileService)
 local TipService = require(script.Parent.Services.TipService)
 local TradeService = require(script.Parent.Services.TradeService)
 local TravelService = require(script.Parent.Services.TravelService)
+local TutorialMoveService = require(script.Parent.Services.TutorialMoveService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -99,6 +100,7 @@ TravelService.start(world)
 NightService.start(world) -- after the cats, traps and travel: the first sunrise wave
 PityService.start() -- #1572: the global pity cat, after the cats it spawns and the clock it counts on
 CannonService.start(world) -- F84: after the cats, travel and the night sweep it hands landings to
+TutorialMoveService.start(world) -- #2697: the bowl and cannon moves, after the cats and the cannons
 FallCatchService.start() -- #2651: the Ruins' mist catch, after the cannon whose pads it lands you on
 DealerService.start()
 RichTipService.start()

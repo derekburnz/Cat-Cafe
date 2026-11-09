@@ -1386,22 +1386,25 @@ local SCENES = {
 		local Shared = UIShim.require("ReplicatedStorage.Shared.Catalog")
 		local before = UI.getState() :: any
 		Scenes._crew = { cats = before.cats, tier = before.tier, extraSlots = before.extraSlots or 0 }
+		-- a Tier 5 cafe with two extra slots: the first `open` spots (#2675 adds the Tier 6/7 ones after them)
+		local open = Shared.openSlotCount(5, 2)
 		local cats = {}
 		local index = 0
 		for uid, cat in before.cats do
 			index += 1
 			local copy = table.clone(cat)
-			local spot = Shared.allSpots[index]
+			local spot = if index <= open then Shared.allSpots[index] else nil
 			copy.spotId = if spot then spot.id else nil
 			cats[uid] = copy
 		end
-		assert(index >= #Shared.allSpots, "uigate: the sample player has too few cats to fill every slot")
+		assert(index >= open, "uigate: the sample player has too few cats to fill every open slot")
 		UI.update({ cats = cats, tier = 5, extraSlots = 2 } :: any)
 		UI.open("Cats")
 		task.wait(0.1)
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local shown = 0
-		for _, spot in Shared.allSpots do
+		for slot = 1, open do
+			local spot = Shared.allSpots[slot]
 			for _, square in modals:GetDescendants() do
 				if square.Name == spot.id and square:IsA("GuiButton") and square.Visible then
 					shown += 1
@@ -1409,7 +1412,7 @@ local SCENES = {
 				end
 			end
 		end
-		assert(shown == #Shared.allSpots, ("uigate: the crew strip shows %d of %d working cats (#2047)"):format(shown, #Shared.allSpots))
+		assert(shown == open, ("uigate: the crew strip shows %d of %d working cats (#2047)"):format(shown, open))
 		-- checked; put the sample player back and close, so the scene adds no findings of its own (the crew squares'
 		-- tap size is the Cats scene's baseline, and the Tier 5 HUD has its own)
 		UI.update(Scenes._crew :: any)

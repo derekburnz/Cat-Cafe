@@ -60,6 +60,12 @@ type Cell = {
 local CELL = Vector2.new(112, 134)
 local ICON = 76
 local CHIP_HEIGHT = 46
+-- #2675: a page tab is never narrower than this (design px), so "Neighbourhood" keeps a 9 px name on a phone; with
+-- more pages than fit, the row scrolls sideways
+local TAB_MIN = 100
+local TAB_PAD = 3 -- room for a tab's outline inside the clipping row
+local TAB_BADGE = 4 -- and more above and right of the tabs for a page's red count badge, which sits over the corner
+local TAB_BAR = 4 -- the row's scroll bar, under the tabs
 local PROGRESS_HEIGHT = 28
 local RALLY_POOL = "rally" -- shared Catalog.RALLY_POOL: the Rescue Rally's own crate, never sold (F101)
 local RALLY_SOURCE = "From the Rescue Rally, every weekend"
@@ -108,18 +114,32 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	local gap = Theme.sizes.gap
 	-- a finger's 44 px on every touch screen (the UI gate's tap check), the page chips' 46 with a mouse
 	local chipHeight = Scale.tapHeight(CHIP_HEIGHT)
+	self._chipHeight = chipHeight
+	-- the scrolling row clips, so it keeps room round the tabs for their outlines and under them for its bar
+	local barHeight = chipHeight + TAB_PAD * 2 + TAB_BADGE + TAB_BAR
 	self.frame = Create("Frame", {
 		Name = "DecorIndex",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		Parent = parent,
 	})
-	self._chipBar = Create("Frame", {
+	self._chipBar = Create("ScrollingFrame", {
 		Name = "Pages",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, chipHeight),
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, barHeight),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.X,
+		ScrollingDirection = Enum.ScrollingDirection.X,
+		ScrollBarThickness = TAB_BAR,
+		ScrollBarImageColor3 = Theme.colors.caramel,
 		Parent = self.frame,
 	}, {
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, TAB_PAD),
+			PaddingRight = UDim.new(0, TAB_PAD + TAB_BADGE),
+			PaddingTop = UDim.new(0, TAB_PAD + TAB_BADGE),
+		}),
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			Padding = UDim.new(0, gap),
@@ -127,8 +147,12 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		}),
 	})
 
+	self._resized = self._chipBar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_sizeTabs()
+	end)
+
 	-- the open page's completion: name, bar, count and percent
-	local progressTop = chipHeight + gap
+	local progressTop = barHeight + gap
 	local progress: Frame = Create("Frame", {
 		Name = "Progress",
 		BackgroundTransparency = 1,
@@ -277,7 +301,6 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 	self._strip:setCatalog(catalog)
 	self:_clear()
 	local pools = DecorPieces.pools(catalog)
-	local gap = Theme.sizes.gap
 	for order, pool in pools do
 		local name = poolName(catalog, pool)
 		local color = Theme.areaColors[pool] or Theme.colors.caramel
@@ -287,7 +310,7 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 			AutoButtonColor = false,
 			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
-			Size = UDim2.new(1 / #pools, -gap * (#pools - 1) / #pools, 1, 0),
+			Size = UDim2.new(0, TAB_MIN, 0, self._chipHeight),
 			LayoutOrder = order,
 			Parent = self._chipBar,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
@@ -315,7 +338,7 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 			ZIndex = 7,
 			Parent = dot,
 		})
-		-- six tabs share the row, so a long name ("Neighbourhood") shrinks to fit a phone
+		-- the tabs share the row (TAB_MIN each at least), so a long name ("Neighbourhood") shrinks to fit a phone
 		local label = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(4, 3),
@@ -374,6 +397,24 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 	end
 	if self._pool == nil or self._cells[self._pool] == nil then
 		self._pool = if pools[1] then pools[1] else nil
+	end
+	self:_sizeTabs()
+end
+
+-- Each page tab gets an equal share of the row, or TAB_MIN when that share is narrower (the row then scrolls).
+function DecorIndex._sizeTabs(self: any)
+	local count = #self._chips
+	if count == 0 then
+		return
+	end
+	local gap = Theme.sizes.gap
+	local width = self._chipBar.AbsoluteSize.X / math.max(Scale.get(), 0.01)
+		- TAB_PAD * 2
+		- TAB_BADGE
+	local share = math.floor((width - gap * (count - 1)) / count)
+	local tab = math.max(TAB_MIN, share)
+	for _, chip: Chip in self._chips do
+		chip.frame.Size = UDim2.new(0, tab, 0, self._chipHeight)
 	end
 end
 
@@ -507,6 +548,7 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 end
 
 function DecorIndex.destroy(self: any)
+	self._resized:Disconnect()
 	self:_clear()
 	self._strip:destroy()
 	self.frame:Destroy()

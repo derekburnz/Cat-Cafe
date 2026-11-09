@@ -1722,6 +1722,57 @@ local SCENES = {
 		UI.catch.hide()
 		UI.setCarrying(nil)
 	end },
+	-- #2868 (Derek2: the "+$/s" tags a little smaller, and on the sleeping cats too): a resting cat napping in a
+	-- cafe's Cats folder shows its name over "Resting" (it earns nothing), a working cat its rate, both a fifth smaller
+	{ "RateTagResting", function()
+		local plot = Instance.new("Model")
+		plot.Name = "gate_rest_plot"
+		local cats = Instance.new("Folder")
+		cats.Name = "Cats"
+		cats.Parent = plot
+		local function cat(name: string, napping: boolean, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = name
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -10)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("Rate", if napping then 0 else 9)
+			model:SetAttribute("Rarity", "Rare")
+			model:SetAttribute("Napping", napping)
+			model:SetAttribute("DisplayName", name)
+			model.Parent = cats
+			if not napping then
+				model:AddTag("WorkingCat")
+			end
+			return model
+		end
+		local sleeper = cat("Sleepy Cat", true, -3)
+		local worker = cat("Busy Cat", false, 3)
+		plot.Parent = workspace
+		plot:AddTag("Plot")
+		local tags = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.WorldTags").new(true)
+		local function tagOf(model: Model): any
+			return model:FindFirstChild("CatCafeRateTag", true)
+		end
+		local rest, work = tagOf(sleeper), tagOf(worker)
+		assert(rest and rest.Enabled, "uigate: no tag over a resting cat (#2868)")
+		assert(rest.Rate.Text:find("Resting", 1, true) ~= nil, "uigate: the resting tag reads " .. rest.Rate.Text .. " (#2868)")
+		assert(rest.CatName.Text == "Sleepy Cat", "uigate: the resting tag's name reads " .. rest.CatName.Text)
+		assert(work and work.Enabled and work.Rate.Text:find("9") ~= nil, "uigate: the working cat's tag reads wrong (#2868)")
+		local count = 0
+		for _, d in sleeper:GetDescendants() do
+			count += if d.Name == "CatCafeRateTag" then 1 else 0
+		end
+		assert(count == 1, "uigate: the resting cat has " .. count .. " tags (#2868)")
+		assert(work.Size.X.Scale <= 1.6 + 1e-6 and work.Size.X.Offset >= 30, "uigate: the rate tag is not smaller in studs, or lost its #2551 pixel floor (#2868)")
+		tags:setRates(false)
+		assert(not rest.Enabled and not work.Enabled, "uigate: the Cat income switch left a tag on (#2868)")
+		tags:destroy()
+		plot:Destroy()
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood
@@ -5295,7 +5346,8 @@ local SCENES = {
 		local bag = ShopIcons.hud("Bag")
 		assert(bag == "rbxassetid://124246973096601", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
-		assert(ShopIcons.backup(bag) == nil, "uigate: the Bag's backpack falls back to another picture (#2453)")
+		-- #2866: its only backup is the group's earlier backpack, never a bottle or the money bag
+		assert(ShopIcons.backup(bag) == "rbxassetid://88244676943674", "uigate: the Bag's backpack does not fall back to the earlier backpack (#2866)")
 		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")
 	end },
 	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
@@ -5826,6 +5878,33 @@ local SCENES = {
 		cafeEvent({ EventStartsAt = t + 10750, EventEndsAt = t + 10750 + 7200, EventRunning = false })
 		local chip = assertEventChip(1)
 		assert(chip.Text == "⏳ Cafe Party in 2:59", "uigate: the event chip reads " .. chip.Text .. " (#2487)")
+	end },
+	-- #2864: a Backpack cat with empty hands shows the carry marker over the door ("Check in here"); a cat in the hands
+	-- takes over ("Bring it here" at the camp), the bag's comes back when the hands empty, and none once the bag empties
+	{ "BagCarryMarker", function()
+		local door = Instance.new("Part")
+		door.Name = "GateBagDoor"
+		door.Parent = workspace
+		local camp = Instance.new("Part")
+		camp.Name = "GateBagCamp"
+		camp.Parent = workspace
+		local billboard = UIShim.playerGui:FindFirstChild("CatCafeCarryMarker", true) :: BillboardGui
+		assert(billboard, "uigate: no carry marker (#2864)")
+		local label = billboard:FindFirstChild("Label", true) :: TextLabel
+		local function says(): string?
+			return if billboard.Enabled then label.Text else nil
+		end
+		UI.setBagCarry({ catId = Catalog.cats[1].id, door = door } :: any)
+		assert(says() == "Check in here", "uigate: a Backpack cat shows no door marker (#2864)")
+		assert((UI.getState() :: any).carrying == nil, "uigate: a Backpack cat set state.carrying (#2864)")
+		UI.setCarrying({ catId = Catalog.cats[2].id, camp = camp } :: any)
+		assert(says() == "Bring it here", "uigate: the hands' cat did not win the marker (#2864)")
+		UI.setCarrying(nil)
+		assert(says() == "Check in here", "uigate: the Backpack cat's marker did not come back (#2864)")
+		UI.setBagCarry(nil)
+		assert(says() == nil, "uigate: the marker stayed after the bag emptied (#2864)")
+		door:Destroy()
+		camp:Destroy()
 	end },
 	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): the chip's
 	-- countdown repaints every second, and mid-catch it stays down; after the catch it is back

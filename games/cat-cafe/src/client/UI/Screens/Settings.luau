@@ -37,6 +37,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local SettingsList = require(script.Parent.Parent.Components.SettingsList)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
@@ -398,7 +399,14 @@ function Settings._buildCard(self: any, key: string, icon: string, order: number
 	})
 	Outline.border(tile, 2)
 	Outline.shade(tile, 0.2)
-	IconArt.set(tile:FindFirstChild("Glyph") :: TextLabel, icon) -- #2836: a drawn picture when the glyph has one
+	-- #2836: the row's own drawn picture (pass 2, by setting key), else the glyph's when it has one
+	local glyph = tile:FindFirstChild("Glyph") :: TextLabel
+	local picture = ShopIcons.setting(key)
+	if picture then
+		IconArt.setImage(glyph, picture)
+	else
+		IconArt.set(glyph, icon)
+	end
 	return card
 end
 

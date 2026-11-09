@@ -2095,11 +2095,13 @@ function Layout.fallCaught(spec: AreaSpec, x: number, y: number, z: number): boo
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa (Desert) and the Relic Museum (Ruins), each model's pivot in its
--- area's set space as Layout.campExtras, in the camp beside the way out (the Sewer extra's place, 4.5 inside the gate
--- line). Model-Agent may move them when the art lands.
+-- area's set space as Layout.campExtras, in the camp beside the way out. Model-Agent's art (#2789) is bigger than the
+-- other extras: the spa 22.8 by 12.2 (its palms), the museum 12.8 by 8.3, so each stands far enough over (the spa's
+-- near edge 6.6 past the 12 wide opening's side) and back from the gate line (the spa 8, the museum 6) to keep the
+-- way out and the line clear.
 Layout.lateStations = {
-	desert = { x = 20, y = 0, z = -284.5 },
-	ruins = { x = 20, y = 0, z = -304.5 },
+	desert = { x = 30, y = 0, z = -288 },
+	ruins = { x = 22, y = 0, z = -306 },
 } :: { [string]: Point }
 
 local function inSetSpace(at: Point?, areaId: string): (number?, number?, number?, number?)

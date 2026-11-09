@@ -75,6 +75,7 @@ import doors  # noqa: E402
 import doorsets  # noqa: E402
 import market  # noqa: E402
 import daycart  # noqa: E402
+import mysterymarket  # noqa: E402
 import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
@@ -114,7 +115,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor]
+           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
+           mysterymarket]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -215,6 +217,7 @@ PIVOT_NOTES = {
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     daycart.NAME: "base centre; the display front (-Z) faces the players",
+    mysterymarket.NAME: "base centre; the counter (-Z) faces the players",
     pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                    "pitysign.SPOT, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
@@ -360,6 +363,13 @@ STUDIO_NOTES = {
                   "tags it CornerShop and hangs the shop prompt on the Attachment PromptAnchor (cart front, 3 up). "
                   "The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaced "
                   "the Corner Shop stall (#1698).",
+    mysterymarket.NAME: "#2565 (mystery-market.md section 4, look A): Juniper's covered wagon in the Town Square's "
+                        "south-west quarter (Layout.mysteryCart, turned to face the cannon). WorldBuilder names it "
+                        "MysteryMarket, tags it MysteryMarket and hangs the MysteryPrompt on the Attachment "
+                        "PromptAnchor (before the counter, 3 up). The Attachment FeaturedItem is the pedestal's top "
+                        "centre, where the week's featured item can sit and turn. Juniper's hood rides its Head Model; "
+                        "the lanterns (_Bulb) are lit at night; the rug and the lantern cord (_Decor) never collide. "
+                        "Everything, rug included, fits mysterymarket.FOOT so the walk-up ring lands as planned.",
     pitysign.NAME: "#1572 (luck-and-rare-moments.md section 1h): the rare cat sign in the Town Square (suggested "
                    "spot pitysign.SPOT, across the street from the Day Cart, facing the spawn). Streams Atomic. The "
                    "UI's SurfaceGui (Adornee = the part named Screen, 5.6 x 2.8, night blue) draws the Legendary and "
@@ -466,7 +476,7 @@ for _n in ringicons.NAMES:
     STUDIO_NOTES[_n] = ("#2449: a flat picture for the middle of a walk-up floor ring (" + {
         ringicons.SPIN: "the Spin Wheel", ringicons.FISH: "the Fish Market",
         ringicons.SHOP: "the Corner Shop and the Day Cart", ringicons.DEALER: "the night market's Dealer Cart",
-        ringicons.BOWL: "the bait bowl, #2476"}[_n]
+        ringicons.BOWL: "the bait bowl, #2476", ringicons.MYSTERY: "Juniper's Mystery Market, #2565"}[_n]
         + "). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 "
         "studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above "
         "the ring's top.")
@@ -699,6 +709,8 @@ def main():
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == daycart.NAME:                  # #1577: the prompt's spot, and the visor rides the cat's Head
             extra = {"attachments": [daycart.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == mysterymarket.NAME:            # #2565: the prompt and featured item spots; the hood rides the Head
+            extra = {"attachments": mysterymarket.attachments(), "nest": mysterymarket.NEST[name]}
         if name == gardennursery.NAME:            # #1200: the prompt and bubble spots; the sun hat rides the cat's Head
             extra = {"attachments": gardennursery.attachments(), "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Decor_DoorSign":      # #1140: the moon rides the CLOSED face's Model
@@ -833,6 +845,10 @@ def main():
         if name == daycart.NAME:
             entry["prompt_anchor_roblox"] = list(daycart.PROMPT_ROBLOX)
             entry["placement_suggested_roblox"] = [round(v, 2) for v in daycart.SPOT]
+        if name == mysterymarket.NAME:
+            entry["prompt_anchor_roblox"] = list(mysterymarket.PROMPT_ROBLOX)
+            entry["featured_item_roblox"] = [round(v, 3) for v in mysterymarket.FEATURED_ROBLOX]
+            entry["tags"] = ["MysteryMarket"]
         if name == pitysign.NAME:
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [pitysign.SW, pitysign.SH]}
             entry["placement_suggested_roblox"] = [round(v, 2) for v in pitysign.SPOT]

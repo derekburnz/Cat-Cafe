@@ -2534,9 +2534,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.589,
-           0.1703,
-           -0.0267
+           -0.593,
+           0.1045,
+           -0.0181
           ],
           "orientation": [
            [
@@ -2558,9 +2558,9 @@
          }
         },
         "Size": [
-         0.1881,
-         0.2445,
-         0.1881
+         0.212,
+         0.212,
+         0.212
         ],
         "Color": [
          0.949,
@@ -2574,11 +2574,12 @@
         "CastShadow": true,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
+        "Shape": "Ball",
         "PivotOffset": {
          "CFrame": {
           "position": [
            0.0,
-           -0.0658,
+           0.0,
            0.0
           ],
           "orientation": [
@@ -2604,68 +2605,6 @@
        "attributes": {
         "Rojo_Id": "CatCafe_Cat_Torch_Sit/11",
         "Follows": "Tail"
-       },
-       "children": [
-        {
-         "name": "Mesh",
-         "className": "SpecialMesh",
-         "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ]
-      },
-      {
-       "name": "CatCafe_Cat_Torch_Sit_Tail_Flame",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.589,
-           0.2597,
-           -0.0267
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0376,
-         0.1066,
-         0.1066
-        ],
-        "Color": [
-         0.949,
-         0.6941,
-         0.2039
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Tail"
        }
       },
       {
@@ -2675,115 +2614,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.589,
-           0.2973,
-           -0.0267
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0376,
-         0.064,
-         0.064
-        ],
-        "Color": [
-         0.949,
-         0.6941,
-         0.2039
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Tail"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Torch_Sit_Tail_Flame",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.589,
-           0.3349,
-           -0.0267
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0376,
-         0.0213,
-         0.0213
-        ],
-        "Color": [
-         0.949,
-         0.6941,
-         0.2039
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Tail"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Torch_Sit_Tail_Flame",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.589,
-           0.1703,
-           -0.069
+           -0.593,
+           0.1045,
+           -0.0605
           ],
           "orientation": [
            [
@@ -2805,9 +2638,9 @@
          }
         },
         "Size": [
-         0.1166,
-         0.1458,
-         0.1166
+         0.1315,
+         0.1315,
+         0.1315
         ],
         "Color": [
          0.9647,
@@ -2820,17 +2653,9 @@
         "CanTouch": false,
         "CastShadow": true,
         "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
        },
-       "children": [
-        {
-         "name": "Mesh",
-         "className": "SpecialMesh",
-         "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
        "attributes": {
         "Follows": "Tail"
        }
@@ -2840,9 +2665,9 @@
       "WorldPivotData": {
        "OptionalCFrame": {
         "position": [
-         -0.589,
+         -0.593,
          0.1045,
-         -0.0267
+         -0.0181
         ],
         "orientation": [
          [

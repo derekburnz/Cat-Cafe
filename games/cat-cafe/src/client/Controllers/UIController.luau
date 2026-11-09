@@ -173,6 +173,25 @@ function UIController.ownBaitBowl(): BasePart?
 	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
 end
 
+-- #2751 (Laptop-Tester: on the job step no cat flashed): one of your resting cats in your cafe's Cats folder (CafeService
+-- marks a cat without a role Napping), for the step's ring; nil while none has streamed in.
+local function restingCat(): BasePart?
+	local plot = ownPlot()
+	local cats = if plot ~= nil then plot:FindFirstChild("Cats") else nil
+	if cats == nil then
+		return nil
+	end
+	for _, model in cats:GetChildren() do
+		if model:IsA("Model") and model:GetAttribute("Napping") == true then
+			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if part ~= nil then
+				return part
+			end
+		end
+	end
+	return nil
+end
+
 -- The stray model with this id, for its rarity, or nil once it has gone.
 local function strayModel(strayId: string): Instance?
 	local world = Workspace:FindFirstChild("World")
@@ -310,7 +329,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		)
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
-			showTutorial(s, "Open the Collection (C) and give your new cat a role")
+			showTutorial(
+				s,
+				"Open the Collection (C) and give your new cat a role",
+				restingCat(),
+				"Cat"
+			)
 		else
 			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end

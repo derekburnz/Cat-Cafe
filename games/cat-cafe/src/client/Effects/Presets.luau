@@ -3945,4 +3945,19 @@ Presets.areaFx = {
 	} :: { [string]: AreaFxSpec },
 }
 
+-- #2687's station build-in (StationBuild.luau): the first time you come into an area whose station you own, its camp
+-- station builds in. Every part drops in from above, turning, and snaps into place, bottom to top, fading in as it
+-- falls. With Reduce Motion the whole station only fades in.
+Presets.stationBuild = {
+	wait = 4, -- seconds to wait for the station to stream in after the reveal
+	spread = 1.8, -- seconds from the first piece starting to the last
+	piece = 0.45, -- seconds each piece takes to drop into place
+	lift = { 4, 7 }, -- studs above its place a piece starts
+	drift = 1.5, -- studs to either side it may start
+	tilt = 30, -- degrees it may start turned, about a random axis
+	fade = 0.4, -- of its drop, how much it takes to fade in
+	calmFade = 0.6, -- seconds the whole station takes to fade in with Reduce Motion
+	clunkGap = 0.12, -- seconds at least between stationClunk beats as pieces land (Sound-Agent's clunk set)
+}
+
 return Presets

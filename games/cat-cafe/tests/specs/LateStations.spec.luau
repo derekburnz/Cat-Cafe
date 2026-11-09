@@ -78,7 +78,7 @@ return function()
 			expect(profile.spa.slots).to.equal(1)
 			expect(next(profile.spa.soaking)).to.equal(nil)
 			expect(next(profile.museum)).to.equal(nil)
-			expect(ProfileSchema.VERSION).to.equal(46)
+			expect(ProfileSchema.VERSION >= 46).to.equal(true) -- 46 added the slots; #2814 is 47
 		end)
 
 		it("sanitizes the spa: owned cats only, once each, open slots, never a future start", function()

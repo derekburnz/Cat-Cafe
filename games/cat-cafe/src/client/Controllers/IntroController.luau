@@ -174,6 +174,16 @@ type Run = {
 local run: Run? = nil
 local starting = false -- a play is waiting for the camp to stream in
 local firstStarted = false -- the first play of this session has begun
+-- #2759: from the client's start to the first spawn, and through play()'s stream wait, the camera holds still on the
+-- town square (parked). The default camera sits inside the town cannon until then: a yellow screen on a slow phone.
+local LOADING_VIEW: Intro.Key = { position = Vector3.new(12, 10, -22), look = Vector3.new(0, 5, 0) } -- near shot 1's last frame
+local PARK_GIVE_UP = 20 -- seconds: after this a spawn hands the camera back even without a ProfileSync
+local parked = false
+local parkedAt: Intro.Key = LOADING_VIEW
+local parkBound = false
+local PARK_STEP = "CatCafeIntroPark"
+local synced = false -- the first ProfileSync has come, so it is known whether the intro plays
+local gaveUp = false
 
 -- The PlayerModule's controls, or nil when the default player scripts are not there.
 local function controls(): any?
@@ -1924,16 +1934,78 @@ function IntroController.stagingTackle(): boolean
 	return lesson ~= nil
 end
 
+-- #2759: hold the camera still on `at` until unpark() or a run takes it.
+local function park(at: Intro.Key)
+	local camera = Workspace.CurrentCamera
+	if camera == nil then
+		return
+	end
+	parked = true
+	parkedAt = at
+	camera.CameraType = Enum.CameraType.Scriptable
+	setCamera(at)
+	-- a spawn resets the camera to follow the character (Laptop-Tester: 5 s behind the cannon before the intro), so
+	-- the park holds it each frame until unpark() or a run
+	if not parkBound then
+		parkBound = true
+		RunService:BindToRenderStep(PARK_STEP, Enum.RenderPriority.Camera.Value + 1, function()
+			local held = Workspace.CurrentCamera
+			if not parked or held == nil then
+				return
+			end
+			if held.CameraType ~= Enum.CameraType.Scriptable then
+				held.CameraType = Enum.CameraType.Scriptable
+			end
+			setCamera(parkedAt)
+		end)
+	end
+end
+
+local function unbindPark()
+	if parkBound then
+		parkBound = false
+		RunService:UnbindFromRenderStep(PARK_STEP)
+	end
+end
+
+-- Hands a parked camera back to the character, once there is one and no intro has it.
+local function unpark()
+	local character = player.Character
+	if not parked or run ~= nil or starting or character == nil then
+		return
+	end
+	parked = false
+	unbindPark()
+	local camera = Workspace.CurrentCamera
+	if camera == nil then
+		return
+	end
+	camera.CameraType = Enum.CameraType.Custom
+	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+	if humanoid ~= nil then
+		camera.CameraSubject = humanoid
+	end
+end
+
 -- Plays the intro from the first shot. `replay` is a replay from the Tutorial tile or Settings: Skip shows at once
 -- and the server saves nothing. Does nothing while one is playing or without a plot. Yields up to STREAM_WAIT while
 -- the Alleyway's camp streams in.
 function IntroController.play(replay: boolean)
 	local state = UIController.state
 	if run ~= nil or starting or state == nil or state.plotIndex == 0 then
+		unpark()
 		return
 	end
 	starting = true
 	local camp = Intro.camp(Intro.AREA) :: Intro.Camp
+	-- #2759: shot 1's first frame while the camp streams in, not the inside of the cannon
+	local cameraWas = if Workspace.CurrentCamera ~= nil
+		then (Workspace.CurrentCamera :: Camera).CameraType
+		else Enum.CameraType.Custom
+	local first = Intro.shots(Intro.plot(state.plotIndex), hasCodesCat(), false)[1]
+	if first ~= nil and first.cuts[1] ~= nil then
+		park(first.cuts[1].from)
+	end
 	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's pad and wait
 	pcall(function()
 		player:RequestStreamAroundAsync(camp.pad, Intro.STREAM_WAIT)
@@ -1941,6 +2013,7 @@ function IntroController.play(replay: boolean)
 	starting = false
 	state = UIController.state
 	if run ~= nil or state == nil or state.plotIndex == 0 then
+		unpark()
 		return
 	end
 	-- the Alleyway's board streams in during shots 1 to 4 (#1542: the other camps are no longer filmed)
@@ -1990,11 +2063,13 @@ function IntroController.play(replay: boolean)
 		done = {},
 		controls = controls(),
 		promptsWere = ProximityPromptService.Enabled,
-		cameraType = if camera ~= nil then camera.CameraType else Enum.CameraType.Custom,
+		cameraType = cameraWas, -- from before the park; finish() turns Scriptable into Custom
 		ended = false,
 		tail = tailWanted(),
 	}
 	run = r
+	parked = false -- the run has the camera now; finish() hands it back as Custom
+	unbindPark()
 
 	if r.controls ~= nil then
 		pcall(function()
@@ -2038,6 +2113,16 @@ function IntroController.playing(): boolean
 end
 
 function IntroController.start()
+	-- #2759: hold on the town square until the first spawn, or the intro if this sync starts one
+	if player.Character == nil then
+		park(LOADING_VIEW)
+		task.delay(PARK_GIVE_UP, function()
+			gaveUp = true
+			if parked and run == nil and not starting then
+				unpark()
+			end
+		end)
+	end
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		if
 			Config.IntroAutoPlay
@@ -2048,6 +2133,12 @@ function IntroController.start()
 			firstStarted = true
 			-- after UIController has applied this sync, so play() reads the same state
 			task.defer(IntroController.play, false)
+		end
+		if not synced then
+			synced = true
+			if not firstStarted then
+				unpark() -- no intro: the spawn's own view, if it has come
+			end
 		end
 	end)
 	UI.events.introSkip:Connect(function()
@@ -2074,6 +2165,9 @@ function IntroController.start()
 		(setStager :: any)(IntroController.stageTackle)
 	end
 	player.CharacterAdded:Connect(function(character)
+		if parked and run == nil and not starting and (synced or gaveUp) then
+			task.defer(unpark) -- #2759: the first spawn, and no intro has the camera (a play that gave up included)
+		end
 		if Tail.shown > 0 and lesson ~= nil and lesson.character ~= character then
 			(Tail.stop :: (boolean) -> ())(false) -- #2495: a respawn ends the lesson's steps
 		end

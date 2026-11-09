@@ -337,6 +337,9 @@ local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F7
 local dailyAutoOpen: boolean? = nil
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
+-- #2759: a fresh save's intro on its way: begun once one started this session; the strip waits LIMIT seconds from
+-- the UI's start at most (a field, as the module has no local registers to spare)
+UI._introWait = { begun = false, LIMIT = 30, startedAt = os.clock(), timed = false }
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
 local tutorialButtonOn = true -- the Tutorial button setting as shown (F72)
 local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.show's, put back after an intro
@@ -422,7 +425,26 @@ function applyTutorial()
 	then
 		text, target = nil, nil
 	end
+	-- #2759: a fresh save's intro is on its way (it waits for the camp to stream in): no strip, glow or arrow over the
+	-- loading view. At most UI._introWait.LIMIT seconds from the UI's start, should no intro come.
+	local waited = os.clock() - UI._introWait.startedAt
+	local introPending = Config.IntroAutoPlay
+		and not UI._introWait.begun
+		and state.introSeen == false
+		and waited < UI._introWait.LIMIT
+	if introPending then
+		text, target = nil, nil
+		if not UI._introWait.timed then
+			UI._introWait.timed = true
+			task.delay(UI._introWait.LIMIT - waited + 0.1, function()
+				if hud ~= nil and not UI._introWait.begun then
+					applyTutorial()
+				end
+			end)
+		end
+	end
 	if hud then
+		hud:holdTutorial(introPending)
 		hud:setTutorial(text)
 	end
 	if introScreen ~= nil and introScreen:playing() then
@@ -2851,6 +2873,7 @@ function UI.intro.start(options: Types.IntroOptions?)
 		introLive = true
 		renderTutorialButton()
 	end
+	UI._introWait.begun = true
 	UI.setVisible(false)
 	if popups then
 		popups:setHeld(true)

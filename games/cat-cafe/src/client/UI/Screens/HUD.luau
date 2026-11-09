@@ -112,6 +112,7 @@ export type HUD = {
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
+	holdTutorial: (self: HUD, held: boolean) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
@@ -2561,15 +2562,17 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
+	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
+	local held = self._tutorialHeld == true
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
-	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, asks == "job")
-	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, asks == "food")
+	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
+	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
@@ -2844,6 +2847,18 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 		self._carry.Visible = false
 	end
 	self:_layoutBottom()
+end
+
+-- #2759: holds back the step rings (the Upgrades glow and its arrow, the Cats and Bowl targets) while a fresh save's
+-- intro is on its way, and lets them back after.
+function HUD.holdTutorial(self: any, held: boolean)
+	if (self._tutorialHeld == true) == held then
+		return
+	end
+	self._tutorialHeld = held
+	if self._state ~= nil then
+		self:render(self._state)
+	end
 end
 
 function HUD.setTutorial(self: any, text: string?)

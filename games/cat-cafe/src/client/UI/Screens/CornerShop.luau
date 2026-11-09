@@ -8,10 +8,15 @@
 -- (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". No help line or
 -- lawn note since #1688 and #1689: the prices and clock say it. No toasts of its own: the server's answer is a fresh CornerShopStock and,
 -- when refused, its toast. Words and rules in Components/CornerShopLogic.
+-- #2593 (Derek2: a Buy all for the potion, cat food and bait sections): a "Buy all" on each of those headers while
+-- something in it can be bought. It opens Components/BuyAllCard with the plan (CornerShopLogic.buyAll, the shared
+-- planAll the server runs), the total and the coins after; Buy sends callbacks.buyAll(kind, window) and the header
+-- reads "Buying..." until the next CornerShopStock.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local BuyAllCard = require(script.Parent.Parent.Components.BuyAllCard)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
@@ -33,6 +38,7 @@ export type Callbacks = {
 	buy: (itemId: string, window: number, shownPrice: number, catUid: string?) -> (),
 	close: () -> (),
 	far: (() -> boolean)?, -- true once the player has walked away from the stall: the window closes
+	buyAll: ((kind: string, window: number) -> ())?, -- #2593: Buy all on a section, for the window shown
 }
 
 export type CornerShop = {
@@ -69,6 +75,10 @@ local PENDING_SECONDS = 3 -- a sent buy with no answer stops counting on its row
 -- server said yes ("x1 left" -> "Sold out"), and the next CornerShopStock puts right anything it refused.
 local SEND_GAP = 0.55
 local GAP = Theme.sizes.gap
+-- #2593: the sections with a Buy all, the header button's width, and how long Buy all waits for its CornerShopStock
+local ALL_KINDS: { [string]: boolean } = { potion = true, food = true, bait = true }
+local ALL_W = 110
+local ALL_PENDING_SECONDS = 3
 
 local CornerShop = {}
 CornerShop.__index = CornerShop
@@ -109,6 +119,12 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	self._buyH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
 	self._rowH = math.max(ROW_MIN_H, self._buyH + 10)
 	self._headers = {} :: { TextLabel }
+	self._allButtons = {} :: { [string]: Button.Button } -- #2593: section kind -> its Buy all
+	self._allTitles = {} :: { [string]: string }
+	self._allUntil = {} :: { [string]: number } -- kind -> os.clock() its Buy all's wait ends
+	self._plans = {} :: { [string]: CornerShopLogic.BuyAll }
+	self._cardKind = nil :: string?
+	self._allH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
 
 	local panel = Panel.new({
 		dark = true,
@@ -176,6 +192,9 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	})
 
 	self:_buildPicker(content)
+	self._card = BuyAllCard.new(panel.frame, function()
+		self:_confirmAll()
+	end)
 	return self :: CornerShop
 end
 
@@ -423,6 +442,10 @@ function CornerShop._clear(self: any)
 		row.frame:Destroy()
 	end
 	table.clear(self._rows)
+	for _, button in self._allButtons do
+		button:destroy()
+	end
+	table.clear(self._allButtons)
 	for _, header in self._headers do
 		header:Destroy()
 	end
@@ -431,9 +454,15 @@ end
 
 -- #1599: a section's header over its rows ("Potions").
 function CornerShop._header(self: any, section: CornerShopLogic.Section, order: number)
+	local hasAll = ALL_KINDS[section.kind] == true and self._callbacks.buyAll ~= nil
 	local header = text({
 		Name = "Section_" .. section.kind,
-		Size = UDim2.new(1, 0, 0, SECTION_H),
+		Size = UDim2.new(
+			1,
+			0,
+			0,
+			if hasAll then math.max(SECTION_H, self._allH + 4) else SECTION_H
+		),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		TextColor3 = PAL.caramel,
@@ -444,6 +473,109 @@ function CornerShop._header(self: any, section: CornerShopLogic.Section, order: 
 	})
 	Outline.text(header, 1.5)
 	table.insert(self._headers, header)
+	if hasAll then
+		-- #2593: the section's Buy all on the header's right
+		local kind = section.kind
+		local button = Button.new({
+			name = "BuyAll",
+			text = "Buy all",
+			style = "gold",
+			size = UDim2.fromOffset(ALL_W, self._allH),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -8, 0.5, 0),
+			textSize = Theme.sizes.textSmall,
+			parent = header,
+			onClick = function()
+				self:_openAll(kind)
+			end,
+		})
+		button.instance.Visible = false
+		self._allButtons[kind] = button
+		self._allTitles[kind] = section.title
+	end
+end
+
+-- #2593: the stock as it will be once every unanswered single buy goes through, for Buy all's plan.
+function CornerShop._shownStock(self: any): SharedTypes.CornerShopStock?
+	local stock: SharedTypes.CornerShopStock? = self._stock
+	if stock == nil then
+		return nil
+	end
+	local items: { SharedTypes.CornerShopItem } = {}
+	for _, item in stock.stock do
+		table.insert(items, withExtra(item, self:_extra(item.itemId)))
+	end
+	return {
+		window = stock.window,
+		restocksAt = stock.restocksAt,
+		stock = items,
+		snackXp = stock.snackXp,
+	}
+end
+
+-- #2593: each section's Buy all: shown while its plan buys something (or its answer is on the way), "Buying..." while
+-- it waits, and the card's words kept up to date while it is up.
+function CornerShop._paintAll(self: any)
+	local state: Types.PlayerState? = self._state
+	local shown = self:_shownStock()
+	local coins = self:_coins()
+	local held = {
+		catFood = if state and state.catFood then state.catFood else {},
+		lures = if state then state.lures else {},
+	}
+	local now = os.clock()
+	for kind, button in self._allButtons do
+		local plan = if state
+			then CornerShopLogic.buyAll(shown, kind, state.tier, coins, held :: any)
+			else nil
+		self._plans[kind] = plan
+		local pending = (self._allUntil[kind] or 0) > now
+		button.instance.Visible = plan ~= nil or pending
+		button:setText(if pending then "Buying..." else "Buy all")
+		button:setEnabled(plan ~= nil and not pending)
+	end
+	local kind: string? = self._cardKind
+	if self._card:visible() and kind ~= nil then
+		local plan = self._plans[kind]
+		if plan == nil then
+			self._card:hide()
+		else
+			self:_showCard(kind, plan)
+		end
+	end
+end
+
+function CornerShop._showCard(self: any, kind: string, plan: CornerShopLogic.BuyAll)
+	local money = CornerShopLogic.money
+	self._card:show(
+		("Buy all %s?"):format(string.lower(self._allTitles[kind] or "")),
+		plan.list,
+		("Total %s · %s left after"):format(money(plan.total), money(plan.after)),
+		plan.partial
+	)
+end
+
+-- #2593: Buy all pressed: the card with the section's plan.
+function CornerShop._openAll(self: any, kind: string)
+	local plan = self._plans[kind]
+	if plan == nil or (self._allUntil[kind] or 0) > os.clock() then
+		return
+	end
+	self._cardKind = kind
+	self:_showCard(kind, plan)
+end
+
+-- #2593: Buy on the card: one BuyCornerShopAll for the section and the window shown.
+function CornerShop._confirmAll(self: any)
+	local kind: string? = self._cardKind
+	local stock: SharedTypes.CornerShopStock? = self._stock
+	local send = (self._callbacks :: Callbacks).buyAll
+	if kind == nil or stock == nil or send == nil or self._plans[kind] == nil then
+		return
+	end
+	self._allUntil[kind] = os.clock() + ALL_PENDING_SECONDS
+	send(kind, stock.window)
+	self:_paint()
 end
 
 -- The rows under their section headers (#1599), each section in the stock's order; rebuilt only when the items
@@ -589,12 +721,14 @@ function CornerShop._paint(self: any)
 		row.buy:setText(view.text)
 		row.buy:setEnabled(view.enabled)
 	end
+	self:_paintAll()
 end
 
 -- CornerShopStock: on join, every 5 minute window and after every buy (bought or refused); it ends every wait.
 function CornerShop.setStock(self: any, stock: SharedTypes.CornerShopStock?)
 	local old: SharedTypes.CornerShopStock? = self._stock
 	self._stock = stock
+	table.clear(self._allUntil) -- #2593: the answer to a Buy all, if one was waiting
 	-- this answers the oldest buy sent (bought or refused); a window's own stock may answer none, so old sends
 	-- also stop counting after PENDING_SECONDS (_extra)
 	table.remove(self._sent, 1)
@@ -645,6 +779,7 @@ function CornerShop.closed(self: any)
 	self._open = false
 	self._tick += 1
 	self._picker.Visible = false
+	self._card:hide()
 end
 
 function CornerShop.destroy(self: any)
@@ -652,6 +787,7 @@ function CornerShop.destroy(self: any)
 	self._alive = false
 	self:_clear()
 	self:_clearPicker()
+	self._card:destroy()
 	self._pickerBack:destroy()
 	self._panel:destroy()
 end

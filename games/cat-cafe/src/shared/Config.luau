@@ -370,20 +370,22 @@ local Config = {
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
 	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
 	StraySpawnSpacingStuds = 12,
-	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 40 to 80 s, at a
+	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 30 to 60 s, at a
 	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
 	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
-	StrayFloorBase = 9, -- #1452 (was 5), more strays near the gates (was 7)
+	-- #2557 (Derek2, 2026-11-09: "increase cat spawns by about 33% per area sometimes they run out"): about a third
+	-- more on the floor, the cap, the gate floor and each wave, and top-ups a quarter sooner
+	StrayFloorBase = 12, -- #2557 (was 9; #1452 5, more strays near the gates 7)
 	StrayFloorPerPlayer = 1,
-	StrayLiveMax = 16, -- #1452 (was 12), more strays near the gates (was 14)
+	StrayLiveMax = 21, -- #2557 (was 16; #1452 12, more strays near the gates 14)
 	-- Derek2 2026-11-05, "no cats start of sewer": a gated area keeps StrayEntryFloor live strays within
 	-- StrayEntryStuds of its gate by day. The commonest of each sunrise wave land there, and while it is short one more
 	-- arrives at an entry point every StrayEntryTopUpSeconds, still under StrayLiveMax (shared/StrayTopUp).
-	StrayEntryFloor = 3,
+	StrayEntryFloor = 4, -- #2557 (was 3)
 	StrayEntryStuds = 120,
-	StrayEntryTopUpSeconds = 20,
-	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
-	StrayTopUpMaxSeconds = 80,
+	StrayEntryTopUpSeconds = 15, -- #2557 (was 20)
+	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
+	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
 	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
 	AnnounceMinRarity = "Legendary",
@@ -460,13 +462,15 @@ local Config = {
 	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
 	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
 	-- #2320 (Derek2: "lower the difficulty for rescue missions rare and lower"): Common 1.0 -> 0.85 and Rare 1.2 -> 1.05;
-	-- Epic and up as they were.
+	-- Epic and up as they were. #2566 (Derek2 2026-11-09: "nerf the rare + rescue missions 30% slower"): Rare and up
+	-- x0.7 (1.05, 1.4, 1.6 and 1.8 before), so the Rare's marker is now slower than the Common's; its narrower zone
+	-- still leaves it less time inside.
 	RescueBarSpeed = {
 		Common = 0.85,
-		Rare = 1.05,
-		Epic = 1.4,
-		Legendary = 1.6,
-		Mythical = 1.8,
+		Rare = 0.735,
+		Epic = 0.98,
+		Legendary = 1.12,
+		Mythical = 1.26,
 	} :: { [string]: number },
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
@@ -487,7 +491,8 @@ local Config = {
 	RescuePatience = 3, -- misses one attempt can take
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
-	RescueAttemptMaxSeconds = 15,
+	-- #2566: 15 before; the slower Rare-and-up bar (x0.7) takes about 1/0.7 as long, so a steady player still fits
+	RescueAttemptMaxSeconds = 22,
 	GoldChanceRescue = 0.12, -- rolled at night start, hidden until the rescue succeeds (#2240: was 0.10)
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher gold chance
 

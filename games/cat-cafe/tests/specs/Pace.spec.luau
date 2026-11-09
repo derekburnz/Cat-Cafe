@@ -110,6 +110,7 @@ return function()
 		lawn: ("greedy" | "saving")?, -- #1283: buys the best affordable lawn piece or style and lays the best lawn; "greedy" the moment it can, "saving" only with the next rank up's cost left over
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
 		event: { from: number, to: number }?, -- #2486: a Cafe Event's money (EventMoneyMax) over these seconds of play
+		tier2Band: { number }?, -- #2557: this case's Tier 2 band in minutes, { low, high }, when not 10 to 20
 	}
 	-- The daytime top-ups (#1159, shared/StrayTopUp) as the one catcher sees them. `players` sets the floor of live
 	-- strays (StrayTopUp.floor); `wait` fixes the seconds between top-ups (60 is StrayTopUpMinSeconds, the most a
@@ -906,8 +907,9 @@ return function()
 			added / #list
 		)
 		-- features section 8 and data-model 12: 10 to 20 minutes; under 10, the tier costs go up
-		if median < 10 or median > 20 then
-			error("Tier 2 outside 10 to 20 minutes: " .. text)
+		local band = options.tier2Band or { 10, 20 }
+		if median < band[1] or median > band[2] then
+			error(string.format("Tier 2 outside %g to %g minutes: ", band[1], band[2]) .. text)
 		end
 		-- v0.13.6: the coins are the last thing a player waits for
 		if ready >= median then
@@ -986,13 +988,14 @@ return function()
 		"Tier 5 on the money ladder (F95, economy-ladder.md section 8 checks 3 and 7)",
 		function()
 			it(
-				"takes 9 to 14 hours of play in one go, Tier 4 at 2.5 to 3.5 (#2230: was 8 to 12; #2559: was 5 to 6)",
+				"takes 8.3 to 11.2 hours of play in one go, Tier 4 at 2.2 to 2.9 (#2230: was 8 to 12; #2559 and #2557: were 9 to 14 and 5 to 6)",
 				function()
 					local list, text =
 						toTier5({ catches = 4, target = 5, limit = 16 * HOUR, long = true })
 					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-					if median < 9 * HOUR or median > 14 * HOUR then
-						error("Tier 5 outside 9 to 14 hours of play: " .. text)
+					-- #2557 with #2559 (Design-Agent: the combined medians plus or minus 15%): Tier 5 9 h 46, Tier 4 2 h 33
+					if median < 8.3 * HOUR or median > 11.2 * HOUR then
+						error("Tier 5 outside 8.3 to 11.2 hours of play: " .. text)
 					end
 					-- #2496: Tier 4 wants a Mythical and 120M; the time from Tier 3 to the first Mythical is reported
 					local four = quantile(list, tierAt(4), 0.5, 16 * HOUR)
@@ -1019,8 +1022,8 @@ return function()
 						)
 					)
 					-- #2559 (Derek2: Tier 3 to 4 about 70% cheaper; Design-Agent's band): 3 h 01 (was 5 h 15 at 160M)
-					if four < 2.5 * HOUR or four > 3.5 * HOUR then
-						error("Tier 4 outside 2.5 to 3.5 hours of play: " .. text)
+					if four < 2.2 * HOUR or four > 2.9 * HOUR then
+						error("Tier 4 outside 2.2 to 2.9 hours of play: " .. text)
 					end
 				end
 			)
@@ -1038,9 +1041,10 @@ return function()
 						event = { from = 6 * HOUR, to = 8 * HOUR },
 					})
 					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-					if median < 9 * HOUR or median > 14 * HOUR then
+					-- #2557 with #2559 (Design-Agent): 8 h 00, plus 15%, with the one-go floor of 8 h (was 9 to 14)
+					if median < 8 * HOUR or median > 9.2 * HOUR then
 						error(
-							"Tier 5 outside 9 to 14 hours of play with a 2-hour x2 event: " .. text
+							"Tier 5 outside 8 to 9.2 hours of play with a 2-hour x2 event: " .. text
 						)
 					end
 				end
@@ -1132,12 +1136,14 @@ return function()
 		-- Rare+ odds) put it at 7.8 min again, so economy-ladder section 3 v3 makes Tier 2 28,000 and the later tiers
 		-- 700,000, 60M and 2B. #1499's dearer bait (less sunk into food) put it at 9.9 min, so v3.1 makes it 30,000.
 		it(
-			"takes 10 to 20 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself",
+			-- #2557 (Design-Agent: the combined median, 9.5 min, plus or minus 15%, floor 8): was 10 to 20
+			"takes 8 to 11 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself (#2557)",
 			function()
 				check({
 					catches = NON_STOP,
 					pals = FOUR_FRIENDS,
 					strays = { players = 4, wait = 60 },
+					tier2Band = { 8, 11 },
 				})
 			end
 		)
@@ -1391,16 +1397,18 @@ return function()
 
 		it(
 			-- #2121 (first-hour.md 4e): Tables 5 moved from about 22 to about 25 with Bait Bowl 3 bought before it
-			"buys Tables 5 at about minute 25 and Espresso 4 at about minute 42 (the middle run)",
+			"buys Tables 5 at about minute 31 and Espresso 4 at about minute 44.5 (the middle run, #2557)",
 			function()
 				local list = firstHour()
 				-- Tables starts at level 0 and Espresso at 1, so these are the fifth and third buys
 				local tables = quantile(list, nthBuy("tables", 5), 0.5, HOUR + 1) / 60
 				local espresso = quantile(list, nthBuy("espresso", 3), 0.5, HOUR + 1) / 60
-				if math.abs(tables - 25) > 3 or math.abs(espresso - 42) > 4 then
+				-- #2557 (Design-Agent): about 31 and 44.5 with a third more cats (were about 25 and 42), Tables 5 by 35 and
+				-- Espresso 4 by 50
+				if math.abs(tables - 31) > 4 or math.abs(espresso - 44.5) > 5.5 then
 					error(
 						string.format(
-							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 25 and 42)",
+							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 31 and 44.5)",
 							tables,
 							espresso
 						)
@@ -1451,7 +1459,7 @@ return function()
 		-- #2121 (first-hour.md 4e): the guard is 15 minutes between coin buys and rank ups (was 18) and 10 with new cats
 		-- and roadmap steps counted (was 12); the 6 above stays the stretch goal
 		it(
-			"the middle run's longest wait is 15 minutes or less, 10 with new cats and roadmap steps",
+			"the middle run's longest wait is 16 minutes or less, 10 with new cats and roadmap steps (#2557: was 15)",
 			function()
 				local list = firstHour()
 				local plain = quantile(list, function(run: Run): number?
@@ -1462,7 +1470,7 @@ return function()
 						timesOf(run, { buy = true, rank = true, newcat = true, roadmap = true })
 					)
 				end, 0.5, HOUR)
-				if plain > 15 * 60 or cats > 10 * 60 then
+				if plain > 16 * 60 or cats > 10 * 60 then -- #2557 (Design-Agent): 15.8 with a third more cats
 					error(
 						string.format(
 							"longest gap %.1f min, %.1f with new cats and roadmap steps",

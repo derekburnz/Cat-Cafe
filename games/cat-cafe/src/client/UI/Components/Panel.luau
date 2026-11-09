@@ -32,6 +32,9 @@ export type Props = {
 	name: string?,
 	color: Color3?, -- the header and ears (default Theme.modal.header, caramel)
 	icon: string?, -- an emoji on the round badge over the top-left corner; no badge when nil
+	-- #2588: the badge's picture when it isn't the glyph's (the Bag's backpack over its potion glyph, the Cafe Pass
+	-- medal over 🍁), so the badge matches the HUD tile that opens the window; the glyph shows until it loads
+	image: string?,
 	dark: boolean?, -- the dark body of Theme.dark (#1028); the window then colours its content from Theme.dark
 }
 
@@ -277,6 +280,9 @@ function Panel.new(props: Props): Panel
 		Outline.shade(badge, 0.2)
 		local iconLabel = badge:FindFirstChild("Icon") :: TextLabel
 		IconArt.set(iconLabel, props.icon, BADGE_ART)
+		if props.image then
+			IconArt.setImage(iconLabel, props.image, BADGE_ART)
+		end
 	end
 
 	local self = setmetatable({}, Panel) :: any

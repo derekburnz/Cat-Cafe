@@ -846,6 +846,21 @@ local function assertBowlTile(catWaiting)
 	assert(mark and mark.Visible == catWaiting, "uigate: the HUD bowl tile's ! is wrong for a waiting cat (#1161)")
 end
 
+-- #2588: whether a window's corner badge (Components/Panel) draws the picture with this asset id
+local function badgeDraws(windowName: string, assetId: string): boolean
+	local window = UIShim.playerGui:FindFirstChild(windowName, true)
+	local badge = window and window:FindFirstChild("Badge", true)
+	if badge == nil then
+		return false
+	end
+	for _, piece in badge:GetDescendants() do
+		if piece:IsA("ImageLabel") and string.find(piece.Image, assetId, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -2211,6 +2226,8 @@ local SCENES = {
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
 			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
 		UI.pass.open()
+		-- #2588: the corner badge is the HUD Pass tile's medal, not the 🍁 emoji
+		assert(badgeDraws("CafePass", "79367870405446"), "uigate: the Cafe Pass badge is not the Pass medal (#2588)")
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("CafePass", true)
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Cafe Pass is not open")
@@ -2267,7 +2284,14 @@ local SCENES = {
 			)
 		end
 		local uniform = window:FindFirstChild("Level3", true).Paid.ItemGroup.Item
-		assert(uniform.BackgroundColor3 == Color3.fromRGB(217, 102, 46), "uigate: the Pumpkin uniform's square is not pumpkin (#2087)")
+		-- #2592: the Pumpkin uniform's own picture (its apron and cap) in place of the 👕 on a pumpkin tile (#2087)
+		local drawn = false
+		for _, piece in uniform:GetDescendants() do
+			if piece:IsA("ImageLabel") and string.find(piece.Image, "119763026239046", 1, true) then
+				drawn = true
+			end
+		end
+		assert(drawn, "uigate: the Pumpkin uniform's square does not draw its picture (#2592)")
 	end },
 	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
 	{ "CafePassTag", function()
@@ -2406,6 +2430,51 @@ local SCENES = {
 		end
 		counting:Disconnect()
 		UI.update({ goldenFish = before } :: any)
+	end },
+	-- #2577 (Derek2: "the buttons for buying crates sometimes get stuck on ... for a while"): only the pressed crate reads
+	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 2.5 s
+	-- as "Try again" (with a toast), when the queued press goes
+	{ "MarketCrateWait", function()
+		local before = UI.getState()
+		local crates, fish = before.crates, (before :: any).goldenFish
+		UI.update({ crates = { park_crate = 2, alley_crate = 1 }, goldenFish = 100000 } :: any)
+		local sent: { string } = {}
+		local counting = UI.events.openCrate:Connect(function(id: string)
+			table.insert(sent, id)
+		end)
+		UI.market.open()
+		press("FishMarket", "CratesTab")
+		local window = UIShim.playerGui:FindFirstChild("FishMarket", true)
+		local function label(id: string): string
+			local card = window:FindFirstChild(id, true)
+			local open = card and card:FindFirstChild("Open", true)
+			for _, piece in (open :: Instance):GetDescendants() do
+				if (piece:IsA("TextLabel") or piece:IsA("TextButton")) and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		press("FishMarket", "park_crate.Open")
+		assert(#sent == 1 and sent[1] == "park_crate", "uigate: Open sent " .. table.concat(sent, ",") .. " (#2577)")
+		assert(label("park_crate") == "...", "uigate: the pressed crate reads " .. label("park_crate") .. " (#2577)")
+		assert(label("alley_crate") ~= "...", "uigate: another crate reads ... while one opens (#2577)")
+		press("FishMarket", "alley_crate.Open")
+		assert(#sent == 1 and label("alley_crate") == "...", "uigate: a second Open went at once or shows no wait (#2577)")
+		UIShim.advance(2.8) -- no CrateResult for park
+		assert(label("park_crate") == "Try again", "uigate: an unanswered Open reads " .. label("park_crate") .. " after 2.8 s (#2577)")
+		assert(#sent == 2 and sent[2] == "alley_crate", "uigate: the queued Open did not go once the first ran out (#2577)")
+		local toast = false
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and string.find(d.Text, "didn't go through", 1, true) then
+				toast = true
+			end
+		end
+		assert(toast, "uigate: no toast when an Open ran out unanswered (#2577)")
+		UI.market.result("alley_crate", "", false, 0) -- a refusal frees alley at once
+		assert(label("alley_crate") ~= "...", "uigate: a refused Open still reads ... (#2577)")
+		counting:Disconnect()
+		UI.update({ crates = crates or {}, goldenFish = fish } :: any)
 	end },
 	{ "MarketFresh", function()
 		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
@@ -2873,6 +2942,8 @@ local SCENES = {
 	end },
 	{ "Potions", function()
 		UI.open("Potions")
+		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
+		assert(badgeDraws("Potions", "88244676943674"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	{ "BagBait", function()
@@ -4538,6 +4609,57 @@ local SCENES = {
 		for _, kind in { "potion", "food", "bait" } do
 			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
 		end
+	end },
+	-- #2593 (Derek2: a Buy all for each Day Cart section): a real window's stock, so the shared planAll and the rows
+	-- agree. Each section with something to buy has Buy all; its card lists the plan, Cancel sends nothing, Buy sends
+	-- one with the section and the window, and the header reads "Buying..." until the next stock
+	{ "CornerShopBuyAll", function()
+		local Shop = UIShim.require("ReplicatedStorage.Shared.CornerShop") :: any
+		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
+		local window = nil
+		for w = 5000, 9000 do
+			local kinds = {}
+			for _, item in Shop.stock(w) do
+				local row = Catalog.getCornerShopRow(item.itemId)
+				if item.amount > 0 and (row.needsTier or 1) <= 3 then
+					kinds[row.kind] = (kinds[row.kind] or 0) + 1
+				end
+			end
+			if (kinds.potion or 0) >= 2 and (kinds.food or 0) >= 1 and (kinds.bait or 0) >= 1 then
+				window = w
+				break
+			end
+		end
+		assert(window, "uigate: no Day Cart window with every section in stock (#2593)")
+		local function view()
+			return Shop.view({ window = window, bought = {}, day = 0, today = {}, foodXpToday = 0 }, window, 3)
+		end
+		local before = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = (before :: any).passBoosts or false, goldenFish = (before :: any).goldenFish or 0 }
+		UI.update({ money = 50000, tier = 3, lures = {} })
+		UI.cornerShop.setStock(view())
+		UI.cornerShop.open()
+		local shop = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		local header = shop:FindFirstChild("Section_potion", true)
+		local all = header and header:FindFirstChild("BuyAll", true)
+		assert(all and all.Visible, "uigate: the Potions header has no Buy all (#2593)")
+		local sent: { string } = {}
+		local connection = UI.events.buyCornerShopAll:Connect(function(kind, w)
+			table.insert(sent, kind .. ":" .. tostring(w))
+		end)
+		press("CornerShop", "Section_potion.BuyAll")
+		local cover = shop:FindFirstChild("BuyAllCover", true)
+		assert(cover and cover.Visible, "uigate: Buy all opened no card (#2593)")
+		local list = cover:FindFirstChild("List", true).Text
+		assert(string.find(list, "^%d+ "), "uigate: the Buy all card lists " .. list .. " (#2593)")
+		press("CornerShop", "BuyAllCover.Cancel")
+		assert(not cover.Visible and #sent == 0, "uigate: Cancel sent a Buy all or kept the card (#2593)")
+		press("CornerShop", "Section_potion.BuyAll")
+		press("CornerShop", "BuyAllCover.Buy")
+		connection:Disconnect()
+		assert(#sent == 1 and sent[1] == "potion:" .. window, "uigate: Buy sent " .. table.concat(sent, ","))
+		UI.cornerShop.setStock(view()) -- the answer ends the wait
+		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card
 	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
 	-- with none it is gone

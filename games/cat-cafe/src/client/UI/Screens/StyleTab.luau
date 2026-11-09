@@ -140,6 +140,7 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 				name = if id == "" then "Default" else id,
 				text = option.name,
 				icon = option.icon,
+				image = option.image, -- #2592: the uniform styles' pictures
 				style = if option.picked then "gold" else "ghost",
 				size = UDim2.fromOffset(OPTION_W, self._optionH),
 				textSize = Theme.sizes.textBody,

@@ -21,6 +21,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PassLogic = require(script.Parent.Parent.Components.PassLogic)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -139,6 +140,7 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		color = MAPLE,
 		dark = true,
 		icon = "🍁",
+		image = ShopIcons.hud("Pass"), -- #2588: the HUD Pass tile's medal, not the 🍁 emoji
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
@@ -468,7 +470,7 @@ function CafePassScreen._fill(self: any, slot: Slot, reward: Types.PassReward)
 			art.asset,
 			art.glyph,
 			if item.kind == "cat" then "Legendary" else "Epic",
-			nil,
+			art.image, -- #2592: the uniform and tag pictures
 			art.tint
 		)
 		slot.icon = icon

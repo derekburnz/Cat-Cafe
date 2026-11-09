@@ -182,13 +182,15 @@ return function()
 	end)
 
 	describe("PassLogic.itemArt (#2087)", function()
-		it("gives every paid item of season 1 its own picture: a model, a uniform's colour or a tag's colour", function()
+		it("gives every paid item of season 1 its own picture: a model, or a uniform's or tag's uploaded picture", function()
 			for _, reward in def.paid do
 				local item = reward.item
 				if item then
 					local art = PassLogic.itemArt(item)
 					if item.kind == "uniform" or item.kind == "tag" then
-						expect(art.tint ~= nil).to.equal(true)
+						-- #2592: its own picture on the rarity's tile, no colour tint over it
+						expect(string.sub(art.image or "", 1, 13)).to.equal("rbxassetid://")
+						expect(art.tint).to.equal(nil)
 					else
 						-- the model's name (assets/cat-cafe/rbx holds each, checked when this was written)
 						expect(type(art.asset)).to.equal("string")
@@ -199,7 +201,7 @@ return function()
 			end
 		end)
 
-		it("takes the cat's, the accessory's and the sign's own models, and the uniform's own colour", function()
+		it("takes the cat's, the accessory's and the sign's own models, and the uniform's own picture", function()
 			expect(PassLogic.itemArt({ kind = "cat", id = "maple_muffin", name = "" }).asset).to.equal(
 				"CatCafe_Cat_MapleMuffin"
 			)
@@ -209,8 +211,14 @@ return function()
 			expect(PassLogic.itemArt({ kind = "frame", id = "frame_golden_leaf", name = "" }).asset).to.equal(
 				"CatCafe_Plot_SignGoldenLeaf"
 			)
-			local pumpkin = PassLogic.itemArt({ kind = "uniform", id = "uniform_pumpkin", name = "" }).tint
-			expect(pumpkin == Color3.fromRGB(217, 102, 46)).to.equal(true)
+			local pumpkin = PassLogic.itemArt({ kind = "uniform", id = "uniform_pumpkin", name = "" })
+			expect(pumpkin.image).to.equal("rbxassetid://119763026239046")
+			expect(PassLogic.itemArt({ kind = "tag", id = "tag_maple", name = "" }).image).to.equal(
+				"rbxassetid://124452576665708"
+			)
+			-- a style with no picture yet keeps its colour tile
+			local plain = PassLogic.itemArt({ kind = "tag", id = "vip", name = "" })
+			expect(plain.image).to.equal(nil)
 			-- something unknown keeps its kind's symbol
 			local unknown = PassLogic.itemArt({ kind = "decor", id = "nope", name = "" })
 			expect(unknown.asset).to.equal(nil)

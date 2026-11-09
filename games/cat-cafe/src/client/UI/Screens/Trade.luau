@@ -1,9 +1,9 @@
 --!strict
 -- The Trade window (F102, trading.md sections 2 and 3), modal "Trade", opened by the HUD's Trade tile and by the
 -- server once a trade starts. It has two faces:
---   * the players in this server, each with their head, display name and Trade (Asked for TradeRequestSeconds after a
---     press, Busy while they trade, "Tier 3 needed" under the minimum, all off while trading rests). Trade fires
---     callbacks.request(userId); the other player gets the request card (UI.trade.asked) and the server's
+--   * the players in this server, each with their head, display name and Trade (Asked after a press until the ask is
+--     declined or runs out, then REASK_SECONDS more, #2550; Busy while they trade, "Tier 3 needed" under the
+--     minimum, all off while trading rests). Trade fires callbacks.request(userId); the other player gets the request card (UI.trade.asked) and the server's
 --     TradeState opens the window for both.
 --   * the trade itself while a TradeState is held. Offer: "You give" and "Sam gives" as two 3 x 3 grids, each with a
 --     green "✓ Ready" chip and its earnings under it ("Your cats: $180/s now", "Their cats: +$240/s in your cafe"),
@@ -48,6 +48,8 @@ export type Trade = {
 	-- TradeState from the server; nil ends the trade face (the window shows the players again)
 	setTrade: (self: Trade, trade: Types.TradeState?) -> (),
 	trading: (self: Trade) -> boolean,
+	-- #2550: the server's TradeAskEnded for this player's ask to userId
+	askEnded: (self: Trade, userId: number) -> (),
 	opened: (self: Trade) -> (),
 	closed: (self: Trade) -> (),
 	destroy: (self: Trade) -> (),
@@ -334,7 +336,8 @@ function Trade._row(self: any, player: Player): Row
 		textSize = Theme.sizes.textSmall,
 		parent = frame,
 		onClick = function()
-			self._asked[userId] = os.clock() + TradeLogic.REASK_SECONDS
+			-- #2550: Asked while the request is open; askEnded shortens it once it is declined or runs out
+			self._asked[userId] = os.clock() + TradeLogic.REQUEST_SECONDS + TradeLogic.REASK_SECONDS
 			self._callbacks.request(userId)
 			self:_renderPlayers()
 		end,
@@ -929,6 +932,14 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 	local warning = TradeLogic.warning(trade)
 	self._warning.Text = warning or ""
 	self._warning.Visible = warning ~= nil
+end
+
+-- #2550: the server says the ask to `userId` was declined or ran out; the row says Trade again after REASK_SECONDS.
+function Trade.askEnded(self: any, userId: number)
+	if self._asked[userId] ~= nil then
+		self._asked[userId] = os.clock() + TradeLogic.REASK_SECONDS
+		self:_renderPlayers()
+	end
 end
 
 -- Moves on what changes with time: the subtitle, the countdown, the "Changed!" flash, the confirm wait, the hint.

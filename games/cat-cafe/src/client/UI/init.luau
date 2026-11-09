@@ -5935,6 +5935,14 @@ do
 		end
 	end
 
+	-- TradeAskEnded (#2550): this player's ask to `toUserId` was declined or ran out, so its Asked wears off soon.
+	function UI.trade.askEnded(toUserId: number)
+		local screen = trading.screen
+		if screen and type(toUserId) == "number" then
+			screen:askEnded(toUserId)
+		end
+	end
+
 	-- TradeEnded: the server's words ("Sam left", "Trade cancelled", "Out of the safe zone").
 	function UI.trade.ended(tradeId: string, reason: string?)
 		over(tradeId)

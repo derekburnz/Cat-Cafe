@@ -94,6 +94,52 @@ Each one is permanent, bought once with golden fish, and not random.
 
 Not on the list: anything that raises Luck (the Luck ladder is already full, LuckMax x3), more walk speed (it would weaken tackles), and anything also sold for Robux.
 
+### 4b. More featured items (Derek2, 2026-11-09: "what other featured items we could do could add them every couple days")
+
+A longer pool, so the shelf grows. A **new item joins the shelf every 2 to 3 days** at full price, one small PR each, with Model-Agent's art. The weekly sale picks from everything on the shelf. Each item gets "NEW!" on Moss's window and a What's New line on the day it arrives. Every row follows the same rules: permanent, golden fish only, not random, no Luck, no walk speed, never sold for Robux. Prices are full price, and the sale is 0.75 of it.
+
+| Item | Kind | What it does | Full price | Opens at |
+|---|---|---|---|---|
+| Spyglass | tool | strays' rarity tags show from 60 studs instead of the usual distance | 240 | Tier 2 |
+| Paw Gloves | tool | one extra paw in every rescue | 320 | Tier 3 |
+| Trail Map | tool | the area's hiding spots and rescue traps show on the minimap for the day | 280 | Tier 3 |
+| Snack Pouch | tool | a free Small Snack (the net-catch drop food) at each sunrise, once a game day | 260 | Tier 2 |
+| Window Flower Box | decor | a Common decoration for the cafe front, +2% (Common crate bonus) | 160 | Tier 1 |
+| Moss's Lantern | decor | a hanging lantern, Rare, +4%, glows at night | 260 | Tier 2 |
+| Wind Chimes | decor | a cafe decoration that chimes when a customer tips big (sound only, no bonus) | 180 | Tier 1 |
+| Cafe Awning | cafe look | a striped awning over your cafe door in one of 4 colours | 220 | Tier 2 |
+| Explorer Hat | player look | a hat for your own avatar while in the game | 200 | Tier 1 |
+| Paw Print Trail | player look | soft paw prints behind you as you walk (Reduce Motion hides it) | 240 | Tier 2 |
+| Moss's Cloak | player look | a hooded cloak like Moss's, for your avatar | 300 | Tier 3 |
+| Cat Beret | cat look | an outfit piece for working cats | 180 | Tier 1 |
+| Star Collar | cat look | a collar with a little star tag, for working cats | 220 | Tier 2 |
+| Jukebox song | cafe music | one more song for the free Jukebox (sound-designer) | 150 | Tier 1 |
+
+Notes:
+- The tools change play. Each one gets a Pace check before it joins, and Paw Gloves and the Trail Map get a playtest. The decor and looks need art but no balance work.
+- The decor bonuses use the crate bonus already in the game, so a fish-bought piece is never better than a crate or pass piece of the same rarity.
+- With 5 items now and about 3 new ones a week, the shelf passes 15 in about a month. The weekly sale then cycles round about every 15 weeks, which is fine because everything can be bought at any time.
+
+## 4c. The market corner (look)
+
+Where: the **west end of the Town Square's east-west lane**, inside the closed west arch (-63, 0), around (-52, 0). The lane points straight at it from the cannon, and nothing else stands there (town-layout-v3 §3: the four stations are in the corners and the night dealer parks at (28, -16)). It faces east toward the cannon. It is about 22 studs wide (z -11 to 11) and 14 deep (x -63 to -49), and the cross's paving stays clear. Plan: [mystery-market-corner.svg](mystery-market-corner.svg).
+
+Three looks for Model-Agent to block out. **A is recommended.**
+
+- **A. The covered wagon (recommended).** A round-topped wagon, about 12 x 7 studs, in deep teal with a patched cream canvas hood stitched with little stars, big wooden wheels, and a paw-print door at the back. Moss sits on the front step under a hanging lantern.
+  - The wagon's side folds down into a counter with a pedestal, where the featured item turns slowly in 3D (the Backpack on a cat-shaped stand).
+  - A chalkboard on an easel reads "This week: SALE", and a smaller board with a "?" shows next week's silhouette.
+  - Around it: a round rug, stacked crates and baskets, a string of lanterns from the wagon to two posts, and a tied-up pony-cat plush.
+  - It reads as "a traveller who stopped here", which fits a seller who changes stock.
+- **B. The bazaar tent.** A striped tent (plum and gold) with curtains tied back, rugs, hanging bottles and a low table with the featured item under a glass dome. It's cosy and mysterious, but busier to build and harder to read from the cannon.
+- **C. The landed balloon.** A small hot-air balloon basket on the ground with the balloon tethered 20 studs up, which is visible from anywhere in town. Each Saturday the balloon bobs and drops a puff of confetti when the new sale starts. It's the most eye-catching, but the biggest model and the most motion. It could be a later upgrade to A: the wagon could get a balloon flag.
+
+For all three:
+- **Lighting.** Warm lantern light, brighter at night with a few fireflies (Reduce Motion: none). Moss is the only seller lit like this, so the corner reads as special.
+- **Sound** (sound-designer): soft wind chimes near the cart, and a little bell when someone buys.
+- **Markers.** A "?" icon over the cart on the town map and the place marker list ("Mystery Market"), with a gold dot while a sale is on and you can afford the featured item. No pop-up and no HUD nag.
+- **Names** (asset-pipeline): `CatCafe_Square_MysteryCart`, `CatCafe_Square_MysteryRug`, `CatCafe_Square_MysteryLanterns`, `Npc_Moss`, `Prop_MysteryPedestal`.
+
 ## 5. Contracts (proposed, final names are Gameplay's)
 
 - **Config:**
@@ -129,4 +175,5 @@ Not on the list: anything that raises Luck (the Luck ladder is already full, Luc
 
 1. ~~Rotation length~~: weekly, at the Saturday drop (Derek2, 2026-11-09). Every item can be bought any time at full price, and the featured item is on sale (Derek2, 2026-11-09).
 2. Is 400 fish full price and 300 on sale, at Tier 3, right? Pace checks for 2 to 5 hours of saving.
-3. Which of the four other candidates go on the list?
+3. Which of the four other candidates go on the list, and which of the 4b items should come first?
+4. Which look for the corner: A (the wagon, recommended), B or C?

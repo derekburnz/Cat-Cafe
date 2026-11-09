@@ -22,12 +22,13 @@ Derek2, 2026-11-09: "Start drafting 20 new cats for Tier 6 and Tier 7 10 cats ea
   - Tier 6 about 5 to 7 h after Tier 5 in one sitting.
   - Tier 7 about 8 to 11 h after Tier 6.
   - The Tier 1 to 5 times stay exactly as they are, because nothing here changes them.
-- **Slots and stations** (Gameplay's question, #2651). The cafe has 12 role stations today: the 10 tier spots plus the pass-only `waiter_4` and `waiter_5` (the Extra Slot pass and Grand's extra slot). Those two stay pass-only at every tier, so a paid extra slot always adds a slot. Four new tier stations make the 12 and 14:
-  - Tier 6 opens `barista_4` and `greeter_3`, for 12 slots.
-  - Tier 7 opens `entertainer_3` and `waiter_6`, for 14 slots.
-  - That's 16 stations in all. Gameplay may rename them to even out the role counts, and Model-Agent places them in the cafe.
-  - Pass owners get +2 on top: 14 at Tier 6 and 16 at Tier 7.
-  - **Until the four stations exist**, Tiers 6 and 7 ship at 10 tier slots, the same as Tier 5, so the pass keeps adding its +2.
+- **Slots and stations** (Gameplay's question, #2651; as built in #2675). The cafe goes from 12 role stations to 16. Slots open in list order, so a paid extra slot always adds one:
+  - Tier 6 has 12 slots, Tier 7 has 14, and pass owners get +2 at every tier (14 and 16).
+  - Tier 6's two new stations are `waiter_4` and `waiter_5`. Tier 7's are `barista_4` and `greeter_3`.
+  - `entertainer_3` (on a third cat tree) and `waiter_6` are the pass-only pair at the end of the list.
+  - Why this order: Tier 5 pass holders already have cats working at `waiter_4` and `waiter_5`, which were the old pass-only stations. Keeping those as the next stations to open means no saved cat ever moves.
+  - Spots are Model-Agent's fit, in `Layout.plot.spots`: `barista_4` (-4.6, 0, 11.1), `greeter_3` (6.6, 0, -12.5) at rotY 55.7, `entertainer_3` on a cat tree at (-11.8, 0, 10.5), and `waiter_6` (9.2, 0, 9.2).
+  - They get a real-room playtest before merge.
 - Caps, the upgrade ladder and the bowl levels for Tiers 6 and 7 follow the same steps as Tiers 4 and 5. Gameplay drafts those with the Pace run.
 
 ## 2. Where they go and the cannon

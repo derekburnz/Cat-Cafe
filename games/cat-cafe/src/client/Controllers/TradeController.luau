@@ -2,7 +2,8 @@
 -- Trading on this client (F102, trading.md section 6). The client only asks: the UI's trade signals go to the server
 -- as they are (TradeRequest, TradeRespond, TradeOffer, TradeReady, TradeConfirm, TradeCancel), and the server's
 -- answers go to the UI's hooks: TradeAsked to `UI.trade.asked` (the request card), every TradeState to
--- `UI.trade.state` (nil closes the window), TradeDone to `UI.trade.done` and TradeEnded to `UI.trade.ended`.
+-- `UI.trade.state` (nil closes the window), TradeDone to `UI.trade.done`, TradeEnded to `UI.trade.ended` and
+-- TradeAskEnded (#2550: this player's ask was declined or ran out) to `UI.trade.askEnded`.
 -- `TradeController.state` keeps the last TradeState. Effects/Trade and Audio listen to TradeDone themselves.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -53,6 +54,9 @@ function TradeController.start()
 			call("asked", requestId, fromUserId, fromName, expiresAt)
 		end
 	)
+	Net.on("TradeAskEnded", function(toUserId: number)
+		call("askEnded", toUserId)
+	end)
 	Net.on("TradeState", function(state: Types.TradeStateView?)
 		TradeController.state = state
 		call("state", state)

@@ -19,7 +19,7 @@
 --   changed(state, now) -> Changed?      the tile that changed in the last CHANGED_SECONDS, for the yellow flash
 --   myCats(cats, defOf, offered) -> { Pick }   your cats under the grids: rarest first, each with why it cannot go
 --   pickHint(pick, full) -> string?      "Unlock it on its card to trade", "This cat can't be traded", ...
---   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (for REASK_SECONDS), Busy or
+--   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (open, then REASK_SECONDS), Busy or
 --                                        "Tier 3 needed"
 --   doneLine(got) -> string              "Trade done! 2 new cats"
 -- Part 2 (trading.md sections 1 and 5): the Trade requests setting and the Trades page.
@@ -99,7 +99,8 @@ TradeLogic.CHANGED_SECONDS = 2 -- how long a changed tile flashes and its side s
 TradeLogic.CONFIRM_WAIT = (Config.TradeConfirmWaitSeconds or 2) :: number -- Confirm stays off this long on a gift or a lopsided trade
 TradeLogic.MAX_CATS = (Config.TradeMaxCats or 9) :: number
 TradeLogic.REQUEST_SECONDS = (Config.TradeRequestSeconds or 20) :: number
--- a declined or lapsed ask cannot be repeated this long, so a players row says "Asked" for it (review N332)
+-- a declined or lapsed ask cannot be repeated this long, so a players row says "Asked" for it (review N332); 3 s
+-- since #2550, counted from the server's TradeAskEnded
 TradeLogic.REASK_SECONDS = (Config.TradeReaskSeconds or 60) :: number
 
 local MIN_TIER: number = Config.TradeMinTier or 3

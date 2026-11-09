@@ -288,7 +288,7 @@ return function()
 		TradeLopsidedRatio = 3,
 		TradeConfirmWaitSeconds = 2,
 		TradeRequestSeconds = 20,
-		TradeReaskSeconds = 60,
+		TradeReaskSeconds = 3,
 		TradeCooldownSeconds = 10,
 		TradesPerDay = 50,
 		TradeFlagCheckSeconds = 60,

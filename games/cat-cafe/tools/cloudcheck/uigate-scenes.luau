@@ -1631,6 +1631,43 @@ local SCENES = {
 		local at = cardAt + inset
 		assert(at.Y >= 0 and at.Y + cardSize.Y <= view.Y + 0.5, "uigate: Your perks runs off screen (#2687)")
 	end },
+	-- #2784 (Derek2: no "+$/s" tags over his own cats): a working cat tagged before its parts arrive (your own cafe's,
+	-- in place before the UI starts) gets its tag once a part comes, and a tag lost with its part is made again
+	{ "RateTagLateParts", function()
+		local cat = Instance.new("Model")
+		cat.Name = "gate_late_cat"
+		cat:SetAttribute("Rate", 12)
+		cat:SetAttribute("Rarity", "Epic")
+		cat:SetAttribute("Napping", false)
+		cat:SetAttribute("DisplayName", "Late Cat")
+		cat.Parent = workspace
+		cat:AddTag("WorkingCat")
+		local tags = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.WorldTags").new(true)
+		local function tagOf(): BillboardGui?
+			return cat:FindFirstChild("CatCafeRateTag", true) :: BillboardGui?
+		end
+		assert(tagOf() == nil, "uigate: a tag before the cat has a part")
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(2, 2, 3)
+		body.Position = Vector3.new(0, 3, -10)
+		body.Parent = cat
+		cat.PrimaryPart = body
+		UIShim.advance(0.1)
+		local tag = tagOf()
+		assert(tag and tag.Enabled, "uigate: no rate tag once the cat's part arrived (#2784)")
+		assert(((tag :: any).Rate :: TextLabel).Text:find("12") ~= nil, "uigate: the late tag reads " .. ((tag :: any).Rate :: TextLabel).Text)
+		-- the server swaps the cat's body: the tag goes with the old one and comes back on the new
+		local swap = body:Clone()
+		swap.Parent = cat
+		cat.PrimaryPart = swap
+		body:Destroy()
+		UIShim.advance(0.1)
+		local again = tagOf()
+		assert(again and again.Enabled and again.Parent == swap, "uigate: the rate tag did not come back after its part went (#2784)")
+		tags:destroy()
+		cat:Destroy()
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood

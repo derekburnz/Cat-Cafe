@@ -1969,6 +1969,14 @@ local SCENES = {
 	-- #2795 (Derek2: Grand Opening from the first catch, compact on phones): mid tutorial (the first table step) the
 	-- closed strip shows at 0/8 under the goal card beside the tutorial strip, and the first table's toast plays
 	{ "GrandOpeningTutorial", function()
+		local before = UI.getState() :: any
+		-- Scenes.close puts these back, so the scenes after this one keep their bowls, tier and finished tutorial
+		Scenes._stepState = {
+			upgradeLevels = before.upgradeLevels,
+			tutorialStep = before.tutorialStep,
+			tier = before.tier,
+			grandOpening = before.grandOpening,
+		}
 		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
 		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels, grandOpening = { done = {} } } :: any)
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))

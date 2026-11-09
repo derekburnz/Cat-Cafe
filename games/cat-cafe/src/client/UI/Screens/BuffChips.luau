@@ -13,6 +13,9 @@
 -- with potions running (two or more until #2396), an arrow tab sits at the row's left end. A tap folds the chips away into one
 -- compact chip (the bottle and how many run, "x5"), and a tap on that brings them back. The choice holds until it is
 -- tapped again (also across a rebuilt HUD); BuffChips.fold(count, folded) says what shows.
+-- #2827 (Derek2 11-09: "fully hide that active potions bubble (people can just look in bag if they care)"): the
+-- potion row never shows (POTIONS_SHOWN), on any device, and does not tick; the bag's Potions tab still lists what
+-- runs and for how long. The Luck and pal row is unchanged. The row is still built, so turning it back on is one flag.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -63,6 +66,8 @@ type Chip = { frame: TextButton, time: TextLabel }
 
 local BuffChips = {}
 BuffChips.__index = BuffChips
+
+BuffChips.POTIONS_SHOWN = false :: boolean -- #2827: the potion row stays hidden; the bag has the timers
 
 -- the fold holds across a rebuilt HUD (a respawn rebuilds nothing, but a reset of the UI does)
 local foldedNow = FOLD_DEFAULT
@@ -266,7 +271,7 @@ end
 
 function BuffChips._showRows(self: any)
 	self.frame.Visible = not self._hidden and not self._focus and next(self._leads) ~= nil
-	self.potions.Visible = not self._focus and self._running > 0
+	self.potions.Visible = BuffChips.POTIONS_SHOWN and not self._focus and self._running > 0
 end
 
 function BuffChips.render(self: any, state: Types.PlayerState)
@@ -322,7 +327,7 @@ end
 
 function BuffChips._draw(self: any)
 	local state: Types.PlayerState? = self._state
-	local running: { PotionLogic.Row } = if state
+	local running: { PotionLogic.Row } = if state and BuffChips.POTIONS_SHOWN
 		then PotionLogic.running(self._catalog, state, Workspace:GetServerTimeNow())
 		else {}
 	local shown: { [string]: boolean } = {}

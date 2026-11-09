@@ -465,31 +465,117 @@ def _pediment(s, mat, z, runs):
     s.put([b.finalize(N + "Pediment", mat), bar.finalize(N + "Pediment_Barrier", mat)], 0, 0, 0)
 
 
+def _glyph(box0, u, h, f, kind, k=1.7):
+    """A carved glyph on a wall face (f the face's side, the face at v = f * (HALL_T / 2 + 0.2)): a cat's head with
+    its ears and eyes, a paw print, or a fish, in sandstone on the panel; box(u, v, h, su, sv, sh, swatch)."""
+    v = f * (HALL_T / 2 + 0.36)
+
+    def box(bu, bv, bh, su, sv, sh, sw):                                 # scaled k about (u, h), not in depth
+        box0(u + (bu - u) * k, bv, h + (bh - h) * k, su * k, sv, sh * k, sw)
+
+    if kind == 0:                                                        # a cat's head
+        box(u, v, h, 2.2, 0.16, 1.8, SANDSTONE_LIGHT)
+        for su in (-1, 1):
+            box(u + su * 0.75, v, h + 1.15, 0.6, 0.16, 0.6, SANDSTONE_LIGHT)
+            box(u + su * 0.5, v + f * 0.06, h + 0.15, 0.36, 0.08, 0.42, STONE_DARK)
+        box(u, v + f * 0.06, h - 0.45, 0.3, 0.08, 0.22, STONE_DARK)
+    elif kind == 1:                                                      # a paw print
+        box(u, v, h - 0.3, 1.5, 0.16, 1.2, SANDSTONE_LIGHT)
+        for k, (du, dh) in enumerate(((-0.85, 0.65), (-0.3, 0.95), (0.3, 0.95), (0.85, 0.65))):
+            box(u + du, v, h + dh, 0.5, 0.16, 0.5, SANDSTONE_LIGHT)
+    else:                                                                # a fish
+        box(u - 0.2, v, h, 2.0, 0.16, 0.9, SANDSTONE_LIGHT)
+        box(u + 1.15, v, h, 0.5, 0.16, 1.4, SANDSTONE_LIGHT)
+        box(u - 0.8, v + f * 0.06, h + 0.12, 0.22, 0.08, 0.22, STONE_DARK)
+
+
+def _carved_wall(b, glow, L, box, seed):
+    """A Glyph Hall wall L long in its own frame (u along it from -L/2, v across, h up), drawn through box(u, v, h, su,
+    sv, sh, swatch, target): a dark plinth, coursed stone with a light band every other course, pilasters every bay
+    with capitals, a recessed panel in each bay with a carved glyph on alternate faces, the glowing glyph strip, a
+    broken top (merlons, some missing, some fallen to the foot), vines hanging over the top and moss along it (Derek2
+    11-09: the walls felt low effort)."""
+    n = max(1, round(L / 8.0))
+    bay = L / n
+    box(0, 0, 0.6, L + 0.02, HALL_T + 0.7, 1.2, STONE_DARK)                         # the plinth
+    for k, hh in enumerate((3.4, 8.2)):                                             # coursing bands
+        box(0, 0, hh, L - 0.1, HALL_T + 0.16 + 0.02 * k, 0.3, STONE_LIGHT)
+    broken = [n > 2 and (i + seed) % 5 == 3 for i in range(n)]
+    for i in range(n):                                                              # the body, bay by bay
+        u = -L / 2 + (i + 0.5) * bay
+        if broken[i]:                                                               # its top fallen in, stepped
+            box(u, 0, (HALL_H - 3.4) / 2, bay + 0.01, HALL_T, HALL_H - 3.4, STONE)
+            box(u - bay * 0.3, 0, HALL_H - 3.4 + 0.9, bay * 0.4, HALL_T - 0.02, 1.8, STONE_LIGHT)
+            box(u + bay * 0.33, 0, HALL_H - 3.4 + 1.5, bay * 0.34, HALL_T - 0.04, 3.0, STONE)
+        else:
+            box(u, 0, HALL_H / 2, bay + 0.01 * (i % 2 + 1), HALL_T, HALL_H, STONE)
+            box(u, 0, HALL_H + 0.27, bay + 0.3 + 0.01 * (i % 2), HALL_T + 0.3, 0.54, STONE_LIGHT)   # the coping
+    for i in range(n + 1):                                                          # pilasters, both faces
+        u = -L / 2 + i * bay
+        if i in (0, n):
+            u += 0.7 if i == 0 else -0.7
+        for f in (-1, 1):
+            box(u, f * (HALL_T / 2 + 0.25), 6.0, 1.3, 0.5, 9.6, SANDSTONE)
+            box(u, f * (HALL_T / 2 + 0.35), 11.1, 1.7, 0.7, 0.6, STONE_LIGHT)
+    for i in range(n):
+        u = -L / 2 + (i + 0.5) * bay
+        j = i + seed
+        for f in (-1, 1):
+            box(u, f * (HALL_T / 2 + 0.06), 5.8, bay - 2.4, 0.12, 4.6, STONE_DARK)    # the recessed panel
+            glow.box(u, f * (HALL_T / 2 + 0.16), 8.1, bay - 3.0, 0.08, 0.3, (JADE, GOLD)[f > 0])
+            if (j + (f > 0)) % 2 == 0:
+                _glyph(box, u, 5.4, f, j % 3)
+        if broken[i]:                                                               # its fallen blocks
+            for f, du in ((-1, -1.2), (1, 1.4)):
+                box(u + du, f * (HALL_T / 2 + 1.5), 0.6, 1.8, 1.4, 1.2, (STONE, STONE_LIGHT)[f > 0])
+            continue
+        for m in (-1, 1):                                                           # merlons, broken
+            if (j * 3 + m) % 5 == 0:
+                continue
+            hm = 1.6 - 0.5 * ((j + m) % 3 == 0)
+            box(u + m * bay * 0.25, 0, HALL_H + 0.54 + hm / 2, bay * 0.3, HALL_T, hm, (STONE, STONE_LIGHT)[(j + m) % 2])
+        if j % 3 == 1:                                                              # vines over the top
+            for f in (-1, 1):
+                for k, (du, dl) in enumerate(((-0.8, 4.2), (0.2, 6.4), (1.1, 3.0))):
+                    box(u + du + f * 0.4, f * (HALL_T / 2 + 0.42), HALL_H + 0.4 - dl / 2, 0.45, 0.14, dl, VINE)
+                box(u + f * 0.3, 0, HALL_H + 0.62, 3.4, HALL_T + 0.5, 0.2, "leaf_green")  # moss on the coping
+        if j % 4 == 2:                                                              # a fallen merlon at the foot
+            f = 1 if j % 8 == 2 else -1
+            box(u + 1.0, f * (HALL_T / 2 + 1.7), 0.5, bay * 0.3, 1.2, 1.0, STONE_LIGHT)
+
+
 def _halls(s, mat):
     """The Glyph Halls: the long walls (HALL_WALLS, z HALLS_Z0 to HALLS_Z1) each with a doorway, the end walls with
-    three ways in and three out, hall 3's baffle at z 105; coursed stone HALL_H high with carved panels, glowing glyph
+    three ways in and three out, hall 3's baffle at z 105; carved walls HALL_H high (_carved_wall), glowing glyph
     strips along both faces of every wall (_Glow), a barrier to 30 over every wall."""
     b, glow, bar = Builder(), Builder(), Builder()
+
+    def frame(xx, yy, along_y):
+        def box(u, v, h, su, sv, sh, swatch, target=None):
+            t = target or b
+            if along_y:
+                t.box((xx + v, yy + u, h), (sv, su, sh), swatch, bevel=False)
+            else:
+                t.box((xx + u, yy + v, h), (su, sv, sh), swatch, bevel=False)
+
+        class G:                                                         # the glow strips, in the same frame
+            @staticmethod
+            def box(u, v, h, su, sv, sh, swatch):
+                box(u, v, h, su, sv, sh, swatch, target=glow)
+        return box, G
 
     def wall_x(x, z0, z1):
         L = z1 - z0
         xx, yy, _ = bl(x, (z0 + z1) / 2)
-        b.box_base((xx, yy, 0), (HALL_T, L, HALL_H), STONE, bevel=False)
-        b.box_base((xx, yy, HALL_H), (HALL_T + 0.3, L + 0.3, 0.53), STONE_LIGHT, bevel=False)    # over the cross walls'
-
-        for f in (-1, 1):
-            glow.box((xx + f * (HALL_T / 2 + 0.05), yy, 6.2), (0.1, L - 1.0, 0.35), (JADE, GOLD)[f > 0], bevel=False)
-            b.box((xx + f * (HALL_T / 2 + 0.04), yy, 3.6), (0.1, L - 0.6, 2.6), SANDSTONE, bevel=False)
+        box, g = frame(xx, yy, True)
+        _carved_wall(b, g, L, box, int(abs(x) + z0) % 7)
         bar.box_base((xx, yy, 0), (HALL_T, L, BARRIER_H), "offwhite", bevel=False)
 
     def wall_z(z, x0, x1):
         L = x1 - x0
         xx, yy, _ = bl((x0 + x1) / 2, z)
-        b.box_base((xx, yy, 0), (L, HALL_T, HALL_H), STONE, bevel=False)
-        b.box_base((xx, yy, HALL_H), (L + 0.3, HALL_T + 0.3, 0.5), STONE_LIGHT, bevel=False)
-        for f in (-1, 1):
-            glow.box((xx, yy + f * (HALL_T / 2 + 0.05), 6.2), (L - 1.0, 0.1, 0.35), (GOLD, JADE)[f > 0], bevel=False)
-            b.box((xx, yy + f * (HALL_T / 2 + 0.04), 3.6), (L - 0.6, 0.1, 2.6), SANDSTONE, bevel=False)
+        box, g = frame(xx, yy, False)
+        _carved_wall(b, g, L, box, int(abs(x0) + z) % 7)
         bar.box_base((xx, yy, 0), (L, HALL_T, BARRIER_H), "offwhite", bevel=False)
 
     for x in HALL_WALLS:

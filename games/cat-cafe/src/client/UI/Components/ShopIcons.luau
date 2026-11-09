@@ -191,21 +191,22 @@ local IDS: { [string]: string } = {
 	Icon_StoreTab_Cats = "rbxassetid://110429227735134",
 	Icon_StoreTab_Potions = "rbxassetid://108107558597243",
 	Icon_StoreTab_Codes = "rbxassetid://96392852887729",
-	-- the Store's card pictures, one per pass and product, by ShopIcons.store (#1762: the redrawn set, Tools-Agent 11-06)
+	-- the Store's card pictures, one per pass and product, by ShopIcons.store (#1762: the redrawn set, Tools-Agent 11-06;
+	-- #2578: eight passes redrawn on clear backgrounds, upload run 42665652455, 11-09)
 	Icon_Store_Money2x = "rbxassetid://82155674128354",
 	Icon_Store_Money3x = "rbxassetid://97377712325581",
 	Icon_Store_Money4x = "rbxassetid://120063755686083",
 	Icon_Store_LongNap = "rbxassetid://136378395182949",
 	Icon_Store_Vip = "rbxassetid://109916448622519",
-	Icon_Store_Accessories = "rbxassetid://105924679630598",
-	Icon_Store_Uniforms = "rbxassetid://115068169939315",
-	Icon_Store_CafeStyle = "rbxassetid://81623571895124",
-	Icon_Store_GrandTheme = "rbxassetid://128608620541629",
-	Icon_Store_ExtraSlot = "rbxassetid://126631768572712",
+	Icon_Store_Accessories = "rbxassetid://136336138442757",
+	Icon_Store_Uniforms = "rbxassetid://99066678778963",
+	Icon_Store_CafeStyle = "rbxassetid://89762000752230",
+	Icon_Store_GrandTheme = "rbxassetid://103774365148160",
+	Icon_Store_ExtraSlot = "rbxassetid://75936392036642",
 	Icon_Store_RoyalCat = "rbxassetid://96961392510216",
-	Icon_Store_KingPack = "rbxassetid://88656162747624",
+	Icon_Store_KingPack = "rbxassetid://103094049281221",
 	Icon_Store_GoldenPond = "rbxassetid://110272347269933",
-	Icon_Store_SecondBowl = "rbxassetid://94529894574150",
+	Icon_Store_SecondBowl = "rbxassetid://102367339294167",
 	Icon_Store_StarterBundle = "rbxassetid://83823033546025",
 	Icon_Store_PotionXS = "rbxassetid://71370653826352",
 	Icon_Store_PotionS = "rbxassetid://131227419238833",
@@ -215,7 +216,7 @@ local IDS: { [string]: string } = {
 	-- #1168 cards (Tools-Agent 11-06; store-icon-asset-ids-2026-11-06.md)
 	Icon_Store_SteadyPaw = "rbxassetid://124844091674201",
 	Icon_Store_ThankYou = "rbxassetid://124763763193731",
-	Icon_Store_SignStylePack = "rbxassetid://82356296722315",
+	Icon_Store_SignStylePack = "rbxassetid://111176293548634",
 	Icon_Store_GardenDecor = "rbxassetid://76001339098213",
 	-- #2592 (Derek2: "these place holders in pass need fixes"): each uniform style's apron and cap, and the chat tags'
 	-- speech bubbles, for the Cafe Pass tiles and the Style tab (Tools-Agent upload 2026-11-09, run 42556000980)

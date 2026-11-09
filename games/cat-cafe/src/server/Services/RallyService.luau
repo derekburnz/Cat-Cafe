@@ -156,7 +156,7 @@ end
 
 -- Pays step `index` to every player in the server who earned it; returns how many were paid.
 local function payStep(index: number, now: number): number
-	local step = Catalog.rallySteps[index]
+	local prize = Rally.prizeFor(index, bar.lap) -- #2608: a little more each lap of this server's Rally
 	local paidCount = 0
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
@@ -164,7 +164,7 @@ local function payStep(index: number, now: number): number
 			local counted = countedLap[player] == bar.lap
 			if Rally.pays(profile.rally, now, myPoints[player] or 0, counted) then
 				countedLap[player] = bar.lap
-				local paid = Payout.pay(player, profile, step.prize, "rally")
+				local paid = Payout.pay(player, profile, prize, "rally")
 				if #paid > 0 then
 					Net.toast(player, "Rescue Rally: " .. table.concat(paid, ", "), "good")
 				end

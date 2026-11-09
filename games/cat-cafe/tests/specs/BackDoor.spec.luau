@@ -34,12 +34,15 @@ return function()
 	end)
 
 	describe("at night (Derek 2026-10-28)", function()
-		it("keeps a door set's front leaves open by day, and at night only while the owner is near", function()
-			expect(BackDoor.frontOpen(true, nil)).to.equal(true)
-			expect(BackDoor.frontOpen(false, nil)).to.equal(false)
-			expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE)).to.equal(true)
-			expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE + 0.1)).to.equal(false)
-		end)
+		it(
+			"keeps a door set's front leaves open by day, and at night only while the owner is near",
+			function()
+				expect(BackDoor.frontOpen(true, nil)).to.equal(true)
+				expect(BackDoor.frontOpen(false, nil)).to.equal(false)
+				expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE)).to.equal(true)
+				expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE + 0.1)).to.equal(false)
+			end
+		)
 
 		it("makes an owned cafe's shut doors solid at night for everyone but the owner", function()
 			expect(BackDoor.solid(false, true, false)).to.equal(true)
@@ -137,6 +140,15 @@ return function()
 			local a, s = BackDoor.stepFlap(12, 3, nil, 0)
 			expect(a).to.equal(12)
 			expect(s).to.equal(3)
+		end)
+	end)
+
+	describe("a door set stands in only once it is there (#2572)", function()
+		it("needs the Door attribute and a DoorBack with parts", function()
+			expect(BackDoor.replaced("door_cottage", true)).to.equal(true)
+			expect(BackDoor.replaced("door_cottage", false)).to.equal(false) -- not in yet: the cafe's door shows
+			expect(BackDoor.replaced(nil, true)).to.equal(false) -- a leftover model with no door set in use
+			expect(BackDoor.replaced(nil, false)).to.equal(false)
 		end)
 	end)
 end

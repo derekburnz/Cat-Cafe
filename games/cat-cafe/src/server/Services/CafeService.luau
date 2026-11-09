@@ -652,7 +652,22 @@ local function showStyleModel(
 			model:PivotTo(at)
 		end
 	else
-		model = AssetRegistry.clone(asset)
+		-- #2572: a missing asset or a failed clone leaves the cafe's own door (the attribute stays nil), never a gap
+		local ok, cloned = pcall(function(): Model?
+			return if AssetRegistry.known(asset) then AssetRegistry.clone(asset) else nil
+		end)
+		if not ok or cloned == nil then
+			warn(
+				string.format(
+					"[CafeService] %s: %s not shown (%s)",
+					name,
+					asset,
+					if ok then "no such asset" else tostring(cloned)
+				)
+			)
+			return nil
+		end
+		model = cloned
 		model.Name = name
 		model:SetAttribute("Asset", asset)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
@@ -679,8 +694,9 @@ end
 -- attachment: the door set's, else the real back door's (Model-Agent #509, its leaf as built, shut; each client
 -- carries the flap with the leaf as it swings), else low on the back door panel's yard face. A door set with no cat
 -- flap picked brings the cafe's own flap alone (PLAIN_FLAP, no DecorId), as the cafe's back door it replaces had one.
--- With none in use the cafe keeps its own doors.
-local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
+-- With none in use the cafe keeps its own doors. Returns the door set and cat flap ids whose models are in (#2572:
+-- the plot's Door and CatFlap attributes say only what is really there).
+local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile): (string?, string?)
 	local front = plot.door.CFrame * CFrame.new(0, -plot.door.Size.Y / 2, 0)
 	local back = plot.backDoor.CFrame
 		* CFrame.new(0, -plot.backDoor.Size.Y / 2, 0)
@@ -694,8 +710,14 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 		local named = doorDef.asset .. "_" .. side
 		return if AssetRegistry.has(named) then named else doorDef.asset
 	end
-	showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
+	local frontModel = showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
 	local backModel = showStyleModel(plot, "DoorBack", doorAsset("Back"), doorId, back)
+	if doorId ~= nil and (frontModel == nil or backModel == nil) then
+		-- half a door set is no door set: the cafe keeps both its own doors
+		showStyleModel(plot, "DoorFront", nil, nil, front)
+		showStyleModel(plot, "DoorBack", nil, nil, back)
+		frontModel, backModel, doorId = nil, nil, nil
+	end
 	local flapAt = back * CFrame.new(0, 0, -plot.backDoor.Size.Z / 2 - 0.05)
 	local doorModel: Model? = if backModel ~= nil then backModel else plot.backDoorArt
 	local hinge = if doorModel ~= nil then doorModel:FindFirstChild("CatFlap", true) else nil
@@ -708,7 +730,8 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 		then flapDef.asset
 		elseif backModel ~= nil and AssetRegistry.has(PLAIN_FLAP) then PLAIN_FLAP
 		else nil
-	showStyleModel(plot, "CatFlap", flapAsset, flapId, flapAt)
+	local flapModel = showStyleModel(plot, "CatFlap", flapAsset, flapId, flapAt)
+	return doorId, if flapModel ~= nil then flapId else nil
 end
 
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
@@ -750,11 +773,11 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 	for _, slot in Crates.STYLE_SLOTS do
 		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
 	end
-	-- The door set and cat flap in use, by decor id, and their models (F80).
-	for _, slot in Crates.MODEL_SLOTS do
-		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
-	end
-	refreshDoors(plot, profile)
+	-- The door set and cat flap in use, by decor id, and their models (F80). #2572: the models go in first and the
+	-- attributes follow, set only for a model that is there, so a client never hides the cafe's door for nothing.
+	local doorId, flapId = refreshDoors(plot, profile)
+	plot.model:SetAttribute("Door", doorId)
+	plot.model:SetAttribute("CatFlap", flapId)
 end
 
 -- Tables and their chairs, one per tables level. Each chair carries the customers' way to it (CustomerController):

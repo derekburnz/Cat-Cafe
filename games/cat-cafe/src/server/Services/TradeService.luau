@@ -1,13 +1,14 @@
 --!strict
--- F102 trading (docs/design/cat-cafe/trading.md). Players from TradeMinTier swap cats in the town or a camp; the client
+-- F102 trading (docs/design/cat-cafe/trading.md). Players from TradeMinTier swap cats anywhere (#2568); the client
 -- only asks, and this service holds every request and trade (Util/TradeBook) and decides.
--- - Asking (section 2): TradeRequest(userId) is checked with Trade.askRefusal on both players (tier, kill switch, safe
---   zone, busy, one request out, re-ask wait, cooldown, TradesPerDay, the target's Trade requests setting) and sends
+-- - Asking (section 2): TradeRequest(userId) is checked with Trade.askRefusal on both players (tier, kill switch,
+--   busy, one request out, re-ask wait, cooldown, TradesPerDay, the target's Trade requests setting) and sends
 --   the target TradeAsked. TradeRespond(requestId, accept) checks both again before the trade opens.
 -- - The trade (section 3): TradeOffer adds a cat that Trade.offerRefusal lets go (theirs, unlocked, not exclusive, up
 --   to TradeMaxCats) and that leaves the player a cat, or takes one away; either way both sides start over. Ready and
 --   Confirm carry the version and are refused for an old one. Both players get TradeState after every change.
---   Walking into the wild, starting a carry, catch, rescue or flight, Cancel, leaving or the kill switch ends it.
+--   Starting a carry, catch, rescue or flight, Cancel, leaving or the kill switch ends it. #2568: the night's cloud hop
+--   home doesn't, and a player in a trade can't be tackled (ShoveService).
 -- - The swap (section 4): checked once more, then the record goes to CatCafe_Trades ("pending") and a pointer under
 --   each player (TradeVault), the record is decided "commit", both profiles take their side (Trade.apply, apply once
 --   per trade id) and save, and each pointer is cleared after a save that holds the trade. A server that stops after
@@ -40,23 +41,20 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
-local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
-local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeBook = require(script.Parent.Parent.Util.TradeBook)
 local TradeVault = require(script.Parent.TradeVault)
 local Types = require(ReplicatedStorage.Shared.Types)
-local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 type Profile = Types.PlayerProfile
 type Swap = { player: Player, mine: TradeVault.RecordSide, theirs: TradeVault.RecordSide }
 
 local TradeService = {}
 
-TradeService.STEP_SECONDS = 0.25 -- the countdown, request and safe zone checks
+TradeService.STEP_SECONDS = 0.25 -- the countdown, request and busy checks
 TradeService.KICK_TEXT = "Your trade is still being saved. Please rejoin in a minute."
 
 local book = TradeBook.new()
@@ -93,32 +91,15 @@ local function publish()
 	Workspace:SetAttribute("TradeMinTier", minTier())
 end
 
-local function rootOf(player: Player): BasePart?
-	local character = player.Character
-	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
-	return if root ~= nil and root:IsA("BasePart") then root :: BasePart else nil
-end
-
--- In the town (no catching area: the street, the square, a cafe) or a camp. `noBody` answers for a player between
--- characters.
-local function isSafe(player: Player, noBody: boolean): boolean
-	local root = rootOf(player)
-	if root == nil then
-		return noBody
-	end
-	local position = root.Position
-	return WorldBuilder.areaAt(PlotService.world(), position) == nil
-		or Layout.campAt(position.X, position.Z) ~= nil
-end
-
-local function isBusy(player: Player): boolean
-	return CatService.busyReason(player) ~= nil
+-- Busy for trading: carrying, catching, rescuing or flying. `open` (#2568) is for a trade already open: the night's
+-- cloud hop home (NightService) moves the player and keeps the trade.
+local function isBusy(player: Player, open: boolean?): boolean
+	return CatService.busyReason(player, open == true) ~= nil
 end
 
 local function facts(player: Player, profile: Profile): Trade.Facts
 	return {
 		tier = profile.tier,
-		safe = isSafe(player, false),
 		busy = isBusy(player),
 		inTrade = TradeBook.tradeFor(book, player.UserId) ~= nil,
 		sinceLastTrade = TradeBook.sinceLastSwap(book, player.UserId, now()),
@@ -424,13 +405,7 @@ local function finish(trade: TradeBook.OpenTrade)
 		endAll(trade, Trade.Ended.failed)
 		return
 	end
-	local reason = Trade.endReason(
-		tradingOn,
-		isSafe(playerA, true),
-		isSafe(playerB, true),
-		isBusy(playerA),
-		isBusy(playerB)
-	)
+	local reason = Trade.endReason(tradingOn, isBusy(playerA, true), isBusy(playerB, true))
 	if reason ~= nil then
 		endAll(trade, reason)
 		return
@@ -864,7 +839,7 @@ local function onLoaded(player: Player, profile: Profile)
 	end
 end
 
--- The countdowns, requests running out, and the safe zone and busy checks on every open trade.
+-- The countdowns, requests running out, and the busy checks on every open trade.
 local function step()
 	local at = now()
 	for _, request in TradeBook.expire(book, at) do
@@ -888,13 +863,7 @@ local function step()
 		if playerA == nil or playerB == nil then
 			continue -- onLeave ends it
 		end
-		local reason = Trade.endReason(
-			tradingOn,
-			isSafe(playerA, true),
-			isSafe(playerB, true),
-			isBusy(playerA),
-			isBusy(playerB)
-		)
+		local reason = Trade.endReason(tradingOn, isBusy(playerA, true), isBusy(playerB, true))
 		if reason ~= nil then
 			endAll(trade, reason)
 		elseif TradeBook.tick(trade, at) then

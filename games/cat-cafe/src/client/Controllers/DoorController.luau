@@ -327,7 +327,15 @@ end
 -- The leaf in use: the art's, or with a door set in use its DoorBack's _Leaf (`from`) once that is in.
 local function bindLeaf(door: Door, from: Model?)
 	if door.leafFrom == from then
-		return
+		if from == nil or from == door.art then
+			return
+		end
+		-- #2572: a door set's leaf that wasn't in yet, or came back as a new instance, binds again
+		local model = partNamed(from, "_Leaf")
+		local current = door.leaf
+		if model == nil or (current ~= nil and current.model == model) then
+			return
+		end
 	end
 	local old = door.leaf
 	if old ~= nil and old.model.Parent ~= nil then
@@ -425,7 +433,13 @@ local function readState(door: Door, open: boolean)
 	door.owned = type(owner) == "number" and owner > 0
 	door.ownerId = if door.owned then owner :: number else 0
 	door.isOwner = door.owned and door.ownerId == Players.LocalPlayer.UserId
-	local replaced = door.plot:GetAttribute("Door") ~= nil
+	local decor = door.plot:FindFirstChild("Decor")
+	local doorSet = door.plot:GetAttribute("Door")
+	local backModel = if doorSet ~= nil then childModel(decor, "DoorBack") else nil
+	local replaced = BackDoor.replaced(
+		doorSet,
+		backModel ~= nil and backModel:FindFirstChildWhichIsA("BasePart", true) ~= nil
+	)
 	if door.hidden ~= replaced then
 		door.hidden = replaced
 		setHidden(door.art, replaced)
@@ -433,8 +447,7 @@ local function readState(door: Door, open: boolean)
 	elseif replaced then
 		setHidden(door.art, true) -- #2386: and the art's parts that have come in since
 	end
-	local decor = door.plot:FindFirstChild("Decor")
-	bindLeaf(door, if replaced then childModel(decor, "DoorBack") else door.art)
+	bindLeaf(door, if replaced then backModel else door.art)
 	bindFront(door, if replaced then childModel(decor, "DoorFront") else nil, open)
 	checkDrift(door)
 	-- the server put the flap at the shut leaf's attachment (CafeService.refreshDoors)

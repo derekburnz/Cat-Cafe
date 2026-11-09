@@ -180,15 +180,19 @@ local function announceSpawn(c: Current)
 	Net.fireAll("PityAnnounce", c.kind, c.areaId, "out", nil)
 end
 
--- Marks cat `c` caught by `winner` and tells everyone, once.
-local function markCaught(c: Current, winner: string)
+-- Marks cat `c` caught, once. `winner` is the catcher's name when the catch was in this server, else nil (#2567:
+-- another server's catch shows no name, banner or chat line here; the sign and copy still reset).
+local function markCaught(c: Current, winner: string?)
 	if c.state == "caught" then
 		return
 	end
 	c.state = "caught"
 	c.winner = winner
 	publishState()
-	Net.fireAll("Announce", Pity.caughtText(winner), c.kind)
+	local banner = Pity.caughtBanner(winner)
+	if banner ~= nil then
+		Net.fireAll("Announce", banner, c.kind)
+	end
 	Net.fireAll("PityAnnounce", c.kind, c.areaId, "caught", winner)
 end
 
@@ -419,13 +423,16 @@ local function logShower(player: Player?, s: Shower, outcome: string)
 	end
 end
 
-local function showerCaught(s: Shower, winner: string)
+-- `winner` nil: another server's catch, so no banner here (#2567).
+local function showerCaught(s: Shower, winner: string?)
 	if s.state == "caught" then
 		return
 	end
 	s.state = "caught"
 	s.winner = winner
-	Net.fireAll("Announce", CafeEvents.showerCaughtText(winner), s.pick.kind)
+	if winner ~= nil then
+		Net.fireAll("Announce", CafeEvents.showerCaughtText(winner), s.pick.kind)
+	end
 end
 
 -- Spawns the n-th shower of `event` here (it may yield on a late start's claim read).
@@ -535,11 +542,7 @@ local function claimShower(player: Player, s: Shower): boolean
 		return true
 	end
 	if s.state == "caught" then
-		Net.toast(
-			player,
-			CafeEvents.showerCaughtText(s.winner or "Someone") .. " It puffed out of your net.",
-			"warn"
-		)
+		Net.toast(player, Pity.LOST_TEXT, "warn")
 		logShower(player, s, "lost")
 		return false
 	end
@@ -572,12 +575,8 @@ local function claimShower(player: Player, s: Shower): boolean
 		publish({ shower = s.key, winner = player.DisplayName })
 		return true
 	end
-	showerCaught(s, winner.winner)
-	Net.toast(
-		player,
-		CafeEvents.showerCaughtText(winner.winner) .. " It puffed out of your net.",
-		"warn"
-	)
+	showerCaught(s, nil)
+	Net.toast(player, Pity.LOST_TEXT, "warn")
 	logShower(player, s, "lost")
 	return false
 end
@@ -657,11 +656,7 @@ local function claim(player: Player, number: number): boolean
 		return true -- this server already holds the claim (the cat was knocked loose and caught again)
 	end
 	if c.state == "caught" then
-		Net.toast(
-			player,
-			Pity.caughtText(c.winner or "Someone") .. " It puffed out of your net.",
-			"warn"
-		)
+		Net.toast(player, Pity.LOST_TEXT, "warn")
 		log(player, c, "lost")
 		return false
 	end
@@ -711,9 +706,8 @@ local function claim(player: Player, number: number): boolean
 		publish({ kind = c.kind, seq = c.seq, winner = player.DisplayName })
 		return true
 	end
-	local name = if winner ~= nil then winner.winner else "Someone"
-	markCaught(c, name)
-	Net.toast(player, Pity.caughtText(name) .. " It puffed out of your net.", "warn")
+	markCaught(c, nil)
+	Net.toast(player, Pity.LOST_TEXT, "warn")
 	log(player, c, "lost")
 	return false
 end
@@ -733,7 +727,7 @@ local function onMessage(message: any)
 			if s.state == "out" then
 				logShower(nil, s, if removed > 0 then "gone" else "lost")
 			end
-			showerCaught(s, string.sub(data.winner, 1, 40))
+			showerCaught(s, nil)
 		end
 		return
 	end
@@ -747,12 +741,11 @@ local function onMessage(message: any)
 	if type(data.winner) == "string" then
 		local c = currents[kind]
 		if c ~= nil and c.seq == data.seq and not c.wonHere then
-			local winner = string.sub(data.winner, 1, 40)
 			local removed = CatService.removePity(Pity.number(c.seq, kind))
 			if c.state == "out" then
 				log(nil, c, if removed > 0 then "gone" else "lost")
 			end
-			markCaught(c, winner)
+			markCaught(c, nil)
 		end
 	else
 		local moved = Pity.readTimer({ at = data.at, seq = data.seq })

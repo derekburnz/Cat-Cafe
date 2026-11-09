@@ -2529,6 +2529,8 @@ local SCENES = {
 		local used = store and store:FindFirstChild("Used", true)
 		assert(used and used:FindFirstChild("playtest") and used:FindFirstChild("old_code"), "uigate: no used codes (#1714)")
 		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
+		local hint = store:FindFirstChild("Hint", true) :: TextLabel?
+		assert(hint and hint.Visible and hint.Text == "Check the game description for codes", "uigate: no codes hint (#2610)")
 	end },
 	-- #1714: a refusal is one calm line in place; nothing used yet says so
 	{ "CodesRefused", function()
@@ -4951,6 +4953,13 @@ local SCENES = {
 	{ "RallyRescue", function()
 		rallyScore({ lap = 2, points = 50, myPoints = 7 })
 		UI.rescue.show("gate_rescue", rescueChallenge())
+	end },
+	-- #2608: lap 3 in this server: the banner's gold pill reads "Lap 3: bigger prizes!" and the name steps down to the flag
+	{ "RallyLapThree", function()
+		rallyScore({ lap = 3, points = 50, myPoints = 7 })
+		local banner = UIShim.playerGui:FindFirstChild("CatCafeRally", true)
+		local lap = banner and banner:FindFirstChild("Lap", true) :: TextLabel?
+		assert(lap and lap.Visible and lap.Text == "Lap 3: bigger prizes!", "uigate: no lap pill (#2608)")
 	end },
 	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
 	{ "RallySoon", function()

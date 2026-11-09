@@ -142,7 +142,16 @@ The same shape as every area: 4 Common (one for each role), 2 Rare, 2 Epic, 1 Le
 Golem, Hieroglyph and Gargoyle are Derek2's. The Golem is the Legendary because it's the cat most players will chase. The Jade Guardian is the Mythical so the top cat feels rarer than all three. If Derek2 would rather the Golem be the Mythical, they swap with no other change.
 
 **Model check result** (Model-Agent, #2584): 10 pass, 9 fixed above, and Mirage confirmed. Three rules for the whole set:
-- The palette is full (128 of 128). Each colour uses the nearest existing swatch where it's within about ΔE 6. Colours that are truly new go in a second texture, `CatCafe_Palette2`, used only by the Tier 6 and 7 cats. Model-Agent proposes that in decisions.md.
+- The palette is full (128 of 128), and there's no second palette texture. Every colour uses the nearest existing swatch. The colours more than ΔE 10 off get these hand-picked swatches, and Gameplay's colour tables use the same names:
+  - Camel saddle: `bowl_red`.
+  - Jade Guardian dark trim: `leaf_dark`.
+  - Sphinx and Pharaoh blue: `galaxy_blue`.
+  - Scarab: `dumpster_green` with `sign_teal`.
+  - Golem runes: `sign_teal`.
+  - Ivy fur: `fur_moss`.
+  - Mosaic: `paw_sewer`, `fur_golden` and `terracotta`.
+
+  The RGB values in the tables are the design intent. The model uses the swatch. Model-Agent logs this in decisions.md with the first cat PR.
 - The Desert beige cats each get a clear second colour (Dune, Dusty and Sunny above). Sandy stays plain as the base sand cat.
 - Markings are geometry, never decals. Everything is matte, except the golds.
 

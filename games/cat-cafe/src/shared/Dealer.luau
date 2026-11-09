@@ -8,6 +8,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local FreshCatch = require(script.Parent.FreshCatch)
+local Types = require(script.Parent.Types)
 
 local Dealer = {}
 
@@ -40,6 +41,47 @@ function Dealer.amountIn(stock: { FoodAmount }, lureId: string): number
 		end
 	end
 	return 0
+end
+
+export type PlanItem = { lureId: string, count: number }
+
+-- #2573 (riverpopcorn886 via Derek2: "Buy all"): what Buy all takes from `stock` (the DealerStock rows, priced for
+-- the player, with their bought counts) with `coins`, and the total cost. Rows go best grade first (the food's
+-- `rarity` badge), then in row order; each takes one at a time while it has stock left and the next one fits, and a
+-- row that no longer fits is passed for the next (cheaper) one, so what fits is bought, never nothing. Rows of
+-- foods not in the Catalog, at no cost or with nothing left are skipped. The server recomputes it from its own stock
+-- and coins (DealerService's BuyDealerAll); the confirm card shows the same plan.
+function Dealer.planAll(stock: { Types.DealerFood }, coins: number): ({ PlanItem }, number)
+	type Entry = { food: Types.DealerFood, rank: number, row: number }
+	local order: { Entry } = {}
+	for row, food in stock do
+		local def = Catalog.getLure(food.lureId)
+		if def ~= nil and food.cost > 0 and food.amount - food.bought > 0 then
+			table.insert(
+				order,
+				{ food = food, rank = Catalog.rarityRank[def.rarity] or 0, row = row }
+			)
+		end
+	end
+	table.sort(order, function(a: Entry, b: Entry): boolean
+		if a.rank ~= b.rank then
+			return a.rank > b.rank
+		end
+		return a.row < b.row
+	end)
+	local plan: { PlanItem } = {}
+	local total = 0
+	local left = math.max(0, coins)
+	for _, entry in order do
+		local food = entry.food
+		local count = math.min(food.amount - food.bought, math.floor(left / food.cost))
+		if count > 0 then
+			table.insert(plan, { lureId = food.lureId, count = count })
+			total += count * food.cost
+			left -= count * food.cost
+		end
+	end
+	return plan, total
 end
 
 return Dealer

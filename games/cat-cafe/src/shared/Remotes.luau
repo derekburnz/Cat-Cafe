@@ -54,6 +54,9 @@ Remotes.ClientToServer = {
 	"BuyDealerFood", -- (lureId: string, night: number)  night, near the cart, a dealer food, `night` the server's
 	-- current night count (F94; was the 5 minute window: a buy sent as the cart leaves is refused, S42), fewer bought
 	-- tonight than its amount
+	"BuyDealerAll", -- (night: number)  #2573: as BuyDealerFood for every food at once: the server's own
+	-- Dealer.planAll of tonight's stock, bought counts and coins (best grade first, what fits); answered with a toast
+	-- and DealerStock
 	"BuyFreshCatch", -- (itemId: string, window: number)  F94 (rewards-and-shops.md section 6): day, within
 	-- FishMarketRange of a FishMarket station, a Catalog.freshCatch row, `window` the current one, fewer bought this
 	-- window than its amount, enough golden fish; 2 a second; answered with FreshCatchStock, bought or refused

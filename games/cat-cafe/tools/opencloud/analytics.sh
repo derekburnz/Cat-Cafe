@@ -535,34 +535,52 @@ for dim in Platform Country AgeGroupV2; do
 done
 
 # The onboarding funnel and first_hour by Platform: players per step on each kind of device, with each column's share
-# of its own step 1, so a phone drop that PC players do not have shows as a gap between the columns.
+# of its own step 1, so a phone drop that PC players do not have shows as a gap between the columns. Platform is a
+# filter only for FunnelUserTotalCount (a breakdown answers HTTP 400), so (#2703) the script asks which platforms
+# were logged (dimension-values) and reads the funnel once per platform with a FunnelName and a Platform filter.
+platformsLogged=()
+if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
+	mapfile -t platformsLogged <<<"$result"
+else
+	platformsLogged=(Phone Computer Tablet Console)
+fi
 for funnel in "$onboardingFunnel" "$firstHourFunnel"; do
 	say "#### $funnel by Platform"
 	say ""
-	if ! query FunnelUserTotalCount None FunnelStep,Platform "$(only FunnelName "$funnel")"; then
-		failed
-		continue
-	fi
-	mapfile -t lines < <(jq -r '.values[]? | (.breakdowns // []) as $b
-		| ($b | map(select(.dimension == "FunnelStep"))[0] // $b[0] // {}) as $s
-		| ($b | map(select(.dimension == "Platform"))[0] // $b[1] // {}) as $p
-		| [($s.value // "" | tostring), ($s.displayValue // "" | tostring), ($p.displayValue // $p.value // "?" | tostring),
-			((.dataPoints // [])[0].value // 0 | floor | tostring)] | join("|")' <<<"$result" | sort -t'|' -k1,1n)
-	if [ "${#lines[@]}" = 0 ]; then
-		say "No steps of $funnel logged in this window."
-		say ""
-		continue
-	fi
 	declare -A cell=() firstOf=() label=()
 	steps=()
 	platforms=()
-	for line in "${lines[@]}"; do
-		IFS='|' read -r step name platform users <<<"$line"
-		[ -n "${label[$step]+x}" ] || steps+=("$step")
-		label[$step]=$name
-		printf '%s\n' "${platforms[@]}" | grep -qxF -- "$platform" || platforms+=("$platform")
-		cell[$step.$platform]=$users
+	errors=()
+	for platform in "${platformsLogged[@]}"; do
+		filter=$(jq -nc --arg funnel "$funnel" --arg platform "$platform" \
+			'[{dimension: "FunnelName", operation: "In", values: [$funnel]},
+				{dimension: "Platform", operation: "In", values: [$platform]}]')
+		if ! query FunnelUserTotalCount None FunnelStep "$filter"; then
+			errors+=("$platform: $result")
+			continue
+		fi
+		mapfile -t lines < <(jq -r '.values[]? | ((.breakdowns // [])[0] // {}) as $s
+			| [($s.value // "" | tostring), ($s.displayValue // "" | tostring),
+				((.dataPoints // [])[0].value // 0 | floor | tostring)] | join("|")' <<<"$result")
+		[ "${#lines[@]}" -gt 0 ] || continue
+		platforms+=("$platform")
+		for line in "${lines[@]}"; do
+			IFS='|' read -r step name users <<<"$line"
+			[ -n "$step" ] || continue
+			[ -n "${label[$step]+x}" ] || steps+=("$step")
+			label[$step]=$name
+			cell[$step.$platform]=$users
+		done
 	done
+	for error in "${errors[@]}"; do
+		say "_${error//|/\\|}_"
+	done
+	if [ "${#steps[@]}" = 0 ]; then
+		say "No steps of $funnel logged in this window."
+		say ""
+		unset cell firstOf label
+		continue
+	fi
 	mapfile -t steps < <(printf '%s\n' "${steps[@]}" | sort -n)
 	header="| Step | Name |"
 	rule="|---:|---|"

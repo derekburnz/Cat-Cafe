@@ -47,6 +47,7 @@ local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Shove = require(ReplicatedStorage.Shared.Shove)
+local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -2322,6 +2323,12 @@ local RETURN_AGENT = { AgentRadius = 1, AgentHeight = 2, AgentCanJump = true, Wa
 -- walked to on the floor under it, and arriveHome puts the cat up there (review S88).
 local function walkHome(stray: Stray, home: Vector3)
 	local deadline = os.clock() + Config.DropReturnMaxSeconds
+	-- #2687: the Lost and Found's Homing Bell walks the dropper's own cat home faster from Tier 5
+	local drop = stray.drop
+	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
+	local ownerProfile = if owner ~= nil then DataService.get(owner) else nil
+	local speed = Config.DropReturnWalkSpeed
+		* StationPerks.homingSpeed(if ownerProfile ~= nil then Economy.tier(ownerProfile) else nil)
 	local walking = function(): boolean
 		return stray.alive and stray.returning and os.clock() < deadline
 	end
@@ -2343,20 +2350,12 @@ local function walkHome(stray: Stray, home: Vector3)
 		end
 		if computed and path.Status == Enum.PathStatus.Success then
 			for i, waypoint in path:GetWaypoints() do
-				if
-					i > 1
-					and not Mover.walkTo(
-						stray.model,
-						waypoint.Position,
-						Config.DropReturnWalkSpeed,
-						walking
-					)
-				then
+				if i > 1 and not Mover.walkTo(stray.model, waypoint.Position, speed, walking) then
 					break
 				end
 			end
 		else
-			Mover.walkTo(stray.model, clearPath(at, goal), Config.DropReturnWalkSpeed, walking)
+			Mover.walkTo(stray.model, clearPath(at, goal), speed, walking)
 		end
 		-- no closer (a path that ends short, or a wall in the way): try again in a moment
 		local now = stray.model:GetPivot().Position

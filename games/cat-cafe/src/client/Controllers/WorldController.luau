@@ -20,6 +20,7 @@ local DayLight = require(Shared:WaitForChild("DayLight"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local NightPass = require(Shared:WaitForChild("NightPass"))
+local StationReveal = require(Shared:WaitForChild("StationReveal"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
@@ -766,6 +767,20 @@ function WorldController.start()
 				end
 				-- F84: every catching area is a wild area, so its zone (camp included) hides the cannon hints
 				UI.cannon.setWild(if zone ~= nil and zone ~= "Cafe" then zone:lower() else nil)
+				-- #2687: the area's station reveal, once per account; the flag is set locally at once so a step back out
+				-- and in before the sync comes back does not play it twice
+				if zone ~= nil and zone ~= "Cafe" then
+					local area = zone:lower()
+					local perk = StationReveal.due(state.tier, state.tipsSeen, area)
+					if perk ~= nil then
+						local key = StationReveal.key(area)
+						if state.tipsSeen ~= nil then
+							state.tipsSeen[key] = true
+						end
+						Net.fire("TipSeen", key, false)
+						Moments.StationReveal:Fire(area, perk.id)
+					end
+				end
 			end
 
 			if not sawAlley and state.tutorialStep == 0 and zone == "Alley" then

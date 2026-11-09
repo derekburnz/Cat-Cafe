@@ -14,6 +14,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
+local StationReveal = require(script.Parent.StationReveal)
 local Types = require(script.Parent.Types)
 
 local Tips = {}
@@ -99,6 +100,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.FEEDBACK_ASK
 		or id == Tips.STUCK_HELP
 		or id == Tips.LESSON
+		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 end
 
 local function anyCount(counts: { [string]: number }): boolean
@@ -242,7 +244,13 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 			if
 				type(key) == "string"
 				and value == true
-				and (byId[key] ~= nil or Tips.isAsk(key) or key == Tips.LESSON) -- #2409: the lesson's own flag
+				-- #2409: the lesson's own flag; #2687: the station reveals
+				and (
+					byId[key] ~= nil
+					or Tips.isAsk(key)
+					or key == Tips.LESSON
+					or StationReveal.isKey(key)
+				)
 			then
 				seen[key] = true
 			end

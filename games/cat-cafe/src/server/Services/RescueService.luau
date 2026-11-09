@@ -45,6 +45,7 @@ local Payout = require(script.Parent.Payout)
 local RallyService = require(script.Parent.RallyService)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
 local RescuePick = require(ReplicatedStorage.Shared.RescuePick)
+local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -601,9 +602,10 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		return
 	end
 
+	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6
 	local challenge = Rescue.newChallenge(entry.def.rarity, entry.trap, now, function()
 		return rng:NextNumber()
-	end)
+	end, StationPerks.rescueZoneScale(Economy.tier(profile)))
 	local attempt = Rescue.newAttempt(challenge, entry.def.rarity)
 	entry.attempt = attempt
 	setLock(entry, player.UserId)

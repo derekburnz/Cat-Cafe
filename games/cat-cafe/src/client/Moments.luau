@@ -128,6 +128,10 @@ local Moments = {
 	-- state.lostFound.held (its lid rattles while above 0).
 	CampExtraCollect = Signal.new() :: Signal.Signal<string, Vector3>,
 	CampExtrasState = Signal.new() :: Signal.Signal<Types.CampExtrasState>,
+	-- #2687 (shared/StationReveal): (area, perkId) the first time this account walks or flies into an area whose tier
+	-- it owns, for the station's build-in beat (VFX, Animation), the fanfare (Sound) and the Unlocked card (UI, with
+	-- StationPerks.get(perkId)). Fired once per area per account (WorldController, saved through TipSeen).
+	StationReveal = Signal.new() :: Signal.Signal<string, string>,
 }
 
 return Moments

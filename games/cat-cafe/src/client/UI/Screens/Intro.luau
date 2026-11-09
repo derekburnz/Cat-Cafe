@@ -31,6 +31,7 @@
 -- and a ScreenGui with IgnoreGuiInset covers the whole screen (Roblox's top bar strip too), so the two agree.
 
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -90,6 +91,10 @@ local SKIP_ACTION = "CatCafeIntroSkip"
 local NEXT_ACTION = "CatCafeIntroNext" -- #2182: Space, Enter and gamepad A
 local SKIP_DIM = 0.5 -- Skip's label and outline while its bar fills
 local SKIP_POP = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, true) -- to 1.1 and back
+-- #2702: Skip's one flash as it turns ready, and the gold ring spreading SKIP_RING_GROW px out from it
+local SKIP_FLASH = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local SKIP_RING = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local SKIP_RING_GROW = 36
 local SKIP_SHAKE = TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
 -- shot 4's job card: four role tiles beside the cat, a little right of it and up
 local JOB_TILE = 44
@@ -210,6 +215,8 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	self._bottom = bar("BottomBar")
 	self._lowerBar = IntroLogic.lowerBar(Scale.isTouch()) -- #2394: none on touch, more camera
 	self._bottom.Visible = self._lowerBar
+	local topBar = IntroLogic.topBar(Scale.isTouch()) -- #2702: none on touch either, just the dots
+	self._top.Visible = topBar
 
 	local root: Frame = Create("Frame", {
 		Name = "Root",
@@ -247,12 +254,14 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		Parent = root,
 	})
 
-	-- the shot dots, centred on the top bar
+	-- the shot dots, centred on the top bar, or DOTS_TOP under the top edge with none (#2702)
 	local dots: Frame = Create("Frame", {
 		Name = "Dots",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, BAR / 2),
+		Position = if topBar
+			then UDim2.fromScale(0.5, BAR / 2)
+			else UDim2.new(0.5, 0, 0, IntroLogic.DOTS_TOP),
 		Size = UDim2.fromOffset(IntroLogic.MAX_SHOTS * (DOT_NOW + DOT_GAP), DOT_NOW),
 		Parent = root,
 	}, {
@@ -274,6 +283,9 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 			Size = UDim2.fromOffset(DOT, DOT),
 			Parent = dots,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		if not topBar then
+			Outline.border(self._dots[index], 2) -- #2702: over the world, not a black bar
+		end
 	end
 
 	-- the caption, just above the lower bar; a long one shrinks to stay on one line
@@ -1076,6 +1088,48 @@ function Intro._readySkip(self: any, ready: boolean?)
 		self._skipFill.Size = UDim2.fromScale(1, 1)
 		Tween.to(self._skipScale, SKIP_POP, { Scale = 1.1 })
 	end
+	if ready ~= false then
+		self:_flashSkip()
+	end
+end
+
+-- #2702 (Derek2 11-09: "make the tutorial cutscene skip button more obvious maybe one quick flash on the bottom right
+-- when its ready"): once, as Skip turns ready, a white flash over the pill and a gold ring spreading out from it. With
+-- Reduce Motion on, the flash alone.
+function Intro._flashSkip(self: any)
+	local skip: TextButton = self._skipButton
+	local flash: Frame = Create("Frame", {
+		Name = "Flash",
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 3,
+		Parent = skip,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Tween.to(flash, SKIP_FLASH, { BackgroundTransparency = 1 })
+	task.delay(SKIP_FLASH.Time + 0.05, function()
+		flash:Destroy()
+	end)
+	if GuiService.ReducedMotionEnabled then
+		return
+	end
+	local size = skip.Size
+	local ring: Frame = Create("Frame", {
+		Name = "SkipRing",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = skip.Position + UDim2.fromOffset(-size.X.Offset / 2, -size.Y.Offset / 2),
+		Size = size,
+		ZIndex = 3,
+		Parent = skip.Parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local stroke = Outline.border(ring, 4, Theme.colors.gold)
+	Tween.to(ring, SKIP_RING, { Size = size + UDim2.fromOffset(SKIP_RING_GROW, SKIP_RING_GROW) })
+	Tween.to(stroke, SKIP_RING, { Transparency = 1 })
+	task.delay(SKIP_RING.Time + 0.05, function()
+		ring:Destroy()
+	end)
 end
 
 function Intro._hideSkip(self: any)

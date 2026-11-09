@@ -4010,6 +4010,28 @@ local SCENES = {
 		UIShim.advance(1.5)
 		assert(gui:FindFirstChild("TipPop", true) == nil, "uigate: the tip pop stayed past 1.6 s (#2242)")
 	end },
+	-- #2702 (Derek2 11-09: "make the tutorial cutscene skip button more obvious maybe one quick flash on the bottom right
+	-- when its ready" and "fix the black bar on the top of screen for mobile so it just shows the dots"): as Skip's bar
+	-- fills it flashes once with a gold ring spreading out; on touch there is no top bar and the dots sit near the top
+	{ "IntroSkipFlash", function()
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(2, "Fly the Cat Cannon to catch stray cats!", nil, 4.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local skip = gui:FindFirstChild("Skip", true) :: TextButton
+		assert(skip:FindFirstChild("Flash") == nil, "uigate: Skip flashed before its bar filled (#2702)")
+		UIShim.advance(5.1)
+		assert(skip:FindFirstChild("Flash"), "uigate: Skip did not flash as it turned ready (#2702)")
+		local ring = gui:FindFirstChild("SkipRing", true) :: GuiObject?
+		assert(ring, "uigate: no gold ring spreading from Skip (#2702)")
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		local top = gui:FindFirstChild("TopBar") :: Frame
+		assert(top.Visible == not touch, ("uigate: the top bar shows %s on %s (#2702)"):format(tostring(top.Visible), if touch then "touch" else "desktop"))
+		local dot = gui:FindFirstChild("Dot2", true) :: Frame
+		local root = gui:FindFirstChild("Root") :: Frame -- the whole screen (the shim measures under Roblox's top bar)
+		local y = dot.AbsolutePosition.Y - root.AbsolutePosition.Y
+		assert(y >= 0 and y + dot.AbsoluteSize.Y <= 48, ("uigate: the shot dot sits %d px from the top, not near it (#2702)"):format(y))
+		UIShim.advance(0.2) -- mid ring, for the picture
+	end },
 	{ "IntroNext", function()
 		local fired: { number } = {}
 		local counting = UI.events.introNext:Connect(function(shot: number)

@@ -289,6 +289,7 @@ return function()
 		TradeConfirmWaitSeconds = 2,
 		TradeRequestSeconds = 20,
 		TradeReaskSeconds = 3,
+		TradeDeclinesToStop = 2,
 		TradeCooldownSeconds = 10,
 		TradesPerDay = 50,
 		TradeFlagCheckSeconds = 60,

@@ -602,6 +602,10 @@ local function onRequest(player: Player, rawUserId: unknown)
 		Net.toast(player, refusal, "warn")
 		return
 	end
+	if TradeBook.declinedOut(book, player.UserId, target.UserId) then
+		Net.toast(player, string.format(Trade.Messages.declinedOut, target.DisplayName), "warn") -- #2550 review
+		return
+	end
 	local request = TradeBook.ask(book, newId(), player.UserId, target.UserId, at)
 	Net.fire(target, "TradeAsked", request.id, player.UserId, player.DisplayName, request.expiresAt)
 	Net.toast(player, string.format(Trade.Messages.sent, target.DisplayName), "info")

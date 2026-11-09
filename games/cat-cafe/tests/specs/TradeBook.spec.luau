@@ -46,6 +46,57 @@ return function()
 			end
 		)
 
+		it(
+			"stops asking a player after two declines in a row, until they ask back (#2550 review)",
+			function()
+				expect(Config.TradeDeclinesToStop).to.equal(2)
+				local book = TradeBook.new()
+				local at = 100
+				local function declineOnce(id: string)
+					TradeBook.ask(book, id, 1, 2, at)
+					expect(TradeBook.answer(book, id, 2, false, at + 1)).to.be.ok()
+					at += 10
+				end
+				declineOnce("d1")
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(false)
+				-- a lapse neither counts nor resets
+				TradeBook.ask(book, "l1", 1, 2, at)
+				TradeBook.expire(book, at + Config.TradeRequestSeconds)
+				at += 100
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(false)
+				declineOnce("d2")
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(true)
+				expect(TradeBook.declinedOut(book, 2, 1)).to.equal(false) -- the other way is open
+				expect(TradeBook.declinedOut(book, 1, 3)).to.equal(false)
+				-- they ask back: open again
+				TradeBook.ask(book, "b1", 2, 1, at)
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(false)
+				TradeBook.answer(book, "b1", 1, true, at + 1)
+				-- an accept resets the count
+				at += 10
+				declineOnce("d3")
+				TradeBook.ask(book, "a1", 1, 2, at)
+				TradeBook.answer(book, "a1", 2, true, at + 1)
+				at += 10
+				declineOnce("d4")
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(false)
+				-- leaving forgets it
+				declineOnce("d5")
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(true)
+				TradeBook.leave(book, 2, at)
+				expect(TradeBook.declinedOut(book, 1, 2)).to.equal(false)
+				expect(next(book.declines)).never.to.be.ok()
+			end
+		)
+
+		it("holds one request from a sender, so the card never stacks (#2550 review)", function()
+			local book = TradeBook.new()
+			TradeBook.ask(book, "r1", 1, 2, 100)
+			expect(TradeBook.isAsking(book, 1)).to.equal(true) -- TradeService refuses a second ask (Messages.asking)
+			expect(TradeBook.answer(book, "r1", 2, false, 101)).to.be.ok()
+			expect(TradeBook.isAsking(book, 1)).to.equal(false)
+		end)
+
 		it("lets an accept through with no wait, and runs a request out", function()
 			local book = TradeBook.new()
 			TradeBook.ask(book, "r1", 1, 2, 100)

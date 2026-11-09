@@ -105,6 +105,7 @@ export type Callbacks = {
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
+	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
 }
 
 export type HUD = {
@@ -3300,9 +3301,27 @@ function HUD.setEvent(self: any, lines: { string }?, kind: string?)
 	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
 	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
 	-- sees the event too
-	line.Visible = text ~= nil
 	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
-	nextLine.Visible = line.Visible and nextLine.Text ~= ""
+	local showLine = text ~= nil
+	local showNext = showLine and nextLine.Text ~= ""
+	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): its countdown
+	-- repaints every second, so mid-catch it stays down and is only noted for the catch's end (HUD._applyFocus)
+	if self._catching then
+		local hidden: { [GuiObject]: boolean } = self._focusHidden
+		if showLine then
+			hidden[line] = true
+		else
+			hidden[line] = nil
+		end
+		if showNext then
+			hidden[nextLine] = true
+		else
+			hidden[nextLine] = nil
+		end
+		showLine, showNext = false, false
+	end
+	line.Visible = showLine
+	nextLine.Visible = showNext
 	self:_layoutRight()
 end
 
@@ -3816,13 +3835,18 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 	local callbacks: Callbacks = self._callbacks
 	if kind == "rewards" then
 		local gifts, daily, _, cozy = self:_rewardParts()
-		-- #2798: the Cozy Cafe line first; a press only closes the list (the bag is taken at the counter)
+		-- #2798: the Cozy Cafe line first. #2854 (Derek2: "make it auto claim if clicked"): with a bag waiting a press
+		-- takes it from anywhere; the countdown's press only closes the list
 		if cozy then
 			table.insert(rows, {
 				id = "Cozy",
 				icon = Theme.icons.home,
 				style = "ghost" :: Button.Style,
-				press = function() end,
+				press = function()
+					if self._cozyReady == true and callbacks.takeCozy then
+						callbacks.takeCozy()
+					end
+				end,
 			})
 		end
 		-- #2791: the ladder's next steps first, each "1:45  +1 spin"; a press only closes the list

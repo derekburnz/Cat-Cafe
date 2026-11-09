@@ -498,6 +498,26 @@ return function()
 			expect(Economy.passMultiplier(p)).to.equal(3)
 		end)
 
+		it("#2850: a bought Starter Bundle doubles income like 2x Money, and the higher of the two counts", function()
+			local bundle = Catalog.getProduct("starter_bundle") :: any
+			expect(bundle.prize.moneyMultiplier).to.equal(2)
+			local p = working()
+			local base = Economy.incomePerSecond(p)
+			expect(Economy.passMultiplier(p)).to.equal(1)
+			p.onceBought = { starter_bundle = true }
+			expect(Economy.passMultiplier(p)).to.equal(2)
+			expect(Economy.incomePerSecond(p)).to.be.near(base * 2, 1e-9)
+			-- the 2x pass on top does not stack: still 2x
+			Economy.setPasses(p, { money = 2, longNap = false, slots = 0 })
+			expect(Economy.passMultiplier(p)).to.equal(2)
+			-- a bigger pass wins
+			Economy.setPasses(p, { money = 4, longNap = false, slots = 0 })
+			expect(Economy.passMultiplier(p)).to.equal(4)
+			Economy.setPasses(p, nil)
+			p.onceBought = {}
+			expect(Economy.passMultiplier(p)).to.equal(1)
+		end)
+
 		it(
 			"2x Money doubles the day rate, so the tip piles and offline pay double too (done-when 5)",
 			function()

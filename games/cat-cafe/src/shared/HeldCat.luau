@@ -169,11 +169,31 @@ local HEAD_OUT = 0.75 -- how much of the head's height shows over the rim
 local PACK_PART = "PackPart" -- the Weld that holds each part of the bag (not the flap) to its body
 -- #2733: how much wider (x) and deeper (z) the bag gets with a cat in it; its back stays against the wearer
 local BULGE = Vector3.new(1.12, 1, 1.1)
+-- #2849 (Derek2: the worn Backpack and its cat "at least 2x bigger"): the pack's size over the torso-fit one; the
+-- packed cat follows through the pack's scale. PACK_DROP (per unit of scale) lowers it so the taller bag does not
+-- ride up past the shoulders.
+local PACK_GROW = 2
+local PACK_DROP = 0.15
 
 -- The worn pack on `character`, nil without one.
 function HeldCat.pack(character: Model): Model?
 	local pack = character:FindFirstChild(HeldCat.PACK)
 	return if pack ~= nil and pack:IsA("Model") then pack :: Model else nil
+end
+
+-- #2856: whether `character` wears its pack and the pack is still welded to the character's current torso. False
+-- when the pack is gone, or when the avatar's appearance rebuilt the torso after it went on (the weld went with it).
+function HeldCat.packHeld(character: Model): boolean
+	local pack = HeldCat.pack(character)
+	local torso = HeldCat.torso(character)
+	if pack == nil or torso == nil then
+		return false
+	end
+	local weld = pack:FindFirstChild("PackWeld", true)
+	return weld ~= nil
+		and weld:IsA("Weld")
+		and (weld :: Weld).Part0 == torso
+		and (weld :: Weld).Part1 ~= nil
 end
 
 -- Puts `pack` (a clone of CatCafe_Item_Backpack, not yet parented) on `character`'s back: behind the torso, turned so
@@ -186,11 +206,15 @@ function HeldCat.wearPack(pack: Model, character: Model): boolean
 		return false
 	end
 	pack.Name = HeldCat.PACK
-	local scale = math.clamp(torso.Size.X / 2, 0.6, 1.6)
+	local scale = math.clamp(torso.Size.X / 2, 0.6, 1.6) * PACK_GROW
 	if math.abs(scale - 1) > 1e-3 then
 		pack:ScaleTo(pack:GetScale() * scale)
 	end
-	pack:PivotTo(torso.CFrame * CFrame.new(0, 0, torso.Size.Z / 2) * CFrame.Angles(0, math.pi, 0))
+	pack:PivotTo(
+		torso.CFrame
+			* CFrame.new(0, -PACK_DROP * scale, torso.Size.Z / 2)
+			* CFrame.Angles(0, math.pi, 0)
+	)
 	local flap: Model? = nil
 	for _, child in pack:GetChildren() do
 		if child:IsA("Model") and child.Name:sub(-5) == "_Flap" then

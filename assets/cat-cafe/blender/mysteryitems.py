@@ -2,17 +2,19 @@
 (Components/ItemIcon draws a model from ReplicatedStorage.Assets at a three-quarter view of its -Z face) and the
 wagon's pedestal (the Attachment FeaturedItem on CatCafe_Square_MysteryCart) show. Both face -Z, like every item.
 
-  CatCafe_Item_Backpack        the Backpack: a teal canvas pack, a butter front pocket with a teal paw, mint side
-                               pockets, a carry loop and two straps on its back. Its cream top flap is a cat's face:
-                               two ears standing up off the flap with pink insides, eyes with a glint, a pink nose,
-                               a smile and whiskers, and a gold buckle under the chin. About 1.3 x 1.6 x 0.8 studs.
-                               Pivot at the middle of its back (the strap side, +Z), so it can be worn as the design
-                               says (welded behind the torso like HeldCat.attachBack, turned 180 degrees about Y so the
-                               cat face looks backward, the strap side against the back).
-  CatCafe_Item_Backpack_Flap   the flap, its ears and face, a child Model pivoted on its hinge at the top of the
-                               pack's back: turn it about its own X axis (FLAP_OPEN degrees, the face swinging up
-                               and back) to open the pack when a cat rides in it, so the packed cat's head and paws
-                               come out of the top.
+  CatCafe_Item_Backpack        the Backpack (redrawn for #2849 to match the Bag HUD icon): a sky-blue pack with
+                               cat ears on its top corners (pink insides), navy piping and base, a cream front
+                               pocket with a pink paw and a gold zip pull, navy side pockets each holding a mint
+                               bottle, a sky cat tail with a navy tip curling up its +X side, and two navy straps
+                               with gold buckles and a carry loop on its back. About 1.9 x 1.7 x 0.8 studs with the
+                               tail. Pivot at the middle of its back (the strap side, +Z), so it can be worn as the
+                               design says (welded behind the torso by HeldCat.wearPack, turned 180 degrees about Y so
+                               the front looks backward, the strap side against the back). The opening's rim and
+                               middle stay where HeldCat's PACK_RIM and PACK_MOUTH_Z expect them.
+  CatCafe_Item_Backpack_Flap   the navy lid with sky stitching (the buckled front panel stays on the pack), a child
+                               Model pivoted on its hinge at the top of the pack's back: turn it about its own X axis
+                               (HeldCat opens it 90 degrees, so it stands up behind the cat) when a cat rides in it,
+                               so the packed cat's head comes out of the top between the ears.
   CatCafe_Item_LongNet         the Long Net: a round net seen face-on with a long three-piece telescoping handle
                                (a dark grip, a teal middle and a measuring-tape tip in cream and ink) and a gold arrow
                                beside the handle pointing out toward the hoop: "your net reaches further". About
@@ -32,81 +34,97 @@ from plot import rot_z
 BACKPACK = "CatCafe_Item_Backpack"
 LONG_NET = "CatCafe_Item_LongNet"
 
-PACK, POCKET, SIDE, FLAP = "sign_teal", "pastel_butter", "mint", "cream"
-GOLD = "rarity_legend"
-STRAP = "dark_wood"
+# #2849 (Derek2 2026-11-09: "make the model for backpack cooler"): it matches the Bag HUD icon (#2836), a sky-blue
+# pack with cat ears, a navy flap and trim, a cream pocket with a pink paw, and a curling cat tail on one side.
+SKY, NAVY, POCKET, PINK = "fish_blue", "pants_navy", "cream", "nose_pink"
+STITCH, BOTTLE, CAP = "pastel_sky", "mint", "offwhite"
+BUCKLE = "gold_mid"
+GOLD = "rarity_legend"                        # the Long Net's
 W, H, D = 1.3, 1.4, 0.62                      # the pack's width, height and depth (front at -D; its back at
                                               # -0.045, the straps and buckles out to z 0)
 Y0 = -0.75                                    # its bottom (the pivot is the middle of its back)
-Y1 = Y0 + H
+Y1 = Y0 + H                                   # the opening's rim (HeldCat.PACK_RIM 0.66 sits just above it)
 HINGE = (0.0, Y1 + 0.03, -0.06)               # the flap's hinge, along X at the top of the back
 FLAP_OPEN = 125                               # degrees the flap turns back to open
+FW = 0.46                                     # the flap's half width: the ears stand on the corners beside it
+TAIL = ((W / 2 - 0.02, Y0 + 0.24), (W / 2 + 0.2, Y0 + 0.42), (W / 2 + 0.3, Y0 + 0.72),
+        (W / 2 + 0.24, Y0 + 1.0), (W / 2 + 0.08, Y0 + 1.12))   # the tail's joints, up the +X side near the back
+TAIL_Z = -0.095                               # its middle, front to back (between the side pocket and the straps)
+
+
+def _tail(b):
+    """A sky-blue cat tail curling up the +X side with a navy tip: one box per joint-to-joint run, a ball on each
+    inner joint so the bends stay round."""
+    n = len(TAIL) - 1
+    for i in range(n):
+        (ax, ay), (bx, by) = TAIL[i], TAIL[i + 1]
+        length = math.hypot(bx - ax, by - ay)
+        ang = math.degrees(math.atan2(by - ay, bx - ax))
+        r = 0.075 if i < n - 1 else 0.065
+        b.box(((ax + bx) / 2, (ay + by) / 2, TAIL_Z), (length, 2 * r, 2 * r), SKY if i < n - 1 else NAVY,
+              rot=rot_z(ang))
+        if 0 < i:
+            b.ball((ax, ay, TAIL_Z), r + 0.005, SKY)
 
 
 def _pack(b):
     x0, x1 = -W / 2, W / 2
-    b.span((x0, Y0, -D), (x1, Y1, -0.045), PACK)
-    b.span((x0 - 0.03, Y0 - 0.02, -D - 0.03), (x1 + 0.03, Y0 + 0.12, -0.015), STRAP)             # the base
-    for x in (x0 + 0.06, x1 - 0.06):                                                             # piping up the
-        b.span((x - 0.04, Y0 + 0.12, -D - 0.035), (x + 0.04, Y1, -D + 0.04), "cream")            # front corners
-    # the front pocket: butter with a teal paw and a gold zip pull
-    b.span((x0 + 0.2, Y0 + 0.16, -D - 0.12), (x1 - 0.2, Y0 + 0.72, -D + 0.01), POCKET)
-    b.span((x0 + 0.2, Y0 + 0.66, -D - 0.13), (x1 - 0.2, Y0 + 0.72, -D - 0.11), "fur_caramel")   # its seam
-    py, pz = Y0 + 0.4, -D - 0.13
-    b.cyl((0.0, py - 0.03, pz), 0.11, 0.03, PACK, axis="Z", segments=8)
-    for dx, dy in ((-0.11, 0.09), (-0.04, 0.14), (0.04, 0.14), (0.11, 0.09)):
-        b.cyl((dx, py + dy, pz), 0.04, 0.03, PACK, axis="Z", segments=6)
-    b.span((x1 - 0.32, Y0 + 0.56, -D - 0.16), (x1 - 0.26, Y0 + 0.68, -D - 0.12), GOLD)
-    # side pockets
+    b.span((x0, Y0 + 0.12, -D), (x1, Y1, -0.045), SKY)
+    b.span((x0 - 0.03, Y0, -D - 0.03), (x1 + 0.03, Y0 + 0.12, -0.015), NAVY)                     # the base
+    for x in (x0 + 0.06, x1 - 0.06):                                                             # navy piping up
+        b.span((x - 0.04, Y0 + 0.12, -D - 0.035), (x + 0.04, Y0 + 0.72, -D + 0.04), NAVY)        # the front corners
+    # the front pocket: cream, a sky zip line with a gold pull, a pink paw
+    b.span((x0 + 0.18, Y0 + 0.18, -D - 0.12), (x1 - 0.18, Y0 + 0.64, -D), POCKET)
+    b.span((x0 + 0.21, Y0 + 0.57, -D - 0.13), (x1 - 0.21, Y0 + 0.6, -D - 0.12), STITCH)
+    b.span((0.27, Y0 + 0.43, -D - 0.15), (0.33, Y0 + 0.58, -D - 0.12), BUCKLE)
+    py, pz = Y0 + 0.33, -D - 0.135
+    b.cyl((-0.05, py, pz), 0.1, 0.03, PINK, axis="Z", segments=10)
+    for dx, dy in ((-0.11, 0.1), (-0.04, 0.15), (0.04, 0.15), (0.11, 0.1)):
+        b.cyl((-0.05 + dx, py + dy, pz), 0.038, 0.03, PINK, axis="Z", segments=6)
+    # side pockets, navy, each with a mint bottle standing in it
     for s in (-1, 1):
-        b.span((s * (W / 2 + 0.1), Y0 + 0.18, -D + 0.1), (s * (W / 2 - 0.01), Y0 + 0.62, -0.1), SIDE)
-        b.span((s * (W / 2 + 0.11), Y0 + 0.56, -D + 0.09), (s * (W / 2 - 0.01), Y0 + 0.62, -0.09), "cream")
-    # the back: two straps from the top to the base, a carry loop on top
+        b.span((s * (W / 2), Y0 + 0.16, -D + 0.1), (s * (W / 2 + 0.12), Y0 + 0.6, -0.17), NAVY)
+        b.span((s * (W / 2 + 0.005), Y0 + 0.54, -D + 0.095), (s * (W / 2 + 0.125), Y0 + 0.57, -0.165), STITCH)
+        bx = s * (W / 2 + 0.065)
+        b.cyl((bx, Y0 + 0.72, -0.36), 0.06, 0.24, BOTTLE, segments=8)
+        b.cyl((bx, Y0 + 0.87, -0.36), 0.035, 0.06, CAP, segments=6)
+    # cat ears on the top corners, beside the flap: sky with pink insides, facing -Z
+    for s in (-1, 1):
+        lo, hi, tip = s * (FW + 0.01), s * (W / 2 + 0.12), s * (W / 2 + 0.01)
+        b.fan_z(-D + 0.14, (tip, Y1 + 0.44), [(lo, Y1), (hi, Y1)], 0.22, SKY)
+        b.fan_z(-D + 0.12, (tip, Y1 + 0.31), [(lo + s * 0.07, Y1 + 0.04), (hi - s * 0.07, Y1 + 0.04)], 0.02, PINK)
+    # the back: two navy straps from the top to the base with gold buckles, a carry loop on top
     for x in (-0.33, 0.33):
-        b.span((x - 0.11, Y0 + 0.12, -0.05), (x + 0.11, Y1 - 0.05, -0.01), STRAP)
-        b.span((x - 0.12, Y0 + 0.35, -0.03), (x + 0.12, Y0 + 0.45, 0.0), GOLD)                    # strap buckles
+        b.span((x - 0.11, Y0 + 0.12, -0.045), (x + 0.11, Y1 - 0.05, -0.01), NAVY)
+        b.span((x - 0.12, Y0 + 0.35, -0.01), (x + 0.12, Y0 + 0.45, 0.0), BUCKLE)
     for x in (-0.22, 0.22):
-        b.span((x - 0.05, Y1, -0.16), (x + 0.05, Y1 + 0.24, -0.08), STRAP)
-    b.span((-0.27, Y1 + 0.2, -0.16), (0.27, Y1 + 0.28, -0.08), STRAP)
+        b.span((x - 0.05, Y1, -0.16), (x + 0.05, Y1 + 0.24, -0.08), NAVY)
+    b.span((-0.27, Y1 + 0.2, -0.16), (0.27, Y1 + 0.28, -0.08), NAVY)
+    # the navy front panel with sky stitching and a gold buckle, like the Bag icon's flap. It stays on the body, so
+    # the lid alone swings up behind a riding cat's head and nothing hangs over it.
+    zf = -D - 0.06
+    b.span((-FW, Y0 + 0.76, zf), (FW, Y1, -D), NAVY)
+    for x in (-FW + 0.08, FW - 0.08):
+        b.span((x - 0.015, Y0 + 0.86, zf - 0.012), (x + 0.015, Y1 - 0.06, zf), STITCH)
+    b.span((-FW + 0.08, Y0 + 0.82, zf - 0.012), (FW - 0.08, Y0 + 0.85, zf), STITCH)
+    b.span((-0.15, Y0 + 0.7, zf - 0.04), (0.15, Y0 + 0.88, zf), BUCKLE)
+    b.span((-0.07, Y0 + 0.75, zf - 0.05), (0.07, Y0 + 0.83, zf - 0.04), NAVY)
+    _tail(b)
 
 
 def _flap(f):
-    """The flap in its hinge's frame: a lid over the top and a drop down the front, the cat's face on the drop."""
+    """The lid in its hinge's frame: navy, over the opening, with a sky stitched edge and a lip over the front panel.
+    Opened (HeldCat turns it 90 degrees), it stands up behind the riding cat's head."""
     hx, hy, hz = HINGE
 
     def span(lo, hi, sw, rot=None):
         f.span((lo[0] - hx, lo[1] - hy, lo[2] - hz), (hi[0] - hx, hi[1] - hy, hi[2] - hz), sw, rot)
 
-    def box(c, s, sw, rot=None):
-        f.box((c[0] - hx, c[1] - hy, c[2] - hz), s, sw, rot)
-
-    def cyl(c, r, h, sw, axis="Z", segments=8):
-        f.cyl((c[0] - hx, c[1] - hy, c[2] - hz), r, h, sw, axis=axis, segments=segments)
-
-    zf = -D - 0.06                                                                              # the drop's face
-    span((-W / 2 - 0.04, Y1, -D - 0.06), (W / 2 + 0.04, Y1 + 0.07, -0.02), FLAP)                # lid
-    span((-W / 2 - 0.04, Y0 + 0.74, zf), (W / 2 + 0.04, Y1 + 0.07, -D), FLAP)                   # drop
-    span((-W / 2 - 0.05, Y0 + 0.74, zf - 0.01), (W / 2 + 0.05, Y0 + 0.8, -D + 0.01), "fur_caramel")   # hem
-    # the ears: standing up off the lid near its front corners, pink inside, facing -Z
-    for s in (-1, 1):
-        ex, eb = s * 0.38, Y1 + 0.07
-        f.fan_z(-D + 0.1 - hz, (ex - hx, eb + 0.36 - hy), [(ex - 0.2 - hx, eb - 0.01 - hy), (ex + 0.2 - hx, eb - 0.01 - hy)],
-                0.1, FLAP)
-        f.fan_z(-D + 0.04 - hz, (ex - hx, eb + 0.26 - hy), [(ex - 0.1 - hx, eb + 0.02 - hy), (ex + 0.1 - hx, eb + 0.02 - hy)],
-                0.02, "nose_pink")
-    # the face on the drop
-    fy = Y0 + 1.08
-    for s in (-1, 1):
-        cyl((s * 0.27, fy + 0.05, zf - 0.015), 0.1, 0.03, "fur_ink", segments=10)              # eyes
-        cyl((s * 0.27 - 0.03, fy + 0.09, zf - 0.03), 0.035, 0.02, "milk", segments=6)          # glints
-        cyl((s * 0.43, fy - 0.12, zf - 0.012), 0.08, 0.024, "fur_strawberry", segments=8)      # cheeks
-        for k, a in enumerate((8, -8)):                                                         # whiskers
-            box((s * 0.6, fy - 0.08 - 0.06 * k, zf - 0.015), (0.26, 0.025, 0.02), "choco", rot=rot_z(s * a))
-    box((0.0, fy - 0.08, zf - 0.015), (0.13, 0.09, 0.03), "nose_pink", rot=rot_z(45))          # nose
-    for s in (-1, 1):                                                                           # a little w smile
-        box((s * 0.06, fy - 0.17, zf - 0.012), (0.12, 0.025, 0.024), "choco", rot=rot_z(s * 30))
-    span((-0.09, Y0 + 0.67, zf - 0.04), (0.09, Y0 + 0.83, zf + 0.01), GOLD)                    # the buckle
-    span((-0.05, Y0 + 0.5, -D - 0.04), (0.05, Y0 + 0.74, -D + 0.005), STRAP)                   # its tab down
+    span((-FW, Y1, -D - 0.06), (FW, Y1 + 0.07, -0.02), NAVY)                                    # lid
+    span((-FW, Y1 - 0.08, -D - 0.08), (FW, Y1, -D - 0.06), NAVY)                               # its front lip
+    for x in (-FW + 0.07, FW - 0.07):                                                           # stitching
+        span((x - 0.015, Y1 + 0.07, -D + 0.02), (x + 0.015, Y1 + 0.082, -0.1), STITCH)
+    span((-FW + 0.07, Y1 + 0.07, -D + 0.005), (FW - 0.07, Y1 + 0.082, -D + 0.035), STITCH)
 
 
 def build_backpack(mat):

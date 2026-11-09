@@ -70,6 +70,7 @@ local TEASER_WIDE = 38 -- and its two in the wide window's narrower column
 local PERKS_BUTTON = Vector2.new(112, 36) -- #2687: the title bar's Perks button, a 36 px face on a mouse
 local PERKS_RIGHT = 64 -- the title bar's room for the X, right of the Perks button
 local PERKS_GAP = 14 -- #2839: on touch, the space between the Perks button and the X
+local PERKS_TOUCH_WIDE = 92 -- #2857 (Derek2: "perks button ... too big"): a narrower face on touch
 local CLOSE_OVERHANG = 10 -- Components/Panel's: how far the touch X sticks out past the window's right edge
 
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
@@ -350,7 +351,9 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		-- and sticks out past the window's edge.
 		local height = PERKS_BUTTON.Y
 		local right = PERKS_RIGHT
+		local wide = PERKS_BUTTON.X
 		if touch then
+			wide = PERKS_TOUCH_WIDE
 			local side = Theme.sizes.touchMin
 			local closeWide = math.max(
 				side,
@@ -364,10 +367,10 @@ function RankUp.new(callbacks: Callbacks): RankUp
 			text = "Perks",
 			icon = "⭐",
 			style = "ghost",
-			size = UDim2.fromOffset(PERKS_BUTTON.X, height),
+			size = UDim2.fromOffset(wide, height),
 			anchorPoint = Vector2.new(1, 0.5),
 			position = UDim2.new(1, -right, 0.5, if touch then 0 else -2),
-			textSize = Theme.sizes.textBody,
+			textSize = if touch then Theme.sizes.textSmall else Theme.sizes.textBody, -- #2857: smaller on touch
 			zIndex = 3,
 			parent = header or content,
 			onClick = callbacks.perks,

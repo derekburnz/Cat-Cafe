@@ -38,6 +38,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	UseLure = RateLimiter.new(2, 1), -- rolls a cat and rebuilds the bowl; 2 so both bowls can fill at once (#1161)
 	ResolveBait = RateLimiter.new(2, 1), -- the card retries after 6 s at most; 2 for both bowls' cats (#1161)
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
+	TakeCozy = RateLimiter.new(1, 1), -- #2854: one bag waits at a time
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
 	LockDecor = RateLimiter.new(4, 1), -- #1574: as LockCat, the lock on a decor card

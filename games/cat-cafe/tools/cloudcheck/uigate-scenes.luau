@@ -2290,6 +2290,14 @@ local SCENES = {
 		assert(pop.Visible, "uigate: the Rewards list closed (#2798)")
 		words = row:FindFirstChild("Label", true)
 		assert(words and words.Text == "Cozy gift waiting!", "uigate: the waiting bag's row reads " .. tostring(words and words.Text) .. " (#2798)")
+		-- #2854 (Derek2: "make it auto claim if clicked"): a press on the waiting bag's row asks the server to take it
+		local asked = 0
+		local connection = UI.events.takeCozy:Connect(function()
+			asked += 1
+		end)
+		press("CatCafeHUD", "Pop.Cozy")
+		connection:Disconnect()
+		assert(asked == 1, "uigate: the Cozy gift row's press did not ask to take the bag (#2854)")
 	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
@@ -5809,6 +5817,28 @@ local SCENES = {
 		door:Destroy()
 		camp:Destroy()
 	end },
+	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): the chip's
+	-- countdown repaints every second, and mid-catch it stays down; after the catch it is back
+	{ "CafeEventCatch", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2) -- running: "ends in 1:59:40" repaints every second
+		local nextLine = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel
+		startCatch("gate_eventchip", "Rare", 3, 0.2, 0.9)
+		UIShim.advance(0.3)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles did not start")
+		for _ = 1, 3 do
+			UIShim.advance(1.1)
+			UI.cafeEvent.tick()
+			assert(not chip.Visible and not nextLine.Visible, "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+		end
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		UIShim.advance(0.5)
+		UI.cafeEvent.tick()
+		assert(chip.Visible and nextLine.Visible, "uigate: the Cafe Event chip did not come back after the catch (#2860)")
+	end },
 	-- #2487: the party running: the start banner and the gold chip with the end and the next shower
 	{ "CafeEventRunning", function()
 		local t = workspace:GetServerTimeNow()
@@ -6208,6 +6238,25 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		assertStoreCards(true)
+	end },
+	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
+	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
+	{ "StoreStarter", function()
+		UI.update({ starterBought = false } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local storeWindow = modals and modals:FindFirstChild("Store", true)
+		assert(storeWindow, "uigate: no Store window (#2850)")
+		local names = {}
+		for _, label in storeWindow:GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible then
+				names[label.Text] = true
+			end
+		end
+		for _, name in { "Starter Bundle", "King Cat Pack", "Second Bait Bowl" } do
+			assert(names[name], "uigate: Featured does not show " .. name .. " (#2850)")
+		end
 	end },
 	-- #1888: the Store funnel reports each tab once a visit (deferred past the open) and the first buy of a visit
 	{ "StoreFunnel", function()

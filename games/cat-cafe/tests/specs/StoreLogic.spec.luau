@@ -303,11 +303,11 @@ return function()
 			expect(next(StoreLogic.newTabs({}, rows))).to.equal(nil)
 		end)
 
-		it("features the Starter Bundle, then the ladder, Long Nap and King Cat Pack", function()
+		it("features the Starter Bundle, then the King Cat Pack, the ladder and Long Nap (#2850)", function()
 			local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
 			expect(featured.hero.key).to.equal("starterBundle")
 			expect(featured.hero.passId).to.equal(40)
-			expect(keys(featured.picks)).to.equal("money,longNap,kingPack")
+			expect(keys(featured.picks)).to.equal("kingPack,money,longNap")
 		end)
 
 		it(
@@ -344,7 +344,7 @@ return function()
 			expect(starter.effect).to.equal(
 				StoreLogic.STARTER.effect
 					.. "\nSprinkles the cat, Bakery Stripes sign style"
-					.. "\n10x Big Money\n5x Swift\nIn your bag: 2"
+					.. "\n10x Big Money, 5x Swift potions" -- #2850: one line, so the bigger bundle fits the hero
 			)
 			-- a cat or style with no name yet still reads as words
 			expect(StoreLogic.extras({
@@ -353,6 +353,17 @@ return function()
 				signStyles = { "odd_style" },
 			})).to.equal("New Cat the cat, Odd Style sign style")
 			expect(StoreLogic.extras({ potions = { swift_potion = 1 } })).to.equal(nil)
+			-- #2850: the 2x Money for good leads the extras once the prize carries it
+			expect(StoreLogic.extras({
+				potions = {},
+				cats = { "sprinkles" },
+				moneyMultiplier = 2,
+			}, { sprinkles = "Sprinkles" })).to.equal("2x Money for good, Sprinkles the cat")
+			expect(StoreLogic.extras({ potions = {}, moneyMultiplier = 1 })).to.equal(nil)
+			expect(StoreLogic.contentsLine(
+				{ swift_potion = 5, big_tip_potion = 10 },
+				{ big_tip_potion = "Big Money Potion", swift_potion = "Swift Potion" }
+			)).to.equal("10x Big Money, 5x Swift potions")
 		end)
 
 		it("closes the Cafe Pass card for the next season in the last minutes of one (#2129)", function()
@@ -485,6 +496,16 @@ return function()
 				}
 			end
 
+			it("puts the King Cat Pack, the Second Bait Bowl and the Cafe Pass first (#2850)", function()
+				local rows = store(false)
+				rows[11] = row("kingPack", false)
+				rows[12] = row("cafePass", false, true)
+				table.insert(rows, row("starterBundle", false, true))
+				local featured = StoreLogic.featured(rows)
+				expect(featured.hero.key).to.equal("starterBundle")
+				expect(keys(featured.picks)).to.equal("kingPack,secondBowl,cafePass")
+			end)
+
 			it("sees the Second Bait Bowl and the next two passes, and no potion pack", function()
 				expect(keys(StoreLogic.featured(store(false)).picks)).to.equal("secondBowl,extraSlot,vip")
 			end)
@@ -499,7 +520,7 @@ return function()
 				local rows = store(true)
 				table.remove(rows, 6) -- no Steady Paw card
 				table.remove(rows, 5) -- nor the S pack
-				expect(keys(StoreLogic.featured(rows).picks)).to.equal("potionXS,cafePass,money")
+				expect(keys(StoreLogic.featured(rows).picks)).to.equal("potionXS,secondBowl,cafePass")
 			end)
 		end)
 

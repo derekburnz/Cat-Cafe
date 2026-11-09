@@ -176,9 +176,12 @@ local starting = false -- a play is waiting for the camp to stream in
 local firstStarted = false -- the first play of this session has begun
 -- #2759: from the client's start to the first spawn, and through play()'s stream wait, the camera holds still on the
 -- town square (parked). The default camera sits inside the town cannon until then: a yellow screen on a slow phone.
-local LOADING_VIEW: Intro.Key = { position = Vector3.new(26, 28, -46), look = Vector3.new(0, 4, 0) }
+local LOADING_VIEW: Intro.Key = { position = Vector3.new(12, 10, -22), look = Vector3.new(0, 5, 0) } -- near shot 1's last frame
 local PARK_GIVE_UP = 20 -- seconds: after this a spawn hands the camera back even without a ProfileSync
 local parked = false
+local parkedAt: Intro.Key = LOADING_VIEW
+local parkBound = false
+local PARK_STEP = "CatCafeIntroPark"
 local synced = false -- the first ProfileSync has come, so it is known whether the intro plays
 local gaveUp = false
 
@@ -1938,8 +1941,31 @@ local function park(at: Intro.Key)
 		return
 	end
 	parked = true
+	parkedAt = at
 	camera.CameraType = Enum.CameraType.Scriptable
 	setCamera(at)
+	-- a spawn resets the camera to follow the character (Laptop-Tester: 5 s behind the cannon before the intro), so
+	-- the park holds it each frame until unpark() or a run
+	if not parkBound then
+		parkBound = true
+		RunService:BindToRenderStep(PARK_STEP, Enum.RenderPriority.Camera.Value + 1, function()
+			local held = Workspace.CurrentCamera
+			if not parked or held == nil then
+				return
+			end
+			if held.CameraType ~= Enum.CameraType.Scriptable then
+				held.CameraType = Enum.CameraType.Scriptable
+			end
+			setCamera(parkedAt)
+		end)
+	end
+end
+
+local function unbindPark()
+	if parkBound then
+		parkBound = false
+		RunService:UnbindFromRenderStep(PARK_STEP)
+	end
 end
 
 -- Hands a parked camera back to the character, once there is one and no intro has it.
@@ -1949,6 +1975,7 @@ local function unpark()
 		return
 	end
 	parked = false
+	unbindPark()
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
 		return
@@ -2042,6 +2069,7 @@ function IntroController.play(replay: boolean)
 	}
 	run = r
 	parked = false -- the run has the camera now; finish() hands it back as Custom
+	unbindPark()
 
 	if r.controls ~= nil then
 		pcall(function()

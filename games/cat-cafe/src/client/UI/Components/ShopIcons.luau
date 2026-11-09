@@ -136,32 +136,34 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Areas = "rbxassetid://111104265458192",
 	Icon_Hud_Potions = "rbxassetid://128266096924783",
 	Icon_Hud_Bait = "rbxassetid://118400972292559",
-	-- #2836: the Bag tile's backpack, redrawn (Model-Agent, upload run 42688251868); was 88244676943674 (#2453)
-	Icon_Hud_Bag = "rbxassetid://124246973096601",
+	-- #2836: the Bag tile's backpack, redrawn (Model-Agent); was 88244676943674 (#2453). #2866: these #2836 pictures
+	-- are the group-owned uploads (run 42714863021): the first ones (run 42688251868) were owned by a user, not the
+	-- Creampuff Games group that owns the experience, so they never loaded in game
+	Icon_Hud_Bag = "rbxassetid://96046816170155",
 	-- #2836 (Derek2 11-09: "make sure all our buttons/icons are high quality"): the icons that were still emoji, drawn
-	-- by Model-Agent (PR #2837, upload run 42688251868): window badges, Mystery Market items, Upgrades rows, staff roles
+	-- by Model-Agent (PR #2837, group upload run 42714863021): window badges, Mystery Market items, Upgrades rows, staff roles
 	-- and the glyphs of ShopIcons.glyph
-	Icon_Hud_MysteryMarket = "rbxassetid://116751810249360",
-	Icon_Hud_Codes = "rbxassetid://80735815355042",
-	Icon_Hud_Collector = "rbxassetid://123860237793173",
-	Icon_Hud_CornerShop = "rbxassetid://115204529463316",
-	Icon_Hud_LawnStall = "rbxassetid://125224598922293",
-	Icon_Hud_RankUp = "rbxassetid://115771653557414",
-	Icon_Hud_Bellhop = "rbxassetid://89455473121061",
-	Icon_Hud_YardSale = "rbxassetid://74792618546082",
-	Icon_Hud_BigBackpack = "rbxassetid://139185312157671",
-	Icon_Hud_LongNet = "rbxassetid://120097146886878",
-	Icon_Hud_Tables = "rbxassetid://118517793906387",
-	Icon_Hud_Espresso = "rbxassetid://95697586145802",
-	Icon_Hud_LuckyCat = "rbxassetid://87647361867703",
-	Icon_Hud_RoleBarista = "rbxassetid://80086649414021",
-	Icon_Hud_RoleWaiter = "rbxassetid://111517233480044",
-	Icon_Hud_RoleGreeter = "rbxassetid://115056498460382",
-	Icon_Hud_RoleEntertainer = "rbxassetid://77187740517808",
-	Icon_Hud_Drop = "rbxassetid://94837885389516",
-	Icon_Hud_Replay = "rbxassetid://118937447656193",
-	Icon_Hud_Tag = "rbxassetid://101437335863206",
-	Icon_Hud_Plate = "rbxassetid://102816311357112",
+	Icon_Hud_MysteryMarket = "rbxassetid://128397134889785",
+	Icon_Hud_Codes = "rbxassetid://90572843028192",
+	Icon_Hud_Collector = "rbxassetid://113368124154344",
+	Icon_Hud_CornerShop = "rbxassetid://108333779650464",
+	Icon_Hud_LawnStall = "rbxassetid://98418962223467",
+	Icon_Hud_RankUp = "rbxassetid://127214291195682",
+	Icon_Hud_Bellhop = "rbxassetid://97210946668732",
+	Icon_Hud_YardSale = "rbxassetid://88120131351409",
+	Icon_Hud_BigBackpack = "rbxassetid://131490615321312",
+	Icon_Hud_LongNet = "rbxassetid://130482158389482",
+	Icon_Hud_Tables = "rbxassetid://81935605293259",
+	Icon_Hud_Espresso = "rbxassetid://79788347112327",
+	Icon_Hud_LuckyCat = "rbxassetid://105000043321459",
+	Icon_Hud_RoleBarista = "rbxassetid://80403532411028",
+	Icon_Hud_RoleWaiter = "rbxassetid://136846403223735",
+	Icon_Hud_RoleGreeter = "rbxassetid://113660188682260",
+	Icon_Hud_RoleEntertainer = "rbxassetid://122759156405446",
+	Icon_Hud_Drop = "rbxassetid://125743788740482",
+	Icon_Hud_Replay = "rbxassetid://71017921859211",
+	Icon_Hud_Tag = "rbxassetid://132164260519001",
+	Icon_Hud_Plate = "rbxassetid://138660554143642",
 	-- #1665: the 8-slice Spin wheel (#1603's render; upload run 42119348490, 11-05), every spin picture prefers it
 	Icon_Hud_Spin = "rbxassetid://137218266791913",
 	-- #1204: Model-Agent's potion flasks (#1193), ShopIcons.potion prefers them; re-uploaded 11-05 with the Cat Whistles

@@ -26,8 +26,9 @@ playground to the bandstand loop.
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
 trap spots (trap_tree, trap_trashcan) add a fifth number, the turn in degrees for the world-placed
-CatCafe_Park_RescueTree or CatCafe_Park_TrashCan standing there (a tree's branch points along its -X). Five traps, four
-deep, none within 100 studs of the camp.
+CatCafe_Park_RescueTree or CatCafe_Park_TrashCan standing there (a tree's branch points along its -X). Six traps,
+four deep; the plaza's bin trap at (-11, -134) is about 24 studs inside the gate, the starter rescue by the camp
+(#2794).
 """
 
 import math
@@ -439,8 +440,7 @@ def build_set(mat):
         _spot(s, "flowerbed", x, z, y=0.62)
     s.put(bench(mat), 52, -141, 90)
     _spot(s, "bench", *turned(52, -141, 90, 0, -2.4))
-    for (x, z) in ((-11, -134), (52, -122)):
-        s.put(bin_(mat), x, z, 0)
+    s.put(bin_(mat), 52, -122, 0)             # the plaza's other bin, at (-11, -134), is a rescue trap now (#2794)
 
     # the picnic lawn, west of the plaza
     for i, (x, z, r) in enumerate(((-24, -143, 8), (-42, -138, -12), (-30, -122, 5))):
@@ -576,10 +576,11 @@ def build_set(mat):
                    (-52, 30), (52, 30), (-52, -36), (52, -150), (-52, 80)):
         s.put(poplar(mat, h=12.0 + (x * 7 + z) % 3), x, z, 0)
 
-    # rescue traps (props placed by the world): 3 trees, 2 bins, four of the five deep, none near the camp
+    # rescue traps (props placed by the world): 3 trees, 3 bins, four of the six deep. The plaza's bin at (-11, -134)
+    # is the starter trap by the camp (#2794: "have rescues near start"; RescuePick.nearest keeps a cat in it)
     for (x, z, turn) in ((46, -24, 0), (-46, 30, 180), (46, 98, 0)):
         _spot(s, "trap_tree", x, z, turn=turn)
-    for (x, z, turn) in ((-8, 64, 0), (-46, 140, 90)):
+    for (x, z, turn) in ((-11, -134, 0), (-8, 64, 0), (-46, 140, 90)):
         _spot(s, "trap_trashcan", x, z, turn=turn)
     return s.finish(_ground(), mat), s
 

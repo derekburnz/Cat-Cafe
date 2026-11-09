@@ -242,6 +242,10 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
 		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
+	-- #2636 (onboarding_v6): the first instruction after the first check-in (card 2, 3 or 4) is on screen
+	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
+		reportStep("next_goal_shown")
+	end
 	if s.tutorialStep < 2 then
 		showTutorial(
 			s,

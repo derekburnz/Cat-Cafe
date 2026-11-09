@@ -2112,11 +2112,12 @@ local SCENES = {
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
 		UI.roadmap.step(8)
 	end },
-	-- #1895: the account's short first bait (2 minutes) in the bowl: "A cat is coming!" on the HUD's row over the money
-	-- and in the Bait bowl window
+	-- #1895: the account's short first bait (45 s since #2774) in the bowl: "A cat is coming!" on the HUD's row over
+	-- the money and in the Bait bowl window
 	{ "BaitFirstComing", function()
 		local now = workspace:GetServerTimeNow()
-		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 102, placedAt = now - 18 }, 1)
+		local first = 45 -- Config.FirstBaitWaitSeconds (#2774: was 120)
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + first - 18, placedAt = now - 18 }, 1)
 		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
 			-- #2447: never on touch, where the counters' row is up in the top bar

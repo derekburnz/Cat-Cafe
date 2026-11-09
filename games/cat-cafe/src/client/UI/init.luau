@@ -1900,6 +1900,10 @@ end
 ----------------------------------------------------------------------------------------------------
 
 function UI.toast(text: string, kind: Types.ToastKind?)
+	-- #2600: no "Bought ..." pop-ups (ToastRules.quiet); init.luau is at the 200-local limit, so it loads here
+	if require(script.Components.ToastRules).quiet(text, kind) then
+		return
+	end
 	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any
 	-- other toast leaves the report waiting (review N151)
 	if bugReportScreen and bugReportScreen:pending() then

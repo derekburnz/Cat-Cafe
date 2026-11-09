@@ -943,6 +943,17 @@ local Config = {
 		NeighbourhoodCenterZ = 2000,
 		NeighbourhoodWidth = 180,
 		NeighbourhoodDepth = 430,
+		-- The Desert and the Ruins (Tier 6 and 7, tier6-7-areas.md sections 2, 4 and 5; #2651): on the two free
+		-- diagonals on the town's east side, about 1980 out, both long along world Z with the camp on the town end, the
+		-- Desert's north and the Ruins' south. Laid out in Layout but built by nothing until they open (#2651 part 3).
+		DesertCenterX = 1400,
+		DesertCenterZ = -1400,
+		DesertWidth = 150,
+		DesertDepth = 560,
+		RuinsCenterX = 1400,
+		RuinsCenterZ = 1400,
+		RuinsWidth = 140,
+		RuinsDepth = 600,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

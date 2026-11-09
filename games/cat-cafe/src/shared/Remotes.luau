@@ -86,6 +86,11 @@ Remotes.ClientToServer = {
 	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
+	"BuyMystery", -- (itemId: string, shownPrice: number)  #2565: within MysteryMarketRange of the MysteryMarket cart, an
+	-- item of Catalog.mysteryItems not owned, from its minTier, priced by the server's clock (MysteryMarket.priceOf); a
+	-- price above shownPrice (the sale ended while the window was open) is refused with "The sale just ended". 1 a
+	-- second; answered with a toast and a ProfileSync. Refused outside Studio while Config.MysteryOpen is false
+	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"RedeemCode", -- (text: string)  from anywhere (#1747), at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult

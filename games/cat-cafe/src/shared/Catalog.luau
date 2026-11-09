@@ -3793,6 +3793,38 @@ function Catalog.getFishShopRow(id: string): Types.FishShopRow?
 	return Catalog.fishShopById[id]
 end
 
+-- #2565 (mystery-market.md section 4d): Juniper's Mystery Market shelf, in rotation order (shared/MysteryMarket). The
+-- launch shelf is the Backpack and the Long Net (Derek2, 2026-11-09), and the Backpack is the launch week's sale.
+-- Golden fish only, bought once, never random and never sold for Robux. New items go at the end, so the weeks
+-- already announced keep their item.
+Catalog.mysteryItems = {
+	{
+		id = "backpack",
+		name = "Backpack",
+		text = "Carry 2 cats! The first rides on your back.",
+		cost = 400,
+		minTier = 1,
+		kind = "tool",
+	},
+	{
+		id = "long_net",
+		name = "Long Net",
+		text = "Your net reaches a stud further.",
+		cost = 320,
+		minTier = 2,
+		kind = "tool",
+	},
+} :: { Types.MysteryItem }
+
+Catalog.mysteryItemsById = {} :: { [string]: Types.MysteryItem }
+for _, item in Catalog.mysteryItems do
+	Catalog.mysteryItemsById[item.id] = item
+end
+
+function Catalog.getMysteryItem(id: string): Types.MysteryItem?
+	return Catalog.mysteryItemsById[id]
+end
+
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, sold by day for golden fish
 -- in this order, each row's amount in a window rolled from Config.FreshCatchAmountWeights (shared/FreshCatch). A
 -- row's id is its potion's id. No crate since #1051 (crate-prices.md section 4: the Market's 40 is the one price).

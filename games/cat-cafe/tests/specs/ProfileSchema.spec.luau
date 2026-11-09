@@ -1896,21 +1896,24 @@ return function()
 			local DAY = 20394 -- 2025-11-02 UTC
 			local NOW = DAY * 86400 + 3600
 
-			it("takes a version 18 save past tier_2 (v1 9) out of the funnel v5 (#1273, #2391)", function()
-				local raw: any = ProfileSchema.template(NOW)
-				raw.version = 18
-				raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
-				local profile = ProfileSchema.migrate(raw, NOW)
-				expect(profile.version).to.equal(ProfileSchema.VERSION)
-				expect(profile.telemetry :: any).to.deepEqual({
-					onboardingStep = 50,
-					achieved = {},
-					funnel = 5,
-					firstDay = 0, -- not known for an account from before version 19
-					introStep = 13,
-					firstHourStep = 8,
-				})
-			end)
+			it(
+				"takes a version 18 save past tier_2 (v1 9) out of the funnel v5 (#1273, #2391)",
+				function()
+					local raw: any = ProfileSchema.template(NOW)
+					raw.version = 18
+					raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
+					local profile = ProfileSchema.migrate(raw, NOW)
+					expect(profile.version).to.equal(ProfileSchema.VERSION)
+					expect(profile.telemetry :: any).to.deepEqual({
+						onboardingStep = 50,
+						achieved = {},
+						funnel = 5,
+						firstDay = 0, -- not known for an account from before version 19
+						introStep = 13,
+						firstHourStep = 8,
+					})
+				end
+			)
 
 			it(
 				"moves a v2 state (#1273): past first_catch out of v5, before it to v5's start, first day kept",
@@ -2278,4 +2281,23 @@ return function()
 			end)
 		end
 	)
+
+	describe("the Mystery Market's owned items (#2565, no version bump)", function()
+		it("start empty and unseen, and keep only known items set to true", function()
+			local profile = ProfileSchema.template(1000)
+			expect(next(profile.mystery)).never.to.be.ok()
+			expect(profile.mysterySeen).to.equal(false)
+			local raw: any = ProfileSchema.template(1000)
+			raw.mystery = { backpack = true, long_net = 1, nope = true, [5] = true }
+			raw.mysterySeen = true
+			local loaded = ProfileSchema.migrate(raw, 1000)
+			expect(loaded.mystery :: any).to.deepEqual({ backpack = true })
+			expect(loaded.mysterySeen).to.equal(true)
+			-- a save from before the field owns none
+			raw.mystery, raw.mysterySeen = nil, nil
+			loaded = ProfileSchema.migrate(raw, 1000)
+			expect(next(loaded.mystery)).never.to.be.ok()
+			expect(loaded.mysterySeen).to.equal(false)
+		end)
+	end)
 end

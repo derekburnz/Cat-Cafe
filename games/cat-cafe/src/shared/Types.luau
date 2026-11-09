@@ -404,6 +404,17 @@ export type CrateDef = {
 
 -- One row of the Golden Fish Market (F53, golden-fish.md section 3). A crate or a food has one `cost`; a perk has a
 -- cost per level in `costs` and stops at `maxLevel`.
+-- #2565 (mystery-market.md section 5): one item on Juniper's Mystery Market shelf, bought once for `cost` golden fish
+-- (its full price) from Tier `minTier`. `kind` sorts the shelf: "tool" changes play, "decor", "look" and "music" don't.
+export type MysteryItem = {
+	id: string,
+	name: string,
+	text: string, -- the card's one line
+	cost: number,
+	minTier: number,
+	kind: "tool" | "decor" | "look" | "music",
+}
+
 export type FishShopRow = {
 	id: string, -- the crate id, the lure id or the perk id
 	kind: "crate" | "lure" | "perk",
@@ -1093,6 +1104,10 @@ export type PlayerProfile = {
 	crates: { [string]: number }, -- crateId -> unopened count
 	crateLuck: { [string]: number }, -- crate pool (zone id or "classic") -> opens since its last Epic or better
 	fishPerks: { [string]: number }, -- perkId -> level bought
+	-- #2565: the Mystery Market items owned (itemId -> true), and whether the player has opened Juniper's window once
+	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
+	mystery: { [string]: boolean },
+	mysterySeen: boolean,
 	codesRedeemed: { [string]: number }, -- code id -> os.time() it was redeemed (F65)
 	introSeen: boolean, -- the intro cutscene has played to the end or been skipped once (F72)
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
@@ -1188,6 +1203,9 @@ export type PlayerState = {
 	crates: { [string]: number }, -- F53
 	crateLuck: { [string]: number },
 	fishPerks: { [string]: number },
+	mystery: { [string]: boolean }, -- #2565
+	mysterySeen: boolean,
+	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax

@@ -37,6 +37,7 @@ local IntroService = require(script.Parent.Services.IntroService)
 local LawnService = require(script.Parent.Services.LawnService)
 local LeaderboardService = require(script.Parent.Services.LeaderboardService)
 local LiveFlagService = require(script.Parent.Services.LiveFlagService)
+local MysteryMarketService = require(script.Parent.Services.MysteryMarketService)
 local MysteryService = require(script.Parent.Services.MysteryService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
@@ -112,6 +113,7 @@ IndexRewardService.start()
 ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()
 FishMarketService.start()
+MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags

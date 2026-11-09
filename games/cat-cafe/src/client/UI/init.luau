@@ -743,6 +743,15 @@ function UI.init(config: Types.InitConfig)
 	end
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
+			-- #2710: on touch the Bag holds the potions, so the potion chip (and the Bag) open it on its Potions tab
+			if
+				name == "Potions"
+				and potionsScreen
+				and Scale.isTouch()
+				and modalInstance:current() ~= name
+			then
+				potionsScreen:showTab("Potions")
+			end
 			modalInstance:toggle(name)
 			if name == "Store" and modalInstance:current() ~= "Store" then
 				-- #1888: the tap closed the Store, so a noted source tags no open

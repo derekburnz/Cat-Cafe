@@ -1705,6 +1705,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, potions)
 	self._potionsTile = potions
+	potions.instance.Visible = not TOUCH -- #2710: the Bag holds the potions on touch (_applyUnlocks)
 	if showKeys then
 		keycap(potions.face, "P", UDim2.fromOffset(-4, -4))
 	end
@@ -2655,7 +2656,9 @@ function HUD._applyUnlocks(self: any)
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
 	self._feedbackTile.instance.Visible = self:_open("feedback")
-	self._potionsTile.instance.Visible = self:_open("potions")
+	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
+	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
+	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
 	self:_closePop() -- a list made under the old unlocks may hold a row that is gone
 	self._travelButtons.areas.instance.Visible = not self._cannonMode and self:_open("areas")
 	self:_sizeTravelRow()
@@ -2692,7 +2695,9 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "gifts" or key == "daily" then self._rewards
 				elseif key == "feedback" then self._feedbackTile
 				elseif key == "invite" then self._menuTile
-				elseif key == "potions" then self._potionsTile
+				elseif key == "potions" then (if TOUCH
+					then self._pills.Bag
+					else self._potionsTile) -- #2710
 				elseif key == "areas" then self._travelButtons.areas
 				else nil
 		)

@@ -10,6 +10,7 @@
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
+local StationPerks = require(script.Parent.StationPerks)
 local Types = require(script.Parent.Types)
 
 local SellExtras = {}
@@ -81,7 +82,8 @@ function SellExtras.plan(
 	while #uids > 0 and #uids >= total do
 		table.remove(uids)
 	end
-	local value = Catalog.rarities[SellExtras.RARITY].sellValue
+	-- #2687: each pays the Yard Sale's Haggler price from Tier 3, as SellCat
+	local value = StationPerks.sellValue(Catalog.rarities[SellExtras.RARITY].sellValue, tier)
 	return { uids = uids, coins = #uids * value }
 end
 

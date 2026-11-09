@@ -298,6 +298,447 @@
    }
   },
   {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.18,
+       0.93,
+       0.32
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.0,
+        0.5
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5,
+        0.0,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.16,
+       0.93,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.6428,
+        0.0,
+        -0.766
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.766,
+        0.0,
+        0.6428
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.05,
+       0.93,
+       0.14
+      ],
+      "orientation": [
+       [
+        0.1736,
+        0.0,
+        0.9848
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9848,
+        0.0,
+        0.1736
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2,
+       0.93,
+       0.42
+      ],
+      "orientation": [
+       [
+        0.9848,
+        0.0,
+        0.1736
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1736,
+        0.0,
+        0.9848
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2,
+       0.93,
+       -0.13
+      ],
+      "orientation": [
+       [
+        0.9397,
+        0.0,
+        -0.342
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.342,
+        0.0,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4,
+       0.68,
+       0.27
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.766,
+        0.6428
+       ],
+       [
+        0.0,
+        -0.6428,
+        0.766
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.04,
+     0.12
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4,
+       0.58,
+       -0.06
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.866,
+        -0.5
+       ],
+       [
+        0.0,
+        0.5,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.04,
+     0.12
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4,
+       0.7,
+       0.17
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.5,
+        -0.866
+       ],
+       [
+        0.0,
+        0.866,
+        0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.04,
+     0.12
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Biscuit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4,
+       0.56,
+       -0.13
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9397,
+        0.342
+       ],
+       [
+        0.0,
+        -0.342,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.04,
+     0.12
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
    "className": "Model",
    "attributes": {
     "Rojo_Target_PrimaryPart": "CatCafe_Cat_Biscuit/1"
@@ -1209,6 +1650,153 @@
      }
     },
     {
+     "name": "CatCafe_Cat_Biscuit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4022,
+         1.29,
+         -0.932
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       0.035,
+       0.04
+      ],
+      "Color": [
+       0.2902,
+       0.1804,
+       0.1216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Biscuit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3913,
+         0.91,
+         -0.932
+        ],
+        "orientation": [
+         [
+          0.766,
+          0.6428,
+          0.0
+         ],
+         [
+          -0.6428,
+          0.766,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       0.035,
+       0.04
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Biscuit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3261,
+         1.38,
+         -0.932
+        ],
+        "orientation": [
+         [
+          0.342,
+          -0.9397,
+          0.0
+         ],
+         [
+          0.9397,
+          0.342,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       0.035,
+       0.04
+      ],
+      "Color": [
+       0.2902,
+       0.1804,
+       0.1216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
      "className": "Model",
      "attributes": {
       "Rojo_Target_PrimaryPart": "CatCafe_Cat_Biscuit/2"
@@ -1245,8 +1833,8 @@
          }
         },
         "Size": [
-         0.23,
-         0.299,
+         0.2484,
+         0.3229,
          0.07
         ],
         "Color": [
@@ -1300,8 +1888,8 @@
          "CFrame": {
           "position": [
            -0.263,
-           1.087,
-           -0.965
+           1.0852,
+           -0.9725
           ],
           "orientation": [
            [
@@ -1323,9 +1911,9 @@
          }
         },
         "Size": [
-         0.138,
-         0.2153,
-         0.06
+         0.149,
+         0.2325,
+         0.075
         ],
         "Color": [
          0.1686,
@@ -1348,8 +1936,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.2012,
-           1.1937,
+           -0.1971,
+           1.2004,
            -0.975
           ],
           "orientation": [
@@ -1372,8 +1960,8 @@
          }
         },
         "Size": [
-         0.069,
-         0.0805,
+         0.0745,
+         0.0869,
          0.03
         ],
         "Color": [
@@ -1458,8 +2046,8 @@
          }
         },
         "Size": [
-         0.23,
-         0.299,
+         0.2484,
+         0.3229,
          0.07
         ],
         "Color": [
@@ -1513,7 +2101,7 @@
          "CFrame": {
           "position": [
            0.263,
-           1.087,
+           1.0852,
            -0.9725
           ],
           "orientation": [
@@ -1536,8 +2124,8 @@
          }
         },
         "Size": [
-         0.138,
-         0.2153,
+         0.149,
+         0.2325,
          0.075
         ],
         "Color": [
@@ -1561,8 +2149,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.3047,
-           1.1937,
+           0.3089,
+           1.2004,
            -0.975
           ],
           "orientation": [
@@ -1585,8 +2173,8 @@
          }
         },
         "Size": [
-         0.069,
-         0.0805,
+         0.0745,
+         0.0869,
          0.03
         ],
         "Color": [

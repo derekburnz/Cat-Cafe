@@ -873,6 +873,104 @@
        "CFrame": {
         "position": [
          0.0,
+         1.0813,
+         -0.908
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.184,
+       0.0575,
+       0.06
+      ],
+      "Color": [
+       0.9686,
+       0.9451,
+       0.902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Tuxedo_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.22,
+         -0.906
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1265,
+       0.22,
+       0.06
+      ],
+      "Color": [
+       0.9686,
+       0.9451,
+       0.902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Tuxedo_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
          0.9835,
          -0.945
         ],
@@ -1294,8 +1392,8 @@
          }
         },
         "Size": [
-         0.23,
-         0.299,
+         0.2484,
+         0.3229,
          0.07
         ],
         "Color": [
@@ -1349,8 +1447,8 @@
          "CFrame": {
           "position": [
            -0.263,
-           1.087,
-           -0.965
+           1.0852,
+           -0.9725
           ],
           "orientation": [
            [
@@ -1372,9 +1470,9 @@
          }
         },
         "Size": [
-         0.138,
-         0.2153,
-         0.06
+         0.149,
+         0.2325,
+         0.075
         ],
         "Color": [
          0.1686,
@@ -1397,8 +1495,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.2012,
-           1.1937,
+           -0.1971,
+           1.2004,
            -0.975
           ],
           "orientation": [
@@ -1421,8 +1519,8 @@
          }
         },
         "Size": [
-         0.069,
-         0.0805,
+         0.0745,
+         0.0869,
          0.03
         ],
         "Color": [
@@ -1507,8 +1605,8 @@
          }
         },
         "Size": [
-         0.23,
-         0.299,
+         0.2484,
+         0.3229,
          0.07
         ],
         "Color": [
@@ -1562,7 +1660,7 @@
          "CFrame": {
           "position": [
            0.263,
-           1.087,
+           1.0852,
            -0.9725
           ],
           "orientation": [
@@ -1585,8 +1683,8 @@
          }
         },
         "Size": [
-         0.138,
-         0.2153,
+         0.149,
+         0.2325,
          0.075
         ],
         "Color": [
@@ -1610,8 +1708,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.3047,
-           1.1937,
+           0.3089,
+           1.2004,
            -0.975
           ],
           "orientation": [
@@ -1634,8 +1732,8 @@
          }
         },
         "Size": [
-         0.069,
-         0.0805,
+         0.0745,
+         0.0869,
          0.03
         ],
         "Color": [

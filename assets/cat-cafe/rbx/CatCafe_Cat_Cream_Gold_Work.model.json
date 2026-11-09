@@ -44,9 +44,9 @@
      0.5225
     ],
     "Color": [
-     0.9843,
-     0.8941,
-     0.6039
+     0.7882,
+     0.5608,
+     0.1647
     ],
     "Material": "Metal",
     "Anchored": true,
@@ -287,6 +287,202 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       0.0,
+       0.722,
+       -0.3277
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.323,
+     0.475,
+     0.057
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Gold_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.342,
+       0.7949,
+       -0.0071
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.038,
+     0.3103,
+     0.3212
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Gold_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.342,
+       0.551,
+       -0.038
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.038,
+     0.266,
+     0.323
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Gold_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.076,
+       0.589,
+       0.2137
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.285,
+     0.285,
+     0.038
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Gold_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        -0.3895,
        0.7505,
        -0.057
@@ -316,9 +512,9 @@
      0.1615
     ],
     "Color": [
-     0.9843,
-     0.8941,
-     0.6039
+     0.7882,
+     0.5608,
+     0.1647
     ],
     "Material": "Metal",
     "Anchored": true,
@@ -365,9 +561,9 @@
      0.1615
     ],
     "Color": [
-     0.9843,
-     0.8941,
-     0.6039
+     0.7882,
+     0.5608,
+     0.1647
     ],
     "Material": "Metal",
     "Anchored": true,
@@ -420,9 +616,9 @@
        0.76
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -823,6 +1019,153 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         0.2272,
+         1.6815,
+         -0.209
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3511,
+       0.057,
+       0.418
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Gold_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3098,
+         1.33,
+         -0.627
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.247,
+       0.057
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Gold_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0521,
+         -0.6222
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3933,
+       0.2185,
+       0.0665
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Gold_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          0.0,
          1.0958,
          -0.6603
@@ -874,7 +1217,7 @@
         "position": [
          0.0,
          1.0296,
-         -0.6413
+         -0.6603
         ],
         "orientation": [
          [
@@ -923,7 +1266,7 @@
         "position": [
          0.0273,
          0.9811,
-         -0.6441
+         -0.6631
         ],
         "orientation": [
          [
@@ -972,7 +1315,7 @@
         "position": [
          0.0929,
          0.9811,
-         -0.6413
+         -0.6603
         ],
         "orientation": [
          [
@@ -1021,7 +1364,7 @@
         "position": [
          -0.0273,
          0.9811,
-         -0.6441
+         -0.6631
         ],
         "orientation": [
          [
@@ -1070,7 +1413,7 @@
         "position": [
          -0.0929,
          0.9811,
-         -0.6413
+         -0.6603
         ],
         "orientation": [
          [
@@ -1676,9 +2019,9 @@
          0.2533
         ],
         "Color": [
-         0.9843,
-         0.8941,
-         0.6039
+         0.7882,
+         0.5608,
+         0.1647
         ],
         "Material": "Metal",
         "Anchored": true,
@@ -1754,9 +2097,9 @@
          0.152
         ],
         "Color": [
-         0.9843,
-         0.8941,
-         0.6039
+         0.7882,
+         0.5608,
+         0.1647
         ],
         "Material": "Metal",
         "Anchored": true,
@@ -1803,9 +2146,9 @@
          0.0507
         ],
         "Color": [
-         0.9843,
-         0.8941,
-         0.6039
+         0.7882,
+         0.5608,
+         0.1647
         ],
         "Material": "Metal",
         "Anchored": true,
@@ -1938,9 +2281,9 @@
          0.2533
         ],
         "Color": [
-         0.9843,
-         0.8941,
-         0.6039
+         0.7882,
+         0.5608,
+         0.1647
         ],
         "Material": "Metal",
         "Anchored": true,
@@ -2016,9 +2359,9 @@
          0.152
         ],
         "Color": [
-         0.9843,
-         0.8941,
-         0.6039
+         0.7882,
+         0.5608,
+         0.1647
         ],
         "Material": "Metal",
         "Anchored": true,
@@ -2065,9 +2408,9 @@
          0.0507
         ],
         "Color": [
-         0.9843,
-         0.8941,
-         0.6039
+         0.7882,
+         0.5608,
+         0.1647
         ],
         "Material": "Metal",
         "Anchored": true,
@@ -2087,7 +2430,7 @@
           "position": [
            0.3028,
            1.729,
-           -0.3254
+           -0.3089
           ],
           "orientation": [
            [
@@ -2111,7 +2454,7 @@
         "Size": [
          0.1094,
          0.1083,
-         0.0615
+         0.0285
         ],
         "Color": [
          0.8784,
@@ -2231,9 +2574,9 @@
        0.285
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -2343,9 +2686,9 @@
        0.285
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -2392,9 +2735,9 @@
        0.285
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -2441,9 +2784,9 @@
        0.285
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -2461,38 +2804,136 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.0857,
-         0.9612,
-         0.8309
+         -0.0777,
+         0.9158,
+         0.8044
         ],
         "orientation": [
          [
           0.9848,
-          0.0302,
-          -0.171
+          0.0996,
+          -0.1422
          ],
          [
           0.1736,
-          -0.171,
-          0.9698
+          -0.5649,
+          0.8067
          ],
          [
           0.0,
-          -0.9848,
-          -0.1736
+          -0.8192,
+          -0.5736
          ]
         ]
        }
       },
       "Size": [
-       0.133,
-       0.133,
-       0.285
+       0.1252,
+       0.1252,
+       0.209
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Gold_Work_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0892,
+         0.9809,
+         0.6868
+        ],
+        "orientation": [
+         [
+          0.9848,
+          0.1736,
+          0.0
+         ],
+         [
+          0.1736,
+          -0.9848,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1104,
+       0.1104,
+       0.19
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Gold_Work_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0811,
+         0.935,
+         0.5829
+        ],
+        "orientation": [
+         [
+          0.9848,
+          0.0996,
+          0.1422
+         ],
+         [
+          0.1736,
+          -0.5649,
+          -0.8067
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0957,
+       0.0957,
+       0.1615
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -2576,9 +3017,9 @@
        0.152
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -2654,9 +3095,9 @@
        0.1805
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -3104,9 +3545,9 @@
        0.152
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -3182,9 +3623,9 @@
        0.1805
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -3750,9 +4191,9 @@
        0.228
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -3828,9 +4269,9 @@
        0.323
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -3914,9 +4355,9 @@
        0.228
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,
@@ -3992,9 +4433,9 @@
        0.323
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       0.7882,
+       0.5608,
+       0.1647
       ],
       "Material": "Metal",
       "Anchored": true,

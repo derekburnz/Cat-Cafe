@@ -76,6 +76,15 @@ do
 		require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config"))
 	DUSK_SECONDS = (Config :: any).DuskWarningSeconds or DUSK_SECONDS
 end
+-- #2692: a new player before the first check-in holds the night pass (the server's NightPass player attribute), so
+-- the cards stay open through dusk and the night for them, as the server flies them then
+local NightPass =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("NightPass"))
+
+local function hasNightPass(): boolean
+	local player = Players.LocalPlayer
+	return player ~= nil and player:GetAttribute(NightPass.ATTRIBUTE) == true
+end
 
 local Cannon = {}
 Cannon.__index = Cannon
@@ -103,6 +112,14 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._catalog = nil :: Types.Catalog?
 	self._cannonId = CannonLogic.TOWN
 	self._areasOpen = true
+	self._passConnection = nil :: RBXScriptConnection?
+	if Players.LocalPlayer then
+		self._passConnection = Players.LocalPlayer
+			:GetAttributeChangedSignal(NightPass.ATTRIBUTE)
+			:Connect(function()
+				self:_rerender() -- #2692: the first check-in ends the pass
+			end)
+	end
 	self._phase = nil :: Types.ClockPhase?
 	self._phaseEndsAt = nil :: number?
 	self._state = nil :: Types.PlayerState?
@@ -579,9 +596,11 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	end
 	local areas: { Types.AreaDef } = catalog.areas or {}
 	local tier = state.tier or 1
-	local closed = not NightClock.areasOpen(self._areasOpen)
+	local pass = hasNightPass()
+	local closed = not NightPass.open(NightClock.areasOpen(self._areasOpen), pass)
 	local remaining = self:_remaining()
-	local dusk = self._phase ~= nil
+	local dusk = not pass
+		and self._phase ~= nil
 		and remaining ~= nil
 		and NightClock.isDusk(self._phase :: NightClock.Phase, remaining, DUSK_SECONDS)
 	local pending = os.clock() < self._pendingUntil
@@ -706,6 +725,10 @@ function Cannon.result(self: any, ok: boolean, destination: string?)
 end
 
 function Cannon.destroy(self: any)
+	local passConnection: RBXScriptConnection? = self._passConnection
+	if passConnection then
+		passConnection:Disconnect()
+	end
 	self._open = false
 	self._tick += 1
 	for _, card in self._cards do

@@ -36,6 +36,7 @@
 -- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
 
 local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -53,6 +54,7 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
+local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -77,6 +79,7 @@ local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
@@ -110,6 +113,7 @@ export type HUD = {
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
+	holdTutorial: (self: HUD, held: boolean) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
@@ -127,6 +131,8 @@ export type HUD = {
 	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
+	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
+	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
 	bottomTop: (self: HUD) -> number,
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	setCatching: (self: HUD, active: boolean) -> (),
@@ -318,7 +324,30 @@ local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out,
 local CARRY_W = 420
 local CARRY_H = 56
 local TUTORIAL_W = 520 -- the tutorial strip's widest box (design px), padding included
+-- #2762 (Derek2: "for phone too big"; the strip took half a phone's width): on a phone held sideways (Scale.isPhone)
+-- the strip is a size smaller, in words, padding and box
+local function stripLayout(): {
+	w: number,
+	text: number,
+	padX: number,
+	padY: number,
+	minH: number,
+	maxH: number,
+}
+	return if Scale.isPhone()
+		then { w = 440, text = Theme.sizes.textSmall, padX = 12, padY = 5, minH = 28, maxH = 50 }
+		else {
+			w = TUTORIAL_W,
+			text = Theme.sizes.textBody + 1,
+			padX = 18,
+			padY = 9,
+			minH = 40,
+			maxH = 64,
+		}
+end
 local DROP_W = 104
+local PACK_DROP_W = 160 -- #2731: "Drop bag cat" with its icon
+local PACK_DROP_H = 44 -- as the carry banner's Drop; on touch Button's tap pad grows it to a thumb
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
@@ -488,6 +517,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
+	self._stepTiles = {} :: { [string]: any } -- #2697: the Cats and Bowl tiles, by name
 	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
@@ -1261,8 +1291,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			return
 		end
 		callbacks.openScreen("RankUp")
+	end, function(folded: boolean)
+		-- #2714: the card folded into its chip or opened again, saved as the goalFolded setting
+		self._goalFolded = folded
+		local save = callbacks.setSetting
+		if save then
+			save(GoalFold.SETTING, folded)
+		end
+		self:_layoutRight()
 	end)
 	self._goalArea = nil :: string?
+	self._goalFolded = nil :: boolean?
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
 	-- saved as the roadmapOpen setting
 	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
@@ -1513,6 +1552,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		if item.name == "Upgrades" then
 			self._upgradesTile = button -- #1796: glows while a tutorial step asks for an upgrade
+		elseif item.name == "Cats" or item.name == "Bowl" then
+			self._stepTiles[item.name] = button -- #2697: ring while the step asks for a job, or food in the bowl
 		end
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
@@ -1708,6 +1749,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, potions)
 	self._potionsTile = potions
+	potions.instance.Visible = not TOUCH -- #2710: the Bag holds the potions on touch (_applyUnlocks)
 	if showKeys then
 		keycap(potions.face, "P", UDim2.fromOffset(-4, -4))
 	end
@@ -1919,11 +1961,39 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	end
 	table.insert(self._buttons, drop)
 
+	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): a small Drop pill where the carry
+	-- banner sits, while the character has a PackedCatId and the arms are empty; it and G fire the same dropCat, and
+	-- the server unpacks and drops the backpack cat (PR #2732)
+	self._packed = false
+	local packDrop = Button.new({
+		name = "PackDrop",
+		text = "Drop bag cat",
+		icon = Theme.icons.drop,
+		iconSize = 22,
+		style = "close",
+		size = UDim2.fromOffset(PACK_DROP_W, PACK_DROP_H),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap)),
+		textSize = Theme.sizes.textBody,
+		parent = root,
+		onClick = function()
+			callbacks.dropCat()
+		end,
+	})
+	packDrop.instance.Visible = false
+	if showKeys then
+		keycap(packDrop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
+	end
+	table.insert(self._buttons, packDrop)
+	self._packDrop = packDrop
+
 	-- Tutorial strip (bottom centre, above the carry banner when both show). It grows to 520 px wide, then wraps
 	-- onto a second line (reviewer N94: the step hints run to about 100 characters), growing upwards from the
 	-- bottom anchor so the carry banner stacking is unchanged. It wraps only when setTutorial measures a line too
 	-- long for one row: wrapped from the start, Roblox's AutomaticSize broke a 46 character hint over the player on
 	-- a phone well short of 520 (device pass 2026-11-07).
+	local strip = stripLayout()
+	self._strip = strip
 	self._tutorial = label({
 		Name = "Tutorial",
 		BackgroundColor3 = Theme.colors.gold,
@@ -1934,7 +2004,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		AutomaticSize = Enum.AutomaticSize.XY,
 		Size = UDim2.fromOffset(0, 0),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 1,
+		TextSize = strip.text,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = false,
@@ -1946,16 +2016,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
 	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
 	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 18),
-		PaddingRight = UDim.new(0, 18),
-		PaddingTop = UDim.new(0, 9),
-		PaddingBottom = UDim.new(0, 9),
+		PaddingLeft = UDim.new(0, strip.padX),
+		PaddingRight = UDim.new(0, strip.padX),
+		PaddingTop = UDim.new(0, strip.padY),
+		PaddingBottom = UDim.new(0, strip.padY),
 		Parent = self._tutorial,
 	})
 	-- one line is 40 px tall; two lines stop at 64, and a longer hint truncates there
 	Create("UISizeConstraint", {
-		MinSize = Vector2.new(0, 40),
-		MaxSize = Vector2.new(TUTORIAL_W, 64),
+		MinSize = Vector2.new(0, strip.minH),
+		MaxSize = Vector2.new(strip.w, strip.maxH),
 		Parent = self._tutorial,
 	})
 
@@ -2110,6 +2180,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- renderer orders siblings
 	self._dayCard.Parent = nil
 	self._dayCard.Parent = root
+	self:_watchPacked() -- #2731: last, once the bottom stack is built
 	return self :: HUD
 end
 
@@ -2260,6 +2331,48 @@ end
 
 function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
+end
+
+-- #2731: follows the character's PackedCatId attribute (CatService), through respawns.
+function HUD._watchPacked(self: any)
+	local player = Players.LocalPlayer
+	if player == nil then
+		return
+	end
+	local attributeConnection: RBXScriptConnection? = nil
+	local function follow(character: Model?)
+		if attributeConnection then
+			attributeConnection:Disconnect()
+			attributeConnection = nil
+		end
+		if character == nil then
+			self:setPacked(false)
+			return
+		end
+		attributeConnection = character:GetAttributeChangedSignal("PackedCatId"):Connect(function()
+			self:setPacked(character:GetAttribute("PackedCatId") ~= nil)
+		end)
+		table.insert(self._connections, attributeConnection :: RBXScriptConnection)
+		self:setPacked(character:GetAttribute("PackedCatId") ~= nil)
+	end
+	table.insert(self._connections, player.CharacterAdded:Connect(follow))
+	follow(player.Character)
+end
+
+function HUD.setPacked(self: any, packed: boolean)
+	self._packed = packed
+	local show = packed and not self:isCarrying()
+	if self._packDrop.instance.Visible ~= show then
+		self._packDrop.instance.Visible = show
+		if show then
+			Tween.popIn(self._packDrop.instance, 0.92)
+		end
+		self:_layoutBottom()
+	end
+end
+
+function HUD.isPacked(self: any): boolean
+	return self._packDrop.instance.Visible
 end
 
 -- The server refuses a trip mid catch (N47) and the circles need the screen, so the bottom row steps aside
@@ -2561,10 +2674,17 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
+	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
+	local held = self._tutorialHeld == true
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
+	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
+	local asks =
+		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
+	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
+	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
@@ -2610,6 +2730,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._potionCount.Visible = potions > 0
 	self._state = state
 	self._carryState = state.carrying ~= nil
+	self:setPacked(self._packed) -- #2731
 	self:_renderTravel()
 
 	-- the tier and next goal block: "Tier 1 · Corner Cafe", then the next tier's requirements, or the tier alone
@@ -2620,6 +2741,16 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #1919: "Find N more cats" while the Grand Opening's twelve cats step is next
 	local nudge = if catalog then IndexHints.nudge(catalog, state) else nil
 	self._goalArea = if nudge then nudge.area else nil
+	-- #2714: folded as the goalFolded setting says, once it first arrives
+	local saved: any = state.settings
+	if
+		self._goalFolded == nil
+		and type(saved) == "table"
+		and type(saved[GoalFold.SETTING]) == "boolean"
+	then
+		self._goalFolded = saved[GoalFold.SETTING]
+		self._goal:setFolded(saved[GoalFold.SETTING])
+	end
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
@@ -2694,7 +2825,9 @@ function HUD._applyUnlocks(self: any)
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
 	self._feedbackTile.instance.Visible = self:_open("feedback")
-	self._potionsTile.instance.Visible = self:_open("potions")
+	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
+	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
+	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
 	self:_closePop() -- a list made under the old unlocks may hold a row that is gone
 	self._travelButtons.areas.instance.Visible = not self._cannonMode and self:_open("areas")
 	self:_sizeTravelRow()
@@ -2731,7 +2864,9 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "gifts" or key == "daily" then self._rewards
 				elseif key == "feedback" then self._feedbackTile
 				elseif key == "invite" then self._menuTile
-				elseif key == "potions" then self._potionsTile
+				elseif key == "potions" then (if TOUCH
+					then self._pills.Bag
+					else self._potionsTile) -- #2710
 				elseif key == "areas" then self._travelButtons.areas
 				else nil
 		)
@@ -2825,7 +2960,20 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 	else
 		self._carry.Visible = false
 	end
+	self:setPacked(self._packed) -- #2731: the pill steps aside while the arms are full
 	self:_layoutBottom()
+end
+
+-- #2759: holds back the step rings (the Upgrades glow and its arrow, the Cats and Bowl targets) while a fresh save's
+-- intro is on its way, and lets them back after.
+function HUD.holdTutorial(self: any, held: boolean)
+	if (self._tutorialHeld == true) == held then
+		return
+	end
+	self._tutorialHeld = held
+	if self._state ~= nil then
+		self:render(self._state)
+	end
 end
 
 function HUD.setTutorial(self: any, text: string?)
@@ -2861,7 +3009,7 @@ function HUD._wrapTutorial(self: any, text: string)
 			return game:GetService("TextService"):GetTextBoundsAsync(params)
 		end)
 		if ok and bounds and strip.Text == text then
-			strip.TextWrapped = bounds.X > TUTORIAL_W - 2 * 18
+			strip.TextWrapped = bounds.X > self._strip.w - 2 * self._strip.padX
 			self:_layoutBottom()
 		end
 	end)
@@ -2896,6 +3044,9 @@ function HUD._layoutBottom(self: any)
 	if self._carry.Visible then
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
+	elseif self._packDrop.instance.Visible then
+		self._packDrop.instance.Position = UDim2.new(0.5, 0, 1, y)
+		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end
@@ -2910,6 +3061,8 @@ function HUD.bottomTop(self: any): number
 	y -= self:_chipsLift()
 	if self._carry.Visible then
 		y -= CARRY_H + Theme.sizes.gap
+	elseif self._packDrop.instance.Visible then
+		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap

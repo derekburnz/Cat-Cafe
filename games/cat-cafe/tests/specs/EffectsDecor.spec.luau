@@ -40,6 +40,21 @@ return function()
 			expect(mythicals).to.equal(9) -- one a crate, the Rally Crate's since F101, Desert and Ruins since #2651
 		end)
 
+		it("gives every Legendary crate piece that stands in the cafe a glint that waits for the Mythicals", function()
+			local legendaries = 0
+			for _, def in Catalog.crateDecor do
+				if def.rarity == "Legendary" and ON[def.kind] == "model" then
+					legendaries += 1
+					local spec = Presets.decor[def.id]
+					expect(spec ~= nil).to.equal(true)
+					expect(spec.on).to.equal("model")
+					expect(spec.spare).to.equal(true) -- #2734: a Mythical piece nearby keeps its moving slot
+					expect(Presets.emitters[spec.emitter].rate <= 2).to.equal(true)
+				end
+			end
+			expect(legendaries > 0).to.equal(true)
+		end)
+
 		it("keeps the Mythical decor inside the steady emitter budget", function()
 			for _, budget in Presets.budget do
 				expect(budget.decorEffects <= budget.steadyEmitters).to.equal(true)

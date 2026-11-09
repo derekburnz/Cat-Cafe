@@ -170,10 +170,11 @@ function Rescue.newChallenge(
 	rarity: Types.Rarity,
 	trap: string,
 	now: number,
-	roll: () -> number
+	roll: () -> number,
+	zoneScale: number? -- #2687: StationPerks.rescueZoneScale (Warm Paws), 1 when nil
 ): Types.RescueChallenge
 	local kind: Types.RescueKind = Rescue.kind(trap)
-	local width = Config.RescueZoneWidth[rarity]
+	local width = Config.RescueZoneWidth[rarity] * (zoneScale or 1)
 	local hitsNeeded = Rescue.hitsNeeded(rarity, kind)
 	local zones = Rescue.zones(hitsNeeded, width, roll) -- one per hit: a zone stays until it is hit
 	local endsAt = now + Config.RescueAttemptMaxSeconds

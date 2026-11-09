@@ -182,6 +182,7 @@ return function()
 				sessionRecap = true,
 				autoEquip = true, -- #1955: on for a new account
 				catIncome = true, -- #2551
+				goalFolded = false, -- #2714
 			})
 		end)
 
@@ -608,6 +609,7 @@ return function()
 					sessionRecap = true,
 					autoEquip = false, -- #1955: a save from before Auto Equip
 					catIncome = true, -- #2551: on for a save from before it
+					goalFolded = false, -- #2714
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

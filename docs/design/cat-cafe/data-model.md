@@ -1112,6 +1112,13 @@ Changed or new in v0.13.2 (bedtime, F79, Derek 2026-10-28 01:23):
 | HopMaxRise | 2.6 | new | the most a hop climbs, so the top perch takes two |
 | BedtimeTimeoutSeconds | 15 | new | after this a cat still walking is placed on its spot or station |
 
+Changed or new for #2766 (the update Event's Notify Me ask, Derek2 2026-11-09):
+
+| constant | value | was | used by |
+|---|---|---|---|
+| UpdateEventId | "8839991594911400494" (set per Event) | new | UIController and UI/Components/EventRsvp: the slide-in ask whose Remind me opens Roblox's Notify Me prompt; nil asks nothing |
+| UpdateEventStartsAt | 1794265200 (2026-11-09 23:00 UTC, set per Event) | new | the same: the ask shows only before this os.time() |
+
 CircleScorePerfect and CircleScoreGood no longer decide anything in v0.4; keep them only if a test or analytics wants a number.
 
 Removed: GrabHoldSeconds, GrabMinHoldSeconds, NetBonus, LureBonus, RingBonusPerfect, RingBonusGood, RingPerfectWindow, RingGoodWindow, RingLatencyGraceSeconds, CatchChanceMin, CatchChanceMax, LureDespawnSeconds, LureReserveSeconds, RescueHoldSeconds, RescueLockSeconds (the attempt holds the lock), RenovateBonus. GrabLockSeconds becomes "schedule length plus 1 s".

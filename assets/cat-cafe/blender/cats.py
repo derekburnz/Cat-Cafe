@@ -42,15 +42,26 @@ from common import Builder, scale_mesh
 # painted on the chest with sprinkles on it, under where the Barista's apron goes), shop (sold for Robux only: the
 # model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger), glyphs (rows of carved glyphs in the second colour between bands of the
 # third along the flanks) and tiles (mosaic tiles in the second and third colours and cream on the flanks, back and
-# crown), both built as geometry so they hold in gold. Themed cats wear a prop, some two (props.py).
+# crown), both built as geometry so they hold in gold; #2739 (the Cat Makeovers): mark ((shape, colour or colours)): a
+# forehead mark from MARKS. Themed cats wear a prop, some two (props.py).
 ROSTER = {
-    "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
-    "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
+    "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
+                    # the Cat Makeovers (#2739)
+                    mark=("m", "fur_orange_dark"), eye_k=1.08, curl=True),
+    "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True,
+                    # the Cat Makeovers (#2739)
+                    blaze="fur_white", tip="fur_white", eye_k=1.08),
     "Ginger":  dict(rarity="Common", fur="fur_ginger", second="fur_ginger", eyes="eye_green", pattern="solid", muzzle="fur_cream",
-                    nose="nose_brick", body_scale=(1.1, 1.05, 1.05)),
+                    nose="nose_brick", body_scale=(1.1, 1.05, 1.05),
+                    # the Cat Makeovers (#2739)
+                    mark=("star", "pastel_butter"), tip="fur_cream", eye_k=1.08),
     "Smoke":   dict(rarity="Common", fur="fur_charcoal", second="fur_charcoal", eyes="eye_chartreuse", pattern="solid",
-                    muzzle="fur_smoke_light", nose="nose_dark"),
-    "Snow":    dict(rarity="Common", fur="fur_white", second="fur_white", eyes="eye_blue", eyes2="eye_amber", pattern="solid", muzzle=None),
+                    muzzle="fur_smoke_light", nose="nose_dark",
+                    # the Cat Makeovers (#2739)
+                    lids=True, ear_tufts=True, tip="fur_smoke_light"),
+    "Snow":    dict(rarity="Common", fur="fur_white", second="fur_white", eyes="eye_blue", eyes2="eye_amber", pattern="solid", muzzle=None,
+                    # the Cat Makeovers (#2739)
+                    mark=("snowflake", "shirt_blue"), tip="pastel_sky", eye_k=1.08),
     "Calico":  dict(rarity="Rare", fur="fur_white", second="fur_orange", third="fur_black", eyes="eye_green", pattern="patches", muzzle=None),
     # Derek 14:24 found the old Siamese "kinda looks off": the dark mask round the eyes is now a small dark muzzle
     # under them, with a pink nose, cream legs and dark paws (every points cat draws it this way)
@@ -69,10 +80,15 @@ ROSTER = {
                       nose="nose_brick", scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_white", ear_tufts=True, tail_thick=0.28),
     "Midnight":  dict(rarity="Mythical", fur="night_sky", second="sparkle", eyes="sparkle", pattern="solid", muzzle=None,
                       glow_eyes=True, sparkle=True, moon=True, nose="nose_dark"),
-    "Cream":     dict(rarity="Common", fur="fur_latte", second="fur_latte", eyes="eye_chartreuse", pattern="solid", muzzle="fur_cream"),
+    "Cream":     dict(rarity="Common", fur="fur_latte", second="fur_strawberry", third="fur_cream", eyes="eye_chartreuse",
+                      pattern="patches", muzzle="fur_cream", curl=True),   # the Cat Makeovers (#2739): strawberry-cream patches
     "Brownie":   dict(rarity="Common", fur="fur_brown", second="choco", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
-                      nose="nose_brick"),
-    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None, nose="nose_dark"),
+                      nose="nose_brick",
+                      # the Cat Makeovers (#2739)
+                      sprinkles=("choco", "fur_cream"), eye_k=1.08),
+    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None, nose="nose_dark",
+                      # the Cat Makeovers (#2739)
+                      mark=("drop", "fish_blue"), eye_k=1.08, curl=True),
     "Persian":   dict(rarity="Epic", fur="fur_lavender", second="pastel_lilac", eyes="eye_copper", pattern="solid", muzzle=None,
                       body_scale=(1.15, 1.0, 1.1), persian=True, tail_thick=0.3),
     "Blossom":   dict(rarity="Legendary", fur="fur_rose", second="fur_white", third="nose_pink", eyes="eye_blue", pattern="patches",
@@ -118,20 +134,36 @@ ROSTER = {
                         pattern="gradient", muzzle=None, glow_eyes=True, nose="nose_dark"),
     # v0.6 plain Commons of the Neighbourhood, Woods and Sewer (data-model 3c): no prop, a coat that reads at a glance
     "Biscuit":     dict(rarity="Common", fur="treat_tan", second="treat_tan", eyes="eye_green", pattern="solid",
-                        muzzle="fur_white", nose="nose_brick", socks="choco", tip="choco"),
+                        muzzle="fur_white", nose="nose_brick", socks="choco", tip="choco",
+                        # the Cat Makeovers (#2739)
+                        sprinkles=("choco", "fur_brown"), eye_k=1.08),
     "Pepper":      dict(rarity="Common", fur="fur_pepper", second="fur_pepper", eyes="eye_amber", pattern="solid",
-                        muzzle="fur_silver", nose="nose_dark", sprinkles=("fur_white", "fur_black")),
+                        muzzle="fur_silver", nose="nose_dark", sprinkles=("fur_white", "fur_black"),
+                        # the Cat Makeovers (#2739)
+                        blaze="fur_white", ear_tufts=True, curl=True),
     "Socks":       dict(rarity="Common", fur="fur_ink", second="fur_ink", eyes="eye_chartreuse", pattern="solid",
-                        muzzle="fur_white", socks="fur_white", tip="fur_white"),
+                        muzzle="fur_white", socks="fur_white", tip="fur_white",
+                        # the Cat Makeovers (#2739)
+                        toes=("fur_strawberry", "mint", "pastel_butter", "pastel_sky"), blaze="fur_white"),
     "Butter":      dict(rarity="Common", fur="pastel_butter", second="pastel_butter", eyes="eye_blue", pattern="solid",
-                        muzzle="fur_white", body_scale=(1.08, 1.0, 1.05)),
+                        muzzle="fur_white", body_scale=(1.08, 1.0, 1.05),
+                        # the Cat Makeovers (#2739)
+                        mark=("pat", ("rarity_legend", "milk")), eye_k=1.08, curl=True),
     "Moss":        dict(rarity="Common", fur="fur_moss", second="fur_moss", eyes="eye_amber", pattern="solid", muzzle="fur_cream",
-                        nose="nose_brick", ear_tufts=True),
+                        nose="nose_brick", ear_tufts=True,
+                        # the Cat Makeovers (#2739)
+                        blaze="fur_cream", curl=True, eye_k=1.08),
     "Acorn":       dict(rarity="Common", fur="fur_acorn", second="fur_acorn", eyes="eye_green", pattern="solid", muzzle="fur_oat",
-                        nose="nose_brick", tip="fur_brown"),
+                        nose="nose_brick", tip="fur_brown",
+                        # the Cat Makeovers (#2739)
+                        mark=("drop", "fur_brown"), eye_k=1.08, curl=True),
     "Bramble":     dict(rarity="Common", fur="fur_bramble", second="fur_seal", eyes="eye_chartreuse", pattern="stripes",
-                        muzzle="fur_hazel", nose="nose_dark"),
-    "Fern":        dict(rarity="Common", fur="fur_fern", second="leaf_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
+                        muzzle="fur_hazel", nose="nose_dark",
+                        # the Cat Makeovers (#2739)
+                        sprinkles=("bowl_red", "fur_ink"), eye_k=1.08),
+    "Fern":        dict(rarity="Common", fur="fur_fern", second="leaf_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
+                        # the Cat Makeovers (#2739)
+                        mark=("star", "leaf_dark"), tip="leaf_dark", ear_tufts=True),
     "Rusty":       dict(rarity="Common", fur="fur_rust_red", second="fur_smoke_light", eyes="eye_green", pattern="patches",
                         muzzle="fur_cream", nose="nose_brick"),
     "Soot":        dict(rarity="Common", fur="fur_ash", second="fur_ash", eyes="eye_copper", pattern="solid", muzzle="fur_soot",
@@ -227,7 +259,7 @@ ROSTER = {
     "Mosaic":  dict(rarity="Epic", fur="paw_sewer", second="fur_golden", third="terracotta", eyes="eye_amber",
                     pattern="solid", muzzle=None, nose="nose_brick", tiles=True),
     "Golem":   dict(rarity="Legendary", fur="fur_dusty", second="sign_teal", third="fur_ash", eyes="sign_teal",
-                    pattern="solid", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.2,
+                    pattern="solid", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.2, rocks=True,
                     body_scale=(1.15, 1.0, 1.1), tail_thick=0.3),
     # a jade statue fading to dark jade, its gold kept to the trim (the ruff, the tail tip and the crown, props.py)
     "JadeGuardian": dict(rarity="Mythical", fur="fur_emerald", second="leaf_dark", third="paw_woods", eyes="gold_light",
@@ -463,6 +495,15 @@ def _head(spec, c, h):
     w = sx / 0.92                                       # marking spread, 1 on B's head
     b.box(h["c"], h["s"], c["fur"])
     pat = spec["pattern"]
+    if spec.get("rocks"):                               # #2739 a slab on the crown, a chip behind it, one on each cheek
+        _rock_plates(b, c, [((0.0, fy - 0.015, top - 0.06), (sx * 0.84, 0.08, 0.11), 1, 0),        # the brow
+                            ((0.05 * w, cy + 0.1, top - 0.02), (0.44 * w, sy * 0.5, 0.08), 0, 7)], bevel=True)
+        _rock_plates(b, c, [((-0.22 * w, cy + sy * 0.34, top - 0.025), (0.22 * w, 0.18, 0.07), 1, -6),
+                            ((sx / 2 + 0.015, cy + 0.1, cz + 0.06), (0.07, sy * 0.44, sz * 0.38), 1, 0),
+                            ((-sx / 2 - 0.015, cy + 0.04, cz - 0.08), (0.07, sy * 0.4, sz * 0.34), 0, 0),
+                            ((sx / 2 - 0.06, fy - 0.02, top - 0.2), (0.1, 0.06, 0.12), 0, 0),       # brow corners
+                            ((-sx / 2 + 0.06, fy - 0.02, top - 0.22), (0.1, 0.06, 0.09), 0, 0),
+                            ((sx / 2 - 0.05, fy - 0.02, cz - sz / 2 + 0.07), (0.09, 0.06, 0.1), 1, 0)])   # jaw
     if pat == "stripes":                                # three stripes over the crown
         for i, x in enumerate((-0.2, 0.0, 0.2)):
             b.box((x * w, cy + 0.05, top + 0.01), (0.08, sy * 0.68, 0.06), _stripe(spec, c, i), bevel=False)
@@ -489,6 +530,8 @@ def _head(spec, c, h):
         lo = fz - 0.05 * k                              # the muzzle's top
         b.box((0, fy + 0.012, (lo + fz) / 2), (0.16 * k, 0.06, fz - lo), c["blaze"], bevel=False)
         b.box((0, fy + 0.014, fz + 0.11), (0.11 * k, 0.06, 0.22), c["blaze"], bevel=False)
+    if spec.get("mark"):                                # the Cat Makeovers: a mark on the forehead
+        _forehead_mark(b, spec["mark"][0], spec["mark"][1], fy - 0.012, fz + 0.29, 1.35)
     b.box((0, fy - 0.025, fz - 0.11 * k), (0.1 * k, 0.06, 0.07 * k), c["nose"], bevel=False)
     _mouth(b, surf, fz - 0.145 * k, k, "fur_grey" if palette.lstar(under) < 35 else "fur_black")
     for side in (-1, 1):
@@ -521,6 +564,29 @@ def _head(spec, c, h):
         for dx, dz in ((0.085, 0), (-0.085, 0), (0, 0.085), (0, -0.075)):   # petals overlap the centre; the low one sinks into the head
             b.box((fx + dx, cy - 0.12, fzz + dz), (0.1, 0.06 if dz == 0 else 0.05, 0.1), c["second"], bevel=False)
     return b
+
+
+# The Cat Makeovers (#2739, 2026-11-09): forehead marks for the Common cats, each built from a few boxes on the face
+# front between the eyes' tops and the crown. Box i stands 0.003 * i further out, so overlapping boxes never share a
+# plane. Each entry: (centre x, centre z, width, height, turn about the face normal in degrees).
+MARKS = {
+    "m": ((0.1, 0.0, 0.045, 0.15, 0), (-0.1, 0.0, 0.045, 0.15, 0), (0.05, 0.01, 0.045, 0.13, -35),
+          (-0.05, 0.01, 0.045, 0.13, 35)),                                      # the tabby M
+    "snowflake": ((0, 0, 0.2, 0.04, 0), (0, 0, 0.2, 0.04, 60), (0, 0, 0.2, 0.04, -60),
+                  (0, 0, 0.06, 0.06, 45)),
+    "drop": ((0, -0.03, 0.1, 0.1, 45), (0, 0.035, 0.065, 0.065, 45), (0, 0.08, 0.035, 0.035, 45)),
+    "heart": ((0.04, 0.02, 0.09, 0.09, 45), (-0.04, 0.02, 0.09, 0.09, 45), (0, -0.02, 0.1, 0.1, 45)),
+    "pat": ((0, 0, 0.2, 0.11, 0), (-0.045, 0.025, 0.07, 0.03, 0)),              # a butter pat and its shine
+    "star": ((0, 0, 0.05, 0.17, 0), (0, 0, 0.05, 0.17, 72), (0, 0, 0.05, 0.17, -72), (0, 0, 0.05, 0.17, 36),
+             (0, 0, 0.05, 0.17, -36)),
+}
+
+
+def _forehead_mark(b, shape, colour, y, z, s=1.0):
+    """A forehead mark (MARKS, scaled by s) in `colour`, or colours[i] when colour is a tuple, standing out from the face at y."""
+    for i, (x, dz, w, h, a) in enumerate(MARKS[shape]):
+        col = colour[i % len(colour)] if isinstance(colour, tuple) else colour
+        b.box((x * s, y - 0.003 * i, z + dz * s), (w * s, 0.04, h * s), col, bevel=False, rot=_rot(a, "Y") if a else None)
 
 
 def _mouth(b, surf, nz, k, ink):
@@ -615,10 +681,30 @@ def _tail(c, t):
     return b
 
 
-def _leg(c, hip_z, w, paw, paw_y=-0.01, toe=None):
-    """A leg hanging from its hip pivot to the floor, with a paw (its front dipped in paint when `toe` is set)."""
+def tail_tip(t):
+    """#2739 the end of a tail chain (_tail, no curl) in the Tail's space: (tip point, last segment's direction,
+    its thickness). The Torch Cat's flame stands on it."""
+    pos, d = Vector((0.0, 0.0, 0.0)), Vector((0.0, 1.0, 0.0))
+    lean = Matrix.Rotation(math.radians(t.get("lean", 0)), 3, "Y")
+    for deg in t["angles"]:
+        a = math.radians(deg)
+        if t["plane"] == "X":
+            d = Vector((0.0, math.cos(a), math.sin(a)))
+            if t.get("lean"):
+                d = lean @ d
+        else:
+            d = Vector((math.cos(a), math.sin(a), 0.0))
+        pos = pos + d * t["seg"]
+    return pos, d, t["thick"] - (len(t["angles"]) - 1) * t["taper"]
+
+
+def _leg(c, hip_z, w, paw, paw_y=-0.01, toe=None, rock=None):
+    """A leg hanging from its hip pivot to the floor, with a paw (its front dipped in paint when `toe` is set) and,
+    for the Golem Cat (#2739, `rock`), a stone plate on the front of the shin."""
     b = Builder()
     b.box_base((0, 0, 0.05 - hip_z), (w, w, hip_z - 0.05), c["leg"])          # the leg ends inside the paw
+    if rock:
+        b.box((0, -w / 2 - 0.015, -hip_z * 0.5), (w * 0.8, 0.06, min(0.18, hip_z * 0.4)), rock, bevel=False)
     b.box_base((0, paw_y, -hip_z), paw, c["paw"])
     if toe:
         _toe(b, (0, paw_y, -hip_z), paw, toe)
@@ -753,6 +839,18 @@ def _flank_art(b, spec, c, side, x, yc, length, zc, h):
                 b.box((px, y, zc + dz), (t, tw, th), cols[(i + row * 2 + (side > 0)) % 3], bevel=False)
 
 
+def _rock(c, i):
+    """#2739 the Golem Cat's two stones, a pale mist and a dark soot, both off its dusty grey coat."""
+    return ("fur_mist", "fur_soot")[i % 2]
+
+
+def _rock_plates(b, c, slabs, bevel=False):
+    """#2739 the Golem Cat's rocky skin: stone slabs (centre, size, tone, turn about Z in degrees), each standing proud
+    of the fur (never on its plane). Only the head's big ones are bevelled into chunks: the triangle budget."""
+    for centre, size, tone, turn in slabs:
+        b.box(centre, size, _rock(c, tone), bevel=bevel, rot=_rot(turn, "Z") if turn else None)
+
+
 def _top_tiles(b, c, xc, yc, z, nx, ny, w, d):
     """#2584 the Mosaic Cat's tiles on a top face at height z: nx by ny over w by d."""
     cols = (c["third"], "offwhite", c["second"])
@@ -802,6 +900,11 @@ def _body_a(spec, c, d):
             _flank_art(b, spec, c, side, hx, y0 + 0.02, sy * 0.7, z0 - 0.03, 0.3)
         if spec.get("tiles"):
             _top_tiles(b, c, 0.0, y0 + 0.12, top, 2, 3, sx * 0.5, sy * 0.45)
+    if spec.get("rocks"):                               # #2739 slabs over the back, down to the runes, and the chest
+        _rock_plates(b, c, [((-0.02, y0 - 0.3 * sy, top - 0.035), (sx + 0.05, 0.2, 0.1), 0, -4),
+                            ((0.02, y0 - 0.02 * sy, top - 0.03), (sx + 0.07, 0.24, 0.1), 1, 3),
+                            ((0.0, y0 + 0.3 * sy, top - 0.035), (sx + 0.05, 0.18, 0.1), 0, -2),
+                            ((0.06, y0 - hy - 0.03, z0 - 0.02), (0.32, 0.07, 0.26), 0, 0)])
     if spec.get("mane"):                                # down the neck and along the front of the back
         for i in range(3):
             b.box((0, y0 - hy + 0.08 + i * 0.15, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.17, 0.1),
@@ -858,6 +961,16 @@ def _body_b(spec, c, d):
             _flank_art(b, spec, c, side, csx / 2, cy0 + 0.02, csy * 0.7, 0.82, 0.22)
         if spec.get("tiles"):
             _top_tiles(b, c, 0.0, hy0 + 0.17, htop, 2, 2, hsx * 0.45, hsy * 0.3)
+    if spec.get("rocks"):                               # #2739 slabs on the haunches, the chest front and its back
+        _rock_plates(b, c, [((0.17, hy0 + 0.1, htop - 0.025), (0.3, 0.28, 0.08), 0, 6),
+                            ((-0.18, hy0 + 0.14, htop - 0.03), (0.26, 0.24, 0.08), 1, -5),
+                            ((0.08, front - 0.03, 0.9), (0.34, 0.07, 0.3), 0, 0),
+                            ((-0.2, front - 0.025, 0.66), (0.22, 0.06, 0.2), 1, 0),
+                            ((-0.04, cy0 + csy / 2 + 0.02, 0.86), (0.34, 0.07, 0.26), 1, 0),
+                            ((hsx / 2 - 0.08, hy0 - hsy / 2 - 0.03, hsz * 0.55), (0.14, 0.07, 0.22), 0, 0),
+                            ((-hsx / 2 + 0.08, hy0 - hsy / 2 - 0.03, hsz * 0.5), (0.14, 0.07, 0.2), 0, 0),
+                            ((csx / 2 + 0.02, cy0 - 0.04, 0.96), (0.08, 0.3, 0.2), 1, 0),        # the shoulders,
+                            ((-csx / 2 - 0.02, cy0 + 0.02, 0.95), (0.08, 0.26, 0.2), 0, 0)])     # over the runes
     _coat_extras(b, {**spec, "petals": False}, c, d["chest"][0], d["chest"][1], top=False)
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
@@ -904,6 +1017,9 @@ def _body_s(spec, c, d):
     if spec.get("glyphs") or spec.get("tiles"):         # #2584 on each side of the chest, under the shoulders
         for side in (-1, 1):
             _flank_art(b, spec, c, side, csx / 2, cy0 + 0.02, csy * 0.7, 0.56, 0.24)
+    if spec.get("rocks"):                               # #2739 slabs on the chest front and its back
+        _rock_plates(b, c, [((0.06, front - 0.03, cz0 + 0.12), (0.3, 0.07, 0.24), 0, 0),
+                            ((-0.04, cy0 + csy / 2 + 0.02, cz0 + 0.06), (0.34, 0.07, 0.26), 1, 0)])
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
             b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),
@@ -968,23 +1084,24 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
               ("EarL", _ear(spec, c, h, 1)), ("EarR", _ear(spec, c, h, -1)),
               ("Tail", _tail(c, d["tail_chain"]))]
     toes = spec.get("toes") or (None,) * 4
+    rock = "fur_soot" if spec.get("rocks") else None
     rides, at_ = {}, {}
     if body == "work":                                  # arms, then legs; each role's held thing rides its arm
         pieces += [(n, _arm(c, 1 if n == "LegF1" else -1, toes[i])) for i, n in enumerate(("LegF1", "LegF2"))]
-        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[2 + i])) for i, n in enumerate(("LegB1", "LegB2"))]
+        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[2 + i], rock)) for i, n in enumerate(("LegB1", "LegB2"))]
         for role, arm in HELD.items():
             piece = "Held_" + role.capitalize()
             pieces.append((piece, _held(role, arm)))
             rides[piece] = arm
             at_[piece] = tuple(d["legs"][arm][i] + (0.0, -0.01, S_PAW_Z)[i] for i in range(3))
     else:
-        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i])) for i, n in enumerate(LEGS[body])]
+        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i], rock)) for i, n in enumerate(LEGS[body])]
     import props                                        # themed cats' props (props imports this module)
     shift = {}
     if name in props.PROPS:                             # S wears B's props: the same chest, its own head
         for suffix, (b, at) in props.build(name, spec, body, d).items():
             pieces.append((suffix, b))
-            rides[suffix] = props.follows(props.piece_slot(name, suffix))
+            rides[suffix] = props.piece_follows(name, suffix)
             shift[suffix] = at                          # a prop pivoted at its own hinge (the Bellhop's cap, its bell)
     objs = []
     for piece, b in pieces:

@@ -47,6 +47,7 @@ local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Shove = require(ReplicatedStorage.Shared.Shove)
+local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -142,7 +143,8 @@ local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point i
 local carrying: { [Player]: Carry } = {}
 -- #2565 (mystery-market.md section 3): a Backpack's second cat, packed on the back with the net still out. It goes in
 -- first (hands free) and the next catch goes into the hands; it checks in with the held one, drops with it on a
--- tackle, a death or the Drop button's second press, and blocks the cannon, travel and tackling like a held cat.
+-- tackle, a death or the Drop button's second press, and blocks the cannon and travel like a held cat (tackling only
+-- since #2731, which lets a player with only a packed cat tackle).
 local packed: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local snackRandom = Random.new() -- #1181: the catch's snack drop
@@ -1103,12 +1105,33 @@ local function hasBackpack(player: Player): boolean
 	return profile ~= nil and profile.mystery.backpack == true
 end
 
--- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients.
+-- #2719: the Backpack's owner wears it (HeldCat.wearPack), at spawn and after the buy; every player sees it.
+local function wearBackpack(player: Player)
+	local character = player.Character
+	if
+		character == nil
+		or not hasBackpack(player)
+		or HeldCat.pack(character) ~= nil
+		or not AssetRegistry.has(HeldCat.PACK_ASSET)
+	then
+		return
+	end
+	local pack = AssetRegistry.clone(HeldCat.PACK_ASSET)
+	if HeldCat.wearPack(pack, character) then
+		pack.Parent = character
+	else
+		pack:Destroy()
+	end
+end
+
+-- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients. #2719: in the
+-- worn pack with only its head out.
 local function attachPacked(player: Player, carry: Carry)
 	local character = player.Character
 	if character == nil then
 		return
 	end
+	wearBackpack(player)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 		carry.model = nil
@@ -1145,6 +1168,7 @@ local function endPacked(player: Player): Carry?
 	local character = player.Character
 	if character ~= nil then
 		character:SetAttribute("PackedCatId", nil)
+		HeldCat.openPack(character, false) -- #2719
 	end
 	return carry
 end
@@ -2322,6 +2346,12 @@ local RETURN_AGENT = { AgentRadius = 1, AgentHeight = 2, AgentCanJump = true, Wa
 -- walked to on the floor under it, and arriveHome puts the cat up there (review S88).
 local function walkHome(stray: Stray, home: Vector3)
 	local deadline = os.clock() + Config.DropReturnMaxSeconds
+	-- #2687: the Lost and Found's Homing Bell walks the dropper's own cat home faster from Tier 5
+	local drop = stray.drop
+	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
+	local ownerProfile = if owner ~= nil then DataService.get(owner) else nil
+	local speed = Config.DropReturnWalkSpeed
+		* StationPerks.homingSpeed(if ownerProfile ~= nil then Economy.tier(ownerProfile) else nil)
 	local walking = function(): boolean
 		return stray.alive and stray.returning and os.clock() < deadline
 	end
@@ -2343,20 +2373,12 @@ local function walkHome(stray: Stray, home: Vector3)
 		end
 		if computed and path.Status == Enum.PathStatus.Success then
 			for i, waypoint in path:GetWaypoints() do
-				if
-					i > 1
-					and not Mover.walkTo(
-						stray.model,
-						waypoint.Position,
-						Config.DropReturnWalkSpeed,
-						walking
-					)
-				then
+				if i > 1 and not Mover.walkTo(stray.model, waypoint.Position, speed, walking) then
 					break
 				end
 			end
 		else
-			Mover.walkTo(stray.model, clearPath(at, goal), Config.DropReturnWalkSpeed, walking)
+			Mover.walkTo(stray.model, clearPath(at, goal), speed, walking)
 		end
 		-- no closer (a path that ends short, or a wall in the way): try again in a moment
 		local now = stray.model:GetPivot().Position
@@ -2471,8 +2493,14 @@ local function dropCarry(player: Player, died: boolean)
 end
 
 local function onDropCat(player: Player)
-	-- #2565: the first press drops the held cat, the next the packed one
-	if carrying[player] == nil and openFor(DataService.get(player)) then
+	-- #2565: the first press drops the held cat, the next the packed one. #2731: with only the packed cat, Drop
+	-- (now on the HUD for it) unpacks and drops it; while the areas are shut for this player it says why not, as for a
+	-- held cat, and stays packed
+	if carrying[player] == nil then
+		if packed[player] ~= nil and not openFor(DataService.get(player)) then
+			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
+			return
+		end
 		unpackCat(player)
 	end
 	dropCarry(player, false)
@@ -2638,6 +2666,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 					finishCatch(player, stray, attempt)
 				end
 			end
+			wearBackpack(player) -- #2719
 			local pack = packed[player]
 			if pack ~= nil then
 				attachPacked(player, pack) -- #2565
@@ -2839,12 +2868,17 @@ function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
 end
 
--- #2565: a cat in the hands or in the Backpack: blocks the cannon and tackling (CannonService, ShoveService).
+-- #2565: a cat in the hands or in the Backpack: blocks the cannon (CannonService); tackling reads isCarrying (#2731).
 function CatService.isLoaded(player: Player): boolean
 	return carrying[player] ~= nil or packed[player] ~= nil
 end
 
 -- #2565: the packed cat's id, or nil.
+-- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
+function CatService.wearBackpack(player: Player)
+	wearBackpack(player)
+end
+
 function CatService.packedOf(player: Player): string?
 	local carry = packed[player]
 	return if carry ~= nil then carry.def.id else nil

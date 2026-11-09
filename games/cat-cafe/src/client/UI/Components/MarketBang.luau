@@ -26,6 +26,7 @@ local Workspace = game:GetService("Workspace")
 local Create = require(script.Parent.Create)
 local MarketBangLogic = require(script.Parent.MarketBangLogic)
 local Outline = require(script.Parent.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type MarketBang = {
@@ -76,11 +77,19 @@ end
 function MarketBang.build(parent: Instance, name: string?): Bang
 	local gui: BillboardGui = Create("BillboardGui", {
 		Name = name or "CatCafeMarketBang",
-		-- studs up close, never smaller than 130 x 64 px far away, so it reads across the plaza
-		Size = UDim2.new(6, 130, 3, 64),
+		-- studs up close, never smaller than 130 x 64 px far away, so it reads across the plaza; #2762: a size smaller
+		-- on a phone
+		Size = UDim2.new(
+			6 * Scale.phoneStuds(),
+			Scale.billboard(130),
+			3 * Scale.phoneStuds(),
+			Scale.billboard(64)
+		),
 		LightInfluence = 0,
 		AlwaysOnTop = false, -- walls in front hide it, as they hide the stall
 		MaxDistance = MarketBang.RANGE,
+		-- #2770 (Laptop-Tester: one close to the camera covered half a phone's screen): no bigger than at this many studs
+		DistanceLowerLimit = Scale.BUBBLE_NEAR,
 		ResetOnSpawn = false,
 		Enabled = false,
 		Parent = parent,

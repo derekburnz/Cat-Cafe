@@ -9,31 +9,30 @@ don't want it feeling too tightly cramped"):
   long   the pile runs from x -13.35 to 1 and the way through is x 1 to 15 at +X (14 studs); rotY 180 puts it at -X.
   short  the pile runs from x -13.35 to -6.5. Two at one spot, one at rotY 0 and one at rotY 180, leave a 13 stud
          way through down the middle of the lane, x -6.5 to 6.5.
-Every pile stands WALL_TOP (10.4) high with sheer sides, and nothing low enough to hop on (1.7 at most) stands
-near it, so a jump (7.2) never lands on a pile and the pile itself reads as a wall (#2204, Derek's playtest: "taller
-so you clearly can't hop them"). Each `_Barrier` (invisible, solid, CanQuery off) stands a stud over that, 11.4
-high, along local z 0 from the wall (x -15) to the pile's end, so the barrier always stands on something you can
-see. A lamp post (11.5 high) at the pile's end leans its lamp out over the way through, so a player finds the gap
-from afar.
+Every pile stands WALL_TOP (5.2) high, under a jump (7.2), so a player can hop up onto any pile and over it (#2812,
+Derek2 2026-11-09: "make the walls less high in alleyway no need to limit them so much at the start and make them
+jumpable whether its trash cans blocking or what no invisible barriers"; this undoes #2204's 10.4 high piles and
+their `_Barrier` walls). There are no invisible barriers left in the rows: the way through is still the easy route,
+and the outer walls still keep players in the area. A lamp post (9 high) at the pile's end leans its lamp out over
+the way through, so a player finds the gap from afar.
 
 Each row stands on the line of a CatCafe_Alley_StringLightsLong (Layout's alleyDressing hangs one across the lane in
 every gap between the buildings, poles at local x -14 and 14 on a 1 x 1 base). So every pile stops at x -13.35 and
-the light's wall pole stands between it and the wall (1.65 studs, too narrow to pass, and the barrier is there); in
+the light's wall pole stands between it and the wall (1.65 studs, too narrow to pass); in
 a side row the other pole stands in the way through, which leaves 12.5 studs to walk. The bulbs hang over the row.
 
   CatCafe_Alley_Blocker_Bins          long: a timber bin store under a tin roof, six bays a side with a wheelie bin or
                                       a bag heap in each (the bays 3.4 high, too low to stand in), bags, a tyre and
-                                      a box thrown up on the roof, a BIN STORE sign each side
+                                      a box thrown up on the roof, a BIN STORE sign each side over the bays
   CatCafe_Alley_Blocker_BinsShort     short: the same with three bays a side
-  CatCafe_Alley_Blocker_Pallets       long: five columns of pallet loads (boxes, fish sacks, milk crates) two loads
+  CatCafe_Alley_Blocker_Pallets       long: five columns of pallet loads (boxes, fish sacks, milk crates) one load
                                       high, flush with the pallets; a FISH crate, a strap, a tarp and boxes on top
   CatCafe_Alley_Blocker_PalletsShort  short: two columns, a tarp, a FISH crate, two boxes on the ground past them
-  CatCafe_Alley_Blocker_Skip          long: a builder's skip with boards stood on its rims up to 10.4, rubble heaped
-                                      to the top, planks and a chair sticking out; past it a scaffold tower in blue
-                                      sheeting (13.4) with a rubbish chute down into the skip, cones either side
-  CatCafe_Alley_Blocker_Van           long: a FRESH FISH box lorry, 10.4 high, its flat-fronted cab under the box's
-                                      peak (no bonnet or cab roof to climb), back doors open, a crate set down
-                                      behind it
+  CatCafe_Alley_Blocker_Skip          long: a builder's skip with boards stood on its rims up to 5.2, rubble heaped
+                                      to the top, planks and a chair sticking out; past it a low scaffold tower in
+                                      blue sheeting (6.4) with a rubbish chute down into the skip, cones either side
+  CatCafe_Alley_Blocker_Van           long: a FRESH FISH box van, 5.2 high, its flat-fronted cab under the box's
+                                      peak, back doors open, a crate set down behind it
 
 Rows (lane space as in Layout.luau; side -1 west, 1 east; x = side * MID, MID 78; z on the gaps between buildings):
   west x -78:  z 88.025 BinsShort rotY 0 + PalletsShort rotY 180 (way through in the middle),
@@ -56,10 +55,8 @@ X0 = -15.0                   # a wall's face
 PILE_END = -13.35            # the pile's wall end: the string lights' pole base (x -14.5 to -13.5) stands past it
 LONG_END, SHORT_END = 1.0, -6.5
 LONG_LAMP, SHORT_LAMP = 0.65, -6.85     # lamp posts (base radius 0.35) at each pile's end
-WALL_TOP = 10.4             # every pile's sheer top: a jump (7.2) from anything low enough to hop on stays under it
-BARRIER_H = WALL_TOP + 1.0  # the invisible wall's top, a stud over the piles (Gameplay #2204)
-BARRIER_HIGH = 30.0         # a row's barrier-only span by the Warehouse's crate stack, whose steps go to 7.7
-LAMP_UP = 2.5               # lamp posts raised by this over their old 9, so the lamp still hangs over the piles
+WALL_TOP = 5.2              # #2812: every pile's top, under a jump (7.2), so a player can hop up and over
+LAMP_UP = 0.0               # lamp posts at their old 9 again: the lamp hangs well over the lowered piles
 
 
 def rz(deg):
@@ -74,18 +71,12 @@ def ry(deg):
     return Matrix.Rotation(math.radians(deg), 3, "Y")
 
 
-def _barrier(name, mat, x1):
-    bar = RB()
-    bar.span((X0, 0.0, -0.25), (x1, BARRIER_H, 0.25), "concrete")
-    return bar.finalize(name + "_Barrier", mat)
-
-
 def _out(b, bulb, name, mat, end):
-    """A piece's objects: the pile, its lamp's bulb if it has one, its barrier."""
+    """A piece's objects: the pile and its lamp's bulb if it has one (#2812: no invisible barrier)."""
     out = [b.finalize(name, mat)]
     if len(bulb.b.bm.faces):
         out.append(bulb.finalize(name + "_Bulb", mat))
-    return out + [_barrier(name, mat, end)]
+    return out
 
 
 def _lamp(b, bulb, x, y0=0.0, z=0.0):
@@ -140,7 +131,7 @@ def _bin(b, x, z, colour, y0, f=-1, d=1.25):
 def _bins(name, mat, end, lamp, bays, roof):
     """A timber bin store as tall as the piles: bays both sides under one tin roof, a bin or a bag heap in each bay
     (bays: (front, back) per bay, each ("bin", colour) or ("bags",)), things thrown up on the roof (roof: (kind, x)).
-    Sheer from the bays' lintel to the eaves, so nothing in it is a step up. lamp: the post's x, or None."""
+    #2812: as tall as WALL_TOP, so a player can jump up onto its roof. lamp: the post's x, or None."""
     b, bulb = RB(), RB()
     pad = 0.12
     x0, x1 = PILE_END, end - 0.02
@@ -172,8 +163,9 @@ def _bins(name, mat, end, lamp, bays, roof):
         cx = (x0 + x1) / 2                                                                            # the sign
         tpx = 0.16 if n > 3 else 0.12
         w = text_width("BIN STORE", tpx)
-        b.span((cx - w / 2 - 0.35, 6.3, zo), (cx + w / 2 + 0.35, 6.3 + tpx * 5 + 0.7, zo + s * 0.05), "sign_teal")
-        label(b, "BIN STORE", cx, 6.65, zo + s * 0.05, tpx, 0.04, "offwhite", s)
+        sy = BAY_H + 0.42                                                                             # over the bays
+        b.span((cx - w / 2 - 0.35, sy, zo), (cx + w / 2 + 0.35, sy + tpx * 5 + 0.5, zo + s * 0.05), "sign_teal")
+        label(b, "BIN STORE", cx, sy + 0.25, zo + s * 0.05, tpx, 0.04, "offwhite", s)
     roof_y = WALL_TOP + 0.18                                                                          # tin roof
     b.span((x0 - 0.2, WALL_TOP, -SHED_D - 0.3), (x1 + 0.2, roof_y, SHED_D + 0.3), "rust")
     k = x0 + 0.4
@@ -251,7 +243,7 @@ def _load(b, x, y, kind, h):
 
 
 def _column(b, x, pallets, loads):
-    """A short stack of empty pallets and pallet loads on it, up past WALL_TOP. Returns its top."""
+    """A short stack of empty pallets and pallet loads on it, up to WALL_TOP or a little past. Returns its top."""
     y = 0.0
     for _ in range(pallets):
         y = _pallet(b, x, y)
@@ -280,11 +272,11 @@ def build_pallets(mat, lamp=True):
     name = N + "Pallets"
     b, bulb = RB(), RB()
     xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(5)]          # five stacks side by side, -12.05 to -1.65
-    tops = [_column(b, xs[0], 1, (("boxes", 4.8), ("sacks", 4.7))),
-            _column(b, xs[1], 4, (("milk", 4.1), ("boxes", 4.5))),
-            _column(b, xs[2], 2, (("boxes", 4.7), ("boxes", 4.7))),
-            _column(b, xs[3], 1, (("sacks", 4.2), ("milk", 5.3))),
-            _column(b, xs[4], 3, (("boxes", 4.3), ("sacks", 4.6)))]
+    tops = [_column(b, xs[0], 1, (("boxes", 4.6),)),                   # #2812: one load high, 5.2 to 5.5
+            _column(b, xs[1], 3, (("milk", 4.2),)),
+            _column(b, xs[2], 2, (("sacks", 4.4),)),
+            _column(b, xs[3], 1, (("milk", 4.7),)),
+            _column(b, xs[4], 2, (("boxes", 4.5),))]
     _box(b, xs[0] - 0.3, tops[0], -0.2, 1.4, 1.3, 0.8, 8)
     _crate(b, xs[1], tops[1], 0.0, 2.6, stencil="FISH")
     b.span((xs[2] - 1.32, tops[2] - 0.5, -1.42), (xs[2] + 1.32, tops[2] - 0.4, 1.42), "shirt_red")     # strap
@@ -300,8 +292,8 @@ def build_pallets_short(mat, lamp=True):
     name = N + "PalletsShort"
     b, bulb = RB(), RB()
     xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(2)]          # -12.05 and -9.45
-    tops = [_column(b, xs[0], 1, (("sacks", 4.5), ("boxes", 5.0))),
-            _column(b, xs[1], 4, (("boxes", 4.3), ("milk", 4.6)))]
+    tops = [_column(b, xs[0], 1, (("sacks", 4.7),)),
+            _column(b, xs[1], 3, (("boxes", 4.3),))]
     _tarp(b, xs[0], tops[0])
     _crate(b, xs[1], tops[1], 0.0, 2.6, stencil="FISH")
     _box(b, xs[1] + PAL_W / 2 + 0.5, 0.02, 0.0, 1.0, 1.1, 1.1, 0)                                    # -8.15 to -7.15
@@ -320,8 +312,8 @@ def _cone(b, x, y, z):
 
 def build_skip(mat, lamp=True):
     """A builder's skip overfilled, its sides raised to WALL_TOP with boards stood on the rims (greedy boards), the
-    rubble heaped to the top of them, and past it a scaffold tower in blue sheeting with a rubbish chute down into
-    the skip."""
+    rubble heaped to the top of them, and past it a low scaffold tower in blue sheeting with a rubbish chute down into
+    the skip (#2812: the tower's deck is 1.2 over the skip's top, a hop from it)."""
     name = N + "Skip"
     b, bulb = RB(), RB()
     base = 0.12
@@ -379,9 +371,9 @@ def build_skip(mat, lamp=True):
     b.span((cx - 0.8, cy + 0.2, cz + 0.55), (cx + 0.8, cy + 1.6, cz + 0.85), "terracotta", rot=rz(-14))
     # past the skip: a scaffold tower in blue sheeting, its rubbish chute down into the skip, cones either side
     tx0, tx1, tz = -2.75, 0.2, 1.45
-    th = top + 3.0
+    th = top + 1.2
     b.span((tx0, base, -tz), (tx1, th, tz), "shirt_blue")                                              # sheeting
-    for y in (2.4, 5.6, 8.8, 12.0):                                                                    # its bands
+    for y in (y for y in (2.4, 4.8) if y < th - 0.4):                                                  # its bands
         for s in (-1, 1):
             b.span((tx0, y - 0.12, s * tz), (tx1, y + 0.12, s * (tz + 0.02)), "offwhite")
         for x in (tx0 - 0.02, tx1):
@@ -413,16 +405,16 @@ def build_skip(mat, lamp=True):
 
 # ---------------------------------------------------------------------------------------------------------- van --
 def build_van(mat, lamp=True):
-    """A FRESH FISH box lorry parked nose to the wall: a flat-fronted cab at -X under the box's peak (so the cab's
-    roof is covered and there is no bonnet to climb), the cargo box up to WALL_TOP behind, its back doors swung wide
-    open at the rear (x -0.5) and a crate set down on the ground behind it."""
+    """A FRESH FISH box van parked nose to the wall: a flat-fronted cab at -X under the box's peak, the cargo box up to
+    WALL_TOP behind (#2812: low enough to jump onto), its back doors swung wide open at the rear (x -0.5) and a crate
+    set down on the ground behind it."""
     name = N + "Van"
     b, bulb = RB(), RB()
     W = 3.0                                                                                            # half width
     nose = PILE_END
     cab0, rear = nose + 0.4, -0.5                                                                      # cab face, back
     cab1 = cab0 + 3.4
-    floor_y, box_top, cab_top, peak_y = 1.5, WALL_TOP, 5.6, 6.0
+    floor_y, box_top, cab_top, peak_y = 1.2, WALL_TOP, 4.1, 4.4
     for x in (cab0 + 1.5, rear - 2.6):                                                                 # wheels
         for zc in (-W + 0.45, W - 0.45):
             b.cyl((x, 1.0, zc), 1.0, 0.8, "fur_black", axis="Z", segments=14)
@@ -433,32 +425,32 @@ def build_van(mat, lamp=True):
     b.span((cab0 - 0.12, peak_y - 0.04, -W + 0.1), (cab1 + 0.1, peak_y + 0.02, W - 0.1), "concrete_dark")  # under it
     b.span((cab0, floor_y, -W + 0.2), (cab1 + 0.1, cab_top, W - 0.2), "offwhite")                     # the cab
     b.span((nose, 1.0, -W + 0.2), (cab0 + 0.05, 1.6, W - 0.2), "concrete")                            # bumper
-    b.span((cab0 - 0.04, 3.3, -W + 0.5), (cab0 + 0.06, 5.2, W - 0.5), "night_sky")                    # windscreen
-    b.span((cab0 - 0.06, 1.9, -1.4), (cab0 + 0.02, 2.9, 1.4), "concrete_dark")                        # grille
+    b.span((cab0 - 0.04, 2.6, -W + 0.5), (cab0 + 0.06, 3.9, W - 0.5), "night_sky")                    # windscreen
+    b.span((cab0 - 0.06, 1.7, -1.4), (cab0 + 0.02, 2.4, 1.4), "concrete_dark")                        # grille
     for s in (-1, 1):                                                                                  # headlamps
-        b.span((cab0 - 0.06, 2.1, s * (W - 0.9) - 0.35), (cab0 + 0.02, 2.6, s * (W - 0.9) + 0.35), "lamp_warm")
+        b.span((cab0 - 0.06, 1.8, s * (W - 0.9) - 0.35), (cab0 + 0.02, 2.3, s * (W - 0.9) + 0.35), "lamp_warm")
         b.span((cab0 - 0.17, box_top - 0.35, s * (W - 0.5) - 0.2), (cab0 - 0.12, box_top - 0.15,
                s * (W - 0.5) + 0.2), "fur_orange")                                                    # marker lamps
     for s in (-1, 1):
         zf = s * (W - 0.2)
-        b.span((cab0 + 0.4, 3.5, zf - 0.04), (cab1 - 0.6, 5.1, zf + 0.04), "night_sky")               # side window
-        b.span((cab1 - 0.5, 2.0, zf - 0.03), (cab1 - 0.42, 5.1, zf + 0.03), "concrete_dark")          # door line
-        b.span((cab0 + 0.2, 4.3, zf), (cab0 + 0.4, 4.4, zf + s * 0.45), "fur_black")                   # mirror arm
-        b.span((cab0 + 0.15, 3.9, zf + s * 0.4), (cab0 + 0.45, 4.7, zf + s * 0.6), "fur_black")       # mirror
+        b.span((cab0 + 0.4, 2.7, zf - 0.04), (cab1 - 0.6, 3.8, zf + 0.04), "night_sky")               # side window
+        b.span((cab1 - 0.5, 1.6, zf - 0.03), (cab1 - 0.42, 3.8, zf + 0.03), "concrete_dark")          # door line
+        b.span((cab0 + 0.2, 3.3, zf), (cab0 + 0.4, 3.4, zf + s * 0.45), "fur_black")                   # mirror arm
+        b.span((cab0 + 0.15, 2.9, zf + s * 0.4), (cab0 + 0.45, 3.7, zf + s * 0.6), "fur_black")       # mirror
         zb = s * W
-        b.span((cab1 + 0.03, 3.0, zb - 0.04), (rear - 0.03, 3.6, zb + 0.04), "sign_teal")              # stripes
-        b.span((cab0 - 0.12, box_top - 0.8, zb - 0.04), (rear - 0.03, box_top - 0.5, zb + 0.04), "sign_teal")
-        b.ball((cab1 + 2.0, 7.4, zb), 1.1, "fish_blue", scale=(1.5, 0.75, 0.12))                       # the fish
-        b.box((cab1 + 0.85, 7.4, zb), (1.15, 1.15, 0.2), "fish_blue", rot=rz(45))
-        b.ball((cab1 + 3.4, 7.6, zb + s * 0.08), 0.16, "fur_black", scale=(1, 1, 0.5))                 # its eye
-    label(b, "FRESH FISH", (cab1 + rear) / 2, 4.3, -W + 0.01, 0.2, 0.06, "sign_teal", -1)
-    label(b, "FRESH FISH", (cab1 + rear) / 2, 4.3, W - 0.01, 0.2, 0.06, "sign_teal", 1)
+        b.span((cab1 + 0.03, 1.45, zb - 0.04), (rear - 0.03, 1.7, zb + 0.04), "sign_teal")             # stripes
+        b.span((cab0 - 0.12, box_top - 0.45, zb - 0.04), (rear - 0.03, box_top - 0.25, zb + 0.04), "sign_teal")
+        b.ball((cab1 + 2.4, 3.95, zb), 0.75, "fish_blue", scale=(1.5, 0.7, 0.12))                      # the fish
+        b.box((cab1 + 1.45, 3.95, zb), (0.75, 0.75, 0.2), "fish_blue", rot=rz(45))
+        b.ball((cab1 + 3.35, 4.08, zb + s * 0.08), 0.12, "fur_black", scale=(1, 1, 0.5))               # its eye
+    label(b, "FRESH FISH", (cab1 + rear) / 2, 2.05, -W + 0.01, 0.16, 0.06, "sign_teal", -1)
+    label(b, "FRESH FISH", (cab1 + rear) / 2, 2.05, W - 0.01, 0.16, 0.06, "sign_teal", 1)
     # the open back: a dark hold with a crate in it, the doors swung out flat to the sides, a step below
     b.span((rear - 0.05, floor_y + 0.15, -W + 0.25), (rear + 0.06, box_top - 0.25, W - 0.25), "night_sky")
     _crate(b, rear - 0.9, floor_y + 0.2, -1.2, 1.8)
     for s in (-1, 1):
         b.span((rear - 0.1, floor_y + 0.1, s * W), (rear + 0.05, box_top - 0.2, s * (W + 2.7)), "offwhite")
-        b.span((rear + 0.05, 4.4, s * (W + 1.2)), (rear + 0.1, 5.4, s * (W + 1.6)), "metal")           # handle
+        b.span((rear + 0.05, 2.6, s * (W + 1.2)), (rear + 0.1, 3.4, s * (W + 1.6)), "metal")           # handle
     b.span((rear - 0.3, 0.7, -1.2), (rear + 0.35, 0.9, 1.2), "metal")                                 # back step
     _crate(b, 0.0, 0.0, 0.0, 0.8, stencil=None)                                                        # set down
     _box(b, 0.0, 0.8, 0.0, 0.6, 0.6, 0.45, 12)
@@ -471,13 +463,13 @@ def build_van(mat, lamp=True):
 # Derek 11-02 17:44: "I don't think they should be separated into two lanes just make it one big one". The block
 # between the lanes is gone, so the Alleyway is one lane 90 wide (set space x -45 to 45, its outer walls' inner
 # faces), and each blocker is a whole row across it with one way through 24 to 26 wide, never in line with the next.
-# A row is the pieces above end to end (each from its wall end X0, 16 or 8.5 long, its barrier on the row's line),
+# A row is the pieces above end to end (each from its wall end X0, 16 or 8.5 long),
 # with the row's own lamp post at the way through, leaning out over it. Pivot: the lane's middle (x 0) on the floor,
 # on the row's line; place every row at rotY 0.
 LANE_HALF = 45.0
 ROWS = {
     # name: (pieces as (builder, x0 of its wall end, +1 runs toward +X or -1 toward -X), lamp x, lamp's lean,
-    # barrier-only spans (x0, x1))
+    # barrier-only spans (x0, x1), unused since #2812)
     "RowCamp": ([(build_bins, -45.0, 1), (build_pallets, -29.0, 1),                         # the way through in
                  (build_pallets, 45.0, -1), (build_bins, 29.0, -1)], (-13.35, 13.35), (1, -1), ()),   # the middle
     "RowVan": ([(build_pallets, 45.0, -1), (build_van, 29.0, -1), (build_skip, 13.0, -1),     # the way through
@@ -485,7 +477,7 @@ ROWS = {
     "RowSkip": ([(build_bins, -45.0, 1), (build_skip, -29.0, 1), (build_pallets, -13.0, 1),  # the way through
                  (build_bins_short, 3.0, 1), (build_pallets_short, 11.5, 1)], (19.65,), (1,), ()),   # east
     # the way through in the middle; the west Warehouse's crate stack (x -43.65 to -40.75, its end at z 0.03 past
-    # the row's line) stands between the wall and the first pile, the barrier on the row's line behind it
+    # the row's line) stands between the wall and the first pile
     "RowFar": ([(build_pallets, -40.6, 1), (build_bins_short, -24.6, 1),
                 (build_bins, 45.0, -1), (build_skip, 29.0, -1)], (-16.45, 13.35), (1, -1), ((-45.0, -40.6),)),
 }
@@ -508,11 +500,7 @@ def _row(key, mat):
         bulb.span((xm - 0.35, 8.3 + u, -0.32), (xm + 0.35, 8.6 + u, 0.32), "lamp_warm")
     objs = s.finish(b, mat)
     objs.insert(1, bulb.finalize(N + key + "_Bulb", mat))
-    if walls:
-        bar = RB()
-        for x0, x1 in walls:
-            bar.span((x0, 0.0, -0.25), (x1, BARRIER_HIGH, 0.25), "concrete")
-        objs.append(bar.finalize(N + key + "_Barrier", mat))
+    del walls                                            # #2812: no invisible barriers, not even by the crate stack
     return objs
 
 

@@ -460,13 +460,15 @@ local Config = {
 	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
 	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
 	-- #2320 (Derek2: "lower the difficulty for rescue missions rare and lower"): Common 1.0 -> 0.85 and Rare 1.2 -> 1.05;
-	-- Epic and up as they were.
+	-- Epic and up as they were. #2566 (Derek2 2026-11-09: "nerf the rare + rescue missions 30% slower"): Rare and up
+	-- x0.7 (1.05, 1.4, 1.6 and 1.8 before), so the Rare's marker is now slower than the Common's; its narrower zone
+	-- still leaves it less time inside.
 	RescueBarSpeed = {
 		Common = 0.85,
-		Rare = 1.05,
-		Epic = 1.4,
-		Legendary = 1.6,
-		Mythical = 1.8,
+		Rare = 0.735,
+		Epic = 0.98,
+		Legendary = 1.12,
+		Mythical = 1.26,
 	} :: { [string]: number },
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
@@ -487,7 +489,8 @@ local Config = {
 	RescuePatience = 3, -- misses one attempt can take
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
-	RescueAttemptMaxSeconds = 15,
+	-- #2566: 15 before; the slower Rare-and-up bar (x0.7) takes about 1/0.7 as long, so a steady player still fits
+	RescueAttemptMaxSeconds = 22,
 	GoldChanceRescue = 0.12, -- rolled at night start, hidden until the rescue succeeds (#2240: was 0.10)
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher gold chance
 

@@ -2171,6 +2171,34 @@ local SCENES = {
 		end
 		assert(open, "uigate: index_hint_tap named " .. tostring(tapped) .. ", not an open area (#1919)")
 	end },
+	-- #2792 (Derek2: "make it obvious when he visits"): a new account's first rich customer arrives while the player is
+	-- out catching: the ask card's one line says so, and Go to my cafe travels home. The Mystery Visitor's card is next,
+	-- and the rich customer's card went when its visit ended
+	{ "FirstVisitAway", function()
+		local trips = {}
+		local connection = UI.events.travel:Connect(function(destination)
+			table.insert(trips, destination)
+		end)
+		local function away()
+			return true
+		end
+		UI.firstVisit.changed("rich", away)
+		task.wait(0.1)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask and ask:FindFirstChild("Title", true)
+		assert(title and title.Text == "💰 A rich customer is at your cafe!", "uigate: the first rich customer's card reads " .. tostring(title and title.Text) .. " (#2792)")
+		press("CatCafeAsk", "Choice_go")
+		connection:Disconnect()
+		assert(#trips == 1 and trips[1] == "home", "uigate: Go to my cafe travelled to " .. table.concat(trips, ", ") .. " (#2792)")
+		UI.firstVisit.changed(nil, away)
+		UI.firstVisit.changed("mystery", away)
+		task.wait(0.1)
+		assert(ask:FindFirstChild("Holder", true).Visible and title.Text == "🎁 A visitor left you a gift!", "uigate: no card for the first Mystery Visitor (#2792)")
+		UI.firstVisit.changed(nil, away)
+		task.wait(0.4)
+		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: the card stays after the visit ended (#2792)")
+		UI.firstVisit.changed("collector", away)
+	end },
 	-- #2797 (Derek2: "reward for inviting and do after 5 min-15 min"): the one invite card with its reward, on the
 	-- slide-in ask card (UIController's offerInvite times it); its two lines fit a small phone
 	{ "InviteRewardCard", function()
@@ -6689,6 +6717,9 @@ function Scenes.close()
 	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_later")
 	end
+	UI.firstVisit.changed(nil, function() -- #2792's scene: no first visit at the cafe
+		return false
+	end)
 	-- the cat found card goes by itself after 5 s; Nice! now, so it is not over the next scene
 	local found = UIShim.playerGui:FindFirstChild("CatCafePopups")
 	found = found and found:FindFirstChild("CatFound", true)

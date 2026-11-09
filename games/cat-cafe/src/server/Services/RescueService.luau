@@ -602,10 +602,10 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		return
 	end
 
-	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6
+	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6; #2786: the first two areas' bars are easier
 	local challenge = Rescue.newChallenge(entry.def.rarity, entry.trap, now, function()
 		return rng:NextNumber()
-	end, StationPerks.rescueZoneScale(Economy.tier(profile)))
+	end, StationPerks.rescueZoneScale(Economy.tier(profile)), entry.area)
 	local attempt = Rescue.newAttempt(challenge, entry.def.rarity)
 	entry.attempt = attempt
 	setLock(entry, player.UserId)

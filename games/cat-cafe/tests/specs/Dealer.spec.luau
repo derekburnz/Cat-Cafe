@@ -95,23 +95,27 @@ return function()
 	end)
 
 	describe("dealer amounts edges (QA, F59)", function()
-		it("the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least", function()
-			local means = { sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 } -- #1442
-			for _, lureId in Dealer.FOODS do
-				local weights = Catalog.dealerAmountWeights[lureId]
-				assert(weights, lureId)
-				expect(#weights).to.equal(5)
-				local total, mean = 0, 0
-				for index, weight in weights do
-					expect(weight >= 0).to.equal(true)
-					total += weight
-					mean += (index - 1) * weight / 100
+		it(
+			"the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least",
+			function()
+				local means =
+					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 } -- #1442
+				for _, lureId in Dealer.FOODS do
+					local weights = Catalog.dealerAmountWeights[lureId]
+					assert(weights, lureId)
+					expect(#weights).to.equal(5)
+					local total, mean = 0, 0
+					for index, weight in weights do
+						expect(weight >= 0).to.equal(true)
+						total += weight
+						mean += (index - 1) * weight / 100
+					end
+					expect(total).to.equal(100)
+					expect(mean).to.be.near(means[lureId], 1e-9)
+					expect(weights[1] < 100).to.equal(true) -- every food can come up
 				end
-				expect(total).to.equal(100)
-				expect(mean).to.be.near(means[lureId], 1e-9)
-				expect(weights[1] < 100).to.equal(true) -- every food can come up
 			end
-		end)
+		)
 
 		it("never rolls an amount with no weight, whatever the roll", function()
 			for step = 0, 1000 do
@@ -122,10 +126,71 @@ return function()
 				for _, food in Dealer.roll(always) do
 					local weights = Catalog.dealerAmountWeights[food.lureId]
 					if weights[food.amount + 1] == 0 then
-						error(string.format("roll %.3f gave %d %s, a zero weight", roll, food.amount, food.lureId))
+						error(
+							string.format(
+								"roll %.3f gave %d %s, a zero weight",
+								roll,
+								food.amount,
+								food.lureId
+							)
+						)
 					end
 				end
 			end
+		end)
+	end)
+	describe("Buy all (#2573)", function()
+		local function row(lureId: string, cost: number, amount: number, bought: number): any
+			return { lureId = lureId, cost = cost, amount = amount, bought = bought }
+		end
+		-- the dealer's rows in their order: Rare, Epic, Legendary, Mythical
+		local function stock(): { any }
+			return {
+				row("sardines", 100, 3, 1),
+				row("caviar", 500, 2, 0),
+				row("moon_milk", 1000, 1, 0),
+				row("star_treat", 3000, 1, 0),
+			}
+		end
+
+		it("buys everything left when it all fits, best grade first", function()
+			local plan, total = Dealer.planAll(stock(), 10000)
+			expect(plan :: any).to.deepEqual({
+				{ lureId = "star_treat", count = 1 },
+				{ lureId = "moon_milk", count = 1 },
+				{ lureId = "caviar", count = 2 },
+				{ lureId = "sardines", count = 2 },
+			})
+			expect(total).to.equal(3000 + 1000 + 1000 + 200)
+		end)
+
+		it("buys what fits, passing a food it can't afford for a cheaper one", function()
+			-- 1,750: no Star Treat (3,000), the Moon Milk (1,000), one Caviar (500), two Sardines (200)
+			local plan, total = Dealer.planAll(stock(), 1750)
+			expect(plan :: any).to.deepEqual({
+				{ lureId = "moon_milk", count = 1 },
+				{ lureId = "caviar", count = 1 },
+				{ lureId = "sardines", count = 2 },
+			})
+			expect(total).to.equal(1700)
+			local none, nothing = Dealer.planAll(stock(), 99)
+			expect(#none).to.equal(0)
+			expect(nothing).to.equal(0)
+			expect(#Dealer.planAll(stock(), -5)).to.equal(0)
+		end)
+
+		it("keeps to row order within a grade and skips sold out, free and unknown rows", function()
+			local plan = Dealer.planAll({
+				row("sardines", 100, 2, 2), -- bought out
+				row("unknown_food", 10, 5, 0),
+				row("caviar", 0, 3, 0), -- no price
+				row("star_treat", 3000, 1, 0),
+			}, 5000)
+			expect(plan :: any).to.deepEqual({ { lureId = "star_treat", count = 1 } })
+			expect(#Dealer.planAll({}, 1000)).to.equal(0)
+			-- the grade comes from the Catalog
+			expect((Catalog.getLure("star_treat") :: any).rarity).to.equal("Mythical")
+			expect((Catalog.getLure("sardines") :: any).rarity).to.equal("Rare")
 		end)
 	end)
 end

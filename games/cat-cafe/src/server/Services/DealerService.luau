@@ -23,6 +23,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUpCircles = require(script.Parent.Parent.World.WalkUpCircles)
@@ -246,6 +247,85 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawNight: unk
 	sendStock(player, true)
 end
 
+-- #2573: Buy all. The same refusals as one buy (night, the cart, near it, tonight's stock), then the server's own
+-- Dealer.planAll of this player's stock and coins, applied one food at a time as BuyDealerFood would, one toast and
+-- one DealerStock after.
+local function onBuyDealerAll(player: Player, rawNight: unknown)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local function refuse(text: string)
+		Net.toast(player, text, "warn")
+		sendStock(player, true)
+	end
+	local seenNight = Guard.int(rawNight, 0, 2 ^ 40)
+	if seenNight == nil then
+		sendStock(player, true)
+		return
+	end
+	local tonight = stock
+	if cart == nil or tonight == nil or not ClockService.isNight() then
+		refuse("The dealer only comes out at night.")
+		return
+	end
+	if not nearCart(player) then
+		refuse("Walk back to the cart to buy.")
+		return
+	end
+	if seenNight ~= night then
+		refuse("The cart has a new stock tonight. Take another look.") -- S42
+		return
+	end
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	local tier = Economy.tier(profile)
+	local plan = Dealer.planAll(stockFor(player, tonight).stock, profile.coins)
+	local mine = bought[player.UserId] or {}
+	local count, spent = 0, 0
+	for _, item in plan do
+		local def = Catalog.getLure(item.lureId)
+		local amount = Dealer.amountIn(tonight, item.lureId)
+		if def == nil or def.source ~= "dealer" then
+			continue
+		end
+		local price = Economy.foodPrice(item.lureId, tier)
+		for _ = 1, item.count do
+			local already = mine[item.lureId] or 0
+			if already >= amount or not Economy.trySpend(profile, price) then
+				break
+			end
+			Telemetry.sink(player, profile, price, "Shop", "dealer_" .. item.lureId)
+			Telemetry.custom(
+				player,
+				"dealer_buy",
+				price,
+				{ item.lureId, tostring(tier), string.format("%d/%d", already + 1, amount) }
+			)
+			profile.lures[item.lureId] = (profile.lures[item.lureId] or 0) + 1
+			mine[item.lureId] = already + 1
+			count += 1
+			spent += price
+		end
+	end
+	bought[player.UserId] = mine
+	if count == 0 then
+		refuse("Not enough coins")
+		return
+	end
+	Net.toast(
+		player,
+		string.format(
+			"Bought %d %s for %s coins",
+			count,
+			if count == 1 then "food" else "foods",
+			ShortNumber.format(spent)
+		),
+		"good"
+	)
+	CafeService.sync(player)
+	sendStock(player, true)
+end
+
 local function onPhase(phase: Types.ClockPhase)
 	if phase == "night" then
 		if cart == nil then
@@ -269,6 +349,7 @@ end
 
 function DealerService.start()
 	Net.on("BuyDealerFood", onBuyDealerFood)
+	Net.on("BuyDealerAll", onBuyDealerAll) -- #2573
 	ClockService.changed:Connect(onPhase)
 	onPhase(ClockService.phase())
 	Players.PlayerRemoving:Connect(function(player)

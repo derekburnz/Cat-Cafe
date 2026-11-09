@@ -167,6 +167,9 @@ Remotes.ClientToServer = {
 	-- price in coins. A potion goes to the bag and food to the Bag's catFood (no
 	-- cat pick). #1281: a bait row's food goes to `lures` at Economy.foodPrice for the tier, refused above shownPrice
 	-- or at CornerShop.LURE_MAX held; later arguments are ignored. 2 a second; answered with CornerShopStock
+	"BuyCornerShopAll", -- (kind: "potion" | "food" | "bait", window: number)  #2593: within CornerShopRange, `window`
+	-- the current one; the server's own CornerShop.planAll of that section, each one through BuyCornerShop's checks.
+	-- 1 every 2 s; answered with one toast and CornerShopStock
 	"FeedCat", -- (foodId: string, catUid: string)  #1181: one of that food from the Bag to one of the player's cats,
 	-- below CatMaxLevel; its XP through CatStats.addXp. 4 a second; answered with FeedResult and a ProfileSync
 	"SetHideCredit", -- (hide: boolean)  #1083: keeps the player's display name off the Thank You board (true) or puts it

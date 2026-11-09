@@ -10,6 +10,8 @@
 --     Economy.foodPrice for the player's tier, up to CornerShop.LURE_MAX held, and refuses when that price is above
 --     `shownPrice` (the window showed an older one). Other rows ignore shownPrice; a later catUid is ignored. Every buy, bought or refused, answers
 --     CornerShopStock; a refusal toasts why.
+--   BuyCornerShopAll(kind, window)  C -> S  #2593, 1 every 2 s: a section's Buy all (CornerShop.planAll), each one
+--     through the same checks; one toast and one CornerShopStock.
 --   CornerShopStock(stock)  S -> C: on join, at each new window, after every buy.
 -- Nothing here is random, sold for golden fish or Robux, or raises income (corner-shop.md section 3).
 
@@ -27,6 +29,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -135,8 +138,107 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown, raw
 	CafeService.sync(player)
 end
 
+local KINDS = { potion = true, food = true, bait = true }
+
+-- #2593: Buy all for one section of the Day Cart. The stall's range and the window as one buy, then the server's own
+-- CornerShop.planAll of this player's state, tier, coins and Bag, each one bought through CornerShop.buyBlocker,
+-- priceOf and record as BuyCornerShop does; one toast and one CornerShopStock.
+local function onBuyAll(player: Player, rawKind: unknown, rawWindow: unknown)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local function refuse(text: string)
+		Net.toast(player, text, "warn")
+		send(player, profile)
+	end
+	local kind = if type(rawKind) == "string" and KINDS[rawKind] then rawKind else nil
+	local seenWindow = Guard.int(rawWindow, 0, 2 ^ 40)
+	if kind == nil or seenWindow == nil then
+		send(player, profile)
+		return
+	end
+	if not nearStall(player) then
+		refuse("Walk up to the Corner Shop first")
+		return
+	end
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	local state, window = refreshed(profile)
+	if seenWindow ~= window then
+		refuse("The Corner Shop just restocked. Take another look.")
+		return
+	end
+	local tier = Economy.tier(profile)
+	local plan = CornerShop.planAll(
+		state,
+		window,
+		kind,
+		tier,
+		profile.coins,
+		{ catFood = profile.catFood, lures = profile.lures }
+	)
+	local count, spent = 0, 0
+	for _, item in plan do
+		local row = Catalog.getCornerShopRow(item.itemId)
+		if row == nil then
+			continue
+		end
+		local foodId, lureId = row.foodId, row.lureId
+		for _ = 1, item.count do
+			local blocker = CornerShop.buyBlocker(state, {
+				itemId = row.id,
+				seenWindow = window,
+				tier = tier,
+				coins = profile.coins,
+				foodHeld = if foodId ~= nil then profile.catFood[foodId] or 0 else 0,
+				lureHeld = if lureId ~= nil then profile.lures[lureId] or 0 else nil,
+			}, window)
+			local price = CornerShop.priceOf(row, tier)
+			if blocker ~= nil or not Economy.trySpend(profile, price) then
+				break
+			end
+			Telemetry.sink(
+				player,
+				profile,
+				price,
+				"Shop",
+				if lureId ~= nil then lureId else "corner_shop"
+			)
+			Telemetry.custom(player, "corner_shop_buy", price, { row.id, tostring(tier), row.size })
+			CornerShop.record(state, row.id)
+			if row.kind == "potion" then
+				local potionId = row.potionId :: string
+				profile.potions[potionId] = (profile.potions[potionId] or 0) + 1
+			elseif row.kind == "food" and foodId ~= nil then
+				profile.catFood[foodId] = (profile.catFood[foodId] or 0) + 1
+			elseif row.kind == "bait" and lureId ~= nil then
+				profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
+			end
+			count += 1
+			spent += price
+		end
+	end
+	if count == 0 then
+		refuse("Not enough coins")
+		return
+	end
+	Net.toast(
+		player,
+		string.format(
+			"Bought %d %s for $%s",
+			count,
+			if count == 1 then "item" else "items",
+			ShortNumber.format(spent)
+		),
+		"good"
+	)
+	send(player, profile)
+	CafeService.sync(player)
+end
+
 function CornerShopService.start()
 	Net.on("BuyCornerShop", onBuy)
+	Net.on("BuyCornerShopAll", onBuyAll) -- #2593
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
 		send(player, profile)
 	end)

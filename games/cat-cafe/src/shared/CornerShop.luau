@@ -269,6 +269,83 @@ function CornerShop.record(state: Types.CornerShopState, itemId: string)
 	end
 end
 
+export type PlanItem = { itemId: string, count: number }
+export type Held = { catFood: { [string]: number }, lures: { [string]: number } }
+
+-- #2593 (Derek2: a Buy all for each of the Day Cart's sections): what Buy all takes from the `kind` section ("potion",
+-- "food" or "bait") of `window`'s stock for a player at `tier` with `coins` and `held` (their Bag's catFood and their
+-- lures), and the total. Best first: the dearest row at the player's price first (ties in list order); each takes
+-- one at a time for as long as CornerShop.buyBlocker passes it on a copy of `state` (the tier, the window's amount,
+-- the family's daily limit, the Bag and LURE_MAX, the coins), so a row that no longer fits is passed for the next,
+-- cheaper one. The server recomputes it from its own state (CornerShopService's BuyCornerShopAll) and buys each one
+-- through the same check; the confirm card shows the same plan. `state` is not changed.
+function CornerShop.planAll(
+	state: Types.CornerShopState,
+	window: number,
+	kind: string,
+	tier: number,
+	coins: number,
+	held: Held
+): ({ PlanItem }, number)
+	local copy: Types.CornerShopState = {
+		window = state.window,
+		bought = table.clone(state.bought),
+		day = state.day,
+		today = table.clone(state.today),
+		foodXpToday = state.foodXpToday,
+	}
+	type Entry = { row: Types.CornerShopRow, price: number, place: number }
+	local rows: { Entry } = {}
+	for place, item in CornerShop.stock(window) do
+		local row = Catalog.getCornerShopRow(item.itemId)
+		if row ~= nil and row.kind == kind then
+			table.insert(rows, { row = row, price = CornerShop.priceOf(row, tier), place = place })
+		end
+	end
+	table.sort(rows, function(a: Entry, b: Entry): boolean
+		if a.price ~= b.price then
+			return a.price > b.price
+		end
+		return a.place < b.place
+	end)
+	local foods = table.clone(held.catFood)
+	local lures = table.clone(held.lures)
+	local left = coins
+	local plan: { PlanItem } = {}
+	local total = 0
+	for _, entry in rows do
+		local row = entry.row
+		local count = 0
+		while entry.price > 0 do
+			local blocker = CornerShop.buyBlocker(copy, {
+				itemId = row.id,
+				seenWindow = window,
+				tier = tier,
+				coins = left,
+				foodHeld = if row.foodId ~= nil then foods[row.foodId] or 0 else 0,
+				lureHeld = if row.lureId ~= nil then lures[row.lureId] or 0 else nil,
+			}, window)
+			if blocker ~= nil then
+				break
+			end
+			CornerShop.record(copy, row.id)
+			left -= entry.price
+			total += entry.price
+			count += 1
+			if row.foodId ~= nil then
+				foods[row.foodId] = (foods[row.foodId] or 0) + 1
+			end
+			if row.lureId ~= nil then
+				lures[row.lureId] = (lures[row.lureId] or 0) + 1
+			end
+		end
+		if count > 0 then
+			table.insert(plan, { itemId = row.id, count = count })
+		end
+	end
+	return plan, total
+end
+
 -- A saved state made whole at os.time() `now`: whole numbers, the window no later than the next one, the day no
 -- later than today, each row's count within its family's limit (a family with no limit within the most a day's windows
 -- could sell), the food XP within the cap, and a count per row of at most the largest amount a window rolls. A v1

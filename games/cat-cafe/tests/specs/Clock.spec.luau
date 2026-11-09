@@ -188,4 +188,28 @@ return function()
 			end
 		end)
 	end)
+	describe("where a player left (#2562)", function()
+		it("names day, dusk or night and which third of it", function()
+			local warn = Config.DuskWarningSeconds
+			expect({ Clock.leavePhase("night", night) } :: any).to.deepEqual({
+				"night",
+				"night_early",
+			})
+			expect({ Clock.leavePhase("night", night / 2) } :: any).to.deepEqual({
+				"night",
+				"night_mid",
+			})
+			expect({ Clock.leavePhase("night", 0) } :: any).to.deepEqual({ "night", "night_late" })
+			expect({ Clock.leavePhase("day", day) } :: any).to.deepEqual({ "day", "day_early" })
+			expect({ Clock.leavePhase("day", warn + 1) } :: any).to.deepEqual({ "day", "day_late" })
+			expect({ Clock.leavePhase("day", warn) } :: any).to.deepEqual({ "dusk", "dusk_early" })
+			expect({ Clock.leavePhase("day", 0) } :: any).to.deepEqual({ "dusk", "dusk_late" })
+			-- a clock read a moment out never falls outside the phase
+			expect({ Clock.leavePhase("night", night + 5) } :: any).to.deepEqual({
+				"night",
+				"night_early",
+			})
+			expect({ Clock.leavePhase("day", -2) } :: any).to.deepEqual({ "dusk", "dusk_late" })
+		end)
+	end)
 end

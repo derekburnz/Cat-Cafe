@@ -50,7 +50,7 @@ RZ90 = Matrix(((0, -1, 0), (1, 0, 0), (0, 0, 1)))   # Roblox local X (cylinder a
 # Asset families whose big parts block players. Everything else (cats, people, items, wall decor) is walk-through.
 COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Plot_", "CatCafe_Street_",
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_",
-                    "CatCafe_Town_", "CatCafe_Lawn_", "CatCafe_Cafe_")
+                    "CatCafe_Town_", "CatCafe_Lawn_", "CatCafe_Cafe_", "CatCafe_Desert_", "CatCafe_Ruins_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
                       "_Wheel", "_Pointer", "_RimLight", "_Flowers", "_Pennant", "Balloons", "_Canopy")
 # _Canopy: tree crowns a player climbs up under (the Great Oak, #2262). Roblox's camera only pops in front of parts

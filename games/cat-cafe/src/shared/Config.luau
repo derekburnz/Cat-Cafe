@@ -368,6 +368,7 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	TownWalkSpeedBonus = 4, -- #2706 (Derek2 2026-11-09: "increase walking/running speed in spawn by a bit"): no cat, on the Town Square
 	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
 	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
 	CameraMaxZoomStuds = 60,

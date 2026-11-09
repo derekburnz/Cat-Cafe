@@ -2204,6 +2204,12 @@ local function markCamps()
 		if character:GetAttribute("NetHidden") ~= netHidden then
 			character:SetAttribute("NetHidden", netHidden)
 		end
+		-- #2706: the walk speed follows stepping on and off the Town Square
+		local onSquare = if inTownSquare(player) then true else nil
+		if character:GetAttribute("OnSquare") ~= onSquare then
+			character:SetAttribute("OnSquare", onSquare)
+			CatService.refreshSpeed(player)
+		end
 	end
 end
 
@@ -2809,7 +2815,8 @@ function CatService.packedOf(player: Player): string?
 end
 
 -- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
--- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither).
+-- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither). #2706: with no cat, on the Town
+-- Square (the character's OnSquare, kept by markCamps), TownWalkSpeedBonus more.
 function CatService.refreshSpeed(player: Player)
 	local character = player.Character
 	local humanoid = if character ~= nil
@@ -2821,7 +2828,9 @@ function CatService.refreshSpeed(player: Player)
 	local carry = carrying[player]
 	local startled = startledUntil[player]
 	local base = if carry == nil
-		then Config.NormalWalkSpeed
+		then Config.NormalWalkSpeed + (if (character :: Model):GetAttribute("OnSquare") == true
+			then Config.TownWalkSpeedBonus
+			else 0) -- #2706: a little faster on the Town Square
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed

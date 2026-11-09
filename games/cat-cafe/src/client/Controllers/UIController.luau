@@ -1096,6 +1096,10 @@ local function wireIntents()
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")
 	end)
+	-- #2854: the Rewards list's Cozy gift row takes the waiting bag; the server pays it and toasts
+	UI.events.takeCozy:Connect(function()
+		Net.fire("TakeCozy")
+	end)
 	-- The Lock row on a cat (F62): a locked cat cannot be sold or traded; the next ProfileSync shows the new lock.
 	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
 		Net.fire("LockCat", uid, locked)

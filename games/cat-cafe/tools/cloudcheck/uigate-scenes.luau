@@ -2273,6 +2273,14 @@ local SCENES = {
 		assert(pop.Visible, "uigate: the Rewards list closed (#2798)")
 		words = row:FindFirstChild("Label", true)
 		assert(words and words.Text == "Cozy gift waiting!", "uigate: the waiting bag's row reads " .. tostring(words and words.Text) .. " (#2798)")
+		-- #2854 (Derek2: "make it auto claim if clicked"): a press on the waiting bag's row asks the server to take it
+		local asked = 0
+		local connection = UI.events.takeCozy:Connect(function()
+			asked += 1
+		end)
+		press("CatCafeHUD", "Pop.Cozy")
+		connection:Disconnect()
+		assert(asked == 1, "uigate: the Cozy gift row's press did not ask to take the bag (#2854)")
 	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()

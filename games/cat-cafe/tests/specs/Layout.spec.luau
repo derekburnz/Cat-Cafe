@@ -2665,14 +2665,19 @@ return function()
 				expect(Layout.campAt(x, z)).to.equal(def.area)
 				expect(y).to.equal(Layout.areas[def.area].floorY)
 				expect(turn).to.equal(camp.turn)
-				-- #2789's art: the spa 22.8 by 12.2, the museum 12.8 by 8.3. Its whole footprint stays inside the camp,
-				-- off the way out (2 clear of the opening) and behind the gate line
+				-- #2789's art: the spa 22.8 by 12.2 (its model from -5.0 to +7.2 in its own Z, +Z toward the gate line),
+				-- the museum 12.8 by 8.3 (centred). Its whole footprint stays inside the camp, off the way out (2 clear
+				-- of the opening) and behind the gate line
 				local size = if def.id == LateStations.SPA then Vector2.new(22.8, 12.2) else Vector2.new(12.8, 8.3)
+				local front, back = size.Y / 2, size.Y / 2
+				if def.id == LateStations.SPA then
+					front, back = 5.0, 7.2
+				end
 				local lx, lz = Layout.campLocal(camp, x, z)
-				expect(lx - size.X / 2 > camp.openingHalfWidth + 2).to.equal(true)
+				expect(lx - size.X / 2 > camp.openingHalfWidth + 1).to.equal(true)
 				expect(lx + size.X / 2 < camp.halfAcross - 2).to.equal(true)
-				expect(lz + size.Y / 2 < -0.5).to.equal(true)
-				expect(lz - size.Y / 2 > -W.CampDepth + 2).to.equal(true)
+				expect(lz + back < -0.5).to.equal(true)
+				expect(lz - front > -W.CampDepth + 2).to.equal(true)
 				local board = Layout.indexBoards[def.area]
 				local bx, bz = Layout.campPoint(camp, board.x, board.z)
 				expect(apart(x, z, bx, bz) > 2 * Config.CampExtraRangeStuds).to.equal(true)

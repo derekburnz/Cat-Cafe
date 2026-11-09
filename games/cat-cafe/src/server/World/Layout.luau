@@ -2096,11 +2096,12 @@ end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa (Desert) and the Relic Museum (Ruins), each model's pivot in its
 -- area's set space as Layout.campExtras, in the camp beside the way out. Model-Agent's art (#2789) is bigger than the
--- other extras: the spa 22.8 by 12.2 (its palms), the museum 12.8 by 8.3, so each stands far enough over (the spa's
--- near edge 6.6 past the 12 wide opening's side) and back from the gate line (the spa 8, the museum 6) to keep the
--- way out and the line clear.
+-- other extras: the spa 22.8 by 12.2 (its palms; its pivot is not centred front to back, the model runs from -5.0 to
+-- +7.2 in its own Z), the museum 12.8 by 8.3, so each stands far enough over and back from the gate line to keep the
+-- way out and the line clear. The spa's spot is Model-Agent's (2026-11-09): its back edge 1.3 inside the gate line,
+-- its near edge at x 13.6, clear of the Oasis Pool; they move their palm and growth pieces off it in the Desert pass.
 Layout.lateStations = {
-	desert = { x = 30, y = 0, z = -288 },
+	desert = { x = 25, y = 0, z = -289.5 },
 	ruins = { x = 22, y = 0, z = -306 },
 } :: { [string]: Point }
 

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 15:01 UTC",
+  "generated": "2026-11-09 16:04 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -308232,6 +308232,954 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-28.75 y=-6.50"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Townsfolk_Picnicker",
+      "category": "NPC",
+      "module": "townsfolk",
+      "objects": [
+        "CatCafe_NPC_Townsfolk_Picnicker_Body",
+        "CatCafe_NPC_Townsfolk_Picnicker_Head",
+        "CatCafe_NPC_Townsfolk_Picnicker_Eye1",
+        "CatCafe_NPC_Townsfolk_Picnicker_Eye2",
+        "CatCafe_NPC_Townsfolk_Picnicker_EarL",
+        "CatCafe_NPC_Townsfolk_Picnicker_EarR",
+        "CatCafe_NPC_Townsfolk_Picnicker_Tail",
+        "CatCafe_NPC_Townsfolk_Picnicker_LegF1",
+        "CatCafe_NPC_Townsfolk_Picnicker_LegF2",
+        "CatCafe_NPC_Townsfolk_Picnicker_Prop"
+      ],
+      "triangles": 1072,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.24,
+        "y": 1.24,
+        "z": 1.85
+      },
+      "size_roblox": [
+        1.24,
+        1.85,
+        1.24
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.65,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.85
+      ],
+      "pivot": "at its feet on the floor, front -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Townsfolk_Picnicker_Head": [
+          0.0,
+          -0.09,
+          0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Eye1": [
+          0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Eye2": [
+          -0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_EarL": [
+          0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_EarR": [
+          -0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Tail": [
+          0.19,
+          0.41,
+          0.1
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_LegF1": [
+          0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_LegF2": [
+          -0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Prop": [
+          0.0,
+          -0.09,
+          0.97
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Townsfolk_Picnicker_Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Picnicker_Prop": [
+          0.0,
+          0.97,
+          -0.09
+        ]
+      },
+      "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Townsfolk_Picnicker.model.json",
+      "rbx_parts": 59,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Picnicker.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Picnicker.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1072/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "556 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.18 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Townsfolk_Neighbour",
+      "category": "NPC",
+      "module": "townsfolk",
+      "objects": [
+        "CatCafe_NPC_Townsfolk_Neighbour_Body",
+        "CatCafe_NPC_Townsfolk_Neighbour_Head",
+        "CatCafe_NPC_Townsfolk_Neighbour_Eye1",
+        "CatCafe_NPC_Townsfolk_Neighbour_Eye2",
+        "CatCafe_NPC_Townsfolk_Neighbour_EarL",
+        "CatCafe_NPC_Townsfolk_Neighbour_EarR",
+        "CatCafe_NPC_Townsfolk_Neighbour_Tail",
+        "CatCafe_NPC_Townsfolk_Neighbour_LegF1",
+        "CatCafe_NPC_Townsfolk_Neighbour_LegF2",
+        "CatCafe_NPC_Townsfolk_Neighbour_Prop"
+      ],
+      "triangles": 1208,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.29,
+        "y": 1.27,
+        "z": 1.85
+      },
+      "size_roblox": [
+        1.29,
+        1.85,
+        1.27
+      ],
+      "bounds_min": [
+        -0.49,
+        -0.68,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.85
+      ],
+      "pivot": "at its feet on the floor, front -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Townsfolk_Neighbour_Head": [
+          0.0,
+          -0.09,
+          0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Eye1": [
+          0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Eye2": [
+          -0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_EarL": [
+          0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_EarR": [
+          -0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Tail": [
+          0.19,
+          0.41,
+          0.1
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_LegF1": [
+          0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_LegF2": [
+          -0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Prop": [
+          0.0,
+          -0.09,
+          0.97
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Townsfolk_Neighbour_Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Neighbour_Prop": [
+          0.0,
+          0.97,
+          -0.09
+        ]
+      },
+      "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Townsfolk_Neighbour.model.json",
+      "rbx_parts": 72,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Neighbour.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Neighbour.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1208/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "632 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.16 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Townsfolk_Camper",
+      "category": "NPC",
+      "module": "townsfolk",
+      "objects": [
+        "CatCafe_NPC_Townsfolk_Camper_Body",
+        "CatCafe_NPC_Townsfolk_Camper_Head",
+        "CatCafe_NPC_Townsfolk_Camper_Eye1",
+        "CatCafe_NPC_Townsfolk_Camper_Eye2",
+        "CatCafe_NPC_Townsfolk_Camper_EarL",
+        "CatCafe_NPC_Townsfolk_Camper_EarR",
+        "CatCafe_NPC_Townsfolk_Camper_Tail",
+        "CatCafe_NPC_Townsfolk_Camper_LegF1",
+        "CatCafe_NPC_Townsfolk_Camper_LegF2",
+        "CatCafe_NPC_Townsfolk_Camper_Prop"
+      ],
+      "triangles": 1102,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.25,
+        "y": 1.28,
+        "z": 1.92
+      },
+      "size_roblox": [
+        1.25,
+        1.92,
+        1.28
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.68,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.92
+      ],
+      "pivot": "at its feet on the floor, front -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Townsfolk_Camper_Head": [
+          0.0,
+          -0.09,
+          0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Eye1": [
+          0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Eye2": [
+          -0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_EarL": [
+          0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_EarR": [
+          -0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Tail": [
+          0.19,
+          0.41,
+          0.1
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_LegF1": [
+          0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_LegF2": [
+          -0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Prop": [
+          0.0,
+          -0.09,
+          0.97
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Townsfolk_Camper_Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Camper_Prop": [
+          0.0,
+          0.97,
+          -0.09
+        ]
+      },
+      "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Townsfolk_Camper.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Camper.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Camper.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1102/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "573 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.18 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Townsfolk_Tinker",
+      "category": "NPC",
+      "module": "townsfolk",
+      "objects": [
+        "CatCafe_NPC_Townsfolk_Tinker_Body",
+        "CatCafe_NPC_Townsfolk_Tinker_Head",
+        "CatCafe_NPC_Townsfolk_Tinker_Eye1",
+        "CatCafe_NPC_Townsfolk_Tinker_Eye2",
+        "CatCafe_NPC_Townsfolk_Tinker_EarL",
+        "CatCafe_NPC_Townsfolk_Tinker_EarR",
+        "CatCafe_NPC_Townsfolk_Tinker_Tail",
+        "CatCafe_NPC_Townsfolk_Tinker_LegF1",
+        "CatCafe_NPC_Townsfolk_Tinker_LegF2",
+        "CatCafe_NPC_Townsfolk_Tinker_Prop"
+      ],
+      "triangles": 1058,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.24,
+        "y": 1.33,
+        "z": 1.85
+      },
+      "size_roblox": [
+        1.24,
+        1.85,
+        1.33
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.73,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.85
+      ],
+      "pivot": "at its feet on the floor, front -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Townsfolk_Tinker_Head": [
+          0.0,
+          -0.09,
+          0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Eye1": [
+          0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Eye2": [
+          -0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_EarL": [
+          0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_EarR": [
+          -0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Tail": [
+          0.19,
+          0.41,
+          0.1
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_LegF1": [
+          0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_LegF2": [
+          -0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Prop": [
+          0.0,
+          -0.09,
+          0.97
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Townsfolk_Tinker_Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Tinker_Prop": [
+          0.0,
+          0.97,
+          -0.09
+        ]
+      },
+      "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Townsfolk_Tinker.model.json",
+      "rbx_parts": 53,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Tinker.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Tinker.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1058/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "591 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.18 y=-0.07"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Townsfolk_Trader",
+      "category": "NPC",
+      "module": "townsfolk",
+      "objects": [
+        "CatCafe_NPC_Townsfolk_Trader_Body",
+        "CatCafe_NPC_Townsfolk_Trader_Head",
+        "CatCafe_NPC_Townsfolk_Trader_Eye1",
+        "CatCafe_NPC_Townsfolk_Trader_Eye2",
+        "CatCafe_NPC_Townsfolk_Trader_EarL",
+        "CatCafe_NPC_Townsfolk_Trader_EarR",
+        "CatCafe_NPC_Townsfolk_Trader_Tail",
+        "CatCafe_NPC_Townsfolk_Trader_LegF1",
+        "CatCafe_NPC_Townsfolk_Trader_LegF2",
+        "CatCafe_NPC_Townsfolk_Trader_Prop"
+      ],
+      "triangles": 952,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.24,
+        "y": 1.24,
+        "z": 1.85
+      },
+      "size_roblox": [
+        1.24,
+        1.85,
+        1.24
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.65,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.85
+      ],
+      "pivot": "at its feet on the floor, front -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Townsfolk_Trader_Head": [
+          0.0,
+          -0.09,
+          0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Eye1": [
+          0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Eye2": [
+          -0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_EarL": [
+          0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_EarR": [
+          -0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Tail": [
+          0.19,
+          0.41,
+          0.1
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_LegF1": [
+          0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_LegF2": [
+          -0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Prop": [
+          0.0,
+          -0.09,
+          0.97
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Townsfolk_Trader_Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Prop": [
+          0.0,
+          0.97,
+          -0.09
+        ]
+      },
+      "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Townsfolk_Trader.model.json",
+      "rbx_parts": 50,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Trader.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Trader.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "952/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "502 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.18 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Townsfolk_Explorer",
+      "category": "NPC",
+      "module": "townsfolk",
+      "objects": [
+        "CatCafe_NPC_Townsfolk_Explorer_Body",
+        "CatCafe_NPC_Townsfolk_Explorer_Head",
+        "CatCafe_NPC_Townsfolk_Explorer_Eye1",
+        "CatCafe_NPC_Townsfolk_Explorer_Eye2",
+        "CatCafe_NPC_Townsfolk_Explorer_EarL",
+        "CatCafe_NPC_Townsfolk_Explorer_EarR",
+        "CatCafe_NPC_Townsfolk_Explorer_Tail",
+        "CatCafe_NPC_Townsfolk_Explorer_LegF1",
+        "CatCafe_NPC_Townsfolk_Explorer_LegF2",
+        "CatCafe_NPC_Townsfolk_Explorer_Prop"
+      ],
+      "triangles": 1104,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.24,
+        "y": 1.26,
+        "z": 1.88
+      },
+      "size_roblox": [
+        1.24,
+        1.88,
+        1.26
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.66,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.88
+      ],
+      "pivot": "at its feet on the floor, front -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Townsfolk_Explorer_Head": [
+          0.0,
+          -0.09,
+          0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Eye1": [
+          0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Eye2": [
+          -0.21,
+          -0.59,
+          1.2
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_EarL": [
+          0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_EarR": [
+          -0.27,
+          -0.17,
+          1.57
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Tail": [
+          0.19,
+          0.41,
+          0.1
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_LegF1": [
+          0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_LegF2": [
+          -0.16,
+          -0.28,
+          0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Prop": [
+          0.0,
+          -0.09,
+          0.97
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Townsfolk_Explorer_Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "CatCafe_NPC_Townsfolk_Explorer_Prop": [
+          0.0,
+          0.97,
+          -0.09
+        ]
+      },
+      "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Townsfolk_Explorer.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Explorer.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Townsfolk_Explorer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1104/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "594 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.18 y=-0.03"
         }
       }
     },

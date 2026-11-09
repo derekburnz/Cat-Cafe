@@ -925,6 +925,12 @@ function UI.init(config: Types.InitConfig)
 			UI.events.rankUp:Fire()
 		end,
 		close = closeModal,
+		perks = function()
+			-- #2687: "Your perks" over the window
+			if UI.perks.card then
+				UI.perks.card:showList(state.tier)
+			end
+		end,
 	})
 	areasScreen = Areas.new({
 		travel = function(areaId: string)
@@ -1438,6 +1444,13 @@ function UI.init(config: Types.InitConfig)
 	end)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
+	UI.perks.card = require(script.Screens.PerkCard).new(parent) -- #2687
+	local stationReveal = (Moments :: any).StationReveal
+	if stationReveal then
+		UI.perks.reveal = stationReveal:Connect(function(_area: string, perkId: string)
+			UI.perks.unlock(perkId)
+		end)
+	end
 	-- #1947: every press counts for the gift card's idle wait, so it never shows on an old reading
 	UI.gift.inputs = UserInputService.InputBegan:Connect(function()
 		UI.recap.lastInput = os.clock()
@@ -1832,6 +1845,15 @@ function UI.destroy()
 		UI.gift.card:destroy()
 		UI.gift.card = nil
 	end
+	if UI.perks.reveal then
+		UI.perks.reveal:Disconnect()
+		UI.perks.reveal = nil
+	end
+	if UI.perks.card then
+		UI.perks.card:destroy()
+		UI.perks.card = nil
+	end
+	UI.perks.token += 1
 	if UI.gift.inputs then
 		UI.gift.inputs:Disconnect()
 		UI.gift.inputs = nil
@@ -7121,6 +7143,37 @@ end
 -- gift, so the card only thanks: it waits until the player has been idle Config.GiftIdleSeconds, out of the catch
 -- circles, the rescue bar, the intro, any window or card, and not carrying, then shows once. The favourite card comes
 -- a minute or more after the like card, so they queue rather than stack.
+-- #2687 part 4: the station perk card. Moments.StationReveal (WorldController, once per area per account) brings the
+-- "Unlocked!" card a beat after the station's build-in (REVEAL_SECONDS, shorter with Reduce Motion, which has no camera
+-- beat); the rank up window's Perks button shows "Your perks".
+UI.perks = {
+	card = nil :: any,
+	reveal = nil :: RBXScriptConnection?,
+	token = 0, -- the latest unlock's, so a teardown or a second reveal drops an older wait
+	REVEAL_SECONDS = 3,
+	REDUCED_SECONDS = 0.5,
+}
+
+function UI.perks.unlock(perkId: string)
+	local StationPerks =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationPerks")) :: any
+	local perk = StationPerks.get(perkId)
+	if perk == nil then
+		return
+	end
+	UI.perks.token += 1
+	local token = UI.perks.token
+	local seconds = if game:GetService("GuiService").ReducedMotionEnabled
+		then UI.perks.REDUCED_SECONDS
+		else UI.perks.REVEAL_SECONDS
+	task.delay(seconds, function()
+		if UI.perks.token ~= token or UI.perks.card == nil then
+			return
+		end
+		UI.perks.card:showUnlocked(perk)
+	end)
+end
+
 UI.gift = {
 	card = nil :: any,
 	queue = {} :: { { kind: string, paid: { string }? } },

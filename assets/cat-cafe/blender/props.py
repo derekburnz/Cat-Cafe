@@ -110,6 +110,7 @@ class Ctx:
         hs, kf = h["s"][0] / 0.92, h["k"] / 1.05
         self._frames = {"head": ((0, h["c"][1], h["top"]), Matrix.Identity(3), hs),
                         "face": ((0, h["fy"], h["fz"]), Matrix.Identity(3), kf)}
+        self._frames["tail"] = ((0.0, 0.0, 0.0), Matrix.Identity(3), 1.0)   # #2739 the Tail's own space (piece)
         if body == "walk":
             (x0, y0, z0), (sx, sy, sz) = d["body"]
             self.back_len, self.back_w = sy, sx
@@ -1741,17 +1742,19 @@ def scarab_shell(ctx):
 
 # ------------------------------------------------------------------- #2584 Tier 7 Ruins cats --
 def glyph_kohl(ctx):
-    """#2584 Glyph, the Hieroglyph Cat (Rare): kohl lines out from the corners of its eyes, the eye of the old
-    carvings, and a gold and lapis jewel on the brow. A Face prop, so the barista keeps its cap."""
+    """#2584 Glyph, the Hieroglyph Cat (Rare), its face redone for #2739 (Derek2 11-09: "a little off"): the eye of the
+    old carvings drawn clean. A kohl line along the top of each eye sweeping out into a flick at the outer corner, a
+    short straight drop under the middle of each eye, and a small gold and lapis jewel high on the brow. Nothing crosses
+    an eye, the nose or the blush. A Face prop, so the barista keeps its cap."""
     F, ex, hw, hh = ctx.pen("face"), ctx.eye_x, ctx.eye_hw, ctx.eye_hh
     for sx in (-1, 1):
-        o = sx * (ex + hw)
-        F.bar((o - sx * 0.03, -0.045, hh * 0.4), (o + sx * 0.17, -0.045, hh * 0.05), 0.05, 0.03, "fur_seal",
-              up=(0, -1, 0))                                                                     # the wing
-        F.bar((sx * (ex - hw * 0.3), -0.045, -hh - 0.015), (sx * (ex - hw * 0.45), -0.045, -hh - 0.16), 0.045, 0.03,
-              "fur_seal", up=(0, -1, 0))                                                         # the line under it
-    F.box((0, -0.03, hh + 0.14), (0.11, 0.03, 0.11), "fur_golden", rot=_ry(45))                 # the jewel
-    F.box((0, -0.045, hh + 0.14), (0.055, 0.02, 0.055), "galaxy_blue", rot=_ry(45))
+        outer = sx * (ex + hw)
+        F.box((sx * ex + sx * 0.005, -0.035, hh + 0.005), (2 * hw + 0.03, 0.03, 0.045), "fur_seal")  # the top line
+        F.bar((outer - sx * 0.01, -0.042, hh + 0.005), (outer + sx * 0.15, -0.042, hh + 0.05), 0.045, 0.03, "fur_seal",
+              up=(0, -1, 0))                                                                     # the flick
+        F.box((sx * (ex + hw * 0.15), -0.035, -hh - 0.085), (0.04, 0.03, 0.11), "fur_seal")    # the drop
+    F.box((0, -0.03, hh + 0.2), (0.085, 0.03, 0.085), "fur_golden", rot=_ry(45))               # the jewel
+    F.box((0, -0.045, hh + 0.2), (0.042, 0.02, 0.042), "galaxy_blue", rot=_ry(45))
 
 
 def torch_sling(ctx):
@@ -1778,12 +1781,27 @@ def torch_sling(ctx):
     F.cyl(tuple(c + Vector((0, 0, 0.29))), 0.09, 0.18, "eye_amber", r2=0.0, segments=8)        # the tip
     F.sphere(tuple(c + Vector((0, -0.07, 0.09))), 0.085, "pastel_butter", scale=(1.0, 1.0, 1.3), segments=8,
              rings=5)                                                                           # the hot core
+    _tail_flame(ctx)
     if walk:
         _strap_round(ctx, "dark_wood", at_y=0.2)
     else:
         x = 0.08 + (0.12 + 0.3) / 0.56 * 0.38           # the handle's x at the strap's foot (z -0.12)
         _sling(ctx, "dark_wood", xs=(x,), down=0.155 + 0.12)
         P.box((x, B_CLEAR + 0.03, -0.12), (0.11, 0.08, 0.07), "dark_wood")
+
+
+def _tail_flame(ctx):
+    """#2739 (Derek2 11-09: "a little gentle fire on the tail for light"): a small soft flame standing up off the
+    ember-tipped tail, the child Model _Tail_Flame (Neon) inside the Tail Model, riding the tail (Follows Tail). Half
+    the size of the torch's flame, a rounded amber body, a short tip and a butter core toward the front."""
+    tip, d, th = cats.tail_tip(ctx.d["tail_chain"])
+    c = tip + d * 0.02
+    F = ctx.piece("Tail_Flame", "tail", tuple(c))
+    r = max(0.07, th * 0.55)
+    F.sphere(tuple(c + Vector((0, 0, r * 0.7))), r, "eye_amber", scale=(1.0, 1.0, 1.3), segments=8, rings=5)
+    F.cyl(tuple(c + Vector((0, 0, r * 2.05))), r * 0.68, r * 1.2, "eye_amber", r2=0.0, segments=8)   # the tip
+    F.sphere(tuple(c + Vector((0, -r * 0.45, r * 0.7))), r * 0.62, "pastel_butter", scale=(1.0, 1.0, 1.25),
+             segments=8, rings=5)                                                                # the hot core
 
 
 def gargoyle_wings(ctx):
@@ -1954,7 +1972,7 @@ PROPS2 = {
 # rides, and their Roblox Model nests inside that prop's Model.
 PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
           # #2584: the glowing parts, Neon in Roblox (rbx_export: _Flame, _Runes, _RuneRing)
-          "Torch": {"Flame": "Prop"}, "Golem": {"Runes": "Prop"}, "JadeGuardian": {"RuneRing": "Prop"}}
+          "Torch": {"Flame": "Prop", "Tail_Flame": "Tail"}, "Golem": {"Runes": "Prop"}, "JadeGuardian": {"RuneRing": "Prop"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}
@@ -1987,7 +2005,7 @@ def build(name, spec, body, d):
             assert key == "Prop", "second props have no clear parts"
             out["Prop_Glass"] = (ctx.glass, tuple(ctx.origin))
         for suffix, (b, at) in ctx.extra.items():
-            assert PIECES.get(name, {}).get(suffix) == key, f"{name}: list {suffix} in PIECES"
+            assert PIECES.get(name, {}).get(suffix) in (key, "Tail"), f"{name}: list {suffix} in PIECES"
             out[suffix] = (b, tuple(at))
     return out
 
@@ -2004,6 +2022,14 @@ def piece_slot(name, suffix):
     """The slot of one of a cat's prop objects ("Prop", "Prop_Glass", "Prop2" or an extra piece's suffix)."""
     suffix = PIECES.get(name, {}).get(suffix, suffix)
     return slot2(name) if suffix == "Prop2" else slot(name)
+
+
+def piece_follows(name, suffix):
+    """What one of a cat's prop objects rides: a piece hosted by the Tail (#2739 the Torch Cat's tail flame) rides the
+    Tail, the rest what their prop's slot rides."""
+    if PIECES.get(name, {}).get(suffix) == "Tail":
+        return "Tail"
+    return follows(piece_slot(name, suffix))
 
 
 def follows(slot_):

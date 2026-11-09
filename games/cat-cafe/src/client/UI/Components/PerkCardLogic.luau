@@ -1,0 +1,112 @@
+--!strict
+-- The station perk card's words (#2687 part 4, Derek2 2026-11-09: "make unlocking the stations inside new areas more
+-- impactful so it feels like you are actually unlocking progress"). Screens/PerkCard draws them; shared/StationPerks
+-- owns the perks and their numbers, so the card always says what the server does.
+--   PerkCardLogic.unlocked(perk)   the "Unlocked!" card after a station's reveal: the station's picture and name, the
+--                                  perk's name and its one line
+--   PerkCardLogic.list(tier)       "Your perks": every owned perk, then the next one as a locked row ("Opens at Tier N")
+--                                  with its name hidden
+--   PerkCardLogic.teaser(tier)     the rank up window's line for the perk the next tier brings, or nil
+-- Pure.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local StationPerks =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationPerks")) :: any
+
+local PerkCardLogic = {}
+
+-- each station's picture, by perk id
+PerkCardLogic.ICON = table.freeze({
+	fresh_bait = "🧺",
+	haggler = "🏷️",
+	lucky_line = "🎣",
+	homing_bell = "🔔",
+	warm_paws = "🌴",
+	curator = "🏺",
+} :: { [string]: string })
+PerkCardLogic.FALLBACK_ICON = "⭐"
+PerkCardLogic.LOCK = "🔒"
+PerkCardLogic.UNLOCKED_TITLE = "Unlocked!"
+PerkCardLogic.LIST_TITLE = "Your perks"
+PerkCardLogic.NONE = "Rank up to Tier 2 for your first station perk."
+PerkCardLogic.OK = "Nice!"
+PerkCardLogic.CLOSE = "Close"
+
+export type Perk = {
+	id: string,
+	tier: number,
+	station: string,
+	name: string,
+	text: string,
+}
+
+export type Row = {
+	id: string,
+	icon: string,
+	title: string, -- "Haggler · Yard Sale", or "Lost and Found perk" when locked
+	text: string, -- the perk's one line, or "Opens at Tier 5" when locked
+	owned: boolean,
+}
+
+export type Unlocked = {
+	icon: string,
+	title: string,
+	station: string,
+	perk: string, -- "New perk: Haggler"
+	text: string,
+}
+
+function PerkCardLogic.icon(id: string): string
+	return PerkCardLogic.ICON[id] or PerkCardLogic.FALLBACK_ICON
+end
+
+function PerkCardLogic.unlocked(perk: Perk): Unlocked
+	return {
+		icon = PerkCardLogic.icon(perk.id),
+		title = PerkCardLogic.UNLOCKED_TITLE,
+		station = perk.station,
+		perk = "New perk: " .. perk.name,
+		text = perk.text,
+	}
+end
+
+function PerkCardLogic.list(tier: number?): { Row }
+	local rows: { Row } = {}
+	for _, perk in StationPerks.owned(tier) :: { Perk } do
+		table.insert(rows, {
+			id = perk.id,
+			icon = PerkCardLogic.icon(perk.id),
+			title = perk.name .. " · " .. perk.station,
+			text = perk.text,
+			owned = true,
+		})
+	end
+	local nextPerk: Perk? = StationPerks.nextAfter(tier)
+	if nextPerk then
+		table.insert(rows, {
+			id = nextPerk.id,
+			icon = PerkCardLogic.LOCK,
+			title = nextPerk.station .. " perk",
+			text = ("Opens at Tier %d"):format(nextPerk.tier),
+			owned = false,
+		})
+	end
+	return rows
+end
+
+-- The rank up window's teaser for what the next tier's station brings, or nil when it brings none.
+function PerkCardLogic.teaser(tier: number?): string?
+	local perk: Perk? = StationPerks.at((tier or 1) + 1)
+	if perk == nil then
+		return nil
+	end
+	-- short enough for one line in the tall window; "Your perks" and the Unlocked card carry the perk's own line
+	return ("%s New station: %s (%s perk)"):format(
+		PerkCardLogic.icon(perk.id),
+		perk.station,
+		perk.name
+	)
+end
+
+return PerkCardLogic

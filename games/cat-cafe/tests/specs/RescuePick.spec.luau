@@ -146,5 +146,36 @@ return function()
 			end
 			expect(n).to.equal(15)
 		end)
+
+		-- #2794: the Alleyway's and the Park's trap nearest the camp is out every day
+		it("nearest finds the spot closest to a point, nil for an empty pool", function()
+			local pool = parkPool()
+			expect(RescuePick.nearest(pool, 0, 0)).to.equal("p01")
+			expect(RescuePick.nearest(pool, 200, 5)).to.equal("p07")
+			expect(RescuePick.nearest({}, 0, 0)).to.equal(nil)
+		end)
+
+		it("keep is picked every day, even yesterday's, and counts toward its type", function()
+			local pool = parkPool()
+			local rand = seeded(5)
+			local yesterday: { [string]: boolean } = { p01 = true }
+			for _ = 1, 30 do
+				local ids = RescuePick.pick(pool, { tree = 3, trashcan = 2 }, yesterday, 25, rand, "p01")
+				expect(table.find(ids, "p01") ~= nil).to.equal(true)
+				expect(trapsOf(pool, ids)).to.deepEqual({ tree = 3, trashcan = 2 })
+				yesterday = {}
+				for _, id in ids do
+					yesterday[id] = true
+				end
+			end
+		end)
+
+		it("ignores a keep that is not in the pool or not in the mix", function()
+			local pool = parkPool()
+			expect(#RescuePick.pick(pool, { tree = 3, trashcan = 2 }, {}, 25, seeded(1), "nope")).to.equal(5)
+			local ids = RescuePick.pick(pool, { tree = 3 }, {}, 25, seeded(1), "p12")
+			expect(table.find(ids, "p12")).to.equal(nil)
+			expect(#ids).to.equal(3)
+		end)
 	end)
 end

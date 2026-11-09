@@ -905,8 +905,12 @@ local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
 	for place, rarity: Types.Rarity in rarities do
 		mythical = mythical or rarity == "Mythical"
 		-- #1621: the commonest few land by the gate, so the start of the area is never bare at sunrise
-		local point =
-			freeSpawnPoint(areaDef.id, rarity, nil, StrayTopUp.waveEntry(place, #rarities))
+		local point = freeSpawnPoint(
+			areaDef.id,
+			rarity,
+			nil,
+			StrayTopUp.waveEntry(place, #rarities, areaDef.entryFloor)
+		)
 		if point ~= nil then
 			local stray = spawnAt(areaDef.id, point, rarity)
 			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
@@ -952,7 +956,7 @@ local function topUpTick(dt: number)
 		end
 		local nearGate, live = nearGateCount(areaDef.id)
 		local gateX = gateOf(areaDef.id)
-		if gateX ~= nil and StrayTopUp.entryShort(nearGate, live) then
+		if gateX ~= nil and StrayTopUp.entryShort(nearGate, live, areaDef.entryFloor) then
 			-- #1621: the start of the area gets its own quicker top-up
 			local wait = (entryLeft[areaDef.id] or Config.StrayEntryTopUpSeconds) - dt
 			if wait <= 0 then
@@ -968,7 +972,7 @@ local function topUpTick(dt: number)
 		else
 			entryLeft[areaDef.id] = nil
 		end
-		if live >= StrayTopUp.floor(math.max(1, open[areaDef.id] or 0)) then
+		if live >= StrayTopUp.floor(math.max(1, open[areaDef.id] or 0), areaDef.floorBase) then
 			topUpLeft[areaDef.id] = nil
 			continue
 		end

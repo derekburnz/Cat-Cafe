@@ -2533,7 +2533,15 @@ Catalog.areas = {
 		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
 		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
 		spawnPoints = 32,
-		waveSize = 11, -- #2557 (Derek2, "increase cat spawns by about 33%"): was 8
+		-- #2794 (Derek2 2026-11-09: "make sure alleyway and park have lots of starting cats and lots of spawns since
+		-- that's where a lot of players start also have rescues near start for them"): kept at 16 live by day (the
+		-- top-up floor), 6 near the camp, 2 stuck cats each sunrise, one in the trap nearest the camp. The sunrise wave
+		-- stays 11, since a bigger wave slows the rare-cat pace (tests/specs/Pace). #2557: was 8, then 11
+		waveSize = 11,
+		floorBase = 16,
+		entryFloor = 6,
+		rescueMinStuck = 2,
+		starterRescue = true,
 		rescueSpots = 3,
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.alley,
@@ -2546,7 +2554,11 @@ Catalog.areas = {
 		name = "Park",
 		tier = 2,
 		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
-		waveSize = 12, -- #2557 (Derek2, "increase cat spawns by about 33%"): was 9
+		waveSize = 12, -- #2557: was 9; #2794 keeps 16 live through floorBase, as the Alleyway
+		floorBase = 16,
+		entryFloor = 6,
+		rescueMinStuck = 2,
+		starterRescue = true,
 		rescueSpots = 5,
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.park,

@@ -2415,6 +2415,7 @@ function HUD._applyFocus(self: any)
 	local root: Frame = self._root
 	local hidden: { [GuiObject]: boolean } = self._focusHidden
 	if self._catching then
+		self._buffs:setFocus(true) -- #2808: its timers redraw every second, so it holds its rows down itself
 		for _, child in root:GetChildren() do
 			if child:IsA("GuiObject") and not FOCUS_KEEP[child.Name] and child.Visible then
 				local piece = child :: GuiObject
@@ -2425,6 +2426,7 @@ function HUD._applyFocus(self: any)
 		return
 	end
 	if next(hidden) == nil then
+		self._buffs:setFocus(false)
 		return
 	end
 	for child in hidden do
@@ -2433,6 +2435,7 @@ function HUD._applyFocus(self: any)
 		end
 	end
 	table.clear(hidden)
+	self._buffs:setFocus(false) -- after the loop, so the potion and Luck rows show only for what they hold
 	-- and the last state again, so a piece whose time ran out mid-catch (a free spin, a rally) hides as it should
 	local state: Types.PlayerState? = self._state
 	if state then

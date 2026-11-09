@@ -57,6 +57,21 @@ v4, 2026-11-07 (#2230, built in #2236; Derek2: "increase the difficulty of goals
 
 v5, 2026-11-08 (#2496, built in #2518; Derek2: "increase the difficuilty of goals for tier 3 to tier 4 upgrade and make it so it requires at least 1 mythic and more money"): Tier 4 costs **160M** (was 90M) and needs **one Mythical or better** (was one Legendary). It keeps 25 cats, and Tiers 2, 3 and 5 are unchanged. 120M and 140M only reached 4 h 28 and 4 h 53, so the cost went to 160M. One go, 10 runs: Tier 3 0 h 56, Tier 4 **5 h 15** (4 h 25 before), Tier 5 12 h 20 (10th to 90th 9 h 12 to 13 h 54). The median time from Tier 3 to the first Mythical is 0 h 30. New guard: one-go Tier 4 5 to 6 h.
 
+v6, 2026-11-09 (#2559, built in #2590; #2557, built in #2597; Derek2 chose both): the tier prices from #2559 plus the flat +33% spawns from #2557. Pace.spec, combined run, all 26 checks pass. One go: Tier 2 0 h 18, Tier 4 **2 h 33** and Tier 5 **9 h 46**. The guards now sit at the combined medians ±15%, keeping two floors: one-go Tier 5 at least 8 h, and the longest first-hour wait at most 16 min.
+
+| guard | band | median |
+|---|---|---|
+| one-go Tier 4 | 2.2 to 2.9 h (was 5 to 6 h) | 2 h 33 |
+| one-go Tier 5 | 8.3 to 11.2 h (was 9 to 14 h) | 9 h 46 |
+| x2 event run, Tier 5 | 8 to 9.2 h | 8 h 00 |
+| 4-friend server, Tier 2 | 8 to 11 min | 9.5 min |
+| first hour: Tables level 5 | about 31 min | 31.3 |
+| first hour: Espresso level 4 | about 44.5 min | 44.5 |
+| first hour: longest wait | 16 min at most | 15.8 |
+| an hour a day, Tier 5 | day 4 to 6 (unchanged) | in band |
+
+The x2 event median lands exactly on the 8 h floor. The model is deterministic, so it passes, but there's no slack: any later change that speeds the x2 run up needs a Pace rerun first. The 5 to 6 h Tier 4 guard from v5 is retired, because Derek2's #2559 price change deliberately makes Tier 4 faster.
+
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
 | player | Tier 2 | Tier 3 | Tier 4 | Tier 5 |

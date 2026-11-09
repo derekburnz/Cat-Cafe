@@ -2939,11 +2939,52 @@ Presets.equipFlash = {
 -- It runs only near the player, counts against the steady-emitter budget and shows a still look in Low performance
 -- mode"), by decor id. `on` is a plot style attribute (the style shows on the plot's parts with that tag) or
 -- "model", a placed piece carrying DecorId. `emitter` and `colors` are its glints or petals.
-export type DecorSpec = { look: string, on: string, emitter: string?, colors: { Color3 }? }
+-- `spare` (#2734): a Legendary piece, which only moves in a slot no Mythical piece within reach wants.
+export type DecorSpec = {
+	look: string,
+	on: string,
+	emitter: string?,
+	colors: { Color3 }?,
+	spare: boolean?,
+}
+-- #2734 (Derek2 2026-11-09): the Legendary crate furniture and decorations twinkle with a few gold glints over the
+-- piece, so they read above an Epic; they take a moving slot only when the Mythicals leave one free.
+local LEGENDARY_GLINT = { Color3.fromRGB(255, 236, 170), palette.goldLight, palette.offwhite }
+local function legendary(): DecorSpec
+	return {
+		look = "sparkle",
+		on = "model",
+		emitter = "decorGlint",
+		colors = LEGENDARY_GLINT,
+		spare = true,
+	}
+end
 Presets.decor = {
+	alley_retro_jukebox = legendary(),
+	park_duck_fountain = legendary(),
+	neighbourhood_ice_cream_counter = legendary(),
+	woods_hollow_log_booth = legendary(),
+	sewer_bathtub_sofa = legendary(),
+	desert_caravan_bench = legendary(),
+	ruins_stone_throne = legendary(),
+	classic_cat_tree_tower = legendary(),
+	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
 	park_blossom_tree = { look = "petals", on = "model", emitter = "decorPetals" },
-	neighbourhood_rainbow_shimmer = { look = "rainbow", on = "Paint" },
+	-- #2734 (Derek2 2026-11-09: "certain high rarity decor like the rainbow shimmer paint are underwhelming"): the tint
+	-- alone read as a faint lilac front, so it also sparkles in the rainbow's colours and a white glint sweeps it.
+	neighbourhood_rainbow_shimmer = {
+		look = "rainbow",
+		on = "Paint",
+		emitter = "decorGlint",
+		colors = {
+			Color3.fromRGB(255, 150, 160),
+			Color3.fromRGB(255, 225, 120),
+			Color3.fromRGB(150, 235, 160),
+			Color3.fromRGB(140, 200, 255),
+			Color3.fromRGB(210, 160, 255),
+		},
+	},
 	woods_aurora_sky = { look = "aurora", on = "Wallpaper" },
 	sewer_glimmer_canal = {
 		look = "canal",
@@ -3033,11 +3074,14 @@ Presets.decorFx = {
 	},
 	-- Glimmer Canal: light bands `width` wide sliding across the floor under the glass, each crossing in `seconds`.
 	canal = { bands = 4, width = 0.16, shown = 0.78, tilt = 30, seconds = { 9, 15 } },
-	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit like paint.
+	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit `light` like
+	-- paint, with a white `glint` (Gold Leaf's sheen in white) crossing it (#2734: was 0.78 shown, 18 s, 0.6 lit and
+	-- no glint, too faint to read as Mythical).
 	rainbow = {
-		shown = 0.78,
-		seconds = 18,
-		light = 0.6,
+		shown = 0.5,
+		seconds = 10,
+		light = 0.35,
+		glint = { width = 0.1, shown = 0.35, seconds = 6 },
 		colors = {
 			palette.shirtRed,
 			palette.golden,

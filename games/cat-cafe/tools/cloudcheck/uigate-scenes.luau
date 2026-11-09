@@ -1966,6 +1966,25 @@ local SCENES = {
 		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
 	end },
+	-- #2795 (Derek2: Grand Opening from the first catch, compact on phones): mid tutorial (the first table step) the
+	-- closed strip shows at 0/8 under the goal card beside the tutorial strip, and the first table's toast plays
+	{ "GrandOpeningTutorial", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels, grandOpening = { done = {} } } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		task.wait(0.1)
+		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
+		assert(strip and strip.Visible, "uigate: no Grand Opening strip after the first catch (#2795)")
+		local title = strip:FindFirstChild("Title")
+		assert(title and title.Text == "Grand Opening 0/8", "uigate: the strip reads " .. tostring(title and title.Text))
+		-- closed, as a new account has it (the roadmapOpen setting starts false), so it takes two lines on a phone
+		local steps = strip:FindFirstChild("Steps")
+		if steps and steps.Visible then
+			UIShim.fire(UIShim.eventOf(strip, "Activated")) -- an earlier scene in this run tapped it open
+		end
+		assert(steps == nil or not steps.Visible, "uigate: the Grand Opening list did not close (#2795)")
+		UI.roadmap.step(1)
+	end },
 	-- #1920 (first-hour.md 6): the session recap card at a calm moment: today, the Grand Opening's next step, a cooking
 	-- bait cat and the offline share with tomorrow, and an X; no countdown and no store link
 	{ "SessionRecap", function()

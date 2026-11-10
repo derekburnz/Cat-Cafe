@@ -535,23 +535,23 @@ def build_garden(mat):
         x0, x1 = sorted((s * hw, s * (hw - k_)))
         b.span((x0, 0, -hd + k_), (x1, 0.65, hd - k_), "brick")                                # side kerbs
     b.span((-hw + k_, 0, -hd + k_), (hw - k_, 0.5, hd - k_), "leaf_green")                     # grass
-    b.span((-hw + k_, 0.5, hd - 2.3), (hw - k_, 2.1, hd - k_), "leaf_dark")                    # hedge
+    b.span((-hw + k_, 0.5, hd - 2.3), (hw - k_, 2.1, hd - 0.02), "leaf_dark")                 # hedge, to the wall
     for k in range(5):                                                                         # its rounded top
         x = -hw + 2.6 + k * (GARDEN_W - 5.2) / 4
         b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
     for x in (-8.0, 8.0):
         _tree(b, x, 1.0)
     # topiary cat in the middle, sitting, looking at the square
-    b.ball((0, 1.55, -0.3), 1.25, "leaf_green", scale=(1.0, 1.0, 0.9))
-    b.ball((0, 3.2, -0.65), 0.85, "leaf_green")
+    b.ball((0, 1.55, 0.1), 1.25, "leaf_green", scale=(1.0, 1.0, 0.9))                          # its back on the hedge
+    b.ball((0, 3.2, -0.25), 0.85, "leaf_green")
     for s in (-1, 1):
-        b.box((s * 0.48, 3.95, -0.65), (0.5, 0.5, 0.3), "leaf_green", rot=rot_z(45))
-    b.ball((1.15, 0.95, 0.4), 0.4, "leaf_dark", scale=(1.0, 0.8, 1.8))                         # tail
+        b.box((s * 0.48, 3.95, -0.25), (0.5, 0.5, 0.3), "leaf_green", rot=rot_z(45))
+    b.ball((1.15, 0.95, 0.8), 0.4, "leaf_dark", scale=(1.0, 0.8, 1.8))                         # tail
     for k in range(8):                                                                         # flowers along the front
         x = -hw + 1.6 + k * (GARDEN_W - 3.2) / 7
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
     for x in (-3.4, 3.4):                                                                      # small bushes
-        b.ball((x, 0.95, 0.2), 0.8, "leaf_dark")
+        b.ball((x, 0.95, 0.45), 0.8, "leaf_dark")                                              # on the hedge
     return [b.finalize("CatCafe_Square_Garden", mat), flowers.finalize("CatCafe_Square_Garden_Flowers", mat)]
 
 
@@ -569,7 +569,7 @@ def build_garden_mid(mat):
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
     b.span((-hw, 0, hd - k_), (hw, 0.65, hd), "brick")                                         # back kerb
     b.span((-hw, 0, -hd + k_), (hw, 0.5, hd - k_), "leaf_green")                               # grass
-    b.span((-hw - k_, 0.65, hd - 2.3), (hw + k_, 2.1, hd - k_), "leaf_dark")                   # hedge, over the end kerbs
+    b.span((-hw - k_, 0.65, hd - 2.3), (hw + k_, 2.1, hd - 0.02), "leaf_dark")                # hedge, over the end kerbs
     b.span((-hw, 0.5, hd - 2.3), (hw, 0.65, hd - k_), "leaf_dark")                             # and down to the grass
     for k in range(4):                                                                         # its rounded top
         x = -hw + 2.2 + k * (GARDEN_MID_W - 4.4) / 3
@@ -585,7 +585,7 @@ def build_garden_mid(mat):
     b.ball((0.7, 2.75, 0.55), 0.11, "pastel_sky")
     b.box((0.82, 2.75, 0.55), (0.1, 0.05, 0.05), "gold_mid")
     for x in (-5.0, 5.0):                                                                      # round bushes
-        b.ball((x, 0.95, 0.2), 0.9, "leaf_dark")
+        b.ball((x, 0.95, 0.35), 0.9, "leaf_dark")
     for k in range(6):                                                                         # flowers along the front
         x = -hw + 1.4 + k * (GARDEN_MID_W - 2.8) / 5
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
@@ -611,14 +611,14 @@ def build_garden_end(mat):
         x0, x1 = sorted((s * hw, s * (hw - k_)))
         b.span((x0, 0, -hd + k_), (x1, 0.65, hd - k_), "brick")                                # end kerbs
     b.span((-hw + k_, 0, -hd + k_), (hw - k_, 0.5, hd - k_), "leaf_green")                     # grass
-    b.span((-hw + k_, 0.5, hd - 2.3), (hw - k_, 2.1, hd - k_), "leaf_dark")                    # hedge
+    b.span((-hw + k_, 0.5, hd - 2.3), (hw - k_, 2.1, hd - 0.02), "leaf_dark")                 # hedge, to the wall
     for k in range(4):                                                                         # its rounded top
         x = -hw + 2.4 + k * (GARDEN_END_W - 4.8) / 3
         b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
     for x in (-5.0, 5.0):                                                                      # two trees (#3001)
         _tree(b, x, 1.0)
     for x in (-8.0, 0.0, 8.0):                                                                 # round bushes
-        b.ball((x, 0.95, 0.2), 0.85, "leaf_dark")
+        b.ball((x, 0.95, 0.4), 0.85, "leaf_dark")
     for k in range(7):                                                                         # flowers along the front
         x = -hw + 1.5 + k * (GARDEN_END_W - 3.0) / 6
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)

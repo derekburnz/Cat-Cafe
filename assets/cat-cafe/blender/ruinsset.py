@@ -728,11 +728,11 @@ def fountain(mat):
         water.box_base((3.08 * math.cos(a), 3.08 * math.sin(a), 0.6), (0.14, 0.9, 3.45), FALL_WATER, bevel=False,
                        rot=(a, "Z"))
     b.cyl_base((0, 0, 3.7), 0.5, 0.9, STONE, segments=10)                         # the cat's post
-    b.ico((0, 0.2, 5.6), 0.9, STONE_LIGHT, subdivisions=1, scale=(0.9, 1.1, 1.0))
-    b.box((0, -0.45, 6.6), (1.1, 0.9, 0.9), STONE_LIGHT, bevel=False)
+    b.ico((0, 0.2, 5.45), 0.9, STONE_LIGHT, subdivisions=1, scale=(0.9, 1.1, 1.0))           # sitting on the post
+    b.box((0, -0.45, 6.45), (1.1, 0.9, 0.9), STONE_LIGHT, bevel=False)
     for sx in (-1, 1):
-        b.pyramid((sx * 0.35, -0.45, 7.05), 0.4, 0.45, STONE_LIGHT)
-    b.box((0, -0.92, 6.35), (0.4, 0.1, 0.25), STONE_DARK, bevel=False)                       # the open mouth
+        b.pyramid((sx * 0.35, -0.45, 6.9), 0.4, 0.45, STONE_LIGHT)
+    b.box((0, -0.92, 6.2), (0.4, 0.1, 0.25), STONE_DARK, bevel=False)                        # the open mouth
     for (x, y) in ((4.2, 2.2), (-3.6, 3.3), (-4.4, -2.0), (2.6, -4.4)):                    # lily pads
         d.cyl_base((x, y, 0.7), 0.6, 0.05, "leaf_green", segments=8, bevel=False)
     for k in range(4):

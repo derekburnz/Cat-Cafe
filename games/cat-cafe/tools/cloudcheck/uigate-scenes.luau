@@ -5525,9 +5525,16 @@ local SCENES = {
 		UI.intro.waiting(true)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
 		assert(gui.Enabled, "uigate: the loading screen did not show (#3105)")
+		local count = gui:FindFirstChild("Count", true) :: TextLabel
+		local fill = gui:FindFirstChild("Fill", true) :: Frame
+		local paw = gui:FindFirstChild("Paw", true) :: TextLabel
+		assert(gui:FindFirstChild("Face", true), "uigate: the loading screen has no cat (#3109)")
 		UIShim.advance(0.9)
-		local label = gui:FindFirstChild("Label", true) :: TextLabel
-		assert(label.Text:sub(1, 7) == "Loading", "uigate: the loading screen lost its word (#3105)")
+		-- #3109: the count creeps while the save loads, and never reaches 100 by itself
+		local value = tonumber((count.Text:gsub("%%", "")))
+		assert(value and value > 20 and value <= 90, "uigate: the loading count reads " .. count.Text .. " after 0.9 s (#3109)")
+		assert(fill.Size.X.Scale > 0.2 and fill.Size.X.Scale <= 0.9, "uigate: the loading bar did not fill with the count (#3109)")
+		assert(paw.Position.X.Scale == fill.Size.X.Scale, "uigate: the paw is not at the bar's tip (#3109)")
 		-- hidden and shown again at once: the slide away must not carry the new show off (review on #3107)
 		UI.intro.waiting(false)
 		UI.intro.waiting(true)
@@ -5535,6 +5542,31 @@ local SCENES = {
 		local cover = gui:FindFirstChild("Cover") :: Frame
 		assert(gui.Enabled, "uigate: the loading screen went off after a quick hide and show (#3105)")
 		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
+		UIShim.advance(10)
+		assert(count.Text ~= "100%", "uigate: the loading count sat at 100 while still loading (#3109)")
+	end },
+	-- #3109 (Derek2 11-10: "instantly goes up to 100 really fast then transitions to the tutorial scenes"): once the
+	-- save is in the count races to 100 in SHOWN_MIN at most from the screen's start, and stays up until the play
+	{ "IntroLoadingRace", function()
+		local LoadingCount = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LoadingCount")
+		assert(UI.intro.race() == 0, "uigate: a race with no loading screen up should take no time (#3109)")
+		UI.intro.waiting(true)
+		UIShim.advance(0.3)
+		local seconds = UI.intro.race()
+		assert(
+			seconds >= LoadingCount.RACE_MIN and seconds <= LoadingCount.SHOWN_MIN,
+			("uigate: the race to 100 takes %.2f s (#3109)"):format(seconds)
+		)
+		assert(UI.intro.race() <= seconds, "uigate: a second ask restarted the race (#3109)")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		local count = gui:FindFirstChild("Count", true) :: TextLabel
+		local fill = gui:FindFirstChild("Fill", true) :: Frame
+		UIShim.advance(seconds / 2)
+		assert(count.Text ~= "100%", "uigate: the count hit 100 half way through its race (#3109)")
+		UIShim.advance(seconds / 2 + 0.1)
+		assert(count.Text == "100%", "uigate: the count reads " .. count.Text .. " after its race (#3109)")
+		assert(fill.Size.X.Scale == 1, "uigate: the bar is not full at 100 (#3109)")
+		assert(gui.Enabled, "uigate: the loading screen left before the intro started (#3109)")
 	end },
 	{ "IntroLoadingLifts", function()
 		UI.intro.waiting(true)

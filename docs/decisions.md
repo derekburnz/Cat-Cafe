@@ -736,3 +736,13 @@ Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decide
 - **How:** the game notes who is due (a MemoryStore sorted map); an hourly GitHub workflow sends through Open Cloud with the repo's key, so no key is in the game. Disabling the workflow stops the messages.
 
 Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside the game. It only reaches players who asked for notifications.
+
+## 2026-11-10 The intro starts as the loading screen reaches 100, without waiting for the Alleyway (#3109)
+
+Derek2: "can you make it a quick cute cat loading screen that instantly goes up to 100 really fast then transitions to the tutorial scenes that should buy enough time to load whats needed start the cutscene right after dont even check if the alleyway catching scenes are ready it should be fine".
+
+The loading screen from #3105 is now a drawn cat's face, the game's name and a bar that a paw walks along while a count runs to 100. The count creeps (never past 90) while the save loads, then runs to 100 so the whole screen takes 1.5 s when nothing holds it up (0.35 s for the last run after a longer wait), and the first cutscene shot starts as it lands. The two waits before shot 1 are gone: up to 5 s for the Alleyway's camp to stream in and up to 2.5 s more for its ground (#2961).
+
+Why: 9% of new players left between the first tutorial step showing and their first move, and up to 7.5 s on a still picture sat in that gap. The count is a show of progress, not a measure, since Roblox gives no percent for a world streaming in.
+
+Kept: the camp is still asked for at the start and every 2 s through the camp shots, and shot 1 still holds on its fuse up to 2.5 s if the camp's ground is not there yet (Derek2 earlier the same day, #2961: "don't make intro skip those slides ... just wait up to a couple seconds for loading"). That hold is inside the moving cutscene and only happens when the camp really is missing; a camp that never comes still falls back to the clouds shot. A replay from Settings goes the same way.

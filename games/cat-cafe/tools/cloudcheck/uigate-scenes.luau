@@ -2218,6 +2218,25 @@ local SCENES = {
 		assert(prompt and prompt.Visible and words[prompt.Text], "uigate: no press prompt on the held ring (#2920)")
 		assert(art.Parent and (art.Parent :: GuiObject).Visible, "uigate: the held ring went before the press (#2920)")
 	end },
+	-- #2871 (console): on a gamepad the catch line under the cat's name names A or R2
+	{ "GamepadCatchWords", function()
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.2, shrinkSeconds = 1.2, x = 0.5, y = 0.55 } }
+		UI.catch.show({ strayId = "gate_pad", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common" })
+		UI.catch.showCircles("gate_pad", list :: any, { perfect = 0.074, good = 0.18 })
+		UIShim.advance(0.3)
+		local found = false
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text:find("each circle meets its ring", 1, true) then
+				found = true
+				assert(piece.Text:find("Press A or R2", 1, true), "uigate: the catch line on a gamepad reads " .. piece.Text .. " (#2871)")
+				assert(piece.TextFits ~= false, "uigate: the gamepad catch line does not fit (#2871)")
+			end
+		end
+		assert(found, "uigate: no catch line under the cat's name (#2871)")
+		UIShim.setLastInput(nil)
+	end },
 	-- #2920 (Derek2: "not even let the player click before its in the circle so you cant miss first one"): a tap before
 	-- the held ring stops sends nothing; a tap once it waits goes out as a Perfect
 	{ "CatchHoldPress", function()

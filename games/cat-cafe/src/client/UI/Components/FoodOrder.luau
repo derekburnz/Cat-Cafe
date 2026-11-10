@@ -12,6 +12,8 @@
 --                                     first (#1609: the bowl's list and the Bag's Bait tab)
 --   ownedFirst(foods, have)           #2323: a copy of a sorted food list with the foods the player has (have[id] > 0)
 --                                     first, each part keeping its order (the Bait bowl's list)
+--   best(foods, have)                 #3008: the first food in a rarest-first list the player has, or nil with none
+--                                     (the Bait bowl's Refill button)
 -- Pure, so the cloud spec runner checks it.
 
 local FoodGrade = require(script.Parent.FoodGrade)
@@ -115,6 +117,18 @@ function FoodOrder.ownedFirst(
 		end
 	end
 	return out
+end
+
+-- #3008 (Derek2 11-10: "it refills with your best food available"): the best food the player has, from a list
+-- already rarest first (FoodOrder.defs(lures, true)). A count that is not a whole food (0, negative, NaN) is none.
+function FoodOrder.best(foods: { Types.LureDef }, have: { [string]: number }): Types.LureDef?
+	for _, lure in foods do
+		local count = have[lure.id]
+		if type(count) == "number" and count >= 1 then
+			return lure
+		end
+	end
+	return nil
 end
 
 return FoodOrder

@@ -11,6 +11,9 @@
 -- - `tradeFish` (#2745, trading.md section 1d): golden fish in trades. It starts OFF (OFF_BY_DEFAULT) until QA and the
 --   security review pass. Off takes every fish amount off the open trades, refuses new fish offers and lifts the
 --   fish-spend freeze (TradeService).
+-- - `awayNotes` (#2768): false stops the server noting who is due an away notification (AwayNotifyService). The
+--   notes share MemoryStore's one quota with the pity cats' timers (64 KB plus 1 KB a player online), so this is
+--   the way to stop them filling it without a publish. Notes already written expire by themselves.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
 -- the other way round: only an explicit true turns it on, so a missing key or a broken store never switches it on.
@@ -18,7 +21,7 @@
 local LiveFlags = {}
 
 LiveFlags.STORE = "CatCafe_Flags"
-LiveFlags.KEYS = { "codes", "rally", "tradeCrates", "tradeFish" }
+LiveFlags.KEYS = { "codes", "rally", "tradeCrates", "tradeFish", "awayNotes" }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = { tradeFish = true } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

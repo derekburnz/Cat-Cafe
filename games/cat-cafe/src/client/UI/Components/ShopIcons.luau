@@ -203,10 +203,6 @@ local IDS: { [string]: string } = {
 	Icon_Menu_Sundae = "rbxassetid://121110664035796",
 	Icon_Menu_StrawberryRoll = "rbxassetid://136083620718199",
 	Icon_Menu_RainbowCake = "rbxassetid://124138968942476",
-	-- #1302: Model-Agent's Cat Whistle flasks, one per size (re-uploaded 11-05 with the potion flasks)
-	Icon_Flask_CatWhistleSmall = "rbxassetid://133372963315030",
-	Icon_Flask_CatWhistle = "rbxassetid://109791389728522",
-	Icon_Flask_CatWhistleBig = "rbxassetid://97942810764317",
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://82127824623670",
 	Icon_Clean_Floor = "rbxassetid://100618134290369",
@@ -428,17 +424,6 @@ function ShopIcons.crateModel(crateId: string?): string?
 	return "CatCafe_Prop_Crate_" .. pool .. (if golden then "_Gold" else "")
 end
 
--- Bottles for potions with no flask of their own yet (#1250): the Cat Whistle borrows the Lucky flask for now.
-local POTION_STANDIN: { [string]: string } = {
-	cat_whistle = "Icon_Flask_Lucky",
-}
--- A size with a flask of its own (#1302) shows it first, then its regular potion's bottles behind it.
-local OWN_FLASK: { [string]: string } = {
-	cat_whistle_small = "Icon_Flask_CatWhistleSmall",
-	cat_whistle = "Icon_Flask_CatWhistle",
-	cat_whistle_big = "Icon_Flask_CatWhistleBig",
-}
-
 -- Every bottle a potion has, best first (#1256): Model-Agent's flask (#1204), the clean flask in the potion's colour
 -- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
 -- falls back to the next bottle instead of the emoji. A Small or Big size runs its regular potion's timer, so it wears
@@ -448,10 +433,6 @@ function ShopIcons.potionAll(potionId: string?): { string }
 	if type(potionId) ~= "string" then
 		return list
 	end
-	local own = OWN_FLASK[potionId]
-	if own and IDS[own] then
-		table.insert(list, IDS[own])
-	end
 	local def = Catalog.getPotion(potionId)
 	if def and def.buff and def.buff ~= potionId then
 		for _, id in ShopIcons.potionAll(def.buff) do
@@ -459,11 +440,6 @@ function ShopIcons.potionAll(potionId: string?): { string }
 				table.insert(list, id)
 			end
 		end
-		return list
-	end
-	local standin = POTION_STANDIN[potionId]
-	if standin and IDS[standin] then
-		table.insert(list, IDS[standin])
 		return list
 	end
 	local name = potionId:match("^(.+)_potion$")

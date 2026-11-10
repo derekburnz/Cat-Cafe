@@ -32,7 +32,6 @@ local CannonLogic = require(script.Components.CannonLogic)
 local CatCard = require(script.Screens.CatCard)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
-local CatWhistle = require(script.Components.CatWhistle)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
@@ -1507,15 +1506,6 @@ function UI.init(config: Types.InitConfig)
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
-	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
-	CatWhistle.new(
-		WorldMarker.new(parent, "CatCafeWhistleMarker", CatWhistle.REACH),
-		function(): boolean
-			local buffs: { [string]: number }? = state.buffs
-			local endsAt = if buffs then buffs.cat_whistle else nil
-			return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
-		end
-	)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)

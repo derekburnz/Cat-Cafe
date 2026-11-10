@@ -322,6 +322,24 @@ function Intro.catchSpot(): Vector3
 	return stray + (camp.wayOut - stray).Unit * Intro.CATCH_GAP
 end
 
+-- #2961: the ground the camp shots film, which must have streamed in before they play: the pad (shot 2 lands on it),
+-- the catch spot and the stray (shot 3). The Alleyway's ground and set are big parts with their middles far down the
+-- area, so `middle` is the area's middle, asked for too so they come in with the props by the camp.
+function Intro.campGround(): { points: { Vector3 }, middle: Vector3 }
+	local camp = alleyCamp()
+	local W = Config.World
+	return {
+		points = { camp.pad, Intro.catchSpot(), Intro.strayPoint() },
+		middle = v(W.AlleyCenterX, AREA_FLOOR, W.AlleyCenterZ),
+	}
+end
+
+-- #2961: whether a downward ray's hit at height `y` is the area's floor (a few studs either way), not a roof or a
+-- prop's top far above it.
+function Intro.floorHit(y: number): boolean
+	return y >= AREA_FLOOR - 3 and y <= AREA_FLOOR + 3
+end
+
 -- Shot 4's run (ground points): from the catch spot through the middle of the way out to STOP_IN inside the camp.
 function Intro.runPath(): { Vector3 }
 	local camp = alleyCamp()

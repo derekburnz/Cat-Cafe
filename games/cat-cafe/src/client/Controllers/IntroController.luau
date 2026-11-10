@@ -76,6 +76,7 @@ local LESSON_IN = 3 -- #2446: the tackling lesson's viewpoint, this far into the
 local LESSON_CLEAR = 4 -- real strays this much further out than the intro's DEMO_HIDE_RADIUS are hidden for it
 local LESSON_CAMERA_BACK = 60 -- studs: the lesson's end puts back the view it started with only this near the player
 local STREAMED_RADIUS = 40 -- a camp counts as streamed in when a part stands this close to the point checked
+local CAMP_ASK_EVERY = 2 -- seconds between asks for the camp's ground while the intro plays (#2961)
 local WHEEL_TURNS = 2
 local BLEND = 0.15 -- seconds an animation of your copy fades in or out
 local SPIN_TURNS = 2 -- the ball's tumbles on the way up
@@ -684,6 +685,40 @@ local function streamedNear(point: Vector3): boolean
 	return #Workspace:GetPartBoundsInRadius(point, STREAMED_RADIUS, params) > 0
 end
 
+-- #2961: true when a ray straight down at `point` finds the area's floor (not this character, nor anything staged).
+local function floorAt(point: Vector3, staged: { Instance }?): boolean
+	local params = RaycastParams.new()
+	local skip: { Instance } = if staged ~= nil then table.clone(staged) else {}
+	if player.Character ~= nil then
+		table.insert(skip, player.Character :: Model)
+	end
+	params.FilterDescendantsInstances = skip
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local hit = Workspace:Raycast(point + Vector3.new(0, 30, 0), Vector3.new(0, -60, 0), params)
+	return hit ~= nil and Intro.floorHit(hit.Position.Y)
+end
+
+-- #2961: the Alleyway's camp is in when the floor under the pad, the catch spot and the stray has streamed in. A prop
+-- or wall by the pad alone let the camp shots play over an empty sky (Derek2 11-10, slides 2 and 3).
+local function campReady(staged: { Instance }?): boolean
+	for _, point in Intro.campGround().points do
+		if not floorAt(point, staged) then
+			return false
+		end
+	end
+	return true
+end
+
+-- #2961: asks again for the camp's ground: the filmed spots and the area's middle, where the big ground and set
+-- parts stand.
+local function streamCamp()
+	local ground = Intro.campGround()
+	for _, point in ground.points do
+		streamAround(point)
+	end
+	streamAround(ground.middle)
+end
+
 -- The Spin Wheel station's turning part (a Model named Wheel or ..._Wheel, the Effects Wheel's own lookup).
 local function findWheel(): Model?
 	for _, station in CollectionService:GetTagged("SpinWheel") do
@@ -998,8 +1033,23 @@ end
 -- the Alleyway's camp in play()'s STREAM_WAIT, and then shot 2 holds in the clouds and the camp shots (3 and 4) drop
 -- out. play() keeps asking for the camp through shot 1, and at the fuse this looks again: streamed in by then, the
 -- shots are rebuilt with the camp shots and the demo cat is staged, so the flight lands and the catch plays.
+-- #2961: "in" means the floor under the filmed spots (campReady), and a camp that was in at the start but has
+-- streamed back out by the fuse drops the camp shots the same way.
 local function lateStream(r: Run)
-	if r.alleyStreamed or not streamedNear(r.camp.pad) then
+	if not r.alleyStreamed and not campReady(r.staged) then
+		return
+	end
+	if r.alleyStreamed then
+		if campReady(r.staged) then
+			return
+		end
+		-- #2961: in at the start but gone again (streamed back out): the clouds fallback, not an empty sky
+		r.alleyStreamed = false
+		r.shots = Intro.shots(r.plot, hasCodesCat(), false)
+		if r.demo ~= nil then
+			(r.demo :: Model):Destroy()
+			r.demo = nil
+		end
 		return
 	end
 	r.alleyStreamed = true
@@ -2009,6 +2059,7 @@ function IntroController.play(replay: boolean)
 		park(first.cuts[1].from)
 	end
 	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's pad and wait
+	streamCamp() -- #2961: the area's middle too, where its big ground and set parts stand
 	pcall(function()
 		player:RequestStreamAroundAsync(camp.pad, Intro.STREAM_WAIT)
 	end)
@@ -2020,12 +2071,7 @@ function IntroController.play(replay: boolean)
 	end
 	-- the Alleyway's board streams in during shots 1 to 4 (#1542: the other camps are no longer filmed)
 	streamAround(camp.board)
-	local alleyStreamed = streamedNear(camp.pad)
-	if not alleyStreamed then
-		-- #2759: keep asking for the camp and the catch through shot 1; the fuse looks again (lateStream)
-		streamAround(camp.pad)
-		streamAround(Intro.catchSpot())
-	end
+	local alleyStreamed = streamedNear(camp.pad) and campReady()
 	local plot = Intro.plot(state.plotIndex)
 	local camera = Workspace.CurrentCamera
 	local r: Run = {
@@ -2072,6 +2118,14 @@ function IntroController.play(replay: boolean)
 	run = r
 	parked = false -- the run has the camera now; finish() hands it back as Custom
 	unbindPark()
+	-- #2961: keep asking for the camp's ground until the cut to shot 5, so it streams in late on a slow phone (the
+	-- fuse looks again) and nothing streams back out under the camp shots
+	task.spawn(function()
+		while run == r and not r.ended and not r.done.sceneOver do
+			streamCamp()
+			task.wait(CAMP_ASK_EVERY)
+		end
+	end)
 
 	if r.controls ~= nil then
 		pcall(function()

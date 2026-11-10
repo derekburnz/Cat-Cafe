@@ -260,30 +260,33 @@ return function()
 	end)
 
 	describe("LawnLogic.cards (#1283)", function()
-		it("lists each owned piece, path and fence, highest rarity first, then out first (#1751)", function()
-			local state = player(
-				3,
-				0,
-				{ "tulip_bed", "potted_cat_topiary", "mailbox", "red_brick", "stepping_stones" },
-				{ small1 = "tulip_bed" },
-				{ path = "red_brick" }
-			)
-			local cards = LawnLogic.cards(state)
-			local ids = {}
-			for _, card in cards do
-				table.insert(ids, card.id)
+		it(
+			"lists each owned piece, path and fence, highest rarity first, then out first (#1751)",
+			function()
+				local state = player(
+					3,
+					0,
+					{ "tulip_bed", "potted_cat_topiary", "mailbox", "red_brick", "stepping_stones" },
+					{ small1 = "tulip_bed" },
+					{ path = "red_brick" }
+				)
+				local cards = LawnLogic.cards(state)
+				local ids = {}
+				for _, card in cards do
+					table.insert(ids, card.id)
+				end
+				-- the three Uncommons (stored) first, then the Commons: Red Brick and the Tulip Bed (both out, by name)
+				expect(#cards).to.equal(5)
+				for index = 2, #cards do
+					expect(cards[index - 1].bonus >= cards[index].bonus).to.equal(true)
+				end
+				expect(cards[1].out).to.equal(false)
+				expect(cards[3].out).to.equal(false)
+				expect(cards[4].out).to.equal(true)
+				expect(cards[5].out).to.equal(true)
+				expect(table.concat(ids, ",", 4, 5)).to.equal("red_brick,tulip_bed")
 			end
-			-- the three Uncommons (stored) first, then the Commons: Red Brick and the Tulip Bed (both out, by name)
-			expect(#cards).to.equal(5)
-			for index = 2, #cards do
-				expect(cards[index - 1].bonus >= cards[index].bonus).to.equal(true)
-			end
-			expect(cards[1].out).to.equal(false)
-			expect(cards[3].out).to.equal(false)
-			expect(cards[4].out).to.equal(true)
-			expect(cards[5].out).to.equal(true)
-			expect(table.concat(ids, ",", 4, 5)).to.equal("red_brick,tulip_bed")
-		end)
+		)
 
 		it("leaves out what is not owned and the free Grey Slabs", function()
 			local cards = LawnLogic.cards(player(3, 0, { "tulip_bed" }))
@@ -305,34 +308,37 @@ return function()
 	end)
 
 	describe("LawnLogic.groups (#2081)", function()
-		it("puts the cards under Big spots, Small spots, then Paths and fences, with counts", function()
-			local state = player(
-				3,
-				0,
-				{ "tulip_bed", "mailbox", "garden_bench", "red_brick", "white_picket" },
-				{ small1 = "tulip_bed", big1 = "garden_bench" },
-				{ path = "red_brick" }
-			)
-			local groups = LawnLogic.groups(state)
-			local keys = {}
-			local total = 0
-			for _, group in groups do
-				table.insert(keys, group.key)
-				total += #group.cards
-				for _, card in group.cards do
-					expect(card.group).to.equal(group.key)
-					if group.key == "styles" then
-						expect(card.kind == "path" or card.kind == "fence").to.equal(true)
-					else
-						expect(piece(card.id).spot).to.equal(group.key)
+		it(
+			"puts the cards under Big spots, Small spots, then Paths and fences, with counts",
+			function()
+				local state = player(
+					3,
+					0,
+					{ "tulip_bed", "mailbox", "garden_bench", "red_brick", "white_picket" },
+					{ small1 = "tulip_bed", big1 = "garden_bench" },
+					{ path = "red_brick" }
+				)
+				local groups = LawnLogic.groups(state)
+				local keys = {}
+				local total = 0
+				for _, group in groups do
+					table.insert(keys, group.key)
+					total += #group.cards
+					for _, card in group.cards do
+						expect(card.group).to.equal(group.key)
+						if group.key == "styles" then
+							expect(card.kind == "path" or card.kind == "fence").to.equal(true)
+						else
+							expect(piece(card.id).spot).to.equal(group.key)
+						end
 					end
 				end
+				expect(table.concat(keys, ",")).to.equal("big,small,styles")
+				expect(total).to.equal(#LawnLogic.cards(state))
+				expect(groups[1].title).to.equal("Big spots · " .. #groups[1].cards)
+				expect(groups[3].title).to.equal("Paths and fences · 2")
 			end
-			expect(table.concat(keys, ",")).to.equal("big,small,styles")
-			expect(total).to.equal(#LawnLogic.cards(state))
-			expect(groups[1].title).to.equal("Big spots · " .. #groups[1].cards)
-			expect(groups[3].title).to.equal("Paths and fences · 2")
-		end)
+		)
 
 		it("leaves out a heading with no cards", function()
 			local groups = LawnLogic.groups(player(3, 0, { "tulip_bed" }))

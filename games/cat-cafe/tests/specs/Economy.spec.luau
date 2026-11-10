@@ -331,24 +331,27 @@ return function()
 			expect(Economy.settle(p, 1010)).to.equal(0)
 		end)
 
-		it("settle pays a Cafe Event's money on top and counts the boost's share (#2486)", function()
-			local p = freshProfile(1000)
-			Economy.setEventMoney(2)
-			local earned = Economy.settle(p, 1010)
-			Economy.setEventMoney(1)
-			expect(earned).to.be.near(30)
-			expect(Economy.takeEventExtra(p)).to.be.near(15)
-			expect(Economy.takeEventExtra(p)).to.equal(0) -- taken
-			expect(Economy.settle(p, 1020)).to.be.near(15) -- the event over: no boost, nothing counted
-			expect(Economy.takeEventExtra(p)).to.equal(0)
-			Economy.setEventMoney(9)
-			expect(Economy.eventMoney()).to.equal(Config.EventMoneyMax)
-			Economy.setEventMoney(0 / 0)
-			expect(Economy.eventMoney()).to.equal(1)
-			Economy.noteEventExtra(p, 100, 2) -- a rich tip worked out at x2
-			Economy.noteEventExtra(p, 100, 1) -- one with no event
-			expect(Economy.takeEventExtra(p)).to.be.near(50)
-		end)
+		it(
+			"settle pays a Cafe Event's money on top and counts the boost's share (#2486)",
+			function()
+				local p = freshProfile(1000)
+				Economy.setEventMoney(2)
+				local earned = Economy.settle(p, 1010)
+				Economy.setEventMoney(1)
+				expect(earned).to.be.near(30)
+				expect(Economy.takeEventExtra(p)).to.be.near(15)
+				expect(Economy.takeEventExtra(p)).to.equal(0) -- taken
+				expect(Economy.settle(p, 1020)).to.be.near(15) -- the event over: no boost, nothing counted
+				expect(Economy.takeEventExtra(p)).to.equal(0)
+				Economy.setEventMoney(9)
+				expect(Economy.eventMoney()).to.equal(Config.EventMoneyMax)
+				Economy.setEventMoney(0 / 0)
+				expect(Economy.eventMoney()).to.equal(1)
+				Economy.noteEventExtra(p, 100, 2) -- a rich tip worked out at x2
+				Economy.noteEventExtra(p, 100, 1) -- one with no event
+				expect(Economy.takeEventExtra(p)).to.be.near(50)
+			end
+		)
 
 		it("settle never pays for negative elapsed time", function()
 			local p = freshProfile(1000)
@@ -498,25 +501,28 @@ return function()
 			expect(Economy.passMultiplier(p)).to.equal(3)
 		end)
 
-		it("#2850: a bought Starter Bundle doubles income like 2x Money, and the higher of the two counts", function()
-			local bundle = Catalog.getProduct("starter_bundle") :: any
-			expect(bundle.prize.moneyMultiplier).to.equal(2)
-			local p = working()
-			local base = Economy.incomePerSecond(p)
-			expect(Economy.passMultiplier(p)).to.equal(1)
-			p.onceBought = { starter_bundle = true }
-			expect(Economy.passMultiplier(p)).to.equal(2)
-			expect(Economy.incomePerSecond(p)).to.be.near(base * 2, 1e-9)
-			-- the 2x pass on top does not stack: still 2x
-			Economy.setPasses(p, { money = 2, longNap = false, slots = 0 })
-			expect(Economy.passMultiplier(p)).to.equal(2)
-			-- a bigger pass wins
-			Economy.setPasses(p, { money = 4, longNap = false, slots = 0 })
-			expect(Economy.passMultiplier(p)).to.equal(4)
-			Economy.setPasses(p, nil)
-			p.onceBought = {}
-			expect(Economy.passMultiplier(p)).to.equal(1)
-		end)
+		it(
+			"#2850: a bought Starter Bundle doubles income like 2x Money, and the higher of the two counts",
+			function()
+				local bundle = Catalog.getProduct("starter_bundle") :: any
+				expect(bundle.prize.moneyMultiplier).to.equal(2)
+				local p = working()
+				local base = Economy.incomePerSecond(p)
+				expect(Economy.passMultiplier(p)).to.equal(1)
+				p.onceBought = { starter_bundle = true }
+				expect(Economy.passMultiplier(p)).to.equal(2)
+				expect(Economy.incomePerSecond(p)).to.be.near(base * 2, 1e-9)
+				-- the 2x pass on top does not stack: still 2x
+				Economy.setPasses(p, { money = 2, longNap = false, slots = 0 })
+				expect(Economy.passMultiplier(p)).to.equal(2)
+				-- a bigger pass wins
+				Economy.setPasses(p, { money = 4, longNap = false, slots = 0 })
+				expect(Economy.passMultiplier(p)).to.equal(4)
+				Economy.setPasses(p, nil)
+				p.onceBought = {}
+				expect(Economy.passMultiplier(p)).to.equal(1)
+			end
+		)
 
 		it(
 			"2x Money doubles the day rate, so the tip piles and offline pay double too (done-when 5)",

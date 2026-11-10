@@ -64,20 +64,23 @@ return function()
 	end)
 
 	describe("Effects stuck mark in view edges (QA)", function()
-		it("matches the effects list: in view to 100 studs, the 6 nearest, gone half a second after", function()
-			local m = Presets.stuckMark
-			expect(m.maxDistance).to.equal(100)
-			expect(m.most).to.equal(6)
-			expect(m.lostAfter).to.equal(0.5)
-			expect(m.seeThrough).to.equal(3)
-			expect(m.gem).to.equal(1.4) -- #2231: the gem in its halo
-			expect(m.gemGap).to.equal(0.15)
-			expect(m.hideWithin).to.equal(10)
-			expect(m.hideWithin + m.showAfter).to.equal(11)
-			expect(m.size).to.equal(1.4)
-			expect(m.pixels).to.equal(18)
-			expect(m.checkEvery).to.equal(0.25)
-		end)
+		it(
+			"matches the effects list: in view to 100 studs, the 6 nearest, gone half a second after",
+			function()
+				local m = Presets.stuckMark
+				expect(m.maxDistance).to.equal(100)
+				expect(m.most).to.equal(6)
+				expect(m.lostAfter).to.equal(0.5)
+				expect(m.seeThrough).to.equal(3)
+				expect(m.gem).to.equal(1.4) -- #2231: the gem in its halo
+				expect(m.gemGap).to.equal(0.15)
+				expect(m.hideWithin).to.equal(10)
+				expect(m.hideWithin + m.showAfter).to.equal(11)
+				expect(m.size).to.equal(1.4)
+				expect(m.pixels).to.equal(18)
+				expect(m.checkEvery).to.equal(0.25)
+			end
+		)
 
 		it("counts a cat seen this instant as in view, even with no grace", function()
 			expect(Logic.stillInView(5, 5, 0)).to.equal(true)
@@ -112,19 +115,22 @@ return function()
 			expect(keys[12]).to.equal("common10")
 		end)
 
-		it("gives every slot to the nearest Rares when there are more of them than slots", function()
-			local rares = {}
-			for i = 1, 15 do
-				table.insert(rares, { key = "rare" .. i, distance = 100 - i * 5 })
+		it(
+			"gives every slot to the nearest Rares when there are more of them than slots",
+			function()
+				local rares = {}
+				for i = 1, 15 do
+					table.insert(rares, { key = "rare" .. i, distance = 100 - i * 5 })
+				end
+				local keys = Logic.nearestFirst(rares, { { key = "common", distance = 1 } }, 80, 12)
+				expect(#keys).to.equal(12)
+				expect(keys[1]).to.equal("rare15")
+				expect(keys[12]).to.equal("rare4")
+				for _, key in keys do
+					expect(key ~= "common").to.equal(true)
+				end
+				expect(#Logic.nearestFirst(rares, {}, 80, 0)).to.equal(0)
 			end
-			local keys = Logic.nearestFirst(rares, { { key = "common", distance = 1 } }, 80, 12)
-			expect(#keys).to.equal(12)
-			expect(keys[1]).to.equal("rare15")
-			expect(keys[12]).to.equal("rare4")
-			for _, key in keys do
-				expect(key ~= "common").to.equal(true)
-			end
-			expect(#Logic.nearestFirst(rares, {}, 80, 0)).to.equal(0)
-		end)
+		)
 	end)
 end

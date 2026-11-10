@@ -15,7 +15,10 @@ return function()
 			expect(Logic.buildPiece(1, 10, 0, c.spread, c.piece)).to.equal(0)
 			expect(Logic.buildPiece(10, 10, c.spread - 0.01, c.spread, c.piece)).to.equal(nil)
 			expect(Logic.buildPiece(10, 10, c.spread, c.spread, c.piece)).to.equal(0)
-			expect(Logic.buildPiece(10, 10, c.spread + c.piece / 2, c.spread, c.piece)).to.be.near(0.5, 1e-9)
+			expect(Logic.buildPiece(10, 10, c.spread + c.piece / 2, c.spread, c.piece)).to.be.near(
+				0.5,
+				1e-9
+			)
 			expect(Logic.buildPiece(10, 10, c.spread + c.piece * 2, c.spread, c.piece)).to.equal(1)
 		end)
 

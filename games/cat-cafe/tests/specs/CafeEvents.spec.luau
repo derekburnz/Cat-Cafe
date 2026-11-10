@@ -108,7 +108,9 @@ return function()
 			["an unknown day kind"] = { effects = effects({ days = { "lucky", "sunny" } }) },
 			["money not a number"] = { effects = effects({ money = "2" }) },
 			["luck NaN"] = { effects = effects({ luck = 0 / 0 }) },
-			["showers without a gap"] = { effects = effects({ showers = { count = 3, firstAfter = 0 } }) },
+			["showers without a gap"] = {
+				effects = effects({ showers = { count = 3, firstAfter = 0 } }),
+			},
 			["a negative first shower"] = {
 				effects = effects({ showers = { count = 3, gapSeconds = 900, firstAfter = -1 } }),
 			},
@@ -116,7 +118,9 @@ return function()
 		}
 		for name, overrides in broken do
 			it("on " .. name, function()
-				local item: any = if overrides.record ~= nil then overrides.record else raw(overrides)
+				local item: any = if overrides.record ~= nil
+					then overrides.record
+					else raw(overrides)
 				local list, notes = CafeEvents.parse({ item }, NOW)
 				expect(#list).to.equal(0)
 				expect(#notes).to.equal(1)
@@ -134,25 +138,32 @@ return function()
 			expect(#notes).to.equal(1)
 		end)
 
-		it("drops an event that overlaps one starting earlier, and keeps one that starts at its end", function()
-			local list, notes = CafeEvents.parse({
-				raw({ id = "late", startsAt = NOW + 2 * HOUR, endsAt = NOW + 4 * HOUR }),
-				raw({ id = "early" }),
-				raw({ id = "after", startsAt = NOW + 3 * HOUR, endsAt = NOW + 4 * HOUR }),
-			}, NOW)
-			expect(#list).to.equal(2)
-			expect(list[1].id).to.equal("early")
-			expect(list[2].id).to.equal("after")
-			expect(#notes).to.equal(1)
-			expect(string.find(notes[1], "late", 1, true)).to.equal(1)
-		end)
+		it(
+			"drops an event that overlaps one starting earlier, and keeps one that starts at its end",
+			function()
+				local list, notes = CafeEvents.parse({
+					raw({ id = "late", startsAt = NOW + 2 * HOUR, endsAt = NOW + 4 * HOUR }),
+					raw({ id = "early" }),
+					raw({ id = "after", startsAt = NOW + 3 * HOUR, endsAt = NOW + 4 * HOUR }),
+				}, NOW)
+				expect(#list).to.equal(2)
+				expect(list[1].id).to.equal("early")
+				expect(list[2].id).to.equal("after")
+				expect(#notes).to.equal(1)
+				expect(string.find(notes[1], "late", 1, true)).to.equal(1)
+			end
+		)
 
 		it("reads at most EventScheduleMax records", function()
 			local items = {}
 			for i = 1, Config.EventScheduleMax + 2 do
 				table.insert(
 					items,
-					raw({ id = "e" .. i, startsAt = NOW + i * 3 * HOUR, endsAt = NOW + i * 3 * HOUR + HOUR })
+					raw({
+						id = "e" .. i,
+						startsAt = NOW + i * 3 * HOUR,
+						endsAt = NOW + i * 3 * HOUR + HOUR,
+					})
 				)
 			end
 			local list, notes = CafeEvents.parse(items, NOW)
@@ -161,14 +172,16 @@ return function()
 		end)
 
 		it("keeps an event already under way", function()
-			local list = CafeEvents.parse({ raw({ startsAt = NOW - HOUR, endsAt = NOW + HOUR }) }, NOW)
+			local list =
+				CafeEvents.parse({ raw({ startsAt = NOW - HOUR, endsAt = NOW + HOUR }) }, NOW)
 			expect(#list).to.equal(1)
 		end)
 	end)
 
 	describe("caps clamp, with a note", function()
 		it("money to 1..EventMoneyMax and luck to 0..EventLuckMax", function()
-			local list, notes = CafeEvents.parse({ raw({ effects = effects({ money = 5, luck = 3 }) }) }, NOW)
+			local list, notes =
+				CafeEvents.parse({ raw({ effects = effects({ money = 5, luck = 3 }) }) }, NOW)
 			expect(list[1].effects.money).to.equal(Config.EventMoneyMax)
 			expect(list[1].effects.luck).to.equal(Config.EventLuckMax)
 			expect(#notes).to.equal(2)
@@ -177,19 +190,30 @@ return function()
 			expect(list[1].effects.luck).to.equal(0)
 		end)
 
-		it("showers to EventShowerMax, at least EventShowerGapMinSeconds apart; none for a count of 0", function()
-			local list, notes = CafeEvents.parse({
-				raw({ effects = effects({ showers = { count = 40, gapSeconds = 10, firstAfter = 0 } }) }),
-			}, NOW)
-			local showers = assert(list[1].effects.showers)
-			expect(showers.count).to.equal(Config.EventShowerMax)
-			expect(showers.gapSeconds).to.equal(Config.EventShowerGapMinSeconds)
-			expect(#notes).to.equal(2)
-			list = CafeEvents.parse({
-				raw({ effects = effects({ showers = { count = 0, gapSeconds = 900, firstAfter = 0 } }) }),
-			}, NOW)
-			expect(list[1].effects.showers).to.equal(nil)
-		end)
+		it(
+			"showers to EventShowerMax, at least EventShowerGapMinSeconds apart; none for a count of 0",
+			function()
+				local list, notes = CafeEvents.parse({
+					raw({
+						effects = effects({
+							showers = { count = 40, gapSeconds = 10, firstAfter = 0 },
+						}),
+					}),
+				}, NOW)
+				local showers = assert(list[1].effects.showers)
+				expect(showers.count).to.equal(Config.EventShowerMax)
+				expect(showers.gapSeconds).to.equal(Config.EventShowerGapMinSeconds)
+				expect(#notes).to.equal(2)
+				list = CafeEvents.parse({
+					raw({
+						effects = effects({
+							showers = { count = 0, gapSeconds = 900, firstAfter = 0 },
+						}),
+					}),
+				}, NOW)
+				expect(list[1].effects.showers).to.equal(nil)
+			end
+		)
 	end)
 
 	describe("which event runs", function()
@@ -214,18 +238,21 @@ return function()
 	end)
 
 	describe("showers", function()
-		it("come firstAfter into the window, then every gapSeconds, none at or after the end", function()
-			local event = CafeEvents.parse({ raw() }, NOW)[1]
-			local times = CafeEvents.showerTimes(event)
-			-- 2 hours: 600 s in, then every 900 s, so 8 fit (the 8th at 600 + 7 * 900 = 6900 s)
-			expect(#times).to.equal(8)
-			expect(times[1]).to.equal(event.startsAt + 600)
-			expect(times[8]).to.equal(event.startsAt + 6900)
-			local short = CafeEvents.parse({ raw({ endsAt = NOW + HOUR + 1500 }) }, NOW)[1]
-			expect(#CafeEvents.showerTimes(short)).to.equal(1)
-			local none = CafeEvents.parse({ raw({ effects = effects({}) }) }, NOW)[1]
-			expect(#CafeEvents.showerTimes(none)).to.equal(0)
-		end)
+		it(
+			"come firstAfter into the window, then every gapSeconds, none at or after the end",
+			function()
+				local event = CafeEvents.parse({ raw() }, NOW)[1]
+				local times = CafeEvents.showerTimes(event)
+				-- 2 hours: 600 s in, then every 900 s, so 8 fit (the 8th at 600 + 7 * 900 = 6900 s)
+				expect(#times).to.equal(8)
+				expect(times[1]).to.equal(event.startsAt + 600)
+				expect(times[8]).to.equal(event.startsAt + 6900)
+				local short = CafeEvents.parse({ raw({ endsAt = NOW + HOUR + 1500 }) }, NOW)[1]
+				expect(#CafeEvents.showerTimes(short)).to.equal(1)
+				local none = CafeEvents.parse({ raw({ effects = effects({}) }) }, NOW)[1]
+				expect(#CafeEvents.showerTimes(none)).to.equal(0)
+			end
+		)
 
 		it("alternate a rainbow Legendary and a Mythical, the first rainbow", function()
 			expect(CafeEvents.showerKind(1)).to.equal("rainbow_legendary")
@@ -245,25 +272,28 @@ return function()
 			expect(CafeEvents.showerKey(test, 1, "job-1")).to.equal("test:job-1:test-showers:1")
 		end)
 
-		it("pick a rainbow Legendary for odd ones and a Mythical for even ones, the same every time", function()
-			local event = CafeEvents.parse({ raw() }, NOW)[1]
-			for n = 1, 8 do
-				local pick = CafeEvents.showerPick(event, n)
-				local again = CafeEvents.showerPick(event, n)
-				expect(again.catId).to.equal(pick.catId)
-				expect(again.areaId).to.equal(pick.areaId)
-				local def = assert(Catalog.getCat(pick.catId))
-				expect(def.rarity).to.equal(pick.kind)
-				expect(def.area).to.equal(pick.areaId)
-				if n % 2 == 1 then
-					expect(pick.kind).to.equal("Legendary")
-					expect(pick.coat).to.equal("rainbow")
-				else
-					expect(pick.kind).to.equal("Mythical")
-					expect(pick.coat).to.equal(nil)
+		it(
+			"pick a rainbow Legendary for odd ones and a Mythical for even ones, the same every time",
+			function()
+				local event = CafeEvents.parse({ raw() }, NOW)[1]
+				for n = 1, 8 do
+					local pick = CafeEvents.showerPick(event, n)
+					local again = CafeEvents.showerPick(event, n)
+					expect(again.catId).to.equal(pick.catId)
+					expect(again.areaId).to.equal(pick.areaId)
+					local def = assert(Catalog.getCat(pick.catId))
+					expect(def.rarity).to.equal(pick.kind)
+					expect(def.area).to.equal(pick.areaId)
+					if n % 2 == 1 then
+						expect(pick.kind).to.equal("Legendary")
+						expect(pick.coat).to.equal("rainbow")
+					else
+						expect(pick.kind).to.equal("Mythical")
+						expect(pick.coat).to.equal(nil)
+					end
 				end
 			end
-		end)
+		)
 
 		it("land on every area about equally (EventShowerAreaWeights, 20 each)", function()
 			local counts: { [string]: number } = {}
@@ -281,30 +311,40 @@ return function()
 
 		it("announce as the spec words it", function()
 			local pick = { n = 2, kind = "Mythical", coat = nil, areaId = "woods", catId = "x" }
-			expect(CafeEvents.showerText(pick :: any)).to.equal("Event cat! A Mythical appeared in the Woods!")
+			expect(CafeEvents.showerText(pick :: any)).to.equal(
+				"Event cat! A Mythical appeared in the Woods!"
+			)
 			expect(CafeEvents.showerText(pick :: any, 4)).to.equal(
 				"Event cat! A Mythical appeared in the Woods! (opens at Tier 4)"
 			)
-			local rainbow = { n = 1, kind = "Legendary", coat = "rainbow", areaId = "woods", catId = "x" }
-			expect(CafeEvents.showerText(rainbow :: any)).to.equal("Event cat! A Rainbow Legendary appeared in the Woods!")
+			local rainbow =
+				{ n = 1, kind = "Legendary", coat = "rainbow", areaId = "woods", catId = "x" }
+			expect(CafeEvents.showerText(rainbow :: any)).to.equal(
+				"Event cat! A Rainbow Legendary appeared in the Woods!"
+			)
 			expect(CafeEvents.showerCaughtText("Sam")).to.equal("Event cat caught by Sam!")
 		end)
 	end)
 
 	describe("the EventEffects attribute", function()
-		it("lists the days in Lucky, Golden, Rainbow order, with showers and reward only when set", function()
-			local event = CafeEvents.parse({ raw() }, NOW)[1]
-			local data = CafeEvents.effectsData(event)
-			expect(table.concat(data.days, ",")).to.equal("lucky,golden,rainbow")
-			expect(data.money).to.equal(2)
-			expect(data.luck).to.equal(0.5)
-			expect(data.showers.count).to.equal(8)
-			expect(data.reward.cosmeticId).to.equal("Decor_PartyBunting")
-			local plain = CafeEvents.effectsData(CafeEvents.parse({ raw({ effects = effects({}) }) }, NOW)[1])
-			expect(#plain.days).to.equal(0)
-			expect(plain.showers).to.equal(nil)
-			expect(plain.reward).to.equal(nil)
-		end)
+		it(
+			"lists the days in Lucky, Golden, Rainbow order, with showers and reward only when set",
+			function()
+				local event = CafeEvents.parse({ raw() }, NOW)[1]
+				local data = CafeEvents.effectsData(event)
+				expect(table.concat(data.days, ",")).to.equal("lucky,golden,rainbow")
+				expect(data.money).to.equal(2)
+				expect(data.luck).to.equal(0.5)
+				expect(data.showers.count).to.equal(8)
+				expect(data.reward.cosmeticId).to.equal("Decor_PartyBunting")
+				local plain = CafeEvents.effectsData(
+					CafeEvents.parse({ raw({ effects = effects({}) }) }, NOW)[1]
+				)
+				expect(#plain.days).to.equal(0)
+				expect(plain.showers).to.equal(nil)
+				expect(plain.reward).to.equal(nil)
+			end
+		)
 
 		it("names its attributes as the HUD reads them", function()
 			expect(CafeEvents.ATTRIBUTES.id).to.equal("EventId")
@@ -349,7 +389,9 @@ return function()
 		end)
 
 		it("keeps the length inside TEST_MINUTES_MIN..MAX and knows no other preset", function()
-			expect((CafeEvents.test("money", NOW, 1) :: any).endsAt).to.equal(NOW + CafeEvents.TEST_MINUTES_MIN * 60)
+			expect((CafeEvents.test("money", NOW, 1) :: any).endsAt).to.equal(
+				NOW + CafeEvents.TEST_MINUTES_MIN * 60
+			)
 			expect((CafeEvents.test("money", NOW, 999) :: any).endsAt).to.equal(
 				NOW + CafeEvents.TEST_MINUTES_MAX * 60
 			)
@@ -358,7 +400,8 @@ return function()
 	end)
 	describe("the reward (section 2e)", function()
 		local function party(): any
-			local list = CafeEvents.parse({ raw({ startsAt = NOW - 60, endsAt = NOW + HOUR }) }, NOW)
+			local list =
+				CafeEvents.parse({ raw({ startsAt = NOW - 60, endsAt = NOW + HOUR }) }, NOW)
 			return assert(list[1])
 		end
 
@@ -371,44 +414,52 @@ return function()
 			expect(table.find(Catalog.passDecor, def)).to.be.ok()
 			expect(table.find(Catalog.eventDecor, def)).to.be.ok()
 			local profile = ProfileSchema.template(NOW)
-			expect(Economy.decorBlocker(profile, def.id)).to.equal("A Cafe Event reward, not for sale")
+			expect(Economy.decorBlocker(profile, def.id)).to.equal(
+				"A Cafe Event reward, not for sale"
+			)
 		end)
 
-		it("gives the piece and the badge once per event, then the coin gift at a later one", function()
-			local profile = ProfileSchema.template(NOW)
-			expect(table.find(Badges.earned(profile), "partyGuest")).to.equal(nil)
-			local event = party()
-			local kind, firstBadge = CafeEvents.reward(profile, event, NOW)
-			expect(kind).to.equal("first")
-			expect(firstBadge).to.equal(true)
-			expect(profile.decorOwned.Decor_PartyBunting).to.equal(true)
-			expect(profile.eventRewards.Decor_PartyBunting).to.equal(NOW)
-			expect(table.find(Badges.earned(profile), "partyGuest")).to.be.ok()
-			-- a second secure in the same event pays nothing
-			expect((CafeEvents.reward(profile, event, NOW + 10))).to.equal(nil)
-			-- the piece comes back at a later event: owned already, so the coin gift
-			local later = table.clone(event)
-			later.id = "party-1219"
-			local again, firstAgain = CafeEvents.reward(profile, later, NOW + 28 * 86400)
-			expect(again).to.equal("repeat")
-			expect(firstAgain).to.equal(false)
-			expect(profile.eventRewards.Decor_PartyBunting).to.equal(NOW)
-		end)
+		it(
+			"gives the piece and the badge once per event, then the coin gift at a later one",
+			function()
+				local profile = ProfileSchema.template(NOW)
+				expect(table.find(Badges.earned(profile), "partyGuest")).to.equal(nil)
+				local event = party()
+				local kind, firstBadge = CafeEvents.reward(profile, event, NOW)
+				expect(kind).to.equal("first")
+				expect(firstBadge).to.equal(true)
+				expect(profile.decorOwned.Decor_PartyBunting).to.equal(true)
+				expect(profile.eventRewards.Decor_PartyBunting).to.equal(NOW)
+				expect(table.find(Badges.earned(profile), "partyGuest")).to.be.ok()
+				-- a second secure in the same event pays nothing
+				expect((CafeEvents.reward(profile, event, NOW + 10))).to.equal(nil)
+				-- the piece comes back at a later event: owned already, so the coin gift
+				local later = table.clone(event)
+				later.id = "party-1219"
+				local again, firstAgain = CafeEvents.reward(profile, later, NOW + 28 * 86400)
+				expect(again).to.equal("repeat")
+				expect(firstAgain).to.equal(false)
+				expect(profile.eventRewards.Decor_PartyBunting).to.equal(NOW)
+			end
+		)
 
-		it("pays nothing for an event with no reward, and the badge only for an unknown piece", function()
-			local profile = ProfileSchema.template(NOW)
-			local plain = table.clone(party())
-			plain.effects = table.clone(plain.effects)
-			plain.effects.reward = nil
-			expect((CafeEvents.reward(profile, plain, NOW))).to.equal(nil)
-			expect(profile.eventLast).to.equal("")
-			local odd = table.clone(party())
-			odd.effects = table.clone(odd.effects)
-			odd.effects.reward = "Decor_NoSuchPiece"
-			expect((CafeEvents.reward(profile, odd, NOW))).to.equal("badge")
-			expect(profile.decorOwned.Decor_NoSuchPiece).to.equal(nil)
-			expect(table.find(Badges.earned(profile), "partyGuest")).to.be.ok()
-		end)
+		it(
+			"pays nothing for an event with no reward, and the badge only for an unknown piece",
+			function()
+				local profile = ProfileSchema.template(NOW)
+				local plain = table.clone(party())
+				plain.effects = table.clone(plain.effects)
+				plain.effects.reward = nil
+				expect((CafeEvents.reward(profile, plain, NOW))).to.equal(nil)
+				expect(profile.eventLast).to.equal("")
+				local odd = table.clone(party())
+				odd.effects = table.clone(odd.effects)
+				odd.effects.reward = "Decor_NoSuchPiece"
+				expect((CafeEvents.reward(profile, odd, NOW))).to.equal("badge")
+				expect(profile.decorOwned.Decor_NoSuchPiece).to.equal(nil)
+				expect(table.find(Badges.earned(profile), "partyGuest")).to.be.ok()
+			end
+		)
 
 		it("keys a test event by its start, so a test started again pays again", function()
 			local first = assert(CafeEvents.test("full", NOW, 10))

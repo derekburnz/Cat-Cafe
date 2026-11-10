@@ -3,8 +3,9 @@
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local AskPacing =
-		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("AskPacing")) :: any
+	local AskPacing = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("AskPacing")
+	) :: any
 
 	describe("AskPacing.allow", function()
 		local first = AskPacing.FIRST_SECONDS

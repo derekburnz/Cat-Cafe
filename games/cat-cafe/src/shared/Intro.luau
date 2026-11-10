@@ -28,6 +28,9 @@ Intro.VERSION = 10
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
+-- #2961 (Derek2 11-10: "don't make intro skip those slides ... just wait up to a couple seconds for loading"): the
+-- most the intro waits for the camp's ground before it starts, and again on shot 1's fuse before the cut to the camp
+Intro.CAMP_WAIT = 2.5
 
 -- #2182 (section 2b, two playtesters: the captions go by too fast to read): each shot shows for its hold, its section
 -- 2 length or CAPTION_BASE plus CAPTION_PER_WORD a word of its caption, whichever is longer. The action runs on its
@@ -320,6 +323,24 @@ function Intro.catchSpot(): Vector3
 	local stray = Intro.strayPoint()
 	local camp = alleyCamp()
 	return stray + (camp.wayOut - stray).Unit * Intro.CATCH_GAP
+end
+
+-- #2961: the ground the camp shots film, which must have streamed in before they play: the pad (shot 2 lands on it),
+-- the catch spot and the stray (shot 3). The Alleyway's ground and set are big parts with their middles far down the
+-- area, so `middle` is the area's middle, asked for too so they come in with the props by the camp.
+function Intro.campGround(): { points: { Vector3 }, middle: Vector3 }
+	local camp = alleyCamp()
+	local W = Config.World
+	return {
+		points = { camp.pad, Intro.catchSpot(), Intro.strayPoint() },
+		middle = v(W.AlleyCenterX, AREA_FLOOR, W.AlleyCenterZ),
+	}
+end
+
+-- #2961: whether a downward ray's hit at height `y` is the area's floor (a few studs either way), not a roof or a
+-- prop's top far above it.
+function Intro.floorHit(y: number): boolean
+	return y >= AREA_FLOOR - 3 and y <= AREA_FLOOR + 3
 end
 
 -- Shot 4's run (ground points): from the catch spot through the middle of the way out to STOP_IN inside the camp.

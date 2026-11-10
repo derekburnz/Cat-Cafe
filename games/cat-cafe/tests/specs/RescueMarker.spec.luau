@@ -59,7 +59,9 @@ return function()
 
 		it("catches a zone at the end the marker turned at in between", function()
 			-- from 0.85 to the right end and back to 0.85 in the lag: both ends miss a zone at 0.9 to 1
-			expect(RescueMarker.inZone(RescueMarker.position(10, 0.85, 6, 10.05), 0.95, 0.1)).to.equal(false)
+			expect(RescueMarker.inZone(RescueMarker.position(10, 0.85, 6, 10.05), 0.95, 0.1)).to.equal(
+				false
+			)
 			expect(RescueMarker.hitAt(10, 0.85, 6, 10.05, 0.95, 0.1, 0)).to.equal(true)
 			expect(RescueMarker.hitAt(10, 0.85, 6, 10.05, 0.5, 0.1, 0)).to.equal(false)
 		end)

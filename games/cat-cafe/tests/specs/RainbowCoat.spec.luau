@@ -33,13 +33,16 @@ return function()
 	local exclusive = catsOf(nil, true)[1]
 
 	describe("the coat roll (section 1)", function()
-		it("is rainbow below the rainbow chance, gold in the next gold chance, else base", function()
-			expect(Catching.rollCoat(common, 0.004, 0.005, 0.05)).to.equal("rainbow")
-			expect(Catching.rollCoat(common, 0.005, 0.005, 0.05)).to.equal("gold")
-			expect(Catching.rollCoat(common, 0.054, 0.005, 0.05)).to.equal("gold")
-			expect(Catching.rollCoat(common, 0.055, 0.005, 0.05)).to.equal("base")
-			expect(Catching.rollCoat(common, 0.9, 0.005, 0.05)).to.equal("base")
-		end)
+		it(
+			"is rainbow below the rainbow chance, gold in the next gold chance, else base",
+			function()
+				expect(Catching.rollCoat(common, 0.004, 0.005, 0.05)).to.equal("rainbow")
+				expect(Catching.rollCoat(common, 0.005, 0.005, 0.05)).to.equal("gold")
+				expect(Catching.rollCoat(common, 0.054, 0.005, 0.05)).to.equal("gold")
+				expect(Catching.rollCoat(common, 0.055, 0.005, 0.05)).to.equal("base")
+				expect(Catching.rollCoat(common, 0.9, 0.005, 0.05)).to.equal("base")
+			end
+		)
 
 		it("never gives an exclusive cat a coat", function()
 			assert(exclusive, "an exclusive cat")
@@ -66,43 +69,52 @@ return function()
 			return rainbow / n, gold / n
 		end
 
-		it("rolls bait at exactly 1.5% rainbow and 5% gold over evenly spread rolls, alike for every rarity", function()
-			for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Mythical" } do
-				local def = catsOf(rarity, false)[1]
-				assert(def, rarity)
-				local rainbow, gold = shares(def, 100000, function(i: number): number
-					return (i - 0.5) / 100000
-				end)
-				expect(rainbow).to.be.near(0.015, 1e-9) -- v2 (section 4b): 0.5% before
-				expect(gold).to.be.near(0.05, 1e-9)
+		it(
+			"rolls bait at exactly 1.5% rainbow and 5% gold over evenly spread rolls, alike for every rarity",
+			function()
+				for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Mythical" } do
+					local def = catsOf(rarity, false)[1]
+					assert(def, rarity)
+					local rainbow, gold = shares(def, 100000, function(i: number): number
+						return (i - 0.5) / 100000
+					end)
+					expect(rainbow).to.be.near(0.015, 1e-9) -- v2 (section 4b): 0.5% before
+					expect(gold).to.be.near(0.05, 1e-9)
+				end
 			end
-		end)
+		)
 
-		it("rolls bait near 1.5% rainbow and 5% gold over 100,000 random placements (check 2)", function()
-			local rng = Random.new(99)
-			local rainbow, gold = shares(common, 100000, function(): number
-				return rng:NextNumber()
-			end)
-			-- three standard deviations of 100,000 rolls: 0.12 points for rainbow, 0.21 for gold
-			expect(math.abs(rainbow - 0.015) <= 0.0012).to.equal(true)
-			expect(math.abs(gold - 0.05) <= 0.0021).to.equal(true)
-		end)
+		it(
+			"rolls bait near 1.5% rainbow and 5% gold over 100,000 random placements (check 2)",
+			function()
+				local rng = Random.new(99)
+				local rainbow, gold = shares(common, 100000, function(): number
+					return rng:NextNumber()
+				end)
+				-- three standard deviations of 100,000 rolls: 0.12 points for rainbow, 0.21 for gold
+				expect(math.abs(rainbow - 0.015) <= 0.0012).to.equal(true)
+				expect(math.abs(gold - 0.05) <= 0.0021).to.equal(true)
+			end
+		)
 	end)
 
 	describe("earnings and the Cat Collector", function()
-		it("a rainbow cat at work earns x2 the same cat, more than in gold (check 3; x2 since 2026-11-07)", function()
-			local spotId = Catalog.spots[1].id
-			local function at(variant: string): number
-				local instance = CatStats.newInstance("u1", common.id, 100, 50)
-				instance.variant = variant
-				instance.spotId = spotId
-				return Economy.catRate(instance, 1)
+		it(
+			"a rainbow cat at work earns x2 the same cat, more than in gold (check 3; x2 since 2026-11-07)",
+			function()
+				local spotId = Catalog.spots[1].id
+				local function at(variant: string): number
+					local instance = CatStats.newInstance("u1", common.id, 100, 50)
+					instance.variant = variant
+					instance.spotId = spotId
+					return Economy.catRate(instance, 1)
+				end
+				expect(at("gold") > 0).to.equal(true)
+				expect(at("rainbow")).to.be.near(2 * at("base"), 1e-9)
+				expect(at("rainbow") > at("gold")).to.equal(true)
+				expect(CatStats.variantMultiplier("rainbow")).to.equal(Config.RainbowMultiplier)
 			end
-			expect(at("gold") > 0).to.equal(true)
-			expect(at("rainbow")).to.be.near(2 * at("base"), 1e-9)
-			expect(at("rainbow") > at("gold")).to.equal(true)
-			expect(CatStats.variantMultiplier("rainbow")).to.equal(Config.RainbowMultiplier)
-		end)
+		)
 
 		it("the Collector values a rainbow cat at ten times the base cat (check 8)", function()
 			local base = CatStats.newInstance("u1", common.id, 100, 50)
@@ -118,28 +130,34 @@ return function()
 	end)
 
 	describe("the Rainbow track (section 4)", function()
-		local function profileWith(rainbow: { [string]: number }, claims: { [string]: boolean }?): any
+		local function profileWith(
+			rainbow: { [string]: number },
+			claims: { [string]: boolean }?
+		): any
 			local profile: any = ProfileSchema.template(100)
 			profile.rainbowCollection = rainbow
 			profile.indexRewards = if claims ~= nil then { rainbow = claims } else {}
 			return profile
 		end
 
-		it("has five milestones on the Rainbow page, their luck adding up to RainbowLuckMax", function()
-			local page = Catalog.indexPrizes[IndexRewards.RAINBOW]
-			assert(page, "the Rainbow page")
-			local luck = 0
-			for _, id in { "rainbow1", "rainbow3", "rainbow5", "rainbow10", "rainbow25" } do
-				local milestone = IndexRewards.milestone(id)
-				assert(milestone, id)
-				expect(milestone.track).to.equal("rainbow")
-				expect(page[id]).to.be.ok()
-				luck += page[id].rainbowLuck or 0
+		it(
+			"has five milestones on the Rainbow page, their luck adding up to RainbowLuckMax",
+			function()
+				local page = Catalog.indexPrizes[IndexRewards.RAINBOW]
+				assert(page, "the Rainbow page")
+				local luck = 0
+				for _, id in { "rainbow1", "rainbow3", "rainbow5", "rainbow10", "rainbow25" } do
+					local milestone = IndexRewards.milestone(id)
+					assert(milestone, id)
+					expect(milestone.track).to.equal("rainbow")
+					expect(page[id]).to.be.ok()
+					luck += page[id].rainbowLuck or 0
+				end
+				expect(luck).to.be.near(Config.RainbowLuckMax, 1e-9)
+				expect(page.rainbow1.tag).to.equal("Rainbow Finder")
+				expect(page.rainbow25.tag).to.equal("Rainbow Master")
 			end
-			expect(luck).to.be.near(Config.RainbowLuckMax, 1e-9)
-			expect(page.rainbow1.tag).to.equal("Rainbow Finder")
-			expect(page.rainbow25.tag).to.equal("Rainbow Master")
-		end)
+		)
 
 		it("counts different rainbow cats across every area and never an exclusive cat", function()
 			local found: { [string]: number } = {}
@@ -157,28 +175,41 @@ return function()
 			)
 		end)
 
-		it("lifts the food card's rainbow line to 1.62%, 1.8% and 2.1% as rainbow5, 10 and 25 are claimed (check 7; #2269)", function()
-			expect(IndexRewards.rainbowLuck(profileWith({}))).to.equal(0)
-			local claims: { [string]: boolean } = {}
-			local chances: { [string]: number } = { rainbow5 = 0.0162, rainbow10 = 0.018, rainbow25 = 0.021 }
-			for _, id in { "rainbow5", "rainbow10", "rainbow25" } do
-				claims[id] = true
-				local luck = IndexRewards.rainbowLuck(profileWith({}, table.clone(claims)))
-				expect(IndexRewards.rainbowChance(Config.RainbowChanceBait, luck)).to.be.near(chances[id], 1e-9)
+		it(
+			"lifts the food card's rainbow line to 1.62%, 1.8% and 2.1% as rainbow5, 10 and 25 are claimed (check 7; #2269)",
+			function()
+				expect(IndexRewards.rainbowLuck(profileWith({}))).to.equal(0)
+				local claims: { [string]: boolean } = {}
+				local chances: { [string]: number } =
+					{ rainbow5 = 0.0162, rainbow10 = 0.018, rainbow25 = 0.021 }
+				for _, id in { "rainbow5", "rainbow10", "rainbow25" } do
+					claims[id] = true
+					local luck = IndexRewards.rainbowLuck(profileWith({}, table.clone(claims)))
+					expect(IndexRewards.rainbowChance(Config.RainbowChanceBait, luck)).to.be.near(
+						chances[id],
+						1e-9
+					)
+				end
+				-- gold luck is apart: the Rainbow track adds none, and rainbow luck is not in the gold totals
+				expect(IndexRewards.totals(profileWith({}, claims)).goldLuck).to.equal(0)
 			end
-			-- gold luck is apart: the Rainbow track adds none, and rainbow luck is not in the gold totals
-			expect(IndexRewards.totals(profileWith({}, claims)).goldLuck).to.equal(0)
-		end)
+		)
 
-		it("rolls shared rainbows with the best rainbow luck among players with the area open", function()
-			local lucky = profileWith({}, { rainbow5 = true, rainbow10 = true })
-			local plain = profileWith({})
-			local function tierOf(profile: any): number
-				return if profile == lucky then 1 else 5
+		it(
+			"rolls shared rainbows with the best rainbow luck among players with the area open",
+			function()
+				local lucky = profileWith({}, { rainbow5 = true, rainbow10 = true })
+				local plain = profileWith({})
+				local function tierOf(profile: any): number
+					return if profile == lucky then 1 else 5
+				end
+				expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 1, tierOf)).to.be.near(
+					0.2,
+					1e-9
+				) -- #2269: was 0.5
+				expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 3, tierOf)).to.equal(0)
 			end
-			expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 1, tierOf)).to.be.near(0.2, 1e-9) -- #2269: was 0.5
-			expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 3, tierOf)).to.equal(0)
-		end)
+		)
 
 		it("each rainbow coat counts toward the Index leaderboard", function()
 			local profile = profileWith({ [common.id] = 1, [exclusive.id] = 1 })
@@ -188,17 +219,20 @@ return function()
 	end)
 
 	describe("shout-outs (section 2)", function()
-		it("shouts out every rainbow cat, a Common too, and names the stray's area on its spawn", function()
-			expect(Catching.shoutOut("Sam", "caught", common, "rainbow")).to.equal(
-				string.format("Sam caught a rainbow Common %s!", common.name)
-			)
-			expect(Catching.rainbowSpawnText(common, "Woods")).to.equal(
-				string.format("A Rainbow %s is out in the Woods!", common.name)
-			)
-			expect(Catching.waveShoutOut("Mythical", "rainbow", "Woods")).to.equal(
-				"A rainbow Mythical cat appeared in the Woods!"
-			)
-		end)
+		it(
+			"shouts out every rainbow cat, a Common too, and names the stray's area on its spawn",
+			function()
+				expect(Catching.shoutOut("Sam", "caught", common, "rainbow")).to.equal(
+					string.format("Sam caught a rainbow Common %s!", common.name)
+				)
+				expect(Catching.rainbowSpawnText(common, "Woods")).to.equal(
+					string.format("A Rainbow %s is out in the Woods!", common.name)
+				)
+				expect(Catching.waveShoutOut("Mythical", "rainbow", "Woods")).to.equal(
+					"A rainbow Mythical cat appeared in the Woods!"
+				)
+			end
+		)
 	end)
 
 	describe("save version 24 (section 5)", function()

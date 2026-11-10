@@ -436,7 +436,18 @@ end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
 -- to another fires CatPlaced with the role, a cat taken off fires UnplaceCat. Unequip all fires one per cat.
+local selling: { [string]: boolean } = {} -- #2952: uids sent with SellCat, until a sync shows them gone
+
 local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
+	-- #2952: a cat asked to sell and gone from this sync was sold
+	for uid in selling do
+		if new.cats[uid] == nil then
+			selling[uid] = nil
+			if old.cats[uid] ~= nil then
+				Moments.CatSold:Fire(uid)
+			end
+		end
+	end
 	for uid, cat in new.cats do
 		local before = old.cats[uid]
 		local was = if before ~= nil then before.spotId else nil
@@ -1099,6 +1110,10 @@ local function wireIntents()
 		Net.fire("UnplaceCat", uid)
 	end)
 	UI.events.sellCat:Connect(function(uid: string)
+		selling[uid] = true -- #2952: Moments.CatSold once a sync shows it gone
+		task.delay(5, function()
+			selling[uid] = nil -- a refused sale: the cat stayed, so a later leave is not this sale
+		end)
 		Net.fire("SellCat", uid)
 	end)
 	-- Unequip all on the cat inventory (UI thread). Looked up loosely like equip best below; the UI shows the
@@ -1349,6 +1364,20 @@ local function wireIntents()
 	end)
 	-- Analytics only (F16): which screens players find at all, once per screen a session so toggling a panel never
 	-- reaches the remote's rate limit (reviewer N97). The server allowlists the names.
+	-- #2913 (phone players miss the first circles; is it the screen?): the viewport's short side once a session as
+	-- TelemetryReport screen_short (UI/Components/ScreenShort), once the camera has its real size
+	task.spawn(function()
+		local began = os.clock()
+		local camera = Workspace.CurrentCamera
+		while (camera == nil or camera.ViewportSize.Y <= 1) and os.clock() - began < 10 do
+			task.wait(0.5)
+			camera = Workspace.CurrentCamera
+		end
+		if camera ~= nil and camera.ViewportSize.Y > 1 then
+			local ScreenShort = require(script.Parent.Parent.UI.Components.ScreenShort)
+			Net.fire("TelemetryReport", "screen_short", ScreenShort.bucket(camera.ViewportSize))
+		end
+	end)
 	local screensReported: { [string]: boolean } = {}
 	-- #1273: the screen open now ("none" when it closes), for a new player's time markers and leave events. Sent while
 	-- the first loop or Tier 1 lasts, at most once per SCREEN_REPORT_SECONDS with the latest one sent at its end.

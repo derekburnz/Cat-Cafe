@@ -19,11 +19,14 @@ return function()
 			end
 		end)
 
-		it("pays that again for a first gold (#2237: was twice), and both when the first catch is gold", function()
-			expect(GoldenFish.forCatch("Rare", false, true, "net")).to.equal(2)
-			expect(GoldenFish.forCatch("Mythical", false, true, "bait")).to.equal(25)
-			expect(GoldenFish.forCatch("Epic", true, true, "net")).to.equal(10)
-		end)
+		it(
+			"pays that again for a first gold (#2237: was twice), and both when the first catch is gold",
+			function()
+				expect(GoldenFish.forCatch("Rare", false, true, "net")).to.equal(2)
+				expect(GoldenFish.forCatch("Mythical", false, true, "bait")).to.equal(25)
+				expect(GoldenFish.forCatch("Epic", true, true, "net")).to.equal(10)
+			end
+		)
 
 		it("pays a repeat only for Epic and better by net or rescue", function()
 			expect(GoldenFish.forCatch("Common", false, false, "net")).to.equal(0)
@@ -71,16 +74,19 @@ return function()
 	end)
 
 	describe("GoldenFish.forRankUp", function()
-		it("pays 5, 15, 30, 60, 100 and 150 for Tiers 2 to 7 and nothing else (#2237, #2651)", function()
-			expect(GoldenFish.forRankUp(1)).to.equal(0)
-			expect(GoldenFish.forRankUp(2)).to.equal(5)
-			expect(GoldenFish.forRankUp(3)).to.equal(15)
-			expect(GoldenFish.forRankUp(4)).to.equal(30)
-			expect(GoldenFish.forRankUp(5)).to.equal(60)
-			expect(GoldenFish.forRankUp(6)).to.equal(100)
-			expect(GoldenFish.forRankUp(7)).to.equal(150)
-			expect(GoldenFish.forRankUp(8)).to.equal(0)
-		end)
+		it(
+			"pays 5, 15, 30, 60, 100 and 150 for Tiers 2 to 7 and nothing else (#2237, #2651)",
+			function()
+				expect(GoldenFish.forRankUp(1)).to.equal(0)
+				expect(GoldenFish.forRankUp(2)).to.equal(5)
+				expect(GoldenFish.forRankUp(3)).to.equal(15)
+				expect(GoldenFish.forRankUp(4)).to.equal(30)
+				expect(GoldenFish.forRankUp(5)).to.equal(60)
+				expect(GoldenFish.forRankUp(6)).to.equal(100)
+				expect(GoldenFish.forRankUp(7)).to.equal(150)
+				expect(GoldenFish.forRankUp(8)).to.equal(0)
+			end
+		)
 	end)
 
 	describe("GoldenFish.credit and trySpend", function()
@@ -129,7 +135,9 @@ return function()
 	describe("Catalog crates and the Golden Fish Market (F53 rows in save version 7)", function()
 		it("has a crate and a golden crate for each zone and the Classic pool", function()
 			expect(#Catalog.crates).to.equal(17) -- and F101's Rally Crate, with no golden twin
-			for _, pool in { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic" } do
+			for _, pool in
+				{ "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic" }
+			do
 				expect(Catalog.cratePools[pool]).to.equal(true)
 				local crate = Catalog.getCrate(pool .. "_crate")
 				local golden = Catalog.getCrate(pool .. "_golden_crate")

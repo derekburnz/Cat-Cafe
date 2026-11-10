@@ -21,6 +21,12 @@
 --   Trade.pieceRefusal lets go (theirs, tradeable, unlocked, not the partner's already, up to TradeMaxDecor), checked
 --   again at the swap. The record carries each side's piece ids; after the swap both sides' decor and lawn Equip Best
 --   runs (CafeService.autoEquipDecor), so a placed piece that left is refilled and an arriving one goes out.
+-- - #2745 (section 1c): banked crates join. TradeOffer with kind "crate" adds `count` (1 when nil) of a crate kind
+--   that Trade.crateRefusal lets go (not golden, banked, the partner's zone open, up to TradeMaxCrateKinds kinds and
+--   TradeMaxCrates crates), or takes `count` off; checked again at the swap. The record carries each side's counts,
+--   and Trade.apply subtracts before it adds. Opening a crate on offer waits (FishMarketService). Luck and pity don't
+--   travel. The tradeCrates live switch (LiveFlagService) off takes every crate off the open trades and refuses new
+--   ones; cat and decor trades go on.
 -- - Player attributes Tier and Trading, Workspace attributes TradingOn and TradeMinTier (the live minimum: Debug in
 --   Studio, else CatCafe_Flags.tradeMinTier, else Config) for the UI. CatCafe_Flags is read every
 --   TradeFlagCheckSeconds.
@@ -42,6 +48,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Telemetry = require(script.Parent.Telemetry)
@@ -210,6 +217,37 @@ local function theyHave(profile: Profile, partner: Profile?): { string }
 	return out
 end
 
+-- #2745: the tradeCrates live switch.
+local function cratesOn(): boolean
+	return LiveFlagService.on("tradeCrates")
+end
+
+-- #2745: a crate kind's tile, or nil for one that can't be traded.
+local function crateTile(id: string, count: number): Types.TradeCrateTile?
+	local def = Catalog.getCrate(id)
+	if def == nil or not Trade.crateTradable(id) then
+		return nil
+	end
+	return { id = id, name = def.name, area = def.area, count = count }
+end
+
+-- #2745: the viewer's banked tradeable crates the other player can't take yet, crate id -> why.
+local function crateBlocked(profile: Profile, partner: Profile?): { [string]: string }
+	local out: { [string]: string } = {}
+	if partner == nil then
+		return out
+	end
+	for id, count in profile.crates do
+		if count >= 1 and Trade.crateTradable(id) then
+			local blocker = Trade.crateAreaBlocker(partner.tier, id)
+			if blocker ~= nil then
+				out[id] = blocker
+			end
+		end
+	end
+	return out
+end
+
 local function sendStateTo(trade: TradeBook.OpenTrade, player: Player)
 	local profile = DataService.get(player)
 	if profile == nil then
@@ -226,7 +264,8 @@ local function sendStateTo(trade: TradeBook.OpenTrade, player: Player)
 			player.UserId,
 			tilesFor(player, profile),
 			pieceTile,
-			theyHave(profile, partnerProfile)
+			theyHave(profile, partnerProfile),
+			{ tile = crateTile, blocked = crateBlocked(profile, partnerProfile), on = cratesOn() }
 		)
 	)
 end
@@ -302,7 +341,13 @@ local function recordSide(raw: any): TradeVault.RecordSide?
 			end
 		end
 	end
-	return { userId = raw.userId, name = name, cats = cats, decor = decor }
+	return {
+		userId = raw.userId,
+		name = name,
+		cats = cats,
+		decor = decor,
+		crates = Trade.sanitizeCrates(raw.crates), -- #2745
+	}
 end
 
 -- `userId`'s side of `record` and the other one, or nil.
@@ -345,7 +390,8 @@ local function applySide(
 		Trade.summaries(mine.cats),
 		theirs.cats,
 		at,
-		{ gave = mine.decor or {}, got = theirs.decor or {} }
+		{ gave = mine.decor or {}, got = theirs.decor or {} },
+		{ gave = mine.crates or {}, got = theirs.crates or {} } -- #2745
 	)
 end
 
@@ -397,6 +443,23 @@ local function stillGivesDecor(side: TradeBook.Side, profile: Profile, other: Pr
 	return pieces
 end
 
+-- #2745: the crates `side` gives, copied, when the save still banks every one and the other profile's zone is open
+-- for each; else nil.
+local function stillGivesCrates(
+	side: TradeBook.Side,
+	profile: Profile,
+	other: Profile
+): { [string]: number }?
+	local crates: { [string]: number } = {}
+	for id, count in side.crates do
+		if Trade.crateRefusal(profile, other.tier, id, count, {}) ~= nil then
+			return nil
+		end
+		crates[id] = count
+	end
+	return crates
+end
+
 -- Both confirmed: the swap (section 4). Runs in its own thread; the trade is "committing" and nothing changes it.
 -- Whether `player` is still in this server with the same profile session as `profile`.
 local function stillHere(player: Player, profile: Profile): boolean
@@ -428,11 +491,19 @@ local function finish(trade: TradeBook.OpenTrade)
 		stillGives(trade.a, profileA, profileB), stillGives(trade.b, profileB, profileA)
 	local decorA, decorB =
 		stillGivesDecor(trade.a, profileA, profileB), stillGivesDecor(trade.b, profileB, profileA)
+	local cratesA, cratesB =
+		stillGivesCrates(trade.a, profileA, profileB), stillGivesCrates(trade.b, profileB, profileA)
+	if (next(trade.a.crates) ~= nil or next(trade.b.crates) ~= nil) and not cratesOn() then
+		endAll(trade, Trade.Ended.cratesOff)
+		return
+	end
 	if
 		catsA == nil
 		or catsB == nil
 		or decorA == nil
 		or decorB == nil
+		or cratesA == nil
+		or cratesB == nil
 		or ProfileSchema.catCount(profileA) - #catsA + #catsB < 1
 		or ProfileSchema.catCount(profileB) - #catsB + #catsA < 1
 	then
@@ -443,8 +514,20 @@ local function finish(trade: TradeBook.OpenTrade)
 		id = trade.id,
 		at = at,
 		state = "pending",
-		a = { userId = trade.a.userId, name = trade.a.name, cats = catsA, decor = decorA },
-		b = { userId = trade.b.userId, name = trade.b.name, cats = catsB, decor = decorB },
+		a = {
+			userId = trade.a.userId,
+			name = trade.a.name,
+			cats = catsA,
+			decor = decorA,
+			crates = cratesA,
+		},
+		b = {
+			userId = trade.b.userId,
+			name = trade.b.name,
+			cats = catsB,
+			decor = decorB,
+			crates = cratesB,
+		},
 	}
 	if not TradeVault.write(record) then
 		endAll(trade, Trade.Ended.failed)
@@ -519,6 +602,8 @@ local function finish(trade: TradeBook.OpenTrade)
 		setTrading(player, false)
 		Net.fire(player, "TradeState", nil)
 		local gaveDecor, gotDecor = swap.mine.decor or {}, swap.theirs.decor or {}
+		local _, gaveCrates = Trade.crateTotals(swap.mine.crates or {})
+		local _, gotCrates = Trade.crateTotals(swap.theirs.crates or {})
 		Net.fire(
 			player,
 			"TradeDone",
@@ -526,12 +611,14 @@ local function finish(trade: TradeBook.OpenTrade)
 			Trade.summaries(swap.mine.cats),
 			Trade.summaries(swap.theirs.cats),
 			Trade.pieceSummaries(gaveDecor),
-			Trade.pieceSummaries(gotDecor)
+			Trade.pieceSummaries(gotDecor),
+			Trade.crateSummaries(swap.mine.crates), -- #2745
+			Trade.crateSummaries(swap.theirs.crates)
 		)
 		Telemetry.custom(
 			player,
 			"trade_done",
-			#swap.mine.cats + #swap.theirs.cats + #gaveDecor + #gotDecor,
+			#swap.mine.cats + #swap.theirs.cats + #gaveDecor + #gotDecor + gaveCrates + gotCrates,
 			{ tostring(#swap.mine.cats), tostring(#swap.theirs.cats), bestRarity(swap.theirs.cats) }
 		)
 		local landed = DataService.get(player)
@@ -687,23 +774,70 @@ local function onOfferDecor(
 	end
 end
 
+-- #2745: `count` of a crate kind on or off the caller's side (TradeOffer with kind "crate").
+local function onOfferCrate(
+	player: Player,
+	trade: TradeBook.OpenTrade,
+	action: string,
+	id: string,
+	count: number,
+	profile: Profile
+)
+	local at = now()
+	if action == "remove" then
+		if TradeBook.removeCrates(trade, player.UserId, id, count, at) then
+			sendState(trade)
+		end
+		return
+	end
+	local mine, theirs = TradeBook.sides(trade, player.UserId)
+	if mine == nil or theirs == nil or trade.phase == "committing" then
+		return
+	end
+	if not cratesOn() then
+		Net.toast(player, Trade.Messages.cratesOff, "warn")
+		return
+	end
+	local partner = playerOf(theirs.userId)
+	local partnerProfile = if partner ~= nil then DataService.get(partner) else nil
+	if partnerProfile == nil then
+		return
+	end
+	local refusal = Trade.crateRefusal(profile, partnerProfile.tier, id, count, mine.crates)
+	if refusal ~= nil then
+		Net.toast(player, refusal, "warn")
+		return
+	end
+	if TradeBook.addCrates(trade, player.UserId, id, count, Trade.crateValue(id), at) then
+		sendState(trade)
+	end
+end
+
 local function onOffer(
 	player: Player,
 	rawTradeId: unknown,
 	rawAction: unknown,
 	rawUid: unknown,
-	rawKind: unknown
+	rawKind: unknown,
+	rawCount: unknown
 )
 	local trade = tradeOf(player, rawTradeId)
 	local action = Guard.oneOf(rawAction, { "add", "remove" })
 	local uid = Guard.id(rawUid)
-	local kind = if rawKind == nil then "cat" else Guard.oneOf(rawKind, { "cat", "decor" })
+	local kind = if rawKind == nil then "cat" else Guard.oneOf(rawKind, { "cat", "decor", "crate" })
 	local profile = DataService.get(player)
 	if trade == nil or action == nil or uid == nil or kind == nil or profile == nil then
 		return
 	end
 	if kind == "decor" then
 		onOfferDecor(player, trade, action, uid, profile)
+		return
+	elseif kind == "crate" then
+		-- #2745: a whole count, 1 when nil; the cap and the bank are Trade.crateRefusal's
+		local count = if rawCount == nil then 1 else Guard.int(rawCount, 1, Config.TradeMaxCrates)
+		if count ~= nil then
+			onOfferCrate(player, trade, action, uid, count, profile)
+		end
 		return
 	end
 	local at = now()
@@ -864,6 +998,7 @@ local function step()
 	for _, trade in book.trades do
 		table.insert(open, trade)
 	end
+	local crates = cratesOn()
 	for _, trade in open do
 		if trade.phase == "committing" then
 			continue
@@ -875,7 +1010,11 @@ local function step()
 		local reason = Trade.endReason(tradingOn, isBusy(playerA, true), isBusy(playerB, true))
 		if reason ~= nil then
 			endAll(trade, reason)
-		elseif TradeBook.tick(trade, at) then
+			continue
+		end
+		-- #2745: the tradeCrates switch off takes every crate off; either change sends the state
+		local cleared = not crates and TradeBook.clearCrates(trade, at)
+		if TradeBook.tick(trade, at) or cleared then
 			sendState(trade)
 		end
 	end
@@ -942,6 +1081,9 @@ function TradeService.start()
 	end)
 	CafeService.setPieceOfferCheck(function(player: Player, id: string): boolean
 		return TradeBook.isPieceOffered(book, player.UserId, id)
+	end)
+	CafeService.setCrateOfferCheck(function(player: Player, id: string): number
+		return TradeBook.crateOffered(book, player.UserId, id)
 	end)
 	DataService.onLoading(settle)
 	DataService.onLoaded:Connect(onLoaded)

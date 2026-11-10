@@ -41,7 +41,9 @@ return function()
 			outcome, kind = FeedbackFunnel.outcome("answered:late")
 			expect(outcome).to.equal("answered")
 			expect(kind).to.equal("late")
-			for _, bad in { "closed", "closed:", "gone:early", "ignored:soon", "closed:early:x", "", 3, true } do
+			for _, bad in
+				{ "closed", "closed:", "gone:early", "ignored:soon", "closed:early:x", "", 3, true }
+			do
 				outcome, kind = FeedbackFunnel.outcome(bad)
 				expect(outcome).to.equal(nil)
 				expect(kind).to.equal(nil)

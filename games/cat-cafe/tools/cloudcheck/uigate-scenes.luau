@@ -3659,6 +3659,15 @@ local SCENES = {
 		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
 		local hint = store:FindFirstChild("Hint", true) :: TextLabel?
 		assert(hint and hint.Visible and hint.Text == "Check the game description for codes", "uigate: no codes hint (#2610)")
+		-- #3131 (Derek2: "highlight/make bigger the check game description for codes"): a filled strip with words
+		-- bigger than body text, all on one line, clear of the box above and the answer card below
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		assert(hint.BackgroundTransparency == 0 and hint.TextSize > Theme.sizes.textBody, "uigate: the codes hint is not highlighted and bigger (#3131)")
+		assert(hint.TextFits, "uigate: the codes hint does not fit on one line (#3131)")
+		local row = store:FindFirstChild("Redeem", true) :: GuiObject
+		assert(row and hint.AbsolutePosition.Y >= row.AbsolutePosition.Y + row.AbsoluteSize.Y, "uigate: the codes hint lies on the code box (#3131)")
+		local result = store:FindFirstChild("Result", true) :: GuiObject
+		assert(result and result.AbsolutePosition.Y >= hint.AbsolutePosition.Y + hint.AbsoluteSize.Y, "uigate: the codes hint lies on the answer card (#3131)")
 	end },
 	-- #1714: a refusal is one calm line in place; nothing used yet says so
 	{ "CodesRefused", function()

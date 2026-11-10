@@ -1466,6 +1466,8 @@ local function keepHeld(player: Player)
 	end
 	if not HeldCat.held(carry.model, character, root :: BasePart) then
 		attachHeldCat(player, carry)
+		-- the attach sets plain carry speed; a Catch Rush or a Startled slow still running keeps its own (review N247)
+		CatService.refreshSpeed(player)
 	end
 end
 

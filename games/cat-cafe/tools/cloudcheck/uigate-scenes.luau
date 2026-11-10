@@ -2160,6 +2160,55 @@ local SCENES = {
 		assert(confirm:FindFirstChild("Ask").Text == "This is a gold cat. Give it anyway?", "uigate: the gold warning reads " .. confirm:FindFirstChild("Ask").Text)
 		connection:Disconnect()
 	end },
+	-- #2920 (Derek2: on a first catch "stop the minigame first circle when its over the circle and prompt them to click
+	-- or press space now"): a held ring closes onto its ring, stops there and pulses its device's prompt; still waiting
+	-- seconds later
+	{ "CatchHoldWaiting", function()
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.2, shrinkSeconds = 1.2, x = 0.5, y = 0.55, hold = true, holdSeconds = 60 } }
+		UI.catch.show({ strayId = "gate_hold", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common" })
+		UI.catch.showCircles("gate_hold", list :: any, { perfect = 0.074, good = 0.18 })
+		UIShim.advance(1.6 + 4)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles") :: ScreenGui
+		local art = layer:FindFirstChild("Circle1", true):FindFirstChild("Art") :: Frame
+		local closer = art:FindFirstChild("Closer") :: Frame
+		local ring = art:FindFirstChild("Ring") :: Frame
+		assert(
+			math.abs(closer.AbsoluteSize.X - ring.AbsoluteSize.X) <= 3,
+			("uigate: the held ring's circle is %d px across, its ring %d: it did not stop on it (#2920)"):format(
+				closer.AbsoluteSize.X,
+				ring.AbsoluteSize.X
+			)
+		)
+		local prompt = art:FindFirstChild("HoldPrompt") :: TextLabel
+		local words = { ["Tap now!"] = true, ["Click now!"] = true, ["Press Space now!"] = true, ["Press A now!"] = true }
+		assert(prompt and prompt.Visible and words[prompt.Text], "uigate: no press prompt on the held ring (#2920)")
+		assert(art.Parent and (art.Parent :: GuiObject).Visible, "uigate: the held ring went before the press (#2920)")
+	end },
+	-- #2920 (Derek2: "not even let the player click before its in the circle so you cant miss first one"): a tap before
+	-- the held ring stops sends nothing; a tap once it waits goes out as a Perfect
+	{ "CatchHoldPress", function()
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.2, shrinkSeconds = 1.2, x = 0.5, y = 0.55, hold = true, holdSeconds = 60 } }
+		local sent = {}
+		local connection = UI.events.catchPressed:Connect(function(_strayId, index, grade)
+			table.insert(sent, tostring(index) .. ":" .. tostring(grade))
+		end)
+		UI.catch.show({ strayId = "gate_hold2", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common" })
+		UI.catch.showCircles("gate_hold2", list :: any, { perfect = 0.074, good = 0.18 })
+		UIShim.advance(0.7)
+		tapCircles()
+		UIShim.advance(0.2)
+		tapCircles()
+		assert(#sent == 0, "uigate: a tap before the held ring stopped went out as " .. table.concat(sent, ", ") .. " (#2920)")
+		UIShim.advance(10)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles") :: ScreenGui
+		assert(layer.Enabled, "uigate: the catch gave up while the held ring waited (#2920)")
+		tapCircles()
+		connection:Disconnect()
+		assert(#sent == 1 and sent[1] == "1:perfect", "uigate: the press on the held ring went out as " .. table.concat(sent, ", ") .. " (#2920)")
+		UI.catch.hide()
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood

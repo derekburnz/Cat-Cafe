@@ -57,7 +57,7 @@ local function quiet(model: Instance)
 			part.CanTouch = false
 			part.CanQuery = false
 			part.CastShadow = false
-		elseif item:IsA("Script") or item:IsA("LocalScript") then
+		elseif item:IsA("LuaSourceContainer") then -- scripts and ModuleScripts alike
 			item:Destroy()
 		end
 	end

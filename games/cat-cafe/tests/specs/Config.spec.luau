@@ -329,7 +329,7 @@ return function()
 		CampExtraRangeStuds = 8,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
-		MuseumRoomTipBonus = 0.02,
+		MuseumRoomTipBonus = 0.05, -- #2908
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
 		RallyHours = 48,
 		RallyExtendFrom = 1794009600, -- #2227: Saturday 2026-11-07 00:00 UTC
@@ -539,7 +539,7 @@ return function()
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
 				SpaSlotPrices = true, -- #2651 part 4 (late-stations.md): a table, checked in LateStations.spec
 				LateStationsOpen = true, -- #2651 part 4: false until the cards are in (a false value reads as missing)
-				CatchHoldFirstRing = true, -- #2920: false until the Catch screen draws the hold
+				CatchHoldFirstRing = true, -- #2920: on since the Catch screen draws the hold (#2922)
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 			}
 			for name, value in pairs(Config :: any) do

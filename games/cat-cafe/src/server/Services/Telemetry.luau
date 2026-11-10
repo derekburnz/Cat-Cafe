@@ -46,6 +46,7 @@ local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
@@ -248,6 +249,12 @@ export type CustomEvent =
 	-- #2123 (first-hour.md 6a): a returning player's welcome back card named a reason to be back, value 1; the kind
 	-- (bait, treat or quests; shared/ReturnHook)
 	| "welcome_back_hook"
+	-- #2916: a next goal shown (shared/ReturnGoals), value its progress in percent (0 for "away"); the kind, where
+	-- ("recap" or "join") and the Tier it is for ("none" for "away")
+	| "return_goal_shown"
+	-- #2916: a goal shown this session or at the join was met, value the whole minutes since it was shown; the same
+	-- fields as return_goal_shown
+	| "return_goal_done"
 	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
 	| "index_hint_tap"
 	-- #1936 (release.md section 3): a purchase prompt the client's store guard refused, value 1; where it came from
@@ -395,6 +402,7 @@ type Session = {
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
+	goals: { ShownGoal }, -- #2916: next goals shown this session (recap) or at the join, until each is met
 	indexHintTaps: number, -- #1919: index_hint_tap events logged this session (INDEX_HINT_TAPS)
 	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
@@ -403,6 +411,9 @@ type Session = {
 	feedbackAsks: number, -- #2681: feedback_v1 runs started this session (FeedbackFunnel.ASKS_PER_SESSION)
 	feedbackEnds: number, -- #2694: feedback_ask_end events logged this session, never more than feedbackAsks
 }
+
+-- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
+type ShownGoal = { goal: Types.ReturnGoalView, mode: string, at: number }
 
 -- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
 type StoreVisit = { id: string, step: number, sku: string? }
@@ -968,7 +979,67 @@ end
 
 -- After a new cat joins the collection: area_index completes when every catalog cat of its area is in the Index. A
 -- spare cat (data-model 3d) has no area page.
+-- #2916: the next goals the player was shown, logged once per kind and place a session and watched until met.
+function Telemetry.goalsShown(
+	player: Player,
+	goals: { Types.ReturnGoalView },
+	mode: "recap" | "join"
+)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	for _, goal in goals do
+		local seen = false
+		for _, shown in session.goals do
+			if shown.goal.kind == goal.kind and shown.mode == mode then
+				seen = true
+				break
+			end
+		end
+		if seen or table.find(ReturnGoals.KINDS, goal.kind) == nil then
+			continue
+		end
+		local need = goal.need or 0
+		local percent = if need > 0
+			then math.clamp(math.floor((goal.have or 0) / need * 100), 0, 100)
+			else 0
+		Telemetry.custom(
+			player,
+			"return_goal_shown",
+			percent,
+			{ goal.kind, mode, if goal.tier ~= nil then tostring(goal.tier) else "none" }
+		)
+		table.insert(session.goals, { goal = goal, mode = mode, at = os.time() })
+	end
+end
+
+-- #2916: return_goal_done for every watched goal `profile` meets now (a new cat, a rank up).
+local function goalsCheck(player: Player, profile: Profile)
+	local session = sessions[player]
+	if session == nil or #session.goals == 0 then
+		return
+	end
+	for index = #session.goals, 1, -1 do
+		local shown = session.goals[index]
+		if ReturnGoals.done(shown.goal, profile) then
+			table.remove(session.goals, index)
+			Telemetry.custom(
+				player,
+				"return_goal_done",
+				math.floor(math.max(0, os.time() - shown.at) / 60),
+				{
+					shown.goal.kind,
+					shown.mode,
+					if shown.goal.tier ~= nil then tostring(shown.goal.tier) else "none",
+				}
+			)
+		end
+	end
+end
+
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
+	goalsCheck(player, profile) -- #2916
 	if def.area == "spare" then
 		return
 	end
@@ -1015,6 +1086,7 @@ end
 -- played, and the tier onboarding steps.
 function Telemetry.rankedUp(player: Player, profile: Profile)
 	local tier = Economy.tier(profile)
+	goalsCheck(player, profile) -- #2916
 	progression(player, profile, true, tier - 1)
 	progression(player, profile, false, tier)
 	local tierDef = Catalog.getTier(tier)
@@ -1451,6 +1523,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				tierText(profile),
 				if tomorrow ~= nil then tomorrow.kind else "none",
 			})
+			Telemetry.goalsShown(player, ReturnGoals.pick(profile, os.time()), "recap") -- #2916
 		end
 	elseif name == "session_recap_close" then
 		-- whole seconds; the client may send a fraction, and a long stay counts as RECAP_CLOSE_MAX
@@ -1565,6 +1638,7 @@ local function onLoaded(player: Player, profile: Profile)
 		storeVisits = 0,
 		recapShown = false,
 		recapClosed = false,
+		goals = {},
 		indexHintTaps = 0,
 		guardBlocks = 0,
 		giftButtons = {},
@@ -1591,6 +1665,10 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	if profile.stats.sessions > 1 then
+		-- #2916: the welcome back card's next goals (CafeService sends the same pick)
+		Telemetry.goalsShown(player, ReturnGoals.pick(profile, os.time()), "join")
+	end
 	Telemetry.custom(
 		player,
 		"session_start",

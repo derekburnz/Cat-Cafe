@@ -736,3 +736,9 @@ Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decide
 - **How:** the game notes who is due (a MemoryStore sorted map); an hourly GitHub workflow sends through Open Cloud with the repo's key, so no key is in the game. Disabling the workflow stops the messages.
 
 Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside the game. It only reaches players who asked for notifications.
+
+## 2026-11-10 Bug report reader: a hand run is masked too (#3103)
+
+A run of `bug-reports` started by hand printed each reporter's full name and user id, and the raw records, into a public Actions log; only the daily run was masked. Now every run in GitHub Actions is masked (name to its first letter, id to its last three digits, no raw records). Full records are for Studio (`Debug.bugReports`) or the script on a PC with `MASK=0`.
+
+Why: the repo is public, so every Actions log is, and the standing rule is that nothing private goes in it. Threads only need the text, kind, version, area, device and error lists, which stay. The masked line still carries the report's time, which is what `idea-credits add` takes.

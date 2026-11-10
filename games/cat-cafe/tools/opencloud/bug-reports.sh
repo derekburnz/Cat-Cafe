@@ -16,9 +16,10 @@
 # record v 2, decisions.md 2026-11-01), since every Actions log on this public repo is public and once the game is
 # public the reporters are strangers, many of them young. A v 1 record (before the filter) or one whose filtering
 # failed shows a placeholder instead; its raw text stays in the data store, for Debug.bugReports in Studio.
-#   MASK=1  for the daily scheduled run, whose log is public like every Actions log on this repo: each name shrinks
-#           to its first letter and each user id to its last three digits, and the JSON records are left out of
-#           the log and the summary. Manual runs print in full, as before.
+# Names and ids are masked (#3103): each name shrinks to its first letter and each user id to its last three digits,
+# and the JSON records are left out of the log and the summary. That is the default, and in GitHub Actions it is
+# the only way: every Actions log on this repo is public, a run started by hand as much as the daily one.
+#   MASK=0  full names, ids and JSON records, only when run on a PC (ignored when GITHUB_ACTIONS is true)
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -28,6 +29,12 @@ COUNT=${2:-50}
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
 STORE=BugReports_v1
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 17)}"
+# #3103: masked unless MASK=0 on a PC; a GitHub Actions log is public, so there it is always masked
+if [ "${GITHUB_ACTIONS:-}" = true ] || [ "${MASK:-1}" != 0 ]; then
+	MASK=1
+else
+	MASK=0
+fi
 
 [[ $DAY =~ ^[0-9]{8}$ ]] || {
 	echo "day must be YYYYMMDD, got: $DAY" >&2
@@ -124,7 +131,7 @@ done
 echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@]}"
 # The same fields and order as BugReportService's line(), times in UTC.
 who='\(.name) (\(.userId))'
-if [ "${MASK:-}" = 1 ]; then
+if [ "$MASK" = 1 ]; then
 	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:])) at=\(.at)' # at is the key's time: idea-credits add takes r_<day>_<at>
 fi
 line='(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) '"$who"
@@ -133,8 +140,8 @@ line+=' | server \(.serverErrors // [] | join(" / "))"'
 for record in "${records[@]}"; do
 	jq -r "$line" <<<"$record"
 done
-if [ "${MASK:-}" = 1 ]; then
-	echo "== records as JSON left out (MASK=1, public log); run the workflow by hand for them"
+if [ "$MASK" = 1 ]; then
+	echo "== records as JSON left out (masked); for full records use Debug.bugReports in Studio, or this script on a PC with MASK=0"
 else
 	echo "== records as JSON"
 	[ "${#records[@]}" = 0 ] || printf '%s\n' "${records[@]}"

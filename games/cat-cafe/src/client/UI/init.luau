@@ -1432,7 +1432,7 @@ function UI.init(config: Types.InitConfig)
 				or UI.intro.playing()
 		end,
 		lift = function()
-			return hudInstance:bottomTop()
+			return hudInstance:tackleTop() -- #3119: under the Drop off touch
 		end,
 	})
 	netButton = NetButton.new(parent, {

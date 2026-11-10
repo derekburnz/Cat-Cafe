@@ -4891,6 +4891,41 @@ local SCENES = {
 		UI.setCarrying(nil)
 		UIShim.advance(0.3)
 		assert(pill.Visible, "uigate: the Drop pill did not come back after carrying (#2731)")
+		-- #3119 (Derek2: "drop bag cat / drop on pc now goes inside my cafe/cannon ui make it stack on top of tackle
+		-- for PC"): off touch the pill stands a Tackle bar's height and a gap over the bottom row's tiles; in a
+		-- catching area the bar sits in that place, over the row and under the pill, and the pill does not move
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			local TackleBar = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.TackleBar")
+			local scale = pill.AbsoluteSize.X / pill.Size.X.Offset
+			local rowTop = math.huge
+			for _, tile in travel:GetChildren() do
+				if tile:IsA("GuiObject") and tile.Visible then
+					rowTop = math.min(rowTop, tile.AbsolutePosition.Y)
+				end
+			end
+			local function foot(piece: GuiObject): number
+				return piece.AbsolutePosition.Y + piece.AbsoluteSize.Y
+			end
+			local room = rowTop - foot(pill)
+			assert(room >= (TackleBar.HEIGHT + 8) * scale - 0.5, ("uigate: the Drop pill is %.1f px over the bottom row, less than the Tackle bar's place (#3119)"):format(room))
+			local before = pill.AbsolutePosition.Y
+			UI.setZone("Alley")
+			UI.shove.setEnabled(true)
+			Scenes._tackle = true
+			UIShim.advance(0.3)
+			local tackleGui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+			local bar = tackleGui and tackleGui:FindFirstChild("Tackle", true) :: GuiObject?
+			assert(bar and tackleGui.Enabled, "uigate: no Tackle bar in a catching area with a cat in the backpack (#3119)")
+			assert(math.abs(pill.AbsolutePosition.Y - before) < 0.5, "uigate: the Drop pill moved when the Tackle bar came (#3119)")
+			assert(bar.AbsolutePosition.Y - foot(pill) >= 3, ("uigate: the Drop pill is %.1f px over the Tackle bar, not stacked on it (#3119)"):format(bar.AbsolutePosition.Y - foot(pill)))
+			assert(rowTop - foot(bar) >= 3, ("uigate: the Tackle bar is %.1f px from the bottom row under a Drop (#3119)"):format(rowTop - foot(bar)))
+			-- the carry banner takes the same place (the bar hides while carrying)
+			UI.setCarrying({ catId = Catalog.cats[1].id, catName = "Mochi", rarity = "Rare" } :: any)
+			UIShim.advance(0.3)
+			assert(rowTop - foot(carry) >= (TackleBar.HEIGHT + 8) * scale - 0.5, "uigate: the carry banner is not over the Tackle bar's place (#3119)")
+			UI.setCarrying(nil)
+			UIShim.advance(0.3)
+		end
 	end },
 	-- #2721 (Derek2: "do some research for where mobile players like their buttons and move the net/tackle to where it
 	-- would fit best"): NET just left of the jump button, centres level, and TACKLE on the thumb's arc up and left of

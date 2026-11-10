@@ -6,13 +6,15 @@
 -- - `codes`: false answers every RedeemCode with PAUSED and pays nothing (CodeService).
 -- - `rally`: false stops a running Rescue Rally and keeps the next one from starting (RallyService). What was
 --   already paid stays paid; turned on again mid-weekend, the bar starts again at lap 1 and the save's laps cap holds.
+-- - `tradeCrates` (#2745, trading.md section 1c): false takes every crate off the open trades and refuses new crate
+--   offers (TradeService); cat and decor trades go on.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off.
 
 local LiveFlags = {}
 
 LiveFlags.STORE = "CatCafe_Flags"
-LiveFlags.KEYS = { "codes", "rally" }
+LiveFlags.KEYS = { "codes", "rally", "tradeCrates" }
 LiveFlags.CHECK_SECONDS = 60
 
 export type Flags = { [string]: boolean }

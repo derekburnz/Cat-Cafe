@@ -306,6 +306,8 @@ return function()
 		TradeMinTier = 3,
 		TradeMaxCats = 9,
 		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
+		TradeMaxCrateKinds = 6, -- #2745 (trading.md section 1c): crate kinds each side may offer
+		TradeMaxCrates = 20, -- #2745: crates in all each side may offer
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
 		TradeConfirmWaitSeconds = 2,

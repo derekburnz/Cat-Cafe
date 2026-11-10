@@ -122,6 +122,14 @@ local pieceOfferCheck: (player: Player, id: string) -> boolean = function(
 	return false
 end
 
+-- #2745: and how many of a crate are
+local crateOfferCheck: (player: Player, id: string) -> number = function(
+	_player: Player,
+	_id: string
+): number
+	return 0
+end
+
 -- Settled profile or nil when not loaded yet.
 local function profileFor(player: Player): Profile?
 	local profile = DataService.get(player)
@@ -1553,6 +1561,16 @@ end
 -- Whether `uid` is on offer in `player`'s open trade.
 function CafeService.isOffered(player: Player, uid: string): boolean
 	return offerCheck(player, uid)
+end
+
+-- #2745: TradeService registers how to count a crate on offer (opening that crate waits for the trade).
+function CafeService.setCrateOfferCheck(check: (player: Player, id: string) -> number)
+	crateOfferCheck = check
+end
+
+-- #2745: how many of crate `id` are on offer in `player`'s open trade.
+function CafeService.crateOffered(player: Player, id: string): number
+	return crateOfferCheck(player, id)
 end
 
 -- #1574: TradeService registers how to tell a decor or lawn piece on offer (locking it waits for it).

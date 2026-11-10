@@ -172,10 +172,13 @@ Remotes.ClientToServer = {
 	-- busy (#2568: anywhere), one request out, re-ask wait, cooldown, daily cap, the target's tradeRequests); 1 a second
 	"TradeRespond", -- (requestId: string, accept: boolean)  a running request to the caller;
 	-- an accept checks both again and opens the trade
-	"TradeOffer", -- (tradeId: string, action: "add" | "remove", uid: string, kind: "cat" | "decor"?)  the caller's
-	-- open trade; add: their cat, unlocked, not exclusive, up to TradeMaxCats, one cat kept back; any change resets
-	-- both sides; 5 a second. #1574: kind "decor" (nil is "cat") offers a piece id instead: their crate decor or lawn
-	-- piece, tradeable, unlocked, not owned by the partner, up to TradeMaxDecor
+	"TradeOffer", -- (tradeId: string, action: "add" | "remove", uid: string, kind: "cat" | "decor" | "crate"?,
+	-- count: number?)  the caller's open trade; add: their cat, unlocked, not exclusive, up to TradeMaxCats, one cat
+	-- kept back; any change resets both sides; 5 a second. #1574: kind "decor" (nil is "cat") offers a piece id
+	-- instead: their crate decor or lawn piece, tradeable, unlocked, not owned by the partner, up to TradeMaxDecor.
+	-- #2745: kind "crate" adds or takes off `count` (a whole number, 1 when nil) of a banked crate kind (uid is the
+	-- crate id): not golden, no more than banked, the partner's zone open, up to TradeMaxCrateKinds kinds and
+	-- TradeMaxCrates crates; the state's crateBlocked and cratesOn say what the Crates tab greys or hides
 	"TradeReady", -- (tradeId: string, version: number, ready: boolean)  the version on the table, not with both
 	-- offers empty; both Ready starts the countdown
 	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
@@ -210,7 +213,8 @@ Remotes.ServerToClient = {
 	"TradeState", -- (state: Types.TradeStateView?)  the receiver's view of their open trade after every change; nil
 	-- closes the window
 	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary }, gaveDecor:
-	-- { Types.DecorSummary }, gotDecor: { Types.DecorSummary })  the swap happened (the decor lists since #1574)
+	-- { Types.DecorSummary }, gotDecor: { Types.DecorSummary }, gaveCrates: { Types.CrateSummary }, gotCrates:
+	-- { Types.CrateSummary })  the swap happened (the decor lists since #1574, the crate lists since #2745)
 	"TradeEnded", -- (tradeId: string, reason: string)  ended with nothing moved, in words ("Sam left")
 	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
 	-- Cat found card's coat

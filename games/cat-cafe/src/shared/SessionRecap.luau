@@ -6,10 +6,12 @@
 --   start(profile, now) -> Start            the numbers at the join
 --   due(start, now, enabled) -> boolean     whether the recap goes out now: not sent yet, long enough, setting on
 --   view(start, profile, now) -> SessionRecapView   whole minutes, new Index cats and coins earned since the join,
---                                                     and the "Tomorrow" line (shared/ReturnHook, #2123)
+--                                                     and the "Tomorrow" line (shared/ReturnHook, #2123); #2916 the
+--                                                     next goals (shared/ReturnGoals)
 
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
+local ReturnGoals = require(script.Parent.ReturnGoals)
 local ReturnHook = require(script.Parent.ReturnHook)
 local Types = require(script.Parent.Types)
 
@@ -51,6 +53,7 @@ function SessionRecap.view(
 		newCats = math.max(0, Economy.distinctCats(profile) - start.distinctCats),
 		earned = math.max(0, math.floor(profile.lifetimeCoins - start.lifetimeCoins)),
 		tomorrow = ReturnHook.pick(profile, now, "recap"),
+		goals = ReturnGoals.pick(profile, now),
 	}
 end
 

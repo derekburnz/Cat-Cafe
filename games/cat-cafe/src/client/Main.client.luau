@@ -22,6 +22,7 @@ local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
+local SpaPoolController = require(script.Parent.Controllers.SpaPoolController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
 local StyleController = require(script.Parent.Controllers.StyleController)
 local TradeController = require(script.Parent.Controllers.TradeController)
@@ -47,6 +48,7 @@ CodesController.start()
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines
+SpaPoolController.start() -- #2909: your own cats soaking in the Oasis Spa pool
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()
 Effects.start()

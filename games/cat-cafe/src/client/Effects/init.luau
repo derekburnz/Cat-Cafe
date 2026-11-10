@@ -76,6 +76,7 @@ local Sky = require(script.Sky)
 local SlotWalk = require(script.SlotWalk)
 local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
+local StationMotion = require(script.StationMotion)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
@@ -159,6 +160,7 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		StationMotion.start,
 		HoldPulse.start,
 		BaitCrumbs.start,
 		StationBuild.start,

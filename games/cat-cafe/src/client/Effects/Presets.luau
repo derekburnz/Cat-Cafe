@@ -4115,4 +4115,31 @@ Presets.lateStations = {
 	beamSeconds = 1.2,
 }
 
+-- The Oasis Spa's soaking cats and the Relic Museum's new exhibits (#2897; Effects/StationMotion, Logic.soakBob,
+-- Logic.dropBounce). Degrees for the turns; the hop and the bob are studs on a cat at the pool's 0.6 scale.
+Presets.stationMotion = {
+	rate = 1 / 30, -- seconds between moves of the pool's cats
+	bob = 0.07, -- studs up and down as the cat floats
+	bobHz = 0.4,
+	sway = 3, -- degrees of side-to-side roll
+	swayHz = 0.18,
+	yaw = 6, -- degrees the cat slowly looks left and right
+	yawHz = 0.09,
+	readyEvery = 3.5, -- a finished soaker's happy wiggle: every 3.5 s (well under 3 Hz)
+	readyLength = 0.7,
+	readyHop = 0.2,
+	readyWiggle = 9, -- degrees of the wiggle's quick turns
+	readySparkle = 4, -- a few gold sparkles over its head, every readySparkleEvery
+	readySparkleEvery = 7,
+	rippleEvery = 5, -- a ring spreading on the water from each cat
+	ripple = 2.4, -- the ring's width, studs
+	rippleSeconds = 1.6,
+	dropHeight = 1.6, -- a new exhibit drops this far onto its plinth
+	dropSeconds = 0.55,
+	dropFall = 0.62, -- of dropSeconds spent falling; the rest is one small bounce
+	dropBounce = 0.16, -- the bounce's height, as a share of dropHeight
+	dropRing = 3, -- a gold ring on the plinth as it lands
+	dropSparkle = 5,
+}
+
 return Presets

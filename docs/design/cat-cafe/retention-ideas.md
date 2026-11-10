@@ -267,7 +267,7 @@ Derek2's answers, item by item, use the numbering in section 2.
 ### 5f. A weekly update day with an update gift (idea 12, Derek2 yes 2026-11-10)
 - **Schedule.** Content updates publish on **Saturdays at 17:00 UTC**. Fixes can still ship any day, without the gift. The publish owner (Gameplay-Engineer) plans the weekly wave so it lands at that time. The What's new board and the Event page name the next Saturday.
 - **Update gift.**
-  - `Config.UpdateGift = { id = "2026-11-15", fish = 15, spins = 1 }`, changed with each Saturday update.
+  - `Config.UpdateGift = { id = "2026-11-14", fish = 15, spins = 1 }`, changed with each Saturday update.
   - Each player gets it once per id, on their first join while that id is live. It pays at once with one toast: "Update gift! 🐟 15 + 1 spin".
   - There's no claim button and no timer wording, and missing a week loses only that week's small gift.
   - Save: `updateGiftId`, the last id paid. An optional field, so it needs a save version bump. Claim `DataService`.

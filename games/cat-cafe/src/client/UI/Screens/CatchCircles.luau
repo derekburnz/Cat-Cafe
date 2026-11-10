@@ -618,6 +618,16 @@ function CatchCircles.holdWords(lastInput: Enum.UserInputType?): string
 		else "Click now!"
 end
 
+-- The standing line under the cat's name for the device the player last used (#2871: a gamepad names A or R2).
+function CatchCircles.hintWords(lastInput: Enum.UserInputType): string
+	if lastInput.Name:sub(1, 7) == "Gamepad" then
+		return "Press A or R2 as each circle meets its ring"
+	end
+	return if Scale.isTouch()
+		then "Tap anywhere as each circle meets its ring"
+		else "Press Space or click as each circle meets its ring"
+end
+
 function CatchCircles.show(
 	self: any,
 	circles: { Types.CatchCircle },
@@ -651,12 +661,7 @@ function CatchCircles.show(
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
-	self._hint.Text = info.title
-		or (
-			if Scale.isTouch()
-				then "Tap anywhere as each circle meets its ring"
-				else "Press Space or click as each circle meets its ring"
-		)
+	self._hint.Text = info.title or CatchCircles.hintWords(UserInputService:GetLastInputType())
 	if circles[1] ~= nil and circles[1].hold == true and info.title == nil then
 		self._hint.Text = HOLD_HINT -- #2920: the first catch's ring waits for the press, so no rush
 	end

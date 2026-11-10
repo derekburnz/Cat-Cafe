@@ -26,6 +26,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -1303,6 +1304,9 @@ function SpinWheel._refresh(self: any)
 	local turn: Turn? = self._turn
 	self._skipTap.Visible = turn ~= nil
 	self._skipHint.Visible = turn ~= nil and turn.skippable
+	if self._skipHint.Visible then
+		self._skipHint.Text = SpinLogic.skipHint(UserInputService:GetLastInputType().Name) -- #2871
+	end
 	local button = SpinLogic.button({
 		turning = turn ~= nil,
 		skippable = turn ~= nil and turn.skippable,

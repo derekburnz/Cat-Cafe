@@ -357,5 +357,12 @@ return function()
 			expect(SpinLogic.skipKey("Return", true, false)).to.equal(false)
 			expect(SpinLogic.skipKey("W", false, false)).to.equal(false)
 		end)
+
+		it("names the gamepad's A, the keyboard's Space, else a tap (#2871)", function()
+			expect(SpinLogic.skipHint("Gamepad1")).to.equal("Press A to skip")
+			expect(SpinLogic.skipHint("Keyboard")).to.equal("Press Space to skip")
+			expect(SpinLogic.skipHint("Touch")).to.equal(SpinLogic.SKIP_HINT)
+			expect(SpinLogic.skipHint("MouseButton1")).to.equal(SpinLogic.SKIP_HINT)
+		end)
 	end)
 end

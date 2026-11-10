@@ -15,6 +15,7 @@
 -- counter crate's lid then; Audio plays the rarity sting for Epic and up), when Moments has them.
 
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local CrateReelLogic = require(script.Parent.Parent.Components.CrateReelLogic)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -279,6 +280,7 @@ function CrateReel.play(self: any, play: Play)
 		part.BackgroundColor3 = Theme.colors.gold
 	end
 	self._line.BackgroundColor3 = Theme.colors.gold
+	self._hint.Text = SpinLogic.skipHint(UserInputService:GetLastInputType().Name) -- #2871
 	self._hint.Visible = true
 	self.cover.Visible = true
 	local timing = play.timing

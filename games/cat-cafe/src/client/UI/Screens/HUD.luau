@@ -353,9 +353,18 @@ local function stripLayout(): {
 			maxH = 64,
 		}
 end
-local DROP_W = 104
-local PACK_DROP_W = 160 -- #2731: "Drop bag cat" with its icon
-local PACK_DROP_H = 44 -- as the carry banner's Drop; on touch Button's tap pad grows it to a thumb
+-- #3010 (Derek2 11-10: "drop cat from bag and probably drop button also on mobile overlaps the cafe and cannon
+-- buttons slightly so make it smaller"): on touch both red buttons are drawn smaller (Button's tap pad still reaches
+-- a thumb's 44 px) and sit DROP_LIFT higher, so neither their outline and lip nor the tap pad reach the bottom row's
+-- tiles, whose pictures poke up over their top edge.
+local DROP_W = if TOUCH then 88 else 104
+local DROP_H = if TOUCH then 36 else 44 -- a 36 px face at the desktop's 0.9 scale (the UI gate's tap check)
+local PACK_DROP_W = if TOUCH then 132 else 160 -- #2731: "Drop bag cat" with its icon
+local PACK_DROP_H = if TOUCH then 36 else 44 -- as the carry banner's Drop
+local DROP_TEXT = if TOUCH then Theme.sizes.textSmall else Theme.sizes.textBody
+-- more room between the bottom row and what stacks on it; with a mouse too, where the pill's outline lay 2 px over
+-- the My Cafe tile's (the UI gate's tilesnear)
+local DROP_LIFT = 8
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
@@ -1998,7 +2007,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Carry banner (bottom centre, above the bottom row): the cat you carry and a red Drop button (G)
 	local carry = hudPanel("Carry", {
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap)),
+		Position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap + DROP_LIFT)),
 		Size = UDim2.fromOffset(CARRY_W, CARRY_H),
 		Visible = false,
 		Parent = root,
@@ -2044,12 +2053,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Drop",
 		text = "Drop",
 		icon = Theme.icons.drop,
-		iconSize = 26,
+		iconSize = if TOUCH then 20 else 26,
 		style = "close",
-		size = UDim2.fromOffset(DROP_W, 44), -- a 36 px face at the desktop's 0.9 scale (the UI gate's tap check)
+		size = UDim2.fromOffset(DROP_W, DROP_H),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -8, 0.5, 0),
-		textSize = Theme.sizes.textBody,
+		textSize = DROP_TEXT,
 		parent = carry,
 		onClick = function()
 			callbacks.dropCat()
@@ -2068,12 +2077,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "PackDrop",
 		text = "Drop bag cat",
 		icon = Theme.icons.drop,
-		iconSize = 22,
+		iconSize = if TOUCH then 18 else 22,
 		style = "close",
 		size = UDim2.fromOffset(PACK_DROP_W, PACK_DROP_H),
 		anchorPoint = Vector2.new(0.5, 1),
-		position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap)),
-		textSize = Theme.sizes.textBody,
+		position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap + DROP_LIFT)),
+		textSize = DROP_TEXT,
 		parent = root,
 		onClick = function()
 			callbacks.dropCat()
@@ -3176,14 +3185,17 @@ end
 
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
-	if self._travelRow.Visible and not self._travelFolded then
+	local overRow = self._travelRow.Visible and not self._travelFolded
+	if overRow then
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	y -= self:_chipsLift()
 	if self._carry.Visible then
+		y -= if overRow then DROP_LIFT else 0 -- #3010: clear of the bottom row's tiles on touch
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
 	elseif self._packDrop.instance.Visible then
+		y -= if overRow then DROP_LIFT else 0
 		self._packDrop.instance.Position = UDim2.new(0.5, 0, 1, y)
 		y -= PACK_DROP_H + Theme.sizes.gap
 	end
@@ -3194,14 +3206,15 @@ end
 -- pixels from the screen's bottom edge, for the Tackle bar (Screens/TackleBar) to sit on.
 function HUD.bottomTop(self: any): number
 	local y = -MARGIN
-	if self._travelRow.Visible and not self._travelFolded then
+	local overRow = self._travelRow.Visible and not self._travelFolded
+	if overRow then
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	y -= self:_chipsLift()
 	if self._carry.Visible then
-		y -= CARRY_H + Theme.sizes.gap
+		y -= CARRY_H + Theme.sizes.gap + (if overRow then DROP_LIFT else 0)
 	elseif self._packDrop.instance.Visible then
-		y -= PACK_DROP_H + Theme.sizes.gap
+		y -= PACK_DROP_H + Theme.sizes.gap + (if overRow then DROP_LIFT else 0)
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap

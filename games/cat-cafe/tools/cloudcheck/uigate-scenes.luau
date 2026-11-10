@@ -4620,6 +4620,26 @@ local SCENES = {
 				assert(label.TextFits, "uigate: the Drop pill's words do not fit: " .. label.Text .. " (#2731)")
 			end
 		end
+		-- #3010 (Derek2: "drop cat from bag and probably drop button also on mobile overlaps the cafe and cannon
+		-- buttons slightly so make it smaller"): the pill, its tap pad, and then the carry banner with its Drop each
+		-- stop at least 3 px above every bottom row tile, and on touch the pill is smaller than #2731's 160 x 44
+		local travel = hud:FindFirstChild("Travel", true) :: GuiObject
+		local function clearOfRow(piece: GuiObject, what: string)
+			local foot = piece.AbsolutePosition.Y + piece.AbsoluteSize.Y
+			for _, tile in travel:GetChildren() do
+				if tile:IsA("GuiObject") and tile.Visible then
+					local gap = tile.AbsolutePosition.Y - foot
+					assert(gap >= 3, ("uigate: %s is %.1f px from the bottom row's %s (#3010)"):format(what, gap, tile.Name))
+				end
+			end
+		end
+		clearOfRow(pill, "the Drop pill")
+		clearOfRow(hit, "the Drop pill's tap pad")
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			local scale = size.X / pill.Size.X.Offset
+			assert(pill.Size.X.Offset < 160 and pill.Size.Y.Offset < 44, "uigate: the Drop pill is not smaller on touch (#3010)")
+			assert(hit.AbsoluteSize.Y >= 44 - 0.5 or hit.AbsoluteSize.Y >= 44 * scale - 0.5, "uigate: the smaller Drop pill lost its thumb sized tap pad (#3010)")
+		end
 		local fired = 0
 		local connection = UI.events.dropCat:Connect(function()
 			fired += 1
@@ -4630,6 +4650,11 @@ local SCENES = {
 		UI.setCarrying({ catId = Catalog.cats[1].id, catName = "Mochi", rarity = "Rare" } :: any)
 		UIShim.advance(0.3)
 		assert(not pill.Visible, "uigate: the Drop pill shows beside the carry banner (#2731)")
+		local carry = hud:FindFirstChild("Carry", true) :: GuiObject
+		assert(carry and carry.Visible, "uigate: no carry banner while carrying (#3010)")
+		clearOfRow(carry, "the carry banner")
+		local drop = carry:FindFirstChild("Drop") :: GuiObject
+		clearOfRow((drop:FindFirstChild("Hit") or drop) :: GuiObject, "the carry banner's Drop tap pad")
 		UI.setCarrying(nil)
 		UIShim.advance(0.3)
 		assert(pill.Visible, "uigate: the Drop pill did not come back after carrying (#2731)")

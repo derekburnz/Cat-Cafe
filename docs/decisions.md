@@ -730,3 +730,9 @@ Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decide
 - **How:** the game notes who is due (a MemoryStore sorted map); an hourly GitHub workflow sends through Open Cloud with the repo's key, so no key is in the game. Disabling the workflow stops the messages.
 
 Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside the game. It only reaches players who asked for notifications.
+
+## 2026-11-10 The place runs Roblox's new chat (TextChatService), set in the Rojo project (#3012)
+
+Derek2 saw the chat button's blue unread bubble with an empty chat window in the live game, and the rare catch line for Mythical cats never showed. Cause: `default.project.json` had no `TextChatService` entry, so the place file Rojo builds carried no chat setting and Roblox ran it on the legacy chat (`ChatVersion` LegacyChatService). Roblox no longer draws a window for the legacy chat, so system lines written to it were counted as unread and never displayed. The same setting kept the chat tags (#1624) and TextChatCommands from working, and is why the owner test command needed its legacy workarounds (#2754, #2902).
+
+Decision: `default.project.json` and `tests.project.json` set `TextChatService.ChatVersion = TextChatService`. A script cannot change `ChatVersion` at run time, so the project file is the only place for it; `tools/cloudcheck/run-tests.mjs` fails if either file loses the setting. The legacy code paths stay as a fallback and log one warning if a place is ever built without it. Servers started before the publish keep the legacy chat until they close.

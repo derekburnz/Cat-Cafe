@@ -188,6 +188,7 @@ export type CustomEvent =
 	-- a copy given to the Relic Museum, value 1; its rarity and coat. A room finished, value the rooms done; its area
 	| "museum_donate"
 	| "museum_room"
+	| "museum_fill" -- #3130: an Auto fill, value the copies given; its area
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS

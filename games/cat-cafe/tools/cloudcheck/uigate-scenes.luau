@@ -2177,7 +2177,8 @@ local SCENES = {
 				dots += 1
 			end
 		end
-		assert(dots == 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
+		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
 	end },
 	-- #2651 part 4: tapping the exhibit with a ! lists its copies weakest first; the gold copy asks first
 	{ "RelicMuseumGive", function()
@@ -2185,12 +2186,13 @@ local SCENES = {
 		UI.lateStations.update(lateState(nil))
 		UI.lateStations.open("museum")
 		local window = lateWindow("RelicMuseum")
-		local tile = nil
+		local tile = nil -- gate_4's exhibit: its copy and the three spares (#3123: the only-copy tiles show a ! too)
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
+			if piece.Name == "Line" and piece:IsA("TextLabel") and piece.Text == "You have 4" then
 				tile = piece.Parent
 			end
 		end
+		assert(tile, "uigate: no exhibit reads You have 4 (#2651)")
 		press("RelicMuseum", tile.Name)
 		local give = window:FindFirstChild("Give", true)
 		assert(give and give.Visible, "uigate: the exhibit did not list its copies (#2651)")

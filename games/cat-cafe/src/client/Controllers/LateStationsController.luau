@@ -31,6 +31,7 @@ local REMOTES: { [string]: boolean } = {
 	SpaCollect = true,
 	SpaBuySlot = true,
 	MuseumDonate = true,
+	MuseumFill = true, -- #3130
 }
 
 local tracked: { [ProximityPrompt]: boolean } = {}

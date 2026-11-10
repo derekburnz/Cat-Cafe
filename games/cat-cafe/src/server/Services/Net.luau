@@ -92,6 +92,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SpaCollect = RateLimiter.new(1, 1),
 	SpaBuySlot = RateLimiter.new(1, 1),
 	MuseumDonate = RateLimiter.new(1, 1),
+	MuseumFill = RateLimiter.new(1, 2), -- #3130: Auto fill, a whole hall in one call
 	InviteCard = RateLimiter.new(1, 2), -- #2797: the invite card's report, 1 per 2 s
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second

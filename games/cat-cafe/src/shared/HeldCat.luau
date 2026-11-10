@@ -177,9 +177,12 @@ local FLAP_OPEN = 90
 local PACK_RIM = 0.66 -- the top of the pack's opening
 local PACK_MOUTH_Z = -0.33 -- the middle of the opening, front to back
 -- the packed cat's size, so its head fits the opening. #2888 (Derek2: the cat's head "like 60% smaller"): 0.4 in
--- the 1.4x pack is about 0.56x the cat, was 0.7 in the 2x pack (1.4x)
-local PACKED_SCALE = 0.4
-local HEAD_OUT = 0.75 -- how much of the head's height shows over the rim
+-- the 1.4x pack, about 0.56x the cat, was 0.7 in the 2x pack (1.4x). #3015 (Derek2: "WAY too small to see"): 0.7 in
+-- the 1.4x pack, about 0.98x the cat, so the head (about 1 stud wide) reads at the play camera and fills the opening
+local PACKED_SCALE = 0.7
+-- how much of the head's height shows over the rim. #3015: 0.95, so the whole face shows over the bag's front (at
+-- 0.75 the front hid it below the eyes from the camera's height)
+local HEAD_OUT = 0.95
 local PACK_PART = "PackPart" -- the Weld that holds each part of the bag (not the flap) to its body
 -- #2733: how much wider (x) and deeper (z) the bag gets with a cat in it; its back stays against the wearer
 local BULGE = Vector3.new(1.12, 1, 1.1)

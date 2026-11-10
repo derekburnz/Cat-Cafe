@@ -44,6 +44,27 @@ return function()
 			expect(ids(FoodOrder.ownedFirst(rarest, {}))).to.equal(ids(rarest))
 		end)
 
+		it("picks the rarest food the player has for the bowl's Refill (#3008)", function()
+			local rarest = FoodOrder.defs(Catalog.lures, true)
+			expect(FoodOrder.best(rarest, { kibble = 3 }).id).to.equal("kibble")
+			expect(FoodOrder.best(rarest, { kibble = 3, salmon = 1, tuna = 9 }).id).to.equal(
+				"salmon"
+			)
+			expect(FoodOrder.best(rarest, { kibble = 1, star_treat = 1, moon_milk = 2 }).id).to.equal(
+				"star_treat"
+			)
+			-- a food at 0 is not in the bag, and neither is a count that is not a number
+			expect(FoodOrder.best(rarest, { star_treat = 0, tuna = 2 }).id).to.equal("tuna")
+			expect(FoodOrder.best(rarest, { star_treat = 0 / 0, caviar = -1, kibble = 1 }).id).to.equal(
+				"kibble"
+			)
+			expect(FoodOrder.best(rarest, { star_treat = "9" } :: any)).to.equal(nil)
+			-- an empty bag, or a food the catalog does not have
+			expect(FoodOrder.best(rarest, {})).to.equal(nil)
+			expect(FoodOrder.best(rarest, { mystery = 5 })).to.equal(nil)
+			expect(FoodOrder.best({}, { kibble = 1 })).to.equal(nil)
+		end)
+
 		it("leaves the catalog's own list alone", function()
 			local before = ids(Catalog.lures)
 			FoodOrder.defs(Catalog.lures)

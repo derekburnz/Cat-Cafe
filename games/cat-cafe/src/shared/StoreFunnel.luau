@@ -2,10 +2,16 @@
 -- The Store funnel (#1888): what the client may report about the Store (TelemetryReport) and the funnel's steps.
 -- Analytics only: the server allowlists every value here, and nothing a report says pays or unlocks anything.
 --
--- One funnel session per Store visit: opened (with where it was opened from), tab_viewed (each tab, the first one
--- counts for the step), buy_pressed (a pass or product's buy button, which opens Roblox's prompt) and completed
--- (Roblox says it was bought). A prompt closed without buying is the custom event store_cancelled. The price is
--- Roblox's own, looked up on the server; prices are never tested (Derek2, #1888).
+-- One funnel session per Store visit: opened (with where it was opened from), tab_viewed (the player looked past
+-- the tab the Store opened on: a second tab, or a buy on the first one), buy_pressed (a pass or product's buy
+-- button, which opens Roblox's prompt), prompt_closed (Roblox's prompt closed, "bought" or "cancelled") and
+-- completed (Roblox says it was bought). A prompt closed without buying is also the custom event store_cancelled.
+-- The price is Roblox's own, looked up on the server; prices are never tested (Derek2, #1888).
+--
+-- #2914 (store_v1): the funnel was "store" with four steps, and its tab step counted the tab every Store opens on,
+-- so a Store opened and shut at once still reached it. Now a drop after opened means the first screen, after
+-- tab_viewed the offer, after buy_pressed a prompt the store guard refused (store_guard_blocked) and after
+-- prompt_closed a cancel at Roblox's prompt. A changed funnel gets a new name, as onboarding_v6 did.
 --
 -- The client side: the UI calls `noteSource` just before it opens the Store, and UIController takes it (`takeSource`)
 -- as the Store's screen opens, so a tap on the HUD tile, its New dot or a nudge can be told apart.
@@ -15,8 +21,9 @@ local Products = require(script.Parent.Products)
 
 local StoreFunnel = {}
 
-StoreFunnel.NAME = "store"
-StoreFunnel.STEPS = { "opened", "tab_viewed", "buy_pressed", "completed" }
+StoreFunnel.NAME = "store_v1"
+StoreFunnel.STEPS = { "opened", "tab_viewed", "buy_pressed", "prompt_closed", "completed" }
+StoreFunnel.PROMPT_RESULTS = { "bought", "cancelled" } -- prompt_closed's first field after the sku
 StoreFunnel.SOURCES = { "hud_tile", "new_dot", "nudge", "other" }
 StoreFunnel.TABS = { "featured", "passes", "cats", "potions", "cafePass", "codes" } -- StoreLogic.TABS' ids
 StoreFunnel.VISITS_MAX = 30 -- Store funnels a session; a visit past it logs nothing

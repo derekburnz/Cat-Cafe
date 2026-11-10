@@ -506,8 +506,10 @@ STUDIO_NOTES["CatCafe_Neighbourhood_GateF85"] = STUDIO_NOTES["CatCafe_Neighbourh
     "CatCafe_Neighbourhood_Gate.")
 STUDIO_NOTES[desertset.NAME] = (
     "Tier 6 (tier6-7-areas.md section 4). Place it at the Desert's centre on its floor with the camp's turn (180: the "
-    "camp on the north edge), like the F85 sets. The floor is sand right out to the walls. Every blocker has a "
-    "_Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -280. The "
+    "camp on the north edge), like the F85 sets. The floor is sand right out to the walls. Nothing invisible "
+    "stands inside the area (#2897): the dunes, humps and drifts are WedgeParts that collide where they are drawn "
+    "and the blockers have no _Barrier, so a player may climb them; the only _Barrier is the 30 high ring in the "
+    "border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The "
     "rescue spots (points_roblox trap_sand_dune, trap_clay_urn, trap_collapsed_canopy) carry their piece's turn.")
 STUDIO_NOTES[ruinsset.NAME] = (
     "Tier 7 (tier6-7-areas.md section 5). Place it at the Ruins' centre on its floor with the camp's turn (0: the "

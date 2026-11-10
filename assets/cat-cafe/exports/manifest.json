@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 23:31 UTC",
+  "generated": "2026-11-10 01:21 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -308320,14 +308320,11 @@
         "CatCafe_Desert_Set_074_Lamp_Bulb",
         "CatCafe_Desert_Set_075_Walls_Barrier",
         "CatCafe_Desert_Set_076_DuneRidge",
-        "CatCafe_Desert_Set_076_DuneRidge_Barrier",
         "CatCafe_Desert_Set_077_DuneRidge",
-        "CatCafe_Desert_Set_077_DuneRidge_Barrier",
         "CatCafe_Desert_Set_078_Hump",
         "CatCafe_Desert_Set_079_Hump",
         "CatCafe_Desert_Set_080_Hump",
         "CatCafe_Desert_Set_081_Canyon",
-        "CatCafe_Desert_Set_081_Canyon_Barrier",
         "CatCafe_Desert_Set_082_Hoodoo",
         "CatCafe_Desert_Set_083_Hoodoo",
         "CatCafe_Desert_Set_084_Hoodoo",
@@ -308347,9 +308344,7 @@
         "CatCafe_Desert_Set_098_RockArch",
         "CatCafe_Desert_Set_099_Terraces",
         "CatCafe_Desert_Set_100_MesaRidge",
-        "CatCafe_Desert_Set_100_MesaRidge_Barrier",
         "CatCafe_Desert_Set_101_RuinWall",
-        "CatCafe_Desert_Set_101_RuinWall_Barrier",
         "CatCafe_Desert_Set_102_Signpost",
         "CatCafe_Desert_Set_103_Pot",
         "CatCafe_Desert_Set_104_Pot",
@@ -308503,22 +308498,22 @@
         "CatCafe_Desert_Set_240_Cactus",
         "CatCafe_Desert_Set_241_Rock"
       ],
-      "triangles": 75876,
+      "triangles": 72324,
       "budget": 150000,
       "size_studs": {
         "x": 151.2,
         "y": 560.6,
-        "z": 38.5
+        "z": 31.42
       },
       "size_roblox": [
         151.2,
-        38.5,
+        31.42,
         560.6
       ],
       "bounds_min": [
         -75.6,
         -280.0,
-        -8.5
+        -1.42
       ],
       "bounds_max": [
         75.6,
@@ -308672,9 +308667,9 @@
             "near"
           ],
           [
-            46.55,
+            44,
             0.0,
-            -205.32,
+            -208.4,
             "near"
           ],
           [
@@ -308748,9 +308743,9 @@
             "near"
           ],
           [
-            60,
+            64.0,
             0.0,
-            -214,
+            -214.0,
             "near"
           ],
           [
@@ -309316,9 +309311,9 @@
           ]
         ]
       },
-      "studio": "Tier 6 (tier6-7-areas.md section 4). Place it at the Desert's centre on its floor with the camp's turn (180: the camp on the north edge), like the F85 sets. The floor is sand right out to the walls. Every blocker has a _Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -280. The rescue spots (points_roblox trap_sand_dune, trap_clay_urn, trap_collapsed_canopy) carry their piece's turn.",
+      "studio": "Tier 6 (tier6-7-areas.md section 4). Place it at the Desert's centre on its floor with the camp's turn (180: the camp on the north edge), like the F85 sets. The floor is sand right out to the walls. Nothing invisible stands inside the area (#2897): the dunes, humps and drifts are WedgeParts that collide where they are drawn and the blockers have no _Barrier, so a player may climb them; the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The rescue spots (points_roblox trap_sand_dune, trap_clay_urn, trap_collapsed_canopy) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Desert_Set.model.json",
-      "rbx_parts": 3162,
+      "rbx_parts": 4068,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Desert_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Desert_Set.glb"
@@ -309331,12 +309326,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "75876/150000 tris",
+          "budget": "72324/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "44638 faces on swatch centers",
+          "uv": "42691 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-8.50 (want 0)",
+          "pivot": "floor at z=-1.42 (want 0)",
           "centered": "footprint center x=0.00 y=0.30",
           "cat_spots": "106 cat spots clear of every collidable part"
         }

@@ -4763,7 +4763,18 @@ function HUD._layoutMenu(self: any)
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
 	local storeH = if store.Visible and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
-	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
+	local foldShown = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
+	local fold: GuiObject = self._menuFold.instance
+	if self._catching then
+		-- #3164 (Derek2 11-10: "this menu close arrow on the left sometimes flashes into screen on first catch or
+		-- catch"): this layout also runs outside a render (the money counter growing, the window resized), where
+		-- nothing hid the tab again, so it stood alone on the left until the next render. Mid-catch it stays down
+		-- and is noted for the catch's end (_applyFocus).
+		self._focusHidden[fold] = if foldShown then true else nil
+		fold.Visible = false
+	else
+		fold.Visible = foldShown
+	end
 	local foldUnder = FOLD_UNDER + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()

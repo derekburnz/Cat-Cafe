@@ -91,6 +91,7 @@ local WorldTags = require(script.Screens.WorldTags)
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
+UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
@@ -223,6 +224,9 @@ UI.events = {
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
+	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
+	-- SpaTakeOut, SpaCollect, SpaBuySlot or MuseumDonate) with its arguments
+	lateStation = Signal.new(),
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
 	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
@@ -575,6 +579,7 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
+	UI.lateStations.render(state)
 	UI.cornerShop.render(state)
 	UI.mystery.render(state)
 	UI.trade.render(state)
@@ -1532,6 +1537,7 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
+	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
@@ -1717,6 +1723,7 @@ function UI.destroy()
 	UI.leaderboards.reset()
 	UI.together.reset()
 	UI.campExtras.reset()
+	UI.lateStations.reset()
 	UI.mystery.reset()
 	UI.giftWait.reset()
 	UI.rally.reset()
@@ -6065,6 +6072,7 @@ do
 	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
 	local camp = {
 		state = nil :: Types.CampExtrasState?,
+		late = nil :: any, -- #2651 part 4: the last LateStationsState
 		yard = nil :: YardSale.YardSale?,
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
@@ -6171,6 +6179,20 @@ do
 		yard:setView(yardView())
 		if cannonScreen then
 			cannonScreen:setExtras(camp.state)
+			cannonScreen:setLate(camp.late)
+		end
+		bang:updateLate(camp.late)
+	end
+
+	-- #2651 part 4: LateStationsState for the Cat Cannon picker's Desert and Ruins strips and the two stations' bubbles
+	function UI.campExtras.late(late: any)
+		camp.late = late
+		if cannonScreen then
+			cannonScreen:setLate(late)
+		end
+		local bang = camp.bang
+		if bang then
+			bang:updateLate(late)
 		end
 	end
 
@@ -6288,6 +6310,218 @@ do
 		if starterBang then
 			starterBang:update((state :: any).starterCatClaimed)
 		end
+	end
+end
+
+-- #2651 part 4 (late-stations.md sections 1 and 2): the Oasis Spa and Relic Museum cards. Controllers/
+-- LateStationsController calls open(stationId) from a station's prompt, update(state) with every LateStationsState and
+-- result(stationId, ok, detail) with every LateStationResult; the cards' presses go out as
+-- UI.events.lateStation(remote, ...). The Cat Cannon picker's strips and the stations' bubbles read the same state
+-- (UI.campExtras.late). The last state is kept, so a rebuilt UI shows it at once. Its own block, as the module is
+-- short of locals.
+do
+	local LateStationsLogic = require(script.Components.LateStationsLogic)
+	local OasisSpa = require(script.Screens.OasisSpa)
+	local RelicMuseum = require(script.Screens.RelicMuseum)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local TAG = "LateStation" -- shared/LateStations.TAG: the placed models, with their StationId attribute
+	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
+	local WINDOWS: { [string]: string } = { spa = "OasisSpa", museum = "RelicMuseum" }
+	local late = {
+		state = nil :: any,
+		spa = nil :: OasisSpa.OasisSpa?,
+		museum = nil :: RelicMuseum.RelicMuseum?,
+	}
+
+	-- Studs from this player's character to a station's model, or nil while either is streamed out.
+	local function distance(stationId: string): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		for _, model in CollectionService:GetTagged(TAG) do
+			if
+				model:IsA("Model")
+				and model:GetAttribute("StationId") == stationId
+				and model:IsDescendantOf(Workspace)
+			then
+				return ((model :: Model):GetPivot().Position - (root :: BasePart).Position).Magnitude
+			end
+		end
+		return nil
+	end
+
+	local function far(stationId: string): () -> boolean
+		return function(): boolean
+			local studs = distance(stationId)
+			return studs ~= nil and studs > FAR_STUDS
+		end
+	end
+
+	local function closer(name: string): () -> ()
+		return function()
+			local modalView = modal
+			if modalView and modalView:current() == name then
+				modalView:close()
+			end
+		end
+	end
+
+	local function send(remote: string, ...: any)
+		UI.events.lateStation:Fire(remote, ...)
+	end
+
+	local function paint()
+		local current = late.state
+		local spa = late.spa
+		if spa then
+			spa:setView(if current ~= nil then current.spa else nil)
+		end
+		local museum = late.museum
+		if museum then
+			museum:setView(
+				if current ~= nil then current.museum else nil,
+				if current ~= nil then current.spa else nil
+			)
+		end
+	end
+
+	-- UI.init: both cards in the modal.
+	function UI.lateStations.start()
+		UI.lateStations.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local spa = OasisSpa.new({
+			put = function(slot: number, uid: string)
+				send("SpaPut", slot, uid)
+			end,
+			takeOut = function(slot: number)
+				send("SpaTakeOut", slot)
+			end,
+			collect = function()
+				send("SpaCollect")
+			end,
+			buy = function(slot: number)
+				send("SpaBuySlot", slot)
+			end,
+			close = closer(WINDOWS.spa),
+			far = far(LateStationsLogic.SPA),
+		})
+		late.spa = spa
+		modalView:register(WINDOWS.spa, {
+			frame = spa.frame,
+			onOpen = function()
+				spa:render(state)
+				spa:opened()
+			end,
+			onClose = function()
+				spa:closed()
+			end,
+		})
+		local museum = RelicMuseum.new({
+			donate = function(uid: string)
+				send("MuseumDonate", uid)
+			end,
+			close = closer(WINDOWS.museum),
+			far = far(LateStationsLogic.MUSEUM),
+		})
+		late.museum = museum
+		modalView:register(WINDOWS.museum, {
+			frame = museum.frame,
+			onOpen = function()
+				museum:render(state)
+				museum:opened()
+			end,
+			onClose = function()
+				museum:closed()
+			end,
+		})
+		spa:render(state)
+		museum:render(state)
+		paint()
+	end
+
+	function UI.lateStations.render(playerState: Types.PlayerState)
+		local spa = late.spa
+		if spa then
+			spa:render(playerState)
+		end
+		local museum = late.museum
+		if museum then
+			museum:render(playerState)
+		end
+	end
+
+	-- LateStationsState: both cards, the picker's strips and the bubbles.
+	function UI.lateStations.update(lateState: any)
+		if type(lateState) ~= "table" then
+			return
+		end
+		late.state = lateState
+		paint()
+		UI.campExtras.late(lateState)
+	end
+
+	-- A station's prompt: its card, or a toast while its tier is still ahead (the server refuses every press then).
+	function UI.lateStations.open(stationId: string)
+		local name = WINDOWS[stationId]
+		local modalView = modal
+		if name == nil or modalView == nil then
+			return
+		end
+		local current = late.state
+		local view = if current ~= nil then current[stationId] else nil
+		if view ~= nil and view.open ~= true then
+			UI.toast(
+				string.format(
+					"The %s opens at Tier %d",
+					LateStationsLogic.NAMES[stationId] or stationId,
+					if stationId == LateStationsLogic.SPA then 6 else 7
+				),
+				"info"
+			)
+			return
+		end
+		paint()
+		modalView:open(name)
+	end
+
+	-- LateStationResult: a refusal wakes the card (the server's toast says why); a gift bursts its exhibit.
+	function UI.lateStations.result(stationId: string, ok: boolean, detail: any)
+		if not ok then
+			local card: any = if stationId == LateStationsLogic.SPA then late.spa else late.museum
+			if card then
+				card:refused()
+			end
+			return
+		end
+		local museum = late.museum
+		if
+			stationId == LateStationsLogic.MUSEUM
+			and museum
+			and type(detail) == "table"
+			and type(detail.catId) == "string"
+		then
+			museum:given(detail.catId, if type(detail.room) == "string" then detail.room else nil)
+		end
+	end
+
+	-- UI.destroy: the cards go with the modal; the state stays for the next build.
+	function UI.lateStations.reset()
+		local spa = late.spa
+		if spa then
+			spa:destroy()
+		end
+		late.spa = nil
+		local museum = late.museum
+		if museum then
+			museum:destroy()
+		end
+		late.museum = nil
 	end
 end
 

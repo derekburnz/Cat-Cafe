@@ -277,6 +277,74 @@ local function campExtras(picnic, bought, open)
 	}
 end
 
+-- #2651 part 4: LateStationsState for the Oasis Spa and Relic Museum cards. `soak` is how long the cat in slot 1 has
+-- soaked (nil: slot 1 empty); slot 2 is open and empty, slot 3 waits to be bought. Two Alleyway exhibits are given.
+local function lateState(soak, live)
+	local now = workspace:GetServerTimeNow()
+	local hour = 3600
+	local soaking = {
+		{ slot = 1 },
+		{ slot = 2 },
+	}
+	if soak ~= nil then
+		local at = now - soak
+		soaking[1] = {
+			slot = 1,
+			uid = "gate_5",
+			catId = (UI.getState() :: any).cats.gate_5.catId,
+			doneAt = at + hour,
+			fullAt = at + 24 * hour,
+			levels = math.floor(soak / hour),
+		}
+	end
+	local LateStations = UIShim.require("ReplicatedStorage.Shared.LateStations")
+	local alley = LateStations.rooms[1].cats
+	return {
+		live = live ~= false,
+		spa = {
+			open = true,
+			slots = 2,
+			nextPrice = 250,
+			soaking = soaking,
+			ready = if soak ~= nil and soak >= hour then 1 else 0,
+		},
+		museum = {
+			open = true,
+			filled = { [alley[9]] = "base", [alley[10]] = "gold" },
+			count = 2,
+			total = LateStations.EXHIBITS,
+			canFill = 1,
+			rooms = {},
+			bonus = 0,
+		},
+	}
+end
+
+-- #2651 part 4: the sample cats plus spare copies of gate_4's cat (one gold), so a Museum exhibit can be filled
+-- (Scenes.close puts the sample cats back)
+local function lateCats()
+	local cats = table.clone((UI.getState() :: any).cats)
+	local base = cats.gate_4
+	for index, variant in { "base", "gold", "base" } do
+		local copy = table.clone(base)
+		copy.uid = "gate_spare" .. index
+		copy.variant = variant
+		copy.spotId = nil
+		copy.locked = false
+		copy.level = index * 3
+		cats[copy.uid] = copy
+	end
+	Scenes._lateCats = true
+	UI.update({ cats = cats })
+end
+
+local function lateWindow(name)
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local window = modals and modals:FindFirstChild(name, true)
+	assert(window, "uigate: no " .. name .. " window (#2651)")
+	return window
+end
+
 -- #2078: a Rescue Rally bar's count ("45 / 90") clear of every step marker, each marker's number (the points it
 -- pays at) under it, numbers and markers clear of each other, and all of it above `belowY` (the next row's top).
 local function assertRallyBar(track, expected, belowY)
@@ -1973,6 +2041,124 @@ local SCENES = {
 		assert(not rest.Enabled and not work.Enabled, "uigate: the Cat income switch left a tag on (#2868)")
 		tags:destroy()
 		plot:Destroy()
+	end },
+	-- #2651 part 4 (late-stations.md section 1): the Oasis Spa card, a cat 3 h 10 m in (+3 levels, Collect lit), an
+	-- empty slot and slot 3 for 250 golden fish
+	{ "OasisSpa", function()
+		UI.lateStations.update(lateState(3 * 3600 + 600))
+		UI.lateStations.open("spa")
+		assert(UI.isOpen() == "OasisSpa", "uigate: the spa's prompt opened " .. tostring(UI.isOpen()) .. " (#2651)")
+		local window = lateWindow("OasisSpa")
+		local level = window:FindFirstChild("Slot1", true):FindFirstChild("Level")
+		assert(string.match(level.Text, "^Lv %d+ → %d+$"), "uigate: the soaking cat reads " .. level.Text .. " (#2651)")
+		local collect = window:FindFirstChild("Collect", true)
+		local words = collect and collect:FindFirstChildWhichIsA("TextLabel", true)
+		assert(words and words.Text == "Collect +3 levels", "uigate: Collect reads " .. tostring(words and words.Text) .. " (#2904)")
+		local buy = window:FindFirstChild("Slot3", true):FindFirstChild("Action")
+		local price = buy and buy:FindFirstChildWhichIsA("TextLabel", true)
+		local found = false
+		for _, piece in buy:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == "250" then
+				found = true
+			end
+		end
+		assert(found, "uigate: slot 3 does not show its 250 fish price (#2651) " .. tostring(price and price.Text))
+	end },
+	-- #2651 part 4: Add a cat on the empty slot turns the card to the cats that can go in, each with Relax; a press
+	-- sends SpaPut with that slot and the cat
+	{ "OasisSpaPicker", function()
+		UI.lateStations.update(lateState(3 * 3600 + 600))
+		UI.lateStations.open("spa")
+		press("OasisSpa", "Slot2.Action")
+		local picker = lateWindow("OasisSpa"):FindFirstChild("Picker", true)
+		assert(picker and picker.Visible, "uigate: Add a cat did not open the cat list (#2651)")
+		local list = picker:FindFirstChild("List")
+		local rows = 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") then
+				rows += 1
+				assert(row.Name ~= "gate_5", "uigate: the cat already soaking is in the list (#2651)")
+			end
+		end
+		assert(rows >= 10, "uigate: the cat list has only " .. rows .. " cats (#2651)")
+		local sent = nil
+		local connection = UI.events.lateStation:Connect(function(remote, slot, uid)
+			sent = remote .. ":" .. tostring(slot) .. ":" .. tostring(uid)
+		end)
+		local first = nil
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") and (first == nil or row.LayoutOrder < first.LayoutOrder) then
+				first = row
+			end
+		end
+		press("OasisSpa", "Picker.List." .. first.Name .. ".Relax")
+		connection:Disconnect()
+		assert(sent == "SpaPut:2:" .. first.Name, "uigate: Relax sent " .. tostring(sent) .. " (#2651)")
+		-- the list again, for the screenshot
+		UI.lateStations.update(lateState(3 * 3600 + 600))
+		press("OasisSpa", "Slot2.Action")
+	end },
+	-- #2651 part 4: Take out on a cat 20 minutes in asks first ("It won't level up.")
+	{ "OasisSpaTakeOut", function()
+		UI.lateStations.update(lateState(20 * 60))
+		UI.lateStations.open("spa")
+		press("OasisSpa", "Slot1.Action")
+		local window = lateWindow("OasisSpa")
+		local confirm = window:FindFirstChild("Confirm", true)
+		assert(confirm and confirm.Visible, "uigate: Take out did not ask first (#2651)")
+		local ask = confirm:FindFirstChild("Ask")
+		assert(string.find(ask.Text, "out now? It won't level up.", 1, true), "uigate: the question reads " .. ask.Text .. " (#2651)")
+	end },
+	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one
+	-- gold), one that can be filled with its green "!", the rest silhouettes with "You have n"
+	{ "RelicMuseum", function()
+		lateCats()
+		UI.lateStations.update(lateState(nil))
+		UI.lateStations.open("museum")
+		assert(UI.isOpen() == "RelicMuseum", "uigate: the museum's prompt opened " .. tostring(UI.isOpen()) .. " (#2651)")
+		local window = lateWindow("RelicMuseum")
+		local title = window:FindFirstChild("Room", true)
+		assert(string.match(title.Text, "Hall 2/10$"), "uigate: the room reads " .. title.Text .. " (#2651)")
+		local dots = 0
+		for _, piece in window:GetDescendants() do
+			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
+				dots += 1
+			end
+		end
+		assert(dots == 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+	end },
+	-- #2651 part 4: tapping the exhibit with a ! lists its copies weakest first; the gold copy asks first
+	{ "RelicMuseumGive", function()
+		lateCats()
+		UI.lateStations.update(lateState(nil))
+		UI.lateStations.open("museum")
+		local window = lateWindow("RelicMuseum")
+		local tile = nil
+		for _, piece in window:GetDescendants() do
+			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
+				tile = piece.Parent
+			end
+		end
+		press("RelicMuseum", tile.Name)
+		local give = window:FindFirstChild("Give", true)
+		assert(give and give.Visible, "uigate: the exhibit did not list its copies (#2651)")
+		local list = give:FindFirstChild("List")
+		local order = {}
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") then
+				order[row.LayoutOrder] = row.Name
+			end
+		end
+		assert(order[1] == "gate_spare1", "uigate: the weakest copy is not first (#2651): " .. tostring(order[1]))
+		local sent = nil
+		local connection = UI.events.lateStation:Connect(function(remote, uid)
+			sent = remote .. ":" .. tostring(uid)
+		end)
+		press("RelicMuseum", "Give.List.gate_spare2.Give")
+		local confirm = window:FindFirstChild("Confirm", true)
+		assert(confirm.Visible and sent == nil, "uigate: the gold copy did not ask first (#2651)")
+		assert(confirm:FindFirstChild("Ask").Text == "This is a gold cat. Give it anyway?", "uigate: the gold warning reads " .. confirm:FindFirstChild("Ask").Text)
+		connection:Disconnect()
 	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
@@ -7088,6 +7274,10 @@ function Scenes.close()
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
+	if Scenes._lateCats then
+		Scenes._lateCats = nil
+		UI.update({ cats = samplePlayer(os.time()).cats }) -- #2651's Museum scenes
+	end
 	if game:GetService("Players").LocalPlayer:GetAttribute("GoldenPondPass") ~= nil then
 		-- #1463: no Golden Pond owner outside its scene, and the sample player's Tier 3 back
 		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", nil)

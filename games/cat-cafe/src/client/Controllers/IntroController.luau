@@ -192,6 +192,23 @@ local synced = false -- the first ProfileSync has come, so it is known whether t
 local gaveUp = false
 
 -- The PlayerModule's controls, or nil when the default player scripts are not there.
+-- #2967 (console pass 2): a caption that opens with "Tap" ("Tap as each circle closes!") names the input the player
+-- last used: "Press A" on a gamepad, "Click" with a mouse or keyboard, "Tap" on touch.
+local function deviceCaption(caption: string?): string?
+	if caption == nil or caption:sub(1, 4) ~= "Tap " then
+		return caption
+	end
+	local last = UserInputService:GetLastInputType().Name
+	if last:sub(1, 7) == "Gamepad" then
+		return "Press A " .. caption:sub(5)
+	elseif
+		last == "Touch" or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+	then
+		return caption
+	end
+	return "Click " .. caption:sub(5)
+end
+
 local function controls(): any?
 	local scripts = player:FindFirstChildOfClass("PlayerScripts")
 	local module = if scripts ~= nil then scripts:FindFirstChild("PlayerModule") else nil
@@ -1028,7 +1045,7 @@ local function enterShot(r: Run, position: number)
 	end
 
 	-- #2182: the hold fills the caption's read bar (UI-Engineer's fourth argument; the UI ignores it until then)
-	(UI.intro :: any).setShot(shot.index, shot.caption, nil, shot.hold)
+	(UI.intro :: any).setShot(shot.index, deviceCaption(shot.caption), nil, shot.hold)
 	Moments.IntroShot:Fire(shot.index)
 end
 

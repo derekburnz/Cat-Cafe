@@ -9,12 +9,16 @@
 --   showAfter()                   the first button was pressed: its thank-you words and Close alone
 --   hide()
 --   isShowing() -> boolean
+-- #2968 (console pass 2): on a gamepad the card takes the selection as it shows (GamepadNav.focus), B closes it as
+-- Close does, and the selection from before comes back when it goes.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local GiftCardLogic = require(script.Parent.Parent.Components.GiftCardLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -55,6 +59,8 @@ function GiftCard.new(parent: Instance): GiftCard
 	self._onButton = nil :: ((button: string?) -> ())?
 	self._single = false -- #2705: Got it alone
 	self._kind = "like" :: GiftCardLogic.Kind
+	self._focused = false -- #2968: the card took the gamepad selection; hide hands `_before` back
+	self._before = nil :: GuiObject?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeGift",
@@ -210,6 +216,17 @@ function GiftCard.new(parent: Instance): GiftCard
 			self:_layout()
 		end
 	end)
+	-- #2968: B closes the card while the selection is on it (or on nothing), as Close does
+	self._back = UserInputService.InputBegan:Connect(function(input: InputObject)
+		if input.KeyCode ~= Enum.KeyCode.ButtonB or not card.Visible then
+			return
+		end
+		local selected = GuiService.SelectedObject
+		if selected == nil or selected:IsDescendantOf(card) then
+			self:_press(GiftCardLogic.CLOSE_BUTTON)
+			self:hide()
+		end
+	end)
 	return self :: GiftCard
 end
 
@@ -263,7 +280,21 @@ function GiftCard.show(
 		self._pop.Scale = 0.6
 		TweenService:Create(self._pop, POP, { Scale = 1 }):Play()
 	end
+	if not self._focused then
+		local before, took = GamepadNav.focus(card)
+		self._focused, self._before = took, before
+	end
 	Sound.play("giftClaim")
+end
+
+-- #2968: Close's own button face, for the selection once the first button has gone (GamepadNav skips a Close).
+function GiftCard._closeFace(self: any): GuiButton?
+	for _, piece in self._closeButton.instance:GetDescendants() do
+		if piece:IsA("GuiButton") and (piece :: GuiButton).Selectable then
+			return piece :: GuiButton
+		end
+	end
+	return nil
 end
 
 -- The first button was pressed: its thank-you words, and Close alone in the middle.
@@ -275,6 +306,11 @@ function GiftCard.showAfter(self: any)
 	self._action.instance.Visible = false
 	self._closeButton.instance.Size = UDim2.new(0.5, -GAP / 2, 0, Theme.sizes.touchMin)
 	self:_layout()
+	-- #2968: the selection was on the first button, which has gone; Close takes it
+	local selected = GuiService.SelectedObject
+	if self._focused and (selected == nil or selected:IsDescendantOf(self._action.instance)) then
+		GuiService.SelectedObject = self:_closeFace()
+	end
 end
 
 -- The first press reports; a later one (Close after Like) does not.
@@ -294,6 +330,14 @@ end
 function GiftCard.hide(self: any)
 	self:_finish(nil)
 	self._card.Visible = false
+	if self._focused then
+		self._focused = false
+		local selected = GuiService.SelectedObject
+		if selected == nil or selected:IsDescendantOf(self._card) then
+			GamepadNav.restore(self._before)
+		end
+		self._before = nil
+	end
 end
 
 function GiftCard.isShowing(self: any): boolean
@@ -303,6 +347,7 @@ end
 function GiftCard.destroy(self: any)
 	self:_finish(nil)
 	self._resize:Disconnect()
+	self._back:Disconnect()
 	self._action:destroy()
 	self._closeButton:destroy()
 	self._chips:destroy()

@@ -87,6 +87,17 @@ local function mark(model: Model?, name: string): number?
 	return if type(value) == "number" then value else nil
 end
 
+-- #2966: the bar's key cap for the input the player last used (its UserInputType name): Y on a gamepad, Q on a
+-- keyboard or mouse with a keyboard, nil (no cap) on touch or with no keyboard.
+function TackleBar.keyCap(lastInput: string, keyboard: boolean): string?
+	if lastInput:sub(1, 7) == "Gamepad" then
+		return "Y"
+	elseif keyboard and lastInput ~= "Touch" then
+		return "Q"
+	end
+	return nil
+end
+
 function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	local self = setmetatable({}, TackleBar) :: any
 	self._callbacks = callbacks
@@ -168,7 +179,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	Outline.text(word, 2)
 	self._word = word
 
-	if UserInputService.KeyboardEnabled then
+	do
 		local key: TextLabel = Create("TextLabel", {
 			Name = "Key",
 			BackgroundColor3 = Theme.colors.paper,
@@ -184,6 +195,18 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 			Parent = bar,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, 6) }) })
 		Outline.border(key, 2)
+		-- #2966 (console pass 2): the cap names the input the player last used, Y on a gamepad and Q on a keyboard,
+		-- and hides on touch with no keyboard
+		local function capFor()
+			local cap = TackleBar.keyCap(
+				UserInputService:GetLastInputType().Name,
+				UserInputService.KeyboardEnabled
+			)
+			key.Visible = cap ~= nil
+			key.Text = cap or ""
+		end
+		capFor()
+		table.insert(self._connections, UserInputService.LastInputTypeChanged:Connect(capFor))
 	end
 
 	table.insert(

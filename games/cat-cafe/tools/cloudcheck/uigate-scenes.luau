@@ -1762,6 +1762,9 @@ local SCENES = {
 				end
 			end
 		end
+		-- let the day's and the party's toasts age past TipQueue.TOAST_QUIET, so the scenes after start on a quiet
+		-- moment (FirstVisitAway's card waits for one)
+		UIShim.advance(21)
 	end },
 	-- #2880 (Derek2: "the pop ups ... are too early and too often"): no slide-in ask in a session's first minutes, and
 	-- none right after another; once the gap has passed the next one shows

@@ -53,6 +53,7 @@ local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
+local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
 
 type Profile = Types.PlayerProfile
 
@@ -64,6 +65,9 @@ export type TransactionType = "Gameplay" | "Onboarding" | "Shop" | "TimedReward"
 export type CustomEvent =
 	"rank_up"
 	| "session_end"
+	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
+	-- (else since the join); fields: "1", "2", "3" or "4+" (the account's nth buy), the upgrade id, the new level
+	| "upgrade_bought"
 	| "offline_claim"
 	| "dealer_buy"
 	-- F94 (rewards-and-shops.md section 6): a Fresh Catch buy, value the golden fish spent; the row id, tier
@@ -399,6 +403,7 @@ local FIELD_KEYS = {
 type Session = {
 	accounted: number, -- lifetimeCoins already logged, as tips or as a Source of its own
 	joinedAt: number,
+	lastUpgradeAt: number?, -- #2996: os.time() of this session's last upgrade buy
 	caughtAtJoin: number,
 	device: string?, -- from the client's one device report
 	joinLogged: boolean,
@@ -656,6 +661,24 @@ end
 -- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
 function Telemetry.stepTime(player: Player, profile: Profile, name: string)
 	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
+end
+
+-- #2996: call right after an upgrade's level went up. Logs how long after the previous buy it came, so the first
+-- three buys' spacing can be read per day (shared/UpgradePace).
+function Telemetry.upgradeBought(player: Player, profile: Profile, upgradeId: string, level: number)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local now = os.time()
+	local gap = UpgradePace.gap(now, session.lastUpgradeAt, session.joinedAt)
+	session.lastUpgradeAt = now
+	Telemetry.custom(
+		player,
+		"upgrade_bought",
+		gap,
+		{ UpgradePace.nth(UpgradePace.bought(profile.upgradeLevels)), upgradeId, tostring(level) }
+	)
 end
 
 -- Call right after Economy.credit(profile, amount) for anything that is not cafe income (section 5).

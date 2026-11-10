@@ -12,9 +12,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.0,
-       6.3,
-       1.0
+       0.0,
+       1.3,
+       2.34
       ],
       "orientation": [
        [
@@ -36,14 +36,14 @@
      }
     },
     "Size": [
-     4.8,
-     4.8,
-     4.8
+     33.0,
+     1.6,
+     2.28
     ],
     "Color": [
-     0.3725,
-     0.7216,
-     0.3529
+     0.2431,
+     0.498,
+     0.3059
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -52,13 +52,12 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Shape": "Ball",
     "PivotOffset": {
      "CFrame": {
       "position": [
-       5.0,
-       -6.3,
-       -1.0
+       0.0,
+       -1.3,
+       -2.34
       ],
       "orientation": [
        [
@@ -115,7 +114,7 @@
      }
     },
     "Size": [
-     19.0,
+     34.0,
      0.65,
      0.5
     ],
@@ -164,7 +163,7 @@
      }
     },
     "Size": [
-     19.0,
+     34.0,
      0.65,
      0.5
     ],
@@ -189,7 +188,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.25,
+       -16.75,
        0.325,
        0.0
       ],
@@ -238,7 +237,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.25,
+       16.75,
        0.325,
        0.0
       ],
@@ -311,7 +310,7 @@
      }
     },
     "Size": [
-     18.0,
+     33.0,
      0.5,
      6.0
     ],
@@ -336,56 +335,196 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       -14.6,
+       2.1,
+       2.1
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.4,
+     0.825,
+     1.35
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.7333,
+       2.1,
+       2.1
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.4,
+     0.825,
+     1.35
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -4.8667,
+       2.1,
+       2.1
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.4,
+     0.825,
+     1.35
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        0.0,
-       1.3,
-       2.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     18.0,
-     1.6,
-     2.28
-    ],
-    "Color": [
-     0.2431,
-     0.498,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_GardenEnd",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.1,
        2.1,
        2.1
       ],
@@ -448,7 +587,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.3667,
+       4.8667,
        2.1,
        2.1
       ],
@@ -511,7 +650,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.3667,
+       9.7333,
        2.1,
        2.1
       ],
@@ -574,7 +713,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.1,
+       14.6,
        2.1,
        2.1
       ],
@@ -637,7 +776,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.0,
+       -11.3333,
        1.3,
        1.0
       ],
@@ -687,7 +826,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.0,
+       -11.3333,
        3.9,
        1.0
       ],
@@ -737,270 +876,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.5,
-       5.4,
-       0.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     3.0,
-     3.0,
-     3.0
-    ],
-    "Color": [
-     0.2431,
-     0.498,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Ball"
-   }
-  },
-  {
-   "name": "CatCafe_Square_GardenEnd",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.4,
-       5.6,
-       1.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.1,
-     1.89,
-     2.1
-    ],
-    "Color": [
-     0.3725,
-     0.7216,
-     0.3529
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   },
-   "children": [
-    {
-     "name": "Mesh",
-     "className": "SpecialMesh",
-     "properties": {
-      "MeshType": "Sphere",
-      "Scale": [
-       1.3333,
-       1.3333,
-       1.3333
-      ]
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Square_GardenEnd",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.8,
-       7.8,
-       1.3
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     2.6,
-     2.6
-    ],
-    "Color": [
-     0.2431,
-     0.498,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Ball"
-   }
-  },
-  {
-   "name": "CatCafe_Square_GardenEnd",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.0,
-       1.3,
-       1.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.835,
-     0.835
-    ],
-    "Color": [
-     0.4784,
-     0.3098,
-     0.1804
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Square_GardenEnd",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.0,
-       3.9,
-       1.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.705,
-     0.705
-    ],
-    "Color": [
-     0.4784,
-     0.3098,
-     0.1804
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Square_GardenEnd",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.0,
+       -11.3333,
        6.3,
        1.0
       ],
@@ -1050,7 +926,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.5,
+       -9.8333,
        5.4,
        0.6
       ],
@@ -1100,7 +976,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.6,
+       -12.7333,
        5.6,
        1.5
       ],
@@ -1163,7 +1039,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.2,
+       -11.1333,
        7.8,
        1.3
       ],
@@ -1213,19 +1089,19 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.0,
-       0.95,
-       0.4
+       0.0,
+       1.3,
+       1.0
       ],
       "orientation": [
        [
-        1.0,
         0.0,
+        -1.0,
         0.0
        ],
        [
-        0.0,
         1.0,
+        0.0,
         0.0
        ],
        [
@@ -1237,14 +1113,14 @@
      }
     },
     "Size": [
-     1.7,
-     1.7,
-     1.7
+     2.6,
+     0.835,
+     0.835
     ],
     "Color": [
-     0.2431,
-     0.498,
-     0.3059
+     0.4784,
+     0.3098,
+     0.1804
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -1253,7 +1129,7 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Shape": "Ball"
+    "Shape": "Cylinder"
    }
   },
   {
@@ -1264,6 +1140,582 @@
      "CFrame": {
       "position": [
        0.0,
+       3.9,
+       1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.705,
+     0.705
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       6.3,
+       1.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.8,
+     4.8,
+     4.8
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       5.4,
+       0.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.0,
+     3.0,
+     3.0
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.4,
+       5.6,
+       1.5
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.1,
+     1.89,
+     2.1
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2,
+       7.8,
+       1.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     2.6,
+     2.6
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.3333,
+       1.3,
+       1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.835,
+     0.835
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.3333,
+       3.9,
+       1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.705,
+     0.705
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.3333,
+       6.3,
+       1.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.8,
+     4.8,
+     4.8
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.8333,
+       5.4,
+       0.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.0,
+     3.0,
+     3.0
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       9.9333,
+       5.6,
+       1.5
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.1,
+     1.89,
+     2.1
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.5333,
+       7.8,
+       1.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     2.6,
+     2.6
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.5,
        0.95,
        0.4
       ],
@@ -1313,7 +1765,107 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.0,
+       -5.1667,
+       0.95,
+       0.4
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.7,
+     1.7,
+     1.7
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.1667,
+       0.95,
+       0.4
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.7,
+     1.7,
+     1.7
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Square_GardenEnd",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.5,
        0.95,
        0.4
       ],
@@ -1369,7 +1921,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.85,
+         -15.35,
          0.68,
          -2.1
         ],
@@ -1412,7 +1964,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         7.85,
+         15.35,
          -0.68,
          2.1
         ],
@@ -1447,7 +1999,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.2998,
+         -15.7998,
          0.668,
          -1.9322
         ],
@@ -1496,7 +2048,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.0168,
+         -15.5168,
          0.656,
          -2.3236
         ],
@@ -1545,7 +2097,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.6329,
+         -15.1329,
          0.644,
          -1.9699
         ],
@@ -1594,7 +2146,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.1833,
+         -12.7667,
          0.68,
          -2.1
         ],
@@ -1643,7 +2195,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.6332,
+         -13.2165,
          0.668,
          -1.9322
         ],
@@ -1692,7 +2244,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.3502,
+         -12.9335,
          0.656,
          -2.3236
         ],
@@ -1741,7 +2293,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -4.9663,
+         -12.5496,
          0.644,
          -1.9699
         ],
@@ -1790,7 +2342,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -2.5167,
+         -10.1833,
          0.68,
          -2.1
         ],
@@ -1839,7 +2391,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -2.9665,
+         -10.6332,
          0.668,
          -1.9322
         ],
@@ -1888,7 +2440,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -2.6835,
+         -10.3502,
          0.656,
          -2.3236
         ],
@@ -1937,7 +2489,595 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -2.2996,
+         -9.9663,
+         0.644,
+         -1.9699
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.288,
+       0.288,
+       0.288
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.6,
+         0.68,
+         -2.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.36,
+       0.36
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.0498,
+         0.668,
+         -1.9322
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.336,
+       0.336,
+       0.336
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.7668,
+         0.656,
+         -2.3236
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.312,
+       0.312,
+       0.312
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.3829,
+         0.644,
+         -1.9699
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.288,
+       0.288,
+       0.288
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.0167,
+         0.68,
+         -2.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.36,
+       0.36
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.4665,
+         0.668,
+         -1.9322
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.336,
+       0.336,
+       0.336
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.1835,
+         0.656,
+         -2.3236
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.312,
+       0.312,
+       0.312
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.7996,
+         0.644,
+         -1.9699
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.288,
+       0.288,
+       0.288
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.4333,
+         0.68,
+         -2.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.36,
+       0.36
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.8832,
+         0.668,
+         -1.9322
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.336,
+       0.336,
+       0.336
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.6002,
+         0.656,
+         -2.3236
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.312,
+       0.312,
+       0.312
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.2163,
          0.644,
          -1.9699
         ],
@@ -2182,7 +3322,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.8167,
+         2.7333,
          0.68,
          -2.1
         ],
@@ -2231,7 +3371,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.3668,
+         2.2835,
          0.668,
          -1.9322
         ],
@@ -2280,7 +3420,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.6498,
+         2.5665,
          0.656,
          -2.3236
         ],
@@ -2329,7 +3469,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         3.0337,
+         2.9504,
          0.644,
          -1.9699
         ],
@@ -2378,7 +3518,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.4833,
+         5.3167,
          0.68,
          -2.1
         ],
@@ -2427,7 +3567,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.0335,
+         4.8668,
          0.668,
          -1.9322
         ],
@@ -2476,7 +3616,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.3165,
+         5.1498,
          0.656,
          -2.3236
         ],
@@ -2525,7 +3665,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.7004,
+         5.5337,
          0.644,
          -1.9699
         ],
@@ -2574,7 +3714,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.15,
+         7.9,
          0.68,
          -2.1
         ],
@@ -2623,7 +3763,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.7002,
+         7.4502,
          0.668,
          -1.9322
         ],
@@ -2672,7 +3812,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.9832,
+         7.7332,
          0.656,
          -2.3236
         ],
@@ -2721,7 +3861,595 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.3671,
+         8.1171,
+         0.644,
+         -1.9699
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.288,
+       0.288,
+       0.288
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.4833,
+         0.68,
+         -2.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.36,
+       0.36
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.0335,
+         0.668,
+         -1.9322
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.336,
+       0.336,
+       0.336
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.3165,
+         0.656,
+         -2.3236
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.312,
+       0.312,
+       0.312
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.7004,
+         0.644,
+         -1.9699
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.288,
+       0.288,
+       0.288
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         13.0667,
+         0.68,
+         -2.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.36,
+       0.36
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.6168,
+         0.668,
+         -1.9322
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.336,
+       0.336,
+       0.336
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.8998,
+         0.656,
+         -2.3236
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.312,
+       0.312,
+       0.312
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         13.2837,
+         0.644,
+         -1.9699
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.288,
+       0.288,
+       0.288
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.65,
+         0.68,
+         -2.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.36,
+       0.36
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.2002,
+         0.668,
+         -1.9322
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.336,
+       0.336,
+       0.336
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.4832,
+         0.656,
+         -2.3236
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.312,
+       0.312,
+       0.312
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Square_GardenEnd_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.8671,
          0.644,
          -1.9699
         ],

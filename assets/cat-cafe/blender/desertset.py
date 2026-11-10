@@ -7,16 +7,19 @@ part, with the camp (CatCafe_Camp_Desert, camps.py) 30 more across its -Z end, o
                        opening (CampOpeningWidth) at x 0 on z -280.
 
 No grass anywhere (section 3): the whole floor is sand, the paths packed sand and flagstones, and the edges dunes,
-red mesas and broken sandstone walls 11 to 16 high. Every blocker stands taller than a jump (about 7.2) with a
-`_Barrier` BLOCK_OVER over its top, and none runs wall to wall, so the way on is a short walk round an end. The
-zones, camp first (the Oasis Camp is the camp set's):
+red mesas and broken sandstone walls 11 to 16 high. No blocker runs wall to wall, so the way on is a short walk
+round an end. Nothing invisible stands inside the area (#2897, Derek2 11-10): every blocker stops a player where it
+is drawn and a nimble player may climb one; the only _Barrier is the 30 high ring in the border's wall band, which
+starts BAR_IN behind the border's drawn faces. invisible_walls.py checks it. The zones, camp first (the Oasis Camp is
+the camp set's):
 
-  z -276 to -110   the Dune Sea: two dune ridges 8 to 8.5 high cross the width as islands (z -215: x -54 to -12 and
-                   16 to 52; z -150: x -40 to 10 and 34 to the east wall), low walkable dune humps on the trail, sand
-                   ripples, half buried pots and old crates
+  z -276 to -110   the Dune Sea: two dune ridges 7.5 to 8.5 high cross the width as islands (z -215: x -54 to -12
+                   and 16 to 52; z -150: x -40 to 10 and 34 to the east wall), each a row of crested dunes with
+                   their horns curving away, low walkable dune humps on the trail, sand ripples, half buried pots
+                   and old crates
   z -110 to -20    the Red Canyon: two red rock masses of stepped buttes 11 to 18 high (x -71.5 to -9 and 9 to 54, strata bands, rock faces)
                    leave the slot canyon 18 wide up the middle, a side alcove off each wall of it, and a side passage
-                   17.5 wide along the east wall; a 30 high barrier over each mass
+                   17.5 wide along the east wall
   z -20 to 150     the Mirage Flats: a pan of cracked clay, sunk between sandstone terraces (two steps of 1.2 up to
                    the walls, ramps here and there), the only open sightlines; a mesa ridge 11 high as two islands
                    at z 60 (x -40 to -6 and 18 to 44), a broken caravan, striped shade canopies
@@ -57,7 +60,7 @@ WALL_D = 3.0
 IN_X, IN_Z = HALF_X - 0.5 - WALL_D, HALF_Z - 0.5 - WALL_D       # 71.5, 276.5
 GATE_HALF = 12.0                        # CampOpeningWidth 24
 BARRIER_H = 30.0
-BLOCK_OVER = 1.0
+BAR_IN = 0.8                            # the border's barrier starts this far into the wall band (#2897)
 TRAIL_W = 7.0
 
 # the palette (section 4): sand, sandstone, canyon red, oasis teal, the canopies' stripes in the rarity colours
@@ -167,20 +170,20 @@ def _ground():
 
 # -------------------------------------------------------------------------------------------------- walls --
 def _seg_dune(b, L, k):
-    """A sand bank against the wall: a bank 8.5 to 10 high in three rolling pieces, each a long slope leaning 3.4
-    into the area (a wedge, not a blob), a lighter crest along its top and wind ripples down the slope."""
+    """A sand bank against the wall: a bank 8.5 to 10 high in three rolling pieces, each a dune's rounded windward
+    slope (dune_piece's facets, #2897) leaning 4.2 into the area up to its crest BAR_IN behind the face line, so the
+    border's barrier starts right at the crest, the bank behind it and a lighter crest along its top."""
     n = 3
     w = L / n
+    R = Matrix(((0, 0, 1), (1, 0, 0), (0, 1, 0)))                 # profile (y, up), run along x
     for i in range(n):
         x = -L / 2 + (i + 0.5) * w
         H = 8.5 + 1.5 * (((i * 2 + k) % 3) / 2)
-        b.box_base((x, 1.8, 0), (w + 0.02 * i, 2.4, H), SAND_DUNE, bevel=False)                     # the bank
-        b.wedge((x, -0.9, H * 0.42), (w + 0.03 * i, 3.4, H * 0.84), SAND_DUNE, bevel=False)         # its slope
+        c = BAR_IN
+        prof = [(-3.4, 0.0), (-2.5, 0.2 * H), (-1.55, 0.52 * H), (-0.6, 0.85 * H), (c, H)]
+        b.fan((x, 0, 0), (c, 0.0), prof, w + 0.02 * i, SAND_DUNE, rot=R)                         # the slope
+        b.box_base((x, (c + WALL_D) / 2, 0), (w + 0.02 * i, WALL_D - c, H), SAND_DUNE, bevel=False)   # the bank
         b.box_base((x, 1.5, H), (w * 0.9, 1.4, 0.35), SAND, bevel=False)                            # the crest
-        a = math.atan2(H * 0.84, 3.4)
-        for t in (0.3, 0.62):                                                                       # ripples
-            b.box((x, -2.6 + 3.4 * t - 0.05, H * 0.84 * t + 0.06), (w * 0.8, 0.5, 0.08), SAND, bevel=False,
-                  rot=(a, "X"))
 
 
 def _seg_mesa(b, L, k):
@@ -269,56 +272,112 @@ def _walls(s, mat):
         s.put(lamp(mat), sx * (GATE_HALF + 2.0), -IN_Z + 2.0, 0)  # either side of the way in
     bar = Builder()
     ox = IN_X + WALL_D
-    bar.box_base((0, IN_Z + WALL_D / 2, 0), (2 * ox, WALL_D, BARRIER_H), "offwhite", bevel=False)               # far
+    T = WALL_D - BAR_IN                    # the barrier starts BAR_IN inside the wall band, behind every drawn face
+    mid = IN_Z + BAR_IN + T / 2
+    bar.box_base((0, mid, 0), (2 * ox, T, BARRIER_H), "offwhite", bevel=False)                                # far
     for sx in (-1, 1):
-        bar.box_base((sx * (IN_X + WALL_D / 2), 0, 0), (WALL_D, 2 * IN_Z, BARRIER_H), "offwhite", bevel=False)  # sides
-        bar.box_base((sx * (GATE_HALF + ox) / 2, -(IN_Z + WALL_D / 2), 0), (ox - GATE_HALF, WALL_D, BARRIER_H),
-                     "offwhite", bevel=False)                                                                 # camp
+        bar.box_base((sx * (IN_X + BAR_IN + T / 2), 0, 0), (T, 2 * IN_Z, BARRIER_H), "offwhite", bevel=False)   # sides
+        bar.box_base((sx * (GATE_HALF + ox) / 2, -mid, 0), (ox - GATE_HALF, T, BARRIER_H), "offwhite",
+                     bevel=False)                                                                             # camp
     s.put([bar.finalize(N + "Walls_Barrier", mat)], 0, 0, 0)
 
 
 # -------------------------------------------------------------------------------------------- the blockers --
+DUNE_WIND, DUNE_LEE = 10.0, 6.0         # a dune's windward slope (toward the camp, -Z) and its slip face, at DUNE_TOP
+
+
+def _windward_yaw(dx, dz):
+    """The turn (radians, for dune_piece) that faces a dune's windward slope along area direction (dx, dz)."""
+    return math.atan2(-dx, -dz)
+
+
+def _panel(b, A, B, C, sw, thick=0.4):
+    """A flat triangle A, B, C (Builder space) as a panel `thick` deep behind it, its outside the side the corners
+    run counter-clockwise round (two WedgeParts in Roblox, thick enough to collide)."""
+    A, B, C = Vector(A), Vector(B), Vector(C)
+    n = (B - A).cross(C - A)
+    if n.length < 1e-6:
+        return
+    n.normalize()
+    u = (B - A).normalized()
+    v = n.cross(u)
+    R = Matrix((u, v, n)).transposed()
+    b.fan(tuple(A - n * (thick / 2)), (0.0, 0.0), [((B - A).dot(u), 0.0), ((C - A).dot(u), (C - A).dot(v))], thick,
+          sw, rot=R)
+
+
+def dune_piece(b, x, z, L, h, yaw=0.0, wind=None, lee=None, hip=0.7, sw=SAND, sw_lee=SAND_DUNE):
+    """One length of dune, L long, its crest h high over area (x, z) (#2897): a long windward slope that rounds over
+    toward the crest in four facets, the sharp crest, and a straight, shaded slip face down the other side, each end
+    sloping away to the sand in a hip hip * h long, so no flat end shows. Its windward slope faces -Z at yaw 0
+    (_windward_yaw turns it). Built of WedgeParts, so it collides exactly where it is drawn: a player walks up it, no
+    barrier."""
+    wind = DUNE_WIND * h / DUNE_TOP if wind is None else wind
+    lee = DUNE_LEE * h / DUNE_TOP if lee is None else lee
+    prof = [(-wind, 0.0), (-0.72 * wind, 0.2 * h), (-0.45 * wind, 0.52 * h), (-0.19 * wind, 0.85 * h), (0.0, h),
+            (lee, 0.0)]
+    R = Matrix.Rotation(yaw, 3, "Z") @ Matrix(((0, 0, 1), (1, 0, 0), (0, 1, 0)))   # profile (z, up), run along x
+    c = Vector(bl(x, z))
+    b.fan(tuple(c), (0.0, 0.0), prof[:5], L, sw, rot=R)
+    b.fan(tuple(c), (0.0, 0.0), prof[4:], L, sw_lee, rot=R)
+    if hip > 0:
+        _hip_ends(b, c, R, prof, L, -0.3 * wind, hip * h, [sw] * (len(prof) - 2) + [sw_lee])
+
+
+def _hip_ends(b, c, R, prof, L, apex_x, e, swatches):
+    """Closes both ends of a profile run L long (profile (x, up) in R's local x, y; the run along its local z, centred
+    on c): a facet from each profile edge down to a point on the sand e past the end, under profile x apex_x."""
+    for end in (-1, 1):
+        apex = c + R @ Vector((apex_x, 0.0, end * (L / 2 + e)))
+        out = R @ Vector((0.0, 0.0, end))
+        for (p0, p1), sw in zip(zip(prof, prof[1:]), swatches):
+            tri = [c + R @ Vector((p0[0], p0[1], end * L / 2)), c + R @ Vector((p1[0], p1[1], end * L / 2)), apex]
+            if (tri[1] - tri[0]).cross(tri[2] - tri[0]).dot(out) < 0:      # face away from the run
+                tri[0], tri[1] = tri[1], tri[0]
+            _panel(b, *tri, sw)
+
+
 def _dune_ridge(s, mat, z, runs):
-    """A dune ridge (runs, x0 to x1), just taller than a jump: long smooth sand bodies, overlapping and staggered so the
-    ridge's foot wanders, each with a narrow crest along its top in the darker dune sand, so the row reads as a sand
-    ridge with a crest line, not as tents or round clumps (Derek2 11-09). The heights roll from dune to dune and the
-    ends tail off in a low drift. A barrier BLOCK_OVER over the crest covers the ridge."""
-    b, bar = Builder(), Builder()
+    """A dune ridge (runs, x0 to x1) just taller than a jump (Derek2 11-09: not tents or round clumps; #2897: finished,
+    and no invisible wall): dunes end to end, each with a long windward slope toward the camp, a sharp crest and a
+    shaded slip face, the crest line wandering and the heights rolling from dune to dune, the ends curving away
+    downwind and stepping down into the sand like a crescent dune's horns. Every piece collides where it is drawn, so
+    a player can climb over a ridge or walk round its end; nothing invisible stands round it."""
+    b = Builder()
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
-        n = max(2, round(L / 17.0))
+        n = max(2, round(L / 13.0))
         step = L / n
         for i in range(n):
             j = i + 3 * k
-            c = a0 + (i + 0.5) * step + 1.0 * ((j % 3) - 1)
-            h = DUNE_TOP - 0.5 * (j % 3) - 0.02 * i              # 7.5 to 8.5
-            ln = step * (0.95 + 0.08 * (j % 2))                    # half its length: the bodies overlap
-            ln = min(ln, IN_X + 1.5 - abs(c))                      # into the side wall, never through it
-            dz = 1.2 * (1 if j % 2 else -1)                        # staggered toward and away from the camp
-            x, _, _ = bl(c, 0)
-            b.sphere((x, z - 2.6 + dz, 0), 1.0, SAND, segments=20, rings=8, scale=(ln, 7.4, h * 0.74))  # the body
-            b.sphere((x + 0.4, z + 0.2 + dz * 0.6, 0), 1.0, SAND_DUNE, segments=16, rings=8,
-                     scale=(ln * 0.72, 2.0, h))                                                     # the crest
-        for e, sgn in ((a0, -1), (a1, 1)):                                    # the ends tail off, low
+            c = a0 + (i + 0.5) * step
+            h = DUNE_TOP - 0.5 * (j % 3)                         # 7.5 to 8.5
+            ln = step + 2.4                                      # into the neighbours
+            hip = 0.7
+            if abs(c) + ln / 2 + hip * h > IN_X:
+                ln = min(ln, 2 * (IN_X + 1.0 - abs(c)))          # into the side dunes, never through the wall
+                hip = 0.0
+            dune_piece(b, c, z + 1.3 * ((j * 2) % 3 - 1), ln, h, math.radians(7.0 * ((j * 5) % 3 - 1)),
+                       wind=DUNE_WIND * (0.9 + 0.12 * (j % 3)), hip=hip)
+        for e, sgn in ((a0, -1), (a1, 1)):                       # the horns, curving downwind (+Z)
             if abs(abs(e) - IN_X) < 1:
                 continue
-            x, _, _ = bl(e + sgn * 1.0, 0)
-            b.sphere((x, z - 2.0, 0), 1.0, SAND_DUNE, segments=12, rings=6, scale=(6.0, 5.0, 1.4))
-        z0, z1 = z - 1.9 - 8.0 - 0.5, z + 4.0 + 3.6 + 0.5
-        x, _, _ = bl((a0 + a1) / 2, 0)
-        bar.box_base((x, (z0 + z1) / 2, 0), (L, z1 - z0, DUNE_TOP + BLOCK_OVER), "offwhite", bevel=False)
-    s.put([b.finalize(N + "DuneRidge", mat), bar.finalize(N + "DuneRidge_Barrier", mat)], 0, 0, 0)
+            for (t, hh, ln, dz, turn) in ((3.0, 0.62, 6.0, 0.8, 12), (6.5, 0.32, 4.0, 2.0, 22)):
+                if near_trail(e + sgn * (t + ln / 2 + 0.7 * DUNE_TOP * hh), z + dz) < TRAIL_W / 2 + 1.0:
+                    break
+                dune_piece(b, e + sgn * t, z + dz, ln, DUNE_TOP * hh, math.radians(-sgn * turn))
+    s.put([b.finalize(N + "DuneRidge", mat)], 0, 0, 0)
 
 
 def _hump(s, mat, x, z, w=TRAIL_W + 4.0):
-    """A low sand hump the trail climbs over (a height change, section 3): up 1.6 over 6, flat 4, down over 6."""
+    """A low sand hump the trail climbs over (a height change, section 3): 1.6 high, a soft rise over 7 each side
+    and a rounded top, its two ends sloping down into the sand. WedgeParts, so it collides where it is drawn."""
     b = Builder()
     H = 1.6
-    for sgn in (-1, 1):
-        b.wedge((0, sgn * 5.0, H / 2), (w, 6.0, H), SAND_DUNE, bevel=False, rot=(0 if sgn > 0 else PI, "Z"))
-    b.box_base((0, 0, 0), (w, 4.02, H), SAND_DUNE, bevel=False)
-    b.ico((-w / 2, 0, 0.6), 2.4, SAND, subdivisions=1, scale=(1.0, 2.6, 0.5))
-    b.ico((w / 2, 0, 0.6), 2.4, SAND, subdivisions=1, scale=(1.0, 2.6, 0.5))
+    prof = [(-7.0, 0.0), (-3.6, 1.0), (-1.4, H), (1.4, H), (3.6, 1.0), (7.0, 0.0)]
+    R = Matrix(((0, 0, 1), (1, 0, 0), (0, 1, 0)))
+    b.fan((0, 0, 0), (0.0, 0.0), prof, w, SAND_DUNE, rot=R)
+    _hip_ends(b, Vector((0, 0, 0)), R, prof, w, 0.0, 3.0, [SAND_DUNE] * (len(prof) - 1))
     s.put([b.finalize(N + "Hump", mat)], x, z, 0)
 
 
@@ -386,7 +445,7 @@ HOODOOS = ((-36.0, -96.0, 9.0), (-38.0, -46.0, 7.5), (-58.0, -82.0, 8.0), (35.0,
            (-25.0, -81.0, 6.5), (25.0, -52.0, 6.0), (46.0, -77.0, 7.0))
 
 
-def _butte(b, bar, x0, x1, z0, z1, H, seed):
+def _butte(b, x0, x1, z0, z1, H, seed):
     """One butte: a notched base (corners cut back so it reads as rock, not a crate) in striped courses, a narrower
     stepped upper tier, sandstone caps, fluted faces round the base and boulders at its foot."""
     W, D = x1 - x0, z1 - z0
@@ -423,7 +482,6 @@ def _butte(b, bar, x0, x1, z0, z1, H, seed):
     _rock_faces(b, x0 + 2.0, x1 - 2.0, z1, 1, seed=seed + 1, H=base)
     _rock_faces_x(b, z0 + 2.0, z1 - 2.0, x0, -1, seed=seed + 2, H=base)
     _rock_faces_x(b, z0 + 2.0, z1 - 2.0, x1, 1, seed=seed + 3, H=base)
-    bar.box_base((x, y, 0), (W, D, BARRIER_H), "offwhite", bevel=False)
 
 
 def hoodoo(mat, h=8.0):
@@ -443,14 +501,14 @@ def _canyon(s, mat):
     """The Red Canyon: separate buttes either side of the slot canyon (x -9 to 9) with sand lanes between them, the
     tallest pair holding the arch, hoodoos in the lanes, fallen boulders in the slot. The slot's old alcoves are the
     lanes' mouths now, so their spots stay open."""
-    b, bar = Builder(), Builder()
+    b = Builder()
     for i, (x0, x1, z0, z1, H) in enumerate(BUTTES):
-        _butte(b, bar, x0, x1, z0, z1, H, i * 3)
+        _butte(b, x0, x1, z0, z1, H, i * 3)
     for sx in (-1, 1):                                       # the arch's rims, full height right to the slot
         x, y, _ = bl(sx * (SLOT_HALF + 3.0), ARCH_Z)
         b.box_base((x, y, 0), (6.0, 12.0, CANYON_H - 0.5), RED, bevel=False)
         b.box_base((x, y, CANYON_H - 0.5), (6.6, 12.6, 0.55), STONE, bevel=False)
-    s.put([b.finalize(N + "Canyon", mat), bar.finalize(N + "Canyon_Barrier", mat)], 0, 0, 0)
+    s.put([b.finalize(N + "Canyon", mat)], 0, 0, 0)
     for (x, z, h) in HOODOOS:
         s.put(hoodoo(mat, h), x, z, (x * 17) % 360)
     for (x, z, r) in ((-6.0, -92.0, 1.6), (6.5, -64.0, 1.3), (-6.5, -36.0, 1.5), (66.0, -84.0, 1.4),
@@ -479,8 +537,8 @@ def rock_arch(mat):
 
 def _mesa_ridge(s, mat, z, runs):
     """Short red mesas across the flats (runs, x0 to x1), MESA_TOP high: a cliff block with strata and a cap, rock
-    faces round its foot, a barrier BLOCK_OVER over the cap."""
-    b, bar = Builder(), Builder()
+    faces round its foot. No barrier (#2897): what is drawn is what stops a player."""
+    b = Builder()
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
         x, y, _ = bl((a0 + a1) / 2, z)
@@ -493,8 +551,7 @@ def _mesa_ridge(s, mat, z, runs):
         for e in (a0, a1):
             xx, yy, _ = bl(e, z)
             b.ico((xx, yy, 2.2), 3.4, RED_LIGHT, subdivisions=1, scale=(0.6, 1.0, 0.9))
-        bar.box_base((x, y, 0), (L + 1.0, 8.6, MESA_TOP + BLOCK_OVER), "offwhite", bevel=False)
-    s.put([b.finalize(N + "MesaRidge", mat), bar.finalize(N + "MesaRidge_Barrier", mat)], 0, 0, 0)
+    s.put([b.finalize(N + "MesaRidge", mat)], 0, 0, 0)
 
 
 def _terraces(s, mat):
@@ -520,8 +577,8 @@ def _terraces(s, mat):
 
 def _ruin_wall(s, mat, z, runs):
     """A broken sandstone wall across the end of the flats (runs, x0 to x1), RUIN_H high with a broken top, a
-    column at each end, sand drifted against it, a barrier BLOCK_OVER over the columns."""
-    b, bar = Builder(), Builder()
+    column at each end, sand drifted against it. No barrier (#2897)."""
+    b = Builder()
     T = 2.4
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
@@ -547,9 +604,7 @@ def _ruin_wall(s, mat, z, runs):
             for side in (-1, 1):
                 xx, yy, _ = bl(c + 2 * side, z + side * 2.2)
                 b.ico((xx, yy, 0.5), 3.2, SAND_DUNE, subdivisions=1, scale=(1.5, 0.6, 0.6))
-        xx, yy, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((xx, yy, 0), (L + 4.0, 4.0, RUIN_H + 2.2 + BLOCK_OVER), "offwhite", bevel=False)
-    s.put([b.finalize(N + "RuinWall", mat), bar.finalize(N + "RuinWall_Barrier", mat)], 0, 0, 0)
+    s.put([b.finalize(N + "RuinWall", mat)], 0, 0, 0)
 
 
 # ---------------------------------------------------------------------------------------------- the pyramid --
@@ -584,12 +639,13 @@ def pyramid(mat):
         b.box((sx * 0.6, -1.22, top + 4.3), (0.35, 0.06, 0.35), "fur_ink", bevel=False)     # eyes
     b.cyl((0, 1.5, top + 7.0), 1.4, 0.3, "rarity_legend", segments=16, rot=(PI / 2, "X"))    # the sun disc
     b.box_base((0, 1.5, top + 5.5), (0.4, 0.3, 0.6), STONE_DARK, bevel=False)
-    for (x, y, r, sx_, sy_, sz_) in ((tw / 2 + 14, tw / 2 + 14, 9.0, 1.3, 1.3, 0.55),
-                                     (-(tw / 2 + 14), tw / 2 + 14, 9.0, 1.3, 1.3, 0.55),
-                                     (PYR_BASE / 2 - 1, -PYR_BASE / 2 + 2, 5.0, 1.4, 1.0, 0.45),
-                                     (-(PYR_BASE / 2 - 1), -PYR_BASE / 2 + 2, 5.0, 1.4, 1.0, 0.45),
-                                     (0, PYR_BASE / 2 + 1, 8.0, 2.2, 0.9, 0.5)):
-        b.ico((x, y, 0.4), r, SAND_DUNE, subdivisions=2, scale=(sx_, sy_, sz_))             # the drifts
+    # the drifts (#2897: dunes of WedgeParts, so they collide where they are drawn, not as a box round a ball): sand
+    # heaped over the two back corners and the back face, smaller drifts at the front corners' feet
+    c = PYR_BASE / 2
+    for sx in (-1, 1):                         # crests on the first tier, slip faces against the second
+        dune_piece(b, sx * (c - 3.5), c - 3.5, 18.0, 5.0, _windward_yaw(sx, 1), wind=13.0, lee=2.0)
+        dune_piece(b, sx * (c - 0.5), -c + 0.5, 9.0, 2.6, _windward_yaw(sx, -1), wind=5.5, lee=1.5)
+    dune_piece(b, 0.0, c - 3.0, 22.0, 4.4, _windward_yaw(0, 1), wind=11.0, lee=1.4)
     return [b.finalize(N + "Pyramid", mat)]
 
 

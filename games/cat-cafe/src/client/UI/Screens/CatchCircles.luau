@@ -42,6 +42,7 @@
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
@@ -136,6 +137,11 @@ type CircleView = {
 	judged: boolean,
 	pressed: boolean,
 	paw: boolean, -- Catch v3: a paw ring, left alone for +1
+	-- #2920: a held ring (a first catch's): it stops on its ring at `target` and waits until `until` for the press
+	hold: boolean,
+	holdUntil: number,
+	prompt: TextLabel?, -- "Tap now!" and the like, pulsing under the held ring
+	promptScale: UIScale?,
 }
 
 local RING_RADIUS = 46 -- design pixels at 1280 x 720
@@ -166,6 +172,10 @@ local PAW_COLOR = Color3.fromHex("E5484D")
 local DOUBLE_COLOR = Theme.colors.sky -- #2005: a double ring's second half, so the two taps read apart
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
+-- #2920: how long a held ring waits on its ring for the press when the schedule does not say (circle.holdSeconds)
+local HOLD_SECONDS = 60
+local HOLD_PULSE = 1.4 -- the prompt's pulses a second
+local HOLD_HINT = "Wait for the circle to reach its ring"
 -- E is not here: it is the hold-to-start key on the catch prompt, and letting go of it would land as a press
 local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 
@@ -540,9 +550,34 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		})
 		Outline.text(tag, 3)
 	end
+	-- #2920 (Derek2: "stop the minigame first circle when its over the circle and prompt them to click or press space
+	-- now"): a held ring's prompt, under it, shown once the circle sits on its ring
+	local held = circle.hold == true
+	local holdFor = circle.holdSeconds
+	local prompt: TextLabel? = nil
+	local promptScale: UIScale? = nil
+	if held then
+		local label: TextLabel = Create("TextLabel", {
+			Name = "HoldPrompt",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0.5, RING_RADIUS + 12),
+			Size = UDim2.fromOffset(240, 36),
+			FontFace = Theme.fonts.display,
+			TextSize = 30,
+			TextColor3 = Theme.colors.gold,
+			Text = "",
+			Visible = false,
+			Parent = art,
+		})
+		Outline.text(label, 3)
+		prompt = label
+		promptScale = Create("UIScale", { Parent = label })
+	end
+	local target = circle.startsAt + shrink
 	return {
 		circle = circle,
-		target = circle.startsAt + shrink,
+		target = target,
 		speed = speed,
 		holder = holder,
 		art = art,
@@ -556,7 +591,30 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		judged = false,
 		pressed = false,
 		paw = paw,
+		hold = held,
+		holdUntil = if held
+			then target + (if type(holdFor) == "number" and holdFor > 0
+				then holdFor
+				else HOLD_SECONDS)
+			else target,
+		prompt = prompt,
+		promptScale = promptScale,
 	}
+end
+
+-- #2920: the held ring's words for the device the player last used
+function CatchCircles.holdWords(lastInput: Enum.UserInputType?): string
+	local kind = lastInput or UserInputService:GetLastInputType()
+	if kind == Enum.UserInputType.Touch then
+		return "Tap now!"
+	elseif kind == Enum.UserInputType.Keyboard then
+		return "Press Space now!"
+	elseif kind.Name:sub(1, 7) == "Gamepad" then
+		return "Press A now!"
+	end
+	return if Scale.isTouch() and kind ~= Enum.UserInputType.MouseButton1
+		then "Tap now!"
+		else "Click now!"
 end
 
 function CatchCircles.show(
@@ -598,6 +656,9 @@ function CatchCircles.show(
 				then "Tap anywhere as each circle meets its ring"
 				else "Press Space or click as each circle meets its ring"
 		)
+	if circles[1] ~= nil and circles[1].hold == true and info.title == nil then
+		self._hint.Text = HOLD_HINT -- #2920: the first catch's ring waits for the press, so no rush
+	end
 	self._header.UIStroke.Color = if info.rainbow
 		then Theme.colors.white
 		elseif info.shiny then Theme.colors.gold
@@ -608,7 +669,7 @@ function CatchCircles.show(
 	for index, circle in circles do
 		local view = self:_buildView(index, circle)
 		table.insert(self._views, view)
-		self._lastTarget = math.max(self._lastTarget, view.target)
+		self._lastTarget = math.max(self._lastTarget, view.holdUntil) -- #2920: a held ring waits past its target
 		table.insert(
 			self._pips,
 			Create("Frame", {
@@ -688,6 +749,24 @@ function CatchCircles._step(self: any, t: number)
 		if started then
 			local radius = RING_RADIUS + (view.target - t) * view.speed
 			radius = math.max(RING_RADIUS - windows.good * view.speed - 8, radius)
+			if view.hold then
+				-- #2920: the held ring stops on its ring and the prompt pulses until the press
+				radius = math.max(RING_RADIUS, radius)
+				local frozen = t >= view.target
+				local prompt = view.prompt
+				if prompt then
+					if frozen and not prompt.Visible then
+						prompt.Text = CatchCircles.holdWords()
+					end
+					prompt.Visible = frozen
+					local promptScale = view.promptScale
+					if promptScale then
+						promptScale.Scale = if frozen and not Motion.reduced()
+							then 1 + 0.1 * math.sin((t - view.target) * HOLD_PULSE * 2 * math.pi)
+							else 1
+					end
+				end
+			end
 			local diameter = 2 * (radius - CLOSER_THICKNESS / 2)
 			view.closer.Size = UDim2.fromOffset(math.max(2, diameter), math.max(2, diameter))
 		end
@@ -709,7 +788,11 @@ function CatchCircles._expire(self: any, t: number)
 	while true do
 		local index: number = self._next
 		local view: CircleView? = self._views[index]
-		if not view or t <= view.target + windows.good + LATENCY_CAP then
+		if
+			not view
+			or t
+				<= (if view.hold then view.holdUntil else view.target + windows.good) + LATENCY_CAP
+		then
 			return
 		end
 		self._next = index + 1
@@ -759,6 +842,29 @@ function CatchCircles._press(self: any)
 	end
 	if t < view.circle.startsAt then
 		return -- before the circle starts: the server ignores it too
+	end
+	if view.hold then
+		-- #2920 (Derek2: "not even let the player click before its in the circle so you cant miss first one"): a
+		-- press before the circle reaches the good band is dropped (the server drops it too, #2921), and any press from
+		-- there until the hold runs out is a Perfect
+		if t < view.target - self._windows.good then
+			return
+		end
+		view.pressed = true
+		if self._v3 then
+			self:_trustBy("perfect")
+		end
+		local prompt = view.prompt
+		if prompt then
+			prompt.Visible = false
+		end
+		self:_showGrade(index, "perfect", false)
+		self._next = index + 1
+		local onPress = self._onPress
+		if onPress then
+			onPress(index, "perfect")
+		end
+		return
 	end
 	if self._v3 then
 		-- Catch v3: every press is graded and the catch goes on whatever it was; a tapped paw ring is a Miss

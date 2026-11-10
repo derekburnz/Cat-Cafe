@@ -576,9 +576,9 @@ local Config = {
 	-- #2920 (Derek2 2026-11-10: "on first catch stop the minigame first circle when its over the circle and prompt them
 	-- ... not even let the player click before its in the circle so you cant miss first one"): a player's very first
 	-- catch (the tutorial stray, no cat caught yet) holds its ring on the target for up to FirstRingHoldSeconds (sent
-	-- on the circle as holdSeconds); on once the Catch screen draws the hold (UI-Engineer). Not CatchHoldSeconds, the
-	-- catch prompt's hold-to-start time
-	CatchHoldFirstRing = false,
+	-- on the circle as holdSeconds); on since the Catch screen draws the hold (UI-Engineer, #2922). Not
+	-- CatchHoldSeconds, the catch prompt's hold-to-start time
+	CatchHoldFirstRing = true,
 	FirstRingHoldSeconds = 60,
 	-- F87 (easy-start.md sections 2g, 3 and 4): the hint pulses after StuckNudgeSeconds on one tutorial step and the
 	-- "Need a hand?" card shows after StuckHelpSeconds (once per step per account); a context tip shows at most once

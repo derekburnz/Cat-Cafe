@@ -7,10 +7,10 @@ return function()
 	local NetSwing = require(Shared.NetSwing)
 
 	describe("First minutes (#2774)", function()
-		it("brings the account's first bait in 45 seconds and leaves later ones alone", function()
-			expect(Config.FirstBaitWaitSeconds).to.equal(45)
-			expect(Bait.firstWait(600, 0)).to.equal(45)
-			expect(Bait.firstWait(300, 0)).to.equal(45)
+		it("brings the account's first bait in 1 second (#2946; 45 before) and leaves later ones alone", function()
+			expect(Config.FirstBaitWaitSeconds).to.equal(1) -- #2946: was 45
+			expect(Bait.firstWait(600, 0)).to.equal(1)
+			expect(Bait.firstWait(300, 0)).to.equal(1)
 			expect(Bait.firstWait(600, 1)).to.equal(600)
 		end)
 

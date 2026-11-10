@@ -1,7 +1,7 @@
 """Roblox badge pictures (#1934, docs/design/cat-cafe/release.md section 1), rendered by icons.py as
 CatCafe_Icon_Badge_<Name> (transparent, outlined, 512 px). Roblox crops badge icons to a circle, so every badge is the
 same round medal that fills that crop (icons.STORE_FIT): a gold rim, a pastel field with a thin cream ring, and one
-simple picture standing out in front of it. Every picture stays inside the medal, so all 20 frame the same way.
+simple picture standing out in front of it. Every picture stays inside the medal, so all 21 frame the same way.
 
 The order is the spec's creation order (5 badges a day from 2026-11-07):
    1 Welcome        Welcome to the Cafe: the little cafe front, mint walls, a pink and white awning, an arched door
@@ -25,6 +25,8 @@ The order is the spec's creation order (5 badges a day from 2026-11-07):
   18 HelpingPaw     two paws meeting in a high five over a pink heart, on mint
   19 FirstTrade     two gift boxes with arrows there and back, on butter
   20 PurrfectStreak five gold footprints walking up to a star, on lilac
+  21 PartyGuest     Cafe Party Guest (live-events.md section 2e): a strawberry-cream cat in a pink party hat under a string of
+                    bunting, with confetti, on sky blue
 
 Built in Blender axes (x right, -y toward the camera, z up), the medal's face in the XZ plane; nothing here is a game
 model.
@@ -441,10 +443,52 @@ def purrfect_streak(mat):
     return _fin(b, "PurrfectStreak", mat)
 
 
+def party_guest(mat):
+    """Cafe Party Guest: a strawberry-cream cat in a pink party hat under a swag of bunting, with confetti all round."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    y, ends, top, sag = -0.2, 1.18, 1.12, 0.26                                               # the bunting
+    flags = ("rarity_mythic", "pastel_butter", "sign_teal", "bowl_red", "aurora_violet", "leaf_green")
+    n = 7
+
+    def at(t):
+        return -ends + 2 * ends * t, top - sag * (1 - (2 * t - 1) ** 2)
+
+    for k in range(16):
+        (x0, z0), (x1, z1) = at(k / 16), at((k + 1) / 16)
+        b.box(((x0 + x1) / 2, y, (z0 + z1) / 2), (math.hypot(x1 - x0, z1 - z0) + 0.03, 0.05, 0.06), "dark_wood",
+              bevel=False, rot=(-math.atan2(z1 - z0, x1 - x0), "Y"))
+    for k in range(n):
+        x, z = at((k + 0.5) / n)
+        b.prism((x, y - 0.03, z - 0.02), [(-0.2, 0.0), (0.2, 0.0), (0.0, -0.44)], 0.07, flags[k % len(flags)], rot=X)
+    for x, z, a, sw in ((-1.3, 0.2, 30, "rarity_mythic"), (-1.0, -0.3, -20, "pastel_butter"),
+                        (-1.38, -0.62, 55, "sign_teal"), (1.28, 0.3, -35, "bowl_red"), (1.02, -0.18, 15, "leaf_green"),
+                        (1.32, -0.6, 60, "aurora_violet"), (1.12, -1.0, 25, "pastel_butter"),
+                        (-1.12, -1.02, -45, "bowl_red")):                                      # confetti
+        b.box((x, -0.45, z), (0.26, 0.06, 0.12), sw, bevel=False, rot=(math.radians(a), "Y"))
+    cat = _sitter(mat, "Cream", at=(0.0, -0.5, -1.05), scale=0.95, yaw=-14)
+    from store_icons import _top
+    x, yy, z = _top(cat)
+    tilt, h, r0 = math.radians(-12), 0.78, 0.3                                                # the party hat
+    ux, uz = math.sin(tilt), math.cos(tilt)                                                   # its axis
+    bx, bz = x - 0.05, z - 0.12                                                               # its base
+
+    def on(f):
+        return (bx + ux * h * f, yy, bz + uz * h * f)
+
+    b.cyl(on(0.5), r0, h, "rarity_mythic", segments=20, radius2=0.03, rot=(tilt, "Y"))
+    for f in (0.2, 0.5):                                                                      # its stripes
+        r = r0 + (0.03 - r0) * f + 0.02
+        b.cyl(on(f), r, 0.08, "pastel_butter", segments=20, radius2=r - 0.03, rot=(tilt, "Y"))
+    b.sphere(on(1.0), 0.12, "pastel_butter")                                                  # the pompom
+    _twinkle(b, 0.95, -0.6, 0.15, 0.3)
+    return _fin(b, "PartyGuest", mat) + cat
+
+
 # name -> builder, in the spec's creation order (release.md section 1)
 BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, "GrandOpening": grand_opening,
           "Purrfect": purrfect, "BaitCat": bait_cat, "RareFind": rare_find, "LegendaryFind": legendary_find,
           "MythicalFind": mythical_find, "BusyCafe": busy_cafe, "FamousCafe": famous_cafe, "GrandCafe": grand_cafe,
           "CatCollector": cat_collector, "CatExpert": cat_expert, "GoldenCoat": golden_coat,
           "RainbowCoat": rainbow_coat, "PageComplete": page_complete, "HelpingPaw": helping_paw,
-          "FirstTrade": first_trade, "PurrfectStreak": purrfect_streak}
+          "FirstTrade": first_trade, "PurrfectStreak": purrfect_streak, "PartyGuest": party_guest}

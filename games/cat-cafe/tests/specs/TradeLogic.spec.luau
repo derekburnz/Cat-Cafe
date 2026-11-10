@@ -426,6 +426,30 @@ return function()
 		end)
 	end)
 
+	describe("TradeLogic.logRows decor (#1574)", function()
+		it("carries each side's pieces, and none for entries from before decor trading", function()
+			local rows = TradeLogic.logRows({
+				{
+					id = "d",
+					at = 100,
+					partnerName = "Sam",
+					gave = {},
+					got = {},
+					gaveDecor = { { id = "bench", kind = "decor", rarity = "Rare" }, "junk", { kind = "lawn" } },
+					gotDecor = { { id = "tulip_bed", kind = "lawn" } },
+				},
+				{ id = "old", at = 50, partnerName = "Mia", gave = {}, got = {} },
+			}, 200)
+			expect(#rows[1].gaveDecor).to.equal(1)
+			expect(rows[1].gaveDecor[1].id).to.equal("bench")
+			expect(rows[1].gaveDecor[1].rarity).to.equal("Rare")
+			expect(rows[1].gotDecor[1].kind).to.equal("lawn")
+			expect(rows[1].gotDecor[1].rarity).to.equal("Common")
+			expect(#rows[2].gaveDecor).to.equal(0)
+			expect(#rows[2].gotDecor).to.equal(0)
+		end)
+	end)
+
 	describe("TradeLogic.askTitle and doneLine", function()
 		it("words the request card and the done toast", function()
 			expect(TradeLogic.askTitle("Sam")).to.equal("Sam wants to trade")

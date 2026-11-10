@@ -7407,6 +7407,35 @@ local SCENES = {
 		UI.update({ tradeLog = tradeLog(os.time()) })
 		UI.open("TradeLog")
 	end },
+	-- #1574: a trade that swapped decor: a crate piece and a lawn piece after the cat on the Got line, one piece alone
+	-- on the Gave line (no "Nothing" there)
+	{ "TradeLogDecor", function()
+		local log = tradeLog(os.time())
+		local piece = nil
+		for _, decor in Catalog.crateDecor do
+			if piece == nil then
+				piece = { id = decor.id, kind = "decor", rarity = decor.rarity or "Rare" }
+			end
+		end
+		assert(piece ~= nil, "uigate: no crate decor for TradeLogDecor")
+		log[1].gave = {}
+		log[1].gaveDecor = { piece }
+		log[1].gotDecor = { piece, { id = "tulip_bed", kind = "lawn", rarity = "Uncommon" } }
+		UI.update({ tradeLog = log })
+		UI.open("TradeLog")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("Trade1", true)
+		local got = card and card:FindFirstChild("Got")
+		local shown = 0
+		for _, child in (got or Instance.new("Folder")):GetChildren() do
+			if child:IsA("Frame") and child.Name:sub(1, 5) == "Piece" and child.Visible then
+				shown += 1
+			end
+		end
+		assert(shown == 2, "uigate: the Got line shows " .. shown .. " pieces, not 2")
+		local nothing = card and card:FindFirstChild("GaveNothing")
+		assert(nothing ~= nil and not (nothing :: TextLabel).Visible, "uigate: Gave says Nothing beside a piece")
+	end },
 	{ "TradeLogEmpty", function()
 		UI.update({ tradeLog = {} })
 		UI.open("TradeLog")

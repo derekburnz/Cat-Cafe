@@ -72,7 +72,7 @@ end
 
 -- The steam on one spa: made once on its `Steam` attachment (else an anchor over the water), switched by distance.
 local function steamOf(model: Model): ParticleEmitter?
-	local made = steams[model]
+	local made: ParticleEmitter? = steams[model]
 	if made ~= nil and made.Parent ~= nil then
 		return made
 	end
@@ -96,7 +96,7 @@ local function stepSteam()
 	for model in spas do
 		if model.Parent == nil then
 			spas[model] = nil
-			local emitter = steams[model]
+			local emitter: ParticleEmitter? = steams[model]
 			steams[model] = nil
 			if emitter ~= nil then
 				emitter:Destroy()
@@ -108,7 +108,7 @@ local function stepSteam()
 			local at = anchorAt(model, "Steam") or poolTop(model)
 			on = Context.distance(at) <= Context.budget.ambientRadius
 		end
-		local emitter = if on then steamOf(model) else steams[model]
+		local emitter: ParticleEmitter? = if on then steamOf(model) else steams[model]
 		if emitter ~= nil then
 			if on and not emitter.Enabled then
 				Particles.switchOn(emitter, Presets.lateStations.steamPreset)

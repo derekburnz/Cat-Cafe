@@ -1118,7 +1118,7 @@ function UI.init(config: Types.InitConfig)
 		showTipsAgain = function()
 			UI.tips.reset()
 			UI.events.clearTips:Fire()
-			UI.toast("Tips will show again as you play.", "good")
+			UI.toast("Tips will show again as you play.", "info") -- #3080: the press's only answer
 		end,
 		replayTutorial = function()
 			if introBlocked() then
@@ -1230,9 +1230,9 @@ function UI.init(config: Types.InitConfig)
 		useDecor = function(decorId: string)
 			UI.events.toggleDecor:Fire(decorId, true)
 		end,
-		toast = function(text: string)
+		toast = function(text: string, kind: Types.ToastKind?)
 			if toasts then
-				toasts:show(text, "good")
+				toasts:show(text, kind or "good")
 			end
 		end,
 		close = closeModal,
@@ -2024,17 +2024,19 @@ end
 
 -- `seconds` (optional) keeps the toast up that long in place of the usual 2.4 s.
 function UI.toast(text: string, kind: Types.ToastKind?, seconds: number?)
-	-- #2600: no "Bought ..." pop-ups (ToastRules.quiet); init.luau is at the 200-local limit, so it loads here
-	if require(script.Components.ToastRules).quiet(text, kind) then
-		return
-	end
 	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any
-	-- other toast leaves the report waiting (review N151)
+	-- other toast leaves the report waiting (review N151). #3080: read before the rules below, so the window gets
+	-- its answer whether or not the words show
 	if bugReportScreen and bugReportScreen:pending() then
 		local answer = BugReportLogic.answer(text)
 		if answer ~= nil then
 			bugReportScreen:result(answer)
 		end
+	end
+	-- #2600: no "Bought ..." pop-ups, #3080: nor any green one off the keep list (ToastRules.quiet); init.luau is at
+	-- the 200-local limit, so it loads here
+	if require(script.Components.ToastRules).quiet(text, kind) then
+		return
 	end
 	if toasts then
 		toasts:show(text, kind, nil, seconds)

@@ -1508,7 +1508,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.introNext:Fire(shot)
 		end,
 	})
-	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
+	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later

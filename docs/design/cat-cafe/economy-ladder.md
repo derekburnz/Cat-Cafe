@@ -72,6 +72,15 @@ v6, 2026-11-09 (#2559, built in #2590; #2557, built in #2597; Derek2 chose both)
 
 The x2 event median lands exactly on the 8 h floor. The model is deterministic, so it passes, but there's no slack: any later change that speeds the x2 run up needs a Pace rerun first. The 5 to 6 h Tier 4 guard from v5 is retired, because Derek2's #2559 price change deliberately makes Tier 4 faster.
 
+v7, 2026-11-10 (#2683 and #2895, then #2915 step 3, built in #2973):
+- **Tier costs:** Tier 2 is now **12,000 coins** (was 22,000; 30,000 before #2683), still with 5 different cats.
+- **Tier 2 bands:**
+  - New player: **9 to 12 min**, replacing 12 to 16 for Tier 2 only. Every new-player run lands inside it.
+  - Non-stop with top-ups: **7 to 20 min** (was 8 to 20), median 7.9.
+  - 4-friend server: **6 to 11 min** (was 8 to 11), median 6.9.
+- **Why the faster floors are fine:** fast and social players reaching the Park around minute 7 helps the 2–5 minute drop (retention-ideas.md), and Tier 3's cost still paces the hour after (Design-Agent, 2026-11-10).
+- **Other tiers:** Tiers 3 to 5 keep #2895's 30% cut, and their guards are unchanged.
+
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
 | player | Tier 2 | Tier 3 | Tier 4 | Tier 5 |

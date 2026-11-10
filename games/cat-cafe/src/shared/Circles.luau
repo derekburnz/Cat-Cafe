@@ -200,7 +200,12 @@ function Circles.tutorialWindows(netLevel: number): Types.NetWindows
 	return { perfect = common.perfect * scale, good = common.good * scale }
 end
 
-function Circles.tutorialSchedule(now: number, roll: () -> number): { Types.CatchCircle }
+-- `hold` (#2920): the ring stops on its target and waits for the press (a player's very first catch).
+function Circles.tutorialSchedule(
+	now: number,
+	roll: () -> number,
+	hold: boolean?
+): { Types.CatchCircle }
 	return {
 		{
 			startsAt = now + Config.CircleLeadInSeconds,
@@ -208,6 +213,8 @@ function Circles.tutorialSchedule(now: number, roll: () -> number): { Types.Catc
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
 			kind = "single",
+			hold = if hold == true then true else nil,
+			holdSeconds = if hold == true then Config.FirstRingHoldSeconds else nil,
 		},
 	}
 end
@@ -216,9 +223,12 @@ function Circles.target(circle: Types.CatchCircle): number
 	return circle.startsAt + circle.shrinkSeconds
 end
 
--- After this a circle with no press is a Miss.
+-- After this a circle with no press is a Miss. #2920: a held ring waits its holdSeconds past its target.
 function Circles.deadline(circle: Types.CatchCircle, windows: Types.NetWindows): number
-	return Circles.target(circle) + windows.good + Config.CatchLatencyCapSeconds
+	local wait = if circle.hold == true
+		then circle.holdSeconds or Config.FirstRingHoldSeconds
+		else windows.good
+	return Circles.target(circle) + wait + Config.CatchLatencyCapSeconds
 end
 
 -- When the whole attempt is over even if no press ever comes.
@@ -228,7 +238,11 @@ end
 
 -- How long the stray stays locked: the last target plus the good window plus a second (data-model section 10).
 function Circles.lockUntil(circles: { Types.CatchCircle }, windows: Types.NetWindows): number
-	return Circles.target(circles[#circles]) + windows.good + 1
+	local last = circles[#circles]
+	if last.hold == true then
+		return Circles.deadline(last, windows) + 1 -- #2920: the whole hold
+	end
+	return Circles.target(last) + windows.good + 1
 end
 
 -- Seconds taken off a press for the trip from the client: half the round-trip ping, capped.
@@ -365,7 +379,7 @@ end
 -- earlier than the circle's start. #1884: a press for a later circle first judges the waiting ones before it as
 -- never pressed once the press is past their Good band (a double's second half pressed before the first half's
 -- deadline, which allows for ping), and is ignored while any of them could still be hit. A tapped paw ring is a
--- Miss (7c).
+-- Miss (7c). #2920: a held ring ignores presses before its target and grades any later one Perfect.
 function Circles.press(
 	attempt: Attempt,
 	index: number,
@@ -380,6 +394,14 @@ function Circles.press(
 		return nil
 	end
 	local circle = attempt.circles[index]
+	if circle.hold == true then
+		-- #2920: nothing counts before the ring stops on its target (a Good band early, for the clock between the
+		-- client's freeze and the server); a press from then on is a Perfect
+		if pressTime < Circles.target(circle) - attempt.windows.good then
+			return nil
+		end
+		pressTime = Circles.target(circle)
+	end
 	if pressTime < circle.startsAt then
 		return nil
 	end

@@ -51,6 +51,10 @@ export type CatchCircle = {
 	-- both "double", `half` 1 and 2; a "paw" ring is left alone)
 	kind: CircleKind?,
 	half: number?,
+	-- #2920: a first catch's ring that stops on its target and waits (Circles.press): presses before it are ignored,
+	-- one from it up to holdSeconds (Config.FirstRingHoldSeconds) later is a Perfect
+	hold: boolean?,
+	holdSeconds: number?,
 }
 export type CircleKind = "single" | "double" | "paw"
 

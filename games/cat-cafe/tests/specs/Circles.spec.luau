@@ -403,6 +403,58 @@ return function()
 		end)
 	end)
 
+	-- #2920: a player's very first catch holds its ring on the target until the press.
+	describe("the held first ring (#2920)", function()
+		local function held(): (Circles.Attempt, number)
+			local circles = Circles.tutorialSchedule(NOW, constant(0.5), true)
+			return Circles.newAttempt(circles, Circles.tutorialWindows(0)), Circles.target(circles[1])
+		end
+
+		it("marks the ring and sends how long it waits", function()
+			local circles = Circles.tutorialSchedule(NOW, constant(0.5), true)
+			expect(circles[1].hold).to.equal(true)
+			expect(circles[1].holdSeconds).to.equal(Config.FirstRingHoldSeconds)
+			expect(Config.FirstRingHoldSeconds).to.equal(60)
+			local plain = Circles.tutorialSchedule(NOW, constant(0.5))
+			expect(plain[1].hold).to.equal(nil)
+			expect(plain[1].holdSeconds).to.equal(nil)
+		end)
+
+		it("ignores every press before the target, so the first ring can't be missed", function()
+			local attempt, target = held()
+			local windows = Circles.tutorialWindows(0)
+			local startsAt = target - Config.TutorialShrinkSeconds
+			expect(Circles.press(attempt, 1, startsAt + 0.1, startsAt + 0.1)).to.equal(nil)
+			local early = target - windows.good - 0.01
+			expect(Circles.press(attempt, 1, early, early)).to.equal(nil)
+			expect(attempt.nextIndex).to.equal(1)
+			expect(Circles.isDone(attempt)).to.equal(false)
+		end)
+
+		it("grades any press from the target to the end of the hold a Perfect, and catches", function()
+			for _, after in { 0, 0.3, 5, 59 } do
+				local attempt, target = held()
+				expect(Circles.press(attempt, 1, target + after, target + after)).to.equal("perfect")
+				expect(attempt.errors[1]).to.equal(0)
+				expect(Circles.succeeded(attempt)).to.equal(true)
+			end
+			-- a press just before the target (the clock between the client's freeze and the server) counts too
+			local attempt, target = held()
+			expect(Circles.press(attempt, 1, target - 0.05, target - 0.05)).to.equal("perfect")
+		end)
+
+		it("waits the whole hold before a Miss, and locks the stray as long", function()
+			local attempt, target = held()
+			local windows = Circles.tutorialWindows(0)
+			local deadline = Circles.deadline(attempt.circles[1], windows)
+			expect(deadline).to.be.near(target + 60 + Config.CatchLatencyCapSeconds, 1e-9)
+			expect(Circles.expire(attempt, target + 30)).to.equal(0)
+			expect(Circles.expire(attempt, deadline + 0.01)).to.equal(1)
+			expect(attempt.grades[1]).to.equal("miss")
+			expect(Circles.lockUntil(attempt.circles, windows)).to.be.near(deadline + 1, 1e-9)
+		end)
+	end)
+
 	-- QA edges on the F87 tutorial circle (easy-start.md section 2b and QA check 2).
 	describe("tutorial edges (QA)", function()
 		local RANK: { [string]: number } = { miss = 0, good = 1, perfect = 2 }

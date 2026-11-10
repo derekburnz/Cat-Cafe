@@ -3,7 +3,7 @@
 -- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart and, for its owner, the cafe's
 -- bait bowl on the back step (#2476) opens its window, and
 -- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
--- closed by hand opens again with a press. Nothing opens during a catch or a rescue, while carrying a cat or flying,
+-- closed by hand opens again with a press. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
 -- Each station's glowing floor ring (World/WalkUpCircles, WalkUp.CIRCLE) is where its window opens: stepping inside the
 -- ring opens it. A station without a ring falls back to its prompt's reach (WalkUp.RADIUS_SHARE).
@@ -18,6 +18,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Net = require(script.Parent.Parent.Net)
+local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 local WalkUp = require(Shared:WaitForChild("WalkUp"))
@@ -176,6 +178,13 @@ local function blocked(): boolean
 end
 
 function WalkUpController.start()
+	-- #2910: a press of a walk-up station's prompt, counted against the ring opens (shared/StationOpens)
+	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
+		local window = StationOpens.windowOfPrompt(prompt.Name)
+		if window ~= nil then
+			Net.fire("StationOpened", window, "prompt")
+		end
+	end)
 	local state = WalkUp.new()
 	-- a new character (a respawn) is looked at afresh, so spawning next to a station opens nothing
 	player.CharacterAdded:Connect(function()
@@ -187,6 +196,7 @@ function WalkUpController.start()
 			local at = rootPosition()
 			local stations: { WalkUp.Station } = {}
 			local opener: { [string]: () -> () } = {}
+			local windowOf: { [string]: string } = {} -- #2910: each station's window, for the ring count
 			local function add(
 				model: Instance,
 				prompt: ProximityPrompt?,
@@ -206,6 +216,7 @@ function WalkUpController.start()
 					else nil
 				local key = keyOf(model)
 				opener[key] = open
+				windowOf[key] = window
 				table.insert(stations, {
 					key = key,
 					window = window,
@@ -250,6 +261,10 @@ function WalkUpController.start()
 			local run = if open ~= nil then opener[open :: string] else nil
 			if run ~= nil then
 				run()
+				local window = windowOf[open :: string]
+				if window ~= nil then
+					Net.fire("StationOpened", window, "ring") -- #2910
+				end
 			end
 		end
 	end)

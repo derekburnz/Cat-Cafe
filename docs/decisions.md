@@ -742,3 +742,9 @@ Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside
 A run of `bug-reports` started by hand printed each reporter's full name and user id, and the raw records, into a public Actions log; only the daily run was masked. Now every run in GitHub Actions is masked (name to its first letter, id to its last three digits, no raw records). Full records are for Studio (`Debug.bugReports`) or the script on a PC with `MASK=0`.
 
 Why: the repo is public, so every Actions log is, and the standing rule is that nothing private goes in it. Threads only need the text, kind, version, area, device and error lists, which stay. The error lists are scrubbed too when masked (review of PR #3108): an error line carries the instance path, and a player's scripts and character sit under their name, so `Players.<Name>` and `Workspace.<Name>` print as `***`, the reporter's name prints as `***` anywhere else, and a run of six or more digits prints as `#`. A client error is text the player's device chose and no filter has read, so masked it prints only as script and line number. The masked line still carries the report's time, which is what `idea-credits add` takes.
+
+## 2026-11-10 Chat: the globe comes off rare catch lines from other servers (#3116)
+
+A rare catch in another server shows in the chat as "From another cafe: ..." again. For a few hours (publish 491, #3033) it read "🌍 Global: ...", the first step of the Global chat attempt.
+
+Why: Derek parked the Global chat (#3053) and asked for the leftover globe to go ("the leftovers globe from global chat attempt in the local server chat is still there so get rid of that"). The prefix was the only part of the attempt on live; the custom tab and its channel stayed in an unmerged draft (PR #3075). The cross-server lines themselves stay (#2203). Roblox's own Global tab is not ours to remove from code; the Creator Dashboard switch is the only control.

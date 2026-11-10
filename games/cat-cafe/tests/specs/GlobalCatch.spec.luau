@@ -95,10 +95,13 @@ return function()
 			)
 		end)
 
-		it("says Global when it came from another server (#3033)", function()
-			expect(GlobalCatch.chatLine("Dee tamed a Mythical Moonpaw!", "Mythical", true)).to.equal(
-				'<font color="#FF5E7E">🌍 Global: Dee tamed a Mythical Moonpaw!</font>'
+		it("says it came from another cafe, with no globe and no Global (#3116)", function()
+			local line = GlobalCatch.chatLine("Dee tamed a Mythical Moonpaw!", "Mythical", true)
+			expect(line).to.equal(
+				'<font color="#FF5E7E">From another cafe: Dee tamed a Mythical Moonpaw!</font>'
 			)
+			expect(string.find(line, "🌍", 1, true)).to.equal(nil)
+			expect(string.find(line, "Global", 1, true)).to.equal(nil)
 		end)
 
 		it("escapes rich text in the name, so nobody can restyle the line", function()
@@ -120,7 +123,7 @@ return function()
 	describe("the legacy chat line (#2902)", function()
 		it("is plain text, with the other-cafe prefix when it came from elsewhere", function()
 			expect(GlobalCatch.plainLine(TEXT, false)).to.equal(TEXT)
-			expect(GlobalCatch.plainLine(TEXT, true)).to.equal("🌍 Global: " .. TEXT)
+			expect(GlobalCatch.plainLine(TEXT, true)).to.equal("From another cafe: " .. TEXT)
 		end)
 
 		it("takes the rarity's colour, and Common's for an unknown one", function()

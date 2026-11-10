@@ -7,6 +7,12 @@
 --                                      an empty slot, the next slot to buy or a slot after it
 --   spaReady(spa, cats, now)           the levels waiting for Collect, summed over the finished slots
 --   spaCandidates(cats, spa)           the cats that can go in: below the top level and not soaking, best first
+--   SPA_FILTERS, spaMatch(cat, query, filter)  the Spa list's search (#3136): the words typed are found in the cat's
+--                                      own name or its breed, any case, and "Resting" / "Working" keep the cats
+--                                      off or on a cafe spot
+--   spaTitle(cat), spaSubtitle(cat)    a list row's two lines: the cat's own name (else its coat and breed), then
+--                                      "Lv 12 · ★★★ · Working" (and the breed after a cat with its own name)
+--   spaKey(list)                       a word that changes when the list's rows would, so the list is rebuilt only then
 --   takeOutText(name)                  "Take Mochi out now? It won't level up."
 --   rooms(museum, cats, spa)           the Museum card's rooms in Catalog.areas order, each exhibit with its coat
 --                                      once given, how many copies the player has and which can be given
@@ -32,7 +38,10 @@ LateStationsLogic.MUSEUM = "museum"
 LateStationsLogic.ICONS = { spa = "♨️", museum = "🏛️" } :: { [string]: string }
 LateStationsLogic.NAMES = { spa = "Oasis Spa", museum = "Relic Museum" } :: { [string]: string }
 LateStationsLogic.AREAS = { spa = "desert", museum = "ruins" } :: { [string]: string }
-LateStationsLogic.CANDIDATES_MAX = 60 -- rows in the Spa's cat list, best first (a big collection scrolls no further)
+-- #3136: every cat that can go in is listed (it was the best 60): the list has a search box, builds its rows once
+-- and loads faces only near the visible rows, so a big collection costs little
+LateStationsLogic.CANDIDATES_MAX = math.huge
+LateStationsLogic.SPA_FILTERS = { "All", "Resting", "Working" }
 
 export type Line = {
 	extraId: string,
@@ -244,6 +253,63 @@ function LateStationsLogic.spaCandidates(
 		table.remove(out)
 	end
 	return out
+end
+
+local function coatWord(variant: string?): string
+	return if variant == "rainbow" then "Rainbow " elseif variant == "gold" then "Gold " else ""
+end
+
+function LateStationsLogic.spaTitle(cat: SharedTypes.CatView): string
+	if type(cat.name) == "string" and cat.name ~= "" then
+		return cat.name :: string
+	end
+	return coatWord(cat.variant) .. catName(cat.catId)
+end
+
+function LateStationsLogic.spaSubtitle(cat: SharedTypes.CatView): string
+	local line = string.format("Lv %d · %s", cat.level, string.rep("★", cat.stars or 1))
+	if cat.spotId ~= nil then
+		line ..= " · Working"
+	end
+	if type(cat.name) == "string" and cat.name ~= "" then
+		line ..= " · " .. coatWord(cat.variant) .. catName(cat.catId)
+	end
+	return line
+end
+
+function LateStationsLogic.spaMatch(
+	cat: SharedTypes.CatView,
+	query: string?,
+	filter: string?
+): boolean
+	if filter == "Resting" and cat.spotId ~= nil then
+		return false
+	end
+	if filter == "Working" and cat.spotId == nil then
+		return false
+	end
+	local words = string.lower(string.match(query or "", "^%s*(.-)%s*$") or "")
+	if words == "" then
+		return true
+	end
+	local hay = string.lower((cat.name or "") .. " " .. coatWord(cat.variant) .. catName(cat.catId))
+	return string.find(hay, words, 1, true) ~= nil
+end
+
+function LateStationsLogic.spaKey(list: { SharedTypes.CatView }): string
+	local parts = table.create(#list)
+	for index, cat in list do
+		parts[index] = string.format(
+			"%s:%d:%d:%s:%s:%s",
+			cat.uid,
+			cat.level,
+			cat.stars or 1,
+			cat.variant or "",
+			if cat.spotId ~= nil then "w" else "r",
+			cat.name or ""
+		)
+	end
+	return table.concat(parts, "|")
 end
 
 function LateStationsLogic.takeOutText(name: string): string

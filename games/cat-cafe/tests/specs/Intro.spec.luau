@@ -808,6 +808,10 @@ return function()
 				expect(fromWayOut > Intro.STRAY_IN).to.equal(true)
 			end)
 
+			it("waits a couple of seconds for the camp, not longer (Derek2 11-10)", function()
+				expect(Intro.CAMP_WAIT >= 2 and Intro.CAMP_WAIT <= 3).to.equal(true)
+			end)
+
 			it("counts a hit near the area's floor, not a roof or a prop's top", function()
 				expect(Intro.floorHit(0.1)).to.equal(true)
 				expect(Intro.floorHit(-0.1)).to.equal(true)

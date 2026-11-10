@@ -77,6 +77,8 @@ local LESSON_CLEAR = 4 -- real strays this much further out than the intro's DEM
 local LESSON_CAMERA_BACK = 60 -- studs: the lesson's end puts back the view it started with only this near the player
 local STREAMED_RADIUS = 40 -- a camp counts as streamed in when a part stands this close to the point checked
 local CAMP_ASK_EVERY = 2 -- seconds between asks for the camp's ground while the intro plays (#2961)
+local CAMP_POLL = 0.1 -- seconds between looks for the camp's ground while play() waits for it (#2961)
+local FUSE_HOLD_EARLY = 0.001 -- shot 1 holds this short of its fuse, so the fuse waits with it (#2961)
 local WHEEL_TURNS = 2
 local BLEND = 0.15 -- seconds an animation of your copy fades in or out
 local SPIN_TURNS = 2 -- the ball's tumbles on the way up
@@ -165,6 +167,7 @@ type Run = {
 	rich: Rich?, -- shot 6's rich visitor, coin pile and your copy (#2242)
 	wheel: { model: Model, base: CFrame }?,
 	done: { [string]: boolean }, -- the timed beats inside a shot that have happened
+	campHeld: number, -- #2961: seconds shot 1 has held before its fuse for the camp's ground to stream in
 	controls: any?, -- the PlayerModule's controls, disabled for the run
 	promptsWere: boolean,
 	cameraType: Enum.CameraType,
@@ -1033,8 +1036,9 @@ end
 -- the Alleyway's camp in play()'s STREAM_WAIT, and then shot 2 holds in the clouds and the camp shots (3 and 4) drop
 -- out. play() keeps asking for the camp through shot 1, and at the fuse this looks again: streamed in by then, the
 -- shots are rebuilt with the camp shots and the demo cat is staged, so the flight lands and the catch plays.
--- #2961: "in" means the floor under the filmed spots (campReady), and a camp that was in at the start but has
--- streamed back out by the fuse drops the camp shots the same way.
+-- #2961: "in" means the floor under the filmed spots (campReady). step() holds shot 1 just short of the fuse up to
+-- Intro.CAMP_WAIT for it first (Derek2: wait, don't skip); only a camp still missing after that (or one that was in
+-- at the start and has streamed back out) drops the camp shots.
 local function lateStream(r: Run)
 	if not r.alleyStreamed and not campReady(r.staged) then
 		return
@@ -1441,6 +1445,16 @@ local function step()
 	end
 	local shot = r.shots[r.shot]
 	local t = os.clock() - r.shotStarted
+	if shot.launch and not r.done.fuse then
+		-- #2961: just before the fuse, shot 1 holds (the cannon loaded, you in the barrel) up to CAMP_WAIT while the
+		-- camp's ground streams in, so the flight lands on it and the catch plays (Derek2 11-10: wait, don't skip)
+		local fuse = Intro.fuseAt(shot) - FUSE_HOLD_EARLY
+		if t >= fuse and r.campHeld < Intro.CAMP_WAIT and not campReady(r.staged) then
+			r.campHeld += t - fuse
+			r.shotStarted += t - fuse
+			t = fuse
+		end
+	end
 	while t >= shot.hold do
 		if r.shot >= #r.shots then
 			finish(true)
@@ -2063,6 +2077,11 @@ function IntroController.play(replay: boolean)
 	pcall(function()
 		player:RequestStreamAroundAsync(camp.pad, Intro.STREAM_WAIT)
 	end)
+	-- #2961: the ground under the filmed spots can come after the pad; up to CAMP_WAIT more for it, still parked
+	local waitUntil = os.clock() + Intro.CAMP_WAIT
+	while not campReady() and os.clock() < waitUntil do
+		task.wait(CAMP_POLL)
+	end
 	starting = false
 	state = UIController.state
 	if run ~= nil or state == nil or state.plotIndex == 0 then
@@ -2109,6 +2128,7 @@ function IntroController.play(replay: boolean)
 		rich = nil,
 		wheel = nil,
 		done = {},
+		campHeld = 0,
 		controls = controls(),
 		promptsWere = ProximityPromptService.Enabled,
 		cameraType = cameraWas, -- from before the park; finish() turns Scriptable into Custom

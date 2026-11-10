@@ -28,6 +28,9 @@ Intro.VERSION = 10
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
+-- #2961 (Derek2 11-10: "don't make intro skip those slides ... just wait up to a couple seconds for loading"): the
+-- most the intro waits for the camp's ground before it starts, and again on shot 1's fuse before the cut to the camp
+Intro.CAMP_WAIT = 2.5
 
 -- #2182 (section 2b, two playtesters: the captions go by too fast to read): each shot shows for its hold, its section
 -- 2 length or CAPTION_BASE plus CAPTION_PER_WORD a word of its caption, whichever is longer. The action runs on its

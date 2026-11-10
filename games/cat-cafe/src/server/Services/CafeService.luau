@@ -37,6 +37,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local Leaderstats = require(script.Parent.Leaderstats)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
@@ -1341,7 +1342,11 @@ function CafeService.advanceTutorial(player: Player, profile: Profile, step: num
 			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
 		end
 		-- #2692: the night pass ends at the first check-in; the client's gates and cannon card read this at once
-		player:SetAttribute(NightPass.ATTRIBUTE, NightPass.has(step))
+		-- (#3035: or stays, for a first-session Tier 1 player while the nightCatch switch is on)
+		player:SetAttribute(
+			NightPass.ATTRIBUTE,
+			NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+		)
 		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end

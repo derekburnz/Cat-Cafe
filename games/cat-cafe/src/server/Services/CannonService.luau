@@ -27,6 +27,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local NightService = require(script.Parent.NightService)
@@ -122,7 +123,8 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local now = serverNow()
 	local shovedAt = if character ~= nil then character:GetAttribute("ShovedAt") else nil
 	local landed = landedAt[player]
-	local pass = NightPass.has(profile.tutorialStep) -- #2692: a beginner flies at night and in the dusk warning
+	-- #2692: a beginner flies at night and in the dusk warning; #3035: a first-session Tier 1 player too
+	local pass = NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
 	local reason = Cannon.launchRefusal({
 		cannonId = cannonId,
 		destination = destination,
@@ -293,7 +295,7 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 	local profile = DataService.get(player)
 	local open = NightPass.open(
 		ClockService.areasOpen(),
-		profile ~= nil and NightPass.has(profile.tutorialStep) -- #2692
+		profile ~= nil and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG)) -- #2692, #3035
 	)
 	local landing = if area ~= nil and open then landingFor(player, area) else cafeLanding(player)
 	if landing == nil then

@@ -264,7 +264,7 @@ return function()
 
 	describe("arriving and applying (sections 1 and 4)", function()
 		it(
-			"keeps rarity, coat, charm, level and rescued; drops the name and slot; locks gold and the rarest",
+			"keeps rarity, coat, charm, level and rescued; drops the name and slot; never locks it",
 			function()
 				local sent = cat("u1", "Rare", "gold")
 				sent.level = 12
@@ -284,7 +284,7 @@ return function()
 				expect(arrived.spotId).to.equal(nil)
 				expect(arrived.method).to.equal("trade")
 				expect(arrived.caughtAt).to.equal(500)
-				expect(arrived.locked).to.equal(true)
+				expect(arrived.locked).to.equal(nil) -- #2906: a gold cat arrives unlocked too
 				expect(Trade.arrival(cat("u2", "Common"), 500).locked).to.equal(nil)
 			end
 		)

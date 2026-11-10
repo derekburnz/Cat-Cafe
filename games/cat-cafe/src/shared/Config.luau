@@ -573,6 +573,13 @@ local Config = {
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
+	-- #2920 (Derek2 2026-11-10: "on first catch stop the minigame first circle when its over the circle and prompt them
+	-- ... not even let the player click before its in the circle so you cant miss first one"): a player's very first
+	-- catch (the tutorial stray, no cat caught yet) holds its ring on the target for up to FirstRingHoldSeconds (sent
+	-- on the circle as holdSeconds); on once the Catch screen draws the hold (UI-Engineer). Not CatchHoldSeconds, the
+	-- catch prompt's hold-to-start time
+	CatchHoldFirstRing = false,
+	FirstRingHoldSeconds = 60,
 	-- F87 (easy-start.md sections 2g, 3 and 4): the hint pulses after StuckNudgeSeconds on one tutorial step and the
 	-- "Need a hand?" card shows after StuckHelpSeconds (once per step per account); a context tip shows at most once
 	-- every TipGapSeconds, a camera cut lasts at most TipCutMaxSeconds, and the one slide-in feedback ask waits for
@@ -863,7 +870,10 @@ local Config = {
 	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
 	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
 	-- places them and opens their remotes once the UI's cards are in (UI-Engineer).
+	-- #2904 (Derek2 2026-11-10: "+1 level an hour and caps at 24h ... doesn't go past the lvl 50 cap"): a soaking
+	-- cat earns a level every SpaSeconds, up to SpaMaxHours of them, never past CatMaxLevel
 	SpaSeconds = 3600,
+	SpaMaxHours = 24,
 	SpaSlotPrices = { 0, 100, 250 },
 	MuseumRoomTipBonus = 0.05, -- #2908 (Derek2 2026-11-10: "up the tips bonus to be 5% per room filled"; was 0.02)
 	LateStationsOpen = false,

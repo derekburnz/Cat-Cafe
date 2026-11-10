@@ -4,9 +4,13 @@
 -- server. The toast for this server's catches is UIController's Announce, as before.
 --
 -- Roblox terms: TextChatService is the built-in chat. Its RBXGeneral channel is the one every player sees, and
--- DisplaySystemMessage adds a line to it on this client only, with no speaker.
+-- DisplaySystemMessage adds a line to it on this client only, with no speaker. #2902: the place still runs the
+-- legacy chat (ChatVersion LegacyChatService), where TextChatService has no channels and the line used to be dropped;
+-- there StarterGui:SetCore("ChatMakeSystemMessage") writes it instead, as plain text in the rarity's colour. SetCore
+-- errors until the legacy chat has loaded, so a line is retried for up to LEGACY_TRIES seconds.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 
 local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
@@ -14,31 +18,31 @@ local Net = require(script.Parent.Parent.Net)
 
 local RareCatchChatController = {}
 
+local LEGACY_TRIES = 10 -- one a second while the legacy chat loads
+local CHANNEL_WAIT = 10 -- seconds a line waits for RBXGeneral just after join
+
 local general: TextChannel? = nil
 
--- RBXGeneral, found on first use: the channels appear a moment after join, and a line before then is skipped (its
--- toast still showed).
+-- RBXGeneral: the channels appear a moment after join, so the first line waits up to CHANNEL_WAIT seconds.
 local function channel(): TextChannel?
 	if general ~= nil and general.Parent ~= nil then
 		return general
 	end
-	local channels = TextChatService:FindFirstChild("TextChannels")
-	local found = if channels ~= nil then channels:FindFirstChild("RBXGeneral") else nil
+	local channels = TextChatService:WaitForChild("TextChannels", CHANNEL_WAIT)
+	local found = if channels ~= nil then channels:WaitForChild("RBXGeneral", CHANNEL_WAIT) else nil
 	if found ~= nil and found:IsA("TextChannel") then
 		general = found :: TextChannel
 	end
 	return general
 end
 
-local function show(text: unknown, rarity: unknown, elsewhere: unknown)
-	if type(text) ~= "string" or type(rarity) ~= "string" then
-		return
-	end
+local function showNew(text: string, rarity: string, elsewhere: boolean)
 	local current = channel()
 	if current == nil then
+		warn("[RareCatchChat] no RBXGeneral channel")
 		return
 	end
-	local line = GlobalCatch.chatLine(text, rarity, elsewhere == true)
+	local line = GlobalCatch.chatLine(text, rarity, elsewhere)
 	local ok, err = pcall(function()
 		current:DisplaySystemMessage(line)
 	end)
@@ -47,10 +51,41 @@ local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 	end
 end
 
-function RareCatchChatController.start()
-	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then
-		return -- the legacy chat has no system lines from here
+local function showLegacy(text: string, rarity: string, elsewhere: boolean)
+	local message = {
+		Text = GlobalCatch.plainLine(text, elsewhere),
+		Color = Color3.fromHex(GlobalCatch.color(rarity)),
+		Font = Enum.Font.GothamBold,
+	}
+	local lastError = ""
+	for _ = 1, LEGACY_TRIES do
+		local ok, err = pcall(function()
+			StarterGui:SetCore("ChatMakeSystemMessage", message)
+		end)
+		if ok then
+			return
+		end
+		lastError = tostring(err)
+		task.wait(1)
 	end
+	warn("[RareCatchChat] legacy chat: " .. lastError)
+end
+
+local function show(text: unknown, rarity: unknown, elsewhere: unknown)
+	if type(text) ~= "string" or type(rarity) ~= "string" then
+		return
+	end
+	local away = elsewhere == true
+	task.spawn(function()
+		if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+			showNew(text, rarity, away)
+		else
+			showLegacy(text, rarity, away)
+		end
+	end)
+end
+
+function RareCatchChatController.start()
 	Net.on("RareCatchChat", show)
 end
 

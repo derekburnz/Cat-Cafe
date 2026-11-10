@@ -47,6 +47,7 @@ local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
+local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -138,6 +139,9 @@ export type CustomEvent =
 	-- F93 (catch-rework.md section 5): net swings rolled up per player (review S99), value the swings since the last
 	-- roll up; "hit", "miss_near" or "miss_empty", net level, device
 	| "net_swing"
+	-- #2910: walk-up station opens rolled up per player like net_swing, value the opens since the last roll up; the
+	-- window (shared/StationOpens.WINDOWS), "ring" or "prompt", device
+	| "station_open"
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
@@ -378,6 +382,7 @@ type Session = {
 	restartWarnedLeft: number, -- #2720: the seconds to the restart that warning said
 	restartWarnings: number, -- #2720: restart warnings shown this session
 	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
+	stationOpens: { [string]: { count: number, values: { string } } }, -- #2910: station opens not logged yet
 	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
 	introChoices: number, -- F87: intro_choice events logged this session
@@ -691,13 +696,39 @@ end
 -- Logs the net swings counted since the last roll up, one net_swing event per result, net level and device.
 local function flushSwings(player: Player)
 	local session = sessions[player]
-	if session == nil or next(session.swings) == nil then
+	if session == nil then
+		return
+	end
+	-- #2910: the station opens roll up on the same beat
+	local opens = session.stationOpens
+	session.stationOpens = {}
+	for _, entry in opens do
+		Telemetry.custom(player, "station_open", entry.count, entry.values)
+	end
+	if next(session.swings) == nil then
 		return
 	end
 	local swings = session.swings
 	session.swings = {}
 	for _, entry in swings do
 		Telemetry.custom(player, "net_swing", entry.count, entry.values)
+	end
+end
+
+-- #2910: one walk-up station open (`window`, `how` "ring" or "prompt", checked by the caller), counted for the next
+-- roll up with the device.
+function Telemetry.stationOpen(player: Player, window: string, how: string)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local values = { window, how, session.device or "unknown" }
+	local key = table.concat(values, "|")
+	local entry = session.stationOpens[key]
+	if entry == nil then
+		session.stationOpens[key] = { count = 1, values = values }
+	else
+		entry.count += 1
 	end
 end
 
@@ -1521,6 +1552,7 @@ local function onLoaded(player: Player, profile: Profile)
 		restartWarnedLeft = 0,
 		restartWarnings = 0,
 		swings = {},
+		stationOpens = {},
 		origin = nil,
 		nudges = {},
 		introChoices = 0,
@@ -1791,6 +1823,12 @@ function Telemetry.start()
 	DataService.onLoaded:Connect(onLoaded)
 	DataService.beforeRelease(onRelease)
 	Net.on("TelemetryReport", onReport)
+	-- #2910: StationOpened(window, how) from WalkUpController, a count only
+	Net.on("StationOpened", function(player: Player, window: unknown, how: unknown)
+		if StationOpens.valid(window, how) then
+			Telemetry.stationOpen(player, window :: string, how :: string)
+		end
+	end)
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)
 	PassService.purchased:Connect(onPassConfirmed)
 	MarketplaceService.PromptProductPurchaseFinished:Connect(onProductPrompt)

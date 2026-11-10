@@ -51,6 +51,10 @@ export type CatchCircle = {
 	-- both "double", `half` 1 and 2; a "paw" ring is left alone)
 	kind: CircleKind?,
 	half: number?,
+	-- #2920: a first catch's ring that stops on its target and waits (Circles.press): presses before it are ignored,
+	-- one from it up to holdSeconds (Config.FirstRingHoldSeconds) later is a Perfect
+	hold: boolean?,
+	holdSeconds: number?,
 }
 export type CircleKind = "single" | "double" | "paw"
 
@@ -915,9 +919,17 @@ export type SpaSave = { slots: number, soaking: { [string]: SpaSoak } }
 export type MuseumSave = { [string]: string }
 
 -- LateStationsState (server to client): the Oasis Spa and the Relic Museum as the cards and the cannon picker show
--- them. A spa slot's `doneAt` is server time (os.time()); `ready` counts the finished slots. The museum's `canFill`
+-- them. A spa slot's `doneAt` (its first level) and `fullAt` (its last, #2904) are server time (os.time()), and `levels`
+-- the levels it has earned so far; `ready` counts the slots with at least one. The museum's `canFill`
 -- counts the empty exhibits the player has a spare copy for (the "!"), `rooms` the areas whose rooms are complete.
-export type SpaSlotView = { slot: number, uid: string?, catId: string?, doneAt: number? }
+export type SpaSlotView = {
+	slot: number,
+	uid: string?,
+	catId: string?,
+	doneAt: number?,
+	fullAt: number?,
+	levels: number?,
+}
 export type SpaView = {
 	open: boolean,
 	slots: number,

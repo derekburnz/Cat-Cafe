@@ -296,8 +296,8 @@ function CatStats.newInstance(
 	}
 end
 
--- F62 (data-model section 4): gold, rainbow (F99), Legendary and Mythical cats arrive locked, so one quick tap never
--- sells or trades away a player's best cat. Version 14 locks the ones already owned the same way.
+-- F62 (data-model section 4): gold, rainbow (F99), Legendary and Mythical cats. Since #2906 (Derek2 2026-11-10: "never
+-- make them auto lock") no new or traded cat is locked by this; only the version 14 save migration still reads it.
 function CatStats.arrivesLocked(catId: string, variant: string): boolean
 	if variant == "gold" or variant == "rainbow" then
 		return true

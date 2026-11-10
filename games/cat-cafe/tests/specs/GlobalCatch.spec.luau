@@ -117,6 +117,18 @@ return function()
 		end)
 	end)
 
+	describe("the legacy chat line (#2902)", function()
+		it("is plain text, with the other-cafe prefix when it came from elsewhere", function()
+			expect(GlobalCatch.plainLine(TEXT, false)).to.equal(TEXT)
+			expect(GlobalCatch.plainLine(TEXT, true)).to.equal("From another cafe: " .. TEXT)
+		end)
+
+		it("takes the rarity's colour, and Common's for an unknown one", function()
+			expect(GlobalCatch.color("Legendary")).to.equal("#FFC94D")
+			expect(GlobalCatch.color("Bogus")).to.equal("#8E97B2")
+		end)
+	end)
+
 	describe("crate pulls (#2429)", function()
 		it("writes a line for a Legendary or Mythical piece only", function()
 			expect(GlobalCatch.crateLine("Sam", "Mythical", "Starry Wallpaper")).to.equal(

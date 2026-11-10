@@ -515,8 +515,8 @@ return function()
 			expect(Intro.WIGGLE_TO < shots[1].seconds).to.equal(true)
 			expect(Intro.HOP_FROM).to.be.near(Intro.DEMO_PERFECT + 0.2, 1e-9)
 			expect(Intro.HOP_FROM + Intro.HOP_SECONDS <= shots[3].seconds).to.equal(true)
-			-- Skip can be pressed from the start of shot 3 (5.0 s in all)
-			expect(shots[3].starts).to.be.near(Intro.SKIP_AFTER, 1e-9)
+			-- #3168: Skip can be pressed from the first second
+			expect(Intro.SKIP_AFTER).to.equal(0)
 			expect(Intro.JOB_SEATED_AT < Intro.JOB_CARD_AT).to.equal(true)
 			expect(Intro.JOB_CARD_AT < Intro.JOB_DRESS_AT).to.equal(true)
 			expect(Intro.JOB_DRESS_AT < Intro.JOB_RATE_AT).to.equal(true)
@@ -722,10 +722,6 @@ return function()
 							expect(position == 0).to.equal(elapsed >= length)
 							step += 1
 						end
-						-- the first play's Skip comes after SKIP_AFTER, past the flight
-						expect(shots[Intro.shotAt(shots, Intro.SKIP_AFTER)].index >= 3).to.equal(
-							true
-						)
 					end
 				end
 			end
@@ -791,24 +787,27 @@ return function()
 		end)
 
 		it("lets Next in from 1.0 s, before any shot's hold ends", function()
-			expect(Intro.NEXT_AFTER).to.equal(1.0)
+			expect(Intro.NEXT_AFTER).to.equal(0.2) -- #3168: was 1.0
 			for _, shot in Intro.shots(EAST, true, true) do
 				expect(Intro.NEXT_AFTER < shot.hold).to.equal(true)
 			end
 		end)
 
 		describe("the camp's ground (#2961)", function()
-			it("checks the floor under the pad, the catch and the stray, and asks for the middle", function()
-				local ground = Intro.campGround()
-				local camp = Intro.camp("alley") :: any
-				expect(#ground.points).to.equal(3)
-				expect(ground.points[1]).to.equal(camp.pad)
-				expect(ground.points[2]).to.equal(Intro.catchSpot())
-				expect(ground.points[3]).to.equal(Intro.strayPoint())
-				-- the middle lies down the area from the camp's way out, past the filmed spots
-				local fromWayOut = (ground.middle - camp.wayOut):Dot(camp.u)
-				expect(fromWayOut > Intro.STRAY_IN).to.equal(true)
-			end)
+			it(
+				"checks the floor under the pad, the catch and the stray, and asks for the middle",
+				function()
+					local ground = Intro.campGround()
+					local camp = Intro.camp("alley") :: any
+					expect(#ground.points).to.equal(3)
+					expect(ground.points[1]).to.equal(camp.pad)
+					expect(ground.points[2]).to.equal(Intro.catchSpot())
+					expect(ground.points[3]).to.equal(Intro.strayPoint())
+					-- the middle lies down the area from the camp's way out, past the filmed spots
+					local fromWayOut = (ground.middle - camp.wayOut):Dot(camp.u)
+					expect(fromWayOut > Intro.STRAY_IN).to.equal(true)
+				end
+			)
 
 			it("waits a couple of seconds for the camp, not longer (Derek2 11-10)", function()
 				expect(Intro.CAMP_WAIT >= 2 and Intro.CAMP_WAIT <= 3).to.equal(true)

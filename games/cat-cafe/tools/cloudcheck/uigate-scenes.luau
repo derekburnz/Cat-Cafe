@@ -5328,7 +5328,11 @@ local SCENES = {
 		assert(nextPill.AbsolutePosition.X >= 0, "uigate: Next runs off the screen (#2182)")
 		assert(read.Visible, "uigate: no read bar on a shot with a hold (#2182)")
 		assert(read.AbsolutePosition.Y >= caption.AbsolutePosition.Y + caption.AbsoluteSize.Y - 1, "uigate: the read bar is not under the caption (#2182)")
-		assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= bottom.AbsolutePosition.Y + 1, "uigate: the read bar sits on the lower bar (#2182)")
+		-- #3024: only where the lower bar shows (a PC); on touch it is hidden, and on a 4:3 iPad its hidden frame sat above
+		-- the read bar and failed this for nothing. The touch branch below checks the read bar against Skip and Next.
+		if bottom.Visible then
+			assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= bottom.AbsolutePosition.Y + 1, "uigate: the read bar sits on the lower bar (#2182)")
+		end
 		-- #2394 (Derek2: "the bottom just takes up a lot of space that could be camera"): on touch no lower bar; the
 		-- caption and its read bar sit over Skip and Next, which stay inside the screen
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then

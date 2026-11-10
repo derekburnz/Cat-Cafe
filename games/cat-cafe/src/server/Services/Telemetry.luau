@@ -239,6 +239,9 @@ export type CustomEvent =
 	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
 	| "session_start"
+	-- #3073: each Store visit (the store_v1 opened step's), value 1; the join source (JoinSource), tier, device.
+	-- A custom event can be broken down by its fields, which a funnel step can't, so the Store reads ad vs organic.
+	| "store_opened"
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
 	-- "first" for the account's first spend here or "repeat"
 	| "robux_purchase"
@@ -1550,6 +1553,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.storeVisits += 1
 			session.store = { id = HttpService:GenerateGUID(false), step = 0, sku = nil }
 			storeStep(player, "opened", { from, tierText(profile), session.source })
+			Telemetry.custom(
+				player,
+				"store_opened",
+				1,
+				{ session.source, tierText(profile), session.device or "unknown" }
+			)
 			Telemetry.onboarding(player, profile, "first_store_open")
 		end
 	elseif name == "store_tab" then

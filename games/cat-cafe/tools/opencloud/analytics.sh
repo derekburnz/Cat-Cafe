@@ -661,6 +661,8 @@ fieldEvents=(
 	"left_in_phase|CustomField1,CustomField3|CustomEventCount|Leaves by phase and tier, first session or return"
 	"left_in_phase|CustomField1|CustomEventAvgValue|Average seconds played before leaving, by phase"
 	"station_open|CustomField1,CustomField2|CustomEventCount|Station opens by ring or prompt (#2910)"
+	"rescue_attempt|CustomField3|CustomEventCountUser|Players by rescue result (freed, missed_catch, out_of_paws, too_slow, walked_away, cancelled)"
+	"rescue_attempt|Platform,CustomField3|CustomEventCount|Rescue results by device"
 )
 say "### Event fields"
 say ""

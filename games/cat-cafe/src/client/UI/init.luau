@@ -224,7 +224,7 @@ UI.events = {
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
-	-- SpaTakeOut, SpaCollect, SpaBuySlot or MuseumDonate) with its arguments
+	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
@@ -1432,7 +1432,7 @@ function UI.init(config: Types.InitConfig)
 				or UI.intro.playing()
 		end,
 		lift = function()
-			return hudInstance:bottomTop()
+			return hudInstance:tackleTop() -- #3119: under the Drop off touch
 		end,
 	})
 	netButton = NetButton.new(parent, {
@@ -6578,6 +6578,9 @@ do
 		local museum = RelicMuseum.new({
 			donate = function(uid: string)
 				send("MuseumDonate", uid)
+			end,
+			fill = function(area: string)
+				send("MuseumFill", area) -- #3130: Auto fill
 			end,
 			close = closer(WINDOWS.museum),
 			far = far(LateStationsLogic.MUSEUM),

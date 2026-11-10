@@ -8,6 +8,7 @@
 --   SpaCollect(): +1 level for every finished slot, back to the cat room.
 --   SpaBuySlot(slot): the next slot, through GoldenFish.trySpend (the one fish-spend helper).
 --   MuseumDonate(uid): the copy leaves the save and fills its exhibit; a finished room adds to tips forever.
+--   MuseumFill(area) (#3130): Auto fill, each copy of LateStations.fillPlan for that hall the same way, in one call.
 -- Each answers LateStationResult(stationId, ok, detail) and sends LateStationsState when it changed, also checked
 -- every CHECK_SECONDS so a slot finishing turns on its "!". Nothing is sold for Robux (monetization-policy).
 
@@ -259,15 +260,13 @@ local function onSpaBuySlot(player: Player, rawSlot: unknown)
 	refresh(player, profile, false)
 end
 
-local function onMuseumDonate(player: Player, rawUid: unknown)
-	local uid = Guard.id(rawUid)
-	if uid == nil then
-		return
-	end
-	local profile = ready(player, LateStations.MUSEUM)
-	if profile == nil then
-		return
-	end
+-- Gives the copy `uid` after donateBlocker (nil when it went, else why not), with its telemetry and room toast.
+-- Returns the catId and the room it finished, and whether the copy was working. Earnings are settled first.
+local function giveOne(
+	player: Player,
+	profile: Types.PlayerProfile,
+	uid: string
+): (string?, string?, string?, boolean)
 	local blocker = LateStations.donateBlocker(
 		profile,
 		Economy.tier(profile),
@@ -275,9 +274,7 @@ local function onMuseumDonate(player: Player, rawUid: unknown)
 		TradeService.isTrading(player) or CafeService.isOffered(player, uid)
 	)
 	if blocker ~= nil then
-		refuse(player, LateStations.MUSEUM, blocker)
-		refresh(player, profile, true)
-		return
+		return blocker, nil, nil, false
 	end
 	local instance = profile.cats[uid]
 	local working = instance.spotId ~= nil
@@ -304,7 +301,10 @@ local function onMuseumDonate(player: Player, rawUid: unknown)
 			"good"
 		)
 	end
-	Net.fire(player, "LateStationResult", LateStations.MUSEUM, true, { catId = catId, room = room })
+	return nil, catId, room, working
+end
+
+local function afterGive(player: Player, profile: Types.PlayerProfile, working: boolean)
 	if working then
 		CafeService.requestAutoEquip(player)
 	end
@@ -313,12 +313,84 @@ local function onMuseumDonate(player: Player, rawUid: unknown)
 	refresh(player, profile, false)
 end
 
+local function onMuseumDonate(player: Player, rawUid: unknown)
+	local uid = Guard.id(rawUid)
+	if uid == nil then
+		return
+	end
+	local profile = ready(player, LateStations.MUSEUM)
+	if profile == nil then
+		return
+	end
+	local blocker, catId, room, working = giveOne(player, profile, uid)
+	if blocker ~= nil then
+		refuse(player, LateStations.MUSEUM, blocker)
+		refresh(player, profile, true)
+		return
+	end
+	Net.fire(player, "LateStationResult", LateStations.MUSEUM, true, { catId = catId, room = room })
+	afterGive(player, profile, working)
+end
+
+-- #3130: Auto fill, every copy of the server's own plan for that hall, each through MuseumDonate's checks.
+local function onMuseumFill(player: Player, rawArea: unknown)
+	local area = Guard.id(rawArea)
+	if area == nil then
+		return
+	end
+	local profile = ready(player, LateStations.MUSEUM)
+	if profile == nil then
+		return
+	end
+	local plan = LateStations.fillPlan(profile, area)
+	local given, anyWorking = 0, false
+	local lastCat, lastRoom: string? = nil, nil
+	local firstBlocker: string? = nil
+	for _, uid in plan do
+		local blocker, catId, room, working = giveOne(player, profile, uid)
+		if blocker ~= nil then
+			firstBlocker = firstBlocker or blocker
+			continue
+		end
+		given += 1
+		anyWorking = anyWorking or working
+		lastCat = catId
+		lastRoom = room or lastRoom
+	end
+	if given == 0 then
+		refuse(
+			player,
+			LateStations.MUSEUM,
+			firstBlocker or "Nothing to fill in this hall right now"
+		)
+		refresh(player, profile, true)
+		return
+	end
+	Telemetry.custom(player, "museum_fill", given, { area })
+	if lastRoom == nil then
+		Net.toast(
+			player,
+			string.format("Gave %d cat%s to the museum", given, if given == 1 then "" else "s"),
+			"good"
+		)
+	end
+	Net.fire(
+		player,
+		"LateStationResult",
+		LateStations.MUSEUM,
+		true,
+		{ catId = lastCat, room = lastRoom, filled = given }
+	)
+	afterGive(player, profile, anyWorking)
+end
+
 function LateStationService.start()
 	Net.on("SpaPut", onSpaPut)
 	Net.on("SpaTakeOut", onSpaTakeOut)
 	Net.on("SpaCollect", onSpaCollect)
 	Net.on("SpaBuySlot", onSpaBuySlot)
 	Net.on("MuseumDonate", onMuseumDonate)
+	Net.on("MuseumFill", onMuseumFill)
 	if not Config.LateStationsOpen then
 		return -- no state until the cards are in
 	end

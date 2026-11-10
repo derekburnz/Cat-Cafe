@@ -84,6 +84,7 @@ local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
+local TackleBar = require(script.Parent.TackleBar)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
@@ -139,6 +140,7 @@ export type HUD = {
 	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
 	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
 	bottomTop: (self: HUD) -> number,
+	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
@@ -369,6 +371,12 @@ local DROP_TEXT = if TOUCH then Theme.sizes.textSmall else Theme.sizes.textBody
 -- more room between the bottom row and what stacks on it; with a mouse too, where the pill's outline lay 2 px over
 -- the My Cafe tile's (the UI gate's tilesnear)
 local DROP_LIFT = 8
+-- #3119 (Derek2 11-10: "drop bag cat / drop on pc now goes inside my cafe/cannon ui make it stack on top of tackle
+-- for PC"): off touch the Drop (the carry banner or the bag pill) stands on the Tackle bar's place over the bottom
+-- row, kept whether or not the bar shows (it hides while carrying and outside catching areas), so the Drop is a
+-- bar's height clear of the tiles and never jumps as the bar comes and goes. On touch the Tackle is a round button
+-- by the jump button, and #3010's small lift stays.
+local TACKLE_SLOT = if TOUCH then 0 else TackleBar.HEIGHT + Theme.sizes.gap
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
@@ -3146,6 +3154,15 @@ function HUD._chipsLift(self: any): number
 	return BuffChips.potionsHeight() + Theme.sizes.gap
 end
 
+-- What the Drop (the carry banner or the bag pill) stands on over the bottom row: off touch the Tackle bar's place
+-- (#3119), on touch #3010's small lift while the row shows.
+local function dropLift(overRow: boolean): number
+	if not TOUCH then
+		return TACKLE_SLOT
+	end
+	return if overRow then DROP_LIFT else 0
+end
+
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
 	local overRow = self._travelRow.Visible and not self._travelFolded
@@ -3154,19 +3171,19 @@ function HUD._layoutBottom(self: any)
 	end
 	y -= self:_chipsLift()
 	if self._carry.Visible then
-		y -= if overRow then DROP_LIFT else 0 -- #3010: clear of the bottom row's tiles on touch
+		y -= dropLift(overRow) -- #3010: clear of the bottom row's tiles on touch; #3119: over the Tackle bar off touch
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
 	elseif self._packDrop.instance.Visible then
-		y -= if overRow then DROP_LIFT else 0
+		y -= dropLift(overRow)
 		self._packDrop.instance.Position = UDim2.new(0.5, 0, 1, y)
 		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end
 
--- Just above whatever the bottom centre stacks (the bottom row, the carry banner, the tutorial strip), in design
--- pixels from the screen's bottom edge, for the Tackle bar (Screens/TackleBar) to sit on.
+-- Just above whatever the bottom centre stacks (the bottom row, the carry banner or the bag pill on its lift, the
+-- tutorial strip), in design pixels from the screen's bottom edge, for the toasts and the ask card to sit on.
 function HUD.bottomTop(self: any): number
 	local y = -MARGIN
 	local overRow = self._travelRow.Visible and not self._travelFolded
@@ -3175,12 +3192,26 @@ function HUD.bottomTop(self: any): number
 	end
 	y -= self:_chipsLift()
 	if self._carry.Visible then
-		y -= CARRY_H + Theme.sizes.gap + (if overRow then DROP_LIFT else 0)
+		y -= CARRY_H + Theme.sizes.gap + dropLift(overRow)
 	elseif self._packDrop.instance.Visible then
-		y -= PACK_DROP_H + Theme.sizes.gap + (if overRow then DROP_LIFT else 0)
+		y -= PACK_DROP_H + Theme.sizes.gap + dropLift(overRow)
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
+	end
+	return y
+end
+
+-- Where the Tackle bar's foot sits (Screens/TackleBar), in design pixels from the screen's bottom edge. #3119: off
+-- touch, while a Drop shows, right over the bottom row, in the place the Drop keeps for it; else on top of the stack
+-- as before (over the tutorial strip).
+function HUD.tackleTop(self: any): number
+	if TOUCH or not (self._carry.Visible or self._packDrop.instance.Visible) then
+		return self:bottomTop()
+	end
+	local y = -MARGIN
+	if self._travelRow.Visible and not self._travelFolded then
+		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	return y
 end

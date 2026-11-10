@@ -12,6 +12,7 @@
 --                                     all the way around it)
 --   frontOffset(front, radius, range) how far in front of a station's pivot its ring's centre sits
 --   aroundRadius(half, range)         the radius of a ring all the way round a station
+--   FRONT_FIT_LEAST, BOARD_RADIUS     the camp stations' fitted front rings and the Index Boards' smaller one (#3113)
 --   fitRing(radius, blocks, most, least, keep?)  where that ring moves, and how small it gets, to clear what stands
 --                                     in it while still holding the station's base
 -- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
@@ -56,6 +57,12 @@ end
 -- what it clears.
 WalkUp.FIT_SHIFT_MAX = 1.5
 WalkUp.FIT_CLEAR = 0.02
+-- #3113 (Derek2: "circle pads to walk into for all area stations also and big enough"): a camp station's front ring
+-- is FRONT_RADIUS like the town's, slid or shrunk off what stands in it (World/WalkUpCircles.frontFit), never under
+-- FRONT_FIT_LEAST. An Index Board's is BOARD_RADIUS: it stands beside the way out, where a town-sized ring would lie
+-- across the path from the landing pad to the opening and open the Index on everyone walking out.
+WalkUp.FRONT_FIT_LEAST = 4.5
+WalkUp.BOARD_RADIUS = 4.5
 
 -- #2433 (Laptop-Tester on #2432: each camp's cannon ring ran up to 1.1 studs under the camp's low side wall): a ring of
 -- `radius` round a station, with `blocks` the flat points (from the station's pivot) where something stands on its

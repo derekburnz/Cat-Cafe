@@ -7,7 +7,8 @@
 local StationOpens = {}
 
 -- The windows a walk-up station opens (WalkUpController's KINDS, plus the own bait bowl). "BugReport" is the Feedback
--- window, opened by the feedback stand (#3066).
+-- window, opened by the feedback stand (#3066). The Yard Sale, the Oasis Spa, the Relic Museum and the Index Boards
+-- ("Collection") count their ring opens too since #3113; their prompts are not in PROMPTS, so only rings are counted.
 StationOpens.WINDOWS = table.freeze({
 	"Cannon",
 	"Spin",
@@ -17,6 +18,11 @@ StationOpens.WINDOWS = table.freeze({
 	"Dealer",
 	"Bait",
 	"BugReport",
+	-- #3113: the camp stations' rings and the Index Boards'
+	"YardSale",
+	"OasisSpa",
+	"RelicMuseum",
+	"Collection",
 })
 StationOpens.HOWS = table.freeze({ "ring", "prompt" })
 

@@ -2682,6 +2682,37 @@ local SCENES = {
 	end },
 	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
 	-- the coins Payout paid and the potions, and the first button and Close the same size
+	-- #2966 and #2968 (console pass 2): on a gamepad the Tackle bar's key cap reads Y, the gift card takes the selection
+	-- as it shows, and B closes it and lets go
+	{ "GamepadPopups", function()
+		local GuiService = game:GetService("GuiService")
+		local inputs = game:GetService("UserInputService")
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), Enum.UserInputType.Gamepad1)
+		UI.setZone("Alley")
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local tackle = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local key = tackle and tackle:FindFirstChild("Key", true) :: TextLabel?
+		-- a touch screen has the round Tackle button with no key cap
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			assert(key and key.Visible and key.Text == "Y", "uigate: the Tackle bar's key cap reads " .. tostring(key and key.Text) .. " on a gamepad (#2966)")
+		end
+		GuiService.SelectedObject = nil
+		UI.recap.lastInput = os.clock() - 30
+		UI.gift.show("fav", { "+$25000", "1 Tip Potion" })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true) :: Frame
+		local selected = GuiService.SelectedObject
+		assert(selected ~= nil and selected:IsDescendantOf(card), "uigate: the gift card took no selection on a gamepad (#2968)")
+		local input = { KeyCode = Enum.KeyCode.ButtonB, UserInputType = Enum.UserInputType.Gamepad1 }
+		UIShim.fire(UIShim.eventOf(inputs, "InputBegan"), input, true)
+		UIShim.advance(0.1)
+		assert(not card.Visible, "uigate: B did not close the gift card (#2968)")
+		assert(GuiService.SelectedObject == nil, "uigate: the selection stayed on the closed gift card (#2968)")
+		UIShim.setLastInput(nil)
+		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
+	end },
 	{ "GiftCardLike", function()
 		UI.recap.lastInput = os.clock() - 30 -- idle
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })

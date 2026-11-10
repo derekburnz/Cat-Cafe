@@ -248,6 +248,8 @@ PIVOT_NOTES = {
     campstations.SPA_TOWEL: "the middle of its underside, on top of a soaking cat's head",
     campstations.MUSEUM: "the base centre on the camp's ground, front -Z, no turn; the Ruins camp's station spot "
                          "(Layout.campExtras.ruins, Ruins set space)",
+    campstations.BIN: "the base centre on the ground, front -Z (the paw print), no turn; at the Alleyway camp "
+                      "within 15 studs of its pad (#3050)",
     campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
                        "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
@@ -445,6 +447,12 @@ STUDIO_NOTES = {
                          "round the gold cat idol (see-through). Attachments PromptAnchor (the velvet rope, 1.5 up), "
                          "BangAnchor (2 over the RELIC MUSEUM sign) and SparkleAnchor (the idol). Everything else "
                          "collides and can be climbed.",
+    campstations.BIN: "#3050: the Alleyway camp's Rummage Bin, about 4 tall: a teal bin with a cream band and paw "
+                      "print on a pallet. Two looks as child Models, show one: _Ready (lid flung back, a tuna, a "
+                      "golden fish tail and a crate corner poking out, sparkles) and _Empty (lid shut, a fish bone "
+                      "on it); hide the other (Transparency 1, CanCollide off) or parent it away. Attachments "
+                      "PromptAnchor (front, 1.5 up), BangAnchor (2.6 over the rim) and GlowAnchor (just over the "
+                      "mouth, for a ready glow). The bin and pallet collide.",
     campstations.LOST: "#1732 (camp-stations.md section 4b): the Lost and Found booth, replacing "
                        "CatCafe_Camp_Sewer_LostFound at Layout.campExtras.sewer. _Bell is the desk bell (pivot at its "
                        "base, for the ring-wobble), _Bulb the sign's bulbs (night glow), _Blink_Bulb the one that "

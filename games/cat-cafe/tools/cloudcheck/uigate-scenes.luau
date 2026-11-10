@@ -7244,6 +7244,57 @@ local SCENES = {
 		}
 		UI.trade.state(state)
 	end },
+	-- #2745: the Crates tab: banked crates in Market order with "x3", one on offer ("1 on"), one Sam can't open yet
+	-- greyed; crates on each side after the cats, and the count picker after a long press
+	{ "TradeCrates", function()
+		local kinds = {}
+		for _, crate in Catalog.crates do
+			if not crate.golden and #kinds < 4 then
+				table.insert(kinds, crate)
+			end
+		end
+		assert(#kinds >= 3, "uigate: not enough crate kinds for TradeCrates")
+		local banked = {}
+		for index, crate in kinds do
+			banked[crate.id] = index + 1
+		end
+		Scenes._crates = (UI.getState() :: any).crates or {}
+		UI.update({ crates = banked } :: any)
+		local state = tradeState()
+		state.cratesOn = true
+		state.me.crates = { { id = kinds[1].id, name = kinds[1].name, area = kinds[1].area, count = 1 } }
+		state.them.crates = { { id = kinds[2].id, name = kinds[2].name, area = kinds[2].area, count = 3 } }
+		state.crateBlocked = { [kinds[#kinds].id] = "They haven't reached the Desert yet" }
+		UI.trade.state(state)
+		press("Trade", "Tabs.Crates")
+		task.wait(0.05)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local picks = modals and modals:FindFirstChild("Picks", true)
+		local shown = 0
+		for _, tile in (picks and picks:FindFirstChild("List") or Instance.new("Folder")):GetChildren() do
+			if tile.Name == "Crate" and tile:IsA("Frame") and tile.Visible then
+				shown += 1
+			end
+		end
+		assert(shown == #kinds, "uigate: the Crates tab shows " .. shown .. " crates, not " .. #kinds)
+		local picker = picks and picks:FindFirstChild("CratePicker")
+		assert(picker ~= nil, "uigate: no crate count picker")
+		-- the long press's picker as it shows (the shim has no held press)
+		picker.Visible = true
+		picker:FindFirstChild("Title").Text = "How many " .. kinds[2].name .. "?"
+		picker:FindFirstChild("Count").Text = "2"
+	end },
+	-- #2745: with cratesOn false the Crates tab stays hidden
+	{ "TradeCratesOff", function()
+		local state = tradeState()
+		state.cratesOn = false
+		UI.trade.state(state)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local picks = modals and modals:FindFirstChild("Picks", true)
+		local tab = picks and picks:FindFirstChild("Tabs")
+		local crates = tab and tab:FindFirstChild("Crates")
+		assert(crates ~= nil and not crates.Visible, "uigate: the Crates tab shows with cratesOn false")
+	end },
 	-- F102 part 2: Settings ends with the Trading section once TradeService runs: Friends only picked, then Trades
 	{ "SettingsTrading", function()
 		workspace:SetAttribute("TradingOn", true)
@@ -7404,6 +7455,10 @@ function Scenes.close()
 	if Scenes._lawnOwned then
 		UI.update({ lawnOwned = Scenes._lawnOwned } :: any) -- #2075's lawn rarity scene
 		Scenes._lawnOwned = nil
+	end
+	if Scenes._crates ~= nil then
+		UI.update({ crates = Scenes._crates } :: any) -- #2745's Crates tab scene
+		Scenes._crates = nil
 	end
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene

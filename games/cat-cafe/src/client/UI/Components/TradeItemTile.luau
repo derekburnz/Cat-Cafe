@@ -4,6 +4,8 @@
 -- first letter until the picture loads), a small badge on the top left ("Lawn" for a lawn piece) and its tip bonus
 -- at the foot ("+5%"). A piece that cannot go into the offer is dimmed: 🔒 while locked, "Has it" when the other
 -- player owns it already; one already in the offer is dimmed with a green ✓. `flash` turns it yellow for "Changed!".
+-- #2745: a banked crate kind uses it too ("x3" in the pill, 🔒 while the other player can't take it, "blocked"), and
+-- props.onHold makes a press held HOLD_SECONDS call it instead of onClick (the Crates tab's count picker).
 --   TradeItemTile.new(props)  props.onClick makes the whole card a button
 --   tile:set(view)            the piece and its words; nil hides it
 --   tile:flash()
@@ -22,6 +24,7 @@ export type Props = {
 	layoutOrder: number?,
 	name: string?,
 	onClick: (() -> ())?,
+	onHold: (() -> ())?, -- #2745: a long press
 }
 
 export type View = {
@@ -31,7 +34,7 @@ export type View = {
 	image: string?, -- the clean picture, nil while there is none
 	badge: string?, -- the top-left pill: "Lawn"
 	foot: string?, -- the foot line: "+5%"
-	status: ("locked" | "offered" | "theyHave")?,
+	status: ("locked" | "offered" | "theyHave" | "blocked")?,
 }
 
 export type TradeItemTile = {
@@ -42,6 +45,7 @@ export type TradeItemTile = {
 }
 
 local FLASH_SECONDS = 2
+local HOLD_SECONDS = 0.45 -- a press held this long is a long press (#2745)
 
 local TradeItemTile = {}
 TradeItemTile.__index = TradeItemTile
@@ -167,7 +171,37 @@ function TradeItemTile.new(props: Props): TradeItemTile
 			ZIndex = 8,
 			Parent = frame,
 		})
+		local onHold = props.onHold
+		local held = false
+		if onHold then
+			local token = 0
+			hit.InputBegan:Connect(function(input: InputObject)
+				local kind = input.UserInputType
+				if kind ~= Enum.UserInputType.MouseButton1 and kind ~= Enum.UserInputType.Touch then
+					return
+				end
+				token += 1
+				local mine = token
+				held = false
+				task.delay(HOLD_SECONDS, function()
+					if token == mine and frame.Parent ~= nil then
+						held = true
+						onHold()
+					end
+				end)
+			end)
+			hit.InputEnded:Connect(function(input: InputObject)
+				local kind = input.UserInputType
+				if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
+					token += 1 -- let go before the hold: a tap
+				end
+			end)
+		end
 		hit.Activated:Connect(function()
+			if held then
+				held = false -- the long press had it
+				return
+			end
 			onClick()
 		end)
 	end

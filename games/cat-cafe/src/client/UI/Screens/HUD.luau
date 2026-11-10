@@ -274,12 +274,16 @@ local SIDE_REACH = if TOUCH then math.max(Button.OUTLINE, GLOW_REACH) else Butto
 local FOOT_REACH = if TOUCH then SIDE_REACH else Theme.sizes.textOutline
 -- Between the columns: a tile's right side (its outline, or the Store's glow) and the next one's key cap keep
 -- TILE_CLEAR apart, and a lit red dot on the top right keeps at least the outline from that key cap.
--- On touch a long label inside the smaller tile ("Upgrades") runs up to LABEL_REACH past its sides (#2372).
-local LABEL_REACH = if TOUCH then 4 else 0
+-- On touch a long label inside the smaller tile ("Upgrades") runs up to LABEL_REACH past its sides (#2372). Off
+-- touch the clean tile's word under its square does too: "Upgrades" at MENU_TEXT is about 70.5 wide under the 66
+-- square, so with its 3 px text outline it draws 5.25 past each side, 1.25 past the outline; LABEL_REACH 2 keeps it
+-- TILE_CLEAR from the next column's key cap when Upgrades and Decor share a row (Tier 1; #3045, the UI gate's
+-- console profile found it 3.6 px from the Decor tile's key cap, needing 5.2)
+local LABEL_REACH = if TOUCH then 4 else 2
 local MENU_GAP = math.max(
 	SIDE_REACH + KEY_REACH + TILE_CLEAR,
 	DOT_SIDE + KEY_REACH + Button.OUTLINE
-) + LABEL_REACH -- 19, 14 touch
+) + LABEL_REACH -- 16, 14 touch
 -- Under a tile whose foot reaches this far: TILE_CLEAR to the next row's key caps, the outline to its red dots.
 local function rowGap(foot: number): number
 	return math.max(foot + KEY_REACH + TILE_CLEAR, foot + DOT_TOP + Button.OUTLINE)

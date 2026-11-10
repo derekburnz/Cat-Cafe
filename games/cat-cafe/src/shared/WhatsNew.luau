@@ -30,6 +30,8 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2872, #2874 (v477): menus, prompts and drops on a gamepad
+	{ id = "controller_play", date = "2026-11-10", icon = "new", text = "Play with a controller" },
 	-- #2718 refresh (11-09 night): player-facing changes since #2704, 99 merges; no player ideas
 	{ id = "cat_makeovers", date = "2026-11-09", icon = "cat", text = "Cat makeovers for 16 cats" },
 	{

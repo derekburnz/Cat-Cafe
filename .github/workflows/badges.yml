@@ -1,0 +1,66 @@
+# List the game's badges, or create release badges (#1957, release.md section 1) without Creator Hub (Derek2,
+# 2026-11-10: "OWNER_KEY can maybe do badges"). Start it from the Actions tab (badges > Run workflow) or from any
+# thread with the GitHub actions_run_trigger tool on main. Script and rules: games/cat-cafe/tools/opencloud/badges.sh.
+# Free only: every create sends expectedCost=0, so past the 5 free badges a day Roblox refuses instead of charging,
+# and a name that exists already is skipped. The new ids print in the log; a thread puts them in Config.Badges.
+# Needs the repo secret OWNER_KEY (the group owner's key) with legacy-universe.badge:manage-and-spend-robux.
+name: badges
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list (every badge, no key needed) | create (the keys below, at most 5)"
+        type: choice
+        options: [list, create]
+        default: list
+      keys:
+        description: "create: Config.Badges keys, comma separated (rainbowCoat, pageComplete, helpingPaw, firstTrade, purrfectStreak, partyGuest)"
+        required: false
+        default: "rainbowCoat,pageComplete,helpingPaw,firstTrade,purrfectStreak"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: badges
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  badges:
+    name: Release badges
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.OWNER_KEY }}
+      ACTION: ${{ inputs.action }}
+      KEYS: ${{ inputs.keys }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # the script and the badge icons
+          sparse-checkout: |
+            games/cat-cafe/tools/opencloud
+            assets/cat-cafe/exports/icons
+
+      - name: Check the key is set
+        if: inputs.action == 'create'
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret OWNER_KEY is missing."
+            exit 1
+          fi
+
+      - name: List or create
+        run: |
+          script=games/cat-cafe/tools/opencloud/badges.sh
+          case "$ACTION" in
+          list) bash "$script" list ;;
+          create)
+            [[ $KEYS =~ ^[A-Za-z]+(,[A-Za-z]+){0,4}$ ]] || { echo "::error::keys must be 1 to 5 Config.Badges keys, comma separated"; exit 1; }
+            bash "$script" create "$KEYS" | tee -a "$GITHUB_STEP_SUMMARY"
+            ;;
+          esac

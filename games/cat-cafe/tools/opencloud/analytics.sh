@@ -689,6 +689,8 @@ fieldEvents=(
 	"quit_scene|CustomField1|CustomEventCountUser|Leavers below Tier 2 by scene (#3101)"
 	"quit_scene|CustomField2,CustomField1|CustomEventCountUser|Leavers below Tier 2 by device and scene"
 	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
+	"first_scene|CustomField1|CustomEventAvgValue|Average seconds from join to the first intro shot, by device (minus step_time loaded = still wait)"
+	"first_scene|CustomField1,CustomField3|CustomEventCountUser|Players by device and wait before the first intro shot"
 )
 say "### Event fields"
 say ""

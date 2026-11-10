@@ -5498,6 +5498,52 @@ local SCENES = {
 	-- press in a shot's first second does nothing, then one press moves on once
 	-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
 	-- visitor shot's caption fits one line, and the grab's gold "+$" pops over the bag and is gone by 1.6 s
+	-- #3106: a new player's first delivery says "on its way to your cafe!" once; a player past the walk-through never
+	{ "FirstDeliveryToast", function()
+		local function count(text: string): number
+			local found = 0
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Text == text then
+					found += 1
+				end
+			end
+			return found
+		end
+		local line = "🧺 Mochi is on its way to your cafe!"
+		UI.update({ tutorialStep = 5 })
+		UI.cannon.checkedIn("Mochi")
+		UIShim.advance(0.3)
+		assert(count(line) == 0, "uigate: the delivery pop-up showed past the walk-through (#3106)")
+		UI.update({ tutorialStep = 2 })
+		UI.cannon.checkedIn("Mochi")
+		UI.cannon.checkedIn("Mochi")
+		UIShim.advance(0.3)
+		assert(count(line) == 1, "uigate: a new player's first delivery did not show its pop-up once (#3106)")
+	end },
+	-- #3105: the loading screen over the still wait before the first shot, and a play sliding it away
+	{ "IntroLoading", function()
+		UI.intro.waiting(true)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		assert(gui.Enabled, "uigate: the loading screen did not show (#3105)")
+		UIShim.advance(0.9)
+		local label = gui:FindFirstChild("Label", true) :: TextLabel
+		assert(label.Text:sub(1, 7) == "Loading", "uigate: the loading screen lost its word (#3105)")
+		-- hidden and shown again at once: the slide away must not carry the new show off (review on #3107)
+		UI.intro.waiting(false)
+		UI.intro.waiting(true)
+		UIShim.advance(0.6)
+		local cover = gui:FindFirstChild("Cover") :: Frame
+		assert(gui.Enabled, "uigate: the loading screen went off after a quick hide and show (#3105)")
+		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
+	end },
+	{ "IntroLoadingLifts", function()
+		UI.intro.waiting(true)
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(1, "Welcome to your cat cafe!", nil, 4.2)
+		UIShim.advance(0.5)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		assert(not gui.Enabled, "uigate: the loading screen stayed up over the intro (#3105)")
+	end },
 	{ "IntroRichTip", function()
 		UI.intro.start({ skipAfter = 5 })
 		UI.intro.setShot(6, "Rich visitors leave big tips. Grab them fast!", nil, 4.2)

@@ -70,6 +70,8 @@ export type Intro = {
 	tackleCue: (self: Intro, key: string?, pressIn: number?) -> (), -- #2469
 	finish: (self: Intro) -> (),
 	playing: (self: Intro) -> boolean,
+	-- #3105: the loading screen while the camera is held still before the first shot (or before the first spawn)
+	waiting: (self: Intro, on: boolean) -> (),
 	destroy: (self: Intro) -> (),
 }
 
@@ -81,6 +83,19 @@ local BARS_OUT = TweenInfo.new(OUT, Enum.EasingStyle.Quad, Enum.EasingDirection.
 local FADE = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local CAPTION_POP = TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SIDE = 24 -- design pixels kept clear at the screen's sides
+-- #3105 (Derek2 11-10, on two new players leaving at the tutorial's start: "makes me think issues loading or smth",
+-- then "a quick loading screen maybe"): while the intro waits for the Alleyway to stream in, and before the first
+-- spawn, the camera holds still, for up to 7.5 s on a slow phone, and a still picture with no words looks frozen. A
+-- loading screen covers it: the game's name, a cat, three paws that light in turn and "Loading" with dots that
+-- tick, so it is plainly alive. It slides away the moment its caller says the wait is over, and by itself after
+-- WAIT_LIMIT whatever its caller does, so it never holds a player longer than the load.
+local WAIT_TITLE = "Catch a Cat Cafe"
+local WAIT_TEXT = "Loading"
+local WAIT_TICK = 0.4 -- seconds a dot and a paw
+local WAIT_LIMIT = 20 -- seconds
+local WAIT_OUT = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local WAIT_PAWS = 3
+local WAIT_PAW_DIM = 0.75
 local CAPTION_HEIGHT = 44
 local CAPTION_TEXT = 30
 local DOT = 10
@@ -411,6 +426,90 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	end) :: Signal.Connection
 	self:_layout()
 	screenGui.Parent = parent
+
+	-- #3105: the loading screen, in a ScreenGui of its own so it shows without the bars and never touches a play
+	self._waiting = false
+	self._waitToken = 0
+	self._waitOut = nil :: Tween? -- the slide away, while it runs
+	local waitGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafeIntroWait",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 50,
+		Enabled = false,
+	})
+	self._waitGui = waitGui
+	local cover: Frame = Create("Frame", {
+		Name = "Cover",
+		Active = true, -- taps stop here: nothing under a loading screen opens
+		BackgroundColor3 = Theme.colors.cream,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Parent = waitGui,
+	})
+	self._waitCover = cover
+	local waitRoot: Frame = Create("Frame", {
+		Name = "Root",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = cover,
+	})
+	self._waitScale = Scale.bind(waitRoot)
+	Create("TextLabel", {
+		Name = "Cat",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 0.5, -44),
+		Size = UDim2.fromOffset(96, 84),
+		FontFace = Theme.fonts.display,
+		TextSize = 72,
+		Text = "🐱",
+		Parent = waitRoot,
+	})
+	local title: TextLabel = Create("TextLabel", {
+		Name = "Title",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -2 * SIDE, 0, 56),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.gold,
+		TextSize = 44,
+		Text = WAIT_TITLE,
+		Parent = waitRoot,
+	})
+	Outline.text(title, 3)
+	self._waitPaws = {} :: { TextLabel }
+	for index = 1, WAIT_PAWS do
+		self._waitPaws[index] = Create("TextLabel", {
+			Name = "Paw" .. index,
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, (index - (WAIT_PAWS + 1) / 2) * 44, 0.5, 40),
+			Size = UDim2.fromOffset(40, 36),
+			FontFace = Theme.fonts.display,
+			TextSize = 28,
+			TextTransparency = WAIT_PAW_DIM,
+			Text = "🐾",
+			Parent = waitRoot,
+		})
+	end
+	-- left-aligned in a fixed box, so the word stays put while the dots tick
+	self._waitLabel = Create("TextLabel", {
+		Name = "Label",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 8, 0.5, 86),
+		Size = UDim2.fromOffset(104, 28),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.ink,
+		TextSize = 22,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = WAIT_TEXT .. "...",
+		Parent = waitRoot,
+	})
+	waitGui.Parent = parent
 	return self :: Intro
 end
 
@@ -446,7 +545,54 @@ function Intro._renderDots(self: any)
 end
 
 -- Plays from the top: bars in, dots reset, Skip after skipAfter seconds (IntroLogic.skipAfter).
+-- #3105: shows the loading screen, or slides it away. A play slides it away (start), and so does WAIT_LIMIT.
+function Intro.waiting(self: any, on: boolean)
+	local show = on and self._alive and not self._playing
+	if show == self._waiting then
+		return
+	end
+	self._waiting = show
+	self._waitToken += 1
+	local token = self._waitToken
+	local cover: Frame = self._waitCover
+	if not show then
+		local out = Tween.to(cover, WAIT_OUT, { Position = UDim2.fromScale(0, -1) })
+		self._waitOut = out
+		out.Completed:Once(function()
+			if self._alive and token == self._waitToken then
+				self._waitGui.Enabled = false
+			end
+		end)
+		return
+	end
+	-- a show straight after a hide: stop the slide, or it would carry the cover off again (review on #3107)
+	local out: Tween? = self._waitOut
+	if out ~= nil then
+		out:Cancel()
+		self._waitOut = nil
+	end
+	cover.Position = UDim2.fromScale(0, 0)
+	self._waitGui.Enabled = true
+	task.spawn(function()
+		local tick = 0
+		local began = os.clock()
+		while self._alive and self._waiting and token == self._waitToken do
+			if os.clock() - began > WAIT_LIMIT then
+				self:waiting(false)
+				return
+			end
+			self._waitLabel.Text = WAIT_TEXT .. string.rep(".", tick % 4)
+			for index, paw in self._waitPaws :: { TextLabel } do
+				paw.TextTransparency = if index == tick % WAIT_PAWS + 1 then 0 else WAIT_PAW_DIM
+			end
+			tick += 1
+			task.wait(WAIT_TICK)
+		end
+	end)
+end
+
 function Intro.start(self: any, options: Types.IntroOptions?)
+	self:waiting(false) -- #3105: the wait is over
 	self._token += 1
 	local token = self._token
 	self:_clearRing()
@@ -1211,6 +1357,8 @@ function Intro.destroy(self: any)
 	table.clear(self._connections)
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)
+	Scale.unbind(self._waitScale)
+	self._waitGui:Destroy()
 	self.screenGui:Destroy()
 end
 

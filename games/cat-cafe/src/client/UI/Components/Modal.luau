@@ -87,9 +87,17 @@ function Modal.new(parent: Instance): Modal
 	-- Container keeps every screen inside 92% x 86% of the (scaled) viewport. #2339 (Laptop-Tester, iPhone SE: "windows
 	-- show only about 1.5 rows"): on a short screen (Scale.isShort) it takes the height down to SHORT_TOP, room for the
 	-- window's ears, and SHORT_BOTTOM
+	-- #2965 (console pass 2: the DPad walked out of Upgrades onto the HUD's Tutorial button behind it, and A pressed
+	-- the travel row's fold behind Cats): a selection group that stops at its edges, so a gamepad's selection never
+	-- leaves the open window (B still closes it)
 	local container: Frame = Create("Frame", {
 		Name = "Container",
 		BackgroundTransparency = 1,
+		SelectionGroup = true,
+		SelectionBehaviorUp = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorDown = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorLeft = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorRight = Enum.SelectionBehavior.Stop,
 		Parent = root,
 	})
 	local function fit()

@@ -1364,7 +1364,7 @@ def build_cushion_pile(mat):
 
 def build_caravan_bench(mat):
     """A carved wooden bench with cushions under a striped, fringed canopy on four posts, a brass lantern hanging
-    in the middle (its light `_Glow`)."""
+    in the middle that sways (`_Lantern_Swing`, its light `_Lantern_Glow`; #2734)."""
     name = "CatCafe_Decor_CaravanBench"
     b, glow = RB(), RB()
     for sx in (-1, 1):                                                                     # legs and arms
@@ -1395,11 +1395,17 @@ def build_caravan_bench(mat):
             x = -1.84 + k * 3.68 / 15
             b.span((x - 0.05, 3.44, sz * 1.06 - 0.025), (x + 0.05, 3.6, sz * 1.06 + 0.025),
                    "fur_golden" if k % 2 == 0 else "bowl_red")
-    b.span((-0.02, 3.0, -0.02), (0.02, 3.6, 0.02), "brass")                                # hanging lantern
-    b.span((-0.16, 2.95, -0.16), (0.16, 3.0, 0.16), "brass")
-    glow.span((-0.12, 2.65, -0.12), (0.12, 2.95, 0.12), "lamp_warm")
-    b.span((-0.16, 2.6, -0.16), (0.16, 2.65, 0.16), "brass")
-    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+    # the hanging lantern, built round its hook under the canopy and finalized there, so Effects/Motion swings it
+    # (#2734: the child Model `_Lantern_Swing`, its light `_Lantern_Glow` riding it)
+    hook = (0.0, 3.6, 0.0)
+    sw = RB()
+    sw.span((-0.02, -0.6, -0.02), (0.02, 0.0, 0.02), "brass")                              # its cord
+    sw.span((-0.16, -0.65, -0.16), (0.16, -0.6, 0.16), "brass")
+    glow.span((-0.12, -0.95, -0.12), (0.12, -0.65, 0.12), "lamp_warm")
+    sw.span((-0.16, -1.0, -0.16), (0.16, -0.95, 0.16), "brass")
+    sw.ball((0.0, -1.06, 0.0), 0.06, "fur_golden")                                        # a little finial
+    return [b.finalize(name, mat), sw.finalize(name + "_Lantern_Swing", mat, location=hook),
+            glow.finalize(name + "_Lantern_Glow", mat, location=hook)]
 
 
 def build_lantern_palm(mat):
@@ -1501,7 +1507,14 @@ def build_stone_throne(mat):
         b.span((x0, 0.4, -0.6), (x1, 1.6, 0.6), "fur_dusty")                                # arms
         b.ball((sx * 1.19, 1.62, -0.55), 0.22, "fur_pewter", scale=(1.0, 0.7, 1.2))            # paw ends
         b.box((sx * 1.19, 1.62, -0.1), (0.2, 0.1, 0.2), "fur_emerald", rot=rot_y(45))
-    return [b.finalize("CatCafe_Decor_StoneThrone", mat)]
+    # #2734: a jade gem in a gold cradle between the ears that lifts and settles (the child Model `_Gem_Bob`); at rest
+    # it sits in the cradle, so it never reads as loose
+    b.cyl((0.0, 3.27, 0.775), 0.2, 0.14, "fur_golden", r2=0.26, segments=10)               # the cradle
+    gem = RB()
+    gem.box((0.0, 0.0, 0.0), (0.42, 0.42, 0.42), "fur_emerald", rot=rot_x(35) @ rot_z(45))
+    gem.ball((0.0, 0.05, -0.22), 0.06, "offwhite")                                        # a glint
+    return [b.finalize("CatCafe_Decor_StoneThrone", mat),
+            gem.finalize("CatCafe_Decor_StoneThrone_Gem_Bob", mat, location=(0.0, 3.6, 0.775))]
 
 
 def build_brazier_pair(mat):
@@ -1563,6 +1576,8 @@ MOVING = {
     "CatCafe_Decor_RetroJukebox": {"model_attributes": {"_Spin": {"Seconds": _f(1.8)}},
                                    "pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}},
     "CatCafe_Decor_CatTreeTower": {"nest": {"_Glow": "_Swing"}, "model_attributes": {"_Swing": {"Angle": _f(12)}}},
+    "CatCafe_Decor_CaravanBench": {"nest": {"_Glow": "_Swing"}, "model_attributes": {"_Swing": {"Angle": _f(7)}}},
+    "CatCafe_Decor_StoneThrone": {"model_attributes": {"_Bob": {"Rise": _f(0.1), "Seconds": _f(3)}}},
 }
 
 ASSETS = {

@@ -29,6 +29,7 @@ local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLo
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -171,6 +172,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		subtitle = "A level for every hour of rest",
 		color = Theme.colors.sky,
 		icon = LateStationsLogic.ICONS.spa,
+		image = ShopIcons.clean("Spa"), -- #3137: the drawn tub over the ♨️
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y + extra * 2),
 		onClose = callbacks.close,
 	})

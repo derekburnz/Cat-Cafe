@@ -118,13 +118,13 @@ return function()
 			for _, p in { 0.2, 0.5, 0.85 } do
 				local look = DayLight.at("night", p)
 				expect(sameLook(look, DayLight.NIGHT)).to.equal(true)
-				expect(near(look.Brightness, 0.6)).to.equal(true)
+				expect(near(look.Brightness, 0.65)).to.equal(true)
 				expect(near(look.ExposureCompensation, 0)).to.equal(true)
-				expect(sameColor(look.OutdoorAmbient, Color3.fromRGB(45, 55, 85))).to.equal(true)
+				expect(sameColor(look.OutdoorAmbient, Color3.fromRGB(52, 58, 105))).to.equal(true)
 				expect(sameColor(look.Ambient, Color3.fromRGB(24, 28, 44))).to.equal(true) -- was 30,35,55
-				expect(sameColor(look.ColorShift_Top, Color3.fromRGB(150, 170, 220))).to.equal(true)
+				expect(sameColor(look.ColorShift_Top, Color3.fromRGB(140, 165, 255))).to.equal(true)
 				expect(near(look.Density, 0.4)).to.equal(true)
-				expect(sameColor(look.Color, Color3.fromRGB(110, 120, 160))).to.equal(true)
+				expect(sameColor(look.Color, Color3.fromRGB(85, 95, 200))).to.equal(true)
 			end
 		end)
 

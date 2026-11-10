@@ -140,6 +140,7 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
 	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
+	carryShown: (self: HUD) -> boolean, -- #3145: the carry banner itself is up (UI.carryView)
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
@@ -2430,6 +2431,11 @@ end
 
 function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
+end
+
+-- #3145: whether the carry banner itself is up (UI.carryView).
+function HUD.carryShown(self: any): boolean
+	return self._carry.Visible
 end
 
 -- #2731: follows the character's PackedCatId attribute (CatService), through respawns.

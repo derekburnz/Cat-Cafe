@@ -113,6 +113,9 @@ export type CustomEvent =
 	| "grant_failed" -- #2127: value 1; the product, the step that threw, and "retry" (nothing paid) or "kept"
 	| "shove"
 	| "drop_outcome"
+	-- #3145: a Drop press the server refused, value 1, with why: "none" (the server holds no cat: the player's
+	-- screen had drifted), "no_home" or "no_body" (the night's refusal is not counted)
+	| "drop_refused"
 	| "left_after_shove"
 	| "left_after_restart_warning" -- #2720: value the seconds since the last restart warning; warnings seen, its seconds left
 	| "slots_full"

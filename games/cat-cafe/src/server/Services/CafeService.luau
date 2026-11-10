@@ -2525,7 +2525,14 @@ function CafeService.start()
 		while true do
 			task.wait(Config.SyncIntervalSeconds)
 			for _, player in DataService.loadedPlayers() do
-				CafeService.sync(player)
+				-- #3145: one player's sync throwing must not end these for the server's life (as CatService's
+				-- check-ins, review N226): this sync is what brings a drifted screen back to the server's state
+				local ok, err = pcall(function()
+					CafeService.sync(player)
+				end)
+				if not ok then
+					warn("[CafeService] periodic sync: " .. tostring(err))
+				end
 			end
 		end
 	end)

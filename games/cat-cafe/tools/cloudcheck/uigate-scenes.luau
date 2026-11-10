@@ -5638,8 +5638,19 @@ local SCENES = {
 	end },
 	-- #3105: the loading screen over the still wait before the first shot, and a play sliding it away
 	{ "IntroLoading", function()
-		UI.intro.waiting(true)
+		-- #3179: with the loadingScreen switch off (its default, and before its attribute arrives) nothing shows and
+		-- the intro has no count to wait for; an explicit true brings the screen back
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		for _, off in { nil, false } :: { any } do
+			ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", off)
+			UI.intro.waiting(true)
+			UIShim.advance(0.3)
+			assert(not gui.Enabled, "uigate: the loading screen showed with its switch off (#3179)")
+			assert(UI.intro.race() == 0, "uigate: the intro waits for a loading screen that is not up (#3179)")
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", true)
+		UI.intro.waiting(true)
 		assert(gui.Enabled, "uigate: the loading screen did not show (#3105)")
 		local count = gui:FindFirstChild("Count", true) :: TextLabel
 		local fill = gui:FindFirstChild("Fill", true) :: Frame
@@ -5660,12 +5671,15 @@ local SCENES = {
 		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
 		UIShim.advance(10)
 		assert(count.Text ~= "100%", "uigate: the loading count sat at 100 while still loading (#3109)")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil) -- #3179: back to its default
 	end },
 	-- #3109 (Derek2 11-10: "instantly goes up to 100 really fast then transitions to the tutorial scenes"): once the
 	-- save is in the count races to 100 in SHOWN_MIN at most from the screen's start, and stays up until the play
 	{ "IntroLoadingRace", function()
 		local LoadingCount = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LoadingCount")
 		assert(UI.intro.race() == 0, "uigate: a race with no loading screen up should take no time (#3109)")
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", true) -- #3179: the screen is behind this switch
 		UI.intro.waiting(true)
 		UIShim.advance(0.3)
 		local seconds = UI.intro.race()
@@ -5683,14 +5697,18 @@ local SCENES = {
 		assert(count.Text == "100%", "uigate: the count reads " .. count.Text .. " after its race (#3109)")
 		assert(fill.Size.X.Scale == 1, "uigate: the bar is not full at 100 (#3109)")
 		assert(gui.Enabled, "uigate: the loading screen left before the intro started (#3109)")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil)
 	end },
 	{ "IntroLoadingLifts", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_loadingScreen", true) -- #3179
 		UI.intro.waiting(true)
 		UI.intro.start({ skipAfter = 5 })
 		UI.intro.setShot(1, "Welcome to your cat cafe!", nil, 4.2)
 		UIShim.advance(0.5)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
 		assert(not gui.Enabled, "uigate: the loading screen stayed up over the intro (#3105)")
+		-- #3179: the switch back to its default for the scenes after these three
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_loadingScreen", nil)
 	end },
 	{ "IntroRichTip", function()
 		UI.intro.start({ skipAfter = 5 })

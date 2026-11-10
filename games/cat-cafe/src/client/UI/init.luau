@@ -3041,7 +3041,23 @@ end
 
 -- #3105: the loading screen while the camera is held still: before the first spawn, and before a play's first
 -- shot (IntroController's park and unpark). A play starting slides it away.
+-- #3179 (Derek2 11-10: "remove the loading screen honestly I think that would make people leave faster then
+-- before"): it shows only with the `loadingScreen` live switch on (off unless set to true), so by default the wait
+-- is the still picture alone and the intro starts the moment the save is in (race() is 0 with no screen up).
 function UI.intro.waiting(on: boolean)
+	if on then
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local key = "loadingScreen"
+		if
+			not LiveFlags.shown(
+				key,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			)
+		then
+			return
+		end
+	end
 	if introScreen then
 		introScreen:waiting(on)
 	end

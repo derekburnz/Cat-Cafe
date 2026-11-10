@@ -4737,6 +4737,47 @@ local SCENES = {
 		startCatch("gate_focus2", "Rare", 3, 0.2, 0.9)
 		UIShim.advance(0.3)
 	end },
+	-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD is
+	-- back the moment the result arrives, while the result word is still to come or still up, for a catch and a miss
+	{ "CatchHudBack", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		UIShim.advance(4) -- earlier scenes' toasts and results gone
+		local before: { [Instance]: boolean } = {}
+		for _, child in root:GetChildren() do
+			if child:IsA("GuiObject") then
+				before[child] = child.Visible
+			end
+		end
+		local function back(what: string)
+			for child, was in before do
+				assert(
+					(child :: GuiObject).Visible == was,
+					"uigate: the HUD's " .. child.Name .. " is not back the moment " .. what .. " (#3078)"
+				)
+			end
+		end
+		startCatchV3("gate_back", "Common", { "single", "single", "single" }, 2, 8)
+		UIShim.advance(0.3)
+		local hiddenNow = false
+		for child, was in before do
+			if was and not (child :: GuiObject).Visible then
+				hiddenNow = true
+			end
+		end
+		assert(hiddenNow, "uigate: the HUD did not step aside for the catch, so the scene proves nothing (#3078)")
+		UI.catch.showGrades("gate_back", { "perfect", "perfect", "perfect" }, true, 0, nil,
+			{ trust = 8, trustNeed = 8, finish = "purrfect", streak = 3 })
+		back("a catch's result comes")
+		assert(UI.catch.circlesActive(), "uigate: the result word was skipped (#3078 keeps its flash)")
+		UIShim.advance(2)
+		back("the catch's word has gone")
+		startCatchV3("gate_back2", "Common", { "single", "single", "single" }, 2, 8)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_back2", { "miss" }, false, 0, nil, nil)
+		back("a miss's result comes")
+		UIShim.advance(2)
+	end },
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): with a PackedCatId on the character
 	-- and nothing in the arms, a small "Drop bag cat" pill sits where the carry banner would, thumb sized, on screen,
 	-- one line; a tap fires dropCat. While carrying, the carry banner's Drop takes over and the pill hides.

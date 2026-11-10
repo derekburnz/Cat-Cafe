@@ -626,6 +626,10 @@ fieldEvents=(
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"first_bait_wait|CustomField3|CustomEventAvgValue|First bait: average seconds food in to resolve, by choice"
 	"first_bait_arrived|CustomField1|CustomEventAvgValue|First bait cat arrived: average seconds, by where the player was"
+	"catch_circles|CustomField3,Platform|CustomEventCountUser|Catch results (caught, purrfect, missed, forfeit) by device"
+	"catch_finish|CustomField1,Platform|CustomEventCountUser|Catch finish kind (bolt is the cat running off) by device"
+	"first_catch_tries|CustomField1,Platform|CustomEventAvgValue|Tries before the first catch, by method and device"
+	"first_catch_tries|Platform|CustomEventCountUser|Players with a first catch, by device"
 )
 say "### Event fields"
 say ""

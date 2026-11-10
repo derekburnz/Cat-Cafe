@@ -130,7 +130,11 @@ function GlobalCatchService.start()
 	Players.PlayerAdded:Connect(seat)
 	task.spawn(function()
 		while true do
-			local ok, err = pcall(followFeed) -- one bad pass must not end the loop
+			-- one bad pass must not end the loop
+			local ok, err = pcall(function(): string?
+				followFeed()
+				return nil
+			end)
 			if not ok and not feedWarned then
 				feedWarned = true
 				warn("[GlobalCatch] feed channel: " .. tostring(err))

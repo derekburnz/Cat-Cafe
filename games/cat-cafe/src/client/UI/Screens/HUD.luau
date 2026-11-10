@@ -3274,6 +3274,10 @@ function HUD.toastAvoid(self: any): { Types.Box }
 		box({ self._counters }) -- #2393: the top middle
 		box({ self._moneyBadge }) -- under the money (#2533)
 	end
+	if not TOUCH then
+		-- #3178: on a PC the clock, the status banner and its day card sit at the top middle, in the toasts' column
+		box({ self._clock, self._banner, self._dayCard })
+	end
 	box({ self._goal.frame })
 	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
 	-- a line's words: each label's text, from its right edge when right-aligned

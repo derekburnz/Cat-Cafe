@@ -1966,6 +1966,27 @@ local SCENES = {
 				assert(apart(banner, other), "uigate: the status banner overlaps " .. name .. " (#2885)")
 			end
 		end
+		-- #3178: on a PC the clock and banner are at the top middle, where toasts stack; a toast keeps clear of them
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			press("CatCafeHUD", "LuckyDay.Tap") -- the day card open under the banner, the lowest of the three
+			local dayCard = hud:FindFirstChild("DayCard", true) :: GuiObject
+			assert(dayCard and dayCard.Visible, "uigate: the day card did not open (#3178)")
+			UI.toast("Welcome back! +$12,345 while you were away", "info") -- the stack places itself again
+			UIShim.advance(0.5)
+			local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")
+			local stack = toasts and toasts:FindFirstChild("Stack", true)
+			local clockPiece = hud:FindFirstChild("Clock", true) :: GuiObject
+			local checked = 0
+			for _, pill in (stack and stack:GetChildren() or {}) :: { Instance } do
+				if pill:IsA("GuiObject") and pill.Visible then
+					checked += 1
+					assert(apart(pill, banner), "uigate: a toast lies over the status banner on a PC (#3178)")
+					assert(apart(pill, clockPiece), "uigate: a toast lies over the clock on a PC (#3178)")
+					assert(apart(pill, dayCard), "uigate: a toast lies over the open day card on a PC (#3178)")
+				end
+			end
+			assert(checked > 0, "uigate: no toast to check against the top middle banner (#3178)")
+		end
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
 			local below = banner.AbsolutePosition.Y >= counters.AbsolutePosition.Y + counters.AbsoluteSize.Y - 1
 			assert(below, "uigate: the status banner is not under the money (#2885)")

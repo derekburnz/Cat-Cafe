@@ -81,7 +81,41 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Camp_Desert_SpaTowel/0"
-   }
+   },
+   "children": [
+    {
+     "name": "HeadAttach",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.04,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
   },
   {
    "name": "CatCafe_Camp_Desert_SpaTowel",

@@ -875,6 +875,7 @@ def build_spa_towel(mat):
     b.span((-0.32, 0.16, -0.22), (0.32, 0.24, 0.22), "offwhite")
     b.span((-0.33, 0.165, -0.08), (0.33, 0.25, 0.08), "sign_teal")
     b.span((-0.37, 0.0, -0.27), (0.37, 0.04, -0.2), "terracotta")
+    _anchor(SPA_TOWEL, "HeadAttach", (0.0, 0.0, 0.0))        # #2909: the underside's middle, on top of the Head
     return [b.finalize(SPA_TOWEL, mat)]
 
 
@@ -887,6 +888,22 @@ TOP_Y = 6.2                                      # the wall top under the entabl
 DOOR_X, DOOR_Y = 1.3, 4.2                        # the door's half width and top
 COL_X, COL_Z = 3.7, -1.9                         # the two columns
 STONE_M, STONE_ML, JADE, GOLD = "fur_caramel", "paving_tan", "fur_emerald", "gold_light"
+CASE_X = -MX - 1.6                               # the idol's glass case, by the steps on the -X side (#2908)
+# #2908: the exhibit gallery, a roofed wing on the +X side: seven stepped rows, one per room in Catalog.areas order
+# (front row the Alleyway, back row the Ruins), ten plinths a row, where the owner's client stands the cats given
+# (a sitting cat at scale 0.6 fits a plinth and shows over the row in front)
+ROOMS = (("alley", "ALLEYWAY", "brick"), ("park", "PARK", "leaf_green"), ("neighbourhood", "NEIGHBOURHOOD", "shirt_blue"),
+         ("woods", "WOODS", "leaf_dark"), ("sewer", "SEWER", "puddle"), ("desert", "DESERT", "terracotta"),
+         ("ruins", "RUINS", "fur_emerald"))
+EXHIBITS = 10
+PLINTH_STEP, PLINTH_W, PLINTH_H = 1.25, 0.8, 0.3   # spacing, top size, height of an exhibit plinth
+ROW_D, ROW_RISE = 0.9, 0.8                       # each row's depth and how much higher than the one in front
+PLAQUE_W = 2.6                                   # each row's name plaque, at the museum end
+GX0 = MX + 0.4                                   # the wing's museum side
+GX1 = GX0 + PLAQUE_W + EXHIBITS * PLINTH_STEP + 0.5
+GZ0 = MZ0 - 1.6                                  # the first row's front, in line with the museum's platform
+GZ1 = GZ0 + len(ROOMS) * ROW_D + 0.45            # the back wall's back
+G_ROOF = 8.6                                     # the wing's roof underside
 
 
 def _museum_steps(b):
@@ -968,7 +985,7 @@ def _museum_rope(b):
 
 def _museum_case(b, glass):
     """A glass case on a dark plinth by the steps, a little golden cat idol inside on a velvet cushion."""
-    x, z = MX + 1.6, MZ0 - 2.6
+    x, z = CASE_X, MZ0 - 2.6
     b.span((x - 0.6, 0, z - 0.6), (x + 0.6, 1.2, z + 0.6), "dark_wood")
     b.span((x - 0.66, 1.2, z - 0.66), (x + 0.66, 1.3, z + 0.66), "brass")
     b.span((x - 0.4, 1.3, z - 0.4), (x + 0.4, 1.45, z + 0.4), "royal_berry")
@@ -988,9 +1005,47 @@ def _museum_case(b, glass):
     glass.span((x - 0.51, 1.3, z - 0.51), (x + 0.51, 2.5, z + 0.51), "glass")
 
 
+def _gallery(b):
+    """#2908: the exhibit gallery on the museum's +X side, open at the front: seven stepped rows of sandstone, each
+    with a coloured band in its room's colour, a name plaque at the museum end and ten plinths, every plinth an
+    ExhibitSpot_<area>_<1-10> Attachment on its top (1 at the museum end), facing -Z; a back wall with a jade frieze,
+    an end wall, three front columns and a flat roof with a cornice, so the rows stay in shade like a hall."""
+    back = GZ0 + len(ROOMS) * ROW_D                                      # the back wall's front face
+    for k, (area, label, colour) in enumerate(ROOMS):
+        z0 = GZ0 + k * ROW_D
+        y0, y1 = (0.0 if k == 0 else FLOOR_Y + (k - 1) * ROW_RISE), FLOOR_Y + k * ROW_RISE
+        b.span((GX0, y0, z0), (GX1, y1, back), (STONE_ML, STONE_M)[k % 2])                      # the row
+        b.span((GX0 + 0.05, y1 - 0.2, z0 - 0.05), (GX1 - 0.05, y1 - 0.08, z0), colour)           # its band
+        zc = z0 + ROW_D / 2
+        px = min(0.06, (PLAQUE_W - 0.55) / text_width(label, 1.0))                             # its plaque
+        b.span((GX0 + 0.2, y1, zc - 0.06), (GX0 + PLAQUE_W - 0.2, y1 + 0.5, zc + 0.06), "night_sky")
+        _label_front(b, label, GX0 + PLAQUE_W / 2, y1 + 0.13, zc - 0.06, px, 0.03, GOLD)
+        for i in range(EXHIBITS):                                                               # its plinths
+            x = GX0 + PLAQUE_W + (i + 0.5) * PLINTH_STEP
+            b.span((x - PLINTH_W / 2, y1, zc - PLINTH_W / 2), (x + PLINTH_W / 2, y1 + PLINTH_H, zc + PLINTH_W / 2),
+                   "offwhite")
+            b.span((x - PLINTH_W / 2 - 0.04, y1 + PLINTH_H, zc - PLINTH_W / 2 - 0.04),
+                   (x + PLINTH_W / 2 + 0.04, y1 + PLINTH_H + 0.06, zc + PLINTH_W / 2 + 0.04), colour)
+            _anchor(MUSEUM, f"ExhibitSpot_{area}_{i + 1}", (x, y1 + PLINTH_H + 0.06, zc))
+    top = FLOOR_Y + (len(ROOMS) - 1) * ROW_RISE
+    b.span((GX0, 0, back), (GX1, G_ROOF, GZ1), STONE_M)                                         # the back wall
+    b.span((GX0, top + 1.6, back - 0.06), (GX1, top + 1.9, back), JADE)                         # its frieze
+    b.span((GX1, 0, GZ0 - 0.6), (GX1 + 0.5, G_ROOF, GZ1), STONE_M)                              # the end wall
+    for x in (GX0 + 0.45, (GX0 + GX1) / 2, GX1 - 0.45):                                       # the front columns
+        b.span((x - 0.45, 0, GZ0 - 1.0), (x + 0.45, 0.4, GZ0 - 0.1), STONE_M)
+        b.cyl((x, (0.4 + G_ROOF - 0.4) / 2, GZ0 - 0.55), 0.32, G_ROOF - 0.8, STONE_ML, segments=10)
+        b.cyl((x, 2.2, GZ0 - 0.55), 0.35, 0.15, JADE, segments=10)
+        b.span((x - 0.5, G_ROOF - 0.4, GZ0 - 1.05), (x + 0.5, G_ROOF, GZ0 - 0.05), STONE_M)
+    b.span((GX0, G_ROOF, GZ0 - 1.1), (GX1 + 0.5, G_ROOF + 0.5, GZ1), STONE_ML)                 # the roof
+    b.span((GX0, G_ROOF + 0.5, GZ0 - 1.1), (GX1 + 0.5, G_ROOF + 0.72, GZ1), JADE)
+    b.span((GX0, G_ROOF + 0.72, GZ0 - 1.3), (GX1 + 0.7, G_ROOF + 0.95, GZ1 + 0.2), STONE_M)   # its cornice
+    _label_front(b, "THE CAT GALLERY", (GX0 + GX1) / 2, G_ROOF + 0.1, GZ0 - 1.1, 0.07, 0.03, GOLD)
+
+
 def build_relic_museum(mat):
     b, glass = RB(), RB()
     _museum_steps(b)
+    _gallery(b)
     _museum_front(b)
     _museum_columns(b)
     top = _museum_sign(b)
@@ -998,7 +1053,7 @@ def build_relic_museum(mat):
     _museum_case(b, glass)
     _anchor(MUSEUM, "PromptAnchor", (rope[0], 1.5, rope[2] - 0.5))
     _anchor(MUSEUM, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
-    _anchor(MUSEUM, "SparkleAnchor", (MX + 1.6, 2.0, MZ0 - 2.6))
+    _anchor(MUSEUM, "SparkleAnchor", (CASE_X, 2.0, MZ0 - 2.6))
     return [b.finalize(MUSEUM, mat), glass.finalize(MUSEUM + "_Glass", mat)]
 
 
@@ -1021,5 +1076,5 @@ ASSETS = {
     LOST: (build_lost_found_booth, 5000),
     SPA: (build_oasis_spa, 5000),
     SPA_TOWEL: (build_spa_towel, 200),
-    MUSEUM: (build_relic_museum, 5000),
+    MUSEUM: (build_relic_museum, 12000),
 }

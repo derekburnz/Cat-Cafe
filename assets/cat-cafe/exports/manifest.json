@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 01:21 UTC",
+  "generated": "2026-11-10 01:52 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -305871,33 +305871,33 @@
         "CatCafe_Camp_Ruins_RelicMuseum",
         "CatCafe_Camp_Ruins_RelicMuseum_Glass"
       ],
-      "triangles": 1852,
-      "budget": 5000,
+      "triangles": 8834,
+      "budget": 12000,
       "size_studs": {
-        "x": 12.76,
-        "y": 8.3,
-        "z": 8.8
+        "x": 28.96,
+        "y": 9.35,
+        "z": 9.55
       },
       "size_roblox": [
-        12.76,
-        8.8,
-        8.3
+        28.96,
+        9.55,
+        9.35
       ],
       "bounds_min": [
-        -7.26,
+        -21.7,
         -5.0,
         0.0
       ],
       "bounds_max": [
-        5.5,
-        3.3,
-        8.8
+        7.26,
+        4.35,
+        9.55
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Ruins camp's station spot (Layout.campExtras.ruins, Ruins set space)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "late-stations.md section 2: the Relic Museum, the Ruins camp's station. _Glass is the case round the gold cat idol (see-through). Attachments PromptAnchor (the velvet rope, 1.5 up), BangAnchor (2 over the RELIC MUSEUM sign) and SparkleAnchor (the idol). Everything else collides and can be climbed.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Ruins_RelicMuseum.model.json",
-      "rbx_parts": 138,
+      "rbx_parts": 732,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Ruins_RelicMuseum.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Ruins_RelicMuseum.glb"
@@ -305909,13 +305909,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1852/5000 tris",
+          "budget": "8834/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "883 faces on swatch centers",
+          "uv": "4338 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.88 y=-0.85"
+          "centered": "footprint center x=-7.22 y=-0.33"
         }
       }
     },

@@ -7739,7 +7739,7 @@ local SCENES = {
 	{ "TradeFishNone", function()
 		local state = tradeState()
 		state.fishOn = true
-		state.fishRoom = 400
+		state.fishRoom = 250
 		UI.trade.state(state)
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local mine = modals and modals:FindFirstChild("Mine", true)
@@ -7754,7 +7754,7 @@ local SCENES = {
 		assert(not myFish.Visible, "uigate: my fish card shows with fishOn false")
 		state = tradeState({ version = 3 })
 		state.fishOn = true
-		state.fishRoom = 400
+		state.fishRoom = 250
 		UI.trade.state(state)
 	end },
 	-- #2745: the confirm face with the fish after the cats

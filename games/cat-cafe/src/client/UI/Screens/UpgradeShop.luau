@@ -585,6 +585,18 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			row.buy:setText(Format.money(status.cost :: number))
 			row.buy:setEnabled(status.kind == "buy")
 		end
+		-- #2996 (retention-ideas.md 5e): one soft pulse on the price when coins coming in make it affordable while
+		-- the window is open (a level just bought has its own pop in _celebrate). Off with Reduce Motion.
+		if
+			status.kind == "buy"
+			and row.kind ~= nil
+			and row.kind ~= "buy"
+			and level == before
+			and not GuiService.ReducedMotionEnabled
+		then
+			Tween.popIn(row.buy.instance, 0.9)
+		end
+		row.kind = status.kind
 	end
 end
 

@@ -32,6 +32,12 @@ return function()
 			expect(StationOpens.windowOfPrompt(FeedbackStand.PROMPT)).to.equal(FeedbackStand.WINDOW)
 		end)
 
+		it("counts the camp stations' and the Index Boards' ring opens (#3113)", function()
+			for _, window in { "YardSale", "OasisSpa", "RelicMuseum", "Collection" } do
+				expect(StationOpens.valid(window, "ring")).to.equal(true)
+			end
+		end)
+
 		it("has its remote in the list", function()
 			expect(table.find(Remotes.ClientToServer, "StationOpened")).to.be.ok()
 		end)

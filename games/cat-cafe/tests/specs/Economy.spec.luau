@@ -1195,8 +1195,8 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 10, nil, nil, 0))).to.equal(
-					"Needs 11 different cats (you have 10)"
+				expect(Economy.rankUpBlocker(profileWith(2, 9, nil, nil, 0))).to.equal(
+					"Needs 10 different cats (you have 9)" -- #3111: Tier 3 needs 10 (11 before)
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"

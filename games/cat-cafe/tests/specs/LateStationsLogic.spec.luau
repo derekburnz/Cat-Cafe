@@ -127,6 +127,59 @@ return function()
 			expect(list[2].uid).to.equal("a")
 		end)
 
+		it("lists every cat, however many (#3136)", function()
+			local cats = {}
+			for index = 1, 400 do
+				cats["u" .. index] = cat("u" .. index, first, 1 + index % 20)
+			end
+			expect(#LateStationsLogic.spaCandidates(cats, nil)).to.equal(400)
+		end)
+
+		it("finds a cat by its own name or its breed, any case (#3136)", function()
+			local named = cat("a", first, 5, { name = "Mochi" })
+			local breed = LateStationsLogic.catName(first)
+			expect(LateStationsLogic.spaMatch(named, "", "All")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(named, "  moc ", "All")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(named, string.upper(breed), "All")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(named, "zzzz", "All")).to.equal(false)
+			expect(LateStationsLogic.spaMatch(named, "%a", "All")).to.equal(false) -- typed as plain words
+		end)
+
+		it("keeps resting or working cats (#3136)", function()
+			local resting = cat("a", first, 5)
+			local working = cat("b", first, 5, { spotId = "spot1" })
+			expect(LateStationsLogic.spaMatch(resting, "", "Resting")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(resting, "", "Working")).to.equal(false)
+			expect(LateStationsLogic.spaMatch(working, "", "Working")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(working, "", "Resting")).to.equal(false)
+		end)
+
+		it(
+			"titles a row with the cat's own name and keeps its breed on the second line (#3136)",
+			function()
+				local named = cat("a", first, 5, { name = "Mochi", variant = "gold" })
+				local breed = LateStationsLogic.catName(first)
+				expect(LateStationsLogic.spaTitle(named)).to.equal("Mochi")
+				expect(
+					string.find(LateStationsLogic.spaSubtitle(named), "Gold " .. breed, 1, true)
+						~= nil
+				).to.equal(true)
+				expect(LateStationsLogic.spaTitle(cat("b", first, 5))).to.equal(breed)
+			end
+		)
+
+		it("changes the list's key only when a row would change (#3136)", function()
+			local list = { cat("a", first, 5), cat("b", first, 6) }
+			local key = LateStationsLogic.spaKey(list)
+			expect(LateStationsLogic.spaKey({ cat("a", first, 5), cat("b", first, 6) })).to.equal(
+				key
+			)
+			expect(LateStationsLogic.spaKey({ cat("a", first, 5), cat("b", first, 7) }) ~= key).to.equal(
+				true
+			)
+			expect(LateStationsLogic.spaKey({ cat("a", first, 5) }) ~= key).to.equal(true)
+		end)
+
 		it("asks before taking a cat out", function()
 			expect(LateStationsLogic.takeOutText("Mochi")).to.equal(
 				"Take Mochi out now? It won't level up."
@@ -135,21 +188,71 @@ return function()
 	end)
 
 	describe("LateStationsLogic.donatable", function()
-		it("never offers the last copy, a locked one or one at the spa, weakest first", function()
-			local cats = {
-				a = cat("a", first, 12, { charm = 70 }),
-				b = cat("b", first, 12, { charm = 40 }),
-				c = cat("c", first, 5, { locked = true }),
-				d = cat("d", first, 3),
-				e = cat("e", second, 1),
-			}
-			local spa = spaOf(1, { { slot = 1, uid = "d", catId = first, doneAt = NOW + HOUR } })
-			local list = LateStationsLogic.donatable(cats, first, {}, spa)
-			expect(#list).to.equal(2)
-			expect(list[1].uid).to.equal("b") -- same level, lower charm first
-			expect(list[2].uid).to.equal("a")
-			expect(#LateStationsLogic.donatable(cats, second, {}, nil)).to.equal(0) -- the only copy
-			expect(#LateStationsLogic.donatable(cats, first, { [first] = "base" }, nil)).to.equal(0) -- filled
+		it(
+			"offers the only copy but never a locked one, one at the spa or the last cat of all (#3123)",
+			function()
+				local cats = {
+					a = cat("a", first, 12, { charm = 70 }),
+					b = cat("b", first, 12, { charm = 40 }),
+					c = cat("c", first, 5, { locked = true }),
+					d = cat("d", first, 3),
+					e = cat("e", second, 1),
+				}
+				local spa =
+					spaOf(1, { { slot = 1, uid = "d", catId = first, doneAt = NOW + HOUR } })
+				local list = LateStationsLogic.donatable(cats, first, {}, spa)
+				expect(#list).to.equal(2)
+				expect(list[1].uid).to.equal("b") -- same level, lower charm first
+				expect(list[2].uid).to.equal("a")
+				expect(#LateStationsLogic.donatable(cats, second, {}, nil)).to.equal(1) -- #3123: the only copy may go
+				expect(#LateStationsLogic.donatable({ e = cats.e }, second, {}, nil)).to.equal(0) -- the last cat of all
+				expect(#LateStationsLogic.donatable(cats, first, { [first] = "base" }, nil)).to.equal(
+					0
+				) -- filled
+			end
+		)
+
+		it(
+			"puts plain idle copies first, then working ones, gold and rainbow last (#3125)",
+			function()
+				local cats = {
+					low = cat("low", first, 1, { variant = "gold" }),
+					busy = cat("busy", first, 2, { spotId = "spot_1" }),
+					mid = cat("mid", first, 9),
+					top = cat("top", first, 30),
+				}
+				local list = LateStationsLogic.donatable(cats, first, {}, nil)
+				expect(list[1].uid).to.equal("mid")
+				expect(list[2].uid).to.equal("top")
+				expect(list[3].uid).to.equal("busy")
+				expect(list[4].uid).to.equal("low")
+			end
+		)
+
+		it("asks before the only copy goes (#3123), and lists an Auto fill (#3130)", function()
+			expect(LateStationsLogic.giveAsk("Tabby", "base", 1)).to.equal(
+				"This is your only Tabby. It leaves your cafe. Give it anyway?"
+			)
+			expect(LateStationsLogic.giveAsk("Tabby", "gold", 2)).to.equal(
+				"This is a gold cat. Give it anyway?"
+			)
+			expect(LateStationsLogic.giveAsk("Tabby", "base", 2)).to.equal(nil)
+			local cats = { a = cat("a", first, 1), b = cat("b", first, 2), c = cat("c", second, 3) }
+			local row = LateStationsLogic.rooms(nil, cats, nil)[1]
+			local picks = LateStationsLogic.fillPlan(row, 3)
+			expect(#picks).to.equal(2)
+			expect(picks[1].cat.uid).to.equal("a")
+			expect(picks[1].only).to.equal(false)
+			expect(picks[2].only).to.equal(true)
+			expect(#LateStationsLogic.fillPlan(row, 2)).to.equal(1) -- the last cat of all stays
+			expect(LateStationsLogic.fillAsk(row.name, picks)).to.equal(
+				string.format(
+					"Give 2 cats to %s Hall? %s and %s. 1 is your only copy.",
+					row.name,
+					row.exhibits[1].name,
+					row.exhibits[2].name
+				)
+			)
 		end)
 
 		it("warns before a gold or rainbow copy goes", function()
@@ -180,13 +283,15 @@ return function()
 			local row = rooms[1]
 			expect(row.area).to.equal(room.area)
 			expect(row.filled).to.equal(1)
-			expect(row.canFill).to.equal(1)
+			expect(row.canFill).to.equal(2) -- #3123: the only copy of the second cat too
 			expect(row.done).to.equal(false)
 			expect(row.exhibits[1].line).to.equal("You have 2")
 			expect(#row.exhibits[1].give).to.equal(2) -- either copy can go; the other stays
 			expect(row.exhibits[2].line).to.equal("You have 1")
-			expect(LateStationsLogic.whyNot(row.exhibits[2])).to.equal(
-				"You need a second copy to give one"
+			expect(#row.exhibits[2].give).to.equal(1)
+			local solo = LateStationsLogic.rooms(museum, { c = cats.c }, nil)[1]
+			expect(LateStationsLogic.whyNot(solo.exhibits[2])).to.equal(
+				"Keep at least one cat in your cafe"
 			)
 			expect(row.exhibits[3].coat).to.equal("gold")
 			expect(row.exhibits[3].line).to.equal("Given")

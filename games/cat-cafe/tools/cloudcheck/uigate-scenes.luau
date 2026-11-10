@@ -2177,7 +2177,8 @@ local SCENES = {
 				dots += 1
 			end
 		end
-		assert(dots == 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
+		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
 	end },
 	-- #2651 part 4: tapping the exhibit with a ! lists its copies weakest first; the gold copy asks first
 	{ "RelicMuseumGive", function()
@@ -2185,12 +2186,13 @@ local SCENES = {
 		UI.lateStations.update(lateState(nil))
 		UI.lateStations.open("museum")
 		local window = lateWindow("RelicMuseum")
-		local tile = nil
+		local tile = nil -- gate_4's exhibit: its copy and the three spares (#3123: the only-copy tiles show a ! too)
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
+			if piece.Name == "Line" and piece:IsA("TextLabel") and piece.Text == "You have 4" then
 				tile = piece.Parent
 			end
 		end
+		assert(tile, "uigate: no exhibit reads You have 4 (#2651)")
 		press("RelicMuseum", tile.Name)
 		local give = window:FindFirstChild("Give", true)
 		assert(give and give.Visible, "uigate: the exhibit did not list its copies (#2651)")
@@ -3396,6 +3398,29 @@ local SCENES = {
 		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
 		assert(not hint.Visible, "uigate: Space did not skip the spin (#2246)")
 	end },
+	-- #3157 (Derek2: "spin the wheel one after another not all at once into one spin"): Use all plays each roll in
+	-- turn with "Spin 1 of 3" above Spin; Skip lands one and the next turns after a beat; Skip all shows the card
+	{ "SpinAllChain", function()
+		UI.spin.open()
+		UI.spin.allResult(
+			{ { slice = 1, amount = 100 }, { slice = 2, amount = 3 }, { slice = 3, amount = 1 } },
+			{ { kind = "coins", amount = 100 } }
+		)
+		UIShim.advance(0.5)
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local spins = window:FindFirstChild("Spins", true)
+		assert(spins.Text == "Spin 1 of 3", "uigate: no Spin 1 of 3 while Use all plays (#3157): " .. spins.Text)
+		local all = window:FindFirstChild("UseAll", true)
+		assert(all.Visible, "uigate: no Skip all while Use all plays (#3157)")
+		press("SpinWheel", "SkipTap")
+		UIShim.advance(0.7)
+		assert(spins.Text == "Spin 2 of 3", "uigate: the next roll did not turn after a Skip (#3157): " .. spins.Text)
+		press("SpinWheel", "UseAll")
+		UIShim.advance(0.7)
+		local card = window:FindFirstChild("AllCard", true)
+		assert(card and card.Visible, "uigate: Skip all did not show the totals card (#3157)")
+		assert(spins.Text ~= "Spin 2 of 3", "uigate: the count stayed up after Skip all (#3157)")
+	end },
 	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
 	{ "SpinOddsJackpots", function()
 		UI.spin.open()
@@ -3635,6 +3660,15 @@ local SCENES = {
 		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
 		local hint = store:FindFirstChild("Hint", true) :: TextLabel?
 		assert(hint and hint.Visible and hint.Text == "Check the game description for codes", "uigate: no codes hint (#2610)")
+		-- #3131 (Derek2: "highlight/make bigger the check game description for codes"): a filled strip with words
+		-- bigger than body text, all on one line, clear of the box above and the answer card below
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		assert(hint.BackgroundTransparency == 0 and hint.TextSize > Theme.sizes.textBody, "uigate: the codes hint is not highlighted and bigger (#3131)")
+		assert(hint.TextFits, "uigate: the codes hint does not fit on one line (#3131)")
+		local row = store:FindFirstChild("Redeem", true) :: GuiObject
+		assert(row and hint.AbsolutePosition.Y >= row.AbsolutePosition.Y + row.AbsoluteSize.Y, "uigate: the codes hint lies on the code box (#3131)")
+		local result = store:FindFirstChild("Result", true) :: GuiObject
+		assert(result and result.AbsolutePosition.Y >= hint.AbsolutePosition.Y + hint.AbsoluteSize.Y, "uigate: the codes hint lies on the answer card (#3131)")
 	end },
 	-- #1714: a refusal is one calm line in place; nothing used yet says so
 	{ "CodesRefused", function()
@@ -4855,9 +4889,64 @@ local SCENES = {
 		clearOfRow(carry, "the carry banner")
 		local drop = carry:FindFirstChild("Drop") :: GuiObject
 		clearOfRow((drop:FindFirstChild("Hit") or drop) :: GuiObject, "the carry banner's Drop tap pad")
+		-- #3145 (Derek2: the carry banner stayed up for a cat that was gone and Drop did nothing): UI.carryView says
+		-- what the screen holds, and shared/CarrySync calls it stale whenever that is not the server's carried cat, so
+		-- UIController sets it again: a banner left up, and a cat left in the UI's state with no banner
+		local CarrySync = UIShim.require("ReplicatedStorage.Shared.CarrySync")
+		local held = Catalog.cats[1].id
+		local view = (UI :: any).carryView()
+		assert(view.built and view.banner and view.catId == held, "uigate: UI.carryView does not see the carry banner (#3145)")
+		assert(not CarrySync.stale(held, held, view), "uigate: a shown carry reads as stale (#3145)")
+		assert(CarrySync.stale(nil, nil, view), "uigate: a banner up for a cat the server no longer has does not read as stale (#3145)")
 		UI.setCarrying(nil)
 		UIShim.advance(0.3)
 		assert(pill.Visible, "uigate: the Drop pill did not come back after carrying (#2731)")
+		view = (UI :: any).carryView()
+		assert(view.built and not view.banner and view.catId == nil, "uigate: UI.carryView still sees a carry after it ended (#3145)")
+		assert(not CarrySync.stale(nil, nil, view), "uigate: an empty screen reads as stale (#3145)")
+		UI.update({ carrying = held } :: any) -- a sync's copy with no banner call after it
+		view = (UI :: any).carryView()
+		assert(view.catId == held and not view.banner, "uigate: UI.carryView does not see the cat left in the UI's state (#3145)")
+		assert(CarrySync.stale(nil, nil, view), "uigate: a cat left in the UI's state does not read as stale (#3145)")
+		UI.setCarrying(nil)
+		UIShim.advance(0.1)
+		view = (UI :: any).carryView()
+		assert(view.catId == nil and not view.banner and not carry.Visible, "uigate: UI.setCarrying(nil) did not clear the screen (#3145)")
+		-- #3119 (Derek2: "drop bag cat / drop on pc now goes inside my cafe/cannon ui make it stack on top of tackle
+		-- for PC"): off touch the pill stands a Tackle bar's height and a gap over the bottom row's tiles; in a
+		-- catching area the bar sits in that place, over the row and under the pill, and the pill does not move
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			local TackleBar = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.TackleBar")
+			local scale = pill.AbsoluteSize.X / pill.Size.X.Offset
+			local rowTop = math.huge
+			for _, tile in travel:GetChildren() do
+				if tile:IsA("GuiObject") and tile.Visible then
+					rowTop = math.min(rowTop, tile.AbsolutePosition.Y)
+				end
+			end
+			local function foot(piece: GuiObject): number
+				return piece.AbsolutePosition.Y + piece.AbsoluteSize.Y
+			end
+			local room = rowTop - foot(pill)
+			assert(room >= (TackleBar.HEIGHT + 8) * scale - 0.5, ("uigate: the Drop pill is %.1f px over the bottom row, less than the Tackle bar's place (#3119)"):format(room))
+			local before = pill.AbsolutePosition.Y
+			UI.setZone("Alley")
+			UI.shove.setEnabled(true)
+			Scenes._tackle = true
+			UIShim.advance(0.3)
+			local tackleGui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+			local bar = tackleGui and tackleGui:FindFirstChild("Tackle", true) :: GuiObject?
+			assert(bar and tackleGui.Enabled, "uigate: no Tackle bar in a catching area with a cat in the backpack (#3119)")
+			assert(math.abs(pill.AbsolutePosition.Y - before) < 0.5, "uigate: the Drop pill moved when the Tackle bar came (#3119)")
+			assert(bar.AbsolutePosition.Y - foot(pill) >= 3, ("uigate: the Drop pill is %.1f px over the Tackle bar, not stacked on it (#3119)"):format(bar.AbsolutePosition.Y - foot(pill)))
+			assert(rowTop - foot(bar) >= 3, ("uigate: the Tackle bar is %.1f px from the bottom row under a Drop (#3119)"):format(rowTop - foot(bar)))
+			-- the carry banner takes the same place (the bar hides while carrying)
+			UI.setCarrying({ catId = Catalog.cats[1].id, catName = "Mochi", rarity = "Rare" } :: any)
+			UIShim.advance(0.3)
+			assert(rowTop - foot(carry) >= (TackleBar.HEIGHT + 8) * scale - 0.5, "uigate: the carry banner is not over the Tackle bar's place (#3119)")
+			UI.setCarrying(nil)
+			UIShim.advance(0.3)
+		end
 	end },
 	-- #2721 (Derek2: "do some research for where mobile players like their buttons and move the net/tackle to where it
 	-- would fit best"): NET just left of the jump button, centres level, and TACKLE on the thumb's arc up and left of
@@ -5552,9 +5641,16 @@ local SCENES = {
 		UI.intro.waiting(true)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
 		assert(gui.Enabled, "uigate: the loading screen did not show (#3105)")
+		local count = gui:FindFirstChild("Count", true) :: TextLabel
+		local fill = gui:FindFirstChild("Fill", true) :: Frame
+		local paw = gui:FindFirstChild("Paw", true) :: TextLabel
+		assert(gui:FindFirstChild("Face", true), "uigate: the loading screen has no cat (#3109)")
 		UIShim.advance(0.9)
-		local label = gui:FindFirstChild("Label", true) :: TextLabel
-		assert(label.Text:sub(1, 7) == "Loading", "uigate: the loading screen lost its word (#3105)")
+		-- #3109: the count creeps while the save loads, and never reaches 100 by itself
+		local value = tonumber((count.Text:gsub("%%", "")))
+		assert(value and value > 20 and value <= 90, "uigate: the loading count reads " .. count.Text .. " after 0.9 s (#3109)")
+		assert(fill.Size.X.Scale > 0.2 and fill.Size.X.Scale <= 0.9, "uigate: the loading bar did not fill with the count (#3109)")
+		assert(paw.Position.X.Scale == fill.Size.X.Scale, "uigate: the paw is not at the bar's tip (#3109)")
 		-- hidden and shown again at once: the slide away must not carry the new show off (review on #3107)
 		UI.intro.waiting(false)
 		UI.intro.waiting(true)
@@ -5562,6 +5658,31 @@ local SCENES = {
 		local cover = gui:FindFirstChild("Cover") :: Frame
 		assert(gui.Enabled, "uigate: the loading screen went off after a quick hide and show (#3105)")
 		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
+		UIShim.advance(10)
+		assert(count.Text ~= "100%", "uigate: the loading count sat at 100 while still loading (#3109)")
+	end },
+	-- #3109 (Derek2 11-10: "instantly goes up to 100 really fast then transitions to the tutorial scenes"): once the
+	-- save is in the count races to 100 in SHOWN_MIN at most from the screen's start, and stays up until the play
+	{ "IntroLoadingRace", function()
+		local LoadingCount = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LoadingCount")
+		assert(UI.intro.race() == 0, "uigate: a race with no loading screen up should take no time (#3109)")
+		UI.intro.waiting(true)
+		UIShim.advance(0.3)
+		local seconds = UI.intro.race()
+		assert(
+			seconds >= LoadingCount.RACE_MIN and seconds <= LoadingCount.SHOWN_MIN,
+			("uigate: the race to 100 takes %.2f s (#3109)"):format(seconds)
+		)
+		assert(UI.intro.race() <= seconds, "uigate: a second ask restarted the race (#3109)")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		local count = gui:FindFirstChild("Count", true) :: TextLabel
+		local fill = gui:FindFirstChild("Fill", true) :: Frame
+		UIShim.advance(seconds / 2)
+		assert(count.Text ~= "100%", "uigate: the count hit 100 half way through its race (#3109)")
+		UIShim.advance(seconds / 2 + 0.1)
+		assert(count.Text == "100%", "uigate: the count reads " .. count.Text .. " after its race (#3109)")
+		assert(fill.Size.X.Scale == 1, "uigate: the bar is not full at 100 (#3109)")
+		assert(gui.Enabled, "uigate: the loading screen left before the intro started (#3109)")
 	end },
 	{ "IntroLoadingLifts", function()
 		UI.intro.waiting(true)
@@ -8081,6 +8202,13 @@ function Scenes.close()
 	end
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene
+	end
+	-- #3105, #3109: the loading screen put away, so the next scene starts with none up (IntroLoading leaves it
+	-- showing, and IntroLoadingRace, the scene after it, begins by asking for a race with no screen up)
+	local introWait = UIShim.playerGui:FindFirstChild("CatCafeIntroWait")
+	if introWait ~= nil and introWait:IsA("ScreenGui") and introWait.Enabled then
+		UI.intro.waiting(false)
+		UIShim.advance(1) -- its slide away
 	end
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil

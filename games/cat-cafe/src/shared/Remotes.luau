@@ -147,7 +147,10 @@ Remotes.ClientToServer = {
 	"InviteCard", -- (action: string)  #2797 (retention-ideas.md 5d): the invite card's report, "shown", "invite" or
 	-- "notnow"; analytics invite_card, and "shown" marks invites.cardShown so it never comes back. Pays nothing
 	"MuseumDonate", -- (uid: string)  Tier 7; a cat with an empty exhibit, owned, unlocked, not at the spa, no open
-	-- trade, another copy of its kind kept; the copy leaves the save and fills the exhibit
+	-- trade, and not the player's last cat of all (#3123: the last copy of its kind may go); the copy leaves the save
+	-- and fills the exhibit
+	"MuseumFill", -- (area: string)  #3130: Auto fill, MuseumDonate's checks for each copy of LateStations.fillPlan
+	-- (the server's own plan for that hall), all in one call
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second

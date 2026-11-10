@@ -221,7 +221,7 @@ UI.events = {
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
-	-- SpaTakeOut, SpaCollect, SpaBuySlot or MuseumDonate) with its arguments
+	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
@@ -1347,6 +1347,20 @@ function UI.init(config: Types.InitConfig)
 				modalInstance:close()
 			end
 		end,
+		-- #3132: his arrival as a short banner with the cat's face in the toast stack
+		announce = function(def: Types.CatDef?, shiny: boolean, line: string, tap: () -> ())
+			if toasts then
+				local CollectorLogic = require(script.Components.CollectorLogic)
+				toasts:cat({
+					def = def,
+					shiny = shiny,
+					title = CollectorLogic.BANNER_TITLE,
+					line = line,
+					seconds = CollectorLogic.BANNER_SECONDS,
+					onTap = tap,
+				})
+			end
+		end,
 	})
 	local collectorView = collectorScreen :: Collector.Collector
 	modalInstance:register("Collector", {
@@ -1423,7 +1437,7 @@ function UI.init(config: Types.InitConfig)
 				or UI.intro.playing()
 		end,
 		lift = function()
-			return hudInstance:bottomTop()
+			return hudInstance:tackleTop() -- #3119: under the Drop off touch
 		end,
 	})
 	netButton = NetButton.new(parent, {
@@ -1454,8 +1468,8 @@ function UI.init(config: Types.InitConfig)
 		end
 	)
 	popups = Popups.new(parent)
-	-- #2157 (Desktop-Tester on #2128): a replay waits up to STREAM_WAIT for the camp to stream in before the intro
-	-- hides the UI, so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
+	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
+	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server
 	-- credits them anyway at the next save), so the card never comes back
 	replayTidy = UI.events.introReplay:Connect(function()
@@ -2883,6 +2897,17 @@ function UI.setCarrying(info: Types.CarryInfo?)
 	UI.carryMarker.apply()
 end
 
+-- #3145: what the screen holds for a carried cat (shared/CarrySync.View), so UIController can set it again when it
+-- has drifted from the server's: the HUD and marker exist, the cat this state names, and whether the banner is up.
+function UI.carryView(): { built: boolean, catId: string?, banner: boolean }
+	local hudScreen = hud
+	return {
+		built = hudScreen ~= nil and carryMarker ~= nil,
+		catId = (state :: any).carrying,
+		banner = hudScreen ~= nil and hudScreen:carryShown(),
+	}
+end
+
 -- #2864 (Derek2: a Backpack cat alone showed no way home): the carry marker follows a cat in the hands first, else one
 -- packed in the Backpack (UI.setBagCarry), which leaves state.carrying and the HUD's carry banner alone, so the "Drop
 -- bag cat" pill stays.
@@ -3014,12 +3039,19 @@ function UI.intro.finish()
 	end
 end
 
--- #3105: the loading screen while the camera is held still: before the first spawn, and while a play waits for
--- the Alleyway to stream in (IntroController's park and unpark). A play starting slides it away.
+-- #3105: the loading screen while the camera is held still: before the first spawn, and before a play's first
+-- shot (IntroController's park and unpark). A play starting slides it away.
 function UI.intro.waiting(on: boolean)
 	if introScreen then
 		introScreen:waiting(on)
 	end
+end
+
+-- #3109: the load is over: the loading screen's count runs to 100. Returns the seconds that takes (0 with no
+-- loading screen up); IntroController starts the intro then, which slides the screen away.
+function UI.intro.race(): number
+	local screen = introScreen
+	return if screen ~= nil then screen:race() else 0
 end
 
 function UI.intro.playing(): boolean
@@ -6511,6 +6543,9 @@ do
 		local museum = RelicMuseum.new({
 			donate = function(uid: string)
 				send("MuseumDonate", uid)
+			end,
+			fill = function(area: string)
+				send("MuseumFill", area) -- #3130: Auto fill
 			end,
 			close = closer(WINDOWS.museum),
 			far = far(LateStationsLogic.MUSEUM),

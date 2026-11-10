@@ -339,16 +339,20 @@ return function()
 			)
 
 			it(
-				"refuses the last copy, a locked copy, a spa copy, an open trade and a filled exhibit",
+				"refuses the last cat of all, a locked copy, a spa copy, an open trade and a filled exhibit",
 				function()
 					local profile = profileAt(7)
+					table.clear(profile.cats)
 					add(profile, "a", "tuxedo", 4)
 					expect(LateStations.donateBlocker(profile, 6, "a", false)).to.equal(
 						LateStations.Messages.museumShut
 					)
+					-- #3123: the only copy of a cat may go, but never the player's last cat of all
 					expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(
 						LateStations.Messages.lastCopy
 					)
+					add(profile, "other", "smoke", 1)
+					expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(nil)
 					local b = add(profile, "b", "tuxedo", 9)
 					b.locked = true
 					expect(LateStations.donateBlocker(profile, 7, "b", false)).to.equal(
@@ -377,18 +381,47 @@ return function()
 				end
 			)
 
-			it("lists the weakest copy first and counts the exhibits that can be filled", function()
-				local profile = profileAt(7)
-				add(profile, "strong", "ginger", 30)
-				add(profile, "weak", "ginger", 2)
-				add(profile, "mid", "ginger", 2).charm = 90
-				local list = LateStations.donatable(profile, "ginger")
-				expect(#list).to.equal(3)
-				expect(list[1].uid).to.equal("weak")
-				expect(list[2].uid).to.equal("mid")
-				-- the starter tabby has one copy, so ginger is the one that can be filled
-				expect(LateStations.canFill(profile)).to.equal(1)
-			end)
+			it(
+				"lists the copy to give first first and counts the exhibits that can be filled",
+				function()
+					local profile = profileAt(7)
+					add(profile, "strong", "ginger", 30)
+					add(profile, "weak", "ginger", 2)
+					add(profile, "mid", "ginger", 2).charm = 90
+					add(profile, "shiny", "ginger", 1).variant = "gold" -- #3125: gold and rainbow last
+					add(profile, "busy", "ginger", 1).spotId = "spot_1" -- #3125: working cats after idle ones
+					local list = LateStations.donatable(profile, "ginger")
+					expect(#list).to.equal(5)
+					expect(list[1].uid).to.equal("weak")
+					expect(list[2].uid).to.equal("mid")
+					expect(list[3].uid).to.equal("strong")
+					expect(list[4].uid).to.equal("busy")
+					expect(list[5].uid).to.equal("shiny")
+					-- #3123: the starter tabby's only copy can be given too
+					expect(LateStations.canFill(profile)).to.equal(2)
+				end
+			)
+
+			it(
+				"plans an Auto fill: each exhibit's first pick, no gold, never the last cat (#3130)",
+				function()
+					local profile = profileAt(7)
+					table.clear(profile.cats)
+					local room = roomOf("alley")
+					add(profile, "a1", room.cats[1], 9)
+					add(profile, "a2", room.cats[1], 2)
+					add(profile, "g", room.cats[2], 1).variant = "gold"
+					add(profile, "c", room.cats[3], 1)
+					local plan = LateStations.fillPlan(profile, "alley")
+					expect(#plan).to.equal(2)
+					expect(plan[1]).to.equal("a2")
+					expect(plan[2]).to.equal("c")
+					expect(#LateStations.fillPlan(profile, "nowhere")).to.equal(0)
+					table.clear(profile.cats)
+					add(profile, "solo", room.cats[1], 1)
+					expect(#LateStations.fillPlan(profile, "alley")).to.equal(0)
+				end
+			)
 
 			it(
 				"adds 2% tips forever once for a finished room, and keeps it through a rejoin",
@@ -424,7 +457,7 @@ return function()
 				expect(profile.museum.smoke).to.equal("gold")
 				expect(
 					LateStations.pickerLine(LateStations.MUSEUM, LateStations.view(profile, 7, NOW))
-				).to.equal("Relic Museum: 1/70")
+				).to.equal("Relic Museum: 1/70 · 1 can be filled !") -- #3123: the starter tabby's only copy
 			end)
 		end)
 	end)

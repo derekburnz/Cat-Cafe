@@ -2730,6 +2730,16 @@ function Logic.glowFlicker(level: number, t: number, flicker: number, hz: number
 	return math.max(0, level * (1 + flicker * wave))
 end
 
+-- #3129: how far a finished museum room's name is toward its brighter gold, 0 to 1, `t` seconds in: one slow breath
+-- every `every` seconds. `still` (Reduce Motion, Low performance, or too far to animate) holds it at 0, the steady
+-- gold.
+function Logic.plaqueGlow(t: number, every: number, still: boolean): number
+	if still or every <= 0 then
+		return 0
+	end
+	return 0.5 - 0.5 * math.cos(t / every * 2 * math.pi)
+end
+
 -- Whether a player's leaderboard crown was just earned (F98): their `Crown` going from false to true. `before` nil
 -- is the first value seen (they joined, or this client started), which sets no burst.
 function Logic.crownEarned(before: boolean?, now: boolean): boolean

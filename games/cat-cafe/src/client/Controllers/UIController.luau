@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
+local CarrySync = require(Shared:WaitForChild("CarrySync"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
@@ -62,6 +63,9 @@ local predictedMoney = 0
 local lastCornerShopBuy = -math.huge
 local CORNER_SHOP_QUIET_SECONDS = 3
 local lastCarrying: string? = nil
+-- #3145: the newest ProfileSync's `carrying`, noted the moment the sync arrives and before anything else runs, so
+-- the carry banner follows the server's latest word whatever order the syncs finish applying in (refreshCarry)
+local latestCarrying: string? = nil
 local shownCamp: BasePart? = nil -- #2730: the camp basket the carry marker leads to now, or nil for the door
 -- #2864: the Backpack cat the marker leads home while the hands are empty (the character's PackedCatId), and its
 -- camp basket now; nil when none is shown
@@ -753,6 +757,26 @@ local function applySettings()
 	})
 end
 
+-- The carry banner, marker and door follow the server's carried cat. #3145 (Derek2 2026-11-10: the banner stayed up
+-- for a cat that was gone, and Drop did nothing): set again whenever the screen has drifted from the newest sync's
+-- value (shared/CarrySync), not only when that value changes; called on every sync and from the camp watch twice a
+-- second, so a banner left behind by a sync applied late, or by an error part way, comes down within half a second.
+local function refreshCarry()
+	local want = latestCarrying
+	local view: CarrySync.View = UI.carryView()
+	if not CarrySync.stale(want, lastCarrying, view) then
+		return
+	end
+	lastCarrying = want
+	if want ~= nil then
+		shownCamp = carryCamp()
+		UI.setCarrying({ catId = want, door = UIController.ownDoor(), camp = shownCamp })
+	else
+		shownCamp = nil
+		UI.setCarrying(nil)
+	end
+end
+
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	local shopBuy = os.clock() - lastCornerShopBuy < CORNER_SHOP_QUIET_SECONDS
@@ -865,16 +889,7 @@ local function applyState(s: Types.PlayerState)
 		Moments.RankUp:Fire(s.tier)
 	end
 	lastTier = s.tier
-	if s.carrying ~= lastCarrying then
-		lastCarrying = s.carrying
-		if s.carrying ~= nil then
-			shownCamp = carryCamp()
-			UI.setCarrying({ catId = s.carrying, door = UIController.ownDoor(), camp = shownCamp })
-		else
-			shownCamp = nil
-			UI.setCarrying(nil)
-		end
-	end
+	refreshCarry()
 	refreshBait(s)
 	refreshTutorial(s)
 	refreshRichTip()
@@ -1917,6 +1932,7 @@ end
 
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
+		latestCarrying = s.carrying -- #3145: first, before anything that could hold this sync up
 		applyState(s)
 		offerEvent()
 		offerInvite()
@@ -2456,6 +2472,9 @@ local function startCampWatch()
 	task.spawn(function()
 		while true do
 			task.wait(CAMP_CHECK_SECONDS)
+			if state ~= nil then
+				refreshCarry() -- #3145: the banner against the server's newest word, whatever the last sync did
+			end
 			local catId = lastCarrying
 			if catId ~= nil then
 				local camp = carryCamp()

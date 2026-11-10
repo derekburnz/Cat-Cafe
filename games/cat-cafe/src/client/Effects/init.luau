@@ -54,6 +54,7 @@ local LuckyCat = require(script.LuckyCat)
 local LuckyPaw = require(script.LuckyPaw)
 local Market = require(script.Market)
 local Motion = require(script.Motion)
+local MuseumPlaques = require(script.MuseumPlaques)
 local Mystery = require(script.Mystery)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
@@ -161,6 +162,7 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		MuseumPlaques.start,
 		StationMotion.start,
 		HoldPulse.start,
 		BaitCrumbs.start,

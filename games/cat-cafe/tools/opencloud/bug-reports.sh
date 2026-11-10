@@ -17,8 +17,8 @@
 # public the reporters are strangers, many of them young. A v 1 record (before the filter) or one whose filtering
 # failed shows a placeholder instead; its raw text stays in the data store, for Debug.bugReports in Studio.
 # Names and ids are masked (#3103): each name shrinks to its first letter and each user id to its last three digits,
-# and the JSON records are left out of the log and the summary. That is the default, and in GitHub Actions it is
-# the only way: every Actions log on this repo is public, a run started by hand as much as the daily one.
+# the error lists lose names and ids too (the comment by the print step says how), and the JSON records are left out
+# of the log and the summary. That is the default, and in GitHub Actions it is the only way: every Actions log on this repo is public, a run started by hand as much as the daily one.
 #   MASK=0  full names, ids and JSON records, only when run on a PC (ignored when GITHUB_ACTIONS is true)
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
@@ -131,12 +131,26 @@ done
 echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@]}"
 # The same fields and order as BugReportService's line(), times in UTC.
 who='\(.name) (\(.userId))'
+client='\(.clientErrors // [] | join(" / "))'
+server='\(.serverErrors // [] | join(" / "))'
+# Masked, the error lists lose names and ids as well (#3103). An error line carries the instance path, and a
+# player's own scripts, character and screens sit under their name ("Players.<Name>.PlayerScripts...",
+# "Workspace.<Name>..."), so that name becomes ***; the reporter's name becomes *** wherever else it stands, and a
+# run of 6 or more digits (a user id, a save key) becomes #. A client line is text the player's device chose and no
+# filter has read, so only its script and line number are printed ("Players.***.PlayerScripts.Client.UI:12"); a
+# line of any other shape prints as "(text left out)".
+defs='def scrub($n): tostring | gsub("(?<w>Players|Workspace)\\.[^.:\\s]+"; "\(.w).***")
+	| (if ($n | length) > 2 then split($n) | join("***") else . end) | gsub("[0-9]{6,}"; "#");
+def where: (capture("^(?<p>[A-Za-z0-9_.*]+:[0-9]+)(:|$)") | .p) // "(text left out)";
+'
 if [ "$MASK" = 1 ]; then
 	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:])) at=\(.at)' # at is the key's time: idea-credits add takes r_<day>_<at>
+	client='\((.name | tostring) as $n | .clientErrors // [] | map(scrub($n) | where) | join(" / "))'
+	server='\((.name | tostring) as $n | .serverErrors // [] | map(scrub($n)) | join(" / "))'
 fi
-line='(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) '"$who"
-line+=' v\(.placeVersion) \(.area) \(.device): \(.text) | client \(.clientErrors // [] | join(" / "))'
-line+=' | server \(.serverErrors // [] | join(" / "))"'
+line=$defs'(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) '"$who"
+line+=' v\(.placeVersion) \(.area) \(.device): \(.text) | client '"$client"
+line+=' | server '"$server"'"'
 for record in "${records[@]}"; do
 	jq -r "$line" <<<"$record"
 done

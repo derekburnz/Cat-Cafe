@@ -3052,6 +3052,14 @@ function UI.intro.finish()
 	end
 end
 
+-- #3105: the loading screen while the camera is held still: before the first spawn, and while a play waits for
+-- the Alleyway to stream in (IntroController's park and unpark). A play starting slides it away.
+function UI.intro.waiting(on: boolean)
+	if introScreen then
+		introScreen:waiting(on)
+	end
+end
+
 function UI.intro.playing(): boolean
 	local screen = introScreen
 	return screen ~= nil and screen:playing()
@@ -3250,7 +3258,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
+-- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
+-- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
+-- basket and the camp chime say it.
 function UI.cannon.checkedIn(catName: string?)
+	local cannon: any = UI.cannon
+	if
+		cannon._deliverySaid
+		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+	then
+		return
+	end
+	cannon._deliverySaid = true
 	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
 end
 

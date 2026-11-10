@@ -535,6 +535,22 @@ function IndexRewards.perkLabel(perk: string, amount: number): string?
 	return ("+%s money"):format(percent(amount)) -- F94 section 5: "money", not "tips"
 end
 
+-- #2884 (Derek2: the Index's forever banner "runs out of space and keeps twitching"): the title bar's short words,
+-- "+40% gold luck" without the chance in brackets, which the bait and food cards' Details still give; nil at zero.
+function IndexRewards.perkShort(perk: string, amount: number): string?
+	if amount <= 0 then
+		return nil
+	end
+	local value = math.floor(amount * 1000 + 0.5) / 10 -- one decimal at most
+	local percent = (if value == math.floor(value) then "%d%%" else "%.1f%%"):format(value)
+	local words = if perk == "goldLuck"
+		then "gold luck"
+		elseif perk == "rainbowLuck" then "rainbow luck"
+		elseif perk == "baitSpeed" then "faster bait"
+		else "money"
+	return "+" .. percent .. " " .. words
+end
+
 -- The line an Index Board shows while someone's gold luck helps the area's strays (golden-fish.md section 5):
 -- "Gold luck +40% from Sam", from the board's GoldLuck and GoldLuckFrom attributes; nil without luck.
 function IndexRewards.boardLuck(luck: any, from: any): string?

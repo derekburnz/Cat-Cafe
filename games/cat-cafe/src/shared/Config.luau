@@ -903,7 +903,7 @@ local Config = {
 	SpaSlotPrices = { 0, 100, 250 },
 	MuseumRoomTipBonus = 0.05, -- #2908 (Derek2 2026-11-10: "up the tips bonus to be 5% per room filled"; was 0.02)
 	LateStationsOpen = true, -- on since the Spa and Museum cards are in (#2931)
-	CampExtraRangeStuds = 8,
+	CampExtraRangeStuds = 14, -- #3113: 8 until the camp stations got radius 6 rings; from the PromptAnchor at the front
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
 	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is

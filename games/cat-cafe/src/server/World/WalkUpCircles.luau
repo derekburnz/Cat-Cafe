@@ -7,6 +7,8 @@
 --   front(model, color, range, into?, icon?)  a ring on the floor in front of the station (its -Z, which faces the
 --                                         cannon), with `icon` lying in its middle (#2449)
 --   toward(model, color, range, outward, radius, into?, icon?)  a ring on its `outward` side (the bait bowl, #2476)
+--   frontFit(model, color, into?, icon?, radius?)  a front ring for a camp station (#3113): touching its front, slid
+--                                         or shrunk off whatever stands on its floor, never under FRONT_FIT_LEAST
 --   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide, slid
 --                                         off a wall on its floor (#2433)
 -- `range` is the server's reach for the station's window, so the whole ring stays inside it (shared/WalkUp). The ring
@@ -293,6 +295,34 @@ local function baseOf(model: Model, centre: Vector3, bottom: number): { Vector2 
 		end
 	end
 	return found
+end
+
+-- #3113: a ring in front of a camp station, touching its front like `front`'s, `radius` wide (WalkUp.FRONT_RADIUS when
+-- left out), then slid off (at most FIT_SHIFT_MAX) and if need be shrunk to clear anything standing on its floor, such
+-- as a camp wall or a prop of the camp set, never under WalkUp.FRONT_FIT_LEAST. The server's reach for a camp station
+-- is measured from its PromptAnchor (CampExtraRangeStuds), not its pivot, so there is no range to pull the ring into.
+function WalkUpCircles.frontFit(
+	model: Model,
+	color: Color3,
+	into: Instance?,
+	icon: Icon?,
+	radius: number?
+)
+	local front, _, bottom = footprint(model)
+	local wide = radius or WalkUp.FRONT_RADIUS
+	local at = (model:GetPivot() * CFrame.new(0, 0, -(math.max(0, front) + wide))).Position
+	local reach = wide + WalkUp.FIT_CLEAR + WalkUp.FIT_SHIFT_MAX
+	local blocks = blocksAround(model, Vector3.new(at.X, bottom + PROBE_UP, at.Z), reach)
+	local shift, fitted =
+		WalkUp.fitRing(wide, blocks, WalkUp.FIT_SHIFT_MAX, math.min(wide, WalkUp.FRONT_FIT_LEAST))
+	ring(
+		model,
+		Vector3.new(at.X + shift.X, bottom + LIFT, at.Z + shift.Y),
+		fitted,
+		color,
+		into,
+		icon
+	)
 end
 
 -- A ring round the whole station, centred on its pivot, slid off (and if need be shrunk to clear) anything standing

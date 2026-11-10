@@ -337,7 +337,7 @@ return function()
 		PondHold = 24, -- #2237: was 36
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
-		CampExtraRangeStuds = 8,
+		CampExtraRangeStuds = 14,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908

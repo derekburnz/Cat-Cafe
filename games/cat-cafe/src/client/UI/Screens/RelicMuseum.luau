@@ -3,11 +3,17 @@
 -- (UI.lateStations.open("museum")). One room at a time, turned with the arrows ("Desert Hall 4/10", a tick once
 -- finished): its ten exhibits in two rows of five, each the Index's picture of its cat, a black silhouette until
 -- given, then the cat in the coat it was given in (a gold or rainbow frame for those). Under each name: "Given" or
--- "You have 3", and a green "!" when a copy can be given now. Tapping one with a copy to give turns the card to
--- its copies, weakest first (the server's own order), each with Give; a gold or rainbow copy asks first ("This is a
--- gold cat. Give it anyway?"). Tapping one without says why in the note line ("You need a second copy to give one").
--- The footer has the count, "23/70 exhibits · +10% tips forever", and what a room is worth. A Give rests the buttons
--- until the next LateStationsState or a refusal (refused). The server checks every rule again and toasts a finished
+-- "You have 3", and a green "!" when a copy can be given now. #3123: the ten tiles are placed by hand at fifths of
+-- the width (a UIGridLayout wrapped at 4 a row), in a scroller that fills the room between the arrows and the
+-- footer, so a short screen scrolls instead of the footer covering a row. Tapping one with a copy to give turns the
+-- card to its copies, the one to give first first and marked "Best to give" (#3125, the server's own order), each
+-- with Give; the last copy asks first ("This is your only Tabby. It leaves your cafe. Give it anyway?", #3123), as
+-- does a gold or rainbow copy. Tapping one without says why in the note line. The footer has the count,
+-- "23/70 exhibits · +10% tips forever", and what a room is worth. A Give rests the buttons until the next
+-- LateStationsState or a refusal (refused); #3124: Gives go at least SEND_GAP apart (the server takes one a second
+-- and drops the rest unanswered), and one with no answer frees the card after PENDING_SECONDS with a note. #3130:
+-- Auto fill beside the arrows gives the hall's every fillable exhibit its pick in one call (fill(area)), after a
+-- question that lists them (LateStationsLogic.fillPlan and fillAsk). The server checks every rule again and toasts a finished
 -- room ("Desert Hall complete! +5% tips forever"). Nothing is sold for Robux. Words and rules in
 -- Components/LateStationsLogic.
 
@@ -33,6 +39,7 @@ local PAL = Theme.dark
 
 export type Callbacks = {
 	donate: (uid: string) -> (),
+	fill: ((area: string) -> ())?, -- #3130: Auto fill on the hall shown
 	close: () -> (),
 	far: (() -> boolean)?, -- true once the player has walked away from the museum: the card closes
 }
@@ -64,7 +71,10 @@ local MAX_SIZE = Vector2.new(600, 430)
 local COLUMNS = 5
 local TILE_H = 112
 local PICTURE = 60
-local PENDING_SECONDS = 5
+local PENDING_SECONDS = 2.5
+local SEND_GAP = 1.1 -- #3124: the server's MuseumDonate limit is one a second
+local FOOT_H = 62
+local FILL_W = 104
 local ROW_H = 52
 local GAP = Theme.sizes.gap
 
@@ -133,10 +143,10 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		dark = true,
 		name = "RelicMuseum",
 		title = "Relic Museum",
-		subtitle = "Give a spare copy to fill its exhibit",
+		subtitle = "Give a copy of a cat to fill its exhibit",
 		color = Theme.colors.mintDark,
 		icon = LateStationsLogic.ICONS.museum,
-		size = UDim2.new(1, 0, 0, MAX_SIZE.Y + extra),
+		size = UDim2.fromScale(1, 1), -- #3123: as tall as the screen allows, up to MAX_SIZE; the exhibits scroll on a short one
 		onClose = callbacks.close,
 	})
 	Create("UISizeConstraint", {
@@ -174,26 +184,49 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			self:_turn(1)
 		end,
 	})
+	self._fillButton = Button.new({
+		name = "AutoFill",
+		text = "Auto fill",
+		style = "primary",
+		size = UDim2.fromOffset(FILL_W, buttonH),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -64, 0, 0),
+		textSize = Theme.sizes.textSmall,
+		parent = content,
+		onClick = function()
+			self:_askFill()
+		end,
+	})
 	self._title = text({
 		Name = "Room",
 		Position = UDim2.fromOffset(64, 0),
-		Size = UDim2.new(1, -128, 0, buttonH),
+		Size = UDim2.new(1, -(128 + FILL_W + 8), 0, buttonH),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		Parent = content,
 	})
 
-	local grid: Frame = Create("Frame", {
+	-- #3123: two rows of five placed by hand (a UIGridLayout's five cells and four gaps could round past the width
+	-- and wrap at four), in a scroller between the arrows and the footer
+	local grid: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "Exhibits",
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(0, buttonH + GAP),
-		Size = UDim2.new(1, 0, 0, TILE_H * 2 + GAP),
+		Size = UDim2.new(1, 0, 1, -(buttonH + GAP * 2 + FOOT_H)),
+		CanvasSize = UDim2.fromOffset(0, TILE_H * 2 + GAP + 8),
+		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
 		Parent = content,
 	}, {
-		Create("UIGridLayout", {
-			CellPadding = UDim2.fromOffset(GAP, GAP),
-			CellSize = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0, TILE_H),
-			SortOrder = Enum.SortOrder.LayoutOrder,
+		-- room for the tiles' outlines inside the scroller's clip
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 3),
+			PaddingRight = UDim.new(0, 3),
+			PaddingTop = UDim.new(0, 3),
+			PaddingBottom = UDim.new(0, 3),
 		}),
 	})
 	self._tiles = {} :: { Tile }
@@ -204,7 +237,13 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			AutoButtonColor = false,
 			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
-			LayoutOrder = index,
+			Size = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0, TILE_H),
+			Position = UDim2.new(
+				((index - 1) % COLUMNS) / COLUMNS,
+				((index - 1) % COLUMNS) * GAP / COLUMNS,
+				0,
+				(math.ceil(index / COLUMNS) - 1) * (TILE_H + GAP)
+			),
 			Parent = grid,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 		local stroke: UIStroke = Create("UIStroke", {
@@ -271,10 +310,10 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			connection = connection,
 		})
 	end
-	local footY = buttonH + GAP + TILE_H * 2 + GAP * 2
+	-- the footer keeps its own strip at the bottom (#3123: it sat over a third row)
 	self._noteLabel = text({
 		Name = "Note",
-		Position = UDim2.fromOffset(0, footY),
+		Position = UDim2.new(0, 0, 1, -FOOT_H),
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
@@ -282,7 +321,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 	})
 	self._count = text({
 		Name = "Count",
-		Position = UDim2.fromOffset(0, footY + 20),
+		Position = UDim2.new(0, 0, 1, -FOOT_H + 20),
 		Size = UDim2.new(1, 0, 0, 22),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
@@ -290,7 +329,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 	})
 	text({
 		Name = "RoomBonus",
-		Position = UDim2.fromOffset(0, footY + 42),
+		Position = UDim2.new(0, 0, 1, -FOOT_H + 42),
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.gold,
@@ -317,7 +356,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "It stays found in your Index. Your other copy stays with you.",
+		Text = "It stays found in your Index.",
 		ZIndex = 6,
 		Parent = give,
 	})
@@ -353,16 +392,20 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
+		Create("UIPadding", {
+			PaddingRight = UDim.new(0, 10),
+			PaddingLeft = UDim.new(0, 3), -- #3125: the Best to give row's outline
+			PaddingTop = UDim.new(0, 3),
+		}),
 	})
 
-	-- a gold or rainbow copy asks first
+	-- the last copy, or a gold or rainbow one, asks first
 	local confirm = sheet("Confirm", content, 8)
 	self._confirm = confirm
 	self._ask = text({
 		Name = "Ask",
-		Position = UDim2.fromScale(0, 0.22),
-		Size = UDim2.new(1, 0, 0, 56),
+		Position = UDim2.fromScale(0, 0.12),
+		Size = UDim2.new(1, 0, 0, 100),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextWrapped = true,
@@ -376,14 +419,17 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		style = "danger",
 		size = UDim2.fromOffset(150, buttonH + 4),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(0.5, -6, 0.22, 76),
+		position = UDim2.new(0.5, -6, 0.12, 112),
 		textSize = Theme.sizes.textBody,
 		parent = confirm,
 		zIndex = 9,
 		onClick = function()
 			local uid = self._asking
+			local fill = self._fillArea
 			self:_showConfirm(nil)
-			if uid ~= nil then
+			if fill ~= nil then
+				self:_fill(fill)
+			elseif uid ~= nil then
 				self:_donate(uid)
 			end
 		end,
@@ -393,7 +439,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		text = "Keep it",
 		style = "primary",
 		size = UDim2.fromOffset(150, buttonH + 4),
-		position = UDim2.new(0.5, 6, 0.22, 76),
+		position = UDim2.new(0.5, 6, 0.12, 112),
 		textSize = Theme.sizes.textBody,
 		parent = confirm,
 		zIndex = 9,
@@ -447,24 +493,101 @@ function RelicMuseum._donate(self: any, uid: string)
 	self._pending = true
 	self._pendingToken += 1
 	local token = self._pendingToken
-	task.delay(PENDING_SECONDS, function()
+	-- #3124: wait out the server's one a second, so this Give isn't dropped unanswered
+	local wait = math.max(0, (self._lastSent or -math.huge) + SEND_GAP - os.clock())
+	task.delay(wait + PENDING_SECONDS, function()
 		if self._pendingToken == token and self._pending then
 			self._pending = false
+			self._note = "That didn't go through. Try again."
 			self:_paint()
 		end
 	end)
 	self:_showGive(nil)
 	self:_paint()
-	self._callbacks.donate(uid)
+	self._lastSent = os.clock() + wait
+	if wait > 0 then
+		task.delay(wait, function()
+			if self._pendingToken == token and self._pending then
+				self._callbacks.donate(uid)
+			end
+		end)
+	else
+		self._callbacks.donate(uid)
+	end
 end
 
-function RelicMuseum._showConfirm(self: any, uid: string?)
+function RelicMuseum._showConfirm(self: any, uid: string?, ask: string?, fillArea: string?)
 	self._asking = uid
-	self._confirm.Visible = uid ~= nil
-	local cat: SharedTypes.CatView? = if uid ~= nil then self._cats[uid] else nil
-	if cat ~= nil then
-		self._ask.Text = LateStationsLogic.giveWarning(cat.variant) or ""
+	self._fillArea = fillArea
+	self._confirm.Visible = uid ~= nil or fillArea ~= nil
+	self._ask.Text = ask or ""
+	self._ask.TextSize = if #(ask or "") > 70 then Theme.sizes.textBody else Theme.sizes.textLarge
+end
+
+-- #3130: Auto fill's picks for the hall shown.
+function RelicMuseum._fillPicks(self: any): { LateStationsLogic.FillPick }
+	local room = self:_rooms()[self._room]
+	if room == nil then
+		return {}
 	end
+	local total = 0
+	for _ in self._cats do
+		total += 1
+	end
+	return LateStationsLogic.fillPlan(room, total)
+end
+
+function RelicMuseum._askFill(self: any)
+	local room = self:_rooms()[self._room]
+	if room == nil or self._pending then
+		return
+	end
+	local picks = self:_fillPicks()
+	if #picks == 0 then
+		Sound.play("uiError")
+		self._note = "Nothing to fill in this hall right now"
+		self:_paint()
+		return
+	end
+	Sound.play("uiClick")
+	self:_showConfirm(nil, LateStationsLogic.fillAsk(room.name, picks), room.area)
+end
+
+-- Sends Auto fill for `area`, after the same send gap and wait as a Give (#3124).
+function RelicMuseum._fill(self: any, area: string)
+	local fill = (self._callbacks :: Callbacks).fill
+	if fill == nil or self._pending then
+		return
+	end
+	self._pending = true
+	self._pendingToken += 1
+	local token = self._pendingToken
+	local wait = math.max(0, (self._lastSent or -math.huge) + SEND_GAP - os.clock())
+	task.delay(wait + PENDING_SECONDS, function()
+		if self._pendingToken == token and self._pending then
+			self._pending = false
+			self._note = "That didn't go through. Try again."
+			self:_paint()
+		end
+	end)
+	self:_paint()
+	self._lastSent = os.clock() + wait
+	task.delay(wait, function()
+		if self._pendingToken == token and self._pending then
+			fill(area)
+		end
+	end)
+end
+
+-- How many copies of `catId` the player has.
+function RelicMuseum._copies(self: any, catId: string): number
+	local count = 0
+	for _, cat: SharedTypes.CatView in self._cats do
+		if cat.catId == catId then
+			count += 1
+		end
+	end
+	return count
 end
 
 function RelicMuseum._clearRows(self: any)
@@ -493,6 +616,7 @@ function RelicMuseum._showGive(self: any, catId: string?)
 		self._spa
 	)
 	for order, cat in copies do
+		local best = order == 1 and #copies > 1 -- #3125: the one to give first
 		local frame: Frame = Create("Frame", {
 			Name = cat.uid,
 			BackgroundColor3 = PAL.card,
@@ -504,6 +628,14 @@ function RelicMuseum._showGive(self: any, catId: string?)
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		})
+		if best then
+			Create("UIStroke", {
+				Color = Theme.colors.good,
+				Thickness = Theme.sizes.stroke,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Parent = frame,
+			})
+		end
 		Create("Frame", {
 			Name = "Rarity",
 			BackgroundColor3 = Theme.rarityColor(if def ~= nil then def.rarity else nil),
@@ -533,10 +665,11 @@ function RelicMuseum._showGive(self: any, catId: string?)
 			TextColor3 = PAL.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = string.format(
-				"Lv %d · %s%s",
+				"Lv %d · %s%s%s",
 				cat.level,
 				string.rep("★", cat.stars or 1),
-				if cat.spotId ~= nil then " · Working" else ""
+				if cat.spotId ~= nil then " · Working" else "",
+				if best then " · Best to give" else ""
 			),
 			ZIndex = 7,
 			Parent = frame,
@@ -553,8 +686,9 @@ function RelicMuseum._showGive(self: any, catId: string?)
 			parent = frame,
 			zIndex = 7,
 			onClick = function()
-				if LateStationsLogic.giveWarning(cat.variant) ~= nil then
-					self:_showConfirm(uid)
+				local ask = LateStationsLogic.giveAsk(name, cat.variant, self:_copies(cat.catId))
+				if ask ~= nil then
+					self:_showConfirm(uid, ask)
 				else
 					self:_donate(uid)
 				end
@@ -625,9 +759,11 @@ function RelicMuseum._paint(self: any)
 		then "Giving..."
 		else (self._note or if room.canFill > 0
 			then "Tap an exhibit with a ! to give a copy"
-			else "Spare copies of a cat fill its exhibit")
+			else "Give a copy of a cat to fill its exhibit")
 	self._prev:setEnabled(not self._pending)
 	self._next:setEnabled(not self._pending)
+	self._fillButton.instance.Visible = (self._callbacks :: Callbacks).fill ~= nil
+	self._fillButton:setEnabled(not self._pending and room.canFill > 0)
 end
 
 -- Opens on the first room with something to give, else the first room not finished.
@@ -733,6 +869,7 @@ function RelicMuseum.destroy(self: any)
 	end
 	self._prev:destroy()
 	self._next:destroy()
+	self._fillButton:destroy()
 	self._back:destroy()
 	self._giveIt:destroy()
 	self._keep:destroy()

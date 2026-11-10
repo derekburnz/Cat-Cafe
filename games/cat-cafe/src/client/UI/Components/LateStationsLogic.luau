@@ -65,6 +65,7 @@ export type Exhibit = {
 	have: number, -- copies owned
 	give: { SharedTypes.CatView }, -- the copies that can be given, weakest first
 	line: string, -- "Given", "You have 3", "You have 1"
+	onlyCat: boolean?, -- #3123: the player's one cat of all, which never goes
 }
 
 export type RoomRow = {
@@ -251,8 +252,9 @@ end
 
 -- Relic Museum ---------------------------------------------------------------------------------------------------
 
--- The copies of `catId` that can be given, as shared/LateStations.donatable: unlocked, not at the spa, and only while
--- another copy stays; lowest level, then lowest charm, first. Empty once the exhibit is filled.
+-- The copies of `catId` that can be given, as shared/LateStations.donatable: unlocked, not at the spa, the last copy
+-- too (#3123) while the player has another cat of any kind. The one to give first leads (#3125): plain coats before
+-- gold and rainbow, cats not working before working ones, then lowest level, lowest charm and uid. Empty once the exhibit is filled.
 function LateStationsLogic.donatable(
 	cats: { [string]: SharedTypes.CatView }?,
 	catId: string,
@@ -268,19 +270,28 @@ function LateStationsLogic.donatable(
 		return out
 	end
 	local soaking = spaUids(spa)
-	local copies = 0
+	local total = 0
 	for uid, cat in cats do
+		total += 1
 		if cat.catId == catId then
-			copies += 1
 			if cat.locked ~= true and not soaking[uid] then
 				table.insert(out, cat)
 			end
 		end
 	end
-	if copies < 2 then
+	if total < 2 then
 		return {}
 	end
 	table.sort(out, function(a: SharedTypes.CatView, b: SharedTypes.CatView): boolean
+		local sa = a.variant == "gold" or a.variant == "rainbow"
+		local sb = b.variant == "gold" or b.variant == "rainbow"
+		if sa ~= sb then
+			return sb
+		end
+		local wa, wb = a.spotId ~= nil, b.spotId ~= nil
+		if wa ~= wb then
+			return wb
+		end
 		if a.level ~= b.level then
 			return a.level < b.level
 		end
@@ -303,7 +314,9 @@ function LateStationsLogic.rooms(
 		else {}
 	local have: { [string]: number } = {}
 	local owned: { [string]: SharedTypes.CatView } = cats or {}
+	local total = 0
 	for _, cat in owned do
+		total += 1
 		have[cat.catId] = (have[cat.catId] or 0) + 1
 	end
 	local out: { RoomRow } = {}
@@ -328,6 +341,7 @@ function LateStationsLogic.rooms(
 				have = copies,
 				give = give,
 				line = if coat ~= nil then "Given" else string.format("You have %d", copies),
+				onlyCat = total == 1,
 			})
 		end
 		table.insert(out, {
@@ -350,15 +364,71 @@ function LateStationsLogic.giveWarning(variant: string?): string?
 	return nil
 end
 
--- Why an empty exhibit can't be filled now, for its tile's note: no copy, the one copy kept, or every spare locked
--- or at the spa.
+-- #3130: what Auto fill gives for a hall, as shared/LateStations.fillPlan: for each empty exhibit its first copy to
+-- give unless that is gold or rainbow, never the player's last cat of all (`total` the cats owned). Each pick with
+-- whether it is the player's only copy of that cat.
+export type FillPick = { cat: SharedTypes.CatView, name: string, only: boolean }
+function LateStationsLogic.fillPlan(room: RoomRow, total: number): { FillPick }
+	local out: { FillPick } = {}
+	local left = total
+	for _, exhibit in room.exhibits do
+		if left < 2 then
+			break
+		end
+		local pick = if exhibit.coat == nil then exhibit.give[1] else nil
+		if pick ~= nil and pick.variant ~= "gold" and pick.variant ~= "rainbow" then
+			table.insert(out, { cat = pick, name = exhibit.name, only = exhibit.have <= 1 })
+			left -= 1
+		end
+	end
+	return out
+end
+
+-- Auto fill's question for `picks` in the hall `hall`: "Give 3 cats to Alleyway Hall? Tabby, Smoke and Ginger. 1 is
+-- your only copy."
+function LateStationsLogic.fillAsk(hall: string, picks: { FillPick }): string
+	local names: { string } = {}
+	local only = 0
+	for _, pick in picks do
+		table.insert(names, pick.name)
+		if pick.only then
+			only += 1
+		end
+	end
+	local list = if #names > 1
+		then table.concat(names, ", ", 1, #names - 1) .. " and " .. names[#names]
+		else names[1] or ""
+	return string.format(
+		"Give %d cat%s to %s Hall? %s.%s",
+		#picks,
+		if #picks == 1 then "" else "s",
+		hall,
+		list,
+		if only == 0
+			then ""
+			elseif only == 1 then " 1 is your only copy."
+			else string.format(" %d are your only copy.", only)
+	)
+end
+
+-- What Give asks before it goes (#3123), or nil to give at once: the last copy of a cat ("This is your only Tabby.
+-- It leaves your cafe. Give it anyway?"), else a gold or rainbow copy's warning.
+function LateStationsLogic.giveAsk(name: string, variant: string?, copies: number): string?
+	if copies <= 1 then
+		return string.format("This is your only %s. It leaves your cafe. Give it anyway?", name)
+	end
+	return LateStationsLogic.giveWarning(variant)
+end
+
+-- Why an empty exhibit can't be filled now, for its tile's note: no copy, the player's last cat of all (#3123), or
+-- every copy locked or at the spa.
 function LateStationsLogic.whyNot(exhibit: Exhibit): string
 	if exhibit.coat ~= nil then
 		return "Already given"
 	elseif exhibit.have == 0 then
 		return "Catch this cat first"
-	elseif exhibit.have == 1 then
-		return "You need a second copy to give one"
+	elseif exhibit.have == 1 and exhibit.onlyCat == true then
+		return "Keep at least one cat in your cafe"
 	end
 	return "Unlock a copy, or take it out of the spa"
 end

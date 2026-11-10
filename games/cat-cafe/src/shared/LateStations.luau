@@ -85,6 +85,23 @@ do
 	end
 end
 
+-- #2908 (Derek2 2026-11-10: "let you see the exhibits being filled"): the Museum model's attachment where exhibit
+-- `catId` stands, ExhibitSpot_<area>_<n> with n its place in its room (Model-Agent's #2918: 10 a room, spot 1 at the
+-- museum end), or nil for a cat with no exhibit.
+function LateStations.exhibitSpot(catId: string): string?
+	local area = LateStations.exhibitArea[catId]
+	if area == nil then
+		return nil
+	end
+	for _, room in LateStations.rooms do
+		if room.area == area then
+			local index = table.find(room.cats, catId)
+			return if index ~= nil then string.format("ExhibitSpot_%s_%d", area, index) else nil
+		end
+	end
+	return nil
+end
+
 local function exhibitTotal(): number
 	local total = 0
 	for _ in LateStations.exhibitArea do

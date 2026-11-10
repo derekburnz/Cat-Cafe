@@ -297,6 +297,20 @@ return function()
 		end)
 
 		describe("Relic Museum", function()
+			it("gives every exhibit its own spot in the Museum model, 1 to 10 in its room (#2908)", function()
+				local seen: { [string]: boolean } = {}
+				for _, room in LateStations.rooms do
+					expect(#room.cats <= 10).to.equal(true)
+					for index, catId in room.cats do
+						local spot = LateStations.exhibitSpot(catId)
+						expect(spot).to.equal(string.format("ExhibitSpot_%s_%d", room.area, index))
+						expect(seen[spot :: string]).to.equal(nil)
+						seen[spot :: string] = true
+					end
+				end
+				expect(LateStations.exhibitSpot("no_such_cat")).to.equal(nil)
+			end)
+
 			it("refuses the last copy, a locked copy, a spa copy, an open trade and a filled exhibit", function()
 				local profile = profileAt(7)
 				add(profile, "a", "tuxedo", 4)

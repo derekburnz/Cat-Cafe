@@ -5,7 +5,12 @@
 --     "+24 levels · full"), with Take out while it has no level yet, which asks first ("Take Mochi out now? It won't
 --     level up.");
 --   an empty slot: Add a cat, which turns the card to a list of the cats that can go in (below the top level, not
---     soaking, best first), each with Relax;
+--     soaking, best first), each with Relax. #3136 (Derek2: "make it so you can search your cats and it shows a
+--     little face so you can tell which make sure it doesn't cause lag"): the list has a search box and All /
+--     Resting / Working, and each row shows the cat's face. To stay light with hundreds of cats its rows are built
+--     once when it opens (a few a frame past the first screenful) and again only when the cats that can go in
+--     change; typing only hides and shows rows; a face loads when its row is near the visible part, FACES_PER_PASS
+--     at a time; and closing the list frees them all;
 --   the next slot to open: its golden fish price (100, then 250), greyed while the player has too few; a slot after
 --     it reads "Open slot 2 first".
 -- Under them Collect takes every slot with a level waiting ("Collect +7 levels"), and a line says how many golden
@@ -21,6 +26,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
@@ -71,6 +77,23 @@ local TILE_GAP = 10
 local PICTURE = 64
 local PENDING_SECONDS = 5
 local ROW_H = 52
+local FACE = 44
+local TOOL_H = 34
+local CHIP_W = 78
+local FIRST_ROWS = 12 -- built at once when the list opens: more than a screenful
+local ROWS_PER_FRAME = 20 -- then this many a frame
+local FACES_PER_PASS = 15
+local FACE_MARGIN = 240 -- a face loads once its row is this near the visible part of the list (as the Cats window)
+local SEARCH_WAIT = 0.15 -- typing settles this long before the rows are filtered
+
+type Row = {
+	frame: Frame,
+	disc: Frame,
+	button: Button.Button,
+	cat: SharedTypes.CatView,
+	portrait: CatPortrait.CatPortrait?,
+	loaded: boolean,
+}
 local GAP = Theme.sizes.gap
 
 local OasisSpa = {}
@@ -126,7 +149,13 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	self._tick = 0
 	self._pickSlot = nil :: number? -- the slot the cat list fills
 	self._confirmSlot = nil :: number? -- the slot Take out asks about
-	self._rows = {} :: { { frame: Frame, button: Button.Button } }
+	self._rows = {} :: { Row }
+	self._rowsKey = nil :: string? -- LateStationsLogic.spaKey of the rows built
+	self._buildToken = 0
+	self._query = ""
+	self._filter = "All"
+	self._searchToken = 0
+	self._facesQueued = false
 	local buttonH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
 	self._buttonH = buttonH
 	local tileH = PICTURE + 84 + buttonH
@@ -301,12 +330,72 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 			self:_showPicker(nil)
 		end,
 	})
+	-- #3136: search and All / Resting / Working over the list
+	local toolTop = buttonH + 6
+	local chipsW = #LateStationsLogic.SPA_FILTERS * (CHIP_W + 6)
+	local search: TextBox = Create("TextBox", {
+		Name = "Search",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(1, toolTop),
+		Size = UDim2.new(1, -(chipsW + 2), 0, TOOL_H),
+		ClearTextOnFocus = false,
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
+		PlaceholderText = "🔍 Search cats",
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+		ZIndex = 6,
+		Parent = picker,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+	})
+	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
+	self._search = search
+	self._searchChanged = search:GetPropertyChangedSignal("Text"):Connect(function()
+		self._query = search.Text
+		self._searchToken += 1
+		local token = self._searchToken
+		task.delay(SEARCH_WAIT, function()
+			if self._searchToken == token then
+				self:_applyFilter()
+			end
+		end)
+	end)
+	self._chips = {} :: { [string]: Button.Button }
+	for index, filter in LateStationsLogic.SPA_FILTERS do
+		self._chips[filter] = Button.new({
+			name = filter,
+			text = filter,
+			style = if filter == "All" then "gold" else "ghost",
+			size = UDim2.fromOffset(CHIP_W, TOOL_H),
+			anchorPoint = Vector2.new(1, 0),
+			position = UDim2.new(
+				1,
+				-(#LateStationsLogic.SPA_FILTERS - index) * (CHIP_W + 6),
+				0,
+				toolTop
+			),
+			textSize = Theme.sizes.textSmall,
+			parent = picker,
+			zIndex = 6,
+			sound = "uiTab",
+			onClick = function()
+				self:_setFilter(filter)
+			end,
+		})
+	end
+	local listTop = toolTop + TOOL_H + 8
 	self._list = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, buttonH + 6),
-		Size = UDim2.new(1, 0, 1, -(buttonH + 6)),
+		Position = UDim2.fromOffset(0, listTop),
+		Size = UDim2.new(1, 0, 1, -listTop),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -321,9 +410,14 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		}),
 		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
 	})
+	self._scrolled = (self._list :: ScrollingFrame)
+		:GetPropertyChangedSignal("CanvasPosition")
+		:Connect(function()
+			self:_queueFaces()
+		end)
 	self._empty = text({
 		Name = "Empty",
-		Position = UDim2.fromOffset(0, buttonH + 30),
+		Position = UDim2.fromOffset(0, listTop + 20),
 		Size = UDim2.new(1, 0, 0, 40),
 		TextWrapped = true,
 		TextColor3 = PAL.subtext,
@@ -439,93 +533,228 @@ function OasisSpa._showConfirm(self: any, slot: number?)
 end
 
 function OasisSpa._clearRows(self: any)
-	for _, entry in self._rows do
+	self._buildToken += 1 -- a build still going a few rows a frame stops
+	for _, entry: Row in self._rows do
+		if entry.portrait then
+			entry.portrait:destroy() -- its ViewportFrame and cat model
+		end
 		entry.button:destroy()
 		entry.frame:Destroy()
 	end
 	table.clear(self._rows)
+	self._rowsKey = nil
 end
 
--- The cat list for `slot`, or back to the slots (nil). Built each time it opens, from the cats the player has now.
+-- The cat list for `slot`, or back to the slots (nil), which frees every row and face.
 function OasisSpa._showPicker(self: any, slot: number?)
 	self._pickSlot = slot
 	self._picker.Visible = slot ~= nil
-	self:_clearRows()
 	if slot == nil then
+		self:_clearRows()
 		return
 	end
+	self._search.Text = ""
+	self._query = ""
+	self._searchToken += 1
+	self:_setFilter("All", true)
+	self:_buildRows()
+end
+
+function OasisSpa._setFilter(self: any, filter: string, quiet: boolean?)
+	self._filter = filter
+	for name, chip: Button.Button in self._chips do
+		chip:setStyle(if name == filter then "gold" else "ghost")
+	end
+	if not quiet then
+		self:_applyFilter()
+	end
+end
+
+function OasisSpa._row(self: any, order: number, cat: SharedTypes.CatView): Row
+	local def = Catalog.getCat(cat.catId)
+	local rarity = Theme.rarityColor(if def ~= nil then def.rarity else nil)
+	local frame: Frame = Create("Frame", {
+		Name = cat.uid,
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._buttonH + 8)),
+		ZIndex = 6,
+		Parent = self._list,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+	})
+	-- the face's frame in the rarity's colour; the face itself comes when the row is near (_loadFaces)
+	local disc: Frame = Create("Frame", {
+		Name = "Face",
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0, 8, 0.5, 0),
+		Size = UDim2.fromOffset(FACE, FACE),
+		ZIndex = 7,
+		Parent = frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = rarity, Thickness = 3 }),
+	})
+	local left = 8 + FACE + 10
+	text({
+		Name = "Name",
+		Position = UDim2.fromOffset(left, 6),
+		Size = UDim2.new(1, -(left + 114), 0, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = LateStationsLogic.spaTitle(cat),
+		ZIndex = 7,
+		Parent = frame,
+	})
+	text({
+		Name = "Level",
+		Position = UDim2.fromOffset(left, 28),
+		Size = UDim2.new(1, -(left + 114), 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = LateStationsLogic.spaSubtitle(cat),
+		ZIndex = 7,
+		Parent = frame,
+	})
+	local uid = cat.uid
+	local button = Button.new({
+		name = "Relax",
+		text = "Relax",
+		style = "primary",
+		size = UDim2.fromOffset(100, self._buttonH),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -6, 0.5, 0),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = frame,
+		zIndex = 7,
+		onClick = function()
+			local into = self._pickSlot
+			self:_showPicker(nil)
+			if into ~= nil then
+				self:_send(function()
+					self._callbacks.put(into, uid)
+				end)
+			end
+		end,
+	})
+	return { frame = frame, disc = disc, button = button, cat = cat, portrait = nil, loaded = false }
+end
+
+-- Builds the list's rows from the cats the player has now: the first FIRST_ROWS at once, the rest ROWS_PER_FRAME a
+-- frame, so opening the list never stalls on a big collection.
+function OasisSpa._buildRows(self: any)
+	self:_clearRows()
+	local token = self._buildToken
 	local cats = LateStationsLogic.spaCandidates(self._cats, self._spa)
-	self._empty.Visible = #cats == 0
-	for order, cat in cats do
-		local def = Catalog.getCat(cat.catId)
-		local frame: Frame = Create("Frame", {
-			Name = cat.uid,
-			BackgroundColor3 = PAL.card,
-			BorderSizePixel = 0,
-			LayoutOrder = order,
-			Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._buttonH + 8)),
-			ZIndex = 6,
-			Parent = self._list,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
-		})
-		Create("Frame", {
-			Name = "Rarity",
-			BackgroundColor3 = Theme.rarityColor(if def ~= nil then def.rarity else nil),
-			BorderSizePixel = 0,
-			Size = UDim2.new(0, 6, 1, 0),
-			ZIndex = 7,
-			Parent = frame,
-		})
-		text({
-			Name = "Name",
-			Position = UDim2.fromOffset(16, 6),
-			Size = UDim2.new(1, -130, 0, 22),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Text = self:_catName(cat.uid, cat.catId),
-			ZIndex = 7,
-			Parent = frame,
-		})
-		text({
-			Name = "Level",
-			Position = UDim2.fromOffset(16, 28),
-			Size = UDim2.new(1, -130, 0, 18),
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Text = string.format(
-				"Lv %d · %s%s",
-				cat.level,
-				string.rep("★", cat.stars or 1),
-				if cat.spotId ~= nil then " · Working" else ""
-			),
-			ZIndex = 7,
-			Parent = frame,
-		})
-		local uid = cat.uid
-		local button = Button.new({
-			name = "Relax",
-			text = "Relax",
-			style = "primary",
-			size = UDim2.fromOffset(100, self._buttonH),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -6, 0.5, 0),
-			textSize = Theme.sizes.textSmall + 1,
-			parent = frame,
-			zIndex = 7,
-			onClick = function()
-				local into = self._pickSlot
-				self:_showPicker(nil)
-				if into ~= nil then
-					self:_send(function()
-						self._callbacks.put(into, uid)
-					end)
+	self._rowsKey = LateStationsLogic.spaKey(cats)
+	self._candidates = #cats
+	local function build(from: number, to: number)
+		for order = from, to do
+			local row = self:_row(order, cats[order])
+			row.frame.Visible = LateStationsLogic.spaMatch(row.cat, self._query, self._filter)
+			table.insert(self._rows, row)
+		end
+	end
+	build(1, math.min(#cats, FIRST_ROWS))
+	self:_applyFilter()
+	if #cats > FIRST_ROWS then
+		task.spawn(function()
+			local at = FIRST_ROWS
+			while at < #cats do
+				task.wait()
+				if self._buildToken ~= token then
+					return
 				end
-			end,
+				build(at + 1, math.min(#cats, at + ROWS_PER_FRAME))
+				at += ROWS_PER_FRAME
+			end
+			self:_applyFilter()
+		end)
+	end
+end
+
+-- The search and the chips only show and hide the rows that are there; none is made or destroyed.
+function OasisSpa._applyFilter(self: any)
+	local shown = 0
+	for _, row: Row in self._rows do
+		local visible = LateStationsLogic.spaMatch(row.cat, self._query, self._filter)
+		if row.frame.Visible ~= visible then
+			row.frame.Visible = visible
+		end
+		if visible then
+			shown += 1
+		end
+	end
+	local none = (self._candidates or 0) == 0
+	self._empty.Text = if none
+		then "Every cat you have is at the top level or already relaxing"
+		else "No cat matches. Try another name."
+	self._empty.Visible = none or (shown == 0 and #self._rows >= (self._candidates or 0))
+	self:_queueFaces()
+end
+
+-- One look for faces on the next frame, however many times it is asked this frame (the rows have their places then).
+function OasisSpa._queueFaces(self: any)
+	if self._facesQueued then
+		return
+	end
+	self._facesQueued = true
+	task.delay(0, function()
+		self._facesQueued = false
+		self:_loadFaces()
+	end)
+end
+
+-- A row gets its face (the cat's head, still, as the Cats window's) once it is within FACE_MARGIN of the visible
+-- part of the list, at most FACES_PER_PASS a look; a face stays until the list closes.
+function OasisSpa._loadFaces(self: any)
+	local list: ScrollingFrame = self._list
+	if self._pickSlot == nil or not list:IsDescendantOf(game) then
+		return
+	end
+	local top = list.AbsolutePosition.Y - FACE_MARGIN
+	local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y + FACE_MARGIN
+	local made = 0
+	for _, row: Row in self._rows do
+		if row.loaded or not row.frame.Visible then
+			continue
+		end
+		local y = row.frame.AbsolutePosition.Y
+		if y + row.frame.AbsoluteSize.Y < top or y > bottom then
+			continue
+		end
+		if made >= FACES_PER_PASS then
+			self:_queueFaces() -- the rest on the next frame
+			return
+		end
+		made += 1
+		local portrait = CatPortrait.new({
+			parent = row.disc,
+			size = UDim2.fromScale(1, 1),
+			still = true,
+			head = true,
+			zIndex = 8,
 		})
-		table.insert(self._rows, { frame = frame, button = button })
+		portrait:set(Catalog.getCat(row.cat.catId), CatVariant.isGold(row.cat.variant))
+		row.portrait = portrait
+		row.loaded = true
+	end
+end
+
+-- While the list is open, a change in the cats that can go in (a level, a rename, one sent to the spa) rebuilds it;
+-- anything else leaves its rows alone.
+function OasisSpa._syncRows(self: any)
+	if self._pickSlot == nil then
+		return
+	end
+	local key = LateStationsLogic.spaKey(LateStationsLogic.spaCandidates(self._cats, self._spa))
+	if key ~= self._rowsKey then
+		self:_buildRows()
 	end
 end
 
@@ -607,12 +836,14 @@ function OasisSpa.setView(self: any, spa: SharedTypes.SpaView?)
 	self._pending = false
 	self._pendingToken += 1
 	self:_paint()
+	self:_syncRows()
 end
 
 function OasisSpa.render(self: any, state: Types.PlayerState)
 	self._fish = state.goldenFish or 0
 	self._cats = (state.cats or {}) :: any
 	self:_paint()
+	self:_syncRows()
 end
 
 -- While open the lines move on once a second, and walking away closes the card.
@@ -663,6 +894,11 @@ function OasisSpa.destroy(self: any)
 	self._open = false
 	self._tick += 1
 	self:_clearRows()
+	self._searchChanged:Disconnect()
+	self._scrolled:Disconnect()
+	for _, chip: Button.Button in self._chips do
+		chip:destroy()
+	end
 	for _, tile: Tile in self._tiles do
 		tile.portrait:destroy()
 		tile.action:destroy()

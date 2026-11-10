@@ -127,6 +127,59 @@ return function()
 			expect(list[2].uid).to.equal("a")
 		end)
 
+		it("lists every cat, however many (#3136)", function()
+			local cats = {}
+			for index = 1, 400 do
+				cats["u" .. index] = cat("u" .. index, first, 1 + index % 20)
+			end
+			expect(#LateStationsLogic.spaCandidates(cats, nil)).to.equal(400)
+		end)
+
+		it("finds a cat by its own name or its breed, any case (#3136)", function()
+			local named = cat("a", first, 5, { name = "Mochi" })
+			local breed = LateStationsLogic.catName(first)
+			expect(LateStationsLogic.spaMatch(named, "", "All")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(named, "  moc ", "All")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(named, string.upper(breed), "All")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(named, "zzzz", "All")).to.equal(false)
+			expect(LateStationsLogic.spaMatch(named, "%a", "All")).to.equal(false) -- typed as plain words
+		end)
+
+		it("keeps resting or working cats (#3136)", function()
+			local resting = cat("a", first, 5)
+			local working = cat("b", first, 5, { spotId = "spot1" })
+			expect(LateStationsLogic.spaMatch(resting, "", "Resting")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(resting, "", "Working")).to.equal(false)
+			expect(LateStationsLogic.spaMatch(working, "", "Working")).to.equal(true)
+			expect(LateStationsLogic.spaMatch(working, "", "Resting")).to.equal(false)
+		end)
+
+		it(
+			"titles a row with the cat's own name and keeps its breed on the second line (#3136)",
+			function()
+				local named = cat("a", first, 5, { name = "Mochi", variant = "gold" })
+				local breed = LateStationsLogic.catName(first)
+				expect(LateStationsLogic.spaTitle(named)).to.equal("Mochi")
+				expect(
+					string.find(LateStationsLogic.spaSubtitle(named), "Gold " .. breed, 1, true)
+						~= nil
+				).to.equal(true)
+				expect(LateStationsLogic.spaTitle(cat("b", first, 5))).to.equal(breed)
+			end
+		)
+
+		it("changes the list's key only when a row would change (#3136)", function()
+			local list = { cat("a", first, 5), cat("b", first, 6) }
+			local key = LateStationsLogic.spaKey(list)
+			expect(LateStationsLogic.spaKey({ cat("a", first, 5), cat("b", first, 6) })).to.equal(
+				key
+			)
+			expect(LateStationsLogic.spaKey({ cat("a", first, 5), cat("b", first, 7) }) ~= key).to.equal(
+				true
+			)
+			expect(LateStationsLogic.spaKey({ cat("a", first, 5) }) ~= key).to.equal(true)
+		end)
+
 		it("asks before taking a cat out", function()
 			expect(LateStationsLogic.takeOutText("Mochi")).to.equal(
 				"Take Mochi out now? It won't level up."

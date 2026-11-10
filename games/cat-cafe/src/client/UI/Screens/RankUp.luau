@@ -28,6 +28,7 @@ local PAL = Theme.dark
 export type Requirement = {
 	label: string, -- "5 different cats"
 	short: string, -- "Different cats", the HUD goal block's caption over its bar, where the status says how many
+	touch: string?, -- #2999: that caption on a touch screen when it differs ("2 Mythical+ cats")
 	status: string, -- "3 / 5" or "Done"
 	fraction: number, -- 0 to 1
 	met: boolean,
@@ -209,10 +210,14 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 					RARITY_WORDS[count] or tostring(count),
 					needsRarity
 				)
-			table.insert(
-				requirements,
-				requirement(label, ("%s or better"):format(needsRarity), have, count)
+			local row = requirement(
+				label,
+				RankUpNeeds.rarityCaption(needsRarity, count, false),
+				have,
+				count
 			)
+			row.touch = RankUpNeeds.rarityCaption(needsRarity, count, true) -- #2999
+			table.insert(requirements, row)
 		end
 		opens = opensList(catalog, current, nextTier)
 	end

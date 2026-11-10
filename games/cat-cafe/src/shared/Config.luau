@@ -19,6 +19,14 @@ local Config = {
 	OfflineCapSeconds = 28800,
 	OfflineRatePass = 1.0,
 	OfflineCapPassSeconds = 57600,
+	-- The away notification (#2768, Derek2 2026-11-10: "Yes, once a day, 12 h after leaving"; shared/AwayNotify): a
+	-- player who turned Roblox notifications on for the game gets "Your cats earned $X while you were away!" this long
+	-- after leaving, unless they came back first. The sender runs hourly, so a message up to the grace late still goes
+	-- out; later than that it is dropped. No message for less than the minimum (a cafe with no cat at work).
+	AwayNotifyOn = true,
+	AwayNotifySeconds = 43200,
+	AwayNotifyGraceSeconds = 21600,
+	AwayNotifyMinCoins = 1000,
 	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
 	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch), and the rest on

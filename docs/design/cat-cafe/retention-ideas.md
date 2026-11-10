@@ -252,3 +252,24 @@ Derek2's answers, item by item, use the numbering in section 2.
   - **Currency.** Fish are earned only, never sold, so this stays outside `monetization-policy`.
   - **Optional.** A Creator Hub reward banner describing the reward exactly is a store page change, so it needs Derek's OK first.
 - **Contracts.** Save: `invites = { rewarded: { [joinerUserId]: true } (last 50), today: { day, count }, cardShown: boolean }` on the inviter, and `referredBy = { userId, paid: boolean }` on the joiner, a version bump. The server reads `ReferredByPlayerId` at join, waits for the qualifying play, then pays the inviter if they are in the server, or saves it to the inviter's pending (a small DataStore key, as the trade vault does), and pays both. Analytics: `invite_card` (shown, invite, not now) and `invite_join`.
+
+### 5e. Early upgrades about a minute apart (idea 11, Derek2 yes 2026-11-10)
+- **Goal.** In a new player's first session, the first three buys each become affordable about 60–90 s after the one before. Each one is a small "number goes up" beat inside the 2–5 minute stretch.
+- **The three buys:** Tables level 1 (150), Tables level 2 (600), then the first of Espresso level 1 or the first cat level-up, whichever the tutorial points at.
+  - StartCoins is 850, so the first table is affordable at once. That's as intended.
+- **How to tune.**
+  1. Gameplay runs Pace's new-player case and logs the second each buy becomes affordable.
+  2. Adjust only Tables level 2 and the third buy's first-level cost so the gaps land at 60–90 s.
+  3. Don't change StartCoins or any tier cost. #2973 just set Tier 2.
+- **Make it visible.** When a buy becomes affordable, its button gives one soft pulse, using the existing affordable highlight if there is one. There's no new UI (§5 screen rule).
+- **Measure:** the seconds between the first three buys (a `step_time`-style field on each `upgrade_bought`), and table → tip in onboarding_v6.
+
+### 5f. A weekly update day with an update gift (idea 12, Derek2 yes 2026-11-10)
+- **Schedule.** Content updates publish on **Saturdays at 17:00 UTC**. Fixes can still ship any day, without the gift. The publish owner (Gameplay-Engineer) plans the weekly wave so it lands at that time. The What's new board and the Event page name the next Saturday.
+- **Update gift.**
+  - `Config.UpdateGift = { id = "2026-11-14", fish = 15, spins = 1 }`, changed with each Saturday update.
+  - Each player gets it once per id, on their first join while that id is live. It pays at once with one toast: "Update gift! 🐟 15 + 1 spin".
+  - There's no claim button and no timer wording, and missing a week loses only that week's small gift.
+  - Save: `updateGiftId`, the last id paid. An optional field, so it needs a save version bump. Claim `DataService`.
+- **Size.** 15 fish and 1 spin are about a quarter of a day's quest fish. It's a reason to come back on Saturday, not something that moves the economy. Fish and spins are never sold, so it stays outside `monetization-policy`.
+- **Measure:** play days per user (7 day) and D7, read before and after the first two Saturdays, plus `update_gift` counts.

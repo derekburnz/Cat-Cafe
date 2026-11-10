@@ -192,6 +192,18 @@ Bumps are the first player-versus-player contact in the game, and the GDD names 
 | error_recovered | 1 | system (datastore, catalog, remote, policy, filter) | Server recovers from a known failure | Health without reading logs |
 | catch_flagged | 1 | reason (perfect_rate, low_spread), net_level | Section 8 check trips, at most once per player per session | Volume of suspected auto-pressers |
 
+### 6.4a First five minutes (#3098, accounts below Tier 2)
+
+Built from Monetization-Agent's plan (library `Monetization-Agent/notes/first-five-minutes-funnel-plan-2026-11-10.md`). The logic and buckets live in `shared/FirstFive.luau` and the logging in `Telemetry.luau`. Owner test mode logs nothing.
+
+| eventName | value | customFields (max 3) | Fired when | Why |
+|---|---|---|---|---|
+| step_ready | account seconds of play | step (table_afford, bowl_afford, second_stray_up), kind (coins, stray), device | Once a session per step: coins first cover the first table or the bait bowl while that buy is due, or a free stray stands within 120 studs while the second cat is due | Ready-to-done time (`step_time` minus `step_ready`) splits waiting for money from not finding the step |
+| step_stall | the bucket's seconds | awaited step (the one after the furthest), bucket (30, 60, 120), hint (last stuck nudge for it: pulse, help_shown, show_me, none) | No new onboarding step for 30, 60 or 120 s, once per bucket per awaited step a session, in the first 600 s of account play | How long players sit on each step, and whether a nudge was showing |
+| quit_snapshot | session seconds | idle (0-5, 5-15, 15-60, 60+ s with no movement or client report), screen (none, store, upgrades, index, settings, other), afford (yes, no, na for the next table or bowl buy) | Leaving, beside `quit_state` | Bored or confused (idle) vs fighting the game; afford no is income pace, yes is guidance |
+
+`first_goal_card` was left out of `step_ready`. The `next_goal_shown` onboarding step already logs it. P2 (health_check, quick_return, quit_cafe) follows in its own PR.
+
 ### 6.5 Launch-phase features (common-features.md)
 
 | eventName | value | customFields (max 3) | Fired when | Why |

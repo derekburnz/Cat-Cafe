@@ -35,6 +35,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
+local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
@@ -169,6 +170,14 @@ export type CustomEvent =
 	| "first_bait_wait"
 	-- #2774: an onboarding step reached, value the account's seconds of play then; the step name
 	| "step_time"
+	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
+	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
+	| "step_ready"
+	-- #3098: no new onboarding step for a bucket's seconds, value those seconds; the awaited step, the bucket (30, 60,
+	-- 120), the last stuck nudge shown (pulse, help_shown, show_me or none)
+	| "step_stall"
+	-- #3098: beside quit_state, value the session's seconds; idle bucket, screen open, afford (yes, no or na)
+	| "quit_snapshot"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
 	| "first_bait_arrived"
 	-- #2651 part 4 (late-stations.md section 3): a cat into the Oasis Spa or collected from it, value 1; the level band
@@ -439,6 +448,17 @@ type Session = {
 	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
 	feedbackAsks: number, -- #2681: feedback_v1 runs started this session (FeedbackFunnel.ASKS_PER_SESSION)
 	feedbackEnds: number, -- #2694: feedback_ask_end events logged this session, never more than feedbackAsks
+	-- #3098 (shared/FirstFive): step_ready logged this session by step; the awaited step's index, os.clock() since
+	-- it was the furthest, its stall buckets logged and the last stuck nudge for it; the last activity and position;
+	-- the screen open as quit_snapshot names it
+	readyLogged: { [string]: boolean },
+	stallStep: number,
+	stallSince: number,
+	stallLogged: { [number]: boolean },
+	lastNudge: string,
+	activeAt: number,
+	lastAt: Vector3?,
+	snapScreen: string,
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -1507,6 +1527,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 	if name == nil or session == nil or profile == nil then
 		return
 	end
+	session.activeAt = os.clock() -- #3098: a report counts as activity for quit_snapshot's idle
 	if name == "device" then
 		local device = Guard.oneOf(rawValue, DEVICES)
 		if device ~= nil and session.device == nil then
@@ -1524,6 +1545,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if kind ~= nil then
 			local step = tostring(profile.tutorialStep)
 			local key = step .. ":" .. kind
+			session.lastNudge = kind -- #3098: step_stall's hint
 			if not session.nudges[key] then
 				session.nudges[key] = true
 				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
@@ -1552,6 +1574,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if type(rawValue) == "string" and #(rawValue :: string) <= SCREEN_NAME_MAX then
 			local raw = rawValue :: string
 			session.screen = if raw == "none" then "none" else SCREENS[raw] or "other"
+			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then
@@ -1765,6 +1788,14 @@ local function onLoaded(player: Player, profile: Profile)
 		feedbackRun = nil,
 		feedbackAsks = 0,
 		feedbackEnds = 0,
+		readyLogged = {},
+		stallStep = profile.telemetry.onboardingStep,
+		stallSince = os.clock(),
+		stallLogged = {},
+		lastNudge = "none",
+		activeAt = os.clock(),
+		lastAt = nil,
+		snapScreen = "none",
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -1975,9 +2006,94 @@ local function onRelease(player: Player, profile: Profile)
 			where,
 			(if carrying then "carry" else "empty") .. (if baiting then " bait" else " nobait"),
 		})
+		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
+		local buy = FirstFive.nextBuy(profile.telemetry)
+		Telemetry.custom(player, "quit_snapshot", played, {
+			FirstFive.idleBucket(os.clock() - session.activeAt),
+			session.snapScreen,
+			FirstFive.afford(
+				buy,
+				profile.coins,
+				if buy ~= nil then Economy.nextUpgradeCost(profile, buy) else nil
+			),
+		})
 	end
 	sessions[player] = nil
 	pendingPasses[player] = nil
+end
+
+-- #3098: whether a free stray (not locked by a catch) stands within FirstFive.STRAY_NEAR studs of `at`.
+local function strayNear(at: Vector3): boolean
+	for _, model in CollectionService:GetTagged("Stray") do
+		if model:IsA("Model") and (model:GetAttribute("LockedBy") or 0) == 0 then
+			local pivot = (model :: Model):GetPivot().Position
+			if (pivot - at).Magnitude <= FirstFive.STRAY_NEAR then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- #3098 (shared/FirstFive): activity, step_ready and step_stall for an account below Tier 2, each watch tick.
+local function watchFirstFive(player: Player, session: Session, profile: Profile)
+	local root = if player.Character ~= nil
+		then player.Character:FindFirstChild("HumanoidRootPart")
+		else nil
+	local at: Vector3? = if root ~= nil and root:IsA("BasePart")
+		then (root :: BasePart).Position
+		else nil
+	local last = session.lastAt
+	if at ~= nil and (last == nil or (at - last).Magnitude >= FirstFive.MOVE_STUDS) then
+		session.lastAt = at
+		session.activeAt = os.clock()
+	end
+	if Economy.tier(profile) >= 2 then
+		return
+	end
+	local state = profile.telemetry
+	local device = session.device or "unknown"
+	local function ready(step: string, kind: string)
+		if not session.readyLogged[step] then
+			session.readyLogged[step] = true
+			Telemetry.custom(
+				player,
+				"step_ready",
+				math.floor(PlayTime.seconds(player, profile)),
+				{ step, kind, device }
+			)
+		end
+	end
+	local buy = FirstFive.nextBuy(state)
+	if buy ~= nil then
+		local cost = Economy.nextUpgradeCost(profile, buy)
+		if cost ~= nil and profile.coins >= cost then
+			ready(if buy == "tables" then "table_afford" else "bowl_afford", "coins")
+		end
+	end
+	if
+		FirstFive.secondCatDue(state)
+		and not session.readyLogged.second_stray_up
+		and at ~= nil
+		and strayNear(at)
+	then
+		ready("second_stray_up", "stray")
+	end
+	-- step_stall: the clock restarts whenever the furthest step moves on
+	if state.onboardingStep ~= session.stallStep then
+		session.stallStep = state.onboardingStep
+		session.stallSince = os.clock()
+		session.stallLogged = {}
+		session.lastNudge = "none"
+	end
+	local awaited = FirstFive.awaited(state.onboardingStep)
+	if awaited == nil or PlayTime.seconds(player, profile) > FirstFive.STALL_WINDOW then
+		return
+	end
+	for _, edge in FirstFive.newStalls(os.clock() - session.stallSince, session.stallLogged) do
+		session.stallLogged[edge] = true
+		Telemetry.custom(player, "step_stall", edge, { awaited, tostring(edge), session.lastNudge })
+	end
 end
 
 -- F87: the onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS across
@@ -1992,6 +2108,7 @@ local function watchOnboarding(player: Player, session: Session)
 	if session.joinLogged then
 		logFirstHour(player, profile)
 	end
+	watchFirstFive(player, session, profile)
 	if not Onboarding.reached(profile.telemetry, "first_move") then
 		local character = player.Character
 		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil

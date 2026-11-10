@@ -30,6 +30,54 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-10): player-facing changes since #2890, 26 merges; no player ideas
+	{ id = "spa_hourly", date = "2026-11-10", icon = "new", text = "Spa: a level every hour" },
+	{
+		id = "museum_room_tips",
+		date = "2026-11-10",
+		icon = "new",
+		text = "Museum rooms add 5% tips",
+	},
+	{
+		id = "museum_exhibits",
+		date = "2026-11-10",
+		icon = "look",
+		text = "See your exhibits on show",
+	},
+	{ id = "spa_pool_cats", date = "2026-11-10", icon = "look", text = "See your cats in the Spa" },
+	{ id = "cheaper_ranks", date = "2026-11-10", icon = "faster", text = "Cheaper ranks 3 to 7" },
+	{
+		id = "first_catch_wait",
+		date = "2026-11-10",
+		icon = "faster",
+		text = "First catch ring waits",
+	},
+	{
+		id = "first_flight_stray",
+		date = "2026-11-10",
+		icon = "faster",
+		text = "First flights land by a cat",
+	},
+	{
+		id = "rare_catch_chat",
+		date = "2026-11-10",
+		icon = "new",
+		text = "Rare catches in the chat",
+	},
+	{
+		id = "caught_stay_unlocked",
+		date = "2026-11-10",
+		icon = "fix",
+		text = "Caught cats stay unlocked",
+	},
+	{ id = "fewer_asks", date = "2026-11-10", icon = "faster", text = "Fewer pop-up asks" },
+	{ id = "day_event_banner", date = "2026-11-10", icon = "look", text = "Day and event banner" },
+	{
+		id = "desert_blowing_sand",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Sand blows off the dunes",
+	},
 	-- #2872, #2874 (v477): menus, prompts and drops on a gamepad
 	{ id = "controller_play", date = "2026-11-10", icon = "new", text = "Play with a controller" },
 	-- #2718 refresh (11-09 night): player-facing changes since #2704, 99 merges; no player ideas

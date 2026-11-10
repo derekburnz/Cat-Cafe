@@ -1996,6 +1996,7 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 	end
 	Telemetry.sink(player, profile, cost, "Shop", upgradeId)
 	profile.upgradeLevels[upgradeId] = Economy.level(profile, upgradeId) + 1
+	Telemetry.upgradeBought(player, profile, upgradeId, profile.upgradeLevels[upgradeId]) -- #2996
 	if upgradeId == "tables" then
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)

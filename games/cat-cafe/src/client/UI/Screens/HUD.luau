@@ -554,6 +554,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._dots = {} :: { [string]: Frame }
 	self._stepTiles = {} :: { [string]: any } -- #2697: the Cats and Bowl tiles, by name
 	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
+	self._affordable = {} :: { [string]: boolean } -- #2996: the upgrades affordable at the last render
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
 	self._openScreen = nil :: string?
@@ -3858,6 +3859,23 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 			lit = true
+		elseif show and screen == "Upgrades" and self._dotsRendered then
+			-- #2996 (retention-ideas.md 5e): one soft pulse each time another upgrade becomes affordable while
+			-- the "!" is already up, so every buy coming into reach is a small beat
+			local had: { [string]: boolean } = self._affordable
+			for _, key in keys do
+				if not had[key] then
+					Tween.popIn(dot, 0.75)
+					break
+				end
+			end
+		end
+		if screen == "Upgrades" then
+			local now: { [string]: boolean } = {}
+			for _, key in keys do
+				now[key] = true
+			end
+			self._affordable = now
 		end
 		dot.Visible = show
 	end

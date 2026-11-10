@@ -1198,7 +1198,7 @@ return function()
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -85 }, { 41, -85 }, { -41, 85 }, { 41, 85 } } -- #3001: 74 before the 120 x 110 square
+			local want = { { -41, -100 }, { 41, -100 }, { -41, 100 }, { 41, 100 } } -- #3070: 85 before the 120 x 140 square
 			for n = 1, 4 do
 				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
@@ -1371,18 +1371,71 @@ return function()
 			end
 		)
 
-		it("is 120 by 110, a quarter more each way than #2707's square (#3001)", function()
+		it("is 120 by 140: #3001's width, and 15 deeper either side (#3070)", function()
 			expect(W.TownSquareHalfWidth).to.equal(60)
-			expect(W.TownSquareHalfDepth).to.equal(55)
+			expect(W.TownSquareHalfDepth).to.equal(70)
 			expect(square.floor.x2 - square.floor.x1).to.equal(120)
-			expect(square.floor.z2 - square.floor.z1).to.equal(110)
+			expect(square.floor.z2 - square.floor.z1).to.equal(140)
 			-- the width grows inside the town edge: the gardens keep a strip either side
 			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
 			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
-			expect(W.StreetNorthZ).to.equal(163)
-			expect(W.StreetSouthZ).to.equal(-163)
-			expect(W.TownGroundDepth).to.equal(378)
+			expect(W.StreetNorthZ).to.equal(178)
+			expect(W.StreetSouthZ).to.equal(-178)
+			expect(W.TownGroundDepth).to.equal(408)
 		end)
+
+		it("brings the Thank You board and the Rally board out into the open (#3070)", function()
+			-- seen from the spawn, the line to the Thanks board's middle passes the night cart's middle by half the
+			-- cart's length (12) or more; it passed 3.8 away on #3001's square, the board behind the cart
+			local spawn = Layout.playerSpawn
+			local board, cart = Layout.thanksBoard, Layout.dealerCart
+			local dx, dz = board.x - spawn.x, board.z - spawn.z
+			local long = math.sqrt(dx * dx + dz * dz)
+			local off = math.abs((cart.x - spawn.x) * dz - (cart.z - spawn.z) * dx) / long
+			expect(off >= 6).to.equal(true)
+			-- the spawn's line to the Rally board's middle passes the cannon's 7 wide turret by 1.5 or more (the plinth
+			-- is low); it passed 4.6 from the middle on #3001's square
+			local rally = square.rallyBoards[1]
+			local t = (0 - spawn.z) / (rally.z - spawn.z) -- where the spawn's line to the board crosses z = 0
+			local crossX = spawn.x + t * (rally.x - spawn.x)
+			expect(math.abs(crossX) >= 3.5 + 1.5).to.equal(true)
+		end)
+
+		it(
+			"keeps a spot each for the feedback stand and the arcade cabinet, mirrored north of the lane (#3070)",
+			function()
+				local stand, arcade = Layout.feedbackStand, Layout.arcadeCabinet
+				expect(stand.x).to.equal(-arcade.x)
+				expect(stand.z).to.equal(arcade.z)
+				for _, spot in { stand, arcade } do
+					expect(inside(spot.x, spot.z, square.floor, 4)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(spot.x, spot.z, lane, -4)).to.equal(false)
+					end
+					-- 12 or more from every other station's spot, so two prompts never show at once
+					for _, other in
+						{
+							Layout.spinWheel,
+							Layout.fishMarket,
+							Layout.codesCat,
+							Layout.dealerCart,
+							Layout.bellhopStand,
+							Layout.mysteryCart,
+							Layout.leaderboards,
+							Layout.dayCart,
+							Layout.thanksBoard,
+						}
+					do
+						local gap = math.sqrt((spot.x - other.x) ^ 2 + (spot.z - other.z) ^ 2)
+						expect(gap >= 12).to.equal(true)
+					end
+					-- and it faces the cannon
+					local yaw = math.rad(spot.rotY or 0)
+					local toCannon = -spot.x * -math.sin(yaw) + -spot.z * -math.cos(yaw)
+					expect(toCannon > 0).to.equal(true)
+				end
+			end
+		)
 
 		it(
 			"stands the Codes Cat back from the middle, between the Mystery Market and the Bellhop Cat (#3000)",
@@ -2306,10 +2359,10 @@ return function()
 		)
 
 		it(
-			"lines the square's edge with eight benches, each turned square to face in (Derek 10-28, #726, #2565, #2707)",
+			"lines the square's edge with twelve benches, each turned square to face in (Derek 10-28, #726, #2565, #2707, #3070)",
 			function()
 				local benches = piecesOf("CatCafe_Square_Bench")
-				expect(#benches).to.equal(8)
+				expect(#benches).to.equal(12) -- #3070: one more each side under the middle span
 				for i, bench in benches do
 					-- WorldBuilder turns a prop by CFrame.Angles(0, rad(rotY), 0); its front (-Z) is (-sin, -cos)
 					local turn = math.rad(bench.rotY or 0)
@@ -2358,7 +2411,7 @@ return function()
 				-- #2707: the north and south sides keep the long Bunting; the east and west sides take two BuntingSide
 				-- each between three lamps
 				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(8) -- #3001: two a quarter on the longer sides
-				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(8)
+				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(12) -- #3070: three spans a quarter
 				expect(#piecesOf("CatCafe_Square_BuntingShort")).to.equal(2)
 			end
 		)
@@ -2382,8 +2435,9 @@ return function()
 					expect(math.sqrt(dx * dx + dz * dz) >= 6).to.equal(true)
 				end
 			end
-			-- #2707: a halfway lamp on each east and west side; #3001: one on each north and south half too
-			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(20)
+			-- #2707: a halfway lamp on each east and west side; #3001: one on each north and south half too; #3070: a
+			-- third span on each east and west quarter
+			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(24)
 		end)
 
 		it("puts the gardens in the garden strips, clear of the path to the side arches", function()

@@ -329,7 +329,7 @@ return function()
 		CampExtraRangeStuds = 8,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
-		MuseumRoomTipBonus = 0.02,
+		MuseumRoomTipBonus = 0.05, -- #2908
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
 		RallyHours = 48,
 		RallyExtendFrom = 1794009600, -- #2227: Saturday 2026-11-07 00:00 UTC

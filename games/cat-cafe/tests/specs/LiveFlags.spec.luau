@@ -83,14 +83,40 @@ return function()
 			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
 		end)
 
-		it("starts off with nightCatch alone beside it", function()
+		it("starts off with nightCatch and loadingScreen alone beside it", function()
 			local count = 0
 			for key in LiveFlags.OFF_BY_DEFAULT do
 				count += 1
-				expect(key == "tradeFish" or key == "nightCatch").to.equal(true)
+				expect(key == "tradeFish" or key == "nightCatch" or key == "loadingScreen").to.equal(
+					true
+				)
 				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 			end
-			expect(count).to.equal(2)
+			expect(count).to.equal(3)
+		end)
+	end)
+
+	describe("loadingScreen (#3179, off until switched on)", function()
+		it("is off by default, with a broken store, and with anything but true", function()
+			expect(LiveFlags.defaults().loadingScreen).to.equal(false)
+			expect(LiveFlags.parse(nil).loadingScreen).to.equal(false)
+			for _, value in { false, "true", 1, {} } :: { any } do
+				expect(LiveFlags.parse({ loadingScreen = value }).loadingScreen).to.equal(false)
+			end
+			expect(LiveFlags.parse({ loadingScreen = true }).loadingScreen).to.equal(true)
+		end)
+
+		it("is off on a client until its attribute reads true", function()
+			expect(LiveFlags.shown("loadingScreen", nil)).to.equal(false)
+			expect(LiveFlags.shown("loadingScreen", false)).to.equal(false)
+			expect(LiveFlags.shown("loadingScreen", "true")).to.equal(false)
+			expect(LiveFlags.shown("loadingScreen", true)).to.equal(true)
+		end)
+
+		it("leaves a switch that is on by default on until its attribute reads false", function()
+			expect(LiveFlags.shown("swiftPaws", nil)).to.equal(true)
+			expect(LiveFlags.shown("swiftPaws", true)).to.equal(true)
+			expect(LiveFlags.shown("swiftPaws", false)).to.equal(false)
 		end)
 	end)
 

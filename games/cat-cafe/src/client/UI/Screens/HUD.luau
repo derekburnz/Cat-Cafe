@@ -2933,10 +2933,12 @@ function HUD._renderUnlocks(self: any, state: Types.PlayerState)
 	end
 	self._unlocks = now
 	self:_applyUnlocks()
-	for _, key in opened do
+	-- #3161: the tutorial's end opens eight pieces at once; those just appear (HudUnlocks.pops)
+	local pops = HudUnlocks.pops(opened)
+	for _, key in pops do
 		self:_popNew(key)
 	end
-	if #opened > 0 then
+	if #pops > 0 then
 		Sound.play("uiHint")
 	end
 end

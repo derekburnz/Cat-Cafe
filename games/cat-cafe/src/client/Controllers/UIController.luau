@@ -399,7 +399,7 @@ local function refreshTutorial(s: Types.PlayerState)
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
 		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
 		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
-		if s.stats.catsCaught < SecondCat.CATS then
+		if SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
@@ -426,7 +426,8 @@ local function refreshTutorial(s: Types.PlayerState)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
 			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
 		elseif s.bait ~= nil then
-			-- baited before the first table on an older save: the server moved new ones to 5 (S48)
+			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
+			-- "waiting", then "arrived")
 			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
 		else
 			showTutorial(

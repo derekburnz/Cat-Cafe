@@ -68,6 +68,24 @@ return function()
 			expect(SecondCat.waiting(save(5, true))).to.equal(false)
 		end)
 
+		it("does not count a cat tamed at the bait bowl (#3160)", function()
+			-- one cat caught by hand, then the first bowl cat tamed: two in stats.catsCaught, still one by hand
+			local profile = save(2, true)
+			profile.stats.baitsTamed = 1
+			expect(SecondCat.caught(profile.stats)).to.equal(1)
+			expect(SecondCat.waiting(profile)).to.equal(true)
+			local view: any = SecondCat.view(profile)
+			expect(view.cats).to.equal(1)
+			-- the second cat by hand ends it
+			profile.stats.catsCaught = 3
+			expect(SecondCat.caught(profile.stats)).to.equal(2)
+			expect(SecondCat.waiting(profile)).to.equal(false)
+			expect(SecondCat.view(profile)).to.equal(nil)
+			-- a client state from an older server has no baitsTamed: as before; and never below 0
+			expect(SecondCat.caught({ catsCaught = 2 } :: any)).to.equal(2)
+			expect(SecondCat.caught({ catsCaught = 1, baitsTamed = 4 } :: any)).to.equal(0)
+		end)
+
 		it("is off for a new save", function()
 			expect(SecondCat.waiting(ProfileSchema.template(NOW) :: any)).to.equal(false)
 			expect(SecondCat.view(ProfileSchema.template(NOW) :: any)).to.equal(nil)

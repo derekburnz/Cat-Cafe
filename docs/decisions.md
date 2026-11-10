@@ -758,3 +758,22 @@ The loading screen from #3105 is now a drawn cat's face, the game's name and a b
 Why: 9% of new players left between the first tutorial step showing and their first move, and up to 7.5 s on a still picture sat in that gap. The count is a show of progress, not a measure, since Roblox gives no percent for a world streaming in.
 
 Kept: the camp is still asked for at the start and every 2 s through the camp shots, and shot 1 still holds on its fuse up to 2.5 s if the camp's ground is not there yet (Derek2 earlier the same day, #2961: "don't make intro skip those slides ... just wait up to a couple seconds for loading"). That hold is inside the moving cutscene and only happens when the camp really is missing; a camp that never comes still falls back to the clouds shot. A replay from Settings goes the same way.
+
+## 2026-11-10 First bait bowl: the cutscene plays, the cannon waits, fewer pop-ups (#3158, #3159, #3160, #3161)
+
+Derek, four asks in a row after playing the first minutes: the first bait's cutscene "doesn't even come because its interupted by foodbowl finished instantly into a cannon teleport"; "remove the coming to bowl #min pop ups its too much"; the bowl cat "finishes the catch first cat tutorial step so make that still need to happen after cannon"; "it highlights all buttons and so many pop ups when catching first food bowl cat also set food bowl to like 5 seconds so the cutscene lines up with it".
+
+What changed:
+
+- **The tutorial's last step is the first bowl cat tamed or let go**, not the food going in (`BaitService`). Until then the strip reads "A cat is on its way to your bowl", then "Your bowl cat is here! Tame it". So the move to the cannon, the full HUD, the × pulse and the wrap-up hint all come after the cutscene and the cat. Any other food at step 4 still finishes the step at once.
+- **The move to the cannon waits 4 seconds** after that step (`TutorialMoves.CANNON_DELAY`), so the new cat's card is read first, and it is dropped for a player who walked more than 30 studs in that time, carries a cat, or is mid catch or flight.
+- **The first bait's timer is 5 seconds** (`Config.FirstBaitWaitSeconds`, was 1). Its cat stands at the bowl from one second after the food (`Config.FirstBaitCatLeadSeconds = 4`, `Bait.catOutAt`), so the cutscene (about 3.6 s) plays while the timer runs down and the Tame card comes up as it ends.
+- **No pop-up as food goes into a bowl.** "Kibble is in the bowl. A cat will come by in 10 minutes." is gone for every bait; the Bait bowl window keeps the timer. The first bait's "Your bait cat is here! Head home to your bowl to meet it." shows only to a player more than 40 studs from the bowl.
+- **"Catch a 2nd cat" counts cats caught by hand** (`SecondCat.caught`: `stats.catsCaught - stats.baitsTamed`). The first bowl cat no longer ends that goal, so after the cannon the goal card still asks for a real catch. Step 3's "Catch another cat" line counts the same way.
+- **The HUD's "New!" badges**: when the tutorial's end opens the rest of the HUD at once (eight pieces) none of them pops or pings (`HudUnlocks.pops`); one or two pieces opening together still do. The "a second cat wants a job" tip does not fire on the first bowl cat; it comes with the next cat.
+
+Why this shape: the cause of the missing cutscene was the order of events, so the order changed instead of adding waits to the cutscene. All of it reads what the save already holds: no save field, no remote and no version change, so it is safe with old servers still running. A first bait set on an old server (1 second) is handled as before.
+
+Not changed here (Animation-Engineer has them): tip pop-ups in the first five minutes (#3156), the Daily Treat and goal-progress pop-ups (#3155), the × highlight (#3154). The GDD's line 'a cat will come by in 10 minutes' (first ten minutes, beat 4) describes the old pop-up; proposed to the game-designer to drop it.
+
+For Research-Agent: `tutorial_step 5` now logs when the first bowl cat is tamed or let go, a few seconds later than before and only for players who answer the card, so the step 4 to 5 rate from this publish on is not comparable with earlier days.

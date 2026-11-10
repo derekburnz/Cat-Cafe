@@ -5885,13 +5885,20 @@ local SCENES = {
 		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 0, tier = 1, cats = {}, upgradeLevels = {} }))
 	end },
-	-- the first loop done: every piece comes back, each button with its gold "New!" (from a new player's state to the
-	-- sample player again, at step 5)
+	-- the first loop done: every piece comes back (from a new player's state to the sample player again, at step 5).
+	-- #3161 (Derek2 11-10: "it highlights all buttons and so many pop ups when catching first food bowl cat"): that
+	-- many opening at once carry no gold "New!" (Components/HudUnlocks.pops); one or two opening together still do
 	{ "SmallHUDNew", function()
 		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
 		local player = samplePlayer(os.time())
 		player.tutorialStep = 5
 		UI.update(player)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		for _, piece in hud:GetDescendants() do
+			assert(not (piece.Name == "New" and piece:IsA("TextLabel")), "uigate: a New! badge on " .. piece.Parent.Name .. " as the tutorial's end opens the whole HUD (#3161)")
+		end
+		local quests = hud:FindFirstChild("Quests", true) :: GuiObject?
+		assert(quests ~= nil and quests.Visible, "uigate: the Quests tile did not open at the tutorial's end")
 	end },
 	-- #1796: tutorial step 3 asks for a table: the HUD's Upgrades tile and the table row in Upgrades glow; step 4 moves
 	-- the glow to the Bait bowl row

@@ -88,10 +88,15 @@ return function()
 			expect(ReturnGoals.done(goal, more)).to.equal(true)
 			profile.tier = 2
 			expect(ReturnGoals.done(goal, profile)).to.equal(true)
-			expect(ReturnGoals.done({ kind = "coins", need = 500, tier = 3 } :: any, { coins = 600, tier = 1 } :: any)).to.equal(
-				true
+			expect(
+				ReturnGoals.done(
+					{ kind = "coins", need = 500, tier = 3 } :: any,
+					{ coins = 600, tier = 1 } :: any
+				)
+			).to.equal(true)
+			expect(ReturnGoals.done({ kind = "away", amount = 10, hours = 8 } :: any, profile)).to.equal(
+				false
 			)
-			expect(ReturnGoals.done({ kind = "away", amount = 10, hours = 8 } :: any, profile)).to.equal(false)
 		end)
 	end)
 end

@@ -547,6 +547,9 @@ function RescueBar.show(
 		elseif rules(challenge).zone ~= nil and touch then "Tap when the paw hits the green!"
 		elseif rules(challenge).zone ~= nil then "Hit the green!"
 		elseif touch then "Tap when the bar is in the green!" -- #2315: on any sign of touch
+		elseif
+			UserInputService:GetLastInputType().Name:sub(1, 7) == "Gamepad"
+		then "Press A when the bar is in the green!" -- #2871
 		else "Press Space or click when the bar is in the green!"
 	self._pawRow:set(challenge.paws, challenge.paws)
 	self._hint.Size = UDim2.new(1, if challenge.paws ~= nil then -110 else -28, 0, 22)

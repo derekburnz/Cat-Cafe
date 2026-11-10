@@ -200,28 +200,31 @@ return function()
 			end
 		)
 
-		it("shows every working cat, a pass-only slot's too, even when extra slots are unknown (#2047)", function()
-			-- Derek2's cafe: every slot filled, 16 working since #2651
-			local cats = {}
-			for index, spot in allSpots() do
-				cats["c" .. index] = { catId = "tabby", spotId = spot.id }
-			end
-			local rows = StaffSlots.rows(allSpots(), Catalog.maxTier, cats, nil)
-			local working, hidden = 0, 0
-			for _, row in rows do
-				working += row.working
-				for _, slot in row.slots do
-					if slot.hidden then
-						hidden += 1
+		it(
+			"shows every working cat, a pass-only slot's too, even when extra slots are unknown (#2047)",
+			function()
+				-- Derek2's cafe: every slot filled, 16 working since #2651
+				local cats = {}
+				for index, spot in allSpots() do
+					cats["c" .. index] = { catId = "tabby", spotId = spot.id }
+				end
+				local rows = StaffSlots.rows(allSpots(), Catalog.maxTier, cats, nil)
+				local working, hidden = 0, 0
+				for _, row in rows do
+					working += row.working
+					for _, slot in row.slots do
+						if slot.hidden then
+							hidden += 1
+						end
 					end
 				end
+				expect(working).to.equal(#allSpots())
+				expect(hidden).to.equal(0)
+				local waiter = byRole(rows).waiter
+				expect(waiter.slots[6].kind).to.equal("working")
+				expect(waiter.summary).to.equal("All 6 working")
 			end
-			expect(working).to.equal(#allSpots())
-			expect(hidden).to.equal(0)
-			local waiter = byRole(rows).waiter
-			expect(waiter.slots[6].kind).to.equal("working")
-			expect(waiter.summary).to.equal("All 6 working")
-		end)
+		)
 
 		it("initial keeps a whole emoji or digit and upper-cases ASCII only", function()
 			expect(StaffSlots.initial("\u{1F431}Mochi")).to.equal("\u{1F431}")

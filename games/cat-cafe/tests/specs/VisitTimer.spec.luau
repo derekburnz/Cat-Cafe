@@ -28,14 +28,17 @@ return function()
 			expect(left).to.equal(5)
 		end)
 
-		it("brings rich customers a quarter and the Collector twice as often again (#2107, #2272), the Mystery Visitor a fifth (#1638)", function()
-			expect((Config.RichEveryMin + Config.RichEveryMax) / 2).to.equal(480) -- was 600
-			expect((Config.MysteryEveryMin + Config.MysteryEveryMax) / 2).to.equal(1250)
-			expect((Config.CollectorEveryMin + Config.CollectorEveryMax) / 2).to.equal(300) -- #2272: was 600 (1000 before #2107)
-			-- never two visits closer than the minimum: each min is well past its stay
-			expect(Config.RichEveryMin > Config.RichTipStaySeconds).to.equal(true)
-			expect(Config.MysteryEveryMin > Config.MysteryStaySeconds).to.equal(true)
-			expect(Config.CollectorEveryMin > Config.CollectorStaySeconds).to.equal(true)
-		end)
+		it(
+			"brings rich customers a quarter and the Collector twice as often again (#2107, #2272), the Mystery Visitor a fifth (#1638)",
+			function()
+				expect((Config.RichEveryMin + Config.RichEveryMax) / 2).to.equal(480) -- was 600
+				expect((Config.MysteryEveryMin + Config.MysteryEveryMax) / 2).to.equal(1250)
+				expect((Config.CollectorEveryMin + Config.CollectorEveryMax) / 2).to.equal(300) -- #2272: was 600 (1000 before #2107)
+				-- never two visits closer than the minimum: each min is well past its stay
+				expect(Config.RichEveryMin > Config.RichTipStaySeconds).to.equal(true)
+				expect(Config.MysteryEveryMin > Config.MysteryStaySeconds).to.equal(true)
+				expect(Config.CollectorEveryMin > Config.CollectorStaySeconds).to.equal(true)
+			end
+		)
 	end)
 end

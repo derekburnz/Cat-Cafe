@@ -48,30 +48,41 @@ return function()
 			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("X2 Cash")
 		end)
 
-		it("offers X2 Cash with its price with none owned while the 2x pass is on sale (#1759)", function()
-			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale)
-			expect(badge.text).to.equal("X2 Cash")
-			expect(badge.price).to.equal("Only R$5")
-			expect(badge.owned).to.equal(false)
-			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
-		end)
+		it(
+			"offers X2 Cash with its price with none owned while the 2x pass is on sale (#1759)",
+			function()
+				local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale)
+				expect(badge.text).to.equal("X2 Cash")
+				expect(badge.price).to.equal("Only R$5")
+				expect(badge.owned).to.equal(false)
+				expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
+			end
+		)
 
-		it("gives the X2 Cash pill the 2x pass id to buy, never while owned or quiet (#2353)", function()
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale).id).to.equal(200)
-			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).id).to.equal(nil)
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 2).id).to.equal(nil)
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true).id).to.equal(nil)
-		end)
+		it(
+			"gives the X2 Cash pill the 2x pass id to buy, never while owned or quiet (#2353)",
+			function()
+				expect(StoreLogic.moneyBadge(CONFIG, {}, onSale).id).to.equal(200)
+				expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).id).to.equal(nil)
+				expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 2).id).to.equal(nil)
+				expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true).id).to.equal(nil)
+			end
+		)
 
-		it("says a plain x2 with no price in the first 30 minutes, and owned stays owned (#1936)", function()
-			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true)
-			expect(badge.text).to.equal("x2")
-			expect(badge.price).to.equal(nil)
-			expect(badge.quiet).to.equal(true)
-			expect(badge.owned).to.equal(false)
-			expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, onSale, nil, true).text).to.equal("3x")
-			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, nil, true)).to.equal(nil)
-		end)
+		it(
+			"says a plain x2 with no price in the first 30 minutes, and owned stays owned (#1936)",
+			function()
+				local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true)
+				expect(badge.text).to.equal("x2")
+				expect(badge.price).to.equal(nil)
+				expect(badge.quiet).to.equal(true)
+				expect(badge.owned).to.equal(false)
+				expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, onSale, nil, true).text).to.equal(
+					"3x"
+				)
+				expect(StoreLogic.moneyBadge(CONFIG, {}, {}, nil, true)).to.equal(nil)
+			end
+		)
 
 		it(
 			"hides while the 2x pass is off sale or not priced yet, or with no money passes",
@@ -303,12 +314,15 @@ return function()
 			expect(next(StoreLogic.newTabs({}, rows))).to.equal(nil)
 		end)
 
-		it("features the Starter Bundle, then the King Cat Pack, the ladder and Long Nap (#2850)", function()
-			local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
-			expect(featured.hero.key).to.equal("starterBundle")
-			expect(featured.hero.passId).to.equal(40)
-			expect(keys(featured.picks)).to.equal("kingPack,money,longNap")
-		end)
+		it(
+			"features the Starter Bundle, then the King Cat Pack, the ladder and Long Nap (#2850)",
+			function()
+				local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
+				expect(featured.hero.key).to.equal("starterBundle")
+				expect(featured.hero.passId).to.equal(40)
+				expect(keys(featured.picks)).to.equal("kingPack,money,longNap")
+			end
+		)
 
 		it(
 			"swaps the hero to the King Cat Pack once the bundle is bought, with the Royal Cat as a pick",
@@ -360,37 +374,42 @@ return function()
 				moneyMultiplier = 2,
 			}, { sprinkles = "Sprinkles" })).to.equal("2x Money for good, Sprinkles the cat")
 			expect(StoreLogic.extras({ potions = {}, moneyMultiplier = 1 })).to.equal(nil)
-			expect(StoreLogic.contentsLine(
-				{ swift_potion = 5, big_tip_potion = 10 },
-				{ big_tip_potion = "Big Money Potion", swift_potion = "Swift Potion" }
-			)).to.equal("10x Big Money, 5x Swift potions")
+			expect(
+				StoreLogic.contentsLine(
+					{ swift_potion = 5, big_tip_potion = 10 },
+					{ big_tip_potion = "Big Money Potion", swift_potion = "Swift Potion" }
+				)
+			).to.equal("10x Big Money, 5x Swift potions")
 		end)
 
-		it("closes the Cafe Pass card for the next season in the last minutes of one (#2129)", function()
-			local passConfig: any = table.clone(config)
-			passConfig.ProductIds = { potion_pack_xs = 31, starter_bundle = 40, cafe_pass = 50 }
-			local function card(saleOpen: boolean?, paid: boolean): any
-				local running: any = table.clone(view)
-				running.starterBought = true
-				running.cafePass = {
-					season = 1,
-					name = "Season 1: Maple",
-					paid = paid,
-					contents = "x",
-					saleOpen = saleOpen,
-				}
-				local rows = StoreLogic.rows(passConfig, {}, nil, running)
-				return StoreLogic.tabRows(rows, "cafePass")[1]
+		it(
+			"closes the Cafe Pass card for the next season in the last minutes of one (#2129)",
+			function()
+				local passConfig: any = table.clone(config)
+				passConfig.ProductIds = { potion_pack_xs = 31, starter_bundle = 40, cafe_pass = 50 }
+				local function card(saleOpen: boolean?, paid: boolean): any
+					local running: any = table.clone(view)
+					running.starterBought = true
+					running.cafePass = {
+						season = 1,
+						name = "Season 1: Maple",
+						paid = paid,
+						contents = "x",
+						saleOpen = saleOpen,
+					}
+					local rows = StoreLogic.rows(passConfig, {}, nil, running)
+					return StoreLogic.tabRows(rows, "cafePass")[1]
+				end
+				local price = { robux = 299, forSale = true }
+				expect(StoreLogic.button(card(true, false), price).enabled).to.equal(true)
+				expect(StoreLogic.button(card(nil, false), price).enabled).to.equal(true) -- no word: on sale
+				local closed = StoreLogic.button(card(false, false), price)
+				expect(closed.enabled).to.equal(false)
+				expect(closed.text).to.equal("Next season")
+				-- a buyer still reads Yours, never "Next season"
+				expect(StoreLogic.button(card(false, true), price).text).to.equal("Yours")
 			end
-			local price = { robux = 299, forSale = true }
-			expect(StoreLogic.button(card(true, false), price).enabled).to.equal(true)
-			expect(StoreLogic.button(card(nil, false), price).enabled).to.equal(true) -- no word: on sale
-			local closed = StoreLogic.button(card(false, false), price)
-			expect(closed.enabled).to.equal(false)
-			expect(closed.text).to.equal("Next season")
-			-- a buyer still reads Yours, never "Next season"
-			expect(StoreLogic.button(card(false, true), price).text).to.equal("Yours")
-		end)
+		)
 
 		it(
 			"shows the Cafe Pass card only while a season runs, Yours once bought (#1646)",
@@ -496,18 +515,23 @@ return function()
 				}
 			end
 
-			it("puts the King Cat Pack, the Second Bait Bowl and the Cafe Pass first (#2850)", function()
-				local rows = store(false)
-				rows[11] = row("kingPack", false)
-				rows[12] = row("cafePass", false, true)
-				table.insert(rows, row("starterBundle", false, true))
-				local featured = StoreLogic.featured(rows)
-				expect(featured.hero.key).to.equal("starterBundle")
-				expect(keys(featured.picks)).to.equal("kingPack,secondBowl,cafePass")
-			end)
+			it(
+				"puts the King Cat Pack, the Second Bait Bowl and the Cafe Pass first (#2850)",
+				function()
+					local rows = store(false)
+					rows[11] = row("kingPack", false)
+					rows[12] = row("cafePass", false, true)
+					table.insert(rows, row("starterBundle", false, true))
+					local featured = StoreLogic.featured(rows)
+					expect(featured.hero.key).to.equal("starterBundle")
+					expect(keys(featured.picks)).to.equal("kingPack,secondBowl,cafePass")
+				end
+			)
 
 			it("sees the Second Bait Bowl and the next two passes, and no potion pack", function()
-				expect(keys(StoreLogic.featured(store(false)).picks)).to.equal("secondBowl,extraSlot,vip")
+				expect(keys(StoreLogic.featured(store(false)).picks)).to.equal(
+					"secondBowl,extraSlot,vip"
+				)
 			end)
 
 			it("gets a pass outside the pass order before any potion pack", function()
@@ -520,13 +544,23 @@ return function()
 				local rows = store(true)
 				table.remove(rows, 6) -- no Steady Paw card
 				table.remove(rows, 5) -- nor the S pack
-				expect(keys(StoreLogic.featured(rows).picks)).to.equal("potionXS,secondBowl,cafePass")
+				expect(keys(StoreLogic.featured(rows).picks)).to.equal(
+					"potionXS,secondBowl,cafePass"
+				)
 			end)
 		end)
 
 		it("still shows a hero, marked Yours, when every hero card is owned (#2072)", function()
 			local function owned(key: string): any
-				return { key = key, passId = 1, owned = true, name = key, icon = "", effect = "", tab = "cats" }
+				return {
+					key = key,
+					passId = 1,
+					owned = true,
+					name = key,
+					icon = "",
+					effect = "",
+					tab = "cats",
+				}
 			end
 			local featured = StoreLogic.featured({
 				owned("royalCat"),
@@ -545,15 +579,28 @@ return function()
 	end)
 	describe("StoreLogic.justBought (#1823)", function()
 		local function row(key: string, passId: number, owned: boolean, product: boolean?): any
-			return { key = key, passId = passId, owned = owned, product = product, name = key, icon = "", effect = "", tab = "passes" }
+			return {
+				key = key,
+				passId = passId,
+				owned = owned,
+				product = product,
+				name = key,
+				icon = "",
+				effect = "",
+				tab = "passes",
+			}
 		end
 		it("says nothing on the first render", function()
 			local bought = StoreLogic.justBought({}, { row("vip", 1, true) })
 			expect(#bought).to.equal(0)
 		end)
 		it("names a card that turned Owned", function()
-			local _, seen = StoreLogic.justBought({}, { row("vip", 1, false), row("nap", 2, false) })
-			local bought = StoreLogic.justBought(seen, { row("vip", 1, true), row("nap", 2, false) })
+			local _, seen = StoreLogic.justBought(
+				{},
+				{ row("vip", 1, false), row("nap", 2, false) }
+			)
+			local bought =
+				StoreLogic.justBought(seen, { row("vip", 1, true), row("nap", 2, false) })
 			expect(#bought).to.equal(1)
 			expect(bought[1]).to.equal("vip")
 		end)
@@ -563,8 +610,12 @@ return function()
 			expect(bought[1]).to.equal("money")
 		end)
 		it("never names a product or a card that was already owned", function()
-			local _, seen = StoreLogic.justBought({}, { row("pack", 5, false, true), row("vip", 1, true) })
-			local bought = StoreLogic.justBought(seen, { row("pack", 6, false, true), row("vip", 1, true) })
+			local _, seen = StoreLogic.justBought(
+				{},
+				{ row("pack", 5, false, true), row("vip", 1, true) }
+			)
+			local bought =
+				StoreLogic.justBought(seen, { row("pack", 6, false, true), row("vip", 1, true) })
 			expect(#bought).to.equal(0)
 		end)
 	end)
@@ -597,7 +648,12 @@ return function()
 			expect(rows[cat].tab).to.equal("cats")
 		end)
 		it("hides the King Cat alone while its pass is not made", function()
-			local rows = StoreLogic.rows({ KingPackPassId = 100, KingCatPassId = 0 }, {}, false, nil)
+			local rows = StoreLogic.rows(
+				{ KingPackPassId = 100, KingCatPassId = 0 },
+				{},
+				false,
+				nil
+			)
 			expect(find(rows, "kingCat")).to.equal(nil)
 			expect(find(rows, "kingPack").worthIds).to.equal(nil)
 		end)
@@ -651,17 +707,24 @@ return function()
 			expect(StoreLogic.badge(pack, prices(799, 452))).to.equal("Best Value")
 			expect(StoreLogic.badge(pack, prices(799, 400))).to.equal(nil) -- 1195 < 1248.75
 		end)
-		it("counts only the parts not owned yet, dropping the line and badge below the price", function()
-			local owned = { [200] = true }
-			expect(StoreLogic.worth(pack, prices(799, 452), owned)).to.equal(450)
-			expect(StoreLogic.worthLine(pack, prices(799, 452), owned)).to.equal(nil)
-			expect(StoreLogic.badge(pack, prices(799, 452), owned)).to.equal(nil)
-		end)
+		it(
+			"counts only the parts not owned yet, dropping the line and badge below the price",
+			function()
+				local owned = { [200] = true }
+				expect(StoreLogic.worth(pack, prices(799, 452), owned)).to.equal(450)
+				expect(StoreLogic.worthLine(pack, prices(799, 452), owned)).to.equal(nil)
+				expect(StoreLogic.badge(pack, prices(799, 452), owned)).to.equal(nil)
+			end
+		)
 	end)
 	describe("StoreLogic #1168 cards", function()
 		local view = {
 			products = {
-				{ id = "steady_paw_pack", name = "Steady Paw Pack", prize = { potions = { steady_potion = 10 } } },
+				{
+					id = "steady_paw_pack",
+					name = "Steady Paw Pack",
+					prize = { potions = { steady_potion = 10 } },
+				},
 			},
 			potionNames = { steady_potion = "Steady Paw" },
 			have = {},
@@ -679,39 +742,71 @@ return function()
 			local row = find(rows, "steadyPaw")
 			expect(row).to.be.ok()
 			expect(row.tab).to.equal("potions")
-			expect(find(StoreLogic.rows({ ProductIds = { steady_paw_pack = 0 } }, {}, nil, view), "steadyPaw")).to.equal(
-				nil
-			)
+			expect(
+				find(
+					StoreLogic.rows({ ProductIds = { steady_paw_pack = 0 } }, {}, nil, view),
+					"steadyPaw"
+				)
+			).to.equal(nil)
 		end)
-		it("hides the Garden Decor Pack while its pass is 0 and lists its six pieces once made", function()
-			expect(find(StoreLogic.rows({ GardenDecorPackPassId = 0 }, {}, nil, view), "gardenDecor")).to.equal(nil)
-			local row = find(StoreLogic.rows({ GardenDecorPackPassId = 55 }, {}, nil, view), "gardenDecor")
-			expect(row).to.be.ok()
-			expect(row.tab).to.equal("passes")
-			for _, name in { "Hanging Fern Basket", "Sunflower Pot", "Watering Can Planter", "Potted Lemon Tree", "Ivy Trellis", "Garden Swing Seat" } do
-				expect(string.find(row.effect, name, 1, true)).to.be.ok()
-			end
-			-- #2006: every piece adds money now, nothing reads "Looks only"
-			expect(string.find(row.effect, "Looks only", 1, true)).to.equal(nil)
-		end)
-		it("shows the Second Bait Bowl on the Cats tab once its pass is made, priced once, and Owned when bought (#2010)", function()
-			expect(find(StoreLogic.rows({ SecondBowlPassId = 0 }, {}, nil, view), "secondBowl")).to.equal(nil)
-			local row = find(StoreLogic.rows({ SecondBowlPassId = 77 }, {}, nil, view), "secondBowl")
-			expect(row).to.be.ok()
-			expect(row.tab).to.equal("cats")
-			expect(row.passId).to.equal(77)
-			expect(row.owned).to.equal(false)
-			expect(string.find(row.effect, "two baits", 1, true)).to.be.ok()
-			local bought = find(StoreLogic.rows({ SecondBowlPassId = 77 }, { [77] = true }, nil, view), "secondBowl")
-			expect(bought.owned).to.equal(true)
-			local count = 0
-			for _, id in StoreLogic.passIds({ SecondBowlPassId = 77 }) do
-				if id == 77 then
-					count += 1
+		it(
+			"hides the Garden Decor Pack while its pass is 0 and lists its six pieces once made",
+			function()
+				expect(
+					find(
+						StoreLogic.rows({ GardenDecorPackPassId = 0 }, {}, nil, view),
+						"gardenDecor"
+					)
+				).to.equal(nil)
+				local row = find(
+					StoreLogic.rows({ GardenDecorPackPassId = 55 }, {}, nil, view),
+					"gardenDecor"
+				)
+				expect(row).to.be.ok()
+				expect(row.tab).to.equal("passes")
+				for _, name in
+					{
+						"Hanging Fern Basket",
+						"Sunflower Pot",
+						"Watering Can Planter",
+						"Potted Lemon Tree",
+						"Ivy Trellis",
+						"Garden Swing Seat",
+					}
+				do
+					expect(string.find(row.effect, name, 1, true)).to.be.ok()
 				end
+				-- #2006: every piece adds money now, nothing reads "Looks only"
+				expect(string.find(row.effect, "Looks only", 1, true)).to.equal(nil)
 			end
-			expect(count).to.equal(1)
-		end)
+		)
+		it(
+			"shows the Second Bait Bowl on the Cats tab once its pass is made, priced once, and Owned when bought (#2010)",
+			function()
+				expect(find(StoreLogic.rows({ SecondBowlPassId = 0 }, {}, nil, view), "secondBowl")).to.equal(
+					nil
+				)
+				local row =
+					find(StoreLogic.rows({ SecondBowlPassId = 77 }, {}, nil, view), "secondBowl")
+				expect(row).to.be.ok()
+				expect(row.tab).to.equal("cats")
+				expect(row.passId).to.equal(77)
+				expect(row.owned).to.equal(false)
+				expect(string.find(row.effect, "two baits", 1, true)).to.be.ok()
+				local bought = find(
+					StoreLogic.rows({ SecondBowlPassId = 77 }, { [77] = true }, nil, view),
+					"secondBowl"
+				)
+				expect(bought.owned).to.equal(true)
+				local count = 0
+				for _, id in StoreLogic.passIds({ SecondBowlPassId = 77 }) do
+					if id == 77 then
+						count += 1
+					end
+				end
+				expect(count).to.equal(1)
+			end
+		)
 	end)
 	describe("StoreLogic #1168 Thank You Badge and Sign Style Pack cards", function()
 		local function find(rows: { any }, key: string): any
@@ -741,7 +836,9 @@ return function()
 		end)
 		it("hides the Thank You Badge while its product id is 0", function()
 			local zero: any = { ProductIds = { thank_you_badge = 0 } }
-			expect(find(StoreLogic.rows(zero, {}, nil, { supporter = false }), "thankYou")).to.equal(nil)
+			expect(find(StoreLogic.rows(zero, {}, nil, { supporter = false }), "thankYou")).to.equal(
+				nil
+			)
 			expect(table.find(StoreLogic.productIds(zero), 0)).to.equal(nil)
 		end)
 		it("lists the pack's three sign styles by name, and hides it while the id is 0", function()
@@ -752,11 +849,19 @@ return function()
 				expect(row.effect:find(name, 1, true)).to.be.ok()
 			end
 			expect(row.owned).to.equal(false)
-			expect(find(StoreLogic.rows(config, { [66] = true }, nil, nil), "signStylePack").owned).to.equal(true)
-			expect(find(StoreLogic.rows({ SignStylePackPassId = 0 }, {}, nil, nil), "signStylePack")).to.equal(nil)
+			expect(find(StoreLogic.rows(config, { [66] = true }, nil, nil), "signStylePack").owned).to.equal(
+				true
+			)
+			expect(
+				find(StoreLogic.rows({ SignStylePackPassId = 0 }, {}, nil, nil), "signStylePack")
+			).to.equal(nil)
 		end)
 		it("names every style the pass sells in shared/SignStyles", function()
-			local SignStyles = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("SignStyles")) :: any
+			local SignStyles = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("SignStyles")
+			) :: any
 			local row = find(StoreLogic.rows(config, {}, nil, nil), "signStylePack")
 			for _, style in SignStyles.LIST do
 				if style.passKey == "SignStylePackPassId" then

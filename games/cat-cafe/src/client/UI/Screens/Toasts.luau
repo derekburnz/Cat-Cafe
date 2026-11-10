@@ -36,7 +36,13 @@ local Types = require(script.Parent.Parent.Types)
 
 export type Toasts = {
 	screenGui: ScreenGui,
-	show: (self: Toasts, text: string, kind: Types.ToastKind?, quiet: boolean?) -> (),
+	show: (
+		self: Toasts,
+		text: string,
+		kind: Types.ToastKind?,
+		quiet: boolean?,
+		seconds: number?
+	) -> (),
 	announce: (self: Toasts, text: string, rarity: string?) -> (),
 	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
 	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
@@ -185,8 +191,15 @@ function Toasts._repeat(self: any, text: string, kind: string?): boolean
 	return again
 end
 
--- quiet skips the toast's own sound when the moment already has one (a miss hisses).
-function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boolean?)
+-- quiet skips the toast's own sound when the moment already has one (a miss hisses); seconds (#2915) keeps it up
+-- that long in place of LIFETIME.
+function Toasts.show(
+	self: any,
+	text: string,
+	kind: Types.ToastKind?,
+	quiet: boolean?,
+	seconds: number?
+)
 	if kind == "announce" then
 		self:announce(text)
 		return
@@ -202,7 +215,7 @@ function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boo
 	self:_push(
 		text,
 		KIND_COLORS[kind or "info"] or KIND_COLORS.info,
-		LIFETIME,
+		seconds or LIFETIME,
 		nil,
 		nil,
 		ToastRules.oneLine(kind)

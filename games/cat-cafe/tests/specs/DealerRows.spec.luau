@@ -129,8 +129,12 @@ return function()
 			expect(DealerRows.amountOdds({ 15, 25, 30, 20, 10 })).to.equal(
 				"Stock odds: 0 (15%) · 1 (25%) · 2 (30%) · 3 (20%) · 4 (10%)"
 			)
-			expect(DealerRows.amountOdds({ 90, 10, 0, 0, 0 })).to.equal("Stock odds: 0 (90%) · 1 (10%)")
-			expect(DealerRows.amountOdds({ 60, 32.5, 7.5 })).to.equal("Stock odds: 0 (60%) · 1 (32.5%) · 2 (7.5%)")
+			expect(DealerRows.amountOdds({ 90, 10, 0, 0, 0 })).to.equal(
+				"Stock odds: 0 (90%) · 1 (10%)"
+			)
+			expect(DealerRows.amountOdds({ 60, 32.5, 7.5 })).to.equal(
+				"Stock odds: 0 (60%) · 1 (32.5%) · 2 (7.5%)"
+			)
 			expect(DealerRows.amountOdds(nil)).to.equal(nil)
 			expect(DealerRows.amountOdds({})).to.equal(nil)
 		end)
@@ -170,7 +174,12 @@ return function()
 			expect(plan.total).to.equal(3000 + 1000 + 200)
 			expect(plan.after).to.equal(10000 - 4200)
 			expect(plan.list).to.equal(
-				"1 " .. lureById.star_treat.name .. " · 2 " .. lureById.caviar.name .. " · 2 " .. lureById.sardines.name
+				"1 "
+					.. lureById.star_treat.name
+					.. " · 2 "
+					.. lureById.caviar.name
+					.. " · 2 "
+					.. lureById.sardines.name
 			)
 			expect(plan.partial).never.to.be.ok()
 		end)

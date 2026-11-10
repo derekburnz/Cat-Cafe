@@ -821,6 +821,11 @@ local function step(dt: number)
 			local eased = entry.making * entry.making * (3 - 2 * entry.making)
 			Logic.makingPose(o, now - entry.makingAt, eased, Context.reducedMotion())
 		end
+		-- #2946: the first bait's cat eating in its cutscene (Effects/FirstBaitCut sets this on this client only)
+		local eatingAt = model:GetAttribute("FirstBaitEatingLocal")
+		if type(eatingAt) == "number" then
+			Logic.eatPose(o, os.clock() - eatingAt)
+		end
 		Pose.draw(rig, o, alpha)
 		local yarn, wand = entry.yarn, entry.wand
 		if yarn ~= nil and wand ~= nil then

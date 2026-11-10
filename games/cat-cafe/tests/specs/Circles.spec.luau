@@ -136,24 +136,29 @@ return function()
 			end
 		)
 
-		it("the first area's bands are 1.2 times as wide, and no other area's change (#2322)", function()
-			expect((Catalog.getArea("alley") :: any).catchWindowScale).to.equal(1.2)
-			for _, area in Catalog.areas do
-				for level = 0, 3 do
-					for _, rarity in Catalog.rarityOrder do
-						local plain = Circles.windowsFor(level, rarity)
-						local here = Circles.windowsFor(level, rarity, area.id)
-						local scale = if area.id == "alley" then 1.2 else 1
-						expect(here.perfect).to.be.near(plain.perfect * scale, 1e-12)
-						expect(here.good).to.be.near(plain.good * scale, 1e-12)
+		it(
+			"the first area's bands are 1.2 times as wide, and no other area's change (#2322)",
+			function()
+				expect((Catalog.getArea("alley") :: any).catchWindowScale).to.equal(1.2)
+				for _, area in Catalog.areas do
+					for level = 0, 3 do
+						for _, rarity in Catalog.rarityOrder do
+							local plain = Circles.windowsFor(level, rarity)
+							local here = Circles.windowsFor(level, rarity, area.id)
+							local scale = if area.id == "alley" then 1.2 else 1
+							expect(here.perfect).to.be.near(plain.perfect * scale, 1e-12)
+							expect(here.good).to.be.near(plain.good * scale, 1e-12)
+						end
 					end
 				end
+				-- the widest Good, a Master Net Common in the Alleyway, still clears CircleGapMin with the latency cap (S24)
+				local widest = Circles.windowsFor(3, "Common", "alley").good
+				expect(widest + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(true)
+				expect(Circles.windowsFor(0, "Common", "nowhere").good).to.equal(
+					Circles.windowsFor(0, "Common").good
+				)
 			end
-			-- the widest Good, a Master Net Common in the Alleyway, still clears CircleGapMin with the latency cap (S24)
-			local widest = Circles.windowsFor(3, "Common", "alley").good
-			expect(widest + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(true)
-			expect(Circles.windowsFor(0, "Common", "nowhere").good).to.equal(Circles.windowsFor(0, "Common").good)
-		end)
+		)
 
 		it("rarer is never wider, at every net", function()
 			for level = 0, 3 do
@@ -407,7 +412,8 @@ return function()
 	describe("the held first ring (#2920)", function()
 		local function held(): (Circles.Attempt, number)
 			local circles = Circles.tutorialSchedule(NOW, constant(0.5), true)
-			return Circles.newAttempt(circles, Circles.tutorialWindows(0)), Circles.target(circles[1])
+			return Circles.newAttempt(circles, Circles.tutorialWindows(0)),
+				Circles.target(circles[1])
 		end
 
 		it("marks the ring and sends how long it waits", function()
@@ -431,17 +437,22 @@ return function()
 			expect(Circles.isDone(attempt)).to.equal(false)
 		end)
 
-		it("grades any press from the target to the end of the hold a Perfect, and catches", function()
-			for _, after in { 0, 0.3, 5, 59 } do
+		it(
+			"grades any press from the target to the end of the hold a Perfect, and catches",
+			function()
+				for _, after in { 0, 0.3, 5, 59 } do
+					local attempt, target = held()
+					expect(Circles.press(attempt, 1, target + after, target + after)).to.equal(
+						"perfect"
+					)
+					expect(attempt.errors[1]).to.equal(0)
+					expect(Circles.succeeded(attempt)).to.equal(true)
+				end
+				-- a press just before the target (the clock between the client's freeze and the server) counts too
 				local attempt, target = held()
-				expect(Circles.press(attempt, 1, target + after, target + after)).to.equal("perfect")
-				expect(attempt.errors[1]).to.equal(0)
-				expect(Circles.succeeded(attempt)).to.equal(true)
+				expect(Circles.press(attempt, 1, target - 0.05, target - 0.05)).to.equal("perfect")
 			end
-			-- a press just before the target (the clock between the client's freeze and the server) counts too
-			local attempt, target = held()
-			expect(Circles.press(attempt, 1, target - 0.05, target - 0.05)).to.equal("perfect")
-		end)
+		)
 
 		it("waits the whole hold before a Miss, and locks the stray as long", function()
 			local attempt, target = held()
@@ -1148,6 +1159,32 @@ return function()
 			end
 			expect(Circles.looksScripted(history)).to.equal(false)
 			expect(Circles.looksHonest(history)).to.equal(false)
+		end)
+	end)
+
+	describe("the first missed ring for catch_circles (#2913)", function()
+		it("reads early, late or no press from the first Miss, nil with none", function()
+			local windows = Circles.windowsFor(0, "Common")
+			local function attemptOf(): any
+				return Circles.newAttempt(Circles.tutorialSchedule(NOW, constant(0.5)), windows)
+			end
+			local early = attemptOf()
+			local target = Circles.target(early.circles[1])
+			expect(Circles.firstMiss(early)).never.to.be.ok() -- nothing judged yet
+			local tooSoon = target - windows.good - 0.05
+			expect(Circles.press(early, 1, tooSoon, tooSoon)).to.equal("miss")
+			expect(Circles.firstMiss(early)).to.equal("missed_early")
+			local late = attemptOf()
+			local tooLate = target + windows.good + 0.05
+			expect(Circles.press(late, 1, tooLate, tooLate)).to.equal("miss")
+			expect(Circles.firstMiss(late)).to.equal("missed_late")
+			local none = attemptOf()
+			Circles.expire(none, Circles.deadline(none.circles[1], windows) + 1)
+			expect(none.grades[1]).to.equal("miss")
+			expect(Circles.firstMiss(none)).to.equal("missed_none")
+			local hit = attemptOf()
+			expect(Circles.press(hit, 1, target, target)).to.equal("perfect")
+			expect(Circles.firstMiss(hit)).never.to.be.ok()
 		end)
 	end)
 end

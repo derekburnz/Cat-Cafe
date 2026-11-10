@@ -222,6 +222,17 @@ local SKIP_KEYS: { [string]: boolean } =
 SpinLogic.SKIP_KEYS = SKIP_KEYS
 SpinLogic.SKIP_HINT = "Tap to skip"
 
+-- #2871: the skip line for the input the player last used (its UserInputType name): "Press A to skip" on a gamepad,
+-- "Press Space to skip" on a keyboard, else SKIP_HINT (a tap, or a click on the reel).
+function SpinLogic.skipHint(lastInput: string): string
+	if lastInput:sub(1, 7) == "Gamepad" then
+		return "Press A to skip"
+	elseif lastInput == "Keyboard" then
+		return "Press Space to skip"
+	end
+	return SpinLogic.SKIP_HINT
+end
+
 function SpinLogic.skipKey(keyName: string, processed: boolean, typing: boolean): boolean
 	return not processed and not typing and SKIP_KEYS[keyName] == true
 end

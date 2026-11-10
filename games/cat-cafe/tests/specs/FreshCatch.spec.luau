@@ -23,41 +23,47 @@ return function()
 	end
 
 	describe("the shelf (section 3)", function()
-		it("sells the design's seven rows at the design's prices, in order (no crate since #1051)", function()
-			local want = {
-				{ "tip_potion", "potion", 10 },
-				{ "swift_potion", "potion", 6 },
-				{ "steady_potion", "potion", 12 },
-				{ "quick_bait_potion", "potion", 15 },
-				{ "big_tip_potion", "potion", 25 },
-				{ "lucky_potion", "potion", 25 },
-				{ "gold_rush_potion", "potion", 30 },
-			}
-			expect(#Catalog.freshCatch).to.equal(#want)
-			for index, row in Catalog.freshCatch do
-				expect(row.id).to.equal(want[index][1])
-				expect(row.kind).to.equal(want[index][2])
-				expect(row.fish).to.equal(want[index][3])
-				expect(Catalog.getFreshCatchRow(row.id)).to.equal(row)
-				if row.kind == "potion" then
-					expect(row.potionId).to.equal(row.id)
-					expect(Catalog.getPotion(row.potionId :: string)).to.be.ok()
-				else
-					expect(row.crateId).to.equal(row.id)
-					expect(Catalog.getCrate(row.crateId :: string)).to.be.ok()
+		it(
+			"sells the design's seven rows at the design's prices, in order (no crate since #1051)",
+			function()
+				local want = {
+					{ "tip_potion", "potion", 10 },
+					{ "swift_potion", "potion", 6 },
+					{ "steady_potion", "potion", 12 },
+					{ "quick_bait_potion", "potion", 15 },
+					{ "big_tip_potion", "potion", 25 },
+					{ "lucky_potion", "potion", 25 },
+					{ "gold_rush_potion", "potion", 30 },
+				}
+				expect(#Catalog.freshCatch).to.equal(#want)
+				for index, row in Catalog.freshCatch do
+					expect(row.id).to.equal(want[index][1])
+					expect(row.kind).to.equal(want[index][2])
+					expect(row.fish).to.equal(want[index][3])
+					expect(Catalog.getFreshCatchRow(row.id)).to.equal(row)
+					if row.kind == "potion" then
+						expect(row.potionId).to.equal(row.id)
+						expect(Catalog.getPotion(row.potionId :: string)).to.be.ok()
+					else
+						expect(row.crateId).to.equal(row.id)
+						expect(Catalog.getCrate(row.crateId :: string)).to.be.ok()
+					end
+				end
+				expect(Catalog.getFreshCatchRow("kibble")).never.to.be.ok()
+				expect(table.isfrozen(Catalog.freshCatch)).to.equal(true)
+			end
+		)
+
+		it(
+			"never sells a crate: the Market's price is the one price (crate-prices.md section 4)",
+			function()
+				expect(Catalog.getFreshCatchRow("classic_crate")).never.to.be.ok()
+				expect(Config.FreshCatchAmountWeights.classic_crate).never.to.be.ok()
+				for _, row in Catalog.freshCatch do
+					expect(row.kind).to.equal("potion")
 				end
 			end
-			expect(Catalog.getFreshCatchRow("kibble")).never.to.be.ok()
-			expect(table.isfrozen(Catalog.freshCatch)).to.equal(true)
-		end)
-
-		it("never sells a crate: the Market's price is the one price (crate-prices.md section 4)", function()
-			expect(Catalog.getFreshCatchRow("classic_crate")).never.to.be.ok()
-			expect(Config.FreshCatchAmountWeights.classic_crate).never.to.be.ok()
-			for _, row in Catalog.freshCatch do
-				expect(row.kind).to.equal("potion")
-			end
-		end)
+		)
 
 		it("alerts on the Gold Rush Potion only", function()
 			for _, row in Catalog.freshCatch do
@@ -99,7 +105,9 @@ return function()
 			expect(FreshCatch.window(epoch)).to.equal(0)
 			expect(FreshCatch.window(epoch + w - 1)).to.equal(0)
 			expect(FreshCatch.window(epoch + w)).to.equal(1)
-			expect(FreshCatch.restocksAt(FreshCatch.window(epoch + w * 5 + 30))).to.equal(epoch + w * 6)
+			expect(FreshCatch.restocksAt(FreshCatch.window(epoch + w * 5 + 30))).to.equal(
+				epoch + w * 6
+			)
 		end)
 
 		it("is the same stock for everyone in a window, in shelf order", function()
@@ -238,16 +246,19 @@ return function()
 			expect(FreshCatch.alertsOn(settings)).to.equal(true)
 		end)
 
-		it("comes up in about a quarter of windows (the Gold Rush Potion only since #1051)", function()
-			local count, alerting = 2000, 0
-			for window = TODAY, TODAY + count - 1 do
-				if #FreshCatch.alerts(window) > 0 then
-					alerting += 1
+		it(
+			"comes up in about a quarter of windows (the Gold Rush Potion only since #1051)",
+			function()
+				local count, alerting = 2000, 0
+				for window = TODAY, TODAY + count - 1 do
+					if #FreshCatch.alerts(window) > 0 then
+						alerting += 1
+					end
 				end
+				-- the Gold Rush Potion stocks in 25% of windows
+				expect(alerting / count).to.be.near(0.25, 0.04)
 			end
-			-- the Gold Rush Potion stocks in 25% of windows
-			expect(alerting / count).to.be.near(0.25, 0.04)
-		end)
+		)
 	end)
 
 	describe("saved state (save version 18)", function()
@@ -271,7 +282,8 @@ return function()
 				alerted = 21,
 			})
 			-- a window past the next one (the old 5 minute count, or a damaged save) starts afresh (#1437)
-			local old = { window = math.floor(now / 300), alerted = 99, bought = { tip_potion = 2 } }
+			local old =
+				{ window = math.floor(now / 300), alerted = 99, bought = { tip_potion = 2 } }
 			expect(FreshCatch.sanitize(old, now) :: any).to.deepEqual({
 				window = 0,
 				bought = {},

@@ -40,6 +40,8 @@ local Moments = {
 	-- moved to another one
 	UnplaceCat = Signal.new() :: Signal.Signal<string>, -- (uid) a sync shows a cat off its role; Unequip all fires
 	-- one per cat in the same frame
+	-- #2952: (uid) a cat this player asked to sell (SellCat) is gone from the next sync; a refused sale stays quiet
+	CatSold = Signal.new() :: Signal.Signal<string>,
 	TipJarClaim = Signal.new() :: Signal.Signal<number>, -- (step) a TipJarState shows this step newly claimed (F47)
 	IndexReward = Signal.new() :: Signal.Signal<string, string>, -- (areaId, milestoneId) a sync shows this Index
 	-- reward newly claimed (F48)
@@ -135,6 +137,9 @@ local Moments = {
 	-- it owns, for the station's build-in beat (VFX, Animation), the fanfare (Sound) and the Unlocked card (UI, with
 	-- StationPerks.get(perkId)). Fired once per area per account (WorldController, saved through TipSeen).
 	StationReveal = Signal.new() :: Signal.Signal<string, string>,
+	-- #2946: (bowl position, seconds) the first bait's cat starts eating in its cutscene (Effects/FirstBaitCut), for
+	-- the purr at the bowl (Sound, #2951).
+	FirstBaitEat = Signal.new() :: Signal.Signal<Vector3, number?>,
 }
 
 return Moments

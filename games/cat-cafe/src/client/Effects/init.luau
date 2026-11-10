@@ -18,6 +18,7 @@
 
 local Ambient = require(script.Ambient)
 local AreaFx = require(script.AreaFx)
+local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
@@ -40,6 +41,7 @@ local Crown = require(script.Crown)
 local Decor = require(script.Decor)
 local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
+local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
 local GrandOpening = require(script.GrandOpening)
 local HoldPulse = require(script.HoldPulse)
@@ -158,6 +160,7 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		HoldPulse.start,
+		BaitCrumbs.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,
@@ -173,6 +176,8 @@ function Effects.start()
 		end
 		-- the context tips' camera cuts (#976): the UI calls them once they are handed over
 		ContextCut.start(require(script.Parent.UI) :: any)
+		-- #2946: the first bait's cutscene; the UI's bait cards wait for it
+		FirstBaitCut.start(require(script.Parent.UI) :: any)
 	end)
 end
 

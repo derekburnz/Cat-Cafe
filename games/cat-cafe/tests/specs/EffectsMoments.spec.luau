@@ -38,7 +38,8 @@ return function()
 		it("celebrates a spin by the prize's chance and never an unknown slice", function()
 			-- the v2 wheel as Catalog.spinWheel has it on 2026-11-05 (#1411): out of 200, the two jackpots 1 each
 			local weights = { 70, 44, 30, 24, 18, 12, 1, 1 }
-			local expected = { "small", "small", "good", "good", "good", "good", "jackpot", "jackpot" }
+			local expected =
+				{ "small", "small", "good", "good", "good", "good", "jackpot", "jackpot" }
 			for slice, tier in expected do
 				expect(Logic.prizeTier(weights, slice)).to.equal(tier)
 			end

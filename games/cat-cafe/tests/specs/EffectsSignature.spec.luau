@@ -25,21 +25,26 @@ return function()
 	}
 
 	describe("Effects signature cats and the Codes Cat circle", function()
-		it("gives every Legendary and Mythical themed cat an effect, in gold on a gold cat", function()
-			for _, catId in SIGNATURE_CATS do
-				local spec = Presets.signature[catId]
-				expect(spec ~= nil).to.equal(true)
-				expect(Presets.emitters[spec.emitter] ~= nil).to.equal(true)
-				expect(spec.on == "Body" or spec.on == "Head").to.equal(true)
-				expect(#spec.colors > 0 and #spec.gold > 0).to.equal(true)
-				expect(Logic.signatureColors(catId, false)).to.equal(spec.colors)
-				expect(Logic.signatureColors(catId, true)).to.equal(spec.gold)
+		it(
+			"gives every Legendary and Mythical themed cat an effect, in gold on a gold cat",
+			function()
+				for _, catId in SIGNATURE_CATS do
+					local spec = Presets.signature[catId]
+					expect(spec ~= nil).to.equal(true)
+					expect(Presets.emitters[spec.emitter] ~= nil).to.equal(true)
+					expect(spec.on == "Body" or spec.on == "Head").to.equal(true)
+					expect(#spec.colors > 0 and #spec.gold > 0).to.equal(true)
+					expect(Logic.signatureColors(catId, false)).to.equal(spec.colors)
+					expect(Logic.signatureColors(catId, true)).to.equal(spec.gold)
+				end
+				expect(Logic.signatureColors("tabby", true)).to.equal(nil)
+				expect(Logic.signatureColors(nil, false)).to.equal(nil)
+				-- Ninja Cat's eyes are its effect, so a gold one's eyes turn gold too
+				expect(
+					Presets.signature.void.eyes == true and Presets.signature.void.goldEyes ~= nil
+				).to.equal(true)
 			end
-			expect(Logic.signatureColors("tabby", true)).to.equal(nil)
-			expect(Logic.signatureColors(nil, false)).to.equal(nil)
-			-- Ninja Cat's eyes are its effect, so a gold one's eyes turn gold too
-			expect(Presets.signature.void.eyes == true and Presets.signature.void.goldEyes ~= nil).to.equal(true)
-		end)
+		)
 
 		it("keeps the signature emitters gentle and inside the budget", function()
 			for _, spec in Presets.signature do

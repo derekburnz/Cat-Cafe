@@ -89,7 +89,7 @@ export type CustomEvent =
 	| "cat_renamed"
 	| "autopress_flag"
 	| "cat_caught"
-	| "catch_circles"
+	| "catch_circles" -- value the Perfect rings; rarity, net level, result (#2913: a miss is missed_early, missed_late or missed_none)
 	-- #1884 (catch-rework.md 7d): a net catch's end, value the rings judged; purrfect, great, nice or bolt, rarity, mood
 	| "catch_finish"
 	| "rescue_attempt"
@@ -173,6 +173,7 @@ export type CustomEvent =
 	| "museum_room"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
+	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
@@ -230,6 +231,8 @@ export type CustomEvent =
 	| "first_window"
 	-- #1273: the Tutorial tile's red X, value 1, once a session; tutorialStep
 	| "tutorial_closed"
+	-- #2946: the first bait's cutscene ended, value 1, once a session; shown, skipped or none (CUT_OUTCOMES)
+	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
 	| "session_start"
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
@@ -326,6 +329,8 @@ local REPORTS = {
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
 	"event_rsvp", -- #2766: the update Event's Notify Me ask, RSVP_KINDS
+	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
+	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -335,7 +340,12 @@ local NUDGE_KINDS = { "pulse", "help_shown", "show_me" }
 -- #2766: the update Event's ask: shown, its two buttons, what Roblox's Notify Me prompt answered, or that it failed;
 -- each logs once a session
 local RSVP_KINDS = { "shown", "remind", "later", "going", "not_going", "none", "failed" }
+-- #2913: the screen's short side in px, bucketed by the client, to read the phone catch circles by size
+local SCREEN_SHORTS = { "lt400", "400_600", "gt600" }
 local INTRO_CHOICES = 5
+-- #2946: the first bait's cutscene played to the end, was tapped through, or could not play (Reduce Motion, a busy
+-- camera, no cat in time); once a session
+local CUT_OUTCOMES = { "shown", "skipped", "none" }
 local RECAP_CLOSE_MAX = 30 -- #1920: session_recap_close's seconds, 0 to this
 local INDEX_HINT_TAPS = 10 -- #1919: index_hint_tap events logged at most this many times a session
 local FIRST_MOVE_STUDS = 8 -- first_move: this far across the ground from where the character was first seen
@@ -396,6 +406,7 @@ type Session = {
 	screen: string, -- #1273: the screen open as last reported (a SCREENS value, "other" or "none")
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
+	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
@@ -1472,6 +1483,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
 		end
+	elseif name == "screen_short" then
+		local size = Guard.oneOf(rawValue, SCREEN_SHORTS)
+		if size ~= nil and not session.nudges.screen_short then
+			session.nudges.screen_short = true -- once a session, in the stuck nudges' set
+			Telemetry.custom(player, "screen_short", 1, { size })
+		end
 	elseif name == "step" then
 		-- a tutorial card or the catch card on screen (Onboarding.REPORTABLE)
 		local step = Guard.oneOf(rawValue, Onboarding.REPORTABLE)
@@ -1488,6 +1505,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if not session.tutorialClosed then
 			session.tutorialClosed = true
 			Telemetry.custom(player, "tutorial_closed", 1, { tostring(profile.tutorialStep) })
+		end
+	elseif name == "first_bait_cutscene" then
+		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)
+		if outcome ~= nil and not session.firstBaitCut then
+			session.firstBaitCut = true
+			Telemetry.custom(player, "first_bait_cutscene", 1, { outcome })
 		end
 	elseif name == "store_opened" then
 		-- #1888: a new Store funnel session for each visit, up to StoreFunnel.VISITS_MAX a session
@@ -1662,6 +1685,7 @@ local function onLoaded(player: Player, profile: Profile)
 		screen = "none",
 		uiOpened = {},
 		tutorialClosed = false,
+		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
 		store = nil,

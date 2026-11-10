@@ -1739,6 +1739,39 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Tier 2 card does not say bait bowl to 3 (#2121)")
 	end },
+	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
+	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.
+	{ "ParkFly", function()
+		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
+		Scenes._parkFly = (UI.getState() :: any).money or 0 -- the sample's money would make Tier 3 ready
+		UI.update({ money = 0, tier = 1 } :: any)
+		UI.update({ tier = 2 } :: any)
+		UI.open("RankUp")
+		UIShim.advance(0.1)
+		local function buttonText(): string
+			local face = UIShim.playerGui:FindFirstChild("RankUpButton", true) :: Instance
+			assert(face, "uigate: no rank-up button (#2915)")
+			for _, piece in face:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return if face:IsA("TextButton") then face.Text else ""
+		end
+		assert(buttonText():find("Fly to the Park", 1, true), "uigate: the rank-up button reads " .. buttonText() .. " after Tier 2 (#2915)")
+		press("RankUp", "RankUpButton")
+		UIShim.advance(0.1)
+		assert(UI.cannon.fly.ring == "park", "uigate: Fly to the Park did not ring the Park (#2915)")
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local park = window:FindFirstChild("park", true) :: Instance
+		local launch = park and park:FindFirstChild("Launch", true) :: Instance
+		assert(launch and launch:FindFirstChild("TutorialGlow"), "uigate: no ring on the Park card's Launch (#2915)")
+		local town = window:FindFirstChild("town", true) :: Instance
+		local other = town and town:FindFirstChild("Launch", true) :: Instance
+		assert(other == nil or other:FindFirstChild("TutorialGlow") == nil, "uigate: the ring is on the wrong card (#2915)")
+	end },
 	-- #2687 part 4: the "Unlocked!" card a station's reveal brings: the station's picture and name, the new perk in gold
 	-- and its one line, every word fitting, the card on screen with its button a finger tall
 	{ "PerkUnlocked", function()
@@ -1984,6 +2017,15 @@ local SCENES = {
 		assert(first.Name ~= "Close" and (first.Parent :: Instance).Name ~= "Close", "uigate: the window selected its X first (#2872)")
 		assert(first:FindFirstAncestor("Tabs") == nil, "uigate: Upgrades selected a tab, not its first row's button (#2872)")
 		assert((UIShim.playerGui :: any).SelectionImageObject ~= nil, "uigate: no selection ring (#2872)")
+		-- #2965: the window's container is a selection group that stops at every edge, so the DPad stays in the window
+		local container = first:FindFirstAncestor("Container") :: any
+		assert(container ~= nil and container.SelectionGroup == true, "uigate: the open window is no selection group (#2965)")
+		for _, side in { "Up", "Down", "Left", "Right" } do
+			assert(
+				container["SelectionBehavior" .. side] == Enum.SelectionBehavior.Stop,
+				"uigate: the selection can leave the window going " .. side .. " (#2965)"
+			)
+		end
 		UI.close()
 		UIShim.advance(0.3)
 		assert(GuiService.SelectedObject == tile, "uigate: closing the window did not hand the menu tile back (#2872)")
@@ -2184,6 +2226,25 @@ local SCENES = {
 		local words = { ["Tap now!"] = true, ["Click now!"] = true, ["Press Space now!"] = true, ["Press A now!"] = true }
 		assert(prompt and prompt.Visible and words[prompt.Text], "uigate: no press prompt on the held ring (#2920)")
 		assert(art.Parent and (art.Parent :: GuiObject).Visible, "uigate: the held ring went before the press (#2920)")
+	end },
+	-- #2871 (console): on a gamepad the catch line under the cat's name names A or R2
+	{ "GamepadCatchWords", function()
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.2, shrinkSeconds = 1.2, x = 0.5, y = 0.55 } }
+		UI.catch.show({ strayId = "gate_pad", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common" })
+		UI.catch.showCircles("gate_pad", list :: any, { perfect = 0.074, good = 0.18 })
+		UIShim.advance(0.3)
+		local found = false
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text:find("each circle meets its ring", 1, true) then
+				found = true
+				assert(piece.Text:find("Press A or R2", 1, true), "uigate: the catch line on a gamepad reads " .. piece.Text .. " (#2871)")
+				assert(piece.TextFits ~= false, "uigate: the gamepad catch line does not fit (#2871)")
+			end
+		end
+		assert(found, "uigate: no catch line under the cat's name (#2871)")
+		UIShim.setLastInput(nil)
 	end },
 	-- #2920 (Derek2: "not even let the player click before its in the circle so you cant miss first one"): a tap before
 	-- the held ring stops sends nothing; a tap once it waits goes out as a Perfect
@@ -2829,12 +2890,13 @@ local SCENES = {
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
 		UI.roadmap.step(8)
 	end },
-	-- #1895: the account's short first bait (45 s since #2774) in the bowl: "A cat is coming!" on the HUD's row over
-	-- the money and in the Bait bowl window
+	-- #1895: the account's short first bait in the bowl: "A cat is coming!" on the HUD's row over the money and in the
+	-- Bait bowl window. #2946: Config.FirstBaitWaitSeconds (1 s since then, 45 s for #2774, 120 before); the scene
+	-- holds the wait a second longer (FirstBait.SLACK) so the line is still up when it is checked
 	{ "BaitFirstComing", function()
 		local now = workspace:GetServerTimeNow()
-		local first = 45 -- Config.FirstBaitWaitSeconds (#2774: was 120)
-		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + first - 18, placedAt = now - 18 }, 1)
+		local first = UIShim.require("ReplicatedStorage.Shared.Config").FirstBaitWaitSeconds + 1
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + first, placedAt = now }, 1)
 		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
 			-- #2447: never on touch, where the counters' row is up in the top bar
@@ -7483,6 +7545,11 @@ function Scenes.close()
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene
 		Scenes._decorOwned = nil
+	end
+	if Scenes._parkFly ~= nil then
+		UI.update({ money = Scenes._parkFly } :: any)
+		Scenes._parkFly = nil
+		UI.cannon.clearFly() -- #2915's scene
 	end
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene

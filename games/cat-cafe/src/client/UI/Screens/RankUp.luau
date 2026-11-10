@@ -8,6 +8,8 @@
 -- screen or under Roblox's menu buttons.
 -- #2687: a gold line under "It opens" teases the next tier's station and its perk, and the "Perks" button in the title
 -- bar opens the "Your perks" card (Screens/PerkCard) over the window.
+-- #2915: just after the rank up to Tier 2 the button reads "Fly to the Park" (setFly) and takes the player to the
+-- cannon with the Park card ringed (UI.cannon.flyToPark), until a flight or until the next rank up is ready.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -45,12 +47,16 @@ export type Callbacks = {
 	rankUp: () -> (),
 	close: () -> (),
 	perks: (() -> ())?, -- #2687: the title bar's Perks button
+	fly: (() -> ())?, -- #2915: the button while it reads "Fly to the Park" (setFly)
 }
 
 export type RankUp = {
 	frame: Frame,
 	setCatalog: (self: RankUp, catalog: Types.Catalog) -> (),
 	render: (self: RankUp, state: Types.PlayerState) -> (),
+	-- #2915: just ranked up to Tier 2, the button reads `text` ("Fly to the Park") and calls callbacks.fly until the
+	-- next rank up is ready; nil puts it back
+	setFly: (self: RankUp, text: string?) -> (),
 	destroy: (self: RankUp) -> (),
 }
 
@@ -337,8 +343,17 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		textSize = Theme.sizes.textLarge - 2,
 		enabled = false,
 		parent = content,
-		onClick = callbacks.rankUp,
+		onClick = function()
+			if self._flying and callbacks.fly ~= nil then
+				callbacks.fly()
+			else
+				callbacks.rankUp()
+			end
+		end,
 	})
+	self._fly = nil :: string?
+	self._flying = false
+	self._state = nil :: Types.PlayerState?
 
 	-- #2687: "Your perks", in the title bar left of the X
 	self._perksButton = nil :: any
@@ -509,6 +524,7 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	if not catalog then
 		return
 	end
+	self._state = state
 	local progress = RankUp.progress(catalog, state)
 	local current = progress.current
 	self._panel:setTitle(
@@ -542,10 +558,24 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	self._teaser.Visible = teaser ~= nil
 	self._opens.Text = table.concat(progress.opens, "\n")
 	self._button.instance.Visible = true
-	self._button:setEnabled(progress.ready)
+	-- #2915: a ready rank up wins over "Fly to the Park"
+	local fly: string? = if progress.ready then nil else self._fly
+	self._flying = fly ~= nil
+	self._button:setEnabled(progress.ready or fly ~= nil)
 	self._button:setText(
-		if progress.ready then "Rank up  ·  " .. Format.money(nextTier.cost) else "Not yet"
+		if progress.ready then "Rank up  ·  " .. Format.money(nextTier.cost) else fly or "Not yet"
 	)
+end
+
+function RankUp.setFly(self: any, text: string?)
+	if self._fly == text then
+		return
+	end
+	self._fly = text
+	local state: Types.PlayerState? = self._state
+	if state ~= nil then
+		self:render(state)
+	end
 end
 
 function RankUp.destroy(self: any)

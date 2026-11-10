@@ -26,6 +26,7 @@ local SecondCat = {}
 SecondCat.CATS = 2 -- cats checked in (stats.catsCaught) that end it
 SecondCat.AREA = "alley" -- where the stray waits
 SecondCat.ATTRIBUTE = "WaitsFor" -- on the stray's model: the user id of the player it waits for, 0 for none
+SecondCat.MAX_RARITY = "Rare" -- the rarest stray that may wait: the easy catch is never a Legendary near the pad
 SecondCat.SEARCH_STUDS = 60 -- a free stray this near the camp landing is the one that waits
 SecondCat.LEASH_STUDS = 30 -- and it keeps this near the landing
 SecondCat.FOLLOWED_STUDS = 25 -- the player came this near the waiting stray: second_cat_trail_followed
@@ -131,6 +132,14 @@ end
 
 local function flat(v: Vector3): Vector3
 	return Vector3.new(v.X, 0, v.Z)
+end
+
+-- Whether a stray of `rarity` in coat `variant` may be the one that waits (Review-Agent on #3038): a plain coat, and
+-- MAX_RARITY or below, so the waiting stray's easy catch never hands a new save a Legendary, Mythical, gold or
+-- rainbow cat that happened to stand near the landing.
+function SecondCat.fits(rarity: string, variant: string): boolean
+	local rank, top = Catalog.rarityRank[rarity], Catalog.rarityRank[SecondCat.MAX_RARITY]
+	return rank ~= nil and top ~= nil and rank <= top and variant == "base"
 end
 
 -- Whether a stray at `at` is near enough the landing at `pad` to be the one that waits.

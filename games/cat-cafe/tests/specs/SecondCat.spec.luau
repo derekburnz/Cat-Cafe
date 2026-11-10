@@ -148,6 +148,17 @@ return function()
 			expect(SecondCat.inSearch(PAD + Vector3.new(0, 0, -61), PAD)).to.equal(false)
 		end)
 
+		it("lets a plain Common or Rare wait, never a rarer cat or a special coat", function()
+			expect(SecondCat.fits("Common", "base")).to.equal(true)
+			expect(SecondCat.fits("Rare", "base")).to.equal(true)
+			expect(SecondCat.fits("Epic", "base")).to.equal(false)
+			expect(SecondCat.fits("Legendary", "base")).to.equal(false)
+			expect(SecondCat.fits("Mythical", "base")).to.equal(false)
+			expect(SecondCat.fits("Common", "gold")).to.equal(false)
+			expect(SecondCat.fits("Common", "rainbow")).to.equal(false)
+			expect(SecondCat.fits("Nonsense", "base")).to.equal(false)
+		end)
+
 		it(
 			"keeps a near home and pulls a far one in, so a wander stays within LEASH_STUDS",
 			function()

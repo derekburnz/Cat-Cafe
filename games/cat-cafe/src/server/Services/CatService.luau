@@ -935,9 +935,12 @@ do
 	end
 
 	-- Whether the stray can be the one that waits: on the Alleyway's floor, nobody's catch, tutorial stray or waiting
-	-- stray, not Dropped, walking home or running.
+	-- stray, not Dropped, walking home or running, and a plain Rare or below (SecondCat.fits).
 	local function canWait(stray: Stray, now: number): boolean
 		if not stray.alive or stray.area ~= SecondCat.AREA then
+			return false
+		end
+		if not SecondCat.fits(stray.def.rarity, stray.variant) then
 			return false
 		end
 		if

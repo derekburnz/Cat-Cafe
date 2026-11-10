@@ -294,6 +294,23 @@ return function()
 		end)
 	end)
 
+	describe("retired potions (#2891, the Cat Whistle)", function()
+		it("are gone from the Catalog and refunded at their Corner Shop prices, once", function()
+			for id in ProfileSchema.RETIRED_POTIONS do
+				expect(Catalog.getPotion(id)).to.equal(nil)
+			end
+			local raw: any = ProfileSchema.template(1_800_000_000)
+			raw.potions = { cat_whistle_small = 2, cat_whistle = 1, cat_whistle_big = 1, tip_potion = 3 }
+			expect(ProfileSchema.retiredRefund(raw)).to.equal(2 * 8000 + 300000 + 60000000)
+			local profile = ProfileSchema.migrate(raw, 1_800_000_000)
+			expect(profile.potions.cat_whistle).to.equal(nil)
+			expect(profile.potions.tip_potion).to.equal(3)
+			expect(ProfileSchema.retiredRefund(profile)).to.equal(0)
+			expect(ProfileSchema.retiredRefund({ potions = { cat_whistle = -4 } })).to.equal(0)
+			expect(ProfileSchema.retiredRefund(nil)).to.equal(0)
+		end)
+	end)
+
 	describe("versionOf and isNewerThanCode (S31 newer-save guard)", function()
 		it("reads the saved version, version 1 for saves from before the field", function()
 			local cases: { { any } } = {

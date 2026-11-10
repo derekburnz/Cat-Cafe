@@ -168,6 +168,37 @@ return function()
 			end
 		end)
 
+		it("picks the late station sounds from LateStationResult (#2927)", function()
+			expect(Logic.lateStationCue("spa", true, { slot = 1, uid = "u1" }, nil)).to.equal("spaSplash")
+			expect(Logic.lateStationCue("spa", true, { slot = 1, uid = "u1" }, "u1")).to.equal(nil) -- taken out
+			expect(Logic.lateStationCue("spa", true, { slot = 2, uid = "u2" }, "u1")).to.equal("spaSplash")
+			expect(Logic.lateStationCue("spa", true, { relaxed = { { uid = "u1" } } }, nil)).to.equal("spaChime")
+			expect(Logic.lateStationCue("spa", true, { relaxed = {} }, nil)).to.equal(nil)
+			expect(Logic.lateStationCue("spa", true, { slot = 2, bought = true }, nil)).to.equal(nil)
+			expect(Logic.lateStationCue("spa", false, {}, nil)).to.equal(nil)
+			expect(Logic.lateStationCue("museum", true, { catId = "c1" }, nil)).to.equal("museumBell")
+			expect(Logic.lateStationCue("museum", true, { catId = "c1", room = "desert" }, nil)).to.equal("indexReward")
+			expect(Logic.lateStationCue("museum", false, {}, nil)).to.equal(nil)
+			expect(Logic.lateStationCue("other", true, { catId = "c1" }, nil)).to.equal(nil)
+			expect(Logic.lateStationCue("spa", true, nil, nil)).to.equal(nil)
+		end)
+
+		it("reads the uid soaking in a spa slot", function()
+			local state = { spa = { soaking = { { slot = 1, uid = "u1" }, { slot = 2 } } } }
+			expect(Logic.spaUidAt(state, 1)).to.equal("u1")
+			expect(Logic.spaUidAt(state, 2)).to.equal(nil)
+			expect(Logic.spaUidAt(state, 3)).to.equal(nil)
+			expect(Logic.spaUidAt(nil, 1)).to.equal(nil)
+			expect(Logic.spaUidAt({ spa = {} }, 1)).to.equal(nil)
+		end)
+
+		it("gives the Late sheet's parts their regions", function()
+			for _, id in { "spaSplash", "spaChime", "museumBell", "circleHold" } do
+				expect(Cues[id].sheet).to.equal("sheetLate")
+				expect(Cues[id].region[2] > Cues[id].region[1]).to.equal(true)
+			end
+		end)
+
 		it("ducks to the lowest active level and mutes by setting", function()
 			expect(Logic.duckLevel({})).to.equal(1)
 			expect(Logic.duckLevel({ catch = 0.6, sting = 0.4 })).to.equal(0.4)

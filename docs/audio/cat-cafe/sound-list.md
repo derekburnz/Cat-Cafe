@@ -157,7 +157,7 @@ A helper's bar fires the same RescueStart, RescueHit, RescueDone and RescueFail 
 | `stationReady` | the Picnic Basket, Yard Sale or Fish Pond goes from holding nothing to something (`CampExtrasState` `held` 0 to more, area open); not on the first state after joining (#1133, #1154, #1232) | 2D | 0.7 s | a soft two-note glockenspiel "ta-ding" (D, A), at 0.3, at most every 3 s; plays with UI's red "!" (#1376) | P2 |
 | `catRest` | UnplaceCat (a cat leaves its role; Unequip All plays it once) | 2D | 0.65 s | a sleepy sigh, a small falling "mew" and a soft flop | P1 |
 | `catLevelUp` | CatLevelUp (F75: one of your cats reaches a new level; the owner only). Silent since 2026-11-02 with its toast (Derek 2026-10-28: "a little spammy", UI PR #669) | 2D, quiet, 1.5 s apart at most | 0.9 s | three quick celesta notes up and a small twinkle, beside the toast and the sparkle | P1 |
-| `catSold` | CatSold | 2D | 0.6 s | coin clink and a small goodbye meow | P2 |
+| `catSold` | CatSold (#2952: fired by UIController once a sync shows the cat you sold gone) | 2D | 1.0 s | three coins into a pouch and a soft two-note celesta "bye" (no meow: no voices) | P2 |
 
 ### 5.4 Bait bowl (data-model section 8)
 

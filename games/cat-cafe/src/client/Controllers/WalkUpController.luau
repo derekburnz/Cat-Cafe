@@ -5,6 +5,9 @@
 -- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
 -- closed by hand opens again with a press. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
+-- #3066: the feedback stand's ring opens the Feedback window straight on its text box, without the cursor in it (a
+-- held W would type into it); the cursor goes in once a keyboard player has stood still there for a moment
+-- (shared/FeedbackStand.focusNow). A press of the stand's prompt puts it in at once, on a phone too (UIController).
 -- Each station's glowing floor ring (World/WalkUpCircles, WalkUp.CIRCLE) is where its window opens: stepping inside the
 -- ring opens it. A station without a ring falls back to its prompt's reach (WalkUp.RADIUS_SHARE).
 --
@@ -15,9 +18,11 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local Net = require(script.Parent.Parent.Net)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local UI = require(script.Parent.Parent.UI)
@@ -80,6 +85,14 @@ local KINDS: { Kind } = {
 		window = "Dealer",
 		open = function()
 			UI.dealer.open()
+		end,
+	},
+	{
+		tag = FeedbackStand.TAG, -- #3066: the Town Square's post box opens the Feedback window on its text box
+		prompt = FeedbackStand.PROMPT,
+		window = FeedbackStand.WINDOW,
+		open = function()
+			UI.bugReport.open(FeedbackStand.KIND, "none")
 		end,
 	},
 }
@@ -165,6 +178,23 @@ local function flying(): boolean
 		)
 end
 
+-- Whether the character stands still (no walk asked for), for the feedback stand's cursor.
+local function standing(): boolean
+	local character = player.Character
+	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	return humanoid ~= nil and (humanoid :: Humanoid).MoveDirection.Magnitude < 0.05
+end
+
+-- Whether the player last used a keyboard or a mouse: only then does a box take the cursor by itself.
+local function onKeyboard(): boolean
+	local last = UserInputService:GetLastInputType()
+	return last == Enum.UserInputType.Keyboard
+		or last == Enum.UserInputType.MouseMovement
+		or last == Enum.UserInputType.MouseButton1
+		or last == Enum.UserInputType.MouseButton2
+		or last == Enum.UserInputType.MouseWheel
+end
+
 -- Whether the player is busy: nothing pops up over a catch, a rescue, a carry, a flight or the intro.
 local function blocked(): boolean
 	local ui: any = UI
@@ -186,6 +216,9 @@ function WalkUpController.start()
 		end
 	end)
 	local state = WalkUp.new()
+	-- #3066: looks stood still in the feedback stand's ring since it opened the window, and whether the box has had
+	-- the cursor from that
+	local stillLooks, standFocused = 0, false
 	-- a new character (a respawn) is looked at afresh, so spawning next to a station opens nothing
 	player.CharacterAdded:Connect(function()
 		table.clear(state.inside)
@@ -264,6 +297,18 @@ function WalkUpController.start()
 				local window = windowOf[open :: string]
 				if window ~= nil then
 					Net.fire("StationOpened", window, "ring") -- #2910
+				end
+				stillLooks, standFocused = 0, false
+			end
+			-- #3066: the stand's window, opened by its ring and still up: the cursor goes in once the player stands
+			if
+				state.openedWindow == FeedbackStand.WINDOW
+				and UI.isOpen() == FeedbackStand.WINDOW
+			then
+				stillLooks = if standing() then stillLooks + 1 else 0
+				if FeedbackStand.focusNow(stillLooks, standFocused, onKeyboard()) then
+					standFocused = true
+					UI.bugReport.focus()
 				end
 			end
 		end

@@ -8,7 +8,9 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
+	local FeedbackStand = require(Shared.FeedbackStand)
 	local Layout = require(ServerScriptService.Server.World.Layout)
+	local WalkUp = require(Shared.WalkUp)
 
 	type Point = Layout.Point
 	type Rect = Layout.Rect
@@ -1433,6 +1435,38 @@ return function()
 					local yaw = math.rad(spot.rotY or 0)
 					local toCannon = -spot.x * -math.sin(yaw) + -spot.z * -math.cos(yaw)
 					expect(toCannon > 0).to.equal(true)
+				end
+			end
+		)
+
+		it(
+			"keeps the feedback stand's floor ring off the lanes, where nobody walks through it (#3066)",
+			function()
+				-- the ring touches the stand's front (the model is 3.8 deep), WalkUp.FRONT_RADIUS across each way
+				local stand = Layout.feedbackStand
+				local yaw = math.rad(stand.rotY or 0)
+				local out = WalkUp.frontOffset(1.9, WalkUp.FRONT_RADIUS, FeedbackStand.RANGE)
+				local x, z = stand.x - math.sin(yaw) * out, stand.z - math.cos(yaw) * out
+				local reach = WalkUp.FRONT_RADIUS + 2 -- two studs of floor between the ring and a lane
+				expect(inside(x, z, square.floor, WalkUp.FRONT_RADIUS)).to.equal(true)
+				for _, lane in lanes do
+					expect(inside(x, z, lane, -reach)).to.equal(false)
+				end
+				-- and clear of every other station's spot, so its window is the only one that opens there
+				for _, other in
+					{
+						Layout.spinWheel,
+						Layout.fishMarket,
+						Layout.codesCat,
+						Layout.dealerCart,
+						Layout.mysteryCart,
+						Layout.leaderboards,
+						Layout.dayCart,
+						Layout.arcadeCabinet,
+					}
+				do
+					local gap = math.sqrt((x - other.x) ^ 2 + (z - other.z) ^ 2)
+					expect(gap >= 12).to.equal(true)
 				end
 			end
 		)

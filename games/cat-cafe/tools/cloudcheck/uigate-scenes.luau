@@ -5258,6 +5258,62 @@ local SCENES = {
 		local claimTop = claim.AbsolutePosition.Y
 		assert(note.AbsolutePosition.Y + note.TextBounds.Y <= claimTop + 1, "uigate: the note runs into Collect (#2123)")
 	end },
+	-- #2916 (an open loop at exit): Gameplay's next goals on the recap, each over its progress bar with its count (the
+	-- "away" goal with none), under the Today line and in place of the one "what's next" line
+	{ "SessionRecapGoals", function()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
+		UI.recap.shown = false
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.recap.show({
+			minutes = 41,
+			newCats = 3,
+			earned = 12500,
+			goals = {
+				{ kind = "cats", have = 3, need = 5, tier = 4, area = "woods" },
+				{ kind = "coins", have = 1200000, need = 5000000, tier = 4 },
+				{ kind = "away", amount = 48200, hours = 8 },
+			},
+		} :: any)
+		local card = UIShim.playerGui:FindFirstChild("CatCafeRecap"):FindFirstChild("Card", true) :: Frame
+		assert(card.Visible, "uigate: no session recap card with goals (#2916)")
+		local first = card:FindFirstChild("Line1", true) :: TextLabel
+		local second = card:FindFirstChild("Line2", true) :: TextLabel
+		assert(second.Visible and not string.find(second.Text, "Grand Opening", 1, true), "uigate: the one next line still shows beside the goals (#2916)")
+		local goal1 = card:FindFirstChild("Goal1", true) :: Frame
+		local text1 = goal1:FindFirstChild("Text") :: TextLabel
+		assert(goal1.Visible and text1.Text == "Open the Woods: 3 of 5 cats", "uigate: the first goal reads " .. text1.Text .. " (#2916)")
+		assert(goal1.AbsolutePosition.Y >= first.AbsolutePosition.Y + first.AbsoluteSize.Y - 1, "uigate: the goals are not under the Today line (#2916)")
+		assert(goal1.AbsolutePosition.Y + goal1.AbsoluteSize.Y <= second.AbsolutePosition.Y + 1, "uigate: the goals run into the next line (#2916)")
+		local fill = goal1:FindFirstChild("Fill", true) :: Frame
+		local track = fill.Parent :: Frame
+		assert(math.abs(fill.AbsoluteSize.X - track.AbsoluteSize.X * 0.6) <= 2, "uigate: the first goal's bar is not at 3/5 (#2916)")
+		local shortScreen = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isShort()
+		local goal3 = card:FindFirstChild("Goal3", true) :: Frame
+		if shortScreen then
+			assert(not goal3.Visible, "uigate: three goals on a short screen (#2916)")
+		else
+			assert(goal3.Visible and not (goal3:FindFirstChild("Bar") :: Frame).Visible, "uigate: the away goal has a bar (#2916)")
+		end
+		local last = card:FindFirstChild("Line3", true) :: TextLabel
+		local bottom = last.AbsolutePosition.Y + last.AbsoluteSize.Y
+		assert(bottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, "uigate: the recap's last line hangs off the card (#2916)")
+		assert(card.AbsolutePosition.Y >= 0, "uigate: the recap with goals runs off the top of the screen (#2916)")
+	end },
+	-- #2916 (a goal on return): with no ReturnHook pick, the welcome back card's line points at Gameplay's nearest goal
+	{ "WelcomeBackGoal", function()
+		Scenes._returnHook = true
+		UI.update({
+			tipsSeen = { stuck_cat = true, codes_cat = true },
+			returnHook = false,
+			returnGoals = { { kind = "cats", have = 3, need = 5, tier = 4, area = "woods" } },
+		} :: any)
+		UI.showOfflineEarnings(48200, 3 * 3600)
+		local card = UIShim.playerGui:FindFirstChild("CatCafePopups"):FindFirstChild("Offline", true) :: Frame
+		assert(card and card.Visible, "uigate: no welcome back card (#2916)")
+		local hook = card:FindFirstChild("Hook") :: TextLabel
+		assert(hook.Visible and hook.Text == "Next: open the Woods, 3 of 5 cats", "uigate: the welcome back goal line reads " .. hook.Text .. " (#2916)")
+		assert(hook.TextFits, "uigate: the welcome back goal line does not fit (#2916)")
+	end },
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings
 	{ "SmallHUD", function()
@@ -7273,6 +7329,7 @@ function Scenes.close()
 		Scenes._returnHook = nil
 		local current: any = UI.getState()
 		current.returnHook = nil -- #2123's welcome back scene
+		UI.update({ returnGoals = false } :: any) -- #2916's welcome back scene (getState is a copy)
 	end
 	if Scenes._quiet then
 		local before = Scenes._quiet

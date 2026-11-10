@@ -85,6 +85,8 @@ export type Tap = { value: string, at: number } -- a press on one of REQUEST_MOD
 
 -- a cat on the Trades page (UI Types' TradeCat)
 export type LogCat = { catId: string, rarity: string, variant: string?, level: number }
+-- #1574: a decor or lawn piece in a log entry (Types.DecorSummary); `kind` "decor" or "lawn"
+export type LogPiece = { id: string, kind: string, rarity: string }
 
 export type LogRow = {
 	id: string,
@@ -92,6 +94,8 @@ export type LogRow = {
 	when: string, -- "3h ago"
 	gave: { LogCat },
 	got: { LogCat },
+	gaveDecor: { LogPiece }, -- #1574: empty for entries from before decor trading
+	gotDecor: { LogPiece },
 }
 
 export type PlayerRow = {
@@ -535,6 +539,25 @@ local function cats(list: unknown): { LogCat }
 	return out
 end
 
+-- #1574: the pieces of a log entry's gaveDecor or gotDecor (nil before decor trading); broken ones left out
+local function pieces(list: unknown): { LogPiece }
+	local out: { LogPiece } = {}
+	if type(list) ~= "table" then
+		return out
+	end
+	for _, piece in list :: { any } do
+		if type(piece) == "table" and type(piece.id) == "string" then
+			local entry: LogPiece = {
+				id = piece.id,
+				kind = if piece.kind == "lawn" then "lawn" else "decor",
+				rarity = if type(piece.rarity) == "string" then piece.rarity else "Common",
+			}
+			table.insert(out, entry)
+		end
+	end
+	return out
+end
+
 -- The Trades page's rows from ProfileSync's tradeLog: newest first, at most LOG_MAX, entries without an id or a
 -- time left out.
 function TradeLogic.logRows(log: { any }?, now: number): { LogRow }
@@ -565,6 +588,8 @@ function TradeLogic.logRows(log: { any }?, now: number): { LogRow }
 			when = TradeLogic.ago(entry.at, now),
 			gave = cats(entry.gave),
 			got = cats(entry.got),
+			gaveDecor = pieces(entry.gaveDecor),
+			gotDecor = pieces(entry.gotDecor),
 		})
 	end
 	return rows

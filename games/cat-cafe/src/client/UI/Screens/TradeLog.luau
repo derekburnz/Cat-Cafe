@@ -2,20 +2,28 @@
 -- The Trades page (F102, trading.md section 5): the last 20 trades from ProfileSync's tradeLog, newest first, so a
 -- player or a parent can see what happened. Each card says who it was with ("With Sam", their display name at the
 -- time), when ("3h ago") and both sides as small cat cards ("Gave" and "Got", "Nothing" for an empty side). Opened
--- from the Trades row in Settings; Back returns there. View only.
+-- from the Trades row in Settings; Back returns there. View only. #1574: decor and lawn pieces that changed hands
+-- follow the cats on their line, in the trade window's piece look (TradeItemTile).
 --   TradeLog.new(callbacks)   callbacks.close (the X), callbacks.back (Back, to Settings)
 --   log:setCatalog(catalog)   the cat pictures
 --   log:render(state)         reads state.tradeLog; call it on open and while open only, since it builds the cards
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
+local TradeItemTile = require(script.Parent.Parent.Components.TradeItemTile)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local TradeTile = require(script.Parent.Parent.Components.TradeTile)
 local Types = require(script.Parent.Parent.Types)
+
+-- the shared trade rules: a piece's name for its letter until the picture loads (#1574)
+local SharedTrade = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Trade")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
@@ -32,7 +40,12 @@ export type TradeLog = {
 	destroy: (self: TradeLog) -> (),
 }
 
-type Line = { scroll: ScrollingFrame, nothing: TextLabel, tiles: { TradeTile.TradeTile } }
+type Line = {
+	scroll: ScrollingFrame,
+	nothing: TextLabel,
+	tiles: { TradeTile.TradeTile },
+	pieces: { TradeItemTile.TradeItemTile }, -- #1574
+}
 
 type Card = { frame: Frame, partner: TextLabel, when: TextLabel, gave: Line, got: Line }
 
@@ -43,6 +56,7 @@ local PAD = 8
 local LEFT_W = 132 -- the partner and the time
 local LABEL_W = 44 -- "Gave" and "Got"
 local CARD_H = PAD * 2 + TILE * 2 + 4
+local PIECE_ORDER = 1000 -- #1574: a line's pieces sit after its cats
 
 local TradeLog = {}
 TradeLog.__index = TradeLog
@@ -178,7 +192,7 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 		Visible = false,
 		Parent = card,
 	})
-	return { scroll = scroll, nothing = nothing, tiles = {} }
+	return { scroll = scroll, nothing = nothing, tiles = {}, pieces = {} }
 end
 
 function TradeLog._card(self: any, index: number): Card
@@ -224,7 +238,23 @@ function TradeLog._card(self: any, index: number): Card
 	return card
 end
 
-function TradeLog._fill(self: any, line: Line, cats: { TradeLogic.LogCat })
+-- #1574: a logged piece as a tile shows it: its picture and rarity, "Lawn" or a foot left off at this size
+local function pieceView(piece: TradeLogic.LogPiece): TradeItemTile.View
+	local info = SharedTrade.piece(piece.id)
+	return {
+		id = piece.id,
+		name = if info ~= nil then info.name else piece.id,
+		rarity = piece.rarity,
+		image = ShopIcons.decor(piece.id),
+	}
+end
+
+function TradeLog._fill(
+	self: any,
+	line: Line,
+	cats: { TradeLogic.LogCat },
+	pieces: { TradeLogic.LogPiece }
+)
 	local shown = 0
 	for _, cat in cats do
 		local def: Types.CatDef? = self._catById[cat.catId]
@@ -247,7 +277,23 @@ function TradeLog._fill(self: any, line: Line, cats: { TradeLogic.LogCat })
 	for index = shown + 1, #line.tiles do
 		line.tiles[index].frame.Visible = false
 	end
-	line.nothing.Visible = shown == 0
+	for index, piece in pieces do
+		local tile = line.pieces[index]
+		if tile == nil then
+			tile = TradeItemTile.new({
+				parent = line.scroll,
+				size = TILE,
+				layoutOrder = PIECE_ORDER + index,
+				name = "Piece" .. index,
+			})
+			line.pieces[index] = tile
+		end
+		tile:set(pieceView(piece))
+	end
+	for index = #pieces + 1, #line.pieces do
+		line.pieces[index]:set(nil)
+	end
+	line.nothing.Visible = shown == 0 and #pieces == 0
 end
 
 function TradeLog._renderLog(self: any)
@@ -257,8 +303,8 @@ function TradeLog._renderLog(self: any)
 		card.frame.Visible = true
 		card.partner.Text = row.partner
 		card.when.Text = row.when
-		self:_fill(card.gave, row.gave)
-		self:_fill(card.got, row.got)
+		self:_fill(card.gave, row.gave, row.gaveDecor)
+		self:_fill(card.got, row.got, row.gotDecor)
 	end
 	for index = #rows + 1, #self._cards do
 		self._cards[index].frame.Visible = false
@@ -284,6 +330,9 @@ function TradeLog.destroy(self: any)
 		for _, line in { card.gave, card.got } do
 			for _, tile in line.tiles do
 				tile:destroy()
+			end
+			for _, piece in line.pieces do
+				piece:destroy()
 			end
 		end
 	end

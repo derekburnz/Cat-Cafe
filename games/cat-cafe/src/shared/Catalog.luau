@@ -1229,7 +1229,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 600000, -- #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		cost = 420000, -- #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 11, -- #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -1241,7 +1241,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 24000000, -- #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
+		cost = 16800000, -- #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
 		distinctCats = 22, -- #2683: 25 before; #2230: 20 before
 		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
@@ -1253,7 +1253,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 700000000, -- #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		cost = 350000000, -- #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 28, -- #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -1268,7 +1268,7 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 8000000000, -- #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		cost = 5600000000, -- #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
 		distinctCats = 42,
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
@@ -1280,7 +1280,7 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 60000000000,
+		cost = 54000000000, -- #2895 (10% off): 60,000,000,000 before
 		distinctCats = 52,
 		needsRarity = "Mythical",
 		needsRarityCount = 3,

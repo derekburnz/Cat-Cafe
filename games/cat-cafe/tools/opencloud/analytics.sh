@@ -643,6 +643,7 @@ fieldEvents=(
 	"quit_state|CustomField2|CustomEventCountUser|Leavers by where they were"
 	"quit_state|CustomField3|CustomEventCountUser|Leavers by carry and bait state"
 	"quit_state|Platform|CustomEventCountUser|Leavers by device"
+	"quit_state|Platform,CustomField1|CustomEventCountUser|Leavers by device and furthest step"
 	"step_time|CustomField1|CustomEventAvgValue|Average seconds of play when each step came"
 	"step_time|CustomField1|CustomEventCountUser|Players per step (step_time)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"

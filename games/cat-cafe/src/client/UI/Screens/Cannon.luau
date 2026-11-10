@@ -16,6 +16,8 @@
 -- F101 (rescue-rally.md section 4): while a Rescue Rally runs, at night every card wears a red "🏁 Rally: rescues x3"
 -- tag along the foot of its picture, over the night cover in place of its "Closed until sunrise" (the header and the
 -- button still say so), since a rescue scores three (setRally, RallyLogic).
+-- #2915: setRing(areaId) puts the tutorial's pulsing gold ring and arrow (Components/StepTarget) on that card's Launch
+-- while it can launch: "Fly to the Park" on the rank-up card opens the picker with the Park's ringed.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -31,6 +33,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RallyLogic = require(script.Parent.Parent.Components.RallyLogic)
 local Scale = require(script.Parent.Parent.Scale)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -54,6 +57,7 @@ export type Cannon = {
 	setClock: (self: Cannon, phase: Types.ClockPhase?, phaseEndsAt: number?) -> (),
 	-- F92: the area a joiner's pal is in and the pal's name, or nil to take the tag away
 	setPal: (self: Cannon, areaId: string?, name: string?) -> (),
+	setRing: (self: Cannon, areaId: string?) -> (), -- #2915
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
 	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
@@ -146,6 +150,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._rally = nil :: Types.RallyState?
+	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -523,6 +528,15 @@ function Cannon._collect(self: any, id: string)
 	collect(line.extraId)
 end
 
+-- #2915: the ring on `areaId`'s Launch, or none.
+function Cannon.setRing(self: any, areaId: string?)
+	if self._ring == areaId then
+		return
+	end
+	self._ring = areaId
+	self:_rerender()
+end
+
 -- F92: the gold "Sam is here" tag on the pal's area card, or none.
 function Cannon.setPal(self: any, areaId: string?, name: string?)
 	self._pal = if areaId ~= nil then { areaId = areaId, name = name or "Your pal" } else nil
@@ -646,6 +660,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		local order = shown[id]
 		card.frame.Visible = order ~= nil
 		if order == nil then
+			StepTarget.ui(card.launch.instance, false)
 			continue
 		end
 		card.frame.LayoutOrder = order
@@ -705,6 +720,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.enabled = enabled
 			card.launch:setEnabled(enabled)
 		end
+		StepTarget.ui(card.launch.instance, enabled and id == self._ring) -- #2915
 	end
 	if tall ~= self._tall then
 		self._tall = tall

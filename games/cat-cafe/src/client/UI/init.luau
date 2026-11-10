@@ -945,6 +945,9 @@ function UI.init(config: Types.InitConfig)
 		rankUp = function()
 			UI.events.rankUp:Fire()
 		end,
+		fly = function()
+			UI.cannon.flyToPark() -- #2915
+		end,
 		close = closeModal,
 		perks = function()
 			-- #2687: "Your perks" over the window
@@ -1652,6 +1655,12 @@ function UI.update(partial: Types.PartialState)
 				if area.tier == CannonLogic.HINT_TIER then
 					local opened = area.name
 					cannonOpened = opened
+					-- #2915: the rank-up card's button reads "Fly to the Park" until the next flight
+					local parkFirst = require(script.Components.ParkFirstLogic)
+					local card = rankUpScreen
+					if area.id == parkFirst.AREA and card ~= nil then
+						card:setFly(parkFirst.FLY_TEXT)
+					end
 					-- the hint and its trail go by themselves after a while; a flight clears them sooner
 					task.delay(CannonLogic.OPENED_HINT_SECONDS, function()
 						if cannonOpened == opened then
@@ -2012,7 +2021,8 @@ end
 -- Messages
 ----------------------------------------------------------------------------------------------------
 
-function UI.toast(text: string, kind: Types.ToastKind?)
+-- `seconds` (optional) keeps the toast up that long in place of the usual 2.4 s.
+function UI.toast(text: string, kind: Types.ToastKind?, seconds: number?)
 	-- #2600: no "Bought ..." pop-ups (ToastRules.quiet); init.luau is at the 200-local limit, so it loads here
 	if require(script.Components.ToastRules).quiet(text, kind) then
 		return
@@ -2026,7 +2036,7 @@ function UI.toast(text: string, kind: Types.ToastKind?)
 		end
 	end
 	if toasts then
-		toasts:show(text, kind)
+		toasts:show(text, kind, nil, seconds)
 	end
 end
 
@@ -3073,6 +3083,12 @@ UI.cannon = {}
 -- bait bowl step), so the cannon hint points at the cannon until the next flight. On UI.cannon, as init's main chunk
 -- is at Luau's 200 locals.
 UI.cannon.wrapUp = { step = nil :: number?, on = false }
+-- #2915: "Fly to the Park" on the rank-up card (flyToPark). `ring` is the area whose picker card is ringed, `travel`
+-- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
+UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
+-- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
+UI.cannon.area = nil :: string?
+UI.cannon.nearest = nil :: (() -> string?)?
 
 function UI.cannon.setEnabled(on: boolean)
 	cannonOn = on
@@ -3087,11 +3103,81 @@ end
 
 -- The wild area the character is in, camp included, or nil in the hometown. Hides the cannon hints out there.
 function UI.cannon.setWild(areaId: string?)
+	UI.cannon.area = areaId
 	if cannonWild == (areaId ~= nil) then
 		return
 	end
 	cannonWild = areaId ~= nil
 	applyTutorial()
+end
+
+-- #2915: "Fly to the Park" pressed on the rank-up card. The window closes and the picker opens with the Park ringed:
+-- at once by a cannon, else after the Cannon button's trip to the nearest one. The ring waits PICKER_RING_SECONDS for
+-- a picker opened later; any flight ends it and puts the rank-up button back.
+function UI.cannon.flyToPark()
+	local parkFirst = require(script.Components.ParkFirstLogic)
+	local fly = UI.cannon.fly
+	fly.token += 1
+	local token = fly.token
+	fly.ring = parkFirst.AREA
+	if cannonScreen then
+		cannonScreen:setRing(parkFirst.AREA)
+	end
+	task.delay(parkFirst.PICKER_RING_SECONDS, function()
+		if fly.token == token and fly.ring ~= nil then
+			fly.ring, fly.travel = nil, false
+			if cannonScreen then
+				cannonScreen:setRing(nil)
+			end
+		end
+	end)
+	if modal then
+		modal:close()
+	end
+	local nearest = UI.cannon.nearest
+	local near = if nearest ~= nil then nearest() else nil
+	if near ~= nil then
+		UI.cannon.open(near)
+	elseif hud then
+		fly.travel = hud:pressTravel("cannon")
+	end
+end
+
+-- Ends "Fly to the Park": the rank-up button is Rank up again and the picker's ring goes.
+function UI.cannon.clearFly()
+	local fly = UI.cannon.fly
+	fly.token += 1
+	fly.ring, fly.travel = nil, false
+	if cannonScreen then
+		cannonScreen:setRing(nil)
+	end
+	if rankUpScreen then
+		rankUpScreen:setFly(nil)
+	end
+end
+
+-- After the trip flyToPark asked for: the picker of the cannon the character now stands by. The move reaches this
+-- client a moment after TravelResult, so it looks twice.
+function UI.cannon.openAfterTravel()
+	local fly = UI.cannon.fly
+	if not fly.travel then
+		return
+	end
+	fly.travel = false
+	local token = fly.token
+	local function look(again: boolean)
+		if fly.token ~= token or fly.ring == nil then
+			return
+		end
+		local nearest = UI.cannon.nearest
+		local near = if nearest ~= nil then nearest() else nil
+		if near ~= nil then
+			UI.cannon.open(near)
+		elseif again then
+			task.delay(1, look, false)
+		end
+	end
+	task.delay(0.4, look, true)
 end
 
 -- The Town Square cannon, for the hint's arrow and trail.
@@ -3134,6 +3220,7 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		cannonOpened = nil
 		UI.cannon.wrapUp.on = false
 		applyTutorial()
+		UI.cannon.clearFly() -- #2915: a flight ends "Fly to the Park" and its ring
 	end
 	local name = CannonLogic.TOWN_NAME
 	for _, area in catalogAreas() do
@@ -3184,6 +3271,13 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 	if ok then
 		UI.showAreaTitle(destination)
+	end
+	if destination == "cannon" then
+		if ok then
+			UI.cannon.openAfterTravel() -- #2915
+		else
+			UI.cannon.fly.travel = false
+		end
 	end
 end
 

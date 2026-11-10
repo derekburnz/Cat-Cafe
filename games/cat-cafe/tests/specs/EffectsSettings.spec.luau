@@ -46,6 +46,30 @@ return function()
 			)
 		end)
 
+		it(
+			"gives a console the high tier with a budget between the phone's and the PC's (#2871)",
+			function()
+				local tier, budget = Logic.budgetFor("high", false, true)
+				expect(tier).to.equal("high")
+				expect(budget).to.equal(Presets.budget.console)
+				-- Low performance still wins on a console, and a console flag never lifts a phone
+				tier, budget = Logic.budgetFor("high", true, true)
+				expect(budget).to.equal(Presets.budget.lowPerformance)
+				tier, budget = Logic.budgetFor("low", false, true)
+				expect(budget).to.equal(Presets.budget.low)
+				local low, console, high =
+					Presets.budget.low, Presets.budget.console, Presets.budget.high
+				for field, value in high do
+					expect(type(console[field])).to.equal("number")
+					expect(console[field] <= value).to.equal(true)
+					expect(console[field] >= low[field]).to.equal(true)
+				end
+				expect(
+					console.animatedCats < high.animatedCats and console.maxBurst < high.maxBurst
+				).to.equal(true)
+			end
+		)
+
 		it("scales steady rates within the preset and keeps every burst at one to eight", function()
 			for _, budget in Presets.budget do
 				expect(budget.rateScale > 0 and budget.rateScale <= 1).to.equal(true)

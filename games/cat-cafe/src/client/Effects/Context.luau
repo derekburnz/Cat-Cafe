@@ -22,6 +22,7 @@ Context.tier = "high" :: string -- Presets.Tier effects run at: the device's, or
 Context.budget = Presets.budget.high
 Context.screenShake = true -- the Screen shake setting
 Context.lowPerformance = false -- the Low performance setting
+Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.budget.console (#2871)
 
 local SHAKE_STEP = "CatCafeEffectsShake"
 
@@ -29,13 +30,15 @@ local folder: Folder? = nil
 local rng = Random.new()
 
 local function rebudget()
-	local tier, budget = Logic.budgetFor(Context.device :: Presets.Tier, Context.lowPerformance)
+	local tier, budget =
+		Logic.budgetFor(Context.device :: Presets.Tier, Context.lowPerformance, Context.console)
 	Context.tier = tier
 	Context.budget = budget
 end
 
 function Context.init()
 	Context.device = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
+	Context.console = GuiService:IsTenFootInterface()
 	rebudget()
 end
 

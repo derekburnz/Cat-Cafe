@@ -30,6 +30,56 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-10 16:40): player-facing changes since #2977, 37 merges; no player ideas
+	{
+		id = "town_square_grew",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Town Square grew again",
+	},
+	{ id = "drop_buttons_small", date = "2026-11-10", icon = "fix", text = "Smaller Drop buttons" },
+	{
+		id = "catch_result_flash",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Snappier catch result",
+	},
+	{
+		id = "backpack_heads_big",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Bigger cats in your Backpack",
+	},
+	{
+		id = "refill_best_food",
+		date = "2026-11-10",
+		icon = "faster",
+		text = "Refill uses your best food",
+	},
+	{
+		id = "mythical_decor_shine",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Mythical decor shines more",
+	},
+	{
+		id = "trade_log_more",
+		date = "2026-11-10",
+		icon = "new",
+		text = "Trade log shows more items",
+	},
+	{
+		id = "spa_cats_float",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Spa cats float when ready",
+	},
+	{
+		id = "controller_fixes_2",
+		date = "2026-11-10",
+		icon = "fix",
+		text = "More controller fixes",
+	},
 	-- #2718 refresh (11-10 12:30): player-facing changes since #2939, 30 merges; no player ideas
 	-- #3011 (Derek2 11-10: "buff how often night market stocks good items and amount")
 	{

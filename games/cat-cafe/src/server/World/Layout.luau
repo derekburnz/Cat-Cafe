@@ -1608,7 +1608,7 @@ Layout.desert = {
 	rescueSpots = {
 		setTrap(DX, DZ, DTURN, "sand_dune", { -62, 0, -160 }),
 		setTrap(DX, DZ, DTURN, "sand_dune", { 44, 0, 172 }),
-		setTrap(DX, DZ, DTURN, "clay_urn", { -60, 0, 102 }, -30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -64.5, 2.42, 102 }, -30), -- on the terrace (was sunk in it)
 		setTrap(DX, DZ, DTURN, "clay_urn", { 60, 0, 262 }, 200),
 		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 30, 0, 112 }, 20),
 	},
@@ -1616,7 +1616,7 @@ Layout.desert = {
 	rescuePool = {
 		setTrap(DX, DZ, DTURN, "sand_dune", { -62, 0, -160 }),
 		setTrap(DX, DZ, DTURN, "sand_dune", { 44, 0, 172 }),
-		setTrap(DX, DZ, DTURN, "clay_urn", { -60, 0, 102 }, -30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -64.5, 2.42, 102 }, -30), -- on the terrace (was sunk in it)
 		setTrap(DX, DZ, DTURN, "clay_urn", { 60, 0, 262 }, 200),
 		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 30, 0, 112 }, 20),
 		setTrap(DX, DZ, DTURN, "sand_dune", { 43, 0, -176 }),

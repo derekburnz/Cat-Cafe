@@ -364,5 +364,24 @@ return function()
 			expect(SpinLogic.skipHint("Touch")).to.equal(SpinLogic.SKIP_HINT)
 			expect(SpinLogic.skipHint("MouseButton1")).to.equal(SpinLogic.SKIP_HINT)
 		end)
+
+		it("plays a Use all chain faster each roll, down to a floor (#3157)", function()
+			expect(SpinLogic.chainSeconds(1, false)).to.equal(SpinLogic.CHAIN_FIRST)
+			expect(SpinLogic.chainSeconds(2, false) < SpinLogic.chainSeconds(1, false)).to.equal(
+				true
+			)
+			expect(SpinLogic.chainSeconds(50, false)).to.equal(SpinLogic.CHAIN_MIN)
+			expect(SpinLogic.chainSeconds(1, true)).to.equal(SpinLogic.CHAIN_CALM)
+			expect(SpinLogic.chainTurns(1, false)).to.equal(3)
+			expect(SpinLogic.chainTurns(2, false)).to.equal(2)
+			expect(SpinLogic.chainTurns(1, true)).to.equal(2)
+			expect(SpinLogic.chainGap(1) > SpinLogic.chainGap(10)).to.equal(true)
+			expect(SpinLogic.chainText(3, 8)).to.equal("Spin 3 of 8")
+			local total = 0
+			for position = 1, 51 do
+				total += SpinLogic.chainSeconds(position, false) + SpinLogic.chainGap(position)
+			end
+			expect(total < 60).to.equal(true)
+		end)
 	end)
 end

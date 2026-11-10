@@ -898,8 +898,6 @@ end
 -- The night dealer: the night of the last DealerStock (F94; the 5 minute window before), which a buy sends back when
 -- the screen has none.
 local dealerWindow: number? = nil
--- The Fresh Catch shelf (F94): the window of the last FreshCatchStock, which a buy sends back when the screen has none.
-local freshWindow: number? = nil
 
 -- Team Rescue (F92, playing-together.md section 3). A stuck cat's model is tagged StuckCat and carries its trap's
 -- RescueSpotId, LockedBy (the rescuer, else 0) and HelpedBy (the helper while the attempt runs, else 0).
@@ -1287,14 +1285,6 @@ local function wireIntents()
 	UI.events.buyDealerAll:Connect(function(window: number?)
 		Net.fire("BuyDealerAll", window or dealerWindow or -1)
 	end)
-	-- The Fresh Catch tab (F94), once the UI has it: (itemId, window) the row and the window the tab showed; the server
-	-- answers every buy with FreshCatchStock, bought or refused.
-	local buyFreshCatch = (UI.events :: any).buyFreshCatch
-	if buyFreshCatch ~= nil then
-		buyFreshCatch:Connect(function(itemId: string, window: number?)
-			Net.fire("BuyFreshCatch", itemId, window or freshWindow or -1)
-		end)
-	end
 	-- F87 context tips and feedback (easy-start.md sections 3 and 4), once the UI has them: a tip or ask shown (skipped
 	-- true when a camera cut was skipped), Settings' "Show tips again", and a face with an optional chip.
 	local events = UI.events :: any
@@ -2200,35 +2190,6 @@ local function wireServerEvents()
 				stock = stock.stock,
 			}
 			else nil)
-	end)
-	-- The Fresh Catch shelf (F94): this player's stock by day, nil at night; the UI's tab takes it once it exists.
-	Net.on("FreshCatchStock", function(stock: Types.FreshCatchStock?)
-		freshWindow = if stock ~= nil then stock.window else nil
-		local fresh: any = (UI :: any).freshCatch
-		local setStock: unknown = if fresh ~= nil then fresh.setStock else nil
-		if type(setStock) == "function" then
-			(setStock :: (Types.FreshCatchStock?) -> ())(stock)
-		end
-	end)
-	-- The once a window heads up (F94): the UI's own alert once it has one, else a plain toast. The server sends it
-	-- only with settings.shopAlerts on.
-	Net.on("ShopAlert", function(itemId: unknown)
-		local row = if type(itemId) == "string" then Catalog.getFreshCatchRow(itemId) else nil
-		if row == nil then
-			return
-		end
-		local alert: unknown = (UI :: any).shopAlert
-		if type(alert) == "function" then
-			(alert :: (string) -> ())(row.id)
-			return
-		end
-		local potion = Catalog.getPotion(row.potionId or "")
-		local crate = Catalog.getCrate(row.crateId or "")
-		local text = if potion ~= nil
-			then potion.name .. "s at the Fish Market!"
-			elseif crate ~= nil then "A cheap " .. crate.name .. " at the Fish Market!"
-			else "Something good at the Fish Market!"
-		UI.toast(text, "info")
 	end)
 	-- F87: a server-side context tip's moment (shared/Tips). The UI's tip queue times it and answers tipSeen; until
 	-- the UI has one the tips wait unseen, so they still show once the cards land. F96: the notification and favorite

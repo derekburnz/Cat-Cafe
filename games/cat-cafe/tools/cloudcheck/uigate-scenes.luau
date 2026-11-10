@@ -3398,6 +3398,29 @@ local SCENES = {
 		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
 		assert(not hint.Visible, "uigate: Space did not skip the spin (#2246)")
 	end },
+	-- #3157 (Derek2: "spin the wheel one after another not all at once into one spin"): Use all plays each roll in
+	-- turn with "Spin 1 of 3" above Spin; Skip lands one and the next turns after a beat; Skip all shows the card
+	{ "SpinAllChain", function()
+		UI.spin.open()
+		UI.spin.allResult(
+			{ { slice = 1, amount = 100 }, { slice = 2, amount = 3 }, { slice = 3, amount = 1 } },
+			{ { kind = "coins", amount = 100 } }
+		)
+		UIShim.advance(0.5)
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local spins = window:FindFirstChild("Spins", true)
+		assert(spins.Text == "Spin 1 of 3", "uigate: no Spin 1 of 3 while Use all plays (#3157): " .. spins.Text)
+		local all = window:FindFirstChild("UseAll", true)
+		assert(all.Visible, "uigate: no Skip all while Use all plays (#3157)")
+		press("SpinWheel", "SkipTap")
+		UIShim.advance(0.7)
+		assert(spins.Text == "Spin 2 of 3", "uigate: the next roll did not turn after a Skip (#3157): " .. spins.Text)
+		press("SpinWheel", "UseAll")
+		UIShim.advance(0.7)
+		local card = window:FindFirstChild("AllCard", true)
+		assert(card and card.Visible, "uigate: Skip all did not show the totals card (#3157)")
+		assert(spins.Text ~= "Spin 2 of 3", "uigate: the count stayed up after Skip all (#3157)")
+	end },
 	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
 	{ "SpinOddsJackpots", function()
 		UI.spin.open()
@@ -3601,30 +3624,6 @@ local SCENES = {
 		assert(label("alley_crate") ~= "...", "uigate: a refused Open still reads ... (#2577)")
 		counting:Disconnect()
 		UI.update({ crates = crates or {}, goldenFish = fish } :: any)
-	end },
-	{ "MarketFresh", function()
-		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
-		UI.freshCatch.setStock({
-			window = 5900000,
-			restocksAt = workspace:GetServerTimeNow() + 192,
-			stock = {
-				{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
-				{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },
-				{ itemId = "steady_potion", fish = 12, amount = 0, bought = 0 },
-				{ itemId = "quick_bait_potion", fish = 15, amount = 1, bought = 0 },
-				{ itemId = "big_tip_potion", fish = 25, amount = 1, bought = 0 },
-				{ itemId = "lucky_potion", fish = 25, amount = 0, bought = 0 },
-				{ itemId = "gold_rush_potion", fish = 30, amount = 1, bought = 0 },
-				{ itemId = "classic_crate", fish = 50, amount = 1, bought = 0 },
-			},
-		})
-		UI.market.open()
-		press("FishMarket", "FreshTab")
-	end },
-	{ "MarketFreshNight", function()
-		UI.freshCatch.setStock(nil)
-		UI.market.open()
-		press("FishMarket", "FreshTab")
 	end },
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
@@ -5656,9 +5655,16 @@ local SCENES = {
 		UI.intro.waiting(true)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
 		assert(gui.Enabled, "uigate: the loading screen did not show (#3105)")
+		local count = gui:FindFirstChild("Count", true) :: TextLabel
+		local fill = gui:FindFirstChild("Fill", true) :: Frame
+		local paw = gui:FindFirstChild("Paw", true) :: TextLabel
+		assert(gui:FindFirstChild("Face", true), "uigate: the loading screen has no cat (#3109)")
 		UIShim.advance(0.9)
-		local label = gui:FindFirstChild("Label", true) :: TextLabel
-		assert(label.Text:sub(1, 7) == "Loading", "uigate: the loading screen lost its word (#3105)")
+		-- #3109: the count creeps while the save loads, and never reaches 100 by itself
+		local value = tonumber((count.Text:gsub("%%", "")))
+		assert(value and value > 20 and value <= 90, "uigate: the loading count reads " .. count.Text .. " after 0.9 s (#3109)")
+		assert(fill.Size.X.Scale > 0.2 and fill.Size.X.Scale <= 0.9, "uigate: the loading bar did not fill with the count (#3109)")
+		assert(paw.Position.X.Scale == fill.Size.X.Scale, "uigate: the paw is not at the bar's tip (#3109)")
 		-- hidden and shown again at once: the slide away must not carry the new show off (review on #3107)
 		UI.intro.waiting(false)
 		UI.intro.waiting(true)
@@ -5666,6 +5672,31 @@ local SCENES = {
 		local cover = gui:FindFirstChild("Cover") :: Frame
 		assert(gui.Enabled, "uigate: the loading screen went off after a quick hide and show (#3105)")
 		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
+		UIShim.advance(10)
+		assert(count.Text ~= "100%", "uigate: the loading count sat at 100 while still loading (#3109)")
+	end },
+	-- #3109 (Derek2 11-10: "instantly goes up to 100 really fast then transitions to the tutorial scenes"): once the
+	-- save is in the count races to 100 in SHOWN_MIN at most from the screen's start, and stays up until the play
+	{ "IntroLoadingRace", function()
+		local LoadingCount = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LoadingCount")
+		assert(UI.intro.race() == 0, "uigate: a race with no loading screen up should take no time (#3109)")
+		UI.intro.waiting(true)
+		UIShim.advance(0.3)
+		local seconds = UI.intro.race()
+		assert(
+			seconds >= LoadingCount.RACE_MIN and seconds <= LoadingCount.SHOWN_MIN,
+			("uigate: the race to 100 takes %.2f s (#3109)"):format(seconds)
+		)
+		assert(UI.intro.race() <= seconds, "uigate: a second ask restarted the race (#3109)")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		local count = gui:FindFirstChild("Count", true) :: TextLabel
+		local fill = gui:FindFirstChild("Fill", true) :: Frame
+		UIShim.advance(seconds / 2)
+		assert(count.Text ~= "100%", "uigate: the count hit 100 half way through its race (#3109)")
+		UIShim.advance(seconds / 2 + 0.1)
+		assert(count.Text == "100%", "uigate: the count reads " .. count.Text .. " after its race (#3109)")
+		assert(fill.Size.X.Scale == 1, "uigate: the bar is not full at 100 (#3109)")
+		assert(gui.Enabled, "uigate: the loading screen left before the intro started (#3109)")
 	end },
 	{ "IntroLoadingLifts", function()
 		UI.intro.waiting(true)
@@ -8185,6 +8216,13 @@ function Scenes.close()
 	end
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene
+	end
+	-- #3105, #3109: the loading screen put away, so the next scene starts with none up (IntroLoading leaves it
+	-- showing, and IntroLoadingRace, the scene after it, begins by asking for a race with no screen up)
+	local introWait = UIShim.playerGui:FindFirstChild("CatCafeIntroWait")
+	if introWait ~= nil and introWait:IsA("ScreenGui") and introWait.Enabled then
+		UI.intro.waiting(false)
+		UIShim.advance(1) -- its slide away
 	end
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil

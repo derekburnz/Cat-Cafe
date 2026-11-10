@@ -298,4 +298,40 @@ function SpinLogic.allText(spins: number, cap: number?): string
 	return ("Use all %d"):format(n)
 end
 
+-- #3157 (Derek2: "spin the wheel one after another not all at once into one spin"): after Use all the wheel plays
+-- each roll in turn. The first turn takes CHAIN_FIRST seconds and three turns of the wheel, each one after it 20%
+-- less, down to CHAIN_MIN with two turns, so a stack of 50 does not drag; Reduced Motion plays every one at
+-- CHAIN_CALM. Skip lands the turning one, Skip all goes straight to the totals card.
+SpinLogic.CHAIN_FIRST = 2.4
+SpinLogic.CHAIN_MIN = 0.6
+SpinLogic.CHAIN_CALM = 0.6
+SpinLogic.CHAIN_FADE = 0.8
+
+-- Seconds the `position`th roll of a Use all chain turns for (1 is the first).
+function SpinLogic.chainSeconds(position: number, calm: boolean): number
+	if calm then
+		return SpinLogic.CHAIN_CALM
+	end
+	local step = math.max(1, math.floor(position)) - 1
+	return math.max(SpinLogic.CHAIN_MIN, SpinLogic.CHAIN_FIRST * SpinLogic.CHAIN_FADE ^ step)
+end
+
+-- Full turns of the wheel for that roll: three for the first, then two.
+function SpinLogic.chainTurns(position: number, calm: boolean): number
+	if calm or position > 1 then
+		return 2
+	end
+	return 3
+end
+
+-- The beat between one roll landing and the next turning, so each prize can be seen: longer for the first few.
+function SpinLogic.chainGap(position: number): number
+	return if position <= 3 then 0.5 else 0.25
+end
+
+-- The count line while the chain plays: "Spin 3 of 8".
+function SpinLogic.chainText(position: number, total: number): string
+	return ("Spin %d of %d"):format(position, total)
+end
+
 return SpinLogic

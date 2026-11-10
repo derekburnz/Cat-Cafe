@@ -46,6 +46,32 @@ Roblox lets the genre change only once every 3 months and may correct a genre it
 
 ## 3. The description (store-page.txt)
 
+### 2026-11-10: shorter, codes on top (the text live on Roblox)
+
+Derek2, 2026-11-10: "redo the description to not be as long and make it so codes are closer to the top or at top". Design-Agent drafted it (issue #3148), Derek posted it on Roblox himself the same day, and `store-page.txt` now holds the same text, so a later `store-page set` keeps it.
+
+The order is:
+1. Codes line: `UPDATE1 · 500VISITS · Release · playtest · group (group members)`
+2. Hook line
+3. Update line
+4. 4 feature bullets (cats and areas, the cafe and offline earnings, trading, the group's Bellhop Cat)
+5. The Robux answer as one plain line
+
+Length is 440 characters (464 bytes), under half of the version before it (1,056 bytes). The codes are the first line, so they show in search and on phones before "more".
+
+What was cut: the five-line update block (now one line), the devices line, the Cannon, bait and potion bullet, and the trading FAQ (the trade bullet covers it). The rules below still hold: no "Roblox" or "game(s)", no like or favourite asks, no promises of future content, and "console" stays out until it is confirmed on in Creator Hub.
+
+Checked against main on 2026-11-10:
+- **Codes:** `release`, `playtest` and `group` are active in `Catalog.codes`. `update1` and `500visits` are added by PR #3149 (issue #3148); until that is published the page lists two codes that do not redeem yet. Codes are typed in any case (`Codes.normalize`).
+- **70 cats in 7 areas:** 70 cats in `Catalog.cats` and 7 areas in `Catalog.areas`, the Desert (Tier 6) and the Ruins (Tier 7) the newest.
+- **Trading** at `TradeMinTier = 3`.
+- **Earn while you're away and the group's Bellhop Cat:** as in the 2026-11-04 notes below.
+- **"No Robux needed: every cat is caught by playing." is not true as worded** (Review-Agent, PR #3150). The 70 area cats are all caught by playing, but four other cats are paid: Duchess Marzipan and King Croissant are game pass cats (`RoyalCatPassId`, `KingCatPassId`), Sprinkles comes with the Starter Bundle, and Maple Muffin is on the Cafe Pass's paid track. The 2026-11-04 note below ("No cat is sold") is out of date for the same reason. The file mirrors what is live; the wording put to Derek is "No Robux needed: all 70 cats are caught by playing.", which is true. Change the page and this file together when he answers.
+
+The name line of `store-page.txt` (`[NEW] Catch a Cat Cafe 🐱`) is unchanged.
+
+### 2026-11-04 version (replaced on 2026-11-10)
+
 Reworked 2026-11-04 to the format the person liked (Coordinator, examples in the library under Monetization-Agent/description-examples/). The order is:
 1. Emoji hook
 2. Update line, then a codes line

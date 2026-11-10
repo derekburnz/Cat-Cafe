@@ -140,9 +140,9 @@ def _flags(g, x0, x1, z0, z1, size, seed=0, gaps=7):
 def _moss(d, x, y, z, w, dd, k=0):
     """A flat cushion of moss about w x dd sitting on a top face at height z (Builder space): grey-green with a lighter
     tuft on it, now and then a darker one."""
-    d.sphere((x, y, z), 0.5, MOSS, segments=8, rings=4, scale=(w, dd, 0.36))
+    d.sphere((x, y, z), 0.5, MOSS, segments=6, rings=3, scale=(w, dd, 0.36))
     d.sphere((x + 0.22 * w * (1 - 2 * (k % 2)), y - 0.15 * dd, z + 0.06), 0.5, (MOSS_LIGHT, MOSS_DARK)[k % 3 == 2],
-             segments=8, rings=4, scale=(0.45 * w, 0.5 * dd, 0.3))
+             segments=6, rings=3, scale=(0.45 * w, 0.5 * dd, 0.3))
 
 
 def _ground():
@@ -215,17 +215,25 @@ def wall_segment(mat, kind, L, k=0):
     return [b.finalize(N + "Wall" + kind.capitalize(), mat), d.finalize(N + "Wall" + kind.capitalize() + "_Decor", mat)]
 
 
-def pier(mat, h=12.0):
-    """A square stone pier in the wall line between two runs, capped, a jade band near its top."""
-    b = Builder()
-    b.box_base((0, WALL_D / 2, 0), (3.2, 3.2, 0.8), STONE_DARK, bevel=False)
-    b.box_base((0, WALL_D / 2, 0.8), (2.6, 2.6, h - 0.8), STONE, bevel=False)
-    b.box_base((0, WALL_D / 2, h - 2.0), (2.75, 2.75, 0.5), JADE, bevel=False)
-    b.box_base((0, WALL_D / 2, h), (3.2, 3.2, 0.6), STONE_LIGHT, bevel=False)
-    d = Builder()
-    _moss(d, 0.3, WALL_D / 2, h + 0.6, 2.4, 2.4, int(h))
-    _moss(d, -0.6, WALL_D / 2 - 1.3, 0.8, 1.6, 0.9, int(h) + 1)                  # on the foot's ledge
-    return [b.finalize(N + "Pier", mat), d.finalize(N + "Pier_Decor", mat)]
+def pier(mat, h=12.0, k=0):
+    """A square stone pier in the wall line between two runs, capped, a jade band near its top. #2834: a carved panel
+    with a cat's paw in relief on its inner face, a rune below the band that glows teal (_Glow), moss on the cap and
+    the foot. k picks the rune."""
+    b, glow, d = Builder(), Builder(), Builder()
+    y = WALL_D / 2
+    b.box_base((0, y, 0), (3.2, 3.2, 0.8), STONE_DARK, bevel=False)
+    b.box_base((0, y, 0.8), (2.6, 2.6, h - 0.8), STONE, bevel=False)
+    b.box_base((0, y, h - 2.0), (2.75, 2.75, 0.5), JADE, bevel=False)
+    b.box_base((0, y, h), (3.2, 3.2, 0.6), STONE_LIGHT, bevel=False)
+    f = y - 1.3                                                                  # the inner face
+    b.box_base((0, f - 0.04, 1.6), (2.0, 0.12, 3.0), STONE_DARK, bevel=False)    # the panel
+    b.box((0, f - 0.14, 2.7), (1.1, 0.12, 0.9), SANDSTONE_LIGHT, bevel=False)     # the paw: its pad
+    for du, dh in ((-0.62, 3.45), (-0.21, 3.8), (0.21, 3.8), (0.62, 3.45)):       # and toes
+        b.box((du, f - 0.14, dh), (0.34, 0.12, 0.38), SANDSTONE_LIGHT, bevel=False)
+    _rune(glow, 0.0, f - 0.05, h - 3.6, k, 0.7)
+    _moss(d, 0.3, y, h + 0.6, 2.4, 2.4, int(h))
+    _moss(d, -0.6, f, 0.8, 1.6, 0.9, int(h) + 1)                                 # on the foot's ledge
+    return [b.finalize(N + "Pier", mat), glow.finalize(N + "Pier_Glow", mat), d.finalize(N + "Pier_Decor", mat)]
 
 
 def _run(s, mat, kinds, n, z0, z1, x, rot, seed):
@@ -236,7 +244,7 @@ def _run(s, mat, kinds, n, z0, z1, x, rot, seed):
         t = z0 + i * (L + 3.2) + L / 2
         s.put(wall_segment(mat, kinds[(i + seed) % len(kinds)], L, i + seed), x, t, rot)
         if i < n - 1:
-            s.put(pier(mat, 11.0 + 1.0 * ((i + seed) % 2)), x, t + L / 2 + 1.6, rot)
+            s.put(pier(mat, 11.0 + 1.0 * ((i + seed) % 2), i + seed), x, t + L / 2 + 1.6, rot)
 
 
 def low_wall(mat, L):
@@ -422,35 +430,66 @@ def _triumphal_arch(s, mat):
 
 
 def column(mat, h=12.0, broken=False):
-    """A standing column: base, a fluted shaft (12 sided), a capital; broken, it stops in a jagged top."""
-    b = Builder()
+    """A standing column (#2834 remake): a plinth and a moulded base, a shaft (12 sided) with eight flutes cut in a
+    darker stone, a flared capital under its abacus; a moss band low on the shaft and a vine winding up it. Broken, the
+    shaft stops in a jagged top with moss on it and a fallen drum lies behind it (local +Z, away from the cat spots
+    at its front corners)."""
+    b, d = Builder(), Builder()
     b.box_base((0, 0, 0), (2.8, 2.8, 0.6), STONE_DARK, bevel=False)
+    b.cyl_base((0, 0, 0.6), 1.32, 0.3, STONE, segments=12)
+    b.cyl_base((0, 0, 0.9), 1.18, 0.2, STONE_LIGHT, segments=12, bevel=False)
     hh = h * (0.6 if broken else 1.0)
-    b.cyl_base((0, 0, 0.6), 1.05, hh - 1.4, STONE_LIGHT, segments=12)
+    top = hh - (0.3 if broken else 1.4)                                           # where the shaft stops
+    b.cyl_base((0, 0, 1.1), 1.05, top - 1.1, STONE_LIGHT, segments=12)
+    for i in range(8):                                                            # the flutes
+        a = 2 * PI * (i + 0.5) / 8
+        b.box_base((1.02 * math.cos(a), 1.02 * math.sin(a), 1.4), (0.1, 0.22, top - 1.9 - 0.02 * (i % 2)), STONE,
+                   bevel=False, rot=(a, "Z"))
     if broken:
-        b.box_base((0.2, 0.1, hh - 0.8), (1.2, 1.4, 0.7), STONE_LIGHT, bevel=False, rot=(0.4, "Z"))
+        for k, (x, y, z, w, hgt, a) in enumerate(((0.25, 0.1, top, 1.3, 0.8, 0.4), (-0.45, -0.3, top, 0.9, 0.45, 1.1),
+                                                   (0.4, -0.45, top, 0.7, 1.2, 0.2))):
+            b.box_base((x, y, z), (w, w * 0.9, hgt + 0.01 * k), STONE_LIGHT, bevel=False, rot=(a, "Z"))
+        _moss(d, 0.0, 0.0, top + 0.45, 1.6, 1.4, 0)
+        b.cyl((0.3, 2.35, 0.95), 0.95, 1.9, STONE_LIGHT, segments=12, rot=(PI / 2, "Y"))     # the fallen drum
+        _moss(d, 0.4, 2.35, 1.85, 1.3, 1.0, 1)
     else:
-        b.cyl_base((0, 0, hh - 0.8), 1.25, 0.4, STONE, segments=12)
-        b.box_base((0, 0, hh - 0.4), (2.8, 2.8, 0.4), STONE_LIGHT, bevel=False)
-    d = Builder()
-    _moss(d, 0.9, -0.9, 0.6, 1.0, 1.0, 0)                                       # in the base's corners
+        b.cyl_base((0, 0, top), 1.05, 0.6, STONE, segments=12, radius2=1.42)
+        b.box_base((0, 0, top + 0.6), (2.9, 2.9, 0.45), STONE_LIGHT, bevel=False)
+        b.box((0, 0, top + 0.25), (2.96, 0.3, 0.3), STONE, bevel=False)          # volutes under the abacus
+        b.cyl((0, 0, top + 0.25), 0.32, 3.0, STONE, segments=8, rot=(PI / 2, "Y"))
+        _moss(d, 0.6, 0.4, top + 1.05, 1.6, 1.4, 1)
+    d.cyl_base((0, 0, 1.9), 1.13, 0.55, MOSS, segments=12, bevel=False)          # the moss band
+    for i in range(7):                                                            # a vine winding up the shaft
+        a = 0.6 + i * 0.95
+        z = 2.6 + i * (top - 3.6) / 7
+        if z > top - 0.8:
+            break
+        d.box((1.12 * math.cos(a), 1.12 * math.sin(a), z), (0.16, 0.42, 1.3), (VINE, "leaf_green")[i % 2],
+              bevel=False, rot=Matrix.Rotation(a, 3, "Z") @ Matrix.Rotation(0.5, 3, "X"))
+    _moss(d, 0.9, -0.9, 0.6, 1.0, 1.0, 0)                                         # in the base's corners
     _moss(d, -0.95, 0.85, 0.6, 0.9, 1.0, 1)
-    if broken:
-        _moss(d, 0.0, 0.0, hh - 0.8 + 0.7, 1.3, 1.3, 0)                          # on the broken top
     return [b.finalize(N + "Column" + ("Broken" if broken else ""), mat),
             d.finalize(N + "Column" + ("Broken" if broken else "") + "_Decor", mat)]
 
 
 def drums(mat, n=3):
-    """A toppled column lying in drums along local X, each a little turned, its capital at the end."""
-    b = Builder()
+    """A toppled column lying in drums along local X, each a little turned, its capital at the end. #2834: a darker
+    band where each drum meets the next, moss on their tops and at their feet, the last one half sunk."""
+    b, d = Builder(), Builder()
     R = Matrix.Rotation(PI / 2, 3, "Y")
     for i in range(n):
-        b.cyl((-2.6 * (n - 1) / 2 + 2.6 * i, 0.15 * math.sin(i * 2.1), 1.05), 1.05, 2.4, STONE_LIGHT, segments=12,
+        x = -2.6 * (n - 1) / 2 + 2.6 * i
+        sink = 0.35 if i == 0 else 0.0
+        b.cyl((x, 0.15 * math.sin(i * 2.1), 1.05 - sink), 1.05, 2.4, STONE_LIGHT, segments=12,
               rot=R @ Matrix.Rotation(0.08 * (i - 1), 3, "X"))
+        if i:
+            b.cyl((x - 1.3, 0.15 * math.sin(i * 2.1), 1.0), 0.98, 0.22, STONE, segments=12, rot=R, bevel=False)
+        if i % 2 == 0:
+            _moss(d, x + 0.3, 0.1, 2.05 - sink, 1.6, 1.2, i)
+        _moss(d, x - 0.4, -1.0, 0.0, 1.4, 0.7, i + 1)
     b.box((2.6 * (n - 1) / 2 + 2.4, 0.6, 1.2), (2.4, 2.4, 1.0), STONE_LIGHT, bevel=False,
           rot=Matrix.Rotation(PI / 2, 3, "Y") @ Matrix.Rotation(0.3, 3, "Z"))
-    return [b.finalize(N + "Drums", mat)]
+    return [b.finalize(N + "Drums", mat), d.finalize(N + "Drums_Decor", mat)]
 
 
 def _stylobate(s, mat):
@@ -659,25 +698,48 @@ def _court(s, mat):
 
 
 def fountain(mat):
-    """The dry fountain: a round basin (rim 0.9 high) with cracked dry floor, a pedestal in the middle with a stone
-    cat sitting on top, its mouth open where the water once ran, moss on the rim in one place."""
-    b = Builder()
+    """The fountain (#2834 remake), in its old round basin (rim 7, 0.9 high), now running: teal water in the basin, a
+    pedestal with four cat-head spouts pouring into it, an upper bowl on the pedestal brimming over in four falls,
+    and the stone cat on a post in the bowl, its mouth open. Lily pads on the water, moss on the rim. The water
+    (_Water) is see-through and splashes."""
+    b, water, d = Builder(), Builder(), Builder()
     ring_blocks(b, 0, 0, 0, 7.0, 1.0, 0.9, STONE_LIGHT, n=28)
     b.cyl_base((0, 0, 0), 6.1, 0.2, SANDSTONE, segments=24, bevel=False)
-    for k in range(6):
-        a = k * 1.05
-        b.box_base((3.0 * math.cos(a), 3.0 * math.sin(a), 0.2), (2.4, 0.12, 0.05), STONE_DARK, bevel=False,
-                   rot=(a + 0.6, "Z"))
-    b.cyl_base((0, 0, 0.2), 1.6, 0.6, STONE, segments=12)
-    b.cyl_base((0, 0, 0.8), 0.9, 2.6, STONE_LIGHT, segments=12)
-    b.cyl_base((0, 0, 3.4), 1.6, 0.4, STONE, segments=12)
-    b.ico((0, 0.2, 4.6), 0.9, STONE_LIGHT, subdivisions=1, scale=(0.9, 1.1, 1.0))
-    b.box((0, -0.45, 5.6), (1.1, 0.9, 0.9), STONE_LIGHT, bevel=False)
+    water.cyl_base((0, 0, 0.22), 6.05, 0.46, WATER, segments=24, bevel=False)
+    b.cyl_base((0, 0, 0.2), 1.6, 0.6, STONE, segments=12)                          # the pedestal
+    b.cyl_base((0, 0, 0.8), 0.9, 2.4, STONE_LIGHT, segments=12)
+    for i in range(4):                                                            # cat-head spouts
+        a = PI / 4 + i * PI / 2
+        ca, sa = math.cos(a), math.sin(a)
+        hx, hy = 1.05 * ca, 1.05 * sa
+        b.box((hx, hy, 1.9), (0.62, 0.8, 0.7), STONE, bevel=False, rot=(a, "Z"))
+        for e in (-1, 1):
+            b.box((hx - 0.24 * e * sa, hy + 0.24 * e * ca, 2.35), (0.24, 0.26, 0.26), STONE, bevel=False,
+                  rot=Matrix.Rotation(a, 3, "Z") @ Matrix.Rotation(PI / 4, 3, "X"))
+        b.box((1.37 * ca, 1.37 * sa, 1.72), (0.08, 0.3, 0.18), "fur_ink", bevel=False, rot=(a, "Z"))
+        water.box((1.6 * ca, 1.6 * sa, 1.66), (0.5, 0.22, 0.16), FALL_WATER, bevel=False, rot=(a, "Z"))
+        water.box_base((1.9 * ca, 1.9 * sa, 0.6), (0.22, 0.22, 1.1), FALL_WATER, bevel=False)
+        d.sphere((1.9 * ca, 1.9 * sa, 0.7), 0.5, FOAM, segments=6, rings=3, scale=(0.9, 0.9, 0.3))
+    b.cyl_base((0, 0, 3.2), 1.4, 0.5, STONE, segments=14, radius2=2.9)            # the upper bowl
+    ring_blocks(b, 0, 0, 3.7, 3.0, 0.4, 0.35, STONE_LIGHT, n=20)
+    water.cyl_base((0, 0, 3.72), 2.62, 0.22, WATER, segments=16, bevel=False)
+    for i in range(4):                                                            # brimming over between the spouts
+        a = i * PI / 2
+        water.box_base((3.08 * math.cos(a), 3.08 * math.sin(a), 0.6), (0.14, 0.9, 3.45), FALL_WATER, bevel=False,
+                       rot=(a, "Z"))
+    b.cyl_base((0, 0, 3.7), 0.5, 0.9, STONE, segments=10)                         # the cat's post
+    b.ico((0, 0.2, 5.6), 0.9, STONE_LIGHT, subdivisions=1, scale=(0.9, 1.1, 1.0))
+    b.box((0, -0.45, 6.6), (1.1, 0.9, 0.9), STONE_LIGHT, bevel=False)
     for sx in (-1, 1):
-        b.pyramid((sx * 0.35, -0.45, 6.05), 0.4, 0.45, STONE_LIGHT)
-    b.box((0, -0.92, 5.35), (0.4, 0.1, 0.25), STONE_DARK, bevel=False)                      # the open mouth
-    b.ico((5.4, -3.6, 0.9), 0.9, VINE, subdivisions=1, scale=(1.5, 0.9, 0.35))
-    return [b.finalize(N + "Fountain", mat)]
+        b.pyramid((sx * 0.35, -0.45, 7.05), 0.4, 0.45, STONE_LIGHT)
+    b.box((0, -0.92, 6.35), (0.4, 0.1, 0.25), STONE_DARK, bevel=False)                       # the open mouth
+    for (x, y) in ((4.2, 2.2), (-3.6, 3.3), (-4.4, -2.0), (2.6, -4.4)):                    # lily pads
+        d.cyl_base((x, y, 0.7), 0.6, 0.05, "leaf_green", segments=8, bevel=False)
+    for k in range(4):
+        a = k * 1.6 + 0.3
+        _moss(d, 6.5 * math.cos(a), 6.5 * math.sin(a), 0.9 + 0.006 * (k % 2), 1.8, 0.9, k)
+    return [b.finalize(N + "Fountain", mat), water.finalize(N + "Fountain_Water", mat),
+            d.finalize(N + "Fountain_Decor", mat)]
 
 
 def throne(mat):
@@ -904,14 +966,26 @@ def stone_urn(mat, h=2.4):
     return [b.finalize(N + "Urn", mat)]
 
 
-def rubble(mat, s_=1.0):
-    """A small heap of broken blocks."""
-    b = Builder()
-    for k, (x, y, w, d, h, a) in enumerate(((0, 0, 1.6, 1.2, 0.9, 0.2), (1.2, 0.5, 1.1, 0.9, 0.7, 0.9),
-                                            (-1.0, 0.6, 1.0, 1.0, 0.6, 0.4), (0.3, 0.2, 0.9, 0.8, 0.5, 1.3))):
-        b.box_base((x * s_, y * s_, (0.85 if k == 3 else 0.0) * s_), (w * s_, d * s_, h * s_),
-                   (STONE, STONE_LIGHT, SANDSTONE, STONE_DARK)[k], bevel=False, rot=(a, "Z"))
-    return [b.finalize(N + "Rubble", mat)]
+def rubble(mat, s_=1.0, k=0):
+    """A small heap of broken blocks (#2834 remake): chipped blocks with moss on the top one and a fern tuft at the
+    foot; with k a multiple of 3 a carved fragment lies by it, a stone cat's ear and eye (only the filler's heaps:
+    it reaches past the heap, where the rescue and rubble spots sit). k picks the variant."""
+    b, d = Builder(), Builder()
+    for j, (x, y, w, dd, h, a) in enumerate(((0, 0, 1.6, 1.2, 0.9, 0.2), (1.2, 0.5, 1.1, 0.9, 0.7, 0.9),
+                                             (-1.0, 0.6, 1.0, 1.0, 0.6, 0.4), (0.3, 0.2, 0.9, 0.8, 0.5, 1.3))):
+        b.box_base((x * s_, y * s_, (0.85 if j == 3 else 0.0) * s_), (w * s_, dd * s_, h * s_),
+                   (STONE, STONE_LIGHT, STONE, STONE_DARK)[j], bevel=False, rot=(a, "Z"))
+    for j, (x, y, a) in enumerate(((-1.45, -0.3, 0.3), (1.5, 0.95, 1.1), (0.2, 0.95, 0.7))):     # chips, inside the heap's reach
+        b.box_base((x * s_, y * s_, 0), (0.42 * s_, 0.36 * s_, 0.24 * s_ + 0.01 * j), STONE_LIGHT, bevel=False,
+                   rot=(a, "Z"))
+    _moss(d, 0.3 * s_, 0.2 * s_, 1.35 * s_, 0.9 * s_, 0.8 * s_, k)
+    d.sphere((-1.4 * s_, 0.9 * s_, 0.2 * s_), 0.5, "fur_fern", segments=6, rings=3, scale=(0.9 * s_, 0.8 * s_, 0.5 * s_))
+    if k % 3 == 0:                                                                # a carved fragment: an ear, an eye
+        b.box_base((1.5 * s_, -1.0 * s_, 0), (1.3 * s_, 0.9 * s_, 0.8 * s_), STONE_LIGHT, bevel=False, rot=(0.5, "Z"))
+        b.wedge((1.7 * s_, -0.95 * s_, 0.8 * s_ + 0.35 * s_), (0.7 * s_, 0.6 * s_, 0.7 * s_), STONE_LIGHT, bevel=False,
+                rot=(0.5, "Z"))
+        b.box((1.35 * s_, -1.47 * s_, 0.45 * s_), (0.5 * s_, 0.08, 0.3 * s_), STONE_DARK, bevel=False, rot=(0.5, "Z"))
+    return [b.finalize(N + "Rubble", mat), d.finalize(N + "Rubble_Decor", mat)]
 
 
 def trap_rubble_pile(mat):
@@ -1009,7 +1083,7 @@ def build_set(mat):
             put(lane_wall(mat, z1 - z0), sx * LANE_X, (z0 + z1) / 2, 0, r=0)
         put(brazier(mat), sx * (AVENUE_HALF + 1.5), -178.0, 0, r=2)
     for (x, z) in ((-50, -270), (48, -262), (-58, -236), (56, -224), (-46, -206), (52, -196), (-60, -184)):
-        put(rubble(mat, 1.0 + 0.2 * ((x + z) % 3)), x, z, (x * 7) % 360, r=3)
+        put(rubble(mat, 1.0 + 0.2 * ((x + z) % 3), 1 + (x + z) % 2), x, z, (x * 7) % 360, r=3)
         _spot(s, "rubble", x + 2.4, z - 1.6)
     for (x, z) in ((-44, -254), (44, -240), (-40, -190)):
         put(stone_urn(mat), x, z, 0, r=2)
@@ -1030,7 +1104,7 @@ def build_set(mat):
     for (x, z) in ((40, -142), (24, -54), (36, 6)):
         _spot(s, "colonnade", x, z)
     for (x, z) in ((-46, -138), (24, -112), (-34, 8)):
-        put(rubble(mat, 1.2), x, z, (x * 11) % 360, r=3)
+        put(rubble(mat, 1.2, 1), x, z, (x * 11) % 360, r=3)
         _spot(s, "rubble", x + 2.4, z - 1.6)
     for (x, z) in ((-60, -6), (8, 12)):
         put(brazier(mat), x, z, 0, r=2)
@@ -1133,7 +1207,7 @@ def build_set(mat):
             if any(math.hypot(x - qx, z - qz) < 6.0 for (qx, qz) in spots):
                 continue
             if k % 2 == 0:
-                s.put(rubble(mat, 0.8 + 0.2 * (k % 3)), x, z, (k * 37) % 360)
+                s.put(rubble(mat, 0.8 + 0.2 * (k % 3), k // 2), x, z, (k * 37) % 360)
     return s.finish(_ground(), mat), s
 
 

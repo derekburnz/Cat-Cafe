@@ -722,6 +722,12 @@ Why: crates reuse the decor path and carry low risk, while fish are the first it
 
 Why: steady small beats help in the 2–5 minute drop, and a known update day is the strongest return loop in the deep-dive research. Spec: retention-ideas.md §5e and §5f.
 
+## 2026-11-10 The place runs Roblox's new chat (TextChatService), set in the Rojo project (#3012)
+
+Derek2 saw the chat button's blue unread bubble with an empty chat window in the live game, and the rare catch line for Mythical cats never showed. Cause: `default.project.json` had no `TextChatService` entry, so the place file Rojo builds carried no chat setting and Roblox ran it on the legacy chat (`ChatVersion` LegacyChatService). Roblox no longer draws a window for the legacy chat, so system lines written to it were counted as unread and never displayed. The same setting kept the chat tags (#1624) and TextChatCommands from working, and is why the owner test command needed its legacy workarounds (#2754, #2902).
+
+Decision: `default.project.json` and `tests.project.json` set `TextChatService.ChatVersion = TextChatService`. A script cannot change `ChatVersion` at run time, so the project file is the only place for it; `tools/cloudcheck/run-tests.mjs` fails if either file loses the setting. The legacy code paths stay as a fallback and log one warning if a place is ever built without it. Servers started before the publish keep the legacy chat until they close.
+
 ## 2026-11-10 Away notification: once a day, 12 hours after leaving (#2768)
 Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decided:
 - **What:** a Roblox experience notification, "Your cats earned $X while you were away!", to players who turned notifications on for the game. Roblox itself limits it to ages 13 and up and one a day per player.
@@ -730,9 +736,3 @@ Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decide
 - **How:** the game notes who is due (a MemoryStore sorted map); an hourly GitHub workflow sends through Open Cloud with the repo's key, so no key is in the game. Disabling the workflow stops the messages.
 
 Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside the game. It only reaches players who asked for notifications.
-
-## 2026-11-10 The place runs Roblox's new chat (TextChatService), set in the Rojo project (#3012)
-
-Derek2 saw the chat button's blue unread bubble with an empty chat window in the live game, and the rare catch line for Mythical cats never showed. Cause: `default.project.json` had no `TextChatService` entry, so the place file Rojo builds carried no chat setting and Roblox ran it on the legacy chat (`ChatVersion` LegacyChatService). Roblox no longer draws a window for the legacy chat, so system lines written to it were counted as unread and never displayed. The same setting kept the chat tags (#1624) and TextChatCommands from working, and is why the owner test command needed its legacy workarounds (#2754, #2902).
-
-Decision: `default.project.json` and `tests.project.json` set `TextChatService.ChatVersion = TextChatService`. A script cannot change `ChatVersion` at run time, so the project file is the only place for it; `tools/cloudcheck/run-tests.mjs` fails if either file loses the setting. The legacy code paths stay as a fallback and log one warning if a place is ever built without it. Servers started before the publish keep the legacy chat until they close.

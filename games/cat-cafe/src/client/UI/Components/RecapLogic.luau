@@ -13,6 +13,7 @@
 --   tomorrow(hook) -> string         "Your bait cat will be waiting for you", "Tomorrow: Daily Treat day 2, 2 Cat
 --                                    Snacks" or "Tomorrow: new daily quests"
 --   next(state, nextTier) -> string? "Grand Opening 6/8: Twelve different cats", else "Next: rank up to <tier>"
+--   isToday(line) -> boolean        #2916: the first line, which the card's goals (ReturnGoalWords) sit under
 --   canShow(input) -> boolean        on, after the tutorial, not catching, carrying or in a menu, idle IDLE_SECONDS
 
 local IndexRewards = require(script.Parent.IndexRewards)
@@ -38,6 +39,9 @@ export type Input = {
 	offlineRate: number, -- 0.5, or the Long Nap pass's 1
 	offlineCapSeconds: number,
 	money: (number) -> string,
+	-- #2916: true when the card draws Gameplay's next goals with bars (view.goals, Components/ReturnGoalWords), in
+	-- place of the one "what's next" line
+	goals: boolean?,
 }
 
 export type Gate = {
@@ -122,6 +126,11 @@ local function offline(input: Input): string
 		math.floor(input.offlineRate * 100 + 0.5),
 		hours(input.offlineCapSeconds)
 	)
+end
+
+-- #2916: whether `line` is the "Today: ..." line, which the goals sit under.
+function RecapLogic.isToday(line: string): boolean
+	return string.sub(line, 1, 7) == "Today: "
 end
 
 -- Whether `line` is the offline share (alone or with tomorrow after it), for the card's callout.
@@ -235,7 +244,7 @@ function RecapLogic.lines(input: Input): { string }
 	if done then
 		table.insert(out, done)
 	end
-	local nextLine = RecapLogic.next(input.state, input.nextTier)
+	local nextLine = if input.goals then nil else RecapLogic.next(input.state, input.nextTier)
 	if nextLine then
 		table.insert(out, nextLine)
 	end

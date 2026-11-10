@@ -2122,6 +2122,13 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 		local note = WelcomeBack.note(state.longNap)
 		-- #2123: the reason to play today, from Gameplay's ReturnHook pick (nil: no line)
 		local hook = WelcomeBack.hookLine((state :: any).returnHook)
+		-- #2916: with no pick, Gameplay's nearest goal (the one the last session's recap led with)
+		if hook == nil then
+			hook = require(script.Components.ReturnGoalWords).welcomeLine(
+				(state :: any).returnGoals,
+				Format.money
+			)
+		end
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")
 			UI.events.claimOffline:Fire()
@@ -7378,6 +7385,16 @@ local function recapIdleSeconds(): number
 	return os.clock() - UI.recap.lastInput
 end
 
+-- #2916: Gameplay's next goals on the recap (view.goals) as the card's rows, two on a short screen.
+local function recapGoals(view: { [string]: any }): { any }
+	local ReturnGoalWords = require(script.Components.ReturnGoalWords)
+	return ReturnGoalWords.rows(
+		view.goals,
+		Format.money,
+		if Scale.isShort() then ReturnGoalWords.MAX_SHORT else ReturnGoalWords.MAX
+	)
+end
+
 local function recapLines(view: { [string]: any }): { string }
 	local RecapLogic = require(script.Components.RecapLogic)
 	local catalog = currentCatalog
@@ -7407,6 +7424,7 @@ local function recapLines(view: { [string]: any }): { string }
 			then Config.OfflineCapPassSeconds
 			else Config.OfflineCapSeconds,
 		money = Format.money,
+		goals = #recapGoals(view) > 0, -- #2916: the card draws them with bars
 	})
 end
 
@@ -7443,7 +7461,7 @@ local function recapTry(): boolean
 	UI.recap.waiting = nil
 	card:show(recapLines(view), function(secondsUp: number)
 		UI.events.sessionRecapClose:Fire(secondsUp)
-	end)
+	end, recapGoals(view))
 	UI.events.sessionRecap:Fire()
 	return true
 end

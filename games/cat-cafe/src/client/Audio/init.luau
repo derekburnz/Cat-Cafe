@@ -1904,6 +1904,21 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- (followBait), and a gold or rainbow bait cat plays its reveal as it arrives. A gold cat in your arms plays
 	-- goldReveal by itself (watchHeld), and a Mythical stray twinkles as you come near (noticeRareStrays).
 	-- Drop (F45, the Drop button or G): the cat hops down at your feet.
+	-- #2946: the first bait cutscene's bait cat eats at your bowl: a soft purr there while it eats (`seconds`, 2.5 when
+	-- not given, at most 5), fired by Effects/FirstBaitCut at the eating beat. The arrival and the bowl already sound
+	-- through ProfileSync (baitArrive, the food cue), so the cut adds only this.
+	FirstBaitEat = function(position: any, seconds: any)
+		local at = vec(position)
+		if at == nil then
+			return
+		end
+		local length = num(seconds)
+		if length == nil or length ~= length then -- missing or NaN
+			length = 2.5
+		end
+		local stop = Audio.loop("purr", at)
+		task.delay(math.clamp(length :: number, 0.5, 5), stop)
+	end,
 	CatDrop = function(position: any)
 		Audio.play("catDrop", vec(position) or you())
 	end,

@@ -1014,3 +1014,11 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | Gold rings swell from the frozen ring to 1.7 times its size every 0.9 s (under 3 Hz) until the press, at most 60 s; none with Reduce Motion (the "Tap now!" label still shows) | `Moments.CircleHold(ringIndex)` from CatchCircles; the ring is `CircleN`'s `Ring` in CatCafeCatchCircles |
+
+## First bait crumbs (#2946, 2026-11-10)
+
+`Effects/BaitCrumbs.luau`, numbers in `Presets.baitCrumbs`.
+
+| Look | Hook |
+|---|---|
+| 3 blush and cream crumbs pop off the bowl every 0.35 s while the first bait cat eats (at most 4 s); none in Low performance | `Moments.FirstBaitEat(bowlPosition, seconds)` from Animation-Engineer's FirstBaitCut |

@@ -1363,6 +1363,20 @@ local function wireIntents()
 	end)
 	-- Analytics only (F16): which screens players find at all, once per screen a session so toggling a panel never
 	-- reaches the remote's rate limit (reviewer N97). The server allowlists the names.
+	-- #2913 (phone players miss the first circles; is it the screen?): the viewport's short side once a session as
+	-- TelemetryReport screen_short (UI/Components/ScreenShort), once the camera has its real size
+	task.spawn(function()
+		local began = os.clock()
+		local camera = Workspace.CurrentCamera
+		while (camera == nil or camera.ViewportSize.Y <= 1) and os.clock() - began < 10 do
+			task.wait(0.5)
+			camera = Workspace.CurrentCamera
+		end
+		if camera ~= nil and camera.ViewportSize.Y > 1 then
+			local ScreenShort = require(script.Parent.Parent.UI.Components.ScreenShort)
+			Net.fire("TelemetryReport", "screen_short", ScreenShort.bucket(camera.ViewportSize))
+		end
+	end)
 	local screensReported: { [string]: boolean } = {}
 	-- #1273: the screen open now ("none" when it closes), for a new player's time markers and leave events. Sent while
 	-- the first loop or Tier 1 lasts, at most once per SCREEN_REPORT_SECONDS with the latest one sent at its end.

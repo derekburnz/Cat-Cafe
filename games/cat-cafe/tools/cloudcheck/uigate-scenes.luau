@@ -3813,7 +3813,24 @@ local SCENES = {
 		UI.open("Collection")
 		press("Collection", "RainbowTab")
 		press("Collection", "rainbow.Header.Rewards")
+		-- #3064: the row's small cards are built when it first opens, not with the window
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local section = window and window:FindFirstChild("rainbow", true)
+		local row = section and section:FindFirstChild("All", true)
+		assert(row, "uigate: the rainbow strip has no All row")
+		local function cards(): number
+			local count = 0
+			for _, child in row:GetChildren() do
+				if child:IsA("GuiObject") then
+					count += 1
+				end
+			end
+			return count
+		end
+		assert(cards() == 0, "uigate: the shut milestone row already holds " .. cards() .. " cards (#3064)")
 		press("Collection", "rainbow.Expand")
+		assert(cards() > 0, "uigate: Expand milestones built no cards (#3064)")
 	end },
 	-- #2270 (Derek2: "the bold text on index rewards is hard to read"): every forever pill, the NEXT sticker and the
 	-- reward band read at 4.5:1 or better against their own fill, and no turning bands sit under their words

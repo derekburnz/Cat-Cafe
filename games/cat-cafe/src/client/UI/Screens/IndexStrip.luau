@@ -115,6 +115,7 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 	self._scrolledFor = nil :: string? -- "area:milestone" the row last scrolled to, so it scrolls once per change
 	self._total = 0 -- the open page's cats, for "All 10"
 	self._expanded = false -- the full row; shut on open, so the next reward is all that shows
+	self._rowBuilt = false -- the row's small cards are built when it first opens (_buildRow)
 	self._track = nil :: IndexRewards.Track? -- only this track's milestones, or both
 
 	self.frame = Create("Frame", {
@@ -231,6 +232,19 @@ function IndexStrip.setCatalog(self: any, catalog: Types.Catalog)
 		card.frame:Destroy()
 	end
 	table.clear(self._cards)
+	self._rowBuilt = false
+	self._featured.chips:setCatalog(catalog)
+	self._scrolledFor = nil
+end
+
+-- The full row's small cards, built the first time the row opens (#3064: they were all built at join, 36 cards
+-- for a row that starts shut, in the same frame as the rest of the UI; a live script timeout's stack ended here).
+function IndexStrip._buildRow(self: any)
+	local catalog: Types.Catalog? = self._catalog
+	if catalog == nil or self._rowBuilt then
+		return
+	end
+	self._rowBuilt = true
 	local milestones: { Types.IndexMilestone } = catalog.indexMilestones or {}
 	for order, milestone in milestones do
 		local card = self:_buildCard(self._row, false, order)
@@ -239,8 +253,6 @@ function IndexStrip.setCatalog(self: any, catalog: Types.Catalog)
 		card.frame.Name = milestone.id
 		self._cards[milestone.id] = card
 	end
-	self._featured.chips:setCatalog(catalog)
-	self._scrolledFor = nil
 end
 
 function IndexStrip.setNight(self: any, night: boolean)
@@ -428,7 +440,7 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 			self:_refresh()
 			-- if no ProfileSync answers, let the button be pressed again
 			task.delay(PENDING_SECONDS, function()
-				if self._cards[id] then
+				if self.frame.Parent ~= nil then -- not destroyed since (the row's cards may not be built yet)
 					self:_refresh()
 				end
 			end)
@@ -560,6 +572,10 @@ function IndexStrip._refresh(self: any)
 	self._expand.instance.Visible = #views > 1
 	self._expand:setText(if expanded then "Hide milestones" else "Expand milestones")
 	self._row.Visible = expanded
+	if not expanded then
+		return -- the row's cards are built and filled when it opens (#3064)
+	end
+	self:_buildRow()
 
 	for _, card in self._cards do
 		card.frame.Visible = false

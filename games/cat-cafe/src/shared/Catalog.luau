@@ -2999,6 +2999,20 @@ Catalog.codes = {
 		endsAt = 1801612800, -- 2027-02-03
 		prize = { coins = 2000, coinSeconds = 600 },
 	},
+	-- #3148 (Derek2 2026-11-10: "make UPDATE1 a code and 500VISITS no case sensitivity and make them decent"): the
+	-- update's code and the 500 visits thank-you, on for everyone with no end. Beside `release` in size and well short
+	-- of a tier: coins as minutes of the player's own income, golden fish and one more thing, three pictures each
+	-- (rewards rule 3), nothing from the shop's food (rule 1). Typed in any case (Codes.normalize lowercases).
+	update1 = {
+		id = "update1",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, potions = { lucky_potion = 2 } },
+	},
+	["500visits"] = {
+		id = "500visits",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 40, crates = { classic_crate = 1 } },
+	},
 	group = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set

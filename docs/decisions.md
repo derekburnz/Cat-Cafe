@@ -714,3 +714,10 @@ Derek2 asked for research on trading golden fish and unopened crates (11-09) and
 - **No progress from trades:** received fish never count toward lifetime fish or milestones.
 
 Why: crates reuse the decor path and carry low risk, while fish are the first item traded as an amount and need stricter checks. Neither is sold for Robux, so trades stay outside monetization-policy. Spec: trading.md §1c and §1d.
+
+## 2026-11-10 Early upgrade spacing and a Saturday update day (Derek2: "continue with all suggested")
+- **Early upgrades:** the first three buys become affordable 60–90 s apart in a new player's first session. Only the second and third buys' costs are tuned.
+- **Weekly update day:** content updates ship on Saturdays at 17:00 UTC, with a once-per-update gift of 15 golden fish and 1 spin.
+- **Invites:** the reward keeps paying only when the invited friend actually plays.
+
+Why: steady small beats help in the 2–5 minute drop, and a known update day is the strongest return loop in the deep-dive research. Spec: retention-ideas.md §5e and §5f.

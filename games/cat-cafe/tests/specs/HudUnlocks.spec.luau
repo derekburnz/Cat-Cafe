@@ -128,6 +128,21 @@ return function()
 		end)
 	end)
 
+	describe("HudUnlocks.pops (#3161)", function()
+		it("pops one or two pieces that open together", function()
+			expect(#HudUnlocks.pops({})).to.equal(0)
+			expect(#HudUnlocks.pops({ "index" })).to.equal(1)
+			expect(#HudUnlocks.pops({ "cats", "upgrades" })).to.equal(2)
+		end)
+
+		it("pops none when the tutorial's end opens the rest of the HUD at once", function()
+			local shown = HudUnlocks.update(nil, view(4, 2))
+			local _, opened = HudUnlocks.update(shown, view(5, 2))
+			expect(#opened > HudUnlocks.POP_MOST).to.equal(true)
+			expect(#HudUnlocks.pops(opened)).to.equal(0)
+		end)
+	end)
+
 	describe("HudUnlocks.view", function()
 		it("counts the cats, the bag and the fish", function()
 			local v = HudUnlocks.view({

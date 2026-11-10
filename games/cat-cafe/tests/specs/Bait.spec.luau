@@ -141,11 +141,57 @@ return function()
 		it(
 			"the account's first bait waits at most 2 minutes, later ones as usual (#1895)",
 			function()
-				expect(Config.FirstBaitWaitSeconds).to.equal(1) -- #2946: was 45 (#2774), 120 before
-				expect(Bait.firstWait(600, 0)).to.equal(1)
+				expect(Config.FirstBaitWaitSeconds).to.equal(5) -- #3161: was 1 (#2946), 45 (#2774), 120 before
+				expect(Bait.firstWait(600, 0)).to.equal(5)
 				expect(Bait.firstWait(0.5, 0)).to.equal(0.5) -- a speed-up only ever shortens it
 				expect(Bait.firstWait(600, 1)).to.equal(600)
 				expect(Bait.firstWait(480, 7)).to.equal(480)
+			end
+		)
+
+		it("knows the account's short first bait while it is in the bowl (#3158)", function()
+			-- luresUsed counts the food already in the bowl
+			expect(Bait.isFirst(1000, 1005, 1)).to.equal(true)
+			expect(Bait.isFirst(1000, 1001, 1)).to.equal(true) -- set on a server from before #3161
+			expect(Bait.isFirst(1000, 1005, 2)).to.equal(false) -- a later bait, however short
+			expect(Bait.isFirst(1000, 1600, 1)).to.equal(false) -- an account whose first bait kept the long wait
+		end)
+
+		it(
+			"puts the first bait's cat at the bowl before its timer ends, never others (#3161)",
+			function()
+				expect(Config.FirstBaitCatLeadSeconds).to.equal(4)
+				-- food at 1000, ready at 1005: the cat stands there from 1001, a second after the food
+				expect(Bait.catOutAt(1000, 1005, 1)).to.equal(1001)
+				-- a first bait set before #3161 (1 second): as its timer ends, as it was
+				expect(Bait.catOutAt(1000, 1001, 1)).to.equal(1001)
+				-- a speed-up that leaves no second: never after the timer
+				expect(Bait.catOutAt(1000, 1000, 1)).to.equal(1000)
+				-- every later bait: as its timer ends
+				expect(Bait.catOutAt(1000, 1600, 1)).to.equal(1600)
+				expect(Bait.catOutAt(1000, 1003, 9)).to.equal(1003)
+				-- and it is never out after the timer, whatever the lead
+				for wait = 0, 5 do
+					local out = Bait.catOutAt(1000, 1000 + wait, 1)
+					expect(out <= 1000 + wait).to.equal(true)
+					expect(out >= 1000).to.equal(true)
+				end
+			end
+		)
+
+		it("leaves the cutscene (about 3.6 s) inside the first bait's timer (#3161)", function()
+			-- camera over 0.5 + the walk 1.6 + the eat 1.0 + camera back 0.5, from when the cat stands at the bowl
+			local out = Bait.catOutAt(0, Config.FirstBaitWaitSeconds, 1)
+			expect(Config.FirstBaitWaitSeconds - out >= 3.6).to.equal(true)
+		end)
+
+		it(
+			"tells a player away from the bowl that the first cat came, not one standing at it (#3161)",
+			function()
+				expect(Bait.away(nil)).to.equal(true) -- no character or no plot: told
+				expect(Bait.away(4)).to.equal(false)
+				expect(Bait.away(Bait.AWAY_STUDS)).to.equal(false)
+				expect(Bait.away(Bait.AWAY_STUDS + 1)).to.equal(true)
 			end
 		)
 

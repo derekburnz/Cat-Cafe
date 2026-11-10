@@ -281,7 +281,12 @@ local Config = {
 	-- #2774 (Derek2 2026-11-09, the 2 to 5 minute drop: 12 set a first bait, 7 saw it land): was 120
 	-- #2946 (Derek2 2026-11-10: "a cut scene ... then the food timer left gets set to 0"): 1, so the first bait cat
 	-- arrives (BaitService checks every second) inside the 2.5 s the client's cutscene waits on the bowl (was 45, #2774)
-	FirstBaitWaitSeconds = 1,
+	FirstBaitWaitSeconds = 5,
+	-- #3161 (Derek2 2026-11-10: "set food bowl to like 5 seconds so the cutscene lines up with it"): 1 before (#2946).
+	-- The first bait's cat stands at the bowl this long before its timer ends (never sooner than a second after the
+	-- food), so the cutscene (camera over 0.5 s, the walk 1.6 s, the eat 1 s, camera back 0.5 s) plays while the
+	-- timer runs down and the Tame card comes up as it ends.
+	FirstBaitCatLeadSeconds = 4,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes

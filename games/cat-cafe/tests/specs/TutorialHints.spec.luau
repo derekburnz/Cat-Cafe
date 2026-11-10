@@ -18,6 +18,7 @@ return function()
 		{ step = 4, bowl = false },
 		{ step = 4, bowl = true, baited = false },
 		{ step = 4, bowl = true, baited = true },
+		{ step = 4, bowl = true, baited = true, arrived = true },
 	}
 
 	local function line(view: { [string]: any }, device: string): string?
@@ -199,6 +200,20 @@ return function()
 			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("food")
 			owned.bait = { readyAt = 10 }
 			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("waiting")
+			-- #3158: step 4 lasts until the first bowl cat is tamed or let go, so it says the cat is there
+			owned.bait = { readyAt = 10, cat = { catId = "tabby" } }
+			local view = TutorialHints.view(owned, spots)
+			expect(TutorialHints.ask(view)).to.equal("arrived")
+			expect(TutorialHints.line(view)).to.equal("Your bowl cat is here! Tame it")
+		end)
+
+		it("does not count a tamed bowl cat as a cat caught for step 3 (#3160)", function()
+			local tamed = state({
+				tutorialStep = 3,
+				cats = { starter = {}, a = {}, b = {} },
+				stats = { catsCaught = 2, baitsTamed = 1 },
+			})
+			expect(TutorialHints.ask(TutorialHints.view(tamed, spots))).to.equal("second")
 		end)
 
 		it("asks for nothing once the walk-through is done, or with no step saved", function()

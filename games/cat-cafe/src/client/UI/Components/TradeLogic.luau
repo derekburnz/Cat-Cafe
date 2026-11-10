@@ -21,7 +21,14 @@
 --   pickHint(pick, full) -> string?      "Unlock it on its card to trade", "This cat can't be traded", ...
 --   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (open, then REASK_SECONDS), Busy or
 --                                        "Tier 3 needed"
---   doneLine(got) -> string              "Trade done! 2 new cats"
+--   doneLine(got, gotDecor?) -> string   "Trade done! 2 new cats" (and "1 new decor", #1574)
+-- #1574 (section 1b): decor and lawn pieces, on the Decor tab beside Cats.
+--   myPieces(owned, unlocked, pieceOf, offered, theyHave) -> { PiecePick }   your tradeable pieces: rarest first,
+--                                        each with why it cannot go (locked, or the other player has it)
+--   pieceHint(pick, full) -> string?     "Unlock it on its card to trade", "They already have this", ...
+--   bonusText(bonus) -> string?          a piece's tip bonus on its card: "+5%"
+--   pieceRarity(rarity, bonus) -> string "Rare · +5%" under a piece on the confirm face
+--   offerCount(side) -> number           the cats and pieces on one side
 -- Part 2 (trading.md sections 1 and 5): the Trade requests setting and the Trades page.
 --   REQUEST_MODES, modeLabel(mode)       "everyone", "friends", "off" and "Everyone", "Friends only", "Off"
 --   requestsMode(saved, tap, now)        what the setting shows: a fresh press for HOLD_SECONDS, else the saved
@@ -56,6 +63,21 @@ export type Pick = {
 	rating: number,
 	status: PickStatus,
 }
+
+-- #1574: a decor or lawn piece in the Decor tab; "theyHave" is greyed with "They already have this"
+export type PieceStatus = "ok" | "offered" | "locked" | "theyHave"
+
+export type PiecePick = {
+	id: string,
+	name: string,
+	kind: string, -- "decor" or "lawn"
+	rarity: string,
+	bonus: number, -- 0.05 is +5%
+	status: PieceStatus,
+}
+
+-- what the shared Trade.piece says about a tradeable piece (nil for one that can't be traded)
+export type PieceInfo = { kind: string, name: string, rarity: string, bonus: number }
 
 export type RequestMode = "everyone" | "friends" | "off"
 
@@ -102,6 +124,8 @@ TradeLogic.REQUEST_SECONDS = (Config.TradeRequestSeconds or 20) :: number
 -- a declined or lapsed ask cannot be repeated this long, so a players row says "Asked" for it (review N332); 3 s
 -- since #2550, counted from the server's TradeAskEnded
 TradeLogic.REASK_SECONDS = (Config.TradeReaskSeconds or 60) :: number
+
+TradeLogic.MAX_DECOR = (Config.TradeMaxDecor or 9) :: number
 
 local MIN_TIER: number = Config.TradeMinTier or 3
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
@@ -196,7 +220,7 @@ function TradeLogic.readyButton(state: any): ButtonView
 	if state.me.ready or state.phase == "countdown" then
 		return { text = "Not ready", enabled = true, style = "ghost", ready = false }
 	end
-	local empty = #state.me.cats == 0 and #state.them.cats == 0
+	local empty = TradeLogic.offerCount(state.me) == 0 and TradeLogic.offerCount(state.them) == 0
 	return { text = "Ready", enabled = not empty, style = "primary", ready = true }
 end
 
@@ -322,6 +346,99 @@ function TradeLogic.pickHint(pick: Pick, full: boolean): string?
 	return nil
 end
 
+-- The cats and pieces on one side of the trade (#1574: decor counts toward Ready too).
+function TradeLogic.offerCount(side: any): number
+	local decor = if type(side.decor) == "table" then #side.decor else 0
+	return #side.cats + decor
+end
+
+-- #1574: the rarities whose pieces arrive locked (the shared Trade.LOCKED_RARITIES), and the lawn's own rungs in
+-- the cats' order (Uncommon between Common and Rare, Golden at the top).
+local LOCKABLE: { [string]: boolean } = { Legendary = true, Mythical = true, Golden = true }
+local PIECE_RANK: { [string]: number } =
+	{ Common = 1, Uncommon = 1.5, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Golden = 6 }
+local PIECE_STATUS_ORDER: { [PieceStatus]: number } =
+	{ ok = 1, offered = 1, locked = 2, theyHave = 3 }
+
+-- Your pieces for the Decor tab: every owned id (`owned`, the decor and lawn pieces owned) that `pieceOf` says can
+-- be traded, rarest first; locked when its rarity is lockable and `unlocked` lacks it, "theyHave" when the other
+-- player owns it (the server's `theyHave`), "offered" when already on your side.
+function TradeLogic.myPieces(
+	owned: { [string]: boolean }?,
+	unlocked: { [string]: boolean }?,
+	pieceOf: (id: string) -> PieceInfo?,
+	offered: { [string]: boolean },
+	theyHave: { string }?
+): { PiecePick }
+	local has: { [string]: boolean } = {}
+	local theirs: { string } = theyHave or {}
+	for _, id in theirs do
+		has[id] = true
+	end
+	local open: { [string]: boolean } = unlocked or {}
+	local picks: { PiecePick } = {}
+	local mine: { [string]: boolean } = owned or {}
+	for id, yes in mine do
+		local info = if yes == true then pieceOf(id) else nil
+		if info ~= nil then
+			local status: PieceStatus = if offered[id]
+				then "offered"
+				elseif LOCKABLE[info.rarity] == true and open[id] ~= true then "locked"
+				elseif has[id] then "theyHave"
+				else "ok"
+			table.insert(picks, {
+				id = id,
+				name = info.name,
+				kind = info.kind,
+				rarity = info.rarity,
+				bonus = info.bonus,
+				status = status,
+			})
+		end
+	end
+	table.sort(picks, function(a: PiecePick, b: PiecePick): boolean
+		local sa, sb = PIECE_STATUS_ORDER[a.status], PIECE_STATUS_ORDER[b.status]
+		if sa ~= sb then
+			return sa < sb
+		end
+		local ra, rb = PIECE_RANK[a.rarity] or 0, PIECE_RANK[b.rarity] or 0
+		if ra ~= rb then
+			return ra > rb
+		end
+		if a.name ~= b.name then
+			return a.name < b.name
+		end
+		return a.id < b.id
+	end)
+	return picks
+end
+
+-- What a press on a piece in the Decor tab does not do, and why; nil when it goes into the offer (or comes back).
+function TradeLogic.pieceHint(pick: PiecePick, full: boolean): string?
+	if pick.status == "locked" then
+		return "Unlock it on its card to trade"
+	elseif pick.status == "theyHave" then
+		return "They already have this"
+	elseif pick.status == "ok" and full then
+		return string.format("Up to %d decor each", TradeLogic.MAX_DECOR)
+	end
+	return nil
+end
+
+-- A piece's tip bonus on its card ("+5%"), nil without one.
+function TradeLogic.bonusText(bonus: number?): string?
+	if type(bonus) ~= "number" or bonus ~= bonus or bonus <= 0 then
+		return nil
+	end
+	return string.format("+%d%%", math.max(1, math.floor(bonus * 100 + 0.5)))
+end
+
+-- Under a piece on the confirm face: its rarity and bonus, "Rare · +5%".
+function TradeLogic.pieceRarity(rarity: string, bonus: number?): string
+	local extra = TradeLogic.bonusText(bonus)
+	return if extra then rarity .. " · " .. extra else rarity
+end
+
 function TradeLogic.playerButton(row: PlayerRow, minTier: number): ButtonView
 	if row.asked then
 		return { text = "Asked", enabled = false, style = "primary" }
@@ -333,12 +450,20 @@ function TradeLogic.playerButton(row: PlayerRow, minTier: number): ButtonView
 	return { text = "Trade", enabled = true, style = "primary" }
 end
 
-function TradeLogic.doneLine(got: { any }?): string
+-- #1574: `gotDecor`, the pieces that came, joins the line: "Trade done! 1 new cat and 2 new decor".
+function TradeLogic.doneLine(got: { any }?, gotDecor: { any }?): string
 	local count = if got then #got else 0
-	if count == 0 then
+	local pieces = if type(gotDecor) == "table" then #gotDecor else 0
+	local cats = string.format("%d new %s", count, if count == 1 then "cat" else "cats")
+	local decor = string.format("%d new decor", pieces)
+	if count == 0 and pieces == 0 then
 		return "Trade done!"
+	elseif pieces == 0 then
+		return "Trade done! " .. cats
+	elseif count == 0 then
+		return "Trade done! " .. decor
 	end
-	return string.format("Trade done! %d new %s", count, if count == 1 then "cat" else "cats")
+	return string.format("Trade done! %s and %s", cats, decor)
 end
 
 local REQUEST_MODES: { RequestMode } = { "everyone", "friends", "off" }

@@ -433,6 +433,98 @@ return function()
 			expect(TradeLogic.doneLine({ {}, {} })).to.equal("Trade done! 2 new cats")
 			expect(TradeLogic.doneLine({})).to.equal("Trade done!")
 			expect(TradeLogic.doneLine(nil)).to.equal("Trade done!")
+			expect(TradeLogic.doneLine({}, { {}, {} })).to.equal("Trade done! 2 new decor")
+			expect(TradeLogic.doneLine({ {} }, { {} })).to.equal("Trade done! 1 new cat and 1 new decor")
+		end)
+	end)
+	describe("decor pieces (#1574)", function()
+		local INFO: { [string]: any } = {
+			rug = { kind = "decor", name = "Rug", rarity = "Rare", bonus = 0.05 },
+			lamp = { kind = "decor", name = "Lamp", rarity = "Legendary", bonus = 0.12 },
+			gnome = { kind = "lawn", name = "Gnome", rarity = "Uncommon", bonus = 0.02 },
+			fountain = { kind = "lawn", name = "Fountain", rarity = "Golden", bonus = 0.2 },
+			bench = { kind = "decor", name = "Bench", rarity = "Common", bonus = 0 },
+		}
+		local function pieceOf(id: string): any
+			return INFO[id]
+		end
+
+		it("lists owned tradeable pieces, rarest first, each with why it cannot go", function()
+			local picks = TradeLogic.myPieces(
+				{
+					rug = true,
+					lamp = true,
+					gnome = true,
+					fountain = true,
+					bench = true,
+					shop_sign = true,
+				},
+				{ fountain = true },
+				pieceOf,
+				{ gnome = true },
+				{ "bench" }
+			)
+			local order, status = {}, {}
+			for _, pick in picks do
+				table.insert(order, pick.id)
+				status[pick.id] = pick.status
+			end
+			-- shop_sign can't be traded (pieceOf says nil), so it is left out
+			expect(table.concat(order, ",")).to.equal("fountain,rug,gnome,lamp,bench")
+			expect(status.fountain).to.equal("ok") -- Golden, unlocked
+			expect(status.gnome).to.equal("offered")
+			expect(status.lamp).to.equal("locked") -- Legendary, not unlocked
+			expect(status.bench).to.equal("theyHave")
+			expect(picks[1].kind).to.equal("lawn")
+			expect(picks[1].bonus).to.equal(0.2)
+		end)
+
+		it("lists nothing without owned pieces", function()
+			expect(#TradeLogic.myPieces(nil, nil, pieceOf, {}, nil)).to.equal(0)
+			expect(#TradeLogic.myPieces({ rug = false }, nil, pieceOf, {}, nil)).to.equal(0)
+		end)
+
+		it("says why a piece can't go", function()
+			local function pick(status: string): any
+				return {
+					id = "x",
+					name = "X",
+					kind = "decor",
+					rarity = "Rare",
+					bonus = 0,
+					status = status,
+				}
+			end
+			expect(TradeLogic.pieceHint(pick("locked"), false)).to.equal(
+				"Unlock it on its card to trade"
+			)
+			expect(TradeLogic.pieceHint(pick("theyHave"), false)).to.equal("They already have this")
+			expect(TradeLogic.pieceHint(pick("ok"), true)).to.equal(
+				string.format("Up to %d decor each", TradeLogic.MAX_DECOR)
+			)
+			expect(TradeLogic.pieceHint(pick("ok"), false)).to.equal(nil)
+			expect(TradeLogic.pieceHint(pick("offered"), true)).to.equal(nil)
+		end)
+
+		it("shows a piece's tip bonus as a whole percent", function()
+			expect(TradeLogic.bonusText(0.05)).to.equal("+5%")
+			expect(TradeLogic.bonusText(0.125)).to.equal("+13%")
+			expect(TradeLogic.bonusText(0.001)).to.equal("+1%")
+			expect(TradeLogic.bonusText(0)).to.equal(nil)
+			expect(TradeLogic.bonusText(nil)).to.equal(nil)
+			expect(TradeLogic.pieceRarity("Rare", 0.05)).to.equal("Rare · +5%")
+			expect(TradeLogic.pieceRarity("Common", 0)).to.equal("Common")
+		end)
+
+		it("counts pieces toward Ready", function()
+			local piece =
+				{ id = "rug", name = "Rug", kind = "decor", rarity = "Rare", bonus = 0.05 }
+			local onlyDecor = trade({
+				me = side("You", { cats = {}, decor = { piece } }),
+				them = side("Sam", { cats = {} }),
+			})
+			expect(TradeLogic.offerCount(onlyDecor.me)).to.equal(1)
+			expect(TradeLogic.readyButton(onlyDecor).enabled).to.equal(true)
 		end)
 	end)
 end

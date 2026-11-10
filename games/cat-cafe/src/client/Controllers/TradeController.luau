@@ -63,9 +63,15 @@ function TradeController.start()
 	end)
 	Net.on(
 		"TradeDone",
-		function(tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary })
+		function(
+			tradeId: string,
+			gave: { Types.CatSummary },
+			got: { Types.CatSummary },
+			gaveDecor: { Types.DecorSummary }?,
+			gotDecor: { Types.DecorSummary }?
+		)
 			TradeController.state = nil
-			call("done", tradeId, gave, got)
+			call("done", tradeId, gave, got, gaveDecor, gotDecor) -- #1574: the pieces too
 		end
 	)
 	Net.on("TradeEnded", function(tradeId: string, reason: string)

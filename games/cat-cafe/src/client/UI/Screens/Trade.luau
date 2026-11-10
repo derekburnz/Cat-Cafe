@@ -13,9 +13,14 @@
 --     over the grids while both are ready; Not ready stops it. Confirm: "You give" and "You get" as rows of bigger
 --     cards with their names and rarities, a red line for a gift or a lopsided trade (Confirm waits 2 s then), Cancel
 --     and Confirm. The words are Components/TradeLogic's; the server decides everything, and this only asks.
+--   * #1574 (section 1b): Cats and Decor tabs over the list on the right. Decor lists your crate decor and lawn
+--     pieces (Components/TradeItemTile): a press adds one (or takes it back); a locked one says "Unlock it on its card
+--     to trade", one the other player owns is greyed with "They already have this". Pieces on offer follow the cats
+--     in both grids (each scrolls past 9) and on the confirm face, with their rarity and tip bonus.
 -- Cancel (or the X) fires callbacks.cancel(tradeId) during a trade; the window closes when TradeState goes nil.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -25,10 +30,14 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
+local TradeItemTile = require(script.Parent.Parent.Components.TradeItemTile)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local TradeTile = require(script.Parent.Parent.Components.TradeTile)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+
+-- the shared trade rules: which pieces can be traded, their names, rarities and bonuses (#1574)
+local SharedTrade = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Trade")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
@@ -36,7 +45,8 @@ local PAL = Theme.dark
 export type Callbacks = {
 	close: () -> (),
 	request: (userId: number) -> (),
-	offer: (tradeId: string, action: "add" | "remove", uid: string) -> (),
+	-- `kind` "decor" offers a piece id instead of a cat uid (#1574); nil is a cat
+	offer: (tradeId: string, action: "add" | "remove", uid: string, kind: "decor"?) -> (),
 	ready: (tradeId: string, version: number, ready: boolean) -> (),
 	confirm: (tradeId: string, version: number) -> (),
 	cancel: (tradeId: string) -> (),
@@ -65,6 +75,19 @@ type Row = {
 }
 
 type ConfirmCard = { tile: TradeTile.TradeTile, frame: Frame, name: TextLabel, rarity: TextLabel }
+type PieceCard = {
+	tile: TradeItemTile.TradeItemTile,
+	frame: Frame,
+	name: TextLabel,
+	rarity: TextLabel,
+}
+
+type Tab = "cats" | "decor"
+local TABS: { { id: Tab, label: string } } =
+	{ { id = "cats", label = "Cats" }, { id = "decor", label = "Decor" } }
+local TAB_W = 76
+local PIECE_ORDER = 100 -- pieces follow the cats in a grid or a confirm row
+local SLOT_ORDER = 200 -- and the empty slots follow both
 
 local MAX_SIZE = Vector2.new(760, 420)
 local GRID_GAP = 6
@@ -141,6 +164,11 @@ function Trade.new(callbacks: Callbacks): Trade
 	self._rows = {} :: { [number]: Row }
 	self._pickTiles = {} :: { [string]: TradeTile.TradeTile }
 	self._picks = {} :: { TradeLogic.Pick }
+	self._pieceTiles = {} :: { [string]: TradeItemTile.TradeItemTile } -- #1574: the Decor tab's pieces by id
+	self._pieces = {} :: { TradeLogic.PiecePick }
+	self._tab = "cats" :: Tab
+	self._tabH = Scale.tapHeight(36) -- taller than the grids' titles: a full tap with a mouse or a thumb
+	self._tabButtons = {} :: { [Tab]: TextButton }
 	self._confirmSince = nil :: number? -- os.clock() when this version's confirm screen showed
 	self._confirmKey = ""
 	self._flashKey = ""
@@ -360,12 +388,13 @@ function Trade._buildOffer(self: any, content: Frame)
 	})
 	self._offerFace = offer
 	local tile = self._tile
+	local tabH = self._tabH
 	local gridW = 3 * tile + 2 * GRID_GAP
 	local function column(
 		name: string,
 		x: number,
 		title: string
-	): (Frame, TextLabel, TextLabel, TextLabel, Frame, TextLabel)
+	): (Frame, TextLabel, TextLabel, TextLabel, ScrollingFrame, TextLabel)
 		local frame: Frame = Create("Frame", {
 			Name = name,
 			BackgroundTransparency = 1,
@@ -390,18 +419,33 @@ function Trade._buildOffer(self: any, content: Frame)
 		local ready = chip(header, "Ready", "✓ Ready", Theme.colors.good, Theme.colors.white)
 		local changed =
 			chip(header, "Changed", "Changed!", Theme.colors.gold, Theme.colors.goldText)
-		local grid: Frame = Create("Frame", {
+		-- #1574: the cats, then the pieces; past 9 it scrolls. It reaches Outline.ROOM past the cards on every side
+		-- and pads them back, so the cards sit where they did with their edges whole (#2294).
+		local room = Outline.ROOM
+		local grid: ScrollingFrame = Create("ScrollingFrame", {
 			Name = "Grid",
 			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
 			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0, HEADER_H + 4),
-			Size = UDim2.fromOffset(gridW, gridW),
+			Position = UDim2.new(0.5, 0, 0, HEADER_H + 4 - room),
+			Size = UDim2.fromOffset(gridW + 2 * room, gridW + 2 * room),
+			CanvasSize = UDim2.new(),
+			AutomaticCanvasSize = Enum.AutomaticSize.Y,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+			ScrollBarThickness = 4,
+			ScrollBarImageColor3 = PAL.subtext,
 			Parent = frame,
 		}, {
 			Create("UIGridLayout", {
 				CellSize = UDim2.fromOffset(tile, tile),
 				CellPadding = UDim2.fromOffset(GRID_GAP, GRID_GAP),
 				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, room),
+				PaddingRight = UDim.new(0, room),
+				PaddingTop = UDim.new(0, room),
+				PaddingBottom = UDim.new(0, room),
 			}),
 		})
 		local total = text({
@@ -430,6 +474,8 @@ function Trade._buildOffer(self: any, content: Frame)
 			changed = mineChanged,
 			total = mineTotal,
 			tiles = {},
+			grid = mineGrid,
+			pieces = {} :: { TradeItemTile.TradeItemTile },
 		},
 		them = {
 			title = theirsTitle,
@@ -437,6 +483,8 @@ function Trade._buildOffer(self: any, content: Frame)
 			changed = theirsChanged,
 			total = theirsTotal,
 			tiles = {},
+			grid = theirsGrid,
+			pieces = {} :: { TradeItemTile.TradeItemTile },
 		},
 	}
 	for index = 1, TradeLogic.MAX_CATS do
@@ -471,21 +519,46 @@ function Trade._buildOffer(self: any, content: Frame)
 		Size = UDim2.new(1, -picksX, 1, 0),
 		Parent = offer,
 	})
-	text({
-		Name = "Title",
-		Size = UDim2.new(1, 0, 0, HEADER_H),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 1,
-		Text = "Your cats",
+	-- #1574: Cats and Decor tabs over the list
+	local tabs: Frame = Create("Frame", {
+		Name = "Tabs",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, tabH),
 		Parent = picks,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 4),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
+	for order, tab in TABS do
+		local id = tab.id
+		local button: TextButton = Create("TextButton", {
+			Name = tab.label,
+			AutoButtonColor = false,
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(0, TAB_W, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextColor3 = PAL.text,
+			Text = tab.label,
+			LayoutOrder = order,
+			Parent = tabs,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		button.Activated:Connect(function()
+			self:_setTab(id)
+		end)
+		self._tabButtons[id] = button
+	end
 	local scroll: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundColor3 = PAL.card,
 		BackgroundTransparency = 0.4,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, HEADER_H + 4),
-		Size = UDim2.new(1, 0, 1, -(HEADER_H + 4 + 26)),
+		Position = UDim2.fromOffset(0, tabH + 4),
+		Size = UDim2.new(1, 0, 1, -(tabH + 4 + 26)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -509,7 +582,7 @@ function Trade._buildOffer(self: any, content: Frame)
 	self._picksList = scroll
 	self._picksEmpty = text({
 		Name = "Empty",
-		Position = UDim2.fromOffset(0, HEADER_H + 20),
+		Position = UDim2.fromOffset(0, tabH + 20),
 		Size = UDim2.new(1, 0, 0, 40),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
@@ -615,8 +688,18 @@ function Trade._buildConfirm(self: any, content: Frame)
 	local give, giveNothing = row("Give", 0, "You give")
 	local get, getNothing = row("Get", cardH + 12, "You get")
 	self._confirmRows = {
-		give = { scroll = give, nothing = giveNothing, cards = {} :: { ConfirmCard } },
-		get = { scroll = get, nothing = getNothing, cards = {} :: { ConfirmCard } },
+		give = {
+			scroll = give,
+			nothing = giveNothing,
+			cards = {} :: { ConfirmCard },
+			pieces = {} :: { PieceCard },
+		},
+		get = {
+			scroll = get,
+			nothing = getNothing,
+			cards = {} :: { ConfirmCard },
+			pieces = {} :: { PieceCard },
+		},
 	}
 	self._warning = text({
 		Name = "Warning",
@@ -673,6 +756,74 @@ function Trade._confirmCard(_self: any, row: any, index: number): ConfirmCard
 	local card: ConfirmCard = { tile = tile, frame = frame, name = name, rarity = rarity }
 	row.cards[index] = card
 	return card
+end
+
+-- #1574: a piece's card on the confirm face, after the cats: its picture, name, and rarity with its bonus.
+function Trade._pieceCard(_self: any, row: any, index: number): PieceCard
+	local existing: PieceCard? = row.pieces[index]
+	if existing then
+		return existing
+	end
+	local frame: Frame = Create("Frame", {
+		Name = "Piece" .. index,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(CONFIRM_TILE + 30, CONFIRM_TILE + 34),
+		LayoutOrder = PIECE_ORDER + index,
+		Parent = row.scroll,
+	})
+	local holder: Frame = Create("Frame", {
+		Name = "Picture",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromScale(0.5, 0),
+		Size = UDim2.fromOffset(CONFIRM_TILE, CONFIRM_TILE),
+		Parent = frame,
+	})
+	local tile = TradeItemTile.new({ parent = holder, size = CONFIRM_TILE })
+	local name = text({
+		Name = "PieceName",
+		Position = UDim2.fromOffset(0, CONFIRM_TILE + 2),
+		Size = UDim2.new(1, 0, 0, 16),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textTiny,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Parent = frame,
+	})
+	local rarity = text({
+		Name = "Rarity",
+		Position = UDim2.fromOffset(0, CONFIRM_TILE + 17),
+		Size = UDim2.new(1, 0, 0, 15),
+		TextSize = Theme.sizes.textTiny,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextScaled = true, -- "Uncommon · +2%" fits the card
+		Parent = frame,
+	})
+	Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny, Parent = rarity })
+	local card: PieceCard = { tile = tile, frame = frame, name = name, rarity = rarity }
+	row.pieces[index] = card
+	return card
+end
+
+-- #1574: what a piece on offer shows (TradeDecorTile from the server).
+local function pieceView(
+	piece: Types.TradeDecorTile,
+	status: ("locked" | "offered" | "theyHave")?
+): TradeItemTile.View
+	return {
+		id = piece.id,
+		name = piece.name,
+		rarity = piece.rarity,
+		image = ShopIcons.decor(piece.id),
+		badge = if piece.kind == "lawn" then "Lawn" else nil,
+		foot = TradeLogic.bonusText(piece.bonus),
+		status = status,
+	}
+end
+
+-- #1574: the light colour of a piece's rarity on a dark card, the lawn's rungs too.
+local function pieceLight(rarity: string): Color3
+	return TradeItemTile.color(rarity):Lerp(Theme.colors.white, 0.25)
 end
 
 function Trade.setCatalog(self: any, catalog: Types.Catalog)
@@ -826,9 +977,35 @@ function Trade._renderOffer(self: any, trade: Types.TradeState)
 		local data: Types.TradeSide = if key == "me" then trade.me else trade.them
 		side.title.Text = if key == "me" then "You give" else string.format("%s gives", data.name)
 		side.ready.Visible = data.ready
+		-- #1574: the cats, then the pieces, then empty slots up to 9
+		local decor: { Types.TradeDecorTile } = data.decor or {}
+		local slots = math.max(0, TradeLogic.MAX_CATS - #data.cats - #decor)
 		for index, tile in side.tiles do
 			local cat: Types.TradeTile? = data.cats[index]
 			tile:set(if cat then tileView(self, cat, key == "them") else nil)
+			tile.frame.LayoutOrder = if cat then index else SLOT_ORDER + index
+			tile.frame.Visible = cat ~= nil or index - #data.cats <= slots
+		end
+		for index, piece in decor do
+			local made: TradeItemTile.TradeItemTile? = side.pieces[index]
+			if made == nil then
+				made = TradeItemTile.new({
+					parent = side.grid,
+					size = self._tile,
+					layoutOrder = PIECE_ORDER + index,
+					name = "Piece" .. index,
+					onClick = if key == "me"
+						then function()
+							self:_pressMinePiece(index)
+						end
+						else nil,
+				})
+				side.pieces[index] = made
+			end
+			(made :: TradeItemTile.TradeItemTile):set(pieceView(piece, nil))
+		end
+		for index = #decor + 1, #side.pieces do
+			side.pieces[index]:set(nil)
 		end
 	end
 	local ready = TradeLogic.readyButton(trade)
@@ -849,6 +1026,90 @@ function Trade._offered(self: any): { [string]: boolean }
 	return offered
 end
 
+-- #1574: the piece ids on my side.
+function Trade._offeredPieces(self: any): { [string]: boolean }
+	local offered: { [string]: boolean } = {}
+	local trade: Types.TradeState? = self._trade
+	if trade then
+		local decor: { Types.TradeDecorTile } = trade.me.decor or {}
+		for _, piece in decor do
+			offered[piece.id] = true
+		end
+	end
+	return offered
+end
+
+-- #1574: Cats or Decor over the list on the right.
+function Trade._setTab(self: any, tab: Tab)
+	if self._tab == tab then
+		return
+	end
+	self._tab = tab
+	self._hint = nil
+	self._picksList.CanvasPosition = Vector2.zero
+	self:_renderPicks()
+	self:_tick()
+end
+
+-- #1574: the Decor tab's pieces: every owned crate decor and lawn piece that can be traded.
+function Trade._renderPieces(self: any, show: boolean)
+	local trade: Types.TradeState? = self._trade
+	local state: Types.PlayerState? = self._state
+	local pieces: { TradeLogic.PiecePick } = {}
+	if show and trade ~= nil and state ~= nil then
+		-- the crate decor and the lawn pieces owned, in one map
+		local owned: { [string]: boolean } = table.clone(state.decorOwned or {})
+		local lawnOwned: { [string]: boolean } = state.lawnOwned or {}
+		for id, yes in lawnOwned do
+			owned[id] = yes
+		end
+		pieces = TradeLogic.myPieces(
+			owned,
+			state.decorUnlocked,
+			SharedTrade.piece,
+			self:_offeredPieces(),
+			trade.theyHave
+		)
+	end
+	self._pieces = pieces
+	local seen: { [string]: boolean } = {}
+	for index, pick in pieces do
+		seen[pick.id] = true
+		local tile: TradeItemTile.TradeItemTile? = self._pieceTiles[pick.id]
+		if tile == nil then
+			local id = pick.id
+			local made = TradeItemTile.new({
+				parent = self._picksList,
+				size = self._tile,
+				name = "Piece",
+				onClick = function()
+					self:_pressPiece(id)
+				end,
+			})
+			self._pieceTiles[id] = made
+			tile = made
+		end
+		local shown = tile :: TradeItemTile.TradeItemTile
+		shown.frame.LayoutOrder = index
+		shown:set({
+			id = pick.id,
+			name = pick.name,
+			rarity = pick.rarity,
+			image = ShopIcons.decor(pick.id),
+			badge = if pick.kind == "lawn" then "Lawn" else nil,
+			foot = TradeLogic.bonusText(pick.bonus),
+			status = if pick.status == "ok" then nil else pick.status,
+		})
+	end
+	for id, tile in self._pieceTiles do
+		if not seen[id] then
+			tile:destroy()
+			self._pieceTiles[id] = nil
+		end
+	end
+	return #pieces
+end
+
 function Trade._renderPicks(self: any)
 	local trade: Types.TradeState? = self._trade
 	if trade == nil then
@@ -858,8 +1119,15 @@ function Trade._renderPicks(self: any)
 	local defOf = function(catId: string): any
 		return self._catById[catId]
 	end
-	local picks =
-		TradeLogic.myCats(if state then state.cats :: any else nil, defOf, self:_offered())
+	local catsTab = self._tab == "cats"
+	for id, button in self._tabButtons do
+		local on = id == self._tab
+		button.BackgroundColor3 = if on then Theme.colors.mintDark else PAL.card
+		button.TextColor3 = if on then Theme.colors.white else PAL.subtext
+	end
+	local picks: { TradeLogic.Pick } = if catsTab
+		then TradeLogic.myCats(if state then state.cats :: any else nil, defOf, self:_offered())
+		else {}
 	self._picks = picks
 	local seen: { [string]: boolean } = {}
 	for index, pick in picks do
@@ -900,7 +1168,9 @@ function Trade._renderPicks(self: any)
 			self._pickTiles[uid] = nil
 		end
 	end
-	self._picksEmpty.Visible = #picks == 0
+	local pieces = self:_renderPieces(not catsTab)
+	self._picksEmpty.Text = if catsTab then "No cats to trade yet" else "No decor to trade yet"
+	self._picksEmpty.Visible = if catsTab then #picks == 0 else pieces == 0
 end
 
 function Trade._renderConfirm(self: any, trade: Types.TradeState)
@@ -928,8 +1198,23 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 		for index = #cats + 1, #row.cards do
 			row.cards[index].frame.Visible = false
 		end
-		row.nothing.Visible = #cats == 0
-		row.nothing.TextColor3 = if key == "get" and #cats == 0 then PAL.red else PAL.subtext
+		-- #1574: the pieces after the cats
+		local side: Types.TradeSide = if key == "give" then trade.me else trade.them
+		local decor: { Types.TradeDecorTile } = side.decor or {}
+		for index, piece in decor do
+			local card = self:_pieceCard(row, index)
+			card.frame.Visible = true
+			card.tile:set(pieceView(piece, nil))
+			card.name.Text = piece.name
+			card.rarity.Text = TradeLogic.pieceRarity(piece.rarity, piece.bonus)
+			card.rarity.TextColor3 = pieceLight(piece.rarity)
+		end
+		for index = #decor + 1, #row.pieces do
+			row.pieces[index].frame.Visible = false
+		end
+		local nothing = #cats + #decor == 0
+		row.nothing.Visible = nothing
+		row.nothing.TextColor3 = if key == "get" and nothing then PAL.red else PAL.subtext
 	end
 	local warning = TradeLogic.warning(trade)
 	self._warning.Text = warning or ""
@@ -990,14 +1275,26 @@ function Trade._tick(self: any)
 					self._side[changed.side].tiles[index]:flash()
 				end
 			end
+			local decor: { Types.TradeDecorTile } = data.decor or {}
+			for index, piece in decor do
+				local tile: TradeItemTile.TradeItemTile? = self._side[changed.side].pieces[index]
+				if piece.id == changed.uid and tile ~= nil then
+					tile:flash()
+				end
+			end
 		end
 	end
 	local hint: string? = if os.clock() < self._hintUntil then self._hint else nil
+	local catsTab = self._tab == "cats"
+	local full = if catsTab
+		then #trade.me.cats >= TradeLogic.MAX_CATS
+		else #(trade.me.decor or {}) >= TradeLogic.MAX_DECOR
 	self._hintLabel.Text = hint
 		or (
-			if #trade.me.cats >= TradeLogic.MAX_CATS
+			if full
 				then "Your offer is full"
-				else "Tap a cat to add it"
+				elseif catsTab then "Tap a cat to add it"
+				else "Tap a piece to add it"
 		)
 	self._hintLabel.TextColor3 = if hint then PAL.warn else PAL.subtext
 end
@@ -1037,18 +1334,7 @@ function Trade._pressPick(self: any, uid: string)
 		if pick.uid == uid then
 			local hint = TradeLogic.pickHint(pick, #trade.me.cats >= TradeLogic.MAX_CATS)
 			if hint then
-				self._hint = hint
-				self._hintUntil = os.clock() + 3
-				local tile: TradeTile.TradeTile? = self._pickTiles[uid]
-				if tile then
-					tile.frame.Rotation = -6
-					Tween.to(
-						tile.frame,
-						TweenInfo.new(0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
-						{ Rotation = 0 }
-					)
-				end
-				self:_tick()
+				self:_refuse(hint, self._pickTiles[uid])
 			else
 				self._callbacks.offer(
 					trade.tradeId,
@@ -1061,9 +1347,65 @@ function Trade._pressPick(self: any, uid: string)
 	end
 end
 
+-- #1574: a press on a piece in my grid takes it back.
+function Trade._pressMinePiece(self: any, index: number)
+	local trade: Types.TradeState? = self._trade
+	if trade == nil or trade.phase == "confirm" then
+		return
+	end
+	local piece = (trade.me.decor or {})[index]
+	if piece then
+		self._callbacks.offer(trade.tradeId, "remove", piece.id, "decor")
+	end
+end
+
+-- #1574: a press on a piece in the Decor tab adds it (or takes it back), else says why not with a wobble.
+function Trade._pressPiece(self: any, id: string)
+	local trade: Types.TradeState? = self._trade
+	if trade == nil or trade.phase == "confirm" then
+		return
+	end
+	for _, pick in self._pieces do
+		if pick.id == id then
+			local full = #(trade.me.decor or {}) >= TradeLogic.MAX_DECOR
+			local hint = TradeLogic.pieceHint(pick, full)
+			if hint then
+				self:_refuse(hint, self._pieceTiles[id])
+			else
+				self._callbacks.offer(
+					trade.tradeId,
+					if pick.status == "offered" then "remove" else "add",
+					id,
+					"decor"
+				)
+			end
+			return
+		end
+	end
+end
+
+-- Why a press did nothing, under the list for 3 s, and the card's wobble.
+function Trade._refuse(self: any, hint: string, tile: any)
+	self._hint = hint
+	self._hintUntil = os.clock() + 3
+	if tile ~= nil then
+		local frame: Frame = tile.frame
+		frame.Rotation = -6
+		Tween.to(
+			frame,
+			TweenInfo.new(0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
+			{ Rotation = 0 }
+		)
+	end
+	self:_tick()
+end
+
 function Trade.destroy(self: any)
 	self._alive = false
 	for _, tile in self._pickTiles do
+		tile:destroy()
+	end
+	for _, tile in self._pieceTiles do
 		tile:destroy()
 	end
 	self._panel:destroy()

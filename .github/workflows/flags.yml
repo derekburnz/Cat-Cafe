@@ -10,17 +10,17 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "show | set | clear (clear: back to the default: trading, codes and rally on, Config's minimum tier)"
+        description: "show | set | clear (clear: back to the default: trading, codes, rally and tradeCrates on, tradeFish off, Config's minimum tier)"
         type: choice
         options: [show, set, clear]
         default: show
       key:
         description: "Which switch (set and clear)"
         type: choice
-        options: [trading, tradeMinTier, codes, rally]
+        options: [trading, tradeMinTier, codes, rally, tradeCrates, tradeFish]
         default: trading
       value:
-        description: "set only: true or false for trading, codes and rally, 0 to 99 for tradeMinTier"
+        description: "set only: true or false for trading, codes, rally, tradeCrates and tradeFish (tradeFish true only after QA, review and a restart publish), 0 to 99 for tradeMinTier"
         required: false
         default: ""
 

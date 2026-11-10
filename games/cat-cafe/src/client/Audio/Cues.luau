@@ -562,7 +562,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.55,
 		minGap = 0.3,
 	}, -- a cat leaves its role; Unequip All plays one
-	catSold = { ids = {}, group = "Sfx", volume = 0.6 },
+	catSold = { ids = { "rbxassetid://74026102899667" }, group = "Sfx", volume = 0.6 }, -- #2952, run 42830310860 (group)
 
 	-- Bait bowl (5.4) ---------------------------------------------------------------------------------------
 	-- 2026-11-02: reused files until the upload quota allows the bowl its own (Derek: "continue with sounds needed to

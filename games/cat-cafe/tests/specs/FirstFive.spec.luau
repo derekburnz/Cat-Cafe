@@ -104,6 +104,78 @@ return function()
 		end)
 	end)
 
+	describe("scene (P1b)", function()
+		local function facts(over: { [string]: any }): any
+			local out: { [string]: any } = {
+				loaded = true,
+				introSeen = true,
+				introStep = nil,
+				launching = false,
+				carrying = false,
+				furthest = "first_move",
+				where = "none",
+			}
+			for key, value in over do
+				out[key] = value
+			end
+			return out
+		end
+
+		it("is loading before the loaded step, then the intro shot while the intro runs", function()
+			expect(FirstFive.scene(facts({ loaded = false }))).to.equal("loading")
+			expect(FirstFive.scene(facts({ introSeen = false, introStep = "intro_shot_4" }))).to.equal(
+				"intro_shot_4"
+			)
+			expect(FirstFive.scene(facts({ introSeen = false, introStep = "intro_started" }))).to.equal(
+				"intro_start"
+			)
+			expect(
+				FirstFive.scene(
+					facts({ introSeen = false, introStep = "intro_choice_made", where = "cafe" })
+				)
+			).to.equal("cafe")
+		end)
+
+		it(
+			"prefers a flight, then a carry, then the catch, then a tutorial card, then the place",
+			function()
+				expect(FirstFive.scene(facts({ launching = true, carrying = true }))).to.equal(
+					"cannon_flight"
+				)
+				expect(FirstFive.scene(facts({ carrying = true, furthest = "catch_started" }))).to.equal(
+					"carry"
+				)
+				expect(FirstFive.scene(facts({ furthest = "first_circle_hit" }))).to.equal(
+					"circle_open"
+				)
+				expect(FirstFive.scene(facts({ furthest = "catch_card_opened" }))).to.equal(
+					"catch_prompt"
+				)
+				expect(FirstFive.scene(facts({ furthest = "tut_3_shown", where = "cafe" }))).to.equal(
+					"tut_3"
+				)
+				expect(FirstFive.scene(facts({ where = "alley" }))).to.equal("alley")
+				expect(FirstFive.scene(facts({ where = "cafe" }))).to.equal("cafe")
+				expect(FirstFive.scene(facts({ where = "park" }))).to.equal("other")
+			end
+		)
+
+		it("only ever names a listed scene", function()
+			for _, where in { "none", "cafe", "alley", "park" } do
+				local scene = FirstFive.scene(facts({ where = where }))
+				expect(table.find(FirstFive.SCENES, scene) ~= nil).to.equal(true)
+			end
+		end)
+
+		it("buckets the seconds", function()
+			expect(FirstFive.secondsBucket(10)).to.equal("0-30")
+			expect(FirstFive.secondsBucket(30)).to.equal("30-60")
+			expect(FirstFive.secondsBucket(90)).to.equal("60-120")
+			expect(FirstFive.secondsBucket(200)).to.equal("120-300")
+			expect(FirstFive.secondsBucket(301)).to.equal("300+")
+		end)
+	end)
+
 	describe("secondCatDue", function()
 		it("is due from the first check-in until the second cat", function()
 			expect(FirstFive.secondCatDue(stateAt("first_catch"))).to.equal(false)

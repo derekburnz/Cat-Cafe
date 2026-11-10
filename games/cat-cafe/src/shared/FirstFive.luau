@@ -18,6 +18,9 @@
 --   step, the minutes bucket (0-10, 10-30, 30-60), the session number bucket (2, 3, 4+).
 -- - quit_cafe: beside quit_snapshot, value the session's seconds; cats working (0, 1, 2, 3+), table level (0, 1,
 --   2+), cats owned (1, 2, 3, 4+).
+-- P1b (Derek2 20:09: "track what exact step of tutorial scenes people leave on"):
+-- - quit_scene: on leaving, value the session's seconds; the scene (SCENES, picked by `scene`), device, seconds
+--   bucket (0-30, 30-60, 60-120, 120-300, 300+).
 
 local Onboarding = require(script.Parent.Onboarding)
 local Types = require(script.Parent.Types)
@@ -85,6 +88,101 @@ function FirstFive.cafeFields(working: number, tables: number, owned: number): {
 		if tables >= 2 then "2+" else tostring(math.max(0, tables)),
 		if owned >= 4 then "4+" else tostring(math.max(1, owned)),
 	}
+end
+
+-- quit_scene's scenes: where a beginner was when they left
+FirstFive.SCENES = {
+	"loading",
+	"intro_start",
+	"intro_shot_1",
+	"intro_shot_2",
+	"intro_shot_3",
+	"intro_shot_4",
+	"intro_shot_5",
+	"intro_shot_6",
+	"intro_shot_7",
+	"intro_shot_8",
+	"intro_shot_9",
+	"intro_shot_10",
+	"tut_0",
+	"tut_1",
+	"tut_3",
+	"tut_4",
+	"cannon_flight",
+	"carry",
+	"circle_open",
+	"catch_prompt",
+	"alley",
+	"cafe",
+	"other",
+}
+
+export type SceneFacts = {
+	loaded: boolean, -- the onboarding step "loaded" is reached
+	introSeen: boolean, -- the intro has played out or been skipped (profile.introSeen)
+	introStep: string?, -- the intro funnel's furthest step name (Onboarding.INTRO_STEPS), nil before it started
+	launching: boolean, -- in a cannon flight (the character's Launching)
+	carrying: boolean, -- carrying a cat (the character's CarryingCatId)
+	furthest: string, -- the furthest onboarding step (Onboarding.furthest)
+	where: string, -- quit_state's where: "cafe", an area id or "none"
+}
+
+-- The scene a leaver was in, most specific first: loading, an intro shot while the intro runs, a cannon flight, a
+-- carry, the catch circles or the catch prompt (the furthest step), a tutorial card still the furthest step, then
+-- where they stood (the Alleyway, their cafe) or other.
+function FirstFive.scene(facts: SceneFacts): string
+	if not facts.loaded then
+		return "loading"
+	end
+	local intro = facts.introStep
+	if
+		not facts.introSeen
+		and intro ~= nil
+		and intro ~= "intro_choice_made"
+		and intro ~= "intro_done"
+	then
+		return if string.sub(intro, 1, 11) == "intro_shot_" then intro else "intro_start"
+	end
+	if facts.launching then
+		return "cannon_flight"
+	end
+	if facts.carrying then
+		return "carry"
+	end
+	local furthest = facts.furthest
+	if furthest == "catch_started" or furthest == "first_circle_hit" then
+		return "circle_open"
+	elseif furthest == "near_stray" or furthest == "catch_card_opened" then
+		return "catch_prompt"
+	elseif furthest == "tut_0_shown" then
+		return "tut_0"
+	elseif furthest == "tut_1_shown" then
+		return "tut_1"
+	elseif furthest == "tut_3_shown" then
+		return "tut_3"
+	elseif furthest == "tut_4_shown" then
+		return "tut_4"
+	end
+	if facts.where == "alley" then
+		return "alley"
+	elseif facts.where == "cafe" then
+		return "cafe"
+	end
+	return "other"
+end
+
+-- quit_scene's seconds bucket.
+function FirstFive.secondsBucket(seconds: number): string
+	if seconds < 30 then
+		return "0-30"
+	elseif seconds < 60 then
+		return "30-60"
+	elseif seconds < 120 then
+		return "60-120"
+	elseif seconds < 300 then
+		return "120-300"
+	end
+	return "300+"
 end
 
 -- quit_snapshot's idle field for `seconds` with no movement or report.

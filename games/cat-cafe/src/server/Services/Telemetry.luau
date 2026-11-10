@@ -186,6 +186,8 @@ export type CustomEvent =
 	| "quick_return"
 	-- #3098 P2: beside quit_snapshot, value the session's seconds; cats working, table level, cats owned
 	| "quit_cafe"
+	-- #3098 P1b: beside quit_state, value the session's seconds; the scene (FirstFive.SCENES), device, seconds bucket
+	| "quit_scene"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
 	| "first_bait_arrived"
 	-- #2651 part 4 (late-stations.md section 3): a cat into the Oasis Spa or collected from it, value 1; the level band
@@ -2064,6 +2066,20 @@ local function onRelease(player: Player, profile: Profile)
 		})
 		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
 		local buy = FirstFive.nextBuy(profile.telemetry)
+		-- #3098 P1b: the exact scene they left in
+		Telemetry.custom(player, "quit_scene", played, {
+			FirstFive.scene({
+				loaded = Onboarding.reached(profile.telemetry, "loaded"),
+				introSeen = profile.introSeen,
+				introStep = Onboarding.INTRO_STEPS[profile.telemetry.introStep],
+				launching = character ~= nil and character:GetAttribute("Launching") == true,
+				carrying = carrying,
+				furthest = Onboarding.furthest(profile.telemetry),
+				where = where,
+			}),
+			session.device or "unknown",
+			FirstFive.secondsBucket(played),
+		})
 		-- #3098 P2: the cafe they left behind
 		local working = 0
 		local owned = 0

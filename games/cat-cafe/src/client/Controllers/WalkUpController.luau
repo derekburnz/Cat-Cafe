@@ -164,6 +164,24 @@ local KINDS: { Kind } = {
 -- and shut the window after a second
 local prompts: { [Instance]: ProximityPrompt? } = {}
 local keys: { [Instance]: string } = {}
+-- #3114: the reach each prompt came with, so it is given back if its station's ring goes away
+local ownReach: { [ProximityPrompt]: number } = {}
+
+-- Silences a ringed station's click prompt, or gives a ringless one its own reach back.
+local function setReach(prompt: ProximityPrompt, hasRing: boolean)
+	local own = ownReach[prompt]
+	if own == nil then
+		own = prompt.MaxActivationDistance
+		ownReach[prompt] = own
+		prompt.Destroying:Connect(function()
+			ownReach[prompt] = nil
+		end)
+	end
+	local reach = WalkUp.promptReach(hasRing, own :: number)
+	if prompt.MaxActivationDistance ~= reach then
+		prompt.MaxActivationDistance = reach
+	end
+end
 local lastKey = 0
 
 -- The station's prompt, found once and again if it streamed out.
@@ -304,10 +322,7 @@ function WalkUpController.start()
 				local hasRing, centre, ringRadius = ringOf(model)
 				-- #3114: the ring is the only way in, so the click prompt of a station that has one never shows
 				if prompt ~= nil then
-					local reach = WalkUp.promptReach(hasRing, prompt.MaxActivationDistance)
-					if prompt.MaxActivationDistance ~= reach then
-						prompt.MaxActivationDistance = reach
-					end
+					setReach(prompt, hasRing)
 				end
 				local off = if prompt == nil
 					then not (loose == true and hasRing)
@@ -329,8 +344,9 @@ function WalkUpController.start()
 					off = off,
 					radius = if hasRing
 						then ringRadius
-						elseif prompt ~= nil then (prompt :: ProximityPrompt).MaxActivationDistance
-							* WalkUp.RADIUS_SHARE
+						elseif prompt ~= nil then (ownReach[prompt :: ProximityPrompt] or (
+							prompt :: ProximityPrompt
+						).MaxActivationDistance) * WalkUp.RADIUS_SHARE
 						else 0,
 				})
 			end

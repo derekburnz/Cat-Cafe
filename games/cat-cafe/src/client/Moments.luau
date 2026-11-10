@@ -20,6 +20,9 @@ local Moments = {
 	NetSmackPress = Signal.new() :: Signal.Signal<()>,
 	NetSwung = Signal.new() :: Signal.Signal<number, boolean>,
 	NetInReach = Signal.new() :: Signal.Signal<Model?>,
+	-- #2920: (index) a first catch's held ring stopped on its ring and waits for the press (UI/Screens/CatchCircles);
+	-- Audio plays its "now!" ping (#2928)
+	CircleHold = Signal.new() :: Signal.Signal<number>,
 	CircleGrade = Signal.new() :: Signal.Signal<number, string>, -- (index, "perfect" | "good" | "miss") this
 	-- device's estimate at press time; the server's grades come with CatchSuccess or CatchFail
 	CatchSuccess = Signal.new() :: Signal.Signal<string, string?>, -- (strayId, rarity)

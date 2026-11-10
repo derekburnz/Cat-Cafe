@@ -634,6 +634,12 @@ fieldEvents=(
 	"catch_finish|Platform,CustomField1|CustomEventCountUser|Catch finish kind (bolt is the cat running off) by device"
 	"first_catch_tries|Platform,CustomField1|CustomEventAvgValue|Tries before the first catch, by method and device"
 	"first_catch_tries|Platform|CustomEventCountUser|Players with a first catch, by device"
+	"left_in_phase|CustomField1|CustomEventCount|Leaves by in-game phase (#2562; night is 70 of 390 s, about 18%)"
+	"left_in_phase|CustomField1|CustomEventCountUser|Players leaving by in-game phase"
+	"left_in_phase|CustomField2|CustomEventCount|Leaves by third of the phase"
+	"left_in_phase|CustomField1,CustomField3|CustomEventCount|Leaves by phase and tier, first session or return"
+	"left_in_phase|CustomField1|CustomEventAvgValue|Average seconds played before leaving, by phase"
+	"station_open|CustomField1,CustomField2|CustomEventCount|Station opens by ring or prompt (#2910)"
 )
 say "### Event fields"
 say ""

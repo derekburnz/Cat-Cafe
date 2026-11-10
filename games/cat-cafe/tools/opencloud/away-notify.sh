@@ -17,7 +17,7 @@
 #                        "Your cats earned {amount} while you were away!" > Copy Asset ID). Not secret. Default below;
 #                        empty means the text does not exist yet, and send does nothing.
 #
-# Usage:  tools/opencloud/away-notify.sh count   how many notes there are and how many are due; sends nothing
+# Usage:  tools/opencloud/away-notify.sh count   how many notes there are in all and how many are due; sends nothing
 #         tools/opencloud/away-notify.sh send    send the due ones
 #
 # The repo and its Actions logs are public, so this never prints a user id, a response body or a path: counts and
@@ -65,9 +65,10 @@ code() {
 	jq -r '(.code // .error // "none") | tostring' "$reply" 2>/dev/null | sed -E 's/[0-9]{5,}/#/g' | head -c 60
 }
 
-# Reads the map into $due as "id<TAB>text" lines for notes whose time has come. Sets $total and $pages.
+# Reads the map into $due as "id<TAB>text" lines for notes whose time has come. Sets $total and $pages. With "all"
+# it reads every page, so $total is every note there is; without, it stops at the first page with nothing due.
 read_due() {
-	local now token="" page=0 page_due
+	local all=${1:-} now token="" page=0 page_due
 	now=$(date +%s)
 	total=0
 	: >"$due"
@@ -98,16 +99,20 @@ read_due() {
 			| "\(.id)\t\(.text)"' "$reply")
 		[ -n "$page_due" ] && printf '%s\n' "$page_due" >>"$due"
 		token=$(jq -r '.nextPageToken // ""' "$reply")
-		if [ -z "$token" ] || [ -z "$page_due" ]; then
+		if [ -z "$token" ] || { [ -z "$page_due" ] && [ "$all" != all ]; }; then
 			break
 		fi
 	done
 	pages=$page
 }
 
+# Every note there is, so the map's size can be watched: the notes share MemoryStore's quota (64 KB plus 1 KB a
+# player online) with the pity cats' timers, at about 25 bytes a note. `flags.sh set awayNotes false` stops new ones.
 count() {
-	read_due
-	echo "Away notes: $total read on $pages page(s), $(wc -l <"$due" | tr -d ' ') due now. Nothing sent."
+	read_due all
+	local more=""
+	[ "$pages" -ge "$MAX_PAGES" ] && more=" or more (stopped at $MAX_PAGES pages)"
+	echo "Away notes: $total in all$more, about $((total * 25 / 1024)) KB, on $pages page(s); $(wc -l <"$due" | tr -d ' ') due now. Nothing sent."
 }
 
 send() {

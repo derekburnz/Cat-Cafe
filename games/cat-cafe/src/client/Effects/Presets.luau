@@ -237,6 +237,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(3, -0.2, 1),
 		drag = 0.3,
 	},
+	-- Sand blowing off a Desert dune's crest in the wind (#2925): a thin pale plume streaming downwind.
+	duneSand = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(240, 220, 172), Color3.fromRGB(232, 205, 150) },
+		size = { 0.5, 1.6 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.2, 2 },
+		speed = { 2, 4 },
+		spread = 15,
+		rate = 6,
+		acceleration = Vector3.new(4, 0.4, 1.3),
+		drag = 0.6,
+	},
 	ruinsMotes = {
 		texture = Presets.textures.sparkle,
 		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
@@ -3987,6 +4000,18 @@ Presets.areaFx = {
 	lift = 3, -- the box's centre over your feet
 	checkSeconds = 0.5,
 	calmRate = 0.2,
+	-- Sand off the Desert's dune crests (#2925): while you are in the Desert, the nearest `most[tier]` crests (parts
+	-- named ..DuneRidge or ..WallDune in the Desert's area model) within `within` studs blow a `duneSand` plume off
+	-- their top, re-picked every `pickSeconds`, the part list re-read every `scanSeconds`. None with Reduce Motion or
+	-- in Low performance.
+	dunes = {
+		names = { "DuneRidge", "WallDune" },
+		within = 70,
+		most = { low = 2, high = 3 } :: { [string]: number },
+		pickSeconds = 2,
+		scanSeconds = 10,
+		emitter = "duneSand",
+	},
 	areas = {
 		desert = {
 			air = "desertSand",

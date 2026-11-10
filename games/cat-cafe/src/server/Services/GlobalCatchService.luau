@@ -14,7 +14,7 @@
 -- #3053: while the live switch GlobalCatch.FEED_FLAG is on, this server keeps a chat channel named
 -- GlobalCatch.FEED_CHANNEL with every player in it as a reader (their TextSource cannot send). The chat window gives
 -- a custom channel its own tab, and each client writes the Mythical lines it is sent into it
--- (RareCatchChatController). The switch is read every FEED_CHECK_SECONDS; off again destroys the channel, which
+-- (RareCatchChatController). The channel delivers no player message at all (ShouldDeliverCallback). The switch is read every FEED_CHECK_SECONDS; off again destroys the channel, which
 -- takes the tab off every client.
 -- Roblox terms: a TextChannel is one chat channel; a player sees it once the server calls AddUserAsync for them,
 -- which makes a TextSource (that player's seat in the channel) whose CanSend says whether they may type there.
@@ -114,6 +114,11 @@ local function followFeed()
 	end
 	local channel = Instance.new("TextChannel")
 	channel.Name = GlobalCatch.FEED_CHANNEL
+	-- nobody's message is ever delivered here (reviewer: a new TextSource can send for the moment before seat() sets
+	-- CanSend false); the lines in this channel are the clients' own DisplaySystemMessage calls
+	channel.ShouldDeliverCallback = function()
+		return false
+	end
 	channel.Parent = channels
 	feed = channel
 	for _, player in Players:GetPlayers() do
@@ -125,7 +130,11 @@ function GlobalCatchService.start()
 	Players.PlayerAdded:Connect(seat)
 	task.spawn(function()
 		while true do
-			followFeed()
+			local ok, err = pcall(followFeed) -- one bad pass must not end the loop
+			if not ok and not feedWarned then
+				feedWarned = true
+				warn("[GlobalCatch] feed channel: " .. tostring(err))
+			end
 			task.wait(FEED_CHECK_SECONDS)
 		end
 	end)

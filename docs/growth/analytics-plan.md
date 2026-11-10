@@ -202,7 +202,11 @@ Built from Monetization-Agent's plan (library `Monetization-Agent/notes/first-fi
 | step_stall | the bucket's seconds | awaited step (the one after the furthest), bucket (30, 60, 120), hint (last stuck nudge for it: pulse, help_shown, show_me, none) | No new onboarding step for 30, 60 or 120 s, once per bucket per awaited step a session, in the first 600 s of account play | How long players sit on each step, and whether a nudge was showing |
 | quit_snapshot | session seconds | furthest onboarding step (as `quit_state`), idle and screen joined as one field ("5-15 upgrades": idle 0-5, 5-15, 15-60 or 60+ s with no movement or client report; screen none, store, upgrades, index, settings or other), afford (yes, no, na for the next table or bowl buy) | Leaving, beside `quit_state` | Bored or confused (idle) vs fighting the game; afford no is income pace, yes is guidance |
 
-`first_goal_card` was left out of `step_ready`. The `next_goal_shown` onboarding step already logs it. P2 (health_check, quick_return, quit_cafe) follows in its own PR.
+| health_check | the client's frames a second | ping bucket (lt100, 100-250, 250+ ms, from the server), memory bucket (lt800, 800-1500, 1500+ MB, from the client), device | Once a session about 150 s in (client reports health_mem then health_fps) | Tablet and phone drops: is the game struggling |
+| quick_return | whole minutes away | furthest onboarding step, minutes bucket (0-10, 10-30, 30-60), session number bucket (2, 3, 4+) | A join within an hour of the last leave | Count only the leavers who are truly lost |
+| quit_cafe | session seconds | cats working (0, 1, 2, 3+), table level (0, 1, 2+), cats owned (1, 2, 3, 4+) | Leaving, beside `quit_snapshot` | The cafe a leaver left behind |
+
+`first_goal_card` was left out of `step_ready`. The `next_goal_shown` onboarding step already logs it. `quick_return` has no "where they left before" field, because that would need a save field. `quit_cafe` uses cats owned in place of customers waiting, because the server has no cheap count of waiting customers.
 
 ### 6.5 Launch-phase features (common-features.md)
 

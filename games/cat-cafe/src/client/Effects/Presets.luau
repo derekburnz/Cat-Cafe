@@ -4069,6 +4069,17 @@ Presets.townsfolk = {
 -- A Relic Museum donation pops `donate` gold sparkles at the `SparkleAnchor` (the golden idol case); one that
 -- finishes a room adds confetti (`roomConfetti` of the budget's), a `roomRing` stud gold ring and a gold beam
 -- `beamWidth` wide and `beamHeight` tall for `beamSeconds`. Bursts play within the budget's animRadius.
+-- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)
+-- from `from` to `to` times its size while it waits for the press, for at most `most` seconds.
+Presets.holdPulse = {
+	displayOrder = 26, -- just over the catch screen (25), under toasts (30)
+	gap = 0.9,
+	from = 1,
+	to = 1.7,
+	seconds = 0.7,
+	most = 60, -- Config.FirstRingHoldSeconds
+}
+
 Presets.lateStations = {
 	steamPreset = "spaSteam",
 	water = "_Water",

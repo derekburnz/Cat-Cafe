@@ -182,6 +182,13 @@ local function autoClaim()
 	local now = os.clock()
 	for prompt, extraId in prompts do
 		local centre, radius = ringOf(prompt)
+		-- #3114: an extra with a ring has no click prompt; stepping into the ring collects or opens its card
+		if centre ~= nil then
+			local reach = WalkUp.promptReach(true, prompt.MaxActivationDistance)
+			if prompt.MaxActivationDistance ~= reach then
+				prompt.MaxActivationDistance = reach
+			end
+		end
 		local position = anchorPosition(extraId)
 		local away = if centre ~= nil
 			then Vector2.new(at.X - centre.X, at.Z - centre.Z).Magnitude > radius

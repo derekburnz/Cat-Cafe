@@ -3,8 +3,9 @@
 -- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart, in the camps the Yard Sale,
 -- the Oasis Spa, the Relic Museum and each Index Board (#3113) and, for its owner, the cafe's
 -- bait bowl on the back step (#2476) opens its window, and
--- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
--- closed by hand opens again with a press. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
+-- walking away closes it, as the Codes Cat's circle does (CodesController). #3114: a station with a ring has no click
+-- prompt any more (its prompt's reach is set to nothing here, WalkUp.promptReach), so a window closed by hand opens
+-- again by stepping out of the ring and back in; one without a ring keeps its prompt. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
 -- #3066: the feedback stand's ring opens the Feedback window straight on its text box, without the cursor in it (a
 -- held W would type into it); the cursor goes in once a keyboard player has stood still there for a moment
@@ -301,6 +302,13 @@ function WalkUpController.start()
 				-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
 				-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
 				local hasRing, centre, ringRadius = ringOf(model)
+				-- #3114: the ring is the only way in, so the click prompt of a station that has one never shows
+				if prompt ~= nil then
+					local reach = WalkUp.promptReach(hasRing, prompt.MaxActivationDistance)
+					if prompt.MaxActivationDistance ~= reach then
+						prompt.MaxActivationDistance = reach
+					end
+				end
 				local off = if prompt == nil
 					then not (loose == true and hasRing)
 					else not (prompt :: ProximityPrompt).Enabled

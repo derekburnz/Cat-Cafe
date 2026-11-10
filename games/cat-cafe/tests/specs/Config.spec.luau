@@ -550,6 +550,7 @@ return function()
 				LateStationsOpen = true, -- #2651 part 4: on since the Spa and Museum cards are in (#2931)
 				CatchHoldFirstRing = true, -- #2920: on since the Catch screen draws the hold (#2922)
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
+				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

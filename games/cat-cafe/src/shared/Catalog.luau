@@ -2485,14 +2485,17 @@ Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
 -- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a stock holds 0, 1, 2, 3 or 4 of each dealer food.
--- Averages 1.85, 0.95, 0.65 and 0.20: #1442 (Derek 2026-11-05, "a little bit" more) raises Moon Milk from 0.45 (in
--- stock 40% of nights, now 55%) and Star Treat from 0.10 (one night in ten, now one in five). F94 (rewards-and-shops.md
--- section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
+-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items and amount"): averages 2.45, 1.60, 1.20
+-- and 0.55, in stock 95%, 85%, 75% and 45% of nights. Before it (#1442, Derek 2026-11-05, "a little bit" more):
+-- sardines { 15, 25, 30, 20, 10 }, caviar { 35, 40, 20, 5, 0 }, moon_milk { 45, 45, 10, 0, 0 } and star_treat
+-- { 80, 20, 0, 0, 0 }, averages 1.85, 0.95, 0.65 and 0.20. Prices and bait odds are unchanged. With
+-- Config.DealerDryNights a long run without Moon Milk or a Star Treat ends on its own (shared/Dealer). F94
+-- (rewards-and-shops.md section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
-	sardines = { 15, 25, 30, 20, 10 },
-	caviar = { 35, 40, 20, 5, 0 },
-	moon_milk = { 45, 45, 10, 0, 0 },
-	star_treat = { 80, 20, 0, 0, 0 },
+	sardines = { 5, 15, 30, 30, 20 },
+	caviar = { 15, 35, 30, 15, 5 },
+	moon_milk = { 25, 40, 25, 10, 0 },
+	star_treat = { 55, 35, 10, 0, 0 },
 } :: { [string]: { number } }
 
 -- Section 9. Every area has the same odds since v0.13.7; farther areas pay more through incomeMultiplier instead.

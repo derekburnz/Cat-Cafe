@@ -4,9 +4,11 @@
 -- Catalog.dealerAmountWeights, and it holds the whole night; the next dusk rolls again, so each server's night is
 -- its own. Each player may buy up to the amount of each food that night; DealerService keeps the counts in memory and
 -- clears them at sunrise. Before F94 the stock rolled every 5 minutes, the same on every server; that roll moved to
--- the Fresh Catch shelf (shared/FreshCatch). Pure.
+-- the Fresh Catch shelf (shared/FreshCatch). #3011: a server that has gone Config.DealerDryNights nights in a row
+-- with none of a food stocks at least 1 of it the next night; DealerService keeps the count in memory. Pure.
 
 local Catalog = require(script.Parent.Catalog)
+local Config = require(script.Parent.Config)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Types = require(script.Parent.Types)
 
@@ -20,17 +22,39 @@ Dealer.pickAmount = FreshCatch.pickAmount
 
 export type FoodAmount = { lureId: string, amount: number }
 
--- One night's stock, one roll of `nextNumber` (0 to 1, the server's Random) per food, in Dealer.FOODS order.
-function Dealer.roll(nextNumber: () -> number): { FoodAmount }
+-- #3011: how many nights in a row, up to last night, this server stocked none of each Config.DealerDryNights food.
+export type Dry = { [string]: number }
+
+-- One night's stock, one roll of `nextNumber` (0 to 1, the server's Random) per food, in Dealer.FOODS order. With
+-- `dry` (#3011), a food that rolls 0 after Config.DealerDryNights dry nights in a row is stocked at 1 instead.
+function Dealer.roll(nextNumber: () -> number, dry: Dry?): { FoodAmount }
 	local foods: { FoodAmount } = {}
 	for _, lureId in Dealer.FOODS do
 		local weights = Catalog.dealerAmountWeights[lureId]
-		table.insert(foods, {
-			lureId = lureId,
-			amount = if weights ~= nil then Dealer.pickAmount(weights, nextNumber()) else 0,
-		})
+		local amount = if weights ~= nil then Dealer.pickAmount(weights, nextNumber()) else 0
+		local limit = Config.DealerDryNights[lureId]
+		if amount == 0 and limit ~= nil and dry ~= nil and (dry[lureId] or 0) >= limit then
+			amount = 1
+		end
+		table.insert(foods, { lureId = lureId, amount = amount })
 	end
 	return foods
+end
+
+-- The dry counts after a night that stocked `stock`: one more for each Config.DealerDryNights food it had none of,
+-- back to 0 for one it had. A new table; `dry` nil is a server's first night.
+function Dealer.dryAfter(dry: Dry?, stock: { FoodAmount }): Dry
+	local after: Dry = {}
+	for lureId in Config.DealerDryNights do
+		local had = false
+		for _, food in stock do
+			if food.lureId == lureId and food.amount > 0 then
+				had = true
+			end
+		end
+		after[lureId] = if had then 0 else (if dry ~= nil then dry[lureId] or 0 else 0) + 1
+	end
+	return after
 end
 
 -- The amount of `lureId` in `stock`; 0 for a food the dealer does not sell.

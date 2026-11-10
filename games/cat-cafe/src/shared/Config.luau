@@ -455,6 +455,9 @@ local Config = {
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
+	-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items"): no long dry spells. After this
+	-- many nights in a row on one server with none of the food, the next night stocks at least 1 (shared/Dealer).
+	DealerDryNights = { star_treat = 4, moon_milk = 3 } :: { [string]: number },
 	-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, by day. Every window of
 	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server. #1437: one game day
 	-- (DayLengthSeconds + NightLengthSeconds) from ClockEpoch, so the shelf restocks at every sunrise (was 300).

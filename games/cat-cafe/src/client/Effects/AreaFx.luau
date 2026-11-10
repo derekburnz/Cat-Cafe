@@ -275,7 +275,8 @@ local function updateDunes(area: string?, feet: Vector3)
 		end
 	end
 	for part in keep do
-		if plumes[part] == nil then
+		local had: Attachment? = plumes[part]
+		if had == nil then
 			local top = part.Position + part.CFrame.UpVector * (part.Size.Y / 2)
 			local anchor = Particles.anchor("DuneSand", top)
 			Particles.attach(d.emitter, anchor)

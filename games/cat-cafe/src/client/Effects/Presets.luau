@@ -90,8 +90,10 @@ export type Budget = {
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
--- (skill section 7). "high" is a PC or console. "lowPerformance" is the Low performance setting on any device:
--- under the phone budget everywhere, with half the steady particles.
+-- (skill section 7). "high" is a PC. "console" is an Xbox or PlayStation (#2871): it runs at the "high" tier, but
+-- with a budget between the phone's and the PC's, since an Xbox One or PS4 is far slower than a gaming PC and the
+-- console pass watches the frame rate in a busy Alleyway. "lowPerformance" is the Low performance setting on any
+-- device: under the phone budget everywhere, with half the steady particles.
 Presets.budget = {
 	low = {
 		animatedCats = 8,
@@ -166,6 +168,43 @@ Presets.budget = {
 		cafeOrders = 3,
 		crownGlints = 5,
 		shopCatEmitters = 2,
+	},
+	console = {
+		animatedCats = 12,
+		animRadius = 70,
+		animHz = 30,
+		steadyEmitters = 6,
+		rateScale = 1,
+		goldEmitters = 5,
+		butterflies = 10,
+		ambientRadius = 95,
+		chimneyRadius = 170,
+		burstScale = 0.75,
+		maxBurst = 20,
+		confetti = 20,
+		areaPuffs = 6,
+		napLabels = 6,
+		rushLines = 2,
+		signatureCats = 4,
+		decorEffects = 3,
+		lawnEffects = 4,
+		potionGlows = 4,
+		cloudPuffs = 12,
+		campfires = 2,
+		pullConfetti = 28,
+		rainbowCats = 8,
+		rainbowOutlines = 4,
+		rallyPops = 6,
+		pennants = 60,
+		decorMotion = 16,
+		netTrails = 4,
+		luckyShimmers = 3,
+		campDrips = 1,
+		campFish = 1,
+		rallyBoards = 1,
+		cafeOrders = 2,
+		crownGlints = 3,
+		shopCatEmitters = 1,
 	},
 	lowPerformance = {
 		animatedCats = 4,

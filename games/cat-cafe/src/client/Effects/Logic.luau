@@ -97,12 +97,16 @@ end
 -- The tier and budget effects run at: the device's own, or the Low performance budget on any device while that
 -- setting is on. The tier reads "low" then, so what else scales by Effects.tier() (the street's customers)
 -- comes down too.
+-- A console (`console`, a ten-foot screen; #2871) keeps the "high" tier but takes Presets.budget.console.
 function Logic.budgetFor(
 	device: Presets.Tier,
-	lowPerformance: boolean
+	lowPerformance: boolean,
+	console: boolean?
 ): (Presets.Tier, Presets.Budget)
 	if lowPerformance then
 		return "low", Presets.budget.lowPerformance
+	elseif console == true and device == "high" then
+		return device, Presets.budget.console
 	end
 	return device, Presets.budget[device]
 end

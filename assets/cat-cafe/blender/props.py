@@ -1135,21 +1135,23 @@ def curly_moustache(ctx):
 
 
 def letter(ctx):
-    """Postie, Mail Cat's second prop: a letter held in the mouth by its corner, a cream envelope with its flap
-    drawn on, a red seal and a teal stamp."""
+    """Postie, Mail Cat's second prop: a letter held sideways in the mouth, its near half bitten in the muzzle and the
+    other half sticking out to the cat's left and forward, a cream envelope with its flap drawn on, a red seal and a
+    teal stamp. Derek2 11-10: flat on the face it "looks a little off, have it sideways with half sticking out"."""
     F = ctx.pen("face")
-    R = _ry(-12)
-    c = Vector((0.2, -0.04, ctx.mouth_z - 0.1))
-    face, out = R @ _rx(90), tuple(R @ Vector((0, -1, 0)))
+    R = _rz(-68) @ _ry(6)                       # its long edge out of the mouth, swung 22 deg off straight ahead
+    c = Vector((0.1, 0.02, ctx.mouth_z - 0.02))   # the middle at the mouth's corner, so half is inside the muzzle
+    out = tuple(R @ Vector((0, -1, 0)))         # its outer face, toward the front and the cat's left
+    face = R @ _rx(90)
 
     def at(u, w, v=0.0):
         return tuple(c + R @ Vector((u, v, w)))
-    F.box(at(0, 0), (0.5, 0.03, 0.32), "offwhite", rot=R)                                     # the envelope
+    F.box(at(0, 0), (0.5, 0.03, 0.3), "offwhite", rot=R)                                      # the envelope
     for su in (-1, 1):                                                                          # its flap, a V
-        F.bar(at(su * 0.235, 0.145, -0.018), at(0, -0.02, -0.018), 0.035, 0.008, "fur_grey", up=out)
-    F.cyl(at(0, -0.02, -0.023), 0.055, 0.014, "bowl_red", rot=face, segments=10)            # wax seal
-    F.box(at(0.17, -0.085, -0.019), (0.09, 0.008, 0.1), "sign_teal", rot=R)                 # stamp, under the flap
-    F.box(at(0.17, -0.085, -0.024), (0.05, 0.004, 0.06), "offwhite", rot=R)
+        F.bar(at(su * 0.235, 0.135, -0.018), at(0, -0.02, -0.018), 0.035, 0.008, "fur_grey", up=out)
+    F.cyl(at(0.06, -0.02, -0.023), 0.05, 0.014, "bowl_red", rot=face, segments=10)            # wax seal
+    F.box(at(0.17, -0.08, -0.019), (0.09, 0.008, 0.1), "sign_teal", rot=R)                  # stamp, under the flap
+    F.box(at(0.17, -0.08, -0.024), (0.05, 0.004, 0.06), "offwhite", rot=R)
 
 
 def hero_mask(ctx):

@@ -207,7 +207,6 @@ local COUNTER_GAP = 14
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
 local TOP_GAP = 10 -- #2447: on touch, between the top bar's ends, the counters and the Luck row
-local CASH_TAG_H = 24 -- #2447: the owned Cash multiplier's small tag beside the money on touch
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
 local BOOST_ROWS_TIGHT = 10 -- more rows than this draw each row shorter (#1624)
@@ -2185,85 +2184,27 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 	)
 	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
+	-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join move the friend join bonuses and make
+	-- it smaller"): on touch it is not in that row (a pal joining made the row too wide for the top bar, and the Luck
+	-- chip, the money badge and the status banner all dropped a line). It is a small label in the clock's own line,
+	-- left of the sun: the clock is right-aligned, so the chip grows into free space and nothing is laid out from it
 	self._palIds = {} :: { number }
-	self._pals = PalChip.new(self._buffs.frame, function(shown: boolean)
-		self._buffs:setLead(shown, "pals")
-	end, function()
-		self:_toggleBoosts()
-	end)
-	self._palMarker = PalMarker.new()
-	-- #1962 (Derek2 11-07: "not in your face enough it should be on the side"): once a money pass is owned, a bold gold
-	-- "💰 Cash x2" chip leads the row over the money in place of the small "2x" beside it; a tap opens the boosts card
-	local cash: TextButton = Create("TextButton", {
-		Name = "CashChip",
-		AutoButtonColor = false,
-		BackgroundColor3 = Theme.colors.gold,
-		BorderSizePixel = 0,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, Scale.tapHeight(36)),
-		FontFace = Theme.fonts.display,
-		TextSize = 22,
-		TextColor3 = Theme.colors.white,
-		Text = "",
-		LayoutOrder = -1, -- before the Luck chip
-		Visible = false,
-		Parent = self._buffs.frame,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
-	})
-	if TOUCH then
-		-- #2447 (Derek2 11-08: "if someone bought 4x cash make the bubble much smaller on the side of the money"): on
-		-- touch the chip is a small gold tag right after the amount, in the counters' row at the top; the button
-		-- around it keeps the counters' height so a finger still finds it
-		cash.BackgroundTransparency = 1
-		cash.Size = UDim2.fromOffset(0, self._counterH)
-		cash.LayoutOrder = 2
-		cash.Parent = self._counters
-		self._fishPanel.LayoutOrder = 3
-		local pad = cash:FindFirstChildOfClass("UIPadding")
-		if pad then
-			pad:Destroy()
-		end
-		local tag: TextLabel = Create("TextLabel", {
-			Name = "Tag",
-			BackgroundColor3 = Theme.colors.gold,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.fromScale(0, 0.5),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, CASH_TAG_H),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + 1,
-			TextColor3 = Theme.colors.white,
-			Text = "",
-			Parent = cash,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			Create("UIPadding", { PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7) }),
-		})
-		Outline.text(tag, 1.5)
-		Outline.border(tag, 2)
-		-- the button sizes to its tag
-		tag:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-			local scale = math.max(Scale.get(), 0.01)
-			cash.Size = UDim2.fromOffset(
-				math.max(math.ceil(tag.AbsoluteSize.X / scale), Scale.tapHeight(0)),
-				self._counterH
-			)
-		end)
-		self._cashTag = tag
-	else
-		Outline.text(cash, 2.5)
-		Outline.border(cash, 3)
-	end
-	self._cashChip = cash
-	table.insert(
-		self._connections,
-		cash.Activated:Connect(function()
+	self._pals = PalChip.new(
+		if TOUCH then self._clock else self._buffs.frame,
+		function(shown: boolean)
+			if not TOUCH then
+				self._buffs:setLead(shown, "pals")
+			end
+		end,
+		function()
 			self:_toggleBoosts()
-		end)
+		end,
+		TOUCH
 	)
+	self._palMarker = PalMarker.new()
+	-- #3052 (Derek2 11-10: "if 4x money is bought just add it to money breakdown no need for a symbol"): an owned money
+	-- pass has no chip or tag in the HUD (#1962's gold "💰 Cash x2" chip, #2447's small tag after the amount); its
+	-- "Money pass x4" row is in the boosts card a tap on the money opens (Components/BoostList)
 	-- #1895: "🐾 A cat is coming! 1m 42s" in the potion timers' row over the money while the account's short first
 	-- bait waits (Components/FirstBait), so the player stays and does something else meanwhile
 	self._coming = Create("TextLabel", {
@@ -4370,20 +4311,8 @@ function HUD.setMoneyBadge(
 )
 	local button: TextButton = self._moneyBadge
 	self._moneyBadgeId = if badge ~= nil and not badge.owned then badge.id else nil
-	-- #1962: an owned multiplier shows as the side chip, not beside the money
-	local chip: TextButton = self._cashChip
+	-- #3052: an owned multiplier shows nowhere in the HUD; the boosts card has its row
 	local owned = badge ~= nil and badge.owned
-	chip.Visible = owned
-	if badge ~= nil and owned then
-		local said = (badge.text:gsub("^(%d+)x$", "x%1"))
-		local tag: TextLabel? = self._cashTag
-		if tag then
-			tag.Text = "💰 " .. said -- #2447: the small tag beside the money on touch
-		else
-			chip.Text = "💰 Cash " .. said
-		end
-	end
-	self._buffs:setLead(owned and not TOUCH, "cash")
 	button.Visible = badge ~= nil and not owned
 	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): the golden
 	-- fish sits a normal gap after the amount with or without the badge (since #2383 the money's room is its shape's)

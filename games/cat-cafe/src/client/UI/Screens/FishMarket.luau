@@ -70,6 +70,8 @@ local PAL = Theme.dark
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 -- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
 local Crates = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Crates"))
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local SwiftPaws = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SwiftPaws"))
 
 export type Callbacks = {
 	openCrate: (crateId: string) -> (),
@@ -199,7 +201,21 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 		icon = "🌿", -- #2015: not 🪴, drawn blank
 		blurb = "One more spot for furniture or decorations a level.",
 	},
+	-- #3063: walking and carrying a cat; the card credits the player who suggested it (Derek2 17:42)
+	[SwiftPaws.ID] = {
+		name = "Swift Paws",
+		icon = "🐾",
+		blurb = ("+1 walk speed a level, forever. Idea by %s"):format(SwiftPaws.CREDIT),
+	},
 }
+
+-- #3063: whether a Market row shows; Swift Paws hides while its live switch (copied to ReplicatedStorage) is off
+local function rowShown(row: Types.FishShopRow): boolean
+	if row.id ~= SwiftPaws.ID then
+		return true
+	end
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG) ~= false
+end
 
 local FishMarket = {}
 FishMarket.__index = FishMarket
@@ -1945,6 +1961,7 @@ function FishMarket._refresh(self: any)
 
 	for _, entry: ItemRow in self._itemRows do
 		local row = entry.row
+		entry.frame.Visible = rowShown(row)
 		local level = if state.fishPerks then state.fishPerks[row.id] else nil
 		local cost = MarketLogic.cost(row, level)
 		local pending = self:_pendingFor(row.id)

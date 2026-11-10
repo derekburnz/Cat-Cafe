@@ -16,6 +16,9 @@
 --   the way to stop them filling it without a publish. Notes already written expire by themselves.
 -- - `nightCatch` (#3035): night catching for a Tier 1 player in their first session (shared/NightPass). It starts OFF
 --   (OFF_BY_DEFAULT); true opens the Alleyway to them at night, and off again sends them home at the next night sweep.
+-- - `swiftPaws` (#3063): false hides the Golden Fish Market's Swift Paws row, refuses a buy and drops its speed at
+--   the next speed set (shared/SwiftPaws); saved levels are kept.
+-- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
 -- the other way round: only an explicit true turns it on, so a missing key or a broken store never switches it on.
@@ -23,10 +26,12 @@
 local LiveFlags = {}
 
 LiveFlags.STORE = "CatCafe_Flags"
-LiveFlags.KEYS = { "codes", "rally", "tradeCrates", "tradeFish", "awayNotes", "nightCatch" }
+LiveFlags.KEYS =
+	{ "codes", "rally", "tradeCrates", "tradeFish", "awayNotes", "nightCatch", "swiftPaws" }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = { tradeFish = true, nightCatch = true } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
+LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
 
 export type Flags = { [string]: boolean }
 

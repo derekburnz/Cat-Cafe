@@ -51,6 +51,7 @@ local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
+local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -355,6 +356,12 @@ local holdsCatch: (Player) -> boolean
 -- Sets a character's walk speed: `base` (normal, carry or Catch Rush) plus a running Swift Potion's
 -- SwiftPotionSpeed (F64). #2052 (Derek2: walking off mid catch left the net on the ground): while the player's catch
 -- circles run they stand still, with no walk and no jump, until the catch ends, fails or is dropped.
+-- #3063: the Swift Paws perk's walk speed for `player` (0 while its switch is off). Only the normal walk and a carry
+-- add it, never the catch rush or a Startled slow.
+local function pawsBonus(player: Player): number
+	return SwiftPaws.bonus(DataService.get(player), LiveFlagService.on(SwiftPaws.FLAG))
+end
+
 local function setSpeed(player: Player, humanoid: Humanoid, base: number)
 	local profile = DataService.get(player)
 	local still = holdsCatch(player)
@@ -1306,7 +1313,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	model.Parent = character
 	carry.model = model
 	if humanoid ~= nil then
-		setSpeed(player, humanoid, Config.CarryWalkSpeed)
+		setSpeed(player, humanoid, Config.CarryWalkSpeed + pawsBonus(player))
 	end
 	showCarry(player, carry)
 end
@@ -1340,7 +1347,7 @@ local function getaway(player: Player, carry: Carry)
 			then current:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			else nil
 		if carrying[player] == carry and nowHumanoid ~= nil then
-			setSpeed(player, nowHumanoid, Config.CarryWalkSpeed)
+			setSpeed(player, nowHumanoid, Config.CarryWalkSpeed + pawsBonus(player))
 		end
 	end)
 	local facing = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
@@ -3044,7 +3051,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			end
 			local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			if humanoid ~= nil then
-				setSpeed(player, humanoid, Config.NormalWalkSpeed)
+				setSpeed(player, humanoid, Config.NormalWalkSpeed + pawsBonus(player))
 			end
 		end)
 	end)
@@ -3284,14 +3291,16 @@ function CatService.refreshSpeed(player: Player)
 	end
 	local carry = carrying[player]
 	local startled = startledUntil[player]
+	-- #2706: a little faster on the Town Square
+	local square = if (character :: Model):GetAttribute("OnSquare") == true
+		then Config.TownWalkSpeedBonus
+		else 0
 	local base = if carry == nil
-		then Config.NormalWalkSpeed + (if (character :: Model):GetAttribute("OnSquare") == true
-			then Config.TownWalkSpeedBonus
-			else 0) -- #2706: a little faster on the Town Square
+		then Config.NormalWalkSpeed + pawsBonus(player) + square
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed
-		else Config.CarryWalkSpeed
+		else Config.CarryWalkSpeed + pawsBonus(player) -- #3063: Swift Paws, never on the rush
 	-- Startled slows a carry too (a forfeit miss), never speeds one up (review N247)
 	if startled ~= nil and startled > serverNow() then
 		base = math.min(base, Config.StartledWalkSpeed)

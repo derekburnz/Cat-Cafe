@@ -101,6 +101,7 @@ export type FishMarket = {
 		refund: number
 	) -> (),
 	allResult: (self: FishMarket, crateId: string, opened: { any }) -> (),
+	setTradeCrates: (self: FishMarket, onOffer: { [string]: number }) -> (), -- #2745
 	destroy: (self: FishMarket) -> (),
 }
 
@@ -272,6 +273,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._lureById = {} :: { [string]: Types.LureDef }
 	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its golden crate's odds
 	self._crateCards = {} :: { CrateCard }
+	self._tradeCrates = {} :: { [string]: number } -- #2745: crate id -> how many are on my side of an open trade
 	self._itemRows = {} :: { ItemRow }
 	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() when its wait for the server ends
 	self._retry = {} :: { [string]: number } -- #2577: crate id -> os.clock() until its button reads "Try again"
@@ -1778,6 +1780,16 @@ function FishMarket._buy(self: any, row: Types.FishShopRow)
 	self:_refresh()
 end
 
+-- #2745: the crate kinds on my side of an open trade (crate id -> count; empty when none). Their Open and Open all
+-- grey with "In a trade" until the trade ends.
+function FishMarket.setTradeCrates(self: any, onOffer: { [string]: number })
+	self._tradeCrates = onOffer
+	local state: Types.PlayerState? = self._state
+	if state ~= nil then
+		self:render(state)
+	end
+end
+
 function FishMarket.render(self: any, state: Types.PlayerState)
 	self._state = state
 	-- a sync that changes a perk's level or a food count ends that row's wait for the server (the state table is
@@ -1842,7 +1854,17 @@ function FishMarket._refresh(self: any)
 		-- behind it (#1146's rule, kept by _open), and one whose wait ran out unanswered reads "Try again"
 		local pending = self:_pendingFor(crate.id) or self._queued == crate.id
 		local retry = not pending and (self._retry[crate.id] or 0) > os.clock()
-		if count > 0 then
+		local inTrade = count > 0 and (self._tradeCrates[crate.id] or 0) > 0
+		if inTrade then
+			-- #2745: on offer in a trade, so the server refuses an open ("This crate is in a trade")
+			entry.line.Text = ("You have %s (%s in a trade)"):format(
+				Format.commas(count),
+				Format.commas(self._tradeCrates[crate.id])
+			)
+			entry.open:setText("In a trade")
+			entry.open:setStyle("primary")
+			entry.open:setEnabled(false)
+		elseif count > 0 then
 			entry.line.Text = ("You have %s"):format(Format.commas(count))
 			entry.open:setText(if pending then "..." elseif retry then "Try again" else "Open")
 			entry.open:setStyle("primary")
@@ -1914,7 +1936,7 @@ function FishMarket._refresh(self: any)
 			entry.openAll:setText(
 				if allWaiting then "..." else ("Open all (%s)"):format(Format.short(all))
 			)
-			entry.openAll:setEnabled(not allWaiting)
+			entry.openAll:setEnabled(not allWaiting and not inTrade)
 		end
 	end
 	self._emptyCrates.Visible = shown == 0

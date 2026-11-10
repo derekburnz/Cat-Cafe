@@ -6800,6 +6800,17 @@ do
 		if screen then
 			screen:setTrade(now)
 		end
+		if marketScreen then
+			-- #2745: a crate kind on my side of the trade can't be opened at the Market meanwhile
+			local onOffer: { [string]: number } = {}
+			local mine: { any } = if now ~= nil and type((now.me :: any).crates) == "table"
+				then (now.me :: any).crates
+				else {}
+			for _, crate in mine do
+				onOffer[crate.id] = crate.count
+			end
+			marketScreen:setTradeCrates(onOffer)
+		end
 		local modalView = modal
 		if modalView == nil then
 			return

@@ -37,6 +37,7 @@ return function()
 				"offline:card",
 				"perfect:card", -- #2282
 				"tackle_try:card", -- #2302
+				"park_first:card", -- #2915
 			})
 		end)
 
@@ -54,6 +55,7 @@ return function()
 				"offline",
 				"perfect",
 				"tackle_try",
+				"park_first",
 			})
 		end)
 

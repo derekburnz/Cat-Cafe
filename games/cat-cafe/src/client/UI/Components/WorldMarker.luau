@@ -1,7 +1,7 @@
 --!strict
 -- A BillboardGui marker over a world target with a label and live distance ("Check in · 24 m").
--- Used for the carry indicator (own cafe door), tutorial arrows and the Cat Whistle's stray. One marker per purpose.
--- It draws within 500 studs, or `maxDistance` (the Cat Whistle's reach, #1458).
+-- Used for the carry indicator (own cafe door) and tutorial arrows. One marker per purpose.
+-- It draws within 500 studs, or `maxDistance` when given (#1458).
 -- #2697: a `flash` marker (the tutorial's) also flashes its target and points at it from the screen's edge while it is
 -- off screen (Components/StepTarget), and its arrow is twice the size and bobs (still with Reduce Motion on).
 

@@ -5932,7 +5932,7 @@ local SCENES = {
 	{ "LawnStallFences", function()
 		UI.nursery.open("fence")
 	end },
-	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a whistle sold out
+	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a Steady Potion sold out
 	{ "CornerShop", function()
 		UI.cornerShop.setStock({
 			window = 5000000,
@@ -5943,7 +5943,7 @@ local SCENES = {
 				{ itemId = "cat_snack", price = 6000, amount = 2, bought = 1 },
 				{ itemId = "big_cat_snack", price = 24000, amount = 0, bought = 0 },
 				{ itemId = "cat_feast", price = 12000, amount = 1, bought = 0 },
-				{ itemId = "cat_whistle", price = 18000, amount = 1, bought = 1 },
+				{ itemId = "steady_potion", price = 3500, amount = 1, bought = 1 },
 			},
 		})
 		UI.cornerShop.open()
@@ -5992,9 +5992,6 @@ local SCENES = {
 				{ itemId = "quick_bait_potion_small", price = 4900, amount = 0, bought = 1 },
 				{ itemId = "quick_bait_potion", price = 5600, amount = 1, bought = 0 },
 				{ itemId = "quick_bait_potion_big", price = 6300, amount = 2, bought = 0 },
-				{ itemId = "cat_whistle_small", price = 7000, amount = 0, bought = 0 },
-				{ itemId = "cat_whistle", price = 7700, amount = 1, bought = 0 },
-				{ itemId = "cat_whistle_big", price = 8400, amount = 2, bought = 1 },
 				{ itemId = "small_cat_snack", price = 9100, amount = 0, bought = 0 },
 				{ itemId = "cat_snack", price = 9800, amount = 1, bought = 0 },
 				{ itemId = "big_cat_snack", price = 10500, amount = 2, bought = 0 },

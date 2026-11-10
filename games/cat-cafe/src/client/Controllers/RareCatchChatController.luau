@@ -4,10 +4,15 @@
 -- server. The toast for this server's catches is UIController's Announce, as before.
 --
 -- Roblox terms: TextChatService is the built-in chat. Its RBXGeneral channel is the one every player sees, and
--- DisplaySystemMessage adds a line to it on this client only, with no speaker. #2902: the place still runs the
--- legacy chat (ChatVersion LegacyChatService), where TextChatService has no channels and the line used to be dropped;
--- there StarterGui:SetCore("ChatMakeSystemMessage") writes it instead, as plain text in the rarity's colour. SetCore
--- errors until the legacy chat has loaded, so a line is retried for up to LEGACY_TRIES seconds.
+-- DisplaySystemMessage adds a line to it on this client only, with no speaker.
+--
+-- #3012 (Derek2 2026-11-10: the chat button's blue bubble lit but the chat window was empty, and "global chat for
+-- mythic or better cats still does not work on live"): the place Rojo built had no TextChatService in it, so it ran
+-- the legacy chat (ChatVersion LegacyChatService), which Roblox no longer draws a window for. default.project.json
+-- sets ChatVersion to TextChatService since then (a script cannot change it at run time; run-tests.mjs checks the
+-- project file), so the line takes the DisplaySystemMessage road. The legacy road (#2902:
+-- StarterGui:SetCore("ChatMakeSystemMessage"), retried for LEGACY_TRIES seconds while that chat loads) stays for a
+-- place file built without the setting, and says so once in the log.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
@@ -86,6 +91,11 @@ local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 end
 
 function RareCatchChatController.start()
+	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then
+		warn(
+			"[RareCatchChat] this place runs the legacy chat; rare catch lines may not show. Set ChatVersion in default.project.json (#3012)"
+		)
+	end
 	Net.on("RareCatchChat", show)
 end
 

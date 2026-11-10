@@ -15,8 +15,10 @@
 --     only a guess (the server judges on its own clock), so the later circles stay up until the server's CatchJudged
 --     for that press: a Good or Perfect there and the catch goes on, a Miss (or the CatchResult) clears them
 --   - a strip of pips at the top of the screen, one per circle, fills with each grade's colour as it lands
+--   - #3009: the header (the cat's name, rarity and hint) goes the moment the server's result comes, and a catch's
+--     word shows for RESULT.caught.seconds (0.4 s), a bolt's for RESULT.missed.seconds (0.8 s)
 --   - when the server's result comes, one word slams in over the strip (Components/CatchWords: PURRFECT!,
---     EXCELLENT!, GREAT! or "So close!"), then the strip and the word fade and the screen is clear by 1.2 s
+--     EXCELLENT!, GREAT! or "So close!"), then the strip and the word fade and the screen is clear by RESULT's seconds
 -- The result word is the TextLabel Root.ResultWord, Visible only while it shows: Effects/Catch bursts off it in its
 -- colour. The camera shake and the hiss are the vfx-animator's and the sound-designer's.
 --
@@ -154,11 +156,15 @@ local RING_THICKNESS = 4
 -- data-model CatchLatencyCapSeconds (0.15): the server stops waiting for a circle's press this long
 -- after the good window closes. Read from Config once the engineer adds it.
 local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
-local RESULT_SECONDS = 1.2 -- the result word and the strip are gone by then, caught or not (F93)
-local RESULT_FADE_AT = 0.8 -- they start to fade here
-local RESULT_FADE =
-	TweenInfo.new(RESULT_SECONDS - RESULT_FADE_AT, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
--- the strip steps back under the result word so the word reads, then both fade from RESULT_FADE_AT
+-- #3009 (Derek2 11-10: the word and the cat's banner "stay for too long on catch should disappear almost instantly
+-- ... especially the banner should be instantly gone on mobile after it is caught"): the header goes the moment the
+-- result comes, and a catch's word is a 0.4 s flash (it was 1.2 s, F93). A bolt's "So close!" keeps 0.8 s, since it
+-- is the only thing on the catch screen that says the try failed.
+local RESULT = {
+	caught = { seconds = 0.4, fadeAt = 0.25 },
+	missed = { seconds = 0.8, fadeAt = 0.5 },
+}
+-- the strip steps back under the result word so the word reads, then both fade from RESULT's fadeAt
 local UNDER_WORD = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local CLEAR = TweenInfo.new(0.14, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 -- the progress strip at the top of the screen, over the header (which sits at 80; Roblox's buttons stop at 58 on
@@ -712,6 +718,7 @@ function CatchCircles.show(
 
 	self._tap.Visible = true
 	self.screenGui.Enabled = true
+	self._header.Visible = true -- #3009: the last result hid it
 	Tween.popIn(self._header, 0.9)
 	if count > 0 then
 		Tween.popIn(self._strip, 0.9)
@@ -1069,8 +1076,9 @@ end
 
 -- The server's verdict. Each graded circle's pip takes the server's grade (it pops again only where this device
 -- guessed differently), circles after the Miss go, every pip takes its server colour, and the result word slams in
--- over the strip (Components/CatchWords). The strip and the word fade from RESULT_FADE_AT and the overlay hides at
--- RESULT_SECONDS, caught or not; onDone runs then.
+-- over the strip (Components/CatchWords). #3009: the header goes at once (it stays only for a result with its own
+-- hint, F87's "Try again!"), the strip and the word fade from RESULT's fadeAt and the overlay hides at its seconds;
+-- onDone runs then.
 function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())?)
 	if not self._active then
 		if onDone then
@@ -1156,25 +1164,36 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 	else
 		slam()
 	end
-	self._hint.Text = outcome.hint
-		or (if success then "Carry it home to check in" else "It got away! Chase it!")
+	-- #3009: the header is gone the moment the cat is caught or bolts (the carry banner and the "It got away!" toast
+	-- say what comes next); only a result with its own line (F87's "Try again!") keeps it up to show that line
+	if outcome.hint ~= nil then
+		self._hint.Text = outcome.hint
+	else
+		self._header.Visible = false
+	end
 
-	task.delay(delay + RESULT_FADE_AT, function()
+	local timing = if success then RESULT.caught else RESULT.missed
+	local fade = TweenInfo.new(
+		timing.seconds - timing.fadeAt,
+		Enum.EasingStyle.Quad,
+		Enum.EasingDirection.In
+	)
+	task.delay(delay + timing.fadeAt, function()
 		if self._token ~= token then
 			return
 		end
-		Tween.to(word, RESULT_FADE, { TextTransparency = 1 })
-		Tween.to(self._wordStroke, RESULT_FADE, { Transparency = 1 })
-		Tween.to(self._strip, RESULT_FADE, { BackgroundTransparency = 1 })
+		Tween.to(word, fade, { TextTransparency = 1 })
+		Tween.to(self._wordStroke, fade, { Transparency = 1 })
+		Tween.to(self._strip, fade, { BackgroundTransparency = 1 })
 		for _, pip in self._pips :: { Frame } do
-			Tween.to(pip, RESULT_FADE, { BackgroundTransparency = 1 })
+			Tween.to(pip, fade, { BackgroundTransparency = 1 })
 			local stroke = pip:FindFirstChildOfClass("UIStroke")
 			if stroke then
-				Tween.to(stroke, RESULT_FADE, { Transparency = 1 })
+				Tween.to(stroke, fade, { Transparency = 1 })
 			end
 		end
 	end)
-	task.delay(delay + RESULT_SECONDS, function()
+	task.delay(delay + timing.seconds, function()
 		if self._token ~= token then
 			return
 		end

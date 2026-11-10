@@ -178,6 +178,13 @@ export type CustomEvent =
 	| "step_stall"
 	-- #3098: beside quit_state, value the session's seconds; idle bucket, screen open, afford (yes, no or na)
 	| "quit_snapshot"
+	-- #3098 P2: once a session about 150 s in, value the client's fps; ping bucket, memory bucket, device
+	| "health_check"
+	-- #3098 P2: a join within an hour of the last leave, value the minutes away; furthest step, minutes bucket,
+	-- session number bucket
+	| "quick_return"
+	-- #3098 P2: beside quit_snapshot, value the session's seconds; cats working, table level, cats owned
+	| "quit_cafe"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
 	| "first_bait_arrived"
 	-- #2651 part 4 (late-stations.md section 3): a cat into the Oasis Spa or collected from it, value 1; the level band
@@ -353,6 +360,8 @@ local REPORTS = {
 	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
 	"park_first_hint", -- #2915: the first Park landing's hint shown, PARK_HINTS
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
+	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
+	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -459,6 +468,8 @@ type Session = {
 	activeAt: number,
 	lastAt: Vector3?,
 	snapScreen: string,
+	healthMem: string?, -- #3098 P2: the memory bucket the client reported, for health_check
+	healthLogged: boolean, -- #3098 P2: health_check logged this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -1557,6 +1568,32 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
 		end
+	elseif name == "health_mem" then
+		-- #3098 P2: kept for the health_check that follows; below Tier 2 only, like the other first-five events
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue <= FirstFive.MEMORY_MAX
+		then
+			session.healthMem = FirstFive.memoryBucket(rawValue :: number)
+		end
+	elseif name == "health_fps" then
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue <= FirstFive.FPS_MAX
+			and not session.healthLogged
+			and Economy.tier(profile) < 2
+		then
+			session.healthLogged = true
+			Telemetry.custom(player, "health_check", math.floor(rawValue :: number), {
+				FirstFive.pingBucket(player:GetNetworkPing() * 1000),
+				session.healthMem or "unknown",
+				session.device or "unknown",
+			})
+		end
 	elseif name == "screen_short" then
 		local size = Guard.oneOf(rawValue, SCREEN_SHORTS)
 		if size ~= nil and not session.nudges.screen_short then
@@ -1796,6 +1833,8 @@ local function onLoaded(player: Player, profile: Profile)
 		activeAt = os.clock(),
 		lastAt = nil,
 		snapScreen = "none",
+		healthMem = nil,
+		healthLogged = false,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -1825,6 +1864,22 @@ local function onLoaded(player: Player, profile: Profile)
 		1,
 		{ session.source, if firstSession then "new" else "returning", tierText(profile) }
 	)
+	-- #3098 P2: a beginner back within the hour, so the leave read counts only the players truly lost
+	local away = now - profile.lastSeen
+	if
+		not firstSession
+		and profile.lastSeen > 0
+		and away >= 0
+		and away < FirstFive.QUICK_RETURN_SECONDS
+		and Economy.tier(profile) < 2
+	then
+		local minutes = math.floor(away / 60)
+		Telemetry.custom(player, "quick_return", minutes, {
+			Onboarding.furthest(profile.telemetry),
+			FirstFive.awayBucket(minutes),
+			FirstFive.sessionBucket(profile.stats.sessions),
+		})
+	end
 	if firstSession then
 		-- the template's coins never pass through Economy.credit, so they are not in lifetimeCoins
 		logEconomy(
@@ -2008,6 +2063,21 @@ local function onRelease(player: Player, profile: Profile)
 		})
 		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
 		local buy = FirstFive.nextBuy(profile.telemetry)
+		-- #3098 P2: the cafe they left behind
+		local working = 0
+		local owned = 0
+		for _, instance in profile.cats do
+			owned += 1
+			if instance.spotId ~= nil then
+				working += 1
+			end
+		end
+		Telemetry.custom(
+			player,
+			"quit_cafe",
+			played,
+			FirstFive.cafeFields(working, Economy.level(profile, "tables"), owned)
+		)
 		Telemetry.custom(player, "quit_snapshot", played, {
 			FirstFive.idleBucket(os.clock() - session.activeAt),
 			session.snapScreen,

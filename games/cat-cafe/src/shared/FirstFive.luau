@@ -10,6 +10,13 @@
 --   after the furthest), the bucket, and the last stuck nudge the client showed for it (HINTS).
 -- - quit_snapshot: on leaving, value the session's seconds. Fields: idle bucket (no movement or report), the screen
 --   open (SNAP_SCREENS), and whether the coins cover the next onboarding buy (yes, no, na).
+-- P2:
+-- - health_check: once a session at HEALTH_AT seconds in, value the client's frames a second; ping bucket (the
+--   server's GetNetworkPing), memory bucket (the client's total MB), device.
+-- - quick_return: on a join within QUICK_RETURN_SECONDS of the last leave, value the whole minutes away; the furthest
+--   step, the minutes bucket (0-10, 10-30, 30-60), the session number bucket (2, 3, 4+).
+-- - quit_cafe: beside quit_snapshot, value the session's seconds; cats working (0, 1, 2, 3+), table level (0, 1,
+--   2+), cats owned (1, 2, 3, 4+).
 
 local Onboarding = require(script.Parent.Onboarding)
 local Types = require(script.Parent.Types)
@@ -29,6 +36,55 @@ FirstFive.SNAP_SCREENS = table.freeze({
 	Collection = "index",
 	Settings = "settings",
 }) :: { [string]: string }
+
+FirstFive.HEALTH_AT = 150 -- session seconds before the client measures
+FirstFive.HEALTH_SAMPLE = 2 -- seconds of frames counted
+FirstFive.FPS_MAX = 240
+FirstFive.MEMORY_MAX = 65536 -- MB; a report above it is dropped
+FirstFive.QUICK_RETURN_SECONDS = 3600
+
+-- health_check's ping field for a round trip of `ms` milliseconds.
+function FirstFive.pingBucket(ms: number): string
+	if ms < 100 then
+		return "lt100"
+	elseif ms < 250 then
+		return "100-250"
+	end
+	return "250+"
+end
+
+-- health_check's memory field for the client's `mb` in use.
+function FirstFive.memoryBucket(mb: number): string
+	if mb < 800 then
+		return "lt800"
+	elseif mb < 1500 then
+		return "800-1500"
+	end
+	return "1500+"
+end
+
+-- quick_return's fields after the step: the minutes away bucket and the session number bucket.
+function FirstFive.awayBucket(minutes: number): string
+	if minutes < 10 then
+		return "0-10"
+	elseif minutes < 30 then
+		return "10-30"
+	end
+	return "30-60"
+end
+
+function FirstFive.sessionBucket(sessions: number): string
+	return if sessions <= 2 then "2" elseif sessions == 3 then "3" else "4+"
+end
+
+-- quit_cafe's counts: cats working, table level and cats owned, as their buckets.
+function FirstFive.cafeFields(working: number, tables: number, owned: number): { string }
+	return {
+		if working >= 3 then "3+" else tostring(math.max(0, working)),
+		if tables >= 2 then "2+" else tostring(math.max(0, tables)),
+		if owned >= 4 then "4+" else tostring(math.max(1, owned)),
+	}
+end
 
 -- quit_snapshot's idle field for `seconds` with no movement or report.
 function FirstFive.idleBucket(seconds: number): string

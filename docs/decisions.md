@@ -748,3 +748,11 @@ Why: the repo is public, so every Actions log is, and the standing rule is that 
 Different cats needed to rank up: Tier 3 **10** (was 11), Tier 5 **26** (was 28), Tier 6 **38** (was 42), Tier 7 **47** (was 52). Tier 4 stays at 22. Costs and the rarity needs are unchanged.
 
 Why: Derek asked to "lower the different cats requirement a little bit between 3-7". About one cat in ten comes off each tier. Tier 4 could not come down: with 21 or 20 a 4x Money owner reaches Tier 5 in a median of 1 h 47 to 1 h 53 of play in one go, under the 2 hour floor in Pace.spec (economy-ladder.md section 8 check 7), and 10, 20, 25 also put every-paid-bonus players under Monetization's 1 hour floor. With 10, 22, 26 both floors hold. Lowering Tier 4 as well would need the floor relaxed or Tier 5's cost raised, which is Derek's and the designer's call. No save change: the need is read from the table, so a player who already has enough cats can rank up at once.
+
+## 2026-11-10 Alleyway: strays spread through the whole lane (#3170)
+
+The Alleyway's back end has 4 nook spawn points (was 8), and 6 new `mid` points fill the middle stretch, which had none, between the Skip and Van blocker rows. Any rarity may now spawn on any of its points: the nooks no longer hold its Epic and up (`Catching.KEEP_ZONES` keeps only the side areas' deep half for Mythicals), and a daytime top-up takes any free point instead of the nooks first (`StrayTopUp.FAR_ZONES` is `deep` only). Before and after map: the Library's `Animation-Engineer/images/alley-spawns-3170.png`.
+
+Why: Derek2: "all the cats in alleyway are piled into the back now spread them out through the entire area even the decent ones and remove some of the spawns from the back area". Each top-up went to a back nook while one was free, and every Epic or better waited only there, so the cats gathered at the back.
+
+Pace: the walks are shorter, so the Pace model's Tier 2 comes about 1 minute sooner (new player 8.9 min, was just over 9; 4-friend non-stop catcher 5.9, was about 6.9), and Tier 5 in one go 4 h 28 (floor was 4.5 h). The Tier 2 bands in Pace.spec go down by that much (8.5 to 12 for a new player) and the Tier 5 floor to 4.25 h. Derek2 has a decision card in the Animation-Engineer thread to keep the old pace instead, which would mean raising Tier 2's cost.

@@ -1161,4 +1161,30 @@ return function()
 			expect(Circles.looksHonest(history)).to.equal(false)
 		end)
 	end)
+
+	describe("the first missed ring for catch_circles (#2913)", function()
+		it("reads early, late or no press from the first Miss, nil with none", function()
+			local windows = Circles.windowsFor(0, "Common")
+			local function attemptOf(): any
+				return Circles.newAttempt(Circles.tutorialSchedule(NOW, constant(0.5)), windows)
+			end
+			local early = attemptOf()
+			local target = Circles.target(early.circles[1])
+			expect(Circles.firstMiss(early)).never.to.be.ok() -- nothing judged yet
+			local tooSoon = target - windows.good - 0.05
+			expect(Circles.press(early, 1, tooSoon, tooSoon)).to.equal("miss")
+			expect(Circles.firstMiss(early)).to.equal("missed_early")
+			local late = attemptOf()
+			local tooLate = target + windows.good + 0.05
+			expect(Circles.press(late, 1, tooLate, tooLate)).to.equal("miss")
+			expect(Circles.firstMiss(late)).to.equal("missed_late")
+			local none = attemptOf()
+			Circles.expire(none, Circles.deadline(none.circles[1], windows) + 1)
+			expect(none.grades[1]).to.equal("miss")
+			expect(Circles.firstMiss(none)).to.equal("missed_none")
+			local hit = attemptOf()
+			expect(Circles.press(hit, 1, target, target)).to.equal("perfect")
+			expect(Circles.firstMiss(hit)).never.to.be.ok()
+		end)
+	end)
 end

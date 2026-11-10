@@ -3672,6 +3672,46 @@ Presets.contextCut = {
 	displayOrder = 10,
 }
 
+-- The first bait's cutscene (Effects/FirstBaitCut, #2946, Design-Agent's spec on the issue): the camera eases over
+-- `swingIn` s to `back` studs past the bowl from the yard and `up` studs up (`backTall`/`upTall` on a portrait
+-- screen), looking `lookUp` studs over the bowl, tried at each of `swings` degrees round the bowl until a ray reaches
+-- it clear. The bait cat walks in `walkDistance` studs from the yard (`walkSide` to the side; SlotWalk's copy, about
+-- `walk` s, never waited on past `walkMax`), eats over `eat` s with `bites` head dips (`dip` studs down, `pitch`
+-- degrees) and a heart puff of `happy` sparkles `happyUp` studs over it halfway, and the camera eases back over
+-- `swingOut`. It waits up to `waitCat` s for the server's cat.
+-- A press from `skipAfter` s skips it (back over `skipOut`); the "Tap to skip" label (`skipSize` px, `skipFade`
+-- transparency) sits in the bottom right on a ScreenGui at `displayOrder`. Everything is given back at `cap` s
+-- whatever happened. Off when the bowl is more than `maxDistance` studs from the player.
+Presets.firstBaitCut = {
+	swingIn = 0.5,
+	swingOut = 0.5,
+	back = 10,
+	up = 6,
+	backTall = 13,
+	upTall = 7,
+	lookUp = 1.5,
+	swings = { 0, 45, -45, 90, -90 },
+	walk = 1.6,
+	walkMax = 2.2,
+	walkDistance = 9,
+	walkSide = 3,
+	eat = 1.0,
+	bites = 2,
+	dip = 0.1,
+	pitch = 30,
+	happy = 10,
+	happyUp = 2,
+	waitCat = 2.5,
+	skipAfter = 0.3,
+	skipOut = 0.25,
+	skipSize = 18,
+	skipFade = 0.4,
+	displayOrder = 10,
+	cap = 6.5,
+	maxDistance = 120,
+	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
+}
+
 -- The front lawn pieces' effects (Effects/Lawn, #1283, front-lawn.md section 5), by LawnId. Each spot is `offset`
 -- studs from the bounding box centre of the piece's child named ending `at`, else from the piece's pivot (in its
 -- space). `emitter` is a steady Presets.emitters entry (`night`: only after dark); `light` a soft PointLight (`night`:

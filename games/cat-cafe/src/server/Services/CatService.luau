@@ -1590,8 +1590,9 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		-- #1934: the PURRFECT badges' counts (a forfeit is no judged catch, so it leaves the run as it is)
 		Badges.noteFinish(profile.stats, finishKind == "purrfect" and not profile.flags.autoPress)
 	end
+	-- #2913: a miss says how its first missed ring went (early, late or no press)
 	local result: string = if not succeeded
-		then (if forfeit ~= nil then "forfeit" else "missed")
+		then (if forfeit ~= nil then "forfeit" else Circles.firstMiss(attempt) or "missed")
 		elseif finishKind == "purrfect" then "purrfect"
 		else "caught"
 	Telemetry.custom(

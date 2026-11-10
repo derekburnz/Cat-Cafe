@@ -429,6 +429,22 @@ function Circles.press(
 	return grade
 end
 
+-- #2913: how the attempt's first missed ring was missed, for catch_circles: "missed_early" or "missed_late" by the
+-- press's timing error, "missed_none" when it ran out with no press; nil when no ring was missed. A tapped paw ring
+-- (a Miss for pressing at all) reads by its timing like any other.
+function Circles.firstMiss(attempt: Attempt): string?
+	for index = 1, attempt.nextIndex - 1 do
+		if attempt.grades[index] == "miss" then
+			local err = attempt.errors[index]
+			if err == nil then
+				return "missed_none"
+			end
+			return if err < 0 then "missed_early" else "missed_late"
+		end
+	end
+	return nil
+end
+
 -- v0.3's catch chance, the mean of the circle scores (all Perfect 1.0, all Good 0.5); 0 for no circles. v0.4
 -- decides a catch by its grades (Circles.succeeded); this stays for the specs and analytics.
 function Circles.chance(scores: { number }): number

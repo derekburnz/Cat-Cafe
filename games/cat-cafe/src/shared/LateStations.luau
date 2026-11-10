@@ -1,10 +1,10 @@
 --!strict
 -- #2651 part 4 (late-stations.md): the two late-game camp stations. Pure rules for the server (LateStationService)
 -- and the client (the cards and the cannon picker's lines):
---   Oasis Spa (Desert camp, Tier 6): a cat soaks for Config.SpaSeconds of real time (offline too) and comes back one
---     level higher, its XP toward the next level kept. One slot is free; slots 2 and 3 are bought once, in order, for
---     Config.SpaSlotPrices golden fish. A finished cat waits in its slot until collected, so it never lands mid-trade.
---     Taking one out early gives no level. A spa cat earns nothing and no XP (CatStats.atSpa guards the rest).
+--   Oasis Spa (Desert camp, Tier 6): a cat soaking earns one level per Config.SpaSeconds of real time (offline too),
+--     up to Config.SpaMaxHours levels and never past CatMaxLevel (#2904), its XP toward the next level kept. One slot is free; slots 2 and 3 are bought once, in order, for
+--     Config.SpaSlotPrices golden fish. A cat with a level earned waits in its slot until collected, so it never lands
+--     mid-trade; collect takes every slot with one. Taking one out before its first level gives nothing. A spa cat earns nothing and no XP (CatStats.atSpa guards the rest).
 --   Relic Museum (Ruins camp, Tier 7): one exhibit per area cat (the Index's cats: no shop, starter, Bellhop or spare
 --     cat). Giving a copy fills its exhibit for good; the copy leaves the save like a sale that pays nothing, and the
 --     Index keeps it as found. A copy can be given only when another copy of that cat stays, it is unlocked and it is
@@ -200,9 +200,25 @@ end
 
 -- Oasis Spa --------------------------------------------------------------------------------------------------
 
--- When a cat that went in at `at` is done.
+-- When a cat that went in at `at` has its first level (and can be collected).
 function LateStations.doneAt(at: number): number
 	return at + Config.SpaSeconds
+end
+
+-- When a cat that went in at `at` stops earning: SpaMaxHours levels in (#2904).
+function LateStations.fullAt(at: number): number
+	return at + Config.SpaSeconds * Config.SpaMaxHours
+end
+
+-- #2904: the levels a cat at `level` that went in at `at` has earned by `now`: one per full SpaSeconds, at most
+-- SpaMaxHours, never past CatMaxLevel, and never below 0 (a clock that went back).
+function LateStations.levelsEarned(level: number, at: number, now: number): number
+	local hours = math.floor((now - at) / Config.SpaSeconds)
+	return math.clamp(
+		math.min(hours, Config.SpaMaxHours, Config.CatMaxLevel - level),
+		0,
+		Config.SpaMaxHours
+	)
 end
 
 -- The slot that `uid` soaks in, or nil.
@@ -278,11 +294,11 @@ function LateStations.takeOut(profile: Types.PlayerProfile, slot: number): strin
 	return soak.uid
 end
 
--- One level up for a soaked cat: +1 level up to CatMaxLevel, its XP toward the next level kept (none at the top).
--- Returns the level before and after.
-function LateStations.levelUp(instance: Types.CatInstance): (number, number)
+-- `levels` (default 1) up for a soaked cat, never past CatMaxLevel, its XP toward the next level kept (none at the
+-- top). Returns the level before and after.
+function LateStations.levelUp(instance: Types.CatInstance, levels: number?): (number, number)
 	local before = CatStats.level(instance)
-	local after = math.min(before + 1, Config.CatMaxLevel)
+	local after = math.min(before + math.max(levels or 1, 0), Config.CatMaxLevel)
 	instance.level = after
 	instance.xp = if after >= Config.CatMaxLevel then 0 else CatStats.xp(instance)
 	instance.charm = CatStats.charm(instance)
@@ -291,8 +307,8 @@ end
 
 export type Relaxed = { uid: string, catId: string, from: number, to: number }
 
--- Collects every finished slot at `now`: each cat gains one level and goes back to the cat room. A finished slot whose
--- cat is gone (sold before a fix, say) just empties. Returns what each cat gained, in slot order.
+-- Collects every slot at `now` that is past its first level: each cat gains the levels it earned (levelsEarned) and
+-- goes back to the cat room. Such a slot whose cat is gone (sold before a fix, say) just empties. Returns what each cat gained, in slot order.
 function LateStations.collect(profile: Types.PlayerProfile, now: number): { Relaxed }
 	local spa = spaOf(profile)
 	local relaxed: { Relaxed } = {}
@@ -305,7 +321,10 @@ function LateStations.collect(profile: Types.PlayerProfile, now: number): { Rela
 		spa.soaking[key] = nil
 		local instance = profile.cats[soak.uid]
 		if instance ~= nil then
-			local from, to = LateStations.levelUp(instance)
+			local from, to = LateStations.levelUp(
+				instance,
+				LateStations.levelsEarned(CatStats.level(instance), soak.at, now)
+			)
 			table.insert(relaxed, { uid = soak.uid, catId = instance.catId, from = from, to = to })
 		end
 	end
@@ -519,6 +538,10 @@ function LateStations.view(
 			uid = if soak ~= nil then soak.uid else nil,
 			catId = if instance ~= nil then instance.catId else nil,
 			doneAt = if soak ~= nil then LateStations.doneAt(soak.at) else nil,
+			fullAt = if soak ~= nil then LateStations.fullAt(soak.at) else nil,
+			levels = if soak ~= nil and instance ~= nil
+				then LateStations.levelsEarned(CatStats.level(instance), soak.at, now)
+				else nil,
 		})
 	end
 	local museum = museumOf(profile)
@@ -551,10 +574,11 @@ end
 -- The cannon picker's line for a station (late-stations.md sections 1 and 2).
 function LateStations.pickerLine(stationId: string, state: Types.LateStationsState): string
 	if stationId == LateStations.SPA then
-		local busy = 0
+		local busy, levels = 0, 0
 		for _, slot in state.spa.soaking do
 			if slot.uid ~= nil then
 				busy += 1
+				levels += slot.levels or 0
 			end
 		end
 		if busy == 0 then
@@ -566,7 +590,9 @@ function LateStations.pickerLine(stationId: string, state: Types.LateStationsSta
 			table.insert(parts, string.format("%d relaxing", relaxing))
 		end
 		if state.spa.ready > 0 then
-			table.insert(parts, string.format("%d ready !", state.spa.ready))
+			-- #2904: the levels waiting, "+1 level ready !" or "+7 levels ready !"
+			local word = if levels == 1 then "level" else "levels"
+			table.insert(parts, string.format("+%d %s ready !", levels, word))
 		end
 		return "Oasis Spa: " .. table.concat(parts, " · ")
 	end

@@ -863,7 +863,10 @@ local Config = {
 	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
 	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
 	-- places them and opens their remotes once the UI's cards are in (UI-Engineer).
+	-- #2904 (Derek2 2026-11-10: "+1 level an hour and caps at 24h ... doesn't go past the lvl 50 cap"): a soaking
+	-- cat earns a level every SpaSeconds, up to SpaMaxHours of them, never past CatMaxLevel
 	SpaSeconds = 3600,
+	SpaMaxHours = 24,
 	SpaSlotPrices = { 0, 100, 250 },
 	MuseumRoomTipBonus = 0.02,
 	LateStationsOpen = false,

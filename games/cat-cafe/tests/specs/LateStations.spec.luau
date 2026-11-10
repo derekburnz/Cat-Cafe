@@ -170,7 +170,7 @@ return function()
 				expect(plan.placements.c1).to.equal(nil)
 			end)
 
-			it("gives exactly one level after an hour, offline too, keeping the XP toward the next", function()
+			it("gives one level after an hour, offline too, keeping the XP toward the next", function()
 				local profile = profileAt(6)
 				local cat = add(profile, "c1", "tabby", 37)
 				cat.xp = 55
@@ -185,8 +185,28 @@ return function()
 				expect(cat.xp).to.equal(55)
 				expect(profile.spa.soaking["1"]).to.equal(nil)
 				expect(CatStats.atSpa(profile, "c1")).to.equal(false)
-				-- a finished cat waits: a second collect a day later gives nothing more
+				-- a collected cat is out: a second collect a day later gives nothing more
 				expect(#LateStations.collect(profile, NOW + 86400)).to.equal(0)
+			end)
+
+			it("gives a level per hour, up to 24, never past CatMaxLevel (#2904)", function()
+				local function soakFor(level: number, seconds: number): number
+					local profile = profileAt(6)
+					local cat = add(profile, "c1", "tabby", level)
+					LateStations.put(profile, 1, "c1", NOW)
+					LateStations.collect(profile, NOW + seconds)
+					return cat.level
+				end
+				expect(Config.SpaMaxHours).to.equal(24)
+				expect(soakFor(10, 3599)).to.equal(10) -- under an hour: still soaking
+				expect(soakFor(10, 5 * 3600 + 1800)).to.equal(15)
+				expect(soakFor(10, 24 * 3600)).to.equal(34)
+				expect(soakFor(10, 30 * 3600)).to.equal(34) -- a day at most
+				expect(soakFor(40, 24 * 3600)).to.equal(Config.CatMaxLevel)
+				expect(soakFor(Config.CatMaxLevel - 1, 24 * 3600)).to.equal(Config.CatMaxLevel)
+				expect(LateStations.levelsEarned(45, NOW, NOW + 10 * 3600)).to.equal(5)
+				expect(LateStations.levelsEarned(10, NOW, NOW - 3600)).to.equal(0) -- a clock that went back
+				expect(LateStations.fullAt(NOW)).to.equal(NOW + 24 * 3600)
 			end)
 
 			it("tops out at CatMaxLevel with no XP left over", function()
@@ -264,8 +284,14 @@ return function()
 				local view = LateStations.view(profile, 6, NOW)
 				expect(view.spa.ready).to.equal(1)
 				expect(view.spa.soaking[1].doneAt).to.equal(NOW - 4000 + 3600)
+				expect(view.spa.soaking[1].levels).to.equal(1)
+				expect(view.spa.soaking[2].levels).to.equal(0)
 				expect(LateStations.pickerLine(LateStations.SPA, view)).to.equal(
-					"Oasis Spa: 1 relaxing · 1 ready !"
+					"Oasis Spa: 1 relaxing · +1 level ready !"
+				)
+				local later = LateStations.view(profile, 6, NOW + 7 * 3600)
+				expect(LateStations.pickerLine(LateStations.SPA, later)).to.equal(
+					"Oasis Spa: +15 levels ready !"
 				)
 			end)
 		end)

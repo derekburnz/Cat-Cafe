@@ -845,8 +845,9 @@ function CatchCircles._press(self: any)
 	end
 	if view.hold then
 		-- #2920 (Derek2: "not even let the player click before its in the circle so you cant miss first one"): a
-		-- press before the ring stops is dropped (the server drops it too), and any press once it waits is a Perfect
-		if t < view.target then
+		-- press before the circle reaches the good band is dropped (the server drops it too, #2921), and any press from
+		-- there until the hold runs out is a Perfect
+		if t < view.target - self._windows.good then
 			return
 		end
 		view.pressed = true

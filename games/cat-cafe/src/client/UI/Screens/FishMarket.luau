@@ -169,7 +169,8 @@ local SHORT_FLASH_SECONDS = 1.2
 local BUNDLE_COUNT: number? = Config.CrateBundleCount
 local BUNDLE_PRICE: number? = Config.CrateBundlePrice
 local BUNDLE_KEY = "bundle:" -- the pending key of a crate's Buy 5, apart from its Open
-local ODDS_H = 28 -- the Odds button, and Open all beside it (#2402)
+local ODDS_H = 36 -- the Odds button, and Open all beside it (#2402); a mouse's 36 px tap (was 28, #2745 uigate)
+local ODDS_Y = 162 -- their top, 4 px over the Open row
 local ROW_HEIGHT = 76
 local TOP_HEIGHT = 44
 local TAB_H = 42 -- a tab or Buy face of 37 px with a mouse; Scale.tapHeight makes it 44 on a phone
@@ -1403,7 +1404,7 @@ function FishMarket._build(self: any)
 		local luck = text({
 			Name = "Luck",
 			Position = UDim2.fromOffset(8, 130),
-			Size = UDim2.new(1, -16, 0, 34),
+			Size = UDim2.new(1, -16, 0, ODDS_Y - 132),
 			TextSize = Theme.sizes.textTiny + 1,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
@@ -1415,7 +1416,7 @@ function FishMarket._build(self: any)
 			text = "Odds",
 			style = "ghost",
 			size = UDim2.new(1, -16, 0, ODDS_H),
-			position = UDim2.fromOffset(8, 166),
+			position = UDim2.fromOffset(8, ODDS_Y),
 			textSize = Theme.sizes.textSmall,
 			parent = frame,
 			onClick = function()
@@ -1466,7 +1467,7 @@ function FishMarket._build(self: any)
 			style = "primary",
 			size = UDim2.new(0.5, -(8 + CRATE_BUTTON_GAP / 2), 0, ODDS_H),
 			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -8, 0, 166),
+			position = UDim2.new(1, -8, 0, ODDS_Y),
 			textSize = Theme.sizes.textSmall,
 			parent = frame,
 			onClick = function()

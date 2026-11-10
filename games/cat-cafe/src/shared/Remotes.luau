@@ -128,6 +128,8 @@ Remotes.ClientToServer = {
 	-- notification ask's first showing only sets notifyAskAt; skipped true: Roblox would not prompt), feedback_ask
 	-- sets feedbackAsked, stuck_help sets stuckHelpShown for the current tutorialStep
 	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the asks; 1 per 10 s; ProfileSync
+	"StationOpened", -- (window: string, how: string)  #2910: a walk-up station's window opened by its "ring" or its
+	-- "prompt" (shared/StationOpens.valid); 2 a second, counted into station_open events, nothing else changes
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
 	"PassClaim", -- (track: "free" | "paid", level: number)  #1645: level 1 to PassLevels, reached in the running

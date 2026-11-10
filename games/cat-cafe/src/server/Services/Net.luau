@@ -82,6 +82,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimDailyTreat = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	TipSeen = RateLimiter.new(1, 1), -- F87 (easy-start.md section 6): 1 a second
 	ClearTips = RateLimiter.new(1, 10), -- F87: 1 per 10 s; each call sends a full sync
+	StationOpened = RateLimiter.new(2, 1), -- #2910: 2 a second, a count only
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second

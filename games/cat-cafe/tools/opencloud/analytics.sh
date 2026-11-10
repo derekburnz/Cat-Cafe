@@ -657,6 +657,8 @@ for line in "${fieldEvents[@]}"; do
 		for ((i = 0; i < ${#cols[@]}; i++)); do
 			value=${cols[$i]//|/\\|}
 			if [ "$i" = $((${#cols[@]} - 1)) ]; then
+				# rows prints a data point as "<day>=<value>"; with granularity None there is one, so keep the value
+				value=${value##*=}
 				value=$(awk -v v="$value" 'BEGIN { if (v == int(v)) printf "%d", v; else printf "%.1f", v }')
 			fi
 			row="$row $value |"

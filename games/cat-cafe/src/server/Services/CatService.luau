@@ -2073,12 +2073,13 @@ function startCatch(
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
-		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area) -- #2322: wider in the first area
+		-- #2322: wider in the first area; #3135: a little narrower for a gold or rainbow coat
+		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	local hold = tutorial and Config.CatchHoldFirstRing and profile.stats.catsCaught == 0
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
-		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
+		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial

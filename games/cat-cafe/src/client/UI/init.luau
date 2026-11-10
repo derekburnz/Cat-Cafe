@@ -2348,6 +2348,7 @@ end
 -- shows it) and the card comes a moment after the catch or rescue ends. A cat resolved or replaced in the meantime,
 -- or a card already up, drops it. A tap on the bowl chip or prompt (showReady) still shows the card at once.
 UI.bait.SETTLE = 0.8 -- seconds of calm after a catch or rescue before the card shows
+UI.bait.cutting = nil :: (() -> boolean)? -- #2946: Effects/FirstBaitCut.playing, so the cards wait for the cutscene
 
 -- #2412 (Derek2: "make food bowl cat pop ups never appear mid catch or while holding a cat"): carrying a cat counts
 -- as busy too, and the first wow card (UI.bait.wow) waits the same way
@@ -2357,6 +2358,7 @@ function UI.bait.busy(): boolean
 	return (type(circles) == "function" and (circles :: () -> unknown)() == true)
 		or (type(rescuing) == "function" and (rescuing :: () -> unknown)() == true)
 		or (hud ~= nil and hud:isCarrying())
+		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 end
 
 -- Runs `show` once the player has been calm (not busy) for SETTLE seconds, unless `wanted` turns false first.

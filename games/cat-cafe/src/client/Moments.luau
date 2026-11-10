@@ -135,6 +135,9 @@ local Moments = {
 	-- it owns, for the station's build-in beat (VFX, Animation), the fanfare (Sound) and the Unlocked card (UI, with
 	-- StationPerks.get(perkId)). Fired once per area per account (WorldController, saved through TipSeen).
 	StationReveal = Signal.new() :: Signal.Signal<string, string>,
+	-- #2946: (bowl position, seconds) the first bait's cat starts eating in its cutscene (Effects/FirstBaitCut), for
+	-- the purr at the bowl (Sound, #2951).
+	FirstBaitEat = Signal.new() :: Signal.Signal<Vector3, number?>,
 }
 
 return Moments

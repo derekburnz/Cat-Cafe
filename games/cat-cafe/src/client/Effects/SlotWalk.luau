@@ -179,7 +179,7 @@ local function plan(walk: Walk, from: Vector3, to: Vector3)
 	end)
 end
 
-local function begin(model: Model, from: CFrame)
+local function begin(model: Model, from: CFrame): boolean
 	local s = Presets.slotWalk
 	if
 		walks[model] ~= nil
@@ -187,7 +187,7 @@ local function begin(model: Model, from: CFrame)
 		or Context.reducedMotion()
 		or Context.isNight()
 	then
-		return
+		return false
 	end
 	if
 		model:GetAttribute("Bedtime") ~= nil
@@ -195,20 +195,20 @@ local function begin(model: Model, from: CFrame)
 		or model:GetAttribute("HiddenLocal") == true
 		or model:GetAttribute("BedTripAt") ~= nil
 	then
-		return
+		return false
 	end
 	local to = model:GetPivot()
 	local rise = math.abs(to.Position.Y - from.Position.Y)
 	if (to.Position - from.Position).Magnitude < s.minStuds or rise > s.maxRise then
-		return -- next door, or up on the counter or a cat tree: it just appears there
+		return false -- next door, or up on the counter or a cat tree: it just appears there
 	end
 	local radius = Context.budget.animRadius
 	if Context.distance(to.Position) > radius and Context.distance(from.Position) > radius then
-		return
+		return false
 	end
 	local template = walkingTemplate(model)
 	if template == nil then
-		return
+		return false
 	end
 	local copy = template:Clone() :: Model
 	copy.Name = "SlotWalker"
@@ -239,7 +239,7 @@ local function begin(model: Model, from: CFrame)
 	local rig = Pose.bind(copy) -- after the anchoring: Pose binds an unanchored body only to its Motor6Ds
 	if rig == nil or rig.usesMotors then
 		copy:Destroy()
-		return
+		return false
 	end
 	-- the copy is this client's alone, so its pose is drawn from its parts as bound, every frame: whatever else moves
 	-- one of them between frames (Desktop-Tester 2026-11-07 read its body hundreds of studs off for a frame, and
@@ -273,6 +273,14 @@ local function begin(model: Model, from: CFrame)
 	if stepping == nil then
 		stepping = RunService.PreRender:Connect(SlotWalk.step)
 	end
+	return true
+end
+
+-- #2946: walks a copy of `model` (a cat already at its spot) in from `from`, as a spot change does: the first bait's
+-- cat comes in from the yard (Effects/FirstBaitCut). False when it cannot (the same rules as a spot change), and the
+-- cat just stays where it is.
+function SlotWalk.walkIn(model: Model, from: CFrame): boolean
+	return begin(model, from)
 end
 
 local function advance(walk: Walk, now: number, dt: number): boolean

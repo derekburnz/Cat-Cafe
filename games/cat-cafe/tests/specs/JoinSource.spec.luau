@@ -39,5 +39,13 @@ return function()
 			expect(JoinSource.parse({ "ad_a" })).to.equal("unknown")
 			expect(JoinSource.parse("ad_a\n")).to.equal("unknown")
 		end)
+
+		it("knows a join from the away notification (#2768), which is not an ad", function()
+			expect(JoinSource.parse("notify_away")).to.equal("notify_away")
+			expect(JoinSource.parse(JoinSource.NOTIFY)).to.equal(JoinSource.NOTIFY)
+			expect(JoinSource.isAd(JoinSource.NOTIFY)).to.equal(false)
+			expect(JoinSource.parse("notify_away ")).to.equal("unknown")
+			expect(JoinSource.parse("notify_other")).to.equal("unknown")
+		end)
 	end)
 end

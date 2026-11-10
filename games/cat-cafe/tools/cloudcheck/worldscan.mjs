@@ -29,7 +29,8 @@ const outDir = path.resolve(args.out || path.join(os.tmpdir(), 'cat-cafe-worldsc
 
 const tree = buildTree(path.join(gameRoot, 'default.project.json'));
 const lua = await Lua.create({ sandbox: false, libraries: 'all' });
-lua.gcStop();
+// 2026-11-10: with seven areas the build outgrows the wasm heap with the collector stopped, so it runs
+if (process.env.WORLDSCAN_NOGC) lua.gcStop();
 lua.globals.set('print', lua.createFunction((...parts) => console.log(parts.map(String).join(' '))));
 
 const hostLoad = lua.createFunction((kind, key, env) => {

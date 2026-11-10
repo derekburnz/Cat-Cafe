@@ -214,8 +214,10 @@ return function()
 			"gives each Decor Index page 15 fish at five pieces (#2237) and +5% tips forever at all twelve",
 			function()
 				for _, pool in POOLS do
-					local page = Catalog.indexPrizes["decor_" .. pool]
-					assert(page)
+					-- `any`: with a narrowed `page` the strict checker gave up on this file ("Type inference failed to
+					-- complete", seen on #2995, which doesn't touch Index rewards)
+					local page: any = Catalog.indexPrizes["decor_" .. pool]
+					assert(page ~= nil)
 					expect(page.decor5 :: any).to.deepEqual({ fish = Config.DecorIndexHalfFish })
 					expect(page.decor10 :: any).to.deepEqual({ bonus = Config.DecorIndexBonus })
 				end

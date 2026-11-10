@@ -19,6 +19,10 @@ return function()
 		OfflineCapSeconds = 28800,
 		OfflineRatePass = 1.0,
 		OfflineCapPassSeconds = 57600,
+		AwayNotifyOn = true,
+		AwayNotifySeconds = 43200,
+		AwayNotifyGraceSeconds = 21600,
+		AwayNotifyMinCoins = 1000,
 		LongNapPassId = 2064345084, -- Tools-Agent made it 2026-11-02 (off sale until launch)
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and

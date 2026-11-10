@@ -3668,10 +3668,13 @@ do
 		if not outcome.success and outcome.hint == nil and toasts then
 			toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
 		end
+		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
+		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
+		-- the net wrap on a catch); the word still flashes over it.
+		if hud then
+			hud:setCatching(false)
+		end
 		screen:showResult(outcome, function()
-			if hud then
-				hud:setCatching(false)
-			end
 			local info = activeInfo
 			local card = catch
 			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
@@ -3833,6 +3836,9 @@ do
 				then "miss"
 				elseif guess == "perfect" then "perfect"
 				else "good"
+			if hud then
+				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+			end
 			screen:showResult({ grades = { grade }, success = success }, function()
 				endRescue(success)
 			end)

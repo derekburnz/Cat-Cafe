@@ -3093,12 +3093,13 @@ Presets.decorFx = {
 	pixels = 12,
 	floorPixels = 6,
 	-- Midnight Sky: stars on the back and side walls (`size` pixels, `shown` transparency), `twinkleShare` of them
-	-- fading to `faded` and back every `twinkle` seconds, diamonds from `diamondFrom` pixels.
+	-- fading to `faded` and back every `twinkle` seconds, diamonds from `diamondFrom` pixels. #2734 (Mythical should
+	-- read well above an Epic on a phone): was 16 and 10 stars of 3 to 7 pixels at 0.05 to 0.35.
 	stars = {
-		back = 16,
-		side = 10,
-		size = { 3, 7 },
-		shown = { 0.05, 0.35 },
+		back = 22,
+		side = 14,
+		size = { 4, 8 },
+		shown = { 0, 0.25 },
 		twinkleShare = 0.5,
 		twinkle = { 1.2, 2.6 },
 		faded = 0.85,
@@ -3116,19 +3117,22 @@ Presets.decorFx = {
 		seconds = 45,
 	},
 	-- Aurora Sky: soft curtains of light `height` tall, violet at the top to teal at the foot, swaying `sway`
-	-- degrees and drifting `drift` across over their `seconds`, with `stars` still stars a wall behind them.
+	-- degrees and drifting `drift` across over their `seconds`, with `stars` still stars a wall behind them. #2734:
+	-- was 0.45 shown, 5 degrees, 0.12 shimmer and 6 stars, a faint wash on a phone.
 	aurora = {
 		bands = 3,
 		height = 0.42,
-		shown = 0.45,
-		sway = 5,
+		shown = 0.32,
+		sway = 7,
 		drift = 0.05,
-		shimmer = 0.12,
+		shimmer = 0.18,
 		seconds = { 7, 9, 11 },
-		stars = 6,
+		stars = 10,
 	},
 	-- Glimmer Canal: light bands `width` wide sliding across the floor under the glass, each crossing in `seconds`.
-	canal = { bands = 4, width = 0.16, shown = 0.78, tilt = 30, seconds = { 9, 15 } },
+	-- Mirage Glass and Jade Inlay share it. #2734: was 4 bands at 0.78 crossing in 9 to 15 s, hard to see from the
+	-- street.
+	canal = { bands = 5, width = 0.16, shown = 0.66, tilt = 30, seconds = { 7, 12 } },
 	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit `light` like
 	-- paint, with a white `glint` (Gold Leaf's sheen in white) crossing it (#2734: was 0.78 shown, 18 s, 0.6 lit and
 	-- no glint, too faint to read as Mythical).
@@ -3146,8 +3150,9 @@ Presets.decorFx = {
 			palette.nosePink,
 		},
 	},
-	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
-	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
+	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`. Trophy Gold
+	-- shares it. #2734: was 0.45 shown every 7 s.
+	sheen = { width = 0.08, shown = 0.35, tilt = 20, seconds = 5 },
 	-- Gold Leaf on real gold trims (F89 2c, luck-and-rare-moments.md: "a slow glint that sweeps across the trims
 	-- every 5 seconds and a soft glow on them at night"). The trims are Model-Agent's `_Trim` parts tagged `tag`. A
 	-- glint `width` studs wide crosses the front in `seconds` at the start of every `every`, lifting each trim up to

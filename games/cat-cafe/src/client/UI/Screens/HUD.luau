@@ -88,6 +88,7 @@ local TackleBar = require(script.Parent.TackleBar)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
+local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
 local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -329,10 +330,11 @@ local HIDE_DOT = if Scale.isTouch() then 28 else 24
 local HIDE_HIT = if Scale.isTouch() then 42 else 36 -- the Tutorial tile's × takes taps this big round its red dot
 -- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
 -- #2411: twice as long, with a "Hide tips" tag beside the tile
-local HIDE_PULSE_SECONDS = 6
+local HIDE_PULSE_SECONDS = 12 -- #3154: was 6
 local HIDE_HINT_H = 24
 local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
-local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
+local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- #3154: for the whole pulse
+local HIDE_GROW = 1.6 -- #3154: how big the × bounces (was 1.35)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
 local CARRY_W = 420
@@ -936,6 +938,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(hideDot, 2)
 	self._hideDot = hideDot
+	self._hideButton = hide
 	label({
 		Name = "Cross",
 		Size = UDim2.fromScale(1, 1),
@@ -2721,11 +2724,17 @@ function HUD.pulseHide(self: any)
 		Parent = dot,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 3 }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 5 }), -- #3154: was 3
 	})
 	if not GuiService.ReducedMotionEnabled then
-		TweenService:Create(scale, HIDE_BOUNCE, { Scale = 1.35 }):Play()
+		TweenService:Create(scale, HIDE_BOUNCE, { Scale = HIDE_GROW }):Play()
+	else
+		scale.Scale = HIDE_GROW
 	end
+	-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the step's big gold arrow and
+	-- spotlight point at the × too, and the ring is thicker
+	local hideButton: TextButton = self._hideButton
+	TutorialArrow.add(hideButton)
 	Sound.play("uiHint")
 	-- #2411: a gold "Hide tips ×" tag beside the tile, pointing at the × while it pulses
 	local hint: TextLabel = label({
@@ -2743,6 +2752,7 @@ function HUD.pulseHide(self: any)
 		ZIndex = 9,
 		Parent = dot.Parent, -- the × button: left of the ×, on its line
 	})
+	hint:SetAttribute(TutorialArrow.AVOID, true) -- #3154: the arrow keeps off the tag
 	Create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = hint })
 	Create(
 		"UIPadding",
@@ -2750,6 +2760,7 @@ function HUD.pulseHide(self: any)
 	)
 	Outline.border(hint, 2)
 	task.delay(HIDE_PULSE_SECONDS, function()
+		TutorialArrow.remove(hideButton)
 		scale:Destroy()
 		ring:Destroy()
 		hint:Destroy()

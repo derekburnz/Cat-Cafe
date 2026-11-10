@@ -3398,6 +3398,29 @@ local SCENES = {
 		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
 		assert(not hint.Visible, "uigate: Space did not skip the spin (#2246)")
 	end },
+	-- #3157 (Derek2: "spin the wheel one after another not all at once into one spin"): Use all plays each roll in
+	-- turn with "Spin 1 of 3" above Spin; Skip lands one and the next turns after a beat; Skip all shows the card
+	{ "SpinAllChain", function()
+		UI.spin.open()
+		UI.spin.allResult(
+			{ { slice = 1, amount = 100 }, { slice = 2, amount = 3 }, { slice = 3, amount = 1 } },
+			{ { kind = "coins", amount = 100 } }
+		)
+		UIShim.advance(0.5)
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local spins = window:FindFirstChild("Spins", true)
+		assert(spins.Text == "Spin 1 of 3", "uigate: no Spin 1 of 3 while Use all plays (#3157): " .. spins.Text)
+		local all = window:FindFirstChild("UseAll", true)
+		assert(all.Visible, "uigate: no Skip all while Use all plays (#3157)")
+		press("SpinWheel", "SkipTap")
+		UIShim.advance(0.7)
+		assert(spins.Text == "Spin 2 of 3", "uigate: the next roll did not turn after a Skip (#3157): " .. spins.Text)
+		press("SpinWheel", "UseAll")
+		UIShim.advance(0.7)
+		local card = window:FindFirstChild("AllCard", true)
+		assert(card and card.Visible, "uigate: Skip all did not show the totals card (#3157)")
+		assert(spins.Text ~= "Spin 2 of 3", "uigate: the count stayed up after Skip all (#3157)")
+	end },
 	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
 	{ "SpinOddsJackpots", function()
 		UI.spin.open()

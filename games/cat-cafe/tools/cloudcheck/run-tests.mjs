@@ -88,6 +88,20 @@ async function createState() {
   return { lua, requireNode, getProxy };
 }
 
+// #3012: the place Rojo builds must say it runs the new chat. A place file with no TextChatService in it gets the
+// legacy chat, where the rare catch lines (RareCatchChatController), the chat tags (ChatTagController) and
+// TextChatCommands do nothing, and a script cannot change ChatVersion at run time. Both project files are checked,
+// so the live place and a Studio test place cannot drift back.
+for (const name of ['default.project.json', 'tests.project.json']) {
+  const file = path.join(gameRoot, name);
+  if (!fs.existsSync(file)) continue;
+  const chat = JSON.parse(fs.readFileSync(file, 'utf8')).tree?.TextChatService;
+  if (chat?.$className !== 'TextChatService' || chat?.$properties?.ChatVersion !== 'TextChatService') {
+    console.error(`${name}: tree.TextChatService must set "$properties": { "ChatVersion": "TextChatService" } (#3012).`);
+    process.exit(2);
+  }
+}
+
 const testsNode = findByPath(tree, ['ReplicatedStorage', 'Tests']);
 if (!testsNode) {
   console.error(`No ReplicatedStorage.Tests in ${projectFile}. Use tests.project.json.`);

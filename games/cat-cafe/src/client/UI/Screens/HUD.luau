@@ -4762,8 +4762,11 @@ function HUD._layoutMenu(self: any)
 	end
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
-	local storeH = if store.Visible and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
-	local foldShown = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
+	-- a Store that only stepped aside for a catch (_applyFocus) still has its place, or a layout mid-catch closes
+	-- the gap and the Store comes back on top of the menu's first row (#3164)
+	local storeUp = store.Visible or self._focusHidden[store] == true
+	local storeH = if storeUp and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
+	local foldShown = shown > 0 or storeUp -- no tab to fold an empty menu (F87)
 	local fold: GuiObject = self._menuFold.instance
 	if self._catching then
 		-- #3164 (Derek2 11-10: "this menu close arrow on the left sometimes flashes into screen on first catch or

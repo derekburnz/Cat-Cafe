@@ -457,3 +457,11 @@ The Late sheet holds all of these. It's mono and every sound plays flat; they're
 | `indexReward` (reused) | a donation that finishes a Museum room | - | the Index milestone fanfare | P2 |
 | `circleHold` | the first catch's ring stops on its target and waits for the press (#2920; moment `CircleHold`) | 0.5 s | a small bright "now!" ping, two music box notes up a fourth | P1 |
 
+
+## First bait cutscene (#2946, 2026-11-10)
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `purr` (reused, looped at the bowl) | the first bait cutscene's cat eats at your bowl (moment `FirstBaitEat(position, seconds)` from Effects/FirstBaitCut) | the eating beat, 2.5 s by default, at most 5 s | content, soft | P2 |
+
+The cat's arrival (`baitArrive`) and the food going into the bowl already sound through ProfileSync, so the cutscene adds only the purr.

@@ -85,78 +85,98 @@ local Effects = {}
 
 local started = false
 
--- Starts every effect. Safe to call more than once; later calls do nothing.
+-- seconds of starts to run before yielding a frame (#2632)
+local START_SLICE = 0.008
+
+-- Starts every effect. Safe to call more than once; later calls do nothing. Returns at once: the starts run over
+-- the next frames (#2632).
 function Effects.start()
 	if started then
 		return
 	end
 	started = true
 	Context.init()
-	Cats.start()
-	CafeWalk.start()
-	BedWalk.start()
-	Bellhop.start()
-	LuckyPaw.start()
-	PullHop.start()
-	CampExtras.start()
-	PalWave.start()
-	Signature.start()
-	Catch.start()
-	CatchReact.start()
-	Chase.start()
-	Plots.start()
-	Ambient.start()
-	Shove.start()
-	Tackle.start()
-	Wheel.start()
-	Codes.start()
-	Market.start()
-	Fish.start()
-	Decor.start()
-	Equip.start()
-	Potions.start()
-	Pull.start()
-	Mystery.start()
-	Levels.start()
-	Rarity.start()
-	Splash.start()
-	Rescue.start()
-	Intro.start()
-	IntroCut.start()
-	Cannon.setGlide(CannonGlide)
-	Cannon.start()
-	Campfire.start()
-	Sky.start()
-	Rainbow.start()
-	Rally.start()
-	Trade.start()
-	Motion.start()
-	Lawn.start()
-	NetPin.start()
-	NetTrail.start()
-	LuckyCat.start()
-	CampWater.start()
-	CampCollect.start()
-	Orders.start()
-	Crown.start()
-	ShopCats.start()
-	PassThanks.start()
-	SlotWalk.start()
-	Pity.start()
-	GrandOpening.start()
-	Themes.start()
-	DoorSign.start()
-	CampGlow.start()
-	AreaFx.start()
-	LateStationFx.start()
-	HoldPulse.start()
-	StationBuild.start()
-	CampGrowth.start()
-	Townsfolk.start()
-	-- the context tips' camera cuts (#976): the UI calls them once they are handed over
-	ContextCut.start(require(script.Parent.UI) :: any)
-	-- #2946: the first bait's cutscene; the UI's bait cards wait for it
-	FirstBaitCut.start(require(script.Parent.UI) :: any)
+	-- #2632 (live "Script has run for over 15 seconds"): about 55 starts, many scanning the whole map, ran back to
+	-- back with no yield; they now run a few at a time, yielding a frame whenever one slice passes START_SLICE
+	local starts: { () -> () } = {
+		Cats.start,
+		CafeWalk.start,
+		BedWalk.start,
+		Bellhop.start,
+		LuckyPaw.start,
+		PullHop.start,
+		CampExtras.start,
+		PalWave.start,
+		Signature.start,
+		Catch.start,
+		CatchReact.start,
+		Chase.start,
+		Plots.start,
+		Ambient.start,
+		Shove.start,
+		Tackle.start,
+		Wheel.start,
+		Codes.start,
+		Market.start,
+		Fish.start,
+		Decor.start,
+		Equip.start,
+		Potions.start,
+		Pull.start,
+		Mystery.start,
+		Levels.start,
+		Rarity.start,
+		Splash.start,
+		Rescue.start,
+		Intro.start,
+		IntroCut.start,
+		function()
+			Cannon.setGlide(CannonGlide)
+			Cannon.start()
+		end,
+		Campfire.start,
+		Sky.start,
+		Rainbow.start,
+		Rally.start,
+		Trade.start,
+		Motion.start,
+		Lawn.start,
+		NetPin.start,
+		NetTrail.start,
+		LuckyCat.start,
+		CampWater.start,
+		CampCollect.start,
+		Orders.start,
+		Crown.start,
+		ShopCats.start,
+		PassThanks.start,
+		SlotWalk.start,
+		Pity.start,
+		GrandOpening.start,
+		Themes.start,
+		DoorSign.start,
+		CampGlow.start,
+		AreaFx.start,
+		LateStationFx.start,
+		HoldPulse.start,
+		StationBuild.start,
+		CampGrowth.start,
+		Townsfolk.start,
+	}
+	task.spawn(function()
+		local slice = os.clock()
+		for _, start in starts do
+			start()
+			if os.clock() - slice > START_SLICE then
+				task.wait()
+				slice = os.clock()
+			end
+		end
+		-- the context tips' camera cuts (#976): the UI calls them once they are handed over
+		ContextCut.start(require(script.Parent.UI) :: any)
+		-- #2946: the first bait's cutscene; the UI's bait cards wait for it
+		FirstBaitCut.start(require(script.Parent.UI) :: any)
+	end)
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

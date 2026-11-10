@@ -8,12 +8,15 @@
 --                                             at step 4 until it is owned, so the HUD's Upgrades tile and that row in
 --                                             Upgrades glow (Components/TutorialGlow); nil otherwise
 --   view(state, spots, device?) -> View       #2697: the view of a player's state, for line and ask
---   ask(view) -> string?                      #2697: what the step asks for ("catch", "job", "more", "table", "bowl",
---                                             "food" or "waiting"), so each screen rings its own part of it
+--   ask(view) -> string?                      #2697: what the step asks for ("catch", "job", "more", "second",
+--                                             "table", "bowl", "food" or "waiting"), so each screen rings its own part
+--                                             of it
 --                                             (Components/StepTarget): "job" the HUD's Cats tile and Equip Best,
 --                                             "food" the HUD's Bowl tile and the Kibble row's Use
 -- The steps (server tutorialStep): below 2 the first catch, 2 the first check-in with no free slot, 3 the first
 -- table, 4 the Bait bowl and food in it, 5 done. Each line keeps to about 50 characters, one line on the strip.
+-- #2912 (Nov 10 read: 21% leave between the first customer served and the second cat): step 3 with one cat asks for
+-- another cat or the table ("second"), and UIController rings the nearest Alleyway stray.
 -- Pure, so the cloud spec runner checks it.
 
 local TipQueue = require(script.Parent.TipQueue)
@@ -28,6 +31,7 @@ export type View = {
 	resting: boolean?, -- step 2: a cat rests while a role slot is free
 	bowl: boolean?, -- step 4: the Bait bowl is owned
 	baited: boolean?, -- step 4: food is in it
+	cats: number?, -- #2912: how many cats the player has (nil: not known, step 3 asks for the table alone)
 }
 
 type Line = string | { keyboard: string, touch: string, gamepad: string }
@@ -49,6 +53,11 @@ local LINES: { [string]: Line } = {
 		keyboard = "Catch more cats, or buy a table in Upgrades (U)",
 		touch = "Catch more cats, or tap Upgrades for a table",
 		gamepad = "Catch more cats, or buy a table in Upgrades",
+	},
+	second = {
+		keyboard = "Catch another cat, or buy a table in Upgrades (U)",
+		touch = "Catch another cat, or tap Upgrades for a table",
+		gamepad = "Catch another cat, or buy a table in Upgrades",
 	},
 	table = {
 		keyboard = "Buy a table in Upgrades (U): more tips per cat",
@@ -76,7 +85,7 @@ local function pick(view: View): string?
 	elseif step == 2 then
 		return if view.resting then "job" else "more"
 	elseif step == 3 then
-		return "table"
+		return if view.cats ~= nil and view.cats < 2 then "second" else "table"
 	elseif step == 4 then
 		if not view.bowl then
 			return "bowl"
@@ -97,12 +106,21 @@ end
 -- The view of `state` (a PlayerState), with the catalog's spots for step 2's choice.
 function TutorialHints.view(state: any, spots: { any }?, device: TipQueue.Device?): View
 	local levels: { [string]: number } = state.upgradeLevels or {}
+	local cats: number? = nil
+	if type(state.cats) == "table" then
+		local count = 0
+		for _ in state.cats do
+			count += 1
+		end
+		cats = count
+	end
 	return {
 		step = state.tutorialStep or TutorialHints.DONE,
 		device = device or "keyboard",
 		resting = TutorialHints.resting(state.cats, spots, state.tier or 1),
 		bowl = (levels[TutorialHints.BOWL] or 0) >= 1,
 		baited = state.bait ~= nil,
+		cats = cats,
 	}
 end
 

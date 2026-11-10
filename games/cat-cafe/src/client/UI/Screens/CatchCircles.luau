@@ -552,8 +552,8 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 	end
 	-- #2920 (Derek2: "stop the minigame first circle when its over the circle and prompt them to click or press space
 	-- now"): a held ring's prompt, under it, shown once the circle sits on its ring
-	local held = (circle :: any).hold == true
-	local holdFor = (circle :: any).holdSeconds
+	local held = circle.hold == true
+	local holdFor = circle.holdSeconds
 	local prompt: TextLabel? = nil
 	local promptScale: UIScale? = nil
 	if held then
@@ -656,7 +656,7 @@ function CatchCircles.show(
 				then "Tap anywhere as each circle meets its ring"
 				else "Press Space or click as each circle meets its ring"
 		)
-	if circles[1] ~= nil and (circles[1] :: any).hold == true and info.title == nil then
+	if circles[1] ~= nil and circles[1].hold == true and info.title == nil then
 		self._hint.Text = HOLD_HINT -- #2920: the first catch's ring waits for the press, so no rush
 	end
 	self._header.UIStroke.Color = if info.rainbow

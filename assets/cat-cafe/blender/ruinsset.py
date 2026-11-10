@@ -26,6 +26,11 @@ so the mist catch zone (floorY -15 to -45) stays clear. The zones, camp first (B
                    42, open at the south, east and west), a dry fountain in the middle and the great stone throne
                    at the back, before the cat-head wall
 
+Landmarks (#2834): the cat colossus, a carved cat's head sunk to the chin in fallen blocks against the far wall
+behind the throne, its ears about 39 up so it shows over the halls from the Triumphal Arch, its eyes glowing teal;
+a waterfall off the colonnade, from a broken aqueduct over the east wall into a pool at (55, 6); rune stones with
+teal runes along the way through the colonnade; and a trilithon gate over the way before the court (z 186).
+
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (z < 0) or "deep". The rescue spots are built in, each
 with its piece's turn as a fifth number:
   trap_rubble_pile      broken blocks heaped round the spot, the cat between them (the spot on the floor)
@@ -39,12 +44,13 @@ the first two, 15 in all.
 """
 
 import math
+from itertools import pairwise
 
 from mathutils import Matrix, Vector
 
 from areakit import PI, Set, ring_blocks, turned
 from common import Builder
-from woodsset import _dist_seg, _path, bl
+from woodsset import _dist_seg, _path, bl, face
 
 NAME = "CatCafe_Ruins_Set"
 N = "CatCafe_Ruins_"
@@ -87,6 +93,13 @@ COURT = (0.0, 236.0)
 RINGS = ((30.0, 1.2), (34.0, 2.4), (38.0, 3.6))   # (inner radius, top): each 4 wide
 RING_GAPS = (-90.0, 0.0, 180.0)         # the court's ways in (degrees: -90 south toward the camp, 0 east, 180 west)
 THRONE_Z = 264.0
+# #2834 landmarks: the cat colossus at the far end behind the throne, the waterfall off the colonnade by the east wall,
+# rune stones along the way and a trilithon gate before the court
+COLOSSUS_Z = 284.0
+FALLS_X, FALLS_Z = 55.0, 6.0            # the pool's centre; the aqueduct comes in over the east wall behind it
+GATE_Z = 186.0
+RUNE = "sign_teal"                      # the rune glow (Neon all day, as every _Glow)
+WATER, FALL_WATER, FOAM = "sign_teal", "fish_belly", "offwhite"
 
 TRAIL = [(0, -IN_Z), (0, -170), (0, -150), (12, -132), (12, -100), (6, -60), (-2, -10), (0, 20), (0, 40), (0, 100),
          (10, 105), (10, 112), (0, 120), (0, 170), (0, 194)]
@@ -105,7 +118,7 @@ def _spot(s, label, x, z, y=0.0, turn=None):
 
 
 def near_trail(x, z):
-    return min(_dist_seg((x, z), a, b) for a, b in zip(TRAIL, TRAIL[1:]))
+    return min(_dist_seg((x, z), a, b) for a, b in pairwise(TRAIL))
 
 
 # ------------------------------------------------------------------------------------------------- ground --
@@ -241,9 +254,9 @@ def low_wall(mat, L):
 
 
 def cat_head_wall(mat, L):
-    """The far end: a ruined wall 22 high, coursed, broken at both ends, with a giant cat's head carved in its middle
-    (ears, jade eyes that glow, a nose and whisker grooves), facing -Y into the area."""
-    b, glow = Builder(), Builder()
+    """The far end: a ruined wall 22 high, coursed, broken at both ends. #2834: its flat carved head gave way to the
+    cat colossus (colossus()), which stands in front of it, so the wall is plain courses with vines down it."""
+    b = Builder()
     H = 22.0
     b.box_base((0, 1.6, 0), (L, 2.6, H - 4.0), STONE, bevel=False)
     n = max(2, round(L / 4.0))
@@ -254,21 +267,10 @@ def cat_head_wall(mat, L):
         b.box_base((x, 1.6, H - 4.0), (L / n - 0.1, 2.6, max(0.4, h)), (STONE, STONE_LIGHT)[i % 2], bevel=False)
     for z in (2.0, 4.4, 6.8, 9.2, 11.6, 14.0, 16.4):
         b.box((0, 0.27, z), (L, 0.06, 0.12), STONE_DARK, bevel=False)
-    # the head, standing out of the wall
-    b.box_base((0, -0.2, 4.0), (18.0, 1.4, 12.0), SANDSTONE, bevel=False)
-    b.box_base((0, -0.5, 3.4), (14.0, 1.6, 2.0), SANDSTONE, bevel=False)                      # the chin
-    for sx in (-1, 1):
-        b.pyramid((sx * 6.2, 0.0, 16.0), 5.0, 5.4, SANDSTONE)                                  # ears
-        b.pyramid((sx * 6.2, -0.75, 16.0), 2.6, 3.2, "fur_rose")
-        b.box((sx * 4.4, -0.95, 11.4), (3.6, 0.1, 2.4), STONE_DARK, bevel=False)               # eye sockets
-        glow.box((sx * 4.4, -1.05, 11.4), (2.4, 0.1, 1.6), JADE, bevel=False)                  # jade eyes
-        for j in range(3):                                                                      # whisker grooves
-            b.box((sx * 6.0, -0.95, 7.4 + 0.8 * j), (4.4, 0.08, 0.2), STONE_DARK, bevel=False,
-                  rot=(sx * (0.12 - 0.12 * j), "Y"))
-    b.box((0, -0.96, 8.6), (1.8, 0.1, 1.1), "fur_rose", bevel=False)                           # the nose
-    b.box((0, -0.96, 7.3), (0.18, 0.1, 1.4), STONE_DARK, bevel=False)
-    b.box_base((0, -0.5, 16.0), (8.0, 1.2, 1.2), GOLD, bevel=False)                            # a gold diadem
-    return [b.finalize(N + "CatHeadWall", mat), glow.finalize(N + "CatHeadWall_Glow", mat)]
+    for x in (-50.0, -36.0, -24.0, 24.0, 38.0, 52.0):                              # vines down it, clear of the head
+        b.box((x, 0.2, H - 6.0), (1.3, 0.12, 8.0 + 0.1 * (x % 3)), VINE, bevel=False)
+        b.box((x + 0.7, 0.18, H - 11.5), (0.9, 0.12, 3.4), VINE, bevel=False)
+    return [b.finalize(N + "CatHeadWall", mat)]
 
 
 def _walls(s, mat):
@@ -701,6 +703,183 @@ def throne(mat):
     return [b.finalize(N + "Throne", mat)]
 
 
+# -------------------------------------------------------------------------------------- the landmarks (#2834) --
+def colossus(mat):
+    """The cat colossus: a huge carved cat's head sunk to the chin in a heap of fallen blocks against the far wall,
+    its ears up to about 39 so it shows over the halls from the Triumphal Arch, its eyes (24 up) over the throne.
+    A tiara with a jade band and a gold boss across its brow, vines hanging from it, moss on the crown, one ear
+    broken off and lying at the heap's foot. Its eyes glow teal (_Glow). Front -Z; the back sits in the wall. A barrier to
+    44 over the lot, so nobody climbs it out of the area."""
+    b, glow, d, bar = Builder(), Builder(), Builder(), Builder()
+    # the heap: a low core and tumbled blocks round it, highest against the wall
+    b.cyl_base((0, 4.0, 0), 15.0, 5.0, STONE_DARK, segments=14, radius2=11.0, scale=(1, 0.62, 1), bevel=False)
+    b.cyl_base((0, 6.0, 5.0), 11.0, 6.0, STONE, segments=14, radius2=7.5, scale=(1, 0.62, 1), bevel=False)
+    for k, (x, y, z, w, dd, h, a) in enumerate((
+            (-12.6, -2.0, 0, 4.6, 4.0, 3.2, 0.3), (-8.4, -5.6, 0, 4.0, 3.4, 2.6, -0.4), (-3.2, -8.0, 0, 3.6, 3.0, 2.0, 0.6),
+            (3.4, -8.2, 0, 4.2, 3.2, 2.2, -0.2), (8.8, -5.4, 0, 4.4, 3.8, 2.8, 0.5), (12.8, -1.6, 0, 4.0, 4.4, 3.4, -0.3),
+            (-10.2, 2.4, 3.6, 4.2, 3.6, 3.0, 0.7), (10.6, 2.8, 3.8, 4.6, 3.4, 3.0, -0.6), (-6.4, -3.0, 2.4, 3.4, 3.0, 2.4, 0.2),
+            (6.0, -3.4, 2.2, 3.2, 3.2, 2.6, -0.5), (-12.0, 7.6, 0, 3.6, 4.0, 7.4, 0.1), (12.4, 8.0, 0, 3.4, 3.6, 7.4, -0.2))):
+        b.box_base((x, y, z), (w, dd, h + 0.01 * k), (STONE, STONE_LIGHT, SANDSTONE, STONE_DARK)[k % 4], bevel=False,
+                   rot=(a, "Z"))
+        if k % 3 != 2:
+            _moss(d, x + 0.3, y - 0.2, z + h + 0.01 * k, w * 0.7, dd * 0.6, k)
+    # the head: crown, cheeks, chin, all carved stone
+    b.sphere((0, 3.0, 22.0), 0.5, STONE_LIGHT, segments=18, rings=12, scale=(25.0, 20.0, 23.0))
+    for sx in (-1, 1):
+        b.sphere((sx * 3.2, -7.0, 16.6), 0.5, STONE_LIGHT, segments=12, rings=8, scale=(8.6, 6.4, 6.8))
+    b.sphere((0, -6.4, 13.4), 0.5, STONE, segments=12, rings=8, scale=(7.0, 5.4, 4.6))
+    b.box((0, -7.7, 19.3), (2.6, 1.6, 1.7), STONE_DARK, bevel=False, rot=(0.35, "X"))          # the nose
+    for sx in (-1, 1):
+        x = sx * 4.8
+        b.sphere((x, -6.0, 23.6), 0.5, STONE_DARK, segments=12, rings=6, scale=(5.4, 1.6, 3.3), rot=(-sx * 0.14, "Y"))
+        glow.sphere((x, -6.35, 23.6), 0.5, RUNE, segments=12, rings=6, scale=(4.0, 1.2, 2.4), rot=(-sx * 0.14, "Y"))
+        b.box((x, -6.98, 23.6), (0.5, 0.12, 2.0), "fur_ink", bevel=False)                       # the pupil, a slit
+    b.pyramid((8.0, 2.0, 28.4), 9.4, 12.6, STONE_LIGHT, rot=(-0.2, "Y"))                     # the whole ear
+    b.pyramid((8.2, -0.4, 29.4), 5.0, 8.4, STONE_DARK, rot=(-0.2, "Y"))
+    b.cyl((-7.9, 2.0, 31.6), 6.6, 6.4, STONE_LIGHT, segments=4, radius2=3.4,                   # the broken one
+          rot=Matrix.Rotation(0.2, 3, "Y") @ Matrix.Rotation(PI / 4, 3, "Z"), bevel=False)
+    b.box((-8.5, 2.0, 34.85), (3.2, 3.0, 0.3), STONE, bevel=False, rot=(0.2, "Y"))
+    b.wedge((-14.2, -7.2, 1.6), (3.0, 4.4, 3.2), STONE_LIGHT, bevel=False, rot=(0.7, "Z"))       # its tip, fallen
+    for k, (x, z, a) in enumerate(((-3.0, 28.6, 0.2), (2.6, 27.4, -0.3), (8.6, 21.0, 0.5))):  # cracks
+        b.box((x, -5.6 + 0.6 * k, z), (3.2, 0.12, 0.2), STONE_DARK, bevel=False, rot=(a, "Y"))
+    # the tiara on the brow: an arc of points over a jade band, a gold boss in the middle
+    for i in range(9):
+        t = -0.9 + 1.8 * i / 8
+        x, y = 9.6 * math.sin(t), 3.0 - 8.4 * math.cos(t)
+        h = 2.2 if i % 2 == 0 else 1.5
+        b.box_base((x, y, 28.4), (2.2, 1.3, h + 0.01 * i), STONE, bevel=False, rot=(-t, "Z"))
+        b.box((x * 0.98, y + 0.12, 28.4), (2.5, 1.2, 0.9), JADE, bevel=False, rot=(-t, "Z"))
+    b.cyl((0, -5.75, 29.4), 1.2, 0.4, GOLD, segments=12, rot=(PI / 2, "X"))
+    # vines over the tiara and down the sides of the head, moss over the crown
+    for k, (x, dl) in enumerate(((-8.4, 9.0), (-6.8, 5.0), (-1.4, 2.6), (1.6, 3.4), (6.6, 6.0), (8.6, 10.4))):
+        t = math.asin(max(-1.0, min(1.0, x / 9.8)))
+        y = 3.0 - 8.6 * math.cos(t) - 0.5
+        b.box((x, y, 28.4 - dl / 2), (0.55, 0.16, dl), (VINE, "leaf_green")[k % 2], bevel=False, rot=(-t, "Z"))
+    for k, (x, y, w, dd) in enumerate(((0.0, 4.0, 9.0, 8.0), (-4.8, 7.0, 5.0, 4.0), (4.6, 0.0, 4.4, 3.6))):
+        _moss(d, x, y, 33.0 - 0.6 * k - 0.04 * abs(x), w, dd, k)
+    for k, (x, y, z) in enumerate(((-9.6, -3.6, 11.2), (9.4, -3.2, 11.6))):                   # leaves at the jaw
+        d.sphere((x, y, z), 0.5, (VINE, "leaf_green")[k], segments=8, rings=5, scale=(3.6, 3.0, 2.4))
+    bar.box_base((0, 2.0, 0), (32.0, 22.0, 44.0), "offwhite", bevel=False)
+    return [b.finalize(N + "Colossus", mat), glow.finalize(N + "Colossus_Glow", mat),
+            d.finalize(N + "Colossus_Decor", mat), bar.finalize(N + "Colossus_Barrier", mat)]
+
+
+def waterfall(mat):
+    """The waterfall: a broken aqueduct comes in over the plateau's wall (local +Z) on one pier and stops in a jagged
+    end; its water falls 11 into a round pool with a stone rim, foam at the foot, stepping stones across the front,
+    lily pads, a fallen block from the lost arch. The water (_Water) is see-through and splashes; the foam, lily pads,
+    moss and vines are _Decor. A barrier over the pier and the aqueduct. Front -Z, the pool's centre at the pivot."""
+    b, water, d, bar = Builder(), Builder(), Builder(), Builder()
+    R = 6.6
+    ring_blocks(b, 0, 0, 0, R, 1.1, 0.8, STONE_LIGHT, n=28)
+    b.cyl_base((0, 0, 0), R - 0.9, 0.06, STONE_DARK, segments=24, bevel=False)                 # the pool's bed
+    water.cyl_base((0, 0, 0.09), R - 0.95, 0.46, WATER, segments=24, bevel=False)
+    for k in range(5):
+        a = 2 * PI * k / 5 + 0.9
+        _moss(d, (R - 0.55) * math.cos(a), (R - 0.55) * math.sin(a), 0.8 + 0.006 * (k % 2), 1.8, 1.0, k)
+    for k, (x, y) in enumerate(((-4.2, -2.4), (-1.9, -3.5), (0.7, -3.7), (3.3, -2.9))):       # stepping stones
+        b.cyl_base((x, y, 0), 0.95 - 0.05 * (k % 2), 0.75 + 0.03 * k, STONE, segments=10, bevel=False)
+    for (x, y) in ((-3.4, 1.2), (3.6, 0.6), (-1.0, -1.6)):                                  # lily pads
+        d.cyl_base((x, y, 0.57), 0.7, 0.05, "leaf_green", segments=8, bevel=False)
+    d.cyl_base((-3.2, 1.3, 0.62), 0.16, 0.16, "blush", segments=6, bevel=False)
+    b.box_base((2.6, 0.6, 0), (1.8, 1.3, 1.1), SANDSTONE, bevel=False, rot=(0.5, "Z"))         # the fallen block
+    _moss(d, 2.6, 0.6, 1.1, 1.3, 0.9, 1)
+    # the aqueduct: a pier, an arch to the wall, the channel on top running out over the wall
+    PY, Z0 = 7.4, 10.4
+    b.box_base((0, PY, 0), (3.4, 3.4, 0.8), STONE_DARK, bevel=False)
+    b.box_base((0, PY, 0.8), (2.8, 2.8, Z0 - 0.8), STONE, bevel=False)
+    b.box((0, PY, 8.2), (2.96, 2.96, 0.4), JADE, bevel=False)
+    for i in range(6):                                                                       # the arch to the wall
+        a = PI * (i + 0.5) / 6
+        r = (11.7 - PY - 1.4) / 2
+        cy = PY + 1.4 + r
+        b.box((0, cy - r * math.cos(a), Z0 - 2.4 + 1.6 * math.sin(a)), (2.4, 1.5, 0.9 + 0.01 * i),
+              (STONE, STONE_LIGHT)[i % 2], bevel=False, rot=(a - PI / 2, "X"))
+    b.box_base((0, 12.3, 6.4), (3.0, 1.6, Z0 - 6.4), STONE, bevel=False)                       # its seat on the wall
+    y0, y1 = 2.2, 14.6
+    b.box_base((0, (y0 + y1) / 2 + 0.3, Z0), (3.4, y1 - y0 - 0.6, 0.8), STONE_LIGHT, bevel=False)   # the channel
+    for sx, yb in ((-1, 2.9), (1, 3.6)):                                                     # its sides, broken short
+        b.box_base((sx * 1.4, (yb + y1) / 2, Z0 + 0.8), (0.6, y1 - yb, 1.2), STONE_LIGHT, bevel=False)
+        b.box_base((sx * 1.4, (yb + y1) / 2 + 0.6, Z0 + 2.0), (0.8, y1 - yb - 1.2, 0.3), STONE, bevel=False)
+        _moss(d, sx * 1.4, 7.0 + sx, Z0 + 2.3, 1.0, 3.6, 2 + sx)
+        for k, (yy, dl) in enumerate(((5.0, 3.6), (9.2, 2.4), (11.0, 4.4))):                  # vines down its sides
+            b.box((sx * 1.78, yy + 0.4 * sx, Z0 + 0.6 - dl / 2), (0.14, 0.5, dl), (VINE, "leaf_green")[k % 2],
+                  bevel=False)
+    b.box_base((0.5, y0 + 0.1, Z0 - 0.5), (1.6, 0.9, 0.6), STONE_LIGHT, bevel=False, rot=(0.3, "Z"))  # its broken lip
+    water.box_base((0, (y0 + y1) / 2 + 0.5, Z0 + 0.8), (2.2, y1 - y0 - 0.6, 0.7), WATER, bevel=False)
+    water.box((0, y0 + 0.1, Z0 + 1.05), (2.2, 0.9, 0.5), FALL_WATER, bevel=False, rot=(-0.6, "X"))   # over the lip
+    water.box_base((0, y0 - 0.4, 0.5), (2.6, 0.3, Z0 + 0.7), FALL_WATER, bevel=False)               # the fall
+    for k, (x, w) in enumerate(((-0.75, 0.5), (0.3, 0.7), (0.95, 0.35))):                     # streaks in it
+        water.box_base((x, y0 - 0.62, 0.5 + 0.8 * k), (w, 0.14, Z0 - 0.4 - 1.1 * k), "pastel_sky", bevel=False)
+    for k in range(6):                                                                       # foam at its foot
+        a = 2 * PI * k / 6
+        d.sphere((1.3 * math.cos(a), y0 - 0.5 + 0.9 * math.sin(a), 0.58), 0.5, FOAM, segments=8, rings=4,
+                 scale=(1.5, 1.1, 0.5 + 0.04 * k))
+    d.sphere((0, y0 - 0.5, 0.62), 0.5, FOAM, segments=8, rings=4, scale=(2.4, 1.6, 0.6))
+    bar.box_base((0, (y0 + y1) / 2 + 2.2, 0), (4.4, y1 - y0 - 3.6, 30.0), "offwhite", bevel=False)
+    return [b.finalize(N + "Waterfall", mat), water.finalize(N + "Waterfall_Water", mat),
+            d.finalize(N + "Waterfall_Decor", mat), bar.finalize(N + "Waterfall_Barrier", mat)]
+
+
+def _rune(g, x, y, z, k, s_=1.0, t=0.08):
+    """A rune on a face at y (facing -Y), centred (x, z), t thick: a branched stroke, a paw or a diamond, in g."""
+    if k % 3 == 0:
+        g.box((x, y, z), (0.24 * s_, t, 2.4 * s_), RUNE, bevel=False)
+        for sx in (-1, 1):
+            g.box((x + sx * 0.36 * s_, y, z + 0.55 * s_), (0.2 * s_, t, 0.95 * s_), RUNE, bevel=False,
+                  rot=(sx * 0.6, "Y"))
+    elif k % 3 == 1:
+        g.box((x, y, z - 0.3 * s_), (0.9 * s_, t, 0.7 * s_), RUNE, bevel=False)
+        for du, dh in ((-0.6, 0.35), (0.0, 0.62), (0.6, 0.35)):
+            g.box((x + du * s_, y, z + dh * s_), (0.34 * s_, t, 0.34 * s_), RUNE, bevel=False)
+    else:
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                g.box((x + sx * 0.42 * s_, y, z + sz * 0.42 * s_), (0.2 * s_, t, 1.2 * s_), RUNE, bevel=False,
+                      rot=(sx * sz * PI / 4, "Y"))
+        g.box((x, y, z), (0.3 * s_, t, 0.3 * s_), RUNE, bevel=False)
+
+
+def rune_stone(mat, k=0):
+    """A standing stone (4.6 to 6.4 high): a wide, thin slab in two courses that narrows to a broken top, with a rune
+    glowing teal on its -Z face, moss at its foot and on the top. k picks the height, the rune and the lean of its
+    upper course."""
+    b, glow, d = Builder(), Builder(), Builder()
+    h = (5.6, 4.6, 6.4)[k % 3]
+    sd = 1 - 2 * (k % 2)
+    lo = h * 0.62
+    b.box_base((0, 0, 0), (2.6, 1.3, lo), (STONE, STONE_LIGHT)[k % 2], bevel=False)
+    b.box_base((0.12 * sd, 0.02, lo), (2.2, 1.16, h - lo - 0.5), (STONE, STONE_LIGHT)[k % 2], bevel=False,
+               rot=(0.05 * sd, "Z"))
+    b.box_base((0.3 * sd, 0.04, h - 0.5), (1.4, 0.98, 0.5 + 0.02 * (k % 3)), STONE, bevel=False,
+               rot=(0.3 - 0.2 * (k % 3), "Z"))                                            # its broken top
+    b.box_base((-1.8 * sd, -0.9, 0), (0.9, 0.7, 0.5), STONE_DARK, bevel=False, rot=(0.6, "Z"))
+    _rune(glow, 0.0, -0.69, lo / 2 + 0.1, k)
+    _moss(d, 0.5 * sd, -0.55, 0.0, 1.8, 0.9, k)
+    _moss(d, 0.3 * sd, 0.04, h, 1.2, 0.8, k + 1)
+    return [b.finalize(N + "RuneStone", mat), glow.finalize(N + "RuneStone_Glow", mat),
+            d.finalize(N + "RuneStone_Decor", mat)]
+
+
+def trilithon(mat, w=12.8):
+    """A stone-henge gate over the way: two standing stones w apart (centres) carrying a lintel 8 up, a rune on each
+    stone's -Z face, moss on the lintel and a vine off it."""
+    b, glow, d = Builder(), Builder(), Builder()
+    for k, sx in enumerate((-1, 1)):
+        x = sx * w / 2
+        b.box_base((x, 0, 0), (2.4, 1.9, 8.0 + 0.02 * k), (STONE, STONE_LIGHT)[k], bevel=False)
+        b.box_base((x - 1.4 * sx, -1.1, 0), (1.0, 0.8, 0.6), STONE_DARK, bevel=False, rot=(0.5, "Z"))
+        _rune(glow, x, -1.0, 4.2, k * 2, 1.2, 0.12)
+        _moss(d, x + 0.3 * sx, -0.7, 0.0, 1.8, 1.0, k)
+    b.box_base((0.15, 0, 8.0), (w + 3.6, 2.1, 1.6), STONE_LIGHT, bevel=False, rot=(0.03, "Z"))
+    _moss(d, -2.0, 0.1, 9.6, 5.0, 1.6, 0)
+    _moss(d, 4.4, 0.0, 9.6, 3.0, 1.4, 1)
+    b.box((-3.4, -1.12, 6.6), (0.5, 0.14, 3.0), VINE, bevel=False)
+    b.box((-2.8, -1.12, 7.2), (0.4, 0.14, 1.8), "leaf_green", bevel=False)
+    return [b.finalize(N + "Trilithon", mat), glow.finalize(N + "Trilithon_Glow", mat),
+            d.finalize(N + "Trilithon_Decor", mat)]
+
+
 # --------------------------------------------------------------------------------------------- the pieces --
 def brazier(mat):
     """A bronze brazier on a stone stand, its fire soft and glowing (_Glow, Neon day and night), no smoke."""
@@ -893,8 +1072,44 @@ def build_set(mat):
         put(trap_stone_urn(mat), x, z, t, r=4)
         _spot(s, "trap_stone_urn", x, z, turn=t)
 
-    # filler: rubble and broken drums, clear of the way, the blockers, the pieces and the spots
+    # #2834 landmarks: the colossus behind the throne, the waterfall by the east wall, a trilithon gate before the
+    # court and rune stones leading the way through the colonnade. None of them moves a spot
     spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]
+    put(colossus(mat), 0.0, COLOSSUS_Z, 0, r=16)
+    put(waterfall(mat), FALLS_X, FALLS_Z, 90, r=8)
+    s.put(trilithon(mat), 0.0, GATE_Z, 0)
+    keep.extend([(-6.4, GATE_Z, 2.0), (6.4, GATE_Z, 2.0)])
+    stylo = [(STYLO[0], STYLO[1], STYLO[2], STYLO[3]), (-35.0, -25.0, STYLO[2] - 12.0, STYLO[2]),
+             (STYLO[1], STYLO[1] + 12.0, -65.0, -55.0), (-55.0, -45.0, STYLO[3], STYLO[3] + 12.0),
+             (ISLE_PED[0][0], ISLE_PED[0][1], PEDIMENT_Z - 4.0, PEDIMENT_Z + 4.0)]
+
+    def free(x, z, r):
+        if abs(x) > IN_X - 4 or near_trail(x, z) < 5.6 or abs(z - ARCH_Z) < 9:
+            return False
+        if any(x0 - 2 - r < x < x1 + 2 + r and z0 - 2 - r < z < z1 + 2 + r for (x0, x1, z0, z1) in stylo):
+            return False
+        if any(math.hypot(x - qx, z - qz) < qr + r + 1.5 for (qx, qz, qr) in keep):
+            return False
+        return all(math.hypot(x - qx, z - qz) >= r + 2.5 for (qx, qz) in spots)
+
+    step, at, k, side = 17.0, 0.0, 0, 1
+    for a, c in pairwise(TRAIL):
+        seg = math.hypot(c[0] - a[0], c[1] - a[1])
+        ux, uz = (c[0] - a[0]) / seg, (c[1] - a[1]) / seg
+        while at <= seg:
+            px, pz = a[0] + ux * at, a[1] + uz * at
+            if ARCH_Z + 12 < pz < HALLS_Z0 - 6:
+                for sd in (side, -side):
+                    x, z = px + sd * 6.6 * uz, pz - sd * 6.6 * ux
+                    if free(x, z, 1.6):
+                        put(rune_stone(mat, k), x, z, face(x, z, px, pz), r=1.6)
+                        k += 1
+                        side = -sd
+                        break
+            at += step
+        at -= seg
+
+    # filler: rubble and broken drums, clear of the way, the blockers, the pieces and the spots
     k = 0
     for gx in range(-58, 59, 14):
         for gz in range(-286, 287, 14):

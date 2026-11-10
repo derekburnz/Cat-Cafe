@@ -149,5 +149,45 @@ return function()
 				'<font color="#FF5E7E">Sam pulled a Mythical Starry Wallpaper from a crate!</font>'
 			)
 		end)
+
+		describe("the Global Cats feed (#3053)", function()
+			it("takes Mythical and nothing lower", function()
+				expect(GlobalCatch.inFeed("Mythical")).to.equal(true)
+				for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Secret", "" } do
+					expect(GlobalCatch.inFeed(rarity)).to.equal(false)
+				end
+			end)
+
+			it(
+				"writes the line in the rarity's colour with no Global words, this server's or another's",
+				function()
+					local line = GlobalCatch.feedLine("Sam caught a Mythical Eclipse!", "Mythical")
+					expect(line).to.equal(
+						'<font color="#FF5E7E">Sam caught a Mythical Eclipse!</font>'
+					)
+					expect(line:find("Global", 1, true)).to.equal(nil)
+				end
+			)
+
+			it("escapes rich text, as the Here line does", function()
+				local line = GlobalCatch.feedLine("<b>x</b> caught a Mythical Eclipse!", "Mythical")
+				expect(line:find("<b>", 1, true)).to.equal(nil)
+			end)
+
+			it(
+				"has a tab name that is not Roblox's own, a switch that is a live flag, and a first line",
+				function()
+					local LiveFlags = require(Shared.LiveFlags)
+					expect(GlobalCatch.FEED_CHANNEL).never.to.equal("Global")
+					expect(GlobalCatch.FEED_CHANNEL:sub(1, 3)).never.to.equal("RBX")
+					expect(table.find(LiveFlags.KEYS, GlobalCatch.FEED_FLAG) ~= nil).to.equal(true)
+					expect(LiveFlags.OFF_BY_DEFAULT[GlobalCatch.FEED_FLAG]).to.equal(true)
+					expect(
+						#GlobalCatch.FEED_HELLO > 0
+							and #GlobalCatch.FEED_HELLO <= GlobalCatch.MAX_TEXT
+					).to.equal(true)
+				end
+			)
+		end)
 	end)
 end

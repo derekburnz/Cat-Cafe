@@ -73,14 +73,27 @@ return function()
 			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
 		end)
 
-		it("starts off with nightCatch alone beside it", function()
+		it("starts off with nightCatch and globalTab alone beside it", function()
 			local count = 0
 			for key in LiveFlags.OFF_BY_DEFAULT do
 				count += 1
-				expect(key == "tradeFish" or key == "nightCatch").to.equal(true)
+				expect(key == "tradeFish" or key == "nightCatch" or key == "globalTab").to.equal(
+					true
+				)
 				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 			end
-			expect(count).to.equal(2)
+			expect(count).to.equal(3)
+		end)
+	end)
+
+	describe("globalTab (#3053, off until switched on)", function()
+		it("is on only for an explicit true", function()
+			expect(LiveFlags.defaults().globalTab).to.equal(false)
+			expect(LiveFlags.parse({}).globalTab).to.equal(false)
+			for _, value in { "true", 1, false } :: { any } do
+				expect(LiveFlags.parse({ globalTab = value }).globalTab).to.equal(false)
+			end
+			expect(LiveFlags.parse({ globalTab = true }).globalTab).to.equal(true)
 		end)
 	end)
 

@@ -24,6 +24,18 @@ GlobalCatch.SHOW_GAP_SECONDS = 3
 -- Here tab, so the line from another server says "Global" itself (it was "From another cafe: ").
 GlobalCatch.ELSEWHERE = "🌍 Global: "
 
+-- #3053 (Derek2 2026-11-10: "the global chat should show mythical or better (including ones from your own server in
+-- global)"): Roblox's Global tab still takes no line from a game, so the game has its own chat channel, FEED_CHANNEL,
+-- which the chat window shows as a tab of that name beside Here and Global (channel tabs: every custom TextChannel
+-- gets a tab named after it). Every catch or crate line of FEED_FROM or rarer goes in it, this server's and the
+-- other servers' alike. Players read it and cannot type in it. Live switch FEED_FLAG, off until it is switched on:
+-- the server makes the channel only while it is on (GlobalCatchService), and the client follows the channel
+-- (RareCatchChatController), so off again takes the tab away with no publish.
+GlobalCatch.FEED_FLAG = "globalTab"
+GlobalCatch.FEED_CHANNEL = "Global Cats"
+GlobalCatch.FEED_FROM = "Mythical"
+GlobalCatch.FEED_HELLO = "Mythical catches from every cafe show up here 🌍"
+
 -- The chat colour of each rarity, the hex of Catalog.rarities' swatches (the same as Effects' Presets.rarity).
 GlobalCatch.COLORS = {
 	Common = "#8E97B2",
@@ -76,6 +88,12 @@ function GlobalCatch.parse(data: unknown, ownJobId: string): (string?, string?)
 	return text, rarity
 end
 
+-- #3053: whether a line of `rarity` belongs in the feed channel: FEED_FROM or rarer.
+function GlobalCatch.inFeed(rarity: string): boolean
+	local rank, from = Catalog.rarityRank[rarity], Catalog.rarityRank[GlobalCatch.FEED_FROM]
+	return rank ~= nil and from ~= nil and rank >= from
+end
+
 -- #2429 (Derek2 2026-11-08: "make rare pulls show up in global chat ... inside the actual chat"): a crate piece of
 -- CRATE_FROM or rarer is a chat line too, as a rare catch is. The player's display name, the piece's rarity and name.
 GlobalCatch.CRATE_FROM = "Legendary"
@@ -117,6 +135,12 @@ function GlobalCatch.chatLine(text: string, rarity: string, elsewhere: boolean):
 	local color = GlobalCatch.COLORS[rarity] or GlobalCatch.COLORS.Common
 	local body = (if elsewhere then GlobalCatch.ELSEWHERE else "") .. text
 	return string.format('<font color="%s">%s</font>', color, GlobalCatch.escape(body))
+end
+
+-- #3053: the feed channel's line for a shout-out `text` of a `rarity` cat: the rarity's colour and no "Global"
+-- words in front, since the tab is the global one and holds this server's lines too.
+function GlobalCatch.feedLine(text: string, rarity: string): string
+	return GlobalCatch.chatLine(text, rarity, false)
 end
 
 return GlobalCatch

@@ -12,6 +12,8 @@
 # and two start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
+#   globalTab     true gives the chat window the game's own "Global Cats" tab with every Mythical catch from every
+#                 server (#3053); false or no entry takes the tab away
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
 #                 review pass, and after a restart publish, so no old server settles a fish record without the fish
 # Run by .github/workflows/flags.yml; also works from Git Bash on a PC with the same variables set.
@@ -23,10 +25,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch|globalTab true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch|globalTab
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates and awayNotes, and false for tradeFish and nightCatch (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates and awayNotes, and false for tradeFish, nightCatch and globalTab (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -36,7 +38,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch|globalTab true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch|globalTab" >&2
 	exit 2
 }
 
@@ -90,6 +92,7 @@ show_key() {
 	awayNotes) if [ "$raw" = false ]; then meaning="away notes OFF in every server (no new away notifications)"; else meaning="away notes on"; fi ;;
 	tradeFish) if [ "$raw" = true ]; then meaning="golden fish trading ON in every server"; else meaning="golden fish trading off (its default)"; fi ;;
 	nightCatch) if [ "$raw" = true ]; then meaning="first-session night catching ON in every server"; else meaning="first-session night catching off (its default)"; fi ;;
+	globalTab) if [ "$raw" = true ]; then meaning="the Global Cats chat tab ON in every server"; else meaning="the Global Cats chat tab off (its default)"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"
@@ -113,6 +116,7 @@ show() {
 	show_key awayNotes
 	show_key tradeFish
 	show_key nightCatch
+	show_key globalTab
 }
 
 # write key json-value
@@ -132,7 +136,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | tradeFish | nightCatch) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | tradeFish | nightCatch | globalTab) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -143,7 +147,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes) write "$2" true ;;
-	tradeFish | nightCatch) write "$2" false ;;
+	tradeFish | nightCatch | globalTab) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

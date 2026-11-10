@@ -52,6 +52,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
+local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
@@ -270,6 +271,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
+		secondCat = SecondCat.view(profile), -- #3022
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food

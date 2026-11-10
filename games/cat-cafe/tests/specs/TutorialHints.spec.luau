@@ -171,12 +171,24 @@ return function()
 			expect(TutorialHints.ask(TutorialHints.view(busy, spots))).to.equal("more")
 		end)
 
-		it("counts the cats for step 3 (#2912)", function()
-			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = 3 }), spots))).to.equal(
-				"second"
-			)
-			local two = state({ tutorialStep = 3, cats = { a = {}, b = {} } })
+		it("counts the cats caught for step 3 (#2912), not the cats in the cafe (#3022)", function()
+			-- a new cafe after its first catch: the starter Tabby and the caught cat, one cat caught
+			local one = state({
+				tutorialStep = 3,
+				cats = { starter = {}, a = {} },
+				stats = { catsCaught = 1 },
+			})
+			expect(TutorialHints.ask(TutorialHints.view(one, spots))).to.equal("second")
+			local two = state({
+				tutorialStep = 3,
+				cats = { starter = {}, a = {}, b = {} },
+				stats = { catsCaught = 2 },
+			})
 			expect(TutorialHints.ask(TutorialHints.view(two, spots))).to.equal("table")
+			-- a state with no stats (an older server) asks for the table alone
+			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = 3 }), spots))).to.equal(
+				"table"
+			)
 		end)
 
 		it("asks for the bowl, then food in it, then waits", function()

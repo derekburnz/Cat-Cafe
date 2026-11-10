@@ -31,6 +31,7 @@ local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
+local SecondCat = require(Shared:WaitForChild("SecondCat"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
@@ -202,7 +203,8 @@ end
 
 -- #2912 (Nov 10 read: 21% leave between the first customer served and the second cat): the Alleyway stray nearest the
 -- character that this player may catch (not another beginner's, not in someone else's catch), for step 3's ring while
--- only one cat is caught; nil while none has streamed in.
+-- only one cat is caught; nil while none has streamed in. #3022: the stray the server has waiting for this player
+-- (shared/SecondCat, the model's WaitsFor attribute) comes before a nearer one.
 local function nearestAlleyStray(): BasePart?
 	local world = Workspace:FindFirstChild("World")
 	local strays = if world ~= nil then world:FindFirstChild("Strays") else nil
@@ -222,6 +224,9 @@ local function nearestAlleyStray(): BasePart?
 		if model:IsA("Model") and model:GetAttribute("Area") == "alley" and mine then
 			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 			if part ~= nil then
+				if model:GetAttribute(SecondCat.ATTRIBUTE) == me then
+					return part
+				end
 				local distance = (part.Position - root.Position).Magnitude
 				if distance < bestDistance then
 					best, bestDistance = part, distance
@@ -387,12 +392,9 @@ local function refreshTutorial(s: Types.PlayerState)
 		end
 	elseif s.tutorialStep == 3 then
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
-		-- a stray caught by someone else or run off picks the next one
-		local count = 0
-		for _ in s.cats do
-			count += 1
-		end
-		if count < 2 then
+		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
+		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
+		if s.stats.catsCaught < SecondCat.CATS then
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,

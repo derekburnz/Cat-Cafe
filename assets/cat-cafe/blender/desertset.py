@@ -46,12 +46,13 @@ or more from every other, off the trail and the blockers and 8 or more from ever
 """
 
 import math
+from itertools import pairwise
 
 from mathutils import Matrix, Vector
 
 from areakit import PI, Set, turned
 from common import RB, Builder
-from woodsset import _dist_seg, _path, bl
+from woodsset import _dist_seg, _path, bl, face
 
 NAME = "CatCafe_Desert_Set"
 N = "CatCafe_Desert_"
@@ -68,7 +69,7 @@ SAND, SAND_DUNE, SAND_DARK = "fur_oat", "fur_dune", "treat_tan"
 STONE, STONE_LIGHT, STONE_DARK = "fur_caramel", "paving_tan", "fur_latte"
 RED, RED_LIGHT, RED_DARK = "fur_copper", "terracotta", "fur_russet"
 CLAY, CRACK = "fur_latte", "fur_hazel"
-PATH = "paving_tan"
+PATH, PATH_EDGE = "paving_grout", "fur_hazel"   # packed earth, darker than the sand and the clay (#2834; was paving_tan)
 STRIPES = ("rarity_common", "rarity_rare", "rarity_epic", "rarity_legend", "rarity_mythic")
 
 DUNE_A_Z, ISLE_A = -215.0, [(-54.0, -12.0), (16.0, 52.0)]
@@ -112,7 +113,7 @@ def near_trail(x, z):
 
 
 def trail_length():
-    return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(TRAIL, TRAIL[1:]))
+    return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(TRAIL[:-1], TRAIL[1:]))
 
 
 def _spot(s, label, x, z, y=0.0, turn=None):
@@ -123,13 +124,32 @@ def _spot(s, label, x, z, y=0.0, turn=None):
 
 
 # ------------------------------------------------------------------------------------------------- ground --
+def _trail_to(z_end):
+    """TRAIL cut where it first reaches z_end."""
+    out = [TRAIL[0]]
+    for (ax, az), (bx, bz) in pairwise(TRAIL):
+        if bz < z_end:
+            out.append((bx, bz))
+            continue
+        t = (z_end - az) / (bz - az)
+        out.append((ax + (bx - ax) * t, z_end))
+        break
+    return out
+
+
 def _ground():
     """Sand over the whole floor (no plate shows, no grass), the trail of packed sand, the clay pan and its cracks,
     the courtyard's flagstones, and sand ripples on the dune sea."""
     g = Builder()
     g.box_base((0, 0, 0), (2 * HALF_X, 2 * HALF_Z, 0.03), SAND, bevel=False)
-    _path(g, TRAIL, TRAIL_W, PATH, 0.07)
-    _path(g, SIDE, 5.0, PATH, 0.07)
+    # packed earth with a darker rim, up to the courtyard (its flagstones are the way on from there). Every top, the
+    # bends' discs too, keeps 0.016 or more from the pan's (0.05) and from the other colour's, so rbx_zfight has
+    # nothing to lift: rim 0.078 and 0.084 (discs 0.068), middle 0.11 and 0.116 (discs 0.1)
+    way = _trail_to(COURT[1] - 20.0)
+    _path(g, way, TRAIL_W + 1.4, PATH_EDGE, 0.078)
+    _path(g, way, TRAIL_W, PATH, 0.11)
+    _path(g, SIDE, 6.4, PATH_EDGE, 0.078)
+    _path(g, SIDE, 5.0, PATH, 0.11)
     x, y, _ = bl(0, (FLATS_Z0 + FLATS_Z1) / 2)
     g.box_base((x, y, 0), (2 * PAN_X, FLATS_Z1 - FLATS_Z0, 0.05), CLAY, bevel=False)        # the clay pan
     for k in range(26):                                                                       # its cracks
@@ -923,6 +943,131 @@ def well(mat):
     return [b.finalize(N + "Well", mat)]
 
 
+# ------------------------------------------------------------------------------------ the trail kit (#2834) --
+# Dressing along the way so the long walk reads as an old caravan road: little market stalls by the camp gate and on
+# the flats, standing urn groups and crate stacks at the trail's side, and rope posts lining it in the open stretches.
+ROPE = "fur_sand"
+
+
+def market_stall(mat, stripe=STRIPES[1]):
+    """A trader's stall, 4.6 wide: a wooden counter with goods on it (pots, folded cloth, a bowl of dates), four posts,
+    a striped awning sloping down to the front and scalloped there, a rug over one side, baskets at its foot. Front
+    -Z (Blender -Y): stand it facing the trail. Footprint x +-2.5, z -2.5 to 1.8."""
+    b = Builder()
+    b.box_base((0, -0.6, 0), (4.4, 1.4, 1.1), "caramel_wood")                                     # the counter
+    b.box_base((0, -0.6, 1.1), (4.7, 1.7, 0.12), "dark_wood", bevel=False)
+    b.box_base((0, -1.32, 0.35), (4.2, 0.06, 0.65), stripe, bevel=False)                          # its front cloth
+    for k in range(5):
+        b.box_base((-1.68 + 0.84 * k, -1.36, 0.35), (0.3, 0.04, 0.65), "cream", bevel=False)
+    for sx in (-1, 1):                                                                            # the posts
+        b.cyl_base((sx * 2.25, -1.4, 0), 0.12, 3.05, "dark_wood", segments=8, bevel=False)
+        b.cyl_base((sx * 2.25, 1.45, 0), 0.12, 3.65, "dark_wood", segments=8, bevel=False)
+    a = math.atan2(0.6, 2.85)                                                                     # the awning
+    n = 6
+    for i in range(n):
+        x = -2.45 + (i + 0.5) * 4.9 / n
+        sw = (stripe, "cream")[i % 2]
+        b.box((x, 0.02, 3.35), (4.9 / n + 0.02, 3.5, 0.1 + 0.02 * (i % 2)), sw, bevel=False, rot=(a, "X"))
+        b.box((x, -1.69, 2.85), (4.9 / n - 0.12, 0.06, 0.42), sw, bevel=False)                   # the scallops
+    b.box_base((0, 1.25, 1.55), (4.2, 0.5, 0.1), "dark_wood", bevel=False)                        # the back shelf
+    for k, sw in enumerate((RED_LIGHT, "sign_teal", RED_LIGHT, "fur_caramel", "sign_teal")):
+        x = -1.7 + 0.85 * k
+        b.cyl_base((x, 1.25, 1.65), 0.2, 0.45, sw, segments=8, radius2=0.14)
+    for (x, sw) in ((-1.5, RED_LIGHT), (-0.9, "fur_caramel")):                                    # pots on the counter
+        b.cyl_base((x, -0.55, 1.22), 0.26, 0.5, sw, segments=10, radius2=0.18)
+        b.cyl_base((x, -0.55, 1.72), 0.2, 0.08, RED, segments=10, bevel=False)
+    for k, sw in enumerate((STRIPES[2], STRIPES[3], "cream")):                                    # folded cloth
+        b.box_base((0.3, -0.5, 1.22 + 0.16 * k), (1.0, 0.8, 0.16), sw, bevel=False)
+    b.cyl_base((1.5, -0.6, 1.22), 0.5, 0.22, "fur_hazel", segments=12, radius2=0.35)              # a bowl of dates
+    for k in range(5):
+        t = 2 * PI * k / 5
+        b.ico((1.5 + 0.22 * math.cos(t), -0.6 + 0.22 * math.sin(t), 1.47), 0.13, "fur_toffee", subdivisions=1)
+    b.box_base((-2.4, 0.1, 0.9), (0.06, 2.2, 2.1), STRIPES[4], bevel=False)                       # a rug over the side
+    b.box_base((-2.42, 0.1, 1.5), (0.06, 2.2, 0.25), "cream", bevel=False)
+    for (x, sw) in ((-1.4, "fur_toffee"), (1.3, RED_LIGHT)):                                      # baskets at its foot
+        b.cyl_base((x, -2.0, 0), 0.45, 0.55, "fur_hazel", segments=10, radius2=0.52)
+        for k in range(3):
+            t = 2 * PI * k / 3
+            b.ico((x + 0.2 * math.cos(t), -2.0 + 0.2 * math.sin(t), 0.6), 0.17, sw, subdivisions=1)
+    return [b.finalize(N + "Stall", mat)]
+
+
+def _urn(b, x, y, s, sw, band="cream"):
+    """A standing amphora: a foot, a round belly with a painted band, a neck and a lip."""
+    b.cyl_base((x, y, 0), 0.32 * s, 0.18 * s, sw, segments=10, bevel=False, radius2=0.4 * s)
+    b.sphere((x, y, 0.95 * s), 0.72 * s, sw, segments=12, rings=7, scale=(1.0, 1.0, 1.15))
+    b.cyl_base((x, y, 1.0 * s), 0.74 * s, 0.14 * s, band, segments=12, bevel=False)
+    b.cyl_base((x, y, 1.6 * s), 0.27 * s, 0.45 * s, sw, segments=10, bevel=False, radius2=0.22 * s)
+    b.cyl_base((x, y, 2.02 * s), 0.38 * s, 0.12 * s, RED, segments=10, bevel=False)
+
+
+def urn_group(mat):
+    """Three standing urns of three sizes and a fourth tipped over in the sand, the way a trader left them."""
+    b = Builder()
+    b.sphere((0.1, 0.1, 0), 1.0, SAND_DUNE, segments=12, rings=6, scale=(2.1, 1.8, 0.3))           # the sand drift
+    _urn(b, 0.0, 0.3, 1.0, RED_LIGHT)
+    _urn(b, 1.15, 0.85, 0.72, "fur_caramel", band="sign_teal")
+    _urn(b, -1.0, -0.55, 0.58, RED_LIGHT, band="sign_teal")
+    lie = Matrix.Rotation(PI / 2, 3, "Y")                                                          # the tipped one
+    b.sphere((0.9, -1.0, 0.5), 0.5, "fur_caramel", segments=12, rings=7, scale=(1.15, 1.0, 1.0), rot=lie)
+    b.cyl((1.62, -1.0, 0.5), 0.2, 0.42, "fur_caramel", segments=10, bevel=False, rot=lie)
+    b.cyl((1.86, -1.0, 0.5), 0.28, 0.09, RED, segments=10, bevel=False, rot=lie)
+    return [b.finalize(N + "UrnGroup", mat)]
+
+
+def _crate_at(b, x, y, z, s, yaw):
+    R = Matrix.Rotation(yaw, 3, "Z")
+    b.box((x, y, z + s / 2), (s, s, s), "caramel_wood", rot=R)
+    for dz in (-0.3, 0.3):                                                                         # slats on two faces
+        for f in (Vector((0, -1, 0)), Vector((1, 0, 0))):
+            c = Vector((x, y, z + s / 2 + dz * s)) + R @ (f * (s / 2 + 0.02))
+            size = (s, 0.06, 0.14 * s) if f.x == 0 else (0.06, s, 0.14 * s)
+            b.box(tuple(c), size, "dark_wood", bevel=False, rot=R)
+
+
+def crate_stack(mat):
+    """Two crates side by side, a third on top and turned, a grain sack leaning on them, a rope round the top one."""
+    b = Builder()
+    b.sphere((0, 0, 0), 1.0, SAND_DUNE, segments=12, rings=6, scale=(2.3, 1.7, 0.3))
+    _crate_at(b, -0.85, 0.0, 0.0, 1.6, 0.05)
+    _crate_at(b, 0.85, 0.15, 0.0, 1.5, -0.08)
+    _crate_at(b, -0.2, 0.05, 1.5, 1.3, 0.35)
+    b.box((-0.2, 0.05, 2.18), (1.36, 0.1, 0.08), ROPE, bevel=False, rot=(0.35, "Z"))
+    b.sphere((1.75, -1.0, 0.55), 0.6, "cardboard", segments=10, rings=6, scale=(0.9, 0.8, 1.05),
+             rot=(-0.3, "Y"))                                                                      # the sack
+    b.cyl((1.9, -1.0, 1.15), 0.18, 0.3, ROPE, segments=8, bevel=False)
+    return [b.finalize(N + "CrateStack", mat)]
+
+
+def rope_posts(mat, n=3, gap=4.0):
+    """A run of n short wooden posts gap apart along local X with a rope sagging between them, lining the trail. The
+    posts collide (thin, a player walks round them); the rope (_Decor) doesn't."""
+    b, d = Builder(), Builder()
+    xs = [(i - (n - 1) / 2) * gap for i in range(n)]
+    for x in xs:
+        b.sphere((x, 0, 0), 0.5, SAND_DUNE, segments=8, rings=4, scale=(1.0, 1.0, 0.35))
+        b.cyl_base((x, 0, 0), 0.17, 2.0, "dark_wood", segments=8, bevel=False)
+        b.cyl_base((x, 0, 2.0), 0.22, 0.12, "fur_hazel", segments=8, bevel=False)
+        b.box_base((x, 0, 1.62), (0.4, 0.4, 0.12), ROPE, bevel=False)
+    for x0, x1 in pairwise(xs):                                                                # the rope, sagging
+        pts = [(x0 + (x1 - x0) * t, 1.68 - 0.45 * math.sin(PI * t)) for t in (0.0, 0.25, 0.5, 0.75, 1.0)]
+        for (ax, az), (bx, bz) in pairwise(pts):
+            L = math.hypot(bx - ax, bz - az)
+            d.box(((ax + bx) / 2, 0, (az + bz) / 2), (L + 0.08, 0.1, 0.1), ROPE, bevel=False,
+                  rot=(-math.atan2(bz - az, bx - ax), "Y"))
+    return [b.finalize(N + "RopePosts", mat), d.finalize(N + "RopePosts_Decor", mat)]
+
+
+def _on_trail(i, t, side, off):
+    """Area point beside TRAIL segment i at fraction t, side +1 left / -1 right of the way on, off from its middle
+    line, and the segment's own heading (rot_y of a piece whose local X runs along it)."""
+    (ax, az), (bx, bz) = TRAIL[i], TRAIL[i + 1]
+    dx, dz = bx - ax, bz - az
+    L = math.hypot(dx, dz)
+    nx, nz = -dz / L, dx / L
+    return ax + dx * t + side * off * nx, az + dz * t + side * off * nz, math.degrees(math.atan2(-dz, dx))
+
+
 # --------------------------------------------------------------------------------------- the rescue traps --
 def trap_sand_dune(mat):
     """A cat stuck in the sand up to its chest: a ring of sand mounds 1.2 high round the spot (radius 1.3 open in
@@ -1116,6 +1261,56 @@ def build_set(mat):
     for (x, z, t) in POOL_CANOPIES:
         put(trap_collapsed_canopy(mat), x, z, t, r=5)
         _spot(s, "trap_collapsed_canopy", x, z, turn=t)
+
+    # the trail kit (#2834): market stalls where the caravans stopped (the camp gate, the flats), and along the way
+    # rope posts, urn groups and crate stacks at the trail's side, each clear of the cat spots, the pieces and the
+    # blockers, so no cat spot moves
+    spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]
+
+    def free(x, z, r):
+        if any(math.hypot(x - qx, z - qz) < r + 3.0 for (qx, qz) in spots):
+            return False
+        if any(math.hypot(x - qx, z - qz) < r + qr + 1.0 for (qx, qz, qr) in keep):
+            return False
+        if (abs(z - DUNE_A_Z) < 10 or abs(z - DUNE_B_Z) < 10 or abs(z - MESA_Z) < 9 or abs(z - RUIN_Z) < 6
+                or CANYON_Z0 - 4 < z < CANYON_Z1 + 4 or z < -IN_Z + 4):
+            return False
+        if abs(x) > IN_X - 4 or (FLATS_Z0 < z < FLATS_Z1 and abs(x) > PAN_X - 3):
+            return False
+        return math.hypot(x - PYRAMID[0], z - PYRAMID[1]) > PYR_BASE / 2 + 6
+    for (x, z, tx, sw) in ((-12.5, -266.0, 0.0, STRIPES[1]), (12.5, -261.0, 0.0, STRIPES[2]),
+                           (-9.5, 6.0, 4.8, STRIPES[3]), (17.5, 32.0, 6.0, STRIPES[1])):
+        if free(x, z, 3.2):
+            put(market_stall(mat, sw), x, z, face(x, z, tx, z), r=3.2)
+    edge = TRAIL_W / 2 + 0.7
+    seg = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in pairwise(TRAIL)]
+    k, d = 0, 8.0
+    while d < sum(seg) - 8.0:                                       # a piece every 13 studs of the way, if it fits
+        i, rest = 0, d
+        while rest > seg[i]:
+            rest -= seg[i]
+            i += 1
+        L, t = seg[i], rest / seg[i]
+        (ax, az), (bx, bz) = TRAIL[i], TRAIL[i + 1]
+        kind = ("rope", "urns", "rope", "crates")[k % 4]
+        for side in ((-1, 1) if k % 2 else (1, -1)):                 # the other side when the first is taken
+            if kind == "rope":
+                if t - 4.5 / L < 0.0 or t + 4.5 / L > 1.0:             # keep a run off the bends
+                    break
+                x, z, heading = _on_trail(i, t, side, edge + 0.5)
+                posts = [(x + u * (bx - ax) / L, z + u * (bz - az) / L) for u in (-4.0, 0.0, 4.0)]
+                if all(free(px, pz, 0.6) and near_trail(px, pz) > edge for px, pz in posts):
+                    s.put(rope_posts(mat), x, z, heading)
+                    keep.extend((px, pz, 0.6) for px, pz in posts)
+                    break
+            else:
+                r = 2.4
+                x, z, _ = _on_trail(i, t, side, edge + r + 0.6)
+                if free(x, z, r) and near_trail(x, z) > edge + r:
+                    put((urn_group if kind == "urns" else crate_stack)(mat), x, z, (k * 47) % 360, r=r)
+                    break
+        k += 1
+        d += 13.0
 
     # filler: dry bushes and boulders, clear of the trail, the blockers, the pieces and the spots
     spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]

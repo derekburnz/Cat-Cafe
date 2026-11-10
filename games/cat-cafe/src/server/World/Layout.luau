@@ -1942,7 +1942,7 @@ Layout.townSquare = {
 -- with the same rules and no exception left): the Thanks board comes out from behind the night cart and the Rally
 -- board from behind the cannon. Two new spots are kept for the feedback stand (#3066) and the arcade cabinet (#3062).
 -- The stations, one per quarter: the Spin Wheel (F49) and the Golden Fish Market (F53) north of the lane, the Codes
--- Cat (F65; its CodesCircle 6 studs in front, toward the fountain) and the night dealer's cart (data-model section
+-- Cat (F65; its CodesCircle 8 studs in front, toward the fountain) and the night dealer's cart (data-model section
 -- 8b, parked from dusk; the dealer stands at its +X end) south of it. #1215: the Fish Market sits back toward the
 -- north-east corner, clear of the leaderboard row by 3.2 studs and the north bench by 2.9 (Model-Agent's check).
 Layout.spinWheel = station(-35, 35)

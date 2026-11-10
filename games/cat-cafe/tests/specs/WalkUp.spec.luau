@@ -132,6 +132,38 @@ return function()
 			end
 		)
 
+		-- #3112 (Derek2: "make the circles infront of the stations bigger"): radius 6, and every town station's range
+		-- grew with it, so each ring still touches its station's front (the fronts measured off the models)
+		it("fits a radius 6 ring in front of every town station, inside its range", function()
+			local Config = require(Shared.Config)
+			local FeedbackStand = require(Shared.FeedbackStand)
+			expect(WalkUp.FRONT_RADIUS).to.equal(6)
+			local stations: { [string]: { number } } = {
+				spin = { 2.99, Config.SpinStationRange },
+				market = { 2.8, Config.FishMarketRange },
+				mystery = { 3.5, Config.MysteryMarketRange },
+				dayCart = { 1.82, Config.CornerShopRange },
+				dealer = { 2.01, Config.DealerRangeStuds },
+				feedback = { 1.9, FeedbackStand.RANGE },
+			}
+			for name, pair in stations do
+				local front, range = pair[1], pair[2]
+				local out = WalkUp.frontOffset(front, WalkUp.FRONT_RADIUS, range)
+				-- touching the front, or tucked under it by a hair (the night cart's 2.01 front)
+				if out < front + WalkUp.FRONT_RADIUS - 0.05 then
+					error(
+						string.format(
+							"the %s ring sits %.2f out, not %.2f",
+							name,
+							out,
+							front + WalkUp.FRONT_RADIUS
+						)
+					)
+				end
+				expect(out + WalkUp.FRONT_RADIUS + WalkUp.EDGE_SLACK <= range).to.equal(true)
+			end
+		end)
+
 		it("rings the cannon all the way round, clear of it and inside its range", function()
 			expect(WalkUp.aroundRadius(6, 10)).to.equal(10 - WalkUp.EDGE_SLACK)
 			expect(WalkUp.aroundRadius(3, 10)).to.equal(3 + WalkUp.AROUND_PAD)

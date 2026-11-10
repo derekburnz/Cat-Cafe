@@ -26,7 +26,7 @@ WalkUp.RADIUS_SHARE = 0.75
 -- The ring's part inside a station's model (World/WalkUpCircles): a flat part `radius` studs across each way from
 -- its centre, with its radius in the Radius attribute. The window opens on stepping inside it.
 WalkUp.CIRCLE = "WalkUpCircle"
-WalkUp.FRONT_RADIUS = 4 -- as the Codes Cat's circle (Config.CodesCircleRadius)
+WalkUp.FRONT_RADIUS = 6 -- as the Codes Cat's circle (Config.CodesCircleRadius); #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6
 -- #2449: a station's icon in its ring (World/WalkUpCircles): the stand-in card this share of the ring's width (its
 -- corners stay inside the rim even tilted), the art at most this share across
 WalkUp.ICON_SHARE = 0.42

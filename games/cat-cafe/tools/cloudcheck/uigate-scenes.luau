@@ -277,6 +277,16 @@ local function campExtras(picnic, bought, open)
 	}
 end
 
+-- A scene that needs the player at `tier` whatever the scenes before it left (the Cannon picker locks an area the
+-- tier has not opened, and several earlier scenes end on Tier 1 or 2): sets it, and Scenes.close puts back the tier
+-- the scene found (#3082: CannonExtras failed in CI once main's scene order moved).
+local function atTier(tier: number)
+	if Scenes._rankTier == nil then
+		Scenes._rankTier = (UI.getState() :: any).tier
+	end
+	UI.update({ tier = tier } :: any)
+end
+
 -- #2651 part 4: LateStationsState for the Oasis Spa and Relic Museum cards. `soak` is how long the cat in slot 1 has
 -- soaked (nil: slot 1 empty); slot 2 is open and empty, slot 3 waits to be bought. Two Alleyway exhibits are given.
 local function lateState(soak, live)
@@ -4763,6 +4773,47 @@ local SCENES = {
 		startCatch("gate_focus2", "Rare", 3, 0.2, 0.9)
 		UIShim.advance(0.3)
 	end },
+	-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD is
+	-- back the moment the result arrives, while the result word is still to come or still up, for a catch and a miss
+	{ "CatchHudBack", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		UIShim.advance(4) -- earlier scenes' toasts and results gone
+		local before: { [Instance]: boolean } = {}
+		for _, child in root:GetChildren() do
+			if child:IsA("GuiObject") then
+				before[child] = child.Visible
+			end
+		end
+		local function back(what: string)
+			for child, was in before do
+				assert(
+					(child :: GuiObject).Visible == was,
+					"uigate: the HUD's " .. child.Name .. " is not back the moment " .. what .. " (#3078)"
+				)
+			end
+		end
+		startCatchV3("gate_back", "Common", { "single", "single", "single" }, 2, 8)
+		UIShim.advance(0.3)
+		local hiddenNow = false
+		for child, was in before do
+			if was and not (child :: GuiObject).Visible then
+				hiddenNow = true
+			end
+		end
+		assert(hiddenNow, "uigate: the HUD did not step aside for the catch, so the scene proves nothing (#3078)")
+		UI.catch.showGrades("gate_back", { "perfect", "perfect", "perfect" }, true, 0, nil,
+			{ trust = 8, trustNeed = 8, finish = "purrfect", streak = 3 })
+		back("a catch's result comes")
+		assert(UI.catch.circlesActive(), "uigate: the result word was skipped (#3078 keeps its flash)")
+		UIShim.advance(2)
+		back("the catch's word has gone")
+		startCatchV3("gate_back2", "Common", { "single", "single", "single" }, 2, 8)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_back2", { "miss" }, false, 0, nil, nil)
+		back("a miss's result comes")
+		UIShim.advance(2)
+	end },
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): with a PackedCatId on the character
 	-- and nothing in the arms, a small "Drop bag cat" pill sits where the carry banner would, thumb sized, on screen,
 	-- one line; a tap fires dropCat. While carrying, the carry banner's Drop takes over and the pill hides.
@@ -6369,21 +6420,64 @@ local SCENES = {
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)
+	-- #3082: every opened station's strip has a button, so nobody has to fly there: Collect on the Park's waiting
+	-- basket (in place of the dot), Open on the Neighbourhood's Yard Sale, which brings up its card
 	{ "CannonExtras", function()
+		atTier(3) -- the Park and the Neighbourhood are open
 		UI.campExtras.update(campExtras(1, false))
 		UI.cannon.open()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Cannon", true)
+		assert(window, "uigate: no Cannon window")
+		local function button(areaId: string): TextButton?
+			local card = window:FindFirstChild(areaId, true)
+			local found = card and card:FindFirstChild("Collect", true)
+			return if found and found:IsA("GuiObject") and found.Visible then found else nil
+		end
+		local function word(holder: Instance): string
+			for _, piece in holder:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return if holder:IsA("TextButton") then holder.Text else ""
+		end
+		local park, yard = button("park"), button("neighbourhood")
+		assert(park and word(park) == "Collect", "uigate: no Collect on the Park's waiting Picnic Basket (#3082)")
+		assert(yard and word(yard) == "Open", "uigate: no Open on the Neighbourhood's Yard Sale strip (#3082)")
+	end },
+	-- #3082: Open on the Yard Sale strip puts the Yard Sale's card up in the picker's place
+	{ "CannonOpensStation", function()
+		atTier(3)
+		UI.campExtras.update(campExtras(1, false))
+		UI.cannon.open()
+		press("Cannon", "neighbourhood.Collect")
+		task.wait(0.4)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local yard = modals and modals:FindFirstChild("YardSale", true)
+		assert(yard and yard:IsA("GuiObject") and yard.Visible, "uigate: Open did not bring up the Yard Sale card (#3082)")
 	end },
 	-- F100: the same picker with nothing ready: "Next in 2 h 10 m" and "New crates in 3 h"
 	{ "CannonExtrasWait", function()
+		atTier(3)
 		UI.campExtras.update(campExtras(0, true))
 		UI.cannon.open()
 	end },
-	-- #1463: a Golden Pond owner with 14 fish in the pond: Collect on the Woods strip in place of the red dot
+	-- #3082: the Desert card's Oasis Spa strip has Open, which brings up the spa's card from anywhere
+	{ "CannonOpensSpa", function()
+		atTier(6) -- the Desert (and its spa) open at Tier 6; Scenes.close puts the tier back
+		UI.lateStations.update(lateState(3 * 3600 + 600))
+		UI.cannon.open()
+		press("Cannon", "desert.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " (#3082)")
+	end },
+	-- #3082: 14 fish in the pond: Collect on the Woods strip in place of the red dot, for every player (#1463 had it
+	-- for a Golden Pond owner; the pass doubles the fish instead, #3093)
 	{ "CannonPondCollect", function()
 		local extras = campExtras(0, true)
 		extras.pond = { open = true, held = 14 }
-		UI.update({ tier = 4 }) -- the Woods (and its pond) open at Tier 4; Scenes.close puts Tier 3 back
-		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", true)
+		atTier(4) -- the Woods (and its pond) open at Tier 4; Scenes.close puts the tier back
 		UI.campExtras.update(extras)
 		UI.cannon.open()
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -6394,7 +6488,7 @@ local SCENES = {
 				shown = true
 			end
 		end
-		assert(shown, "uigate: no Collect on the pond strip for a Golden Pond owner (#1463)")
+		assert(shown, "uigate: no Collect on the pond strip (#3082)")
 	end },
 	-- F100: the Yard Sale card, the Classic Crate bought today and the Park Crate for 40 golden fish
 	{ "YardSale", function()

@@ -454,7 +454,7 @@ local Config = {
 	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
-	DealerRangeStuds = 12,
+	DealerRangeStuds = 16, -- #3112: 12 until the walk-up rings grew to radius 6
 	-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items"): no long dry spells. After this
 	-- many nights in a row on one server with none of the food, the next night stocks at least 1 (shared/Dealer).
 	DealerDryNights = { star_treat = 4, moon_milk = 3 } :: { [string]: number },
@@ -480,7 +480,7 @@ local Config = {
 	-- CornerDailyLimits of a family, counted for each row on its own (#1712; a family not listed has none). Cat
 	-- food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
-	CornerShopRange = 14,
+	CornerShopRange = 18, -- #3112: 14 until the walk-up rings grew to radius 6
 	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
 	-- retired). Each global game day rolls YardDecorRows rows, each a different piece or style: first a rarity by
 	-- these weights (in percent), then a piece of it; a rarity with none left moves the roll one rarity down.
@@ -733,7 +733,7 @@ local Config = {
 	BedtimeTimeoutSeconds = 15, -- a cat still on its way after this is placed on its spot or station
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
-	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
+	SpinStationRange = 18, -- #3112: 14 before the radius 6 rings; SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
 	SpinAllMax = 51, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
 	SpinBankCap = 50, -- banked spins stop here (#1414: 20 to 50, so two Tip Jar sessions a day keep every spin)
@@ -761,7 +761,7 @@ local Config = {
 	CrateDuplicateRefund = { Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 } :: {
 		[string]: number,
 	},
-	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
+	FishMarketRange = 18, -- #3112: 14 before the radius 6 rings; OpenCrate and BuyFishItem from this close to a FishMarket station
 	-- #2565 (mystery-market.md section 2): Juniper's Mystery Market. Every item is on the shelf all the time; one a week
 	-- is on sale at MysterySaleShare of its price. The week starts at MysteryEpoch, Saturday 2026-11-07 00:00 UTC, so
 	-- the launch week's sale is the Backpack (Catalog.mysteryItems' first row). MysteryOpen false refuses BuyMystery
@@ -771,7 +771,7 @@ local Config = {
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
 	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
-	MysteryMarketRange = 14, -- BuyMystery from this close to the MysteryMarket cart, like the Fish Market
+	MysteryMarketRange = 18, -- #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
 	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
@@ -928,8 +928,8 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 12, -- the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
-	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	CodesCatRange = 16, -- #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
+	CodesCircleRadius = 6, -- #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
 	CodeWrongWindowSeconds = 60,

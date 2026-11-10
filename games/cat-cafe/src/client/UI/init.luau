@@ -195,8 +195,8 @@ UI.events = {
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
-	collectCampExtra = Signal.new(), -- (extraId)   #1463: Collect on the cannon picker's pond strip (Golden Pond
-	-- owners): forward as CollectCampExtra
+	collectCampExtra = Signal.new(), -- (extraId)   #3082: Collect on a cannon picker card's strip (every player;
+	-- #1463 had it for Golden Pond owners): forward as CollectCampExtra
 	-- F87 (easy-start.md sections 3 and 6): a context tip shown (skipped true when its camera cut was skipped), and
 	-- Settings' "Show tips again"
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
@@ -970,9 +970,18 @@ function UI.init(config: Types.InitConfig)
 		launch = function(cannonId: string, destination: string)
 			UI.events.launchCannon:Fire(cannonId, destination)
 		end,
-		-- #1463: a Golden Pond owner's Collect on the Woods strip (UIController sends CollectCampExtra)
+		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
+		-- Golden Pond owner's pond)
 		collect = function(extraId: string)
 			UI.events.collectCampExtra:Fire(extraId)
+		end,
+		-- #3082: Open on a card's strip: the station's own card takes the picker's place
+		open = function(stationId: string)
+			if stationId == "yardSale" then
+				UI.campExtras.openYardSale(nil)
+			else
+				UI.lateStations.open(stationId)
+			end
 		end,
 		close = closeModal,
 	})
@@ -3661,10 +3670,13 @@ do
 		if not outcome.success and outcome.hint == nil and toasts then
 			toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
 		end
+		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
+		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
+		-- the net wrap on a catch); the word still flashes over it.
+		if hud then
+			hud:setCatching(false)
+		end
 		screen:showResult(outcome, function()
-			if hud then
-				hud:setCatching(false)
-			end
 			local info = activeInfo
 			local card = catch
 			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
@@ -3826,6 +3838,9 @@ do
 				then "miss"
 				elseif guess == "perfect" then "perfect"
 				else "good"
+			if hud then
+				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+			end
 			screen:showResult({ grades = { grade }, success = success }, function()
 				endRescue(success)
 			end)

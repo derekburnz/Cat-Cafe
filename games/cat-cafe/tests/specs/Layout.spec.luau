@@ -1363,7 +1363,8 @@ return function()
 			function()
 				local codes = Layout.codesCat
 				local yaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
+				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
 				for _, lane in lanes do
 					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
 				end
@@ -1482,14 +1483,16 @@ return function()
 				expect(codes.z < stand.z and codes.z > cart.z).to.equal(true)
 				expect(codes.x < -W.TownSquareLaneHalfWidth).to.equal(true)
 				expect(inside(codes.x, codes.z, square.floor, 4.5)).to.equal(true)
-				-- its circle (6 studs in front) keeps off the Mystery Market's ring: the box closes a stud past
-				-- the circle, and the ring is WalkUp.FRONT_RADIUS (4) round a point 7.5 in front of the cart
+				-- its circle (its edge 2 studs in front) keeps off the Mystery Market's ring: the box closes a stud
+				-- past the circle, and the ring is WalkUp.FRONT_RADIUS round a point touching the cart's 3.5 front
 				local yaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+				local ahead = 2 + Config.CodesCircleRadius
+				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
 				local cartYaw = math.rad(cart.rotY or 0)
-				local rx, rz = cart.x - 7.5 * math.sin(cartYaw), cart.z - 7.5 * math.cos(cartYaw)
+				local ring = WalkUp.frontOffset(3.5, WalkUp.FRONT_RADIUS, Config.MysteryMarketRange)
+				local rx, rz = cart.x - ring * math.sin(cartYaw), cart.z - ring * math.cos(cartYaw)
 				local gap = math.sqrt((cx - rx) ^ 2 + (cz - rz) ^ 2)
-				expect(gap >= Config.CodesCircleRadius + 1 + 4 + 2).to.equal(true)
+				expect(gap >= Config.CodesCircleRadius + 1 + WalkUp.FRONT_RADIUS + 2).to.equal(true)
 				-- and off both carts' bodies and the lane
 				for _, lane in lanes do
 					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
@@ -1517,7 +1520,9 @@ return function()
 				-- walking into the stand's card never also opens the code box
 				local codes = Layout.codesCat
 				local codesYaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(codesYaw), codes.z - 6 * math.cos(codesYaw)
+				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
+				local cx, cz =
+					codes.x - ahead * math.sin(codesYaw), codes.z - ahead * math.cos(codesYaw)
 				local gap = math.sqrt((cx - stand.x) ^ 2 + (cz - stand.z) ^ 2)
 				expect(gap > Config.StarterCatRangeStuds + 1 + Config.CodesCircleRadius + 1).to.equal(
 					true

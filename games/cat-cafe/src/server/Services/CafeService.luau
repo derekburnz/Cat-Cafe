@@ -37,6 +37,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local Leaderstats = require(script.Parent.Leaderstats)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
@@ -52,6 +53,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
+local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
@@ -270,6 +272,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
+		secondCat = SecondCat.view(profile), -- #3022
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
@@ -1339,7 +1342,11 @@ function CafeService.advanceTutorial(player: Player, profile: Profile, step: num
 			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
 		end
 		-- #2692: the night pass ends at the first check-in; the client's gates and cannon card read this at once
-		player:SetAttribute(NightPass.ATTRIBUTE, NightPass.has(step))
+		-- (#3035: or stays, for a first-session Tier 1 player while the nightCatch switch is on)
+		player:SetAttribute(
+			NightPass.ATTRIBUTE,
+			NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+		)
 		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end

@@ -3308,7 +3308,10 @@ local function showDusk()
 	card:banner(
 		"dusk",
 		NightClock.duskTitle(remaining),
-		"The areas close until sunrise.",
+		-- #3035: a night pass holder is told they can stay
+		NightClock.duskLine(
+			Players.LocalPlayer ~= nil and Players.LocalPlayer:GetAttribute("NightPass")
+		),
 		Theme.colors.sky,
 		math.min(remaining, 4)
 	)

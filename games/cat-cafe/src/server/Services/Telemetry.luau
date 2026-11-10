@@ -39,7 +39,9 @@ local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
@@ -607,6 +609,13 @@ end
 -- #1273 (easy-start.md section 5): the funnel goes out as Onboarding.FUNNEL with the player's user id as its one funnel
 -- session, since LogOnboardingFunnelStepEvent has no name to keep it apart from the earlier funnels. v3 replaced
 -- onboarding_v2 outright (Derek 2026-11-04), and v4 (#1888, 45 steps) replaces v3.
+-- #3022: a listener hears each step as it is reached (CatService starts the second cat's waiting stray at
+-- first_customer_served), after the step is logged. A listener that errors is logged and the rest still run.
+local stepListeners: { (player: Player, name: string) -> () } = {}
+function Telemetry.onStep(listener: (player: Player, name: string) -> ())
+	table.insert(stepListeners, listener)
+end
+
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -628,13 +637,22 @@ function Telemetry.onboarding(
 			)
 		end)
 		-- #2774 (Derek2: "setup funnels"): when in the account's play the step came, once per step
-		Telemetry.custom(
-			player,
-			"step_time",
-			math.floor(PlayTime.seconds(player, profile)),
-			{ name }
-		)
+		Telemetry.stepTime(player, profile, name)
+		for _, listener in stepListeners do
+			local ok, err = pcall(function()
+				listener(player, name)
+			end)
+			if not ok then
+				warn("[Telemetry] step listener: " .. tostring(err))
+			end
+		end
 	end
+end
+
+-- #2774: a step_time event, value the seconds of play on the account when `name` came. Onboarding steps log theirs
+-- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
+function Telemetry.stepTime(player: Player, profile: Profile, name: string)
+	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
 end
 
 -- Call right after Economy.credit(profile, amount) for anything that is not cafe income (section 5).
@@ -1882,7 +1900,15 @@ local function onRelease(player: Player, profile: Profile)
 	Telemetry.custom(player, "left_in_phase", math.max(0, now - session.joinedAt), {
 		phase,
 		third,
-		"T" .. tierText(profile) .. (if profile.stats.sessions <= 1 then "_first" else "_return"),
+		"T"
+			.. tierText(profile)
+			.. (if profile.stats.sessions <= 1 then "_first" else "_return")
+			-- #3035: "_nc" while night catching was open to them, so one read splits switch on from off
+			.. (
+				if NightPass.firstOf(profile, LiveFlagService.on(NightPass.FLAG))
+					then NightPass.LEFT_SUFFIX
+					else ""
+			),
 	})
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),

@@ -81,6 +81,7 @@ local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
+local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
 
 local Effects = {}
@@ -163,6 +164,7 @@ function Effects.start()
 		StationMotion.start,
 		HoldPulse.start,
 		BaitCrumbs.start,
+		WaitingCat.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,

@@ -78,6 +78,7 @@ local RankUp = require(script.Parent.RankUp)
 local Roadmap = require(script.Parent.Roadmap)
 local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
 local Scale = require(script.Parent.Parent.Scale)
+local SecondCatGoal = require(script.Parent.Parent.Components.SecondCatGoal)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -1410,6 +1411,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	end)
 	self._goalArea = nil :: string?
 	self._goalFolded = nil :: boolean?
+	-- #3022: the second cat goal now (nil for none), whether its preview lines have had their time, and a counter so
+	-- an older start's bounce does nothing
+	self._second = nil :: SecondCatGoal.View?
+	self._secondPreviewed = false
+	self._secondRun = 0
+	self._gone = false
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
 	-- saved as the roadmapOpen setting
 	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
@@ -2899,13 +2906,23 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._goalFolded = saved[GoalFold.SETTING]
 		self._goal:setFolded(saved[GoalFold.SETTING])
 	end
+	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
+	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
+	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	local second = SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil)
+	local started = second ~= nil and self._second == nil
+	self._second = second
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
-		if nudge then nudge.text else nil
+		if nudge then nudge.text else nil,
+		self:_secondGoal()
 	)
 	if not self:_open("goal") then
 		self._goal.frame.Visible = false
+	end
+	if started then
+		self:_startSecond()
 	end
 	-- uiRankReady chimes once per tier, the first time that tier's requirements are all met
 	if tierProgress and tierProgress.ready and self._chimedTier ~= tierProgress.tier then
@@ -4989,7 +5006,55 @@ function HUD.palArrived(self: any, palUserId: number, text: string?)
 	self._palMarker:show(text, palUserId, button.instance)
 end
 
+-- #3022: the goal card's goal while the cafe waits for its second cat, with the preview lines until they have had
+-- their PREVIEW_SECONDS; nil otherwise.
+function HUD._secondGoal(self: any): GoalCard.Goal?
+	local second: SecondCatGoal.View? = self._second
+	if second == nil then
+		return nil
+	end
+	local lines: { string } = {}
+	if second.hook ~= nil then
+		table.insert(lines, second.hook) -- a wide card's money line stays with the goal
+	end
+	if not self._secondPreviewed then
+		for _, line in second.lines do
+			table.insert(lines, line)
+		end
+	end
+	return { title = second.title, lines = lines, chip = second.chip }
+end
+
+-- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped): one bounce, the
+-- preview lines for PREVIEW_SECONDS the first time, and one more bounce at NUDGE_SECONDS if it is still the goal.
+function HUD._startSecond(self: any)
+	self._secondRun = (self._secondRun or 0) + 1
+	local run = self._secondRun
+	self._goal:bounce()
+	if not self._secondPreviewed then
+		task.delay(SecondCatGoal.PREVIEW_SECONDS, function()
+			if self._gone then
+				return
+			end
+			self._secondPreviewed = true
+			if self._second ~= nil then
+				self._goal:setGoal(self:_secondGoal())
+				if not self:_open("goal") then
+					self._goal.frame.Visible = false
+				end
+				self:_layoutRight()
+			end
+		end)
+	end
+	task.delay(SecondCatGoal.NUDGE_SECONDS, function()
+		if not self._gone and self._secondRun == run and self._second ~= nil then
+			self._goal:bounce()
+		end
+	end)
+end
+
 function HUD.destroy(self: any)
+	self._gone = true -- #3022: the second cat goal's timers stop here
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

@@ -69,6 +69,24 @@ return function()
 			end
 		)
 
+		it("opens the goal card early while the server asks for the second cat (#3022)", function()
+			local waiting = view(3, 2) :: any
+			expect(HudUnlocks.shown(waiting).goal).to.equal(false)
+			waiting.second = true
+			local shown = HudUnlocks.shown(waiting)
+			expect(shown.goal).to.equal(true)
+			expect(shown.quests).to.equal(false) -- the goal card alone, not the rest of step 5's pieces
+			expect(shown.clock).to.equal(false)
+			-- read from the state's secondCat
+			expect(
+				HudUnlocks.view({ tutorialStep = 3, secondCat = { now = 2, with = 2 } } :: any).second
+			).to.equal(true)
+			expect(HudUnlocks.view({ tutorialStep = 3, secondCat = false } :: any).second).to.equal(
+				false
+			)
+			expect(HudUnlocks.view({ tutorialStep = 3 } :: any).second).to.equal(false)
+		end)
+
 		it("opens the Index at the third cat, Tier 2 pieces at Tier 2 or the first item", function()
 			expect(HudUnlocks.shown(view(5, 2)).index).to.equal(false)
 			expect(HudUnlocks.shown(view(3, 3)).index).to.equal(true)

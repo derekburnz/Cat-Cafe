@@ -53,14 +53,17 @@ return function()
 	end)
 
 	describe("tradeFish (#2745, off until QA and the security review pass)", function()
-		it("starts off, and stays off for a missing key, a wrong type or an unreadable store", function()
-			expect(LiveFlags.defaults().tradeFish).to.equal(false)
-			expect(LiveFlags.parse({}).tradeFish).to.equal(false)
-			expect(LiveFlags.parse(nil).tradeFish).to.equal(false)
-			for _, value in { "true", 1, {}, "on", false } do
-				expect(LiveFlags.parse({ tradeFish = value }).tradeFish).to.equal(false)
+		it(
+			"starts off, and stays off for a missing key, a wrong type or an unreadable store",
+			function()
+				expect(LiveFlags.defaults().tradeFish).to.equal(false)
+				expect(LiveFlags.parse({}).tradeFish).to.equal(false)
+				expect(LiveFlags.parse(nil).tradeFish).to.equal(false)
+				for _, value in { "true", 1, {}, "on", false } do
+					expect(LiveFlags.parse({ tradeFish = value }).tradeFish).to.equal(false)
+				end
 			end
-		end)
+		)
 
 		it("turns on only for an explicit true, and leaves the other switches alone", function()
 			local flags = LiveFlags.parse({ tradeFish = true })
@@ -70,11 +73,26 @@ return function()
 			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
 		end)
 
-		it("is the only switch that starts off", function()
+		it("starts off with nightCatch alone beside it", function()
+			local count = 0
 			for key in LiveFlags.OFF_BY_DEFAULT do
-				expect(key).to.equal("tradeFish")
+				count += 1
+				expect(key == "tradeFish" or key == "nightCatch").to.equal(true)
 				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 			end
+			expect(count).to.equal(2)
+		end)
+	end)
+
+	describe("nightCatch (#3035, off until switched on)", function()
+		it("is on only for an explicit true", function()
+			expect(LiveFlags.defaults().nightCatch).to.equal(false)
+			expect(LiveFlags.parse({}).nightCatch).to.equal(false)
+			expect(LiveFlags.parse(nil).nightCatch).to.equal(false)
+			for _, value in { "true", 1, false } :: { any } do
+				expect(LiveFlags.parse({ nightCatch = value }).nightCatch).to.equal(false)
+			end
+			expect(LiveFlags.parse({ nightCatch = true }).nightCatch).to.equal(true)
 		end)
 	end)
 

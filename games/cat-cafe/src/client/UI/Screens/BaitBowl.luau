@@ -85,6 +85,11 @@ local STATUS_HEIGHT = 92
 -- #1612 (Derek2 11-05: "just have it in a smaller line/image have the symbol the name the rarity of the food (remove
 -- what it attracts) remove odds and just put that under details"): a compact row, Use and Details side by side
 local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
+-- #3008: Refill, three quarters of the status card's 140 x 48 action button, and its food's picture beside it; the
+-- two are as wide together as the action button, so they stack under it while a cat waits
+local REFILL = Vector2.new(106, 36)
+local REFILL_ICON = 30
+local ACTION_H = Theme.sizes.touchMin + 4 -- the status card's action button
 local DETAILS_W = 100
 local DETAILS_H = 42 -- a 37 px face, over the 36 px a mouse needs (the UI gate's tap check)
 local ICON = 52 -- the food's picture with its grade gem
@@ -268,7 +273,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		name = "Action",
 		text = "",
 		style = "gold",
-		size = UDim2.fromOffset(140, Theme.sizes.touchMin + 4),
+		size = UDim2.fromOffset(140, ACTION_H),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -12, 0.5, 0),
 		textSize = Theme.sizes.textBody,
@@ -279,8 +284,34 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	})
 	self._actionKind = nil :: string?
 	self._actionStyle = "gold"
-	-- #1573: the food each bowl last held this session, for Refill once it is empty again
-	self._lastLure = {} :: { [number]: string? }
+	-- #3008 (Derek2 11-10: "make the food bowl refill button a bit smaller but always there and it refills with your
+	-- best food available"): Refill is its own smaller button under the action's place, there whenever the chosen
+	-- bowl takes food and greyed while it can do nothing (food in the bowl, a cat at it, or no food in the bag). The
+	-- small picture beside it is the food a press puts in: the rarest the player has (FoodOrder.best). #1573's
+	-- Refill was the action button, only for an empty bowl, with the food that bowl last held this session.
+	self._refill = Button.new({
+		name = "Refill",
+		text = "Refill",
+		style = "primary",
+		size = UDim2.fromOffset(REFILL.X, REFILL.Y),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -12, 0.5, 0),
+		textSize = Theme.sizes.textSmall,
+		parent = status,
+		onClick = function()
+			self:_pressRefill()
+		end,
+	})
+	self._refillFood = ItemIcon.new({
+		parent = status,
+		size = UDim2.fromOffset(REFILL_ICON, REFILL_ICON),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -12 - REFILL.X - 4, 0.5, 0),
+		name = "RefillFood",
+		badge = "none", -- too small for the grade's letter; the tile's colour says it
+	})
+	self._refillFood.frame.Visible = false
+	self._refillLure = nil :: string? -- the food drawn beside Refill
 
 	self._list = Create("ScrollingFrame", {
 		Name = "Foods",
@@ -576,9 +607,6 @@ function BaitBowl.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean,
 	local index = if bowl == 2 then 2 else 1
 	self._baits[index] = bait
 	self._waiting[index] = catWaiting
-	if bait ~= nil then
-		self._lastLure[index] = bait.lureId
-	end
 	self:_layout()
 	local state: Types.PlayerState? = self._state
 	if state then
@@ -826,7 +854,6 @@ function BaitBowl._renderStatus(self: any)
 			then ("Bowl %d is empty"):format(selected)
 			else "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
-		local refill: Types.LureDef? = self:_refillFood(state, selected)
 		-- #1693: just the wait; the Refill and Use buttons explain themselves
 		sub = if not self:_takesFood(selected)
 			then "Bowl 2 takes new food with the Second Bait Bowl pass."
@@ -835,9 +862,6 @@ function BaitBowl._renderStatus(self: any)
 				wait
 			)
 			else "A cat comes by in " .. wait
-		if refill then
-			action = "refill"
-		end
 	else
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		local foodName = bait.lureId
@@ -906,9 +930,6 @@ function BaitBowl._renderStatus(self: any)
 		self._action:setText("Upgrades")
 	elseif action == "cat" then
 		self._action:setText("See the cat")
-	elseif action == "refill" then
-		self._action:setText("Refill")
-		style = "primary"
 	elseif action == "buy" then
 		-- the price from Roblox, never from here (shop-and-pass-plan section 1): "..." until it answers, Soon off sale
 		local price: PassPrice? = self._price
@@ -928,6 +949,52 @@ function BaitBowl._renderStatus(self: any)
 		self._action:setStyle(style :: any)
 	end
 	self._action:setEnabled(enabled)
+	self:_renderRefill(state, action)
+end
+
+-- #3008: Refill and its food's picture. There whenever the player has a bowl and the chosen one takes food; greyed
+-- unless the bowl is empty and the bag holds a food. Alone it sits where the action button does; under "See the cat"
+-- when both show.
+function BaitBowl._renderRefill(self: any, state: Types.PlayerState, action: string?)
+	local selected: number = self._selected
+	local shown = ownsBowl(state) and self:_takesFood(selected)
+	self._refill.instance.Visible = shown
+	if not shown then
+		self._refillFood.frame.Visible = false
+		return
+	end
+	local food: Types.LureDef? = FoodOrder.best(self._foods or {}, state.lures)
+	local stacked = action ~= nil
+	local y = if stacked then (STATUS_HEIGHT - REFILL.Y) / 2 - 2 else 0
+	self._action.instance.Position =
+		UDim2.new(1, -12, 0.5, if stacked then -(STATUS_HEIGHT - ACTION_H) / 2 + 2 else 0)
+	self._refill.instance.Position = UDim2.new(1, -12, 0.5, y)
+	self._refillFood.frame.Position = UDim2.new(1, -12 - REFILL.X - 4, 0.5, y)
+	self._refillFood.frame.Visible = food ~= nil
+	local lureId = if food then food.id else nil
+	if lureId ~= self._refillLure then
+		self._refillLure = lureId
+		if food then
+			self._refillFood:setFood(food, food.id)
+		end
+		self._refill:setText(if food then "Refill" else "No food")
+	end
+	self._refill:setEnabled(food ~= nil and self._baits[selected] == nil)
+end
+
+function BaitBowl._pressRefill(self: any)
+	local state: Types.PlayerState? = self._state
+	local selected: number = self._selected
+	if state == nil or not ownsBowl(state) or not self:_takesFood(selected) then
+		return
+	end
+	if self._baits[selected] ~= nil then
+		return
+	end
+	local food = FoodOrder.best(self._foods or {}, state.lures)
+	if food then
+		self._callbacks.useLure(food.id, selected)
+	end
 end
 
 function BaitBowl._pressAction(self: any)
@@ -937,26 +1004,7 @@ function BaitBowl._pressAction(self: any)
 		self._callbacks.showCat(self._selected)
 	elseif self._actionKind == "buy" then
 		self._callbacks.buySecond()
-	elseif self._actionKind == "refill" then
-		local state: Types.PlayerState? = self._state
-		local food = if state then self:_refillFood(state, self._selected) else nil
-		if food then
-			self._callbacks.useLure(food.id, self._selected)
-		end
 	end
-end
-
--- #1573 Refill: the food this bowl last held, while the bowl is empty, takes food and you still have one.
-function BaitBowl._refillFood(self: any, state: Types.PlayerState, bowl: number): Types.LureDef?
-	local lureId: string? = self._lastLure[bowl]
-	if lureId == nil or self._baits[bowl] ~= nil or not self:_takesFood(bowl) then
-		return nil
-	end
-	if (state.lures[lureId] or 0) <= 0 then
-		return nil
-	end
-	local row = self._rows[lureId]
-	return if row then row.def else nil
 end
 
 function BaitBowl.destroy(self: any)
@@ -967,6 +1015,8 @@ function BaitBowl.destroy(self: any)
 		row.icon:destroy()
 	end
 	self._action:destroy()
+	self._refill:destroy()
+	self._refillFood:destroy()
 	for _, button in self._tabButtons do
 		button:destroy()
 	end

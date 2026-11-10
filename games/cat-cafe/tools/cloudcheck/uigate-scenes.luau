@@ -2942,22 +2942,67 @@ local SCENES = {
 		assert(sub and string.find(sub.Text, "A cat is coming!", 1, true),
 			"uigate: the bowl window doesn't say a cat is coming (#1895)")
 	end },
-	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
+	-- #3008 (Derek2: "make the food bowl refill button a bit smaller but always there and it refills with your best
+	-- food available"): Refill is its own smaller button on the status card with the food's picture beside it. On an
+	-- empty bowl it is live and a press puts in the rarest food in the bag; with food in the bowl it stays, greyed;
+	-- with an empty bag it stays, greyed, and reads "No food". (#1573's Refill was the big action button, only with
+	-- the food the bowl last held.)
 	{ "BaitRefill", function()
 		local now = workspace:GetServerTimeNow()
+		local before = UI.getState()
 		local tuna = Catalog.lures[2]
-		UI.bait.set({ lureId = tuna.id, readyAt = now - 5, placedAt = now - 600 }, 1)
+		UI.update({ lures = { kibble = 3, [tuna.id] = 2, salmon = 1 } })
 		UI.bait.set(nil, 1)
 		UI.bait.openPicker()
 		local status = baitWindow():FindFirstChild("Status", true)
-		local action = status and status:FindFirstChild("Action", true)
-		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
+		local refill = status and status:FindFirstChild("Refill") :: GuiObject?
+		assert(refill and refill.Visible, "uigate: no Refill on the empty bowl (#3008)")
+		local action = status:FindFirstChild("Action") :: GuiObject
+		assert(not action.Visible, "uigate: the empty bowl has a second button beside Refill (#3008)")
+		assert(
+			refill.AbsoluteSize.X < action.AbsoluteSize.X and refill.AbsoluteSize.Y < action.AbsoluteSize.Y,
+			"uigate: Refill is not smaller than the card's action button (#3008)"
+		)
+		local function words(): string
+			local shown = (refill :: GuiObject):FindFirstChildWhichIsA("TextLabel", true)
+			return if shown then shown.Text else ""
+		end
+		assert(string.find(words(), "Refill", 1, true), "uigate: Refill reads " .. words() .. " (#3008)")
+		local picture = status:FindFirstChild("RefillFood") :: GuiObject?
+		assert(picture and picture.Visible, "uigate: no picture of the food Refill uses (#3008)")
 		local sub = status:FindFirstChild("Sub", true)
-		-- #1693: the line is just the wait now; Refill puts the same food back in
+		-- #1693: the line is just the wait
 		assert(
 			sub and string.find(sub.Text, "A cat comes by in", 1, true),
 			"uigate: the empty bowl's line is not the wait (#1693)"
 		)
+		-- a press puts in the best food in the bag: the Salmon, not the Tuna or the Kibble
+		local sent = nil
+		local connection = UI.events.useLure:Connect(function(lureId, bowl)
+			sent = tostring(lureId) .. "@" .. tostring(bowl)
+		end)
+		press("Bait", "Status.Refill")
+		assert(sent == "salmon@1", "uigate: Refill sent " .. tostring(sent) .. " (#3008)")
+		-- food in the bowl: Refill stays, greyed, and a press sends nothing
+		UI.bait.set({ lureId = "salmon", readyAt = now + 300, placedAt = now }, 1)
+		UI.update({ lures = { kibble = 3, [tuna.id] = 2 } })
+		assert(refill.Visible, "uigate: Refill went while food is in the bowl (#3008)")
+		sent = nil
+		press("Bait", "Status.Refill")
+		assert(sent == nil, "uigate: Refill on a full bowl sent " .. tostring(sent) .. " (#3008)")
+		-- an empty bowl and an empty bag: still there, greyed, "No food", no picture
+		UI.bait.set(nil, 1)
+		UI.update({ lures = {} })
+		assert(refill.Visible, "uigate: Refill went with an empty bag (#3008)")
+		assert(string.find(words(), "No food", 1, true), "uigate: Refill with no food reads " .. words() .. " (#3008)")
+		assert(not picture.Visible, "uigate: a food picture beside Refill with an empty bag (#3008)")
+		sent = nil
+		press("Bait", "Status.Refill")
+		connection:Disconnect()
+		assert(sent == nil, "uigate: Refill with an empty bag sent " .. tostring(sent) .. " (#3008)")
+		-- left for the picture: the empty bowl with the bag's best food on the button
+		UI.update({ lures = { kibble = 3, [tuna.id] = 2, salmon = 1 } })
+		Scenes._refillBag = before.lures
 	end },
 	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
 	{ "BaitBothRunning", function()
@@ -7585,6 +7630,10 @@ function Scenes.close()
 	if Scenes._packed ~= nil then
 		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene
 		Scenes._packed = nil
+	end
+	if Scenes._refillBag ~= nil then
+		UI.update({ lures = Scenes._refillBag }) -- #3008's scene
+		Scenes._refillBag = nil
 	end
 	if Scenes._nightPass then
 		UIShim.player:SetAttribute("NightPass", nil) -- #2692's scene

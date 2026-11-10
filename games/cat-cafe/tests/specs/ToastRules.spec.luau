@@ -99,7 +99,6 @@ return function()
 			for _, line in
 				{
 					"New cat! Mochi joins the collection (+$50, 1 golden fish)",
-					"Your first cat! Mochi is your Waiter now ($2/s)",
 					"The Mochi joined your cafe! It is resting in the cat room.",
 					"Caught a cat!",
 					"Town Index reward: $5,000, 2 Golden fish",
@@ -149,6 +148,9 @@ return function()
 						"Owner test mode: 3 Luck Potions",
 						"Your bait cat is here! Head home to your bowl to meet it.",
 						"It dropped! Pick it up quick!",
+						-- #3106: a new player's first delivery and first cat are back
+						"🧺 Mochi is on its way to your cafe!",
+						"Your first cat! Mochi is your Waiter now ($2/s)",
 					}
 				do
 					expect(ToastRules.kept(line)).to.equal(true)

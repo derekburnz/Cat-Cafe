@@ -2025,6 +2025,7 @@ local function park(at: Intro.Key)
 	end
 	parked = true
 	parkedAt = at
+	UI.intro.waiting(true) -- #3105: the loading screen covers the still picture until it moves
 	camera.CameraType = Enum.CameraType.Scriptable
 	setCamera(at)
 	-- a spawn resets the camera to follow the character (Laptop-Tester: 5 s behind the cannon before the intro), so
@@ -2059,6 +2060,7 @@ local function unpark()
 	end
 	parked = false
 	unbindPark()
+	UI.intro.waiting(false) -- #3105
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
 		return

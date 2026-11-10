@@ -3081,6 +3081,14 @@ function UI.intro.finish()
 	end
 end
 
+-- #3105: the loading screen while the camera is held still: before the first spawn, and while a play waits for
+-- the Alleyway to stream in (IntroController's park and unpark). A play starting slides it away.
+function UI.intro.waiting(on: boolean)
+	if introScreen then
+		introScreen:waiting(on)
+	end
+end
+
 function UI.intro.playing(): boolean
 	local screen = introScreen
 	return screen ~= nil and screen:playing()
@@ -3279,7 +3287,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
+-- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
+-- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
+-- basket and the camp chime say it.
 function UI.cannon.checkedIn(catName: string?)
+	local cannon: any = UI.cannon
+	if
+		cannon._deliverySaid
+		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+	then
+		return
+	end
+	cannon._deliverySaid = true
 	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
 end
 
@@ -3651,10 +3670,13 @@ do
 		if not outcome.success and outcome.hint == nil and toasts then
 			toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
 		end
+		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
+		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
+		-- the net wrap on a catch); the word still flashes over it.
+		if hud then
+			hud:setCatching(false)
+		end
 		screen:showResult(outcome, function()
-			if hud then
-				hud:setCatching(false)
-			end
 			local info = activeInfo
 			local card = catch
 			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
@@ -3816,6 +3838,9 @@ do
 				then "miss"
 				elseif guess == "perfect" then "perfect"
 				else "good"
+			if hud then
+				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+			end
 			screen:showResult({ grades = { grade }, success = success }, function()
 				endRescue(success)
 			end)

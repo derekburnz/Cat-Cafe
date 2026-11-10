@@ -87,11 +87,11 @@ local Config = {
 		catCollector = 3402890419919405,
 		catExpert = 2697213476077024,
 		goldenCoat = 3791415425175040,
-		rainbowCoat = 0,
-		pageComplete = 0,
-		helpingPaw = 0,
-		firstTrade = 0,
-		purrfectStreak = 0,
+		rainbowCoat = 531093117966608,
+		pageComplete = 268713651554121,
+		helpingPaw = 905647581887639,
+		firstTrade = 428728625137987,
+		purrfectStreak = 4111238237174459,
 		partyGuest = 0, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned

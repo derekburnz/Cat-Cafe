@@ -571,6 +571,286 @@ return function()
 		end)
 	end)
 
+	describe("crates join (section 1c, #2745)", function()
+		local function profile(): any
+			return ProfileSchema.template(1000)
+		end
+
+		it("trades plain crates only, never a golden crate or an unknown id", function()
+			expect(Trade.crateTradable("classic_crate")).to.equal(true)
+			expect(Trade.crateTradable("park_crate")).to.equal(true)
+			expect(Trade.crateTradable("classic_golden_crate")).to.equal(false)
+			expect(Trade.crateTradable("park_golden_crate")).to.equal(false)
+			expect(Trade.crateTradable("nope")).to.equal(false)
+			for _, crate in Catalog.crates do
+				expect(Trade.crateTradable(crate.id)).to.equal(not crate.golden)
+			end
+			expect(Config.TradeMaxCrateKinds).to.equal(6)
+			expect(Config.TradeMaxCrates).to.equal(20)
+		end)
+
+		it("refuses a crate not banked, a bad count, a closed zone or past the caps", function()
+			local me = profile()
+			local desert = Catalog.getArea("desert") :: any
+			me.crates = { classic_crate = 3, desert_crate = 2, classic_golden_crate = 1 }
+			expect(Trade.crateRefusal(me, 1, "classic_crate", 3, {})).never.to.be.ok()
+			expect(Trade.crateRefusal(me, 1, "classic_crate", 4, {})).to.equal(
+				Trade.Messages.crateNotEnough
+			)
+			expect(Trade.crateRefusal(me, 1, "classic_crate", 1, { classic_crate = 3 })).to.equal(
+				Trade.Messages.crateNotEnough
+			)
+			for _, bad in { 0, -1, 0.5, 0 / 0, math.huge } do
+				expect(Trade.crateRefusal(me, 1, "classic_crate", bad, {})).to.equal(
+					Trade.Messages.crateCount
+				)
+			end
+			expect(Trade.crateRefusal(me, 9, "classic_golden_crate", 1, {})).to.equal(
+				Trade.Messages.crateNotTradable
+			)
+			expect(Trade.crateRefusal(me, 9, "park_crate", 1, {})).to.equal(
+				Trade.Messages.crateNotEnough
+			)
+			-- the partner's zone: the Desert crate waits for the Desert's tier
+			expect(Trade.crateRefusal(me, desert.tier - 1, "desert_crate", 1, {})).to.equal(
+				string.format(Trade.Messages.theyCantOpen, desert.name)
+			)
+			expect(Trade.crateRefusal(me, desert.tier, "desert_crate", 1, {})).never.to.be.ok()
+			expect(Trade.crateAreaBlocker(1, "classic_crate")).never.to.be.ok() -- open from Tier 1
+			-- the caps: kinds and crates in all
+			me.crates.park_crate = 30
+			local six = { a = 1, b = 1, c = 1, d = 1, e = 1, f = 1 }
+			expect(Trade.crateRefusal(me, 9, "park_crate", 1, six)).to.equal(
+				string.format(Trade.Messages.fullCrateKinds, 6)
+			)
+			expect(Trade.crateRefusal(me, 9, "park_crate", 21, {})).to.equal(
+				string.format(Trade.Messages.fullCrates, 20)
+			)
+			expect(Trade.crateRefusal(me, 9, "park_crate", 2, { park_crate = 18 })).never.to.be.ok()
+			expect(Trade.crateRefusal(me, 9, "park_crate", 3, { park_crate = 18 })).to.equal(
+				string.format(Trade.Messages.fullCrates, 20)
+			)
+		end)
+
+		it(
+			"values a crate at its expected piece, between its rarest and commonest piece",
+			function()
+				for _, crate in Catalog.crates do
+					local value = Trade.crateValue(crate.id)
+					if crate.golden then
+						expect(value).to.equal(0)
+					else
+						local low, high = math.huge, 0
+						for _, decorId in crate.pieces do
+							local v = Trade.pieceValue(decorId)
+							low, high = math.min(low, v), math.max(high, v)
+						end
+						expect(value >= low - 0.05 and value <= high + 0.05).to.equal(true)
+						expect(value * 10).to.equal(math.round(value * 10)) -- one decimal
+					end
+				end
+				expect(Trade.crateValue("nope")).to.equal(0)
+			end
+		)
+
+		it("cleans crates from a record: tradeable ids, whole counts, the caps", function()
+			expect(Trade.sanitizeCrates(nil)).to.deepEqual({})
+			expect(Trade.sanitizeCrates({
+				classic_crate = 2.7,
+				park_crate = 0,
+				desert_crate = -1,
+				classic_golden_crate = 1,
+				nope = 1,
+				[1] = 3,
+			})).to.deepEqual({ classic_crate = 2 })
+			local many: { [string]: number } = {}
+			for _, crate in Catalog.crates do
+				if not crate.golden then
+					many[crate.id] = 20
+				end
+			end
+			local kept = Trade.sanitizeCrates(many)
+			local kinds, total = Trade.crateTotals(kept)
+			expect(kinds).to.equal(1) -- the first kind (sorted) takes all 20
+			expect(total).to.equal(20)
+		end)
+
+		it(
+			"moves crates once: the giver's bank goes down, the taker's up, and the log keeps both",
+			function()
+				local giver, taker = profile(), profile()
+				giver.crates = { classic_crate = 3, park_crate = 1 }
+				taker.crates = { classic_crate = 1 }
+				local crates = { classic_crate = 2, park_crate = 1 }
+				expect(
+					Trade.apply(
+						giver,
+						"t1",
+						"Alex",
+						{},
+						{},
+						{},
+						2000,
+						nil,
+						{ gave = crates, got = {} }
+					)
+				).to.equal(true)
+				expect(giver.crates).to.deepEqual({ classic_crate = 1 })
+				expect(
+					Trade.apply(
+						taker,
+						"t1",
+						"Sam",
+						{},
+						{},
+						{},
+						2000,
+						nil,
+						{ gave = {}, got = crates }
+					)
+				).to.equal(true)
+				expect(taker.crates).to.deepEqual({ classic_crate = 3, park_crate = 1 })
+				-- applied once only
+				expect(
+					Trade.apply(
+						taker,
+						"t1",
+						"Sam",
+						{},
+						{},
+						{},
+						2000,
+						nil,
+						{ gave = {}, got = crates }
+					)
+				).to.equal(false)
+				expect(taker.crates.classic_crate).to.equal(3)
+				local entry = taker.tradeLog[1]
+				expect(entry.gotCrates).to.deepEqual({
+					{ id = "classic_crate", count = 2 },
+					{ id = "park_crate", count = 1 },
+				})
+				expect(entry.gaveCrates).to.deepEqual({})
+				-- the log survives the save's sanitizer; an old entry without crates reads as none
+				local clean = Trade.sanitizeLog({
+					entry,
+					{ id = "old", at = 1, partnerName = "Ola", gave = {}, got = {} },
+				})
+				expect(clean[1].gotCrates).to.deepEqual(entry.gotCrates)
+				expect(clean[2].gotCrates).to.deepEqual({})
+			end
+		)
+	end)
+
+	describe("golden fish join (section 1d, #2745)", function()
+		local function profile(fish: number): any
+			local p: any = ProfileSchema.template(DAY3)
+			p.goldenFish = fish
+			return p
+		end
+
+		it("has the caps and value the spec sets", function()
+			expect(Config.TradeMaxFish).to.equal(200)
+			expect(Config.TradeFishPerDay).to.equal(400)
+			expect(Trade.fishValue(40)).to.be.near(3, 1e-9) -- 40 fish count as one Rare
+		end)
+
+		it("refuses negative, fractional, NaN, infinite, over-cap and over-wallet amounts", function()
+			local me, them = profile(150), profile(0)
+			for _, bad in { -10, -1, 0.5, 0 / 0, math.huge, -math.huge, "10", true } do
+				expect(Trade.fishRefusal(me, them, bad, DAY3)).to.equal(Trade.Messages.fishAmount)
+			end
+			expect(Trade.fishRefusal(me, them, 0, DAY3)).never.to.be.ok() -- taking them all off
+			expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
+			expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(Trade.Messages.fishNotEnough) -- balance + 1
+			me.goldenFish = 999
+			expect(Trade.fishRefusal(me, them, 200, DAY3)).never.to.be.ok()
+			expect(Trade.fishRefusal(me, them, 201, DAY3)).to.equal(
+				string.format(Trade.Messages.fullFish, 200)
+			)
+		end)
+
+		it("keeps each receiver to TradeFishPerDay a game day, afresh at the next sunrise", function()
+			local me, them = profile(999), profile(0)
+			expect(Trade.fishRoom(them, DAY3)).to.equal(400)
+			them.stats.tradesToday = { day = Trade.day(DAY3), count = 2, fishIn = 250 }
+			expect(Trade.fishRoom(them, DAY3)).to.equal(150)
+			expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
+			expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(
+				string.format(Trade.Messages.fishRoom, 150)
+			)
+			expect(Trade.fishRoom(them, DAY4)).to.equal(400) -- the next game day
+			them.stats.tradesToday.fishIn = 999 -- over the cap: no room, never below 0
+			expect(Trade.fishRoom(them, DAY3)).to.equal(0)
+		end)
+
+		it("moves fish once, wallet only: never lifetimeGoldenFish or fishEarned", function()
+			local giver, taker = profile(300), profile(20)
+			taker.lifetimeGoldenFish = 20
+			local fish = { gave = 120, got = 0 }
+			expect(Trade.apply(giver, "t1", "Alex", {}, {}, {}, DAY3, nil, nil, fish)).to.equal(true)
+			expect(giver.goldenFish).to.equal(180)
+			local got = { gave = 0, got = 120 }
+			expect(Trade.apply(taker, "t1", "Sam", {}, {}, {}, DAY3, nil, nil, got)).to.equal(true)
+			expect(taker.goldenFish).to.equal(140)
+			expect(taker.lifetimeGoldenFish).to.equal(20) -- received fish are not earned
+			expect(taker.stats.fishEarned).to.equal(0)
+			expect(Trade.fishInToday(taker, DAY3)).to.equal(120)
+			expect(Trade.fishInToday(giver, DAY3)).to.equal(0)
+			expect(Trade.today(taker, DAY3)).to.equal(1)
+			-- applied once only
+			expect(Trade.apply(taker, "t1", "Sam", {}, {}, {}, DAY3, nil, nil, got)).to.equal(false)
+			expect(taker.goldenFish).to.equal(140)
+			expect(Trade.fishInToday(taker, DAY3)).to.equal(120)
+			-- the log, through the save's sanitizer
+			expect(taker.tradeLog[1].gotFish).to.equal(120)
+			expect(taker.tradeLog[1].gaveFish).never.to.be.ok()
+			expect(giver.tradeLog[1].gaveFish).to.equal(120)
+			local clean = Trade.sanitizeLog({
+				taker.tradeLog[1],
+				{ id = "bad", at = 1, partnerName = "Ola", gave = {}, got = {}, gotFish = -5, gaveFish = 0 / 0 },
+			})
+			expect(clean[1].gotFish).to.equal(120)
+			expect(clean[2].gotFish).never.to.be.ok()
+			expect(clean[2].gaveFish).never.to.be.ok()
+		end)
+
+		it("never takes a wallet below 0, and cleans a record's amount", function()
+			local giver = profile(50)
+			Trade.apply(giver, "t2", "Alex", {}, {}, {}, DAY3, nil, nil, { gave = 80, got = 0 })
+			expect(giver.goldenFish).to.equal(0)
+			expect(Trade.sanitizeFish(nil)).to.equal(0)
+			expect(Trade.sanitizeFish(-3)).to.equal(0)
+			expect(Trade.sanitizeFish(2.5)).to.equal(0)
+			expect(Trade.sanitizeFish(0 / 0)).to.equal(0)
+			expect(Trade.sanitizeFish(math.huge)).to.equal(0)
+			expect(Trade.sanitizeFish(5000)).to.equal(200)
+			expect(Trade.sanitizeFish(37)).to.equal(37)
+		end)
+
+		it("keeps today's fishIn through the save, and leaves an old save's count alone", function()
+			expect(Trade.sanitizeToday({ day = 3, count = 2, fishIn = 150 })).to.deepEqual({
+				day = 3,
+				count = 2,
+				fishIn = 150,
+			})
+			expect(Trade.sanitizeToday({ day = 3, count = 2 })).to.deepEqual({ day = 3, count = 2 })
+			for _, bad in { -1, 0, 1.5, 0 / 0, "9" } do
+				expect(Trade.sanitizeToday({ day = 3, count = 2, fishIn = bad }).fishIn).never.to.be.ok()
+			end
+			-- a trade with no fish leaves fishIn out
+			local p = profile(0)
+			Trade.countToday(p, DAY3)
+			expect(p.stats.tradesToday.fishIn).never.to.be.ok()
+			Trade.countToday(p, DAY3, 30)
+			Trade.countToday(p, DAY3, 40)
+			expect(p.stats.tradesToday.fishIn).to.equal(70)
+			Trade.countToday(p, DAY4, 5) -- a new game day starts afresh
+			expect(p.stats.tradesToday.fishIn).to.equal(5)
+			expect(p.stats.tradesToday.count).to.equal(1)
+		end)
+	end)
+
 	describe("TradesPerDay by the game day (#1629)", function()
 		it("counts trades per in-game day and starts afresh at the next sunrise", function()
 			local Clock = require(Shared.Clock)

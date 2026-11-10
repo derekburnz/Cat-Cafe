@@ -638,13 +638,16 @@ export type Stats = {
 
 export type WeekPlay = { week: number, seconds: number }
 export type WeekRate = { week: number, rate: number }
-export type TradesToday = { day: number, count: number }
+-- #2745 (section 1d): `fishIn`, golden fish received in trades that game day (TradeFishPerDay); nil for none.
+export type TradesToday = { day: number, count: number, fishIn: number? }
 
 -- F102 trading (trading.md; shapes agreed with the UI thread 2026-11-02). One cat as a trade's log and its done card
 -- show it.
 export type CatSummary = { catId: string, rarity: string, variant: string?, level: number }
 -- #1574 (section 1b): one decor or lawn piece as the log and the done card show it; `kind` "decor" or "lawn".
 export type DecorSummary = { id: string, kind: string, rarity: string }
+-- #2745 (section 1c): one kind of banked crate and how many, as the log and the done card show it.
+export type CrateSummary = { id: string, count: number }
 -- One of the last TradeLogMax trades, newest first: its id, when (os.time()), the partner's display name then, and
 -- both sides.
 export type TradeLogEntry = {
@@ -655,6 +658,10 @@ export type TradeLogEntry = {
 	got: { CatSummary },
 	gaveDecor: { DecorSummary }?, -- #1574; nil in entries from before decor trading
 	gotDecor: { DecorSummary }?,
+	gaveCrates: { CrateSummary }?, -- #2745; nil in entries from before crate trading
+	gotCrates: { CrateSummary }?,
+	gaveFish: number?, -- #2745 (section 1d): golden fish, nil for none
+	gotFish: number?,
 }
 -- One cat on offer, as TradeState shows it to one player: `rateForMe` is what it earns (or would earn) per second in
 -- that player's cafe.
@@ -670,6 +677,8 @@ export type TradeTile = {
 -- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
 -- adds while placed (0.05 is +5%).
 export type TradeDecorTile = { id: string, name: string, kind: string, rarity: string, bonus: number }
+-- #2745: one kind of crate on offer: its crate id, name, its pool (a zone id, "classic" or "rally") and how many.
+export type TradeCrateTile = { id: string, name: string, area: string, count: number }
 export type TradeSide = {
 	userId: number,
 	name: string, -- the display name
@@ -677,6 +686,8 @@ export type TradeSide = {
 	confirmed: boolean,
 	cats: { TradeTile },
 	decor: { TradeDecorTile }, -- #1574
+	crates: { TradeCrateTile }, -- #2745, sorted by crate id
+	fish: number, -- #2745 (section 1d): golden fish on offer, 0 for none
 }
 -- The last change to an offer, for the yellow flash and "Changed!" (section 3): whose side, which cat uid or piece
 -- id, when (server time).
@@ -699,6 +710,14 @@ export type TradeStateView = {
 	confirmAt: number?, -- server time from which my Confirm counts (TradeConfirmWaitSeconds after a lopsided or gift
 	-- confirm screen opens); nil when there is no wait
 	theyHave: { string }, -- #1574: my tradeable pieces the other player already owns (grey, "They already have this")
+	-- #2745: my banked tradeable crates the other player can't take yet, crate id -> why ("They haven't reached the
+	-- Desert yet"), greyed in the Crates tab
+	crateBlocked: { [string]: string },
+	cratesOn: boolean, -- #2745: the tradeCrates live switch; false hides the Crates tab
+	fishOn: boolean, -- #2745 (section 1d): the tradeFish live switch; false hides the fish rows
+	-- #2745: golden fish the other player can still receive today (TradeFishPerDay less what they got), so Max and
+	-- the "They can get N more today" line never ask for more
+	fishRoom: number,
 }
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number

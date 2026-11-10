@@ -217,7 +217,7 @@ return function()
 		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
-		FirstBaitWaitSeconds = 45, -- #1895: the account's first bait; #2774: was 120
+		FirstBaitWaitSeconds = 1, -- #1895: the account's first bait; #2946: was 45 (#2774), 120 before
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
 		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
@@ -306,6 +306,11 @@ return function()
 		TradeMinTier = 3,
 		TradeMaxCats = 9,
 		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
+		TradeMaxCrateKinds = 6, -- #2745 (trading.md section 1c): crate kinds each side may offer
+		TradeMaxCrates = 20, -- #2745: crates in all each side may offer
+		TradeMaxFish = 200, -- #2745 (section 1d): golden fish each side may offer
+		TradeFishPerDay = 400, -- #2745: golden fish one player may receive in trades a game day
+		TradeFishValue = 0.075, -- #2745: 40 fish count as one Rare (3)
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
 		TradeConfirmWaitSeconds = 2,

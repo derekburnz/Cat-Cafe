@@ -30,6 +30,37 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-10 12:30): player-facing changes since #2939, 30 merges; no player ideas
+	{ id = "trade_decor", date = "2026-11-10", icon = "new", text = "Trade decor with friends" },
+	{ id = "first_bait_cut", date = "2026-11-10", icon = "look", text = "Watch your bait cat eat" },
+	{
+		id = "park_first_hint",
+		date = "2026-11-10",
+		icon = "faster",
+		text = "Hints lead you to the Park",
+	},
+	{
+		id = "second_cat_pointer",
+		date = "2026-11-10",
+		icon = "faster",
+		text = "Arrow to your second cat",
+	},
+	{ id = "return_goals", date = "2026-11-10", icon = "new", text = "Next goals when you return" },
+	{
+		id = "first_catch_pulse",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Gold pulse on first catch",
+	},
+	{ id = "cat_sold_sound", date = "2026-11-10", icon = "look", text = "Sound when a cat sells" },
+	{ id = "gamepad_hints", date = "2026-11-10", icon = "fix", text = "Controller button hints" },
+	{ id = "intro_ground", date = "2026-11-10", icon = "fix", text = "Intro waits for the ground" },
+	{
+		id = "whistle_refund",
+		date = "2026-11-10",
+		icon = "fix",
+		text = "Whistle refunded as coins",
+	},
 	-- #2718 refresh (11-10): player-facing changes since #2890, 26 merges; no player ideas
 	{ id = "spa_hourly", date = "2026-11-10", icon = "new", text = "Spa: a level every hour" },
 	{

@@ -7,6 +7,7 @@
 -- a free decor spot and answers CrateResult(crateId, decorId, duplicate, refund), so leaving mid-reveal keeps the
 -- piece. BuyCrateBundle(crateId) (#1051) banks CrateBundleCount crates of one kind for CrateBundlePrice golden fish
 -- and opens none. OpenAllCrates(crateId) (#2402) opens every banked crate of one kind at once, banked only.
+-- #2745: a crate kind the player has on offer in an open trade can't be opened ("This crate is in a trade").
 -- BuyFishItem(itemId) buys a food or a perk level. Every cost comes from Catalog.fishShop and Config, never
 -- from the client. Golden fish are earned only: nothing here is sold for Robux (monetization-policy).
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf. By day shared/FreshCatch rolls a stock every
@@ -37,6 +38,8 @@ local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
+local Trade = require(ReplicatedStorage.Shared.Trade)
+local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local FishMarketService = {}
@@ -199,9 +202,18 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 		Net.fire(player, "CrateResult", crateId, "", false, 0)
 		return
 	end
-	local blocker = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	local blocker: string? = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	if blocker == nil and CafeService.crateOffered(player, crateId) > 0 then
+		blocker = Trade.Messages.crateInTrade -- #2745: a crate on offer waits for the trade
+	end
 	if blocker ~= nil then
 		refuse(blocker)
+		return
+	end
+	-- #2745 (section 1d): an open paid with fish waits for the trade too
+	local frozen = TradeService.fishSpendBlocker(player)
+	if frozen ~= nil and (profile.crates[crateId] or 0) < 1 then
+		refuse(frozen)
 		return
 	end
 	lastOpenAt[player] = now
@@ -257,7 +269,10 @@ local function onOpenAllCrates(player: Player, rawCrateId: unknown)
 		refuse("No crates of this kind to open")
 		return
 	end
-	local blocker = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	local blocker: string? = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	if blocker == nil and CafeService.crateOffered(player, crateId) > 0 then
+		blocker = Trade.Messages.crateInTrade -- #2745
+	end
 	if blocker ~= nil then
 		refuse(blocker)
 		return
@@ -296,6 +311,7 @@ local function onBuyCrateBundle(player: Player, rawCrateId: unknown)
 		return
 	end
 	local blocker = Crates.bundleBlocker(profile, Economy.tier(profile), crateId)
+		or TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
 	local price = Config.CrateBundlePrice
 	if blocker ~= nil or not GoldenFish.trySpend(profile, price) then
 		Net.toast(player, blocker or "Not enough golden fish", "warn")
@@ -329,6 +345,10 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 		return
 	end
 	local cost, reason = Crates.buyCost(profile, row)
+	local frozen = TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
+	if frozen ~= nil then
+		cost, reason = nil, frozen
+	end
 	if cost == nil or not GoldenFish.trySpend(profile, cost) then
 		Net.toast(player, reason or "Not enough golden fish", "warn")
 		CafeService.sync(player)
@@ -491,8 +511,9 @@ local function onBuyFreshCatch(player: Player, rawItemId: unknown, rawWindow: un
 		)
 		return
 	end
-	if not GoldenFish.trySpend(profile, row.fish) then
-		refuse("Not enough golden fish")
+	local frozen = TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
+	if frozen ~= nil or not GoldenFish.trySpend(profile, row.fish) then
+		refuse(frozen or "Not enough golden fish")
 		return
 	end
 	Telemetry.fishSink(player, profile, row.fish, "Shop", "fresh_catch")

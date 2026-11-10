@@ -240,7 +240,7 @@ UI.events = {
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
-	tradeOffer = Signal.new(), -- (tradeId, "add" | "remove", catUid)   forward as TradeOffer
+	tradeOffer = Signal.new(), -- (tradeId, "add" | "remove", id, kind?, count?)   forward as TradeOffer (kind "decor", "crate")
 	tradeReady = Signal.new(), -- (tradeId, version, ready)   forward as TradeReady
 	tradeConfirm = Signal.new(), -- (tradeId, version)   forward as TradeConfirm
 	tradeCancel = Signal.new(), -- (tradeId)   Cancel or the X during a trade: forward as TradeCancel
@@ -6772,8 +6772,14 @@ do
 			request = function(userId: number)
 				UI.events.requestTrade:Fire(userId)
 			end,
-			offer = function(tradeId: string, action: "add" | "remove", uid: string)
-				UI.events.tradeOffer:Fire(tradeId, action, uid)
+			offer = function(
+				tradeId: string,
+				action: "add" | "remove",
+				uid: string,
+				kind: ("decor" | "crate")?,
+				count: number?
+			)
+				UI.events.tradeOffer:Fire(tradeId, action, uid, kind, count)
 			end,
 			ready = function(tradeId: string, version: number, ready: boolean)
 				UI.events.tradeReady:Fire(tradeId, version, ready)
@@ -6914,10 +6920,18 @@ do
 		end
 	end
 
-	function UI.trade.done(tradeId: string, _gave: { Types.TradeCat }?, got: { Types.TradeCat }?)
+	function UI.trade.done(
+		tradeId: string,
+		_gave: { Types.TradeCat }?,
+		got: { Types.TradeCat }?,
+		_gaveDecor: { Types.TradeDecor }?,
+		gotDecor: { Types.TradeDecor }?,
+		_gaveCrates: { { id: string, count: number } }?,
+		gotCrates: { { id: string, count: number } }?
+	)
 		over(tradeId)
 		if toasts then
-			toasts:show(TradeLogic.doneLine(got), "good")
+			toasts:show(TradeLogic.doneLine(got, gotDecor, gotCrates), "good")
 		end
 	end
 

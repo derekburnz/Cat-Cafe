@@ -779,6 +779,7 @@ local function applyState(s: Types.PlayerState)
 		upgradeLevels = s.upgradeLevels,
 		decorOwned = s.decorOwned,
 		decorPlaced = s.decorPlaced,
+		decorUnlocked = s.decorUnlocked, -- #1574: the Trade window's Decor tab greys a locked piece
 		lures = s.lures,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,

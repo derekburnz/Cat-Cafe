@@ -28,6 +28,7 @@ local MysteryMarket = require(ReplicatedStorage.Shared.MysteryMarket)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Telemetry = require(script.Parent.Telemetry)
+local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local MysteryMarketService = {}
@@ -104,6 +105,10 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 		return
 	end
 	local ok, reason = MysteryMarket.canBuy(profile, item, now)
+	local frozen = TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
+	if frozen ~= nil then
+		ok, reason = false, frozen
+	end
 	local fishBefore = profile.goldenFish
 	if not ok or not GoldenFish.trySpend(profile, price) then
 		refuse(reason or MysteryMarket.FISH_TEXT)

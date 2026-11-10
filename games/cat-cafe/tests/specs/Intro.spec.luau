@@ -796,5 +796,31 @@ return function()
 				expect(Intro.NEXT_AFTER < shot.hold).to.equal(true)
 			end
 		end)
+
+		describe("the camp's ground (#2961)", function()
+			it("checks the floor under the pad, the catch and the stray, and asks for the middle", function()
+				local ground = Intro.campGround()
+				local camp = Intro.camp("alley") :: any
+				expect(#ground.points).to.equal(3)
+				expect(ground.points[1]).to.equal(camp.pad)
+				expect(ground.points[2]).to.equal(Intro.catchSpot())
+				expect(ground.points[3]).to.equal(Intro.strayPoint())
+				-- the middle lies down the area from the camp's way out, past the filmed spots
+				local fromWayOut = (ground.middle - camp.wayOut):Dot(camp.u)
+				expect(fromWayOut > Intro.STRAY_IN).to.equal(true)
+			end)
+
+			it("waits a couple of seconds for the camp, not longer (Derek2 11-10)", function()
+				expect(Intro.CAMP_WAIT >= 2 and Intro.CAMP_WAIT <= 3).to.equal(true)
+			end)
+
+			it("counts a hit near the area's floor, not a roof or a prop's top", function()
+				expect(Intro.floorHit(0.1)).to.equal(true)
+				expect(Intro.floorHit(-0.1)).to.equal(true)
+				expect(Intro.floorHit(2.5)).to.equal(true)
+				expect(Intro.floorHit(6)).to.equal(false)
+				expect(Intro.floorHit(-5)).to.equal(false)
+			end)
+		end)
 	end)
 end

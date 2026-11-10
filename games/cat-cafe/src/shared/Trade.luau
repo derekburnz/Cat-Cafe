@@ -21,6 +21,7 @@ local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local Crates = require(script.Parent.Crates)
 local Lawn = require(script.Parent.Lawn)
 local Types = require(script.Parent.Types)
 
@@ -61,6 +62,21 @@ Trade.Messages = {
 	theyHaveIt = "They already have this",
 	fullDecor = "Up to %d decor each",
 	pieceInTrade = "This piece is in a trade",
+	-- #2745 (section 1c): crates
+	crateNotTradable = "This crate can't be traded",
+	crateNotEnough = "You don't have that many",
+	crateCount = "Pick how many crates",
+	fullCrates = "Up to %d crates each",
+	fullCrateKinds = "Up to %d kinds of crate each",
+	theyCantOpen = "They haven't reached the %s yet",
+	crateInTrade = "This crate is in a trade",
+	cratesOff = "Crate trading is resting for now",
+	-- #2745 (section 1d): golden fish
+	fishAmount = "Pick how many golden fish",
+	fishNotEnough = "You don't have that many golden fish",
+	fullFish = "Up to %d golden fish each",
+	fishRoom = "They can get %d more golden fish today",
+	fishOff = "Golden fish trading is resting for now",
 }
 
 -- #1574: the rarities whose pieces arrive locked (Legendary and up; Golden is the lawn's top rung).
@@ -213,6 +229,233 @@ local function givePiece(profile: Types.PlayerProfile, id: string)
 	profile.decorUnlocked[id] = nil
 end
 
+-- #2745 (section 1c): whether crate `id` can change hands: a known crate that isn't golden (golden crates come only
+-- from one-off rewards, so trading them would let spare accounts feed a main).
+function Trade.crateTradable(id: string): boolean
+	local def = Catalog.getCrate(id)
+	return def ~= nil and not def.golden
+end
+
+-- Why a player at `tier` can't take crate `id` yet (its zone isn't open to them), or nil. The Classic and Rally crates
+-- have no zone and open from Tier 1, as Crates.openBlocker has it.
+function Trade.crateAreaBlocker(tier: number, id: string): string?
+	local def = Catalog.getCrate(id)
+	if def == nil or def.area == "classic" or def.area == Catalog.RALLY_POOL then
+		return nil
+	end
+	local area = Catalog.getArea(def.area)
+	if area == nil then
+		return Trade.Messages.crateNotTradable
+	end
+	if tier < area.tier then
+		return string.format(Trade.Messages.theyCantOpen, area.name)
+	end
+	return nil
+end
+
+-- The crates on one side, counted: (kinds, crates in all).
+function Trade.crateTotals(offered: { [string]: number }): (number, number)
+	local kinds, total = 0, 0
+	for _, count in offered do
+		kinds += 1
+		total += count
+	end
+	return kinds, total
+end
+
+-- Why `count` more of crate `id` cannot go on `profile`'s side next to `offered` (crate id -> count already there), in
+-- a trade with a partner at `partnerTier`, or nil when they can: a crate that can be traded, a whole count of at least
+-- 1, no more than the save has banked, the partner's zone open, and at most TradeMaxCrateKinds kinds and TradeMaxCrates
+-- crates a side.
+function Trade.crateRefusal(
+	profile: Types.PlayerProfile,
+	partnerTier: number,
+	id: string,
+	count: number,
+	offered: { [string]: number }
+): string?
+	if not Trade.crateTradable(id) then
+		return Trade.Messages.crateNotTradable
+	end
+	if count ~= count or count < 1 or count ~= math.floor(count) or count == math.huge then
+		return Trade.Messages.crateCount
+	end
+	local already = offered[id] or 0
+	if already + count > math.floor(profile.crates[id] or 0) then
+		return Trade.Messages.crateNotEnough
+	end
+	local blocker = Trade.crateAreaBlocker(partnerTier, id)
+	if blocker ~= nil then
+		return blocker
+	end
+	local kinds, total = Trade.crateTotals(offered)
+	if already == 0 and kinds >= Config.TradeMaxCrateKinds then
+		return string.format(Trade.Messages.fullCrateKinds, Config.TradeMaxCrateKinds)
+	end
+	if total + count > Config.TradeMaxCrates then
+		return string.format(Trade.Messages.fullCrates, Config.TradeMaxCrates)
+	end
+	return nil
+end
+
+local crateValues: { [string]: number } = {}
+
+-- One crate's Collector value for the lopsided warning (section 1c): its expected piece, the sum over its pieces of
+-- chance x Trade.pieceValue, rounded to one decimal. 0 for a crate that can't be traded. Worked out once a crate.
+function Trade.crateValue(id: string): number
+	local known = crateValues[id]
+	if known ~= nil then
+		return known
+	end
+	local def = Catalog.getCrate(id)
+	if def == nil or def.golden then
+		return 0
+	end
+	local total = 0
+	for decorId, chance in Crates.pieceChances(def, def.odds) do
+		local piece = Catalog.getDecor(decorId)
+		local rarity = if piece ~= nil then piece.rarity else nil
+		if rarity ~= nil then
+			total += chance / 100 * (Config.CollectorValue[rarity] or PIECE_VALUE_EXTRA[rarity] or 0)
+		end
+	end
+	local value = math.round(total * 10) / 10
+	crateValues[id] = value
+	return value
+end
+
+-- A side's crates as the log, the done card and TradeState list them: one entry a kind, sorted by crate id.
+function Trade.crateSummaries(crates: { [string]: number }?): { Types.CrateSummary }
+	local out: { Types.CrateSummary } = {}
+	local none: { [string]: number } = {}
+	for id, count in crates or none do
+		table.insert(out, { id = id, count = count })
+	end
+	table.sort(out, function(a: Types.CrateSummary, b: Types.CrateSummary): boolean
+		return a.id < b.id
+	end)
+	return out
+end
+
+-- Crates from a stored record or the client made safe: tradeable crate ids with whole counts of at least 1, at most
+-- TradeMaxCrateKinds kinds and TradeMaxCrates crates in all (the ids sorted, so what is kept never depends on the
+-- table's order).
+function Trade.sanitizeCrates(raw: unknown): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(raw) ~= "table" then
+		return out
+	end
+	local ids: { string } = {}
+	for id, count in raw :: { [any]: any } do
+		if
+			type(id) == "string"
+			and #id <= 64
+			and type(count) == "number"
+			and count == count
+			and count >= 1
+			and count < math.huge
+			and Trade.crateTradable(id)
+		then
+			table.insert(ids, id)
+		end
+	end
+	table.sort(ids)
+	local kinds, total = 0, 0
+	for _, id in ids do
+		local count = math.floor((raw :: any)[id])
+		if kinds >= Config.TradeMaxCrateKinds or total + count > Config.TradeMaxCrates then
+			break
+		end
+		out[id] = count
+		kinds += 1
+		total += count
+	end
+	return out
+end
+
+-- Crates leave `profile` (`gave`, subtracted first, never below 0) and arrive (`got`, added after), banked.
+local function moveCrates(
+	profile: Types.PlayerProfile,
+	gave: { [string]: number },
+	got: { [string]: number }
+)
+	for id, count in gave do
+		local left = math.max(0, (profile.crates[id] or 0) - count)
+		if left > 0 then
+			profile.crates[id] = left
+		else
+			profile.crates[id] = nil
+		end
+	end
+	for id, count in got do
+		if Trade.crateTradable(id) then
+			profile.crates[id] = (profile.crates[id] or 0) + count
+		end
+	end
+end
+
+-- #2745 (section 1d): whether `amount` is a whole number of fish from 0 up (not NaN or infinite).
+local function wholeFish(amount: unknown): boolean
+	return type(amount) == "number"
+		and amount == amount
+		and amount >= 0
+		and amount < math.huge
+		and amount == math.floor(amount)
+end
+
+-- Golden fish `profile` has received in trades this game day (the TradeFishPerDay count).
+function Trade.fishInToday(profile: Types.PlayerProfile, now: number): number
+	local today = profile.stats.tradesToday
+	return if today.day == Trade.day(now) then today.fishIn or 0 else 0
+end
+
+-- Golden fish `profile` can still receive in trades this game day.
+function Trade.fishRoom(profile: Types.PlayerProfile, now: number): number
+	return math.max(0, Config.TradeFishPerDay - Trade.fishInToday(profile, now))
+end
+
+-- Why `profile` can't have `amount` golden fish on its side in a trade with `partner` at `now`, or nil when it can: a
+-- whole amount from 0, at most TradeMaxFish, no more than the wallet holds and no more than the partner's room today.
+-- 0 always passes (taking every fish off).
+function Trade.fishRefusal(
+	profile: Types.PlayerProfile,
+	partner: Types.PlayerProfile,
+	amount: unknown,
+	now: number
+): string?
+	if not wholeFish(amount) then
+		return Trade.Messages.fishAmount
+	end
+	local n = amount :: number
+	if n == 0 then
+		return nil
+	end
+	if n > Config.TradeMaxFish then
+		return string.format(Trade.Messages.fullFish, Config.TradeMaxFish)
+	end
+	if n > math.floor(profile.goldenFish) then
+		return Trade.Messages.fishNotEnough
+	end
+	local room = Trade.fishRoom(partner, now)
+	if n > room then
+		return string.format(Trade.Messages.fishRoom, room)
+	end
+	return nil
+end
+
+-- `amount` golden fish's Collector value for the lopsided warning (TradeFishValue each).
+function Trade.fishValue(amount: number): number
+	return amount * Config.TradeFishValue
+end
+
+-- A fish amount from a stored record made safe: a whole number from 0 to TradeMaxFish, 0 for anything else.
+function Trade.sanitizeFish(raw: unknown): number
+	if not wholeFish(raw) then
+		return 0
+	end
+	return math.min(raw :: number, Config.TradeMaxFish)
+end
+
 -- What a trade ends with (TradeEnded's words).
 Trade.Ended = {
 	cancelled = "Trade cancelled",
@@ -221,6 +464,8 @@ Trade.Ended = {
 	off = "Trading is resting for now",
 	failed = "The trade couldn't finish. Nothing moved.",
 	gone = "A cat on offer is gone",
+	cratesOff = "Crate trading is resting for now", -- #2745: the tradeCrates switch went off mid swap
+	fishOff = "Golden fish trading is resting for now", -- #2745 (section 1d): the tradeFish switch went off mid swap
 }
 
 -- Why `instance` (looked up by its uid in the player's own cats, nil when not theirs) cannot go on offer next to
@@ -336,6 +581,8 @@ end
 -- trade and the log gets an entry for `partnerName`. False, and nothing changed, when the save has applied `id`.
 -- `gaveSummaries` are what the log shows for the cats that left (taken before they left). #1574: the pieces in
 -- `pieces.gave` leave (off their spots) and those in `pieces.got` arrive unplaced (one the save owns is skipped).
+-- #2745: the crates in `crates.gave` leave the bank and those in `crates.got` join it (subtract first, then add).
+-- #2745 (section 1d): `fish.gave` golden fish leave the wallet and `fish.got` arrive, counted in today's fishIn.
 function Trade.apply(
 	profile: Types.PlayerProfile,
 	id: string,
@@ -344,11 +591,22 @@ function Trade.apply(
 	gaveSummaries: { Types.CatSummary },
 	got: { Types.CatInstance },
 	now: number,
-	pieces: { gave: { string }, got: { string } }?
+	pieces: { gave: { string }, got: { string } }?,
+	crates: { gave: { [string]: number }, got: { [string]: number } }?,
+	fish: { gave: number, got: number }?
 ): boolean
 	if Trade.applied(profile, id) then
 		return false
 	end
+	-- #2745 (section 1d): fish leave the wallet (never below 0) and arrive in it. Received fish are not earned: they
+	-- add nothing to lifetimeGoldenFish or stats.fishEarned (GoldenFish.credit is for earning only).
+	local gaveFish = if fish ~= nil then Trade.sanitizeFish(fish.gave) else 0
+	local gotFish = if fish ~= nil then Trade.sanitizeFish(fish.got) else 0
+	profile.goldenFish = math.max(0, profile.goldenFish - gaveFish) + gotFish
+	local noCrates: { [string]: number } = {}
+	local gaveCrates = if crates ~= nil then crates.gave else noCrates
+	local gotCrates = if crates ~= nil then crates.got else noCrates
+	moveCrates(profile, gaveCrates, gotCrates) -- #2745
 	for _, uid in gave do
 		profile.cats[uid] = nil
 	end
@@ -389,12 +647,16 @@ function Trade.apply(
 		got = Trade.summaries(got),
 		gaveDecor = Trade.pieceSummaries(gavePieces),
 		gotDecor = Trade.pieceSummaries(gotPieces),
+		gaveCrates = Trade.crateSummaries(gaveCrates),
+		gotCrates = Trade.crateSummaries(gotCrates),
+		gaveFish = if gaveFish > 0 then gaveFish else nil,
+		gotFish = if gotFish > 0 then gotFish else nil,
 	})
 	while #profile.tradeLog > Config.TradeLogMax do
 		table.remove(profile.tradeLog)
 	end
 	profile.stats.trades += 1
-	Trade.countToday(profile, now)
+	Trade.countToday(profile, now, gotFish)
 	return true
 end
 
@@ -411,8 +673,14 @@ function Trade.today(profile: Types.PlayerProfile, now: number): number
 	return if today.day == Trade.day(now) then today.count else 0
 end
 
-function Trade.countToday(profile: Types.PlayerProfile, now: number)
-	profile.stats.tradesToday = { day = Trade.day(now), count = Trade.today(profile, now) + 1 }
+-- Counts one more trade today, and (#2745) `fishIn` more golden fish received today.
+function Trade.countToday(profile: Types.PlayerProfile, now: number, fishIn: number?)
+	local fish = Trade.fishInToday(profile, now) + (fishIn or 0)
+	profile.stats.tradesToday = {
+		day = Trade.day(now),
+		count = Trade.today(profile, now) + 1,
+		fishIn = if fish > 0 then fish else nil,
+	}
 end
 
 -- What TradeService knows about one player when they ask or are asked (section 2).
@@ -537,6 +805,32 @@ function Trade.sanitizeLog(raw: unknown): { Types.TradeLogEntry }
 		end
 		return list
 	end
+	local function crateSummaries(value: any): { Types.CrateSummary }
+		local list: { Types.CrateSummary } = {}
+		if type(value) == "table" then
+			for _, entry in value do
+				if
+					type(entry) == "table"
+					and type(entry.id) == "string"
+					and #entry.id <= 64
+					and type(entry.count) == "number"
+					and entry.count == entry.count
+					and entry.count >= 1
+					and #list < Config.TradeMaxCrateKinds
+				then
+					table.insert(list, {
+						id = entry.id,
+						count = math.min(math.floor(entry.count), Config.TradeMaxCrates),
+					})
+				end
+			end
+		end
+		return list
+	end
+	local function fishCount(value: any): number?
+		local n = Trade.sanitizeFish(value)
+		return if n > 0 then n else nil
+	end
 	for _, entry in raw :: { any } do
 		if #out >= Config.TradeLogMax then
 			break
@@ -556,6 +850,10 @@ function Trade.sanitizeLog(raw: unknown): { Types.TradeLogEntry }
 				got = summaries(entry.got),
 				gaveDecor = pieceSummaries(entry.gaveDecor),
 				gotDecor = pieceSummaries(entry.gotDecor),
+				gaveCrates = crateSummaries(entry.gaveCrates),
+				gotCrates = crateSummaries(entry.gotCrates),
+				gaveFish = fishCount(entry.gaveFish),
+				gotFish = fishCount(entry.gotFish),
 			})
 		end
 	end
@@ -583,7 +881,10 @@ function Trade.sanitizeToday(raw: unknown): Types.TradesToday
 	if type(raw) == "table" then
 		local day, count = (raw :: any).day, (raw :: any).count
 		if type(day) == "number" and day == day and type(count) == "number" and count == count then
-			return { day = math.floor(day), count = math.max(0, math.floor(count)) }
+			-- #2745: fishIn kept as a whole number from 1 (any amount, so a save over the cap stays over it)
+			local fishIn = (raw :: any).fishIn
+			local fish = if wholeFish(fishIn) and fishIn > 0 then fishIn else nil
+			return { day = math.floor(day), count = math.max(0, math.floor(count)), fishIn = fish }
 		end
 	end
 	return { day = 0, count = 0 }

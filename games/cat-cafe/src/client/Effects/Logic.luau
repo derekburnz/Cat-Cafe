@@ -3166,4 +3166,54 @@ function Logic.cutAround(
 	return look + dir * back + Vector3.new(0, up, 0)
 end
 
+-- A soaking cat's float in the Oasis Spa pool at time `t` (#2897): how far up (studs), its roll and its turn
+-- (radians). `phase` (0 to 1, Logic.phaseOf) keeps the cats out of step. A `ready` cat (its first level is earned)
+-- also hops and wiggles for readyLength out of every readyEvery seconds.
+function Logic.soakBob(t: number, phase: number, ready: boolean): (number, number, number)
+	local s = Presets.stationMotion
+	local tau = 2 * math.pi
+	local up = s.bob * math.sin((t * s.bobHz + phase) * tau)
+	local roll = math.rad(s.sway) * math.sin((t * s.swayHz + phase * 0.7) * tau)
+	local turn = math.rad(s.yaw) * math.sin((t * s.yawHz + phase * 0.3) * tau)
+	if ready then
+		local into = (t + phase * s.readyEvery) % s.readyEvery
+		if into < s.readyLength then
+			local k = into / s.readyLength
+			local lift = math.sin(k * math.pi)
+			up += s.readyHop * lift
+			turn += math.rad(s.readyWiggle) * lift * math.sin(k * 4 * math.pi)
+		end
+	end
+	return up, roll, turn
+end
+
+-- Whether a soaking cat shows as ready at server time `now`, the Spa card's rule (LateStationsLogic: a level
+-- earned): its first level lands at `doneAt`. A cat at the top level earns none, so a state sent after doneAt that
+-- still shows 0 levels means it never gets ready.
+function Logic.soakReady(now: number, doneAt: unknown, levels: unknown, stateAt: unknown): boolean
+	if type(doneAt) ~= "number" or now < doneAt then
+		return false
+	end
+	if type(stateAt) == "number" and stateAt >= doneAt and levels == 0 then
+		return false
+	end
+	return true
+end
+
+-- How high a new exhibit still is, as a share of dropHeight, `k` (0 to 1) of the way through its drop: it falls
+-- faster and faster for dropFall, lands, then makes one small bounce.
+function Logic.dropBounce(k: number): number
+	local s = Presets.stationMotion
+	if k <= 0 then
+		return 1
+	elseif k >= 1 then
+		return 0
+	elseif k < s.dropFall then
+		local q = k / s.dropFall
+		return 1 - q * q
+	end
+	local q = (k - s.dropFall) / (1 - s.dropFall)
+	return s.dropBounce * math.sin(q * math.pi)
+end
+
 return Logic

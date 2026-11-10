@@ -2017,6 +2017,15 @@ local SCENES = {
 		assert(first.Name ~= "Close" and (first.Parent :: Instance).Name ~= "Close", "uigate: the window selected its X first (#2872)")
 		assert(first:FindFirstAncestor("Tabs") == nil, "uigate: Upgrades selected a tab, not its first row's button (#2872)")
 		assert((UIShim.playerGui :: any).SelectionImageObject ~= nil, "uigate: no selection ring (#2872)")
+		-- #2965: the window's container is a selection group that stops at every edge, so the DPad stays in the window
+		local container = first:FindFirstAncestor("Container") :: any
+		assert(container ~= nil and container.SelectionGroup == true, "uigate: the open window is no selection group (#2965)")
+		for _, side in { "Up", "Down", "Left", "Right" } do
+			assert(
+				container["SelectionBehavior" .. side] == Enum.SelectionBehavior.Stop,
+				"uigate: the selection can leave the window going " .. side .. " (#2965)"
+			)
+		end
 		UI.close()
 		UIShim.advance(0.3)
 		assert(GuiService.SelectedObject == tile, "uigate: closing the window did not hand the menu tile back (#2872)")
@@ -2682,6 +2691,37 @@ local SCENES = {
 	end },
 	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
 	-- the coins Payout paid and the potions, and the first button and Close the same size
+	-- #2966 and #2968 (console pass 2): on a gamepad the Tackle bar's key cap reads Y, the gift card takes the selection
+	-- as it shows, and B closes it and lets go
+	{ "GamepadPopups", function()
+		local GuiService = game:GetService("GuiService")
+		local inputs = game:GetService("UserInputService")
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), Enum.UserInputType.Gamepad1)
+		UI.setZone("Alley")
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local tackle = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local key = tackle and tackle:FindFirstChild("Key", true) :: TextLabel?
+		-- a touch screen has the round Tackle button with no key cap
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			assert(key and key.Visible and key.Text == "Y", "uigate: the Tackle bar's key cap reads " .. tostring(key and key.Text) .. " on a gamepad (#2966)")
+		end
+		GuiService.SelectedObject = nil
+		UI.recap.lastInput = os.clock() - 30
+		UI.gift.show("fav", { "+$25000", "1 Tip Potion" })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true) :: Frame
+		local selected = GuiService.SelectedObject
+		assert(selected ~= nil and selected:IsDescendantOf(card), "uigate: the gift card took no selection on a gamepad (#2968)")
+		local input = { KeyCode = Enum.KeyCode.ButtonB, UserInputType = Enum.UserInputType.Gamepad1 }
+		UIShim.fire(UIShim.eventOf(inputs, "InputBegan"), input, true)
+		UIShim.advance(0.1)
+		assert(not card.Visible, "uigate: B did not close the gift card (#2968)")
+		assert(GuiService.SelectedObject == nil, "uigate: the selection stayed on the closed gift card (#2968)")
+		UIShim.setLastInput(nil)
+		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
+	end },
 	{ "GiftCardLike", function()
 		UI.recap.lastInput = os.clock() - 30 -- idle
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
@@ -2881,12 +2921,13 @@ local SCENES = {
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
 		UI.roadmap.step(8)
 	end },
-	-- #1895: the account's short first bait (45 s since #2774) in the bowl: "A cat is coming!" on the HUD's row over
-	-- the money and in the Bait bowl window
+	-- #1895: the account's short first bait in the bowl: "A cat is coming!" on the HUD's row over the money and in the
+	-- Bait bowl window. #2946: Config.FirstBaitWaitSeconds (1 s since then, 45 s for #2774, 120 before); the scene
+	-- holds the wait a second longer (FirstBait.SLACK) so the line is still up when it is checked
 	{ "BaitFirstComing", function()
 		local now = workspace:GetServerTimeNow()
-		local first = 45 -- Config.FirstBaitWaitSeconds (#2774: was 120)
-		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + first - 18, placedAt = now - 18 }, 1)
+		local first = UIShim.require("ReplicatedStorage.Shared.Config").FirstBaitWaitSeconds + 1
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + first, placedAt = now }, 1)
 		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
 			-- #2447: never on touch, where the counters' row is up in the top bar
@@ -7234,6 +7275,119 @@ local SCENES = {
 		state.them.cats = {}
 		UI.trade.state(state)
 	end },
+	-- #1574: the Decor tab: my tradeable pieces rarest first (a Legendary locked, one Sam owns greyed "Has it", the
+	-- one on offer ticked), a piece on each side after the cats
+	{ "TradeDecor", function()
+		local before = UI.getState() :: any
+		Scenes._decorOwned = before.decorOwned or {}
+		local SharedTrade = UIShim.require("ReplicatedStorage.Shared.Trade")
+		local pieces, owned, legendary = {}, {}, nil
+		for _, decor in Catalog.crateDecor do
+			local info = SharedTrade.piece(decor.id)
+			if info ~= nil then
+				if info.rarity == "Legendary" and legendary == nil then
+					legendary = decor.id
+					owned[decor.id] = true
+				elseif #pieces < 7 and info.rarity ~= "Legendary" and info.rarity ~= "Mythical" then
+					table.insert(pieces, decor.id)
+					owned[decor.id] = true
+				end
+			end
+		end
+		assert(#pieces >= 3 and legendary ~= nil, "uigate: not enough tradeable crate decor for TradeDecor")
+		UI.update({ decorOwned = owned, decorUnlocked = {} } :: any)
+		local function tile(id)
+			local info = SharedTrade.piece(id)
+			return { id = id, name = info.name, kind = info.kind, rarity = info.rarity, bonus = info.bonus }
+		end
+		local state = tradeState()
+		state.me.decor = { tile(pieces[1]) }
+		state.them.decor = { tile(pieces[#pieces]), tile("tulip_bed") }
+		state.theyHave = { pieces[2] }
+		UI.trade.state(state)
+		press("Trade", "Tabs.Decor")
+		task.wait(0.05)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local list = modals and modals:FindFirstChild("Picks", true)
+		local shown = 0
+		for _, piece in (list and list:FindFirstChild("List") or Instance.new("Folder")):GetChildren() do
+			if piece.Name == "Piece" and piece:IsA("Frame") and piece.Visible then
+				shown += 1
+			end
+		end
+		-- the crate pieces above and the sample lawn's pieces
+		assert(shown >= #pieces + 1, "uigate: the Decor tab shows " .. shown .. " pieces, not " .. (#pieces + 1))
+	end },
+	-- #1574: the confirm face with pieces after the cats, their rarity and tip bonus under them
+	{ "TradeDecorConfirm", function()
+		local SharedTrade = UIShim.require("ReplicatedStorage.Shared.Trade")
+		local first = nil
+		for _, decor in Catalog.crateDecor do
+			local info = SharedTrade.piece(decor.id)
+			if info ~= nil and first == nil then
+				first = { id = decor.id, name = info.name, kind = info.kind, rarity = info.rarity, bonus = info.bonus }
+			end
+		end
+		local state = tradeState({ phase = "confirm" })
+		state.me.ready = true
+		state.them.ready = true
+		state.me.decor = { first }
+		state.them.decor = {
+			{ id = "tulip_bed", name = "Tulip bed", kind = "lawn", rarity = "Uncommon", bonus = 0.02 },
+		}
+		UI.trade.state(state)
+	end },
+	-- #2745: the Crates tab: banked crates in Market order with "x3", one on offer ("1 on"), one Sam can't open yet
+	-- greyed; crates on each side after the cats, and the count picker after a long press
+	{ "TradeCrates", function()
+		local kinds = {}
+		for _, crate in Catalog.crates do
+			if not crate.golden and #kinds < 4 then
+				table.insert(kinds, crate)
+			end
+		end
+		assert(#kinds >= 3, "uigate: not enough crate kinds for TradeCrates")
+		local banked = {}
+		for index, crate in kinds do
+			banked[crate.id] = index + 1
+		end
+		Scenes._crates = (UI.getState() :: any).crates or {}
+		UI.update({ crates = banked } :: any)
+		local state = tradeState()
+		state.cratesOn = true
+		state.me.crates = { { id = kinds[1].id, name = kinds[1].name, area = kinds[1].area, count = 1 } }
+		state.them.crates = { { id = kinds[2].id, name = kinds[2].name, area = kinds[2].area, count = 3 } }
+		state.crateBlocked = { [kinds[#kinds].id] = "They haven't reached the Desert yet" }
+		UI.trade.state(state)
+		press("Trade", "Tabs.Crates")
+		task.wait(0.05)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local picks = modals and modals:FindFirstChild("Picks", true)
+		local shown = 0
+		for _, tile in (picks and picks:FindFirstChild("List") or Instance.new("Folder")):GetChildren() do
+			if tile.Name == "Crate" and tile:IsA("Frame") and tile.Visible then
+				shown += 1
+			end
+		end
+		assert(shown == #kinds, "uigate: the Crates tab shows " .. shown .. " crates, not " .. #kinds)
+		local picker = picks and picks:FindFirstChild("CratePicker")
+		assert(picker ~= nil, "uigate: no crate count picker")
+		-- the long press's picker as it shows (the shim has no held press)
+		picker.Visible = true
+		picker:FindFirstChild("Title").Text = "How many " .. kinds[2].name .. "?"
+		picker:FindFirstChild("Count").Text = "2"
+	end },
+	-- #2745: with cratesOn false the Crates tab stays hidden
+	{ "TradeCratesOff", function()
+		local state = tradeState()
+		state.cratesOn = false
+		UI.trade.state(state)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local picks = modals and modals:FindFirstChild("Picks", true)
+		local tab = picks and picks:FindFirstChild("Tabs")
+		local crates = tab and tab:FindFirstChild("Crates")
+		assert(crates ~= nil and not crates.Visible, "uigate: the Crates tab shows with cratesOn false")
+	end },
 	-- F102 part 2: Settings ends with the Trading section once TradeService runs: Friends only picked, then Trades
 	{ "SettingsTrading", function()
 		workspace:SetAttribute("TradingOn", true)
@@ -7252,6 +7406,35 @@ local SCENES = {
 	{ "TradeLog", function()
 		UI.update({ tradeLog = tradeLog(os.time()) })
 		UI.open("TradeLog")
+	end },
+	-- #1574: a trade that swapped decor: a crate piece and a lawn piece after the cat on the Got line, one piece alone
+	-- on the Gave line (no "Nothing" there)
+	{ "TradeLogDecor", function()
+		local log = tradeLog(os.time())
+		local piece = nil
+		for _, decor in Catalog.crateDecor do
+			if piece == nil then
+				piece = { id = decor.id, kind = "decor", rarity = decor.rarity or "Rare" }
+			end
+		end
+		assert(piece ~= nil, "uigate: no crate decor for TradeLogDecor")
+		log[1].gave = {}
+		log[1].gaveDecor = { piece }
+		log[1].gotDecor = { piece, { id = "tulip_bed", kind = "lawn", rarity = "Uncommon" } }
+		UI.update({ tradeLog = log })
+		UI.open("TradeLog")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("Trade1", true)
+		local got = card and card:FindFirstChild("Got")
+		local shown = 0
+		for _, child in (got or Instance.new("Folder")):GetChildren() do
+			if child:IsA("Frame") and child.Name:sub(1, 5) == "Piece" and child.Visible then
+				shown += 1
+			end
+		end
+		assert(shown == 2, "uigate: the Got line shows " .. shown .. " pieces, not 2")
+		local nothing = card and card:FindFirstChild("GaveNothing")
+		assert(nothing ~= nil and not (nothing :: TextLabel).Visible, "uigate: Gave says Nothing beside a piece")
 	end },
 	{ "TradeLogEmpty", function()
 		UI.update({ tradeLog = {} })
@@ -7394,6 +7577,10 @@ function Scenes.close()
 	if Scenes._lawnOwned then
 		UI.update({ lawnOwned = Scenes._lawnOwned } :: any) -- #2075's lawn rarity scene
 		Scenes._lawnOwned = nil
+	end
+	if Scenes._crates ~= nil then
+		UI.update({ crates = Scenes._crates } :: any) -- #2745's Crates tab scene
+		Scenes._crates = nil
 	end
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene

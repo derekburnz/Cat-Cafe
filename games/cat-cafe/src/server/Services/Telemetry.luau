@@ -233,6 +233,8 @@ export type CustomEvent =
 	| "tutorial_closed"
 	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
 	| "park_first_hint"
+	-- #2946: the first bait's cutscene ended, value 1, once a session; shown, skipped or none (CUT_OUTCOMES)
+	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
 	| "session_start"
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
@@ -331,6 +333,7 @@ local REPORTS = {
 	"event_rsvp", -- #2766: the update Event's Notify Me ask, RSVP_KINDS
 	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
 	"park_first_hint", -- #2915: the first Park landing's hint shown, PARK_HINTS
+	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -346,6 +349,9 @@ local INTRO_CHOICES = 5
 -- #2915: the first Park landing's toast, and the soft ring on the nearest stray after 90 s with no Park catch; each
 -- once a session
 local PARK_HINTS = { "toast", "ring" }
+-- #2946: the first bait's cutscene played to the end, was tapped through, or could not play (Reduce Motion, a busy
+-- camera, no cat in time); once a session
+local CUT_OUTCOMES = { "shown", "skipped", "none" }
 local RECAP_CLOSE_MAX = 30 -- #1920: session_recap_close's seconds, 0 to this
 local INDEX_HINT_TAPS = 10 -- #1919: index_hint_tap events logged at most this many times a session
 local FIRST_MOVE_STUDS = 8 -- first_move: this far across the ground from where the character was first seen
@@ -407,6 +413,7 @@ type Session = {
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
+	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
@@ -1512,6 +1519,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.parkHints[kind] = true
 			Telemetry.custom(player, "park_first_hint", 1, { kind })
 		end
+	elseif name == "first_bait_cutscene" then
+		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)
+		if outcome ~= nil and not session.firstBaitCut then
+			session.firstBaitCut = true
+			Telemetry.custom(player, "first_bait_cutscene", 1, { outcome })
+		end
 	elseif name == "store_opened" then
 		-- #1888: a new Store funnel session for each visit, up to StoreFunnel.VISITS_MAX a session
 		local from = Guard.oneOf(rawValue, StoreFunnel.SOURCES)
@@ -1686,6 +1699,7 @@ local function onLoaded(player: Player, profile: Profile)
 		uiOpened = {},
 		tutorialClosed = false,
 		parkHints = {},
+		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
 		store = nil,

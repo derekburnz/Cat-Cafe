@@ -8,6 +8,10 @@
 -- Roblox terms: a model made on one client exists only there, so nothing here is seen by anyone else; the copies are
 -- anchored and take no touches, clicks or collisions. The spa model can stream in and out, so a look every
 -- LOOK_SECONDS puts the cats back when it returns.
+--
+-- #2897: each copy carries the CatCafeSpaSoak tag and its slot's DoneAt, Levels and StateAt (the server time this
+-- state came) plus Surface (the water's top at its Soak attachment), so Effects/StationMotion floats it and makes a
+-- finished one wiggle by the Spa card's ready rule.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,10 +28,13 @@ local LOOK_SECONDS = 2
 local CAT_SCALE = 0.6 -- a sitting cat that fits the pool (Model-Agent, #2918)
 local SINK = 0.35 -- studs the cat sits below its Soak attachment, so it is in the water
 local TOWEL = "CatCafe_Camp_Desert_SpaTowel"
+local TAG = "CatCafeSpaSoak" -- Effects/StationMotion.SOAK_TAG
 
 type Shown = { catId: string, copy: Model, spa: Model }
+type Wanted = { catId: string, doneAt: number?, levels: number? }
 
-local slotsWanted: { [number]: string } = {} -- slot -> catId, from the last LateStationsState
+local slotsWanted: { [number]: Wanted } = {} -- slot -> its cat, from the last LateStationsState
+local stateAt = 0 -- the server time that state came
 local shown: { [number]: Shown } = {}
 
 local function assets(): Instance?
@@ -106,7 +113,15 @@ local function clear(slot: number)
 	end
 end
 
-local function place(slot: number, catId: string, spa: Model)
+-- The slot's timing on `copy`, for StationMotion's ready wiggle.
+local function mark(copy: Model, wanted: Wanted)
+	copy:SetAttribute("DoneAt", wanted.doneAt)
+	copy:SetAttribute("Levels", wanted.levels)
+	copy:SetAttribute("StateAt", stateAt)
+end
+
+local function place(slot: number, wanted: Wanted, spa: Model)
+	local catId = wanted.catId
 	local soak = spa:FindFirstChild("Soak_" .. slot, true)
 	local folder = assets()
 	local template = if folder ~= nil
@@ -128,6 +143,9 @@ local function place(slot: number, catId: string, spa: Model)
 	end)
 	copy:PivotTo((soak :: Attachment).WorldCFrame * CFrame.new(0, -SINK, 0))
 	addTowel(copy)
+	mark(copy, wanted)
+	copy:SetAttribute("Surface", (soak :: Attachment).WorldPosition)
+	CollectionService:AddTag(copy, TAG)
 	copy.Parent = Workspace
 	shown[slot] = { catId = catId, copy = copy, spa = spa }
 end
@@ -139,24 +157,28 @@ local function refresh()
 		if
 			spa == nil
 			or entry.spa ~= spa
-			or slotsWanted[slot] ~= entry.catId
+			or slotsWanted[slot] == nil
+			or slotsWanted[slot].catId ~= entry.catId
 			or entry.copy.Parent == nil
 		then
 			clear(slot)
+		else
+			mark(entry.copy, slotsWanted[slot])
 		end
 	end
 	if spa == nil then
 		return
 	end
-	for slot, catId in slotsWanted do
+	for slot, wanted in slotsWanted do
 		if shown[slot] == nil then
-			place(slot, catId, spa)
+			place(slot, wanted, spa)
 		end
 	end
 end
 
 local function onState(state: any)
 	table.clear(slotsWanted)
+	stateAt = Workspace:GetServerTimeNow()
 	if
 		type(state) == "table"
 		and state.live == true
@@ -169,7 +191,11 @@ local function onState(state: any)
 				and type(slot.slot) == "number"
 				and type(slot.catId) == "string"
 			then
-				slotsWanted[slot.slot] = slot.catId
+				slotsWanted[slot.slot] = {
+					catId = slot.catId,
+					doneAt = if type(slot.doneAt) == "number" then slot.doneAt else nil,
+					levels = if type(slot.levels) == "number" then slot.levels else nil,
+				}
 			end
 		end
 	end

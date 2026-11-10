@@ -559,4 +559,129 @@ return function()
 			expect(alex.theyHave).to.deepEqual({})
 		end)
 	end)
+
+	describe("crates (section 1c, #2745)", function()
+		it(
+			"puts crates on and off a side by count, resetting both and counting them in the warnings",
+			function()
+				local book, trade = opened()
+				expect(TradeBook.addCrates(trade, 1, "classic_crate", 2, 1.5, 101)).to.equal(true)
+				expect(trade.version).to.equal(2)
+				expect(TradeBook.crateOffered(book, 1, "classic_crate")).to.equal(2)
+				expect(TradeBook.crateOffered(book, 2, "classic_crate")).to.equal(0)
+				expect(TradeBook.ready(trade, 2, 2, true, 102)).never.to.be.ok() -- crates alone are an offer
+				expect(TradeBook.addCrates(trade, 1, "classic_crate", 1, 1.5, 103)).to.equal(true)
+				expect(trade.a.crates.classic_crate).to.equal(3)
+				expect(trade.b.ready).to.equal(false) -- any change resets both
+				local lopsided, gift = TradeBook.warnings(trade, 2)
+				expect(lopsided).to.equal(false)
+				expect(gift).to.equal(false) -- 3 crates come back
+				lopsided, gift = TradeBook.warnings(trade, 1)
+				expect(gift).to.equal(true)
+				for _, bad in { 0, -1, 0.5, 0 / 0 } do
+					expect(TradeBook.addCrates(trade, 1, "park_crate", bad, 1, 104)).to.equal(false)
+				end
+				expect(TradeBook.removeCrates(trade, 1, "classic_crate", 1, 105)).to.equal(true)
+				expect(trade.a.crates.classic_crate).to.equal(2)
+				expect(TradeBook.removeCrates(trade, 1, "classic_crate", 5, 106)).to.equal(true) -- takes all
+				expect(trade.a.crates.classic_crate).never.to.be.ok()
+				expect(TradeBook.removeCrates(trade, 1, "classic_crate", 1, 107)).to.equal(false)
+				-- the caps
+				for i = 1, Config.TradeMaxCrateKinds do
+					expect(TradeBook.addCrates(trade, 1, "k" .. i, 1, 1, 108)).to.equal(true)
+				end
+				expect(TradeBook.addCrates(trade, 1, "one_more", 1, 1, 109)).to.equal(false)
+				expect(TradeBook.addCrates(trade, 1, "k1", Config.TradeMaxCrates, 1, 110)).to.equal(
+					false
+				)
+				expect(TradeBook.addCrates(trade, 1, "k1", Config.TradeMaxCrates - 6, 1, 111)).to.equal(
+					true
+				)
+				expect(TradeBook.clearCrates(trade, 112)).to.equal(true)
+				expect(next(trade.a.crates)).never.to.be.ok()
+				expect(TradeBook.clearCrates(trade, 113)).to.equal(false)
+				TradeBook.addCrates(trade, 1, "k1", 1, 1, 114)
+				TradeBook.commit(trade)
+				expect(TradeBook.removeCrates(trade, 1, "k1", 1, 115)).to.equal(false)
+				expect(TradeBook.clearCrates(trade, 116)).to.equal(false)
+			end
+		)
+
+		it("shows each side's crates sorted, the blocked ones and the switch", function()
+			local _, trade = opened()
+			TradeBook.addCrates(trade, 1, "park_crate", 2, 1, 101)
+			TradeBook.addCrates(trade, 1, "classic_crate", 1, 1, 101)
+			TradeBook.addCrates(trade, 1, "nope", 1, 0, 101)
+			local function crateTile(id: string, count: number): any
+				return if id == "nope"
+					then nil
+					else { id = id, name = id, area = "classic", count = count }
+			end
+			local sam = TradeBook.view(trade, 1, tile, nil, nil, {
+				tile = crateTile,
+				blocked = { desert_crate = "They haven't reached the Desert yet" },
+				on = true,
+			}) :: any
+			expect(#sam.me.crates).to.equal(2) -- an unknown crate is left out
+			expect(sam.me.crates[1].id).to.equal("classic_crate")
+			expect(sam.me.crates[2].count).to.equal(2)
+			expect(sam.crateBlocked.desert_crate).to.equal("They haven't reached the Desert yet")
+			expect(sam.cratesOn).to.equal(true)
+			local alex = TradeBook.view(trade, 2, tile) :: any
+			expect(#alex.them.crates).to.equal(0)
+			expect(alex.cratesOn).to.equal(false)
+		end)
+	end)
+
+	describe("golden fish (section 1d, #2745)", function()
+		it("sets a side's fish, resetting both and counting them in the values and warnings", function()
+			local book, trade = opened()
+			expect(TradeBook.ready(trade, 1, 1, true, 101)).to.equal(TradeBook.EMPTY)
+			expect(TradeBook.setFish(trade, 1, 40, 101)).to.equal(true)
+			expect(trade.version).to.equal(2)
+			expect(TradeBook.fishOffered(book, 1)).to.equal(40)
+			expect(TradeBook.fishOffered(book, 2)).to.equal(0)
+			expect(TradeBook.fishOffered(book, 3)).to.equal(0) -- not trading
+			expect(TradeBook.ready(trade, 2, 2, true, 102)).never.to.be.ok() -- fish alone are an offer
+			expect(TradeBook.setFish(trade, 1, 40, 103)).to.equal(false) -- the same amount is no change
+			expect(trade.b.ready).to.equal(true)
+			expect(TradeBook.setFish(trade, 1, 80, 103)).to.equal(true)
+			expect(trade.b.ready).to.equal(false) -- any change resets both
+			local _, gift = TradeBook.warnings(trade, 2)
+			expect(gift).to.equal(false) -- Alex gets the fish
+			local lopsided
+			lopsided, gift = TradeBook.warnings(trade, 1)
+			expect(gift).to.equal(true)
+			expect(lopsided).to.equal(false)
+			local sam = TradeBook.view(trade, 1, tile, nil, nil, nil, { on = true, room = 150 }) :: any
+			expect(sam.me.fish).to.equal(80)
+			expect(sam.them.fish).to.equal(0)
+			expect(sam.giveValue).to.be.near(6, 1e-9) -- 80 x 0.075
+			expect(sam.fishOn).to.equal(true)
+			expect(sam.fishRoom).to.equal(150)
+			local alex = TradeBook.view(trade, 2, tile) :: any
+			expect(alex.them.fish).to.equal(80)
+			expect(alex.fishOn).to.equal(false)
+			expect(alex.fishRoom).to.equal(0)
+		end)
+
+		it("refuses bad amounts, clears for the switch and holds while committing", function()
+			local _, trade = opened()
+			for _, bad in { -1, 0.5, 0 / 0, math.huge, Config.TradeMaxFish + 1 } do
+				expect(TradeBook.setFish(trade, 1, bad, 101)).to.equal(false)
+			end
+			expect(TradeBook.setFish(trade, 9, 10, 101)).to.equal(false) -- not in the trade
+			expect(TradeBook.setFish(trade, 1, Config.TradeMaxFish, 102)).to.equal(true)
+			expect(TradeBook.setFish(trade, 2, 5, 102)).to.equal(true)
+			expect(TradeBook.setFish(trade, 2, 0, 103)).to.equal(true) -- taken off again
+			expect(TradeBook.clearFish(trade, 104)).to.equal(true)
+			expect(trade.a.fish).to.equal(0)
+			expect(TradeBook.clearFish(trade, 105)).to.equal(false)
+			TradeBook.setFish(trade, 1, 10, 106)
+			TradeBook.commit(trade)
+			expect(TradeBook.setFish(trade, 1, 20, 107)).to.equal(false)
+			expect(TradeBook.clearFish(trade, 108)).to.equal(false)
+			expect(trade.a.fish).to.equal(10)
+		end)
+	end)
 end

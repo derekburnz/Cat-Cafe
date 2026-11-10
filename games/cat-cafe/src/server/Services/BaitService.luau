@@ -178,14 +178,18 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	if profile.tutorialStep == 4 then
 		CafeService.advanceTutorial(player, profile, 5) -- the last step: set bait
 	end
+	-- #2946: the first bait's cat comes at once, while the cutscene shows it, so its toast promises no wait
+	local first = profile.stats.luresUsed == 1
 	Net.toast(
 		player,
-		string.format(
-			"%s is in the bowl. A cat will come by in %s.%s",
-			lure.name,
-			waitText(wait),
-			if night then " Night bait: half the wait." else ""
-		),
+		if first
+			then string.format("%s is in the bowl. Here comes a cat!", lure.name)
+			else string.format(
+				"%s is in the bowl. A cat will come by in %s.%s",
+				lure.name,
+				waitText(wait),
+				if night then " Night bait: half the wait." else ""
+			),
 		"good"
 	)
 	CafeService.refreshPlot(player)

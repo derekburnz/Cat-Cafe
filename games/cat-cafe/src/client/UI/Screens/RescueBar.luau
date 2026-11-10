@@ -102,6 +102,7 @@ local FAIL_SECONDS = 1.2
 local GIVE_UP_SECONDS = 0.5
 local NO_RESULT_TIMEOUT = 3 -- hide if the server has not ended the attempt this long after its deadline
 local ACTION_NAME = "CatCafeRescuePress"
+local GIVE_UP_ACTION = "CatCafeRescueGiveUp" -- #2968: B gives up on a gamepad (Select does nothing while the HUD hides)
 -- E starts a rescue (hold on the prompt), so presses on the bar are Space, a click or tap, or the gamepad's A
 local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 local WOBBLE = { 10, -9, 7, -5, 0 }
@@ -575,6 +576,24 @@ function RescueBar.show(
 		Enum.ContextActionPriority.High.Value,
 		table.unpack(PRESS_KEYS)
 	)
+	ContextActionService:BindActionAtPriority(
+		GIVE_UP_ACTION,
+		function(_name: string, inputState: Enum.UserInputState): Enum.ContextActionResult
+			if inputState == Enum.UserInputState.Begin then
+				self:_giveUp()
+			end
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		Enum.ContextActionPriority.High.Value,
+		Enum.KeyCode.ButtonB
+	)
+	-- #2968: the button says so on a gamepad
+	self._cancel:setText(
+		if UserInputService:GetLastInputType().Name:sub(1, 7) == "Gamepad"
+			then "Give up (B)"
+			else "Give up"
+	)
 
 	self._tap.Visible = true
 	self.screenGui.Enabled = true
@@ -830,6 +849,7 @@ function RescueBar.update(
 	self._token += 1
 	local token = self._token
 	ContextActionService:UnbindAction(ACTION_NAME)
+	ContextActionService:UnbindAction(GIVE_UP_ACTION)
 	self._cancel:setEnabled(false)
 	-- #2460 (Derek2 11-08: "the "rescued" on mobile has the same issue that catching used to ... it doesn't let you
 	-- move for a little while after a rescue"): as on the catch circles (#2405), the full-screen tap catcher goes the
@@ -880,6 +900,7 @@ function RescueBar.hide(self: any)
 		self._loop = nil
 	end
 	ContextActionService:UnbindAction(ACTION_NAME)
+	ContextActionService:UnbindAction(GIVE_UP_ACTION)
 	self._banner.Visible = false
 	self._word.Visible = false
 	self.screenGui.Enabled = false

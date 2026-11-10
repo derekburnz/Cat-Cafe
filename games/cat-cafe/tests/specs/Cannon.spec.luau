@@ -109,4 +109,25 @@ return function()
 			expect(Cannon.aimTurn(heading, 90)).to.be.near(0, 1e-6)
 		end)
 	end)
+
+	describe("besideStray (#2913, #2915)", function()
+		it("lands the gap short of the stray, toward the pad, at the pad's height", function()
+			local pad = Vector3.new(-1400, 0.1, -1261.5)
+			local stray = Vector3.new(-1395, 1.2, -1285)
+			local at = Cannon.besideStray(stray, pad, 7) :: Vector3
+			expect(at).never.to.equal(nil)
+			local flat = Vector3.new(at.X - stray.X, 0, at.Z - stray.Z)
+			expect(flat.Magnitude).to.be.near(7, 1e-6)
+			expect(at.Y).to.equal(0.1)
+			-- closer to the pad than the stray is
+			expect((at - pad).Magnitude < (stray - pad).Magnitude).to.equal(true)
+		end)
+
+		it("leaves it to the pad when the stray is that close already, or up a tree", function()
+			local pad = Vector3.new(0, 0, 0)
+			expect(Cannon.besideStray(Vector3.new(5, 0, 0), pad, 7)).to.equal(nil)
+			expect(Cannon.besideStray(Vector3.new(30, 12, 0), pad, 7)).to.equal(nil)
+			expect(Cannon.besideStray(Vector3.new(30, 2, 0), pad)).never.to.equal(nil)
+		end)
+	end)
 end

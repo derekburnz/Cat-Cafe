@@ -3190,4 +3190,55 @@ function CatService.debugNextCoat(coat: string?)
 	debugNextCoat = if coat == "gold" or coat == "rainbow" then coat else nil
 end
 
+-- #2913, #2915: the stray a first flight into `areaId` comes down beside (CannonService), or nil. In the Alleyway
+-- it is the beginner's own tutorial stray, until their first catch; in the Park the free stray nearest its landing
+-- pad, until the first Park catch (onboarding first_park_catch). Never one someone else is catching, a Dropped cat,
+-- one walking home or another beginner's.
+local PARK_BESIDE_STUDS = 60 -- a Park stray further than this from the pad doesn't count
+function CatService.firstLandingStray(player: Player, areaId: string): Vector3?
+	local profile = DataService.get(player)
+	if profile == nil then
+		return nil
+	end
+	local function free(stray: Stray): boolean
+		return stray.alive
+			and stray.area == areaId
+			and stray.drop == nil
+			and not stray.returning
+			and (stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray))
+	end
+	if areaId == TUTORIAL_AREA then
+		if profile.stats.catsCaught > 0 then
+			return nil
+		end
+		for _, stray in strays do
+			if stray.beginner == player.UserId and free(stray) then
+				return stray.body.Position
+			end
+		end
+		return nil
+	end
+	local pad = Layout.landingPads[areaId]
+	if
+		areaId ~= "park"
+		or pad == nil
+		or Onboarding.reached(profile.telemetry, "first_park_catch")
+	then
+		return nil
+	end
+	local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
+	local best: Vector3? = nil
+	local bestDistance = PARK_BESIDE_STUDS
+	for _, stray in strays do
+		if free(stray) and (stray.beginner == nil or stray.beginner == player.UserId) then
+			local at = stray.body.Position
+			local distance = (at - centre).Magnitude
+			if distance < bestDistance then
+				best, bestDistance = at, distance
+			end
+		end
+	end
+	return best
+end
+
 return CatService

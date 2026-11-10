@@ -7,7 +7,7 @@ The layout follows the trade menus players already know from the big pet games: 
 ## 1. What can be traded
 
 - **Cats only, at first.** Any cat the player owns, with its rarity, coat (base, gold or rainbow), charm and level. Up to TradeMaxCats (9) on each side.
-- **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor joined on 2026-11-05 (section 1b).
+- **Never:** coins, potions, food, spins or golden crates (golden fish join in §1d and non-golden crates in §1c, #2745), and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor joined on 2026-11-05 (section 1b).
 - **Locked cats cannot be offered.** Gold, rainbow, Legendary and Mythical cats arrive locked (F62), so a player has to unlock a good cat on its own card, outside the trade window, before they can trade it. That one step stops most rushed giveaways.
 - A traded cat keeps its rarity, coat, charm, level and rescued flag. Its custom name goes back to its kind's name. It arrives locked if it is gold, rainbow, Legendary or Mythical, and it counts as found in the new owner's Index pages (collection, gold and rainbow; source "trade"), so it can fill milestones, but it pays no golden fish, so passing cats back and forth cannot farm fish.
 - **Why traded cats count for the Index** (decided 2026-11-02 after the #854 security review): in the big pet games a traded pet fills the index, and that is a large part of why players trade, so we do the same. It does mean a group of friends can lend each other cats to fill their Index pages, Gold and Rainbow tabs and claim those milestones. We accept that: it is playing together, every milestone pays once per player, nothing in it is sold for Robux, the luck rewards are capped (GoldLuckMax, RainbowLuckMax), and TradesPerDay (50) with TradeMaxCats (9) bounds how fast it goes. If the ads week shows Index milestones being claimed far faster by traders than by catchers, the fix is a hold time before a traded cat counts, not taking trades out of the Index.
@@ -25,6 +25,50 @@ Derek, 2026-11-05 (Set 6 Q10): "Trading from Tier 3: cats and decor, with a coun
 - **Index.** A traded piece counts as found on the new owner's Decor Index page (source `trade`), as for cats, and pays no golden fish.
 - **Countdown, safety and log** as for cats: any change resets both Ready presses, and the vault (section 4) holds both sides' decor too. Review-Agent re-runs the security review on the decor change before it ships.
 - Contracts: Config `TradeMaxDecor` 9. A trade offer gains `decor: { string }` (piece ids), and the server checks that the giver owns each piece, that it's tradeable and that the receiver doesn't own it, again at the swap. The trade log gains a decor list. QA: a placed piece swaps and both sides' Equip Best refills, a piece the partner owns can't be added, an Index prize piece can't be offered, a two-sided cat-and-decor trade arrives complete on both sides, and a disconnect mid-trade returns everything.
+
+### 1c. Unopened crates join (#2745)
+
+Derek2, 2026-11-09: "create an issue to start doing research on implementing golden fish, and unopened crates to trading". The research and recommendation are in #2745. Derek2 gave a standing yes on 2026-11-10 ("you have my yes here for anything needed from now on"). Crates ship first, then golden fish (§1d) behind their own switch.
+
+- **Which crates.** Any banked crate whose Catalog row has `golden = false`: the zone crates, the Classic Crate and the Rally Crate.
+  - **Never golden crates.** Golden crates are never sold; they come only from Index prizes, the Lost and Found and similar one-off rewards, so trading them would let spare accounts feed a main.
+  - **The rule.** `Trade.crateTradable(id)` returns `Catalog.getCrate(id) ~= nil and not def.golden`.
+- **Offers.** An offer gains `crates: { [crateId]: count }`, up to `TradeMaxCrateKinds` (6) crate kinds and `TradeMaxCrates` (20) crates in all on each side.
+  - The server checks that each count is a whole number of at least 1 and at most the giver's banked count, on every change and again at the swap.
+- **Area gate.** A crate whose area the partner hasn't opened yet (`Crates.openBlocker` for the partner's tier) can't be added. It shows greyed with "They haven't reached the Desert yet", the same way "They already have this" works for decor.
+- **Freeze.** While a player is in an open trade, opening a crate that's on offer is refused ("This crate is in a trade").
+- **What doesn't travel.** Crate luck (`crateLuck`) and pity stay with each player. A received crate opens with the receiver's luck. Opening a duplicate refunds fish through the normal path.
+- **Window.** A Crates tab sits beside Cats and Decor under the grid. A tile shows the crate's art and its count ("x3").
+  - Tapping adds one; a long press opens a 1 to max picker.
+  - The offer tile shows the count offered.
+  - Any change resets both Ready presses, as for cats.
+- **Value for the lopsided warning.** A crate counts as its expected piece value, rounded to one decimal: the sum over its odds of chance × `PIECE_VALUE` by rarity. Gameplay computes it once per crate at load.
+- **Log and vault.**
+  - `RecordSide` gains `crates: { [string]: number }?` (nil in older records means none).
+  - Log entries gain `gaveCrates` and `gotCrates`, and `Trade.sanitizeLog` keeps them.
+  - Applying a trade subtracts first, then adds, through the same `tradeIds` check.
+- **Live switch.** `CatCafe_Flags.tradeCrates` (default true) turns the Crates tab off live without stopping cat trades.
+
+### 1d. Golden fish join, after crates (#2745)
+
+- **The amount.** An offer gains `fish: number`, a whole number from 0 to the giver's balance and at most `TradeMaxFish` (200) a side.
+  - The server refuses anything negative, fractional, NaN or infinite, or over the cap or the balance, on every change and again at the swap.
+- **Daily cap.** A player can receive at most `TradeFishPerDay` (400) a game day across all trades. The trade window shows the receiver's room left ("They can get 150 more today"), and an offer above it is refused.
+- **Freeze.** While a player is in an open trade, every golden fish spend is refused with "Finish your trade first": Market buys, perks, crate buys and spa slots. All spends go through one helper, `GoldenFish.spend`, which checks this.
+- **Doesn't count for progress.** Received fish don't count toward `lifetimeGoldenFish`, leaderboards, quests or milestones. Nothing pays per trade (§1).
+- **Window.** A fish row sits under each 3 × 3 grid with the 🐟 icon and the amount. Your own row has − and + buttons and 10, 50 and Max (up to the cap and the partner's room left). There's no text box. Any change resets both Ready presses.
+- **Value for the lopsided warning.** 40 fish count as 3 (one Rare), so 1 fish counts as 0.075.
+- **Log and vault.**
+  - `RecordSide` gains `fish: number?`.
+  - Log entries gain `gaveFish` and `gotFish`.
+  - `stats.tradesToday` gains `fishIn`.
+- **Live switch.** `CatCafe_Flags.tradeFish` (default **false**) is turned on only after QA and Review-Agent's security review pass, since fish are the first item traded as an amount rather than a single thing.
+- **QA, on top of §7:**
+  - Fired offers with −10, 0.5, NaN, inf or balance + 1 fish are refused.
+  - A fish spend during an open trade is refused.
+  - A forced shutdown mid-swap leaves both fish balances exact.
+  - The 400-a-day cap holds across rejoins and servers.
+  - Received fish don't change `lifetimeGoldenFish`.
 
 ## 2. Who can trade, and where
 

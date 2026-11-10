@@ -585,9 +585,11 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	-- along the bisector between it and the Spin Wheel (-28, 16): each about 27 degrees off the axis, in frame on a phone,
 	-- and high enough (18) to see the Codes Cat over Juniper's cart, which stands near that line of sight
 	-- between the Spin Wheel and the Codes Cat; #2707's roomier square put them 38 studs apart (-28, 22 and -29, -16),
-	-- so the camera stands back east of the cannon to fit both on a phone
-	local stations = v(-28.5, 3, 3)
-	local stationsCam = v(14, 20, 3)
+	-- so the camera stands back east of the cannon to fit both on a phone; #3001's 120 x 110 square and #3000's Codes
+	-- spot put them at (-35, 27.5) and (-45, -20), further out and 48 apart, so the shot looks further west along
+	-- z = 5 (28 and 25 degrees off the axis) from a little nearer the cannon
+	local stations = v(-40, 3, 5)
+	local stationsCam = v(8, 20, 5)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

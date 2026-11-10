@@ -1010,19 +1010,21 @@ local Config = {
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -152, -- #2707: -140 before the roomier square
-		StreetNorthZ = 152, -- #2707: 140 before; the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -163, -- #3001: -152 before the 120 x 110 square (#2707: -140 before that)
+		StreetNorthZ = 163, -- #3001: 152 before; the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
 		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
 		TownGroundWidth = 272,
-		TownGroundDepth = 356, -- #2707: 332 before
+		TownGroundDepth = 378, -- #3001: 356 before (#2707: 332 before that)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
 		-- fountain until v4) and a cross of open paving (the street's line and an east to west lane, which led to the
 		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
-		TownSquareHalfWidth = 48,
-		TownSquareHalfDepth = 44, -- #2707 (Derek2: "expand the town square by 25-50%"): 32 before
+		-- #3001 (Derek2 2026-11-10: "expand the town square"): 120 x 110, a quarter more each way. The width grows
+		-- inside the town edge (TownEdgeX stays), so the side gardens are 9 deep; the depth moves the cafes back 11.
+		TownSquareHalfWidth = 60, -- 48 before
+		TownSquareHalfDepth = 55, -- 44 before (#2707: 32 before that)
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of

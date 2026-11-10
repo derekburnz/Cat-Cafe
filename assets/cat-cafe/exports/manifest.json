@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 15:08 UTC",
+  "generated": "2026-11-10 15:45 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -279524,26 +279524,26 @@
         "CatCafe_Square_Paving",
         "CatCafe_Square_Paving_Slab"
       ],
-      "triangles": 9724,
+      "triangles": 14260,
       "budget": 20000,
       "size_studs": {
-        "x": 96.0,
-        "y": 88.0,
+        "x": 120.0,
+        "y": 110.0,
         "z": 0.49
       },
       "size_roblox": [
-        96.0,
+        120.0,
         0.49,
-        88.0
+        110.0
       ],
       "bounds_min": [
-        -48.0,
-        -44.0,
+        -60.0,
+        -55.0,
         -0.4
       ],
       "bounds_max": [
-        48.0,
-        44.0,
+        60.0,
+        55.0,
         0.09
       ],
       "pivot": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
@@ -279557,7 +279557,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Paving.model.json",
-      "rbx_parts": 809,
+      "rbx_parts": 1187,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Paving.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Paving.glb"
@@ -279569,10 +279569,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "9724/20000 tris",
+          "budget": "14260/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4806 faces on swatch centers",
+          "uv": "7074 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -280041,31 +280041,27 @@
         "CatCafe_Square_Bunting_Flag09_Pennant",
         "CatCafe_Square_Bunting_Flag10_Pennant",
         "CatCafe_Square_Bunting_Flag11_Pennant",
-        "CatCafe_Square_Bunting_Flag12_Pennant",
-        "CatCafe_Square_Bunting_Flag13_Pennant",
-        "CatCafe_Square_Bunting_Flag14_Pennant",
-        "CatCafe_Square_Bunting_Flag15_Pennant",
-        "CatCafe_Square_Bunting_Flag16_Pennant"
+        "CatCafe_Square_Bunting_Flag12_Pennant"
       ],
-      "triangles": 272,
+      "triangles": 240,
       "budget": 1500,
       "size_studs": {
-        "x": 22.06,
+        "x": 16.81,
         "y": 0.07,
         "z": 2.11
       },
       "size_roblox": [
-        22.06,
+        16.81,
         2.11,
         0.07
       ],
       "bounds_min": [
-        -11.03,
+        -8.41,
         -0.04,
-        7.52
+        7.53
       ],
       "bounds_max": [
-        11.03,
+        8.41,
         0.04,
         9.64
       ],
@@ -280073,196 +280069,180 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Square_Bunting_Flag01_Pennant": [
-          9.7,
+          7.07,
           0.0,
-          9.35
+          9.29
         ],
         "CatCafe_Square_Bunting_Flag02_Pennant": [
-          8.41,
+          5.79,
           0.0,
-          9.16
+          9.05
         ],
         "CatCafe_Square_Bunting_Flag03_Pennant": [
-          7.11,
+          4.5,
           0.0,
-          8.99
+          8.86
         ],
         "CatCafe_Square_Bunting_Flag04_Pennant": [
-          5.82,
+          3.22,
           0.0,
-          8.85
+          8.72
         ],
         "CatCafe_Square_Bunting_Flag05_Pennant": [
-          4.53,
+          1.93,
           0.0,
-          8.74
+          8.63
         ],
         "CatCafe_Square_Bunting_Flag06_Pennant": [
-          3.23,
+          0.64,
           0.0,
-          8.66
+          8.58
         ],
         "CatCafe_Square_Bunting_Flag07_Pennant": [
-          1.94,
+          -0.64,
           0.0,
-          8.6
+          8.58
         ],
         "CatCafe_Square_Bunting_Flag08_Pennant": [
-          0.65,
+          -1.93,
           0.0,
-          8.57
+          8.63
         ],
         "CatCafe_Square_Bunting_Flag09_Pennant": [
-          -0.65,
+          -3.22,
           0.0,
-          8.57
+          8.72
         ],
         "CatCafe_Square_Bunting_Flag10_Pennant": [
-          -1.94,
+          -4.5,
           0.0,
-          8.6
+          8.86
         ],
         "CatCafe_Square_Bunting_Flag11_Pennant": [
-          -3.23,
+          -5.79,
           0.0,
-          8.66
+          9.05
         ],
         "CatCafe_Square_Bunting_Flag12_Pennant": [
-          -4.53,
+          -7.07,
           0.0,
-          8.74
-        ],
-        "CatCafe_Square_Bunting_Flag13_Pennant": [
-          -5.82,
-          0.0,
-          8.85
-        ],
-        "CatCafe_Square_Bunting_Flag14_Pennant": [
-          -7.11,
-          0.0,
-          8.99
-        ],
-        "CatCafe_Square_Bunting_Flag15_Pennant": [
-          -8.41,
-          0.0,
-          9.16
-        ],
-        "CatCafe_Square_Bunting_Flag16_Pennant": [
-          -9.7,
-          0.0,
-          9.35
+          9.29
         ]
       },
       "part_pivots_roblox": {
         "CatCafe_Square_Bunting_Flag01_Pennant": [
-          -9.7,
-          9.35,
+          -7.07,
+          9.29,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag02_Pennant": [
-          -8.41,
-          9.16,
+          -5.79,
+          9.05,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag03_Pennant": [
-          -7.11,
-          8.99,
+          -4.5,
+          8.86,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag04_Pennant": [
-          -5.82,
-          8.85,
+          -3.22,
+          8.72,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag05_Pennant": [
-          -4.53,
-          8.74,
+          -1.93,
+          8.63,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag06_Pennant": [
-          -3.23,
-          8.66,
+          -0.64,
+          8.58,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag07_Pennant": [
-          -1.94,
-          8.6,
+          0.64,
+          8.58,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag08_Pennant": [
-          -0.65,
-          8.57,
+          1.93,
+          8.63,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag09_Pennant": [
-          0.65,
-          8.57,
+          3.22,
+          8.72,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag10_Pennant": [
-          1.94,
-          8.6,
+          4.5,
+          8.86,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag11_Pennant": [
-          3.23,
-          8.66,
+          5.79,
+          9.05,
           0.0
         ],
         "CatCafe_Square_Bunting_Flag12_Pennant": [
-          4.53,
-          8.74,
-          0.0
-        ],
-        "CatCafe_Square_Bunting_Flag13_Pennant": [
-          5.82,
-          8.85,
-          0.0
-        ],
-        "CatCafe_Square_Bunting_Flag14_Pennant": [
-          7.11,
-          8.99,
-          0.0
-        ],
-        "CatCafe_Square_Bunting_Flag15_Pennant": [
-          8.41,
-          9.16,
-          0.0
-        ],
-        "CatCafe_Square_Bunting_Flag16_Pennant": [
-          9.7,
-          9.35,
+          7.07,
+          9.29,
           0.0
         ]
       },
       "placements_roblox": [
         [
-          -35.75,
+          -33.125,
           0.1,
-          -43.0,
+          -54.0,
           0
         ],
         [
-          -35.75,
+          -50.375,
           0.1,
-          43.0,
+          -54.0,
           0
         ],
         [
-          35.75,
+          -33.125,
           0.1,
-          -43.0,
+          54.0,
           0
         ],
         [
-          35.75,
+          -50.375,
           0.1,
-          43.0,
+          54.0,
+          0
+        ],
+        [
+          33.125,
+          0.1,
+          -54.0,
+          0
+        ],
+        [
+          50.375,
+          0.1,
+          -54.0,
+          0
+        ],
+        [
+          33.125,
+          0.1,
+          54.0,
+          0
+        ],
+        [
+          50.375,
+          0.1,
+          54.0,
           0
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Bunting.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 36,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Bunting.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Bunting.glb"
@@ -280274,12 +280254,12 @@
           "pivot"
         ],
         "checks": {
-          "budget": "272/1500 tris",
+          "budget": "240/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "152 faces on swatch centers",
+          "uv": "132 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=7.52 (want 0)",
+          "pivot": "floor at z=7.53 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
       },
@@ -280455,13 +280435,13 @@
       },
       "placements_roblox": [
         [
-          -47.0,
+          -59.0,
           0.1,
           0,
           90
         ],
         [
-          47.0,
+          59.0,
           0.1,
           0,
           90
@@ -280509,27 +280489,31 @@
         "CatCafe_Square_BuntingSide_Flag09_Pennant",
         "CatCafe_Square_BuntingSide_Flag10_Pennant",
         "CatCafe_Square_BuntingSide_Flag11_Pennant",
-        "CatCafe_Square_BuntingSide_Flag12_Pennant"
+        "CatCafe_Square_BuntingSide_Flag12_Pennant",
+        "CatCafe_Square_BuntingSide_Flag13_Pennant",
+        "CatCafe_Square_BuntingSide_Flag14_Pennant",
+        "CatCafe_Square_BuntingSide_Flag15_Pennant",
+        "CatCafe_Square_BuntingSide_Flag16_Pennant"
       ],
-      "triangles": 240,
+      "triangles": 272,
       "budget": 1200,
       "size_studs": {
-        "x": 16.81,
+        "x": 22.31,
         "y": 0.07,
         "z": 2.11
       },
       "size_roblox": [
-        16.81,
+        22.31,
         2.11,
         0.07
       ],
       "bounds_min": [
-        -8.41,
+        -11.16,
         -0.04,
-        7.53
+        7.52
       ],
       "bounds_max": [
-        8.41,
+        11.16,
         0.04,
         9.64
       ],
@@ -280537,180 +280521,220 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Square_BuntingSide_Flag01_Pennant": [
-          7.07,
+          9.82,
           0.0,
-          9.29
+          9.35
         ],
         "CatCafe_Square_BuntingSide_Flag02_Pennant": [
-          5.79,
+          8.52,
           0.0,
-          9.05
+          9.16
         ],
         "CatCafe_Square_BuntingSide_Flag03_Pennant": [
-          4.5,
+          7.2,
           0.0,
-          8.86
+          8.99
         ],
         "CatCafe_Square_BuntingSide_Flag04_Pennant": [
-          3.22,
+          5.89,
           0.0,
-          8.72
+          8.85
         ],
         "CatCafe_Square_BuntingSide_Flag05_Pennant": [
-          1.93,
+          4.59,
           0.0,
-          8.63
+          8.74
         ],
         "CatCafe_Square_BuntingSide_Flag06_Pennant": [
-          0.64,
+          3.28,
           0.0,
-          8.58
+          8.66
         ],
         "CatCafe_Square_BuntingSide_Flag07_Pennant": [
-          -0.64,
+          1.97,
           0.0,
-          8.58
+          8.6
         ],
         "CatCafe_Square_BuntingSide_Flag08_Pennant": [
-          -1.93,
+          0.65,
           0.0,
-          8.63
+          8.57
         ],
         "CatCafe_Square_BuntingSide_Flag09_Pennant": [
-          -3.22,
+          -0.65,
           0.0,
-          8.72
+          8.57
         ],
         "CatCafe_Square_BuntingSide_Flag10_Pennant": [
-          -4.5,
+          -1.97,
           0.0,
-          8.86
+          8.6
         ],
         "CatCafe_Square_BuntingSide_Flag11_Pennant": [
-          -5.79,
+          -3.28,
           0.0,
-          9.05
+          8.66
         ],
         "CatCafe_Square_BuntingSide_Flag12_Pennant": [
-          -7.07,
+          -4.59,
           0.0,
-          9.29
+          8.74
+        ],
+        "CatCafe_Square_BuntingSide_Flag13_Pennant": [
+          -5.89,
+          0.0,
+          8.85
+        ],
+        "CatCafe_Square_BuntingSide_Flag14_Pennant": [
+          -7.2,
+          0.0,
+          8.99
+        ],
+        "CatCafe_Square_BuntingSide_Flag15_Pennant": [
+          -8.52,
+          0.0,
+          9.16
+        ],
+        "CatCafe_Square_BuntingSide_Flag16_Pennant": [
+          -9.82,
+          0.0,
+          9.35
         ]
       },
       "part_pivots_roblox": {
         "CatCafe_Square_BuntingSide_Flag01_Pennant": [
-          -7.07,
-          9.29,
+          -9.82,
+          9.35,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag02_Pennant": [
-          -5.79,
-          9.05,
+          -8.52,
+          9.16,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag03_Pennant": [
-          -4.5,
-          8.86,
+          -7.2,
+          8.99,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag04_Pennant": [
-          -3.22,
-          8.72,
+          -5.89,
+          8.85,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag05_Pennant": [
-          -1.93,
-          8.63,
+          -4.59,
+          8.74,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag06_Pennant": [
-          -0.64,
-          8.58,
+          -3.28,
+          8.66,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag07_Pennant": [
-          0.64,
-          8.58,
+          -1.97,
+          8.6,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag08_Pennant": [
-          1.93,
-          8.63,
+          -0.65,
+          8.57,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag09_Pennant": [
-          3.22,
-          8.72,
+          0.65,
+          8.57,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag10_Pennant": [
-          4.5,
-          8.86,
+          1.97,
+          8.6,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag11_Pennant": [
-          5.79,
-          9.05,
+          3.28,
+          8.66,
           0.0
         ],
         "CatCafe_Square_BuntingSide_Flag12_Pennant": [
-          7.07,
-          9.29,
+          4.59,
+          8.74,
+          0.0
+        ],
+        "CatCafe_Square_BuntingSide_Flag13_Pennant": [
+          5.89,
+          8.85,
+          0.0
+        ],
+        "CatCafe_Square_BuntingSide_Flag14_Pennant": [
+          7.2,
+          8.99,
+          0.0
+        ],
+        "CatCafe_Square_BuntingSide_Flag15_Pennant": [
+          8.52,
+          9.16,
+          0.0
+        ],
+        "CatCafe_Square_BuntingSide_Flag16_Pennant": [
+          9.82,
+          9.35,
           0.0
         ]
       },
       "placements_roblox": [
         [
-          -47.0,
+          -59.0,
           0.1,
-          -17.125,
+          -19.875,
           90
         ],
         [
-          -47.0,
+          -59.0,
           0.1,
-          -34.375,
+          -42.625,
           90
         ],
         [
-          -47.0,
+          -59.0,
           0.1,
-          17.125,
+          19.875,
           90
         ],
         [
-          -47.0,
+          -59.0,
           0.1,
-          34.375,
+          42.625,
           90
         ],
         [
-          47.0,
+          59.0,
           0.1,
-          -17.125,
+          -19.875,
           90
         ],
         [
-          47.0,
+          59.0,
           0.1,
-          -34.375,
+          -42.625,
           90
         ],
         [
-          47.0,
+          59.0,
           0.1,
-          17.125,
+          19.875,
           90
         ],
         [
-          47.0,
+          59.0,
           0.1,
-          34.375,
+          42.625,
           90
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_BuntingSide.model.json",
-      "rbx_parts": 36,
+      "rbx_parts": 44,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_BuntingSide.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_BuntingSide.glb"
@@ -280722,12 +280746,12 @@
           "pivot"
         ],
         "checks": {
-          "budget": "240/1200 tris",
+          "budget": "272/1200 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "132 faces on swatch centers",
+          "uv": "152 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=7.53 (want 0)",
+          "pivot": "floor at z=7.52 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
       }
@@ -280743,50 +280767,50 @@
       "triangles": 912,
       "budget": 4000,
       "size_studs": {
-        "x": 22.0,
-        "y": 12.0,
+        "x": 26.0,
+        "y": 7.0,
         "z": 9.1
       },
       "size_roblox": [
-        22.0,
+        26.0,
         9.1,
-        12.0
+        7.0
       ],
       "bounds_min": [
-        -11.0,
-        -6.0,
+        -13.0,
+        -3.5,
         0.0
       ],
       "bounds_max": [
-        11.0,
-        6.0,
+        13.0,
+        3.5,
         9.1
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "placements_roblox": [
         [
-          -58.5,
+          -64.0,
           0.1,
-          -19.5,
+          -21.5,
           -90
         ],
         [
-          -58.5,
+          -64.0,
           0.1,
-          19.5,
+          21.5,
           -90
         ],
         [
-          58.5,
+          64.0,
           0.1,
-          -19.5,
+          -21.5,
           90
         ],
         [
-          58.5,
+          64.0,
           0.1,
-          19.5,
+          21.5,
           90
         ]
       ],
@@ -280823,35 +280847,35 @@
       "budget": 3000,
       "size_studs": {
         "x": 18.0,
-        "y": 12.0,
+        "y": 7.0,
         "z": 2.86
       },
       "size_roblox": [
         18.0,
         2.86,
-        12.0
+        7.0
       ],
       "bounds_min": [
         -9.0,
-        -6.0,
+        -3.5,
         0.0
       ],
       "bounds_max": [
         9.0,
-        6.0,
+        3.5,
         2.86
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "placements_roblox": [
         [
-          -58.5,
+          -64.0,
           0.1,
           0,
           -90
         ],
         [
-          58.5,
+          64.0,
           0.1,
           0,
           90
@@ -280888,58 +280912,58 @@
         "CatCafe_Square_GardenEnd",
         "CatCafe_Square_GardenEnd_Flowers"
       ],
-      "triangles": 528,
+      "triangles": 780,
       "budget": 3000,
       "size_studs": {
-        "x": 12.0,
-        "y": 12.0,
+        "x": 19.0,
+        "y": 7.0,
         "z": 9.1
       },
       "size_roblox": [
-        12.0,
+        19.0,
         9.1,
-        12.0
+        7.0
       ],
       "bounds_min": [
-        -6.0,
-        -6.0,
+        -9.5,
+        -3.5,
         0.0
       ],
       "bounds_max": [
-        6.0,
-        6.0,
+        9.5,
+        3.5,
         9.1
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "placements_roblox": [
         [
-          -58.5,
+          -64.0,
           0.1,
-          -36.5,
+          -44.0,
           -90
         ],
         [
-          -58.5,
+          -64.0,
           0.1,
-          36.5,
+          44.0,
           -90
         ],
         [
-          58.5,
+          64.0,
           0.1,
-          -36.5,
+          -44.0,
           90
         ],
         [
-          58.5,
+          64.0,
           0.1,
-          36.5,
+          44.0,
           90
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_GardenEnd.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 53,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_GardenEnd.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_GardenEnd.glb"
@@ -280949,10 +280973,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "528/3000 tris",
+          "budget": "780/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "348 faces on swatch centers",
+          "uv": "528 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -298163,22 +298187,22 @@
       "budget": 60000,
       "size_studs": {
         "x": 617.43,
-        "y": 754.57,
+        "y": 776.57,
         "z": 242.51
       },
       "size_roblox": [
         617.43,
         242.51,
-        754.57
+        776.57
       ],
       "bounds_min": [
         -306.7,
-        -378.03,
+        -389.03,
         -178.0
       ],
       "bounds_max": [
         310.73,
-        376.54,
+        387.54,
         64.51
       ],
       "pivot": "base center (floor contact)",
@@ -299534,31 +299558,27 @@
         "CatCafe_Square_RallyBunting_Flag09_Pennant",
         "CatCafe_Square_RallyBunting_Flag10_Pennant",
         "CatCafe_Square_RallyBunting_Flag11_Pennant",
-        "CatCafe_Square_RallyBunting_Flag12_Pennant",
-        "CatCafe_Square_RallyBunting_Flag13_Pennant",
-        "CatCafe_Square_RallyBunting_Flag14_Pennant",
-        "CatCafe_Square_RallyBunting_Flag15_Pennant",
-        "CatCafe_Square_RallyBunting_Flag16_Pennant"
+        "CatCafe_Square_RallyBunting_Flag12_Pennant"
       ],
-      "triangles": 272,
+      "triangles": 240,
       "budget": 1500,
       "size_studs": {
-        "x": 22.06,
+        "x": 16.81,
         "y": 0.07,
         "z": 2.11
       },
       "size_roblox": [
-        22.06,
+        16.81,
         2.11,
         0.07
       ],
       "bounds_min": [
-        -11.03,
+        -8.41,
         -0.04,
-        7.52
+        7.53
       ],
       "bounds_max": [
-        11.03,
+        8.41,
         0.04,
         9.64
       ],
@@ -299566,171 +299586,131 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Square_RallyBunting_Flag01_Pennant": [
-          9.7,
+          7.07,
           0.0,
-          9.35
+          9.29
         ],
         "CatCafe_Square_RallyBunting_Flag02_Pennant": [
-          8.41,
+          5.79,
           0.0,
-          9.16
+          9.05
         ],
         "CatCafe_Square_RallyBunting_Flag03_Pennant": [
-          7.11,
+          4.5,
           0.0,
-          8.99
+          8.86
         ],
         "CatCafe_Square_RallyBunting_Flag04_Pennant": [
-          5.82,
+          3.22,
           0.0,
-          8.85
+          8.72
         ],
         "CatCafe_Square_RallyBunting_Flag05_Pennant": [
-          4.53,
+          1.93,
           0.0,
-          8.74
+          8.63
         ],
         "CatCafe_Square_RallyBunting_Flag06_Pennant": [
-          3.23,
+          0.64,
           0.0,
-          8.66
+          8.58
         ],
         "CatCafe_Square_RallyBunting_Flag07_Pennant": [
-          1.94,
+          -0.64,
           0.0,
-          8.6
+          8.58
         ],
         "CatCafe_Square_RallyBunting_Flag08_Pennant": [
-          0.65,
+          -1.93,
           0.0,
-          8.57
+          8.63
         ],
         "CatCafe_Square_RallyBunting_Flag09_Pennant": [
-          -0.65,
+          -3.22,
           0.0,
-          8.57
+          8.72
         ],
         "CatCafe_Square_RallyBunting_Flag10_Pennant": [
-          -1.94,
+          -4.5,
           0.0,
-          8.6
+          8.86
         ],
         "CatCafe_Square_RallyBunting_Flag11_Pennant": [
-          -3.23,
+          -5.79,
           0.0,
-          8.66
+          9.05
         ],
         "CatCafe_Square_RallyBunting_Flag12_Pennant": [
-          -4.53,
+          -7.07,
           0.0,
-          8.74
-        ],
-        "CatCafe_Square_RallyBunting_Flag13_Pennant": [
-          -5.82,
-          0.0,
-          8.85
-        ],
-        "CatCafe_Square_RallyBunting_Flag14_Pennant": [
-          -7.11,
-          0.0,
-          8.99
-        ],
-        "CatCafe_Square_RallyBunting_Flag15_Pennant": [
-          -8.41,
-          0.0,
-          9.16
-        ],
-        "CatCafe_Square_RallyBunting_Flag16_Pennant": [
-          -9.7,
-          0.0,
-          9.35
+          9.29
         ]
       },
       "part_pivots_roblox": {
         "CatCafe_Square_RallyBunting_Flag01_Pennant": [
-          -9.7,
-          9.35,
+          -7.07,
+          9.29,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag02_Pennant": [
-          -8.41,
-          9.16,
+          -5.79,
+          9.05,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag03_Pennant": [
-          -7.11,
-          8.99,
+          -4.5,
+          8.86,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag04_Pennant": [
-          -5.82,
-          8.85,
+          -3.22,
+          8.72,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag05_Pennant": [
-          -4.53,
-          8.74,
+          -1.93,
+          8.63,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag06_Pennant": [
-          -3.23,
-          8.66,
+          -0.64,
+          8.58,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag07_Pennant": [
-          -1.94,
-          8.6,
+          0.64,
+          8.58,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag08_Pennant": [
-          -0.65,
-          8.57,
+          1.93,
+          8.63,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag09_Pennant": [
-          0.65,
-          8.57,
+          3.22,
+          8.72,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag10_Pennant": [
-          1.94,
-          8.6,
+          4.5,
+          8.86,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag11_Pennant": [
-          3.23,
-          8.66,
+          5.79,
+          9.05,
           0.0
         ],
         "CatCafe_Square_RallyBunting_Flag12_Pennant": [
-          4.53,
-          8.74,
-          0.0
-        ],
-        "CatCafe_Square_RallyBunting_Flag13_Pennant": [
-          5.82,
-          8.85,
-          0.0
-        ],
-        "CatCafe_Square_RallyBunting_Flag14_Pennant": [
-          7.11,
-          8.99,
-          0.0
-        ],
-        "CatCafe_Square_RallyBunting_Flag15_Pennant": [
-          8.41,
-          9.16,
-          0.0
-        ],
-        "CatCafe_Square_RallyBunting_Flag16_Pennant": [
-          9.7,
-          9.35,
+          7.07,
+          9.29,
           0.0
         ]
       },
       "placements_roblox": [],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_RallyBunting.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 36,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_RallyBunting.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_RallyBunting.glb"
@@ -299742,12 +299722,12 @@
           "pivot"
         ],
         "checks": {
-          "budget": "272/1500 tris",
+          "budget": "240/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "152 faces on swatch centers",
+          "uv": "132 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=7.52 (want 0)",
+          "pivot": "floor at z=7.53 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
       },
@@ -299964,27 +299944,31 @@
         "CatCafe_Square_RallyBuntingSide_Flag09_Pennant",
         "CatCafe_Square_RallyBuntingSide_Flag10_Pennant",
         "CatCafe_Square_RallyBuntingSide_Flag11_Pennant",
-        "CatCafe_Square_RallyBuntingSide_Flag12_Pennant"
+        "CatCafe_Square_RallyBuntingSide_Flag12_Pennant",
+        "CatCafe_Square_RallyBuntingSide_Flag13_Pennant",
+        "CatCafe_Square_RallyBuntingSide_Flag14_Pennant",
+        "CatCafe_Square_RallyBuntingSide_Flag15_Pennant",
+        "CatCafe_Square_RallyBuntingSide_Flag16_Pennant"
       ],
-      "triangles": 240,
+      "triangles": 272,
       "budget": 1200,
       "size_studs": {
-        "x": 16.81,
+        "x": 22.31,
         "y": 0.07,
         "z": 2.11
       },
       "size_roblox": [
-        16.81,
+        22.31,
         2.11,
         0.07
       ],
       "bounds_min": [
-        -8.41,
+        -11.16,
         -0.04,
-        7.53
+        7.52
       ],
       "bounds_max": [
-        8.41,
+        11.16,
         0.04,
         9.64
       ],
@@ -299992,131 +299976,171 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Square_RallyBuntingSide_Flag01_Pennant": [
-          7.07,
+          9.82,
           0.0,
-          9.29
+          9.35
         ],
         "CatCafe_Square_RallyBuntingSide_Flag02_Pennant": [
-          5.79,
+          8.52,
           0.0,
-          9.05
+          9.16
         ],
         "CatCafe_Square_RallyBuntingSide_Flag03_Pennant": [
-          4.5,
+          7.2,
           0.0,
-          8.86
+          8.99
         ],
         "CatCafe_Square_RallyBuntingSide_Flag04_Pennant": [
-          3.22,
+          5.89,
           0.0,
-          8.72
+          8.85
         ],
         "CatCafe_Square_RallyBuntingSide_Flag05_Pennant": [
-          1.93,
+          4.59,
           0.0,
-          8.63
+          8.74
         ],
         "CatCafe_Square_RallyBuntingSide_Flag06_Pennant": [
-          0.64,
+          3.28,
           0.0,
-          8.58
+          8.66
         ],
         "CatCafe_Square_RallyBuntingSide_Flag07_Pennant": [
-          -0.64,
+          1.97,
           0.0,
-          8.58
+          8.6
         ],
         "CatCafe_Square_RallyBuntingSide_Flag08_Pennant": [
-          -1.93,
+          0.65,
           0.0,
-          8.63
+          8.57
         ],
         "CatCafe_Square_RallyBuntingSide_Flag09_Pennant": [
-          -3.22,
+          -0.65,
           0.0,
-          8.72
+          8.57
         ],
         "CatCafe_Square_RallyBuntingSide_Flag10_Pennant": [
-          -4.5,
+          -1.97,
           0.0,
-          8.86
+          8.6
         ],
         "CatCafe_Square_RallyBuntingSide_Flag11_Pennant": [
-          -5.79,
+          -3.28,
           0.0,
-          9.05
+          8.66
         ],
         "CatCafe_Square_RallyBuntingSide_Flag12_Pennant": [
-          -7.07,
+          -4.59,
           0.0,
-          9.29
+          8.74
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag13_Pennant": [
+          -5.89,
+          0.0,
+          8.85
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag14_Pennant": [
+          -7.2,
+          0.0,
+          8.99
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag15_Pennant": [
+          -8.52,
+          0.0,
+          9.16
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag16_Pennant": [
+          -9.82,
+          0.0,
+          9.35
         ]
       },
       "part_pivots_roblox": {
         "CatCafe_Square_RallyBuntingSide_Flag01_Pennant": [
-          -7.07,
-          9.29,
+          -9.82,
+          9.35,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag02_Pennant": [
-          -5.79,
-          9.05,
+          -8.52,
+          9.16,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag03_Pennant": [
-          -4.5,
-          8.86,
+          -7.2,
+          8.99,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag04_Pennant": [
-          -3.22,
-          8.72,
+          -5.89,
+          8.85,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag05_Pennant": [
-          -1.93,
-          8.63,
+          -4.59,
+          8.74,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag06_Pennant": [
-          -0.64,
-          8.58,
+          -3.28,
+          8.66,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag07_Pennant": [
-          0.64,
-          8.58,
+          -1.97,
+          8.6,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag08_Pennant": [
-          1.93,
-          8.63,
+          -0.65,
+          8.57,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag09_Pennant": [
-          3.22,
-          8.72,
+          0.65,
+          8.57,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag10_Pennant": [
-          4.5,
-          8.86,
+          1.97,
+          8.6,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag11_Pennant": [
-          5.79,
-          9.05,
+          3.28,
+          8.66,
           0.0
         ],
         "CatCafe_Square_RallyBuntingSide_Flag12_Pennant": [
-          7.07,
-          9.29,
+          4.59,
+          8.74,
+          0.0
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag13_Pennant": [
+          5.89,
+          8.85,
+          0.0
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag14_Pennant": [
+          7.2,
+          8.99,
+          0.0
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag15_Pennant": [
+          8.52,
+          9.16,
+          0.0
+        ],
+        "CatCafe_Square_RallyBuntingSide_Flag16_Pennant": [
+          9.82,
+          9.35,
           0.0
         ]
       },
       "placements_roblox": [],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_RallyBuntingSide.model.json",
-      "rbx_parts": 36,
+      "rbx_parts": 44,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_RallyBuntingSide.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_RallyBuntingSide.glb"
@@ -300128,12 +300152,12 @@
           "pivot"
         ],
         "checks": {
-          "budget": "240/1200 tris",
+          "budget": "272/1200 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "132 faces on swatch centers",
+          "uv": "152 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=7.53 (want 0)",
+          "pivot": "floor at z=7.52 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
       }

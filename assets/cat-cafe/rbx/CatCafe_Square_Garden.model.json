@@ -12,9 +12,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.25,
-       0.0
+       -8.0,
+       6.3,
+       1.0
       ],
       "orientation": [
        [
@@ -36,9 +36,9 @@
      }
     },
     "Size": [
-     21.0,
-     0.5,
-     11.0
+     4.8,
+     4.8,
+     4.8
     ],
     "Color": [
      0.3725,
@@ -52,12 +52,13 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
+    "Shape": "Ball",
     "PivotOffset": {
      "CFrame": {
       "position": [
-       0.0,
-       -0.25,
-       0.0
+       8.0,
+       -6.3,
+       -1.0
       ],
       "orientation": [
        [
@@ -92,7 +93,7 @@
       "position": [
        0.0,
        0.325,
-       -5.75
+       -3.25
       ],
       "orientation": [
        [
@@ -114,7 +115,7 @@
      }
     },
     "Size": [
-     22.0,
+     26.0,
      0.65,
      0.5
     ],
@@ -141,7 +142,7 @@
       "position": [
        0.0,
        0.325,
-       5.75
+       3.25
       ],
       "orientation": [
        [
@@ -163,7 +164,7 @@
      }
     },
     "Size": [
-     22.0,
+     26.0,
      0.65,
      0.5
     ],
@@ -188,7 +189,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.75,
+       -12.75,
        0.325,
        0.0
       ],
@@ -214,7 +215,7 @@
     "Size": [
      0.5,
      0.65,
-     11.0
+     6.0
     ],
     "Color": [
      0.6118,
@@ -237,7 +238,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.75,
+       12.75,
        0.325,
        0.0
       ],
@@ -263,12 +264,61 @@
     "Size": [
      0.5,
      0.65,
-     11.0
+     6.0
     ],
     "Color": [
      0.6118,
      0.3725,
      0.3098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Garden",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.25,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     25.0,
+     0.5,
+     6.0
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -288,7 +338,7 @@
       "position": [
        0.0,
        1.3,
-       4.6
+       2.1
       ],
       "orientation": [
        [
@@ -310,7 +360,7 @@
      }
     },
     "Size": [
-     21.0,
+     25.0,
      1.6,
      1.8
     ],
@@ -335,9 +385,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.4,
+       -10.4,
        2.1,
-       4.6
+       2.1
       ],
       "orientation": [
        [
@@ -398,9 +448,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.2,
+       -5.2,
        2.1,
-       4.6
+       2.1
       ],
       "orientation": [
        [
@@ -463,7 +513,7 @@
       "position": [
        0.0,
        2.1,
-       4.6
+       2.1
       ],
       "orientation": [
        [
@@ -524,9 +574,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       4.2,
+       5.2,
        2.1,
-       4.6
+       2.1
       ],
       "orientation": [
        [
@@ -587,9 +637,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.4,
+       10.4,
        2.1,
-       4.6
+       2.1
       ],
       "orientation": [
        [
@@ -650,7 +700,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.5,
+       -8.0,
        1.3,
        1.0
       ],
@@ -700,7 +750,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.5,
+       -8.0,
        3.9,
        1.0
       ],
@@ -751,56 +801,6 @@
      "CFrame": {
       "position": [
        -6.5,
-       6.3,
-       1.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     4.8,
-     4.8,
-     4.8
-    ],
-    "Color": [
-     0.3725,
-     0.7216,
-     0.3529
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Ball"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Garden",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.0,
        5.4,
        0.6
       ],
@@ -850,7 +850,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.9,
+       -9.4,
        5.6,
        1.5
       ],
@@ -913,7 +913,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.3,
+       -7.8,
        7.8,
        1.3
       ],
@@ -963,7 +963,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.5,
+       8.0,
        1.3,
        1.0
       ],
@@ -1013,7 +1013,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.5,
+       8.0,
        3.9,
        1.0
       ],
@@ -1063,7 +1063,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.5,
+       8.0,
        6.3,
        1.0
       ],
@@ -1113,7 +1113,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.0,
+       9.5,
        5.4,
        0.6
       ],
@@ -1163,7 +1163,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.1,
+       6.6,
        5.6,
        1.5
       ],
@@ -1226,7 +1226,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.7,
+       8.2,
        7.8,
        1.3
       ],
@@ -1278,7 +1278,7 @@
       "position": [
        0.0,
        1.55,
-       0.2
+       -0.3
       ],
       "orientation": [
        [
@@ -1341,7 +1341,7 @@
       "position": [
        0.0,
        3.2,
-       -0.15
+       -0.65
       ],
       "orientation": [
        [
@@ -1391,7 +1391,7 @@
       "position": [
        -0.48,
        3.95,
-       -0.15
+       -0.65
       ],
       "orientation": [
        [
@@ -1440,7 +1440,7 @@
       "position": [
        0.48,
        3.95,
-       -0.15
+       -0.65
       ],
       "orientation": [
        [
@@ -1489,7 +1489,7 @@
       "position": [
        1.15,
        0.95,
-       0.9
+       0.4
       ],
       "orientation": [
        [
@@ -1550,9 +1550,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.0,
+       -3.4,
        0.95,
-       2.1
+       0.2
       ],
       "orientation": [
        [
@@ -1600,9 +1600,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.0,
+       3.4,
        0.95,
-       2.1
+       0.2
       ],
       "orientation": [
        [
@@ -1656,9 +1656,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.25,
+         -11.25,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -1699,9 +1699,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         9.25,
+         11.25,
          -0.68,
-         4.6
+         2.1
         ],
         "orientation": [
          [
@@ -1734,9 +1734,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.6998,
+         -11.6998,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -1783,9 +1783,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.4168,
+         -11.4168,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -1832,9 +1832,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.0329,
+         -11.0329,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -1881,9 +1881,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.5643,
+         -7.9929,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -1930,9 +1930,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.0141,
+         -8.4427,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -1979,9 +1979,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.7311,
+         -8.1597,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -2028,9 +2028,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.3472,
+         -7.7758,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -2077,9 +2077,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -3.8786,
+         -4.7357,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -2126,9 +2126,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -4.3284,
+         -5.1855,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -2175,9 +2175,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -4.0454,
+         -4.9025,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -2224,9 +2224,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -3.6615,
+         -4.5186,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -2273,9 +2273,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.1929,
+         -1.4786,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -2322,9 +2322,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.6427,
+         -1.9284,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -2371,9 +2371,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.3597,
+         -1.6454,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -2420,9 +2420,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.9758,
+         -1.2615,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -2469,9 +2469,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.4929,
+         1.7786,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -2518,9 +2518,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.043,
+         1.3287,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -2567,9 +2567,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.326,
+         1.6117,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -2616,9 +2616,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.7099,
+         1.9956,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -2665,9 +2665,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         4.1786,
+         5.0357,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -2714,9 +2714,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         3.7287,
+         4.5859,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -2763,9 +2763,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         4.0117,
+         4.8689,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -2812,9 +2812,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         4.3956,
+         5.2528,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -2861,9 +2861,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.8643,
+         8.2929,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -2910,9 +2910,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.4145,
+         7.843,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -2959,9 +2959,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.6975,
+         8.126,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -3008,9 +3008,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.0814,
+         8.5099,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [
@@ -3057,9 +3057,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.55,
+         11.55,
          0.68,
-         -4.6
+         -2.1
         ],
         "orientation": [
          [
@@ -3106,9 +3106,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.1002,
+         11.1002,
          0.668,
-         -4.4322
+         -1.9322
         ],
         "orientation": [
          [
@@ -3155,9 +3155,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.3832,
+         11.3832,
          0.656,
-         -4.8236
+         -2.3236
         ],
         "orientation": [
          [
@@ -3204,9 +3204,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.7671,
+         11.7671,
          0.644,
-         -4.4699
+         -1.9699
         ],
         "orientation": [
          [

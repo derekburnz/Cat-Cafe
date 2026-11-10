@@ -1198,7 +1198,7 @@ return function()
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -74 }, { 41, -74 }, { -41, 74 }, { 41, 74 } } -- #2707: 62 before the roomier square
+			local want = { { -41, -85 }, { 41, -85 }, { -41, 85 }, { 41, 85 } } -- #3001: 74 before the 120 x 110 square
 			for n = 1, 4 do
 				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
@@ -1368,6 +1368,48 @@ return function()
 				local wheel = Layout.spinWheel
 				local gap = math.sqrt((cx - wheel.x) ^ 2 + (cz - wheel.z) ^ 2)
 				expect(gap > Config.SpinStationRange + Config.CodesCircleRadius).to.equal(true)
+			end
+		)
+
+		it("is 120 by 110, a quarter more each way than #2707's square (#3001)", function()
+			expect(W.TownSquareHalfWidth).to.equal(60)
+			expect(W.TownSquareHalfDepth).to.equal(55)
+			expect(square.floor.x2 - square.floor.x1).to.equal(120)
+			expect(square.floor.z2 - square.floor.z1).to.equal(110)
+			-- the width grows inside the town edge: the gardens keep a strip either side
+			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
+			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
+			expect(W.StreetNorthZ).to.equal(163)
+			expect(W.StreetSouthZ).to.equal(-163)
+			expect(W.TownGroundDepth).to.equal(378)
+		end)
+
+		it(
+			"stands the Codes Cat back from the middle, between the Mystery Market and the Bellhop Cat (#3000)",
+			function()
+				local codes, cart, stand = Layout.codesCat, Layout.mysteryCart, Layout.bellhopStand
+				-- back: at least 8 studs farther from the cannon than #2707's (-29, -16)
+				local out = math.sqrt(codes.x ^ 2 + codes.z ^ 2)
+				expect(out >= math.sqrt(29 ^ 2 + 16 ^ 2) + 8).to.equal(true)
+				-- between: south of the Bellhop stand, north of the Mystery Market, on their side of the square
+				expect(codes.z < stand.z and codes.z > cart.z).to.equal(true)
+				expect(codes.x < -W.TownSquareLaneHalfWidth).to.equal(true)
+				expect(inside(codes.x, codes.z, square.floor, 4.5)).to.equal(true)
+				-- its circle (6 studs in front) keeps off the Mystery Market's ring: the box closes a stud past
+				-- the circle, and the ring is WalkUp.FRONT_RADIUS (4) round a point 7.5 in front of the cart
+				local yaw = math.rad(codes.rotY or 0)
+				local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+				local cartYaw = math.rad(cart.rotY or 0)
+				local rx, rz = cart.x - 7.5 * math.sin(cartYaw), cart.z - 7.5 * math.cos(cartYaw)
+				local gap = math.sqrt((cx - rx) ^ 2 + (cz - rz) ^ 2)
+				expect(gap >= Config.CodesCircleRadius + 1 + 4 + 2).to.equal(true)
+				-- and off both carts' bodies and the lane
+				for _, lane in lanes do
+					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
+				end
+				expect(
+					math.sqrt((cx - cart.x) ^ 2 + (cz - cart.z) ^ 2) > Config.CodesCircleRadius + 6
+				).to.equal(true)
 			end
 		)
 
@@ -2315,7 +2357,7 @@ return function()
 				end
 				-- #2707: the north and south sides keep the long Bunting; the east and west sides take two BuntingSide
 				-- each between three lamps
-				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(4)
+				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(8) -- #3001: two a quarter on the longer sides
 				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(8)
 				expect(#piecesOf("CatCafe_Square_BuntingShort")).to.equal(2)
 			end
@@ -2340,7 +2382,8 @@ return function()
 					expect(math.sqrt(dx * dx + dz * dz) >= 6).to.equal(true)
 				end
 			end
-			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(16) -- #2707: a halfway lamp on each east and west side
+			-- #2707: a halfway lamp on each east and west side; #3001: one on each north and south half too
+			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(20)
 		end)
 
 		it("puts the gardens in the garden strips, clear of the path to the side arches", function()

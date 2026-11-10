@@ -48,9 +48,9 @@ YARD = 10.0                                  # Config.World.YardDepth: the yard 
 # The town grows round the cafes (Config.World): the cafe rows end at the town's back edge, x TownEdgeX (street 16,
 # sidewalk 2, front garden 5, front wall, the floor, back wall, yard), and two cafes a side of the square, each with an
 # 8 wide passage before it, end 4 short of the street's ends.
-SQUARE_HALF_D = 44.0                                # Config.World.TownSquareHalfDepth: 32 until #2707 (Derek2 11-09)
+SQUARE_HALF_D = 55.0                                # Config.World.TownSquareHalfDepth: 32 until #2707, 44 until #3001
 TOWN_EDGE_X = 16 + 2 + 5 + 1 + ID + 1 + YARD        # 63 at 28 deep
-STREET_END_Z = SQUARE_HALF_D + 2 * (8 + IW) + 4      # 152 at 44 wide
+STREET_END_Z = SQUARE_HALF_D + 2 * (8 + IW) + 4      # 163 at 44 wide
 H = 12.8                 # wall height to the eave
 HW = HWI + 1             # outer half width (walls x 18..19 at 36 wide)
 PITCH = math.radians(25)

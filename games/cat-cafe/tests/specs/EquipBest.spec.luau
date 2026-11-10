@@ -315,7 +315,8 @@ return function()
 			end
 			expect(working).to.equal(plan.spotsOpen)
 			-- the weaker Common rests, the better one keeps working
-			local weaker = if CatStats.rating(profile.cats.a, 1) < CatStats.rating(profile.cats.b, 1)
+			local weaker = if CatStats.rating(profile.cats.a, 1)
+					< CatStats.rating(profile.cats.b, 1)
 				then profile.cats.a
 				else profile.cats.b
 			expect(weaker.spotId).to.equal(nil)
@@ -349,22 +350,35 @@ return function()
 			return false
 		end
 
-		it("holds a locked working cat, a cat placed by hand within the hold and a cat on offer", function()
-			local profile, weak, mid = cafe()
-			weak.locked = true
-			local resting = addCat(profile, "rest", "tabby", 60, 1, nil)
-			resting.locked = true
-			local held = EquipBest.held(profile, 1000, { mid = 1000 - Config.AutoEquipHoldSeconds + 1 }, none)
-			expect(held.weak).to.equal(true)
-			expect(held.mid).to.equal(true)
-			expect(held.rest).to.equal(nil) -- a locked cat resting may still be put to work
-			expect(held.best).to.equal(nil)
-			local later = EquipBest.held(profile, 1000, { mid = 1000 - Config.AutoEquipHoldSeconds }, function(uid)
-				return uid == "best"
-			end)
-			expect(later.mid).to.equal(nil) -- the hold is over
-			expect(later.best).to.equal(true)
-		end)
+		it(
+			"holds a locked working cat, a cat placed by hand within the hold and a cat on offer",
+			function()
+				local profile, weak, mid = cafe()
+				weak.locked = true
+				local resting = addCat(profile, "rest", "tabby", 60, 1, nil)
+				resting.locked = true
+				local held = EquipBest.held(
+					profile,
+					1000,
+					{ mid = 1000 - Config.AutoEquipHoldSeconds + 1 },
+					none
+				)
+				expect(held.weak).to.equal(true)
+				expect(held.mid).to.equal(true)
+				expect(held.rest).to.equal(nil) -- a locked cat resting may still be put to work
+				expect(held.best).to.equal(nil)
+				local later = EquipBest.held(
+					profile,
+					1000,
+					{ mid = 1000 - Config.AutoEquipHoldSeconds },
+					function(uid)
+						return uid == "best"
+					end
+				)
+				expect(later.mid).to.equal(nil) -- the hold is over
+				expect(later.best).to.equal(true)
+			end
+		)
 
 		it("never moves a held cat and fills the other slots with the best of the rest", function()
 			local profile, weak = cafe()
@@ -378,40 +392,48 @@ return function()
 			expect(plan.catsPlaced).to.equal(2)
 			EquipBest.apply(profile, plan)
 			expect(weak.spotId).to.equal("barista_1")
-			expect(EquipBest.isOptimal(profile, EquipBest.planKeeping(profile, { weak = true }))).to.equal(true)
+			expect(EquipBest.isOptimal(profile, EquipBest.planKeeping(profile, { weak = true }))).to.equal(
+				true
+			)
 		end)
 
-		it("leaves a held resting cat resting, and with nothing held plans as Equip Best does", function()
-			local profile = cafe()
-			local plan = EquipBest.planKeeping(profile, { best = true })
-			expect(plan.placements.best).to.equal(nil)
-			local free = EquipBest.planKeeping(profile, {})
-			local plain = EquipBest.plan(profile)
-			expect(free.baseRate).to.be.near(plain.baseRate, 1e-9)
-			for uid, spotId in plain.placements do
-				expect(free.placements[uid]).to.equal(spotId)
+		it(
+			"leaves a held resting cat resting, and with nothing held plans as Equip Best does",
+			function()
+				local profile = cafe()
+				local plan = EquipBest.planKeeping(profile, { best = true })
+				expect(plan.placements.best).to.equal(nil)
+				local free = EquipBest.planKeeping(profile, {})
+				local plain = EquipBest.plan(profile)
+				expect(free.baseRate).to.be.near(plain.baseRate, 1e-9)
+				for uid, spotId in plain.placements do
+					expect(free.placements[uid]).to.equal(spotId)
+				end
 			end
-		end)
+		)
 
 		-- #2050: a level up that makes a resting cat a hair better must not move cats around (each move rebuilds one)
-		it("keeps a working cat over one only slightly better, and still moves for a real gain", function()
-			local profile = profileAt(1)
-			local working = addCat(profile, "working", "tabby", 50, 5, "barista_1")
-			addCat(profile, "waiter", "tabby", 50, 5, "waiter_1")
-			local rival = addCat(profile, "rival", "tabby", 52, 5, nil) -- a little more charm
-			local exact = EquipBest.planKeeping(profile, {})
-			local sticky = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
-			local ratio = EquipBest.value(rival, Catalog.getSpot("barista_1") :: any, 1)
-				/ EquipBest.value(working, Catalog.getSpot("barista_1") :: any, 1)
-			expect(ratio > 1 and ratio < 1 + EquipBest.AUTO_STAY).to.equal(true)
-			expect(exact.placements.rival).never.to.equal(nil) -- the exact plan swaps
-			expect(sticky.placements.rival).to.equal(nil) -- the sticky one doesn't
-			expect(sticky.placements.working).to.equal("barista_1")
-			expect(EquipBest.isOptimal(profile, sticky)).to.equal(true) -- so Auto Equip does nothing
-			rival.level = 20 -- now far better
-			local later = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
-			expect(later.placements.rival).never.to.equal(nil)
-		end)
+		it(
+			"keeps a working cat over one only slightly better, and still moves for a real gain",
+			function()
+				local profile = profileAt(1)
+				local working = addCat(profile, "working", "tabby", 50, 5, "barista_1")
+				addCat(profile, "waiter", "tabby", 50, 5, "waiter_1")
+				local rival = addCat(profile, "rival", "tabby", 52, 5, nil) -- a little more charm
+				local exact = EquipBest.planKeeping(profile, {})
+				local sticky = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
+				local ratio = EquipBest.value(rival, Catalog.getSpot("barista_1") :: any, 1)
+					/ EquipBest.value(working, Catalog.getSpot("barista_1") :: any, 1)
+				expect(ratio > 1 and ratio < 1 + EquipBest.AUTO_STAY).to.equal(true)
+				expect(exact.placements.rival).never.to.equal(nil) -- the exact plan swaps
+				expect(sticky.placements.rival).to.equal(nil) -- the sticky one doesn't
+				expect(sticky.placements.working).to.equal("barista_1")
+				expect(EquipBest.isOptimal(profile, sticky)).to.equal(true) -- so Auto Equip does nothing
+				rival.level = 20 -- now far better
+				local later = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
+				expect(later.placements.rival).never.to.equal(nil)
+			end
+		)
 
 		it("fills an empty open slot whatever the stay bonus", function()
 			local profile = profileAt(1)

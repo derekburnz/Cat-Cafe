@@ -3120,4 +3120,50 @@ function Logic.lookYaw(dx: number, dz: number, limit: number): number
 	return math.clamp(math.deg(math.atan2(-dx, -dz)), -limit, limit)
 end
 
+-- 0 to 1 eased in and out (smoothstep), `x` clamped to 0..1.
+function Logic.smoothstep01(x: number): number
+	local k = math.clamp(x, 0, 1)
+	return k * k * (3 - 2 * k)
+end
+
+-- #2946's eating, `t` seconds into `seconds` of `bites` head dips: how far down (studs) and how far tipped forward
+-- (degrees), each dip a smooth down and up, 0 outside the eat.
+function Logic.baitEat(
+	t: number,
+	seconds: number,
+	bites: number,
+	dip: number,
+	pitch: number
+): (number, number)
+	if t <= 0 or t >= seconds or bites <= 0 or seconds <= 0 then
+		return 0, 0
+	end
+	local k = math.sin(math.pi * ((t / seconds) * bites % 1))
+	return dip * k, pitch * k
+end
+
+-- #2946: the first bait cat eating at the bowl, `t` seconds in (Cats.luau, while its local FirstBaitEatingLocal is
+-- set): the head dips `bites` times over `eat` seconds (Presets.firstBaitCut), the body sinks a touch with it.
+function Logic.eatPose(o: Offsets, t: number)
+	local c = Presets.firstBaitCut
+	local dip, pitch = Logic.baitEat(t, c.eat, c.bites, c.dip, c.pitch)
+	o.headPitch -= math.rad(pitch)
+	o.bodyY -= dip
+end
+
+-- A cut's camera spot: `back` studs from `look` along the flat `toward`, swung `degrees` round the up axis, and `up`
+-- studs up.
+function Logic.cutAround(
+	look: Vector3,
+	toward: Vector3,
+	back: number,
+	up: number,
+	degrees: number
+): Vector3
+	local a = math.rad(degrees)
+	local c, s = math.cos(a), math.sin(a)
+	local dir = Vector3.new(toward.X * c + toward.Z * s, 0, -toward.X * s + toward.Z * c)
+	return look + dir * back + Vector3.new(0, up, 0)
+end
+
 return Logic

@@ -14,14 +14,17 @@ return function()
 			expect(Bait.firstWait(600, 1)).to.equal(600)
 		end)
 
-		it("lands a beginner's swing on their tutorial stray nearby whichever way they face", function()
-			local origin = Vector3.new(0, 3, 0)
-			expect(NetSwing.beginnerReach(origin, Vector3.new(0, 3, -8))).to.equal(true) -- ahead
-			expect(NetSwing.beginnerReach(origin, Vector3.new(0, 3, 8))).to.equal(true) -- behind
-			expect(NetSwing.beginnerReach(origin, Vector3.new(6, 1, 6))).to.equal(true) -- 8.5 to the side, a step down
-			expect(NetSwing.beginnerReach(origin, Vector3.new(0, 3, 9.5))).to.equal(false) -- too far
-			expect(NetSwing.beginnerReach(origin, Vector3.new(0, 10, 2))).to.equal(false) -- up on a perch
-		end)
+		it(
+			"lands a beginner's swing on their tutorial stray nearby whichever way they face",
+			function()
+				local origin = Vector3.new(0, 3, 0)
+				expect(NetSwing.beginnerReach(origin, Vector3.new(0, 3, -8))).to.equal(true) -- ahead
+				expect(NetSwing.beginnerReach(origin, Vector3.new(0, 3, 8))).to.equal(true) -- behind
+				expect(NetSwing.beginnerReach(origin, Vector3.new(6, 1, 6))).to.equal(true) -- 8.5 to the side, a step down
+				expect(NetSwing.beginnerReach(origin, Vector3.new(0, 3, 9.5))).to.equal(false) -- too far
+				expect(NetSwing.beginnerReach(origin, Vector3.new(0, 10, 2))).to.equal(false) -- up on a perch
+			end
+		)
 
 		it("reaches further than a normal swing behind the player", function()
 			local origin = Vector3.new(0, 3, 0)

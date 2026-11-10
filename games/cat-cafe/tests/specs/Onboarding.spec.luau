@@ -51,7 +51,9 @@ return function()
 						expect(Onboarding.index(name)).to.equal(0)
 					end
 				end
-				expect(Onboarding.index("next_goal_shown")).to.equal(Onboarding.index("first_checkin") + 1)
+				expect(Onboarding.index("next_goal_shown")).to.equal(
+					Onboarding.index("first_checkin") + 1
+				)
 				expect(#Onboarding.V3_STEPS).to.equal(37)
 				for i, name in Onboarding.V3_STEPS do
 					expect(Onboarding.V4_STEPS[i]).to.equal(name) -- v3's steps are v4's first 37
@@ -62,9 +64,7 @@ return function()
 					expect(Onboarding.index(name) > last).to.equal(true)
 					last = Onboarding.index(name)
 				end
-				expect(Onboarding.GRAND_OPENING_COUNT).to.equal(
-					require(Shared.GrandOpening).COUNT
-				)
+				expect(Onboarding.GRAND_OPENING_COUNT).to.equal(require(Shared.GrandOpening).COUNT)
 				expect(Onboarding.INTRO_COUNT).to.equal(13)
 				-- Roblox: at most 100 steps a funnel and 10 funnels
 				expect(Onboarding.COUNT <= 100).to.equal(true)
@@ -269,29 +269,34 @@ return function()
 			end
 		end)
 
-		it("logs next_goal_shown after the check-in, and a role reaches it unreported (#2636)", function()
-			local state = fresh()
-			play(state, { "joined", "first_checkin" })
-			expect(Onboarding.reach(state, "next_goal_shown") :: any).to.deepEqual({ "next_goal_shown" })
-			expect(Onboarding.reach(state, "first_role_assigned") :: any).to.deepEqual({
-				"first_role_assigned",
-			})
-			-- an early report is held until the check-in and claims no check-in
-			local early = fresh()
-			play(early, { "joined" })
-			expect(#Onboarding.reach(early, "next_goal_shown")).to.equal(0)
-			expect(Onboarding.furthest(early)).to.equal("joined")
-			-- a client that never reports it: the role reaches it first
-			local quiet = fresh()
-			play(quiet, { "joined", "first_checkin" })
-			expect(Onboarding.reach(quiet, "first_role_assigned") :: any).to.deepEqual({
-				"next_goal_shown",
-				"first_role_assigned",
-			})
-			-- the lesson's old steps are no steps now
-			expect(Onboarding.index("tackle_lesson_shown")).to.equal(0)
-			expect(#Onboarding.reach(quiet, "tackle_lesson_done" :: any)).to.equal(0)
-		end)
+		it(
+			"logs next_goal_shown after the check-in, and a role reaches it unreported (#2636)",
+			function()
+				local state = fresh()
+				play(state, { "joined", "first_checkin" })
+				expect(Onboarding.reach(state, "next_goal_shown") :: any).to.deepEqual({
+					"next_goal_shown",
+				})
+				expect(Onboarding.reach(state, "first_role_assigned") :: any).to.deepEqual({
+					"first_role_assigned",
+				})
+				-- an early report is held until the check-in and claims no check-in
+				local early = fresh()
+				play(early, { "joined" })
+				expect(#Onboarding.reach(early, "next_goal_shown")).to.equal(0)
+				expect(Onboarding.furthest(early)).to.equal("joined")
+				-- a client that never reports it: the role reaches it first
+				local quiet = fresh()
+				play(quiet, { "joined", "first_checkin" })
+				expect(Onboarding.reach(quiet, "first_role_assigned") :: any).to.deepEqual({
+					"next_goal_shown",
+					"first_role_assigned",
+				})
+				-- the lesson's old steps are no steps now
+				expect(Onboarding.index("tackle_lesson_shown")).to.equal(0)
+				expect(#Onboarding.reach(quiet, "tackle_lesson_done" :: any)).to.equal(0)
+			end
+		)
 
 		it("logs every step once each and holds nothing, over 500 seeded orders", function()
 			local rng = Random.new(1273)
@@ -392,16 +397,14 @@ return function()
 		end)
 
 		it("lists what a save shows in step order, all of them steps", function()
-			local shown = Onboarding.fromSave(
-				facts({
-					catsCaught = 9,
-					distinctCats = 6,
-					tables = 2,
-					bowl = 1,
-					tier = 3,
-					parkCats = 1,
-				})
-			)
+			local shown = Onboarding.fromSave(facts({
+				catsCaught = 9,
+				distinctCats = 6,
+				tables = 2,
+				bowl = 1,
+				tier = 3,
+				parkCats = 1,
+			}))
 			local last = 0
 			for _, name in shown do
 				expect(Onboarding.index(name) > last).to.equal(true)
@@ -410,29 +413,32 @@ return function()
 			expect(#shown).to.equal(7)
 		end)
 
-		it("shows the Grand Opening in step order (#2391), and no lesson step since v6 (#2636)", function()
-			local all = Onboarding.fromSave(facts({
-				catsCaught = 9,
-				distinctCats = 12,
-				tables = 2,
-				bowl = 1,
-				tier = 3,
-				parkCats = 1,
-				goalsDone = 8,
-			} :: any))
-			local last = 0
-			for _, name in all do
-				expect(Onboarding.index(name) > last).to.equal(true)
-				last = Onboarding.index(name)
+		it(
+			"shows the Grand Opening in step order (#2391), and no lesson step since v6 (#2636)",
+			function()
+				local all = Onboarding.fromSave(facts({
+					catsCaught = 9,
+					distinctCats = 12,
+					tables = 2,
+					bowl = 1,
+					tier = 3,
+					parkCats = 1,
+					goalsDone = 8,
+				} :: any))
+				local last = 0
+				for _, name in all do
+					expect(Onboarding.index(name) > last).to.equal(true)
+					last = Onboarding.index(name)
+				end
+				expect(table.find(all, "tackle_lesson_done" :: any)).never.to.be.ok()
+				for _, name in { "first_goal_done", "grand_opening_done" } do
+					expect(table.find(all, name :: any)).to.be.ok()
+				end
+				local some = Onboarding.fromSave(facts({ goalsDone = 3 } :: any))
+				expect(table.find(some, "first_goal_done" :: any)).to.be.ok()
+				expect(table.find(some, "grand_opening_done" :: any)).never.to.be.ok()
 			end
-			expect(table.find(all, "tackle_lesson_done" :: any)).never.to.be.ok()
-			for _, name in { "first_goal_done", "grand_opening_done" } do
-				expect(table.find(all, name :: any)).to.be.ok()
-			end
-			local some = Onboarding.fromSave(facts({ goalsDone = 3 } :: any))
-			expect(table.find(some, "first_goal_done" :: any)).to.be.ok()
-			expect(table.find(some, "grand_opening_done" :: any)).never.to.be.ok()
-		end)
+		)
 
 		it("shows the Cafe Pass, Tier 4 and a Robux spend (#1888)", function()
 			local shown = Onboarding.fromSave(facts({
@@ -508,7 +514,18 @@ return function()
 			expect(Onboarding.firstHourDue(1, 30) :: any).to.deepEqual({ 2 })
 			expect(Onboarding.firstHourDue(1, 120) :: any).to.deepEqual({ 2, 3, 4 })
 			expect(Onboarding.firstHourDue(4, 650) :: any).to.deepEqual({ 5, 6 })
-			expect(Onboarding.firstHourDue(0, 99999) :: any).to.deepEqual({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 })
+			expect(Onboarding.firstHourDue(0, 99999) :: any).to.deepEqual({
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+			})
 			expect(Onboarding.firstHourDue(10, 99999) :: any).to.deepEqual({})
 			expect(Onboarding.firstHourDue(1, 0 / 0) :: any).to.deepEqual({})
 		end)

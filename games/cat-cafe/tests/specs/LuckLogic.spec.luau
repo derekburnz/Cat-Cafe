@@ -110,7 +110,9 @@ return function()
 			expect(rows[1].name).to.equal("Cafe Party")
 			expect(rows[1].value).to.equal("+50%")
 			expect(rows[1].time).to.equal("1:59:40")
-			expect(LuckLogic.rows(player({ luckSources = event }), NOW)[1].name).to.equal("Cafe Event")
+			expect(LuckLogic.rows(player({ luckSources = event }), NOW)[1].name).to.equal(
+				"Cafe Event"
+			)
 		end)
 	end)
 
@@ -158,14 +160,12 @@ return function()
 			expect(LuckLogic.dayLine({ rainbowDay = true, luckyDay = true, phase = "day" })).to.equal(
 				"Lucky · Rainbow Day"
 			)
-			expect(
-				LuckLogic.dayLine({
-					luckyDay = true,
-					goldenDay = true,
-					rainbowDay = true,
-					phase = "day",
-				})
-			).to.equal("Lucky · Golden · Rainbow Day")
+			expect(LuckLogic.dayLine({
+				luckyDay = true,
+				goldenDay = true,
+				rainbowDay = true,
+				phase = "day",
+			})).to.equal("Lucky · Golden · Rainbow Day")
 		end)
 
 		it("shows nothing on a plain day or at night, and no countdown", function()
@@ -194,7 +194,8 @@ return function()
 		end)
 
 		it("warns before sunrise of every kind tomorrow brings (#1572)", function()
-			local title, line = LuckLogic.warnBanner({ lucky = true, golden = false, rainbow = false })
+			local title, line =
+				LuckLogic.warnBanner({ lucky = true, golden = false, rainbow = false })
 			expect(title).to.equal("Lucky Day soon!")
 			expect(line).to.equal("+50% Luck: rarer cats more likely from sunrise")
 			title, line = LuckLogic.warnBanner({ lucky = false, golden = true, rainbow = false })
@@ -206,14 +207,24 @@ return function()
 			title, line = LuckLogic.warnBanner({ lucky = true, golden = true, rainbow = true })
 			expect(title).to.equal("Triple Day soon!")
 			expect(line).to.equal("Lucky, Golden and Rainbow Day at sunrise")
-			expect(LuckLogic.warnBanner({ lucky = false, golden = false, rainbow = false })).to.equal(nil)
+			expect(LuckLogic.warnBanner({ lucky = false, golden = false, rainbow = false })).to.equal(
+				nil
+			)
 		end)
 
-		it("calls all three at once a Triple Day, so the banner fits a small phone (#1572)", function()
-			local title, line = LuckLogic.dayBanner({ phase = "day", luckyDay = true, goldenDay = true, rainbowDay = true })
-			expect(title).to.equal("Triple Day!")
-			expect(line).to.equal("Lucky, Golden and Rainbow Day until night")
-		end)
+		it(
+			"calls all three at once a Triple Day, so the banner fits a small phone (#1572)",
+			function()
+				local title, line = LuckLogic.dayBanner({
+					phase = "day",
+					luckyDay = true,
+					goldenDay = true,
+					rainbowDay = true,
+				})
+				expect(title).to.equal("Triple Day!")
+				expect(line).to.equal("Lucky, Golden and Rainbow Day until night")
+			end
+		)
 	end)
 
 	describe("LuckLogic.oddsRich", function()

@@ -7,8 +7,7 @@ return function()
 	local Catalog = require(Shared.Catalog)
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local CafeOrders =
-		require(Client:WaitForChild("Controllers"):WaitForChild("CafeOrders")) :: any
+	local CafeOrders = require(Client:WaitForChild("Controllers"):WaitForChild("CafeOrders")) :: any
 
 	-- Stand-ins for a plot and its customers: attributes only, no Cats folder (so no Barista or Waiter works there)
 	-- and no table, so nothing is placed in the world. `own` is true throughout: the device's effects tier is
@@ -62,20 +61,23 @@ return function()
 		CafeOrders.left(ticket)
 	end)
 
-	it("with no Barista, serves the dish on the table as the customer sits and clears it as it leaves", function()
-		local customer = fake()
-		local ticket = CafeOrders.order(cafe(2), customer, place(), false, true)
-		expect(ticket.state).to.equal("table")
-		expect(ticket.handOver).to.equal(false)
-		local seated = fake()
-		CafeOrders.seated(ticket, seated)
-		expect(seated:GetAttribute("Order")).to.equal(ticket.item.id)
-		expect(seated:GetAttribute("Served")).to.equal(true)
-		expect(ticket.state).to.equal("served")
-		CafeOrders.left(ticket)
-		expect(ticket.left).to.equal(true)
-		expect(ticket.state).to.equal("served")
-	end)
+	it(
+		"with no Barista, serves the dish on the table as the customer sits and clears it as it leaves",
+		function()
+			local customer = fake()
+			local ticket = CafeOrders.order(cafe(2), customer, place(), false, true)
+			expect(ticket.state).to.equal("table")
+			expect(ticket.handOver).to.equal(false)
+			local seated = fake()
+			CafeOrders.seated(ticket, seated)
+			expect(seated:GetAttribute("Order")).to.equal(ticket.item.id)
+			expect(seated:GetAttribute("Served")).to.equal(true)
+			expect(ticket.state).to.equal("served")
+			CafeOrders.left(ticket)
+			expect(ticket.left).to.equal(true)
+			expect(ticket.state).to.equal("served")
+		end
+	)
 
 	it("drops an order whose customer leaves before it sits", function()
 		local ticket = CafeOrders.order(cafe(1), fake(), place(), false, true)

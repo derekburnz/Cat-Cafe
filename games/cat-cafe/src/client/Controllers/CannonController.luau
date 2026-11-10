@@ -11,7 +11,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Cannon = require(Shared:WaitForChild("Cannon"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Config = require(Shared:WaitForChild("Config"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local UI = require(script.Parent.Parent.UI)
@@ -104,6 +106,26 @@ function CannonController.start()
 		watchCharacter(player.Character)
 	end
 	player.CharacterAdded:Connect(watchCharacter)
+
+	-- #2915: the cannon the character stands in range of (the server's own range), for "Fly to the Park"
+	UI.cannon.nearest = function(): string?
+		local character = player.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local at = (root :: BasePart).Position
+		local best: string? = nil
+		local bestDistance = Config.World.CannonRangeStuds + Cannon.RANGE_SLACK
+		for model in prompts do
+			local id = model:GetAttribute("CannonId")
+			local distance = (model:GetPivot().Position - at).Magnitude
+			if type(id) == "string" and distance <= bestDistance then
+				best, bestDistance = id, distance
+			end
+		end
+		return best
+	end
 
 	UI.events.launchCannon:Connect(function(cannonId: string, destination: string)
 		Net.fire("LaunchCannon", cannonId, destination)

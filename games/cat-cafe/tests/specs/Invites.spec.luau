@@ -38,21 +38,24 @@ return function()
 			expect(Invites.links(linked, 1, 2, 0)).to.equal(false)
 		end)
 
-		it("pays the joiner on their first catch and sends the inviter's at 5 minutes or a catch", function()
-			local profile = fresh()
-			profile.referredBy = { userId = 2, paid = false, queued = false }
-			expect(Invites.joinerDue(profile)).to.equal(false)
-			expect(Invites.inviterDue(profile, 299)).to.equal(false)
-			expect(Invites.inviterDue(profile, 300)).to.equal(true)
-			profile.stats.catsCaught = 1
-			expect(Invites.joinerDue(profile)).to.equal(true)
-			expect(Invites.inviterDue(profile, 10)).to.equal(true)
-			profile.referredBy.paid = true
-			profile.referredBy.queued = true
-			expect(Invites.joinerDue(profile)).to.equal(false)
-			expect(Invites.inviterDue(profile, 9999)).to.equal(false)
-			expect(Invites.joinerDue(fresh())).to.equal(false)
-		end)
+		it(
+			"pays the joiner on their first catch and sends the inviter's at 5 minutes or a catch",
+			function()
+				local profile = fresh()
+				profile.referredBy = { userId = 2, paid = false, queued = false }
+				expect(Invites.joinerDue(profile)).to.equal(false)
+				expect(Invites.inviterDue(profile, 299)).to.equal(false)
+				expect(Invites.inviterDue(profile, 300)).to.equal(true)
+				profile.stats.catsCaught = 1
+				expect(Invites.joinerDue(profile)).to.equal(true)
+				expect(Invites.inviterDue(profile, 10)).to.equal(true)
+				profile.referredBy.paid = true
+				profile.referredBy.queued = true
+				expect(Invites.joinerDue(profile)).to.equal(false)
+				expect(Invites.inviterDue(profile, 9999)).to.equal(false)
+				expect(Invites.joinerDue(fresh())).to.equal(false)
+			end
+		)
 
 		it("credits an inviter once per joiner and at most InviteDailyMax a day", function()
 			local save = Invites.fresh()
@@ -100,7 +103,8 @@ return function()
 			expect(loaded.invites.cardShown).to.equal(true)
 			expect(loaded.referredBy).to.deepEqual({ userId = 7, paid = true, queued = false })
 			local raw: any = fresh()
-			raw.invites = { rewarded = { 5, 5, -1, "x", 2.5, 8 }, today = { day = "x" }, cardShown = 1 }
+			raw.invites =
+				{ rewarded = { 5, 5, -1, "x", 2.5, 8 }, today = { day = "x" }, cardShown = 1 }
 			raw.referredBy = { userId = -3 }
 			local bad: any = ProfileSchema.migrate(raw, NOW)
 			expect(bad.invites.rewarded).to.deepEqual({ 5, 2, 8 })
@@ -111,7 +115,13 @@ return function()
 
 		it("views the card's window and today's room", function()
 			local view = Invites.view(fresh(), NOW)
-			expect(view :: any).to.deepEqual({ cardShown = false, fish = 20, leftToday = 5, cardFrom = 300, cardBy = 900 })
+			expect(view :: any).to.deepEqual({
+				cardShown = false,
+				fish = 20,
+				leftToday = 5,
+				cardFrom = 300,
+				cardBy = 900,
+			})
 		end)
 	end)
 end

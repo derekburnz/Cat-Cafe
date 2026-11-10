@@ -911,8 +911,9 @@ return function()
 			behind / #list,
 			added / #list
 		)
-		-- features section 8 and data-model 12: 10 to 20 minutes; under 10, the tier costs go up
-		local band = options.tier2Band or { 10, 20 }
+		-- features section 8 and data-model 12: 10 to 20 minutes; under 10, the tier costs go up. #2915 (Design-Agent):
+		-- 9 to 12 minutes for a new player now, Tier 2 only
+		local band = options.tier2Band or { 9, 12 }
 		if median < band[1] or median > band[2] then
 			error(string.format("Tier 2 outside %g to %g minutes: ", band[1], band[2]) .. text)
 		end
@@ -974,7 +975,7 @@ return function()
 			it(
 				"takes 8 to 20 minutes for a player who buys only the tables and the bait bowl first (#2683: was 10 to 20)",
 				function()
-					-- #2683: Tier 2 at 22,000 (was 30,000), so the quickest saver comes in at about 10
+					-- #2683: Tier 2 at 22,000 (was 30,000), so the quickest saver comes in at about 10; #2915: 12,000
 					check({ catches = 4, saver = true, tier2Band = { 8, 20 } })
 					check({ catches = 5, saver = true, tier2Band = { 8, 20 } })
 				end
@@ -1147,13 +1148,14 @@ return function()
 
 	describe("Tier 2 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 8 to 20 minutes for a non-stop catcher with a top-up every 60 s (60 an hour an area; #2683: was 10 to 20)",
+			"takes 7 to 20 minutes for a non-stop catcher with a top-up every 60 s (60 an hour an area; #2915: was 8, #2683: 10)",
 			function()
-				-- #2683: about 9 minutes with Tier 2 at 22,000
+				-- #2683: about 9 minutes with Tier 2 at 22,000; #2915: about 7.9 at 12,000, as the new player's 9 to 12
+				-- band pulls every run in, and a non-stop catcher stays ahead of it
 				check({
 					catches = NON_STOP,
 					strays = { players = 1, wait = 60 },
-					tier2Band = { 8, 20 },
+					tier2Band = { 7, 20 },
 				})
 			end
 		)
@@ -1193,13 +1195,13 @@ return function()
 		-- 700,000, 60M and 2B. #1499's dearer bait (less sunk into food) put it at 9.9 min, so v3.1 makes it 30,000.
 		it(
 			-- #2557 (Design-Agent: the combined median, 9.5 min, plus or minus 15%, floor 8): was 10 to 20
-			"takes 8 to 11 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself (#2557)",
+			"takes 6 to 11 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself (#2557, #2915)",
 			function()
 				check({
 					catches = NON_STOP,
 					pals = FOUR_FRIENDS,
 					strays = { players = 4, wait = 60 },
-					tier2Band = { 8, 11 },
+					tier2Band = { 6, 11 }, -- #2915: about 6.9 min at Tier 2's 12,000 (floor 8 before)
 				})
 			end
 		)

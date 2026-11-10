@@ -231,6 +231,8 @@ export type CustomEvent =
 	| "first_window"
 	-- #1273: the Tutorial tile's red X, value 1, once a session; tutorialStep
 	| "tutorial_closed"
+	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
+	| "park_first_hint"
 	-- #2946: the first bait's cutscene ended, value 1, once a session; shown, skipped or none (CUT_OUTCOMES)
 	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
@@ -330,6 +332,7 @@ local REPORTS = {
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
 	"event_rsvp", -- #2766: the update Event's Notify Me ask, RSVP_KINDS
 	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
+	"park_first_hint", -- #2915: the first Park landing's hint shown, PARK_HINTS
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
@@ -343,6 +346,9 @@ local RSVP_KINDS = { "shown", "remind", "later", "going", "not_going", "none", "
 -- #2913: the screen's short side in px, bucketed by the client, to read the phone catch circles by size
 local SCREEN_SHORTS = { "lt400", "400_600", "gt600" }
 local INTRO_CHOICES = 5
+-- #2915: the first Park landing's toast, and the soft ring on the nearest stray after 90 s with no Park catch; each
+-- once a session
+local PARK_HINTS = { "toast", "ring" }
 -- #2946: the first bait's cutscene played to the end, was tapped through, or could not play (Reduce Motion, a busy
 -- camera, no cat in time); once a session
 local CUT_OUTCOMES = { "shown", "skipped", "none" }
@@ -406,6 +412,7 @@ type Session = {
 	screen: string, -- #1273: the screen open as last reported (a SCREENS value, "other" or "none")
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
+	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -1506,6 +1513,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.tutorialClosed = true
 			Telemetry.custom(player, "tutorial_closed", 1, { tostring(profile.tutorialStep) })
 		end
+	elseif name == "park_first_hint" then
+		local kind = Guard.oneOf(rawValue, PARK_HINTS)
+		if kind ~= nil and not session.parkHints[kind] then
+			session.parkHints[kind] = true
+			Telemetry.custom(player, "park_first_hint", 1, { kind })
+		end
 	elseif name == "first_bait_cutscene" then
 		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)
 		if outcome ~= nil and not session.firstBaitCut then
@@ -1685,6 +1698,7 @@ local function onLoaded(player: Player, profile: Profile)
 		screen = "none",
 		uiOpened = {},
 		tutorialClosed = false,
+		parkHints = {},
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",

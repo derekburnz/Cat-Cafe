@@ -51,6 +51,9 @@ Tips.LIST = table.freeze({
 	-- #2302 (Derek2: "add tackling somewhere in tutorial or something if it's not already"): after the tackling
 	-- lesson, the first time this player's tackle is ready with someone carrying a cat within a lunge
 	tip("tackle_try", "card", "client"),
+	-- #2915 (Design-Agent): the account's first Park landing, "Strays wait near the camp", shown by the client (and
+	-- its 90 s soft ring on the nearest stray), saved by TipSeen like every tip
+	tip("park_first", "card", "client"),
 } :: { TipDef })
 
 -- The offline card gets its line ("Your cats earned while you were away!") after this long away (section 3).

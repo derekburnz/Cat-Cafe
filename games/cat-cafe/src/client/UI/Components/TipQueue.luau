@@ -67,6 +67,8 @@ local CARD: { [string]: Line } = {
 	},
 	like_ask = "Having fun? A thumbs up helps other players find Catch a Cat Cafe.",
 	favorite_ask = "Favorite Catch a Cat Cafe to find it fast next time", -- F96, starter-cat.md section 3
+	-- #2915: ParkFirstController shows it as a toast (the same words); this keeps every tip worded
+	park_first = "Strays wait near the camp 🐾",
 }
 
 -- A camera cut's caption, said while the camera shows the place (section 3's table).
@@ -97,6 +99,7 @@ local ICONS: { [string]: string } = {
 	tackle_try = "💨", -- #2302: the Tackle bar's own icon
 	like_ask = "👍",
 	favorite_ask = "⭐",
+	park_first = "🐾", -- #2915
 }
 
 function TipQueue.device(lastInput: string, touch: boolean): Device

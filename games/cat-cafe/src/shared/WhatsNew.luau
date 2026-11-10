@@ -31,6 +31,13 @@ WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one co
 
 WhatsNew.rows = table.freeze({
 	-- #2718 refresh (11-10 12:30): player-facing changes since #2939, 30 merges; no player ideas
+	-- #3011 (Derek2 11-10: "buff how often night market stocks good items and amount")
+	{
+		id = "night_market_stock",
+		date = "2026-11-10",
+		icon = "new",
+		text = "More food at Night Market",
+	},
 	{ id = "trade_decor", date = "2026-11-10", icon = "new", text = "Trade decor with friends" },
 	{ id = "first_bait_cut", date = "2026-11-10", icon = "look", text = "Watch your bait cat eat" },
 	{

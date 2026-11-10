@@ -1150,13 +1150,14 @@ return function()
 			"dealer amount weights are the v0.8 table of section 8b, 0 to 4 of each dealer food (F59)",
 			function()
 				expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
-					sardines = { 15, 25, 30, 20, 10 },
-					caviar = { 35, 40, 20, 5, 0 },
-					moon_milk = { 45, 45, 10, 0, 0 }, -- #1442
-					star_treat = { 80, 20, 0, 0, 0 },
+					-- #3011: the Night Market buff (#1442's were 15/25/30/20/10, 35/40/20/5/0, 45/45/10 and 80/20)
+					sardines = { 5, 15, 30, 30, 20 },
+					caviar = { 15, 35, 30, 15, 5 },
+					moon_milk = { 25, 40, 25, 10, 0 },
+					star_treat = { 55, 35, 10, 0, 0 },
 				})
 				local averages =
-					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 }
+					{ sardines = 2.45, caviar = 1.60, moon_milk = 1.20, star_treat = 0.55 }
 				for id, weights in pairs(Catalog.dealerAmountWeights) do
 					local def = Catalog.getLure(id)
 					assert(def, id)

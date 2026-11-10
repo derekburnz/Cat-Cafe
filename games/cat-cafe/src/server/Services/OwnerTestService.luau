@@ -130,7 +130,7 @@ local function answer(player: Player?, userId: number, text: string)
 	lastCommand = { userId = userId, text = text, at = now }
 	local reply = OwnerTestService.eventCommand(userId, text)
 	if player ~= nil and reply ~= nil then
-		Net.toast(player, reply, "good")
+		Net.toast(player, reply, "info") -- #3080: green toasts off ToastRules.KEEP no longer show
 	end
 end
 

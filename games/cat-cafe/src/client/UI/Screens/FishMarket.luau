@@ -77,7 +77,8 @@ export type Callbacks = {
 	buyCrateBundle: ((crateId: string) -> ())?,
 	buyItem: (itemId: string) -> (),
 	useDecor: (decorId: string) -> (), -- "Use it" on a new style piece in the reveal
-	toast: (text: string) -> (), -- a crate result that lands while the window is closed
+	-- a crate result that lands while the window is closed ("good", the default), or why an Open failed ("warn")
+	toast: (text: string, kind: Types.ToastKind?) -> (),
 	close: () -> (),
 	buyFresh: ((itemId: string, window: number?) -> ())?, -- Buy on a Fresh Catch row (F94)
 	-- a Legendary or Mythical piece's big pull card (F89), with onUse for "Use it" on a new style piece
@@ -1602,7 +1603,7 @@ function FishMarket._expirePending(self: any): boolean
 		end
 	end
 	if lost then
-		self._callbacks.toast("That didn't go through. Try again!")
+		self._callbacks.toast("That didn't go through. Try again!", "warn") -- #3080: a refusal, so it shows
 		self:_flushQueued()
 	end
 	return any

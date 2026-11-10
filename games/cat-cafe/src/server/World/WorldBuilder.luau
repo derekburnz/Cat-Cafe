@@ -14,6 +14,7 @@ local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
+local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
 local SafeWords = require(script.Parent.SafeWords)
@@ -100,6 +101,7 @@ local RING_CANNON = Color3.fromRGB(90, 215, 225)
 local RING_SPIN = Color3.fromRGB(255, 125, 195)
 local RING_MARKET = Color3.fromRGB(255, 201, 77)
 local RING_SHOP = Color3.fromRGB(255, 150, 70)
+local RING_FEEDBACK = Color3.fromRGB(110, 150, 255) -- #3066: post-box blue
 -- #2449: the icon in each ring (the cannon's has none); Model-Agent's art once it is in, an emoji card until then
 local ICON_SPIN: WalkUpCircles.Icon =
 	{ emoji = "🎡", art = "CatCafe_Street_SpinWheel_RingIcon_Decor" }
@@ -110,6 +112,8 @@ local ICON_MYSTERY: WalkUpCircles.Icon =
 	{ emoji = "❔", art = "CatCafe_Square_MysteryCart_RingIcon_Decor" }
 local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
+local ICON_FEEDBACK: WalkUpCircles.Icon =
+	{ emoji = "✉️", art = "CatCafe_Town_FeedbackStand_RingIcon_Decor" }
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
@@ -2070,6 +2074,46 @@ local function buildCornerShop(parent: Instance): Model?
 	return model
 end
 
+-- The feedback stand (#3066, shared/FeedbackStand): CatCafe_Town_FeedbackStand (a post box, a board and Postie Cat on
+-- a pile of parcels) at Layout.feedbackStand, tagged FeedbackStand, with a one-press prompt on the post box's front
+-- and a floor ring in front of it. Either opens the Feedback window on this client (WalkUpController); nothing on the
+-- server measures a range, since the form sends from anywhere. Left out while the art is missing (no placeholder).
+local function buildFeedbackStand(parent: Instance): Model?
+	if not AssetRegistry.known(FeedbackStand.ASSET) then
+		return nil
+	end
+	local spec = Layout.feedbackStand
+	local model = place(
+		FeedbackStand.ASSET,
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "FeedbackStand"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, FeedbackStand.TAG)
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = FeedbackStand.PROMPT
+	prompt.ActionText = FeedbackStand.ACTION
+	prompt.ObjectText = FeedbackStand.NAME
+	prompt.HoldDuration = 0 -- one press, as every station's (#2326)
+	prompt.MaxActivationDistance = FeedbackStand.PROMPT_RANGE
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		prompt.Parent = anchor
+	elseif found ~= nil then
+		local float = Instance.new("Attachment")
+		float.Name = "PromptAnchor"
+		float.Parent = found
+		float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2)).Position
+		prompt.Parent = float
+	end
+	WalkUpCircles.front(model, RING_FEEDBACK, FeedbackStand.RANGE, nil, ICON_FEEDBACK)
+	return model
+end
+
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard at Layout.thanksBoard, tagged
 -- ThanksBoard. Its part "Screen" carries UI-Engineer's SurfaceGui of IdeaCreditsService's rows; nothing here draws
 -- them. Persistent, so the face fills from anywhere in the square. Left out while the art is missing (no placeholder).
@@ -2661,6 +2705,7 @@ function WorldBuilder.build(): World
 	buildLeaderboards(root)
 	buildCornerShop(root) -- #1052, once its art is in
 	buildThanksBoard(root) -- #1083, once its art is in
+	buildFeedbackStand(root) -- #3066
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

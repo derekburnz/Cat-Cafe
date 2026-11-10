@@ -1127,7 +1127,7 @@ function UI.init(config: Types.InitConfig)
 		showTipsAgain = function()
 			UI.tips.reset()
 			UI.events.clearTips:Fire()
-			UI.toast("Tips will show again as you play.", "good")
+			UI.toast("Tips will show again as you play.", "info") -- #3080: the press's only answer
 		end,
 		replayTutorial = function()
 			if introBlocked() then
@@ -1239,9 +1239,9 @@ function UI.init(config: Types.InitConfig)
 		useDecor = function(decorId: string)
 			UI.events.toggleDecor:Fire(decorId, true)
 		end,
-		toast = function(text: string)
+		toast = function(text: string, kind: Types.ToastKind?)
 			if toasts then
-				toasts:show(text, "good")
+				toasts:show(text, kind or "good")
 			end
 		end,
 		close = closeModal,
@@ -2033,17 +2033,19 @@ end
 
 -- `seconds` (optional) keeps the toast up that long in place of the usual 2.4 s.
 function UI.toast(text: string, kind: Types.ToastKind?, seconds: number?)
-	-- #2600: no "Bought ..." pop-ups (ToastRules.quiet); init.luau is at the 200-local limit, so it loads here
-	if require(script.Components.ToastRules).quiet(text, kind) then
-		return
-	end
 	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any
-	-- other toast leaves the report waiting (review N151)
+	-- other toast leaves the report waiting (review N151). #3080: read before the rules below, so the window gets
+	-- its answer whether or not the words show
 	if bugReportScreen and bugReportScreen:pending() then
 		local answer = BugReportLogic.answer(text)
 		if answer ~= nil then
 			bugReportScreen:result(answer)
 		end
+	end
+	-- #2600: no "Bought ..." pop-ups, #3080: nor any green one off the keep list (ToastRules.quiet); init.luau is at
+	-- the 200-local limit, so it loads here
+	if require(script.Components.ToastRules).quiet(text, kind) then
+		return
 	end
 	if toasts then
 		toasts:show(text, kind, nil, seconds)
@@ -2771,14 +2773,34 @@ UI.bugReport = {}
 -- it from the HUD's Feedback tile (on Idea), the one way in since Settings lost its Report a bug row (2026-11-01).
 -- With a kind ("bug", "stuck", "idea") the report page on that chip; without one (the HUD's Feedback tile, Settings'
 -- Feedback row) the F87 faces page first.
-function UI.bugReport.open(kind: string?)
+-- #3066: `focus` is the feedback stand's: "none" (its floor ring) opens without the cursor in the box, "box" (a press
+-- of its prompt) with it, a phone's keyboard included. Without it a PC's cursor goes in the box and a phone waits
+-- for a tap, as ever.
+function UI.bugReport.open(kind: string?, focus: ("none" | "box")?)
 	if modal then
 		if bugReportScreen and kind then
 			bugReportScreen:setKind(kind)
 		elseif bugReportScreen then
 			bugReportScreen:showFaces()
 		end
+		if bugReportScreen and focus ~= nil then
+			if modal:current() == "BugReport" then
+				if focus == "box" then
+					bugReportScreen:focusBox() -- already up: only the cursor moves
+				end
+			else
+				bugReportScreen:focusNext(focus)
+			end
+		end
 		modal:open("BugReport")
+	end
+end
+
+-- #3066: the cursor into the Feedback window's box now, when its report page is up (the stand's ring, once a
+-- keyboard player stands still).
+function UI.bugReport.focus()
+	if bugReportScreen then
+		bugReportScreen:focusBox()
 	end
 end
 

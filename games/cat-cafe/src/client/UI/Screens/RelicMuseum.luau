@@ -21,6 +21,7 @@ local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLo
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local StoreBurst = require(script.Parent.Parent.Parent.Effects.StoreBurst) :: any
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -427,9 +428,13 @@ function RelicMuseum._tilePress(self: any, index: number)
 	if exhibit == nil or self._pending then
 		return
 	end
+	-- #2952 (Sound-Agent): the tiles are plain TextButtons, so they click like a Button press, or sound the error
+	-- when the exhibit can't be given now
 	if exhibit.coat == nil and #exhibit.give > 0 then
+		Sound.play("uiClick")
 		self:_showGive(exhibit.catId)
 	else
+		Sound.play("uiError")
 		self._note = string.format("%s: %s", exhibit.name, LateStationsLogic.whyNot(exhibit))
 		self:_paint()
 	end

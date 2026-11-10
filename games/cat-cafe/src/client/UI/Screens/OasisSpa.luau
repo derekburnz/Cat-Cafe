@@ -10,7 +10,7 @@
 --     Resting / Working, and each row shows the cat's face. To stay light with hundreds of cats its rows are built
 --     once when it opens (a few a frame past the first screenful) and again only when the cats that can go in
 --     change; typing only hides and shows rows; a face loads when its row is near the visible part, FACES_PER_PASS
---     at a time; and closing the list frees them all;
+--     at a time, and is let go when its row is far off again; and closing the list frees them all;
 --   the next slot to open: its golden fish price (100, then 250), greyed while the player has too few; a slot after
 --     it reads "Open slot 2 first".
 -- Under them Collect takes every slot with a level waiting ("Collect +7 levels"), and a line says how many golden
@@ -84,6 +84,9 @@ local FIRST_ROWS = 12 -- built at once when the list opens: more than a screenfu
 local ROWS_PER_FRAME = 20 -- then this many a frame
 local FACES_PER_PASS = 15
 local FACE_MARGIN = 240 -- a face loads once its row is this near the visible part of the list (as the Cats window)
+-- a face is let go again once its row is this far from the visible part (about three screens of the list), so
+-- scrolling through hundreds of cats never holds hundreds of cat models (QA-Planner on #3142: 315 faces stayed)
+local FACE_KEEP = 720
 local SEARCH_WAIT = 0.15 -- typing settles this long before the rows are filtered
 
 type Row = {
@@ -711,7 +714,8 @@ function OasisSpa._queueFaces(self: any)
 end
 
 -- A row gets its face (the cat's head, still, as the Cats window's) once it is within FACE_MARGIN of the visible
--- part of the list, at most FACES_PER_PASS a look; a face stays until the list closes.
+-- part of the list, at most FACES_PER_PASS a look, and loses it again past FACE_KEEP, so only the faces near the
+-- visible rows are ever held.
 function OasisSpa._loadFaces(self: any)
 	local list: ScrollingFrame = self._list
 	if self._pickSlot == nil or not list:IsDescendantOf(game) then
@@ -721,11 +725,25 @@ function OasisSpa._loadFaces(self: any)
 	local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y + FACE_MARGIN
 	local made = 0
 	for _, row: Row in self._rows do
-		if row.loaded or not row.frame.Visible then
+		local y = row.frame.AbsolutePosition.Y
+		local height = row.frame.AbsoluteSize.Y
+		if row.loaded then
+			-- hidden by the search, or scrolled far off: its face goes, and comes back when the row is near again
+			local far = y + height < top - (FACE_KEEP - FACE_MARGIN)
+				or y > bottom + (FACE_KEEP - FACE_MARGIN)
+			if not row.frame.Visible or far then
+				if row.portrait then
+					row.portrait:destroy()
+					row.portrait = nil
+				end
+				row.loaded = false
+			end
 			continue
 		end
-		local y = row.frame.AbsolutePosition.Y
-		if y + row.frame.AbsoluteSize.Y < top or y > bottom then
+		if not row.frame.Visible then
+			continue
+		end
+		if y + height < top or y > bottom then
 			continue
 		end
 		if made >= FACES_PER_PASS then

@@ -25,6 +25,7 @@ local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -55,6 +56,7 @@ export type Cannon = {
 	setPal: (self: Cannon, areaId: string?, name: string?) -> (),
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
+	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
 	-- F101: the last RallyState, or nil
 	setRally: (self: Cannon, rally: Types.RallyState?) -> (),
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
@@ -141,6 +143,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._tick = 0
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
+	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._rally = nil :: Types.RallyState?
 
@@ -543,6 +546,12 @@ function Cannon.setExtras(self: any, extras: Types.CampExtrasState?)
 	self:_rerender()
 end
 
+-- #2651 part 4: LateStationsState, kept for the Oasis Spa's and Relic Museum's strips.
+function Cannon.setLate(self: any, late: any)
+	self._late = late
+	self:_rerender()
+end
+
 -- F101: RallyState, kept for the night tag; render shows it (once a second while the picker is open).
 function Cannon.setRally(self: any, rally: Types.RallyState?)
 	self._rally = rally
@@ -655,7 +664,12 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			local counts = IndexRewards.counts(catalog, state, id)
 			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)
 		end
-		local line = if locked then nil else CampExtrasLogic.pickerLine(self._extras, id, now)
+		local line = if locked
+			then nil
+			else (CampExtrasLogic.pickerLine(self._extras, id, now) or LateStationsLogic.pickerLine(
+				self._late,
+				id
+			))
 		card.extra.Visible = line ~= nil
 		if line ~= nil then
 			tall = true

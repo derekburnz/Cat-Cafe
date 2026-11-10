@@ -18,6 +18,7 @@ local Effects = require(script.Parent.Effects)
 local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
 local Moments = require(script.Parent.Moments)
+local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
@@ -48,6 +49,7 @@ CodesController.start()
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines
+MuseumGalleryController.start() -- #2908: your filled exhibits on the Relic Museum's plinths
 SpaPoolController.start() -- #2909: your own cats soaking in the Oasis Spa pool
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()

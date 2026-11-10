@@ -54,7 +54,7 @@ end
 local function feedChannel(): TextChannel?
 	local channels = TextChatService:FindFirstChild("TextChannels")
 	local found = if channels ~= nil then channels:FindFirstChild(GlobalCatch.FEED_CHANNEL) else nil
-	return if found ~= nil and found:IsA("TextChannel") then found else nil
+	return if found ~= nil and found:IsA("TextChannel") then found :: TextChannel else nil
 end
 
 local function showFeed(line: string)
@@ -73,10 +73,11 @@ end
 -- Channel tabs on while the feed channel is here, and back to what the place had once it is gone.
 local tabsBefore: boolean? = nil
 local function followTabs()
-	local tabs = TextChatService:FindFirstChildOfClass("ChannelTabsConfiguration")
-	if tabs == nil then
+	local found = TextChatService:FindFirstChildOfClass("ChannelTabsConfiguration")
+	if found == nil then
 		return
 	end
+	local tabs = found :: ChannelTabsConfiguration
 	if feedChannel() ~= nil then
 		if tabsBefore == nil then
 			tabsBefore = tabs.Enabled

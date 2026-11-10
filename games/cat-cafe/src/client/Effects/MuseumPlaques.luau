@@ -125,8 +125,11 @@ local function breathe(now: number)
 	local p = Presets.museumPlaques
 	local calm = Context.reducedMotion() or Context.lowPerformance
 	for area, letters in lit do
+		if #letters == 0 then
+			continue
+		end
 		local first = letters[1]
-		if first == nil or not first:IsDescendantOf(Workspace) then
+		if not first:IsDescendantOf(Workspace) then
 			continue
 		end
 		local still = calm or Context.distance(first.Position) > Context.budget.animRadius

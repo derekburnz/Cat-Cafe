@@ -37,6 +37,7 @@ DataService.onLoaded = Signal.new() :: Signal.Signal<Player, Profile>
 DataService.onReleasing = Signal.new() :: Signal.Signal<Player, Profile>
 
 local sessions: { [Player]: Session } = {}
+local retiredRefunds: { [Player]: number } = {} -- #2891: coins refunded for retired potions as the save loaded
 local finalizers: { (player: Player, profile: Profile) -> () } = {}
 local loaders: { (player: Player, profile: Profile) -> () } = {}
 -- Studio playtests get their own store, so "Enable Studio Access to API Services" never touches live profiles
@@ -113,7 +114,12 @@ local function load(player: Player)
 	-- F95: the passes first, since Long Nap sets the offline rate and cap (rateAtLogout already has the Money pass)
 	local passes = PassService.check(player)
 	local now = os.time()
+	local retired = ProfileSchema.retiredRefund(profileStore.Data) -- #2891: before migrate drops those potions
 	local profile = ProfileSchema.migrate(profileStore.Data, now)
+	if retired > 0 then
+		profile.coins += retired -- a refund of coins spent, so not lifetimeCoins
+		retiredRefunds[player] = retired
+	end
 	Economy.setPasses(profile, passes)
 	local offline, offlineSeconds =
 		Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now, passes.longNap)
@@ -198,6 +204,7 @@ local function release(player: Player)
 		session.store.Data = ProfileSchema.template(os.time()) :: any
 	end
 	sessions[player] = nil
+	retiredRefunds[player] = nil
 	session.store:EndSession()
 end
 
@@ -321,6 +328,13 @@ function DataService.takePendingOffline(player: Player): (number, number)
 	session.pendingOffline = 0
 	session.pendingOfflineSeconds = 0
 	return amount, seconds
+end
+
+-- #2891: the coins this load refunded for retired potions (the Cat Whistle), once; 0 for none.
+function DataService.takeRetiredRefund(player: Player): number
+	local amount = retiredRefunds[player] or 0
+	retiredRefunds[player] = nil
+	return amount
 end
 
 function DataService.peekPendingOffline(player: Player): (number, number)

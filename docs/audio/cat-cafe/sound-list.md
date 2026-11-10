@@ -444,3 +444,16 @@ In Studio, Play in the dev copy:
 6. Should you hear other players' circle grades and catches nearby, or only your own plus the announcement chime? The slice plan is your own only.
 
 Proposed for docs/decisions.md: the v0.3 moment names in section 6, shared with the vfx-animator.
+
+## Late stations and the first catch's held ring (#2927, 2026-11-10)
+
+The Late sheet holds all of these. It's mono and every sound plays flat; they're all your own actions.
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `spaSplash` | a cat goes into the Oasis Spa pool (`LateStationResult` spa put; a take out stays quiet) | 1.0 s | warm water: a gentle slosh, a lazy plop, drips and two bubbles | P2 |
+| `spaChime` | spa cats collected, each a level up (spa collect) | 1.5 s | happy and relaxed: a vibraphone rolls up D major, a glockenspiel answers | P2 |
+| `museumBell` | a cat fills its Relic Museum exhibit | 1.8 s | one soft handbell with a fifth under it and a stone-hall echo | P2 |
+| `indexReward` (reused) | a donation that finishes a Museum room | - | the Index milestone fanfare | P2 |
+| `circleHold` | the first catch's ring stops on its target and waits for the press (#2920; moment `CircleHold`) | 0.5 s | a small bright "now!" ping, two music box notes up a fourth | P1 |
+

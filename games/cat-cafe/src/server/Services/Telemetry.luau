@@ -415,8 +415,9 @@ type Session = {
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
 type ShownGoal = { goal: Types.ReturnGoalView, mode: string, at: number }
 
--- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
-type StoreVisit = { id: string, step: number, sku: string? }
+-- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed.
+-- #2914: `landing` is the tab the visit opened on (its first store_tab report), which tab_viewed doesn't count.
+type StoreVisit = { id: string, step: number, sku: string?, landing: string? }
 
 local sessions: { [Player]: Session } = {}
 local studio = RunService:IsStudio()
@@ -1149,6 +1150,16 @@ local function storeStep(player: Player, name: string, values: { string })
 	funnelStep(player, StoreFunnel.NAME, visit.id, step, name, values)
 end
 
+-- #2914: the store_v1 prompt_closed step, for the sku this visit's buy button pressed only (a bait or Cafe Pass
+-- prompt outside the Store isn't this visit's).
+local function promptClosed(player: Player, sku: string, result: "bought" | "cancelled")
+	local session = sessions[player]
+	local visit = if session ~= nil then session.store else nil
+	if visit ~= nil and visit.sku == sku then
+		storeStep(player, "prompt_closed", { sku, result })
+	end
+end
+
 -- #1888: whether the player has spent Robux here before this purchase: a product receipt on the save (`receipts`
 -- counts this one when it is a product), or a pass of ours other than `passId` owned.
 local function spentBefore(
@@ -1183,6 +1194,7 @@ function Telemetry.robuxPurchase(
 		math.max(0, math.floor(robux)),
 		{ sku, dayText(profile), if first then "first" else "repeat" }
 	)
+	promptClosed(player, sku, "bought") -- a receipt can come before the prompt says it closed
 	storeStep(player, "completed", { sku, tostring(math.floor(robux)) })
 	Telemetry.onboarding(player, profile, "first_robux_purchase")
 end
@@ -1233,8 +1245,10 @@ local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 	end
 	if purchased ~= true then
 		Telemetry.custom(player, "store_cancelled", 1, { sku, tierText(profile) })
+		promptClosed(player, sku, "cancelled")
 		return
 	end
+	promptClosed(player, sku, "bought")
 	-- now, before PassService's check marks the pass owned; robux_purchase waits for that check (#2131)
 	local pending = pendingPasses[player] or {}
 	pendingPasses[player] = pending
@@ -1260,16 +1274,23 @@ local function onPassConfirmed(player: Player, passId: number)
 	end)
 end
 
--- #1888: a product prompt closed without buying (a bought one is ProductService's receipt).
+-- #1888: a product prompt closed without buying is store_cancelled (a bought one is ProductService's receipt).
+-- #2914: either way it is store_v1's prompt_closed.
 local function onProductPrompt(userId: unknown, productId: unknown, purchased: unknown)
-	if purchased == true or type(userId) ~= "number" then
+	if type(userId) ~= "number" then
 		return
 	end
 	local player = Players:GetPlayerByUserId(userId)
 	local sku = StoreFunnel.productSku(productId)
 	local profile = if player ~= nil then DataService.get(player) else nil
-	if player ~= nil and sku ~= nil and profile ~= nil then
+	if player == nil or sku == nil or profile == nil then
+		return
+	end
+	if purchased == true then
+		promptClosed(player, sku, "bought")
+	else
 		Telemetry.custom(player, "store_cancelled", 1, { sku, tierText(profile) })
+		promptClosed(player, sku, "cancelled")
 	end
 end
 
@@ -1478,9 +1499,15 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			Telemetry.onboarding(player, profile, "first_store_open")
 		end
 	elseif name == "store_tab" then
+		-- #2914: the first tab of a visit is the one it opened on; tab_viewed is the next one the player picks
 		local tab = Guard.oneOf(rawValue, StoreFunnel.TABS)
-		if tab ~= nil then
-			storeStep(player, "tab_viewed", { tab })
+		local visit = session.store
+		if tab ~= nil and visit ~= nil then
+			if visit.landing == nil then
+				visit.landing = tab
+			elseif tab ~= visit.landing then
+				storeStep(player, "tab_viewed", { tab, "picked" })
+			end
 		end
 	elseif name == "store_guard_blocked" then
 		local source, reason = StoreFunnel.guardBlock(rawValue)
@@ -1504,6 +1531,8 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if sku ~= nil and visit ~= nil and visit.step < StoreFunnel.index("buy_pressed") then
 			visit.sku = sku
 			local kind: "pass" | "product" = if passSku ~= nil then "pass" else "product"
+			-- #2914: a buy on the tab the Store opened on still looked past the first screen
+			storeStep(player, "tab_viewed", { visit.landing or "unknown", "landing" })
 			task.spawn(function()
 				local price = priceOf(kind, rawValue :: number)
 				storeStep(

@@ -548,8 +548,6 @@ From data-model 12b and the display hooks Design-Agent added for these effects i
 | Big Tip Potion running (F73 quests) | A brighter, busier stream of gold and pale gold glints rising off the body than the Tip Potion's (`potionBigTip`, Rate 3.5) | `big_tip_potion` |
 | Gold Rush Potion running (F73) | Pale gold, gold and white glints twinkling all round the body (`potionGoldRush`, Rate 2) | `gold_rush_potion` |
 | Quick Bait Potion running (F73) | Little salmon and cream food crumbs falling from both hands (`potionQuickBait`, Rate 2 split between them) | `quick_bait_potion` |
-| Cat Whistle running (Corner Shop v2, #1250) | Little teal and white puffs of air rising off both hands, as if the whistle is blown (`potionWhistle`, Rate 2 split between them); its Small and Big sizes only add minutes to it (`buff`), so they show the same glow | `cat_whistle` |
-| Cat Whistle's stray (Corner Shop v2, #1250) | While your Cat Whistle runs, a soft teal ring 4 studs across pulses out at the feet of the cat its marker points at every 1.5 s, with 4 teal sparkles (one small burst each), within 150 studs; UI-Engineer's WorldMarker paw floats over it. Reduce Motion: a still faint teal ring at its feet. Your own screen only | the local `WhistleTarget` attribute that UI-Engineer's marker screen sets on the Stray, StuckCat or `World.Strays` model it points at (`Effects/Whistle.luau`, `Presets.whistle`) |
 | Visitor arrives or leaves | A puff of 6 purple smoke where the hooded visitor sits, within `animRadius`; one already sitting when you arrive gets no arrival puff | a `MysteryVisitor` model appearing or going |
 | Gift appears | 6 pale sparkles off the gift's top; over your own gift a faint twinkle stays while it waits (`giftTwinkle`, Rate 1.5) | a `MysteryGift` model appearing; the twinkle when its plot's `OwnerUserId` is you |
 | Gift opened | One small camera shake (0.25 s, 0.15 studs; off with Reduce Motion or Screen shake off) and Confetti in the ribbon colours (pink, violet, pale gold, white; 40 % of the budget's), 8 sparkles and a 3 stud ring in the colour of what was inside: the potion's own colour, salmon pink for the Salmon, gold for fish, warm yellow for a spin. In that colour from the first frame, never anything better first. Only the owner sees it | your `MysteryGiftResult(kind, id, count)` (`Logic.giftColour`), at your gift or where it just was |
@@ -989,9 +987,30 @@ The Tier 6 and 7 areas of #2651 (tier6-7-areas.md sections 4 and 5), in their pa
 | Look | Hook |
 |---|---|
 | Desert air: sand and sandstone motes drifting downwind in a 36 by 10 by 36 stud box round you, 10 a second at the budget's rate; none in Low performance, a fifth with Reduce Motion | your character inside the Desert's box from `Config.World`'s Desert* fields (centre, width along X, depth along Z; #2655) plus 40 studs, so the camp and the server's mist catch count, checked every 0.5 s |
+| Dune sand (#2925): a thin pale plume of sand blowing downwind off the crests of the nearest 2 dunes (3 on PC) within 70 studs, re-picked every 2 s; none with Reduce Motion or in Low performance | in the Desert, parts named `..DuneRidge` or `..WallDune` in the Desert's area model (`Workspace.World`, `Area` = `"desert"`), the part list re-read every 10 s |
 | Ruins air: slow glyph-gold and jade sparkle motes floating up round you, 5 a second, glowing a little | the same for the Ruins |
 | Stray appears or leaves (Desert): 6 sand-coloured smoke puffs at its feet, within the budget's animRadius and at most `areaPuffs` a second (4 on phones, 8 on PC, 2 in Low performance; #2661); none for strays already there when you arrive | the `Stray` tag added or removed on a model in Workspace with `Area` = `"desert"`; where it stands when it goes |
 | Stray appears or leaves (Ruins): 6 jade sparkles at its feet | the same with `Area` = `"ruins"` |
 | Mist fall (Ruins): 10 violet-grey smoke puffs round you, once per fall | your feet 12 studs or more below the plateau inside the Ruins' box (the server's catch then moves you to the camp pad) |
 | Cannon flight tint | `desert` sand, `ruins` jade in `Presets.cannon.tints` |
 
+## Oasis Spa and Relic Museum (#2925, 2026-11-10)
+
+The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStationFx.luau`, numbers in `Presets.lateStations`; the card tile bursts are kinds of `Presets.storeBurst`.
+
+| Look | Hook |
+|---|---|
+| Spa steam: soft wide steam off the pool (`spaSteam`, 3 a second); on for everyone within ambientRadius, still with Reduce Motion, off in Low performance | the `LateStation` model with `StationId` "spa": its `Steam` attachment, else over its `..._Water` part |
+| Spa splash: 6 teal droplets and a 6 stud teal ring on the pool | your `LateStationResult("spa", true, { slot, uid })` (a cat in or out), within animRadius |
+| Spa level up: 8 gold glints rising off the pool for each cat relaxed, at most 3 bursts 0.3 s apart | `LateStationResult("spa", true, { relaxed })` |
+| Museum donation: 10 gold sparkles at the golden idol case | `LateStationResult("museum", true, { catId })`; the model's `SparkleAnchor` |
+| Museum room complete: plus confetti (60 % of the budget's), an 8 stud gold ring and a 14 stud gold beam for 1.2 s at the museum's foot (no beam or ring motion with Reduce Motion, as `Particles` does) | the same with `room` set |
+| Exhibit tile on the Museum card: 10 gold sparkles and a ring round the tile; a room's last tile 20 and two rings | `StoreBurst.play(tile, "exhibit")` or `"room"`, called by the UI after the donation result |
+
+## First catch held ring (#2920, 2026-11-10)
+
+`Effects/HoldPulse.luau`, numbers in `Presets.holdPulse`.
+
+| Look | Hook |
+|---|---|
+| Gold rings swell from the frozen ring to 1.7 times its size every 0.9 s (under 3 Hz) until the press, at most 60 s; none with Reduce Motion (the "Tap now!" label still shows) | `Moments.CircleHold(ringIndex)` from CatchCircles; the ring is `CircleN`'s `Ring` in CatCafeCatchCircles |

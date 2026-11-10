@@ -237,6 +237,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(3, -0.2, 1),
 		drag = 0.3,
 	},
+	-- Sand blowing off a Desert dune's crest in the wind (#2925): a thin pale plume streaming downwind.
+	duneSand = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(240, 220, 172), Color3.fromRGB(232, 205, 150) },
+		size = { 0.5, 1.6 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.2, 2 },
+		speed = { 2, 4 },
+		spread = 15,
+		rate = 6,
+		acceleration = Vector3.new(4, 0.4, 1.3),
+		drag = 0.6,
+	},
 	ruinsMotes = {
 		texture = Presets.textures.sparkle,
 		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
@@ -249,6 +262,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, 0.15, 0),
 		lightEmission = 0.5,
 		rotSpeed = { -30, 30 },
+	},
+	-- The Oasis Spa's pool (#2925, late-stations.md section 1): wide, slow, soft steam off the water.
+	spaSteam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 1, 3 },
+		transparency = { 0.7, 1 },
+		lifetime = { 2.5, 3.5 },
+		speed = { 0.6, 1.2 },
+		spread = 25,
+		rate = 3,
+		acceleration = Vector3.new(0.2, 0.3, 0),
+		drag = 0.8,
 	},
 	steam = {
 		texture = Presets.textures.smoke,
@@ -694,19 +720,6 @@ Presets.emitters = {
 		rate = 2,
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
-	},
-	-- The Cat Whistle (Corner Shop v2, #1250): little teal notes of air puffing up off the hands, as if it is blown.
-	potionWhistle = {
-		texture = Presets.textures.sparkle,
-		colors = { Presets.palette.signTeal, Presets.palette.offwhite },
-		size = { 0.16, 0.08 },
-		transparency = { 0.1, 0.8 },
-		lifetime = { 0.6, 1 },
-		speed = { 0.6, 1.2 },
-		spread = 30,
-		rate = 2,
-		drag = 1,
-		lightEmission = 0.4,
 	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
@@ -2493,6 +2506,9 @@ Presets.storeBurst = {
 		pass = { colour = Presets.palette.golden, sparkles = 12, rings = 1 },
 		pack = { colour = Color3.fromRGB(255, 244, 176), sparkles = 12, rings = 1 },
 		bundle = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
+		-- the Relic Museum card (#2925): an exhibit tile filled, and the tile that finished a room
+		exhibit = { colour = Presets.palette.golden, sparkles = 10, rings = 1 },
+		room = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
 	},
 }
 
@@ -3223,9 +3239,6 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
-	-- the Corner Shop's Cat Whistle (corner-shop-v2.md); its Small and Big sizes add minutes to it (`buff`), so
-	-- ActivePotions only ever names `cat_whistle` and they need no glow of their own
-	cat_whistle = { emitter = "potionWhistle", on = "Hands", colour = palette.signTeal },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
@@ -3566,22 +3579,6 @@ Presets.shopCats = {
 		colour = Presets.palette.goldLight,
 		faces = { Enum.NormalId.Front, Enum.NormalId.Back } :: { Enum.NormalId },
 	},
-}
-
--- The Cat Whistle's look on the cat it points at (Effects/Whistle, corner-shop-v2.md section 4): on the model UI's
--- marker sets `WhistleTarget` on, checked every `pick` seconds, a `ring` stud teal ring pulses out at its feet over
--- `ringSeconds` every `every` seconds with `sparkles` teal sparkles `sparkleLift` studs up, within `within` studs.
--- With Reduce Motion a still teal ring (`stillTransparency`) lies at its feet instead.
-Presets.whistle = {
-	pick = 0.25,
-	every = 1.5,
-	within = 150,
-	colour = Presets.palette.signTeal, -- the potion's own glow colour
-	ring = 4,
-	ringSeconds = 0.8,
-	sparkles = 4,
-	sparkleLift = 1,
-	stillTransparency = 0.6,
 }
 
 -- Customers walking (Derek 2026-11-04, #1143: "walking looks like mini hopping"; Effects/CustomerWalk.luau). The
@@ -3971,6 +3968,18 @@ Presets.areaFx = {
 	lift = 3, -- the box's centre over your feet
 	checkSeconds = 0.5,
 	calmRate = 0.2,
+	-- Sand off the Desert's dune crests (#2925): while you are in the Desert, the nearest `most[tier]` crests (parts
+	-- named ..DuneRidge or ..WallDune in the Desert's area model) within `within` studs blow a `duneSand` plume off
+	-- their top, re-picked every `pickSeconds`, the part list re-read every `scanSeconds`. None with Reduce Motion or
+	-- in Low performance.
+	dunes = {
+		names = { "DuneRidge", "WallDune" },
+		within = 70,
+		most = { low = 2, high = 3 } :: { [string]: number },
+		pickSeconds = 2,
+		scanSeconds = 10,
+		emitter = "duneSand",
+	},
 	areas = {
 		desert = {
 			air = "desertSand",
@@ -4019,6 +4028,41 @@ Presets.townsfolk = {
 	turn = 4, -- how fast the head eases to where it looks (1 / seconds)
 	followLimit = 60, -- degrees the head turns to follow you while you are near
 	wave = { up = 0.3, wave = 1.2, waves = 3, lift = 75, side = 22 },
+}
+
+-- The Tier 6 and 7 stations (#2925, late-stations.md sections 1 and 2; Effects/LateStationFx). The Oasis Spa's
+-- `spaSteam` rises off its `Steam` attachment (else over its `_Water` part) within the budget's ambientRadius, still
+-- with Reduce Motion and off in Low performance. A cat put in splashes a `splashRing` stud ring and `splash` droplets
+-- on the pool; a collect sends `levelUp` gold sparkles up off it for each cat relaxed, at most `levelUpMost` bursts.
+-- A Relic Museum donation pops `donate` gold sparkles at the `SparkleAnchor` (the golden idol case); one that
+-- finishes a room adds confetti (`roomConfetti` of the budget's), a `roomRing` stud gold ring and a gold beam
+-- `beamWidth` wide and `beamHeight` tall for `beamSeconds`. Bursts play within the budget's animRadius.
+-- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)
+-- from `from` to `to` times its size while it waits for the press, for at most `most` seconds.
+Presets.holdPulse = {
+	displayOrder = 26, -- just over the catch screen (25), under toasts (30)
+	gap = 0.9,
+	from = 1,
+	to = 1.7,
+	seconds = 0.7,
+	most = 60, -- Config.FirstRingHoldSeconds
+}
+
+Presets.lateStations = {
+	steamPreset = "spaSteam",
+	water = "_Water",
+	splash = 6,
+	splashRing = 6,
+	splashColour = Color3.fromRGB(64, 168, 160), -- the oasis teal (tier6-7-areas.md section 4)
+	levelUp = 8,
+	levelUpMost = 3,
+	levelUpGap = 0.3,
+	donate = 10,
+	roomConfetti = 0.6,
+	roomRing = 8,
+	beamWidth = 1.2,
+	beamHeight = 14,
+	beamSeconds = 1.2,
 }
 
 return Presets

@@ -35,6 +35,10 @@ return function()
 			local ruins = Presets.areaFx.areas.ruins
 			expect(ruins.mist <= Presets.budget.low.maxBurst).to.equal(true)
 			expect(ruins.mistDepth > 0).to.equal(true)
+			local dunes = Presets.areaFx.dunes
+			expect(Presets.emitters[dunes.emitter]).to.be.ok()
+			expect(dunes.most.low <= dunes.most.high).to.equal(true)
+			expect(dunes.most.low <= Presets.budget.low.steadyEmitters).to.equal(true)
 			local b = Presets.budget
 			expect(b.lowPerformance.areaPuffs <= b.low.areaPuffs).to.equal(true)
 			expect(b.low.areaPuffs <= b.high.areaPuffs).to.equal(true)

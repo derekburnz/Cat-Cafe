@@ -3,7 +3,10 @@
 -- centre with "Your cafe so far" and up to four lines (Components/RecapLogic), leading with what's next. There is no
 -- dark backdrop, no countdown bar and no store link: an X closes it and it slides away by itself after
 -- RecapLogic.AUTO_HIDE seconds. Leaving the game loses nothing, so nothing here says otherwise.
---   show(lines, onClosed)   onClosed(secondsUp) once the card has gone, closed or timed out
+--   show(lines, onClosed, goals?)   onClosed(secondsUp) once the card has gone, closed or timed out
+-- #2916 (an open loop at exit): `goals` (Gameplay's next goals as Components/ReturnGoalWords rows, at most three) sit
+-- under the "Today" line, each its words over a thin progress bar with its count ("3/5"; "away" has no bar), in place
+-- of the one "what's next" line.
 --   hide()
 --   isShowing() -> boolean
 
@@ -14,13 +17,19 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RecapLogic = require(script.Parent.Parent.Components.RecapLogic)
+local ReturnGoalWords = require(script.Parent.Parent.Components.ReturnGoalWords)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type RecapCard = {
 	screenGui: ScreenGui,
-	show: (self: RecapCard, lines: { string }, onClosed: (secondsUp: number) -> ()) -> (),
+	show: (
+		self: RecapCard,
+		lines: { string },
+		onClosed: (secondsUp: number) -> (),
+		goals: { ReturnGoalWords.Row }?
+	) -> (),
 	hide: (self: RecapCard) -> (),
 	isShowing: (self: RecapCard) -> boolean,
 	destroy: (self: RecapCard) -> (),
@@ -33,6 +42,8 @@ local TITLE_H = 30
 local GAP = 6
 local LINE_SIZE = Theme.sizes.textBody + 1 -- #2235 (Derek2: "the text from cafe so far is hard to read"), was 15
 local CALLOUT_PAD = 6 -- round the offline line's mint callout
+local BAR_H = 8 -- #2916: a goal's progress bar
+local COUNT_W = 96 -- #2916: the count right of the bar ("3/10", "3 / 5 upgrades")
 local SLIDE = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 
@@ -134,7 +145,7 @@ function RecapCard.new(parent: Instance): RecapCard
 			BorderSizePixel = 0,
 			Size = UDim2.fromScale(1, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
-			LayoutOrder = index,
+			LayoutOrder = index * 10,
 			Visible = false,
 			Parent = lines,
 		}, {
@@ -158,6 +169,93 @@ function RecapCard.new(parent: Instance): RecapCard
 			Parent = row,
 		})
 		self._labels[index] = label
+	end
+	-- #2916: the goals, each its words over a bar and a count; the block sits under the Today line
+	local goalsFrame: Frame = Create("Frame", {
+		Name = "Goals",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 15,
+		Visible = false,
+		Parent = lines,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._goalsFrame = goalsFrame
+	self._goals =
+		{} :: { { frame: Frame, text: TextLabel, bar: Frame, fill: Frame, count: TextLabel } }
+	for index = 1, ReturnGoalWords.MAX do
+		local frame: Frame = Create("Frame", {
+			Name = "Goal" .. index,
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			LayoutOrder = index,
+			Visible = false,
+			Parent = goalsFrame,
+		}, {
+			Create("UIListLayout", {
+				Padding = UDim.new(0, 3),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+		local words: TextLabel = Create("TextLabel", {
+			Name = "Text",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = LINE_SIZE - 1,
+			TextColor3 = Theme.modal.text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextWrapped = true,
+			Text = "",
+			LayoutOrder = 1,
+			Parent = frame,
+		})
+		local barRow: Frame = Create("Frame", {
+			Name = "Bar",
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 16),
+			LayoutOrder = 2,
+			Parent = frame,
+		})
+		local track: Frame = Create("Frame", {
+			Name = "Track",
+			BackgroundColor3 = Theme.modal.cardStroke,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.fromScale(0, 0.5),
+			Size = UDim2.new(1, -(COUNT_W + 6), 0, BAR_H),
+			Parent = barRow,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		local fill: Frame = Create("Frame", {
+			Name = "Fill",
+			BackgroundColor3 = Theme.colors.good,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(0, 1),
+			Parent = track,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		local count: TextLabel = Create("TextLabel", {
+			Name = "Count",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.fromScale(1, 0),
+			Size = UDim2.new(0, COUNT_W, 1, 0),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = Theme.modal.subtext,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			Text = "",
+			Parent = barRow,
+		})
+		self._goals[index] =
+			{ frame = frame, text = words, bar = barRow, fill = fill, count = count }
 	end
 
 	self._resize = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -205,7 +303,12 @@ local function callout(label: TextLabel, on: boolean)
 	end
 end
 
-function RecapCard.show(self: any, lines: { string }, onClosed: (secondsUp: number) -> ())
+function RecapCard.show(
+	self: any,
+	lines: { string },
+	onClosed: (secondsUp: number) -> (),
+	goals: { ReturnGoalWords.Row }?
+)
 	if self._onClosed ~= nil then
 		self:_close()
 	end
@@ -219,6 +322,23 @@ function RecapCard.show(self: any, lines: { string }, onClosed: (secondsUp: numb
 		(label.Parent :: Frame).Visible = line ~= nil
 		label.Text = line or ""
 		callout(label, line ~= nil and RecapLogic.isOffline(line))
+	end
+	-- #2916: the goals under the Today line (first when there is none)
+	local goalList = goals or {}
+	self._goalsFrame.Visible = #goalList > 0
+	self._goalsFrame.LayoutOrder = if lines[1] ~= nil and RecapLogic.isToday(lines[1])
+		then 15
+		else 5
+	for index, view in self._goals do
+		local goal = goalList[index]
+		view.frame.Visible = goal ~= nil
+		if goal ~= nil then
+			view.text.Text = goal.text
+			local progress = goal.progress
+			view.bar.Visible = progress ~= nil
+			view.fill.Size = UDim2.fromScale(math.clamp(progress or 0, 0, 1), 1)
+			view.count.Text = goal.count or ""
+		end
 	end
 	self:_layout()
 	local card: Frame = self._card

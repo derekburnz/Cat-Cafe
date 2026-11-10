@@ -1978,6 +1978,59 @@ def station_ready() -> np.ndarray:
     return finish(fade_tail(mix(d, (first, 0.0), (second, 0.12)), 0.3), -10)
 
 
+# --- the late stations (#2651 part 4, late-stations.md) and the first catch's held ring (#2920), 2026-11-10 -------
+# One upload, the Late sheet (mono). The splash plays in 3D at the Oasis Spa; the chime, the bell and the hold ping
+# are your own and play flat. A finished Museum room reuses indexReward (the Index milestone fanfare).
+
+
+def spa_splash() -> np.ndarray:
+    """A cat slips into the Oasis Spa's warm pool: a gentle slosh and a lazy plop, a few drips and two small
+    bubbles coming up. Softer and lower than the Fish Pond's jump, warm water, not a dive."""
+    d = 1.0
+    t = seconds(0.6)
+    slosh = bandpass(bandpass(noise(0.6, 2701), 1500 - 800 * np.clip(t / 0.25, 0, 1), 0.9), 1000, 0.8)
+    slosh = slosh / np.max(np.abs(slosh)) * envelope(0.6, 0.02, 0.12) * 0.6
+    plop = bubble(0.12, 420, 900, 0.035) * 0.55
+    body = glide(0.25, 200, 120, 0.1) * envelope(0.25, 0.006, 0.07) * 0.35
+    drops = [(bubble(0.07, f, f * 1.7, 0.014) * a, at)
+             for f, at, a in ((820, 0.34, 0.22), (1100, 0.46, 0.18), (950, 0.6, 0.12))]
+    rise = [(bubble(0.1, f, f * 1.4, 0.03) * 0.14, at) for f, at in ((520, 0.7), (640, 0.8))]
+    return finish(fade_tail(mix(d, (plop, 0.0), (slosh, 0.03), (body, 0.02), *drops, *rise), 0.2), -7)
+
+
+def spa_chime() -> np.ndarray:
+    """Spa cats collected, each a level up (late-stations.md section 1): a happy, relaxed chime. A soft vibraphone
+    rolls up the D major chord and a glockenspiel answers on top, longer and warmer than the work level up."""
+    d = 1.5
+    roll = [(bell(d - at, note(n), VIBES) * 0.5, at)
+            for n, at in (("D5", 0.0), ("F#5", 0.08), ("A5", 0.16), ("D6", 0.24))]
+    top = [(bell(0.9, note(n), GLOCK) * 0.3, at) for n, at in (("F#6", 0.36), ("A6", 0.46))]
+    return finish(fade_tail(mix(d, *roll, *top), 0.5), -8)
+
+
+def museum_bell() -> np.ndarray:
+    """A cat fills its Relic Museum exhibit: one soft gallery bell, a warm handbell struck lightly with a quiet
+    fifth under it, ringing out in a stone hall."""
+    d = 1.8
+    strike = bell(d, note("G5"), HANDBELL) * 0.6
+    under = bell(d - 0.02, note("C5"), CHIME_TUBE) * 0.25
+    shimmer = bell(1.2, note("G6"), ((1.0, 1.0, 0.4),)) * 0.08
+    x = mix(d, (strike, 0.0), (under, 0.02), (shimmer, 0.04))
+    echo = np.zeros_like(x)
+    lag = int(0.11 * SR)
+    echo[lag:] = x[:-lag] * 0.25  # one early reflection off the hall's stone
+    return finish(fade_tail(x + echo, 0.6), -9)
+
+
+def circle_hold() -> np.ndarray:
+    """The first catch's ring stops on the target and waits for the press (#2920): a small bright "now!" ping, two
+    quick music box notes up a fourth, clear over the music but never loud."""
+    d = 0.5
+    first = bell(d, note("E6"), MUSIC_BOX) * 0.5
+    second = bell(d - 0.08, note("A6"), MUSIC_BOX) * 0.55
+    return finish(fade_tail(mix(d, (first, 0.0), (second, 0.08)), 0.2), -9)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2118,6 +2171,10 @@ SOUNDS = {
     "OfflineClaim": ("sheet-parts/sfx", "Sfx", offline_claim),
     "ShiftChime": ("sfx", "Sfx", shift_chime),
     "StationReady": ("sfx", "Sfx", station_ready),
+    "SpaSplash": ("sheet-parts/sfx", "Sfx", spa_splash),
+    "SpaChime": ("sheet-parts/sfx", "Sfx", spa_chime),
+    "MuseumBell": ("sheet-parts/sfx", "Sfx", museum_bell),
+    "CircleHold": ("sheet-parts/sfx", "Sfx", circle_hold),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -2138,6 +2195,8 @@ SHEETS = {
     "Catch": (1, ("NetSmack", "NetBounce", "StrayHop", "WordGreat", "WordExcellent")),
     # Catch v3 (2026-11-06, #1884), mono: the swat, wobble and pop play in 3D, the word flat
     "Catch3": (1, ("PawSwat", "NetWobble", "NetPop", "WordNice")),
+    # the late stations and the first catch's held ring (2026-11-10, #2651 part 4, #2920), mono: the splash in 3D
+    "Late": (1, ("SpaSplash", "SpaChime", "MuseumBell", "CircleHold")),
     # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
     "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),

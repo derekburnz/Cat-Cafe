@@ -20,6 +20,9 @@
 --
 --   ReadyBang.new(parent)   the billboards; :update(state) with every CampExtrasState, :destroy()
 -- When each shows is CampExtrasLogic.bangShows (pure, so the cloud specs check it).
+-- #2651 part 4: the Oasis Spa and the Relic Museum (tagged `LateStation` with a StationId attribute) wear one too, from
+-- LateStationsState (:updateLate(state)): the Cat Cannon picker's line, and the "!" while a spa cat has a level to
+-- collect or an exhibit can be filled (LateStationsLogic.bubble and bangShows).
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -28,12 +31,14 @@ local Workspace = game:GetService("Workspace")
 
 local CampExtrasLogic = require(script.Parent.CampExtrasLogic)
 local Create = require(script.Parent.Create)
+local LateStationsLogic = require(script.Parent.LateStationsLogic)
 local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type ReadyBang = {
 	update: (self: ReadyBang, state: unknown) -> (),
+	updateLate: (self: ReadyBang, state: unknown) -> (), -- #2651 part 4: with every LateStationsState
 	destroy: (self: ReadyBang) -> (),
 }
 
@@ -41,6 +46,8 @@ local ReadyBang = {}
 ReadyBang.__index = ReadyBang
 
 ReadyBang.TAG = "CampExtra" -- shared/CampExtras.TAG
+ReadyBang.LATE_TAG = "LateStation" -- shared/LateStations.TAG, its models' StationId attribute
+ReadyBang.LATE = { LateStationsLogic.SPA, LateStationsLogic.MUSEUM }
 ReadyBang.ANCHOR = "BangAnchor"
 ReadyBang.FALLBACK_STUDS = 2 -- #1733: over the top of a station model that has no BangAnchor
 ReadyBang.BOB_STUDS = 1
@@ -59,11 +66,13 @@ type Bang = {
 -- (Derek2 11-06: no bubble over the Sewer's Lost and Found): a station model with no BangAnchor (the Lost and Found's
 -- old box) hangs it from its main part instead, FALLBACK_STUDS over the top of the model; the second value is that
 -- lift. #2096: a bubble on its anchor is lifted too, when needed, so it clears the top of its own station.
-local function anchorFor(extraId: string): (Instance?, Vector3)
-	for _, instance in CollectionService:GetTagged(ReadyBang.TAG) do
+local function anchorFor(extraId: string, lateStation: boolean?): (Instance?, Vector3)
+	local tag = if lateStation then ReadyBang.LATE_TAG else ReadyBang.TAG
+	local attribute = if lateStation then "StationId" else "ExtraId"
+	for _, instance in CollectionService:GetTagged(tag) do
 		if
 			instance:IsA("Model")
-			and instance:GetAttribute("ExtraId") == extraId
+			and instance:GetAttribute(attribute) == extraId
 			and instance:IsDescendantOf(Workspace)
 		then
 			local model = instance :: Model
@@ -187,9 +196,13 @@ function ReadyBang.new(parent: Instance): ReadyBang
 	local self = setmetatable({}, ReadyBang) :: any
 	self._bangs = {} :: { [string]: Bang }
 	self._state = nil :: unknown
+	self._late = nil :: unknown
 	self._connections = {} :: { RBXScriptConnection }
 	for _, extraId in CampExtrasLogic.BANG_EXTRAS do
 		self._bangs[extraId] = build(parent, extraId)
+	end
+	for _, stationId in ReadyBang.LATE do
+		self._bangs[stationId] = build(parent, stationId)
 	end
 	local function refresh()
 		self:_apply()
@@ -202,6 +215,10 @@ function ReadyBang.new(parent: Instance): ReadyBang
 	table.insert(
 		self._connections,
 		CollectionService:GetInstanceRemovedSignal(ReadyBang.TAG):Connect(refresh)
+	)
+	table.insert(
+		self._connections,
+		CollectionService:GetInstanceAddedSignal(ReadyBang.LATE_TAG):Connect(refresh)
 	)
 	table.insert(
 		self._connections,
@@ -238,11 +255,16 @@ end
 function ReadyBang._apply(self: any)
 	local now = Workspace:GetServerTimeNow()
 	for extraId, bang: Bang in self._bangs do
-		local view = CampExtrasLogic.bubble(self._state, extraId, now)
-		local ready = CampExtrasLogic.bangShows(self._state, extraId)
+		local lateStation = table.find(ReadyBang.LATE, extraId) ~= nil
+		local view: CampExtrasLogic.Line? = if lateStation
+			then LateStationsLogic.bubble(self._late :: any, extraId)
+			else CampExtrasLogic.bubble(self._state, extraId, now)
+		local ready = if lateStation
+			then LateStationsLogic.bangShows(self._late :: any, extraId)
+			else CampExtrasLogic.bangShows(self._state, extraId)
 		local anchor: Instance?, lift = nil, Vector3.zero
 		if view ~= nil then
-			anchor, lift = anchorFor(extraId)
+			anchor, lift = anchorFor(extraId, lateStation)
 		end
 		local gui: any = bang.gui
 		if gui.Adornee ~= anchor then
@@ -287,6 +309,12 @@ end
 -- Every CampExtrasState: each station's "!" shows or hides.
 function ReadyBang.update(self: any, state: unknown)
 	self._state = state
+	self:_apply()
+end
+
+-- #2651 part 4: every LateStationsState: the spa's and the museum's bubbles.
+function ReadyBang.updateLate(self: any, state: unknown)
+	self._late = state
 	self:_apply()
 end
 

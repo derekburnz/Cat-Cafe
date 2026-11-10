@@ -648,6 +648,29 @@ local function sanitizeFishPerks(value: any): { [string]: number }
 end
 
 -- The potion bag (F64): known potion ids with a whole count above 0.
+-- #2891: potions taken out of the game, by id, with the coins each one held is refunded for: the Cat Whistle's
+-- Corner Shop prices (coins only; none was ever sold for Robux or given as a prize). sanitizePotions drops unknown
+-- ids, so a refunded count is gone from the save and pays only once.
+ProfileSchema.RETIRED_POTIONS = table.freeze({
+	cat_whistle_small = 8000,
+	cat_whistle = 300000,
+	cat_whistle_big = 60000000,
+}) :: { [string]: number }
+
+-- #2891: the coins owed for the retired potions in a raw save's `potions`, 0 for none.
+function ProfileSchema.retiredRefund(raw: any): number
+	local potions = if type(raw) == "table" then raw.potions else nil
+	local total = 0
+	if type(potions) == "table" then
+		for id, price in ProfileSchema.RETIRED_POTIONS do
+			if Catalog.getPotion(id) == nil then
+				total += math.max(0, asInt(potions[id], 0)) * price
+			end
+		end
+	end
+	return total
+end
+
 local function sanitizePotions(value: any): { [string]: number }
 	local out: { [string]: number } = {}
 	if type(value) == "table" then

@@ -53,9 +53,6 @@ return function()
 				{ "quick_bait_potion_small", "quick_bait", "small", 25000 },
 				{ "quick_bait_potion", "quick_bait", "regular", 1200000 },
 				{ "quick_bait_potion_big", "quick_bait", "big", 240000000 },
-				{ "cat_whistle_small", "whistle", "small", 8000 },
-				{ "cat_whistle", "whistle", "regular", 300000 },
-				{ "cat_whistle_big", "whistle", "big", 60000000 },
 				{ "small_cat_snack", "food", "small", 4000 },
 				{ "cat_snack", "food", "regular", 300000 },
 				{ "big_cat_snack", "food", "big", 40000000 },
@@ -139,7 +136,8 @@ return function()
 			expect(differs).to.equal(true)
 		end)
 
-		it("stocks about 14 of the 19 rows a day on average (#1740)", function()
+		-- #2891: 16 rows since the Cat Whistle's three went (14 of 19 before); the same chances give 12.4
+		it("stocks about 12 of the 16 rows a day on average (#1740)", function()
 			local total, windows = 0, 2000
 			for window = WINDOW, WINDOW + windows - 1 do
 				for _, item in CornerShop.stock(window) do
@@ -149,7 +147,7 @@ return function()
 				end
 			end
 			local average = total / windows
-			expect(average > 13 and average < 15).to.equal(true)
+			expect(average > 11.5 and average < 13.3).to.equal(true)
 		end)
 
 		it(
@@ -423,7 +421,7 @@ return function()
 			expect(Potions.left(profile, "steady_potion", NOW)).to.equal(35 * 60)
 			expect(profile.buffs.steady_potion_small).never.to.be.ok()
 			expect(Potions.runningIds(profile, NOW) :: any).to.deepEqual({ "steady_potion" })
-			expect(Potions.buffOf("cat_whistle_big")).to.equal("cat_whistle")
+			expect(Potions.buffOf("quick_bait_potion_big")).to.equal("quick_bait_potion")
 			expect(Potions.buffOf("swift_potion")).to.equal("swift_potion")
 		end)
 

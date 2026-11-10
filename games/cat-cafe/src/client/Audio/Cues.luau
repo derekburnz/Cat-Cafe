@@ -1244,6 +1244,47 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 	}, -- NICE!: the pop and one marimba note
 
+	-- The late stations (#2651 part 4, late-stations.md; #2927) and the first catch's held ring (#2920): the Late sheet,
+	-- mono. A finished Museum room plays indexReward, the Index milestone fanfare. Rendered by synth/synth.py.
+	sheetLate = {
+		ids = { "rbxassetid://104681497739384" },
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 6.3 s; uploaded by upload-audio run 42745669425 (group)
+	spaSplash = {
+		ids = {},
+		sheet = "sheetLate",
+		region = { 0.000, 1.000 },
+		group = "Sfx",
+		volume = 0.5,
+		pitch = { 0.96, 1.04 },
+		minGap = 0.5,
+	}, -- a cat goes into the Oasis Spa's pool (your own SpaPut)
+	spaChime = {
+		ids = {},
+		sheet = "sheetLate",
+		region = { 1.500, 3.000 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+	}, -- spa cats collected, each a level up (your own SpaCollect)
+	museumBell = {
+		ids = {},
+		sheet = "sheetLate",
+		region = { 3.500, 5.300 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.5,
+	}, -- a cat fills its Relic Museum exhibit (your own MuseumDonate)
+	circleHold = {
+		ids = {},
+		sheet = "sheetLate",
+		region = { 5.800, 6.300 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 1,
+	}, -- the first catch's ring stops on the target: "now!" (moment CircleHold, from the Catch screen)
+
 	-- F90 cats make the orders (5.16): the Cafe sheet, all 3D; they repeat with every order, so each is short and soft
 	sheetCafe = {
 		ids = { "rbxassetid://94516523486015" },

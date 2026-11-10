@@ -89,7 +89,17 @@ local function landingFor(player: Player, destination: string): CFrame?
 	for _, spot in pad.spots do
 		table.insert(spots, Vector3.new(spot.x, spot.y, spot.z))
 	end
-	local at = Cannon.landingSpot(spots, othersAt(player), pad.area)
+	local others = othersAt(player)
+	-- #2913, #2915: a first flight into the Alleyway or the Park comes down beside a waiting stray, facing it, when
+	-- that spot is clear; otherwise the pad as always
+	local stray = CatService.firstLandingStray(player, destination)
+	local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
+	local beside = if stray ~= nil then Cannon.besideStray(stray, centre) else nil
+	if stray ~= nil and beside ~= nil and Cannon.isClear(beside, others) then
+		local root = Vector3.new(beside.X, beside.Y + 3, beside.Z)
+		return CFrame.lookAt(root, Vector3.new(stray.X, root.Y, stray.Z))
+	end
+	local at = Cannon.landingSpot(spots, others, pad.area)
 	return CFrame.new(at.X, at.Y + 3, at.Z) * CFrame.Angles(0, math.rad(pad.centre.rotY or 0), 0)
 end
 

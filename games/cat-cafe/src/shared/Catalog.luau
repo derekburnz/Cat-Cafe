@@ -1673,16 +1673,10 @@ Catalog.potions = {
 		baitSpeed = 0.25,
 		quest = true,
 	},
-	-- corner-shop-v2.md section 1 (#1180): the Cat Whistle, a paw marker over the nearest stray in your area, and the
-	-- Corner Shop's Small and Big sizes. A size runs its regular potion's timer (`buff`), so one chip shows the summed
-	-- minutes; all of these are sold only there, never in a Mystery gift (`shopOnly`).
-	{
-		id = "cat_whistle",
-		name = "Cat Whistle",
-		minutes = 10,
-		effect = "Shows the nearest stray",
-		shopOnly = true,
-	},
+	-- corner-shop-v2.md section 1 (#1180): the Corner Shop's Small and Big sizes. A size runs its regular potion's
+	-- timer (`buff`), so one chip shows the summed minutes; all of these are sold only there, never in a Mystery gift
+	-- (`shopOnly`). #2891 (Derek2 2026-11-09: "it's just not needed"): the Cat Whistle and its sizes are retired, and
+	-- the ones a save held are refunded as it loads (ProfileSchema.RETIRED_POTIONS).
 	{
 		id = "swift_potion_small",
 		name = "Small Swift Potion",
@@ -1729,22 +1723,6 @@ Catalog.potions = {
 		minutes = 60,
 		effect = "Bait ready 25% sooner",
 		buff = "quick_bait_potion",
-		shopOnly = true,
-	},
-	{
-		id = "cat_whistle_small",
-		name = "Small Cat Whistle",
-		minutes = 5,
-		effect = "Shows the nearest stray",
-		buff = "cat_whistle",
-		shopOnly = true,
-	},
-	{
-		id = "cat_whistle_big",
-		name = "Big Cat Whistle",
-		minutes = 30,
-		effect = "Shows the nearest stray",
-		buff = "cat_whistle",
 		shopOnly = true,
 	},
 } :: { Types.PotionDef }
@@ -4469,34 +4447,6 @@ Catalog.cornerShop = {
 		kind = "potion",
 		potionId = "quick_bait_potion_big",
 		price = 240000000,
-		needsTier = 3,
-	},
-	{
-		id = "cat_whistle_small",
-		name = "Small Cat Whistle",
-		family = "whistle",
-		size = "small",
-		kind = "potion",
-		potionId = "cat_whistle_small",
-		price = 8000,
-	},
-	{
-		id = "cat_whistle",
-		name = "Cat Whistle",
-		family = "whistle",
-		size = "regular",
-		kind = "potion",
-		potionId = "cat_whistle",
-		price = 300000,
-	},
-	{
-		id = "cat_whistle_big",
-		name = "Big Cat Whistle",
-		family = "whistle",
-		size = "big",
-		kind = "potion",
-		potionId = "cat_whistle_big",
-		price = 60000000,
 		needsTier = 3,
 	},
 	{

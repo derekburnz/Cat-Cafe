@@ -50,6 +50,7 @@ local CatchSpots = require(script.Parent.Parent.Components.CatchSpots)
 local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local CatchWords = require(script.Parent.Parent.Components.CatchWords)
 local Create = require(script.Parent.Parent.Components.Create)
+local Moments = require(script.Parent.Parent.Parent.Moments)
 local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PipWindow = require(script.Parent.Parent.Components.PipWindow)
@@ -724,7 +725,7 @@ end
 function CatchCircles._step(self: any, t: number)
 	local windows: Types.CatchWindows = self._windows
 	local lead = if self._v3 then LEAD_IN else PREVIEW_SECONDS
-	for _, view in self._views :: { CircleView } do
+	for ringIndex, view in self._views :: { CircleView } do
 		local circle = view.circle
 		local visible = t >= circle.startsAt - lead
 		if
@@ -757,6 +758,7 @@ function CatchCircles._step(self: any, t: number)
 				if prompt then
 					if frozen and not prompt.Visible then
 						prompt.Text = CatchCircles.holdWords()
+						Moments.CircleHold:Fire(ringIndex) -- Sound's "now!" ping (#2928)
 					end
 					prompt.Visible = frozen
 					local promptScale = view.promptScale

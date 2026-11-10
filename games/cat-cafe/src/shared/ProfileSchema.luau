@@ -23,6 +23,7 @@ local Onboarding = require(script.Parent.Onboarding)
 local PlaytimeGifts = require(script.Parent.PlaytimeGifts)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
+local RummageBin = require(script.Parent.RummageBin)
 local Settings = require(script.Parent.Settings)
 local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
@@ -152,7 +153,9 @@ local ProfileSchema = {}
 -- the exhibits (whose cats left the save) and their tip bonus.
 -- Version 47 (#2797, retention-ideas.md 5d) adds invites and referredBy, the invite reward's two sides: an older server
 -- would drop them and could pay a joiner or an inviter twice for the same friend.
-ProfileSchema.VERSION = 47
+-- Version 48 (#3050) adds bin, the Rummage Bin's wait and wins: an older server would drop it, and the bin would be
+-- full again (with its two fixed first prizes) for a player who hops servers during a rollout.
+ProfileSchema.VERSION = 48
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -319,6 +322,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		spa = LateStations.freshSpa(),
 		museum = LateStations.freshMuseum(),
 		invites = Invites.fresh(),
+		bin = RummageBin.fresh(),
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
@@ -1010,6 +1014,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.museum = LateStations.sanitizeMuseum(raw.museum)
 	-- #2797 (version 47): the invite reward; a save without them has invited nobody and was invited by nobody
 	profile.invites = Invites.sanitize(raw.invites)
+	-- #3050 (version 48): the Rummage Bin; a save without it has never rummaged, so the bin is ready
+	profile.bin = RummageBin.sanitize(raw.bin, now)
 	profile.referredBy = Invites.sanitizeReferred(raw.referredBy)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)

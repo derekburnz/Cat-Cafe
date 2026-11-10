@@ -336,6 +336,10 @@ return function()
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
+		BinFirstUses = 3, -- #3050 (the Rummage Bin); BinTable is checked in RummageBin.spec
+		BinFirstRepeatSeconds = 180,
+		BinCooldownSeconds = 900,
+		BinMissRetrySeconds = 10,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -551,6 +555,9 @@ return function()
 				CatchHoldFirstRing = true, -- #2920: on since the Catch screen draws the hold (#2922)
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
+				BinTable = true, -- #3050: a table, checked in RummageBin.spec
+				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
+				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

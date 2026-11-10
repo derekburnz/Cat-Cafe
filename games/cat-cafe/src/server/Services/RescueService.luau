@@ -83,6 +83,16 @@ local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
 -- #2240: area id -> the spots that hold traps today (RescuePick), so tomorrow's pick avoids them
 local activeSpots: { [string]: { [string]: boolean } } = {}
 local helperTipAt: { [Player]: number } = {} -- F92: os.clock() of each player's last helper's tip this session
+-- #3050: bars that are not a stuck cat's but run on the rescue remotes (the Rummage Bin, BinService), by the spot id
+-- they use. RescueBegin, RescuePress and RescueCancel with that id go to the bar's own handlers, and a player on one
+-- counts as in a rescue for everything that asks (a catch, a shove, fast travel, another rescue).
+export type OtherBar = {
+	begin: (player: Player) -> (),
+	press: (player: Player, rawPressedAt: unknown) -> (),
+	cancel: (player: Player) -> (),
+	busy: (player: Player) -> boolean,
+}
+local otherBars: { [string]: OtherBar } = {}
 local rng = Random.new()
 
 local function serverNow(): number
@@ -142,6 +152,16 @@ local function helpingOf(player: Player): Stuck?
 		end
 	end
 	return nil
+end
+
+-- #3050: whether the player is on one of the other bars (the Rummage Bin's).
+local function onOtherBar(player: Player): boolean
+	for _, bar in otherBars do
+		if bar.busy(player) then
+			return true
+		end
+	end
+	return false
 end
 
 -- Stuck cats --------------------------------------------------------------------------------------------------
@@ -568,6 +588,14 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	if spotId == nil or profile == nil then
 		return
 	end
+	local other = otherBars[spotId]
+	if other ~= nil then
+		-- #3050: the Rummage Bin's bar; never while a rescue of any kind runs for this player
+		if attemptOf(player) == nil and helpingOf(player) == nil and not onOtherBar(player) then
+			other.begin(player)
+		end
+		return
+	end
 	local entry = stuckCats[spotId]
 	if entry == nil or not entry.alive then
 		return
@@ -603,7 +631,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		refuse(player, spotId, "Finish this catch first")
 		return
 	end
-	if attemptOf(player) ~= nil or helpingOf(player) ~= nil then
+	if attemptOf(player) ~= nil or helpingOf(player) ~= nil or onOtherBar(player) then
 		refuse(player, spotId, "Finish this rescue first")
 		return
 	end
@@ -689,7 +717,7 @@ local function onRescueHelp(player: Player, rawSpotId: unknown)
 		refuse(player, spotId, "Finish this catch first")
 		return
 	end
-	if attemptOf(player) ~= nil or helpingOf(player) ~= nil then
+	if attemptOf(player) ~= nil or helpingOf(player) ~= nil or onOtherBar(player) then
 		refuse(player, spotId, "Finish this rescue first")
 		return
 	end
@@ -734,6 +762,11 @@ local judge: (Player, Stuck, Rescue.Attempt, Player, boolean, number, number) ->
 local function onRescuePress(player: Player, rawSpotId: unknown, rawPressedAt: unknown)
 	local spotId = Guard.id(rawSpotId)
 	if spotId == nil then
+		return
+	end
+	local other = otherBars[spotId]
+	if other ~= nil then
+		other.press(player, rawPressedAt) -- #3050
 		return
 	end
 	local entry = stuckCats[spotId]
@@ -812,6 +845,11 @@ local function onRescueCancel(player: Player, rawSpotId: unknown)
 	if spotId == nil then
 		return
 	end
+	local other = otherBars[spotId]
+	if other ~= nil then
+		other.cancel(player) -- #3050
+		return
+	end
 	local entry = stuckCats[spotId]
 	if entry == nil or not entry.alive then
 		return
@@ -867,8 +905,9 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 
 	-- A catch cannot start while this player's rescue runs, and fast travel waits for it (CatService.busyReason).
 	-- F92: helping counts as in a rescue too.
+	-- #3050: so does a bar that only runs on the rescue remotes (the Rummage Bin's).
 	CatService.setRescueCheck(function(player: Player): boolean
-		return attemptOf(player) ~= nil or helpingOf(player) ~= nil
+		return attemptOf(player) ~= nil or helpingOf(player) ~= nil or onOtherBar(player)
 	end)
 
 	Players.PlayerRemoving:Connect(function(player)
@@ -882,6 +921,11 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 		end
 		helperTipAt[player] = nil
 	end)
+end
+
+-- #3050: registers a bar of another kind under its spot id (BinService, at start).
+function RescueService.addBar(spotId: string, bar: OtherBar)
+	otherBars[spotId] = bar
 end
 
 -- Dusk (v0.9, F66): every trap empties. A trap someone is mid-attempt on empties when that attempt ends, freed into

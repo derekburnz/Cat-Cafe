@@ -10,6 +10,7 @@
 #   tradeCrates   false takes crates out of trading (#2745, trading.md section 1c); cat and decor trades go on
 #   awayNotes     false stops the game noting who is due an away notification (#2768), if the notes crowd MemoryStore
 # and two start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
+#   alleyBin      false hides the Rummage Bin at the Alleyway camp and refuses a rummage (#3050); saves keep their wait
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -23,10 +24,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|alleyBin|tradeFish|nightCatch true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|alleyBin|tradeFish|nightCatch
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates and awayNotes, and false for tradeFish and nightCatch (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes and alleyBin, and false for tradeFish and nightCatch (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -36,7 +37,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish|nightCatch" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|alleyBin|tradeFish|nightCatch true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|alleyBin|tradeFish|nightCatch" >&2
 	exit 2
 }
 
@@ -88,6 +89,7 @@ show_key() {
 	rally) if [ "$raw" = false ]; then meaning="Rescue Rally OFF in every server"; else meaning="rally on"; fi ;;
 	tradeCrates) if [ "$raw" = false ]; then meaning="crate trading OFF in every server"; else meaning="crate trading on"; fi ;;
 	awayNotes) if [ "$raw" = false ]; then meaning="away notes OFF in every server (no new away notifications)"; else meaning="away notes on"; fi ;;
+	alleyBin) if [ "$raw" = false ]; then meaning="Rummage Bin OFF in every server (prompt hidden)"; else meaning="Rummage Bin on"; fi ;;
 	tradeFish) if [ "$raw" = true ]; then meaning="golden fish trading ON in every server"; else meaning="golden fish trading off (its default)"; fi ;;
 	nightCatch) if [ "$raw" = true ]; then meaning="first-session night catching ON in every server"; else meaning="first-session night catching off (its default)"; fi ;;
 	tradeMinTier)
@@ -111,6 +113,7 @@ show() {
 	show_key rally
 	show_key tradeCrates
 	show_key awayNotes
+	show_key alleyBin
 	show_key tradeFish
 	show_key nightCatch
 }
@@ -132,7 +135,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | tradeFish | nightCatch) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | alleyBin | tradeFish | nightCatch) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -142,7 +145,7 @@ clear)
 	[ $# -eq 2 ] || usage
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
-	codes | rally | tradeCrates | awayNotes) write "$2" true ;;
+	codes | rally | tradeCrates | awayNotes | alleyBin) write "$2" true ;;
 	tradeFish | nightCatch) write "$2" false ;;
 	*) usage ;;
 	esac

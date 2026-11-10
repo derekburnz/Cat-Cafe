@@ -173,6 +173,9 @@ export type CustomEvent =
 	-- a copy given to the Relic Museum, value 1; its rarity and coat. A room finished, value the rooms done; its area
 	| "museum_donate"
 	| "museum_room"
+	-- #3050: a Rummage Bin win, value 1; the prize row (tuna, fish, salmon, potion, crate, golden), the win's number
+	-- on the account ("1" to "10", 10 for any later one). The first win also logs step_time "first_bin"
+	| "bin_play"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS

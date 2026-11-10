@@ -241,7 +241,11 @@ local function build(
 			AnchorPoint = Vector2.new(0.5, 0),
 			Position = UDim2.new(0.5, 0, 0.5, PILL_HEIGHT / 2 + 4),
 			-- wider than the billboard, which does not clip, so a long line such as the gift's chances fits
-			Size = UDim2.fromOffset(NOTE_W, NOTE_H - 4),
+			-- #3050: a note of two lines (the Rummage Bin's chances) fills the room the taller billboard leaves
+			Size = UDim2.fromOffset(
+				NOTE_W,
+				(NOTE_H - 4) * (if string.find(note, "\n", 1, true) then 2 else 1)
+			),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = Theme.colors.white,

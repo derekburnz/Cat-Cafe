@@ -3684,6 +3684,7 @@ do
 	-- Rescue minigames (F27, data-model section 10b)
 	----------------------------------------------------------------------------------------------------
 
+	local RummageBin = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RummageBin")) -- #3050
 	local rescueTarget: string? = nil -- the trap of the attempt on screen
 	local rescueOnCircle = false -- a tree's falling cat is on the catch circles, not the bar
 
@@ -3748,7 +3749,21 @@ do
 			return
 		end
 		rescueOnCircle = false
-		bar:show(challenge, { catName = catName, rarity = rarity }, {
+		-- #3050: the Rummage Bin's bar is the same bar with its own name and closing words
+		local header: RescueBar.Header = if rescueSpotId == RummageBin.SPOT
+			then {
+				catName = RummageBin.NAME,
+				words = {
+					slow = "Too slow! Try again",
+					gaveUp = "Maybe later",
+					won = "Got it!",
+					win = "Found something!",
+					lose = "So close!",
+					loseDetail = "Try again",
+				},
+			}
+			else { catName = catName, rarity = rarity }
+		bar:show(challenge, header, {
 			press = function()
 				UI.events.rescuePressed:Fire(rescueSpotId)
 			end,
@@ -3772,7 +3787,8 @@ do
 		pawsLeft: number?,
 		done: boolean,
 		success: boolean,
-		bar: Types.RescueBar?
+		bar: Types.RescueBar?,
+		win: { id: string, first: boolean }? -- #3050: the Rummage Bin's prize, on its winning result
 	)
 		if rescueSpotId ~= rescueTarget then
 			return
@@ -3793,7 +3809,12 @@ do
 			return
 		end
 		if rescueBar then
-			rescueBar:update(hits, pawsLeft, done, success, bar)
+			local closing: RescueBar.Closing? = nil
+			if win ~= nil and type(win.id) == "string" then
+				local title, detail = RummageBin.winWords(win.id, win.first == true)
+				closing = { title = title, detail = detail }
+			end
+			rescueBar:update(hits, pawsLeft, done, success, bar, closing)
 		end
 	end
 
@@ -4023,6 +4044,11 @@ do
 		local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
 			if isActionPrompt(prompt) then
 				local show, note = giftNote(prompt)
+				if note == nil then
+					-- #3050: a prompt's own note (the Rummage Bin's chances, set by WorldBuilder)
+					local own = prompt:GetAttribute("Note")
+					note = if type(own) == "string" and own ~= "" then own else nil
+				end
 				if show and actionPills then
 					actionPills:show(prompt, inputType, note)
 				end

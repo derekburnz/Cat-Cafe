@@ -27,6 +27,8 @@
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
+--   D:Invoke("bin", nil, "ready")      -- your Rummage Bin full now ("reset": and its two fixed first prizes again;
+--                                      "hit" or "miss": a press on its running bar) (#3050)
 --   D:Invoke("spaAway", nil, 3600)     -- an hour away for the Oasis Spa: every soaking cat ready (#2651 part 4)
 --   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
@@ -73,6 +75,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bait = require(ReplicatedStorage.Shared.Bait)
+local BinService = require(script.Parent.BinService)
 local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
 local CampExtraService = require(script.Parent.CampExtraService)
@@ -484,6 +487,19 @@ function Debug.campExtras(player: (Player | number | string)?, seconds: number?)
 		table.insert(parts, string.format("%s=%d", id, state[id].held))
 	end
 	return table.concat(parts, " ")
+end
+
+-- #3050: the Rummage Bin. "ready" fills the player's bin now and "reset" also forgets its wins (the fixed Tuna and
+-- Alley Crate come again); returns "nextAt=0 uses=2". "hit" or "miss" presses its running bar (BinService.debugPress).
+function Debug.bin(player: (Player | number | string)?, how: string?): string
+	local p = resolve(player)
+	if how == "hit" or how == "miss" then
+		return BinService.debugPress(p, how)
+	end
+	local save = BinService.debugSet(p, if how == "reset" then "reset" else "ready")
+	return if save ~= nil
+		then string.format("nextAt=%d uses=%d", save.nextAt, save.uses)
+		else "no profile"
 end
 
 -- #2651 part 4 (late-stations.md section 4, check 1): every Oasis Spa cat's start `seconds` (default an hour) into

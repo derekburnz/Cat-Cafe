@@ -887,6 +887,34 @@ local Config = {
 			lostCat: string?,
 		}
 	},
+	-- #3050 (the Rummage Bin at the Alleyway camp, shared/RummageBin): one press plays a short rescue bar and a win
+	-- pulls one BinTable prize out (chances add to 1, shown on its prompt). The account's first BinFirstUses rummages
+	-- are easier (BinFirstEase on top of the Alleyway's RescueAreaEase) and BinFirstRepeatSeconds apart; after that
+	-- the bin fills every BinCooldownSeconds. A miss costs nothing and waits BinMissRetrySeconds. The first win is
+	-- always BinFirstPrizes[1] and the second BinFirstPrizes[2] (row ids). Amounts: Monetization-Agent 2026-11-10.
+	BinFirstUses = 3,
+	BinFirstRepeatSeconds = 180,
+	BinCooldownSeconds = 900,
+	BinMissRetrySeconds = 10,
+	BinFirstEase = { zone = 1.6, speed = 0.6 },
+	BinFirstPrizes = { "tuna", "crate" },
+	BinTable = {
+		{ id = "tuna", chance = 0.40, lure = "tuna" },
+		{ id = "fish", chance = 0.25, fish = 5 },
+		{ id = "salmon", chance = 0.12, lure = "salmon" },
+		{ id = "potion", chance = 0.11, potion = "lucky_potion" },
+		{ id = "crate", chance = 0.10, crate = "alley_crate" },
+		{ id = "golden", chance = 0.02, crate = "alley_golden_crate" },
+	} :: {
+		{
+			id: string,
+			chance: number,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+		}
+	},
 	-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert camp, Tier 6) gives a cat +1 level after SpaSeconds of
 	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
 	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen

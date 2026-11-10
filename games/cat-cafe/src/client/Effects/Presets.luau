@@ -4037,6 +4037,16 @@ Presets.townsfolk = {
 -- A Relic Museum donation pops `donate` gold sparkles at the `SparkleAnchor` (the golden idol case); one that
 -- finishes a room adds confetti (`roomConfetti` of the budget's), a `roomRing` stud gold ring and a gold beam
 -- `beamWidth` wide and `beamHeight` tall for `beamSeconds`. Bursts play within the budget's animRadius.
+-- Crumbs off the bowl while the first bait cat eats (#2946; Effects/BaitCrumbs): `count` `preset` crumbs `lift` studs
+-- over the bowl every `gap` seconds for the eating's length, at most `most` seconds.
+Presets.baitCrumbs = {
+	preset = "potionQuickBait",
+	count = 3,
+	lift = 0.4,
+	gap = 0.35,
+	most = 4,
+}
+
 -- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)
 -- from `from` to `to` times its size while it waits for the press, for at most `most` seconds.
 Presets.holdPulse = {

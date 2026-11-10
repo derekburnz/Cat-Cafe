@@ -14,6 +14,7 @@ return function()
 		{ step = 2, resting = true },
 		{ step = 2, resting = false },
 		{ step = 3 },
+		{ step = 3, cats = 1 },
 		{ step = 4, bowl = false },
 		{ step = 4, bowl = true, baited = false },
 		{ step = 4, bowl = true, baited = true },
@@ -79,6 +80,21 @@ return function()
 				"A cat is on its way to your bowl"
 			)
 		end)
+
+		it(
+			"asks for another cat or the table at step 3 while only one cat is caught (#2912)",
+			function()
+				expect(line({ step = 3, cats = 1 }, "keyboard")).to.equal(
+					"Catch another cat, or buy a table in Upgrades (U)"
+				)
+				expect(line({ step = 3, cats = 1 }, "touch")).to.equal(
+					"Catch another cat, or tap Upgrades for a table"
+				)
+				expect(line({ step = 3, cats = 2 }, "keyboard")).to.equal(
+					"Buy a table in Upgrades (U): more tips per cat"
+				)
+			end
+		)
 
 		it("has nothing once the first loop is done", function()
 			expect(line({ step = 5 }, "keyboard")).to.equal(nil)
@@ -153,6 +169,14 @@ return function()
 			expect(TutorialHints.ask(TutorialHints.view(state({}), spots))).to.equal("job")
 			local busy = state({ cats = { a = { spotId = "barista" } } })
 			expect(TutorialHints.ask(TutorialHints.view(busy, spots))).to.equal("more")
+		end)
+
+		it("counts the cats for step 3 (#2912)", function()
+			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = 3 }), spots))).to.equal(
+				"second"
+			)
+			local two = state({ tutorialStep = 3, cats = { a = {}, b = {} } })
+			expect(TutorialHints.ask(TutorialHints.view(two, spots))).to.equal("table")
 		end)
 
 		it("asks for the bowl, then food in it, then waits", function()

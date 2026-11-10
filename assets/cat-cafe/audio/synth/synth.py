@@ -2031,6 +2031,17 @@ def circle_hold() -> np.ndarray:
     return finish(fade_tail(mix(d, (first, 0.0), (second, 0.08)), 0.2), -9)
 
 
+def cat_sold() -> np.ndarray:
+    """A cat is sold (#2952): three coins clink into a pouch, then a soft two-note "bye" on the celesta, falling a
+    fourth, kind rather than cheery. Quiet, since selling spares can come in runs."""
+    d = 1.0
+    coins = [(bell(0.18, f, COIN, attack=0.0005) * a, at)
+             for f, at, a in ((2400.0, 0.0, 0.5), (2750.0, 0.06, 0.4), (2200.0, 0.13, 0.35))]
+    pouch = bandpass(noise(0.08, 2952), 900, 1.2) * envelope(0.08, 0.002, 0.02) * 0.25
+    bye = [(bell(0.7, note(n), CELESTA) * 0.45, at) for n, at in (("A5", 0.28), ("E5", 0.44))]
+    return finish(fade_tail(mix(d, *coins, (pouch, 0.15), *bye), 0.3), -9)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2045,6 +2056,7 @@ SOUNDS = {
     "CatchMiss": ("sfx", "Sfx", catch_miss),
     "CoinPop": ("sfx", "Sfx", coin_pop),
     "Purchase": ("sfx", "Sfx", purchase),
+    "CatSold": ("sfx", "Sfx", cat_sold),
     "CheckInBell": ("sfx", "Sfx", check_in_bell),
     "StrayFlee": ("sfx", "Sfx", stray_flee),
     "JingleCatFound": ("music", "Music", jingle_cat_found),

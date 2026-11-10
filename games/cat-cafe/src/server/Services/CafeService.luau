@@ -50,6 +50,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
+local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
@@ -85,6 +86,7 @@ local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 -- #2123: the welcome back card's line, picked once at the join from the save as it was left (ReturnHook "join")
 local joinHooks: { [Player]: Types.ReturnHookView } = {}
+local joinGoals: { [Player]: { Types.ReturnGoalView } } = {} -- #2916: the welcome back card's next goals
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
 local knownLevels: { [Player]: { [string]: number } } = {}
 -- #1955 (auto-equip.md): when each cat was placed or rested by hand (os.clock()), so Auto Equip leaves it there for
@@ -259,6 +261,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
+		returnGoals = joinGoals[player], -- #2916
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
@@ -2359,6 +2362,11 @@ local function onLoaded(player: Player, profile: Profile)
 			joinHooks[player] = hook
 			Telemetry.custom(player, "welcome_back_hook", 1, { hook.kind })
 		end
+		-- #2916: the goals the last session's recap showed, from the save as it was left
+		local goals = ReturnGoals.pick(profile, os.time())
+		if #goals > 0 then
+			joinGoals[player] = goals -- Telemetry logs them as its own session starts
+		end
 	end
 	local plot = PlotService.assign(player)
 	if plot == nil then
@@ -2423,6 +2431,7 @@ function CafeService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		carrying[player] = nil
 		joinHooks[player] = nil
+		joinGoals[player] = nil
 		knownLevels[player] = nil
 		handAt[player] = nil
 		decorHandAt[player] = nil

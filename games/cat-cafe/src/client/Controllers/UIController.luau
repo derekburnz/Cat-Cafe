@@ -200,6 +200,38 @@ local function restingCat(): BasePart?
 	return nil
 end
 
+-- #2912 (Nov 10 read: 21% leave between the first customer served and the second cat): the Alleyway stray nearest the
+-- character that this player may catch (not another beginner's, not in someone else's catch), for step 3's ring while
+-- only one cat is caught; nil while none has streamed in.
+local function nearestAlleyStray(): BasePart?
+	local world = Workspace:FindFirstChild("World")
+	local strays = if world ~= nil then world:FindFirstChild("Strays") else nil
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if strays == nil or root == nil or not root:IsA("BasePart") then
+		return nil
+	end
+	local me = Players.LocalPlayer.UserId
+	local best: BasePart? = nil
+	local bestDistance = math.huge
+	for _, model in strays:GetChildren() do
+		local beginner = model:GetAttribute("Beginner")
+		local locked = model:GetAttribute("LockedBy")
+		local mine = (beginner == nil or beginner == 0 or beginner == me)
+			and (locked == nil or locked == 0 or locked == me)
+		if model:IsA("Model") and model:GetAttribute("Area") == "alley" and mine then
+			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if part ~= nil then
+				local distance = (part.Position - root.Position).Magnitude
+				if distance < bestDistance then
+					best, bestDistance = part, distance
+				end
+			end
+		end
+	end
+	return best
+end
+
 -- The stray model with this id, for its rarity, or nil once it has gone.
 local function strayModel(strayId: string): Instance?
 	local world = Workspace:FindFirstChild("World")
@@ -311,7 +343,14 @@ local function reportStep(name: string)
 	end
 end
 
+-- #2912: step 3's stray ring follows its stray; this watches it and is dropped on every refresh
+local tutorialWatch: { connection: RBXScriptConnection? } = {}
+
 local function refreshTutorial(s: Types.PlayerState)
+	if tutorialWatch.connection ~= nil then
+		tutorialWatch.connection:Disconnect()
+		tutorialWatch.connection = nil
+	end
 	if s.carrying ~= nil then
 		UI.tutorial.hide()
 		return
@@ -347,7 +386,33 @@ local function refreshTutorial(s: Types.PlayerState)
 			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end
 	elseif s.tutorialStep == 3 then
-		showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
+		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
+		-- a stray caught by someone else or run off picks the next one
+		local count = 0
+		for _ in s.cats do
+			count += 1
+		end
+		if count < 2 then
+			local stray = nearestAlleyStray()
+			showTutorial(
+				s,
+				"Catch another cat, or buy a table in Upgrades (U)",
+				stray or tutorialStrayPoint(),
+				"Catch another cat"
+			)
+			if stray ~= nil then
+				tutorialWatch.connection = stray.AncestryChanged:Connect(function()
+					if not stray:IsDescendantOf(Workspace) then
+						local current = state
+						if current ~= nil then
+							refreshTutorial(current)
+						end
+					end
+				end)
+			end
+		else
+			showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
+		end
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
@@ -371,7 +436,18 @@ end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
 -- to another fires CatPlaced with the role, a cat taken off fires UnplaceCat. Unequip all fires one per cat.
+local selling: { [string]: boolean } = {} -- #2952: uids sent with SellCat, until a sync shows them gone
+
 local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
+	-- #2952: a cat asked to sell and gone from this sync was sold
+	for uid in selling do
+		if new.cats[uid] == nil then
+			selling[uid] = nil
+			if old.cats[uid] ~= nil then
+				Moments.CatSold:Fire(uid)
+			end
+		end
+	end
 	for uid, cat in new.cats do
 		local before = old.cats[uid]
 		local was = if before ~= nil then before.spotId else nil
@@ -1033,6 +1109,10 @@ local function wireIntents()
 		Net.fire("UnplaceCat", uid)
 	end)
 	UI.events.sellCat:Connect(function(uid: string)
+		selling[uid] = true -- #2952: Moments.CatSold once a sync shows it gone
+		task.delay(5, function()
+			selling[uid] = nil -- a refused sale: the cat stayed, so a later leave is not this sale
+		end)
 		Net.fire("SellCat", uid)
 	end)
 	-- Unequip all on the cat inventory (UI thread). Looked up loosely like equip best below; the UI shows the

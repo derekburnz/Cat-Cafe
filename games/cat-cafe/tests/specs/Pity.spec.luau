@@ -244,15 +244,61 @@ return function()
 			expect(moved).to.equal(true)
 		end)
 
-		it("keeps a cat out from its spawn until night", function()
+		it("keeps a shower cat, and the word of a catch, out from its start until night", function()
 			local t = dayWith(120)
 			local _, left = Clock.phaseAt(t)
-			expect(Pity.stillOut(t, t)).to.equal(true)
-			expect(Pity.stillOut(t, t + left - 1)).to.equal(true)
-			expect(Pity.stillOut(t, t + left + 1)).to.equal(false)
-			expect(Pity.stillOut(t, t + left + Config.NightLengthSeconds + 5)).to.equal(false)
-			expect(Pity.stillOut(t, t - 1)).to.equal(false)
+			expect(Pity.sameDay(t, t)).to.equal(true)
+			expect(Pity.sameDay(t, t + left - 1)).to.equal(true)
+			expect(Pity.sameDay(t, t + left + 1)).to.equal(false)
+			expect(Pity.sameDay(t, t + left + Config.NightLengthSeconds + 5)).to.equal(false)
+			expect(Pity.sameDay(t, t - 1)).to.equal(false)
 		end)
+
+		it("keeps an uncaught pity cat out through one night and the day after (#3077)", function()
+			local t = dayWith(120)
+			local _, left = Clock.phaseAt(t)
+			local night, day = Config.NightLengthSeconds, Config.DayLengthSeconds
+			expect(Pity.NIGHTS_KEPT).to.equal(1)
+			expect(Pity.stillOut(t, t)).to.equal(true)
+			expect(Pity.stillOut(t, t - 1)).to.equal(false)
+			expect(Pity.stillOut(t, t + left - 1)).to.equal(true)
+			-- the first night: it waits
+			expect(Pity.stillOut(t, t + left + 1)).to.equal(true)
+			expect(Pity.stillOut(t, t + left + night - 1)).to.equal(true)
+			-- the day after: still there
+			expect(Pity.stillOut(t, t + left + night + 5)).to.equal(true)
+			expect(Pity.stillOut(t, t + left + night + day - 1)).to.equal(true)
+			-- the second nightfall takes it, and it does not come back
+			expect(Pity.stillOut(t, t + left + night + day + 1)).to.equal(false)
+			expect(Pity.stillOut(t, t + left + 2 * night + day + 5)).to.equal(false)
+		end)
+
+		it(
+			"still has a cat that came out a second before night at the next sunrise (#3077)",
+			function()
+				local t = dayWith(120)
+				local _, left = Clock.phaseAt(t)
+				local dusk = t + left
+				local spawned = dusk - 1
+				expect((Clock.phaseAt(spawned))).to.equal("day")
+				expect((Clock.phaseAt(dusk + 1))).to.equal("night")
+				-- at the nightfall's own sweep, a moment either side of dusk, it is kept
+				expect(Pity.stillOut(spawned, dusk)).to.equal(true)
+				expect(Pity.stillOut(spawned, dusk + 0.05)).to.equal(true)
+				-- all night and at sunrise
+				local sunrise = dusk + Config.NightLengthSeconds
+				expect(Pity.stillOut(spawned, sunrise - 1)).to.equal(true)
+				expect(Pity.stillOut(spawned, sunrise + 1)).to.equal(true)
+				expect((Clock.phaseAt(sunrise + 1))).to.equal("day")
+				-- a whole day to catch it, then the next night takes it
+				expect(Pity.stillOut(spawned, sunrise + Config.DayLengthSeconds - 1)).to.equal(true)
+				expect(Pity.stillOut(spawned, sunrise + Config.DayLengthSeconds + 1)).to.equal(
+					false
+				)
+				-- before #3077's rule it was gone a second after it came
+				expect(Pity.sameDay(spawned, dusk + 1)).to.equal(false)
+			end
+		)
 
 		it("falls back to the fixed slots as timers with negative numbers", function()
 			for t = 0, 20000, 311 do

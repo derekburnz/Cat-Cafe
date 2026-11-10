@@ -749,6 +749,16 @@ Different cats needed to rank up: Tier 3 **10** (was 11), Tier 5 **26** (was 28)
 
 Why: Derek asked to "lower the different cats requirement a little bit between 3-7". About one cat in ten comes off each tier. Tier 4 could not come down: with 21 or 20 a 4x Money owner reaches Tier 5 in a median of 1 h 47 to 1 h 53 of play in one go, under the 2 hour floor in Pace.spec (economy-ladder.md section 8 check 7), and 10, 20, 25 also put every-paid-bonus players under Monetization's 1 hour floor. With 10, 22, 26 both floors hold. Lowering Tier 4 as well would need the floor relaxed or Tier 5's cost raised, which is Derek's and the designer's call. No save change: the need is read from the table, so a player who already has enough cats can rank up at once.
 
+## 2026-11-10 The intro starts as the loading screen reaches 100, without waiting for the Alleyway (#3109)
+
+Derek2: "can you make it a quick cute cat loading screen that instantly goes up to 100 really fast then transitions to the tutorial scenes that should buy enough time to load whats needed start the cutscene right after dont even check if the alleyway catching scenes are ready it should be fine".
+
+The loading screen from #3105 is now a drawn cat's face, the game's name and a bar that a paw walks along while a count runs to 100. The count creeps (never past 90) while the save loads, then runs to 100 so the whole screen takes 1.5 s when nothing holds it up (0.35 s for the last run after a longer wait), and the first cutscene shot starts as it lands. The two waits before shot 1 are gone: up to 5 s for the Alleyway's camp to stream in and up to 2.5 s more for its ground (#2961).
+
+Why: 9% of new players left between the first tutorial step showing and their first move, and up to 7.5 s on a still picture sat in that gap. The count is a show of progress, not a measure, since Roblox gives no percent for a world streaming in.
+
+Kept: the camp is still asked for at the start and every 2 s through the camp shots, and shot 1 still holds on its fuse up to 2.5 s if the camp's ground is not there yet (Derek2 earlier the same day, #2961: "don't make intro skip those slides ... just wait up to a couple seconds for loading"). That hold is inside the moving cutscene and only happens when the camp really is missing; a camp that never comes still falls back to the clouds shot. A replay from Settings goes the same way.
+
 ## 2026-11-10 Harder rescues, harder gold and rainbow cats, quicker rings late on (#3120, #3135, #3140)
 
 Three catch tuning asks from Derek on the same evening, shipped together.

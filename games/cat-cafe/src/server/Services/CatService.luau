@@ -1471,15 +1471,28 @@ end
 
 -- #2565: moves the packed cat into empty hands, with no getaway, so the drop, tackle and death paths that handle a
 -- held cat handle it next. False when there is none or the hands are full.
-local function unpackCat(player: Player): boolean
+-- #3145: `quiet` leaves the client's carry banner alone, for a caller that puts the cat down in the same breath
+-- (the Drop button): the banner never flashes up for a cat that is already gone, and the client never has two
+-- carry states to apply in one frame. That caller tells the client itself if the cat stays in the hands after all.
+local function unpackCat(player: Player, quiet: boolean?): boolean
 	if carrying[player] ~= nil or packed[player] == nil then
 		return false
 	end
 	local carry = endPacked(player) :: Carry
 	carrying[player] = carry
 	attachHeldCat(player, carry)
-	CafeService.setCarrying(player, carry.def.id)
+	if quiet ~= true then
+		CafeService.setCarrying(player, carry.def.id)
+	end
 	return true
+end
+
+-- #3145: after a quiet unpack whose put-down did not happen: the cat is in the hands after all, so the client hears.
+local function sayHeld(player: Player)
+	local carry = carrying[player]
+	if carry ~= nil and CafeService.carrying(player) ~= carry.def.id then
+		CafeService.setCarrying(player, carry.def.id)
+	end
 end
 
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
@@ -2452,12 +2465,20 @@ end
 -- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
 	local extra = endPacked(player) -- #2565: the packed cat hops in first
+	-- #3145: an error checking the packed cat in must not leave the held one in the arms
+	local ok, err: unknown = true, nil
 	if extra ~= nil then
-		checkIn(player, extra, notify, profile)
+		local packedCat = extra
+		ok, err = pcall(function()
+			checkIn(player, packedCat, notify, profile)
+		end)
 	end
 	local carry = endCarry(player)
 	if carry ~= nil then
 		checkIn(player, carry, notify, profile)
+	end
+	if not ok then
+		error(err, 0)
 	end
 end
 
@@ -2552,16 +2573,17 @@ local function checkInPassing()
 			table.insert(loaded, player) -- #2565: a packed cat alone checks in the same way
 		end
 	end
-	for _, player in loaded do
+	-- #3145: each carrier on its own, so one whose check-in throws does not skip everyone after it in this look
+	local function look(player: Player)
 		local position = rootPosition(player)
 		local plot = PlotService.get(player)
 		if position == nil or plot == nil then
-			continue -- no cafe to check a cat in to, at a camp or a door (review N280)
+			return -- no cafe to check a cat in to, at a camp or a door (review N280)
 		end
 		local campId = Layout.campAt(position.X, position.Z)
 		if campId ~= nil then
 			campCheckIn(player, campId)
-			continue
+			return
 		end
 		local from = lastCarrierAt[player] or position
 		if (position - from).Magnitude > MAX_STEP_STUDS then
@@ -2575,6 +2597,14 @@ local function checkInPassing()
 		then
 			finishCheckIn(player, true)
 			seen[player] = nil
+		end
+	end
+	for _, player in loaded do
+		local ok, err = pcall(function()
+			look(player)
+		end)
+		if not ok then
+			warn("[CatService] check-in: " .. tostring(err))
 		end
 	end
 	lastCarrierAt = seen
@@ -2782,6 +2812,36 @@ end
 -- A carrier's death drops the cat the same way, where the character fell and before the respawn (data-model 10c
 -- v0.13.3), so Reset Character is never a free check-in and cannot skip a Tackle or the dusk sweep; at night it
 -- cannot walk home, so dropAtNight. Leaving the game is the one exit that still checks the cat in.
+-- #3145 (Derek2 2026-11-10: "sometimes cat don't drop off from bag and then stays like this and cant drop"): why the
+-- Drop button cannot put `carry` down right now, as a drop_refused reason and the words for a toast ("" for no
+-- toast), or nil when it can. Asked before a Backpack cat is unpacked, so a refused Drop leaves it in the Backpack,
+-- and every refusal says why instead of doing nothing.
+local DROP_CLOSED_TEXT = "Keep hold of it, the areas are closed."
+local DROP_NO_HOME_TEXT = "It has nowhere to walk back to. Bring it to the camp."
+local function dropRefusal(player: Player, carry: Carry): (string?, string?)
+	if player.Character == nil or rootPosition(player) == nil then
+		return "no_body", "" -- between a death and the respawn: nowhere to put it down, and nobody to read a toast
+	end
+	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
+		return "closed", DROP_CLOSED_TEXT
+	end
+	if homeFor(carry) == nil then
+		return "no_home", DROP_NO_HOME_TEXT
+	end
+	return nil, nil
+end
+
+-- #3145: a Drop the server refused, said in a toast when it has words and counted by reason (Telemetry
+-- drop_refused), all but "closed": the night's refusal is the rule working, said every time, and not a fault to count.
+local function refuseDrop(player: Player, reason: string, text: string?)
+	if reason ~= "closed" then
+		Telemetry.custom(player, "drop_refused", 1, { reason })
+	end
+	if text ~= nil and text ~= "" then
+		Net.toast(player, text, "warn")
+	end
+end
+
 local function dropCarry(player: Player, died: boolean)
 	local carry = carrying[player]
 	local character = player.Character
@@ -2795,12 +2855,15 @@ local function dropCarry(player: Player, died: boolean)
 		if died then
 			dropAtNight(player, carry, root)
 		else
-			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
+			refuseDrop(player, "closed", DROP_CLOSED_TEXT)
 		end
 		return
 	end
 	local home, areaId = homeFor(carry)
 	if home == nil or areaId == nil then
+		if not died then
+			refuseDrop(player, "no_home", DROP_NO_HOME_TEXT) -- #3145: was silent
+		end
 		return
 	end
 	endCarry(player)
@@ -2844,14 +2907,29 @@ local function onDropCat(player: Player)
 	if CatService.inMinigame(player) then
 		return
 	end
-	if carrying[player] == nil then
-		if packed[player] ~= nil and not openFor(DataService.get(player)) then
-			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
-			return
-		end
-		unpackCat(player)
+	if carrying[player] ~= nil then
+		dropCarry(player, false)
+		return
 	end
+	local pack = packed[player]
+	if pack == nil then
+		-- #3145: the server holds no cat, yet the player pressed Drop: their screen still shows one. A fresh sync
+		-- takes the carry banner down (UIController checks it against every sync). At most one a second (DropCat's
+		-- limiter); a G press with nothing on screen never gets here, the client only sends it while it shows a cat.
+		refuseDrop(player, "none", nil)
+		CafeService.setCarrying(player, nil)
+		return
+	end
+	-- #3145: asked before the cat leaves the Backpack. Before, a Drop that could not finish (no home to walk to)
+	-- still moved the cat into the hands and then did nothing, press after press.
+	local reason, text = dropRefusal(player, pack)
+	if reason ~= nil then
+		refuseDrop(player, reason, text)
+		return
+	end
+	unpackCat(player, true)
 	dropCarry(player, false)
+	sayHeld(player)
 end
 
 -- Lifecycle -----------------------------------------------------------------------------------------------
@@ -3024,8 +3102,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 							and player.Character == character
 						then
 							dropCarry(player, true)
-							if unpackCat(player) then
+							if unpackCat(player, true) then
 								dropCarry(player, true) -- #2565: the packed cat drops too
+								sayHeld(player) -- #3145
 							end
 						end
 					end)
@@ -3226,21 +3305,35 @@ function CatService.tryKnockLoose(
 	areaId: string,
 	forced: Shove.KnockResult?
 ): Shove.KnockResult?
+	local now = serverNow()
 	if carrying[target] == nil then
-		unpackCat(target) -- #2565: a packed cat alone is knocked loose like a held one
+		-- #2565: a packed cat alone is knocked loose like a held one. #3145: only one that will fall; before, a
+		-- tackle inside the grace, or with nowhere for the cat to land, still moved it from the Backpack into the hands
+		local pack = packed[target]
+		if
+			pack == nil
+			or not Shove.canKnockLoose(pack, now)
+			or world.areas[areaId] == nil
+			or rootPosition(target) == nil
+		then
+			return nil
+		end
+		unpackCat(target, true) -- quiet: it falls in the same breath, or sayHeld below
 	end
 	local carry = carrying[target]
-	local now = serverNow()
 	if carry == nil or not Shove.canKnockLoose(carry, now) then
+		sayHeld(target)
 		return nil
 	end
 	local loose = if forced ~= nil then forced == "loose" else Shove.landsLoose(rng:NextNumber())
 	if loose and knockLoose(target, shoverUserId, areaId) ~= nil then
-		if unpackCat(target) then
+		if unpackCat(target, true) then
 			knockLoose(target, shoverUserId, areaId) -- #2565: a tackle drops both (Derek2)
+			sayHeld(target)
 		end
 		return "loose"
 	end
+	sayHeld(target)
 	carry.immuneUntil = now + Shove.HELD_IMMUNE_SECONDS
 	showCarry(target, carry)
 	task.delay(Shove.HELD_IMMUNE_SECONDS + 0.05, function()
@@ -3254,14 +3347,18 @@ end
 -- #2651 (tier6-7-areas.md section 5): a carrier who fell into an area's mist drops whatever it carried, in the hands
 -- and in the Backpack, back onto the area's floor (knockLoose clamps the spot inside it), never lost. No shover.
 function CatService.dropForFall(player: Player, areaId: string)
+	if world.areas[areaId] == nil or rootPosition(player) == nil then
+		return -- #3145: nowhere to land, so a Backpack cat stays packed (knockLoose would refuse it in the hands)
+	end
 	if carrying[player] == nil then
-		unpackCat(player)
+		unpackCat(player, true)
 	end
 	if carrying[player] ~= nil and knockLoose(player, 0, areaId) ~= nil then
-		if unpackCat(player) then
+		if unpackCat(player, true) then
 			knockLoose(player, 0, areaId)
 		end
 	end
+	sayHeld(player) -- #3145: whatever a quiet unpack left in the hands
 end
 
 function CatService.isCarrying(player: Player): boolean

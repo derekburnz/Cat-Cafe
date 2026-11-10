@@ -4890,9 +4890,29 @@ local SCENES = {
 		clearOfRow(carry, "the carry banner")
 		local drop = carry:FindFirstChild("Drop") :: GuiObject
 		clearOfRow((drop:FindFirstChild("Hit") or drop) :: GuiObject, "the carry banner's Drop tap pad")
+		-- #3145 (Derek2: the carry banner stayed up for a cat that was gone and Drop did nothing): UI.carryView says
+		-- what the screen holds, and shared/CarrySync calls it stale whenever that is not the server's carried cat, so
+		-- UIController sets it again: a banner left up, and a cat left in the UI's state with no banner
+		local CarrySync = UIShim.require("ReplicatedStorage.Shared.CarrySync")
+		local held = Catalog.cats[1].id
+		local view = (UI :: any).carryView()
+		assert(view.built and view.banner and view.catId == held, "uigate: UI.carryView does not see the carry banner (#3145)")
+		assert(not CarrySync.stale(held, held, view), "uigate: a shown carry reads as stale (#3145)")
+		assert(CarrySync.stale(nil, nil, view), "uigate: a banner up for a cat the server no longer has does not read as stale (#3145)")
 		UI.setCarrying(nil)
 		UIShim.advance(0.3)
 		assert(pill.Visible, "uigate: the Drop pill did not come back after carrying (#2731)")
+		view = (UI :: any).carryView()
+		assert(view.built and not view.banner and view.catId == nil, "uigate: UI.carryView still sees a carry after it ended (#3145)")
+		assert(not CarrySync.stale(nil, nil, view), "uigate: an empty screen reads as stale (#3145)")
+		UI.update({ carrying = held } :: any) -- a sync's copy with no banner call after it
+		view = (UI :: any).carryView()
+		assert(view.catId == held and not view.banner, "uigate: UI.carryView does not see the cat left in the UI's state (#3145)")
+		assert(CarrySync.stale(nil, nil, view), "uigate: a cat left in the UI's state does not read as stale (#3145)")
+		UI.setCarrying(nil)
+		UIShim.advance(0.1)
+		view = (UI :: any).carryView()
+		assert(view.catId == nil and not view.banner and not carry.Visible, "uigate: UI.setCarrying(nil) did not clear the screen (#3145)")
 		-- #3119 (Derek2: "drop bag cat / drop on pc now goes inside my cafe/cannon ui make it stack on top of tackle
 		-- for PC"): off touch the pill stands a Tackle bar's height and a gap over the bottom row's tiles; in a
 		-- catching area the bar sits in that place, over the row and under the pill, and the pill does not move

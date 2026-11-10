@@ -3709,6 +3709,7 @@ Presets.firstBaitCut = {
 	displayOrder = 10,
 	cap = 6.5,
 	maxDistance = 120,
+	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }
 
 -- The front lawn pieces' effects (Effects/Lawn, #1283, front-lawn.md section 5), by LawnId. Each spot is `offset`

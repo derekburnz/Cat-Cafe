@@ -17,6 +17,7 @@
 -- come within `waitCat` seconds. Its outcome goes to the server as TelemetryReport("first_bait_cutscene", "shown",
 -- "skipped" or "none"). It never fires anything else.
 
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local RunService = game:GetService("RunService")
@@ -104,7 +105,21 @@ local function setControls(module: any?, on: boolean)
 	end)
 end
 
--- The small "Tap to skip" label in the bottom right (never in the middle), shown from `skipAfter`.
+-- The skip line in the words of the input the player last used (#2871): "Press A to skip" on a gamepad.
+local function skipWords(): string
+	local last = UserInputService:GetLastInputType().Name
+	if last:sub(1, 7) == "Gamepad" then
+		return "Press A to skip"
+	elseif
+		last == "Touch" or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+	then
+		return "Tap to skip"
+	end
+	return "Click to skip"
+end
+
+-- The small "Tap to skip" label in the bottom right (never in the middle), shown from `skipAfter`. On a TV it keeps
+-- inside the 5% a television may crop off its edges (#2871).
 local function skipLabel(): ScreenGui?
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	if playerGui == nil then
@@ -120,14 +135,15 @@ local function skipLabel(): ScreenGui?
 	label.Name = "Skip"
 	label.BackgroundTransparency = 1
 	label.AnchorPoint = Vector2.new(1, 1)
-	label.Position = UDim2.new(1, -24, 1, -24)
+	local edge = if GuiService:IsTenFootInterface() then p.tvSafe else 0
+	label.Position = UDim2.new(1 - edge, -24, 1 - edge, -24)
 	label.Size = UDim2.fromOffset(160, 28)
 	label.FontFace = SKIP_FONT
 	label.TextSize = p.skipSize
 	label.TextXAlignment = Enum.TextXAlignment.Right
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextTransparency = p.skipFade
-	label.Text = if UserInputService.TouchEnabled then "Tap to skip" else "Click to skip"
+	label.Text = skipWords()
 	local stroke = Instance.new("UIStroke")
 	stroke.Thickness = 2
 	stroke.Transparency = p.skipFade

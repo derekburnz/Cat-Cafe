@@ -54,9 +54,9 @@ return function()
 				{ "quick_bait_potion", "quick_bait", "regular", 1200000 },
 				{ "quick_bait_potion_big", "quick_bait", "big", 240000000 },
 				-- #3118: the Fresh Catch's potions the cart didn't sell
-				{ "tip_potion", "money", "regular", 300000 },
+				{ "tip_potion", "money", "regular", 5000000 },
 				{ "lucky_potion", "lucky", "regular", 1500000 },
-				{ "big_tip_potion", "big_money", "regular", 2500000 },
+				{ "big_tip_potion", "big_money", "regular", 150000000 },
 				{ "gold_rush_potion", "gold_rush", "regular", 3000000 },
 				{ "small_cat_snack", "food", "small", 4000 },
 				{ "cat_snack", "food", "regular", 300000 },
@@ -74,9 +74,12 @@ return function()
 				expect(row.size).to.equal(want[index][3])
 				expect(row.price).to.equal(want[index][4])
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
-				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone
+				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone; #3118's Money Potion
+				-- from Tier 3 and Big Money from Tier 4 (Monetization-Agent)
 				local gate = if row.kind == "bait"
 					then nil
+					elseif row.id == "tip_potion" then 3
+					elseif row.id == "big_tip_potion" then 4
 					elseif row.size == "big" then 3
 					elseif row.size == "mega" then 4
 					else nil

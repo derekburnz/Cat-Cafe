@@ -4455,8 +4455,10 @@ Catalog.cornerShop = {
 	-- #3118 (Derek2 2026-11-10: the Fresh Catch is gone, "add any item that could be found in there to the day cart for
 	-- an appropriate price based on how good the item is"): its four potions the cart didn't sell, priced from their
 	-- old golden fish prices against Steady (12 fish, 400K) and Quick Bait (15 fish, 1.2M). The cart's "nothing that
-	-- raises income" rule is lifted for these by that ask; Lucky, Big Money and Gold Rush are capped a day
-	-- (Config.CornerDailyLimits).
+	-- raises income" rule is lifted for these by that ask; every one is capped a day (Config.CornerDailyLimits).
+	-- Monetization-Agent's pass: Big Money is Tier 4 and about 30 minutes of a Tier 4 income (~300M an hour, Tier 4 to
+	-- 5 in economy-ladder.md v4), so its +50% for 30 minutes is a coin sink, not a skip; Money is Tier 3 and 3 a day.
+	-- At most +75% for half an hour a day with both running: never a quiet 2x.
 	{
 		id = "tip_potion",
 		name = "Money Potion",
@@ -4464,7 +4466,8 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "tip_potion",
-		price = 300000,
+		price = 5000000,
+		needsTier = 3,
 	},
 	{
 		id = "lucky_potion",
@@ -4482,7 +4485,8 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "big_tip_potion",
-		price = 2500000,
+		price = 150000000,
+		needsTier = 4,
 	},
 	{
 		id = "gold_rush_potion",

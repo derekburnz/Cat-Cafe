@@ -518,6 +518,7 @@ local Config = {
 		quick_bait = 2,
 		whistle = 4,
 		lucky = 2,
+		money = 3,
 		big_money = 2,
 		gold_rush = 2,
 	} :: { [string]: number },

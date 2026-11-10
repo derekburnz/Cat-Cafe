@@ -924,6 +924,19 @@ Presets.emitters = {
 		drag = 0.6,
 		lightEmission = 1,
 	},
+	-- The stray waiting for your second cat (Effects/WaitingCat, #3022): gold sparkles rising off it like a beacon.
+	waitBeacon = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.35, 0.1 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 2, 3.5 },
+		spread = 12,
+		rate = 6,
+		drag = 0.4,
+		lightEmission = 1,
+	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
 	-- Lawn pieces (Effects/Lawn, #1283). The Little Fountain's spill: small drops tipping off the upper bowl's rim
 	-- and falling into the basin.
@@ -4129,6 +4142,21 @@ Presets.baitCrumbs = {
 	lift = 0.4,
 	gap = 0.35,
 	most = 4,
+}
+
+-- The stray waiting for your second cat (#3022; Effects/WaitingCat): `emitter` sparkles rise off it and a `ring` stud
+-- gold ring pulses out at its feet every `ringEvery` seconds, from `delay` seconds after it shows for `seconds`, within
+-- `within` studs, checked every `check` seconds. `attribute`, `delay` and `seconds` are shared/SecondCat's when it is in.
+Presets.waitingCat = {
+	attribute = "WaitsFor",
+	delay = 2,
+	seconds = 120,
+	within = 250,
+	check = 0.25,
+	emitter = "waitBeacon",
+	ring = 6,
+	ringSeconds = 0.9,
+	ringEvery = 2.5,
 }
 
 -- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)

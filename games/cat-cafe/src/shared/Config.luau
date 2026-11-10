@@ -822,6 +822,11 @@ local Config = {
 	-- #2745 (section 1c): banked crates a side, at most TradeMaxCrateKinds kinds and TradeMaxCrates crates in all
 	TradeMaxCrateKinds = 6,
 	TradeMaxCrates = 20,
+	-- #2745 (section 1d): golden fish a side (whole fish, at most the giver's wallet), the most one player may receive
+	-- in trades in a game day, and one fish's Collector value for the lopsided warning (40 fish count as one Rare, 3)
+	TradeMaxFish = 200,
+	TradeFishPerDay = 400,
+	TradeFishValue = 0.075,
 	TradeCountdownSeconds = 5,
 	TradeLopsidedRatio = 3,
 	TradeConfirmWaitSeconds = 2,

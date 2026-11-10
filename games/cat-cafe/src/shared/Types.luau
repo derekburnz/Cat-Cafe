@@ -638,7 +638,8 @@ export type Stats = {
 
 export type WeekPlay = { week: number, seconds: number }
 export type WeekRate = { week: number, rate: number }
-export type TradesToday = { day: number, count: number }
+-- #2745 (section 1d): `fishIn`, golden fish received in trades that game day (TradeFishPerDay); nil for none.
+export type TradesToday = { day: number, count: number, fishIn: number? }
 
 -- F102 trading (trading.md; shapes agreed with the UI thread 2026-11-02). One cat as a trade's log and its done card
 -- show it.
@@ -659,6 +660,8 @@ export type TradeLogEntry = {
 	gotDecor: { DecorSummary }?,
 	gaveCrates: { CrateSummary }?, -- #2745; nil in entries from before crate trading
 	gotCrates: { CrateSummary }?,
+	gaveFish: number?, -- #2745 (section 1d): golden fish, nil for none
+	gotFish: number?,
 }
 -- One cat on offer, as TradeState shows it to one player: `rateForMe` is what it earns (or would earn) per second in
 -- that player's cafe.
@@ -684,6 +687,7 @@ export type TradeSide = {
 	cats: { TradeTile },
 	decor: { TradeDecorTile }, -- #1574
 	crates: { TradeCrateTile }, -- #2745, sorted by crate id
+	fish: number, -- #2745 (section 1d): golden fish on offer, 0 for none
 }
 -- The last change to an offer, for the yellow flash and "Changed!" (section 3): whose side, which cat uid or piece
 -- id, when (server time).
@@ -710,6 +714,10 @@ export type TradeStateView = {
 	-- Desert yet"), greyed in the Crates tab
 	crateBlocked: { [string]: string },
 	cratesOn: boolean, -- #2745: the tradeCrates live switch; false hides the Crates tab
+	fishOn: boolean, -- #2745 (section 1d): the tradeFish live switch; false hides the fish rows
+	-- #2745: golden fish the other player can still receive today (TradeFishPerDay less what they got), so Max and
+	-- the "They can get N more today" line never ask for more
+	fishRoom: number,
 }
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number

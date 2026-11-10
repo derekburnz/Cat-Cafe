@@ -1,9 +1,9 @@
 --!strict
 -- Reads the live switches (shared/LiveFlags, #2119) from the CatCafe_Flags DataStore every LiveFlags.CHECK_SECONDS
 -- and answers `on(key)` for the services that check them. Studio playtests read the _dev store, and without "Enable
--- Studio Access to API Services" (DataService.saves() false) nothing is read and every feature stays on; Debug.flag
--- sets a switch in this server only. A read that fails keeps what this server had and is warned once until reads
--- work again.
+-- Studio Access to API Services" (DataService.saves() false) nothing is read and the switches keep LiveFlags.defaults()
+-- (every feature on but tradeFish, #2745); Debug.flag sets a switch in this server only. A read that fails keeps what
+-- this server had and is warned once until reads work again.
 --
 -- Roblox terms: a DataStore keeps values by key across servers; GetAsync with UseCache false skips the 4 second
 -- read cache, so a change is seen at the next check.

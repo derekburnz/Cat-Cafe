@@ -234,8 +234,12 @@ local function onSpaBuySlot(player: Player, rawSlot: unknown)
 	if profile == nil then
 		return
 	end
-	local blocker =
-		LateStations.buyBlocker(profile, Economy.tier(profile), slot, profile.goldenFish)
+	local blocker = LateStations.buyBlocker(
+		profile,
+		Economy.tier(profile),
+		slot,
+		profile.goldenFish
+	) or TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
 	local price = LateStations.nextSlotPrice(profile)
 	if blocker ~= nil or price == nil then
 		refuse(player, LateStations.SPA, blocker or LateStations.Messages.allOpen)

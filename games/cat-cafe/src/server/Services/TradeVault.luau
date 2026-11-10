@@ -37,6 +37,7 @@ export type RecordSide = {
 	cats: { Types.CatInstance }, -- the cats this side gives, as they were
 	decor: { string }?, -- #1574: the decor and lawn piece ids this side gives (nil in records from before)
 	crates: { [string]: number }?, -- #2745: crate id -> how many this side gives (nil in records from before)
+	fish: number?, -- #2745 (section 1d): golden fish this side gives (nil for none and in records from before)
 }
 
 export type Record = {

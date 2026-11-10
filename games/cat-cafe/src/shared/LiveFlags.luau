@@ -8,22 +8,28 @@
 --   already paid stays paid; turned on again mid-weekend, the bar starts again at lap 1 and the save's laps cap holds.
 -- - `tradeCrates` (#2745, trading.md section 1c): false takes every crate off the open trades and refuses new crate
 --   offers (TradeService); cat and decor trades go on.
+-- - `tradeFish` (#2745, trading.md section 1d): golden fish in trades. It starts OFF (OFF_BY_DEFAULT) until QA and the
+--   security review pass. Off takes every fish amount off the open trades, refuses new fish offers and lifts the
+--   fish-spend freeze (TradeService).
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
--- (a failed read keeps what the server had), so a broken store can't switch the game off.
+-- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
+-- the other way round: only an explicit true turns it on, so a missing key or a broken store never switches it on.
 
 local LiveFlags = {}
 
 LiveFlags.STORE = "CatCafe_Flags"
-LiveFlags.KEYS = { "codes", "rally", "tradeCrates" }
+LiveFlags.KEYS = { "codes", "rally", "tradeCrates", "tradeFish" }
+-- Switches that stay off until the store holds an explicit true.
+LiveFlags.OFF_BY_DEFAULT = { tradeFish = true } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 
 export type Flags = { [string]: boolean }
 
--- Every feature on.
+-- Every feature on, but those in OFF_BY_DEFAULT.
 function LiveFlags.defaults(): Flags
 	local out: Flags = {}
 	for _, key in LiveFlags.KEYS do
-		out[key] = true
+		out[key] = LiveFlags.OFF_BY_DEFAULT[key] ~= true
 	end
 	return out
 end
@@ -36,7 +42,11 @@ function LiveFlags.parse(raw: unknown): Flags
 	end
 	local values = raw :: { [any]: any }
 	for _, key in LiveFlags.KEYS do
-		if values[key] == false then
+		if LiveFlags.OFF_BY_DEFAULT[key] then
+			if values[key] == true then
+				out[key] = true
+			end
+		elseif values[key] == false then
 			out[key] = false
 		end
 	end

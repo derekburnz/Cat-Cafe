@@ -20,6 +20,11 @@
 -- button (#2828, like the HUD's other folds) at the card's left folds it into one finger-tall chip, "🏆 Grand Cafe 2/3" or a gold "🏆 Rank up!" (Components/GoalFold);
 -- a tap on the chip opens it again. The choice is the goalFolded setting, saved through `onFold`. The ready pulse and
 -- arrow stay on the chip.
+-- #3022 (Derek2 11-10: "make it obvious to go catch second cat ... and progress 'your goal'"): render's `goal`
+-- (Components/SecondCatGoal's view) takes the card over from the first customer served until the second cat: the
+-- gold "🏆 YOUR GOAL" line, the goal's title in place of the tier's name, and its preview lines under it while the
+-- HUD passes them. No bars: a tap still opens the rank up card. A ready rank up comes first, as for the nudge.
+-- bounce() pops the card once (not with Reduce Motion): the HUD calls it as the goal changes and once more later.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
@@ -39,7 +44,15 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type GoalCard = {
 	frame: TextButton,
-	render: (self: GoalCard, progress: RankUp.Progress?, tierText: string, nudge: string?) -> (),
+	render: (
+		self: GoalCard,
+		progress: RankUp.Progress?,
+		tierText: string,
+		nudge: string?,
+		goal: Goal?
+	) -> (),
+	setGoal: (self: GoalCard, goal: Goal?) -> (), -- #3022: the last render again with this goal
+	bounce: (self: GoalCard) -> (), -- #3022: one pop of the card
 	nudging: (self: GoalCard) -> boolean, -- the card shows the nudge, so a tap should open the Index
 	setFolded: (self: GoalCard, folded: boolean) -> (), -- #2714: fold into the chip, or open again
 	folded: (self: GoalCard) -> boolean,
@@ -47,6 +60,10 @@ export type GoalCard = {
 	alerting: (self: GoalCard) -> boolean, -- #2331: the ready pulse and arrow are on
 	destroy: (self: GoalCard) -> (),
 }
+
+-- #3022: a goal that takes the card over (the HUD builds it from Components/SecondCatGoal.View): its title, the
+-- lines under it (at most GOAL_LINES) and the folded chip's line
+export type Goal = { title: string, lines: { string }, chip: string }
 
 -- #2447: a requirement's shorter caption on a touch screen
 local TOUCH_SHORT: { [string]: string } = { ["Different cats"] = "Cats" }
@@ -85,6 +102,8 @@ local ROWS = 3
 local SMALL_OUTLINE = 2 -- small text over the bright world needs a little more outline than in a window
 local ICON = 24 -- the nudge's Index icon
 local NUDGE_CAPTION = "Tap to see where in the Index"
+local GOAL_LINES = 3 -- #3022: lines under a goal's title (a wide card's money line and two preview lines)
+local GOAL_LINE_GAP = 1
 -- #2828: the fold button, the HUD's white arrow button (HUD's FOLD_W x FOLD_H), FOLD_GAP left of the card's edge
 local FOLD_W = 44
 local FOLD_H = 34
@@ -122,7 +141,8 @@ function GoalCard.new(
 	local self = setmetatable({}, GoalCard) :: any
 	self._folded = false
 	self._onFold = onFold
-	self._last = nil :: { progress: RankUp.Progress?, tierText: string, nudge: string? }?
+	self._last =
+		nil :: { progress: RankUp.Progress?, tierText: string, nudge: string?, goal: Goal? }?
 
 	-- the whole block is the button
 	local frame: TextButton = Create("TextButton", {
@@ -227,6 +247,26 @@ function GoalCard.new(
 		Parent = frame,
 	})
 	self._nudging = false
+	-- #3022: a goal's preview lines, under its title; a long one shrinks to fit the card
+	local goalLines: { TextLabel } = {}
+	for index = 1, GOAL_LINES do
+		local line = text({
+			Name = "GoalLine" .. index,
+			Position = UDim2.fromOffset(
+				0,
+				GOAL_H + TITLE_H + 2 + (index - 1) * (CAPTION_H + GOAL_LINE_GAP)
+			),
+			Size = UDim2.new(1, 0, 0, CAPTION_H),
+			TextSize = CAPTION_TEXT,
+			TextColor3 = Theme.colors.gold,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Visible = false,
+			Parent = frame,
+		})
+		FitText.shrink(line)
+		goalLines[index] = line
+	end
+	self._goalLines = goalLines
 
 	local rows: { Row } = {}
 	for index = 1, ROWS do
@@ -329,8 +369,24 @@ function GoalCard.setFolded(self: any, folded: boolean)
 	self._folded = folded
 	local last = self._last
 	if last then
-		self:render(last.progress, last.tierText, last.nudge)
+		self:render(last.progress, last.tierText, last.nudge, last.goal)
 	end
+end
+
+-- #3022: the last render again with `goal` (nil: the tier goal back), for the HUD's preview timer
+function GoalCard.setGoal(self: any, goal: Goal?)
+	local last = self._last
+	if last then
+		self:render(last.progress, last.tierText, last.nudge, goal)
+	end
+end
+
+-- #3022: one pop of the card, as the goal changes; nothing with Reduce Motion or while the card is hidden
+function GoalCard.bounce(self: any)
+	if GuiService.ReducedMotionEnabled or not self.frame.Visible then
+		return
+	end
+	Tween.popIn(self.frame, 0.82)
 end
 
 function GoalCard.folded(self: any): boolean
@@ -338,9 +394,13 @@ function GoalCard.folded(self: any): boolean
 end
 
 -- #2714: the chip, one finger-tall line; the ready pulse and arrow carry on round it
-function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: string?)
-	local words, gold = GoalFold.chip(progress :: any, nudge)
+function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: string?, goal: Goal?)
+	-- #3022: a goal's chip line stands where the nudge's would (a ready rank up still comes first)
+	local words, gold = GoalFold.chip(progress :: any, if goal then goal.chip else nudge)
 	self._tier.Visible = false
+	for _, line in self._goalLines do
+		line.Visible = false
+	end
 	self._goalLine.Visible = false
 	self._icon.Visible = false
 	self._caption.Visible = false
@@ -367,16 +427,58 @@ function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: st
 end
 
 -- progress nil (no tiers in the catalog yet) shows tierText alone.
-function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string, nudge: string?)
+function GoalCard.render(
+	self: any,
+	progress: RankUp.Progress?,
+	tierText: string,
+	nudge: string?,
+	goal: Goal?
+)
 	self.frame.Visible = true
-	self._last = { progress = progress, tierText = tierText, nudge = nudge }
+	self._last = { progress = progress, tierText = tierText, nudge = nudge, goal = goal }
 	if self._folded then
-		self:_renderFolded(progress, nudge)
+		self:_renderFolded(progress, nudge, goal)
 		return
 	end
 	self._fold.Visible = TOUCH
 	self._tier.Text = tierText
 	local ready = progress ~= nil and progress.ready
+	-- #3022: a goal takes the card over (a ready rank up still comes first): the gold line, its title, its lines
+	local shown = 0
+	for index, line: TextLabel in self._goalLines do
+		local words = if goal ~= nil and not ready then goal.lines[index] else nil
+		line.Visible = words ~= nil
+		if words ~= nil then
+			line.Text = words
+			shown = index
+		end
+	end
+	if goal ~= nil and not ready then
+		self._nudging = false
+		self._icon.Visible = false
+		self._caption.Visible = false
+		self._tier.Visible = false
+		self._badge.Visible = false
+		self._ready = false
+		for _, row in self._rows do
+			row.frame.Visible = false
+		end
+		self._goalLine.Visible = true
+		self._title.Visible = true
+		self._title.Text = goal.title
+		self._title.TextColor3 = Theme.hud.text
+		self._title.Position = UDim2.fromOffset(0, GOAL_H)
+		self._title.Size = UDim2.new(1, 0, 0, TITLE_H)
+		local height = GOAL_H + TITLE_H
+		if shown > 0 then
+			height += 2 + shown * (CAPTION_H + GOAL_LINE_GAP) - GOAL_LINE_GAP
+		end
+		-- (a finger tall on touch, as the nudge: the card is a button)
+		self.frame.Size = UDim2.fromOffset(WIDTH, Scale.tapHeight(height + PAD * 2))
+		self._seenKey = nil
+		self:_alert(nil)
+		return
+	end
 	local nudging = nudge ~= nil and not ready -- a ready rank up still comes first
 	self._nudging = nudging
 	self._icon.Visible = nudging

@@ -5739,6 +5739,93 @@ local SCENES = {
 		Scenes._goalBefore = nil
 		UI.update({ tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
 	end },
+	-- #3022 (Derek2 11-10: "make it obvious to go catch second cat to earn more money and progress 'your goal'"): from
+	-- the first customer served the goal card reads "Catch a 2nd cat" under the gold YOUR GOAL line, with the server's
+	-- numbers: a new Tier 1 cafe has both jobs taken, so the wide card's money line names the new-cat bonus and never
+	-- "2x". Two preview lines show under it for 6 s, once. No bars and no Rank up! sticker.
+	{ "SecondCatGoal", function()
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local touch = Scale.isTouch()
+		-- (UIShim.advance all through, never task.wait: the 6 s below outruns the runner's own clock, and a wait after
+		-- it would only come back once the picture is taken)
+		local before: any = UI.getState()
+		Scenes._secondCat = { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 3, money = 120, secondCat = { now = 2.5, with = 2.5, cats = 1, bonus = 50 } } :: any)
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for the second cat (#3022)")
+		local line = goal:FindFirstChild("Goal") :: TextLabel
+		assert(line.Visible and line.Text == "🏆 YOUR GOAL", "uigate: the second cat goal has no YOUR GOAL line (#3022)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		local expected = "Catch a 2nd cat 🐾 1/2"
+		assert(title.Visible and title.Text == expected, "uigate: the second cat goal reads " .. title.Text .. " (#3022)")
+		assert(title.TextFits, "uigate: the second cat goal does not fit its card (#3022)")
+		assert(not (goal:FindFirstChild("RankReady") :: GuiObject).Visible, "uigate: a Rank up! sticker on the second cat goal (#3022)")
+		for index = 1, 3 do
+			local row = goal:FindFirstChild("Row" .. index) :: GuiObject
+			assert(not row.Visible, "uigate: a requirement bar under the second cat goal (#3022)")
+		end
+		-- the lines under the title, top down: a wide card's money line (it stays), then the two preview lines
+		local function shownLines(): { TextLabel }
+			local out = {}
+			for index = 1, 3 do
+				local label = goal:FindFirstChild("GoalLine" .. index) :: TextLabel
+				if label.Visible then
+					table.insert(out, label)
+				end
+			end
+			return out
+		end
+		local function texts(labels: { TextLabel }): string
+			local out = {}
+			for _, label in labels do
+				table.insert(out, label.Text)
+			end
+			return table.concat(out, " | ")
+		end
+		local lines = shownLines()
+		local hook = if touch then 0 else 1
+		assert(#lines == hook + 2, "uigate: the second cat goal shows " .. texts(lines) .. " (#3022)")
+		if not touch then
+			assert(lines[1].Text == "New cats pay +$50 💰", "uigate: the second cat goal's money line reads " .. lines[1].Text .. " (#3022)")
+		end
+		assert(lines[hook + 1].Text == "New kind of cat: +$50", "uigate: the second cat preview reads " .. lines[hook + 1].Text .. " (#3022)")
+		assert(string.find(lines[hook + 2].Text, "1 step closer to ", 1, true), "uigate: the second cat preview's second line reads " .. lines[hook + 2].Text .. " (#3022)")
+		local bottom = goal.AbsolutePosition.Y + goal.AbsoluteSize.Y
+		for _, label in lines do
+			assert(not string.find(label.Text, "2x", 1, true), "uigate: the second cat goal says 2x with both jobs taken (#3022)")
+			assert(label.TextFits, "uigate: the second cat goal's line does not fit the card: " .. label.Text .. " (#3022)")
+			assert(label.AbsolutePosition.Y + label.AbsoluteSize.Y <= bottom + 0.5, "uigate: the second cat goal's lines run out of the card (#3022)")
+		end
+		local tall = goal.AbsoluteSize.Y
+		-- the preview has its 6 s, once; the money line stays
+		UIShim.advance(6.3)
+		lines = shownLines()
+		assert(#lines == hook, "uigate: the second cat preview stayed past its 6 s: " .. texts(lines) .. " (#3022)")
+		assert(goal.AbsoluteSize.Y <= tall, "uigate: the second cat goal grew when its preview went (#3022)")
+		assert(title.Visible and title.Text == expected, "uigate: the second cat goal went with its preview (#3022)")
+		-- a job really free, the server's two rates: only then "2x" (the wide card's money line)
+		UI.update({ secondCat = { now = 1.5, with = 3, cats = 1, bonus = 50 } } :: any)
+		UIShim.advance(0.1)
+		if not touch then
+			lines = shownLines()
+			assert(#lines == 1 and lines[1].Text == "2 cats earn 2x 💰", "uigate: with a free job the goal's money line reads " .. texts(lines) .. " (#3022)")
+		end
+		-- the second cat is in: the tier goal is back
+		UI.update({ secondCat = false } :: any)
+		UIShim.advance(0.1)
+		assert(not string.find(title.Text, "2nd cat", 1, true), "uigate: the goal card still asks for a 2nd cat after it (#3022)")
+		assert(#shownLines() == 0, "uigate: the second cat goal's lines stayed on the tier goal (#3022)")
+		assert((goal:FindFirstChild("Row1") :: GuiObject).Visible, "uigate: the tier goal's bars did not come back after the second cat (#3022)")
+		-- back for the picture
+		UI.update({ secondCat = { now = 2.5, with = 2.5, cats = 1, bonus = 50 } } :: any)
+		UIShim.advance(0.1)
+		lines = shownLines()
+		assert(title.Text == expected and #lines == hook, "uigate: the second cat goal did not come back: " .. title.Text .. " | " .. texts(lines) .. " (#3022)")
+		if not touch then
+			assert(lines[1].Text == "New cats pay +$50 💰", "uigate: the second cat goal's money line came back as " .. lines[1].Text .. " (#3022)")
+		end
+	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
 	{ "TutorialDoneX", function()
@@ -7814,6 +7901,11 @@ function Scenes.close()
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back
 		Scenes._feedBefore = nil
+	end
+	if Scenes._secondCat then
+		local was = Scenes._secondCat -- #3022's second cat goal scene: the tier goal and the sample cafe back
+		Scenes._secondCat = nil
+		UI.update({ secondCat = false, tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
 	end
 	if Scenes._goalFolded then
 		Scenes._goalFolded = nil

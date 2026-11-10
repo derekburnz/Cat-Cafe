@@ -46,6 +46,7 @@ local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
+local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
@@ -96,6 +97,10 @@ type Stray = {
 	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
 	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
 	beginner: number?,
+	-- #3022 (shared/SecondCat): the user id of the player this stray waits for near the Alleyway camp's landing, from
+	-- their first customer served until their second cat, mirrored in the model's WaitsFor attribute (0 when none).
+	-- Anyone may catch it; for that player its catch is the first catch's one slow circle.
+	waitsFor: number?,
 	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
 	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
 	mood: Types.CatMood,
@@ -600,6 +605,7 @@ local function spawnStray(
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
 	model:SetAttribute("Beginner", beginner or 0) -- F87: other clients leave a beginner's stray alone
+	model:SetAttribute(SecondCat.ATTRIBUTE, 0) -- #3022: set while it waits for a player's second catch
 	model:SetAttribute("SpawnedAt", os.time())
 	model:SetAttribute("FleeingUntil", 0) -- v0.5: server time a missed stray stops running (display only)
 	-- A net stray's gold is no secret (data-model section 4): the sparkle and the catch header show it. Its Variant
@@ -876,6 +882,226 @@ local function tutorialTick()
 		if stray.drop == nil and (stray.lockedBy == 0 or lockExpired(stray)) then
 			despawn(stray)
 		end
+	end
+end
+
+-- #3022 (shared/SecondCat; Derek2 2026-11-10: "A lot of people stop before catching second cat"): from a player's
+-- first customer served until their second cat is checked in, a stray waits for them near the Alleyway camp's
+-- landing. The free stray nearest the landing within SecondCat.SEARCH_STUDS is theirs: it turns Curious, so it walks
+-- up to them, and its home moves in until its wander keeps within SecondCat.LEASH_STUDS. When none is that near, a
+-- Common arrives at a free `near` point (the player's own plot's first). It is not reserved: someone else may catch
+-- it, and the next tick picks another. A player carrying a cat, the night and a stray that was caught, dropped or
+-- sent running all let it go. The three step_time events are logged here, once a session each.
+-- One table (Second.step, tick, served, forget), as the module is short of locals.
+local Second = {}
+do
+	local secondSteps: { [Player]: { [string]: boolean } } = {}
+
+	function Second.step(player: Player, profile: Types.PlayerProfile, name: string)
+		local seen = secondSteps[player]
+		if seen == nil then
+			seen = {}
+			secondSteps[player] = seen
+		end
+		if not seen[name] then
+			seen[name] = true
+			Telemetry.stepTime(player, profile, name)
+		end
+	end
+
+	local function secondPad(): Vector3?
+		local pad = Layout.landingPads[SecondCat.AREA]
+		if pad == nil then
+			return nil
+		end
+		return Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
+	end
+
+	-- Gives the stray to `userId` to wait for, or lets it go (nil).
+	local function waitFor(stray: Stray, userId: number?, pad: Vector3?)
+		stray.waitsFor = userId
+		stray.model:SetAttribute(SecondCat.ATTRIBUTE, userId or 0)
+		if userId == nil or pad == nil then
+			return
+		end
+		stray.home = SecondCat.leash(stray.home, pad, Config.StrayWanderRadius)
+		if stray.mood ~= "Curious" or stray.curiousAt ~= nil then
+			stray.mood = "Curious"
+			stray.curiousAt = nil
+			stray.model:SetAttribute("Mood", "Curious")
+			stray.model:SetAttribute("CuriousAt", nil)
+		end
+		stray.model:SetAttribute("Napping", false) -- a Sleepy one gets up
+	end
+
+	-- Whether the stray can be the one that waits: on the Alleyway's floor, nobody's catch, tutorial stray or waiting
+	-- stray, not Dropped, walking home or running, and a plain Rare or below (SecondCat.fits).
+	local function canWait(stray: Stray, now: number): boolean
+		if not stray.alive or stray.area ~= SecondCat.AREA then
+			return false
+		end
+		if not SecondCat.fits(stray.def.rarity, stray.variant) then
+			return false
+		end
+		if
+			stray.beginner ~= nil
+			or stray.waitsFor ~= nil
+			or stray.drop ~= nil
+			or stray.returning
+		then
+			return false
+		end
+		if (stray.lockedBy ~= 0 and not lockExpired(stray)) or stray.jumping then
+			return false
+		end
+		if now < stray.fleeingUntil then
+			return false
+		end
+		local area = world.areas[stray.area]
+		return area ~= nil and stray.home.Y <= area.floorY + PERCH_ABOVE
+	end
+
+	-- The stray that will wait for `player`: the nearest free one to the landing, else a Common brought to a `near` point.
+	local function pickWaiting(player: Player, pad: Vector3, now: number): Stray?
+		local best: Stray? = nil
+		local bestDistance = math.huge
+		for _, stray in strays do
+			if canWait(stray, now) then
+				local at = stray.body.Position
+				if SecondCat.inSearch(at, pad) then
+					local distance = (Vector3.new(at.X, pad.Y, at.Z) - pad).Magnitude
+					if distance < bestDistance then
+						best, bestDistance = stray, distance
+					end
+				end
+			end
+		end
+		if best ~= nil then
+			return best
+		end
+		local area = world.areas[TUTORIAL_AREA]
+		if area == nil then
+			return nil
+		end
+		local occupied = occupiedPoints[TUTORIAL_AREA] or {}
+		local near = tutorialPoints()
+		local plot = PlotService.get(player)
+		local own = if plot ~= nil then near[plot.index] else nil
+		local pick: number? = nil
+		if own ~= nil and occupied[own] == nil then
+			pick = own
+		else
+			local pickDistance = math.huge
+			for _, index in near do
+				if occupied[index] == nil then
+					local distance = (area.spawnPoints[index].Position - pad).Magnitude
+					if distance < pickDistance then
+						pick, pickDistance = index, distance
+					end
+				end
+			end
+		end
+		if pick == nil then
+			return nil -- every near point is taken (by tutorial strays): the next tick looks again
+		end
+		return spawnAt(TUTORIAL_AREA, pick, "Common")
+	end
+
+	-- One player's part of the rule; `stray` is the one already waiting for them, if any.
+	local function secondCatFor(
+		player: Player,
+		profile: Types.PlayerProfile,
+		stray: Stray?,
+		pad: Vector3
+	)
+		local waiting: Stray
+		if stray ~= nil then
+			waiting = stray
+		else
+			local picked = pickWaiting(player, pad, serverNow())
+			if picked == nil then
+				return
+			end
+			waitFor(picked, player.UserId, pad)
+			waiting = picked
+		end
+		Second.step(player, profile, SecondCat.SHOWN)
+		local root = rootPosition(player)
+		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
+			Second.step(player, profile, SecondCat.FOLLOWED)
+		end
+	end
+
+	-- Whether the rule runs for the player now: their save waits for its second cat, the areas are open and their hands
+	-- and Backpack are empty.
+	local function secondCatDue(player: Player): Types.PlayerProfile?
+		local profile = DataService.get(player)
+		if
+			profile == nil
+			or not SecondCat.waiting(profile)
+			or carrying[player] ~= nil
+			or packed[player] ~= nil
+			or not ClockService.areasOpen()
+		then
+			return nil
+		end
+		return profile
+	end
+
+	function Second.tick()
+		local pad = secondPad()
+		if pad == nil then
+			return
+		end
+		local due: { [number]: { player: Player, profile: Types.PlayerProfile } } = {}
+		for _, player in DataService.loadedPlayers() do
+			local profile = secondCatDue(player)
+			if profile ~= nil then
+				due[player.UserId] = { player = player, profile = profile }
+			end
+		end
+		local has: { [number]: Stray } = {}
+		for _, stray in strays do
+			local who = stray.waitsFor
+			if who == nil then
+				continue
+			end
+			if
+				due[who] == nil
+				or has[who] ~= nil
+				or not stray.alive
+				or stray.drop ~= nil
+				or stray.returning
+			then
+				waitFor(stray, nil)
+			else
+				has[who] = stray
+			end
+		end
+		for userId, entry in due do
+			secondCatFor(entry.player, entry.profile, has[userId], pad)
+		end
+	end
+
+	-- The first customer was just served: the stray waits from now, not the next tick.
+	function Second.served(player: Player)
+		local pad = secondPad()
+		local profile = secondCatDue(player)
+		if pad == nil or profile == nil then
+			return
+		end
+		local mine: Stray? = nil
+		for _, stray in strays do
+			if stray.waitsFor == player.UserId and stray.alive then
+				mine = stray
+				break
+			end
+		end
+		secondCatFor(player, profile, mine, pad)
+	end
+
+	function Second.forget(player: Player)
+		secondSteps[player] = nil
 	end
 end
 
@@ -1247,6 +1473,13 @@ local function startCarry(
 		)
 		return false
 	end
+	-- #3022: a catch (not a cat picked up off the ground) while the save waits for its second cat
+	if pickedUp ~= true then
+		local profile = DataService.get(player)
+		if profile ~= nil and SecondCat.waiting(profile) then
+			Second.step(player, profile, SecondCat.CAUGHT)
+		end
+	end
 	local carry: Carry = {
 		def = def,
 		model = nil,
@@ -1478,7 +1711,11 @@ end
 -- #2774 (Derek2 2026-11-09: "make the first players catch buffed no matter the rarity so its super easy"): until
 -- their first check-in, a beginner's catch on any free stray, not only their own tutorial stray, is the tutorial's
 -- one slow circle with doubled bands, and a Miss only brings the circle back.
+-- #3022: so is the catch of the stray that waits for a player's second cat (shared/SecondCat), for that player.
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
+		return true
+	end
 	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 		and (stray.beginner == nil or stray.beginner == player.UserId)
 end
@@ -2787,6 +3024,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			packed[player] = nil
 		end
 		circleHistory[player] = nil
+		Second.forget(player) -- #3022
 		lastCatchStart[player] = nil
 		lastSwing[player] = nil
 		startledUntil[player] = nil
@@ -2802,7 +3040,26 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		while true do
 			task.wait(5)
 			tutorialTick()
+			-- #3022: after it, so a beginner's tutorial stray has its `near` point first; one bad tick must not end
+			-- the tutorial rule for the server's life
+			xpcall(Second.tick, function(err: unknown)
+				warn("[CatService] second cat tick: " .. tostring(err))
+			end)
 		end
+	end)
+	-- #3022: the stray waits from the moment the first customer is served, and the goal card hears of it at once
+	Telemetry.onStep(function(player: Player, name: string)
+		if name ~= "first_customer_served" then
+			return
+		end
+		task.defer(function()
+			xpcall(Second.served, function(err: unknown)
+				warn("[CatService] second cat: " .. tostring(err))
+			end, player)
+			if DataService.get(player) ~= nil then
+				CafeService.sync(player)
+			end
+		end)
 	end)
 	task.spawn(function()
 		local last = os.clock()

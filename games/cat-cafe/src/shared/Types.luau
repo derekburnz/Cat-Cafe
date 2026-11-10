@@ -1164,12 +1164,26 @@ export type GrandOpeningState = {
 -- coins earned since the join
 -- #2123 (first-hour.md 6a): shared/ReturnHook's pick, "bait", "treat" (with the Daily Treat `day`) or "quests"
 export type ReturnHookView = { kind: string, day: number? }
+-- #2916: one next goal (shared/ReturnGoals): `kind` one of ReturnGoals.KINDS; have and need for "cats", "rarity" and
+-- "coins" (their progress bar), tier the Tier it is for, area the area that Tier opens ("cats"), rarity ("rarity"),
+-- amount and hours for "away" (about this many coins while away, counted up to this many hours)
+export type ReturnGoalView = {
+	kind: string,
+	have: number?,
+	need: number?,
+	tier: number?,
+	area: string?,
+	rarity: string?,
+	amount: number?,
+	hours: number?,
+}
 -- #2123: `tomorrow` is the recap card's "Tomorrow" line (shared/ReturnHook, "recap")
 export type SessionRecapView = {
 	minutes: number,
 	newCats: number,
 	earned: number,
 	tomorrow: ReturnHookView?,
+	goals: { ReturnGoalView }?, -- #2916: the next goals with their progress (shared/ReturnGoals)
 }
 
 export type PlayerProfile = {
@@ -1340,6 +1354,7 @@ export type PlayerState = {
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
+	returnGoals: { ReturnGoalView }?, -- #2916: a returning player's next goals on the welcome back card
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag

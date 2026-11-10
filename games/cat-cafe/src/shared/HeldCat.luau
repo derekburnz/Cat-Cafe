@@ -101,9 +101,20 @@ local function holdFrame(model: Model, character: Model, root: BasePart?): (Base
 	return root, carried * model:GetPivot():ToObjectSpace(body.CFrame)
 end
 
+-- #3018 (Laptop-Tester: the Golem's box-shaped body poked through the carrier's arms): a cat whose model carries a
+-- HeldScale attribute (Model-Agent's, cats.py held_scale) rides in the arms at that share of its size, once.
+local function fitHeld(model: Model)
+	local k = model:GetAttribute("HeldScale")
+	if typeof(k) == "number" and k > 0 and k ~= 1 and model:GetAttribute("HeldScaled") == nil then
+		model:ScaleTo(model:GetScale() * k)
+		model:SetAttribute("HeldScaled", true)
+	end
+end
+
 --- Where the held cat's pivot would be in the world right now, for a hop into the arms (the intro).
 function HeldCat.target(model: Model, character: Model, root: BasePart): CFrame
 	HeldCat.sleep(model)
+	fitHeld(model)
 	local body = bodyOf(model)
 	local holder, frame = holdFrame(model, character, root)
 	if body == nil or holder == nil then
@@ -117,6 +128,7 @@ end
 --- parents it. Returns the HoldWeld, or nil for a model with no parts or no torso and no root.
 function HeldCat.attach(model: Model, character: Model, root: BasePart?): Weld?
 	HeldCat.sleep(model)
+	fitHeld(model)
 	local body = bodyOf(model)
 	local holder, frame = holdFrame(model, character, root)
 	if body == nil or holder == nil then

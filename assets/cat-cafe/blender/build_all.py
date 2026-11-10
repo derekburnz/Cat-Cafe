@@ -683,6 +683,8 @@ def cat_rbx_extras(name):
             attachments.append(("_" + part, "Outfit_" + n,
                                 Matrix.Translation(Vector(joints[part]) + Vector(off) * s) @ turn))
     extras = {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
+    if spec.get("held_scale"):              # #3018: carried smaller so a big boxy body clears the arms (HeldCat)
+        extras["attributes"]["HeldScale"] = {"Float64": float(spec["held_scale"])}
     slot = props.slot(cat)
     if slot:                                # a themed cat's prop: its slot, and which piece its parts follow
         rides = props.follows(slot)

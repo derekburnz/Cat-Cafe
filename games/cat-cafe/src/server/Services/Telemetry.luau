@@ -1584,7 +1584,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and rawValue <= FirstFive.INTRO_SHOTS
 		then
 			local shot = rawValue :: number
-			local first = session.introShot == 0
+			-- only the first play's shot 1: a replay from the Tutorial tile later (introSeen) would time minutes, not
+			-- the load (Gameplay-Engineer)
+			local first = session.introShot == 0 and shot == 1 and not profile.introSeen
 			session.introShot = math.max(session.introShot, shot)
 			if first and Economy.tier(profile) < 2 then
 				local waited = math.max(0, os.time() - session.joinedAt)

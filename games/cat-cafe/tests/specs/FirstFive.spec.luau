@@ -140,6 +140,11 @@ return function()
 			end
 		)
 
+		it("names every intro shot the cutscene has", function()
+			local Intro = require(Shared.Intro)
+			expect(FirstFive.INTRO_SHOTS >= Intro.SHOTS).to.equal(true)
+		end)
+
 		it("buckets the wait for the first scene", function()
 			expect(FirstFive.firstSceneBucket(3)).to.equal("0-10")
 			expect(FirstFive.firstSceneBucket(10)).to.equal("10-20")

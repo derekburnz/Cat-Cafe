@@ -2964,6 +2964,17 @@ function UI.setCarrying(info: Types.CarryInfo?)
 	UI.carryMarker.apply()
 end
 
+-- #3145: what the screen holds for a carried cat (shared/CarrySync.View), so UIController can set it again when it
+-- has drifted from the server's: the HUD and marker exist, the cat this state names, and whether the banner is up.
+function UI.carryView(): { built: boolean, catId: string?, banner: boolean }
+	local hudScreen = hud
+	return {
+		built = hudScreen ~= nil and carryMarker ~= nil,
+		catId = (state :: any).carrying,
+		banner = hudScreen ~= nil and hudScreen:carryShown(),
+	}
+end
+
 -- #2864 (Derek2: a Backpack cat alone showed no way home): the carry marker follows a cat in the hands first, else one
 -- packed in the Backpack (UI.setBagCarry), which leaves state.carrying and the HUD's carry banner alone, so the "Drop
 -- bag cat" pill stays.

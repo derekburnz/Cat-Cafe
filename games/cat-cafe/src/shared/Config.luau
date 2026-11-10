@@ -591,7 +591,8 @@ local Config = {
 	-- F87 (easy-start.md section 2): the intro waits for the Tutorial tile instead of playing by itself (true restores
 	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
-	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
+	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
+	-- nobody can tackle them either.
 	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
 	-- and a replay from the ? tile
 	IntroAutoPlay = true,

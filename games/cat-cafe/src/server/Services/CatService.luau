@@ -96,8 +96,10 @@ type Stray = {
 	knocks: number, -- F84: times tackles knocked this cat loose since it was first caught (camp_checkin)
 	pity: boolean?, -- #2567: a pity or shower cat (and the cat it became when knocked loose): no cross-server line
 	-- F87 (easy-start.md section 2b): the user id of the beginner this tutorial stray waits for, mirrored in the
-	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
-	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
+	-- model's Beginner attribute (0 when none). Their catch is one slow circle and a Miss brings it back instead of
+	-- sending the cat running. LockedBy stays the catch lock the effects read.
+	-- #3181: it is no longer theirs alone. Anyone may swing at it and catch it (a beginner with the same easy catch,
+	-- anyone else with a Common's own circles), and tutorialTick puts a new one at the beginner's point.
 	beginner: number?,
 	-- #3022 (shared/SecondCat): the user id of the player this stray waits for near the Alleyway camp's landing, from
 	-- their first customer served until their second cat, mirrored in the model's WaitsFor attribute (0 when none).
@@ -822,7 +824,8 @@ end
 
 -- A beginner always finds a Common stray waiting just past the Alleyway camp's way out, at their plot's own `near`
 -- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it. Since F87
--- (easy-start.md section 2b) it is theirs alone until their first check-in: one that waits at their point for
+-- (easy-start.md section 2b) it is theirs until their first check-in (#3181: no longer theirs alone; anyone may
+-- catch it, and the next tick, or the catch itself, puts a new one at the point): one that waits at their point for
 -- someone who left the plot is handed over, and one whose beginner left or checked in a cat is freed.
 -- #2692: nothing else spawns at night (v0.9, F66), but a beginner holds the night pass, so their stray comes at night
 -- too, and one whose beginner has gone or checked in leaves at once by night instead of waiting for the sunrise.
@@ -1793,8 +1796,8 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
 		return true
 	end
+	-- #3181: another beginner's tutorial stray too, now that anyone may catch one
 	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
-		and (stray.beginner == nil or stray.beginner == player.UserId)
 end
 
 -- startCatch, below; a beginner's Miss on their tutorial stray starts the circle again through it (F87).
@@ -1940,6 +1943,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local knocks = stray.knocks
 		local pity = stray.pity
 		local area = stray.area
+		local waitedFor = stray.beginner -- #3181: someone else's tutorial stray
 		-- #1181 (corner-shop-v2.md section 3): 1 in CatchSnackChance a stray's net catch drops a Small Snack, never a
 		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
 		local dropsSnack = stray.drop == nil
@@ -1950,6 +1954,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			then Config.CatXpBase
 			else nil
 		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp, pity)
+		if waitedFor ~= nil and waitedFor ~= player.UserId then
+			-- #3181: the beginner it waited for gets a new one at their point now, not at the next 5 s tick
+			task.defer(tutorialTick)
+		end
 		if dropsSnack then
 			local paid =
 				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
@@ -2059,9 +2067,6 @@ function startCatch(
 		return if stray.lockedBy == player.UserId
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
-	end
-	if stray.beginner ~= nil and stray.beginner ~= player.UserId then
-		return "This cat is waiting for a new player" -- F87; the swing skips it, so this is only a guard
 	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		return "Too far away"
@@ -2288,9 +2293,9 @@ local function swingable(stray: Stray, player: Player, now: number): boolean
 	if not stray.alive or stray.jumping or now < stray.fleeingUntil then
 		return false
 	end
-	if stray.beginner ~= nil and stray.beginner ~= player.UserId then
-		return false -- F87: a beginner's tutorial stray is theirs alone
-	end
+	-- #3181 (Derek2 2026-11-10: "certain cats atleast at the beginning of alleyway are bugged and cant be caught no
+	-- matter where I put net"): a beginner's tutorial stray was theirs alone (F87), so to everyone else, other new
+	-- players included, it was a cat no net could catch. Anyone's swing lands on it now.
 	return stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray)
 end
 

@@ -751,44 +751,56 @@ return function()
 
 		it("has the caps and value the spec sets", function()
 			expect(Config.TradeMaxFish).to.equal(200)
-			expect(Config.TradeFishPerDay).to.equal(400)
+			expect(Config.TradeFishPerDay).to.equal(250) -- Derek2 2026-11-10 (400 before)
 			expect(Trade.fishValue(40)).to.be.near(3, 1e-9) -- 40 fish count as one Rare
 		end)
 
-		it("refuses negative, fractional, NaN, infinite, over-cap and over-wallet amounts", function()
-			local me, them = profile(150), profile(0)
-			for _, bad in { -10, -1, 0.5, 0 / 0, math.huge, -math.huge, "10", true } do
-				expect(Trade.fishRefusal(me, them, bad, DAY3)).to.equal(Trade.Messages.fishAmount)
+		it(
+			"refuses negative, fractional, NaN, infinite, over-cap and over-wallet amounts",
+			function()
+				local me, them = profile(150), profile(0)
+				for _, bad in { -10, -1, 0.5, 0 / 0, math.huge, -math.huge, "10", true } do
+					expect(Trade.fishRefusal(me, them, bad, DAY3)).to.equal(
+						Trade.Messages.fishAmount
+					)
+				end
+				expect(Trade.fishRefusal(me, them, 0, DAY3)).never.to.be.ok() -- taking them all off
+				expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
+				expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(
+					Trade.Messages.fishNotEnough
+				) -- balance + 1
+				me.goldenFish = 999
+				expect(Trade.fishRefusal(me, them, 200, DAY3)).never.to.be.ok()
+				expect(Trade.fishRefusal(me, them, 201, DAY3)).to.equal(
+					string.format(Trade.Messages.fullFish, 200)
+				)
 			end
-			expect(Trade.fishRefusal(me, them, 0, DAY3)).never.to.be.ok() -- taking them all off
-			expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
-			expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(Trade.Messages.fishNotEnough) -- balance + 1
-			me.goldenFish = 999
-			expect(Trade.fishRefusal(me, them, 200, DAY3)).never.to.be.ok()
-			expect(Trade.fishRefusal(me, them, 201, DAY3)).to.equal(
-				string.format(Trade.Messages.fullFish, 200)
-			)
-		end)
+		)
 
-		it("keeps each receiver to TradeFishPerDay a game day, afresh at the next sunrise", function()
-			local me, them = profile(999), profile(0)
-			expect(Trade.fishRoom(them, DAY3)).to.equal(400)
-			them.stats.tradesToday = { day = Trade.day(DAY3), count = 2, fishIn = 250 }
-			expect(Trade.fishRoom(them, DAY3)).to.equal(150)
-			expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
-			expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(
-				string.format(Trade.Messages.fishRoom, 150)
-			)
-			expect(Trade.fishRoom(them, DAY4)).to.equal(400) -- the next game day
-			them.stats.tradesToday.fishIn = 999 -- over the cap: no room, never below 0
-			expect(Trade.fishRoom(them, DAY3)).to.equal(0)
-		end)
+		it(
+			"keeps each receiver to TradeFishPerDay a game day, afresh at the next sunrise",
+			function()
+				local me, them = profile(999), profile(0)
+				expect(Trade.fishRoom(them, DAY3)).to.equal(250)
+				them.stats.tradesToday = { day = Trade.day(DAY3), count = 2, fishIn = 100 }
+				expect(Trade.fishRoom(them, DAY3)).to.equal(150)
+				expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
+				expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(
+					string.format(Trade.Messages.fishRoom, 150)
+				)
+				expect(Trade.fishRoom(them, DAY4)).to.equal(250) -- the next game day
+				them.stats.tradesToday.fishIn = 999 -- over the cap: no room, never below 0
+				expect(Trade.fishRoom(them, DAY3)).to.equal(0)
+			end
+		)
 
 		it("moves fish once, wallet only: never lifetimeGoldenFish or fishEarned", function()
 			local giver, taker = profile(300), profile(20)
 			taker.lifetimeGoldenFish = 20
 			local fish = { gave = 120, got = 0 }
-			expect(Trade.apply(giver, "t1", "Alex", {}, {}, {}, DAY3, nil, nil, fish)).to.equal(true)
+			expect(Trade.apply(giver, "t1", "Alex", {}, {}, {}, DAY3, nil, nil, fish)).to.equal(
+				true
+			)
 			expect(giver.goldenFish).to.equal(180)
 			local got = { gave = 0, got = 120 }
 			expect(Trade.apply(taker, "t1", "Sam", {}, {}, {}, DAY3, nil, nil, got)).to.equal(true)
@@ -808,7 +820,15 @@ return function()
 			expect(giver.tradeLog[1].gaveFish).to.equal(120)
 			local clean = Trade.sanitizeLog({
 				taker.tradeLog[1],
-				{ id = "bad", at = 1, partnerName = "Ola", gave = {}, got = {}, gotFish = -5, gaveFish = 0 / 0 },
+				{
+					id = "bad",
+					at = 1,
+					partnerName = "Ola",
+					gave = {},
+					got = {},
+					gotFish = -5,
+					gaveFish = 0 / 0,
+				},
 			})
 			expect(clean[1].gotFish).to.equal(120)
 			expect(clean[2].gotFish).never.to.be.ok()

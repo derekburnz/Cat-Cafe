@@ -18,6 +18,7 @@
 
 local Ambient = require(script.Ambient)
 local AreaFx = require(script.AreaFx)
+local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
@@ -158,6 +159,7 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		HoldPulse.start,
+		BaitCrumbs.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,

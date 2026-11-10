@@ -15,7 +15,7 @@
 #      read on its own the same way, since CustomEventName is a filter only too
 #      (session_start carries the join source in its first field: organic, unknown or ad_<tag> from a link's
 #      launchData=ad_<tag>; robux_purchase, store_cancelled, cafe_pass_level and jukebox_pick since #1888)
-#   5. audience (#2391): players new and returning and day 1 retention by Platform, Country and AgeGroupV2; average
+#   5. audience (#2391): players new and returning and day 1 retention by Platform, Country, AgeGroupV2 and Gender; average
 #      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
 #      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
 #   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, first_bait_wait and first_bait_arrived read
@@ -487,7 +487,7 @@ mean() {
 			([(.dataPoints // [])[] | .value | select(. != null)] | if length > 0 then add / length else "" end
 				| tostring)] | @tsv' <<<"$result"
 }
-for dim in Platform Country AgeGroupV2; do
+for dim in Platform Country AgeGroupV2 Gender; do
 	say "#### By $dim"
 	say ""
 	declare -A dayOne=() minutes=()
@@ -499,7 +499,7 @@ for dim in Platform Country AgeGroupV2; do
 	else
 		failed
 	fi
-	if [ "$dim" = Platform ]; then
+	if [ "$dim" = Platform ] || [ "$dim" = Gender ]; then
 		if query AverageSessionLengthMinutes OneDay "$dim"; then
 			while IFS=$'\t' read -r key value; do
 				minutes[$key]=$value
@@ -520,7 +520,7 @@ for dim in Platform Country AgeGroupV2; do
 		unset dayOne minutes
 		continue
 	fi
-	if [ "$dim" = Platform ]; then
+	if [ "$dim" = Platform ] || [ "$dim" = Gender ]; then
 		say "| $dim | New players | Returning | Day 1 retention | Avg session (min) |"
 		say "|---|---:|---:|---:|---:|"
 	else
@@ -530,7 +530,7 @@ for dim in Platform Country AgeGroupV2; do
 	for line in "${order[@]}"; do
 		IFS=$'\t' read -r key fresh back <<<"$line"
 		row="| ${key//|/\\|} | $fresh | $back | $(pct "${dayOne[$key]:-}") |"
-		if [ "$dim" = Platform ]; then
+		if [ "$dim" = Platform ] || [ "$dim" = Gender ]; then
 			value=${minutes[$key]:-}
 			row="$row $( [ -n "$value" ] && awk -v v="$value" 'BEGIN { printf "%.1f", v }' || printf -- -) |"
 		fi

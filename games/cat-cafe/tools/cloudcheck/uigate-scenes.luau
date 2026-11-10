@@ -7182,6 +7182,68 @@ local SCENES = {
 		state.them.cats = {}
 		UI.trade.state(state)
 	end },
+	-- #1574: the Decor tab: my tradeable pieces rarest first (a Legendary locked, one Sam owns greyed "Has it", the
+	-- one on offer ticked), a piece on each side after the cats
+	{ "TradeDecor", function()
+		local before = UI.getState() :: any
+		Scenes._decorOwned = before.decorOwned or {}
+		local SharedTrade = UIShim.require("ReplicatedStorage.Shared.Trade")
+		local pieces, owned, legendary = {}, {}, nil
+		for _, decor in Catalog.crateDecor do
+			local info = SharedTrade.piece(decor.id)
+			if info ~= nil then
+				if info.rarity == "Legendary" and legendary == nil then
+					legendary = decor.id
+					owned[decor.id] = true
+				elseif #pieces < 7 and info.rarity ~= "Legendary" and info.rarity ~= "Mythical" then
+					table.insert(pieces, decor.id)
+					owned[decor.id] = true
+				end
+			end
+		end
+		assert(#pieces >= 3 and legendary ~= nil, "uigate: not enough tradeable crate decor for TradeDecor")
+		UI.update({ decorOwned = owned, decorUnlocked = {} } :: any)
+		local function tile(id)
+			local info = SharedTrade.piece(id)
+			return { id = id, name = info.name, kind = info.kind, rarity = info.rarity, bonus = info.bonus }
+		end
+		local state = tradeState()
+		state.me.decor = { tile(pieces[1]) }
+		state.them.decor = { tile(pieces[#pieces]), tile("tulip_bed") }
+		state.theyHave = { pieces[2] }
+		UI.trade.state(state)
+		press("Trade", "Tabs.Decor")
+		task.wait(0.05)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local list = modals and modals:FindFirstChild("Picks", true)
+		local shown = 0
+		for _, piece in (list and list:FindFirstChild("List") or Instance.new("Folder")):GetChildren() do
+			if piece.Name == "Piece" and piece:IsA("Frame") and piece.Visible then
+				shown += 1
+			end
+		end
+		-- the crate pieces above and the sample lawn's pieces
+		assert(shown >= #pieces + 1, "uigate: the Decor tab shows " .. shown .. " pieces, not " .. (#pieces + 1))
+	end },
+	-- #1574: the confirm face with pieces after the cats, their rarity and tip bonus under them
+	{ "TradeDecorConfirm", function()
+		local SharedTrade = UIShim.require("ReplicatedStorage.Shared.Trade")
+		local first = nil
+		for _, decor in Catalog.crateDecor do
+			local info = SharedTrade.piece(decor.id)
+			if info ~= nil and first == nil then
+				first = { id = decor.id, name = info.name, kind = info.kind, rarity = info.rarity, bonus = info.bonus }
+			end
+		end
+		local state = tradeState({ phase = "confirm" })
+		state.me.ready = true
+		state.them.ready = true
+		state.me.decor = { first }
+		state.them.decor = {
+			{ id = "tulip_bed", name = "Tulip bed", kind = "lawn", rarity = "Uncommon", bonus = 0.02 },
+		}
+		UI.trade.state(state)
+	end },
 	-- F102 part 2: Settings ends with the Trading section once TradeService runs: Friends only picked, then Trades
 	{ "SettingsTrading", function()
 		workspace:SetAttribute("TradingOn", true)

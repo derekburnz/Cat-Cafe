@@ -306,6 +306,8 @@ export type PlayerState = {
 	lawnOwned: { [string]: boolean }?,
 	lawn: { [string]: string }?,
 	lawnStyles: LawnStyles?,
+	-- #1574: the Legendary and up decor and lawn pieces unlocked to trade (id to true); nil until ProfileSync sends it
+	decorUnlocked: { [string]: boolean }?,
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -602,6 +604,9 @@ export type TradeSide = SharedTypes.TradeSide
 export type TradeState = SharedTypes.TradeStateView
 export type TradeCat = SharedTypes.CatSummary
 export type TradeLogEntry = SharedTypes.TradeLogEntry
+-- #1574: one decor or lawn piece on offer (`bonus` 0.05 is +5%), and one in TradeDone and the trade log
+export type TradeDecorTile = SharedTypes.TradeDecorTile
+export type TradeDecor = SharedTypes.DecorSummary
 
 -- ModuleScripts must return a non-nil value.
 return {}

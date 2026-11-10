@@ -430,6 +430,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	-- #3105: the loading screen, in a ScreenGui of its own so it shows without the bars and never touches a play
 	self._waiting = false
 	self._waitToken = 0
+	self._waitOut = nil :: Tween? -- the slide away, while it runs
 	local waitGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeIntroWait",
 		ResetOnSpawn = false,
@@ -556,12 +557,19 @@ function Intro.waiting(self: any, on: boolean)
 	local cover: Frame = self._waitCover
 	if not show then
 		local out = Tween.to(cover, WAIT_OUT, { Position = UDim2.fromScale(0, -1) })
+		self._waitOut = out
 		out.Completed:Once(function()
 			if self._alive and token == self._waitToken then
 				self._waitGui.Enabled = false
 			end
 		end)
 		return
+	end
+	-- a show straight after a hide: stop the slide, or it would carry the cover off again (review on #3107)
+	local out: Tween? = self._waitOut
+	if out ~= nil then
+		out:Cancel()
+		self._waitOut = nil
 	end
 	cover.Position = UDim2.fromScale(0, 0)
 	self._waitGui.Enabled = true

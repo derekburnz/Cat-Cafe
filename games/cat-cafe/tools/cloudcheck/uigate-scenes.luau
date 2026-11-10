@@ -5524,6 +5524,13 @@ local SCENES = {
 		UIShim.advance(0.9)
 		local label = gui:FindFirstChild("Label", true) :: TextLabel
 		assert(label.Text:sub(1, 7) == "Loading", "uigate: the loading screen lost its word (#3105)")
+		-- hidden and shown again at once: the slide away must not carry the new show off (review on #3107)
+		UI.intro.waiting(false)
+		UI.intro.waiting(true)
+		UIShim.advance(0.6)
+		local cover = gui:FindFirstChild("Cover") :: Frame
+		assert(gui.Enabled, "uigate: the loading screen went off after a quick hide and show (#3105)")
+		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
 	end },
 	{ "IntroLoadingLifts", function()
 		UI.intro.waiting(true)

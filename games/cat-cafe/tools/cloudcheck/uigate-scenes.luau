@@ -1739,6 +1739,39 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Tier 2 card does not say bait bowl to 3 (#2121)")
 	end },
+	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
+	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.
+	{ "ParkFly", function()
+		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
+		Scenes._parkFly = (UI.getState() :: any).money or 0 -- the sample's money would make Tier 3 ready
+		UI.update({ money = 0, tier = 1 } :: any)
+		UI.update({ tier = 2 } :: any)
+		UI.open("RankUp")
+		UIShim.advance(0.1)
+		local function buttonText(): string
+			local face = UIShim.playerGui:FindFirstChild("RankUpButton", true) :: Instance
+			assert(face, "uigate: no rank-up button (#2915)")
+			for _, piece in face:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return if face:IsA("TextButton") then face.Text else ""
+		end
+		assert(buttonText():find("Fly to the Park", 1, true), "uigate: the rank-up button reads " .. buttonText() .. " after Tier 2 (#2915)")
+		press("RankUp", "RankUpButton")
+		UIShim.advance(0.1)
+		assert(UI.cannon.fly.ring == "park", "uigate: Fly to the Park did not ring the Park (#2915)")
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local park = window:FindFirstChild("park", true) :: Instance
+		local launch = park and park:FindFirstChild("Launch", true) :: Instance
+		assert(launch and launch:FindFirstChild("TutorialGlow"), "uigate: no ring on the Park card's Launch (#2915)")
+		local town = window:FindFirstChild("town", true) :: Instance
+		local other = town and town:FindFirstChild("Launch", true) :: Instance
+		assert(other == nil or other:FindFirstChild("TutorialGlow") == nil, "uigate: the ring is on the wrong card (#2915)")
+	end },
 	-- #2687 part 4: the "Unlocked!" card a station's reveal brings: the station's picture and name, the new perk in gold
 	-- and its one line, every word fitting, the card on screen with its button a finger tall
 	{ "PerkUnlocked", function()
@@ -7346,6 +7379,11 @@ function Scenes.close()
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene
 		Scenes._decorOwned = nil
+	end
+	if Scenes._parkFly ~= nil then
+		UI.update({ money = Scenes._parkFly } :: any)
+		Scenes._parkFly = nil
+		UI.cannon.clearFly() -- #2915's scene
 	end
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene

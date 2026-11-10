@@ -3563,9 +3563,17 @@ local SCENES = {
 			return if face then face.Text else ""
 		end
 		assert(#sent == 1, ("uigate: %d buys went at once, not 1 (#2290)"):format(#sent))
+		-- #3190: a perk reads "..." until its next price comes; a food (star_treat) keeps its price and a second press
+		-- queues behind the first instead of doing nothing
 		for _, id in ids do
-			assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
+			if id == "star_treat" then
+				assert(label(id) == "150", "uigate: a food reads " .. label(id) .. " right after its press, not its price (#3190)")
+			else
+				assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
+			end
 		end
+		press("FishMarket", "star_treat.Buy")
+		assert(#sent == 1, "uigate: a second food press while the first waits went at once (#3190)")
 		UIShim.advance(0.6)
 		assert(#sent == 2, ("uigate: %d buys sent after 0.6 s, not 2 (#2290)"):format(#sent))
 		UIShim.advance(0.6)
@@ -4133,6 +4141,29 @@ local SCENES = {
 		assert(badgeDraws("Potions", "96046816170155"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
+	-- #3190 (Derek2: "... delays on using potions too fast"): two quick Use presses both count at once, the button never
+	-- reads "...", and the bag's count drops before the server answers
+	{ "PotionsFastUse", function()
+		UI.update({ potions = { tip_potion = 3 }, buffs = {} })
+		UI.open("Potions")
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local function texts(): string
+			local all = {}
+			for _, piece in window:GetDescendants() do
+				if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+					table.insert(all, (piece :: any).Text)
+				end
+			end
+			return table.concat(all, "|")
+		end
+		press("Potions", "Use")
+		press("Potions", "Use")
+		UIShim.advance(0.1)
+		local now = texts()
+		assert(not now:find("|%.%.%.|") and not now:find("^%.%.%.|"), "uigate: Use reads ... after a fast press (#3190)")
+		assert(now:find("x1", 1, true), "uigate: two fast Uses did not count at once, the bag shows " .. now)
+	end },
 	{ "BagBait", function()
 		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
 		UI.open("Potions")

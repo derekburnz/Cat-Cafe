@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 17:25 UTC",
+  "generated": "2026-11-10 17:52 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -312327,6 +312327,63 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Town_ArcadeCabinet",
+      "category": "Town",
+      "module": "arcadecabinet",
+      "objects": [
+        "CatCafe_Town_ArcadeCabinet",
+        "CatCafe_Town_ArcadeCabinet_Screen",
+        "CatCafe_Town_ArcadeCabinet_Glow"
+      ],
+      "triangles": 1682,
+      "budget": 4000,
+      "size_studs": {
+        "x": 3.7,
+        "y": 3.14,
+        "z": 7.9
+      },
+      "size_roblox": [
+        3.7,
+        7.9,
+        3.14
+      ],
+      "bounds_min": [
+        -1.85,
+        -1.83,
+        0.0
+      ],
+      "bounds_max": [
+        1.85,
+        1.31,
+        7.9
+      ],
+      "pivot": "the base centre on the Town Square's paving, the screen and the control panel (-Z) toward the players; placed by Gameplay (#3062)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#3062: the Cat Arcade cabinet (Circle Streak), 7.9 tall: a teal upright cabinet with cream sides, a red paw button, a joystick, a coin door with a gold slot and a fish, and cat ears on the marquee. _Screen is the 2.4 x 1.9 Screen part (night blue, for a SurfaceGui and the idle glow); _Glow holds the marquee's CAT ARCADE letters (Neon, for the idle pulse). Attachments PromptAnchor (in front of the panel, 1.5 up: the Play prompt), SlotAnchor (the coin slot, for the fish drop), ScreenAnchor and BangAnchor. The cabinet collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_ArcadeCabinet.model.json",
+      "rbx_parts": 123,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_ArcadeCabinet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_ArcadeCabinet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1682/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "789 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.26"
         }
       }
     }

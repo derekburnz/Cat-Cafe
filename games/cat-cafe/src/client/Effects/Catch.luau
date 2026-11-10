@@ -243,6 +243,8 @@ end
 local held: { [AnimationTrack]: number } = {}
 local holdUntil = 0
 local HOLD = "CatCafeCatchHitStop"
+-- whether the hold is on now: a Perfect landing after holdUntil but before the release ran must not bind twice (#3064)
+local holding = false
 
 local function hitStop()
 	local seconds = Presets.catchJudge.hitStop
@@ -250,9 +252,9 @@ local function hitStop()
 		return
 	end
 	local camera = Workspace.CurrentCamera
-	local first = holdUntil <= os.clock()
 	holdUntil = os.clock() + seconds
-	if first then
+	if not holding then
+		holding = true
 		if camera ~= nil then
 			local frame = camera.CFrame
 			RunService:BindToRenderStep(HOLD, Enum.RenderPriority.Camera.Value + 2, function()
@@ -274,6 +276,10 @@ local function hitStop()
 		if os.clock() < holdUntil - 0.001 then
 			return -- a later Perfect still holds
 		end
+		if not holding then
+			return
+		end
+		holding = false
 		RunService:UnbindFromRenderStep(HOLD)
 		for track, speed in held do
 			if track.IsPlaying then

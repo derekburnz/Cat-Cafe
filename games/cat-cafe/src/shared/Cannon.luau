@@ -16,6 +16,10 @@ Cannon.CARRY_TEXT = "Bring your cat to the camp first"
 Cannon.DUSK_TEXT = "Night is coming. The areas close soon."
 Cannon.OFF_PAD_STEP = 2 -- studs between the points tried off a full pad
 Cannon.DOWN_TEXT = "Get back on your feet first"
+-- #2913, #2915: a first flight into the Alleyway (and the first into the Park) comes down this far short of a waiting
+-- stray, on its side toward the landing pad, instead of on the pad 23 to 32 studs away
+Cannon.BESIDE_STRAY_STUDS = 7
+Cannon.BESIDE_STRAY_RISE = 4 -- studs: a stray this much higher or lower than the pad (a tree top) is skipped
 
 -- The refusal for a player a tackle knocked down within TackledDownSeconds, or nil. LaunchCannon uses it, and so do
 -- the HUD's Home and Cannon buttons (TravelService), so a downed player cannot hop out of a chase (review N281,
@@ -160,6 +164,22 @@ end
 -- look to CannonHeading is 0 and the flight is one arc with no turn in the air.
 function Cannon.aimTurn(heading: Vector3, fireTurn: number): number
 	return math.deg(math.atan2(heading.X, heading.Z)) - fireTurn
+end
+
+-- #2913, #2915: where a first flight lands beside the stray at `stray`: `gap` studs (BESIDE_STRAY_STUDS) from it
+-- toward the landing pad's centre `pad`, at the pad's height. nil when the stray is already that close to the pad
+-- (the pad does) or stands well above or below it.
+function Cannon.besideStray(stray: Vector3, pad: Vector3, gap: number?): Vector3?
+	local studs = gap or Cannon.BESIDE_STRAY_STUDS
+	if math.abs(stray.Y - pad.Y) > Cannon.BESIDE_STRAY_RISE then
+		return nil
+	end
+	local flat = Vector3.new(pad.X - stray.X, 0, pad.Z - stray.Z)
+	if flat.Magnitude <= studs then
+		return nil
+	end
+	local at = stray + flat.Unit * studs
+	return Vector3.new(at.X, pad.Y, at.Z)
 end
 
 return Cannon

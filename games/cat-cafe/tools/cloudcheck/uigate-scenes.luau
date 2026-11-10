@@ -5954,11 +5954,15 @@ local SCENES = {
 		local money = (UI.getState() :: any).money
 		UI.update({ tutorialStep = 5, money = 0 } :: any)
 		task.wait(0.1)
+		-- #3154: the tutorial's end moves the arrow to the Tutorial tile's ×, which is not the Upgrades tile
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true) :: GuiObject
+		local t0, t1 = tile.AbsolutePosition, tile.AbsolutePosition + tile.AbsoluteSize
 		for _, piece in UIShim.playerGui:GetDescendants() do
-			assert(
-				not (piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible),
-				"uigate: the tutorial arrow stays after its step (#2314)"
-			)
+			if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+				local a0, a1 = piece.AbsolutePosition, piece.AbsolutePosition + piece.AbsoluteSize
+				local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
+				assert(gap > 40, "uigate: the tutorial arrow stays at Upgrades after its step (#2314)")
+			end
 		end
 		UI.update({ money = money } :: any)
 	end },
@@ -6140,11 +6144,14 @@ local SCENES = {
 		end
 		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s -- the scene before may leave the tutorial mid-way, which this update just finished
+		UIShim.advance(18.5) -- #3154: a 6 s wait and a 12 s pulse; the scene before may leave the tutorial mid-way, which this update just finished
 		UI.update({ tutorialStep = 9 } :: any)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(5.5)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses before the cat card and the cannon move (#3154)")
+		UIShim.advance(0.7) -- #3154: 6 s after the tutorial's end
 		assert(dot:FindFirstChild("PulseRing"), "uigate: the × does not pulse when the tutorial ends (#2211)")
 		-- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing and the X isn't
 		-- obvious"): a gold "Hide tips with ×" tag beside the tile while it pulses, whole on the screen, and the × at
@@ -6172,7 +6179,7 @@ local SCENES = {
 		UI.setVisible(false)
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(1)
+		UIShim.advance(7) -- #3154: past the 6 s wait
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulsed with the HUD hidden (#2411)")
 		UI.setVisible(true)
 		UIShim.advance(0.5)
@@ -6180,7 +6187,7 @@ local SCENES = {
 		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any) -- again, for the picture
-		UIShim.advance(1)
+		UIShim.advance(7.5) -- #3154: the 6 s wait, then the icon row settles
 	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()

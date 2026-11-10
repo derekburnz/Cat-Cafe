@@ -331,6 +331,7 @@ local HIDE_HIT = if Scale.isTouch() then 42 else 36 -- the Tutorial tile's × ta
 -- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
 -- #2411: twice as long, with a "Hide tips" tag beside the tile
 local HIDE_PULSE_SECONDS = 12 -- #3154: was 6
+local HIDE_AFTER = 6 -- #3154: seconds after the tutorial's end before the × pulses
 local HIDE_HINT_H = 24
 local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
 local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- #3154: for the whole pulse
@@ -2790,7 +2791,13 @@ function HUD.render(self: any, state: Types.PlayerState)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
-		self:pulseHide()
+		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
+		-- go first; pulseHide then waits for the HUD to be back on screen
+		task.delay(HIDE_AFTER, function()
+			if not self._gone then
+				self:pulseHide()
+			end
+		end)
 	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)

@@ -8184,6 +8184,13 @@ function Scenes.close()
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene
 	end
+	-- #3105, #3109: the loading screen put away, so the next scene starts with none up (IntroLoading leaves it
+	-- showing, and IntroLoadingRace, the scene after it, begins by asking for a race with no screen up)
+	local introWait = UIShim.playerGui:FindFirstChild("CatCafeIntroWait")
+	if introWait ~= nil and introWait:IsA("ScreenGui") and introWait.Enabled then
+		UI.intro.waiting(false)
+		UIShim.advance(1) -- its slide away
+	end
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away

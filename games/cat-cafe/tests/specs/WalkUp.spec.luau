@@ -164,6 +164,35 @@ return function()
 			end
 		end)
 
+		-- #3113: a camp station's front ring is the town's size where the floor is clear, slides off a wall beside
+		-- it, and shrinks no further than FRONT_FIT_LEAST
+		it(
+			"fits a camp station's front ring to what stands in it, never under FRONT_FIT_LEAST",
+			function()
+				local wide, least = WalkUp.FRONT_RADIUS, WalkUp.FRONT_FIT_LEAST
+				expect(least < wide and least >= 4).to.equal(true)
+				expect(WalkUp.BOARD_RADIUS <= wide and WalkUp.BOARD_RADIUS >= 4).to.equal(true)
+				local shift, fitted = WalkUp.fitRing(wide, {}, WalkUp.FIT_SHIFT_MAX, least)
+				expect(shift.Magnitude).to.equal(0)
+				expect(fitted).to.equal(wide)
+				-- a wall 5 studs east of the centre: the ring slides west and keeps its size
+				shift, fitted =
+					WalkUp.fitRing(wide, { Vector2.new(5, 0) }, WalkUp.FIT_SHIFT_MAX, least)
+				expect(shift.X < 0 and shift.Magnitude <= WalkUp.FIT_SHIFT_MAX + 1e-6).to.equal(
+					true
+				)
+				expect(math.abs(fitted - wide) < 0.05).to.equal(true)
+				-- walls close on both sides: it shrinks, but not under the least
+				shift, fitted = WalkUp.fitRing(
+					wide,
+					{ Vector2.new(3, 0), Vector2.new(-3, 0) },
+					WalkUp.FIT_SHIFT_MAX,
+					least
+				)
+				expect(fitted).to.equal(least)
+			end
+		)
+
 		it("rings the cannon all the way round, clear of it and inside its range", function()
 			expect(WalkUp.aroundRadius(6, 10)).to.equal(10 - WalkUp.EDGE_SLACK)
 			expect(WalkUp.aroundRadius(3, 10)).to.equal(3 + WalkUp.AROUND_PAD)

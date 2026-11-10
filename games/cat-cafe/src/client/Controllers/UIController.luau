@@ -23,6 +23,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
+local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
 local Invite = require(script.Parent.Parent.UI.Components.Invite)
 local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLogic)
@@ -1603,6 +1604,10 @@ local function bindStations()
 	-- #2574: Juniper's cart
 	bindStationPrompts("MysteryMarket", "MysteryPrompt", function()
 		UI.mystery.open()
+	end)
+	-- #3066: the feedback stand's post box: one press and the Feedback window is up with the cursor in its box
+	bindStationPrompts(FeedbackStand.TAG, FeedbackStand.PROMPT, function()
+		UI.bugReport.open(FeedbackStand.KIND, "box")
 	end)
 end
 

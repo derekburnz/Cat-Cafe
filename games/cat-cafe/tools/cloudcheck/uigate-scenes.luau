@@ -3617,6 +3617,10 @@ local SCENES = {
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
 	end },
+	-- #3066: the feedback stand opens the window straight on its text box, on the Idea chip, with no faces first
+	{ "FeedbackStand", function()
+		UI.bugReport.open("idea", "none")
+	end },
 	-- F87: the Feedback tile opens on the three faces, and a face brings the chips
 	{ "FeedbackFaces", function()
 		UI.bugReport.open()

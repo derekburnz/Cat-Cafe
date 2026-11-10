@@ -6,9 +6,18 @@
 
 local StationOpens = {}
 
--- The windows a walk-up station opens (WalkUpController's KINDS, plus the own bait bowl).
-StationOpens.WINDOWS =
-	table.freeze({ "Cannon", "Spin", "Market", "CornerShop", "MysteryMarket", "Dealer", "Bait" })
+-- The windows a walk-up station opens (WalkUpController's KINDS, plus the own bait bowl). "BugReport" is the Feedback
+-- window, opened by the feedback stand (#3066).
+StationOpens.WINDOWS = table.freeze({
+	"Cannon",
+	"Spin",
+	"Market",
+	"CornerShop",
+	"MysteryMarket",
+	"Dealer",
+	"Bait",
+	"BugReport",
+})
 StationOpens.HOWS = table.freeze({ "ring", "prompt" })
 
 -- The prompt name of each station's ProximityPrompt, by its window (WalkUpController's KINDS; the bowl's is
@@ -21,6 +30,7 @@ StationOpens.PROMPTS = table.freeze({
 	MysteryPrompt = "MysteryMarket",
 	DealerPrompt = "Dealer",
 	BaitPrompt = "Bait",
+	FeedbackPrompt = "BugReport",
 } :: { [string]: string })
 
 -- Whether (window, how) from a client names a known station and way; anything else is dropped.

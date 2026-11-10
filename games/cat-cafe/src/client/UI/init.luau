@@ -2764,14 +2764,34 @@ UI.bugReport = {}
 -- it from the HUD's Feedback tile (on Idea), the one way in since Settings lost its Report a bug row (2026-11-01).
 -- With a kind ("bug", "stuck", "idea") the report page on that chip; without one (the HUD's Feedback tile, Settings'
 -- Feedback row) the F87 faces page first.
-function UI.bugReport.open(kind: string?)
+-- #3066: `focus` is the feedback stand's: "none" (its floor ring) opens without the cursor in the box, "box" (a press
+-- of its prompt) with it, a phone's keyboard included. Without it a PC's cursor goes in the box and a phone waits
+-- for a tap, as ever.
+function UI.bugReport.open(kind: string?, focus: ("none" | "box")?)
 	if modal then
 		if bugReportScreen and kind then
 			bugReportScreen:setKind(kind)
 		elseif bugReportScreen then
 			bugReportScreen:showFaces()
 		end
+		if bugReportScreen and focus ~= nil then
+			if modal:current() == "BugReport" then
+				if focus == "box" then
+					bugReportScreen:focusBox() -- already up: only the cursor moves
+				end
+			else
+				bugReportScreen:focusNext(focus)
+			end
+		end
 		modal:open("BugReport")
+	end
+end
+
+-- #3066: the cursor into the Feedback window's box now, when its report page is up (the stand's ring, once a
+-- keyboard player stands still).
+function UI.bugReport.focus()
+	if bugReportScreen then
+		bugReportScreen:focusBox()
 	end
 end
 

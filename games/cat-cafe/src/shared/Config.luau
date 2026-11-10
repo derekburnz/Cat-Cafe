@@ -865,7 +865,7 @@ local Config = {
 	-- places them and opens their remotes once the UI's cards are in (UI-Engineer).
 	SpaSeconds = 3600,
 	SpaSlotPrices = { 0, 100, 250 },
-	MuseumRoomTipBonus = 0.02,
+	MuseumRoomTipBonus = 0.05, -- #2908 (Derek2 2026-11-10: "up the tips bonus to be 5% per room filled"; was 0.02)
 	LateStationsOpen = false,
 	CampExtraRangeStuds = 8,
 

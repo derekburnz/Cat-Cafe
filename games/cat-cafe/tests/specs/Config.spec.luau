@@ -327,7 +327,7 @@ return function()
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
-		MuseumRoomTipBonus = 0.02,
+		MuseumRoomTipBonus = 0.05, -- #2908
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
 		RallyHours = 48,
 		RallyExtendFrom = 1794009600, -- #2227: Saturday 2026-11-07 00:00 UTC

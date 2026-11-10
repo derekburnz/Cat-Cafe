@@ -1450,6 +1450,27 @@ local function keepBackpack(player: Player)
 	end
 end
 
+-- #3165: the cat in the hands stays in them. A carry the server still holds whose model is gone or no longer welded
+-- to the character's torso (the avatar's appearance rebuilt it after a respawn, or the cat went on the root before
+-- the torso was there) is put back, so the carry banner never stands over empty arms.
+local function keepHeld(player: Player)
+	local carry = carrying[player]
+	local character = player.Character
+	if carry == nil or character == nil or character.Parent == nil then
+		return
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if humanoid == nil or humanoid.Health <= 0 or root == nil or not root:IsA("BasePart") then
+		return
+	end
+	if not HeldCat.held(carry.model, character, root :: BasePart) then
+		attachHeldCat(player, carry)
+		-- the attach sets plain carry speed; a Catch Rush or a Startled slow still running keeps its own (review N247)
+		CatService.refreshSpeed(player)
+	end
+end
+
 -- #2565: takes the packed cat off the back (nil when none), its model gone.
 local function endPacked(player: Player): Carry?
 	local carry = packed[player]
@@ -3069,13 +3090,14 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	end)
 
 	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light
-	-- check every PACK_CHECK_SECONDS for any other way it came off.
+	-- check every PACK_CHECK_SECONDS for any other way it came off. #3165: the cat in the hands the same way.
 	task.spawn(function()
 		while true do
 			task.wait(PACK_CHECK_SECONDS)
 			for _, player in Players:GetPlayers() do
 				local ok, err = pcall(function()
 					keepBackpack(player)
+					keepHeld(player) -- #3165
 				end)
 				if not ok then
 					warn("[CatService] keepBackpack: " .. tostring(err))
@@ -3088,6 +3110,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		player.CharacterAppearanceLoaded:Connect(function()
 			task.wait(0.1)
 			keepBackpack(player)
+			keepHeld(player) -- #3165: a carry kept through a respawn went on before the appearance was in
 		end)
 		player.CharacterAdded:Connect(function(character)
 			local body = character:WaitForChild("Humanoid", 10)

@@ -649,4 +649,38 @@ return function()
 			expect(attempt.success).to.equal(true)
 		end)
 	end)
+
+	describe("the starter trap's refill (#3049)", function()
+		local WAIT = Config.StarterRescueRefillSeconds
+		local DAY_LEFT = Config.DuskWarningSeconds + 60
+
+		it("waits 30 seconds", function()
+			expect(WAIT).to.equal(30)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT - 1, 1)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1)).to.equal(true)
+		end)
+
+		it("fills only by day, not in the dusk warning and not at night", function()
+			expect(Rescue.starterRefill(true, "night", DAY_LEFT, WAIT, 1)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds, WAIT, 1)).to.equal(
+				false
+			)
+			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds + 1, WAIT, 1)).to.equal(
+				true
+			)
+		end)
+
+		it("needs someone who has never rescued, and the switch on", function()
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 0)).to.equal(false)
+			expect(Rescue.starterRefill(false, "day", DAY_LEFT, WAIT, 3)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT * 10, 3)).to.equal(true)
+		end)
+
+		it("counts a player with no rescue whose tier has the area open", function()
+			expect(Rescue.waitsForFirst(0, 1, 1)).to.equal(true)
+			expect(Rescue.waitsForFirst(0, 2, 1)).to.equal(true)
+			expect(Rescue.waitsForFirst(0, 1, 2)).to.equal(false) -- the Park, still shut for them
+			expect(Rescue.waitsForFirst(1, 5, 1)).to.equal(false) -- a veteran gains nothing
+		end)
+	end)
 end

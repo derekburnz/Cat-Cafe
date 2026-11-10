@@ -38,6 +38,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -83,6 +84,10 @@ local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
 -- #2240: area id -> the spots that hold traps today (RescuePick), so tomorrow's pick avoids them
 local activeSpots: { [string]: { [string]: boolean } } = {}
 local helperTipAt: { [Player]: number } = {} -- F92: os.clock() of each player's last helper's tip this session
+-- #3049: area id -> today's starter trap (#2794), and the os.clock() it was last emptied (nil while it holds a cat)
+local starterSpots: { [string]: string } = {}
+local starterEmptiedAt: { [string]: number } = {}
+local STARTER_CHECK_SECONDS = 5
 local rng = Random.new()
 
 local function serverNow(): number
@@ -161,6 +166,9 @@ local function clearStuck(entry: Stuck)
 	entry.spot:SetAttribute("HelpedBy", 0)
 	entry.spot:SetAttribute("RetryAt", 0)
 	entry.model:Destroy()
+	if starterSpots[entry.area] == entry.spotId then
+		starterEmptiedAt[entry.area] = os.clock() -- #3049: the refill's wait starts here
+	end
 end
 
 local function spawnStuck(
@@ -316,6 +324,7 @@ local function rollRescues(areaDef: Types.AreaDef)
 	local free: { string } = {}
 	-- sorted, so a spec or a Studio session can predict the guarantee
 	local ids, starter = pickTraps(areaDef.id, area, areaDef.starterRescue == true)
+	starterSpots[areaDef.id] = starter :: string -- nil for an area without one
 	local today: { [string]: boolean } = {}
 	for _, spotId in ids do
 		today[spotId] = true
@@ -347,6 +356,49 @@ local function rollRescues(areaDef: Types.AreaDef)
 		local spotId = table.remove(free, rng:NextInteger(1, #free)) :: string
 		rollStuckCat(spotId, areaDef, area.rescueSpots[spotId])
 		stuck += 1
+	end
+end
+
+-- #3049: a starting area's camp trap, emptied during the day (rescued, or its cat cleared), gets a new cat
+-- StarterRescueRefillSeconds later while someone in the server has the area open and has never rescued, so a new
+-- player who joins after others took the day's cats still finds the rescue the tutorial points at. Rolled like any
+-- stuck cat. Off at dusk and at night, with the starterRefill switch off, and when only veterans are in.
+local function refillStarters()
+	for _, areaDef in Catalog.areas do
+		local spotId = starterSpots[areaDef.id]
+		local emptiedAt = starterEmptiedAt[areaDef.id]
+		local area = world.areas[areaDef.id]
+		if spotId == nil or emptiedAt == nil or area == nil or stuckCats[spotId] ~= nil then
+			continue
+		end
+		local spot: BasePart? = area.rescueSpots[spotId]
+		local waiting, first = 0, nil :: Player?
+		for _, player in DataService.loadedPlayers() do
+			local profile = DataService.get(player)
+			if
+				profile ~= nil
+				and Rescue.waitsForFirst(profile.stats.rescues, Economy.tier(profile), areaDef.tier)
+			then
+				waiting += 1
+				first = first or player
+			end
+		end
+		if
+			spot ~= nil
+			and first ~= nil
+			and Rescue.starterRefill(
+				LiveFlagService.on("starterRefill"),
+				ClockService.phase(),
+				ClockService.phaseEndsAt() - Workspace:GetServerTimeNow(),
+				os.clock() - emptiedAt,
+				waiting
+			)
+		then
+			starterEmptiedAt[areaDef.id] = nil
+			rollStuckCat(spotId, areaDef, spot)
+			-- how often it fires, by area and how many were waiting (counts only)
+			Telemetry.custom(first, "rescue_refill", 1, { areaDef.id, tostring(waiting) })
+		end
 	end
 end
 
@@ -881,6 +933,12 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 			dropHelper(helped, helped.attempt, nil)
 		end
 		helperTipAt[player] = nil
+	end)
+	task.spawn(function() -- #3049
+		while true do
+			task.wait(STARTER_CHECK_SECONDS)
+			refillStarters()
+		end
 	end)
 end
 

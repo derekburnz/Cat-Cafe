@@ -2017,6 +2017,15 @@ local SCENES = {
 		assert(first.Name ~= "Close" and (first.Parent :: Instance).Name ~= "Close", "uigate: the window selected its X first (#2872)")
 		assert(first:FindFirstAncestor("Tabs") == nil, "uigate: Upgrades selected a tab, not its first row's button (#2872)")
 		assert((UIShim.playerGui :: any).SelectionImageObject ~= nil, "uigate: no selection ring (#2872)")
+		-- #2965: the window's container is a selection group that stops at every edge, so the DPad stays in the window
+		local container = first:FindFirstAncestor("Container") :: any
+		assert(container ~= nil and container.SelectionGroup == true, "uigate: the open window is no selection group (#2965)")
+		for _, side in { "Up", "Down", "Left", "Right" } do
+			assert(
+				container["SelectionBehavior" .. side] == Enum.SelectionBehavior.Stop,
+				"uigate: the selection can leave the window going " .. side .. " (#2965)"
+			)
+		end
 		UI.close()
 		UIShim.advance(0.3)
 		assert(GuiService.SelectedObject == tile, "uigate: closing the window did not hand the menu tile back (#2872)")

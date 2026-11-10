@@ -114,7 +114,6 @@ return function()
 					"Spin Wheel: Luck Potion",
 					"The cat dropped a snack: Tuna in your Bag",
 					"Tuna in your Bag",
-					"It dropped! Pick it up quick!",
 					"Mochi followed you home at dusk.",
 					"Rich tip! +$1.2K",
 					"Level up! Level 4",
@@ -149,6 +148,7 @@ return function()
 						"Opened 10 crates: 4 new, +30 golden fish back",
 						"Owner test mode: 3 Luck Potions",
 						"Your bait cat is here! Head home to your bowl to meet it.",
+						"It dropped! Pick it up quick!",
 					}
 				do
 					expect(ToastRules.kept(line)).to.equal(true)

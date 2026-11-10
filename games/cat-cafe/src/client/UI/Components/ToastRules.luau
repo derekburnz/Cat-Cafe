@@ -84,6 +84,7 @@ ToastRules.KEEP = {
 	" again: %+", -- the same, for a piece owned already
 	"^Opened %d+ crates: ", -- the same, for Open all
 	"^Your bait cat is here!", -- BaitService: a cat waits at the bowl while the player is out; they have to walk home
+	"^It dropped! ", -- ShoveService: a shoved player dropped their cat; the shover has seconds to pick it up
 	"^Owner test mode: ", -- OwnerTestService: the owner's own test grants, which nobody else sees
 }
 

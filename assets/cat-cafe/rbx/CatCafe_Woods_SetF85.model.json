@@ -115403,8 +115403,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         4.0,
+         -33.2,
+         0.9,
          71.1
         ],
         "orientation": [
@@ -115427,14 +115427,14 @@
        }
       },
       "Size": [
-       40.0,
-       8.0,
-       2.2
+       10.4,
+       1.8,
+       2.32
       ],
       "Color": [
-       0.5451,
-       0.5608,
-       0.6
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -115446,8 +115446,8 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         32.0,
-         -4.0,
+         33.2,
+         -0.9,
          -71.1
         ],
         "orientation": [
@@ -115481,106 +115481,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -51.2,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.6,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -48.0,
-         8.225,
+         0.9,
          71.1
         ],
         "orientation": [
@@ -115603,14 +115505,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       8.0,
+       1.8,
+       2.2
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -115628,8 +115530,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -48.0,
-         8.5,
+         -41.2,
+         0.9,
          71.1
         ],
         "orientation": [
@@ -115652,77 +115554,14 @@
        }
       },
       "Size": [
-       1.89,
-       0.4725,
-       1.485
+       5.6,
+       1.8,
+       2.26
       ],
       "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -46.4,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -115740,8 +115579,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -44.8,
-         8.225,
+         -24.6,
+         0.9,
          71.1
         ],
         "orientation": [
@@ -115764,14 +115603,112 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       6.8,
+       1.8,
+       2.2
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -16.6,
+         0.9,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.2,
+       1.8,
+       2.26
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -50.2,
+         2.65,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.6,
+       1.7,
+       2.26
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -115790,7 +115727,7 @@
        "CFrame": {
         "position": [
          -43.2,
-         8.228,
+         2.65,
          71.1
         ],
         "orientation": [
@@ -115813,9 +115750,107 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       10.4,
+       1.7,
+       2.32
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.6,
+         2.65,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.8,
+       1.7,
+       2.2
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -26.6,
+         2.65,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.2,
+       1.7,
+       2.26
       ],
       "Color": [
        0.5569,
@@ -115838,8 +115873,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.6,
-         8.225,
+         -18.4,
+         2.65,
          71.1
         ],
         "orientation": [
@@ -115862,14 +115897,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       7.2,
+       1.7,
+       2.32
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.6471,
+       0.6471,
+       0.6667
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -115887,8 +115922,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -40.0,
-         8.228,
+         -13.4,
+         2.65,
          71.1
         ],
         "orientation": [
@@ -115911,9 +115946,254 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       2.8,
+       1.7,
+       2.2
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -47.4,
+         4.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.2,
+       1.6,
+       2.32
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -39.2,
+         4.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.2,
+       1.6,
+       2.2
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -31.2,
+         4.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.8,
+       1.6,
+       2.26
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -22.8,
+         4.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       1.6,
+       2.32
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.4,
+         4.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.8,
+       1.6,
+       2.2
       ],
       "Color": [
        0.5569,
@@ -115936,8 +116216,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -40.0,
-         8.5,
+         -50.2,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -115960,121 +116240,9 @@
        }
       },
       "Size": [
-       1.89,
-       0.4725,
-       1.485
-      ],
-      "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.4,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -36.8,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
+       3.6,
+       1.5,
+       2.2
       ],
       "Color": [
        0.5569,
@@ -116097,8 +116265,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -35.2,
-         8.225,
+         -44.0,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -116121,14 +116289,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       8.8,
+       1.5,
+       2.26
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.6471,
+       0.6471,
+       0.6667
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -116146,8 +116314,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.6,
-         8.228,
+         -35.6,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -116170,175 +116338,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       8.0,
+       1.5,
+       2.32
       ],
       "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -32.0,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -32.0,
-         8.5,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.89,
-       0.4725,
-       1.485
-      ],
-      "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -30.4,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
+       0.5412,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -116357,7 +116364,7 @@
        "CFrame": {
         "position": [
          -28.8,
-         8.225,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -116380,273 +116387,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       5.6,
+       1.5,
+       2.2
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -27.2,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -25.6,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -24.0,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -24.0,
-         8.5,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.89,
-       0.4725,
-       1.485
-      ],
-      "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -22.4,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -116665,7 +116413,7 @@
        "CFrame": {
         "position": [
          -20.8,
-         8.228,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -116688,9 +116436,58 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       10.4,
+       1.5,
+       2.26
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -13.8,
+         5.85,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.6,
+       1.5,
+       2.32
       ],
       "Color": [
        0.5569,
@@ -116713,7 +116510,252 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -19.2,
+         -49.2,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.6,
+       1.4,
+       2.26
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -41.2,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       10.4,
+       1.4,
+       2.32
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -32.6,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.8,
+       1.4,
+       2.2
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -24.6,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.2,
+       1.4,
+       2.26
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -16.0,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       1.4,
+       2.32
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -50.3333,
          8.225,
          71.1
         ],
@@ -116737,7 +116779,7 @@
        }
       },
       "Size": [
-       1.52,
+       3.2533,
        0.45,
        2.4
       ],
@@ -116762,7 +116804,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -17.6,
+         -47.0,
          8.228,
          71.1
         ],
@@ -116786,7 +116828,7 @@
        }
       },
       "Size": [
-       1.52,
+       3.2533,
        0.456,
        2.4
       ],
@@ -116811,56 +116853,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.0,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -16.0,
+         -47.0,
          8.5,
          71.1
         ],
@@ -116923,56 +116916,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -14.4,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.8,
+         -43.6667,
          8.225,
          71.1
         ],
@@ -116996,7 +116940,7 @@
        }
       },
       "Size": [
-       1.52,
+       3.2533,
        0.45,
        2.4
       ],
@@ -117021,9 +116965,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         1.1,
-         69.97
+         -40.3333,
+         8.228,
+         71.1
         ],
         "orientation": [
          [
@@ -117045,18 +116989,18 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.456,
+       2.4
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117070,9 +117014,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         1.1,
-         72.23
+         -37.0,
+         8.225,
+         71.1
         ],
         "orientation": [
          [
@@ -117094,9 +117038,9 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -117105,7 +117049,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117119,9 +117063,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         2.3,
-         69.97
+         -37.0,
+         8.5,
+         71.1
         ],
         "orientation": [
          [
@@ -117143,18 +117087,81 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       1.89,
+       0.4725,
+       1.485
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5529,
+       0.6078,
+       0.4314
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -33.6667,
+         8.228,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2533,
+       0.456,
+       2.4
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117168,9 +117175,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         2.3,
-         72.23
+         -30.3333,
+         8.225,
+         71.1
         ],
         "orientation": [
          [
@@ -117192,9 +117199,9 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -117203,7 +117210,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117217,9 +117224,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         3.5,
-         69.97
+         -27.0,
+         8.228,
+         71.1
         ],
         "orientation": [
          [
@@ -117241,18 +117248,18 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.456,
+       2.4
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117266,9 +117273,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         3.5,
-         72.23
+         -27.0,
+         8.5,
+         71.1
         ],
         "orientation": [
          [
@@ -117290,9 +117297,72 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       1.89,
+       0.4725,
+       1.485
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -23.6667,
+         8.225,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2533,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -117301,7 +117371,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117315,9 +117385,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         4.7,
-         69.97
+         -20.3333,
+         8.228,
+         71.1
         ],
         "orientation": [
          [
@@ -117339,18 +117409,18 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.456,
+       2.4
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117364,9 +117434,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         4.7,
-         72.23
+         -17.0,
+         8.225,
+         71.1
         ],
         "orientation": [
          [
@@ -117388,9 +117458,9 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -117399,7 +117469,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117413,9 +117483,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         5.9,
-         69.97
+         -17.0,
+         8.5,
+         71.1
         ],
         "orientation": [
          [
@@ -117437,23 +117507,37 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       1.89,
+       0.4725,
+       1.485
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5529,
+       0.6078,
+       0.4314
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Woods_SetF85_080_StoneWall",
@@ -117462,9 +117546,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.0,
-         5.9,
-         72.23
+         -13.6667,
+         8.228,
+         71.1
         ],
         "orientation": [
          [
@@ -117486,116 +117570,18 @@
        }
       },
       "Size": [
-       40.0,
-       0.1,
-       0.06
+       3.2533,
+       0.456,
+       2.4
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -32.0,
-         7.1,
-         69.97
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       40.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -32.0,
-         7.1,
-         72.23
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       40.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -117987,8 +117973,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         4.0,
+         25.8,
+         0.9,
          71.1
         ],
         "orientation": [
@@ -118011,8 +117997,155 @@
        }
       },
       "Size": [
-       32.0,
-       8.0,
+       3.6,
+       1.8,
+       2.2
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         30.4,
+         0.9,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.6,
+       1.8,
+       2.26
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         38.4,
+         0.9,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       10.4,
+       1.8,
+       2.32
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         47.0,
+         0.9,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.8,
+       1.8,
        2.2
       ],
       "Color": [
@@ -118036,8 +118169,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         24.8,
-         8.225,
+         53.2,
+         0.9,
          71.1
         ],
         "orientation": [
@@ -118060,14 +118193,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       5.6,
+       1.8,
+       2.26
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118085,8 +118218,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         26.4,
-         8.228,
+         27.4,
+         2.65,
          71.1
         ],
         "orientation": [
@@ -118109,9 +118242,58 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       6.8,
+       1.7,
+       2.26
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         35.4,
+         2.65,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.2,
+       1.7,
+       2.32
       ],
       "Color": [
        0.5569,
@@ -118134,8 +118316,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         26.4,
-         8.5,
+         43.6,
+         2.65,
          71.1
         ],
         "orientation": [
@@ -118158,77 +118340,14 @@
        }
       },
       "Size": [
-       1.89,
-       0.4725,
-       1.485
+       7.2,
+       1.7,
+       2.2
       ],
       "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         28.0,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.6471,
+       0.6471,
+       0.6667
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118246,8 +118365,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         29.6,
-         8.228,
+         51.6,
+         2.65,
          71.1
         ],
         "orientation": [
@@ -118270,14 +118389,63 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       8.8,
+       1.7,
+       2.26
       ],
       "Color": [
-       0.5569,
-       0.5882,
-       0.6392
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         25.8,
+         4.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.6,
+       1.6,
+       2.32
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118296,7 +118464,7 @@
        "CFrame": {
         "position": [
          31.2,
-         8.225,
+         4.3,
          71.1
         ],
         "orientation": [
@@ -118319,273 +118487,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       7.2,
+       1.6,
+       2.2
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         32.8,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.4,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.4,
-         8.5,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.89,
-       0.4725,
-       1.485
-      ],
-      "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         36.0,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         37.6,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118604,7 +118513,7 @@
        "CFrame": {
         "position": [
          39.2,
-         8.228,
+         4.3,
          71.1
         ],
         "orientation": [
@@ -118627,9 +118536,9 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       8.8,
+       1.6,
+       2.26
       ],
       "Color": [
        0.5569,
@@ -118652,8 +118561,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.8,
-         8.225,
+         47.6,
+         4.3,
          71.1
         ],
         "orientation": [
@@ -118676,14 +118585,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       8.0,
+       1.6,
+       2.32
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.6471,
+       0.6471,
+       0.6667
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118701,8 +118610,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         42.4,
-         8.228,
+         53.8,
+         4.3,
          71.1
         ],
         "orientation": [
@@ -118725,14 +118634,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       4.4,
+       1.6,
+       2.2
       ],
       "Color": [
-       0.5569,
-       0.5882,
-       0.6392
+       0.5412,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118750,8 +118659,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         42.4,
-         8.5,
+         28.0,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -118774,77 +118683,14 @@
        }
       },
       "Size": [
-       1.89,
-       0.4725,
-       1.485
+       8.0,
+       1.5,
+       2.2
       ],
       "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.0,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5412,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118862,8 +118708,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         45.6,
-         8.228,
+         34.8,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -118886,14 +118732,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       5.6,
+       1.5,
+       2.26
       ],
       "Color": [
-       0.5569,
-       0.5882,
-       0.6392
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118911,8 +118757,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         47.2,
-         8.225,
+         42.8,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -118935,14 +118781,14 @@
        }
       },
       "Size": [
-       1.52,
-       0.45,
-       2.4
+       10.4,
+       1.5,
+       2.32
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5451,
+       0.5608,
+       0.6
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -118952,167 +118798,6 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         48.8,
-         8.228,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.456,
-       2.4
-      ],
-      "Color": [
-       0.5569,
-       0.5882,
-       0.6392
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         50.4,
-         8.225,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.52,
-       0.45,
-       2.4
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         50.4,
-         8.5,
-         71.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.89,
-       0.4725,
-       1.485
-      ],
-      "Color": [
-       0.5529,
-       0.6078,
-       0.4314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere",
-        "Scale": [
-         1.3333,
-         1.3333,
-         1.3333
-        ]
-       }
-      }
-     ]
     },
     {
      "name": "CatCafe_Woods_SetF85_080_StoneWall",
@@ -119122,7 +118807,7 @@
        "CFrame": {
         "position": [
          52.0,
-         8.228,
+         5.85,
          71.1
         ],
         "orientation": [
@@ -119145,9 +118830,9 @@
        }
       },
       "Size": [
-       1.52,
-       0.456,
-       2.4
+       8.0,
+       1.5,
+       2.2
       ],
       "Color": [
        0.5569,
@@ -119170,7 +118855,203 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         53.6,
+         25.8,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.6,
+       1.4,
+       2.26
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         32.8,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       10.4,
+       1.4,
+       2.32
+      ],
+      "Color": [
+       0.5412,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         41.4,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.8,
+       1.4,
+       2.2
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.4,
+         7.3,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       11.2,
+       1.4,
+       2.26
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         25.7778,
          8.225,
          71.1
         ],
@@ -119194,7 +119075,7 @@
        }
       },
       "Size": [
-       1.52,
+       3.4756,
        0.45,
        2.4
       ],
@@ -119219,7 +119100,70 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         55.2,
+         25.7778,
+         8.5,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.89,
+       0.4725,
+       1.485
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         29.3333,
          8.228,
          71.1
         ],
@@ -119243,7 +119187,7 @@
        }
       },
       "Size": [
-       1.52,
+       3.4756,
        0.456,
        2.4
       ],
@@ -119268,9 +119212,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         1.1,
-         69.97
+         32.8889,
+         8.225,
+         71.1
         ],
         "orientation": [
          [
@@ -119292,9 +119236,9 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       3.4756,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -119303,7 +119247,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -119317,9 +119261,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         1.1,
-         72.23
+         36.4444,
+         8.228,
+         71.1
         ],
         "orientation": [
          [
@@ -119341,18 +119285,18 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       3.4756,
+       0.456,
+       2.4
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -119366,9 +119310,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         2.3,
-         69.97
+         36.4444,
+         8.5,
+         71.1
         ],
         "orientation": [
          [
@@ -119390,9 +119334,72 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       1.89,
+       0.4725,
+       1.485
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         40.0,
+         8.225,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4756,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -119401,7 +119408,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -119415,9 +119422,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         2.3,
-         72.23
+         43.5556,
+         8.228,
+         71.1
         ],
         "orientation": [
          [
@@ -119439,18 +119446,18 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       3.4756,
+       0.456,
+       2.4
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5569,
+       0.5882,
+       0.6392
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -119464,9 +119471,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         3.5,
-         69.97
+         47.1111,
+         8.225,
+         71.1
         ],
         "orientation": [
          [
@@ -119488,9 +119495,9 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       3.4756,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -119499,7 +119506,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -119513,9 +119520,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         3.5,
-         72.23
+         47.1111,
+         8.5,
+         71.1
         ],
         "orientation": [
          [
@@ -119537,18 +119544,81 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       1.89,
+       0.4725,
+       1.485
       ],
       "Color": [
-       0.3569,
-       0.3725,
-       0.4196
+       0.5529,
+       0.6078,
+       0.4314
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_080_StoneWall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.6667,
+         8.228,
+         71.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4756,
+       0.456,
+       2.4
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -119562,9 +119632,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.0,
-         4.7,
-         69.97
+         54.2222,
+         8.225,
+         71.1
         ],
         "orientation": [
          [
@@ -119586,9 +119656,9 @@
        }
       },
       "Size": [
-       32.0,
-       0.1,
-       0.06
+       3.4756,
+       0.45,
+       2.4
       ],
       "Color": [
        0.3569,
@@ -119597,252 +119667,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         40.0,
-         4.7,
-         72.23
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       32.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         40.0,
-         5.9,
-         69.97
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       32.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         40.0,
-         5.9,
-         72.23
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       32.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         40.0,
-         7.1,
-         69.97
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       32.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_080_StoneWall",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         40.0,
-         7.1,
-         72.23
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       32.0,
-       0.1,
-       0.06
-      ],
-      "Color": [
-       0.3569,
-       0.3725,
-       0.4196
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",

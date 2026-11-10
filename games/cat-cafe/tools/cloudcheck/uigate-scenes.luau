@@ -7388,6 +7388,62 @@ local SCENES = {
 		local crates = tab and tab:FindFirstChild("Crates")
 		assert(crates ~= nil and not crates.Visible, "uigate: the Crates tab shows with cratesOn false")
 	end },
+	-- #2745 (section 1d): golden fish: 50 on my side, 120 on Sam's, each as a 🐟 card after the cats; a press on mine
+	-- opens the picker as an amount with 10, 50 and Max and Sam's room today under its title
+	{ "TradeFish", function()
+		local state = tradeState()
+		state.fishOn = true
+		state.fishRoom = 150
+		state.me.fish = 50
+		state.them.fish = 120
+		UI.trade.state(state)
+		press("Trade", "Mine.Grid.Fish")
+		task.wait(0.05)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local picks = modals and modals:FindFirstChild("Picks", true)
+		local picker = picks and picks:FindFirstChild("CratePicker")
+		assert(picker ~= nil and picker.Visible, "uigate: the fish card's press opened no picker")
+		assert(picker:FindFirstChild("Title").Text == "How many golden fish?", "uigate: the fish picker's title")
+		assert(picker:FindFirstChild("Count").Text == "50", "uigate: the fish picker starts at what is on offer")
+		local room = picker:FindFirstChild("Room")
+		assert(room.Visible and room.Text == "They can get 150 more today", "uigate: the fish picker's room line")
+		local theirs = modals:FindFirstChild("Theirs", true)
+		local fish = theirs and theirs:FindFirstChild("Fish", true)
+		assert(fish ~= nil and fish.Visible, "uigate: Sam's fish card is hidden")
+	end },
+	-- #2745: no fish yet: my card says Add, Sam's is hidden; with fishOn false neither shows
+	{ "TradeFishNone", function()
+		local state = tradeState()
+		state.fishOn = true
+		state.fishRoom = 400
+		UI.trade.state(state)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local mine = modals and modals:FindFirstChild("Mine", true)
+		local theirs = modals and modals:FindFirstChild("Theirs", true)
+		local myFish = mine and mine:FindFirstChild("Fish", true)
+		assert(myFish ~= nil and myFish.Visible, "uigate: my fish card is hidden at 0")
+		assert(not (theirs:FindFirstChild("Fish", true) :: Frame).Visible, "uigate: Sam's fish card shows at 0")
+		state = tradeState({ version = 2 })
+		state.fishOn = false
+		state.me.fish = 10
+		UI.trade.state(state)
+		assert(not myFish.Visible, "uigate: my fish card shows with fishOn false")
+		state = tradeState({ version = 3 })
+		state.fishOn = true
+		state.fishRoom = 400
+		UI.trade.state(state)
+	end },
+	-- #2745: the confirm face with the fish after the cats
+	{ "TradeFishConfirm", function()
+		local state = tradeState({ phase = "confirm" })
+		state.me.ready = true
+		state.them.ready = true
+		state.fishOn = true
+		state.fishRoom = 150
+		state.me.fish = 40
+		state.them.fish = 0
+		UI.trade.state(state)
+	end },
 	-- F102 part 2: Settings ends with the Trading section once TradeService runs: Friends only picked, then Trades
 	{ "SettingsTrading", function()
 		workspace:SetAttribute("TradingOn", true)

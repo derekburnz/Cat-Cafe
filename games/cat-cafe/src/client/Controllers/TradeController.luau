@@ -70,11 +70,24 @@ function TradeController.start()
 			gaveDecor: { Types.DecorSummary }?,
 			gotDecor: { Types.DecorSummary }?,
 			gaveCrates: { any }?,
-			gotCrates: { any }?
+			gotCrates: { any }?,
+			gaveFish: number?,
+			gotFish: number?
 		)
 			TradeController.state = nil
-			-- #1574: the pieces too, and #2745: the crates ({ id, count })
-			call("done", tradeId, gave, got, gaveDecor, gotDecor, gaveCrates, gotCrates)
+			-- #1574: the pieces too, and #2745: the crates ({ id, count }) and the golden fish (section 1d)
+			call(
+				"done",
+				tradeId,
+				gave,
+				got,
+				gaveDecor,
+				gotDecor,
+				gaveCrates,
+				gotCrates,
+				gaveFish,
+				gotFish
+			)
 		end
 	)
 	Net.on("TradeEnded", function(tradeId: string, reason: string)

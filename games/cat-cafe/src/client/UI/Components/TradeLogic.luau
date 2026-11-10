@@ -21,14 +21,15 @@
 --   pickHint(pick, full) -> string?      "Unlock it on its card to trade", "This cat can't be traded", ...
 --   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (open, then REASK_SECONDS), Busy or
 --                                        "Tier 3 needed"
---   doneLine(got, gotDecor?, gotCrates?) "Trade done! 2 new cats" (and "1 new decor", #1574, "3 new crates", #2745)
+--   doneLine(got, gotDecor?, gotCrates?, gotFish?) "Trade done! 2 new cats" (and "1 new decor", #1574, "3 new crates"
+--                                        and "50 golden fish", #2745)
 -- #1574 (section 1b): decor and lawn pieces, on the Decor tab beside Cats.
 --   myPieces(owned, unlocked, pieceOf, offered, theyHave) -> { PiecePick }   your tradeable pieces: rarest first,
 --                                        each with why it cannot go (locked, or the other player has it)
 --   pieceHint(pick, full) -> string?     "Unlock it on its card to trade", "They already have this", ...
 --   bonusText(bonus) -> string?          a piece's tip bonus on its card: "+5%"
 --   pieceRarity(rarity, bonus) -> string "Rare · +5%" under a piece on the confirm face
---   offerCount(side) -> number           the cats, pieces and crate kinds on one side
+--   offerCount(side) -> number           the cats, pieces and crate kinds on one side, and 1 for any fish
 -- #2745 (section 1c): banked crates, on the Crates tab while the server's cratesOn says so.
 --   myCrates(banked, defOf, offered, blocked) -> { CratePick }   your tradeable crates (never a golden one), in
 --                                        catalog order, each with how many are banked and on offer
@@ -36,6 +37,12 @@
 --   crateMax(pick, side) -> number       the long press picker's top: banked, within the caps
 --   crateChange(offered, wanted)         what the picker sends: ("add" | "remove", count), or nil for no change
 --   countText(n) -> string               "x3"
+-- #2745 (section 1d): golden fish, an amount on each side while the server's fishOn says so.
+--   fishOf(side) -> number               the fish on offer, a whole number, 0 for none
+--   fishMax(wallet, room) -> number      the fish picker's top: the wallet, MAX_FISH and the other player's room today
+--   fishHint(wallet, room, offered)      why the picker can't open: "You have no golden fish", the daily cap
+--   fishRoomLine(room) -> string         "They can get 150 more today"
+--   fishQuick(10 | 50 | "max", most)     the picker's quick amounts
 -- Part 2 (trading.md sections 1 and 5): the Trade requests setting and the Trades page.
 --   REQUEST_MODES, modeLabel(mode)       "everyone", "friends", "off" and "Everyone", "Friends only", "Off"
 --   requestsMode(saved, tap, now)        what the setting shows: a fresh press for HOLD_SECONDS, else the saved
@@ -155,6 +162,7 @@ TradeLogic.REASK_SECONDS = (Config.TradeReaskSeconds or 60) :: number
 TradeLogic.MAX_DECOR = (Config.TradeMaxDecor or 9) :: number
 TradeLogic.MAX_CRATES = (Config.TradeMaxCrates or 20) :: number -- #2745: crates a side in all
 TradeLogic.MAX_CRATE_KINDS = (Config.TradeMaxCrateKinds or 6) :: number -- and kinds of crate
+TradeLogic.MAX_FISH = (Config.TradeMaxFish or 200) :: number -- #2745 (section 1d): golden fish a side
 
 local MIN_TIER: number = Config.TradeMinTier or 3
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
@@ -375,11 +383,21 @@ function TradeLogic.pickHint(pick: Pick, full: boolean): string?
 	return nil
 end
 
--- The cats and pieces on one side of the trade (#1574: decor counts toward Ready too).
+-- #2745 (section 1d): the golden fish on one side of the trade, a whole number, 0 for none or before fish trading.
+function TradeLogic.fishOf(side: any): number
+	local fish = if type(side) == "table" then side.fish else nil
+	if type(fish) ~= "number" or fish ~= fish or fish == math.huge then
+		return 0
+	end
+	return math.max(0, math.floor(fish))
+end
+
+-- The cats and pieces on one side of the trade (#1574: decor counts toward Ready too, and #2745 crates and fish).
 function TradeLogic.offerCount(side: any): number
 	local decor = if type(side.decor) == "table" then #side.decor else 0
 	local crates = if type(side.crates) == "table" then #side.crates else 0
-	return #side.cats + decor + crates
+	local fish = if TradeLogic.fishOf(side) > 0 then 1 else 0
+	return #side.cats + decor + crates + fish
 end
 
 -- #1574: the rarities whose pieces arrive locked (the shared Trade.LOCKED_RARITIES), and the lawn's own rungs in
@@ -565,6 +583,49 @@ function TradeLogic.crateChange(offered: number, wanted: number): (string?, numb
 	return nil, 0
 end
 
+-- #2745 (section 1d): the most golden fish you can put on offer: your wallet, TradeMaxFish and the other player's
+-- room left today (the state's fishRoom; nil reads as no limit past TradeMaxFish).
+function TradeLogic.fishMax(wallet: number?, room: number?): number
+	local most = TradeLogic.MAX_FISH
+	if type(wallet) == "number" and wallet == wallet then
+		most = math.min(most, math.floor(wallet))
+	else
+		most = 0
+	end
+	if type(room) == "number" and room == room then
+		most = math.min(most, math.floor(room))
+	end
+	return math.max(0, most)
+end
+
+-- #2745: why the fish picker can't open (nothing can go and none is on offer), or nil.
+function TradeLogic.fishHint(wallet: number?, room: number?, offered: number): string?
+	if offered > 0 or TradeLogic.fishMax(wallet, room) > 0 then
+		return nil
+	elseif type(wallet) ~= "number" or wallet < 1 then
+		return "You have no golden fish"
+	end
+	return "They can't get more golden fish today"
+end
+
+-- #2745: the picker's line under its title: the other player's room left today.
+function TradeLogic.fishRoomLine(room: number?): string
+	if type(room) ~= "number" or room ~= room or room >= TradeLogic.MAX_FISH then
+		return string.format("Up to %d a trade", TradeLogic.MAX_FISH)
+	elseif room < 1 then
+		return "They can't get more today"
+	end
+	return string.format("They can get %d more today", math.floor(room))
+end
+
+-- #2745: a quick amount (10, 50 or "max") in the fish picker, within 0 and `most`.
+function TradeLogic.fishQuick(quick: number | "max", most: number): number
+	if quick == "max" then
+		return most
+	end
+	return math.clamp(quick :: number, 0, most)
+end
+
 function TradeLogic.countText(n: number): string
 	return "x" .. tostring(math.max(0, math.floor(n)))
 end
@@ -580,9 +641,14 @@ function TradeLogic.playerButton(row: PlayerRow, minTier: number): ButtonView
 	return { text = "Trade", enabled = true, style = "primary" }
 end
 
--- #1574: `gotDecor`, the pieces that came, and #2745: `gotCrates` ({ id, count }), join the line: "Trade done! 1 new
--- cat, 2 new decor and 3 new crates".
-function TradeLogic.doneLine(got: { any }?, gotDecor: { any }?, gotCrates: { any }?): string
+-- #1574: `gotDecor`, the pieces that came, and #2745: `gotCrates` ({ id, count }) and `gotFish` (a number), join the
+-- line: "Trade done! 1 new cat, 2 new decor, 3 new crates and 50 golden fish".
+function TradeLogic.doneLine(
+	got: { any }?,
+	gotDecor: { any }?,
+	gotCrates: { any }?,
+	gotFish: number?
+): string
 	local count = if got then #got else 0
 	local pieces = if type(gotDecor) == "table" then #gotDecor else 0
 	local crates = 0
@@ -605,6 +671,10 @@ function TradeLogic.doneLine(got: { any }?, gotDecor: { any }?, gotCrates: { any
 			parts,
 			string.format("%d new %s", crates, if crates == 1 then "crate" else "crates")
 		)
+	end
+	local fish = TradeLogic.fishOf({ fish = gotFish })
+	if fish > 0 then
+		table.insert(parts, string.format("%d golden fish", fish))
 	end
 	if #parts == 0 then
 		return "Trade done!"

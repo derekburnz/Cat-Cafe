@@ -21,6 +21,11 @@
 --     golden one) with "x3" banked. A tap adds one; a long press opens a picker from 1 to what you can add, which
 --     sends the difference. One the other player can't open yet is greyed with the server's reason. Crates on offer
 --     follow the pieces with their count; a tap on yours takes one back.
+--   * #2745 (section 1d): golden fish while the server's fishOn says so, as one 🐟 card in each grid after the
+--     crates (yours shows "Add" at 0). A press on yours opens the same picker as an amount: − and +, 10, 50 and Max
+--     (within your wallet, TradeMaxFish and the other player's room today, said under the title), sent as one "set".
+--     The design (trading.md 1d) has a row under each grid; a phone has about 37 px there, under a 44 px tap, so the
+--     amount sits in the grid like a crate and its controls in the picker. The confirm face shows it after the crates.
 -- Cancel (or the X) fires callbacks.cancel(tradeId) during a trade; the window closes when TradeState goes nil.
 
 local Players = game:GetService("Players")
@@ -52,9 +57,9 @@ export type Callbacks = {
 	-- `kind` "decor" offers a piece id instead of a cat uid (#1574), "crate" `count` of a crate id (#2745); nil is a cat
 	offer: (
 		tradeId: string,
-		action: "add" | "remove",
+		action: "add" | "remove" | "set", -- "set" is for fish only (#2745)
 		uid: string,
-		kind: ("decor" | "crate")?,
+		kind: ("decor" | "crate" | "fish")?,
 		count: number?
 	) -> (),
 	ready: (tradeId: string, version: number, ready: boolean) -> (),
@@ -101,7 +106,9 @@ local TABS: { { id: Tab, label: string } } = {
 local TAB_W = 70
 local PIECE_ORDER = 100 -- pieces follow the cats in a grid or a confirm row
 local CRATE_ORDER = 150 -- #2745: crates follow the pieces
+local FISH_ORDER = 190 -- #2745: then the golden fish
 local SLOT_ORDER = 200 -- and the empty slots follow them all
+local FISH = "fish" -- #2745: the picker's key and the uid TradeOffer takes for golden fish
 
 local MAX_SIZE = Vector2.new(760, 420)
 local GRID_GAP = 6
@@ -186,8 +193,9 @@ function Trade.new(callbacks: Callbacks): Trade
 	self._crateById = {} :: { [string]: TradeLogic.CrateInfo } -- #2745: Catalog.crates by id
 	self._crateTiles = {} :: { [string]: TradeItemTile.TradeItemTile } -- the Crates tab's kinds by id
 	self._crates = {} :: { TradeLogic.CratePick }
-	self._pickerFor = nil :: string? -- the crate id the count picker is open for
+	self._pickerFor = nil :: string? -- the crate id the count picker is open for, or FISH (#2745)
 	self._pickerCount = 1
+	self._pickerMin = 1 -- 0 for fish (#2745)
 	self._pickerMax = 1
 	self._confirmSince = nil :: number? -- os.clock() when this version's confirm screen showed
 	self._confirmKey = ""
@@ -509,6 +517,22 @@ function Trade._buildOffer(self: any, content: Frame)
 			crates = {} :: { TradeItemTile.TradeItemTile },
 		},
 	}
+	-- #2745: each side's golden fish card, after the crates; yours opens the picker
+	self._side.me.fish = TradeItemTile.new({
+		parent = mineGrid,
+		size = tile,
+		layoutOrder = FISH_ORDER,
+		name = "Fish",
+		onClick = function()
+			self:_openFishPicker()
+		end,
+	})
+	self._side.them.fish = TradeItemTile.new({
+		parent = theirsGrid,
+		size = tile,
+		layoutOrder = FISH_ORDER,
+		name = "Fish",
+	})
 	for index = 1, TradeLogic.MAX_CATS do
 		table.insert(
 			self._side.me.tiles,
@@ -652,14 +676,14 @@ end
 -- and Cancel and Done. Done sends the difference from what is on offer now.
 function Trade._buildPicker(self: any, picks: Frame)
 	local buttonH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
-	local height = 22 + 2 * buttonH + 3 * GAP
+	self._pickerButtonH = buttonH
 	local picker: Frame = Create("Frame", {
 		Name = "CratePicker",
 		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 0, 1, 0),
-		Size = UDim2.new(1, 0, 0, height),
+		Size = UDim2.new(1, 0, 0, 22 + 2 * buttonH + 3 * GAP),
 		Visible = false,
 		ZIndex = 10,
 		Parent = picks,
@@ -678,12 +702,23 @@ function Trade._buildPicker(self: any, picks: Frame)
 		ZIndex = 11,
 		Parent = picker,
 	})
+	-- #2745: the fish picker's line under the title, the other player's room today
+	self._pickerRoom = text({
+		Name = "Room",
+		Position = UDim2.fromOffset(GAP, 20),
+		Size = UDim2.new(1, -2 * GAP, 0, 16),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Visible = false,
+		ZIndex = 11,
+		Parent = picker,
+	})
 	local function button(
 		name: string,
 		label: string,
 		style: any,
 		x: UDim,
-		y: number,
 		w: UDim,
 		onClick: () -> ()
 	)
@@ -691,7 +726,7 @@ function Trade._buildPicker(self: any, picks: Frame)
 			name = name,
 			text = label,
 			style = style,
-			position = UDim2.new(x.Scale, x.Offset, 0, y),
+			position = UDim2.new(x.Scale, x.Offset, 0, 0),
 			size = UDim2.new(w.Scale, w.Offset, 0, buttonH),
 			textSize = Theme.sizes.textBody,
 			zIndex = 12,
@@ -699,15 +734,14 @@ function Trade._buildPicker(self: any, picks: Frame)
 			onClick = onClick,
 		})
 	end
-	local rowY = 22 + GAP
 	local third = UDim.new(1 / 3, -GAP)
-	self._pickerLess = button("Less", "−", "ghost", UDim.new(0, GAP / 2), rowY, third, function()
+	self._pickerLess = button("Less", "−", "ghost", UDim.new(0, GAP / 2), third, function()
 		self:_pickerStep(-1)
 	end)
 	self._pickerCountLabel = text({
 		Name = "Count",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, rowY),
+		Position = UDim2.new(0.5, 0, 0, 0),
 		Size = UDim2.new(1 / 3, -GAP, 0, buttonH),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 4,
@@ -715,24 +749,69 @@ function Trade._buildPicker(self: any, picks: Frame)
 		ZIndex = 11,
 		Parent = picker,
 	})
-	self._pickerMore = button(
-		"More",
-		"+",
-		"ghost",
-		UDim.new(2 / 3, GAP / 2),
-		rowY,
-		third,
-		function()
-			self:_pickerStep(1)
-		end
-	)
+	self._pickerMore = button("More", "+", "ghost", UDim.new(2 / 3, GAP / 2), third, function()
+		self:_pickerStep(1)
+	end)
+	-- #2745: the fish picker's quick amounts
+	self._pickerQuick = {}
+	for index, quick in { 10, 50, "max" } :: { number | "max" } do
+		local label = if quick == "max" then "Max" else tostring(quick)
+		table.insert(
+			self._pickerQuick,
+			button(
+				"Quick" .. label,
+				label,
+				"secondary",
+				UDim.new((index - 1) / 3, GAP / 2),
+				third,
+				function()
+					self:_pickerQuickPress(quick)
+				end
+			)
+		)
+	end
 	local half = UDim.new(0.5, -GAP * 1.5)
-	button("Close", "Cancel", "ghost", UDim.new(0, GAP), rowY + buttonH + GAP, half, function()
+	self._pickerClose = button("Close", "Cancel", "ghost", UDim.new(0, GAP), half, function()
 		self:_closePicker()
 	end)
-	button("Done", "Done", "primary", UDim.new(0.5, GAP / 2), rowY + buttonH + GAP, half, function()
-		self:_pickerDone()
-	end)
+	self._pickerDoneButton = button(
+		"Done",
+		"Done",
+		"primary",
+		UDim.new(0.5, GAP / 2),
+		half,
+		function()
+			self:_pickerDone()
+		end
+	)
+	self:_layoutPicker(false)
+end
+
+-- #2745: the picker's rows: − n +, then Cancel and Done; the fish picker adds the room line and 10, 50 and Max.
+function Trade._layoutPicker(self: any, fish: boolean)
+	local buttonH: number = self._pickerButtonH
+	local y = if fish then 22 + 16 else 22 + GAP
+	local function place(button: any, rowY: number)
+		local frame: Frame = button.instance
+		frame.Position = UDim2.new(frame.Position.X.Scale, frame.Position.X.Offset, 0, rowY)
+	end
+	place(self._pickerLess, y)
+	place(self._pickerMore, y)
+	local count: TextLabel = self._pickerCountLabel
+	count.Position = UDim2.new(0.5, 0, 0, y)
+	y += buttonH + GAP
+	self._pickerRoom.Visible = fish
+	for _, quick in self._pickerQuick do
+		quick.instance.Visible = fish
+		place(quick, y)
+	end
+	if fish then
+		y += buttonH + GAP
+	end
+	place(self._pickerClose, y)
+	place(self._pickerDoneButton, y)
+	local picker: Frame = self._picker
+	picker.Size = UDim2.new(1, 0, 0, y + buttonH + GAP)
 end
 
 -- The confirm face: "You give" and "You get" as rows of cards with names, and the red warning line.
@@ -952,9 +1031,35 @@ function Trade._crateCard(self: any, row: any, index: number): PieceCard
 	return card
 end
 
+-- #2745 (section 1d): a confirm row's golden fish card (a PieceCard of its own), made on first use.
+function Trade._fishCard(self: any, row: any): PieceCard
+	local existing: PieceCard? = row.fish
+	if existing then
+		return existing
+	end
+	local holder = { pieces = {}, scroll = row.scroll }
+	local card = self:_pieceCard(holder, 1)
+	card.frame.Name = "Fish"
+	card.frame.LayoutOrder = FISH_ORDER
+	row.fish = card
+	return card
+end
+
 -- #2745: one side's crates (TradeCrateTile: id, name, area, count), {} before the server sends them.
 local function cratesOf(side: any): { any }
 	return if type(side) == "table" and type(side.crates) == "table" then side.crates else {}
+end
+
+-- #2745 (section 1d): the golden fish card: the fish picture with the amount at its foot, gold once there are some,
+-- "Add" on a plain card at 0.
+local function fishView(fish: number): TradeItemTile.View
+	return {
+		id = FISH,
+		name = "Golden fish",
+		rarity = if fish > 0 then "Golden" else "Common",
+		image = Theme.textures.fishCoin,
+		foot = if fish > 0 then tostring(fish) else "Add",
+	}
 end
 
 -- #2745: what a crate kind on offer shows: its picture, name and "x3".
@@ -1132,7 +1237,14 @@ function Trade._renderOffer(self: any, trade: Types.TradeState)
 		-- #1574: the cats, then the pieces, then (#2745) the crates, then empty slots up to 9
 		local decor: { Types.TradeDecorTile } = data.decor or {}
 		local crates = cratesOf(data)
-		local slots = math.max(0, TradeLogic.MAX_CATS - #data.cats - #decor - #crates)
+		-- #2745: the fish card, always on your side while fishOn (to add some), on theirs when they offer some
+		local fish = TradeLogic.fishOf(data)
+		local fishShown = (trade :: any).fishOn == true and (key == "me" or fish > 0)
+		side.fish:set(if fishShown then fishView(fish) else nil)
+		local slots = math.max(
+			0,
+			TradeLogic.MAX_CATS - #data.cats - #decor - #crates - (if fishShown then 1 else 0)
+		)
 		for index, tile in side.tiles do
 			local cat: Types.TradeTile? = data.cats[index]
 			tile:set(if cat then tileView(self, cat, key == "them") else nil)
@@ -1300,6 +1412,9 @@ function Trade._renderPicks(self: any)
 		self._tab = "cats"
 		self:_closePicker()
 	end
+	if self._pickerFor == FISH and (trade :: any).fishOn ~= true then
+		self:_closePicker() -- #2745: fish switched off mid-trade
+	end
 	local catsTab = self._tab == "cats"
 	for id, button in self._tabButtons do
 		local on = id == self._tab
@@ -1429,7 +1544,7 @@ function Trade._renderCrates(self: any, show: boolean): number
 			self._crateTiles[id] = nil
 		end
 	end
-	if self._pickerFor ~= nil and not seen[self._pickerFor] then
+	if self._pickerFor ~= nil and self._pickerFor ~= FISH and not seen[self._pickerFor] then
 		self:_closePicker()
 	end
 	return #crates
@@ -1487,7 +1602,21 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 		for index = #crates + 1, #row.crates do
 			row.crates[index].frame.Visible = false
 		end
-		local nothing = #cats + #decor + #crates == 0
+		-- #2745 (section 1d): the golden fish after the crates
+		local fish = TradeLogic.fishOf(side)
+		if fish > 0 then
+			local card = self:_fishCard(row)
+			card.frame.Visible = true
+			local view = fishView(fish)
+			view.foot = nil -- the amount is the line under it
+			card.tile:set(view)
+			card.name.Text = "Golden fish"
+			card.rarity.Text = tostring(fish)
+			card.rarity.TextColor3 = Theme.colors.gold
+		elseif row.fish ~= nil then
+			row.fish.frame.Visible = false
+		end
+		local nothing = #cats + #decor + #crates == 0 and fish == 0
 		row.nothing.Visible = nothing
 		row.nothing.TextColor3 = if key == "get" and nothing then PAL.red else PAL.subtext
 	end
@@ -1724,17 +1853,52 @@ function Trade._openPicker(self: any, id: string)
 		return
 	end
 	self._pickerFor = id
+	self._pickerMin = 1
 	self._pickerMax = most
 	self._pickerCount = math.clamp(math.max(pick.offered, 1), 1, most)
 	self._pickerTitle.Text = string.format("How many %s?", pick.name)
+	self:_layoutPicker(false)
 	self._picker.Visible = true
 	self:_pickerStep(0)
 end
 
+-- #2745 (section 1d): a press on your fish card opens the picker as an amount from 0 (take them all back) to what can
+-- go, or says why none can.
+function Trade._openFishPicker(self: any)
+	local trade: Types.TradeState? = self._trade
+	local state: Types.PlayerState? = self._state
+	if trade == nil or trade.phase ~= "offer" or (trade :: any).fishOn ~= true then
+		return
+	end
+	local wallet: number? = if state ~= nil then state.goldenFish else nil
+	local room: number? = (trade :: any).fishRoom
+	local offered = TradeLogic.fishOf(trade.me)
+	local hint = TradeLogic.fishHint(wallet, room, offered)
+	if hint then
+		self:_refuse(hint, self._side.me.fish)
+		return
+	end
+	self._pickerFor = FISH
+	self._pickerMin = 0
+	self._pickerMax = math.max(offered, TradeLogic.fishMax(wallet, room))
+	self._pickerCount = math.clamp(if offered > 0 then offered else 10, 0, self._pickerMax)
+	self._pickerTitle.Text = "How many golden fish?"
+	self._pickerRoom.Text = TradeLogic.fishRoomLine(room)
+	self:_layoutPicker(true)
+	self._picker.Visible = true
+	self:_pickerStep(0)
+end
+
+function Trade._pickerQuickPress(self: any, quick: number | "max")
+	self._pickerCount = TradeLogic.fishQuick(quick, self._pickerMax)
+	self:_pickerStep(0)
+end
+
 function Trade._pickerStep(self: any, by: number)
-	self._pickerCount = math.clamp(self._pickerCount + by, 1, self._pickerMax)
+	local least: number = self._pickerMin or 1
+	self._pickerCount = math.clamp(self._pickerCount + by, least, math.max(least, self._pickerMax))
 	self._pickerCountLabel.Text = tostring(self._pickerCount)
-	self._pickerLess:setEnabled(self._pickerCount > 1)
+	self._pickerLess:setEnabled(self._pickerCount > least)
 	self._pickerMore:setEnabled(self._pickerCount < self._pickerMax)
 end
 
@@ -1745,10 +1909,21 @@ function Trade._closePicker(self: any)
 	end
 end
 
--- Done: the difference from what is on offer now, as one add or one remove.
+-- Done: the difference from what is on offer now, as one add or one remove; for fish (#2745) the amount as one set.
 function Trade._pickerDone(self: any)
 	local trade: Types.TradeState? = self._trade
 	local id: string? = self._pickerFor
+	if id == FISH then
+		self:_closePicker()
+		if
+			trade ~= nil
+			and trade.phase == "offer"
+			and self._pickerCount ~= TradeLogic.fishOf(trade.me)
+		then
+			self._callbacks.offer(trade.tradeId, "set", FISH, "fish", self._pickerCount)
+		end
+		return
+	end
 	local pick = if id ~= nil then self:_cratePick(id) else nil
 	self:_closePicker()
 	if trade == nil or trade.phase == "confirm" or pick == nil then

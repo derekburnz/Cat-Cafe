@@ -6689,6 +6689,11 @@ local SCENES = {
 		local billboard = UIShim.playerGui:FindFirstChild("CatCafeCarryMarker", true) :: BillboardGui
 		assert(billboard, "uigate: no carry marker (#2864)")
 		local label = billboard:FindFirstChild("Label", true) :: TextLabel
+		-- #3055: the carry marker is about half its old 180 x 64 or less; the tutorial's flash marker keeps its size
+		assert(billboard.Size.X.Offset <= 160 and billboard.Size.Y.Offset <= 40,
+			"uigate: the carry marker is " .. tostring(billboard.Size) .. ", want 160 x 40 or less (#3055)")
+		local tutorialMarker = UIShim.playerGui:FindFirstChild("CatCafeTutorialMarker", true) :: BillboardGui
+		assert(tutorialMarker and tutorialMarker.Size.X.Offset == 180, "uigate: the tutorial marker changed size (#3055)")
 		local function says(): string?
 			return if billboard.Enabled then label.Text else nil
 		end

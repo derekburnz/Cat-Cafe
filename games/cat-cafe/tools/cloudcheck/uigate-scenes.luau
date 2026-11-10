@@ -502,10 +502,16 @@ local function assertEventChip(lines: number): TextLabel
 	local last = if nextLine.Visible then nextLine else chip
 	local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
 	assert(last == chip or last.AbsolutePosition.Y >= chipBottom - 1, "uigate: the next shower line is over the chip (#2487)")
+	-- #2885: the lines are in the status banner (under the counters on touch, under the clock on a PC), which must not
+	-- cover the goal card
 	local goal = hud:FindFirstChild("TierGoal", true) :: GuiObject?
+	local banner = hud:FindFirstChild("StatusBanner", true) :: GuiObject
+	assert(banner and banner.Visible and chip:IsDescendantOf(banner), "uigate: the Cafe Event chip is not in the status banner (#2885)")
 	if goal and goal.Visible then
-		local bottom = last.AbsolutePosition.Y + last.AbsoluteSize.Y
-		assert(bottom <= goal.AbsolutePosition.Y + 1, "uigate: the Cafe Event chip runs into the goal card (#2487)")
+		local a, as = banner.AbsolutePosition, banner.AbsoluteSize
+		local g, gs = goal.AbsolutePosition, goal.AbsoluteSize
+		local apart = a.X + as.X <= g.X + 1 or g.X + gs.X <= a.X + 1 or a.Y + as.Y <= g.Y + 1 or g.Y + gs.Y <= a.Y + 1
+		assert(apart, "uigate: the Cafe Event chip runs into the goal card (#2487)")
 	end
 	return chip
 end
@@ -1761,6 +1767,81 @@ local SCENES = {
 		assert(again and again.Enabled and again.Parent == swap, "uigate: the rate tag did not come back after its part went (#2784)")
 		tags:destroy()
 		cat:Destroy()
+	end },
+	-- #2885 (Derek2: the day, event and shower banner "slightly below the currency ... don't push those down into middle
+	-- of screen ... doesn't cause problems with the 2x money", with a clear border) and #2881 (Luck pushed toward the
+	-- middle with the x2+ money tag): a lucky, golden day with the party running, the money pass owned and Luck x2.5.
+	-- On touch the banner hangs under the counters, the Luck row (when under them) lines up with the money, and
+	-- nothing overlaps; every line's words fit (#2882)
+	{ "StatusBannerBusy", function()
+		local t = workspace:GetServerTimeNow()
+		UIShim.advance(4)
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
+		UI.update({ luck = 2.5, luckSources = { { id = "statue", value = 1.5 } } })
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		-- after cafeEvent, which binds a plain day's clock
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", t + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("LuckyDay", true)
+		clock:SetAttribute("GoldenDay", true)
+		UI.clock.bind(clock)
+		UIShim.advance(0.5)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local banner = hud:FindFirstChild("StatusBanner", true) :: Frame
+		assert(banner and banner.Visible, "uigate: no status banner on a lucky day with a party (#2885)")
+		assert(banner:FindFirstChild("Ring"), "uigate: the status banner has no ring (#2885)")
+		for _, name in { "LuckyDay", "EventChip", "EventNext" } do
+			local line = banner:FindFirstChild(name, true) :: TextLabel
+			assert(line and line.Visible, "uigate: the banner has no " .. name .. " line (#2885)")
+			assert(line.TextFits, ("uigate: the banner's %s line %q is cut, %d px wide (#2882)"):format(name, line.Text, line.AbsoluteSize.X))
+			local right = line.AbsolutePosition.X + line.AbsoluteSize.X
+			assert(right <= banner.AbsolutePosition.X + banner.AbsoluteSize.X + 1, "uigate: the banner's " .. name .. " line runs out of it (#2882)")
+		end
+		local function rect(o: GuiObject): (Vector2, Vector2)
+			return o.AbsolutePosition, o.AbsolutePosition + o.AbsoluteSize
+		end
+		local function apart(a: GuiObject, b: GuiObject): boolean
+			local a0, a1 = rect(a)
+			local b0, b1 = rect(b)
+			return a1.X <= b0.X + 1 or b1.X <= a0.X + 1 or a1.Y <= b0.Y + 1 or b1.Y <= a0.Y + 1
+		end
+		local counters = hud:FindFirstChild("Counters", true) :: GuiObject
+		for _, name in { "Counters", "Menu", "MenuFold", "TierGoal", "Icons", "MoneyBadge", "Quests", "Index" } do
+			local other = hud:FindFirstChild(name, true) :: GuiObject?
+			if other and other.Visible and other ~= banner then
+				assert(apart(banner, other), "uigate: the status banner overlaps " .. name .. " (#2885)")
+			end
+		end
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			local below = banner.AbsolutePosition.Y >= counters.AbsolutePosition.Y + counters.AbsoluteSize.Y - 1
+			assert(below, "uigate: the status banner is not under the money (#2885)")
+			assert(banner.AbsolutePosition.Y <= hud.AbsoluteSize.Y * 0.45, "uigate: the status banner sits in the middle of the screen (#2885)")
+			local luck = hud:FindFirstChild("Luck", true) :: GuiObject?
+			if luck and luck.Visible then
+				assert(apart(banner, luck), "uigate: the status banner overlaps the Luck chip (#2885)")
+				for _, name in { "Menu", "MenuFold", "Quests", "Bowl" } do
+					local other = hud:FindFirstChild(name, true) :: GuiObject?
+					if other and other.Visible then
+						assert(apart(luck, other), "uigate: the Luck chip overlaps " .. name .. " (#2881)")
+					end
+				end
+				local under = luck.AbsolutePosition.Y >= counters.AbsolutePosition.Y + counters.AbsoluteSize.Y - 1
+				if under then
+					-- left edges level, or as near as the menu grid lets it, never centred under the pair
+					local dx = luck.AbsolutePosition.X - counters.AbsolutePosition.X
+					assert(dx <= counters.AbsoluteSize.X / 3, ("uigate: the Luck chip is %d px right of the money's left edge, pushed toward the middle (#2881)"):format(dx))
+				end
+			end
+		end
+		-- let the day's and the party's toasts age past TipQueue.TOAST_QUIET, so the scenes after start on a quiet
+		-- moment (FirstVisitAway's card waits for one)
+		UIShim.advance(21)
 	end },
 	-- #2880 (Derek2: "the pop ups ... are too early and too often"): no slide-in ask in a session's first minutes, and
 	-- none right after another; once the gap has passed the next one shows

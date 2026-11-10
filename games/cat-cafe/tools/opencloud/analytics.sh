@@ -30,7 +30,7 @@
 #
 # Usage:  tools/opencloud/analytics.sh [days] [funnel]
 #   days    whole UTC days back from today (default 14). Today is left out: Roblox fills a day about a day late.
-#   funnel  only this funnel (default: every funnel)
+#   funnel  only this funnel (default: every funnel); "ads" reads the ad campaigns instead (ads.sh)
 # Every raw answer is printed after "== raw", since the API is in beta and its shapes may change. Fields are as in the
 # Open Cloud reference (create.roblox.com/docs/cloud/reference/features/analytics): QueryRequest and
 # DimensionValuesRequest, filters as {dimension, operation: "In", values}.
@@ -40,6 +40,10 @@ set -euo pipefail
 DAYS=${1:-}
 DAYS=${DAYS:-14}
 FUNNEL=${2:-}
+# funnel "ads": read the ad campaigns instead (ads.sh, Ads API beta, read only)
+if [ "$FUNNEL" = ads ]; then
+	exec bash "$(dirname "$0")/ads.sh"
+fi
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 20)}"
 

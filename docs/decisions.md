@@ -777,3 +777,6 @@ Why this shape: the cause of the missing cutscene was the order of events, so th
 Not changed here (Animation-Engineer has them): tip pop-ups in the first five minutes (#3156), the Daily Treat and goal-progress pop-ups (#3155), the × highlight (#3154). The GDD's line 'a cat will come by in 10 minutes' (first ten minutes, beat 4) describes the old pop-up; proposed to the game-designer to drop it.
 
 For Research-Agent: `tutorial_step 5` now logs when the first bowl cat is tamed or let go, a few seconds later than before and only for players who answer the card, so the step 4 to 5 rate from this publish on is not comparable with earlier days.
+
+## 2026-11-10: feedback stand right of the Thank You board, night market nudged (#3189)
+Derek2 asked for the feedback stand to the right of the Thank You board, away from the fish market, and the night market a little left to make room. The stand moves from (34, 18) to (50, -25), on the board's right as you face it, between the night cart and the leaderboard row; the night cart moves from (37, -35) to (33, -31). A straight move left would hide the board from the spawn, so the cart also steps 4 toward the lane. The #3070 fit rules (fit70.py) still pass with nothing excepted; the arcade's spot stays north of the lane.

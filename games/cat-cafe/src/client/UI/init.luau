@@ -526,6 +526,10 @@ local function autoOpenDailyTreat()
 		or windows:current() ~= nil
 		or UI.intro.playing()
 		or introBlocked()
+		-- #3155 (Derek2: "daily treat pop up should also wait until after tutorial steps are done"): the step's
+		-- strip and the cannon walk-through after it go first
+		or tutorialText ~= nil
+		or hintShown ~= nil
 	then
 		return
 	end
@@ -4562,6 +4566,12 @@ do
 	-- one table, as the module is short of locals
 	local TIP = {
 		GAP = ((Config :: any).TipGapSeconds or 60) :: number,
+		TUTORIAL_DONE = 5, -- #3156: tutorialStep at the tutorial's end
+		start = 0, -- #3156: os.clock() at the tips' start
+		joinedNew = nil :: boolean?,
+		held = function(): boolean
+			return false
+		end,
 		CUT_SECONDS = cutSeconds,
 		CUT_TIMEOUT = cutSeconds + 3, -- a cut whose done never comes frees the queue after this
 		STUCK_RANGE = 30, -- studs from a stuck cat (section 3: "within 30 studs")
@@ -4612,6 +4622,21 @@ do
 			end
 		end
 		return nil
+	end
+
+	-- #3156: whether tip cards wait (TipQueue.held): a tutorial step on screen, or a new player's first minutes
+	-- (in TIP, as the module is short of locals: TIP.start, and TIP.joinedNew whether this session began before the
+	-- tutorial's end, from the first state)
+	TIP.start = os.clock()
+	TIP.held = function(): boolean
+		if TIP.joinedNew == nil and state.tutorialStep ~= nil then
+			TIP.joinedNew = state.tutorialStep < TIP.TUTORIAL_DONE
+		end
+		return TipQueue.held({
+			guiding = tutorialText ~= nil or hintShown ~= nil,
+			newPlayer = TIP.joinedNew == true,
+			played = os.clock() - TIP.start,
+		})
 	end
 
 	local function tipMoment(): TipQueue.Moment
@@ -4684,6 +4709,7 @@ do
 			and not tipBusy
 			and initialized
 			and tutorialButtonOn
+			and not TIP.held()
 			and TipQueue.free(tipMoment())
 		then
 			TIP.nudge = nil
@@ -4704,6 +4730,7 @@ do
 			or not initialized
 			or not tutorialButtonOn
 			or tipQueue:size() == 0
+			or TIP.held() -- #3156
 		then
 			return
 		end

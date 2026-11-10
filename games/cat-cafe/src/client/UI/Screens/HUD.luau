@@ -1427,7 +1427,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #3022: the second cat goal now (nil for none), whether its preview lines have had their time, and a counter so
 	-- an older start's bounce does nothing
 	self._second = nil :: SecondCatGoal.View?
-	self._secondPreviewed = false
+	self._secondPreviewed = true -- #3155: the preview lines no longer show
 	self._secondRun = 0
 	self._gone = false
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
@@ -5013,32 +5013,11 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 	return { title = second.title, lines = lines, chip = second.chip }
 end
 
--- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped): one bounce, the
--- preview lines for PREVIEW_SECONDS the first time, and one more bounce at NUDGE_SECONDS if it is still the goal.
+-- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped). #3155 (Derek2:
+-- "remove the pop ups for cat progress towards your goal at start"): no bounce, no second bounce at NUDGE_SECONDS
+-- and no preview lines ("New kind of cat: +$50", "and 1 step closer to ..."); the card just reads the goal.
 function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
-	local run = self._secondRun
-	self._goal:bounce()
-	if not self._secondPreviewed then
-		task.delay(SecondCatGoal.PREVIEW_SECONDS, function()
-			if self._gone then
-				return
-			end
-			self._secondPreviewed = true
-			if self._second ~= nil then
-				self._goal:setGoal(self:_secondGoal())
-				if not self:_open("goal") then
-					self._goal.frame.Visible = false
-				end
-				self:_layoutRight()
-			end
-		end)
-	end
-	task.delay(SecondCatGoal.NUDGE_SECONDS, function()
-		if not self._gone and self._secondRun == run and self._second ~= nil then
-			self._goal:bounce()
-		end
-	end)
 end
 
 function HUD.destroy(self: any)

@@ -6076,12 +6076,12 @@ local SCENES = {
 		end
 		local lines = shownLines()
 		local hook = if touch then 0 else 1
-		assert(#lines == hook + 2, "uigate: the second cat goal shows " .. texts(lines) .. " (#3022)")
+		-- #3155 (Derek2: "remove the pop ups for cat progress towards your goal at start"): no preview lines, only the
+		-- wide card's money line
+		assert(#lines == hook, "uigate: the second cat goal shows " .. texts(lines) .. " (#3155)")
 		if not touch then
 			assert(lines[1].Text == "New cats pay +$50 💰", "uigate: the second cat goal's money line reads " .. lines[1].Text .. " (#3022)")
 		end
-		assert(lines[hook + 1].Text == "New kind of cat: +$50", "uigate: the second cat preview reads " .. lines[hook + 1].Text .. " (#3022)")
-		assert(string.find(lines[hook + 2].Text, "1 step closer to ", 1, true), "uigate: the second cat preview's second line reads " .. lines[hook + 2].Text .. " (#3022)")
 		local bottom = goal.AbsolutePosition.Y + goal.AbsoluteSize.Y
 		for _, label in lines do
 			assert(not string.find(label.Text, "2x", 1, true), "uigate: the second cat goal says 2x with both jobs taken (#3022)")
@@ -6089,12 +6089,12 @@ local SCENES = {
 			assert(label.AbsolutePosition.Y + label.AbsoluteSize.Y <= bottom + 0.5, "uigate: the second cat goal's lines run out of the card (#3022)")
 		end
 		local tall = goal.AbsoluteSize.Y
-		-- the preview has its 6 s, once; the money line stays
+		-- the money line stays
 		UIShim.advance(6.3)
 		lines = shownLines()
-		assert(#lines == hook, "uigate: the second cat preview stayed past its 6 s: " .. texts(lines) .. " (#3022)")
-		assert(goal.AbsoluteSize.Y <= tall, "uigate: the second cat goal grew when its preview went (#3022)")
-		assert(title.Visible and title.Text == expected, "uigate: the second cat goal went with its preview (#3022)")
+		assert(#lines == hook, "uigate: the second cat goal's lines changed: " .. texts(lines) .. " (#3022)")
+		assert(goal.AbsoluteSize.Y <= tall, "uigate: the second cat goal grew (#3022)")
+		assert(title.Visible and title.Text == expected, "uigate: the second cat goal went (#3022)")
 		-- a job really free, the server's two rates: only then "2x" (the wide card's money line)
 		UI.update({ secondCat = { now = 1.5, with = 3, cats = 1, bonus = 50 } } :: any)
 		UIShim.advance(0.1)

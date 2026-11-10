@@ -71,6 +71,12 @@ Trade.Messages = {
 	theyCantOpen = "They haven't reached the %s yet",
 	crateInTrade = "This crate is in a trade",
 	cratesOff = "Crate trading is resting for now",
+	-- #2745 (section 1d): golden fish
+	fishAmount = "Pick how many golden fish",
+	fishNotEnough = "You don't have that many golden fish",
+	fullFish = "Up to %d golden fish each",
+	fishRoom = "They can get %d more golden fish today",
+	fishOff = "Golden fish trading is resting for now",
 }
 
 -- #1574: the rarities whose pieces arrive locked (Legendary and up; Golden is the lawn's top rung).
@@ -388,6 +394,68 @@ local function moveCrates(
 	end
 end
 
+-- #2745 (section 1d): whether `amount` is a whole number of fish from 0 up (not NaN or infinite).
+local function wholeFish(amount: unknown): boolean
+	return type(amount) == "number"
+		and amount == amount
+		and amount >= 0
+		and amount < math.huge
+		and amount == math.floor(amount)
+end
+
+-- Golden fish `profile` has received in trades this game day (the TradeFishPerDay count).
+function Trade.fishInToday(profile: Types.PlayerProfile, now: number): number
+	local today = profile.stats.tradesToday
+	return if today.day == Trade.day(now) then today.fishIn or 0 else 0
+end
+
+-- Golden fish `profile` can still receive in trades this game day.
+function Trade.fishRoom(profile: Types.PlayerProfile, now: number): number
+	return math.max(0, Config.TradeFishPerDay - Trade.fishInToday(profile, now))
+end
+
+-- Why `profile` can't have `amount` golden fish on its side in a trade with `partner` at `now`, or nil when it can: a
+-- whole amount from 0, at most TradeMaxFish, no more than the wallet holds and no more than the partner's room today.
+-- 0 always passes (taking every fish off).
+function Trade.fishRefusal(
+	profile: Types.PlayerProfile,
+	partner: Types.PlayerProfile,
+	amount: unknown,
+	now: number
+): string?
+	if not wholeFish(amount) then
+		return Trade.Messages.fishAmount
+	end
+	local n = amount :: number
+	if n == 0 then
+		return nil
+	end
+	if n > Config.TradeMaxFish then
+		return string.format(Trade.Messages.fullFish, Config.TradeMaxFish)
+	end
+	if n > math.floor(profile.goldenFish) then
+		return Trade.Messages.fishNotEnough
+	end
+	local room = Trade.fishRoom(partner, now)
+	if n > room then
+		return string.format(Trade.Messages.fishRoom, room)
+	end
+	return nil
+end
+
+-- `amount` golden fish's Collector value for the lopsided warning (TradeFishValue each).
+function Trade.fishValue(amount: number): number
+	return amount * Config.TradeFishValue
+end
+
+-- A fish amount from a stored record made safe: a whole number from 0 to TradeMaxFish, 0 for anything else.
+function Trade.sanitizeFish(raw: unknown): number
+	if not wholeFish(raw) then
+		return 0
+	end
+	return math.min(raw :: number, Config.TradeMaxFish)
+end
+
 -- What a trade ends with (TradeEnded's words).
 Trade.Ended = {
 	cancelled = "Trade cancelled",
@@ -397,6 +465,7 @@ Trade.Ended = {
 	failed = "The trade couldn't finish. Nothing moved.",
 	gone = "A cat on offer is gone",
 	cratesOff = "Crate trading is resting for now", -- #2745: the tradeCrates switch went off mid swap
+	fishOff = "Golden fish trading is resting for now", -- #2745 (section 1d): the tradeFish switch went off mid swap
 }
 
 -- Why `instance` (looked up by its uid in the player's own cats, nil when not theirs) cannot go on offer next to
@@ -513,6 +582,7 @@ end
 -- `gaveSummaries` are what the log shows for the cats that left (taken before they left). #1574: the pieces in
 -- `pieces.gave` leave (off their spots) and those in `pieces.got` arrive unplaced (one the save owns is skipped).
 -- #2745: the crates in `crates.gave` leave the bank and those in `crates.got` join it (subtract first, then add).
+-- #2745 (section 1d): `fish.gave` golden fish leave the wallet and `fish.got` arrive, counted in today's fishIn.
 function Trade.apply(
 	profile: Types.PlayerProfile,
 	id: string,
@@ -522,11 +592,17 @@ function Trade.apply(
 	got: { Types.CatInstance },
 	now: number,
 	pieces: { gave: { string }, got: { string } }?,
-	crates: { gave: { [string]: number }, got: { [string]: number } }?
+	crates: { gave: { [string]: number }, got: { [string]: number } }?,
+	fish: { gave: number, got: number }?
 ): boolean
 	if Trade.applied(profile, id) then
 		return false
 	end
+	-- #2745 (section 1d): fish leave the wallet (never below 0) and arrive in it. Received fish are not earned: they
+	-- add nothing to lifetimeGoldenFish or stats.fishEarned (GoldenFish.credit is for earning only).
+	local gaveFish = if fish ~= nil then Trade.sanitizeFish(fish.gave) else 0
+	local gotFish = if fish ~= nil then Trade.sanitizeFish(fish.got) else 0
+	profile.goldenFish = math.max(0, profile.goldenFish - gaveFish) + gotFish
 	local noCrates: { [string]: number } = {}
 	local gaveCrates = if crates ~= nil then crates.gave else noCrates
 	local gotCrates = if crates ~= nil then crates.got else noCrates
@@ -573,12 +649,14 @@ function Trade.apply(
 		gotDecor = Trade.pieceSummaries(gotPieces),
 		gaveCrates = Trade.crateSummaries(gaveCrates),
 		gotCrates = Trade.crateSummaries(gotCrates),
+		gaveFish = if gaveFish > 0 then gaveFish else nil,
+		gotFish = if gotFish > 0 then gotFish else nil,
 	})
 	while #profile.tradeLog > Config.TradeLogMax do
 		table.remove(profile.tradeLog)
 	end
 	profile.stats.trades += 1
-	Trade.countToday(profile, now)
+	Trade.countToday(profile, now, gotFish)
 	return true
 end
 
@@ -595,8 +673,14 @@ function Trade.today(profile: Types.PlayerProfile, now: number): number
 	return if today.day == Trade.day(now) then today.count else 0
 end
 
-function Trade.countToday(profile: Types.PlayerProfile, now: number)
-	profile.stats.tradesToday = { day = Trade.day(now), count = Trade.today(profile, now) + 1 }
+-- Counts one more trade today, and (#2745) `fishIn` more golden fish received today.
+function Trade.countToday(profile: Types.PlayerProfile, now: number, fishIn: number?)
+	local fish = Trade.fishInToday(profile, now) + (fishIn or 0)
+	profile.stats.tradesToday = {
+		day = Trade.day(now),
+		count = Trade.today(profile, now) + 1,
+		fishIn = if fish > 0 then fish else nil,
+	}
 end
 
 -- What TradeService knows about one player when they ask or are asked (section 2).
@@ -743,6 +827,10 @@ function Trade.sanitizeLog(raw: unknown): { Types.TradeLogEntry }
 		end
 		return list
 	end
+	local function fishCount(value: any): number?
+		local n = Trade.sanitizeFish(value)
+		return if n > 0 then n else nil
+	end
 	for _, entry in raw :: { any } do
 		if #out >= Config.TradeLogMax then
 			break
@@ -764,6 +852,8 @@ function Trade.sanitizeLog(raw: unknown): { Types.TradeLogEntry }
 				gotDecor = pieceSummaries(entry.gotDecor),
 				gaveCrates = crateSummaries(entry.gaveCrates),
 				gotCrates = crateSummaries(entry.gotCrates),
+				gaveFish = fishCount(entry.gaveFish),
+				gotFish = fishCount(entry.gotFish),
 			})
 		end
 	end
@@ -791,7 +881,10 @@ function Trade.sanitizeToday(raw: unknown): Types.TradesToday
 	if type(raw) == "table" then
 		local day, count = (raw :: any).day, (raw :: any).count
 		if type(day) == "number" and day == day and type(count) == "number" and count == count then
-			return { day = math.floor(day), count = math.max(0, math.floor(count)) }
+			-- #2745: fishIn kept as a whole number from 1 (any amount, so a save over the cap stays over it)
+			local fishIn = (raw :: any).fishIn
+			local fish = if wholeFish(fishIn) and fishIn > 0 then fishIn else nil
+			return { day = math.floor(day), count = math.max(0, math.floor(count)), fishIn = fish }
 		end
 	end
 	return { day = 0, count = 0 }

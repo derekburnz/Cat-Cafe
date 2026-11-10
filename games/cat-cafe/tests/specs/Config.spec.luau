@@ -308,6 +308,9 @@ return function()
 		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
 		TradeMaxCrateKinds = 6, -- #2745 (trading.md section 1c): crate kinds each side may offer
 		TradeMaxCrates = 20, -- #2745: crates in all each side may offer
+		TradeMaxFish = 200, -- #2745 (section 1d): golden fish each side may offer
+		TradeFishPerDay = 400, -- #2745: golden fish one player may receive in trades a game day
+		TradeFishValue = 0.075, -- #2745: 40 fish count as one Rare (3)
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
 		TradeConfirmWaitSeconds = 2,

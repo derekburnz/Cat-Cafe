@@ -27,6 +27,12 @@
 --   and Trade.apply subtracts before it adds. Opening a crate on offer waits (FishMarketService). Luck and pity don't
 --   travel. The tradeCrates live switch (LiveFlagService) off takes every crate off the open trades and refuses new
 --   ones; cat and decor trades go on.
+-- - #2745 (section 1d): golden fish join behind the tradeFish live switch (off until QA and the security review pass).
+--   TradeOffer with kind "fish" sets ("set"), raises ("add") or lowers ("remove") the caller's fish amount, which
+--   Trade.fishRefusal checks (whole, at most TradeMaxFish and the wallet, and within the partner's TradeFishPerDay
+--   room), and again at the swap. While tradeFish is on, every golden fish spend by a player in a trade waits
+--   (TradeService.fishSpendBlocker, checked before each GoldenFish.trySpend). Received fish are not earned fish
+--   (Trade.apply). Off takes every amount off the open trades and refuses new ones.
 -- - Player attributes Tier and Trading, Workspace attributes TradingOn and TradeMinTier (the live minimum: Debug in
 --   Studio, else CatCafe_Flags.tradeMinTier, else Config) for the UI. CatCafe_Flags is read every
 --   TradeFlagCheckSeconds.
@@ -222,6 +228,17 @@ local function cratesOn(): boolean
 	return LiveFlagService.on("tradeCrates")
 end
 
+-- #2745 (section 1d): the tradeFish live switch (off by default).
+local function fishOn(): boolean
+	return LiveFlagService.on("tradeFish")
+end
+
+-- #2745 (section 1d): the fish rows' facts for a viewer whose partner has `partner`: the switch and the partner's
+-- room today.
+local function fishView(partner: Profile?): TradeBook.FishView
+	return { on = fishOn(), room = if partner ~= nil then Trade.fishRoom(partner, os.time()) else 0 }
+end
+
 -- #2745: a crate kind's tile, or nil for one that can't be traded.
 local function crateTile(id: string, count: number): Types.TradeCrateTile?
 	local def = Catalog.getCrate(id)
@@ -265,7 +282,8 @@ local function sendStateTo(trade: TradeBook.OpenTrade, player: Player)
 			tilesFor(player, profile),
 			pieceTile,
 			theyHave(profile, partnerProfile),
-			{ tile = crateTile, blocked = crateBlocked(profile, partnerProfile), on = cratesOn() }
+			{ tile = crateTile, blocked = crateBlocked(profile, partnerProfile), on = cratesOn() },
+			fishView(partnerProfile)
 		)
 	)
 end
@@ -347,6 +365,7 @@ local function recordSide(raw: any): TradeVault.RecordSide?
 		cats = cats,
 		decor = decor,
 		crates = Trade.sanitizeCrates(raw.crates), -- #2745
+		fish = Trade.sanitizeFish(raw.fish), -- #2745 (section 1d)
 	}
 end
 
@@ -391,7 +410,8 @@ local function applySide(
 		theirs.cats,
 		at,
 		{ gave = mine.decor or {}, got = theirs.decor or {} },
-		{ gave = mine.crates or {}, got = theirs.crates or {} } -- #2745
+		{ gave = mine.crates or {}, got = theirs.crates or {} }, -- #2745
+		{ gave = mine.fish or 0, got = theirs.fish or 0 } -- #2745 (section 1d)
 	)
 end
 
@@ -460,6 +480,23 @@ local function stillGivesCrates(
 	return crates
 end
 
+-- #2745 (section 1d): the golden fish `side` gives, when the wallet still holds them and the other profile still has
+-- the room today; else nil.
+local function stillGivesFish(
+	side: TradeBook.Side,
+	profile: Profile,
+	other: Profile,
+	at: number
+): number?
+	if side.fish == 0 then
+		return 0
+	end
+	if Trade.fishRefusal(profile, other, side.fish, at) ~= nil then
+		return nil
+	end
+	return side.fish
+end
+
 -- Both confirmed: the swap (section 4). Runs in its own thread; the trade is "committing" and nothing changes it.
 -- Whether `player` is still in this server with the same profile session as `profile`.
 local function stillHere(player: Player, profile: Profile): boolean
@@ -497,6 +534,13 @@ local function finish(trade: TradeBook.OpenTrade)
 		endAll(trade, Trade.Ended.cratesOff)
 		return
 	end
+	if (trade.a.fish > 0 or trade.b.fish > 0) and not fishOn() then
+		endAll(trade, Trade.Ended.fishOff)
+		return
+	end
+	local fishA, fishB =
+		stillGivesFish(trade.a, profileA, profileB, at),
+		stillGivesFish(trade.b, profileB, profileA, at)
 	if
 		catsA == nil
 		or catsB == nil
@@ -504,6 +548,8 @@ local function finish(trade: TradeBook.OpenTrade)
 		or decorB == nil
 		or cratesA == nil
 		or cratesB == nil
+		or fishA == nil
+		or fishB == nil
 		or ProfileSchema.catCount(profileA) - #catsA + #catsB < 1
 		or ProfileSchema.catCount(profileB) - #catsB + #catsA < 1
 	then
@@ -520,6 +566,7 @@ local function finish(trade: TradeBook.OpenTrade)
 			cats = catsA,
 			decor = decorA,
 			crates = cratesA,
+			fish = if fishA ~= nil and fishA > 0 then fishA else nil,
 		},
 		b = {
 			userId = trade.b.userId,
@@ -527,6 +574,7 @@ local function finish(trade: TradeBook.OpenTrade)
 			cats = catsB,
 			decor = decorB,
 			crates = cratesB,
+			fish = if fishB ~= nil and fishB > 0 then fishB else nil,
 		},
 	}
 	if not TradeVault.write(record) then
@@ -613,7 +661,9 @@ local function finish(trade: TradeBook.OpenTrade)
 			Trade.pieceSummaries(gaveDecor),
 			Trade.pieceSummaries(gotDecor),
 			Trade.crateSummaries(swap.mine.crates), -- #2745
-			Trade.crateSummaries(swap.theirs.crates)
+			Trade.crateSummaries(swap.theirs.crates),
+			swap.mine.fish or 0, -- #2745 (section 1d)
+			swap.theirs.fish or 0
 		)
 		Telemetry.custom(
 			player,
@@ -813,6 +863,42 @@ local function onOfferCrate(
 	end
 end
 
+-- #2745 (section 1d): the caller's golden fish on offer set to `count` ("set"), raised by it ("add") or lowered by it
+-- ("remove") (TradeOffer with kind "fish").
+local function onOfferFish(
+	player: Player,
+	trade: TradeBook.OpenTrade,
+	action: string,
+	count: number,
+	profile: Profile
+)
+	local mine, theirs = TradeBook.sides(trade, player.UserId)
+	if mine == nil or theirs == nil or trade.phase == "committing" then
+		return
+	end
+	local amount = if action == "set"
+		then count
+		elseif action == "add" then mine.fish + count
+		else math.max(0, mine.fish - count)
+	if amount > 0 and not fishOn() then
+		Net.toast(player, Trade.Messages.fishOff, "warn")
+		return
+	end
+	local partner = playerOf(theirs.userId)
+	local partnerProfile = if partner ~= nil then DataService.get(partner) else nil
+	if partnerProfile == nil then
+		return
+	end
+	local refusal = Trade.fishRefusal(profile, partnerProfile, amount, os.time())
+	if refusal ~= nil then
+		Net.toast(player, refusal, "warn")
+		return
+	end
+	if TradeBook.setFish(trade, player.UserId, amount, now()) then
+		sendState(trade)
+	end
+end
+
 local function onOffer(
 	player: Player,
 	rawTradeId: unknown,
@@ -822,12 +908,24 @@ local function onOffer(
 	rawCount: unknown
 )
 	local trade = tradeOf(player, rawTradeId)
-	local action = Guard.oneOf(rawAction, { "add", "remove" })
+	local action = Guard.oneOf(rawAction, { "add", "remove", "set" })
 	local uid = Guard.id(rawUid)
-	local kind = if rawKind == nil then "cat" else Guard.oneOf(rawKind, { "cat", "decor", "crate" })
+	local kind = if rawKind == nil
+		then "cat"
+		else Guard.oneOf(rawKind, { "cat", "decor", "crate", "fish" })
 	local profile = DataService.get(player)
 	if trade == nil or action == nil or uid == nil or kind == nil or profile == nil then
 		return
+	end
+	if kind == "fish" then
+		-- #2745 (section 1d): a whole amount from 0 to TradeMaxFish; the wallet and the room are Trade.fishRefusal's
+		local count = Guard.int(rawCount, 0, Config.TradeMaxFish)
+		if count ~= nil then
+			onOfferFish(player, trade, action, count, profile)
+		end
+		return
+	elseif action == "set" then
+		return -- "set" is for fish only
 	end
 	if kind == "decor" then
 		onOfferDecor(player, trade, action, uid, profile)
@@ -999,6 +1097,7 @@ local function step()
 		table.insert(open, trade)
 	end
 	local crates = cratesOn()
+	local fish = fishOn()
 	for _, trade in open do
 		if trade.phase == "committing" then
 			continue
@@ -1014,7 +1113,9 @@ local function step()
 		end
 		-- #2745: the tradeCrates switch off takes every crate off; either change sends the state
 		local cleared = not crates and TradeBook.clearCrates(trade, at)
-		if TradeBook.tick(trade, at) or cleared then
+		-- #2745 (section 1d): so does tradeFish off for every fish amount
+		local fishCleared = not fish and TradeBook.clearFish(trade, at)
+		if TradeBook.tick(trade, at) or cleared or fishCleared then
 			sendState(trade)
 		end
 	end
@@ -1056,6 +1157,15 @@ end
 -- Whether `player` is in a trade (Reset my save waits for it).
 function TradeService.isTrading(player: Player): boolean
 	return TradeBook.tradeFor(book, player.UserId) ~= nil
+end
+
+-- #2745 (section 1d): why `player` can't spend golden fish now, or nil. While tradeFish is on, a player in a trade
+-- finishes it first (Trade.Messages.finishTrade). Every GoldenFish.trySpend call site checks this first.
+function TradeService.fishSpendBlocker(player: Player): string?
+	if fishOn() and TradeService.isTrading(player) then
+		return Trade.Messages.finishTrade
+	end
+	return nil
 end
 
 -- Studio only (Debug.tradeMinTier): this server's minimum tier, nil for the flag or Config again.

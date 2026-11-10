@@ -49,6 +49,7 @@ export type Side = {
 	decorValues: { [string]: number }, -- each one's Collector value (Trade.pieceValue)
 	crates: { [string]: number }, -- #2745: crate id -> how many on offer
 	crateValues: { [string]: number }, -- one crate's Collector value (Trade.crateValue), by crate id
+	fish: number, -- #2745 (section 1d): golden fish on offer, 0 for none
 	ready: boolean,
 	confirmed: boolean,
 	confirmAt: number, -- when this side's Confirm counts on the confirm screen (0 before it)
@@ -194,6 +195,7 @@ local function newSide(player: Player): Side
 		decorValues = {},
 		crates = {},
 		crateValues = {},
+		fish = 0,
 		ready = false,
 		confirmed = false,
 		confirmAt = 0,
@@ -447,6 +449,49 @@ function TradeBook.clearCrates(trade: OpenTrade, now: number): boolean
 	return cleared
 end
 
+-- #2745 (section 1d): golden fish on `userId`'s side in the trade they are in (spending them waits for the trade).
+function TradeBook.fishOffered(book: Book, userId: number): number
+	local trade = TradeBook.tradeFor(book, userId)
+	if trade == nil then
+		return 0
+	end
+	local mine = TradeBook.sides(trade, userId)
+	return if mine ~= nil then mine.fish else 0
+end
+
+-- #2745 (section 1d): sets `userId`'s golden fish on offer to `amount`: false when they are not in the trade, it is
+-- committing, `amount` isn't a whole number from 0 to TradeMaxFish, or it is the amount there already. Any change
+-- resets both Ready presses. TradeService checks Trade.fishRefusal first (the wallet and the partner's room today).
+function TradeBook.setFish(trade: OpenTrade, userId: number, amount: number, now: number): boolean
+	local mine = TradeBook.sides(trade, userId)
+	if
+		mine == nil
+		or trade.phase == "committing"
+		or amount ~= amount
+		or amount < 0
+		or amount ~= math.floor(amount)
+		or amount > Config.TradeMaxFish
+		or amount == mine.fish
+	then
+		return false
+	end
+	mine.fish = amount
+	changed(trade, userId, "fish", now)
+	return true
+end
+
+-- #2745 (section 1d): the tradeFish switch went off: every fish amount leaves both sides (a change like any other).
+-- True when either side had fish on; a committing trade is left as it is.
+function TradeBook.clearFish(trade: OpenTrade, now: number): boolean
+	if trade.phase == "committing" or (trade.a.fish == 0 and trade.b.fish == 0) then
+		return false
+	end
+	trade.a.fish = 0
+	trade.b.fish = 0
+	changed(trade, trade.a.userId, "fish", now)
+	return true
+end
+
 local function crateCount(side: Side): number
 	local _, total = Trade.crateTotals(side.crates)
 	return total
@@ -463,7 +508,7 @@ local function sideValue(side: Side): number
 	for id, count in side.crates do
 		total += (side.crateValues[id] or 0) * count
 	end
-	return total
+	return total + Trade.fishValue(side.fish) -- #2745 (section 1d)
 end
 
 -- (lopsided, gift) for `userId`'s side: Trade.warnings on the Collector values of what they give and get.
@@ -475,7 +520,7 @@ function TradeBook.warnings(trade: OpenTrade, userId: number): (boolean, boolean
 	return Trade.warnings(
 		sideValue(mine),
 		sideValue(theirs),
-		#theirs.cats + #theirs.decor + crateCount(theirs)
+		#theirs.cats + #theirs.decor + crateCount(theirs) + (if theirs.fish > 0 then 1 else 0)
 	)
 end
 
@@ -512,6 +557,8 @@ function TradeBook.ready(
 			+ #theirs.decor
 			+ crateCount(mine)
 			+ crateCount(theirs)
+			+ mine.fish
+			+ theirs.fish
 		== 0
 	then
 		return TradeBook.EMPTY
@@ -618,12 +665,15 @@ end
 -- is the tile TradeService makes from the owner's profile with rateForMe for this viewer; nil leaves a cat out.
 -- #1574: `pieceTile(id)` makes a piece's tile (nil leaves it out), and `theyHave` lists the viewer's pieces the other
 -- player owns already. #2745: `crates` makes a crate kind's tile (`tile(id, count)`, nil leaves it out) and carries
--- the viewer's crates the other player can't take yet (`blocked`) and the tradeCrates switch (`on`).
+-- the viewer's crates the other player can't take yet (`blocked`) and the tradeCrates switch (`on`). #2745 (section
+-- 1d): `fish` carries the tradeFish switch (`on`) and the golden fish the other player can still receive today
+-- (`room`); with it nil, or off, the fish rows are hidden.
 export type CrateView = {
 	tile: (id: string, count: number) -> Types.TradeCrateTile?,
 	blocked: { [string]: string },
 	on: boolean,
 }
+export type FishView = { on: boolean, room: number }
 
 function TradeBook.view(
 	trade: OpenTrade,
@@ -631,7 +681,8 @@ function TradeBook.view(
 	tile: (ownerId: number, uid: string) -> Types.TradeTile?,
 	pieceTile: ((id: string) -> Types.TradeDecorTile?)?,
 	theyHave: { string }?,
-	crates: CrateView?
+	crates: CrateView?,
+	fish: FishView?
 ): Types.TradeStateView?
 	local mine, theirs = TradeBook.sides(trade, userId)
 	if mine == nil or theirs == nil then
@@ -672,6 +723,7 @@ function TradeBook.view(
 			cats = cats,
 			decor = decor,
 			crates = crateTiles,
+			fish = side.fish,
 		},
 			rate
 	end
@@ -705,6 +757,8 @@ function TradeBook.view(
 		theyHave = theyHave or {},
 		crateBlocked = if crates ~= nil then crates.blocked else {},
 		cratesOn = crates ~= nil and crates.on,
+		fishOn = fish ~= nil and fish.on,
+		fishRoom = if fish ~= nil then fish.room else 0,
 	}
 	return view
 end

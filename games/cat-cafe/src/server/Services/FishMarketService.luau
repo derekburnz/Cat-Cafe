@@ -39,6 +39,7 @@ local Net = require(script.Parent.Net)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
+local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local FishMarketService = {}
@@ -209,6 +210,12 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 		refuse(blocker)
 		return
 	end
+	-- #2745 (section 1d): an open paid with fish waits for the trade too
+	local frozen = TradeService.fishSpendBlocker(player)
+	if frozen ~= nil and (profile.crates[crateId] or 0) < 1 then
+		refuse(frozen)
+		return
+	end
 	lastOpenAt[player] = now
 	inFlight[player] = now
 	local def, duplicate, refund, placed =
@@ -304,6 +311,7 @@ local function onBuyCrateBundle(player: Player, rawCrateId: unknown)
 		return
 	end
 	local blocker = Crates.bundleBlocker(profile, Economy.tier(profile), crateId)
+		or TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
 	local price = Config.CrateBundlePrice
 	if blocker ~= nil or not GoldenFish.trySpend(profile, price) then
 		Net.toast(player, blocker or "Not enough golden fish", "warn")
@@ -337,6 +345,10 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 		return
 	end
 	local cost, reason = Crates.buyCost(profile, row)
+	local frozen = TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
+	if frozen ~= nil then
+		cost, reason = nil, frozen
+	end
 	if cost == nil or not GoldenFish.trySpend(profile, cost) then
 		Net.toast(player, reason or "Not enough golden fish", "warn")
 		CafeService.sync(player)
@@ -499,8 +511,9 @@ local function onBuyFreshCatch(player: Player, rawItemId: unknown, rawWindow: un
 		)
 		return
 	end
-	if not GoldenFish.trySpend(profile, row.fish) then
-		refuse("Not enough golden fish")
+	local frozen = TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
+	if frozen ~= nil or not GoldenFish.trySpend(profile, row.fish) then
+		refuse(frozen or "Not enough golden fish")
 		return
 	end
 	Telemetry.fishSink(player, profile, row.fish, "Shop", "fresh_catch")

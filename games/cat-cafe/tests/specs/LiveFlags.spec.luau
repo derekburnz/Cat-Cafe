@@ -35,9 +35,35 @@ return function()
 		it("ignores keys it doesn't know", function()
 			local flags = LiveFlags.parse({ trading = false, everything = false })
 			for _, key in LiveFlags.KEYS do
-				expect(flags[key]).to.equal(true)
+				expect(flags[key]).to.equal(LiveFlags.OFF_BY_DEFAULT[key] ~= true)
 			end
 			expect(flags.trading).to.equal(nil)
+		end)
+	end)
+
+	describe("tradeFish (#2745, off until QA and the security review pass)", function()
+		it("starts off, and stays off for a missing key, a wrong type or an unreadable store", function()
+			expect(LiveFlags.defaults().tradeFish).to.equal(false)
+			expect(LiveFlags.parse({}).tradeFish).to.equal(false)
+			expect(LiveFlags.parse(nil).tradeFish).to.equal(false)
+			for _, value in { "true", 1, {}, "on", false } do
+				expect(LiveFlags.parse({ tradeFish = value }).tradeFish).to.equal(false)
+			end
+		end)
+
+		it("turns on only for an explicit true, and leaves the other switches alone", function()
+			local flags = LiveFlags.parse({ tradeFish = true })
+			expect(flags.tradeFish).to.equal(true)
+			expect(flags.codes).to.equal(true)
+			expect(flags.tradeCrates).to.equal(true)
+			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
+		end)
+
+		it("is the only switch that starts off", function()
+			for key in LiveFlags.OFF_BY_DEFAULT do
+				expect(key).to.equal("tradeFish")
+				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
+			end
 		end)
 	end)
 

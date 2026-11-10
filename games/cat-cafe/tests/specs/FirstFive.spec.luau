@@ -109,7 +109,7 @@ return function()
 			local out: { [string]: any } = {
 				loaded = true,
 				introSeen = true,
-				introStep = nil,
+				introShot = 0,
 				launching = false,
 				carrying = false,
 				furthest = "first_move",
@@ -121,19 +121,30 @@ return function()
 			return out
 		end
 
-		it("is loading before the loaded step, then the intro shot while the intro runs", function()
-			expect(FirstFive.scene(facts({ loaded = false }))).to.equal("loading")
-			expect(FirstFive.scene(facts({ introSeen = false, introStep = "intro_shot_4" }))).to.equal(
-				"intro_shot_4"
-			)
-			expect(FirstFive.scene(facts({ introSeen = false, introStep = "intro_started" }))).to.equal(
-				"intro_start"
-			)
-			expect(
-				FirstFive.scene(
-					facts({ introSeen = false, introStep = "intro_choice_made", where = "cafe" })
+		it(
+			"is loading before the client reports, then the intro shot while the intro runs",
+			function()
+				expect(FirstFive.scene(facts({ loaded = false }))).to.equal("loading")
+				expect(FirstFive.scene(facts({ introSeen = false, introShot = 4 }))).to.equal(
+					"intro_shot_4"
 				)
-			).to.equal("cafe")
+				expect(FirstFive.scene(facts({ introSeen = false, introShot = 0 }))).to.equal(
+					"intro_start"
+				)
+				expect(FirstFive.scene(facts({ introSeen = false, introShot = 11 }))).to.equal(
+					"intro_start"
+				)
+				expect(FirstFive.scene(facts({ introSeen = true, introShot = 4, where = "cafe" }))).to.equal(
+					"cafe"
+				)
+			end
+		)
+
+		it("buckets the wait for the first scene", function()
+			expect(FirstFive.firstSceneBucket(3)).to.equal("0-10")
+			expect(FirstFive.firstSceneBucket(10)).to.equal("10-20")
+			expect(FirstFive.firstSceneBucket(25)).to.equal("20-40")
+			expect(FirstFive.firstSceneBucket(90)).to.equal("40+")
 		end)
 
 		it(

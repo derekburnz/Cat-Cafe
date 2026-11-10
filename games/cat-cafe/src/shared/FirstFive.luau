@@ -18,7 +18,11 @@
 --   step, the minutes bucket (0-10, 10-30, 30-60), the session number bucket (2, 3, 4+).
 -- - quit_cafe: beside quit_snapshot, value the session's seconds; cats working (0, 1, 2, 3+), table level (0, 1,
 --   2+), cats owned (1, 2, 3, 4+).
--- P1b (Derek2 20:09: "track what exact step of tutorial scenes people leave on"):
+-- P1b (Derek2 20:09: "track what exact step of tutorial scenes people leave on"). The server hears the intro's shots
+-- only from the client (TelemetryReport intro_shot, 1 to INTRO_SHOTS as each starts; the onboarding_v4_intro funnel
+-- was retired in #2444), so Telemetry keeps the furthest shot of the session:
+-- - first_scene: on the session's first intro_shot 1, value the seconds since the join; device, "intro", bucket
+--   (0-10, 10-20, 20-40, 40+). Minus step_time "loaded", it is the still wait before the cutscene.
 -- - quit_scene: on leaving, value the session's seconds; the scene (SCENES, picked by `scene`), device, seconds
 --   bucket (0-30, 30-60, 60-120, 120-300, 300+).
 
@@ -90,6 +94,22 @@ function FirstFive.cafeFields(working: number, tables: number, owned: number): {
 	}
 end
 
+local INTRO_SHOTS = 10
+FirstFive.INTRO_SHOTS = INTRO_SHOTS
+FirstFive.FIRST_SCENE_LABELS = { "0-10", "10-20", "20-40", "40+" }
+
+-- first_scene's bucket for `seconds` from the join to the first intro shot.
+function FirstFive.firstSceneBucket(seconds: number): string
+	if seconds < 10 then
+		return "0-10"
+	elseif seconds < 20 then
+		return "10-20"
+	elseif seconds < 40 then
+		return "20-40"
+	end
+	return "40+"
+end
+
 -- quit_scene's scenes: where a beginner was when they left
 FirstFive.SCENES = {
 	"loading",
@@ -118,9 +138,9 @@ FirstFive.SCENES = {
 }
 
 export type SceneFacts = {
-	loaded: boolean, -- the onboarding step "loaded" is reached
+	loaded: boolean, -- the client has reported in this session (its device report)
 	introSeen: boolean, -- the intro has played out or been skipped (profile.introSeen)
-	introStep: string?, -- the intro funnel's furthest step name (Onboarding.INTRO_STEPS), nil before it started
+	introShot: number, -- the furthest intro shot the client reported this session (TelemetryReport intro_shot), 0 none
 	launching: boolean, -- in a cannon flight (the character's Launching)
 	carrying: boolean, -- carrying a cat (the character's CarryingCatId)
 	furthest: string, -- the furthest onboarding step (Onboarding.furthest)
@@ -134,14 +154,10 @@ function FirstFive.scene(facts: SceneFacts): string
 	if not facts.loaded then
 		return "loading"
 	end
-	local intro = facts.introStep
-	if
-		not facts.introSeen
-		and intro ~= nil
-		and intro ~= "intro_choice_made"
-		and intro ~= "intro_done"
-	then
-		return if string.sub(intro, 1, 11) == "intro_shot_" then intro else "intro_start"
+	if not facts.introSeen then
+		-- intro_start: loaded but no shot on screen yet (the still wait before the cutscene)
+		local shot = math.floor(facts.introShot)
+		return if shot >= 1 and shot <= INTRO_SHOTS then "intro_shot_" .. shot else "intro_start"
 	end
 	if facts.launching then
 		return "cannon_flight"

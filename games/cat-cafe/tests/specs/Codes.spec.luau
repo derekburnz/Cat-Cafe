@@ -512,10 +512,11 @@ return function()
 			end
 		)
 
-		-- The box must never open where RedeemCode would say "Walk up to the Codes Cat": the circle sits 6 studs in
-		-- front of the station's pivot (Layout and the asset), and the box stays open to CodesCircleRadius + 1.
+		-- The box must never open where RedeemCode would say "Walk up to the Codes Cat": the circle's edge sits 2 studs
+		-- in front of the station's pivot (Layout and the asset; its centre 8 out at radius 6, #3112), and the box
+		-- stays open to CodesCircleRadius + 1.
 		it("keeps the open box inside CodesCatRange of the station", function()
-			expect(6 + Config.CodesCircleRadius + 1 <= Config.CodesCatRange).to.equal(true)
+			expect(2 + 2 * Config.CodesCircleRadius + 1 <= Config.CodesCatRange).to.equal(true)
 		end)
 
 		it(

@@ -22,8 +22,8 @@ FeedbackStand.WINDOW = "BugReport"
 FeedbackStand.KIND = "idea"
 FeedbackStand.NAME = "Feedback"
 FeedbackStand.ACTION = "Write to us"
-FeedbackStand.RANGE = 12
-FeedbackStand.PROMPT_RANGE = 8
+FeedbackStand.RANGE = 16 -- #3112: 12 before the radius 6 ring
+FeedbackStand.PROMPT_RANGE = 12 -- #3112: 8 before the radius 6 ring; the pill shows across the whole ring
 FeedbackStand.STILL_LOOKS = 3
 
 -- Whether the window the ring opened takes the cursor now: once, for a player on a keyboard who has stood still for

@@ -139,11 +139,11 @@ return function()
 		CharmSpread = 0.20,
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
-		DealerRangeStuds = 12,
+		DealerRangeStuds = 16,
 		FreshCatchWindowSeconds = 390, -- F94 300; #1437: one game day, a restock at every global sunrise
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
 		CornerShopWindowSeconds = 390, -- #1437 (was 300)
-		CornerShopRange = 14,
+		CornerShopRange = 18,
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
@@ -207,7 +207,7 @@ return function()
 		InviteCardBySeconds = 900,
 		InvitePendingCheckSeconds = 60,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
-		SpinStationRange = 14,
+		SpinStationRange = 18,
 		SpinCooldownSeconds = 4,
 		SpinAllMax = 51, -- #1078 (Derek 2026-11-04): Use all spins; 51 since #1414
 		SpinBankCap = 50, -- #1414 (was 20)
@@ -216,7 +216,7 @@ return function()
 		CratePrice = 40,
 		CrateBundleCount = 5,
 		CrateBundlePrice = 180,
-		FishMarketRange = 14,
+		FishMarketRange = 18,
 		CrateOpenCooldownSeconds = 0.3,
 		DecorIndexBonus = 0.05,
 		DecorEquipBest = true,
@@ -236,8 +236,8 @@ return function()
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
 		-- codes (F65, section 11d, v0.10 circle and group codes)
-		CodesCatRange = 12,
-		CodesCircleRadius = 4,
+		CodesCatRange = 16,
+		CodesCircleRadius = 6,
 		CodeMaxLength = 20,
 		CodeWrongLimit = 5,
 		CodeLockSeconds = 60,

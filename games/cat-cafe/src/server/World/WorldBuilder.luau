@@ -1988,7 +1988,7 @@ local function buildCodesCat(parent: Instance): Model
 		circle.Shape = Enum.PartType.Cylinder
 		circle.Size = Vector3.new(0.1, Config.CodesCircleRadius * 2, Config.CodesCircleRadius * 2)
 		circle.CFrame = model:GetPivot()
-			* CFrame.new(0, 0.05, -6)
+			* CFrame.new(0, 0.05, -(2 + Config.CodesCircleRadius)) -- #3112: its edge 2 in front, as in the asset
 			* CFrame.Angles(0, 0, math.rad(90))
 		circle.Material = Enum.Material.Neon
 		circle.Color = Color3.fromRGB(255, 214, 120)

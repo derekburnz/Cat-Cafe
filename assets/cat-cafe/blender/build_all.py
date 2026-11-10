@@ -369,7 +369,7 @@ STUDIO_NOTES = {
                              "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
                              "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
-                               "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
+                               "CodesCircle (a flat Neon disc 12 studs across, centre 8 studs in front of the pivot, "
                                "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
                                "_Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 "
                                "studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor "

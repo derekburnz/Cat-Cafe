@@ -10,7 +10,8 @@
 --   maxVisible(touch) -> number                        toasts on screen at once
 --   quiet(text, kind) -> boolean                       #2600: a purchase confirmation ("Bought Tuna (40)"): dropped;
 --                                                     the shop's button, the counts and the money say it. A warning
---                                                     (a refused buy) still shows. #2729: also every line on CUT
+--                                                     (a refused buy) still shows. #2729: also every line on CUT.
+--                                                     #3080: and every green ("good") toast that is not on KEEP
 --   oneLine(kind) -> boolean                           #2729: good and info toasts keep to one row and end in "…";
 --                                                     a warning and a shout-out wrap so every word shows
 
@@ -66,11 +67,41 @@ ToastRules.CUT = {
 	"^You got tackled!$", -- nothing happened to you
 }
 
+-- #3080 (Derek2 11-10: "way too much green bubble pop ups ITS ANNOYING AND BLOAT remove pretty much all of them left
+-- catching cats rewards dropped etc") and #3054 ("whenever claiming something no need for a bubble saying exactly
+-- what you claimed this goes for all types of rewards"): the rule turns round for the green ("good") toasts. Until
+-- now one showed unless it was cut; now none shows unless its words are on this list, as Lua patterns. What stays is
+-- the only word the player gets that something they paid for or sent really landed. A catch, a claim, a reward, a
+-- drop, a level up, a placed piece and the like say nothing: the counters, the cards and the world show them.
+ToastRules.KEEP = {
+	"^Thank you! ", -- ProductService: the receipt after a Robux purchase (a product, the Cafe Pass paid track)
+	"^King Cat Pack: ", -- ShopCatService: the same, for the pack's game pass
+	"Your working cats now earn ", -- StoreLogic.outfitThanks: the same, for the outfit passes
+	"^Thanks! Your report was sent%.$", -- BugReport.Messages.sent: the report window only closes
+	"^Trade done!", -- TradeLogic.doneLine: the trade window only closes, as it does for a cancelled trade
+	"^New piece: ", -- FishMarket: a crate's result that landed with the window closed, so no reveal played
+	" again: %+", -- the same, for a piece owned already
+	"^Opened %d+ crates: ", -- the same, for Open all
+	"^Owner test mode: ", -- OwnerTestService: the owner's own test grants, which nobody else sees
+}
+
+function ToastRules.kept(text: string): boolean
+	for _, pattern in ToastRules.KEEP do
+		if string.find(text, pattern) ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 -- #2600 (Derek2: "remove all the bought pop ups they just add more clutter"): the servers' "Bought ..." toasts from
 -- the Day Cart, the Night Dealer (and its Buy all) and the Fish Market. #2729: and every line on CUT.
 function ToastRules.quiet(text: string, kind: string?): boolean
 	if kind == "warn" then
 		return false
+	end
+	if kind == "good" then
+		return not ToastRules.kept(text)
 	end
 	if string.sub(text, 1, 7) == "Bought " then
 		return true

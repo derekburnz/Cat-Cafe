@@ -298,6 +298,9 @@ function Toasts.setCatalog(self: any, catalog: Types.Catalog)
 end
 
 function Toasts.prize(self: any, text: string, prize: Types.IndexPrize?)
+	if ToastRules.quiet(text, "good") then
+		return -- #3080, #3054: a claim shows no bubble; the counters say it
+	end
 	self:_push(text, KIND_COLORS.good, PRIZE_LIFETIME, false, prize)
 end
 

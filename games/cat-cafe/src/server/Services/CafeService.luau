@@ -2368,6 +2368,10 @@ local function onLoaded(player: Player, profile: Profile)
 	CafeService.autoEquip(player, profile) -- #1534: the best cats on the open slots
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
+	local refund = DataService.takeRetiredRefund(player)
+	if refund > 0 then
+		Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
+	end
 	local offline, seconds = DataService.peekPendingOffline(player)
 	if offline > 0 then
 		Net.fire(player, "OfflineEarnings", offline, seconds)
@@ -2448,6 +2452,10 @@ function CafeService.start()
 	Net.on("MarkStoreSeen", onMarkStoreSeen) -- #1842
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
+		local refund = DataService.takeRetiredRefund(player)
+		if refund > 0 then
+			Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
+		end
 		local offline, seconds = DataService.peekPendingOffline(player)
 		if offline > 0 then
 			Net.fire(player, "OfflineEarnings", offline, seconds)

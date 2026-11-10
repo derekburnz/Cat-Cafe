@@ -18,7 +18,6 @@ Potions.STEADY = "steady_potion"
 Potions.BIG_TIP = "big_tip_potion"
 Potions.GOLD_RUSH = "gold_rush_potion"
 Potions.QUICK_BAIT = "quick_bait_potion"
-Potions.WHISTLE = "cat_whistle" -- corner-shop-v2.md section 1: the client marks the nearest stray while it runs
 
 -- The timer a potion runs (corner-shop-v2.md section 4): a Small or Big size's regular potion, else its own id.
 function Potions.buffOf(potionId: string): string

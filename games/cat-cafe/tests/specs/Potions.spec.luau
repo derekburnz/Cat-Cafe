@@ -36,30 +36,24 @@ return function()
 					"big_tip_potion",
 					"gold_rush_potion",
 					"quick_bait_potion",
-					-- corner-shop-v2.md section 1: the Cat Whistle and the Corner Shop's sizes
-					"cat_whistle",
+					-- corner-shop-v2.md section 1: the Corner Shop's sizes (#2891: the Cat Whistle retired)
 					"swift_potion_small",
 					"swift_potion_big",
 					"steady_potion_small",
 					"steady_potion_big",
 					"quick_bait_potion_small",
 					"quick_bait_potion_big",
-					"cat_whistle_small",
-					"cat_whistle_big",
 				})
 				expect(minutes).to.deepEqual({
 					tip_potion = 10,
 					lucky_potion = 10,
 					swift_potion = 10, -- corner-shop-v2.md section 1 (was 5)
-					cat_whistle = 10,
 					swift_potion_small = 3,
 					swift_potion_big = 30,
 					steady_potion_small = 5,
 					steady_potion_big = 30,
 					quick_bait_potion_small = 10,
 					quick_bait_potion_big = 60,
-					cat_whistle_small = 5,
-					cat_whistle_big = 30,
 					steady_potion = 10,
 					big_tip_potion = 30,
 					gold_rush_potion = 30,

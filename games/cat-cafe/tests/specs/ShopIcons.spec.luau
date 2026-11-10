@@ -35,20 +35,7 @@ return function()
 			expect(ShopIcons.potion("quick_bait_potion_big")).to.equal(
 				ShopIcons.potion("quick_bait_potion")
 			)
-			expect(ShopIcons.potion("cat_whistle") ~= nil).to.equal(true)
 		end)
-		it(
-			"gives each Cat Whistle size its own flask, the regular one behind it (#1302)",
-			function()
-				expect(ShopIcons.potion("cat_whistle_small")).to.equal(
-					"rbxassetid://133372963315030"
-				)
-				expect(ShopIcons.potion("cat_whistle")).to.equal("rbxassetid://109791389728522")
-				expect(ShopIcons.potion("cat_whistle_big")).to.equal("rbxassetid://97942810764317")
-				local all = ShopIcons.potionAll("cat_whistle_big")
-				expect(all[2]).to.equal("rbxassetid://109791389728522")
-			end
-		)
 		it("lists every bottle a potion has, flask first (#1256)", function()
 			local all = ShopIcons.potionAll("swift_potion")
 			expect(#all).to.equal(3)

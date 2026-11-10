@@ -222,11 +222,7 @@ local function arrive(
 	visits[plot.index] = visit
 	show(plot, visit.endsAt, visit.catId)
 	Net.fire(player, "CollectorOffer", visit.catUid, visit.offer, visit.endsAt, nil)
-	Net.toast(
-		player,
-		string.format("The Cat Collector is at your cafe! He wants your %s.", catName(visit.catId)),
-		"info"
-	)
+	-- #3132: no toast; the client's banner shows the cat's face, name and rarity from CollectorOffer
 	logVisit(player, visit, "arrived")
 	return visit
 end

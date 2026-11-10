@@ -1356,6 +1356,20 @@ function UI.init(config: Types.InitConfig)
 				modalInstance:close()
 			end
 		end,
+		-- #3132: his arrival as a short banner with the cat's face in the toast stack
+		announce = function(def: Types.CatDef?, shiny: boolean, line: string, tap: () -> ())
+			if toasts then
+				local CollectorLogic = require(script.Components.CollectorLogic)
+				toasts:cat({
+					def = def,
+					shiny = shiny,
+					title = CollectorLogic.BANNER_TITLE,
+					line = line,
+					seconds = CollectorLogic.BANNER_SECONDS,
+					onTap = tap,
+				})
+			end
+		end,
 	})
 	local collectorView = collectorScreen :: Collector.Collector
 	modalInstance:register("Collector", {

@@ -3813,7 +3813,24 @@ local SCENES = {
 		UI.open("Collection")
 		press("Collection", "RainbowTab")
 		press("Collection", "rainbow.Header.Rewards")
+		-- #3064: the row's small cards are built when it first opens, not with the window
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local section = window and window:FindFirstChild("rainbow", true)
+		local row = section and section:FindFirstChild("All", true)
+		assert(row, "uigate: the rainbow strip has no All row")
+		local function cards(): number
+			local count = 0
+			for _, child in row:GetChildren() do
+				if child:IsA("GuiObject") then
+					count += 1
+				end
+			end
+			return count
+		end
+		assert(cards() == 0, "uigate: the shut milestone row already holds " .. cards() .. " cards (#3064)")
 		press("Collection", "rainbow.Expand")
+		assert(cards() > 0, "uigate: Expand milestones built no cards (#3064)")
 	end },
 	-- #2270 (Derek2: "the bold text on index rewards is hard to read"): every forever pill, the NEXT sticker and the
 	-- reward band read at 4.5:1 or better against their own fill, and no turning bands sit under their words
@@ -3908,7 +3925,7 @@ local SCENES = {
 		local long = "IBowBeforeGod tamed a Legendary Gardener Cat at their bait bowl!"
 		local short = "Saved!"
 		UI.announce(long, "Legendary") -- (#2399: Epic shout-outs no longer show)
-		UI.toast(short, "good")
+		UI.toast(short, "info") -- (#3080: a green toast off the keep list no longer shows)
 		-- (a short phone shows fewer toasts at once and the rest wait their turn, #2338: the clock runs till it is up)
 		local function find(text: string): TextLabel
 			for _ = 1, 40 do
@@ -3938,9 +3955,12 @@ local SCENES = {
 	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"; "remove all the extra ones"): a long
 	-- Index claim is one row ending in "…", no reward chips under it; a cut nudge never shows; a long warning wraps
 	{ "ToastOneLine", function()
-		local claim = "3 Index rewards: $5,000, 2 Golden fish, Rare Crate, Luck Potion, Tuna x3, Cat Treat x2, Sardines x4"
+		-- #3080: a claim shows no toast at all; the green line that still shows (a Robux receipt) keeps the one row
+		local gone = "3 Index rewards: $5,000, 2 Golden fish, Rare Crate, Luck Potion, Tuna x3, Cat Treat x2, Sardines x4"
+		local claim = "Thank you! $5,000, 2 Golden fish, Rare Crate, Luck Potion, Tuna x3, Cat Treat x2, Sardines x4, Gold Rush Potion"
 		local warning = "That cat is locked. Unlock it from its card in the Cats window first, then try selling it again."
 		UI.toast("A cheap Rare Crate at the Fish Market!", "info")
+		UI.toast(gone, "good")
 		UI.toast(claim, "good")
 		UI.toast(warning, "warn")
 		local function find(text: string): TextLabel?
@@ -3953,8 +3973,9 @@ local SCENES = {
 		end
 		UIShim.advance(0.6)
 		assert(find("A cheap Rare Crate at the Fish Market!") == nil, "uigate: a cut nudge still shows (#2729)")
+		assert(find(gone) == nil, "uigate: a claim still shows a green toast (#3080, #3054)")
 		local line = find(claim)
-		assert(line, "uigate: no Index claim toast (#2729)")
+		assert(line, "uigate: no receipt toast (#2729, #3080 keeps it)")
 		local pill = (line :: TextLabel).Parent :: Frame
 		assert(pill:FindFirstChild("Rewards") == nil, "uigate: the claim still lists its rewards as chips (#2729)")
 		assert(not (line :: TextLabel).TextWrapped, "uigate: the claim wrapped onto more rows (#2729)")
@@ -3976,7 +3997,7 @@ local SCENES = {
 	-- keeps it centred
 	{ "ToastClear", function()
 		local line = "Welcome back! +$12,345 while you were away"
-		UI.toast(line, "good")
+		UI.toast(line, "info") -- (#3080: green toasts off the keep list no longer show; the place is what is measured)
 		task.wait(0.1)
 		UIShim.advance(0.5)
 		local pill: GuiObject? = nil
@@ -4041,9 +4062,9 @@ local SCENES = {
 		local most = ToastRules.maxVisible(touch)
 		assert(#shown() <= most, ("uigate: %d toasts on screen, at most %d (#2399)"):format(#shown(), most))
 		UIShim.advance(12) -- all gone, queued ones too
-		UI.toast("Same words", "good")
+		UI.toast("Same words", "info")
 		UIShim.advance(3)
-		UI.toast("Same words", "good")
+		UI.toast("Same words", "info")
 		UIShim.advance(0.1)
 		assert(not table.find(shown(), "Same words"), "uigate: the same words showed again inside ten seconds (#2399)")
 		UI.toast("Not enough coins", "warn")
@@ -4059,7 +4080,8 @@ local SCENES = {
 	-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"), since #2729 (Derek2: "big claims of index and
 	-- quests cap at one line and put …"): a many-reward claim is one row ending in "…", no chips, inside the screen
 	{ "ToastClaimAll", function()
-		local claim = "4 Index rewards: +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever"
+		-- (#3080: an Index claim shows no toast now; a Robux receipt is the long green line left)
+		local claim = "Thank you! +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever"
 		UI.toast(claim, "good")
 		task.wait(0.4)
 		local found: Frame? = nil
@@ -4721,7 +4743,7 @@ local SCENES = {
 		end
 		UIShim.advance(1.2) -- past a timer tick
 		assert(not timers.Visible, "uigate: the potion timers came back mid-catch on their tick (#2808)")
-		UI.toast("Tip Jar: 2 gifts claimed!", "good")
+		UI.toast("Tip Jar: 2 gifts claimed!", "info") -- (#3080: info, a green one never shows)
 		UI.toast("Your paws are shaking!", "warn")
 		UIShim.advance(0.3)
 		assert(toast("Tip Jar: 2 gifts claimed!") == nil, "uigate: a toast showed mid-catch (#2727)")
@@ -5285,7 +5307,7 @@ local SCENES = {
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		assert(not hud.Enabled, "uigate: the HUD stays over the rank up cut (#2408)")
 		local line = "Your cafe is now a Cozy Cafe! Two new role slots are ready"
-		UI.toast(line, "good")
+		UI.toast(line, "info") -- (#3080: info; a green toast off the keep list never shows)
 		task.wait(0.2)
 		local function toastUp(): boolean
 			for _, piece in UIShim.playerGui:GetDescendants() do
@@ -6655,13 +6677,19 @@ local SCENES = {
 		spot:SetAttribute("LockedBy", localUserId() + 1) -- on again, for the picture
 		UIShim.advance(0.6)
 	end },
-	-- F100: the prize toast after the Lost and Found: the line and two pictures
+	-- F100: the Lost and Found paid out. #3080, #3054 (Derek2: "whenever claiming something no need for a bubble
+	-- saying exactly what you claimed"): no prize toast any more; the counters say it
 	{ "CampPrize", function()
+		UIShim.advance(4) -- earlier scenes' toasts gone
 		UI.campExtras.collected(
 			"lostFound",
 			{ "1 Lucky Potion", "+10 golden fish" },
 			{ potions = { lucky_potion = 1 }, fish = 10 }
 		)
+		UIShim.advance(0.3)
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			assert(piece.Name ~= "Toast", "uigate: a claim still shows a prize toast (#3080, #3054)")
+		end
 	end },
 	-- F101: a Rescue Rally on its second lap, the bar past its first step, this player on 7 points
 	{ "RallyBanner", function()

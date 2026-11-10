@@ -374,6 +374,8 @@ export type PartialState = {
 	-- #2077: shared/Jukebox.SHUFFLE once the server saves it and Audio plays it; the music row's Shuffle option
 	jukeboxShuffle: string?,
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
+	-- #3022: the goal card's "Catch a 2nd cat", false once it ends (UI.update skips a nil, so the card would stay)
+	secondCat: (SharedTypes.SecondCatView | false)?,
 }
 
 export type ScreenName =

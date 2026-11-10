@@ -32,6 +32,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Moods = require(ReplicatedStorage.Shared.Moods)
 local Mover = require(ReplicatedStorage.Shared.Mover)
@@ -101,6 +102,10 @@ type Stray = {
 	-- their first customer served until their second cat, mirrored in the model's WaitsFor attribute (0 when none).
 	-- Anyone may catch it; for that player its catch is the first catch's one slow circle.
 	waitsFor: number?,
+	-- #3035: the user id of the first-session Tier 1 player whose night pass brought it (shared/NightPass), at their
+	-- plot's `near` point. Not reserved: anyone out at night may catch it. It leaves by night once that player's pass
+	-- ends, and is an ordinary stray from the sunrise.
+	nightFor: number?,
 	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
 	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
 	mood: Types.CatMood,
@@ -231,11 +236,12 @@ local function outOfCamp(position: Vector3): Vector3
 end
 
 -- #2692: whether the areas are open for this player: by the clock, or by the night pass of a beginner who has not
--- checked in a first cat (shared/NightPass).
+-- checked in a first cat (shared/NightPass). #3035: or of a Tier 1 player in their first session, while the
+-- nightCatch switch is on.
 local function openFor(profile: Types.PlayerProfile?): boolean
 	return NightPass.open(
 		ClockService.areasOpen(),
-		profile ~= nil and NightPass.has(profile.tutorialStep)
+		profile ~= nil and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
 	)
 end
 
@@ -814,10 +820,11 @@ end
 -- too, and one whose beginner has gone or checked in leaves at once by night instead of waiting for the sunrise.
 local function tutorialTick()
 	local night = not ClockService.areasOpen()
+	local nightCatch = LiveFlagService.on(NightPass.FLAG)
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
 		if profile ~= nil then
-			local pass = NightPass.has(profile.tutorialStep)
+			local pass = NightPass.of(profile, nightCatch)
 			if player:GetAttribute(NightPass.ATTRIBUTE) ~= pass then
 				player:SetAttribute(NightPass.ATTRIBUTE, pass)
 			end
@@ -826,14 +833,24 @@ local function tutorialTick()
 	local occupied = occupiedPoints[TUTORIAL_AREA] or {}
 	local near = tutorialPoints()
 	local beginners: { [number]: boolean } = {}
+	local nightHolders: { [number]: boolean } = {}
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
 		local plot = PlotService.get(player)
-		if
-			profile == nil
-			or plot == nil
-			or profile.tutorialStep >= Config.TutorialGuaranteedStrayStep
-		then
+		if profile == nil or plot == nil then
+			continue
+		end
+		if profile.tutorialStep >= Config.TutorialGuaranteedStrayStep then
+			-- #3035: at night a first-session Tier 1 player with the pass finds one Common at their own point too,
+			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
+			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
+			if night and NightPass.firstOf(profile, nightCatch) then
+				nightHolders[player.UserId] = true
+				local point = near[plot.index]
+				if point ~= nil and occupied[point] == nil then
+					spawnAt(TUTORIAL_AREA, point, "Common").nightFor = player.UserId
+				end
+			end
 			continue
 		end
 		beginners[player.UserId] = true
@@ -874,6 +891,16 @@ local function tutorialTick()
 		if beginner ~= nil and not beginners[beginner] then
 			reserve(stray, nil)
 			if night then
+				table.insert(leaving, stray)
+			end
+		end
+		-- #3035: a night stray whose player's pass ended (rank up, left, the switch off) goes by night; by day it stays
+		local nightFor = stray.nightFor
+		if nightFor ~= nil then
+			if not night then
+				stray.nightFor = nil
+			elseif not nightHolders[nightFor] and stray.beginner == nil then
+				stray.nightFor = nil
 				table.insert(leaving, stray)
 			end
 		end
@@ -1478,6 +1505,14 @@ local function startCarry(
 		local profile = DataService.get(player)
 		if profile ~= nil and SecondCat.waiting(profile) then
 			Second.step(player, profile, SecondCat.CAUGHT)
+		end
+		-- #3035: a first-session Tier 1 player's first night catch of the session (Research-Agent: do they use it)
+		if
+			profile ~= nil
+			and not ClockService.areasOpen()
+			and NightPass.firstOf(profile, LiveFlagService.on(NightPass.FLAG))
+		then
+			Second.step(player, profile, NightPass.CAUGHT)
 		end
 	end
 	local carry: Carry = {
@@ -3152,10 +3187,11 @@ function CatService.inMinigame(player: Player): boolean
 end
 
 -- F84: true mid Cat Cannon flight or cloud hop.
--- #2692: whether the night leaves this player alone: a beginner who has not checked in a first cat (shared/NightPass).
+-- #2692: whether the night leaves this player alone: a beginner who has not checked in a first cat, or (#3035) a
+-- Tier 1 player in their first session while the nightCatch switch is on (shared/NightPass).
 function CatService.nightPass(player: Player): boolean
 	local profile = DataService.get(player)
-	return profile ~= nil and NightPass.has(profile.tutorialStep)
+	return profile ~= nil and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
 end
 
 function CatService.inFlight(player: Player): boolean

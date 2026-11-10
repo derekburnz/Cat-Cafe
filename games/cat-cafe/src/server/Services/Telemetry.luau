@@ -39,7 +39,9 @@ local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
@@ -1898,7 +1900,15 @@ local function onRelease(player: Player, profile: Profile)
 	Telemetry.custom(player, "left_in_phase", math.max(0, now - session.joinedAt), {
 		phase,
 		third,
-		"T" .. tierText(profile) .. (if profile.stats.sessions <= 1 then "_first" else "_return"),
+		"T"
+			.. tierText(profile)
+			.. (if profile.stats.sessions <= 1 then "_first" else "_return")
+			-- #3035: "_nc" while night catching was open to them, so one read splits switch on from off
+			.. (
+				if NightPass.firstOf(profile, LiveFlagService.on(NightPass.FLAG))
+					then NightPass.LEFT_SUFFIX
+					else ""
+			),
 	})
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),

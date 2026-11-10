@@ -24,7 +24,8 @@ Crates ship first, then fish behind the `tradeFish` flag. Fish get a separate se
 
 ### Golden fish
 - [ ] **cloud** The amount must be a whole number from 0 up to the balance and `TradeMaxFish` (200). Negative, fraction, NaN, inf, string and over-balance amounts are refused on every change and at the swap.
-- [ ] **cloud** Every fish spend (Fish Market, perks, crate buys) is refused during an open trade with "Finish your trade first". Use one test per spend path. If any path skips the shared helper, it's a blocker.
+- [ ] **cloud** Every fish spend is refused during an open trade with "Finish your trade first". There are 6 spend sites and each needs its own test: a fish-paid OpenCrate (no banked crate), BuyCrateBundle, BuyFishItem, the Fresh Catch shelf, the Spa slot buy and the Mystery Market. If any path skips the freeze, it's a blocker.
+- [ ] **cloud** With `tradeFish` off, the spend freeze lifts: all 6 sites work during an open cat or decor trade.
 - [ ] **cloud** `TradeFishPerDay` (400 received) holds across leave and rejoin and across two servers, and resets on the next game day.
 - [ ] **cloud** Received fish never add to `lifetimeGoldenFish`, the leaderboards or milestones.
 - [ ] **cloud** With `tradeFish` off, the fish row is hidden and a forced remote is refused. Cat and decor trades still work.

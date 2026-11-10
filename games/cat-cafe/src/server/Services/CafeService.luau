@@ -1397,10 +1397,8 @@ function CafeService.addCaughtCat(
 			)
 		end
 	end
-	-- F62: gold, Legendary and Mythical cats arrive locked
-	if CatStats.arrivesLocked(def.id, instance.variant) then
-		instance.locked = true
-	end
+	-- #2906 (Derek2 2026-11-10: "remove the cats auto locking when caught never make them auto lock"): a new cat
+	-- arrives unlocked whatever its rarity or coat (F62's auto-lock is gone); the player locks one on its card
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
 	-- F73: the quest and achievement counters that follow catsCaught (net, rescue and bait alike)

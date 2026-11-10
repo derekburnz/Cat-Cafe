@@ -4,9 +4,9 @@
 -- same ones: which cats may go on offer, when a player may ask or be asked, what a side is worth, the lopsided and
 -- gift warnings, what a traded cat looks like when it arrives, and the save's trade log and applied ids.
 -- - Cats only (section 1): never an exclusive cat (the Bellhop Cat, shop cats, anything had for Robux), never a
---   locked one (gold, rainbow, Legendary and Mythical cats arrive locked; the player unlocks one on its card first).
+--   locked one (the player locks and unlocks one on its card; since #2906 no cat arrives locked).
 -- - A traded cat keeps its rarity, coat, charm, level, xp and rescued flag; its name goes back to its kind's, it
---   rests in the cat room, arrives locked when its kind and coat arrive locked, and counts as found in the new
+--   rests in the cat room, arrives unlocked (#2906), and counts as found in the new
 --   owner's Index pages (the coat's too). It pays no golden fish (GoldenFish.forCatch is for catches).
 -- - `apply` is the one place a side of a trade changes a save, for the live swap and for finishing a trade after a
 --   shutdown (section 4), and it does nothing for a trade id the save has applied already.
@@ -307,7 +307,7 @@ function Trade.summaries(cats: { Types.CatInstance }): { Types.CatSummary }
 end
 
 -- The cat as it arrives in its new owner's save at `now`: the same uid, kind, coat, level, xp, charm and rescued
--- flag; no name and no slot; method "trade"; locked when its kind and coat arrive locked.
+-- flag; no name and no slot; method "trade"; unlocked (#2906).
 function Trade.arrival(instance: Types.CatInstance, now: number): Types.CatInstance
 	local arrived: Types.CatInstance = {
 		uid = instance.uid,
@@ -321,7 +321,7 @@ function Trade.arrival(instance: Types.CatInstance, now: number): Types.CatInsta
 		rescued = if instance.rescued == true then true else nil,
 		name = nil,
 		method = "trade",
-		locked = if CatStats.arrivesLocked(instance.catId, instance.variant) then true else nil,
+		locked = nil, -- #2906: never auto-locked
 	}
 	return arrived
 end

@@ -705,3 +705,12 @@ The palette texture is full (128 of 128 swatches), so the 20 Desert and Ruins ca
 
 ## 2026-11-09 Retention picks (Derek2, 16:24)
 Derek2 picked from retention-ideas.md: the gift milestones get improved, the first visitors come early, the first bait cat is a guaranteed wow cat, the Alleyway and Park get busier with rescues near the start, the Grand Opening chip shows from the first catch, the game gets tested on phones and tablets, pity timers are halved for now with a funnel, invites get a reward between minutes 5 and 15, and Cozy Cafe rewards go in. The open loop and server-wide moment ideas are dropped. Every addition keeps phone screen space small: no new persistent bars. Why: half of new players leave between 2 and 5 minutes (stats 2026-11-09 15:05). Specs: retention-ideas.md section 5. The halved pity timers are temporary, to be reviewed on 2026-11-16.
+
+## 2026-11-10 Trading: unopened crates, then golden fish (#2745)
+Derek2 asked for research on trading golden fish and unopened crates (11-09) and gave a standing yes on 11-10. Decided:
+- **Crates first:** non-golden crates only, up to 20 a side, never a crate the partner can't open yet.
+- **Golden fish second,** behind `CatCafe_Flags.tradeFish` (off until QA and the security review pass): up to 200 a side and 400 received a day.
+- **Freeze during a trade:** fish spends and opening a crate that's on offer are refused while it's open.
+- **No progress from trades:** received fish never count toward lifetime fish or milestones.
+
+Why: crates reuse the decor path and carry low risk, while fish are the first item traded as an amount and need stricter checks. Neither is sold for Robux, so trades stay outside monetization-policy. Spec: trading.md §1c and §1d.

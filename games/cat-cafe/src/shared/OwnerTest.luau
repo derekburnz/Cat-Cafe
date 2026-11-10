@@ -37,4 +37,26 @@ function OwnerTest.tradeableIn(product: Types.ProductDef): { string }
 	return out
 end
 
+-- #2754: whether a chat line is the owner's `/event` test command ("/event" alone or "/event ..."), any case. Read by
+-- both chat paths in OwnerTestService.
+function OwnerTest.isEventCommand(text: unknown): boolean
+	if type(text) ~= "string" then
+		return false
+	end
+	local lower = string.lower(text)
+	return lower == "/event" or string.sub(lower, 1, 7) == "/event "
+end
+
+-- #2754: whether a command from `userId` with `text` at `now` repeats `last` (the one answered before) within
+-- `window` seconds, so a line two chat paths both deliver is answered once.
+function OwnerTest.isRepeat(
+	last: { userId: number, text: string, at: number }?,
+	userId: number,
+	text: string,
+	now: number,
+	window: number
+): boolean
+	return last ~= nil and last.userId == userId and last.text == text and now - last.at < window
+end
+
 return OwnerTest

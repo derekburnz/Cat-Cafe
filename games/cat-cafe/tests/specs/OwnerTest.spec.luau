@@ -38,6 +38,25 @@ return function()
 			end
 		end)
 
+		it("reads the /event command on any chat path (#2754)", function()
+			expect(OwnerTest.isEventCommand("/event")).to.equal(true)
+			expect(OwnerTest.isEventCommand("/event full 5")).to.equal(true)
+			expect(OwnerTest.isEventCommand("/EVENT stop")).to.equal(true)
+			expect(OwnerTest.isEventCommand("/events")).to.equal(false)
+			expect(OwnerTest.isEventCommand("hello qa")).to.equal(false)
+			expect(OwnerTest.isEventCommand(" /event")).to.equal(false)
+			expect(OwnerTest.isEventCommand(nil)).to.equal(false)
+		end)
+
+		it("answers a line two chat paths both deliver only once (#2754)", function()
+			local last = { userId = 1, text = "/event full 5", at = 10 }
+			expect(OwnerTest.isRepeat(nil, 1, "/event full 5", 10, 1)).to.equal(false)
+			expect(OwnerTest.isRepeat(last, 1, "/event full 5", 10.5, 1)).to.equal(true)
+			expect(OwnerTest.isRepeat(last, 1, "/event full 5", 11.2, 1)).to.equal(false)
+			expect(OwnerTest.isRepeat(last, 1, "/event stop", 10.5, 1)).to.equal(false)
+			expect(OwnerTest.isRepeat(last, 2, "/event full 5", 10.5, 1)).to.equal(false)
+		end)
+
 		it("has the OwnerGrant remote and an owner_test_ sku apart from sales", function()
 			expect(table.find(Remotes.ClientToServer, "OwnerGrant")).to.be.ok()
 			expect(OwnerTest.SKU_PREFIX).to.equal("owner_test_")

@@ -8,7 +8,9 @@ return function()
 		it("keeps an ad tag of our shape", function()
 			expect(JoinSource.parse("ad_tiktok_nov")).to.equal("ad_tiktok_nov")
 			expect(JoinSource.parse("ad_1")).to.equal("ad_1")
-			expect(JoinSource.parse("ad_" .. string.rep("a", 20))).to.equal("ad_" .. string.rep("a", 20))
+			expect(JoinSource.parse("ad_" .. string.rep("a", 20))).to.equal(
+				"ad_" .. string.rep("a", 20)
+			)
 			expect(JoinSource.isAd("ad_1")).to.equal(true)
 		end)
 
@@ -19,7 +21,18 @@ return function()
 		end)
 
 		it("never passes on launch data that is not an ad tag", function()
-			for _, raw in { "ad_", "AD_x", "ad_X", "ad_a-b", "ad_ a", "hello", "ad_" .. string.rep("a", 21), "x ad_a" } do
+			for _, raw in
+				{
+					"ad_",
+					"AD_x",
+					"ad_X",
+					"ad_a-b",
+					"ad_ a",
+					"hello",
+					"ad_" .. string.rep("a", 21),
+					"x ad_a",
+				}
+			do
 				expect(JoinSource.parse(raw)).to.equal("unknown")
 			end
 			expect(JoinSource.parse(5)).to.equal("unknown")

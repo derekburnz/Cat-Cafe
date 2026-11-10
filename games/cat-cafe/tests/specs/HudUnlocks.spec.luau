@@ -39,37 +39,46 @@ return function()
 			expect(count(HudUnlocks.shown(view(1)))).to.equal(0)
 		end)
 
-		it("opens the Collection, Upgrades and Decor at the first check-in, the rest at step 5", function()
-			expect(HudUnlocks.shown(view(1, 1)).decor).to.equal(false)
-			local two = HudUnlocks.shown(view(2, 1))
-			expect(two.cats).to.equal(true)
-			expect(two.upgrades).to.equal(true)
-			expect(two.decor).to.equal(true)
-			expect(two.quests).to.equal(false)
-			local four = HudUnlocks.shown(view(4, 1))
-			expect(four.daily).to.equal(false)
-			expect(four.clock).to.equal(false)
-			local done = HudUnlocks.shown(view(5, 1))
-			for _, key in
-				{ "quests", "daily", "gifts", "feedback", "invite", "equipBest", "clock", "goal" }
-			do
-				expect(done[key]).to.equal(true)
-			end
-		end)
-
 		it(
-			"opens the Index at the third cat, Tier 2 pieces at Tier 2 or the first item",
+			"opens the Collection, Upgrades and Decor at the first check-in, the rest at step 5",
 			function()
-				expect(HudUnlocks.shown(view(5, 2)).index).to.equal(false)
-				expect(HudUnlocks.shown(view(3, 3)).index).to.equal(true)
-				expect(HudUnlocks.shown(view(3, 3)).decor).to.equal(true)
-				expect(HudUnlocks.shown(view(5, 1)).potions).to.equal(false)
-				expect(HudUnlocks.shown(view(5, 1, 1, 1)).potions).to.equal(true)
-				expect(HudUnlocks.shown(view(5, 1, 1, 0, 3)).fish).to.equal(true)
-				expect(HudUnlocks.shown(view(5, 1, 2)).areas).to.equal(true)
-				expect(HudUnlocks.shown(view(5, 1, 1)).areas).to.equal(false)
+				expect(HudUnlocks.shown(view(1, 1)).decor).to.equal(false)
+				local two = HudUnlocks.shown(view(2, 1))
+				expect(two.cats).to.equal(true)
+				expect(two.upgrades).to.equal(true)
+				expect(two.decor).to.equal(true)
+				expect(two.quests).to.equal(false)
+				local four = HudUnlocks.shown(view(4, 1))
+				expect(four.daily).to.equal(false)
+				expect(four.clock).to.equal(false)
+				local done = HudUnlocks.shown(view(5, 1))
+				for _, key in
+					{
+						"quests",
+						"daily",
+						"gifts",
+						"feedback",
+						"invite",
+						"equipBest",
+						"clock",
+						"goal",
+					}
+				do
+					expect(done[key]).to.equal(true)
+				end
 			end
 		)
+
+		it("opens the Index at the third cat, Tier 2 pieces at Tier 2 or the first item", function()
+			expect(HudUnlocks.shown(view(5, 2)).index).to.equal(false)
+			expect(HudUnlocks.shown(view(3, 3)).index).to.equal(true)
+			expect(HudUnlocks.shown(view(3, 3)).decor).to.equal(true)
+			expect(HudUnlocks.shown(view(5, 1)).potions).to.equal(false)
+			expect(HudUnlocks.shown(view(5, 1, 1, 1)).potions).to.equal(true)
+			expect(HudUnlocks.shown(view(5, 1, 1, 0, 3)).fish).to.equal(true)
+			expect(HudUnlocks.shown(view(5, 1, 2)).areas).to.equal(true)
+			expect(HudUnlocks.shown(view(5, 1, 1)).areas).to.equal(false)
+		end)
 
 		it("shows everything with no step", function()
 			expect(count(HudUnlocks.shown(view(nil)))).to.equal(#HudUnlocks.KEYS)

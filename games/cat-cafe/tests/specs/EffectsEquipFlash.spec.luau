@@ -49,7 +49,14 @@ return function()
 
 	describe("Effects decor equip flash edges (QA)", function()
 		it("flashes only string ids marked exactly true, each once and sorted", function()
-			local current = { [1] = true, rug = "yes", lamp = 1, plants = true, bench = true, arch = true } :: any
+			local current = {
+				[1] = true,
+				rug = "yes",
+				lamp = 1,
+				plants = true,
+				bench = true,
+				arch = true,
+			} :: any
 			local ids = Logic.newlyPlaced({ bench = false }, current)
 			expect(#ids).to.equal(3)
 			expect(ids[1]).to.equal("arch")
@@ -71,14 +78,17 @@ return function()
 			end
 		end)
 
-		it("matches the effects list: 0.15 s in, 0.6 s held, 0.75 s out, 4 at once within 150 studs", function()
-			local e = Presets.equipFlash
-			expect(e.fadeIn).to.equal(0.15)
-			expect(e.hold).to.equal(0.6)
-			expect(e.fade).to.equal(0.75)
-			expect(e.most).to.equal(4)
-			expect(e.maxDistance).to.equal(150)
-			expect(e.wait).to.equal(3)
-		end)
+		it(
+			"matches the effects list: 0.15 s in, 0.6 s held, 0.75 s out, 4 at once within 150 studs",
+			function()
+				local e = Presets.equipFlash
+				expect(e.fadeIn).to.equal(0.15)
+				expect(e.hold).to.equal(0.6)
+				expect(e.fade).to.equal(0.75)
+				expect(e.most).to.equal(4)
+				expect(e.maxDistance).to.equal(150)
+				expect(e.wait).to.equal(3)
+			end
+		)
 	end)
 end

@@ -6,13 +6,16 @@ return function()
 	local Config = require(Shared.Config)
 
 	describe("NightPass", function()
-		it("holds until the first check-in moves the tutorial to TutorialGuaranteedStrayStep", function()
-			expect(Config.TutorialGuaranteedStrayStep).to.equal(2)
-			expect(NightPass.has(0)).to.equal(true)
-			expect(NightPass.has(1)).to.equal(true)
-			expect(NightPass.has(2)).to.equal(false)
-			expect(NightPass.has(5)).to.equal(false)
-		end)
+		it(
+			"holds until the first check-in moves the tutorial to TutorialGuaranteedStrayStep",
+			function()
+				expect(Config.TutorialGuaranteedStrayStep).to.equal(2)
+				expect(NightPass.has(0)).to.equal(true)
+				expect(NightPass.has(1)).to.equal(true)
+				expect(NightPass.has(2)).to.equal(false)
+				expect(NightPass.has(5)).to.equal(false)
+			end
+		)
 
 		it("opens the areas for its holder only", function()
 			expect(NightPass.open(true, false)).to.equal(true)

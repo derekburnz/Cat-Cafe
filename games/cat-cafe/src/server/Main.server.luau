@@ -8,6 +8,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
+local AwayNotifyService = require(script.Parent.Services.AwayNotifyService)
 local BadgeAwardService = require(script.Parent.Services.BadgeAwardService)
 local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
@@ -147,6 +148,7 @@ SessionRecapService.start() -- #1920: the session recap after about 40 minutes o
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
+AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

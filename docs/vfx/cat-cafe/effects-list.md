@@ -1009,3 +1009,10 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Museum room complete: plus confetti (60 % of the budget's), an 8 stud gold ring and a 14 stud gold beam for 1.2 s at the museum's foot (no beam or ring motion with Reduce Motion, as `Particles` does) | the same with `room` set |
 | Exhibit tile on the Museum card: 10 gold sparkles and a ring round the tile; a room's last tile 20 and two rings | `StoreBurst.play(tile, "exhibit")` or `"room"`, called by the UI after the donation result |
 
+## First catch held ring (#2920, 2026-11-10)
+
+`Effects/HoldPulse.luau`, numbers in `Presets.holdPulse`.
+
+| Look | Hook |
+|---|---|
+| Gold rings swell from the frozen ring to 1.7 times its size every 0.9 s (under 3 Hz) until the press, at most 60 s; none with Reduce Motion (the "Tap now!" label still shows) | `Moments.CircleHold(ringIndex)` from CatchCircles; the ring is `CircleN`'s `Ring` in CatCafeCatchCircles |

@@ -25,16 +25,19 @@ GlobalCatch.SHOW_GAP_SECONDS = 3
 GlobalCatch.ELSEWHERE = "🌍 Global: "
 
 -- #3053 (Derek2 2026-11-10: "the global chat should show mythical or better (including ones from your own server in
--- global)"): Roblox's Global tab still takes no line from a game, so the game has its own chat channel, FEED_CHANNEL,
--- which the chat window shows as a tab of that name beside Here and Global (channel tabs: every custom TextChannel
--- gets a tab named after it). Every catch or crate line of FEED_FROM or rarer goes in it, this server's and the
--- other servers' alike. Players read it and cannot type in it. Live switch FEED_FLAG, off until it is switched on:
--- the server makes the channel only while it is on (GlobalCatchService), and the client follows the channel
--- (RareCatchChatController), so off again takes the tab away with no publish.
+-- global)", then "no need to build chat global chats its a thing in roblox you just need to make it work there"):
+-- Roblox documents no way for a game to post in the Global tab, but the tab's channel does exist on each client
+-- as a TextChannel beside RBXGeneral, and DisplaySystemMessage on a channel only draws a line on that one client
+-- (the catch itself still crosses servers on our own MessagingService topic). So, behind the live switch FEED_FLAG
+-- (off until switched on; the server mirrors it in ReplicatedStorage's FEED_ATTRIBUTE), the client looks for that
+-- channel (globalChannel) and writes every line of FEED_FROM or rarer into it, this server's and the others'
+-- alike. Undocumented, so it is a try: if Roblox's channel is not there or refuses the line, nothing else changes.
 GlobalCatch.FEED_FLAG = "globalTab"
-GlobalCatch.FEED_CHANNEL = "Global Cats"
+GlobalCatch.FEED_ATTRIBUTE = "GlobalCatchFeed"
 GlobalCatch.FEED_FROM = "Mythical"
-GlobalCatch.FEED_HELLO = "Mythical catches from every cafe show up here 🌍"
+-- Names that mark Roblox's cross-server channel (lower case, anywhere in the name), and the default channels it is not
+GlobalCatch.GLOBAL_WORDS = { "global", "crossserver", "cross_server", "xserver" }
+GlobalCatch.LOCAL_PREFIXES = { "RBXGeneral", "RBXSystem", "RBXTeam", "RBXWhisper" }
 
 -- The chat colour of each rarity, the hex of Catalog.rarities' swatches (the same as Effects' Presets.rarity).
 GlobalCatch.COLORS = {
@@ -88,10 +91,44 @@ function GlobalCatch.parse(data: unknown, ownJobId: string): (string?, string?)
 	return text, rarity
 end
 
--- #3053: whether a line of `rarity` belongs in the feed channel: FEED_FROM or rarer.
+-- #3053: whether a line of `rarity` belongs in the Global tab: FEED_FROM or rarer.
 function GlobalCatch.inFeed(rarity: string): boolean
 	local rank, from = Catalog.rarityRank[rarity], Catalog.rarityRank[GlobalCatch.FEED_FROM]
 	return rank ~= nil and from ~= nil and rank >= from
+end
+
+-- #3053: which of the chat's channel `names` is Roblox's cross-server one, or nil: the first that is not a default
+-- channel (LOCAL_PREFIXES) and has one of GLOBAL_WORDS in its name.
+function GlobalCatch.globalChannel(names: { string }): string?
+	for _, name in names do
+		local isLocal = false
+		for _, prefix in GlobalCatch.LOCAL_PREFIXES do
+			if name:sub(1, #prefix) == prefix then
+				isLocal = true
+			end
+		end
+		if not isLocal then
+			local lower = name:lower()
+			for _, word in GlobalCatch.GLOBAL_WORDS do
+				if lower:find(word, 1, true) ~= nil then
+					return name
+				end
+			end
+		end
+	end
+	return nil
+end
+
+-- #3053: the channel names worth a line in the client's log (never a whisper channel, whose name holds user ids).
+function GlobalCatch.loggable(names: { string }): { string }
+	local out: { string } = {}
+	for _, name in names do
+		if name:sub(1, 10) ~= "RBXWhisper" then
+			table.insert(out, name)
+		end
+	end
+	table.sort(out)
+	return out
 end
 
 -- #2429 (Derek2 2026-11-08: "make rare pulls show up in global chat ... inside the actual chat"): a crate piece of
@@ -137,8 +174,8 @@ function GlobalCatch.chatLine(text: string, rarity: string, elsewhere: boolean):
 	return string.format('<font color="%s">%s</font>', color, GlobalCatch.escape(body))
 end
 
--- #3053: the feed channel's line for a shout-out `text` of a `rarity` cat: the rarity's colour and no "Global"
--- words in front, since the tab is the global one and holds this server's lines too.
+-- #3053: the Global tab's line for a shout-out `text` of a `rarity` cat: the rarity's colour and no "Global" words
+-- in front, since the tab is the global one and holds this server's lines too.
 function GlobalCatch.feedLine(text: string, rarity: string): string
 	return GlobalCatch.chatLine(text, rarity, false)
 end

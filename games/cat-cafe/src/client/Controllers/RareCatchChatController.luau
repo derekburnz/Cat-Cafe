@@ -16,11 +16,11 @@
 -- place file built without the setting, and says so once in the log.
 --
 -- #3053 (Derek2 2026-11-10: "the global chat should show mythical or better (including ones from your own server in
--- global)"): while the server keeps the feed channel (GlobalCatch.FEED_CHANNEL, behind a live switch), every line of
--- GlobalCatch.FEED_FROM or rarer is also written into it, this server's and the other servers' alike, so the chat
--- window's "Global Cats" tab is the feed Derek asked for. The window draws a tab for a custom channel only with
--- channel tabs on (TextChatService.ChannelTabsConfiguration.Enabled), so this turns them on while the channel is
--- here and puts them back as they were when it goes.
+-- global)" and "its a thing in roblox you just need to make it work there"): while the server's switch is on
+-- (ReplicatedStorage's GlobalCatch.FEED_ATTRIBUTE), every line of GlobalCatch.FEED_FROM or rarer is also written
+-- into Roblox's own Global channel when this client has one (GlobalCatch.globalChannel picks it by name), this
+-- server's lines and the other servers' alike. Roblox documents no way to post in that tab, so this is a try: the
+-- first line of a session logs the channels found and whether the write went through, for a tester's F9 log.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
@@ -33,7 +33,6 @@ local RareCatchChatController = {}
 
 local LEGACY_TRIES = 10 -- one a second while the legacy chat loads
 local CHANNEL_WAIT = 10 -- seconds a line waits for RBXGeneral just after join
-local FEED_HELLO_WAIT = 2 -- seconds after the feed's tab is asked for before its first line
 
 local general: TextChannel? = nil
 
@@ -50,59 +49,58 @@ local function channel(): TextChannel?
 	return general
 end
 
--- #3053: the feed channel, when the server has made it and seated this player
-local function feedChannel(): TextChannel?
-	local channels = TextChatService:FindFirstChild("TextChannels")
-	local found = if channels ~= nil then channels:FindFirstChild(GlobalCatch.FEED_CHANNEL) else nil
-	return if found ~= nil and found:IsA("TextChannel") then found :: TextChannel else nil
+-- #3053: Roblox's cross-server channel on this client, if there is one. TextChatService's whole tree is searched,
+-- since nothing documents where the channel sits.
+local feedLogged = false
+local function globalChannel(): (TextChannel?, { string })
+	local byName: { [string]: TextChannel? } = {}
+	local names: { string } = {}
+	for _, item in TextChatService:GetDescendants() do
+		if item:IsA("TextChannel") and not table.find(names, item.Name) then
+			byName[item.Name] = item :: TextChannel
+			table.insert(names, item.Name)
+		end
+	end
+	local picked = GlobalCatch.globalChannel(names)
+	return if picked ~= nil then byName[picked] else nil, names
 end
 
-local function showFeed(line: string)
-	local feed = feedChannel()
-	if feed == nil then
+-- One line in this client's log (F9) each time the switch comes on: which channels the chat has and which one the
+-- lines will go to, so a tester can tell "no such channel" from "the write failed".
+local function logChannels()
+	if ReplicatedStorage:GetAttribute(GlobalCatch.FEED_ATTRIBUTE) ~= true then
+		return
+	end
+	local global, names = globalChannel()
+	feedLogged = false
+	print(
+		string.format(
+			"[RareCatchChat] Global tab try: channels [%s], picked %s",
+			table.concat(GlobalCatch.loggable(names), ", "),
+			if global ~= nil then global.Name else "none"
+		)
+	)
+end
+
+local function showGlobal(line: string)
+	if ReplicatedStorage:GetAttribute(GlobalCatch.FEED_ATTRIBUTE) ~= true then
+		return
+	end
+	local global = globalChannel()
+	if global == nil then
 		return
 	end
 	local ok, err = pcall(function()
-		feed:DisplaySystemMessage(line)
+		(global :: TextChannel):DisplaySystemMessage(line)
 	end)
-	if not ok then
-		warn("[RareCatchChat] feed: " .. tostring(err))
+	if not feedLogged then
+		feedLogged = true -- the first write after the switch came on
+		print(
+			"[RareCatchChat] Global tab try: first write to "
+				.. global.Name
+				.. (if ok then " ok" else " failed: " .. tostring(err))
+		)
 	end
-end
-
--- Channel tabs on while the feed channel is here, and back to what the place had once it is gone.
-local tabsBefore: boolean? = nil
-local function followTabs()
-	local found = TextChatService:FindFirstChildOfClass("ChannelTabsConfiguration")
-	if found == nil then
-		return
-	end
-	local tabs = found :: ChannelTabsConfiguration
-	if feedChannel() ~= nil then
-		if tabsBefore == nil then
-			tabsBefore = tabs.Enabled
-			tabs.Enabled = true
-			-- a first line, so the new tab is not empty (after the window has drawn the tab)
-			task.delay(FEED_HELLO_WAIT, function()
-				showFeed(GlobalCatch.feedLine(GlobalCatch.FEED_HELLO, GlobalCatch.FEED_FROM))
-			end)
-		end
-	elseif tabsBefore ~= nil then
-		tabs.Enabled = tabsBefore
-		tabsBefore = nil
-	end
-end
-
-local function watchFeed()
-	local channels = TextChatService:WaitForChild("TextChannels", CHANNEL_WAIT)
-	if channels == nil then
-		return
-	end
-	channels.ChildAdded:Connect(followTabs)
-	channels.ChildRemoved:Connect(function()
-		task.defer(followTabs) -- (the child is still in the folder while ChildRemoved runs)
-	end)
-	followTabs()
 end
 
 local function showNew(text: string, rarity: string, elsewhere: boolean)
@@ -119,7 +117,7 @@ local function showNew(text: string, rarity: string, elsewhere: boolean)
 		warn("[RareCatchChat] " .. tostring(err))
 	end
 	if GlobalCatch.inFeed(rarity) then
-		showFeed(GlobalCatch.feedLine(text, rarity)) -- #3053
+		showGlobal(GlobalCatch.feedLine(text, rarity)) -- #3053
 	end
 end
 
@@ -162,9 +160,9 @@ function RareCatchChatController.start()
 		warn(
 			"[RareCatchChat] this place runs the legacy chat; rare catch lines may not show. Set ChatVersion in default.project.json (#3012)"
 		)
-	else
-		task.spawn(watchFeed) -- #3053
 	end
+	ReplicatedStorage:GetAttributeChangedSignal(GlobalCatch.FEED_ATTRIBUTE):Connect(logChannels) -- #3053
+	task.delay(CHANNEL_WAIT, logChannels) -- and once after join, when the chat's channels are in
 	Net.on("RareCatchChat", show)
 end
 

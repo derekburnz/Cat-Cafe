@@ -11,18 +11,12 @@
 -- subscribe is tried three times and then left with one warning in the log, and a failed publish is dropped: the
 -- line still shows in this server's chat.
 --
--- #3053: while the live switch GlobalCatch.FEED_FLAG is on, this server keeps a chat channel named
--- GlobalCatch.FEED_CHANNEL with every player in it as a reader (their TextSource cannot send). The chat window gives
--- a custom channel its own tab, and each client writes the Mythical lines it is sent into it
--- (RareCatchChatController). The channel delivers no player message at all (ShouldDeliverCallback). The switch is read every FEED_CHECK_SECONDS; off again destroys the channel, which
--- takes the tab off every client.
--- Roblox terms: a TextChannel is one chat channel; a player sees it once the server calls AddUserAsync for them,
--- which makes a TextSource (that player's seat in the channel) whose CanSend says whether they may type there.
+-- #3053: the live switch GlobalCatch.FEED_FLAG is mirrored in ReplicatedStorage's attribute
+-- GlobalCatch.FEED_ATTRIBUTE every FEED_CHECK_SECONDS, which is how the clients know to try Roblox's Global tab
+-- (RareCatchChatController).
 
 local MessagingService = game:GetService("MessagingService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TextChatService = game:GetService("TextChatService")
 
 local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -31,8 +25,7 @@ local Net = require(script.Parent.Net)
 local GlobalCatchService = {}
 
 local SUBSCRIBE_WAITS = { 5, 15 } -- seconds before the second and third tries
-local FEED_CHECK_SECONDS = 15 -- how often the feed channel follows its live switch
-local CHANNELS_WAIT = 30 -- seconds the first check waits for the chat's TextChannels folder
+local FEED_CHECK_SECONDS = 15 -- how often the clients' copy of the Global tab switch follows it
 
 local publishGate = GlobalCatch.gate(GlobalCatch.PUBLISH_GAP_SECONDS)
 local showGate = GlobalCatch.gate(GlobalCatch.SHOW_GAP_SECONDS)
@@ -70,74 +63,12 @@ function GlobalCatchService.share(text: string, rarity: string, here: boolean?)
 	end)
 end
 
--- #3053: the feed channel while its switch is on
-local feed: TextChannel? = nil
-local feedWarned = false
-
--- `player` joins the feed as a reader. AddUserAsync refuses a player Roblox does not let chat; they just get no tab.
-local function seat(player: Player)
-	local channel = feed
-	if channel == nil then
-		return
-	end
-	local ok, source = pcall(function()
-		return channel:AddUserAsync(player.UserId)
-	end)
-	if ok and typeof(source) == "Instance" and source:IsA("TextSource") then
-		source.CanSend = false
-	end
-end
-
-local function followFeed()
-	local want = LiveFlagService.on(GlobalCatch.FEED_FLAG)
-	if want == (feed ~= nil) then
-		return
-	end
-	if not want then
-		local channel = feed :: TextChannel
-		feed = nil
-		channel:Destroy()
-		return
-	end
-	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then
-		return -- the legacy chat has no channels (RareCatchChatController says so once)
-	end
-	local channels = TextChatService:WaitForChild("TextChannels", CHANNELS_WAIT)
-	if channels == nil then
-		if not feedWarned then
-			feedWarned = true
-			warn(
-				"[GlobalCatch] no TextChannels folder, so no " .. GlobalCatch.FEED_CHANNEL .. " tab"
-			)
-		end
-		return
-	end
-	local channel = Instance.new("TextChannel")
-	channel.Name = GlobalCatch.FEED_CHANNEL
-	-- nobody's message is ever delivered here (reviewer: a new TextSource can send for the moment before seat() sets
-	-- CanSend false); the lines in this channel are the clients' own DisplaySystemMessage calls
-	channel.ShouldDeliverCallback = function()
-		return false
-	end
-	channel.Parent = channels
-	feed = channel
-	for _, player in Players:GetPlayers() do
-		task.spawn(seat, player)
-	end
-end
-
 function GlobalCatchService.start()
-	Players.PlayerAdded:Connect(seat)
 	task.spawn(function()
 		while true do
-			-- one bad pass must not end the loop
-			local ok, err = pcall(function(): string?
-				followFeed()
-				return nil
-			end)
-			if not ok and not feedWarned then
-				feedWarned = true
-				warn("[GlobalCatch] feed channel: " .. tostring(err))
+			local on = LiveFlagService.on(GlobalCatch.FEED_FLAG)
+			if ReplicatedStorage:GetAttribute(GlobalCatch.FEED_ATTRIBUTE) ~= on then
+				ReplicatedStorage:SetAttribute(GlobalCatch.FEED_ATTRIBUTE, on)
 			end
 			task.wait(FEED_CHECK_SECONDS)
 		end

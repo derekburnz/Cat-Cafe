@@ -16,9 +16,9 @@
 --   the way to stop them filling it without a publish. Notes already written expire by themselves.
 -- - `nightCatch` (#3035): night catching for a Tier 1 player in their first session (shared/NightPass). It starts OFF
 --   (OFF_BY_DEFAULT); true opens the Alleyway to them at night, and off again sends them home at the next night sweep.
--- - `globalTab` (#3053): the game's own "Global Cats" chat tab with every Mythical catch from every server
---   (shared/GlobalCatch FEED_*). It starts OFF (OFF_BY_DEFAULT); true makes the channel in every server, and off again
---   removes it and its tab.
+-- - `globalTab` (#3053): the client tries to write every Mythical catch from every server into Roblox's own Global
+--   chat tab (shared/GlobalCatch FEED_*). It starts OFF (OFF_BY_DEFAULT); true starts the try in every server, and
+--   off again stops it.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
 -- the other way round: only an explicit true turns it on, so a missing key or a broken store never switches it on.

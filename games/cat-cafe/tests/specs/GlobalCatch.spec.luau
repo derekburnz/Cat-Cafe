@@ -150,7 +150,7 @@ return function()
 			)
 		end)
 
-		describe("the Global Cats feed (#3053)", function()
+		describe("Mythical lines in Roblox's Global tab (#3053)", function()
 			it("takes Mythical and nothing lower", function()
 				expect(GlobalCatch.inFeed("Mythical")).to.equal(true)
 				for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Secret", "" } do
@@ -174,20 +174,33 @@ return function()
 				expect(line:find("<b>", 1, true)).to.equal(nil)
 			end)
 
-			it(
-				"has a tab name that is not Roblox's own, a switch that is a live flag, and a first line",
-				function()
-					local LiveFlags = require(Shared.LiveFlags)
-					expect(GlobalCatch.FEED_CHANNEL).never.to.equal("Global")
-					expect(GlobalCatch.FEED_CHANNEL:sub(1, 3)).never.to.equal("RBX")
-					expect(table.find(LiveFlags.KEYS, GlobalCatch.FEED_FLAG) ~= nil).to.equal(true)
-					expect(LiveFlags.OFF_BY_DEFAULT[GlobalCatch.FEED_FLAG]).to.equal(true)
-					expect(
-						#GlobalCatch.FEED_HELLO > 0
-							and #GlobalCatch.FEED_HELLO <= GlobalCatch.MAX_TEXT
-					).to.equal(true)
-				end
-			)
+			it("picks Roblox's cross-server channel by name and never a default one", function()
+				expect(GlobalCatch.globalChannel({ "RBXGeneral", "RBXSystem", "RBXGlobal" })).to.equal(
+					"RBXGlobal"
+				)
+				expect(GlobalCatch.globalChannel({ "RBXGeneral", "RBXCrossServer:1" })).to.equal(
+					"RBXCrossServer:1"
+				)
+				expect(GlobalCatch.globalChannel({ "RBXGeneral", "Global" })).to.equal("Global")
+				expect(GlobalCatch.globalChannel({ "RBXGeneral", "RBXSystem", "RBXTeam" })).to.equal(
+					nil
+				)
+				expect(GlobalCatch.globalChannel({ "RBXWhisper:1_2global" })).to.equal(nil)
+				expect(GlobalCatch.globalChannel({ "RBXGeneralGlobal" })).to.equal(nil)
+				expect(GlobalCatch.globalChannel({})).to.equal(nil)
+			end)
+
+			it("keeps whisper channels, whose names hold user ids, out of the log line", function()
+				local names =
+					GlobalCatch.loggable({ "RBXWhisper:12_34", "RBXSystem", "RBXGeneral" })
+				expect(table.concat(names, ",")).to.equal("RBXGeneral,RBXSystem")
+			end)
+
+			it("is behind a live switch that starts off", function()
+				local LiveFlags = require(Shared.LiveFlags)
+				expect(table.find(LiveFlags.KEYS, GlobalCatch.FEED_FLAG) ~= nil).to.equal(true)
+				expect(LiveFlags.OFF_BY_DEFAULT[GlobalCatch.FEED_FLAG]).to.equal(true)
+			end)
 		end)
 	end)
 end

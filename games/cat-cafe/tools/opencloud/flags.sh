@@ -12,8 +12,8 @@
 # and two start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
-#   globalTab     true gives the chat window the game's own "Global Cats" tab with every Mythical catch from every
-#                 server (#3053); false or no entry takes the tab away
+#   globalTab     true has each client try to write every Mythical catch from every server into Roblox's own
+#                 Global chat tab (#3053); false or no entry stops the try
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
 #                 review pass, and after a restart publish, so no old server settles a fish record without the fish
 # Run by .github/workflows/flags.yml; also works from Git Bash on a PC with the same variables set.
@@ -92,7 +92,7 @@ show_key() {
 	awayNotes) if [ "$raw" = false ]; then meaning="away notes OFF in every server (no new away notifications)"; else meaning="away notes on"; fi ;;
 	tradeFish) if [ "$raw" = true ]; then meaning="golden fish trading ON in every server"; else meaning="golden fish trading off (its default)"; fi ;;
 	nightCatch) if [ "$raw" = true ]; then meaning="first-session night catching ON in every server"; else meaning="first-session night catching off (its default)"; fi ;;
-	globalTab) if [ "$raw" = true ]; then meaning="the Global Cats chat tab ON in every server"; else meaning="the Global Cats chat tab off (its default)"; fi ;;
+	globalTab) if [ "$raw" = true ]; then meaning="Mythical catches into the Global chat tab ON in every server"; else meaning="Mythical catches into the Global chat tab off (its default)"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"

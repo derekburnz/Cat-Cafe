@@ -1,9 +1,15 @@
 --!strict
--- The HUD's pal chip (F92, playing-together.md section 2): while pals are on your server it closes the potion timers'
--- row over the money (Screens/BuffChips), in their look with no panel behind it: up to three round headshots that
--- overlap, a "+2" tile for more, and "+10% with pals" (two or more: "+15% with pals") in outlined white. It shows nothing
--- with no pals, so a solo player never sees a missing bonus. A tap opens the money's boosts card, where "Pals (2)"
--- has its row. The list comes from PalsChanged through UI.pals (Components/PalsLogic cleans it).
+-- The HUD's pal chip (F92, playing-together.md section 2): while pals are on your server, up to three round headshots
+-- that overlap, a "+2" tile for more, and "+10% with pals" (two or more: "+15% with pals") in outlined white, with no
+-- panel behind it. It shows nothing with no pals, so a solo player never sees a missing bonus. The list comes from
+-- PalsChanged through UI.pals (Components/PalsLogic cleans it).
+-- On a PC it closes the potion timers' row over the money (Screens/BuffChips), and a tap opens the money's boosts
+-- card, where "Pals (2)" has its row.
+-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join move the friend join bonuses and make
+-- it smaller"): on touch it is out of that row, so a pal joining or leaving never changes what fits beside the money
+-- in Roblox's top bar. There it is a small plain label, one pal's face and "+10%", at the left end of the clock's line
+-- under the icon row (the clock is right-aligned, so nothing is laid out from the chip); it takes no taps (the
+-- money's card still has the pals' row) and shows with the clock.
 --
 -- Roblox terms: an "rbxthumb://" image is Roblox's own picture of a player's avatar head, loaded by user id.
 
@@ -15,37 +21,48 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type PalChip = {
-	chip: TextButton,
+	chip: GuiObject, -- a button in the row; a plain frame when it floats
 	set: (self: PalChip, userIds: { number }) -> (),
 	count: (self: PalChip) -> number,
 	destroy: (self: PalChip) -> (),
 }
 
-local TILE = 28 -- the potion chips' tile
-local OVERLAP = 18 -- each next headshot starts this far right of the one before
+-- #3052: smaller than the potion chips' 28 px tile (18 px words); smaller again when it floats on touch
+local ROW = { tile = 24, overlap = 15, text = 16, more = 13, height = 30, outline = 2 }
+local FLOAT = { tile = 20, overlap = 13, text = 14, more = 13, height = 24, outline = 1.5 }
+local FLOAT_FACES = 1 -- a floating chip shows one pal's face; the bonus says how many there are
+local FLOAT_GAP = 8
 
 local PalChip = {}
 PalChip.__index = PalChip
 
--- `row`: the potion timers' row (BuffChips.frame); `onShown` hears when the chip shows or hides (the row stays up
--- for it), `onTap` when it is pressed.
-function PalChip.new(row: Frame, onShown: (shown: boolean) -> (), onTap: () -> ()): PalChip
+-- `parent`: the potion timers' row (BuffChips.frame), or with `float` the HUD's clock line; `onShown` hears when the
+-- chip shows or hides (the row stays up for it), `onTap` when a chip in the row is pressed.
+function PalChip.new(
+	parent: Instance,
+	onShown: (shown: boolean) -> (),
+	onTap: () -> (),
+	float: boolean?
+): PalChip
 	local self = setmetatable({}, PalChip) :: any
 	self._onShown = onShown
 	self._ids = {} :: { number }
 	self._said = ""
+	self._float = float == true
+	local look = if float then FLOAT else ROW
+	self._look = look
 
-	local chip: TextButton = Create("TextButton", {
+	local chip: GuiObject = Create(if float then "Frame" else "TextButton", {
 		Name = "Pals",
-		Text = "",
-		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, Scale.tapHeight(36)),
+		Size = UDim2.fromOffset(0, if float then look.height else Scale.tapHeight(36)),
 		AutomaticSize = Enum.AutomaticSize.X,
-		LayoutOrder = 100, -- after the Luck chip and every potion timer
+		LayoutOrder = if float then -1 else 100, -- before the clock's sun; after the Luck chip and potion timers
 		Visible = false,
-		Parent = row,
+		Parent = parent,
 	}, {
+		-- (a floating chip keeps a little clear of the clock's sun)
+		Create("UIPadding", { PaddingRight = UDim.new(0, if float then FLOAT_GAP else 0) }),
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -56,7 +73,7 @@ function PalChip.new(row: Frame, onShown: (shown: boolean) -> (), onTap: () -> (
 	self._faces = Create("Frame", {
 		Name = "Faces",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(TILE, TILE),
+		Size = UDim2.fromOffset(look.tile, look.tile),
 		LayoutOrder = 1,
 		Parent = chip,
 	}) :: Frame
@@ -64,19 +81,24 @@ function PalChip.new(row: Frame, onShown: (shown: boolean) -> (), onTap: () -> (
 		Name = "Bonus",
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 30),
+		Size = UDim2.fromOffset(0, look.height),
 		FontFace = Theme.fonts.display,
-		TextSize = 18,
+		TextSize = look.text,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "",
 		LayoutOrder = 2,
 		Parent = chip,
 	}) :: TextLabel
-	Outline.text(self._text, 2)
-	chip.Activated:Connect(function()
-		onTap()
-	end)
+	Outline.text(self._text, look.outline)
+	if chip:IsA("TextButton") then
+		local button = chip :: TextButton
+		button.Text = ""
+		button.AutoButtonColor = false
+		button.Activated:Connect(function()
+			onTap()
+		end)
+	end
 	self.chip = chip
 	return self :: PalChip
 end
@@ -93,18 +115,23 @@ function PalChip.set(self: any, userIds: { number })
 	end
 	self._said = key
 	local was = #self._ids > 0
+	local look = self._look
+	local tile, overlap = look.tile, look.overlap
 	self._ids = table.clone(userIds)
 	for _, child in self._faces:GetChildren() do
 		child:Destroy()
 	end
 	local shown, more = PalsLogic.faces(userIds)
+	if self._float then
+		shown, more = table.move(shown, 1, math.min(#shown, FLOAT_FACES), 1, {}), 0
+	end
 	for index, userId in shown do
 		local face: ImageLabel = Create("ImageLabel", {
 			Name = "Face" .. index,
 			BackgroundColor3 = Theme.colors.cream,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset((index - 1) * OVERLAP, 0),
-			Size = UDim2.fromOffset(TILE, TILE),
+			Position = UDim2.fromOffset((index - 1) * overlap, 0),
+			Size = UDim2.fromOffset(tile, tile),
 			Image = PalsLogic.headshot(userId),
 			ZIndex = 2 + #shown - index, -- the first pal's face on top, the "+2" tile under the last
 			Parent = self._faces,
@@ -118,10 +145,10 @@ function PalChip.set(self: any, userIds: { number })
 			Name = "More",
 			BackgroundColor3 = Theme.hud.panel,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(#shown * OVERLAP, 0),
-			Size = UDim2.fromOffset(TILE, TILE),
+			Position = UDim2.fromOffset(#shown * overlap, 0),
+			Size = UDim2.fromOffset(tile, tile),
 			FontFace = Theme.fonts.display,
-			TextSize = 13,
+			TextSize = look.more,
 			TextColor3 = Theme.colors.white,
 			Text = "+" .. more,
 			ZIndex = 1,
@@ -130,7 +157,7 @@ function PalChip.set(self: any, userIds: { number })
 		Outline.border(count, 2)
 		tiles += 1
 	end
-	self._faces.Size = UDim2.fromOffset(TILE + math.max(0, tiles - 1) * OVERLAP, TILE)
+	self._faces.Size = UDim2.fromOffset(tile + math.max(0, tiles - 1) * overlap, tile)
 	self._text.Text = words or ""
 	local now = words ~= nil
 	self.chip.Visible = now

@@ -4439,10 +4439,112 @@ local SCENES = {
 		UI.teamRescue(4242, localUserId(), 1240)
 	end },
 	-- F92: four pals on the server: three faces, "+1" and "+15% with pals" after the potion timer
+	-- #3052: on touch the chip is not in that row; it floats small on the clock's line, left of the clock
 	{ "HUDPals", function()
 		local t = workspace:GetServerTimeNow()
 		UI.update({ buffs = { tip_potion = t + 492 } })
+		-- the floating chip shows with the clock (Scenes.close clears it)
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", workspace:GetServerTimeNow() + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("NextLuckyDay", 8)
+		clock:SetAttribute("LuckyDay", false)
+		UI.clock.bind(clock)
 		UI.pals({ 4242, 4343, 4444, 4545 })
+		UIShim.advance(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local chip = hud:FindFirstChild("Pals", true) :: GuiObject
+		local words = chip:FindFirstChild("Bonus") :: TextLabel
+		assert(chip.Visible, "uigate: four pals show no chip (F92)")
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			local line = hud:FindFirstChild("Clock", true) :: GuiObject
+			local sky = line:FindFirstChild("Sky") :: GuiObject
+			assert(chip.Parent == line, "uigate: on touch the pal chip is not in the clock's line (#3052)")
+			assert(not chip:IsA("GuiButton"), "uigate: the floating pal chip takes taps (#3052)")
+			assert(words.Text:match("^%+%d+%%$"), "uigate: the pal chip reads " .. words.Text .. " (#2712)")
+			assert(words.AbsolutePosition.X + words.AbsoluteSize.X <= sky.AbsolutePosition.X, "uigate: the pal chip runs into the clock's sun (#3052)")
+			assert(chip:FindFirstChild("Face2", true) == nil and chip:FindFirstChild("More", true) == nil, "uigate: the floating pal chip shows more than one face (#3052)")
+			-- clear of the money and golden fish, also at night (a longer clock line) with a long amount
+			local counters = hud:FindFirstChild("Counters", true) :: GuiObject
+			local before = UI.getState() :: any
+			Scenes._stepState = { money = before.money, buffs = before.buffs }
+			for _, case in { { "night", 987654321098 }, { "day", 1.23e9 } } do
+				clock:SetAttribute("Phase", case[1])
+				UI.update({ money = case[2] } :: any)
+				UIShim.advance(0.3)
+				local apart = chip.AbsolutePosition.X >= counters.AbsolutePosition.X + counters.AbsoluteSize.X
+					or chip.AbsolutePosition.Y >= counters.AbsolutePosition.Y + counters.AbsoluteSize.Y
+					or chip.AbsolutePosition.Y + chip.AbsoluteSize.Y <= counters.AbsolutePosition.Y
+				assert(apart, ("uigate: at %s the pal chip (x %d) runs into the counters (to x %d) (#3052)"):format(case[1], chip.AbsolutePosition.X, counters.AbsolutePosition.X + counters.AbsoluteSize.X))
+			end
+			for _ = 1, 60 do
+				UIShim.advance(0.1) -- the "Sunrise!" words leave before the picture
+			end
+		else
+			assert(words.Text:match("^%+%d+%% with pals$"), "uigate: the pal chip reads " .. words.Text .. " (F92)")
+		end
+		-- smaller than it was (28 px faces, 18 px words)
+		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+		local face = chip:FindFirstChild("Face1", true) :: GuiObject
+		assert(face.AbsoluteSize.X / scale <= 24.5, ("uigate: a pal's face is %d px wide (#3052)"):format(face.AbsoluteSize.X / scale))
+		assert(words.TextSize <= 16, ("uigate: the pal chip's words are %d px (#3052)"):format(words.TextSize))
+	end },
+	-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join"): on any device no piece of the HUD
+	-- moves or changes size when pals join and leave, with the Luck chip up and a Lucky Day on, as in his screenshot;
+	-- only the pal chip itself (and on a PC the row it closes) may change
+	{ "HUDPalsStay", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		local before = UI.getState() :: any
+		Scenes._stepState = { money = before.money, buffs = before.buffs }
+		local t = workspace:GetServerTimeNow()
+		UI.update({ money = 25.3e9, buffs = { lucky_potion = t + 300 } } :: any)
+		-- the floating chip shows with the clock (Scenes.close clears it)
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", workspace:GetServerTimeNow() + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("NextLuckyDay", 8)
+		clock:SetAttribute("LuckyDay", true)
+		UI.clock.bind(clock)
+		UI.pals({})
+		UIShim.advance(0.2)
+		local chip = hud:FindFirstChild("Pals", true) :: GuiObject
+		assert(not chip.Visible, "uigate: the pal chip shows with no pals (F92)")
+		local function shot(): { [string]: { Vector2 } }
+			local out = {}
+			for _, piece in root:GetDescendants() do
+				if piece:IsA("GuiObject") and piece.Visible and not piece:FindFirstAncestor("Pals") and piece.Name ~= "Pals" then
+					local path = piece:GetFullName()
+					if out[path] == nil then
+						out[path] = { piece.AbsolutePosition, piece.AbsoluteSize }
+					end
+				end
+			end
+			return out
+		end
+		local base = shot()
+		for index, pals in { { 4242 }, { 4242, 4343 }, { 4242, 4343, 4444, 4545 }, { 4242 }, {} } do
+			UI.pals(pals)
+			UIShim.advance(0.2)
+			assert(chip.Visible == (#pals > 0), ("uigate: with pals set %d the pal chip is %s (#3052)"):format(index, tostring(chip.Visible)))
+			local now = shot()
+			for path, was in base do
+				local is = now[path]
+				-- (the clock's words tick; the row the chip closes on a PC grows sideways only)
+				local row = path:find("%.Potions$") ~= nil
+				if is ~= nil and not path:find("Clock", 1, true) then
+					local moved = (is[1] - was[1]).Magnitude
+					local grew = if row then math.abs(is[2].Y - was[2].Y) else (is[2] - was[2]).Magnitude
+					assert(moved < 1 and grew < 1, ("uigate: with pals set %d, %s moved %d px and grew %d px (#3052)"):format(index, path, moved, grew))
+				end
+			end
+		end
 	end },
 	-- #2712 (Derek2 11-09: "fix this reoccuring issue of currencys being shoved down on mobile"): the money keeps its
 	-- place whatever chips join the row (pals, a potion timer, a long amount); the row, when it does not fit beside the
@@ -6845,7 +6947,7 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 	end },
 	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
-	-- 2x on sale; once owned, "💰 Cash x3" on the side over the money (#1962)
+	-- 2x on sale; once owned, nothing (#3052: the boosts card has the pass's row)
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to the
 	-- right of both of those"): left to right the money, the golden fish, then the badge, none touching
 	{ "HUDMoneyBadge", function()
@@ -7046,7 +7148,7 @@ local SCENES = {
 		end
 	end },
 	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): with a money
-	-- pass owned the badge beside the money is hidden (the "Cash x4" chip shows on the side), and the golden fish sits
+	-- pass owned the badge beside the money is hidden (and since #3052 nothing stands in for it), and the golden fish sits
 	-- a normal gap after the money, at every pass and from short to long amounts; with none it keeps #2194's place
 	{ "HUDFishWithPass", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
@@ -7063,11 +7165,8 @@ local SCENES = {
 			for _, money in { 1234, 373e9, 88888, 999e15 } do
 				UI.update({ money = money })
 				UIShim.advance(1 / 60)
-				-- (#2447: on touch the small cash tag sits between them, so the fish is measured from the tag)
-				local chip = counters:FindFirstChild("CashChip") :: GuiObject?
-				local before = if chip and chip.Visible
-					then chip.AbsolutePosition.X + chip.AbsoluteSize.X
-					else amount.AbsolutePosition.X + amount.TextBounds.X
+				-- (#3052: no cash tag between them any more, on any device)
+				local before = amount.AbsolutePosition.X + amount.TextBounds.X
 				local gap = (fish.AbsolutePosition.X - before) / scale
 				assert(gap >= 4 and gap <= 40, ("uigate: with the %dx pass the golden fish sits %d px after %s (#2254)"):format(pass, gap, amount.Text))
 			end
@@ -7090,25 +7189,32 @@ local SCENES = {
 	end },
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
-		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
-		-- #1962: the owned multiplier is the bold gold chip on the side, over the money
-		local chip = UIShim.playerGui:FindFirstChild("CashChip", true)
-		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
-			-- #2447: on touch a small tag in the counters' row, right after the money, up in Roblox's top bar
-			UIShim.advance(1 / 60)
-			local tag = chip and chip:FindFirstChild("Tag") :: TextLabel?
-			assert(chip and chip.Visible and tag and tag.Text == "💰 x3", "uigate: the cash tag reads " .. tostring(tag and tag.Text) .. " (#2447)")
-			local money = UIShim.playerGui:FindFirstChild("Money", true) :: GuiObject
-			assert(chip.Parent == money.Parent, "uigate: the cash tag is not in the counters' row (#2447)")
-			local gap = chip.AbsolutePosition.X - (money.AbsolutePosition.X + money.AbsoluteSize.X)
-			assert(gap >= 0 and gap <= 30, ("uigate: the cash tag sits %d px after the money (#2447)"):format(gap))
-			assert(tag.AbsoluteSize.Y <= 30, ("uigate: the cash tag is %d px tall, not a small tag (#2447)"):format(tag.AbsoluteSize.Y))
-			local inset = game:GetService("GuiService"):GetGuiInset()
-			assert(money.AbsolutePosition.Y + money.AbsoluteSize.Y <= 2, ("uigate: the money's bottom is %d px under the top bar (#2447)"):format(money.AbsolutePosition.Y + money.AbsoluteSize.Y))
-			assert(money.AbsolutePosition.Y + inset.Y >= 0, "uigate: the money pokes over the screen's top (#2447)")
-		else
-			assert(chip and chip.Visible and chip.Text == "💰 Cash x3", "uigate: the cash chip reads " .. tostring(chip and chip.Text) .. " (#1962)")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[4]] = true })
+		UIShim.advance(1 / 60)
+		-- #3052 (Derek2 11-10: "if 4x money is bought just add it to money breakdown no need for a symbol"): an owned
+		-- money pass shows no chip, tag or badge in the HUD (#1962's gold chip, #2447's tag after the amount)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		assert(hud:FindFirstChild("CashChip", true) == nil, "uigate: the owned money pass still has a chip in the HUD (#3052)")
+		local badge = hud:FindFirstChild("MoneyBadge", true) :: GuiObject
+		assert(not badge.Visible, "uigate: the money badge shows with the 4x pass owned (#3052)")
+		for _, piece in hud:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local text = (piece :: any).Text :: string
+				local shown = (piece :: GuiObject).Visible and (piece :: GuiObject).AbsoluteSize.X > 0
+				assert(not (shown and (text:find("x4", 1, true) or text:find("4x", 1, true))), "uigate: the HUD still says " .. text .. " for the owned 4x pass (#3052)")
+			end
 		end
+		-- its line is in the money's boosts card
+		local BoostList = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.BoostList")
+		local state = table.clone(UI.getState() :: any)
+		state.passBoosts = { cafe = 0, staff = 1, money = 4 }
+		local found = false
+		for _, row in BoostList.rows(Catalog, state, workspace:GetServerTimeNow(), 0) do
+			if row.key == "moneyPass" then
+				found = row.value == "x4" and row.active
+			end
+		end
+		assert(found, "uigate: the boosts card has no Money pass x4 row (#3052)")
 	end },
 	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
 	{ "HUDOwnerTest", function()

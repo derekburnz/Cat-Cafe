@@ -1121,7 +1121,7 @@ Layout.park = {
 		PZ,
 		PTURN,
 		"Park",
-		{ -52.5, 0, -2 },
+		{ -53, 0, -2 },
 		-90,
 		"trashcan",
 		0.4,
@@ -1271,7 +1271,7 @@ Layout.neighbourhood = {
 		NZ,
 		NTURN,
 		"Neighbourhood",
-		{ 82.5, 0, 74 },
+		{ 83.04, 0, 74 },
 		90,
 		"trash_bin",
 		0.4,
@@ -1417,7 +1417,7 @@ Layout.woods = {
 		setTrap(WX, WZ, WTURN, "bramble_bush", { 72, 0, 96 }),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -18, 0, -68 }),
 	},
-	nook = setNook(WX, WZ, WTURN, "Woods", { -71.88, 0, 67 }, -90, "bramble_bush", 0.4, 0),
+	nook = setNook(WX, WZ, WTURN, "Woods", { -71.68, 0, 67 }, -90, "bramble_bush", 0.4, 0),
 	props = {},
 } :: AreaSpec
 

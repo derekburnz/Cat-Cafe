@@ -4,12 +4,13 @@
 # (src/server/Services/TradeVault.luau) reads both keys every Config.TradeFlagCheckSeconds (60 s):
 #   trading       false turns trading off everywhere; anything else (or no entry) leaves it on
 #   tradeMinTier  a number 0 to 99 is the live minimum cafe tier; anything else (or no entry) means Config.TradeMinTier
-# and LiveFlagService (src/shared/LiveFlags.luau) reads four more the same way, true or false. Only false turns off:
+# and LiveFlagService (src/shared/LiveFlags.luau) reads five more the same way, true or false. Only false turns off:
 #   codes         false pauses code redeeming
 #   rally         false stops the Rescue Rally
 #   tradeCrates   false takes crates out of trading (#2745, trading.md section 1c); cat and decor trades go on
 #   awayNotes     false stops the game noting who is due an away notification (#2768), if the notes crowd MemoryStore
 #   starterRefill false stops the starting areas' camp trap refilling by day for players who never rescued (#3049)
+#   swiftPaws     false hides the Golden Fish Market's Swift Paws perk and drops its speed (#3063); levels are kept
 # and two start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
@@ -24,10 +25,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|tradeFish|nightCatch true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|tradeFish|nightCatch
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes and starterRefill, and false for tradeFish and nightCatch (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill and swiftPaws, and false for tradeFish and nightCatch (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -37,7 +38,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|tradeFish|nightCatch true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|tradeFish|nightCatch" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch" >&2
 	exit 2
 }
 
@@ -90,6 +91,7 @@ show_key() {
 	tradeCrates) if [ "$raw" = false ]; then meaning="crate trading OFF in every server"; else meaning="crate trading on"; fi ;;
 	awayNotes) if [ "$raw" = false ]; then meaning="away notes OFF in every server (no new away notifications)"; else meaning="away notes on"; fi ;;
 	starterRefill) if [ "$raw" = false ]; then meaning="starter trap refill OFF in every server (one cat a day there)"; else meaning="starter trap refill on"; fi ;;
+	swiftPaws) if [ "$raw" = false ]; then meaning="Swift Paws OFF in every server (row hidden, no speed)"; else meaning="Swift Paws on"; fi ;;
 	tradeFish) if [ "$raw" = true ]; then meaning="golden fish trading ON in every server"; else meaning="golden fish trading off (its default)"; fi ;;
 	nightCatch) if [ "$raw" = true ]; then meaning="first-session night catching ON in every server"; else meaning="first-session night catching off (its default)"; fi ;;
 	tradeMinTier)
@@ -114,6 +116,7 @@ show() {
 	show_key tradeCrates
 	show_key awayNotes
 	show_key starterRefill
+	show_key swiftPaws
 	show_key tradeFish
 	show_key nightCatch
 }
@@ -135,7 +138,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | tradeFish | nightCatch) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | tradeFish | nightCatch) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -145,7 +148,7 @@ clear)
 	[ $# -eq 2 ] || usage
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
-	codes | rally | tradeCrates | awayNotes | starterRefill) write "$2" true ;;
+	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws) write "$2" true ;;
 	tradeFish | nightCatch) write "$2" false ;;
 	*) usage ;;
 	esac

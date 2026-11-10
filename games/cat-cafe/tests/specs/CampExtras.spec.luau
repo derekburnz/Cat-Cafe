@@ -116,6 +116,40 @@ return function()
 			end
 		)
 
+		it(
+			"lands and holds twice the fish for a Golden Pond owner, on the same clock (#3093)",
+			function()
+				expect(CampExtras.POND_PASS_TIMES).to.equal(2)
+				expect(CampExtras.pondTimes(true)).to.equal(2)
+				expect(CampExtras.pondTimes(false)).to.equal(1)
+				local save = emptied(4)
+				local function owner(now: number): any
+					CampExtras.settle(save, 4, now)
+					return CampExtras.view(save, 4, now, 2)
+				end
+				expect(owner(T + 14 * 60).pond.held).to.equal(0)
+				local first = owner(T + 15 * 60)
+				expect(first.pond.held).to.equal(2)
+				expect(first.pond.nextAt).to.equal(T + 30 * 60) -- the same step as everyone's
+				expect(owner(T + HOUR).pond.held).to.equal(8)
+				local full = owner(T + 7 * HOUR)
+				expect(full.pond.held).to.equal(48)
+				expect(full.pond.nextAt).to.equal(nil) -- full: no "next in"
+				-- the same save without the pass shows the plain numbers
+				expect(at(save, 4, T + 7 * HOUR).pond.held).to.equal(24)
+				local prize, count = CampExtras.take(save, "pond", 4, T + 7 * HOUR, half, 2)
+				expect(prize :: any).to.deepEqual({ fish = 48 })
+				expect(count).to.equal(48)
+				-- emptied: the next fill counts from the collect, for an owner as for anyone
+				expect(owner(T + 7 * HOUR).pond.held).to.equal(0)
+				expect(owner(T + 7 * HOUR + 15 * 60).pond.held).to.equal(2)
+			end
+		)
+
+		it("says every extra is used from anywhere (#3082)", function()
+			expect(CampExtras.FROM_ANYWHERE).to.equal(true)
+		end)
+
 		it("keeps one Lost and Found find every 2 hours, up to 3 (#1732, section 4b)", function()
 			expect(Config.LostFoundEverySeconds).to.equal(2 * HOUR)
 			expect(Config.LostFoundHold).to.equal(3)
@@ -544,7 +578,10 @@ return function()
 
 		it("lets a version 32 Yard Sale that took no crate today take one at once", function()
 			for _, yard in
-				{ { day = today - 1, bought = { park_crate = true } }, { day = today, bought = {} } }
+				{
+					{ day = today - 1, bought = { park_crate = true } },
+					{ day = today, bought = {} },
+				}
 			do
 				local raw: any = ProfileSchema.template(T)
 				raw.version = 32

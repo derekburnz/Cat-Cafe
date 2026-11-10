@@ -195,8 +195,8 @@ UI.events = {
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
-	collectCampExtra = Signal.new(), -- (extraId)   #1463: Collect on the cannon picker's pond strip (Golden Pond
-	-- owners): forward as CollectCampExtra
+	collectCampExtra = Signal.new(), -- (extraId)   #3082: Collect on a cannon picker card's strip (every player;
+	-- #1463 had it for Golden Pond owners): forward as CollectCampExtra
 	-- F87 (easy-start.md sections 3 and 6): a context tip shown (skipped true when its camera cut was skipped), and
 	-- Settings' "Show tips again"
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
@@ -224,7 +224,7 @@ UI.events = {
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
-	-- SpaTakeOut, SpaCollect, SpaBuySlot or MuseumDonate) with its arguments
+	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
@@ -970,9 +970,18 @@ function UI.init(config: Types.InitConfig)
 		launch = function(cannonId: string, destination: string)
 			UI.events.launchCannon:Fire(cannonId, destination)
 		end,
-		-- #1463: a Golden Pond owner's Collect on the Woods strip (UIController sends CollectCampExtra)
+		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
+		-- Golden Pond owner's pond)
 		collect = function(extraId: string)
 			UI.events.collectCampExtra:Fire(extraId)
+		end,
+		-- #3082: Open on a card's strip: the station's own card takes the picker's place
+		open = function(stationId: string)
+			if stationId == "yardSale" then
+				UI.campExtras.openYardSale(nil)
+			else
+				UI.lateStations.open(stationId)
+			end
 		end,
 		close = closeModal,
 	})
@@ -1347,6 +1356,20 @@ function UI.init(config: Types.InitConfig)
 				modalInstance:close()
 			end
 		end,
+		-- #3132: his arrival as a short banner with the cat's face in the toast stack
+		announce = function(def: Types.CatDef?, shiny: boolean, line: string, tap: () -> ())
+			if toasts then
+				local CollectorLogic = require(script.Components.CollectorLogic)
+				toasts:cat({
+					def = def,
+					shiny = shiny,
+					title = CollectorLogic.BANNER_TITLE,
+					line = line,
+					seconds = CollectorLogic.BANNER_SECONDS,
+					onTap = tap,
+				})
+			end
+		end,
 	})
 	local collectorView = collectorScreen :: Collector.Collector
 	modalInstance:register("Collector", {
@@ -1423,7 +1446,7 @@ function UI.init(config: Types.InitConfig)
 				or UI.intro.playing()
 		end,
 		lift = function()
-			return hudInstance:bottomTop()
+			return hudInstance:tackleTop() -- #3119: under the Drop off touch
 		end,
 	})
 	netButton = NetButton.new(parent, {
@@ -6576,6 +6599,9 @@ do
 		local museum = RelicMuseum.new({
 			donate = function(uid: string)
 				send("MuseumDonate", uid)
+			end,
+			fill = function(area: string)
+				send("MuseumFill", area) -- #3130: Auto fill
 			end,
 			close = closer(WINDOWS.museum),
 			far = far(LateStationsLogic.MUSEUM),

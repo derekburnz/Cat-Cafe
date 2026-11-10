@@ -1230,7 +1230,7 @@ Catalog.tiers = {
 		tier = 3,
 		name = "Busy Cafe",
 		cost = 420000, -- #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
-		distinctCats = 11, -- #2683: 13 before; #2230: 12 before
+		distinctCats = 10, -- #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
 		slots = 6,
@@ -1242,7 +1242,7 @@ Catalog.tiers = {
 		tier = 4,
 		name = "Famous Cafe",
 		cost = 16800000, -- #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
-		distinctCats = 22, -- #2683: 25 before; #2230: 20 before
+		distinctCats = 22, -- #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
 		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
@@ -1254,7 +1254,7 @@ Catalog.tiers = {
 		tier = 5,
 		name = "Grand Cafe",
 		cost = 350000000, -- #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
-		distinctCats = 28, -- #2683: 33 before; #2230: 30 before
+		distinctCats = 26, -- #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
 		slots = 10,
@@ -1269,7 +1269,7 @@ Catalog.tiers = {
 		tier = 6,
 		name = "Sunstone Cafe",
 		cost = 5600000000, -- #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
-		distinctCats = 42,
+		distinctCats = 38, -- #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
 		slots = 12,
@@ -1281,7 +1281,7 @@ Catalog.tiers = {
 		tier = 7,
 		name = "Wonder Cafe",
 		cost = 54000000000, -- #2895 (10% off): 60,000,000,000 before
-		distinctCats = 52,
+		distinctCats = 47, -- #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
 		slots = 14,
@@ -4276,7 +4276,7 @@ Catalog.rallySteps = {
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
 -- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a
--- level.
+-- level, Swift Paws a little walk speed a level (#3063).
 Catalog.fishShop = {} :: { Types.FishShopRow }
 local function shopRow(row: Types.FishShopRow)
 	table.insert(Catalog.fishShop, row)
@@ -4290,6 +4290,8 @@ shopRow({ id = "star_treat", kind = "lure", cost = 150 }) -- Derek2 2026-11-07: 
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })
+-- #3063 (shared/SwiftPaws): +1 walk speed a level, normal walk and carrying; two levels (Monetization-Agent)
+shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150 }, maxLevel = 2 })
 
 Catalog.fishShopById = {} :: { [string]: Types.FishShopRow }
 for _, row in Catalog.fishShop do

@@ -12,6 +12,7 @@
 --                                     all the way around it)
 --   frontOffset(front, radius, range) how far in front of a station's pivot its ring's centre sits
 --   aroundRadius(half, range)         the radius of a ring all the way round a station
+--   FRONT_FIT_LEAST, BOARD_RADIUS     the camp stations' fitted front rings and the Index Boards' smaller one (#3113)
 --   fitRing(radius, blocks, most, least, keep?)  where that ring moves, and how small it gets, to clear what stands
 --                                     in it while still holding the station's base
 -- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
@@ -26,7 +27,7 @@ WalkUp.RADIUS_SHARE = 0.75
 -- The ring's part inside a station's model (World/WalkUpCircles): a flat part `radius` studs across each way from
 -- its centre, with its radius in the Radius attribute. The window opens on stepping inside it.
 WalkUp.CIRCLE = "WalkUpCircle"
-WalkUp.FRONT_RADIUS = 4 -- as the Codes Cat's circle (Config.CodesCircleRadius)
+WalkUp.FRONT_RADIUS = 6 -- as the Codes Cat's circle (Config.CodesCircleRadius); #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6
 -- #2449: a station's icon in its ring (World/WalkUpCircles): the stand-in card this share of the ring's width (its
 -- corners stay inside the rim even tilted), the art at most this share across
 WalkUp.ICON_SHARE = 0.42
@@ -56,6 +57,12 @@ end
 -- what it clears.
 WalkUp.FIT_SHIFT_MAX = 1.5
 WalkUp.FIT_CLEAR = 0.02
+-- #3113 (Derek2: "circle pads to walk into for all area stations also and big enough"): a camp station's front ring
+-- is FRONT_RADIUS like the town's, slid or shrunk off what stands in it (World/WalkUpCircles.frontFit), never under
+-- FRONT_FIT_LEAST. An Index Board's is BOARD_RADIUS: it stands beside the way out, where a town-sized ring would lie
+-- across the path from the landing pad to the opening and open the Index on everyone walking out.
+WalkUp.FRONT_FIT_LEAST = 4.5
+WalkUp.BOARD_RADIUS = 4.5
 
 -- #2433 (Laptop-Tester on #2432: each camp's cannon ring ran up to 1.1 studs under the camp's low side wall): a ring of
 -- `radius` round a station, with `blocks` the flat points (from the station's pivot) where something stands on its

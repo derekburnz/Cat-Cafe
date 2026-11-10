@@ -1,6 +1,7 @@
 --!strict
 -- Walk-up windows on this client (#2398; shared/WalkUp for the rules). Walking up to the Cat Cannons, the Spin Wheel,
--- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart and, for its owner, the cafe's
+-- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart, in the camps the Yard Sale,
+-- the Oasis Spa, the Relic Museum and each Index Board (#3113) and, for its owner, the cafe's
 -- bait bowl on the back step (#2476) opens its window, and
 -- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
 -- closed by hand opens again with a press. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
@@ -22,7 +23,9 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local CampExtras = require(Shared:WaitForChild("CampExtras"))
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
+local LateStations = require(Shared:WaitForChild("LateStations"))
 local Net = require(script.Parent.Parent.Net)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local UI = require(script.Parent.Parent.UI)
@@ -35,7 +38,17 @@ local player = Players.LocalPlayer
 local POLL_SECONDS = 0.15
 
 -- A kind of station: its tag, its prompt's name, the window (the UI's modal name) and how to open it for `model`.
-type Kind = { tag: string, prompt: string, window: string, open: (model: Instance) -> () }
+-- `only`, when given, picks which of the tag's models are this kind (#3113: one tag holds several camp stations).
+type Kind = {
+	tag: string,
+	prompt: string,
+	window: string,
+	open: (model: Instance) -> (),
+	only: ((model: Instance) -> boolean)?,
+	-- true where the ring opens the window even without a prompt to be found (an Index Board whose model brought a
+	-- prompt under another name)
+	loose: boolean?,
+}
 
 local KINDS: { Kind } = {
 	{
@@ -93,6 +106,54 @@ local KINDS: { Kind } = {
 		window = FeedbackStand.WINDOW,
 		open = function()
 			UI.bugReport.open(FeedbackStand.KIND, "none")
+		end,
+	},
+	-- #3113 (Derek2: "circle pads to walk into for all area stations also ... auto open menu when getting close"):
+	-- the camps' stations with a card. The Picnic Basket, Fish Pond and Lost and Found have no card: stepping into
+	-- their rings collects (CampExtrasController).
+	{
+		tag = CampExtras.TAG,
+		prompt = CampExtras.PROMPT,
+		window = "YardSale",
+		only = function(model: Instance)
+			return model:GetAttribute("ExtraId") == CampExtras.YARD_SALE
+		end,
+		open = function()
+			UI.campExtras.openYardSale(nil)
+		end,
+	},
+	{
+		tag = LateStations.TAG,
+		prompt = LateStations.PROMPT,
+		window = "OasisSpa",
+		only = function(model: Instance)
+			return model:GetAttribute("StationId") == LateStations.SPA
+		end,
+		open = function()
+			UI.lateStations.open(LateStations.SPA)
+		end,
+	},
+	{
+		tag = LateStations.TAG,
+		prompt = LateStations.PROMPT,
+		window = "RelicMuseum",
+		only = function(model: Instance)
+			return model:GetAttribute("StationId") == LateStations.MUSEUM
+		end,
+		open = function()
+			UI.lateStations.open(LateStations.MUSEUM)
+		end,
+	},
+	{
+		tag = "IndexBoard", -- each area's board opens the Index on that area's page (Screens/IndexBoards)
+		prompt = "IndexPrompt",
+		window = "Collection",
+		loose = true,
+		open = function(model: Instance)
+			local area = model:GetAttribute("Area")
+			if type(area) == "string" then
+				UI.openIndex(area)
+			end
 		end,
 	},
 }
@@ -234,12 +295,15 @@ function WalkUpController.start()
 				model: Instance,
 				prompt: ProximityPrompt?,
 				window: string,
-				open: () -> ()
+				open: () -> (),
+				loose: boolean?
 			)
 				-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
 				-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
-				local off = prompt == nil or not prompt.Enabled
 				local hasRing, centre, ringRadius = ringOf(model)
+				local off = if prompt == nil
+					then not (loose == true and hasRing)
+					else not (prompt :: ProximityPrompt).Enabled
 				local position = if hasRing
 					then centre
 					elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
@@ -267,9 +331,12 @@ function WalkUpController.start()
 					if not model:IsDescendantOf(Workspace) then
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too
 					end
+					if kind.only ~= nil and not kind.only(model) then
+						continue
+					end
 					add(model, promptOf(model, kind.prompt), kind.window, function()
 						kind.open(model)
-					end)
+					end, kind.loose)
 				end
 			end
 			-- #2476 (Derek2: "make the bait bowl to open if you walk outside the backdoor near it"): the own first

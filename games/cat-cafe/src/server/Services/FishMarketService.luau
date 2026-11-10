@@ -24,6 +24,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -34,9 +35,11 @@ local EventService = require(script.Parent.EventService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local RareMomentService = require(script.Parent.RareMomentService)
+local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeService = require(script.Parent.TradeService)
@@ -61,6 +64,7 @@ local PERK_NAMES: { [string]: string } = {
 	golden_espresso = "Golden Espresso",
 	big_bowl = "Big Bowl",
 	extra_decor_spot = "Extra Decor Spot",
+	swift_paws = "Swift Paws", -- #3063
 }
 
 -- Saves a count, leaving a 0 out of the map (crates and crateLuck keep only what is there).
@@ -340,6 +344,11 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 	if row == nil then
 		return
 	end
+	if itemId == SwiftPaws.ID and not LiveFlagService.on(SwiftPaws.FLAG) then
+		-- #3063: the live switch is off, so the row is hidden; nothing is spent
+		Net.toast(player, "Swift Paws is resting for now", "warn")
+		return
+	end
 	if not nearMarket(player) then
 		Net.toast(player, "Walk to the Golden Fish Market first", "warn")
 		return
@@ -376,6 +385,8 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 			-- the next food waits less; a bowl filled since F54 keeps the readyAt UseLure gave it, as with Index
 			-- claims, and only an older bowl without one moves up
 			CafeService.refreshPlot(player)
+		elseif itemId == SwiftPaws.ID then
+			CatService.refreshSpeed(player) -- #3063: the new speed at once
 		end
 	end
 	CafeService.sync(player)

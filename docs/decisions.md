@@ -743,6 +743,12 @@ A run of `bug-reports` started by hand printed each reporter's full name and use
 
 Why: the repo is public, so every Actions log is, and the standing rule is that nothing private goes in it. Threads only need the text, kind, version, area, device and error lists, which stay. The error lists are scrubbed too when masked (review of PR #3108): an error line carries the instance path, and a player's scripts and character sit under their name, so `Players.<Name>` and `Workspace.<Name>` print as `***`, the reporter's name prints as `***` anywhere else, and a run of six or more digits prints as `#`. A client error is text the player's device chose and no filter has read, so masked it prints only as script and line number. The masked line still carries the report's time, which is what `idea-credits add` takes.
 
+## 2026-11-10 Rank up: fewer different cats at Tiers 3, 5, 6 and 7 (#3111)
+
+Different cats needed to rank up: Tier 3 **10** (was 11), Tier 5 **26** (was 28), Tier 6 **38** (was 42), Tier 7 **47** (was 52). Tier 4 stays at 22. Costs and the rarity needs are unchanged.
+
+Why: Derek asked to "lower the different cats requirement a little bit between 3-7". About one cat in ten comes off each tier. Tier 4 could not come down: with 21 or 20 a 4x Money owner reaches Tier 5 in a median of 1 h 47 to 1 h 53 of play in one go, under the 2 hour floor in Pace.spec (economy-ladder.md section 8 check 7), and 10, 20, 25 also put every-paid-bonus players under Monetization's 1 hour floor. With 10, 22, 26 both floors hold. Lowering Tier 4 as well would need the floor relaxed or Tier 5's cost raised, which is Derek's and the designer's call. No save change: the need is read from the table, so a player who already has enough cats can rank up at once.
+
 ## 2026-11-10 The intro starts as the loading screen reaches 100, without waiting for the Alleyway (#3109)
 
 Derek2: "can you make it a quick cute cat loading screen that instantly goes up to 100 really fast then transitions to the tutorial scenes that should buy enough time to load whats needed start the cutscene right after dont even check if the alleyway catching scenes are ready it should be fine".

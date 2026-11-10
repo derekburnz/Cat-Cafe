@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 18:43 UTC",
+  "generated": "2026-11-10 21:45 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -276117,22 +276117,22 @@
       "triangles": 3630,
       "budget": 6000,
       "size_studs": {
-        "x": 8.1,
-        "y": 12.25,
+        "x": 12.1,
+        "y": 16.25,
         "z": 8.6
       },
       "size_roblox": [
-        8.1,
+        12.1,
         8.6,
-        12.25
+        16.25
       ],
       "bounds_min": [
-        -4.05,
-        -10.05,
+        -6.05,
+        -14.05,
         0.0
       ],
       "bounds_max": [
-        4.05,
+        6.05,
         2.2,
         8.6
       ],
@@ -276252,11 +276252,11 @@
         "centre_roblox": [
           0,
           0.05,
-          -6.0
+          -8.0
         ],
-        "radius": 4.0
+        "radius": 6.0
       },
-      "studio": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; _Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, _Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. _Bulb (the sign lamp) glows at night.",
+      "studio": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named CodesCircle (a flat Neon disc 12 studs across, centre 8 studs in front of the pivot, CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; _Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, _Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. _Bulb (the sign lamp) glows at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CodesCat.model.json",
       "rbx_parts": 241,
       "files": [
@@ -276276,7 +276276,7 @@
           "uv": "1739 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.93"
+          "centered": "footprint center x=0.00 y=-5.93"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_CodesCat.png",
@@ -305874,7 +305874,14 @@
       "module": "campstations",
       "objects": [
         "CatCafe_Camp_Ruins_RelicMuseum",
-        "CatCafe_Camp_Ruins_RelicMuseum_Glass"
+        "CatCafe_Camp_Ruins_RelicMuseum_Glass",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_alley",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_park",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_neighbourhood",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_woods",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_sewer",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_desert",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_ruins"
       ],
       "triangles": 8834,
       "budget": 12000,

@@ -686,6 +686,9 @@ fieldEvents=(
 	"quit_cafe|CustomField1|CustomEventCountUser|Leavers by cats working"
 	"quit_cafe|CustomField2|CustomEventCountUser|Leavers by table level"
 	"quit_cafe|CustomField3|CustomEventCountUser|Leavers by cats owned"
+	"quit_scene|CustomField1|CustomEventCountUser|Leavers below Tier 2 by scene (#3101)"
+	"quit_scene|CustomField2,CustomField1|CustomEventCountUser|Leavers below Tier 2 by device and scene"
+	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
 )
 say "### Event fields"
 say ""

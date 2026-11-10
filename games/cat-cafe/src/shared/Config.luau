@@ -563,6 +563,11 @@ local Config = {
 	RescueSpeedUpPerHit = 0.08,
 	RescuePatience = 3, -- misses one attempt can take
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
+	-- #3049: a starting area's trap by the camp, emptied during the day, gets a new cat this long after while a player
+	-- who has never rescued is in the server with that area open (RescueService; Rescue.starterRefill)
+	StarterRescueRefillSeconds = 30,
+	-- at most this many refills an area a day, so a veteran cannot farm the trap beside a waiting first-timer
+	StarterRescueRefillsPerDay = 4,
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
 	-- #2566: 15 before; the slower Rare-and-up bar (x0.7) takes about 1/0.7 as long, so a steady player still fits
 	RescueAttemptMaxSeconds = 22,

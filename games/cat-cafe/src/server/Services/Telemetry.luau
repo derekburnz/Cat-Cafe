@@ -95,6 +95,7 @@ export type CustomEvent =
 	-- #1884 (catch-rework.md 7d): a net catch's end, value the rings judged; purrfect, great, nice or bolt, rarity, mood
 	| "catch_finish"
 	| "rescue_attempt"
+	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
 	| "gold_found"

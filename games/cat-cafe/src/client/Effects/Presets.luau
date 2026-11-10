@@ -2327,7 +2327,7 @@ Presets.notes = {
 -- inside it at `haloShare` of its strength, drawn flat (a SurfaceGui, no Neon bloom), so the middle of the circle
 -- and the ticket on it stay clear (Derek 2026-10-28 00:47: "too bright and can't see what symbol its showing").
 Presets.codes = {
-	radius = 4,
+	radius = 6, -- #3112: 4 until the circles grew
 	leaveAfter = 1,
 	glow = { 0.75, 0.5 },
 	inside = 0.25,

@@ -61,6 +61,9 @@ STONE, STONE_DARK, STONE_LIGHT = "fur_dusty", "fur_soot", "fur_pewter"
 SANDSTONE, SANDSTONE_LIGHT = "fur_dune", "paving_tan"
 EARTH, FLAG, FLAG_DARK = "paving_grout", "fur_pewter", "concrete"
 JADE, GOLD, VINE = "fur_emerald", "fur_golden", "leaf_dark"
+# #2834 moss pass: grey-green moss in cushions on the stone's tops and ledges and in the flags' gaps, still trims
+# (section 3: no grass). Moss is `_Decor` (no collision), so no cat spot or blocker changes
+MOSS, MOSS_LIGHT, MOSS_DARK = "fur_moss", "fur_fern", "leaf_dark"
 
 AVENUE_HALF = 26.0
 LANE_X = 9.0                            # the lane walls at x +-9
@@ -112,11 +115,21 @@ def _flags(g, x0, x1, z0, z1, size, seed=0, gaps=7):
     sx, sz = (x1 - x0) / nx, (z1 - z0) / nz
     for i in range(nx):
         for j in range(nz):
-            if (i * 3 + j * 5 + seed) % gaps == 0:
-                continue
             x, y, _ = bl(x0 + (i + 0.5) * sx, z0 + (j + 0.5) * sz)
-            g.box_base((x, y, 0), (sx - 0.25, sz - 0.25, 0.08 + 0.02 * ((i + j) % 2)), (FLAG, STONE)[(i + j) % 2],
-                       bevel=False)
+            if (i * 3 + j * 5 + seed) % gaps == 0:
+                g.cyl_base((x, y, 0), min(sx, sz) * 0.42, 0.06, MOSS, segments=10, bevel=False)    # moss in its place
+                continue
+            h = (i * 7 + j * 13 + seed) % 10                                     # #2834: worn tones, no checkerboard
+            sw = STONE if h < 4 else FLAG if h < 8 else (MOSS, "fur_smoke_light")[h - 8]
+            g.box_base((x, y, 0), (sx - 0.25, sz - 0.25, 0.08 + 0.02 * ((i + j) % 2)), sw, bevel=False)
+
+
+def _moss(d, x, y, z, w, dd, k=0):
+    """A flat cushion of moss about w x dd sitting on a top face at height z (Builder space): grey-green with a lighter
+    tuft on it, now and then a darker one."""
+    d.sphere((x, y, z), 0.5, MOSS, segments=8, rings=4, scale=(w, dd, 0.36))
+    d.sphere((x + 0.22 * w * (1 - 2 * (k % 2)), y - 0.15 * dd, z + 0.06), 0.5, (MOSS_LIGHT, MOSS_DARK)[k % 3 == 2],
+             segments=8, rings=4, scale=(0.45 * w, 0.5 * dd, 0.3))
 
 
 def _ground():
@@ -141,7 +154,7 @@ def _ground():
 
 
 # -------------------------------------------------------------------------------------------------- walls --
-def _seg_broken(b, L, k):
+def _seg_broken(b, L, k, d=None):
     """The plateau's edge: a broken stone wall 9.6 high, coursed, its top broken in steps, vines trailing over it in
     one or two places and rubble at its foot."""
     H = 9.6 + 0.4 * (k % 2)
@@ -151,6 +164,10 @@ def _seg_broken(b, L, k):
         x = -L / 2 + (i + 0.5) * L / n
         h = 2.2 - 1.3 * (((i * 5 + k) % 4) == 1) + 0.04 * (i % 2)
         b.box_base((x, 1.3, H - 2.2), (L / n - 0.1, 2.2, h), (STONE, STONE_LIGHT)[i % 2], bevel=False)
+        if d is not None and (i + k) % 3 != 1:                                   # moss on the broken top
+            _moss(d, x, 0.75, H - 2.2 + h, L / n * 0.75, 1.9, i)            # a lip over the front edge
+        if d is not None and (i + k) % 2 == 0:                                   # and at the foot
+            _moss(d, x + 0.4, 0.15, 0.0, L / n * 0.6, 0.9, i + 1)
     for z in (1.8, 3.8, 5.8):
         b.box((0, 0.17, z), (L, 0.06, 0.12), STONE_DARK, bevel=False)
     for i in range(max(1, round(L / 14.0))):
@@ -160,7 +177,7 @@ def _seg_broken(b, L, k):
         b.box_base((x - 3.0, -0.4, 0), (1.4, 1.1, 0.9), STONE_DARK, bevel=False, rot=(0.3, "Z"))
 
 
-def _seg_colonnade(b, L, k):
+def _seg_colonnade(b, L, k, d=None):
     """A run of the plateau's old portico: a low wall 4.2 high with columns 11 high along it and a broken beam."""
     b.box_base((0, 1.3, 0), (L, 2.2, 4.2), SANDSTONE, bevel=False)
     b.box_base((0, 1.3, 4.2), (L + 0.2, 2.5, 0.4), SANDSTONE_LIGHT, bevel=False)
@@ -170,6 +187,9 @@ def _seg_colonnade(b, L, k):
         h = 11.0 if (i + k) % 3 else 7.4                                         # one in three broken
         b.cyl_base((x, 1.2, 0), 0.85, h, STONE_LIGHT, segments=10)
         b.box_base((x, 1.2, h), (2.0, 2.0, 0.5), STONE, bevel=False)
+        if d is not None and (i + k) % 2 == 0:
+            _moss(d, x, 1.2, h + 0.5, 1.6, 1.6, i)                               # on the capital
+            _moss(d, x + 1.6, 1.3, 4.6, 1.8, 1.9, i + 1)                         # and along the coping
     b.box_base((-L / 4, 1.2, 11.5), (L / 2, 1.8, 1.0), STONE, bevel=False)       # what is left of the beam
 
 
@@ -177,9 +197,9 @@ SEGMENTS = {"broken": _seg_broken, "colonnade": _seg_colonnade}
 
 
 def wall_segment(mat, kind, L, k=0):
-    b = Builder()
-    SEGMENTS[kind](b, L, k)
-    return [b.finalize(N + "Wall" + kind.capitalize(), mat)]
+    b, d = Builder(), Builder()
+    SEGMENTS[kind](b, L, k, d)
+    return [b.finalize(N + "Wall" + kind.capitalize(), mat), d.finalize(N + "Wall" + kind.capitalize() + "_Decor", mat)]
 
 
 def pier(mat, h=12.0):
@@ -189,7 +209,10 @@ def pier(mat, h=12.0):
     b.box_base((0, WALL_D / 2, 0.8), (2.6, 2.6, h - 0.8), STONE, bevel=False)
     b.box_base((0, WALL_D / 2, h - 2.0), (2.75, 2.75, 0.5), JADE, bevel=False)
     b.box_base((0, WALL_D / 2, h), (3.2, 3.2, 0.6), STONE_LIGHT, bevel=False)
-    return [b.finalize(N + "Pier", mat)]
+    d = Builder()
+    _moss(d, 0.3, WALL_D / 2, h + 0.6, 2.4, 2.4, int(h))
+    _moss(d, -0.6, WALL_D / 2 - 1.3, 0.8, 1.6, 0.9, int(h) + 1)                  # on the foot's ledge
+    return [b.finalize(N + "Pier", mat), d.finalize(N + "Pier_Decor", mat)]
 
 
 def _run(s, mat, kinds, n, z0, z1, x, rot, seed):
@@ -211,7 +234,10 @@ def low_wall(mat, L):
     for i in range(max(1, round(L / 10.0))):
         x = -L / 2 + (i + 0.5) * L / max(1, round(L / 10.0))
         b.box((x, 0.12, 2.2), (0.8, 0.1, 2.0), VINE, bevel=False)
-    return [b.finalize(N + "LowWall", mat)]
+    d = Builder()
+    for i in range(max(1, round(L / 7.0))):
+        _moss(d, -L / 2 + (i + 0.5) * L / max(1, round(L / 7.0)) + 1.0, 1.0, 3.6, 2.2, 1.6, i)
+    return [b.finalize(N + "LowWall", mat), d.finalize(N + "LowWall_Decor", mat)]
 
 
 def cat_head_wall(mat, L):
@@ -341,7 +367,10 @@ def gargoyle(mat):
         b.box_base((sx * 0.35, -0.75, z), (0.32, 0.4, 0.5), STONE_LIGHT, bevel=False)         # paws
     b.box((0, -0.72, z + 1.95), (0.5, 0.1, 0.4), JADE, bevel=False)                            # collar stone
     b.box((0.7, 1.1, z + 0.3), (0.3, 1.6, 0.3), STONE_LIGHT, bevel=False, rot=(0.4, "Z"))       # tail
-    return [b.finalize(N + "Gargoyle", mat)]
+    d = Builder()
+    _moss(d, -1.0, -1.3, 0.5, 1.4, 0.7, 0)                                                     # on the plinth's step
+    _moss(d, 1.3, 0.6, 0.5, 0.7, 1.6, 1)
+    return [b.finalize(N + "Gargoyle", mat), d.finalize(N + "Gargoyle_Decor", mat)]
 
 
 def lane_wall(mat, L):
@@ -351,7 +380,10 @@ def lane_wall(mat, L):
     b.box_base((0, 0, 2.1), (1.4, L + 0.2, 0.3), STONE_LIGHT, bevel=False)
     for i in range(max(1, round(L / 8.0))):
         b.box((0.66, -L / 2 + (i + 0.5) * L / max(1, round(L / 8.0)), 1.4), (0.1, 1.4, 0.9), VINE, bevel=False)
-    return [b.finalize(N + "LaneWall", mat)]
+    d = Builder()
+    for i in range(max(1, round(L / 6.0))):
+        _moss(d, 0.0, -L / 2 + (i + 0.3) * L / max(1, round(L / 6.0)), 2.4, 1.5, 3.2, i)
+    return [b.finalize(N + "LaneWall", mat), d.finalize(N + "LaneWall_Decor", mat)]
 
 
 def _triumphal_arch(s, mat):
@@ -398,7 +430,13 @@ def column(mat, h=12.0, broken=False):
     else:
         b.cyl_base((0, 0, hh - 0.8), 1.25, 0.4, STONE, segments=12)
         b.box_base((0, 0, hh - 0.4), (2.8, 2.8, 0.4), STONE_LIGHT, bevel=False)
-    return [b.finalize(N + "Column" + ("Broken" if broken else ""), mat)]
+    d = Builder()
+    _moss(d, 0.9, -0.9, 0.6, 1.0, 1.0, 0)                                       # in the base's corners
+    _moss(d, -0.95, 0.85, 0.6, 0.9, 1.0, 1)
+    if broken:
+        _moss(d, 0.0, 0.0, hh - 0.8 + 0.7, 1.3, 1.3, 0)                          # on the broken top
+    return [b.finalize(N + "Column" + ("Broken" if broken else ""), mat),
+            d.finalize(N + "Column" + ("Broken" if broken else "") + "_Decor", mat)]
 
 
 def drums(mat, n=3):

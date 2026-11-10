@@ -9,7 +9,7 @@
 -- swing's whoosh, the catch's result word, the rescue trap's shake, the Bellhop Cat's bell, cap and hop, the Lucky
 -- Cat statue and its beckoning paw, the Lucky Day's gold tint, the big pull's happy hop, the camp extras' rod and
 -- lid, the camp pipe's drips, the pond's jumping fish, the camp extras' collect bursts, the pal wave at a front door,
--- the cafe orders' steam, flour, oven glow and ding, the leaderboard crown's glint, the shop cats' own effects, the Cat Whistle's paw ring on its stray, the door
+-- the cafe orders' steam, flour, oven glow and ding, the leaderboard crown's glint, the shop cats' own effects, the door
 -- sign's OPEN by day and CLOSED at night and the camp stations' ready glows, all on this client only.
 -- Effects read replicated world state (tags and attributes) and this player's own events; they never fire a remote,
 -- never change game state and never move a part the server moves for gameplay. Rules:
@@ -79,7 +79,6 @@ local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
 local Wheel = require(script.Wheel)
-local Whistle = require(script.Whistle)
 
 local Effects = {}
 
@@ -145,7 +144,6 @@ function Effects.start()
 	Pity.start()
 	GrandOpening.start()
 	Themes.start()
-	Whistle.start()
 	DoorSign.start()
 	CampGlow.start()
 	AreaFx.start()

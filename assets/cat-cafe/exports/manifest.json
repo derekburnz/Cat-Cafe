@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 17:08 UTC",
+  "generated": "2026-11-10 17:39 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -312270,6 +312270,184 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Town_FeedbackStand",
+      "category": "Town",
+      "module": "feedbackstand",
+      "objects": [
+        "CatCafe_Town_FeedbackStand",
+        "CatCafe_Town_FeedbackStand_Cat_Body",
+        "CatCafe_Town_FeedbackStand_Cat_Head",
+        "CatCafe_Town_FeedbackStand_Cat_Eye1",
+        "CatCafe_Town_FeedbackStand_Cat_Eye2",
+        "CatCafe_Town_FeedbackStand_Cat_EarL",
+        "CatCafe_Town_FeedbackStand_Cat_EarR",
+        "CatCafe_Town_FeedbackStand_Cat_Tail",
+        "CatCafe_Town_FeedbackStand_Cat_LegF1",
+        "CatCafe_Town_FeedbackStand_Cat_LegF2",
+        "CatCafe_Town_FeedbackStand_Cat_Prop",
+        "CatCafe_Town_FeedbackStand_Cat_Prop2"
+      ],
+      "triangles": 3138,
+      "budget": 9000,
+      "size_studs": {
+        "x": 6.6,
+        "y": 3.8,
+        "z": 6.4
+      },
+      "size_roblox": [
+        6.6,
+        6.4,
+        3.8
+      ],
+      "bounds_min": [
+        -3.3,
+        -1.9,
+        0.0
+      ],
+      "bounds_max": [
+        3.3,
+        1.9,
+        6.4
+      ],
+      "pivot": "the base centre on the Town Square's paving, the post box's slot and the board's words (-Z) toward the players; placed by Gameplay (#3066)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Town_FeedbackStand_Cat_Body": [
+          -1.55,
+          0.0,
+          2.05
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Head": [
+          -1.55,
+          -0.14,
+          3.5
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Eye1": [
+          -1.24,
+          -0.88,
+          3.85
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Eye2": [
+          -1.86,
+          -0.88,
+          3.85
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_EarL": [
+          -1.15,
+          -0.26,
+          4.4
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_EarR": [
+          -1.95,
+          -0.26,
+          4.4
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Tail": [
+          -1.26,
+          0.62,
+          2.21
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_LegF1": [
+          -1.31,
+          -0.43,
+          2.93
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_LegF2": [
+          -1.79,
+          -0.43,
+          2.93
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Prop": [
+          -1.55,
+          -0.14,
+          3.5
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Prop2": [
+          -1.55,
+          -0.14,
+          3.5
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Town_FeedbackStand_Cat_Body": [
+          1.55,
+          2.05,
+          0.0
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Head": [
+          1.55,
+          3.5,
+          -0.14
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Eye1": [
+          1.24,
+          3.85,
+          -0.88
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Eye2": [
+          1.86,
+          3.85,
+          -0.88
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_EarL": [
+          1.15,
+          4.4,
+          -0.26
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_EarR": [
+          1.95,
+          4.4,
+          -0.26
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Tail": [
+          1.26,
+          2.21,
+          0.62
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_LegF1": [
+          1.31,
+          2.93,
+          -0.43
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_LegF2": [
+          1.79,
+          2.93,
+          -0.43
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Prop": [
+          1.55,
+          3.5,
+          -0.14
+        ],
+        "CatCafe_Town_FeedbackStand_Cat_Prop2": [
+          1.55,
+          3.5,
+          -0.14
+        ]
+      },
+      "studio": "#3066: the Town Square's feedback stand: a red pillar post box (FEEDBACK plate, a letter in its slot) on a paved plinth, a teal FEEDBACK / TELL US! board behind, and the Postie Cat at 1.5 times sitting on a parcel stack (_Cat_<Piece>, its cap _Cat_Prop and letter _Cat_Prop2 in its Head Model). Attachments PromptAnchor (the box's front, 1.5 up: the feedback prompt), BangAnchor (2 over the board) and CatSeat. Everything collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_FeedbackStand.model.json",
+      "rbx_parts": 219,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_FeedbackStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_FeedbackStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3138/9000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1577 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     }

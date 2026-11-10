@@ -73,6 +73,7 @@ local TILE_H = 112
 local PICTURE = 60
 local PENDING_SECONDS = 2.5
 local SEND_GAP = 1.1 -- #3124: the server's MuseumDonate limit is one a second
+local FILL_GAP = 2.1 -- #3130: MuseumFill's is one per 2 s
 local FOOT_H = 62
 local FILL_W = 104
 local ROW_H = 52
@@ -562,7 +563,11 @@ function RelicMuseum._fill(self: any, area: string)
 	self._pending = true
 	self._pendingToken += 1
 	local token = self._pendingToken
-	local wait = math.max(0, (self._lastSent or -math.huge) + SEND_GAP - os.clock())
+	local wait = math.max(
+		0,
+		(self._lastSent or -math.huge) + SEND_GAP - os.clock(),
+		(self._lastFill or -math.huge) + FILL_GAP - os.clock()
+	)
 	task.delay(wait + PENDING_SECONDS, function()
 		if self._pendingToken == token and self._pending then
 			self._pending = false
@@ -572,6 +577,7 @@ function RelicMuseum._fill(self: any, area: string)
 	end)
 	self:_paint()
 	self._lastSent = os.clock() + wait
+	self._lastFill = self._lastSent
 	task.delay(wait, function()
 		if self._pendingToken == token and self._pending then
 			fill(area)

@@ -176,7 +176,8 @@ export type CustomEvent =
 	-- #3098: no new onboarding step for a bucket's seconds, value those seconds; the awaited step, the bucket (30, 60,
 	-- 120), the last stuck nudge shown (pulse, help_shown, show_me or none)
 	| "step_stall"
-	-- #3098: beside quit_state, value the session's seconds; idle bucket, screen open, afford (yes, no or na)
+	-- #3098: beside quit_state, value the session's seconds; the furthest step, "<idle bucket> <screen>" (one field,
+	-- e.g. "5-15 upgrades"), afford (yes, no or na)
 	| "quit_snapshot"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
 	| "first_bait_arrived"
@@ -2009,8 +2010,8 @@ local function onRelease(player: Player, profile: Profile)
 		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
 		local buy = FirstFive.nextBuy(profile.telemetry)
 		Telemetry.custom(player, "quit_snapshot", played, {
-			FirstFive.idleBucket(os.clock() - session.activeAt),
-			session.snapScreen,
+			Onboarding.furthest(profile.telemetry),
+			FirstFive.idleBucket(os.clock() - session.activeAt) .. " " .. session.snapScreen,
 			FirstFive.afford(
 				buy,
 				profile.coins,

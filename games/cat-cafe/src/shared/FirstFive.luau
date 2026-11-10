@@ -8,8 +8,9 @@
 -- - step_stall: seconds since the furthest onboarding step with no new one, at each of STALL_BUCKETS, once per bucket
 --   per awaited step a session, in the first STALL_WINDOW seconds of account play. Fields: the awaited step (the one
 --   after the furthest), the bucket, and the last stuck nudge the client showed for it (HINTS).
--- - quit_snapshot: on leaving, value the session's seconds. Fields: idle bucket (no movement or report), the screen
---   open (SNAP_SCREENS), and whether the coins cover the next onboarding buy (yes, no, na).
+-- - quit_snapshot: on leaving, value the session's seconds. Fields: the furthest step (as quit_state), the idle bucket
+--   (no movement or report) and the screen open (SNAP_SCREENS) joined as one, e.g. "5-15 upgrades", and whether the
+--   coins cover the next onboarding buy (yes, no, na).
 
 local Onboarding = require(script.Parent.Onboarding)
 local Types = require(script.Parent.Types)

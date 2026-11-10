@@ -414,8 +414,9 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 			count = index
 			-- #2447 (Derek2 11-08: "change different cats to just Cats on mobile for main goal because it gets cut
 			-- off"): the phone's card is too narrow for "Different cats" beside its count
-			row.label.Text = if TOUCH_SHORT[item.short] and Scale.isTouch()
-				then TOUCH_SHORT[item.short]
+			-- #2999 (Derek2 11-10): the rarity row reads "Mythical+ cat" or "2 Mythical+ cats" there too
+			row.label.Text = if Scale.isTouch()
+				then item.touch or TOUCH_SHORT[item.short] or item.short
 				else item.short
 			row.status.Text = if item.met then "✓" else item.status
 			row.status.TextColor3 = if item.met then Theme.colors.gold else Theme.hud.text

@@ -134,4 +134,30 @@ return function()
 			expect(client(p).ready).to.equal(false)
 		end)
 	end)
+
+	describe("RankUpNeeds.rarityCaption (#2999, the goal card's short lines on a phone)", function()
+		it("reads Mythical+ cat for one and 2 Mythical+ cats for more on touch", function()
+			expect(RankUpNeeds.rarityCaption("Mythical", 1, true)).to.equal("Mythical+ cat")
+			expect(RankUpNeeds.rarityCaption("Mythical", 2, true)).to.equal("2 Mythical+ cats")
+			expect(RankUpNeeds.rarityCaption("Legendary", 3, true)).to.equal("3 Legendary+ cats")
+			expect(RankUpNeeds.rarityCaption("Epic", 0, true)).to.equal("Epic+ cat")
+		end)
+
+		it("keeps the PC and console wording", function()
+			expect(RankUpNeeds.rarityCaption("Mythical", 1, false)).to.equal("Mythical or better")
+			expect(RankUpNeeds.rarityCaption("Legendary", 2, false)).to.equal("Legendary or better")
+		end)
+
+		it("is never longer on touch than the PC caption, for every tier's need", function()
+			for _, tier in Catalog.tiers do
+				local rarity = (tier :: any).needsRarity
+				if rarity ~= nil then
+					local count = (tier :: any).needsRarityCount or 1
+					local touch = RankUpNeeds.rarityCaption(rarity, count, true)
+					expect(#touch <= #RankUpNeeds.rarityCaption(rarity, count, false)).to.equal(true)
+					expect(#touch <= 18).to.equal(true)
+				end
+			end
+		end)
+	end)
 end

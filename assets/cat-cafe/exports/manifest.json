@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 17:08 UTC",
+  "generated": "2026-11-10 17:25 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -305941,6 +305941,63 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-7.22 y=-0.33"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Alley_RummageBin",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Alley_RummageBin",
+        "CatCafe_Camp_Alley_RummageBin_Ready",
+        "CatCafe_Camp_Alley_RummageBin_Empty"
+      ],
+      "triangles": 1172,
+      "budget": 2500,
+      "size_studs": {
+        "x": 3.2,
+        "y": 3.8,
+        "z": 6.19
+      },
+      "size_roblox": [
+        3.2,
+        6.19,
+        3.8
+      ],
+      "bounds_min": [
+        -1.6,
+        -1.6,
+        0.0
+      ],
+      "bounds_max": [
+        1.6,
+        2.2,
+        6.19
+      ],
+      "pivot": "the base centre on the ground, front -Z (the paw print), no turn; at the Alleyway camp within 15 studs of its pad (#3050)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#3050: the Alleyway camp's Rummage Bin, about 4 tall: a teal bin with a cream band and paw print on a pallet. Two looks as child Models, show one: _Ready (lid flung back, a tuna, a golden fish tail and a crate corner poking out, sparkles) and _Empty (lid shut, a fish bone on it); hide the other (Transparency 1, CanCollide off) or parent it away. Attachments PromptAnchor (front, 1.5 up), BangAnchor (2.6 over the rim) and GlowAnchor (just over the mouth, for a ready glow). The bin and pallet collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Alley_RummageBin.model.json",
+      "rbx_parts": 35,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Alley_RummageBin.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Alley_RummageBin.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1172/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "518 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.30"
         }
       }
     },

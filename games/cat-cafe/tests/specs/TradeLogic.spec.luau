@@ -450,6 +450,32 @@ return function()
 		end)
 	end)
 
+	describe("TradeLogic.logRows crates and fish (#2745)", function()
+		it("carries each side's crates and golden fish, and none for older entries", function()
+			local rows = TradeLogic.logRows({
+				{
+					id = "c",
+					at = 100,
+					partnerName = "Sam",
+					gave = {},
+					got = {},
+					gaveCrates = { { id = "alley_crate", count = 3 }, { id = "junk", count = 0 }, "junk", { count = 2 } },
+					gotFish = 50,
+					gaveFish = 0 / 0,
+				},
+				{ id = "old", at = 50, partnerName = "Mia", gave = {}, got = {} },
+			}, 200)
+			expect(#rows[1].gaveCrates).to.equal(1)
+			expect(rows[1].gaveCrates[1].id).to.equal("alley_crate")
+			expect(rows[1].gaveCrates[1].count).to.equal(3)
+			expect(#rows[1].gotCrates).to.equal(0)
+			expect(rows[1].gotFish).to.equal(50)
+			expect(rows[1].gaveFish).to.equal(0)
+			expect(#rows[2].gaveCrates).to.equal(0)
+			expect(rows[2].gotFish).to.equal(0)
+		end)
+	end)
+
 	describe("TradeLogic.askTitle and doneLine", function()
 		it("words the request card and the done toast", function()
 			expect(TradeLogic.askTitle("Sam")).to.equal("Sam wants to trade")

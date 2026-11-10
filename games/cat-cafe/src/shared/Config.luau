@@ -513,7 +513,14 @@ local Config = {
 	DayCartStep = 0.03,
 	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
-	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
+	CornerDailyLimits = {
+		steady = 4,
+		quick_bait = 2,
+		whistle = 4,
+		lucky = 2,
+		big_money = 2,
+		gold_rush = 2,
+	} :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
 	-- and its chance shows in the catch help), and every cat rescued from a trap gives one

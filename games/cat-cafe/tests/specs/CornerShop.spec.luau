@@ -53,6 +53,11 @@ return function()
 				{ "quick_bait_potion_small", "quick_bait", "small", 25000 },
 				{ "quick_bait_potion", "quick_bait", "regular", 1200000 },
 				{ "quick_bait_potion_big", "quick_bait", "big", 240000000 },
+				-- #3118: the Fresh Catch's potions the cart didn't sell
+				{ "tip_potion", "money", "regular", 300000 },
+				{ "lucky_potion", "lucky", "regular", 1500000 },
+				{ "big_tip_potion", "big_money", "regular", 2500000 },
+				{ "gold_rush_potion", "gold_rush", "regular", 3000000 },
 				{ "small_cat_snack", "food", "small", 4000 },
 				{ "cat_snack", "food", "regular", 300000 },
 				{ "big_cat_snack", "food", "big", 40000000 },
@@ -137,7 +142,7 @@ return function()
 		end)
 
 		-- #2891: 16 rows since the Cat Whistle's three went (14 of 19 before); the same chances give 12.4
-		it("stocks about 12 of the 16 rows a day on average (#1740)", function()
+		it("stocks about 14 of the 20 rows a day on average (#1740; #3118 added 4)", function()
 			local total, windows = 0, 2000
 			for window = WINDOW, WINDOW + windows - 1 do
 				for _, item in CornerShop.stock(window) do
@@ -147,7 +152,7 @@ return function()
 				end
 			end
 			local average = total / windows
-			expect(average > 11.5 and average < 13.3).to.equal(true)
+			expect(average > 13.3 and average < 15.2).to.equal(true)
 		end)
 
 		it(

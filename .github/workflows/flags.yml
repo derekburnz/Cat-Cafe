@@ -10,17 +10,17 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "show | set | clear (clear: back to the default: trading, codes, rally, tradeCrates, awayNotes and swiftPaws on, tradeFish and nightCatch off, Config's minimum tier)"
+        description: "show | set | clear (clear: back to the default: trading, codes, rally, tradeCrates, awayNotes, starterRefill and swiftPaws on, tradeFish and nightCatch off, Config's minimum tier)"
         type: choice
         options: [show, set, clear]
         default: show
       key:
         description: "Which switch (set and clear)"
         type: choice
-        options: [trading, tradeMinTier, codes, rally, tradeCrates, awayNotes, swiftPaws, tradeFish, nightCatch]
+        options: [trading, tradeMinTier, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, tradeFish, nightCatch]
         default: trading
       value:
-        description: "set only: true or false for trading, codes, rally, tradeCrates, awayNotes, swiftPaws, tradeFish and nightCatch (tradeFish true only after QA, review and a restart publish), 0 to 99 for tradeMinTier"
+        description: "set only: true or false for trading, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, tradeFish and nightCatch (tradeFish true only after QA, review and a restart publish), 0 to 99 for tradeMinTier"
         required: false
         default: ""
 

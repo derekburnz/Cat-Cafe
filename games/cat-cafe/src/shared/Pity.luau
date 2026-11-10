@@ -193,11 +193,25 @@ function Pity.fixedNext(timer: Timer, kind: Kind): Timer
 	return { at = Pity.dueAt(slot), seq = -slot }
 end
 
--- True while a cat that spawned at `spawnedAt` is still out at t: it is day and no night has come since.
-function Pity.stillOut(spawnedAt: number, t: number): boolean
+-- True while it is still the day something came out at `spawnedAt`: it is day at t and no night has come since. A
+-- Cafe Event's shower cat is out this long, and so is the word that a pity cat was caught.
+function Pity.sameDay(spawnedAt: number, t: number): boolean
 	return t >= spawnedAt
 		and (Clock.phaseAt(t)) == "day"
 		and Clock.nightSecondsBetween(spawnedAt, t) <= 0
+end
+
+-- #3077 (Derek2 2026-11-10: "sometimes pity spawns right before night, make pity not cleared by one night before
+-- disappearing"): the nights an uncaught pity cat waits through before it goes.
+Pity.NIGHTS_KEPT = 1
+
+-- True while an uncaught pity cat that spawned at `spawnedAt` is still out at t: through the rest of its day, the
+-- whole night after it and the day after that; the second nightfall takes it. (Until #3077 the first nightfall did,
+-- so a cat that came out a moment before dusk was gone before anyone reached it.)
+function Pity.stillOut(spawnedAt: number, t: number): boolean
+	return t >= spawnedAt
+		and Clock.nightSecondsBetween(spawnedAt, t)
+			<= Pity.NIGHTS_KEPT * Config.NightLengthSeconds
 end
 
 -- One number per cat across both kinds and the fixed slots (the stray's SLOT_ATTRIBUTE): Legendary cats even,

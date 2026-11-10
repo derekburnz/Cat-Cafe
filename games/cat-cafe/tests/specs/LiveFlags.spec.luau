@@ -52,6 +52,16 @@ return function()
 		end)
 	end)
 
+	describe("starterRefill (#3049, on unless switched off)", function()
+		it("is a live switch that only an explicit false turns off", function()
+			expect(table.find(LiveFlags.KEYS, "starterRefill") ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT.starterRefill).to.equal(nil)
+			expect(LiveFlags.defaults().starterRefill).to.equal(true)
+			expect(LiveFlags.parse({}).starterRefill).to.equal(true)
+			expect(LiveFlags.parse({ starterRefill = false }).starterRefill).to.equal(false)
+		end)
+	end)
+
 	describe("tradeFish (#2745, off until QA and the security review pass)", function()
 		it(
 			"starts off, and stays off for a missing key, a wrong type or an unreadable store",

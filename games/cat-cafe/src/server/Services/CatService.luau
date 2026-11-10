@@ -166,6 +166,7 @@ local nextStrayNumber = 0
 -- #1572: PityService's claim on a pity cat's catch (the first catch in any server wins): true to keep it. It yields.
 local pityClaim: ((Player, number) -> boolean)? = nil
 local pityStarted: ((Player, number) -> ())? = nil -- #2796: PityService's pity_v1 catch-started step
+local pityKeeps: ((number) -> boolean)? = nil -- #3077: PityService's word on a pity cat at nightfall
 local debugNextCoat: string? = nil -- Studio's debug hook: the coat the next stray spawned by a wave or refill gets
 local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rainbow stray toast (F99)
 -- RescueService's answer to "is this player in a rescue attempt?", so a catch cannot start during one.
@@ -3125,11 +3126,16 @@ function CatService.start(builtWorld: WorldBuilder.World)
 end
 
 -- Dusk (v0.9, F66): every stray leaves, a Dropped one to its last carrier (leaveAtDusk). A stray someone is catching
--- goes once that catch ends, unless the catch lands it.
+-- goes once that catch ends, unless the catch lands it. #3077: an uncaught pity cat waits through its first night
+-- (PityService says which, setPityKeeps), so one that came out just before dusk is still there at sunrise.
 function CatService.nightFalls()
 	local leaving: { Stray } = {}
+	local keeps = pityKeeps
 	for _, stray in strays do
-		if stray.beginner == nil then -- #2692: a beginner's own tutorial stray stays for their night pass
+		local slot = stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE)
+		local waits = type(slot) == "number" and keeps ~= nil and keeps(slot)
+		-- #2692: a beginner's own tutorial stray stays for their night pass
+		if stray.beginner == nil and not waits then
 			table.insert(leaving, stray)
 		end
 	end
@@ -3392,7 +3398,8 @@ function CatService.strayCount(areaId: string): number
 end
 
 -- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the
--- area for its rarity (point 1 when all are taken), coat rolled as any stray's, out until dusk. ATTRIBUTE (its kind,
+-- area for its rarity (point 1 when all are taken), coat rolled as any stray's, out until PityService ends it (a
+-- pity cat waits through one night, #3077; a shower cat goes at dusk). ATTRIBUTE (its kind,
 -- for the gold beam) and SLOT_ATTRIBUTE go on the model. A normal stray in every way, except that a catch asks the
 -- pity claim first. Nil when the area or cat is unknown.
 function CatService.spawnPity(
@@ -3441,6 +3448,11 @@ end
 -- #1572: PityService's claim, asked on a pity cat's catch.
 function CatService.setPityClaim(claim: (Player, number) -> boolean)
 	pityClaim = claim
+end
+
+-- #3077: PityService's answer at nightfall: whether the pity cat of `slot` waits through this night.
+function CatService.setPityKeeps(keeps: (number) -> boolean)
+	pityKeeps = keeps
 end
 
 -- #2796: PityService's hook, told when a catch starts on the pity cat of `slot`.

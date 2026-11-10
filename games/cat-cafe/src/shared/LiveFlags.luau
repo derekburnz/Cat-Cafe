@@ -26,8 +26,18 @@
 local LiveFlags = {}
 
 LiveFlags.STORE = "CatCafe_Flags"
-LiveFlags.KEYS =
-	{ "codes", "rally", "tradeCrates", "tradeFish", "awayNotes", "nightCatch", "swiftPaws" }
+-- - `starterRefill` (#3049): false stops the starting areas' camp trap refilling during the day for players who have
+--   never rescued (RescueService), back to one cat a day there.
+LiveFlags.KEYS = {
+	"codes",
+	"rally",
+	"tradeCrates",
+	"tradeFish",
+	"awayNotes",
+	"nightCatch",
+	"starterRefill",
+	"swiftPaws",
+}
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = { tradeFish = true, nightCatch = true } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

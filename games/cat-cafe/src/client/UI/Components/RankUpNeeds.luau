@@ -47,4 +47,18 @@ function RankUpNeeds.of(nextTier: Types.TierDef, state: Types.PlayerState): Need
 	return needs
 end
 
+-- The rarity need's caption on the HUD's goal card. #2999 (Derek2 11-10: "shorten text for 'your goal' where
+-- possible especially the catch mythical… just put Mythical+ cat or legendary+ cat or add a 2 if its more then
+-- one"): on a touch screen "Mythical+ cat" for one and "2 Mythical+ cats" for more; elsewhere "Mythical or better",
+-- with the count in the row's status.
+function RankUpNeeds.rarityCaption(rarity: string, count: number, touch: boolean): string
+	if not touch then
+		return ("%s or better"):format(rarity)
+	end
+	if count <= 1 then
+		return ("%s+ cat"):format(rarity)
+	end
+	return ("%d %s+ cats"):format(count, rarity)
+end
+
 return RankUpNeeds

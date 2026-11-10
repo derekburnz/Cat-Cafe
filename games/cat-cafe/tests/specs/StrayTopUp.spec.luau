@@ -81,7 +81,9 @@ return function()
 					expect((area.floorBase :: number) > area.waveSize).to.equal(true)
 					expect(area.entryFloor).to.equal(6)
 					expect(area.rescueMinStuck).to.equal(2)
-					expect(StrayTopUp.floor(1, area.floorBase) <= Config.StrayLiveMax).to.equal(true)
+					expect(StrayTopUp.floor(1, area.floorBase) <= Config.StrayLiveMax).to.equal(
+						true
+					)
 				end
 			end
 		end)

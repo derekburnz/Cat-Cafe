@@ -115,21 +115,24 @@ return function()
 	end)
 
 	describe("the Thank You Badge (#1168 row 4)", function()
-		it("is once per account, holds nothing, and makes the buyer a supporter for good", function()
-			local badge = Catalog.getProduct("thank_you_badge") :: any
-			expect(badge.oncePerAccount).to.equal(true)
-			expect(badge.supporter).to.equal(true)
-			expect(next(badge.prize.potions)).to.equal(nil)
-			local profile = ProfileSchema.template(1000)
-			expect(Products.isSupporter(profile)).to.equal(false)
-			local give, first = Products.prizeFor(profile, badge)
-			expect(first).to.equal(true)
-			Products.markBought(profile, badge, give.signStyles)
-			expect(Products.isSupporter(profile)).to.equal(true)
-			expect(Products.sanitizeOnce(profile.onceBought).thank_you_badge).to.equal(true)
-			local _, again = Products.prizeFor(profile, badge)
-			expect(again).to.equal(false)
-		end)
+		it(
+			"is once per account, holds nothing, and makes the buyer a supporter for good",
+			function()
+				local badge = Catalog.getProduct("thank_you_badge") :: any
+				expect(badge.oncePerAccount).to.equal(true)
+				expect(badge.supporter).to.equal(true)
+				expect(next(badge.prize.potions)).to.equal(nil)
+				local profile = ProfileSchema.template(1000)
+				expect(Products.isSupporter(profile)).to.equal(false)
+				local give, first = Products.prizeFor(profile, badge)
+				expect(first).to.equal(true)
+				Products.markBought(profile, badge, give.signStyles)
+				expect(Products.isSupporter(profile)).to.equal(true)
+				expect(Products.sanitizeOnce(profile.onceBought).thank_you_badge).to.equal(true)
+				local _, again = Products.prizeFor(profile, badge)
+				expect(again).to.equal(false)
+			end
+		)
 	end)
 
 	describe("the Starter Bundle (#1625)", function()
@@ -159,7 +162,11 @@ return function()
 			expect(firstAgain).to.equal(false)
 			expect(#again.cats).to.equal(0)
 			expect(#again.signStyles).to.equal(0)
-			expect(again.potions :: any).to.deepEqual({ big_tip_potion = 10, swift_potion = 5, steady_potion = 5 })
+			expect(again.potions :: any).to.deepEqual({
+				big_tip_potion = 10,
+				swift_potion = 5,
+				steady_potion = 5,
+			})
 		end)
 
 		it("never marks a repeatable product bought", function()

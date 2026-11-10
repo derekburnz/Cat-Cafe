@@ -817,6 +817,9 @@ local Config = {
 	TradeMinTier = 3,
 	TradeMaxCats = 9,
 	TradeMaxDecor = 9, -- #1574 (section 1b): decor and lawn pieces a side, beside the cats
+	-- #2745 (section 1c): banked crates a side, at most TradeMaxCrateKinds kinds and TradeMaxCrates crates in all
+	TradeMaxCrateKinds = 6,
+	TradeMaxCrates = 20,
 	TradeCountdownSeconds = 5,
 	TradeLopsidedRatio = 3,
 	TradeConfirmWaitSeconds = 2,

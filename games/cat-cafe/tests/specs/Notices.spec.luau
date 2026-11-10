@@ -32,7 +32,12 @@ return function()
 			local c = catalog()
 			c.upgrades = {
 				{ id = "tables", maxLevel = 3, costs = { 100, 400, 900 } },
-				{ id = "net", maxLevel = 2, costs = { 200, 5000 }, requiresTierAtLevel = { [2] = 3 } },
+				{
+					id = "net",
+					maxLevel = 2,
+					costs = { 200, 5000 },
+					requiresTierAtLevel = { [2] = 3 },
+				},
 				{ id = "statue", maxLevel = 1, costs = { 50 }, requiresTier = 2 },
 				-- starts at level 1, whose price is 0: never a free "!" (ProfileSchema clamps to startLevel)
 				{ id = "espresso", maxLevel = 2, costs = { 0, 999999 }, startLevel = 1 },
@@ -48,9 +53,15 @@ return function()
 
 		it("skips tier-locked and maxed levels", function()
 			local levels = { tables = 3, net = 1 }
-			local keys = Notices.candidates(shop(), state({ money = 99999, upgradeLevels = levels })).Upgrades
+			local keys = Notices.candidates(
+				shop(),
+				state({ money = 99999, upgradeLevels = levels })
+			).Upgrades
 			expect(#keys).to.equal(0) -- tables maxed, net level 2 needs tier 3, statue needs tier 2
-			keys = Notices.candidates(shop(), state({ money = 99999, tier = 3, upgradeLevels = levels })).Upgrades
+			keys = Notices.candidates(
+				shop(),
+				state({ money = 99999, tier = 3, upgradeLevels = levels })
+			).Upgrades
 			expect(table.concat(keys, ",")).to.equal("net:2,statue:1")
 		end)
 	end)

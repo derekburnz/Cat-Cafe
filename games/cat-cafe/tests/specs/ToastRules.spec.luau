@@ -49,7 +49,9 @@ return function()
 	describe("ToastRules.quiet (#2600)", function()
 		it("drops the purchase confirmations and keeps refusals and other toasts", function()
 			expect(ToastRules.quiet("Bought Tuna (40)", "good")).to.equal(true)
-			expect(ToastRules.quiet("Bought a Money Potion. It's in your potion bag.", "good")).to.equal(true)
+			expect(ToastRules.quiet("Bought a Money Potion. It's in your potion bag.", "good")).to.equal(
+				true
+			)
 			expect(ToastRules.quiet("Bought 5 foods for 12.4M coins", nil)).to.equal(true)
 			expect(ToastRules.quiet("Bought Tuna (40)", "warn")).to.equal(false)
 			expect(ToastRules.quiet("Not enough coins", "warn")).to.equal(false)
@@ -59,32 +61,36 @@ return function()
 
 	describe("ToastRules.quiet cuts (#2729)", function()
 		it("drops the nudges and the lines the screen already shows", function()
-			for _, line in {
-				"New quest: Catch 5 cats",
-				"A cheap Rare Crate at the Fish Market!",
-				"Luck Potions at the Fish Market!",
-				"Something good at the Fish Market!",
-				"🌙 Night bait! Food in your bowl now brings a cat in half the time.",
-				"Bait food is at the Corner Shop now",
-				"🧺 Pirate Cat is on its way to your cafe!",
-				"You dropped Mochi.",
-				"Mochi ran back to the Park.",
-				"You got tackled!",
-			} do
+			for _, line in
+				{
+					"New quest: Catch 5 cats",
+					"A cheap Rare Crate at the Fish Market!",
+					"Luck Potions at the Fish Market!",
+					"Something good at the Fish Market!",
+					"🌙 Night bait! Food in your bowl now brings a cat in half the time.",
+					"Bait food is at the Corner Shop now",
+					"🧺 Pirate Cat is on its way to your cafe!",
+					"You dropped Mochi.",
+					"Mochi ran back to the Park.",
+					"You got tackled!",
+				}
+			do
 				expect(ToastRules.quiet(line, "info")).to.equal(true)
 			end
 		end)
 
 		it("keeps what the player must act on, the rewards and every warning", function()
-			for _, line in {
-				"You dropped Mochi. It's walking home.",
-				"It held on tight!",
-				"It dropped! Pick it up quick!",
-				"Town Index reward: $5,000, 2 Golden fish",
-				"Try again! Tap as the circle closes.",
-				"Walk closer to collect the tip",
-				"Welcome back! +$1.2K while you were away",
-			} do
+			for _, line in
+				{
+					"You dropped Mochi. It's walking home.",
+					"It held on tight!",
+					"It dropped! Pick it up quick!",
+					"Town Index reward: $5,000, 2 Golden fish",
+					"Try again! Tap as the circle closes.",
+					"Walk closer to collect the tip",
+					"Welcome back! +$1.2K while you were away",
+				}
+			do
 				expect(ToastRules.quiet(line, "good")).to.equal(false)
 			end
 			expect(ToastRules.quiet("New quest: Catch 5 cats", "warn")).to.equal(false)

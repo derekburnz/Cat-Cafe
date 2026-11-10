@@ -14,7 +14,10 @@ return function()
 	local function parkPool(): { RescuePick.Candidate }
 		local pool = {}
 		for i = 1, 15 do
-			table.insert(pool, spot(string.format("p%02d", i), if i <= 9 then "tree" else "trashcan", i * 30, 0))
+			table.insert(
+				pool,
+				spot(string.format("p%02d", i), if i <= 9 then "tree" else "trashcan", i * 30, 0)
+			)
 		end
 		return pool
 	end
@@ -82,12 +85,25 @@ return function()
 			end
 		end)
 
-		it("takes yesterday's spots when a type has no others (the Woods' one tree house branch)", function()
-			local pool = { spot("branch", "tree", 0, 0), spot("log1", "log", 40, 0), spot("log2", "log", 80, 0) }
-			local ids = RescuePick.pick(pool, { tree = 1, log = 1 }, { branch = true }, 25, seeded(3))
-			expect(trapsOf(pool, ids)).to.deepEqual({ tree = 1, log = 1 })
-			expect(table.find(ids, "branch") ~= nil).to.equal(true)
-		end)
+		it(
+			"takes yesterday's spots when a type has no others (the Woods' one tree house branch)",
+			function()
+				local pool = {
+					spot("branch", "tree", 0, 0),
+					spot("log1", "log", 40, 0),
+					spot("log2", "log", 80, 0),
+				}
+				local ids = RescuePick.pick(
+					pool,
+					{ tree = 1, log = 1 },
+					{ branch = true },
+					25,
+					seeded(3)
+				)
+				expect(trapsOf(pool, ids)).to.deepEqual({ tree = 1, log = 1 })
+				expect(table.find(ids, "branch") ~= nil).to.equal(true)
+			end
+		)
 
 		it("without a pool (pool = the mix) every spot is picked, as before #2240", function()
 			local pool = {
@@ -96,10 +112,18 @@ return function()
 				spot("c", "trashcan", 80, 0),
 			}
 			local all = { "a", "b", "c" }
-			expect(RescuePick.pick(pool, { tree = 2, trashcan = 1 }, {}, 25, seeded(1))).to.deepEqual(all)
-			expect(RescuePick.pick(pool, { tree = 2, trashcan = 1 }, { a = true, b = true, c = true }, 25, seeded(2))).to.deepEqual(
+			expect(RescuePick.pick(pool, { tree = 2, trashcan = 1 }, {}, 25, seeded(1))).to.deepEqual(
 				all
 			)
+			expect(
+				RescuePick.pick(
+					pool,
+					{ tree = 2, trashcan = 1 },
+					{ a = true, b = true, c = true },
+					25,
+					seeded(2)
+				)
+			).to.deepEqual(all)
 		end)
 
 		it("keeps picks the spacing apart where the pool allows", function()
@@ -118,14 +142,18 @@ return function()
 		end)
 
 		it("fills the mix anyway when the spacing cannot be kept", function()
-			local pool = { spot("a", "tree", 0, 0), spot("b", "tree", 5, 0), spot("c", "tree", 10, 0) }
+			local pool =
+				{ spot("a", "tree", 0, 0), spot("b", "tree", 5, 0), spot("c", "tree", 10, 0) }
 			expect(#RescuePick.pick(pool, { tree = 3 }, {}, 25, seeded(1))).to.equal(3)
 		end)
 
-		it("ignores pool spots of a type the mix does not use and asks for no more than the pool has", function()
-			local pool = { spot("a", "tree", 0, 0), spot("g", "grate", 50, 0) }
-			expect(RescuePick.pick(pool, { tree = 2 }, {}, 25, seeded(1))).to.deepEqual({ "a" })
-		end)
+		it(
+			"ignores pool spots of a type the mix does not use and asks for no more than the pool has",
+			function()
+				local pool = { spot("a", "tree", 0, 0), spot("g", "grate", 50, 0) }
+				expect(RescuePick.pick(pool, { tree = 2 }, {}, 25, seeded(1))).to.deepEqual({ "a" })
+			end
+		)
 
 		it("spreads over the whole pool across days", function()
 			local pool = parkPool()
@@ -160,7 +188,8 @@ return function()
 			local rand = seeded(5)
 			local yesterday: { [string]: boolean } = { p01 = true }
 			for _ = 1, 30 do
-				local ids = RescuePick.pick(pool, { tree = 3, trashcan = 2 }, yesterday, 25, rand, "p01")
+				local ids =
+					RescuePick.pick(pool, { tree = 3, trashcan = 2 }, yesterday, 25, rand, "p01")
 				expect(table.find(ids, "p01") ~= nil).to.equal(true)
 				expect(trapsOf(pool, ids)).to.deepEqual({ tree = 3, trashcan = 2 })
 				yesterday = {}
@@ -172,7 +201,9 @@ return function()
 
 		it("ignores a keep that is not in the pool or not in the mix", function()
 			local pool = parkPool()
-			expect(#RescuePick.pick(pool, { tree = 3, trashcan = 2 }, {}, 25, seeded(1), "nope")).to.equal(5)
+			expect(#RescuePick.pick(pool, { tree = 3, trashcan = 2 }, {}, 25, seeded(1), "nope")).to.equal(
+				5
+			)
 			local ids = RescuePick.pick(pool, { tree = 3 }, {}, 25, seeded(1), "p12")
 			expect(table.find(ids, "p12")).to.equal(nil)
 			expect(#ids).to.equal(3)

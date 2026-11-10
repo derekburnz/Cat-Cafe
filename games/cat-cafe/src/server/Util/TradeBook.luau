@@ -1,5 +1,6 @@
 --!strict
--- F102 trading (docs/design/cat-cafe/trading.md sections 2 to 4; decor since #1574, section 1b): one server's trade
+-- F102 trading (docs/design/cat-cafe/trading.md sections 2 to 4; decor since #1574, section 1b; banked crates since
+-- #2745, section 1c, as counts by crate id): one server's trade
 -- requests and open trades, held in memory and pure (no Roblox service, no yield), so the specs walk every step and
 -- TradeService keeps one book a server.
 -- TradeService checks who may ask (Trade.askRefusal) and which cat may go on offer (Trade.offerRefusal) against the
@@ -46,6 +47,8 @@ export type Side = {
 	values: { [string]: number }, -- each one's Collector value (Trade.value)
 	decor: { string }, -- #1574: the piece ids on offer, in the order added
 	decorValues: { [string]: number }, -- each one's Collector value (Trade.pieceValue)
+	crates: { [string]: number }, -- #2745: crate id -> how many on offer
+	crateValues: { [string]: number }, -- one crate's Collector value (Trade.crateValue), by crate id
 	ready: boolean,
 	confirmed: boolean,
 	confirmAt: number, -- when this side's Confirm counts on the confirm screen (0 before it)
@@ -189,6 +192,8 @@ local function newSide(player: Player): Side
 		values = {},
 		decor = {},
 		decorValues = {},
+		crates = {},
+		crateValues = {},
 		ready = false,
 		confirmed = false,
 		confirmAt = 0,
@@ -242,6 +247,16 @@ function TradeBook.isPieceOffered(book: Book, userId: number, id: string): boole
 	end
 	local mine = TradeBook.sides(trade, userId)
 	return mine ~= nil and table.find(mine.decor, id) ~= nil
+end
+
+-- #2745: how many of crate `id` are on offer in the trade `userId` is in (opening it waits for the trade).
+function TradeBook.crateOffered(book: Book, userId: number, id: string): number
+	local trade = TradeBook.tradeFor(book, userId)
+	if trade == nil then
+		return 0
+	end
+	local mine = TradeBook.sides(trade, userId)
+	return if mine ~= nil then mine.crates[id] or 0 else 0
 end
 
 -- Whether `uid` is on offer in the trade `userId` is in (selling, the Collector, locking and resetting wait for it).
@@ -352,6 +367,91 @@ function TradeBook.removeDecor(trade: OpenTrade, userId: number, id: string, now
 	return true
 end
 
+-- #2745: puts `count` more of crate `id` (each worth `value`) on `userId`'s side: false when they are not in the
+-- trade, it is committing, `count` isn't a whole number of at least 1, or the side would pass TradeMaxCrateKinds kinds
+-- or TradeMaxCrates crates. TradeService checks Trade.crateRefusal first (tradeable, banked, the partner's zone open).
+function TradeBook.addCrates(
+	trade: OpenTrade,
+	userId: number,
+	id: string,
+	count: number,
+	value: number,
+	now: number
+): boolean
+	local mine = TradeBook.sides(trade, userId)
+	if
+		mine == nil
+		or trade.phase == "committing"
+		or count ~= count
+		or count < 1
+		or count ~= math.floor(count)
+	then
+		return false
+	end
+	local already = mine.crates[id] or 0
+	local kinds, total = Trade.crateTotals(mine.crates)
+	if
+		(already == 0 and kinds >= Config.TradeMaxCrateKinds)
+		or total + count > Config.TradeMaxCrates
+	then
+		return false
+	end
+	mine.crates[id] = already + count
+	mine.crateValues[id] = value
+	changed(trade, userId, id, now)
+	return true
+end
+
+-- #2745: takes up to `count` of crate `id` off `userId`'s side (the kind goes when none are left): false when there
+-- were none or the trade is committing.
+function TradeBook.removeCrates(
+	trade: OpenTrade,
+	userId: number,
+	id: string,
+	count: number,
+	now: number
+): boolean
+	local mine = TradeBook.sides(trade, userId)
+	local already = if mine ~= nil then mine.crates[id] or 0 else 0
+	if mine == nil or trade.phase == "committing" or already < 1 or count ~= count or count < 1 then
+		return false
+	end
+	local left = already - math.min(already, math.floor(count))
+	if left > 0 then
+		mine.crates[id] = left
+	else
+		mine.crates[id] = nil
+		mine.crateValues[id] = nil
+	end
+	changed(trade, userId, id, now)
+	return true
+end
+
+-- #2745: the tradeCrates switch went off: every crate leaves both sides (a change like any other). True when any was
+-- there; a committing trade is left as it is.
+function TradeBook.clearCrates(trade: OpenTrade, now: number): boolean
+	if trade.phase == "committing" then
+		return false
+	end
+	local cleared = false
+	for _, side in { trade.a, trade.b } do
+		if next(side.crates) ~= nil then
+			table.clear(side.crates)
+			table.clear(side.crateValues)
+			cleared = true
+		end
+	end
+	if cleared then
+		changed(trade, trade.a.userId, "", now)
+	end
+	return cleared
+end
+
+local function crateCount(side: Side): number
+	local _, total = Trade.crateTotals(side.crates)
+	return total
+end
+
 local function sideValue(side: Side): number
 	local total = 0
 	for _, uid in side.cats do
@@ -359,6 +459,9 @@ local function sideValue(side: Side): number
 	end
 	for _, id in side.decor do
 		total += side.decorValues[id] or 0
+	end
+	for id, count in side.crates do
+		total += (side.crateValues[id] or 0) * count
 	end
 	return total
 end
@@ -369,7 +472,11 @@ function TradeBook.warnings(trade: OpenTrade, userId: number): (boolean, boolean
 	if mine == nil or theirs == nil then
 		return false, false
 	end
-	return Trade.warnings(sideValue(mine), sideValue(theirs), #theirs.cats + #theirs.decor)
+	return Trade.warnings(
+		sideValue(mine),
+		sideValue(theirs),
+		#theirs.cats + #theirs.decor + crateCount(theirs)
+	)
 end
 
 -- `userId` presses Ready (`ready` true) or takes it back on `version`: nil when it took, else STALE, PHASE or EMPTY.
@@ -398,7 +505,15 @@ function TradeBook.ready(
 	if trade.phase ~= "offer" then
 		return TradeBook.PHASE -- counting down or confirming: Ready is pressed already
 	end
-	if #mine.cats == 0 and #theirs.cats == 0 and #mine.decor == 0 and #theirs.decor == 0 then
+	if
+		#mine.cats
+			+ #theirs.cats
+			+ #mine.decor
+			+ #theirs.decor
+			+ crateCount(mine)
+			+ crateCount(theirs)
+		== 0
+	then
 		return TradeBook.EMPTY
 	end
 	mine.ready = true
@@ -502,13 +617,21 @@ end
 -- TradeState for `userId` (shared Types.TradeStateView), or nil when they are not in `trade`. `tile(ownerId, uid)`
 -- is the tile TradeService makes from the owner's profile with rateForMe for this viewer; nil leaves a cat out.
 -- #1574: `pieceTile(id)` makes a piece's tile (nil leaves it out), and `theyHave` lists the viewer's pieces the other
--- player owns already.
+-- player owns already. #2745: `crates` makes a crate kind's tile (`tile(id, count)`, nil leaves it out) and carries
+-- the viewer's crates the other player can't take yet (`blocked`) and the tradeCrates switch (`on`).
+export type CrateView = {
+	tile: (id: string, count: number) -> Types.TradeCrateTile?,
+	blocked: { [string]: string },
+	on: boolean,
+}
+
 function TradeBook.view(
 	trade: OpenTrade,
 	userId: number,
 	tile: (ownerId: number, uid: string) -> Types.TradeTile?,
 	pieceTile: ((id: string) -> Types.TradeDecorTile?)?,
-	theyHave: { string }?
+	theyHave: { string }?,
+	crates: CrateView?
 ): Types.TradeStateView?
 	local mine, theirs = TradeBook.sides(trade, userId)
 	if mine == nil or theirs == nil then
@@ -532,6 +655,15 @@ function TradeBook.view(
 				table.insert(decor, shown)
 			end
 		end
+		local crateTiles: { Types.TradeCrateTile } = {}
+		if crates ~= nil then
+			for _, entry in Trade.crateSummaries(side.crates) do
+				local shown = crates.tile(entry.id, entry.count)
+				if shown ~= nil then
+					table.insert(crateTiles, shown)
+				end
+			end
+		end
 		return {
 			userId = side.userId,
 			name = side.name,
@@ -539,6 +671,7 @@ function TradeBook.view(
 			confirmed = side.confirmed,
 			cats = cats,
 			decor = decor,
+			crates = crateTiles,
 		},
 			rate
 	end
@@ -570,6 +703,8 @@ function TradeBook.view(
 		theirRateForMe = theirRate,
 		confirmAt = if confirming and mine.confirmAt > 0 then mine.confirmAt else nil,
 		theyHave = theyHave or {},
+		crateBlocked = if crates ~= nil then crates.blocked else {},
+		cratesOn = crates ~= nil and crates.on,
 	}
 	return view
 end

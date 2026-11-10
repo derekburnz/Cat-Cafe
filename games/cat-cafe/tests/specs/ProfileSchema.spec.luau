@@ -300,7 +300,8 @@ return function()
 				expect(Catalog.getPotion(id)).to.equal(nil)
 			end
 			local raw: any = ProfileSchema.template(1_800_000_000)
-			raw.potions = { cat_whistle_small = 2, cat_whistle = 1, cat_whistle_big = 1, tip_potion = 3 }
+			raw.potions =
+				{ cat_whistle_small = 2, cat_whistle = 1, cat_whistle_big = 1, tip_potion = 3 }
 			expect(ProfileSchema.retiredRefund(raw)).to.equal(2 * 8000 + 300000 + 60000000)
 			local profile = ProfileSchema.migrate(raw, 1_800_000_000)
 			expect(profile.potions.cat_whistle).to.equal(nil)

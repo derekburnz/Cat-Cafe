@@ -7,6 +7,7 @@
 -- a free decor spot and answers CrateResult(crateId, decorId, duplicate, refund), so leaving mid-reveal keeps the
 -- piece. BuyCrateBundle(crateId) (#1051) banks CrateBundleCount crates of one kind for CrateBundlePrice golden fish
 -- and opens none. OpenAllCrates(crateId) (#2402) opens every banked crate of one kind at once, banked only.
+-- #2745: a crate kind the player has on offer in an open trade can't be opened ("This crate is in a trade").
 -- BuyFishItem(itemId) buys a food or a perk level. Every cost comes from Catalog.fishShop and Config, never
 -- from the client. Golden fish are earned only: nothing here is sold for Robux (monetization-policy).
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf. By day shared/FreshCatch rolls a stock every
@@ -37,6 +38,7 @@ local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
+local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local FishMarketService = {}
@@ -199,7 +201,10 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 		Net.fire(player, "CrateResult", crateId, "", false, 0)
 		return
 	end
-	local blocker = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	local blocker: string? = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	if blocker == nil and CafeService.crateOffered(player, crateId) > 0 then
+		blocker = Trade.Messages.crateInTrade -- #2745: a crate on offer waits for the trade
+	end
 	if blocker ~= nil then
 		refuse(blocker)
 		return
@@ -257,7 +262,10 @@ local function onOpenAllCrates(player: Player, rawCrateId: unknown)
 		refuse("No crates of this kind to open")
 		return
 	end
-	local blocker = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	local blocker: string? = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	if blocker == nil and CafeService.crateOffered(player, crateId) > 0 then
+		blocker = Trade.Messages.crateInTrade -- #2745
+	end
 	if blocker ~= nil then
 		refuse(blocker)
 		return

@@ -44,17 +44,23 @@ return function()
 	describe("FeedbackLogic.earlyDue", function()
 		local early = FeedbackLogic.EARLY_MINUTES * 60
 		local served = 45
-		it("asks a player never asked at the early minutes, before the usual ask (#2681)", function()
-			expect(early < FeedbackLogic.ASK_MINUTES * 60).to.equal(true)
-			expect(FeedbackLogic.earlyDue(false, early, 0, true)).to.equal(true)
-			expect(FeedbackLogic.earlyDue(false, early - 1, 0, true)).to.equal(false)
-		end)
+		it(
+			"asks a player never asked at the early minutes, before the usual ask (#2681)",
+			function()
+				expect(early < FeedbackLogic.ASK_MINUTES * 60).to.equal(true)
+				expect(FeedbackLogic.earlyDue(false, early, 0, true)).to.equal(true)
+				expect(FeedbackLogic.earlyDue(false, early - 1, 0, true)).to.equal(false)
+			end
+		)
 
-		it("no longer asks sooner once a cat has served customers, and not before 8 minutes (#2880)", function()
-			expect(FeedbackLogic.EARLY_MINUTES >= 8).to.equal(true)
-			expect(FeedbackLogic.earlyDue(false, 60, served, true)).to.equal(false)
-			expect(FeedbackLogic.earlyDue(false, early - 1, 600, true)).to.equal(false)
-		end)
+		it(
+			"no longer asks sooner once a cat has served customers, and not before 8 minutes (#2880)",
+			function()
+				expect(FeedbackLogic.EARLY_MINUTES >= 8).to.equal(true)
+				expect(FeedbackLogic.earlyDue(false, 60, served, true)).to.equal(false)
+				expect(FeedbackLogic.earlyDue(false, early - 1, 600, true)).to.equal(false)
+			end
+		)
 
 		it("waits for a quiet moment and never asks an account already asked", function()
 			expect(FeedbackLogic.earlyDue(false, early, served, false)).to.equal(false)

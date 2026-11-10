@@ -1052,26 +1052,31 @@ return function()
 					-- #2557 with #2559 (Design-Agent): 8 h 00, plus 15%, with the one-go floor of 8 h (was 9 to 14)
 					-- #2683: at least 4 h (Design-Agent; the old one-go floor of 8 h is gone), at most the one-go top
 					if median < 3 * HOUR or median > 5.5 * HOUR then
-						error("Tier 5 outside 3 to 5.5 hours of play with a 2-hour x2 event: " .. text)
+						error(
+							"Tier 5 outside 3 to 5.5 hours of play with a 2-hour x2 event: " .. text
+						)
 					end
 				end
 			)
 
-			it("comes on day 3 to 4 for an hour a day with free offline pay (#2683: was 4 to 6)", function()
-				local list, text = toTier5({
-					catches = 4,
-					target = 5,
-					limit = 10 * HOUR,
-					session = HOUR,
-					long = true,
-				})
-				local day = quantile(list, function(run: Run): number?
-					return run.dayAt[5]
-				end, 0.5, math.huge)
-				if day < 3 or day > 4 then
-					error("Tier 5 outside day 3 to 4: " .. text)
+			it(
+				"comes on day 3 to 4 for an hour a day with free offline pay (#2683: was 4 to 6)",
+				function()
+					local list, text = toTier5({
+						catches = 4,
+						target = 5,
+						limit = 10 * HOUR,
+						session = HOUR,
+						long = true,
+					})
+					local day = quantile(list, function(run: Run): number?
+						return run.dayAt[5]
+					end, 0.5, math.huge)
+					if day < 3 or day > 4 then
+						error("Tier 5 outside day 3 to 4: " .. text)
+					end
 				end
-			end)
+			)
 
 			it("takes over 2 hours of play in one go with 4x Money", function()
 				local list, text =
@@ -1099,34 +1104,38 @@ return function()
 	-- the only blocker: the cats and the Mythicals are in within minutes of each rank up. Design's targets: Tier 6 5 to 7 h
 	-- after Tier 5, Tier 7 8 to 11 h after Tier 6, both in one go. Fit run (10 runs): Tier 6 16 h 17, Tier 7 26 h 19.
 	describe("Tiers 6 and 7 on the money ladder (QA edges, #2651)", function()
-		it("Tier 6 comes 5 to 7.5 h after Tier 5 and Tier 7 8 to 11.5 h after Tier 6, in one go", function()
-			local limit = 40 * HOUR
-			local list = runs({ catches = 4, target = 7, limit = limit, long = true }, LONG_RUNS)
-			local function gap(from: number, to: number): (Run) -> number?
-				return function(run: Run): number?
-					local a, b = run.tierAt[from], run.tierAt[to]
-					return if a ~= nil and b ~= nil then b - a else nil
+		it(
+			"Tier 6 comes 5 to 7.5 h after Tier 5 and Tier 7 8 to 11.5 h after Tier 6, in one go",
+			function()
+				local limit = 40 * HOUR
+				local list =
+					runs({ catches = 4, target = 7, limit = limit, long = true }, LONG_RUNS)
+				local function gap(from: number, to: number): (Run) -> number?
+					return function(run: Run): number?
+						local a, b = run.tierAt[from], run.tierAt[to]
+						return if a ~= nil and b ~= nil then b - a else nil
+					end
+				end
+				local six = quantile(list, gap(5, 6), 0.5, limit)
+				local seven = quantile(list, gap(6, 7), 0.5, limit)
+				local text = string.format(
+					"medians of %d runs: Tier 5 %s, Tier 6 %s (%s after Tier 5), Tier 7 %s (%s after Tier 6)",
+					#list,
+					clock(quantile(list, tierAt(5), 0.5, limit)),
+					clock(quantile(list, tierAt(6), 0.5, limit)),
+					clock(six),
+					clock(quantile(list, tierAt(7), 0.5, limit)),
+					clock(seven)
+				)
+				print("[Pace #2651] " .. text)
+				if six < 5 * HOUR or six > 7.5 * HOUR then
+					error("Tier 6 outside 5 to 7.5 h after Tier 5: " .. text)
+				end
+				if seven < 8 * HOUR or seven > 11.5 * HOUR then
+					error("Tier 7 outside 8 to 11.5 h after Tier 6: " .. text)
 				end
 			end
-			local six = quantile(list, gap(5, 6), 0.5, limit)
-			local seven = quantile(list, gap(6, 7), 0.5, limit)
-			local text = string.format(
-				"medians of %d runs: Tier 5 %s, Tier 6 %s (%s after Tier 5), Tier 7 %s (%s after Tier 6)",
-				#list,
-				clock(quantile(list, tierAt(5), 0.5, limit)),
-				clock(quantile(list, tierAt(6), 0.5, limit)),
-				clock(six),
-				clock(quantile(list, tierAt(7), 0.5, limit)),
-				clock(seven)
-			)
-			print("[Pace #2651] " .. text)
-			if six < 5 * HOUR or six > 7.5 * HOUR then
-				error("Tier 6 outside 5 to 7.5 h after Tier 5: " .. text)
-			end
-			if seven < 8 * HOUR or seven > 11.5 * HOUR then
-				error("Tier 7 outside 8 to 11.5 h after Tier 6: " .. text)
-			end
-		end)
+		)
 	end)
 
 	-- #1159 (stray top-ups) and #1165 (the friends boost): the pace with both on. The catchers here set out back to back
@@ -1141,7 +1150,11 @@ return function()
 			"takes 8 to 20 minutes for a non-stop catcher with a top-up every 60 s (60 an hour an area; #2683: was 10 to 20)",
 			function()
 				-- #2683: about 9 minutes with Tier 2 at 22,000
-				check({ catches = NON_STOP, strays = { players = 1, wait = 60 }, tier2Band = { 8, 20 } })
+				check({
+					catches = NON_STOP,
+					strays = { players = 1, wait = 60 },
+					tier2Band = { 8, 20 },
+				})
 			end
 		)
 
@@ -1230,37 +1243,43 @@ return function()
 			end
 		)
 
-		it("comes on day 3 to 6 for an hour a day on a server of 4 friends (#2895: was 4 to 6)", function()
-			local list, text = toTier5({
-				catches = 4,
-				target = 5,
-				limit = 10 * HOUR,
-				session = HOUR,
-				long = true,
-				pals = FOUR_FRIENDS,
-				strays = { players = 4 },
-			})
-			local day = quantile(list, function(run: Run): number?
-				return run.dayAt[5]
-			end, 0.5, math.huge)
-			if day < 3 or day > 6 then
-				error("Tier 5 outside day 3 to 6: " .. text)
+		it(
+			"comes on day 3 to 6 for an hour a day on a server of 4 friends (#2895: was 4 to 6)",
+			function()
+				local list, text = toTier5({
+					catches = 4,
+					target = 5,
+					limit = 10 * HOUR,
+					session = HOUR,
+					long = true,
+					pals = FOUR_FRIENDS,
+					strays = { players = 4 },
+				})
+				local day = quantile(list, function(run: Run): number?
+					return run.dayAt[5]
+				end, 0.5, math.huge)
+				if day < 3 or day > 6 then
+					error("Tier 5 outside day 3 to 6: " .. text)
+				end
 			end
-		end)
+		)
 
-		it("takes over 1.5 hours in one go with 4x Money and 3 pals (check 7; #2895: was 2)", function()
-			local list, text = toTier5({
-				catches = 4,
-				target = 5,
-				limit = 8 * HOUR,
-				money = 4,
-				long = true,
-				pals = FOUR_FRIENDS,
-			})
-			if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 1.5 * HOUR then
-				error("Tier 5 in 1.5 hours or less with 4x Money and 3 pals: " .. text)
+		it(
+			"takes over 1.5 hours in one go with 4x Money and 3 pals (check 7; #2895: was 2)",
+			function()
+				local list, text = toTier5({
+					catches = 4,
+					target = 5,
+					limit = 8 * HOUR,
+					money = 4,
+					long = true,
+					pals = FOUR_FRIENDS,
+				})
+				if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 1.5 * HOUR then
+					error("Tier 5 in 1.5 hours or less with 4x Money and 3 pals: " .. text)
+				end
 			end
-		end)
+		)
 	end)
 
 	-- The Cafe Pass (#1644, #1667): its levels come from quests only, so a player who finishes a full day of quests
@@ -1307,20 +1326,23 @@ return function()
 	-- The Day Cart (#1716): each row has its own daily stock, so a day's buys are up to 2 Quick Bait Potions of each
 	-- size. Pace leaves potions out; this runs the worst case, one running the whole time, through Tier 5.
 	describe("Tier 5 with a Quick Bait Potion always running (#1716)", function()
-		it("takes 3.5 to 6.5 hours of play in one go (#2895: was 4.5 to 7; #2683: was 9 to 14)", function()
-			local list, text = toTier5({
-				catches = 4,
-				target = 5,
-				limit = 16 * HOUR,
-				long = true,
-				quickBait = true,
-			})
-			local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-			-- #2683: 5 h 34 with the cheaper Tiers 2 to 5
-			if median < 3.5 * HOUR or median > 6.5 * HOUR then
-				error("Tier 5 outside 3.5 to 6.5 hours of play: " .. text)
+		it(
+			"takes 3.5 to 6.5 hours of play in one go (#2895: was 4.5 to 7; #2683: was 9 to 14)",
+			function()
+				local list, text = toTier5({
+					catches = 4,
+					target = 5,
+					limit = 16 * HOUR,
+					long = true,
+					quickBait = true,
+				})
+				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+				-- #2683: 5 h 34 with the cheaper Tiers 2 to 5
+				if median < 3.5 * HOUR or median > 6.5 * HOUR then
+					error("Tier 5 outside 3.5 to 6.5 hours of play: " .. text)
+				end
 			end
-		end)
+		)
 
 		it("comes on day 3 to 6 for an hour a day (#2895: was 4 to 6)", function()
 			local list, text = toTier5({

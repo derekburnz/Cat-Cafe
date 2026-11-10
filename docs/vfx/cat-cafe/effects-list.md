@@ -995,3 +995,16 @@ The Tier 6 and 7 areas of #2651 (tier6-7-areas.md sections 4 and 5), in their pa
 | Mist fall (Ruins): 10 violet-grey smoke puffs round you, once per fall | your feet 12 studs or more below the plateau inside the Ruins' box (the server's catch then moves you to the camp pad) |
 | Cannon flight tint | `desert` sand, `ruins` jade in `Presets.cannon.tints` |
 
+## Oasis Spa and Relic Museum (#2925, 2026-11-10)
+
+The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStationFx.luau`, numbers in `Presets.lateStations`; the card tile bursts are kinds of `Presets.storeBurst`.
+
+| Look | Hook |
+|---|---|
+| Spa steam: soft wide steam off the pool (`spaSteam`, 3 a second); on for everyone within ambientRadius, still with Reduce Motion, off in Low performance | the `LateStation` model with `StationId` "spa": its `Steam` attachment, else over its `..._Water` part |
+| Spa splash: 6 teal droplets and a 6 stud teal ring on the pool | your `LateStationResult("spa", true, { slot, uid })` (a cat in or out), within animRadius |
+| Spa level up: 8 gold glints rising off the pool for each cat relaxed, at most 3 bursts 0.3 s apart | `LateStationResult("spa", true, { relaxed })` |
+| Museum donation: 10 gold sparkles at the golden idol case | `LateStationResult("museum", true, { catId })`; the model's `SparkleAnchor` |
+| Museum room complete: plus confetti (60 % of the budget's), an 8 stud gold ring and a 14 stud gold beam for 1.2 s at the museum's foot (no beam or ring motion with Reduce Motion, as `Particles` does) | the same with `room` set |
+| Exhibit tile on the Museum card: 10 gold sparkles and a ring round the tile; a room's last tile 20 and two rings | `StoreBurst.play(tile, "exhibit")` or `"room"`, called by the UI after the donation result |
+

@@ -250,6 +250,19 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -30, 30 },
 	},
+	-- The Oasis Spa's pool (#2925, late-stations.md section 1): wide, slow, soft steam off the water.
+	spaSteam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 1, 3 },
+		transparency = { 0.7, 1 },
+		lifetime = { 2.5, 3.5 },
+		speed = { 0.6, 1.2 },
+		spread = 25,
+		rate = 3,
+		acceleration = Vector3.new(0.2, 0.3, 0),
+		drag = 0.8,
+	},
 	steam = {
 		texture = Presets.textures.smoke,
 		colors = { Presets.palette.offwhite },
@@ -2493,6 +2506,9 @@ Presets.storeBurst = {
 		pass = { colour = Presets.palette.golden, sparkles = 12, rings = 1 },
 		pack = { colour = Color3.fromRGB(255, 244, 176), sparkles = 12, rings = 1 },
 		bundle = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
+		-- the Relic Museum card (#2925): an exhibit tile filled, and the tile that finished a room
+		exhibit = { colour = Presets.palette.golden, sparkles = 10, rings = 1 },
+		room = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
 	},
 }
 
@@ -4019,6 +4035,30 @@ Presets.townsfolk = {
 	turn = 4, -- how fast the head eases to where it looks (1 / seconds)
 	followLimit = 60, -- degrees the head turns to follow you while you are near
 	wave = { up = 0.3, wave = 1.2, waves = 3, lift = 75, side = 22 },
+}
+
+-- The Tier 6 and 7 stations (#2925, late-stations.md sections 1 and 2; Effects/LateStationFx). The Oasis Spa's
+-- `spaSteam` rises off its `Steam` attachment (else over its `_Water` part) within the budget's ambientRadius, still
+-- with Reduce Motion and off in Low performance. A cat put in splashes a `splashRing` stud ring and `splash` droplets
+-- on the pool; a collect sends `levelUp` gold sparkles up off it for each cat relaxed, at most `levelUpMost` bursts.
+-- A Relic Museum donation pops `donate` gold sparkles at the `SparkleAnchor` (the golden idol case); one that
+-- finishes a room adds confetti (`roomConfetti` of the budget's), a `roomRing` stud gold ring and a gold beam
+-- `beamWidth` wide and `beamHeight` tall for `beamSeconds`. Bursts play within the budget's animRadius.
+Presets.lateStations = {
+	steamPreset = "spaSteam",
+	water = "_Water",
+	splash = 6,
+	splashRing = 6,
+	splashColour = Color3.fromRGB(64, 168, 160), -- the oasis teal (tier6-7-areas.md section 4)
+	levelUp = 8,
+	levelUpMost = 3,
+	levelUpGap = 0.3,
+	donate = 10,
+	roomConfetti = 0.6,
+	roomRing = 8,
+	beamWidth = 1.2,
+	beamHeight = 14,
+	beamSeconds = 1.2,
 }
 
 return Presets

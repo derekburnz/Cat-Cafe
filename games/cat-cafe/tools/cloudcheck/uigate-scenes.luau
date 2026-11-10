@@ -7512,6 +7512,36 @@ local SCENES = {
 		local nothing = card and card:FindFirstChild("GaveNothing")
 		assert(nothing ~= nil and not (nothing :: TextLabel).Visible, "uigate: Gave says Nothing beside a piece")
 	end },
+	-- #2745: a trade of crates for golden fish: two crate kinds on the Gave line, 120 fish on the Got line
+	{ "TradeLogCrates", function()
+		local log = tradeLog(os.time())
+		local kinds = {}
+		for _, crate in Catalog.crates do
+			if not crate.golden and #kinds < 2 then
+				table.insert(kinds, crate.id)
+			end
+		end
+		log[1].gave = {}
+		log[1].got = {}
+		log[1].gaveCrates = { { id = kinds[1], count = 3 }, { id = kinds[2], count = 1 } }
+		log[1].gotFish = 120
+		UI.update({ tradeLog = log })
+		UI.open("TradeLog")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("Trade1", true)
+		local function shown(lineName)
+			local line = card and card:FindFirstChild(lineName)
+			local count = 0
+			for _, child in (line or Instance.new("Folder")):GetChildren() do
+				if child:IsA("Frame") and child.Name:sub(1, 5) == "Piece" and child.Visible then
+					count += 1
+				end
+			end
+			return count
+		end
+		assert(shown("Gave") == 2, "uigate: the Gave line shows " .. shown("Gave") .. " crates, not 2")
+		assert(shown("Got") == 1, "uigate: the Got line shows " .. shown("Got") .. " items, not the fish")
+	end },
 	{ "TradeLogEmpty", function()
 		UI.update({ tradeLog = {} })
 		UI.open("TradeLog")

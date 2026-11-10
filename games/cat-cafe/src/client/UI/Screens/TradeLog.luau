@@ -3,7 +3,8 @@
 -- player or a parent can see what happened. Each card says who it was with ("With Sam", their display name at the
 -- time), when ("3h ago") and both sides as small cat cards ("Gave" and "Got", "Nothing" for an empty side). Opened
 -- from the Trades row in Settings; Back returns there. View only. #1574: decor and lawn pieces that changed hands
--- follow the cats on their line, in the trade window's piece look (TradeItemTile).
+-- follow the cats on their line, in the trade window's piece look (TradeItemTile); #2745: then the crates ("x3")
+-- and the golden fish (its amount at the foot).
 --   TradeLog.new(callbacks)   callbacks.close (the X), callbacks.back (Back, to Settings)
 --   log:setCatalog(catalog)   the cat pictures
 --   log:render(state)         reads state.tradeLog; call it on open and while open only, since it builds the cards
@@ -81,6 +82,7 @@ function TradeLog.new(callbacks: Callbacks): TradeLog
 	local self = setmetatable({}, TradeLog) :: any
 	self._callbacks = callbacks
 	self._catById = {} :: { [string]: Types.CatDef }
+	self._crateNames = {} :: { [string]: string } -- #2745: a crate's name for its letter until the picture loads
 	self._cards = {} :: { Card }
 	self._log = nil :: { Types.TradeLogEntry }?
 
@@ -238,22 +240,51 @@ function TradeLog._card(self: any, index: number): Card
 	return card
 end
 
--- #1574: a logged piece as a tile shows it: its picture and rarity, "Lawn" or a foot left off at this size
-local function pieceView(piece: TradeLogic.LogPiece): TradeItemTile.View
-	local info = SharedTrade.piece(piece.id)
-	return {
-		id = piece.id,
-		name = if info ~= nil then info.name else piece.id,
-		rarity = piece.rarity,
-		image = ShopIcons.decor(piece.id),
-	}
+-- #1574: what a line shows after its cats as item tiles: each piece (its picture and rarity, "Lawn" or a foot left
+-- off at this size), then (#2745) each crate kind with "x3", then the golden fish with the amount at the foot.
+local function itemViews(
+	self: any,
+	pieces: { TradeLogic.LogPiece },
+	crates: { TradeLogic.LogCrate },
+	fish: number
+): { TradeItemTile.View }
+	local views: { TradeItemTile.View } = {}
+	for _, piece in pieces do
+		local info = SharedTrade.piece(piece.id)
+		table.insert(views, {
+			id = piece.id,
+			name = if info ~= nil then info.name else piece.id,
+			rarity = piece.rarity,
+			image = ShopIcons.decor(piece.id),
+		})
+	end
+	for _, crate in crates do
+		local name: string? = self._crateNames[crate.id]
+		table.insert(views, {
+			id = crate.id,
+			name = name or crate.id,
+			rarity = "Common",
+			image = ShopIcons.crate(crate.id),
+			badge = TradeLogic.countText(crate.count),
+		})
+	end
+	if fish > 0 then
+		table.insert(views, {
+			id = "fish",
+			name = "Golden fish",
+			rarity = "Golden",
+			image = Theme.textures.fishCoin,
+			foot = tostring(fish),
+		})
+	end
+	return views
 end
 
 function TradeLog._fill(
 	self: any,
 	line: Line,
 	cats: { TradeLogic.LogCat },
-	pieces: { TradeLogic.LogPiece }
+	items: { TradeItemTile.View }
 )
 	local shown = 0
 	for _, cat in cats do
@@ -277,7 +308,7 @@ function TradeLog._fill(
 	for index = shown + 1, #line.tiles do
 		line.tiles[index].frame.Visible = false
 	end
-	for index, piece in pieces do
+	for index, view in items do
 		local tile = line.pieces[index]
 		if tile == nil then
 			tile = TradeItemTile.new({
@@ -288,12 +319,12 @@ function TradeLog._fill(
 			})
 			line.pieces[index] = tile
 		end
-		tile:set(pieceView(piece))
+		tile:set(view)
 	end
-	for index = #pieces + 1, #line.pieces do
+	for index = #items + 1, #line.pieces do
 		line.pieces[index]:set(nil)
 	end
-	line.nothing.Visible = shown == 0 and #pieces == 0
+	line.nothing.Visible = shown == 0 and #items == 0
 end
 
 function TradeLog._renderLog(self: any)
@@ -303,8 +334,12 @@ function TradeLog._renderLog(self: any)
 		card.frame.Visible = true
 		card.partner.Text = row.partner
 		card.when.Text = row.when
-		self:_fill(card.gave, row.gave, row.gaveDecor)
-		self:_fill(card.got, row.got, row.gotDecor)
+		self:_fill(
+			card.gave,
+			row.gave,
+			itemViews(self, row.gaveDecor, row.gaveCrates, row.gaveFish)
+		)
+		self:_fill(card.got, row.got, itemViews(self, row.gotDecor, row.gotCrates, row.gotFish))
 	end
 	for index = #rows + 1, #self._cards do
 		self._cards[index].frame.Visible = false
@@ -316,6 +351,11 @@ function TradeLog.setCatalog(self: any, catalog: Types.Catalog)
 	table.clear(self._catById)
 	for _, def in catalog.cats do
 		self._catById[def.id] = def
+	end
+	table.clear(self._crateNames)
+	local crates: { Types.CrateDef } = catalog.crates or {}
+	for _, def in crates do
+		self._crateNames[def.id] = def.name
 	end
 	self:_renderLog()
 end

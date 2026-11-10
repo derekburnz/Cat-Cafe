@@ -117,6 +117,8 @@ export type Tap = { value: string, at: number } -- a press on one of REQUEST_MOD
 export type LogCat = { catId: string, rarity: string, variant: string?, level: number }
 -- #1574: a decor or lawn piece in a log entry (Types.DecorSummary); `kind` "decor" or "lawn"
 export type LogPiece = { id: string, kind: string, rarity: string }
+-- #2745: a banked crate kind in a log entry (Types.CrateSummary)
+export type LogCrate = { id: string, count: number }
 
 export type LogRow = {
 	id: string,
@@ -126,6 +128,10 @@ export type LogRow = {
 	got: { LogCat },
 	gaveDecor: { LogPiece }, -- #1574: empty for entries from before decor trading
 	gotDecor: { LogPiece },
+	gaveCrates: { LogCrate }, -- #2745: empty for entries from before crate trading
+	gotCrates: { LogCrate },
+	gaveFish: number, -- #2745 (section 1d): golden fish, 0 for none
+	gotFish: number,
 }
 
 export type PlayerRow = {
@@ -773,6 +779,24 @@ local function pieces(list: unknown): { LogPiece }
 	return out
 end
 
+-- #2745: the crates of a log entry's gaveCrates or gotCrates (nil before crate trading); broken ones left out
+local function logCrates(list: unknown): { LogCrate }
+	local out: { LogCrate } = {}
+	if type(list) ~= "table" then
+		return out
+	end
+	for _, crate in list :: { any } do
+		if type(crate) == "table" and type(crate.id) == "string" then
+			local count = TradeLogic.fishOf({ fish = crate.count }) -- a whole number, 0 for junk
+			if count > 0 then
+				local entry: LogCrate = { id = crate.id, count = count }
+				table.insert(out, entry)
+			end
+		end
+	end
+	return out
+end
+
 -- The Trades page's rows from ProfileSync's tradeLog: newest first, at most LOG_MAX, entries without an id or a
 -- time left out.
 function TradeLogic.logRows(log: { any }?, now: number): { LogRow }
@@ -805,6 +829,10 @@ function TradeLogic.logRows(log: { any }?, now: number): { LogRow }
 			got = cats(entry.got),
 			gaveDecor = pieces(entry.gaveDecor),
 			gotDecor = pieces(entry.gotDecor),
+			gaveCrates = logCrates(entry.gaveCrates),
+			gotCrates = logCrates(entry.gotCrates),
+			gaveFish = TradeLogic.fishOf({ fish = entry.gaveFish }),
+			gotFish = TradeLogic.fishOf({ fish = entry.gotFish }),
 		})
 	end
 	return rows

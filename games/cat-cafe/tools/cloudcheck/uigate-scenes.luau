@@ -1768,6 +1768,43 @@ local SCENES = {
 		tags:destroy()
 		cat:Destroy()
 	end },
+	-- #2874 (console): on a gamepad the catch card's cap reads X (the prompt's GamepadKeyCode) and the HUD's Drop
+	-- caps read "↓" (DPad down drops, #2879) while the menu letters hide; back on the keyboard they read E and G again
+	{ "GamepadKeyCaps", function()
+		local UserInputService = game:GetService("UserInputService")
+		local changed = UIShim.eventOf(UserInputService, "LastInputTypeChanged")
+		local function use(inputType)
+			UIShim.setLastInput(inputType)
+			UIShim.fire(changed, inputType)
+			UIShim.advance(0.1)
+		end
+		UI.setCarrying({ catId = Catalog.cats[1].id, catName = "Mochi", rarity = "Rare" } :: any)
+		UI.catch.show({ strayId = "gate_pad", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", keyCode = Enum.KeyCode.E, gamepadKeyCode = Enum.KeyCode.ButtonX } :: any)
+		UIShim.advance(0.3)
+		local card = UIShim.playerGui:FindFirstChild("CatCafeCatch") :: ScreenGui
+		local glyph = (card:FindFirstChild("Key", true) :: any).Glyph :: TextLabel
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local drop = hud:FindFirstChild("Drop", true)
+		local dropKey = if drop then drop:FindFirstChild("Key", true) :: TextLabel? else nil
+		use(Enum.UserInputType.Gamepad1)
+		assert(glyph.Text == "X", "uigate: the catch card's cap reads " .. glyph.Text .. " on a gamepad, not X (#2874)")
+		if dropKey then
+			assert(dropKey.Text == "↓" and dropKey.Visible, "uigate: the Drop cap reads " .. dropKey.Text .. " on a gamepad (#2874)")
+		end
+		for _, key in hud:GetDescendants() do
+			if key.Name == "Key" and key:GetAttribute("PadKey") == "" then
+				assert(not (key :: TextLabel).Visible, "uigate: the " .. key.Parent.Name .. " letter cap shows on a gamepad (#2874)")
+			end
+		end
+		use(Enum.UserInputType.Keyboard)
+		assert(glyph.Text == "E", "uigate: the catch card's cap reads " .. glyph.Text .. " on a keyboard (#2874)")
+		if dropKey then
+			assert(dropKey.Text == "G", "uigate: the Drop cap reads " .. dropKey.Text .. " on a keyboard (#2874)")
+		end
+		UIShim.setLastInput(nil)
+		UI.catch.hide()
+		UI.setCarrying(nil)
+	end },
 	-- #2885 (Derek2: the day, event and shower banner "slightly below the currency ... don't push those down into middle
 	-- of screen ... doesn't cause problems with the 2x money", with a clear border) and #2881 (Luck pushed toward the
 	-- middle with the x2+ money tag): a lucky, golden day with the party running, the money pass owned and Luck x2.5.

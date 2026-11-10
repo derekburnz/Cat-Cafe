@@ -27,6 +27,7 @@
 -- calls callbacks.resetSave once, and the row reads "Resetting your save..." with the button grey until the server
 -- kicks the player to rejoin, or after RESET_HOLD_SECONDS when it refused (its toast says why).
 
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -843,6 +844,23 @@ function Settings._buildSlider(self: any, card: Frame, key: string, percent: Tex
 				self._dragInput = input
 				self._list.ScrollingEnabled = false -- a sideways drag must not scroll the list
 				self:_dragTo(key, input.Position.X)
+			end
+		end)
+	)
+	-- #2874 (console): a gamepad on the slider steps it with the DPad, Left down and Right up, and stays on it (its
+	-- left and right lead back to itself); Up and Down leave as usual, and the "−" and "+" stay for A presses
+	hit.NextSelectionLeft = hit
+	hit.NextSelectionRight = hit
+	table.insert(
+		self._connections,
+		UserInputService.InputBegan:Connect(function(input: InputObject)
+			if GuiService.SelectedObject ~= hit then
+				return
+			end
+			if input.KeyCode == Enum.KeyCode.DPadLeft then
+				self:_nudge(key, -NUDGE)
+			elseif input.KeyCode == Enum.KeyCode.DPadRight then
+				self:_nudge(key, NUDGE)
 			end
 		end)
 	)

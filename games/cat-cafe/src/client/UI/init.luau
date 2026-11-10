@@ -3850,6 +3850,7 @@ do
 			holdDuration = prompt.HoldDuration,
 			actionText = if prompt.ActionText ~= "" then prompt.ActionText else nil,
 			keyCode = prompt.KeyboardKeyCode,
+			gamepadKeyCode = prompt.GamepadKeyCode, -- #2874: the cap reads X on a gamepad
 		}
 	end
 

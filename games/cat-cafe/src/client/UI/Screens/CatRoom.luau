@@ -24,6 +24,9 @@
 --          (Scale.tapHeight); Assign drops the sheet so a "+" in the crew strip can be tapped, and it comes back after.
 -- MyCats owns the window; this view only reads state and calls back.
 
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
+
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatBuffs = require(script.Parent.Parent.Components.CatBuffs)
@@ -1564,21 +1567,49 @@ function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
 	local pressable = button.instance:FindFirstChild("Hit")
 		or button.instance:FindFirstChild("Face", true)
 	if pressable and pressable:IsA("GuiButton") then
+		local function hold()
+			if tile.held then
+				return -- #2874: a gamepad A can fire both the press and the button's own down
+			end
+			tile.held = true
+			tile.repeated = false
+			task.delay(FEED_HOLD, function()
+				while tile.held and self._feedTiles[foodId] == tile and not self._gone do
+					if not feedOne() then
+						break
+					end
+					tile.repeated = true
+					Sound.play("uiClick")
+					task.wait(FEED_REPEAT)
+				end
+			end)
+		end
+		table.insert(self._connections, (pressable :: GuiButton).MouseButton1Down:Connect(hold))
+		-- #2874 (console): A on the selected tile feeds once on release (the button's click) and, held, repeats like
+		-- a held mouse; the press is read here, since a gamepad A need not fire MouseButton1Down
 		table.insert(
 			self._connections,
-			(pressable :: GuiButton).MouseButton1Down:Connect(function()
-				tile.held = true
-				tile.repeated = false
-				task.delay(FEED_HOLD, function()
-					while tile.held and self._feedTiles[foodId] == tile and not self._gone do
-						if not feedOne() then
-							break
-						end
-						tile.repeated = true
-						Sound.play("uiClick")
-						task.wait(FEED_REPEAT)
-					end
-				end)
+			UserInputService.InputBegan:Connect(function(input: InputObject)
+				if
+					input.KeyCode == Enum.KeyCode.ButtonA
+					and GuiService.SelectedObject == pressable
+				then
+					hold()
+				end
+			end)
+		)
+		table.insert(
+			self._connections,
+			UserInputService.InputEnded:Connect(function(input: InputObject)
+				if input.KeyCode == Enum.KeyCode.ButtonA then
+					tile.held = false
+				end
+			end)
+		)
+		table.insert(
+			self._connections,
+			(pressable :: GuiButton).SelectionLost:Connect(function()
+				tile.held = false
 			end)
 		)
 		table.insert(

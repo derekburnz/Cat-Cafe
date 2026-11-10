@@ -61,19 +61,25 @@ return function()
 			expect(NetSwing.inReach(ORIGIN, AHEAD, at(3, 180))).to.equal(false)
 		end)
 
-		it("takes the slack for latency: 8.4 studs is in, 8.6 out, off the straight-ahead line", function()
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.4, 30))).to.equal(true)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.6, 30))).to.equal(false)
-		end)
+		it(
+			"takes the slack for latency: 8.4 studs is in, 8.6 out, off the straight-ahead line",
+			function()
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.4, 30))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.6, 30))).to.equal(false)
+			end
+		)
 
-		it("#2693: reaches NetFrontExtraStuds further within 25 degrees of straight ahead", function()
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 0))).to.equal(true)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 24))).to.equal(true)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, -24))).to.equal(true)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 26))).to.equal(false)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.1, 0))).to.equal(false)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.4, 0), 1)).to.equal(true)
-		end)
+		it(
+			"#2693: reaches NetFrontExtraStuds further within 25 degrees of straight ahead",
+			function()
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 0))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 24))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, -24))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 26))).to.equal(false)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.1, 0))).to.equal(false)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.4, 0), 1)).to.equal(true)
+			end
+		)
 
 		it("#2693: within 4 studs of the feet covers 80 degrees either side", function()
 			expect(NetSwing.inReach(ORIGIN, AHEAD, at(3.9, 79))).to.equal(true)

@@ -23,7 +23,12 @@ return function()
 		return profile
 	end
 
-	local function add(profile: Types.PlayerProfile, uid: string, catId: string, level: number?): Types.CatInstance
+	local function add(
+		profile: Types.PlayerProfile,
+		uid: string,
+		catId: string,
+		level: number?
+	): Types.CatInstance
 		local instance = CatStats.newInstance(uid, catId, NOW)
 		instance.level = level or 1
 		profile.cats[uid] = instance
@@ -81,32 +86,35 @@ return function()
 			expect(ProfileSchema.VERSION >= 46).to.equal(true) -- 46 added the slots; #2814 is 47
 		end)
 
-		it("sanitizes the spa: owned cats only, once each, open slots, never a future start", function()
-			local cats: { [string]: Types.CatInstance } = {
-				a = CatStats.newInstance("a", "tabby", NOW),
-				b = CatStats.newInstance("b", "tabby", NOW),
-			}
-			local spa = LateStations.sanitizeSpa({
-				slots = 9,
-				soaking = {
-					["1"] = { uid = "a", at = NOW + 500 },
-					["2"] = { uid = "a", at = NOW - 10 }, -- the same cat twice
-					["3"] = { uid = "ghost", at = NOW - 10 },
-				},
-			}, cats, NOW)
-			expect(spa.slots).to.equal(3)
-			expect(spa.soaking["1"].uid).to.equal("a")
-			expect(spa.soaking["1"].at).to.equal(NOW)
-			expect(spa.soaking["2"]).to.equal(nil)
-			expect(spa.soaking["3"]).to.equal(nil)
-			-- a slot that is not open drops its cat
-			local shut = LateStations.sanitizeSpa({
-				slots = 1,
-				soaking = { ["2"] = { uid = "b", at = NOW - 10 } },
-			}, cats, NOW)
-			expect(shut.soaking["2"]).to.equal(nil)
-			expect(LateStations.sanitizeSpa("junk", cats, NOW).slots).to.equal(1)
-		end)
+		it(
+			"sanitizes the spa: owned cats only, once each, open slots, never a future start",
+			function()
+				local cats: { [string]: Types.CatInstance } = {
+					a = CatStats.newInstance("a", "tabby", NOW),
+					b = CatStats.newInstance("b", "tabby", NOW),
+				}
+				local spa = LateStations.sanitizeSpa({
+					slots = 9,
+					soaking = {
+						["1"] = { uid = "a", at = NOW + 500 },
+						["2"] = { uid = "a", at = NOW - 10 }, -- the same cat twice
+						["3"] = { uid = "ghost", at = NOW - 10 },
+					},
+				}, cats, NOW)
+				expect(spa.slots).to.equal(3)
+				expect(spa.soaking["1"].uid).to.equal("a")
+				expect(spa.soaking["1"].at).to.equal(NOW)
+				expect(spa.soaking["2"]).to.equal(nil)
+				expect(spa.soaking["3"]).to.equal(nil)
+				-- a slot that is not open drops its cat
+				local shut = LateStations.sanitizeSpa({
+					slots = 1,
+					soaking = { ["2"] = { uid = "b", at = NOW - 10 } },
+				}, cats, NOW)
+				expect(shut.soaking["2"]).to.equal(nil)
+				expect(LateStations.sanitizeSpa("junk", cats, NOW).slots).to.equal(1)
+			end
+		)
 
 		it("sanitizes the museum to known exhibits and coats", function()
 			local museum = LateStations.sanitizeMuseum({
@@ -132,32 +140,35 @@ return function()
 		end)
 
 		describe("Oasis Spa", function()
-			it("opens at Tier 6 and refuses a cat at the top level, an open trade or a taken slot", function()
-				local profile = profileAt(5)
-				add(profile, "c1", "tabby", 10)
-				add(profile, "top", "tabby", Config.CatMaxLevel)
-				expect(LateStations.putBlocker(profile, 5, 1, "c1", false)).to.equal(
-					LateStations.Messages.spaShut
-				)
-				profile.tier = 6
-				expect(LateStations.putBlocker(profile, 6, 1, "c1", false)).to.equal(nil)
-				expect(LateStations.putBlocker(profile, 6, 1, "top", false)).to.equal(
-					LateStations.Messages.maxLevel
-				)
-				expect(LateStations.putBlocker(profile, 6, 1, "c1", true)).to.equal(
-					LateStations.Messages.inTrade
-				)
-				expect(LateStations.putBlocker(profile, 6, 2, "c1", false)).to.equal(
-					LateStations.Messages.slotShut
-				)
-				expect(LateStations.putBlocker(profile, 6, 1, "someone_elses", false)).to.equal(
-					LateStations.Messages.notOwned
-				)
-				LateStations.put(profile, 1, "c1", NOW)
-				expect(LateStations.putBlocker(profile, 6, 1, "c1", false)).to.equal(
-					LateStations.Messages.slotTaken
-				)
-			end)
+			it(
+				"opens at Tier 6 and refuses a cat at the top level, an open trade or a taken slot",
+				function()
+					local profile = profileAt(5)
+					add(profile, "c1", "tabby", 10)
+					add(profile, "top", "tabby", Config.CatMaxLevel)
+					expect(LateStations.putBlocker(profile, 5, 1, "c1", false)).to.equal(
+						LateStations.Messages.spaShut
+					)
+					profile.tier = 6
+					expect(LateStations.putBlocker(profile, 6, 1, "c1", false)).to.equal(nil)
+					expect(LateStations.putBlocker(profile, 6, 1, "top", false)).to.equal(
+						LateStations.Messages.maxLevel
+					)
+					expect(LateStations.putBlocker(profile, 6, 1, "c1", true)).to.equal(
+						LateStations.Messages.inTrade
+					)
+					expect(LateStations.putBlocker(profile, 6, 2, "c1", false)).to.equal(
+						LateStations.Messages.slotShut
+					)
+					expect(LateStations.putBlocker(profile, 6, 1, "someone_elses", false)).to.equal(
+						LateStations.Messages.notOwned
+					)
+					LateStations.put(profile, 1, "c1", NOW)
+					expect(LateStations.putBlocker(profile, 6, 1, "c1", false)).to.equal(
+						LateStations.Messages.slotTaken
+					)
+				end
+			)
 
 			it("takes a working cat off its role and keeps it out of Equip Best", function()
 				local profile = profileAt(6)
@@ -170,24 +181,27 @@ return function()
 				expect(plan.placements.c1).to.equal(nil)
 			end)
 
-			it("gives one level after an hour, offline too, keeping the XP toward the next", function()
-				local profile = profileAt(6)
-				local cat = add(profile, "c1", "tabby", 37)
-				cat.xp = 55
-				LateStations.put(profile, 1, "c1", NOW)
-				expect(#LateStations.collect(profile, NOW + 3599)).to.equal(0)
-				expect(profile.spa.soaking["1"]).to.be.ok()
-				local relaxed = LateStations.collect(profile, NOW + 3600)
-				expect(#relaxed).to.equal(1)
-				expect(relaxed[1].from).to.equal(37)
-				expect(relaxed[1].to).to.equal(38)
-				expect(cat.level).to.equal(38)
-				expect(cat.xp).to.equal(55)
-				expect(profile.spa.soaking["1"]).to.equal(nil)
-				expect(CatStats.atSpa(profile, "c1")).to.equal(false)
-				-- a collected cat is out: a second collect a day later gives nothing more
-				expect(#LateStations.collect(profile, NOW + 86400)).to.equal(0)
-			end)
+			it(
+				"gives one level after an hour, offline too, keeping the XP toward the next",
+				function()
+					local profile = profileAt(6)
+					local cat = add(profile, "c1", "tabby", 37)
+					cat.xp = 55
+					LateStations.put(profile, 1, "c1", NOW)
+					expect(#LateStations.collect(profile, NOW + 3599)).to.equal(0)
+					expect(profile.spa.soaking["1"]).to.be.ok()
+					local relaxed = LateStations.collect(profile, NOW + 3600)
+					expect(#relaxed).to.equal(1)
+					expect(relaxed[1].from).to.equal(37)
+					expect(relaxed[1].to).to.equal(38)
+					expect(cat.level).to.equal(38)
+					expect(cat.xp).to.equal(55)
+					expect(profile.spa.soaking["1"]).to.equal(nil)
+					expect(CatStats.atSpa(profile, "c1")).to.equal(false)
+					-- a collected cat is out: a second collect a day later gives nothing more
+					expect(#LateStations.collect(profile, NOW + 86400)).to.equal(0)
+				end
+			)
 
 			it("gives a level per hour, up to 24, never past CatMaxLevel (#2904)", function()
 				local function soakFor(level: number, seconds: number): number
@@ -240,16 +254,24 @@ return function()
 			it("sells slot 2 for 100 fish and slot 3 for 250, in order", function()
 				local profile = profileAt(6)
 				expect(LateStations.nextSlotPrice(profile)).to.equal(100)
-				expect(LateStations.buyBlocker(profile, 6, 3, 1000)).to.equal(LateStations.Messages.notNext)
-				expect(LateStations.buyBlocker(profile, 6, 2, 99)).to.equal(LateStations.Messages.fish)
-				expect(LateStations.buyBlocker(profile, 5, 2, 1000)).to.equal(LateStations.Messages.spaShut)
+				expect(LateStations.buyBlocker(profile, 6, 3, 1000)).to.equal(
+					LateStations.Messages.notNext
+				)
+				expect(LateStations.buyBlocker(profile, 6, 2, 99)).to.equal(
+					LateStations.Messages.fish
+				)
+				expect(LateStations.buyBlocker(profile, 5, 2, 1000)).to.equal(
+					LateStations.Messages.spaShut
+				)
 				expect(LateStations.buyBlocker(profile, 6, 2, 100)).to.equal(nil)
 				profile.spa.slots = 2
 				expect(LateStations.nextSlotPrice(profile)).to.equal(250)
 				expect(LateStations.buyBlocker(profile, 6, 3, 250)).to.equal(nil)
 				profile.spa.slots = 3
 				expect(LateStations.nextSlotPrice(profile)).to.equal(nil)
-				expect(LateStations.buyBlocker(profile, 6, 3, 1000)).to.equal(LateStations.Messages.allOpen)
+				expect(LateStations.buyBlocker(profile, 6, 3, 1000)).to.equal(
+					LateStations.Messages.allOpen
+				)
 			end)
 
 			it("keeps a spa cat away from the Collector and Sell Extra Commons", function()
@@ -297,55 +319,63 @@ return function()
 		end)
 
 		describe("Relic Museum", function()
-			it("gives every exhibit its own spot in the Museum model, 1 to 10 in its room (#2908)", function()
-				local seen: { [string]: boolean } = {}
-				for _, room in LateStations.rooms do
-					expect(#room.cats <= 10).to.equal(true)
-					for index, catId in room.cats do
-						local spot = LateStations.exhibitSpot(catId)
-						expect(spot).to.equal(string.format("ExhibitSpot_%s_%d", room.area, index))
-						expect(seen[spot :: string]).to.equal(nil)
-						seen[spot :: string] = true
+			it(
+				"gives every exhibit its own spot in the Museum model, 1 to 10 in its room (#2908)",
+				function()
+					local seen: { [string]: boolean } = {}
+					for _, room in LateStations.rooms do
+						expect(#room.cats <= 10).to.equal(true)
+						for index, catId in room.cats do
+							local spot = LateStations.exhibitSpot(catId)
+							expect(spot).to.equal(
+								string.format("ExhibitSpot_%s_%d", room.area, index)
+							)
+							expect(seen[spot :: string]).to.equal(nil)
+							seen[spot :: string] = true
+						end
 					end
+					expect(LateStations.exhibitSpot("no_such_cat")).to.equal(nil)
 				end
-				expect(LateStations.exhibitSpot("no_such_cat")).to.equal(nil)
-			end)
+			)
 
-			it("refuses the last copy, a locked copy, a spa copy, an open trade and a filled exhibit", function()
-				local profile = profileAt(7)
-				add(profile, "a", "tuxedo", 4)
-				expect(LateStations.donateBlocker(profile, 6, "a", false)).to.equal(
-					LateStations.Messages.museumShut
-				)
-				expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(
-					LateStations.Messages.lastCopy
-				)
-				local b = add(profile, "b", "tuxedo", 9)
-				b.locked = true
-				expect(LateStations.donateBlocker(profile, 7, "b", false)).to.equal(
-					LateStations.Messages.locked
-				)
-				expect(LateStations.donateBlocker(profile, 7, "a", true)).to.equal(
-					LateStations.Messages.inTrade
-				)
-				LateStations.put(profile, 1, "a", NOW)
-				expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(
-					LateStations.Messages.atSpa
-				)
-				LateStations.takeOut(profile, 1)
-				expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(nil)
-				LateStations.donate(profile, "a")
-				expect(profile.cats.a).to.equal(nil)
-				expect(profile.museum.tuxedo).to.equal("base")
-				b.locked = nil
-				add(profile, "c", "tuxedo", 1)
-				expect(LateStations.donateBlocker(profile, 7, "c", false)).to.equal(
-					LateStations.Messages.filled
-				)
-				expect(LateStations.donateBlocker(profile, 7, "nobody", false)).to.equal(
-					LateStations.Messages.notOwned
-				)
-			end)
+			it(
+				"refuses the last copy, a locked copy, a spa copy, an open trade and a filled exhibit",
+				function()
+					local profile = profileAt(7)
+					add(profile, "a", "tuxedo", 4)
+					expect(LateStations.donateBlocker(profile, 6, "a", false)).to.equal(
+						LateStations.Messages.museumShut
+					)
+					expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(
+						LateStations.Messages.lastCopy
+					)
+					local b = add(profile, "b", "tuxedo", 9)
+					b.locked = true
+					expect(LateStations.donateBlocker(profile, 7, "b", false)).to.equal(
+						LateStations.Messages.locked
+					)
+					expect(LateStations.donateBlocker(profile, 7, "a", true)).to.equal(
+						LateStations.Messages.inTrade
+					)
+					LateStations.put(profile, 1, "a", NOW)
+					expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(
+						LateStations.Messages.atSpa
+					)
+					LateStations.takeOut(profile, 1)
+					expect(LateStations.donateBlocker(profile, 7, "a", false)).to.equal(nil)
+					LateStations.donate(profile, "a")
+					expect(profile.cats.a).to.equal(nil)
+					expect(profile.museum.tuxedo).to.equal("base")
+					b.locked = nil
+					add(profile, "c", "tuxedo", 1)
+					expect(LateStations.donateBlocker(profile, 7, "c", false)).to.equal(
+						LateStations.Messages.filled
+					)
+					expect(LateStations.donateBlocker(profile, 7, "nobody", false)).to.equal(
+						LateStations.Messages.notOwned
+					)
+				end
+			)
 
 			it("lists the weakest copy first and counts the exhibits that can be filled", function()
 				local profile = profileAt(7)
@@ -360,28 +390,31 @@ return function()
 				expect(LateStations.canFill(profile)).to.equal(1)
 			end)
 
-			it("adds 2% tips forever once for a finished room, and keeps it through a rejoin", function()
-				local profile = profileAt(7)
-				local before = IndexRewards.totals(profile).bonus
-				local room = roomOf("alley")
-				local finished: string? = nil
-				for i, catId in room.cats do
-					add(profile, "keep" .. i, catId, 1)
-					add(profile, "give" .. i, catId, 1)
-					local _, done = LateStations.donate(profile, "give" .. i)
-					if i < #room.cats then
-						expect(done).to.equal(nil)
-					else
-						finished = done
+			it(
+				"adds 2% tips forever once for a finished room, and keeps it through a rejoin",
+				function()
+					local profile = profileAt(7)
+					local before = IndexRewards.totals(profile).bonus
+					local room = roomOf("alley")
+					local finished: string? = nil
+					for i, catId in room.cats do
+						add(profile, "keep" .. i, catId, 1)
+						add(profile, "give" .. i, catId, 1)
+						local _, done = LateStations.donate(profile, "give" .. i)
+						if i < #room.cats then
+							expect(done).to.equal(nil)
+						else
+							finished = done
+						end
 					end
+					expect(finished).to.equal("alley")
+					expect(LateStations.roomsDone(profile.museum)[1]).to.equal("alley")
+					expect(IndexRewards.totals(profile).bonus).to.be.near(before + 0.05, 1e-9)
+					local again = ProfileSchema.migrate(profile, NOW + 60)
+					expect(IndexRewards.totals(again).bonus).to.be.near(before + 0.05, 1e-9)
+					expect(LateStations.museumBonus(again.museum)).to.be.near(0.05, 1e-9)
 				end
-				expect(finished).to.equal("alley")
-				expect(LateStations.roomsDone(profile.museum)[1]).to.equal("alley")
-				expect(IndexRewards.totals(profile).bonus).to.be.near(before + 0.05, 1e-9)
-				local again = ProfileSchema.migrate(profile, NOW + 60)
-				expect(IndexRewards.totals(again).bonus).to.be.near(before + 0.05, 1e-9)
-				expect(LateStations.museumBonus(again.museum)).to.be.near(0.05, 1e-9)
-			end)
+			)
 
 			it("keeps a gold copy's coat on the exhibit", function()
 				local profile = profileAt(7)

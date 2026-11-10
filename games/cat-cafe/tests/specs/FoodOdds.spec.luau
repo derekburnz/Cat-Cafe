@@ -289,15 +289,23 @@ return function()
 	end)
 
 	describe("FoodOdds.extras", function()
-		it("triples the base gold chance on a Golden Day (#1572, #1954, Clock.goldChance)", function()
-			local Config = require(
-				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
-			) :: any
-			local golden = FoodOdds.extras(0, 0, 1, true)
-			local gold = golden:match("^Gold ([%d%.]+)%% %(Golden Day x3%)$")
-			expect(tonumber(gold or "") :: number).to.be.near(Config.GoldChanceBait * 300, 0.005)
-			expect(FoodOdds.extras(0, 0, 1, false)).to.equal(FoodOdds.extras())
-		end)
+		it(
+			"triples the base gold chance on a Golden Day (#1572, #1954, Clock.goldChance)",
+			function()
+				local Config = require(
+					game:GetService("ReplicatedStorage")
+						:WaitForChild("Shared")
+						:WaitForChild("Config")
+				) :: any
+				local golden = FoodOdds.extras(0, 0, 1, true)
+				local gold = golden:match("^Gold ([%d%.]+)%% %(Golden Day x3%)$")
+				expect(tonumber(gold or "") :: number).to.be.near(
+					Config.GoldChanceBait * 300,
+					0.005
+				)
+				expect(FoodOdds.extras(0, 0, 1, false)).to.equal(FoodOdds.extras())
+			end
+		)
 		it(
 			"shows the gold chance the server rolls with and no charm stars (F97 section 5)",
 			function()

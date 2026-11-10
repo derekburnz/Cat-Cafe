@@ -11,17 +11,20 @@ return function()
 	local Tips = require(Shared.Tips)
 
 	describe("StationPerks", function()
-		it("has one perk for each tier 2 to 7, in tier order, each named with its station", function()
-			expect(#StationPerks.LIST).to.equal(6)
-			for i, perk in StationPerks.LIST do
-				expect(perk.tier).to.equal(i + 1)
-				expect(StationPerks.get(perk.id)).to.equal(perk)
-				expect(StationPerks.at(perk.tier)).to.equal(perk)
-				expect(#perk.name > 0 and #perk.text > 0 and #perk.station > 0).to.equal(true)
+		it(
+			"has one perk for each tier 2 to 7, in tier order, each named with its station",
+			function()
+				expect(#StationPerks.LIST).to.equal(6)
+				for i, perk in StationPerks.LIST do
+					expect(perk.tier).to.equal(i + 1)
+					expect(StationPerks.get(perk.id)).to.equal(perk)
+					expect(StationPerks.at(perk.tier)).to.equal(perk)
+					expect(#perk.name > 0 and #perk.text > 0 and #perk.station > 0).to.equal(true)
+				end
+				expect(StationPerks.at(1)).to.equal(nil)
+				expect(StationPerks.get("nope")).to.equal(nil)
 			end
-			expect(StationPerks.at(1)).to.equal(nil)
-			expect(StationPerks.get("nope")).to.equal(nil)
-		end)
+		)
 
 		it("owns a perk from its tier on, never before", function()
 			expect(StationPerks.has(1, "fresh_bait")).to.equal(false)
@@ -52,15 +55,26 @@ return function()
 			expect(StationPerks.tipMultiplier(7)).to.equal(1.05)
 		end)
 
-		it("Warm Paws widens a rescue's zones, and the client reads the width from the challenge", function()
-			local function roll(): number
-				return 0.5
+		it(
+			"Warm Paws widens a rescue's zones, and the client reads the width from the challenge",
+			function()
+				local function roll(): number
+					return 0.5
+				end
+				local plain = Rescue.newChallenge("Rare", "trash_bin", 100, roll)
+				local wide = Rescue.newChallenge(
+					"Rare",
+					"trash_bin",
+					100,
+					roll,
+					StationPerks.rescueZoneScale(6)
+				)
+				expect(plain.zoneWidth).to.equal(Config.RescueZoneWidth.Rare)
+				expect(
+					math.abs((wide.zoneWidth :: number) - Config.RescueZoneWidth.Rare * 1.10) < 1e-9
+				).to.equal(true)
 			end
-			local plain = Rescue.newChallenge("Rare", "trash_bin", 100, roll)
-			local wide = Rescue.newChallenge("Rare", "trash_bin", 100, roll, StationPerks.rescueZoneScale(6))
-			expect(plain.zoneWidth).to.equal(Config.RescueZoneWidth.Rare)
-			expect(math.abs((wide.zoneWidth :: number) - Config.RescueZoneWidth.Rare * 1.10) < 1e-9).to.equal(true)
-		end)
+		)
 	end)
 
 	describe("StationReveal", function()

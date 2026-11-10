@@ -212,9 +212,11 @@ function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 end
 
 -- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Legendary since #2205,
--- was Epic) and up, and every gold and rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam
+-- was Epic) and up, gold from Rare up and every rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam
 -- rescued a Legendary Maine Coon!", "Sam caught a rainbow Common Tabby!"; `where` adds a place before the "!" (" at
--- their bait bowl").
+-- their bait bowl"). #2902 (Derek2 2026-11-10: "legendary + or rare+ (if gold) and any rainbows"): a gold coat counts
+-- only from GOLD_SHOUT_FROM up, so a gold Common is quiet; a rainbow always counts.
+Catching.GOLD_SHOUT_FROM = "Rare"
 function Catching.shoutOut(
 	playerName: string,
 	verb: string,
@@ -223,7 +225,10 @@ function Catching.shoutOut(
 	where: string?
 ): string?
 	local coat = if variant == "gold" or variant == "rainbow" then variant .. " " else ""
-	if coat == "" and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
+	local worth = Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity)
+		or variant == "rainbow"
+		or (variant == "gold" and Catching.rarityAtLeast(def.rarity, Catching.GOLD_SHOUT_FROM))
+	if not worth then
 		return nil
 	end
 	local phrase = coat .. def.rarity .. " " .. def.name

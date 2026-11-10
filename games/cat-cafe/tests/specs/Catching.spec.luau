@@ -557,9 +557,13 @@ return function()
 			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), nil)).to.equal(nil)
 		end)
 
-		it("always announces a gold cat, whatever its rarity", function()
-			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "gold")).to.equal(
-				"Dee caught a gold Common Tabby!"
+		it("announces a gold cat from Rare up and every rainbow (#2902)", function()
+			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "gold")).to.equal(nil)
+			expect(Catching.shoutOut("Dee", "caught", cat("Rare", "Pip"), "gold")).to.equal(
+				"Dee caught a gold Rare Pip!"
+			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "rainbow")).to.equal(
+				"Dee caught a rainbow Common Tabby!"
 			)
 			expect(Catching.shoutOut("Dee", "caught", cat("Epic", "Moonpaw"), "gold")).to.equal(
 				"Dee caught a gold Epic Moonpaw!"

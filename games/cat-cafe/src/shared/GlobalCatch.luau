@@ -96,6 +96,17 @@ function GlobalCatch.escape(text: string): string
 	)
 end
 
+-- #2902: the line as plain text, for the legacy chat window, which shows rich text tags as they are; the client
+-- colours it with Color3.fromHex(GlobalCatch.color(rarity)).
+function GlobalCatch.plainLine(text: string, elsewhere: boolean): string
+	return (if elsewhere then GlobalCatch.ELSEWHERE else "") .. text
+end
+
+-- The hex colour of a `rarity`'s chat line (Common's for an unknown one).
+function GlobalCatch.color(rarity: string): string
+	return GlobalCatch.COLORS[rarity] or GlobalCatch.COLORS.Common
+end
+
 -- The chat line for a shout-out `text` of a `rarity` cat, in the rarity's colour; `elsewhere` when it came from
 -- another server.
 function GlobalCatch.chatLine(text: string, rarity: string, elsewhere: boolean): string

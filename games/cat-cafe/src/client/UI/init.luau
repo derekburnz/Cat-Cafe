@@ -502,6 +502,8 @@ end
 
 -- F70: the Daily Treat window opens by itself once when the player joins with a stamp due, after the tutorial and the
 -- intro, while no other window is open and nothing is being carried, caught or rescued.
+-- #3188: and only once the "Catch a 2nd cat" goal is finished and the player is at their cafe (UI.giftWait.atCafe;
+-- its once-a-second look also runs this, so the window opens as they arrive).
 local function autoOpenDailyTreat()
 	if dailyAutoOpen == false or state.dailyTreat == nil then
 		return
@@ -515,7 +517,12 @@ local function autoOpenDailyTreat()
 	dailyAutoOpen = true
 	local windows = modal
 	if
-		not DailyTreatLogic.autoOpen(view, now, state.tutorialStep)
+		not DailyTreatLogic.autoOpen(
+			view,
+			now,
+			state.tutorialStep,
+			(state :: any).secondCatDone -- (UIController's; the HUD's own state type has no use for it)
+		)
 		or not visible
 		or windows == nil
 		or windows:current() ~= nil
@@ -525,6 +532,8 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
+		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
 	then
 		return
 	end
@@ -6179,6 +6188,21 @@ do
 		return GiftLogic.tier(plot:GetAttribute("MysteryGiftTier"))
 	end
 
+	-- #3188: whether this player stands on their own cafe plot (the box the till's Collect accepts), for the Daily
+	-- Treat's own open. False with no plot or no character yet.
+	function UI.giftWait.atCafe(): boolean
+		local plot = myPlot()
+		local character = Players.LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if plot == nil or not plot:IsA("Model") or root == nil or not root:IsA("BasePart") then
+			return false
+		end
+		local TillTips = require(script.Components.TillTips) :: any
+		return TillTips.onPlot(
+			(plot :: Model):GetPivot():PointToObjectSpace((root :: BasePart).Position)
+		)
+	end
+
 	function UI.giftWait.start()
 		wait.run += 1
 		local run = wait.run
@@ -6187,6 +6211,9 @@ do
 				local view = hud
 				if view then
 					view:setGift(UI.giftWait.look())
+				end
+				if initialized then
+					autoOpenDailyTreat() -- #3188: it waits for the player to reach their cafe
 				end
 				task.wait(LOOK_SECONDS)
 			end

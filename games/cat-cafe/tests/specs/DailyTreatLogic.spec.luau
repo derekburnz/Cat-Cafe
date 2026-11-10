@@ -102,5 +102,25 @@ return function()
 			local done = DailyTreatLogic.view({ stamp = 1, lastDay = TODAY, due = false })
 			expect(DailyTreatLogic.autoOpen(done, NOON, 5)).to.equal(false)
 		end)
+
+		it(
+			"waits for the second cat goal to finish and for the player to be at their cafe (#3188)",
+			function()
+				local due = DailyTreatLogic.view({ stamp = 1, lastDay = TODAY - 1, due = true })
+				-- the goal still up, wherever the player is
+				expect(DailyTreatLogic.autoOpen(due, NOON, 5, false, true)).to.equal(false)
+				expect(DailyTreatLogic.autoOpen(due, NOON, 5, false, false)).to.equal(false)
+				-- the goal finished, but out in an area
+				expect(DailyTreatLogic.autoOpen(due, NOON, 5, true, false)).to.equal(false)
+				-- finished and back at the cafe
+				expect(DailyTreatLogic.autoOpen(due, NOON, 5, true, true)).to.equal(true)
+				-- still never before the tutorial is done, and never with no stamp due
+				expect(DailyTreatLogic.autoOpen(due, NOON, 4, true, true)).to.equal(false)
+				local done = DailyTreatLogic.view({ stamp = 1, lastDay = TODAY, due = false })
+				expect(DailyTreatLogic.autoOpen(done, NOON, 5, true, true)).to.equal(false)
+				-- a state without the field (an older server's) and a caller that cannot tell where the player is
+				expect(DailyTreatLogic.autoOpen(due, NOON, 5, nil, nil)).to.equal(true)
+			end
+		)
 	end)
 end

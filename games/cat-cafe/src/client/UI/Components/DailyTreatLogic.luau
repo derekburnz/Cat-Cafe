@@ -10,7 +10,9 @@
 --   waitText(seconds) -> string           "5 h 12 min", "42 min"
 --   claimedDay(before, after) -> number?  the day a sync just stamped (lastDay moved on), for the stamp sound
 --   stampSound(day) -> string             uiDailyStamp for days 1 to 6, jingleDailyCard for the day that fills the card
---   autoOpen(view, now, tutorialStep)     the window may open by itself: a stamp is due and the tutorial is over
+--   autoOpen(view, now, tutorialStep, secondCatDone, atCafe)
+--                                         the window may open by itself: a stamp is due, the tutorial is over, the
+--                                         "Catch a 2nd cat" goal is finished and the player is at their cafe (#3188)
 -- Pure: no Theme, Format or CFrame, so the cloud test runner checks it. `now` is Workspace:GetServerTimeNow().
 
 local Types = require(script.Parent.Parent.Types)
@@ -110,12 +112,21 @@ function DailyTreatLogic.stampSound(day: number): string
 	return if day >= DailyTreatLogic.DAYS then "jingleDailyCard" else "uiDailyStamp"
 end
 
+-- #3188 (Derek2 2026-11-10: "move daily treat to after your goal catch a 2nd cat and coming back to cafe"): after
+-- #3155 it waited for the tutorial alone, so it could open out in the Alleyway with the second cat goal still up.
+-- `secondCatDone` is PlayerState.secondCatDone (nil, a state without it, reads as finished) and `atCafe` whether
+-- the player stands on their own plot (nil, a caller that cannot tell, reads as there).
 function DailyTreatLogic.autoOpen(
 	view: Types.DailyTreatView?,
 	now: number,
-	tutorialStep: number?
+	tutorialStep: number?,
+	secondCatDone: boolean?,
+	atCafe: boolean?
 ): boolean
-	return DailyTreatLogic.due(view, now) and (tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE
+	return DailyTreatLogic.due(view, now)
+		and (tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE
+		and secondCatDone ~= false
+		and atCafe ~= false
 end
 
 return DailyTreatLogic

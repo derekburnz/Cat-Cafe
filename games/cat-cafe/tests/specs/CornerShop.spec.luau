@@ -384,9 +384,12 @@ return function()
 					CornerShop.record(state, "swift_potion_small")
 				end
 				expect(outRows().swift_potion_small).to.equal(nil)
-				-- a new UTC day clears it
+				-- #3118: a new UTC day alone keeps it (the caps count by the in-game day, as the stock does)
 				CornerShop.refresh(state, window, 20401)
-				expect(next(outRows())).to.equal(nil)
+				expect(outRows().quick_bait_potion).to.equal(true)
+				-- the next in-game day's window clears it
+				CornerShop.refresh(state, window + 1, 20401)
+				expect(state.today.quick_bait_potion).to.equal(nil)
 			end
 		)
 

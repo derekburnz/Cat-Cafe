@@ -4871,10 +4871,15 @@ local SCENES = {
 		task.wait(0.4)
 		UI.catch.showGrades("gate_v3f", { "perfect", "perfect", "perfect" }, true, 0, nil,
 			{ trust = 8, trustNeed = 8, finish = "purrfect", streak = 3 })
-		task.wait(0.75)
+		-- #3009 (Derek2: the cat's banner "should be instantly gone ... after it is caught"): the header with the
+		-- cat's name, rarity and hint is hidden the moment the result comes
 		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local header = layer and layer:FindFirstChild("Header", true) :: GuiObject?
+		assert(header and not header.Visible, "uigate: the catch header is still up after the catch (#3009)")
+		task.wait(0.75)
 		local banner = layer and layer:FindFirstChild("FinishBanner", true)
 		assert(banner and banner.Visible and banner.Text == "PURRFECT!", "uigate: no PURRFECT! banner after the wrap (#1884)")
+		assert(not header.Visible, "uigate: the catch header came back with the word (#3009)")
 		-- #2464: no streak text over the money any more, it pushed the top row down
 		assert(UIShim.playerGui:FindFirstChild("PurrfectStreak", true) == nil, "uigate: the Purrfect x3 text is back (#2464)")
 	end },
@@ -4908,6 +4913,37 @@ local SCENES = {
 		local banner = layer and layer:FindFirstChild("FinishBanner", true)
 		assert(banner and banner.Visible and banner.Text == "NICE!", "uigate: no NICE! banner (#1884)")
 		assert(UIShim.playerGui:FindFirstChild("PurrfectStreak", true) == nil, "uigate: the Purrfect x3 text is back (#2464)")
+	end },
+	-- #3009 (Derek2: the word and the banner "stay for too long on catch should disappear almost instantly"): the
+	-- word pops with the net wrap (0.6 s), is gone 0.4 s later and the catch screen is off; the next catch's header
+	-- shows again. A bolt's header goes at once too, its "So close!" stays 0.8 s.
+	{ "CatchV3Flash", function()
+		startCatchV3("gate_v3x", "Common", { "single", "single", "single" }, 2, 8)
+		task.wait(0.4)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles") :: ScreenGui
+		local header = layer:FindFirstChild("Header", true) :: GuiObject
+		assert(header.Visible, "uigate: no header during the catch (#3009)")
+		UI.catch.showGrades("gate_v3x", { "perfect", "good", "perfect" }, true, 0, nil,
+			{ trust = 8, trustNeed = 8, finish = "great", streak = 0 })
+		assert(not header.Visible, "uigate: the catch header is still up after the catch (#3009)")
+		task.wait(0.7)
+		local banner = layer:FindFirstChild("FinishBanner", true) :: TextLabel
+		assert(banner.Visible and banner.Text == "GREAT!", "uigate: no GREAT! with the net wrap (#3009)")
+		task.wait(0.4) -- 1.1 s after the result: the word's 0.4 s is over
+		assert(not layer.Enabled or not banner.Visible, "uigate: the catch word is still up 1.1 s after the catch (#3009)")
+		assert(not layer.Enabled, "uigate: the catch screen is still on 1.1 s after the catch (#3009)")
+		-- the next catch has its header again; a bolt hides it at once and keeps So close! for 0.8 s
+		startCatchV3("gate_v3y", "Rare", { "single", "single" }, 2, 8)
+		task.wait(0.3)
+		assert(layer.Enabled and header.Visible, "uigate: the next catch has no header (#3009)")
+		UI.catch.finished("gate_v3y", { trust = -1, trustNeed = 8, finish = "bolt", streak = 0 })
+		UI.catch.showGrades("gate_v3y", { "miss", "miss" }, false, 0)
+		assert(not header.Visible, "uigate: the catch header is still up after a bolt (#3009)")
+		task.wait(0.4)
+		banner = layer:FindFirstChild("FinishBanner", true) :: TextLabel
+		assert(banner.Visible and banner.Text == "So close!", "uigate: So close! went too soon (#3009)")
+		task.wait(0.6)
+		assert(not layer.Enabled, "uigate: the catch screen is still on 1 s after a bolt (#3009)")
 	end },
 	-- 2026-11-03 (Derek: "too much text on screen make pictures easy for kids"): the prompt cards with no hint line,
 	-- a little picture of the minigame in its place: a stuck cat's rescue bar, a stray's catch ring

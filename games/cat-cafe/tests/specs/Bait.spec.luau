@@ -141,9 +141,9 @@ return function()
 		it(
 			"the account's first bait waits at most 2 minutes, later ones as usual (#1895)",
 			function()
-				expect(Config.FirstBaitWaitSeconds).to.equal(45) -- #2774: was 120
-				expect(Bait.firstWait(600, 0)).to.equal(45)
-				expect(Bait.firstWait(30, 0)).to.equal(30) -- a speed-up only ever shortens it
+				expect(Config.FirstBaitWaitSeconds).to.equal(1) -- #2946: was 45 (#2774), 120 before
+				expect(Bait.firstWait(600, 0)).to.equal(1)
+				expect(Bait.firstWait(0.5, 0)).to.equal(0.5) -- a speed-up only ever shortens it
 				expect(Bait.firstWait(600, 1)).to.equal(600)
 				expect(Bait.firstWait(480, 7)).to.equal(480)
 			end

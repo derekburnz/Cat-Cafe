@@ -714,3 +714,12 @@ Derek2 asked for research on trading golden fish and unopened crates (11-09) and
 - **No progress from trades:** received fish never count toward lifetime fish or milestones.
 
 Why: crates reuse the decor path and carry low risk, while fish are the first item traded as an amount and need stricter checks. Neither is sold for Robux, so trades stay outside monetization-policy. Spec: trading.md §1c and §1d.
+
+## 2026-11-10 Away notification: once a day, 12 hours after leaving (#2768)
+Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decided:
+- **What:** a Roblox experience notification, "Your cats earned $X while you were away!", to players who turned notifications on for the game. Roblox itself limits it to ages 13 and up and one a day per player.
+- **When:** 12 hours after the player leaves, and only if they have not come back. One message per time away.
+- **True numbers only:** X is the welcome back card's own sum, counted to the moment the message is due. No urgency wording.
+- **How:** the game notes who is due (a MemoryStore sorted map); an hourly GitHub workflow sends through Open Cloud with the repo's key, so no key is in the game. Disabling the workflow stops the messages.
+
+Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside the game. It only reaches players who asked for notifications.

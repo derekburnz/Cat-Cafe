@@ -4710,12 +4710,18 @@ do
 	-- F92: the invite ask is the slide-in card with an Invite button instead (UI.together.inviteAsk).
 	-- #2766: an ask the controllers time themselves (the update Event's Notify Me ask) on the slide-in card, when it is
 	-- free; true when it shows. The card answers through the ask's own answer.
-	function UI.asks.card(ask: any): boolean
+	-- #2880: `news` is a card that tells of something happening now (a first visitor at the cafe, #2792), not an ask
+	-- for something: it skips the pace and does not hold the next ask back.
+	function UI.asks.card(ask: any, news: boolean?): boolean
 		local card = askCard
-		if card == nil or not initialized or card:isShowing() then
-			return false
+		local pace: any = UI.asks -- #2880: paced and shown are set further down the file
+		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
+			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
 		end
 		card:show(ask)
+		if not news then
+			pace.shown()
+		end
 		return true
 	end
 
@@ -4805,8 +4811,11 @@ end
 -- only between activities (UI.tips.quiet: no tip showing either). It waits for ProfileSync's feedbackAsked (false,
 -- not nil). #2681: a player never asked gets it once earlier (FeedbackLogic.earlyDue: 4 minutes, or once a cat has
 -- served customers); it is saved as asked, but left unanswered the FeedbackAskMinutes one still comes this session.
+-- #2880 (Derek2: "too early and too often"): the early ask is at 8 minutes and the only one a session, and every
+-- slide-in ask keeps AskPacing's pace (UI.asks.paced: none in the first 8 minutes, 10 minutes between two).
 -- Its own block, as the module is short of locals.
 do
+	local AskPacing = require(script.Components.AskPacing)
 	local FeedbackLogic = require(script.Components.FeedbackLogic)
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 	local sessionStart = os.clock()
@@ -4817,7 +4826,24 @@ do
 		at = 0,
 		answered = false,
 		workingSince = nil :: number?,
+		lastAsk = nil :: number?, -- #2880: the session second the last slide-in ask showed
 	}
+
+	-- #2880: true when a slide-in ask may show now (AskPacing), false while it is too soon
+	function UI.asks.paced(): boolean
+		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
+	end
+
+	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS
+	function UI.asks.shown()
+		early.lastAsk = os.clock() - sessionStart
+	end
+
+	-- #2880: the pace as if the session had run long enough with no ask yet (QA in Studio and the UI gate)
+	function UI.asks.skipPace()
+		sessionStart = os.clock() - AskPacing.FIRST_SECONDS
+		early.lastAsk = nil
+	end
 
 	local function openAsk(card: AskCard.AskCard)
 		local first = not early.shown and not asked and state.feedbackAsked == false
@@ -4856,6 +4882,7 @@ do
 		local saved: any = state
 		saved.feedbackAsked = true
 		UI.events.tipSeen:Fire(Tips.FEEDBACK_ASK, false)
+		UI.asks.shown()
 	end
 
 	-- From the tips clock, once a second.
@@ -4884,12 +4911,8 @@ do
 		-- unanswered brings the usual one, once, at FeedbackAskMinutes (it is saved as asked already)
 		local firstDue = not early.shown
 			and FeedbackLogic.earlyDue(state.feedbackAsked, played, worked, quiet)
-		local againDue = early.shown
-			and not early.answered
-			and early.at < FeedbackLogic.ASK_MINUTES * 60
-			and played >= FeedbackLogic.ASK_MINUTES * 60
-			and quiet
-		if firstDue or againDue then
+		-- #2880: one ask a session, so an unanswered early ask no longer comes back at FeedbackAskMinutes
+		if firstDue and UI.asks.paced() then
 			openAsk(card)
 		end
 	end
@@ -5102,7 +5125,7 @@ do
 						UI.events.travel:Fire("home")
 					end
 				end,
-			})
+			}, true) -- news, not an ask: AskPacing does not hold it back (#2880)
 		end
 	end
 
@@ -5693,9 +5716,10 @@ do
 	-- player's launch data) and Not now. False while another ask is up, so UIController offers it again later.
 	function UI.together.inviteAsk(): boolean
 		local card = askCard
-		if card == nil or not initialized or card:isShowing() then
-			return false
+		if card == nil or not initialized or card:isShowing() or not UI.asks.paced() then
+			return false -- #2880: AskPacing holds it back
 		end
+		UI.asks.shown()
 		card:show({
 			title = PalsLogic.inviteAsk(),
 			choices = {

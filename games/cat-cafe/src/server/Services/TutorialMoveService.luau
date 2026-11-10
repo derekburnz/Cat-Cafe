@@ -2,9 +2,12 @@
 -- #2697 part 2: moves a player to their bait bowl as the tutorial reaches the bowl step, and to the Town Square cannon
 -- as it reaches the cannon step (shared/TutorialMoves), from CafeService.tutorialStepped. Never while they carry a cat,
 -- catch or rescue, or fly; a move skipped that way is not tried again (the client's step pointers still lead them).
+-- #3158: the move to the cannon waits TutorialMoves.CANNON_DELAY seconds after the step and is dropped for a player
+-- who walked off in that time.
 -- Also tags each plot's BaitBowl part for the client's pointers (the cannons carry CatCannon already).
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
@@ -52,25 +55,68 @@ local function targetFor(player: Player, target: TutorialMoves.Target): CFrame?
 	)
 end
 
+-- The character's root while a move may happen: nil with no character, or while they carry a cat, catch or rescue, or
+-- fly.
+local function freeRoot(player: Player): BasePart?
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if
+		root == nil
+		or not root:IsA("BasePart")
+		or CatService.isLoaded(player)
+		or CatService.inMinigame(player)
+		or CatService.inFlight(player)
+	then
+		return nil
+	end
+	return root :: BasePart
+end
+
+local function move(player: Player, target: TutorialMoves.Target)
+	local character = player.Character
+	if character == nil or freeRoot(player) == nil then
+		return
+	end
+	local landing = targetFor(player, target)
+	if landing ~= nil then
+		character:PivotTo(landing)
+	end
+end
+
+local pending: { [Player]: number } = {} -- the newest waiting move's token, so only that one happens
+
 local function onStepped(player: Player, from: number, to: number)
 	local target = TutorialMoves.target(from, to)
 	if target == nil then
 		return
 	end
-	local character = player.Character
-	if
-		character == nil
-		or character:FindFirstChild("HumanoidRootPart") == nil
-		or CatService.isLoaded(player)
-		or CatService.inMinigame(player)
-		or CatService.inFlight(player)
-	then
+	local wait = TutorialMoves.delay(target :: TutorialMoves.Target)
+	if wait <= 0 then
+		move(player, target :: TutorialMoves.Target)
 		return
 	end
-	local landing = targetFor(player, target :: TutorialMoves.Target)
-	if landing ~= nil then
-		character:PivotTo(landing)
+	-- #3158: the move to the cannon waits a few seconds after the step (the first bowl cat's card), and is dropped
+	-- when the player has walked off by then, left, or has a cat in hand
+	local root = freeRoot(player)
+	if root == nil then
+		return
 	end
+	local stood = root.Position
+	local token = (pending[player] or 0) + 1
+	pending[player] = token
+	task.delay(wait, function()
+		if pending[player] ~= token then
+			return
+		end
+		pending[player] = nil
+		if player.Parent == nil then
+			return
+		end
+		local now = freeRoot(player)
+		if now ~= nil and TutorialMoves.stayed(stood, now.Position) then
+			move(player, target :: TutorialMoves.Target)
+		end
+	end)
 end
 
 function TutorialMoveService.start(builtWorld: WorldBuilder.World)
@@ -79,6 +125,9 @@ function TutorialMoveService.start(builtWorld: WorldBuilder.World)
 		CollectionService:AddTag(plot.baitBowl, TutorialMoves.BOWL_TAG)
 	end
 	CafeService.tutorialStepped:Connect(onStepped)
+	Players.PlayerRemoving:Connect(function(player)
+		pending[player] = nil
+	end)
 end
 
 return TutorialMoveService

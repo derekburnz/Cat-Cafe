@@ -223,7 +223,8 @@ return function()
 		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
-		FirstBaitWaitSeconds = 1, -- #1895: the account's first bait; #2946: was 45 (#2774), 120 before
+		FirstBaitWaitSeconds = 5, -- #1895: the account's first bait; #3161: was 1 (#2946), 45 (#2774), 120 before
+		FirstBaitCatLeadSeconds = 4, -- #3161: the first bait's cat stands at the bowl this long before its timer ends
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
 		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time

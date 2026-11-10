@@ -53,6 +53,11 @@ return function()
 				{ "quick_bait_potion_small", "quick_bait", "small", 25000 },
 				{ "quick_bait_potion", "quick_bait", "regular", 1200000 },
 				{ "quick_bait_potion_big", "quick_bait", "big", 240000000 },
+				-- #3118: the Fresh Catch's potions the cart didn't sell
+				{ "tip_potion", "money", "regular", 5000000 },
+				{ "lucky_potion", "lucky", "regular", 1500000 },
+				{ "big_tip_potion", "big_money", "regular", 150000000 },
+				{ "gold_rush_potion", "gold_rush", "regular", 3000000 },
 				{ "small_cat_snack", "food", "small", 4000 },
 				{ "cat_snack", "food", "regular", 300000 },
 				{ "big_cat_snack", "food", "big", 40000000 },
@@ -69,9 +74,12 @@ return function()
 				expect(row.size).to.equal(want[index][3])
 				expect(row.price).to.equal(want[index][4])
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
-				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone
+				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone; #3118's Money Potion
+				-- from Tier 3 and Big Money from Tier 4 (Monetization-Agent)
 				local gate = if row.kind == "bait"
 					then nil
+					elseif row.id == "tip_potion" then 3
+					elseif row.id == "big_tip_potion" then 4
 					elseif row.size == "big" then 3
 					elseif row.size == "mega" then 4
 					else nil
@@ -137,7 +145,7 @@ return function()
 		end)
 
 		-- #2891: 16 rows since the Cat Whistle's three went (14 of 19 before); the same chances give 12.4
-		it("stocks about 12 of the 16 rows a day on average (#1740)", function()
+		it("stocks about 14 of the 20 rows a day on average (#1740; #3118 added 4)", function()
 			local total, windows = 0, 2000
 			for window = WINDOW, WINDOW + windows - 1 do
 				for _, item in CornerShop.stock(window) do
@@ -147,7 +155,7 @@ return function()
 				end
 			end
 			local average = total / windows
-			expect(average > 11.5 and average < 13.3).to.equal(true)
+			expect(average > 13.3 and average < 15.2).to.equal(true)
 		end)
 
 		it(
@@ -376,9 +384,12 @@ return function()
 					CornerShop.record(state, "swift_potion_small")
 				end
 				expect(outRows().swift_potion_small).to.equal(nil)
-				-- a new UTC day clears it
+				-- #3118: a new UTC day alone keeps it (the caps count by the in-game day, as the stock does)
 				CornerShop.refresh(state, window, 20401)
-				expect(next(outRows())).to.equal(nil)
+				expect(outRows().quick_bait_potion).to.equal(true)
+				-- the next in-game day's window clears it
+				CornerShop.refresh(state, window + 1, 20401)
+				expect(state.today.quick_bait_potion).to.equal(nil)
 			end
 		)
 

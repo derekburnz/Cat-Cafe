@@ -1427,7 +1427,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #3022: the second cat goal now (nil for none), whether its preview lines have had their time, and a counter so
 	-- an older start's bounce does nothing
 	self._second = nil :: SecondCatGoal.View?
-	self._secondPreviewed = false
+	self._secondPreviewed = true -- #3155: the preview lines no longer show
 	self._secondRun = 0
 	self._gone = false
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
@@ -2933,10 +2933,12 @@ function HUD._renderUnlocks(self: any, state: Types.PlayerState)
 	end
 	self._unlocks = now
 	self:_applyUnlocks()
-	for _, key in opened do
+	-- #3161: the tutorial's end opens eight pieces at once; those just appear (HudUnlocks.pops)
+	local pops = HudUnlocks.pops(opened)
+	for _, key in pops do
 		self:_popNew(key)
 	end
-	if #opened > 0 then
+	if #pops > 0 then
 		Sound.play("uiHint")
 	end
 end
@@ -4762,8 +4764,22 @@ function HUD._layoutMenu(self: any)
 	end
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
-	local storeH = if store.Visible and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
-	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
+	-- a Store that only stepped aside for a catch (_applyFocus) still has its place, or a layout mid-catch closes
+	-- the gap and the Store comes back on top of the menu's first row (#3164)
+	local storeUp = store.Visible or self._focusHidden[store] == true
+	local storeH = if storeUp and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
+	local foldShown = shown > 0 or storeUp -- no tab to fold an empty menu (F87)
+	local fold: GuiObject = self._menuFold.instance
+	if self._catching then
+		-- #3164 (Derek2 11-10: "this menu close arrow on the left sometimes flashes into screen on first catch or
+		-- catch"): this layout also runs outside a render (the money counter growing, the window resized), where
+		-- nothing hid the tab again, so it stood alone on the left until the next render. Mid-catch it stays down
+		-- and is noted for the catch's end (_applyFocus).
+		self._focusHidden[fold] = if foldShown then true else nil
+		fold.Visible = false
+	else
+		fold.Visible = foldShown
+	end
 	local foldUnder = FOLD_UNDER + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
@@ -5013,32 +5029,11 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 	return { title = second.title, lines = lines, chip = second.chip }
 end
 
--- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped): one bounce, the
--- preview lines for PREVIEW_SECONDS the first time, and one more bounce at NUDGE_SECONDS if it is still the goal.
+-- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped). #3155 (Derek2:
+-- "remove the pop ups for cat progress towards your goal at start"): no bounce, no second bounce at NUDGE_SECONDS
+-- and no preview lines ("New kind of cat: +$50", "and 1 step closer to ..."); the card just reads the goal.
 function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
-	local run = self._secondRun
-	self._goal:bounce()
-	if not self._secondPreviewed then
-		task.delay(SecondCatGoal.PREVIEW_SECONDS, function()
-			if self._gone then
-				return
-			end
-			self._secondPreviewed = true
-			if self._second ~= nil then
-				self._goal:setGoal(self:_secondGoal())
-				if not self:_open("goal") then
-					self._goal.frame.Visible = false
-				end
-				self:_layoutRight()
-			end
-		end)
-	end
-	task.delay(SecondCatGoal.NUDGE_SECONDS, function()
-		if not self._gone and self._secondRun == run and self._second ~= nil then
-			self._goal:bounce()
-		end
-	end)
 end
 
 function HUD.destroy(self: any)

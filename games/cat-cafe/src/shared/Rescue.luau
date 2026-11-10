@@ -423,19 +423,22 @@ end
 -- up to a whole day): whether a starting area's emptied camp trap gets a new cat now. `on` is the starterRefill
 -- switch, `emptyFor` the seconds the trap has stood empty, `secondsToNight` what is left of the day, and `waiting`
 -- how many players in the server have that area open and have never rescued (waitsForFirst). Never at dusk or
--- night, and never for veterans alone, so their rescue rates stay as they were.
+-- night, and never for veterans alone, so their rescue rates stay as they were. `refills` is how many that area has
+-- had today: StarterRescueRefillsPerDay at most, so a veteran cannot farm the trap beside a waiting first-timer.
 function Rescue.starterRefill(
 	on: boolean,
 	phase: string,
 	secondsToNight: number,
 	emptyFor: number,
-	waiting: number
+	waiting: number,
+	refills: number
 ): boolean
 	return on
 		and phase == "day"
 		and secondsToNight > Config.DuskWarningSeconds
 		and emptyFor >= Config.StarterRescueRefillSeconds
 		and waiting > 0
+		and refills < Config.StarterRescueRefillsPerDay
 end
 
 -- #3049: a player the starter trap refills for: no rescue yet (stats.rescues, which first_rescue_done follows) and

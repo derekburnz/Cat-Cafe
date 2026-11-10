@@ -42,6 +42,7 @@ return function()
 		RescuePatience = 3,
 		RescueRetrySeconds = 3,
 		StarterRescueRefillSeconds = 30, -- #3049: the starter trap's refill wait
+		StarterRescueRefillsPerDay = 4, -- #3049: refills an area a day at most
 		RescueSelfRetrySeconds = 6,
 		RescueAttemptMaxSeconds = 22, -- #2566 (was 15)
 		GoldChanceRescue = 0.12,

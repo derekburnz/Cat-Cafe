@@ -87,6 +87,7 @@ local helperTipAt: { [Player]: number } = {} -- F92: os.clock() of each player's
 -- #3049: area id -> today's starter trap (#2794), and the os.clock() it was last emptied (nil while it holds a cat)
 local starterSpots: { [string]: string } = {}
 local starterEmptiedAt: { [string]: number } = {}
+local starterRefills: { [string]: number } = {} -- area id -> refills since sunrise (StarterRescueRefillsPerDay)
 local STARTER_CHECK_SECONDS = 5
 local rng = Random.new()
 
@@ -325,6 +326,7 @@ local function rollRescues(areaDef: Types.AreaDef)
 	-- sorted, so a spec or a Studio session can predict the guarantee
 	local ids, starter = pickTraps(areaDef.id, area, areaDef.starterRescue == true)
 	starterSpots[areaDef.id] = starter :: string -- nil for an area without one
+	starterRefills[areaDef.id] = 0
 	local today: { [string]: boolean } = {}
 	for _, spotId in ids do
 		today[spotId] = true
@@ -362,7 +364,8 @@ end
 -- #3049: a starting area's camp trap, emptied during the day (rescued, or its cat cleared), gets a new cat
 -- StarterRescueRefillSeconds later while someone in the server has the area open and has never rescued, so a new
 -- player who joins after others took the day's cats still finds the rescue the tutorial points at. Rolled like any
--- stuck cat. Off at dusk and at night, with the starterRefill switch off, and when only veterans are in.
+-- stuck cat. Off at dusk and at night, with the starterRefill switch off, when only veterans are in, and after
+-- StarterRescueRefillsPerDay refills in that area since sunrise.
 local function refillStarters()
 	for _, areaDef in Catalog.areas do
 		local spotId = starterSpots[areaDef.id]
@@ -391,10 +394,12 @@ local function refillStarters()
 				ClockService.phase(),
 				ClockService.phaseEndsAt() - Workspace:GetServerTimeNow(),
 				os.clock() - emptiedAt,
-				waiting
+				waiting,
+				starterRefills[areaDef.id] or 0
 			)
 		then
 			starterEmptiedAt[areaDef.id] = nil
+			starterRefills[areaDef.id] = (starterRefills[areaDef.id] or 0) + 1
 			rollStuckCat(spotId, areaDef, spot)
 			-- how often it fires, by area and how many were waiting (counts only)
 			Telemetry.custom(first, "rescue_refill", 1, { areaDef.id, tostring(waiting) })

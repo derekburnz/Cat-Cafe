@@ -656,24 +656,31 @@ return function()
 
 		it("waits 30 seconds", function()
 			expect(WAIT).to.equal(30)
-			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT - 1, 1)).to.equal(false)
-			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1)).to.equal(true)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT - 1, 1, 0)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1, 0)).to.equal(true)
 		end)
 
 		it("fills only by day, not in the dusk warning and not at night", function()
-			expect(Rescue.starterRefill(true, "night", DAY_LEFT, WAIT, 1)).to.equal(false)
-			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds, WAIT, 1)).to.equal(
+			expect(Rescue.starterRefill(true, "night", DAY_LEFT, WAIT, 1, 0)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds, WAIT, 1, 0)).to.equal(
 				false
 			)
-			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds + 1, WAIT, 1)).to.equal(
+			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds + 1, WAIT, 1, 0)).to.equal(
 				true
 			)
 		end)
 
 		it("needs someone who has never rescued, and the switch on", function()
-			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 0)).to.equal(false)
-			expect(Rescue.starterRefill(false, "day", DAY_LEFT, WAIT, 3)).to.equal(false)
-			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT * 10, 3)).to.equal(true)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 0, 0)).to.equal(false)
+			expect(Rescue.starterRefill(false, "day", DAY_LEFT, WAIT, 3, 0)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT * 10, 3, 0)).to.equal(true)
+		end)
+
+		it("stops after 4 refills an area a day", function()
+			local cap = Config.StarterRescueRefillsPerDay
+			expect(cap).to.equal(4)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1, cap - 1)).to.equal(true)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1, cap)).to.equal(false)
 		end)
 
 		it("counts a player with no rescue whose tier has the area open", function()

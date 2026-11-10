@@ -101,6 +101,7 @@ export type FishMarket = {
 		refund: number
 	) -> (),
 	allResult: (self: FishMarket, crateId: string, opened: { any }) -> (),
+	setTradeCrates: (self: FishMarket, onOffer: { [string]: number }) -> (), -- #2745
 	destroy: (self: FishMarket) -> (),
 }
 
@@ -168,7 +169,8 @@ local SHORT_FLASH_SECONDS = 1.2
 local BUNDLE_COUNT: number? = Config.CrateBundleCount
 local BUNDLE_PRICE: number? = Config.CrateBundlePrice
 local BUNDLE_KEY = "bundle:" -- the pending key of a crate's Buy 5, apart from its Open
-local ODDS_H = 28 -- the Odds button, and Open all beside it (#2402)
+local ODDS_H = 36 -- the Odds button, and Open all beside it (#2402); a mouse's 36 px tap (was 28, #2745 uigate)
+local ODDS_Y = 162 -- their top, 4 px over the Open row
 local ROW_HEIGHT = 76
 local TOP_HEIGHT = 44
 local TAB_H = 42 -- a tab or Buy face of 37 px with a mouse; Scale.tapHeight makes it 44 on a phone
@@ -272,6 +274,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._lureById = {} :: { [string]: Types.LureDef }
 	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its golden crate's odds
 	self._crateCards = {} :: { CrateCard }
+	self._tradeCrates = {} :: { [string]: number } -- #2745: crate id -> how many are on my side of an open trade
 	self._itemRows = {} :: { ItemRow }
 	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() when its wait for the server ends
 	self._retry = {} :: { [string]: number } -- #2577: crate id -> os.clock() until its button reads "Try again"
@@ -1401,7 +1404,7 @@ function FishMarket._build(self: any)
 		local luck = text({
 			Name = "Luck",
 			Position = UDim2.fromOffset(8, 130),
-			Size = UDim2.new(1, -16, 0, 34),
+			Size = UDim2.new(1, -16, 0, ODDS_Y - 132),
 			TextSize = Theme.sizes.textTiny + 1,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
@@ -1413,7 +1416,7 @@ function FishMarket._build(self: any)
 			text = "Odds",
 			style = "ghost",
 			size = UDim2.new(1, -16, 0, ODDS_H),
-			position = UDim2.fromOffset(8, 166),
+			position = UDim2.fromOffset(8, ODDS_Y),
 			textSize = Theme.sizes.textSmall,
 			parent = frame,
 			onClick = function()
@@ -1464,7 +1467,7 @@ function FishMarket._build(self: any)
 			style = "primary",
 			size = UDim2.new(0.5, -(8 + CRATE_BUTTON_GAP / 2), 0, ODDS_H),
 			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -8, 0, 166),
+			position = UDim2.new(1, -8, 0, ODDS_Y),
 			textSize = Theme.sizes.textSmall,
 			parent = frame,
 			onClick = function()
@@ -1778,6 +1781,16 @@ function FishMarket._buy(self: any, row: Types.FishShopRow)
 	self:_refresh()
 end
 
+-- #2745: the crate kinds on my side of an open trade (crate id -> count; empty when none). Their Open and Open all
+-- grey with "In a trade" until the trade ends.
+function FishMarket.setTradeCrates(self: any, onOffer: { [string]: number })
+	self._tradeCrates = onOffer
+	local state: Types.PlayerState? = self._state
+	if state ~= nil then
+		self:render(state)
+	end
+end
+
 function FishMarket.render(self: any, state: Types.PlayerState)
 	self._state = state
 	-- a sync that changes a perk's level or a food count ends that row's wait for the server (the state table is
@@ -1842,7 +1855,17 @@ function FishMarket._refresh(self: any)
 		-- behind it (#1146's rule, kept by _open), and one whose wait ran out unanswered reads "Try again"
 		local pending = self:_pendingFor(crate.id) or self._queued == crate.id
 		local retry = not pending and (self._retry[crate.id] or 0) > os.clock()
-		if count > 0 then
+		local inTrade = count > 0 and (self._tradeCrates[crate.id] or 0) > 0
+		if inTrade then
+			-- #2745: on offer in a trade, so the server refuses an open ("This crate is in a trade")
+			entry.line.Text = ("You have %s (%s in a trade)"):format(
+				Format.commas(count),
+				Format.commas(self._tradeCrates[crate.id])
+			)
+			entry.open:setText("In a trade")
+			entry.open:setStyle("primary")
+			entry.open:setEnabled(false)
+		elseif count > 0 then
 			entry.line.Text = ("You have %s"):format(Format.commas(count))
 			entry.open:setText(if pending then "..." elseif retry then "Try again" else "Open")
 			entry.open:setStyle("primary")
@@ -1914,7 +1937,7 @@ function FishMarket._refresh(self: any)
 			entry.openAll:setText(
 				if allWaiting then "..." else ("Open all (%s)"):format(Format.short(all))
 			)
-			entry.openAll:setEnabled(not allWaiting)
+			entry.openAll:setEnabled(not allWaiting and not inTrade)
 		end
 	end
 	self._emptyCrates.Visible = shown == 0

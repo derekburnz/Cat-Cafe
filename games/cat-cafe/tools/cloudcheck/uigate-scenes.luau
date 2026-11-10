@@ -3434,6 +3434,26 @@ local SCENES = {
 		UI.update({ storeSeen = if type(seenBefore) == "table" then seenBefore else {} } :: any)
 		press("FishMarket", "CratesTab")
 	end },
+	-- #2745: two Alley Crates on offer in a trade: their card reads "In a trade" with Open greyed; the Park Crates open
+	{ "MarketCrateInTrade", function()
+		Scenes._crates = (UI.getState() :: any).crates or {}
+		UI.update({ crates = { park_crate = 2, alley_crate = 3 } } :: any)
+		local state = tradeState()
+		state.cratesOn = true
+		state.me.crates = { { id = "alley_crate", name = "Alley Crate", area = "alley", count = 2 } }
+		UI.trade.state(state)
+		UI.market.open()
+		press("FishMarket", "CratesTab")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local market = modals and modals:FindFirstChild("FishMarket", true)
+		local found = false
+		for _, label in (market or Instance.new("Folder")):GetDescendants() do
+			if label:IsA("TextLabel") and label.Text == "You have 3 (2 in a trade)" then
+				found = true
+			end
+		end
+		assert(found, "uigate: the Alley Crate's card does not say it is in a trade (#2745)")
+	end },
 	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three Treats
 	-- bought fast go to the server 0.55 s apart (its 2 a second never drops one), each shows "..." from its press, and
 	-- a buy the server never answers frees its button 2 s after it was sent, not 5

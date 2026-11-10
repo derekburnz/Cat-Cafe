@@ -71,8 +71,9 @@ ToastRules.CUT = {
 -- catching cats rewards dropped etc") and #3054 ("whenever claiming something no need for a bubble saying exactly
 -- what you claimed this goes for all types of rewards"): the rule turns round for the green ("good") toasts. Until
 -- now one showed unless it was cut; now none shows unless its words are on this list, as Lua patterns. What stays is
--- the only word the player gets that something they paid for or sent really landed. A catch, a claim, a reward, a
--- drop, a level up, a placed piece and the like say nothing: the counters, the cards and the world show them.
+-- the only word the player gets that something they paid for or sent really landed, and the one call to come
+-- home. A catch, a claim, a reward, a drop, a level up, a placed piece and the like say nothing: the counters, the
+-- cards and the world show them.
 ToastRules.KEEP = {
 	"^Thank you! ", -- ProductService: the receipt after a Robux purchase (a product, the Cafe Pass paid track)
 	"^King Cat Pack: ", -- ShopCatService: the same, for the pack's game pass
@@ -82,6 +83,7 @@ ToastRules.KEEP = {
 	"^New piece: ", -- FishMarket: a crate's result that landed with the window closed, so no reveal played
 	" again: %+", -- the same, for a piece owned already
 	"^Opened %d+ crates: ", -- the same, for Open all
+	"^Your bait cat is here!", -- BaitService: a cat waits at the bowl while the player is out; they have to walk home
 	"^Owner test mode: ", -- OwnerTestService: the owner's own test grants, which nobody else sees
 }
 

@@ -148,6 +148,7 @@ return function()
 						"Lamp again: +5 golden fish back",
 						"Opened 10 crates: 4 new, +30 golden fish back",
 						"Owner test mode: 3 Luck Potions",
+						"Your bait cat is here! Head home to your bowl to meet it.",
 					}
 				do
 					expect(ToastRules.kept(line)).to.equal(true)

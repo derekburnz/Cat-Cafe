@@ -663,6 +663,12 @@ fieldEvents=(
 	"station_open|CustomField1,CustomField2|CustomEventCount|Station opens by ring or prompt (#2910)"
 	"rescue_attempt|CustomField3|CustomEventCountUser|Players by rescue result (freed, missed_catch, out_of_paws, too_slow, walked_away, cancelled)"
 	"rescue_attempt|Platform,CustomField3|CustomEventCount|Rescue results by device"
+	"station_open|CustomField3,CustomField2|CustomEventCount|Station opens by device, ring or prompt (#2910)"
+	"session_start|CustomField1|CustomEventCountUser|Players by join source (organic, unknown, ad_<tag>)"
+	"session_start|CustomField3|CustomEventCountUser|Players by tier at join (store_v1 per Tier 2+ base)"
+	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"
+	"robux_purchase|CustomField1|CustomEventAvgValue|Average Robux per purchase, by sku (x count = revenue)"
+	"store_cancelled|CustomField1|CustomEventCount|Purchase prompts closed without buying, by sku"
 )
 say "### Event fields"
 say ""

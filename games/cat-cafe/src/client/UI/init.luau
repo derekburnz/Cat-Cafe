@@ -195,8 +195,8 @@ UI.events = {
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
-	collectCampExtra = Signal.new(), -- (extraId)   #1463: Collect on the cannon picker's pond strip (Golden Pond
-	-- owners): forward as CollectCampExtra
+	collectCampExtra = Signal.new(), -- (extraId)   #3082: Collect on a cannon picker card's strip (every player;
+	-- #1463 had it for Golden Pond owners): forward as CollectCampExtra
 	-- F87 (easy-start.md sections 3 and 6): a context tip shown (skipped true when its camera cut was skipped), and
 	-- Settings' "Show tips again"
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
@@ -970,9 +970,18 @@ function UI.init(config: Types.InitConfig)
 		launch = function(cannonId: string, destination: string)
 			UI.events.launchCannon:Fire(cannonId, destination)
 		end,
-		-- #1463: a Golden Pond owner's Collect on the Woods strip (UIController sends CollectCampExtra)
+		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
+		-- Golden Pond owner's pond)
 		collect = function(extraId: string)
 			UI.events.collectCampExtra:Fire(extraId)
+		end,
+		-- #3082: Open on a card's strip: the station's own card takes the picker's place
+		open = function(stationId: string)
+			if stationId == "yardSale" then
+				UI.campExtras.openYardSale(nil)
+			else
+				UI.lateStations.open(stationId)
+			end
 		end,
 		close = closeModal,
 	})

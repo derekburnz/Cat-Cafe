@@ -18,6 +18,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
+local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
@@ -115,7 +116,8 @@ local function ready(player: Player, stationId: string): Types.PlayerProfile?
 		)
 		return nil
 	end
-	if not inReach(player, stationId) then
+	-- #3082: the stations' cards open from the Cat Cannon's menu, so the walk-up check is off with the camp extras'
+	if not CampExtras.FROM_ANYWHERE and not inReach(player, stationId) then
 		local name = if stationId == LateStations.SPA then "Oasis Spa" else "Relic Museum"
 		refuse(player, stationId, string.format("Walk up to the %s first", name))
 		return nil

@@ -4,7 +4,8 @@
 -- area's colour where one of its strays appears and where it leaves the ground (caught or gone), and in the Ruins a
 -- mist puff round you when you drop into the mist below the plateau. The areas' boxes come from Config.World
 -- (DesertCenterX and the rest, #2655); strays from the `Stray` tag and their `Area` attribute. Listening only: no remotes, no game state. The air is off
--- in Low performance and a fifth as thick with Reduce Motion (Presets.areaFx).
+-- in Low performance and a fifth as thick with Reduce Motion (Presets.areaFx). In the Desert the nearest dune crests
+-- also blow a plume of sand off their tops (Presets.areaFx.dunes; none with Reduce Motion or Low performance).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -182,17 +183,121 @@ local function updateMist(area: string?, feet: Vector3)
 	end
 end
 
+-- Sand off the Desert's dune crests (#2925) ------------------------------------------------------------------
+
+local crests: { BasePart } = {}
+local scannedAt = -math.huge
+local pickedAt = -math.huge
+local plumes: { [BasePart]: Attachment } = {}
+
+local function isCrest(name: string): boolean
+	for _, suffix in Presets.areaFx.dunes.names do
+		if name:sub(-#suffix) == suffix then
+			return true
+		end
+	end
+	return false
+end
+
+-- The Desert's area model (WorldBuilder's Workspace.World.Desert, `Area` "desert").
+local function desertModel(): Instance?
+	local world = Workspace:FindFirstChild("World")
+	if world == nil then
+		return nil
+	end
+	for _, child in world:GetChildren() do
+		if child:IsA("Model") and child:GetAttribute("Area") == "desert" then
+			return child
+		end
+	end
+	return nil
+end
+
+local function scanCrests()
+	crests = {}
+	local model = desertModel()
+	if model == nil then
+		return
+	end
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") and isCrest(descendant.Name) then
+			table.insert(crests, descendant :: BasePart)
+		end
+	end
+end
+
+local function dropPlumes()
+	for part, anchor in plumes do
+		anchor:Destroy()
+		plumes[part] = nil
+	end
+end
+
+local function updateDunes(area: string?, feet: Vector3)
+	local d = Presets.areaFx.dunes
+	if area ~= "desert" or Context.lowPerformance or Context.reducedMotion() then
+		dropPlumes()
+		return
+	end
+	local now = os.clock()
+	if now - pickedAt < d.pickSeconds then
+		return
+	end
+	pickedAt = now
+	if now - scannedAt >= d.scanSeconds then
+		scannedAt = now
+		scanCrests()
+	end
+	local most: number = d.most[Context.tier] or d.most.low
+	local near: { { part: BasePart, gap: number } } = {}
+	for _, part in crests do
+		if part.Parent ~= nil then
+			local gap = (part.Position - feet).Magnitude
+			if gap <= d.within then
+				table.insert(near, { part = part, gap = gap })
+			end
+		end
+	end
+	table.sort(
+		near,
+		function(a: { part: BasePart, gap: number }, b: { part: BasePart, gap: number }): boolean
+			return a.gap < b.gap
+		end
+	)
+	local keep: { [BasePart]: boolean } = {}
+	for i = 1, math.min(most, #near) do
+		keep[near[i].part] = true
+	end
+	for part, anchor in plumes do
+		if not keep[part] or part.Parent == nil then
+			anchor:Destroy()
+			plumes[part] = nil
+		end
+	end
+	for part in keep do
+		local had: Attachment? = plumes[part]
+		if had == nil then
+			local top = part.Position + part.CFrame.UpVector * (part.Size.Y / 2)
+			local anchor = Particles.anchor("DuneSand", top)
+			Particles.attach(d.emitter, anchor)
+			plumes[part] = anchor
+		end
+	end
+end
+
 local function step()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	if root == nil or not root:IsA("BasePart") then
 		dropAir()
+		dropPlumes()
 		return
 	end
 	local feet = (root :: BasePart).Position - Vector3.new(0, 3, 0)
 	local area = Logic.areaAt(feet.X, feet.Z, areaBoxes(), Presets.areaFx.pad)
 	updateAir(area, feet)
 	updateMist(area, feet)
+	updateDunes(area, feet)
 end
 
 function AreaFx.start()

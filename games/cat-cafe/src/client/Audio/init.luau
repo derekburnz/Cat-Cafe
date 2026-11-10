@@ -1644,6 +1644,28 @@ end
 -- fired before anything listens holds its events for the first listener alone, and that must be the controller.
 local followingState = false
 
+-- #2927: the Oasis Spa and the Relic Museum answer every press with LateStationResult; Audio keeps the last
+-- LateStationsState to tell a cat going into the spa from one taken out.
+local lateState: any = nil
+
+local function followLateStations()
+	onRemote("LateStationsState", function(state: any)
+		lateState = state
+	end)
+	onRemote("LateStationResult", function(stationId: any, ok: any, detail: any)
+		local slot = if type(detail) == "table" then detail.slot else nil
+		local cueId = Logic.lateStationCue(
+			str(stationId),
+			ok == true,
+			detail,
+			Logic.spaUidAt(lateState, slot)
+		)
+		if cueId ~= nil then
+			Audio.play(cueId)
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -1654,6 +1676,7 @@ local function followServerState()
 	task.defer(followTrade)
 	task.defer(followRally)
 	task.defer(followBait)
+	task.defer(followLateStations)
 end
 
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),
@@ -1764,6 +1787,10 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		elseif hit == false then
 			Audio.play("netBounce", you())
 		end
+	end,
+	-- #2920: the first catch's ring stopped on its target and waits for the press (the Catch screen fires it once)
+	CircleHold = function(index: any)
+		Audio.play("circleHold", nil, num(index))
 	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))

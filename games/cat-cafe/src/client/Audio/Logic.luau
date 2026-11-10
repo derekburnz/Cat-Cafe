@@ -98,6 +98,53 @@ function Logic.areaSongFor(zone: string?, has: (string) -> boolean): string?
 	return if has(name) then name else nil
 end
 
+-- #2927: the sound for a LateStationResult(stationId, ok, detail). `wasIn` is the uid the last LateStationsState
+-- showed in detail.slot, so a put (the slot was empty) splashes and a take out (the same cat leaves) stays quiet.
+-- A collect chimes, a donation rings the gallery bell, and one that finished a room (detail.room) plays the Index
+-- milestone fanfare instead. A refusal or a slot bought plays nothing (the toast and the shop have their own).
+function Logic.lateStationCue(
+	stationId: string?,
+	ok: boolean?,
+	detail: any,
+	wasIn: string?
+): string?
+	if ok ~= true or type(detail) ~= "table" then
+		return nil
+	end
+	if stationId == "spa" then
+		if type(detail.relaxed) == "table" then
+			return if #detail.relaxed > 0 then "spaChime" else nil
+		end
+		if detail.bought == true or type(detail.uid) ~= "string" then
+			return nil
+		end
+		return if wasIn == detail.uid then nil else "spaSplash"
+	elseif stationId == "museum" then
+		if type(detail.room) == "string" and detail.room ~= "" then
+			return "indexReward"
+		end
+		return if type(detail.catId) == "string" then "museumBell" else nil
+	end
+	return nil
+end
+
+-- The uid a LateStationsState shows soaking in spa slot `slot`, or nil.
+function Logic.spaUidAt(state: any, slot: any): string?
+	if
+		type(state) ~= "table"
+		or type(state.spa) ~= "table"
+		or type(state.spa.soaking) ~= "table"
+	then
+		return nil
+	end
+	for _, view in state.spa.soaking do
+		if type(view) == "table" and view.slot == slot and type(view.uid) == "string" then
+			return view.uid
+		end
+	end
+	return nil
+end
+
 -- The next song, picked by `roll` (0 to 1): never the one that just played while there is another; nil for none.
 function Logic.nextSong(songs: { string }, last: string?, roll: number): string?
 	local choices: { string } = {}

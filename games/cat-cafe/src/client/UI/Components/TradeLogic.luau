@@ -21,14 +21,21 @@
 --   pickHint(pick, full) -> string?      "Unlock it on its card to trade", "This cat can't be traded", ...
 --   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (open, then REASK_SECONDS), Busy or
 --                                        "Tier 3 needed"
---   doneLine(got, gotDecor?) -> string   "Trade done! 2 new cats" (and "1 new decor", #1574)
+--   doneLine(got, gotDecor?, gotCrates?) "Trade done! 2 new cats" (and "1 new decor", #1574, "3 new crates", #2745)
 -- #1574 (section 1b): decor and lawn pieces, on the Decor tab beside Cats.
 --   myPieces(owned, unlocked, pieceOf, offered, theyHave) -> { PiecePick }   your tradeable pieces: rarest first,
 --                                        each with why it cannot go (locked, or the other player has it)
 --   pieceHint(pick, full) -> string?     "Unlock it on its card to trade", "They already have this", ...
 --   bonusText(bonus) -> string?          a piece's tip bonus on its card: "+5%"
 --   pieceRarity(rarity, bonus) -> string "Rare · +5%" under a piece on the confirm face
---   offerCount(side) -> number           the cats and pieces on one side
+--   offerCount(side) -> number           the cats, pieces and crate kinds on one side
+-- #2745 (section 1c): banked crates, on the Crates tab while the server's cratesOn says so.
+--   myCrates(banked, defOf, offered, blocked) -> { CratePick }   your tradeable crates (never a golden one), in
+--                                        catalog order, each with how many are banked and on offer
+--   crateHint(pick, side) -> string?     why a tap adds none: the server's reason, "You don't have that many", the caps
+--   crateMax(pick, side) -> number       the long press picker's top: banked, within the caps
+--   crateChange(offered, wanted)         what the picker sends: ("add" | "remove", count), or nil for no change
+--   countText(n) -> string               "x3"
 -- Part 2 (trading.md sections 1 and 5): the Trade requests setting and the Trades page.
 --   REQUEST_MODES, modeLabel(mode)       "everyone", "friends", "off" and "Everyone", "Friends only", "Off"
 --   requestsMode(saved, tap, now)        what the setting shows: a fresh press for HOLD_SECONDS, else the saved
@@ -79,6 +86,22 @@ export type PiecePick = {
 -- what the shared Trade.piece says about a tradeable piece (nil for one that can't be traded)
 export type PieceInfo = { kind: string, name: string, rarity: string, bonus: number }
 
+-- #2745: a crate kind in the Crates tab: "offered" once every banked one is on offer, "blocked" when the other
+-- player can't take it yet (`reason`, the server's crateBlocked)
+export type CrateStatus = "ok" | "offered" | "blocked"
+
+export type CratePick = {
+	id: string,
+	name: string,
+	banked: number,
+	offered: number,
+	status: CrateStatus,
+	reason: string?,
+}
+
+-- what the catalog says about a crate (UI Types' CrateDef, kept loose); `order` is its place in Catalog.crates
+export type CrateInfo = { name: string, golden: boolean?, order: number }
+
 export type RequestMode = "everyone" | "friends" | "off"
 
 export type Tap = { value: string, at: number } -- a press on one of REQUEST_MODES
@@ -126,6 +149,8 @@ TradeLogic.REQUEST_SECONDS = (Config.TradeRequestSeconds or 20) :: number
 TradeLogic.REASK_SECONDS = (Config.TradeReaskSeconds or 60) :: number
 
 TradeLogic.MAX_DECOR = (Config.TradeMaxDecor or 9) :: number
+TradeLogic.MAX_CRATES = (Config.TradeMaxCrates or 20) :: number -- #2745: crates a side in all
+TradeLogic.MAX_CRATE_KINDS = (Config.TradeMaxCrateKinds or 6) :: number -- and kinds of crate
 
 local MIN_TIER: number = Config.TradeMinTier or 3
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
@@ -349,7 +374,8 @@ end
 -- The cats and pieces on one side of the trade (#1574: decor counts toward Ready too).
 function TradeLogic.offerCount(side: any): number
 	local decor = if type(side.decor) == "table" then #side.decor else 0
-	return #side.cats + decor
+	local crates = if type(side.crates) == "table" then #side.crates else 0
+	return #side.cats + decor + crates
 end
 
 -- #1574: the rarities whose pieces arrive locked (the shared Trade.LOCKED_RARITIES), and the lawn's own rungs in
@@ -439,6 +465,106 @@ function TradeLogic.pieceRarity(rarity: string, bonus: number?): string
 	return if extra then rarity .. " · " .. extra else rarity
 end
 
+-- #2745: one side's crates as (kinds, crates in all) from its TradeCrateTile list.
+local function crateTotals(side: any): (number, number)
+	local list: { any } = if type(side) == "table" and type(side.crates) == "table"
+		then side.crates
+		else {}
+	local total = 0
+	for _, crate in list do
+		total += crate.count
+	end
+	return #list, total
+end
+
+-- #2745: your banked crates for the Crates tab: every crate id with a count of 1 or more that `defOf` knows and isn't
+-- golden, in catalog order; `offered` is crate id -> how many are on your side, `blocked` the server's crateBlocked.
+function TradeLogic.myCrates(
+	banked: { [string]: number }?,
+	defOf: (id: string) -> CrateInfo?,
+	offered: { [string]: number },
+	blocked: { [string]: string }?
+): { CratePick }
+	local why: { [string]: string } = blocked or {}
+	local counts: { [string]: number } = banked or {}
+	local picks: { CratePick } = {}
+	local order: { [string]: number } = {}
+	for id, raw in counts do
+		local count = if type(raw) == "number" and raw == raw then math.floor(raw) else 0
+		local def = if count > 0 then defOf(id) else nil
+		if def ~= nil and def.golden ~= true then
+			local on = math.min(count, offered[id] or 0)
+			local reason = why[id]
+			local status: CrateStatus = if reason ~= nil
+				then "blocked"
+				elseif on >= count then "offered"
+				else "ok"
+			local pick: CratePick = {
+				id = id,
+				name = def.name,
+				banked = count,
+				offered = on,
+				status = status,
+				reason = reason,
+			}
+			table.insert(picks, pick)
+			order[id] = def.order
+		end
+	end
+	table.sort(picks, function(a: CratePick, b: CratePick): boolean
+		local sa, sb =
+			if a.status == "blocked" then 2 else 1, if b.status == "blocked" then 2 else 1
+		if sa ~= sb then
+			return sa < sb
+		end
+		if order[a.id] ~= order[b.id] then
+			return order[a.id] < order[b.id]
+		end
+		return a.id < b.id
+	end)
+	return picks
+end
+
+-- #2745: the most of `pick` your side (`side`, a TradeSide) can hold: what is banked, within TradeMaxCrates in all,
+-- and 0 for a new kind past TradeMaxCrateKinds.
+function TradeLogic.crateMax(pick: CratePick, side: any): number
+	local kinds, total = crateTotals(side)
+	if pick.offered == 0 and kinds >= TradeLogic.MAX_CRATE_KINDS then
+		return 0
+	end
+	return math.max(0, math.min(pick.banked, TradeLogic.MAX_CRATES - (total - pick.offered)))
+end
+
+-- #2745: why a tap on `pick` adds none, or nil when it adds one.
+function TradeLogic.crateHint(pick: CratePick, side: any): string?
+	if pick.status == "blocked" then
+		return pick.reason or "This crate can't be traded"
+	elseif pick.offered >= pick.banked then
+		return "You don't have that many"
+	end
+	local kinds, total = crateTotals(side)
+	if pick.offered == 0 and kinds >= TradeLogic.MAX_CRATE_KINDS then
+		return string.format("Up to %d kinds of crate each", TradeLogic.MAX_CRATE_KINDS)
+	elseif total >= TradeLogic.MAX_CRATES then
+		return string.format("Up to %d crates each", TradeLogic.MAX_CRATES)
+	end
+	return nil
+end
+
+-- #2745: what the long press picker sends to go from `offered` to `wanted`: the server takes a difference.
+function TradeLogic.crateChange(offered: number, wanted: number): (string?, number)
+	if wanted > offered then
+		return "add", wanted - offered
+	elseif wanted < offered then
+		return "remove", offered - wanted
+	end
+	return nil, 0
+end
+
+function TradeLogic.countText(n: number): string
+	return "x" .. tostring(math.max(0, math.floor(n)))
+end
+
 function TradeLogic.playerButton(row: PlayerRow, minTier: number): ButtonView
 	if row.asked then
 		return { text = "Asked", enabled = false, style = "primary" }
@@ -450,20 +576,39 @@ function TradeLogic.playerButton(row: PlayerRow, minTier: number): ButtonView
 	return { text = "Trade", enabled = true, style = "primary" }
 end
 
--- #1574: `gotDecor`, the pieces that came, joins the line: "Trade done! 1 new cat and 2 new decor".
-function TradeLogic.doneLine(got: { any }?, gotDecor: { any }?): string
+-- #1574: `gotDecor`, the pieces that came, and #2745: `gotCrates` ({ id, count }), join the line: "Trade done! 1 new
+-- cat, 2 new decor and 3 new crates".
+function TradeLogic.doneLine(got: { any }?, gotDecor: { any }?, gotCrates: { any }?): string
 	local count = if got then #got else 0
 	local pieces = if type(gotDecor) == "table" then #gotDecor else 0
-	local cats = string.format("%d new %s", count, if count == 1 then "cat" else "cats")
-	local decor = string.format("%d new decor", pieces)
-	if count == 0 and pieces == 0 then
-		return "Trade done!"
-	elseif pieces == 0 then
-		return "Trade done! " .. cats
-	elseif count == 0 then
-		return "Trade done! " .. decor
+	local crates = 0
+	if type(gotCrates) == "table" then
+		for _, crate in gotCrates do
+			crates += if type(crate) == "table" and type(crate.count) == "number"
+				then crate.count
+				else 0
+		end
 	end
-	return string.format("Trade done! %s and %s", cats, decor)
+	local parts: { string } = {}
+	if count > 0 then
+		table.insert(parts, string.format("%d new %s", count, if count == 1 then "cat" else "cats"))
+	end
+	if pieces > 0 then
+		table.insert(parts, string.format("%d new decor", pieces))
+	end
+	if crates > 0 then
+		table.insert(
+			parts,
+			string.format("%d new %s", crates, if crates == 1 then "crate" else "crates")
+		)
+	end
+	if #parts == 0 then
+		return "Trade done!"
+	elseif #parts == 1 then
+		return "Trade done! " .. parts[1]
+	end
+	local last = table.remove(parts) :: string
+	return string.format("Trade done! %s and %s", table.concat(parts, ", "), last)
 end
 
 local REQUEST_MODES: { RequestMode } = { "everyone", "friends", "off" }

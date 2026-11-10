@@ -17,6 +17,10 @@
 --     pieces (Components/TradeItemTile): a press adds one (or takes it back); a locked one says "Unlock it on its card
 --     to trade", one the other player owns is greyed with "They already have this". Pieces on offer follow the cats
 --     in both grids (each scrolls past 9) and on the confirm face, with their rarity and tip bonus.
+--   * #2745 (section 1c): a Crates tab beside them while the server's cratesOn says so: your banked crates (never a
+--     golden one) with "x3" banked. A tap adds one; a long press opens a picker from 1 to what you can add, which
+--     sends the difference. One the other player can't open yet is greyed with the server's reason. Crates on offer
+--     follow the pieces with their count; a tap on yours takes one back.
 -- Cancel (or the X) fires callbacks.cancel(tradeId) during a trade; the window closes when TradeState goes nil.
 
 local Players = game:GetService("Players")
@@ -45,8 +49,14 @@ local PAL = Theme.dark
 export type Callbacks = {
 	close: () -> (),
 	request: (userId: number) -> (),
-	-- `kind` "decor" offers a piece id instead of a cat uid (#1574); nil is a cat
-	offer: (tradeId: string, action: "add" | "remove", uid: string, kind: "decor"?) -> (),
+	-- `kind` "decor" offers a piece id instead of a cat uid (#1574), "crate" `count` of a crate id (#2745); nil is a cat
+	offer: (
+		tradeId: string,
+		action: "add" | "remove",
+		uid: string,
+		kind: ("decor" | "crate")?,
+		count: number?
+	) -> (),
 	ready: (tradeId: string, version: number, ready: boolean) -> (),
 	confirm: (tradeId: string, version: number) -> (),
 	cancel: (tradeId: string) -> (),
@@ -82,12 +92,16 @@ type PieceCard = {
 	rarity: TextLabel,
 }
 
-type Tab = "cats" | "decor"
-local TABS: { { id: Tab, label: string } } =
-	{ { id = "cats", label = "Cats" }, { id = "decor", label = "Decor" } }
-local TAB_W = 76
+type Tab = "cats" | "decor" | "crates"
+local TABS: { { id: Tab, label: string } } = {
+	{ id = "cats", label = "Cats" },
+	{ id = "decor", label = "Decor" },
+	{ id = "crates", label = "Crates" }, -- #2745: shown while the server's cratesOn says so
+}
+local TAB_W = 70
 local PIECE_ORDER = 100 -- pieces follow the cats in a grid or a confirm row
-local SLOT_ORDER = 200 -- and the empty slots follow both
+local CRATE_ORDER = 150 -- #2745: crates follow the pieces
+local SLOT_ORDER = 200 -- and the empty slots follow them all
 
 local MAX_SIZE = Vector2.new(760, 420)
 local GRID_GAP = 6
@@ -169,6 +183,12 @@ function Trade.new(callbacks: Callbacks): Trade
 	self._tab = "cats" :: Tab
 	self._tabH = Scale.tapHeight(36) -- taller than the grids' titles: a full tap with a mouse or a thumb
 	self._tabButtons = {} :: { [Tab]: TextButton }
+	self._crateById = {} :: { [string]: TradeLogic.CrateInfo } -- #2745: Catalog.crates by id
+	self._crateTiles = {} :: { [string]: TradeItemTile.TradeItemTile } -- the Crates tab's kinds by id
+	self._crates = {} :: { TradeLogic.CratePick }
+	self._pickerFor = nil :: string? -- the crate id the count picker is open for
+	self._pickerCount = 1
+	self._pickerMax = 1
 	self._confirmSince = nil :: number? -- os.clock() when this version's confirm screen showed
 	self._confirmKey = ""
 	self._flashKey = ""
@@ -476,6 +496,7 @@ function Trade._buildOffer(self: any, content: Frame)
 			tiles = {},
 			grid = mineGrid,
 			pieces = {} :: { TradeItemTile.TradeItemTile },
+			crates = {} :: { TradeItemTile.TradeItemTile },
 		},
 		them = {
 			title = theirsTitle,
@@ -485,6 +506,7 @@ function Trade._buildOffer(self: any, content: Frame)
 			tiles = {},
 			grid = theirsGrid,
 			pieces = {} :: { TradeItemTile.TradeItemTile },
+			crates = {} :: { TradeItemTile.TradeItemTile },
 		},
 	}
 	for index = 1, TradeLogic.MAX_CATS do
@@ -545,6 +567,7 @@ function Trade._buildOffer(self: any, content: Frame)
 			TextColor3 = PAL.text,
 			Text = tab.label,
 			LayoutOrder = order,
+			Visible = id ~= "crates", -- #2745: until a TradeState says cratesOn
 			Parent = tabs,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 		button.Activated:Connect(function()
@@ -606,6 +629,7 @@ function Trade._buildOffer(self: any, content: Frame)
 		Text = "Tap a cat to add it",
 		Parent = picks,
 	})
+	self:_buildPicker(picks)
 	-- the countdown, big over the two grids
 	local count = text({
 		Name = "Count",
@@ -622,6 +646,93 @@ function Trade._buildOffer(self: any, content: Frame)
 	})
 	Outline.text(count, 4)
 	self._count = count
+end
+
+-- #2745: the Crates tab's count picker, over the foot of the list after a long press on a crate: its name, − n +,
+-- and Cancel and Done. Done sends the difference from what is on offer now.
+function Trade._buildPicker(self: any, picks: Frame)
+	local buttonH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
+	local height = 22 + 2 * buttonH + 3 * GAP
+	local picker: Frame = Create("Frame", {
+		Name = "CratePicker",
+		BackgroundColor3 = PAL.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, height),
+		Visible = false,
+		ZIndex = 10,
+		Parent = picks,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = Theme.sizes.stroke }),
+	})
+	self._picker = picker
+	self._pickerTitle = text({
+		Name = "Title",
+		Position = UDim2.fromOffset(GAP, 2),
+		Size = UDim2.new(1, -2 * GAP, 0, 20),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		ZIndex = 11,
+		Parent = picker,
+	})
+	local function button(
+		name: string,
+		label: string,
+		style: any,
+		x: UDim,
+		y: number,
+		w: UDim,
+		onClick: () -> ()
+	)
+		return Button.new({
+			name = name,
+			text = label,
+			style = style,
+			position = UDim2.new(x.Scale, x.Offset, 0, y),
+			size = UDim2.new(w.Scale, w.Offset, 0, buttonH),
+			textSize = Theme.sizes.textBody,
+			zIndex = 12,
+			parent = picker,
+			onClick = onClick,
+		})
+	end
+	local rowY = 22 + GAP
+	local third = UDim.new(1 / 3, -GAP)
+	self._pickerLess = button("Less", "−", "ghost", UDim.new(0, GAP / 2), rowY, third, function()
+		self:_pickerStep(-1)
+	end)
+	self._pickerCountLabel = text({
+		Name = "Count",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, rowY),
+		Size = UDim2.new(1 / 3, -GAP, 0, buttonH),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 4,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		ZIndex = 11,
+		Parent = picker,
+	})
+	self._pickerMore = button(
+		"More",
+		"+",
+		"ghost",
+		UDim.new(2 / 3, GAP / 2),
+		rowY,
+		third,
+		function()
+			self:_pickerStep(1)
+		end
+	)
+	local half = UDim.new(0.5, -GAP * 1.5)
+	button("Close", "Cancel", "ghost", UDim.new(0, GAP), rowY + buttonH + GAP, half, function()
+		self:_closePicker()
+	end)
+	button("Done", "Done", "primary", UDim.new(0.5, GAP / 2), rowY + buttonH + GAP, half, function()
+		self:_pickerDone()
+	end)
 end
 
 -- The confirm face: "You give" and "You get" as rows of cards with names, and the red warning line.
@@ -693,12 +804,14 @@ function Trade._buildConfirm(self: any, content: Frame)
 			nothing = giveNothing,
 			cards = {} :: { ConfirmCard },
 			pieces = {} :: { PieceCard },
+			crates = {} :: { PieceCard },
 		},
 		get = {
 			scroll = get,
 			nothing = getNothing,
 			cards = {} :: { ConfirmCard },
 			pieces = {} :: { PieceCard },
+			crates = {} :: { PieceCard },
 		},
 	}
 	self._warning = text({
@@ -826,10 +939,45 @@ local function pieceLight(rarity: string): Color3
 	return TradeItemTile.color(rarity):Lerp(Theme.colors.white, 0.25)
 end
 
+-- #2745: a crate kind's card on the confirm face, after the pieces (a PieceCard in its own list).
+function Trade._crateCard(self: any, row: any, index: number): PieceCard
+	local existing: PieceCard? = row.crates[index]
+	if existing then
+		return existing
+	end
+	local holder = { pieces = row.crates, scroll = row.scroll }
+	local card = self:_pieceCard(holder, index)
+	card.frame.Name = "Crate" .. index
+	card.frame.LayoutOrder = CRATE_ORDER + index
+	return card
+end
+
+-- #2745: one side's crates (TradeCrateTile: id, name, area, count), {} before the server sends them.
+local function cratesOf(side: any): { any }
+	return if type(side) == "table" and type(side.crates) == "table" then side.crates else {}
+end
+
+-- #2745: what a crate kind on offer shows: its picture, name and "x3".
+local function crateView(crate: any, status: ("offered" | "blocked")?): TradeItemTile.View
+	return {
+		id = crate.id,
+		name = crate.name,
+		rarity = "Common",
+		image = ShopIcons.crate(crate.id),
+		badge = TradeLogic.countText(crate.count),
+		status = status,
+	}
+end
+
 function Trade.setCatalog(self: any, catalog: Types.Catalog)
 	table.clear(self._catById)
 	for _, def in catalog.cats do
 		self._catById[def.id] = def
+	end
+	table.clear(self._crateById)
+	local crates: { Types.CrateDef } = catalog.crates or {}
+	for order, def in crates do
+		self._crateById[def.id] = { name = def.name, golden = def.golden, order = order }
 	end
 	self:_renderAll()
 end
@@ -854,6 +1002,10 @@ function Trade.setTrade(self: any, trade: Types.TradeState?)
 		self._confirmKey = ""
 	elseif before == nil or before.tradeId ~= trade.tradeId then
 		self._hint = nil
+		self._tab = "cats" -- a new trade opens on Cats
+	end
+	if trade == nil or trade.phase ~= "offer" then
+		self:_closePicker() -- #2745: no count picker past the offer
 	end
 	self:_renderAll()
 end
@@ -977,9 +1129,10 @@ function Trade._renderOffer(self: any, trade: Types.TradeState)
 		local data: Types.TradeSide = if key == "me" then trade.me else trade.them
 		side.title.Text = if key == "me" then "You give" else string.format("%s gives", data.name)
 		side.ready.Visible = data.ready
-		-- #1574: the cats, then the pieces, then empty slots up to 9
+		-- #1574: the cats, then the pieces, then (#2745) the crates, then empty slots up to 9
 		local decor: { Types.TradeDecorTile } = data.decor or {}
-		local slots = math.max(0, TradeLogic.MAX_CATS - #data.cats - #decor)
+		local crates = cratesOf(data)
+		local slots = math.max(0, TradeLogic.MAX_CATS - #data.cats - #decor - #crates)
 		for index, tile in side.tiles do
 			local cat: Types.TradeTile? = data.cats[index]
 			tile:set(if cat then tileView(self, cat, key == "them") else nil)
@@ -1006,6 +1159,27 @@ function Trade._renderOffer(self: any, trade: Types.TradeState)
 		end
 		for index = #decor + 1, #side.pieces do
 			side.pieces[index]:set(nil)
+		end
+		for index, crate in crates do
+			local made: TradeItemTile.TradeItemTile? = side.crates[index]
+			if made == nil then
+				made = TradeItemTile.new({
+					parent = side.grid,
+					size = self._tile,
+					layoutOrder = CRATE_ORDER + index,
+					name = "Crate" .. index,
+					onClick = if key == "me"
+						then function()
+							self:_pressMineCrate(index)
+						end
+						else nil,
+				})
+				side.crates[index] = made
+			end
+			(made :: TradeItemTile.TradeItemTile):set(crateView(crate, nil))
+		end
+		for index = #crates + 1, #side.crates do
+			side.crates[index]:set(nil)
 		end
 	end
 	local ready = TradeLogic.readyButton(trade)
@@ -1046,13 +1220,14 @@ function Trade._setTab(self: any, tab: Tab)
 	end
 	self._tab = tab
 	self._hint = nil
+	self:_closePicker()
 	self._picksList.CanvasPosition = Vector2.zero
 	self:_renderPicks()
 	self:_tick()
 end
 
 -- #1574: the Decor tab's pieces: every owned crate decor and lawn piece that can be traded.
-function Trade._renderPieces(self: any, show: boolean)
+function Trade._renderPieces(self: any, show: boolean): number
 	local trade: Types.TradeState? = self._trade
 	local state: Types.PlayerState? = self._state
 	local pieces: { TradeLogic.PiecePick } = {}
@@ -1119,9 +1294,16 @@ function Trade._renderPicks(self: any)
 	local defOf = function(catId: string): any
 		return self._catById[catId]
 	end
+	-- #2745: the Crates tab only while the server's cratesOn says so
+	local cratesOn = (trade :: any).cratesOn == true
+	if self._tab == "crates" and not cratesOn then
+		self._tab = "cats"
+		self:_closePicker()
+	end
 	local catsTab = self._tab == "cats"
 	for id, button in self._tabButtons do
 		local on = id == self._tab
+		button.Visible = id ~= "crates" or cratesOn
 		button.BackgroundColor3 = if on then Theme.colors.mintDark else PAL.card
 		button.TextColor3 = if on then Theme.colors.white else PAL.subtext
 	end
@@ -1168,9 +1350,89 @@ function Trade._renderPicks(self: any)
 			self._pickTiles[uid] = nil
 		end
 	end
-	local pieces = self:_renderPieces(not catsTab)
-	self._picksEmpty.Text = if catsTab then "No cats to trade yet" else "No decor to trade yet"
-	self._picksEmpty.Visible = if catsTab then #picks == 0 else pieces == 0
+	local pieces = self:_renderPieces(self._tab == "decor")
+	local crates = self:_renderCrates(self._tab == "crates")
+	self._picksEmpty.Text = if catsTab
+		then "No cats to trade yet"
+		elseif self._tab == "decor" then "No decor to trade yet"
+		else "No crates to trade yet"
+	self._picksEmpty.Visible = if catsTab
+		then #picks == 0
+		elseif self._tab == "decor" then pieces == 0
+		else crates == 0
+end
+
+-- #2745: the crate ids on my side and how many of each.
+function Trade._offeredCrates(self: any): { [string]: number }
+	local offered: { [string]: number } = {}
+	local trade: Types.TradeState? = self._trade
+	if trade then
+		for _, crate in cratesOf(trade.me) do
+			offered[crate.id] = crate.count
+		end
+	end
+	return offered
+end
+
+-- #2745: the Crates tab: your banked crates that can be traded, "x3" banked, greyed when the other player can't take
+-- them yet, ticked once every one is on offer.
+function Trade._renderCrates(self: any, show: boolean): number
+	local trade: Types.TradeState? = self._trade
+	local state: Types.PlayerState? = self._state
+	local crates: { TradeLogic.CratePick } = {}
+	if show and trade ~= nil and state ~= nil then
+		crates = TradeLogic.myCrates(state.crates, function(id: string): TradeLogic.CrateInfo?
+			return self._crateById[id]
+		end, self:_offeredCrates(), (trade :: any).crateBlocked)
+	end
+	self._crates = crates
+	local seen: { [string]: boolean } = {}
+	for index, pick in crates do
+		seen[pick.id] = true
+		local tile: TradeItemTile.TradeItemTile? = self._crateTiles[pick.id]
+		if tile == nil then
+			local id = pick.id
+			local made = TradeItemTile.new({
+				parent = self._picksList,
+				size = self._tile,
+				name = "Crate",
+				onClick = function()
+					self:_pressCrate(id)
+				end,
+				onHold = function()
+					self:_openPicker(id)
+				end,
+			})
+			self._crateTiles[id] = made
+			tile = made
+		end
+		local shown = tile :: TradeItemTile.TradeItemTile
+		shown.frame.LayoutOrder = index
+		local status: ("offered" | "blocked")? = if pick.status == "blocked"
+			then "blocked"
+			elseif pick.status == "offered" then "offered"
+			else nil
+		local view: TradeItemTile.View = {
+			id = pick.id,
+			name = pick.name,
+			rarity = "Common",
+			image = ShopIcons.crate(pick.id),
+			badge = TradeLogic.countText(pick.banked),
+			foot = if pick.offered > 0 then string.format("%d on", pick.offered) else nil,
+			status = status,
+		}
+		shown:set(view)
+	end
+	for id, tile in self._crateTiles do
+		if not seen[id] then
+			tile:destroy()
+			self._crateTiles[id] = nil
+		end
+	end
+	if self._pickerFor ~= nil and not seen[self._pickerFor] then
+		self:_closePicker()
+	end
+	return #crates
 end
 
 function Trade._renderConfirm(self: any, trade: Types.TradeState)
@@ -1212,7 +1474,20 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 		for index = #decor + 1, #row.pieces do
 			row.pieces[index].frame.Visible = false
 		end
-		local nothing = #cats + #decor == 0
+		-- #2745: the crates after the pieces
+		local crates = cratesOf(side)
+		for index, crate in crates do
+			local card = self:_crateCard(row, index)
+			card.frame.Visible = true
+			card.tile:set(crateView(crate, nil))
+			card.name.Text = crate.name
+			card.rarity.Text = TradeLogic.countText(crate.count)
+			card.rarity.TextColor3 = PAL.subtext
+		end
+		for index = #crates + 1, #row.crates do
+			row.crates[index].frame.Visible = false
+		end
+		local nothing = #cats + #decor + #crates == 0
 		row.nothing.Visible = nothing
 		row.nothing.TextColor3 = if key == "get" and nothing then PAL.red else PAL.subtext
 	end
@@ -1282,19 +1557,31 @@ function Trade._tick(self: any)
 					tile:flash()
 				end
 			end
+			for index, crate in cratesOf(data) do
+				local tile: TradeItemTile.TradeItemTile? = self._side[changed.side].crates[index]
+				if crate.id == changed.uid and tile ~= nil then
+					tile:flash()
+				end
+			end
 		end
 	end
 	local hint: string? = if os.clock() < self._hintUntil then self._hint else nil
-	local catsTab = self._tab == "cats"
-	local full = if catsTab
+	local tab: Tab = self._tab
+	local crateCount = 0
+	for _, crate in cratesOf(trade.me) do
+		crateCount += crate.count
+	end
+	local full = if tab == "cats"
 		then #trade.me.cats >= TradeLogic.MAX_CATS
-		else #(trade.me.decor or {}) >= TradeLogic.MAX_DECOR
+		elseif tab == "decor" then #(trade.me.decor or {}) >= TradeLogic.MAX_DECOR
+		else crateCount >= TradeLogic.MAX_CRATES
 	self._hintLabel.Text = hint
 		or (
 			if full
 				then "Your offer is full"
-				elseif catsTab then "Tap a cat to add it"
-				else "Tap a piece to add it"
+				elseif tab == "cats" then "Tap a cat to add it"
+				elseif tab == "decor" then "Tap a piece to add it"
+				else "Tap to add one, hold to pick how many"
 		)
 	self._hintLabel.TextColor3 = if hint then PAL.warn else PAL.subtext
 end
@@ -1384,6 +1671,95 @@ function Trade._pressPiece(self: any, id: string)
 	end
 end
 
+-- #2745: a press on a crate in my grid takes one back.
+function Trade._pressMineCrate(self: any, index: number)
+	local trade: Types.TradeState? = self._trade
+	if trade == nil or trade.phase == "confirm" then
+		return
+	end
+	local crate = cratesOf(trade.me)[index]
+	if crate then
+		self._callbacks.offer(trade.tradeId, "remove", crate.id, "crate", 1)
+	end
+end
+
+-- #2745: the Crates tab's pick for crate `id`, or nil.
+function Trade._cratePick(self: any, id: string): TradeLogic.CratePick?
+	for _, pick in self._crates do
+		if pick.id == id then
+			return pick
+		end
+	end
+	return nil
+end
+
+-- #2745: a tap on a crate in the Crates tab adds one, else says why not with a wobble.
+function Trade._pressCrate(self: any, id: string)
+	local trade: Types.TradeState? = self._trade
+	local pick = self:_cratePick(id)
+	if trade == nil or trade.phase == "confirm" or pick == nil then
+		return
+	end
+	local hint = TradeLogic.crateHint(pick, trade.me)
+	if hint then
+		self:_refuse(hint, self._crateTiles[id])
+		return
+	end
+	self._callbacks.offer(trade.tradeId, "add", id, "crate", 1)
+end
+
+-- #2745: a long press on a crate opens the count picker from 1 to what can go (or says why none can).
+function Trade._openPicker(self: any, id: string)
+	local trade: Types.TradeState? = self._trade
+	local pick = self:_cratePick(id)
+	if trade == nil or trade.phase == "confirm" or pick == nil then
+		return
+	end
+	local most = TradeLogic.crateMax(pick, trade.me)
+	if pick.status == "blocked" or most < 1 then
+		self:_refuse(
+			TradeLogic.crateHint(pick, trade.me) or "You don't have that many",
+			self._crateTiles[id]
+		)
+		return
+	end
+	self._pickerFor = id
+	self._pickerMax = most
+	self._pickerCount = math.clamp(math.max(pick.offered, 1), 1, most)
+	self._pickerTitle.Text = string.format("How many %s?", pick.name)
+	self._picker.Visible = true
+	self:_pickerStep(0)
+end
+
+function Trade._pickerStep(self: any, by: number)
+	self._pickerCount = math.clamp(self._pickerCount + by, 1, self._pickerMax)
+	self._pickerCountLabel.Text = tostring(self._pickerCount)
+	self._pickerLess:setEnabled(self._pickerCount > 1)
+	self._pickerMore:setEnabled(self._pickerCount < self._pickerMax)
+end
+
+function Trade._closePicker(self: any)
+	self._pickerFor = nil
+	if self._picker ~= nil then
+		self._picker.Visible = false
+	end
+end
+
+-- Done: the difference from what is on offer now, as one add or one remove.
+function Trade._pickerDone(self: any)
+	local trade: Types.TradeState? = self._trade
+	local id: string? = self._pickerFor
+	local pick = if id ~= nil then self:_cratePick(id) else nil
+	self:_closePicker()
+	if trade == nil or trade.phase == "confirm" or pick == nil then
+		return
+	end
+	local action, count = TradeLogic.crateChange(pick.offered, self._pickerCount)
+	if action ~= nil then
+		self._callbacks.offer(trade.tradeId, action, pick.id, "crate", count)
+	end
+end
+
 -- Why a press did nothing, under the list for 3 s, and the card's wobble.
 function Trade._refuse(self: any, hint: string, tile: any)
 	self._hint = hint
@@ -1406,6 +1782,9 @@ function Trade.destroy(self: any)
 		tile:destroy()
 	end
 	for _, tile in self._pieceTiles do
+		tile:destroy()
+	end
+	for _, tile in self._crateTiles do
 		tile:destroy()
 	end
 	self._panel:destroy()

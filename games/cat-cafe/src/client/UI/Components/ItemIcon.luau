@@ -20,7 +20,7 @@ local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
-export type Badge = "word" | "gem"
+export type Badge = "word" | "gem" | "none"
 
 export type Props = {
 	parent: Instance,
@@ -28,7 +28,9 @@ export type Props = {
 	position: UDim2?,
 	anchorPoint: Vector2?,
 	name: string?,
-	badge: Badge?, -- how setFood shows the grade; "word" by default, "gem" for small pictures
+	-- how setFood shows the grade; "word" by default, "gem" for small pictures, "none" for one too small for a
+	-- letter, where the tile's colour alone says the grade (#3008: the 30 px food beside the bowl's Refill)
+	badge: Badge?,
 	plain: boolean?, -- no tile behind the picture: a bold picture on its own (the spin wheel's prizes, #966)
 }
 
@@ -183,6 +185,9 @@ function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?, image: s
 	local key = if lure then lure.id else id or ""
 	local asset = if lure then lure.asset else nil
 	self:set(asset, Theme.foodIcons[key] or Theme.icons.food, grade, image or ShopIcons.food(key))
+	if self._badgeKind == "none" then
+		return
+	end
 	local badge = self:_badgeLabel()
 	badge.BackgroundColor3 = Theme.rarityColor(grade)
 	badge.TextColor3 = Theme.rarityTextColor(grade)

@@ -162,6 +162,20 @@ local IDS: { [string]: string } = {
 	Icon_Hud_RoleWaiter = "rbxassetid://136846403223735",
 	Icon_Hud_RoleGreeter = "rbxassetid://113660188682260",
 	Icon_Hud_RoleEntertainer = "rbxassetid://122759156405446",
+	-- #3137 batch 1 (Derek2 11-10: "go through lots of simple plain looking images for ui/buttons and make them
+	-- better", OK'd 22:18): the clean redraws of the Upgrades rows, the staff roles and the Oasis Spa (upload run
+	-- 42913358930, assets/cat-cafe/ui/icons-clean-2026-11-10). They win over the #2836 pictures above, which stay as
+	-- their backups (BACKUP) while one is in moderation or fails to load.
+	Icon_Clean_Tables = "rbxassetid://78752964799899",
+	Icon_Clean_Espresso = "rbxassetid://75462239871153",
+	Icon_Clean_Net = "rbxassetid://107635112477250",
+	Icon_Clean_LureBowl = "rbxassetid://125008235885167",
+	Icon_Clean_LuckyCat = "rbxassetid://130158950733679",
+	Icon_Clean_Barista = "rbxassetid://88726552754770",
+	Icon_Clean_Waiter = "rbxassetid://122492899176267",
+	Icon_Clean_Greeter = "rbxassetid://107746555479783",
+	Icon_Clean_Entertainer = "rbxassetid://79258683838050",
+	Icon_Clean_Spa = "rbxassetid://90117647745743",
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://73874755116021",
 	Icon_Hud_SetMusicVolume = "rbxassetid://105488499187015",
@@ -565,11 +579,18 @@ end
 
 -- #2836 (Derek2 11-09: "make sure all our buttons/icons are high quality"): the drawn pictures Model-Agent made for
 -- the icons that were still emoji (PR #2837). An id still in moderation draws blank, so the emoji shows until then.
+-- #3137: the clean redraws first, each with its #2836 picture as the backup
 local UPGRADE_ART: { [string]: string } = {
-	tables = "Tables",
-	espresso = "Espresso",
-	lure_bowl = "Bait",
-	lucky_cat = "LuckyCat",
+	tables = "Icon_Clean_Tables",
+	espresso = "Icon_Clean_Espresso",
+	lure_bowl = "Icon_Clean_LureBowl",
+	lucky_cat = "Icon_Clean_LuckyCat",
+}
+local UPGRADE_OLD: { [string]: string } = {
+	tables = "Icon_Hud_Tables",
+	espresso = "Icon_Hud_Espresso",
+	lure_bowl = "Icon_Hud_Bait",
+	lucky_cat = "Icon_Hud_LuckyCat",
 }
 -- #2836 pass 2: a Settings row's picture by setting key; the cat income row draws the coin and the tutorial row the
 -- HUD's Tutorial tile
@@ -589,11 +610,26 @@ local SETTING_ART: { [string]: string } = {
 	tutorialButton = "Icon_Hud_Tutorial",
 }
 local ROLE_ART: { [string]: string } = {
-	barista = "RoleBarista",
-	waiter = "RoleWaiter",
-	greeter = "RoleGreeter",
-	entertainer = "RoleEntertainer",
+	barista = "Icon_Clean_Barista",
+	waiter = "Icon_Clean_Waiter",
+	greeter = "Icon_Clean_Greeter",
+	entertainer = "Icon_Clean_Entertainer",
 }
+local ROLE_OLD: { [string]: string } = {
+	barista = "Icon_Hud_RoleBarista",
+	waiter = "Icon_Hud_RoleWaiter",
+	greeter = "Icon_Hud_RoleGreeter",
+	entertainer = "Icon_Hud_RoleEntertainer",
+}
+-- #3137: a clean redraw that fails to load (or waits in moderation) falls back to the #2836 picture it replaced
+for _, pair in { { UPGRADE_ART, UPGRADE_OLD }, { ROLE_ART, ROLE_OLD } } do
+	for key, name in pair[1] do
+		local new, old = IDS[name], IDS[pair[2][key]]
+		if new and old then
+			BACKUP[new] = old
+		end
+	end
+end
 
 -- A glyph IconArt.set draws as a drawn picture wherever it shows (the Drop buttons' ⬇️, Settings' 🎬 Replay row, the
 -- Mythical tag prize's 🏷️ and the 🍽️ of a food with no picture of its own), or nil. Glyphs that also mean other
@@ -612,13 +648,13 @@ end
 -- An Upgrades row's picture by upgrade id (the Net row has its own, ShopIcons.net), or nil.
 function ShopIcons.upgrade(id: string?): string?
 	local name = if type(id) == "string" then UPGRADE_ART[id] else nil
-	return if name then IDS["Icon_Hud_" .. name] else nil
+	return if name then IDS[name] else nil
 end
 
 -- A staff role's picture (barista, waiter, greeter, entertainer), or nil.
 function ShopIcons.role(role: string?): string?
 	local name = if type(role) == "string" then ROLE_ART[role] else nil
-	return if name then IDS["Icon_Hud_" .. name] else nil
+	return if name then IDS[name] else nil
 end
 
 -- A Settings row's picture by its setting key (#2836 pass 2), or nil for a row that keeps its glyph.

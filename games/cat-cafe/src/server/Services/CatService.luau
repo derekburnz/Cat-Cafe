@@ -1780,8 +1780,10 @@ function startCatch(
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
 		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area) -- #2322: wider in the first area
+	-- #2920: a player's very first catch holds its ring on the target until the press
+	local hold = tutorial and Config.CatchHoldFirstRing and profile.stats.catsCaught == 0
 	local circles = if tutorial
-		then Circles.tutorialSchedule(now, roll)
+		then Circles.tutorialSchedule(now, roll, hold)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more

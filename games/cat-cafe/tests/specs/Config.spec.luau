@@ -115,6 +115,7 @@ return function()
 		TutorialShrinkSeconds = 1.6,
 		TutorialWindowScale = 2,
 		TutorialRetrySeconds = 1.0,
+		FirstRingHoldSeconds = 60, -- #2920
 		StuckNudgeSeconds = 40,
 		StuckHelpSeconds = 90,
 		TipGapSeconds = 150, -- #2407
@@ -538,6 +539,7 @@ return function()
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
 				SpaSlotPrices = true, -- #2651 part 4 (late-stations.md): a table, checked in LateStations.spec
 				LateStationsOpen = true, -- #2651 part 4: false until the cards are in (a false value reads as missing)
+				CatchHoldFirstRing = true, -- #2920: false until the Catch screen draws the hold
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 			}
 			for name, value in pairs(Config :: any) do

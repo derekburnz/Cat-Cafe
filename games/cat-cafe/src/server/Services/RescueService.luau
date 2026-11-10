@@ -262,6 +262,7 @@ end
 
 -- #2240: today's traps in `area`, RescuePick's choice of the area's mix from its pool of spots, away from yesterday's.
 -- #2794: with `starter`, the pool's spot nearest the camp's pad is picked every day and returned second.
+-- #2687: the area's hidden nook spot joins the day's traps every day, outside the pick and its spacing.
 local function pickTraps(
 	areaId: string,
 	area: WorldBuilder.AreaInfo,
@@ -269,6 +270,9 @@ local function pickTraps(
 ): ({ string }, string?)
 	local pool: { RescuePick.Candidate } = {}
 	for spotId, spot in area.rescueSpots do
+		if spotId == area.nookSpot then
+			continue -- #2687: the hidden nook's trap is out every day, on top of the pick
+		end
 		local trap = spot:GetAttribute("TrapType")
 		table.insert(pool, {
 			id = spotId,
@@ -291,6 +295,10 @@ local function pickTraps(
 		end,
 		keep
 	)
+	if area.nookSpot ~= nil then
+		table.insert(ids, area.nookSpot)
+		table.sort(ids)
+	end
 	local active: { [string]: boolean } = {}
 	for _, spotId in ids do
 		active[spotId] = true

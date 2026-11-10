@@ -71,6 +71,8 @@ export type AreaInfo = {
 	spawnPoints: { BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits, the whole pool (#2240)
 	rescueMix: { [string]: number }, -- #2240: TrapType -> how many of the pool hold a trap each day
+	-- #2687: the hidden nook's rescue spot (in rescueSpots too), out of the pool's pick: it holds a trap every day
+	nookSpot: string?,
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
 	rects: { Layout.Rect }, -- the floor pieces (one zone box each)
 	roam: { Layout.Rect }, -- where strays stay (WorldBuilder.clampToArea): the floors, less any dressed wall strip
@@ -1622,8 +1624,7 @@ local function buildArea(
 	for _, point in spec.rescueSpots do
 		rescueMix[point.trap] = (rescueMix[point.trap] or 0) + 1
 	end
-	for i, point in spec.rescuePool or spec.rescueSpots do
-		local name = "rescue_" .. id .. "_" .. i
+	local function buildSpot(name: string, point: Layout.RescuePoint)
 		local base = CFrame.new(point.x, spec.floorY + (point.y or 0), point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
 		-- A prop trap poses the cat in the prop's space; a trap built into the area's set has no prop, so the cat is
@@ -1652,6 +1653,35 @@ local function buildArea(
 		CollectionService:AddTag(spot, "RescueSpot")
 		rescueSpots[name] = spot
 	end
+	for i, point in spec.rescuePool or spec.rescueSpots do
+		buildSpot("rescue_" .. id .. "_" .. i, point)
+	end
+
+	-- #2687 part 2: the hidden nook, against a side wall of the set with its gate open (each leaf turned 100 degrees
+	-- about its hinge, in toward the nook), and its rescue spot, which RescueService fills every day.
+	local nookSpot: string? = nil
+	local nook = spec.nook
+	if nook ~= nil and AssetRegistry.known(nook.asset) then
+		local nookModel = place(
+			nook.asset,
+			CFrame.new(nook.x, spec.floorY + nook.y, nook.z)
+				* CFrame.Angles(0, math.rad(nook.rotY), 0),
+			model
+		)
+		nookModel.Name = "Nook"
+		for _, side in { "L", "R" } do
+			local leaf = nookModel:FindFirstChild(nook.asset .. "_Gate" .. side)
+			if leaf ~= nil and leaf:IsA("Model") then
+				local leafModel = leaf :: Model
+				leafModel:PivotTo(
+					leafModel:GetPivot()
+						* CFrame.Angles(0, math.rad(if side == "L" then -100 else 100), 0)
+				)
+			end
+		end
+		nookSpot = "rescue_" .. id .. "_nook"
+		buildSpot(nookSpot :: string, nook.trap)
+	end
 
 	if camp ~= nil then
 		buildCamp(camp, look, model)
@@ -1665,6 +1695,7 @@ local function buildArea(
 		spawnPoints = spawnPoints,
 		rescueSpots = rescueSpots,
 		rescueMix = rescueMix,
+		nookSpot = nookSpot,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 		rects = rects,
 		-- strays keep to the wild part: a camp is outside their roam (section 4)

@@ -2874,4 +2874,92 @@ return function()
 			end
 		)
 	end)
+
+	-- #2687 part 2: each wild area's hidden nook (CatCafe_Nook_<Area>) and its own rescue spot, filled every day on
+	-- top of the pool's pick (RescueService). The nook stands on the floor, its walls and the lane out of its gate clear
+	-- of the cat spots, its trap a pool spot's distance from every pool spot and well clear of every cat spot.
+	describe("hidden nooks (#2687)", function()
+		it("puts a nook in every wild area, clear of the cat spots and the pool", function()
+			for id, spec in Layout.areas do
+				local nook = spec.nook
+				if id == "alley" then
+					expect(nook).never.to.be.ok()
+					continue
+				end
+				if nook == nil then
+					fail("%s has no nook", id)
+					continue
+				end
+				local area = string.upper(string.sub(id, 1, 1)) .. string.sub(id, 2)
+				expect(nook.asset).to.equal("CatCafe_Nook_" .. area)
+				local trap = nook.trap
+				local pose = if trap.prop ~= nil
+					then Layout.stuckPoses[trap.prop]
+					else Layout.setStuckPoses[trap.trap]
+				if pose == nil then
+					fail("%s nook trap (%s) has no stuck pose", id, trap.trap)
+				end
+				-- the nook's footprint, its stones and a lane out of its gate: x -4.4 to 4.4, z -13 to 3.9 in its space
+				local a = math.rad(nook.rotY)
+				local c, s = math.cos(a), math.sin(a)
+				local function toNook(x: number, z: number): (number, number)
+					local dx, dz = x - nook.x, z - nook.z
+					return dx * c - dz * s, dx * s + dz * c
+				end
+				for corner = 1, 4 do
+					local lx = if corner <= 2 then -4.4 else 4.4
+					local lz = if corner % 2 == 1 then -13 else 3.9
+					local wx, wz = nook.x + lx * c + lz * s, nook.z - lx * s + lz * c
+					if
+						math.abs(wx - spec.center.x) > spec.halfWidth - 2
+						or math.abs(wz - spec.center.z) > spec.halfDepth - 2
+					then
+						fail("%s nook reaches off the floor", id)
+					end
+				end
+				for k, point in spec.spawnPoints do
+					local gap = math.sqrt((trap.x - point.x) ^ 2 + (trap.z - point.z) ^ 2)
+					if gap < 9 then
+						fail("%s nook trap is %.1f from spawn point %d", id, gap, k)
+					end
+					local lx, lz = toNook(point.x, point.z)
+					local ox = math.max(math.abs(lx) - 4.4, 0)
+					local oz = math.max(-13 - lz, lz - 3.9, 0)
+					if math.sqrt(ox * ox + oz * oz) < 2 then
+						fail(
+							"%s nook is %.1f from spawn point %d",
+							id,
+							math.sqrt(ox * ox + oz * oz),
+							k
+						)
+					end
+				end
+				for i, spot in spec.rescuePool or {} do
+					local gap = math.sqrt((trap.x - spot.x) ^ 2 + (trap.z - spot.z) ^ 2)
+					if gap < 25 then
+						fail("%s nook trap is %.1f from pool spot %d", id, gap, i)
+					end
+				end
+			end
+		end)
+
+		it("stands each trap on its nook's RescueSpot", function()
+			for id, spec in Layout.areas do
+				local nook = spec.nook
+				if nook == nil then
+					continue
+				end
+				-- the trap is on the nook's middle line, 1 or less from the nook's pivot (nooks.py TRAPS)
+				local a = math.rad(nook.rotY)
+				local dx, dz = nook.trap.x - nook.x, nook.trap.z - nook.z
+				local across = dx * math.cos(a) - dz * math.sin(a)
+				expect(across).to.be.near(0, 1e-6)
+				expect(math.sqrt(dx * dx + dz * dz) <= 1).to.equal(true)
+				expect(nook.trap.y or 0).to.be.near(nook.y, 1e-9)
+				if id == "sewer" then
+					expect(nook.y).to.equal(spec.setLift)
+				end
+			end
+		end)
+	end)
 end

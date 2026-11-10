@@ -4767,6 +4767,20 @@ local SCENES = {
 		end
 		UIShim.advance(1.2) -- past a timer tick
 		assert(not timers.Visible, "uigate: the potion timers came back mid-catch on their tick (#2808)")
+		-- #3164: the left side laid out again mid-catch outside a render (the HUD's own AbsoluteSize handlers: a
+		-- window resized, the money counter growing) leaves the menu's arrow tab down
+		local fold = root:FindFirstChild("MenuFold") :: GuiObject
+		assert(fold ~= nil and before[fold] == true, "uigate: the menu's arrow tab was not up before the catch (#3164)")
+		local resized: any = root:GetPropertyChangedSignal("AbsoluteSize")
+		local ran = 0
+		for _, connection in resized.handlers do -- the shim's signal: its live connections, each with its `fn`
+			if connection.Connected then
+				connection.fn()
+				ran += 1
+			end
+		end
+		assert(ran > 0, "uigate: the HUD has no AbsoluteSize handler on its root, so #3164's check proves nothing")
+		assert(not fold.Visible, "uigate: the menu's arrow tab showed mid-catch after a layout (#3164)")
 		UI.toast("Tip Jar: 2 gifts claimed!", "info") -- (#3080: info, a green one never shows)
 		UI.toast("Your paws are shaking!", "warn")
 		UIShim.advance(0.3)

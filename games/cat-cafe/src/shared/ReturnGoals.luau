@@ -53,7 +53,7 @@ function ReturnGoals.pick(profile: Types.PlayerProfile, now: number): { Goal }
 				have = cats,
 				need = nextTier.distinctCats,
 				tier = nextTier.tier,
-				area = nextTier.area,
+				area = nextTier.area :: string,
 			})
 		end
 		local rarity: Types.Rarity? = nextTier.needsRarity
@@ -61,16 +61,13 @@ function ReturnGoals.pick(profile: Types.PlayerProfile, now: number): { Goal }
 			local need = nextTier.needsRarityCount or 1
 			local have = Economy.rankUpCatsAtLeast(profile.collection, rarity)
 			if have < need then
-				table.insert(
-					goals,
-					{
-						kind = "rarity",
-						have = have,
-						need = need,
-						tier = nextTier.tier,
-						rarity = rarity,
-					}
-				)
+				table.insert(goals, {
+					kind = "rarity",
+					have = have,
+					need = need,
+					tier = nextTier.tier,
+					rarity = rarity :: string,
+				})
 			end
 		end
 		if profile.coins < nextTier.cost then

@@ -1010,7 +1010,8 @@ function Telemetry.goalsShown(
 			percent,
 			{ goal.kind, mode, if goal.tier ~= nil then tostring(goal.tier) else "none" }
 		)
-		table.insert(session.goals, { goal = goal, mode = mode, at = os.time() })
+		local entry: ShownGoal = { goal = goal, mode = mode :: string, at = os.time() }
+		table.insert(session.goals, entry)
 	end
 end
 

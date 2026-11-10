@@ -3625,30 +3625,6 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ crates = crates or {}, goldenFish = fish } :: any)
 	end },
-	{ "MarketFresh", function()
-		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
-		UI.freshCatch.setStock({
-			window = 5900000,
-			restocksAt = workspace:GetServerTimeNow() + 192,
-			stock = {
-				{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
-				{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },
-				{ itemId = "steady_potion", fish = 12, amount = 0, bought = 0 },
-				{ itemId = "quick_bait_potion", fish = 15, amount = 1, bought = 0 },
-				{ itemId = "big_tip_potion", fish = 25, amount = 1, bought = 0 },
-				{ itemId = "lucky_potion", fish = 25, amount = 0, bought = 0 },
-				{ itemId = "gold_rush_potion", fish = 30, amount = 1, bought = 0 },
-				{ itemId = "classic_crate", fish = 50, amount = 1, bought = 0 },
-			},
-		})
-		UI.market.open()
-		press("FishMarket", "FreshTab")
-	end },
-	{ "MarketFreshNight", function()
-		UI.freshCatch.setStock(nil)
-		UI.market.open()
-		press("FishMarket", "FreshTab")
-	end },
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
 	end },

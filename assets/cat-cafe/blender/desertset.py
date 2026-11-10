@@ -790,26 +790,36 @@ def canopy(mat, w=6.0, d=5.0):
 
 def wagon(mat):
     """A broken caravan wagon half in the sand: a wooden bed, one wheel off and leaning on it, a torn hoop cover in
-    two colours, a crate and pots tumbled out."""
+    two colours, a crate and pots tumbled out. Every piece touches the rest (#2990): the hoop pieces run along the
+    arc (they leaned the wrong way and stood apart), the hoops stand in the side boards and follow the bed's tilt,
+    the cover lies on them, both wheels sit against their board and the shaft runs from the bed down to the sand."""
     b = Builder()
-    b.box((0, 0, 1.4), (7.0, 3.4, 0.5), "caramel_wood", rot=(0.12, "Y"))
+    tilt = 0.12
+    b.box((0, 0, 1.4), (7.0, 3.4, 0.5), "caramel_wood", rot=(tilt, "Y"))
     for sy in (-1, 1):
-        b.box((0, sy * 1.6, 2.0), (7.0, 0.25, 1.0), "dark_wood", bevel=False, rot=(0.12, "Y"))
-    b.cyl((2.4, -1.95, 1.3), 1.3, 0.3, "dark_wood", segments=12, rot=(PI / 2, "X"))
-    b.cyl((2.4, -1.95, 1.3), 0.35, 0.4, "brass", segments=8, rot=(PI / 2, "X"), bevel=False)
-    b.cyl((-2.6, 2.1, 1.4), 1.3, 0.3, "dark_wood", segments=12, rot=Matrix.Rotation(PI / 2, 3, "X") @
+        b.box((0, sy * 1.6, 2.0), (7.0, 0.25, 1.0), "dark_wood", bevel=False, rot=(tilt, "Y"))
+    b.cyl((2.4, -1.87, 1.3), 1.3, 0.3, "dark_wood", segments=12, rot=(PI / 2, "X"))
+    b.cyl((2.4, -1.87, 1.3), 0.35, 0.4, "brass", segments=8, rot=(PI / 2, "X"), bevel=False)
+    b.cyl((-2.6, 2.0, 1.4), 1.3, 0.3, "dark_wood", segments=12, rot=Matrix.Rotation(PI / 2, 3, "X") @
           Matrix.Rotation(0.5, 3, "Y"))                                      # the loose wheel, leaning
+
+    def hoop_z(x):                                                            # a hoop's centre: its ends in the boards
+        return 2.0 + 0.5 * math.cos(tilt) - x * math.sin(tilt) - 0.1
+
     for k in range(3):                                                        # the hoops, the cover over two
         x = -2.4 + 2.4 * k
         for j in range(5):
             a = PI * (j + 0.5) / 5
-            b.box((x, -1.6 * math.cos(a), 2.4 + 1.6 * math.sin(a) - 0.3 * x / 7), (0.15, 1.1, 0.15), "fur_brown",
-                  bevel=False, rot=(a - PI / 2, "X"))
-    for j in range(5):
+            b.box((x, -1.6 * math.cos(a), hoop_z(x) + 1.6 * math.sin(a)), (0.15, 1.25, 0.15), "fur_brown",
+                  bevel=False, rot=(PI / 2 - a, "X"))
+    for j in range(5):                                                        # lying on the first two hoops
         a = PI * (j + 0.5) / 5
-        b.box((-1.2, -1.75 * math.cos(a), 2.5 + 1.75 * math.sin(a)), (2.6, 1.15, 0.1), ("cream", STRIPES[3])[j % 2],
-              bevel=False, rot=(a - PI / 2, "X"))
-    b.box((-4.4, 0, 0.9), (2.0, 0.3, 0.3), "dark_wood", bevel=False, rot=(0.4, "Y"))           # the shaft
+        b.box((-1.2, -1.71 * math.cos(a), hoop_z(-1.2) + 1.71 * math.sin(a)), (2.6, 1.2, 0.1),
+              ("cream", STRIPES[3])[j % 2], bevel=False,
+              rot=Matrix.Rotation(tilt, 3, "Y") @ Matrix.Rotation(PI / 2 - a, 3, "X"))
+    x0, z0, x1, z1 = -5.6, 0.12, -3.1, 1.55                                   # the shaft, bed to sand
+    b.box(((x0 + x1) / 2, 0, (z0 + z1) / 2), (math.hypot(x1 - x0, z1 - z0), 0.3, 0.3), "dark_wood", bevel=False,
+          rot=(-math.atan2(z1 - z0, x1 - x0), "Y"))
     b.ico((0, 2.4, 0.3), 3.0, SAND_DUNE, subdivisions=1, scale=(1.6, 0.6, 0.45))
     return [b.finalize(N + "Wagon", mat)]
 
@@ -961,7 +971,7 @@ def trap_collapsed_canopy(mat):
         x = -w / 2 + (i + 0.5) * w / n
         b.box((x, 0.3, 2.15 - 0.04 * (i % 2)), (w / n + 0.02, d / math.cos(tilt) - 0.4, 0.12), STRIPES[i],
               bevel=False, rot=(-tilt, "X"))
-        b.box((x, -1.9, 0.5), (w / n - 0.1, 0.1, 0.7), STRIPES[i], bevel=False, rot=(0.25, "X"))  # the hem on the sand
+        b.box((x, -1.9, 0.43), (w / n - 0.1, 0.1, 0.9), STRIPES[i], bevel=False, rot=(0.25, "X"))  # the hem, on the sand
     b.ico((0, 2.8, 0.3), 2.0, SAND_DUNE, subdivisions=1, scale=(1.6, 0.6, 0.4))
     return [b.finalize(N + "TrapCanopy", mat)]
 

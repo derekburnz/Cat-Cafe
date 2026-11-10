@@ -715,6 +715,13 @@ Derek2 asked for research on trading golden fish and unopened crates (11-09) and
 
 Why: crates reuse the decor path and carry low risk, while fish are the first item traded as an amount and need stricter checks. Neither is sold for Robux, so trades stay outside monetization-policy. Spec: trading.md §1c and §1d.
 
+## 2026-11-10 Early upgrade spacing and a Saturday update day (Derek2: "continue with all suggested")
+- **Early upgrades:** the first three buys become affordable 60–90 s apart in a new player's first session. Only the second and third buys' costs are tuned.
+- **Weekly update day:** content updates ship on Saturdays at 17:00 UTC, with a once-per-update gift of 15 golden fish and 1 spin.
+- **Invites:** the reward keeps paying only when the invited friend actually plays.
+
+Why: steady small beats help in the 2–5 minute drop, and a known update day is the strongest return loop in the deep-dive research. Spec: retention-ideas.md §5e and §5f.
+
 ## 2026-11-10 Away notification: once a day, 12 hours after leaving (#2768)
 Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decided:
 - **What:** a Roblox experience notification, "Your cats earned $X while you were away!", to players who turned notifications on for the game. Roblox itself limits it to ages 13 and up and one a day per player.

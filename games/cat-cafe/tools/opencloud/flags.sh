@@ -4,9 +4,14 @@
 # (src/server/Services/TradeVault.luau) reads both keys every Config.TradeFlagCheckSeconds (60 s):
 #   trading       false turns trading off everywhere; anything else (or no entry) leaves it on
 #   tradeMinTier  a number 0 to 99 is the live minimum cafe tier; anything else (or no entry) means Config.TradeMinTier
-# and LiveFlagService (src/shared/LiveFlags.luau) reads two more the same way, true or false, only false turns off:
+# and LiveFlagService (src/shared/LiveFlags.luau) reads four more the same way, true or false. Only false turns off:
 #   codes         false pauses code redeeming
 #   rally         false stops the Rescue Rally
+#   tradeCrates   false takes crates out of trading (#2745, trading.md section 1c); cat and decor trades go on
+#   awayNotes     false stops the game noting who is due an away notification (#2768), if the notes crowd MemoryStore
+# and one starts off, so only true turns it on (LiveFlags.OFF_BY_DEFAULT):
+#   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
+#                 review pass, and after a restart publish, so no old server settles a fish record without the fish
 # Run by .github/workflows/flags.yml; also works from Git Bash on a PC with the same variables set.
 #
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key that also has universe-datastores.objects:read, :create and :update on
@@ -16,10 +21,11 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|tradeFish true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), and true for codes and rally, so no key needs delete permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
+# minimum tier), true for codes, rally, tradeCrates and awayNotes, and false for tradeFish (its default), so no key needs delete
+# permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
@@ -28,7 +34,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally true|false | clear trading|tradeMinTier|codes|rally" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|tradeFish true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|tradeFish" >&2
 	exit 2
 }
 
@@ -78,6 +84,9 @@ show_key() {
 		;;
 	codes) if [ "$raw" = false ]; then meaning="code redeeming PAUSED in every server"; else meaning="codes on"; fi ;;
 	rally) if [ "$raw" = false ]; then meaning="Rescue Rally OFF in every server"; else meaning="rally on"; fi ;;
+	tradeCrates) if [ "$raw" = false ]; then meaning="crate trading OFF in every server"; else meaning="crate trading on"; fi ;;
+	awayNotes) if [ "$raw" = false ]; then meaning="away notes OFF in every server (no new away notifications)"; else meaning="away notes on"; fi ;;
+	tradeFish) if [ "$raw" = true ]; then meaning="golden fish trading ON in every server"; else meaning="golden fish trading off (its default)"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"
@@ -97,6 +106,9 @@ show() {
 	show_key tradeMinTier
 	show_key codes
 	show_key rally
+	show_key tradeCrates
+	show_key awayNotes
+	show_key tradeFish
 }
 
 # write key json-value
@@ -116,7 +128,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | tradeFish) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -126,7 +138,8 @@ clear)
 	[ $# -eq 2 ] || usage
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
-	codes | rally) write "$2" true ;;
+	codes | rally | tradeCrates | awayNotes) write "$2" true ;;
+	tradeFish) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

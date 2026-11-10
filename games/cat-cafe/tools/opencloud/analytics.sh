@@ -15,7 +15,7 @@
 #      read on its own the same way, since CustomEventName is a filter only too
 #      (session_start carries the join source in its first field: organic, unknown or ad_<tag> from a link's
 #      launchData=ad_<tag>; robux_purchase, store_cancelled, cafe_pass_level and jukebox_pick since #1888)
-#   5. audience (#2391): players new and returning and day 1 retention by Platform, Country and AgeGroupV2; average
+#   5. audience (#2391): players new and returning and day 1 retention by Platform, Country, AgeGroupV2 and Gender; average
 #      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
 #      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
 #   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, first_bait_wait and first_bait_arrived read
@@ -30,7 +30,7 @@
 #
 # Usage:  tools/opencloud/analytics.sh [days] [funnel]
 #   days    whole UTC days back from today (default 14). Today is left out: Roblox fills a day about a day late.
-#   funnel  only this funnel (default: every funnel)
+#   funnel  only this funnel (default: every funnel); "ads" reads the ad campaigns instead (ads.sh)
 # Every raw answer is printed after "== raw", since the API is in beta and its shapes may change. Fields are as in the
 # Open Cloud reference (create.roblox.com/docs/cloud/reference/features/analytics): QueryRequest and
 # DimensionValuesRequest, filters as {dimension, operation: "In", values}.
@@ -40,6 +40,10 @@ set -euo pipefail
 DAYS=${1:-}
 DAYS=${DAYS:-14}
 FUNNEL=${2:-}
+# funnel "ads": read the ad campaigns instead (ads.sh, Ads API beta, read only)
+if [ "$FUNNEL" = ads ]; then
+	exec bash "$(dirname "$0")/ads.sh"
+fi
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 20)}"
 
@@ -483,7 +487,7 @@ mean() {
 			([(.dataPoints // [])[] | .value | select(. != null)] | if length > 0 then add / length else "" end
 				| tostring)] | @tsv' <<<"$result"
 }
-for dim in Platform Country AgeGroupV2; do
+for dim in Platform Country AgeGroupV2 Gender; do
 	say "#### By $dim"
 	say ""
 	declare -A dayOne=() minutes=()
@@ -495,7 +499,7 @@ for dim in Platform Country AgeGroupV2; do
 	else
 		failed
 	fi
-	if [ "$dim" = Platform ]; then
+	if [ "$dim" = Platform ] || [ "$dim" = Gender ]; then
 		if query AverageSessionLengthMinutes OneDay "$dim"; then
 			while IFS=$'\t' read -r key value; do
 				minutes[$key]=$value
@@ -516,7 +520,7 @@ for dim in Platform Country AgeGroupV2; do
 		unset dayOne minutes
 		continue
 	fi
-	if [ "$dim" = Platform ]; then
+	if [ "$dim" = Platform ] || [ "$dim" = Gender ]; then
 		say "| $dim | New players | Returning | Day 1 retention | Avg session (min) |"
 		say "|---|---:|---:|---:|---:|"
 	else
@@ -526,7 +530,7 @@ for dim in Platform Country AgeGroupV2; do
 	for line in "${order[@]}"; do
 		IFS=$'\t' read -r key fresh back <<<"$line"
 		row="| ${key//|/\\|} | $fresh | $back | $(pct "${dayOne[$key]:-}") |"
-		if [ "$dim" = Platform ]; then
+		if [ "$dim" = Platform ] || [ "$dim" = Gender ]; then
 			value=${minutes[$key]:-}
 			row="$row $( [ -n "$value" ] && awk -v v="$value" 'BEGIN { printf "%.1f", v }' || printf -- -) |"
 		fi

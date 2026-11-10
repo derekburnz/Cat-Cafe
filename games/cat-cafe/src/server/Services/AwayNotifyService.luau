@@ -7,6 +7,10 @@
 -- memory with an expiry on each item, sorted by a sort key. Here the sort key is the due time, so the sender reads
 -- the earliest notes first, and a note nobody sent expires by itself.
 --
+-- Size: one note is about 25 bytes and lives 18 hours at most, and MemoryStore allows the whole game 64 KB plus
+-- 1 KB a player online, shared with PityService's timers. The live switch `awayNotes` (false) stops new notes
+-- without a publish, and the sender's `count` shows how many there are.
+--
 -- Every call is best effort in the background: a failed write means one player gets no message, never a failed
 -- save or a slower leave. Studio never writes (a test run should not queue a real message).
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -17,6 +21,7 @@ local AwayNotify = require(ReplicatedStorage.Shared.AwayNotify)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local DataService = require(script.Parent.DataService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 
 local AwayNotifyService = {}
 
@@ -25,6 +30,11 @@ local function map(): MemoryStoreSortedMap
 end
 
 local function note(player: Player, profile: Types.PlayerProfile)
+	-- the live switch (LiveFlags `awayNotes`): the notes share MemoryStore's quota with the pity cats' timers, so
+	-- they can be stopped within a minute if the map grows too big
+	if not LiveFlagService.on("awayNotes") then
+		return
+	end
 	local plan = AwayNotify.plan(profile, os.time())
 	if plan == nil then
 		return

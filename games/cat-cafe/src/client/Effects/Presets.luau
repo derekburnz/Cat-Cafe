@@ -4187,6 +4187,19 @@ Presets.lateStations = {
 	beamSeconds = 1.2,
 }
 
+-- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
+-- turn Neon `gold` (the room-complete burst's gold) and breathe to `bright` and back every `every` seconds, well
+-- under 3 Hz. `suffix` plus the area id ends the name of each plaque's Model in the museum; `rate` is the seconds
+-- between colour steps and `lookSeconds` between looks for a museum that streamed back in.
+Presets.museumPlaques = {
+	suffix = "_Plaque_",
+	gold = Presets.palette.golden,
+	bright = Color3.fromRGB(255, 226, 130),
+	every = 2.6,
+	rate = 1 / 12,
+	lookSeconds = 2,
+}
+
 -- The Oasis Spa's soaking cats and the Relic Museum's new exhibits (#2897; Effects/StationMotion, Logic.soakBob,
 -- Logic.dropBounce). Degrees for the turns; the hop and the bob are studs on a cat at the pool's 0.6 scale.
 Presets.stationMotion = {

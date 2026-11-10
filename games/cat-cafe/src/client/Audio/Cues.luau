@@ -1247,10 +1247,10 @@ local Cues: { [string]: Cue } = {
 	-- The late stations (#2651 part 4, late-stations.md; #2927) and the first catch's held ring (#2920): the Late sheet,
 	-- mono. A finished Museum room plays indexReward, the Index milestone fanfare. Rendered by synth/synth.py.
 	sheetLate = {
-		ids = {},
+		ids = { "rbxassetid://104681497739384" },
 		group = "Sfx",
 		volume = 1,
-	}, -- mono, 6.3 s; silent until uploaded
+	}, -- mono, 6.3 s; uploaded by upload-audio run 42745669425 (group)
 	spaSplash = {
 		ids = {},
 		sheet = "sheetLate",

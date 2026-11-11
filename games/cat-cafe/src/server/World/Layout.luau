@@ -2036,7 +2036,10 @@ Layout.fishMarket = station(42, 44.5)
 Layout.codesCat = station(-45, -25.5)
 -- #1388: the night market parked in front of the Thank You board (below), on its line to the cannon. #3070: the
 -- board stands south of the cart now, clear of it from the spawn and from the cannon.
-Layout.dealerCart = station(37, -35)
+-- #3189 (Derek2 2026-11-10: "move the night market slightly to the left so more space for feedback stand on right"):
+-- 4 studs toward the street and 4 toward the lane, from (37, -35); the Thanks board stays clear of it from the spawn
+-- and the cannon (fit70.py, Animation-Engineer/tasks/stand3189).
+Layout.dealerCart = station(33, -31)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
@@ -2074,7 +2077,11 @@ Layout.thanksBoard = station(43, -47.8) -- #3070: out from behind the night cart
 -- #3070: two spots the bigger square keeps free, mirrored either side of the street north of the lane, each facing
 -- the cannon: the feedback stand's (#3066, CatCafe_Town_FeedbackStand, a mailbox that opens the feedback box) and
 -- the arcade cabinet's (#3062, a 3.7 x 3.1 cabinet). Nothing is built on them here; each feature places its own model.
-Layout.feedbackStand = station(34, 18)
+-- #3189 (Derek2 2026-11-10: "move the feedback stand to the right of thank you for ideas its too close to fish market"):
+-- the stand leaves (34, 18) for the east side south of the lane, on the Thanks board's right as you face the board,
+-- between the night cart and the leaderboard row (9.3 off every body, 4.7 off the lamps and benches). The arcade's
+-- spot north of the lane stays.
+Layout.feedbackStand = station(50, -25)
 Layout.arcadeCabinet = station(-34, 18)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,

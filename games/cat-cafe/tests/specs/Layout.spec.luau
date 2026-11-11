@@ -1433,11 +1433,22 @@ return function()
 		end)
 
 		it(
-			"keeps a spot each for the feedback stand and the arcade cabinet, mirrored north of the lane (#3070)",
+			"keeps a spot each for the feedback stand and the arcade cabinet (#3070), the stand right of the Thanks board (#3189)",
 			function()
 				local stand, arcade = Layout.feedbackStand, Layout.arcadeCabinet
-				expect(stand.x).to.equal(-arcade.x)
-				expect(stand.z).to.equal(arcade.z)
+				-- #3189: facing the Thanks board from the cannon's side, the stand is on its right, south of the lane,
+				-- and well away from the Golden Fish Market
+				local board = Layout.thanksBoard
+				local long = math.sqrt(board.x ^ 2 + board.z ^ 2)
+				local rightX, rightZ = -board.z / long, board.x / long
+				expect((stand.x - board.x) * rightX + (stand.z - board.z) * rightZ > 6).to.equal(
+					true
+				)
+				expect(stand.z < 0).to.equal(true)
+				local fish = Layout.fishMarket
+				expect(math.sqrt((stand.x - fish.x) ^ 2 + (stand.z - fish.z) ^ 2) > 40).to.equal(
+					true
+				)
 				for _, spot in { stand, arcade } do
 					expect(inside(spot.x, spot.z, square.floor, 4)).to.equal(true)
 					for _, lane in lanes do

@@ -143,7 +143,7 @@ function TutorialHints.view(
 		device = device or "keyboard",
 		resting = TutorialHints.resting(state.cats, spots, state.tier or 1),
 		bowl = (levels[TutorialHints.BOWL] or 0) >= 1,
-		baited = state.bait ~= nil,
+		baited = type(state.bait) == "table", -- #3285: the UI's state sends false for an empty bowl
 		arrived = type(state.bait) == "table" and state.bait.cat ~= nil,
 		cats = cats,
 		night = areasOpen == false,
@@ -156,6 +156,42 @@ function TutorialHints.upgrade(step: number?, levels: { [string]: number }?): st
 		return TutorialHints.TABLE
 	elseif step == 4 and (owned[TutorialHints.BOWL] or 0) < 1 then
 		return TutorialHints.BOWL
+	end
+	return nil
+end
+
+-- #2912 (Nov 10 read: 105 caught a second cat, 93 bought the first table): the strip's Buy button, which buys the
+-- step's upgrade in one press with no trip into Upgrades. The words for each upgrade it can buy.
+TutorialHints.BUY_TEXT = {
+	[TutorialHints.TABLE] = "Buy a table",
+	[TutorialHints.BOWL] = "Buy the Bait bowl",
+} :: { [string]: string }
+
+export type Offer = { id: string, cost: number, text: string }
+
+-- What the strip's Buy button offers: the step's upgrade (`upgrade`) and its next level's cost from `upgrades` (the
+-- catalog's), only while `money` covers it. nil hides the button, so a player short of coins never meets a greyed
+-- buy; the Upgrades tile still glows.
+function TutorialHints.offer(
+	step: number?,
+	levels: { [string]: number }?,
+	money: number?,
+	upgrades: { any }?
+): Offer?
+	local id = TutorialHints.upgrade(step, levels)
+	local text = if id ~= nil then TutorialHints.BUY_TEXT[id] else nil
+	if id == nil or text == nil or type(money) ~= "number" or upgrades == nil then
+		return nil
+	end
+	for _, def in upgrades do
+		if def.id == id then
+			local level = (levels or {})[id] or def.startLevel or 0
+			local cost = if type(def.costs) == "table" then def.costs[level + 1] else nil
+			if type(cost) ~= "number" or money < cost then
+				return nil
+			end
+			return { id = id, cost = cost, text = text }
+		end
 	end
 	return nil
 end

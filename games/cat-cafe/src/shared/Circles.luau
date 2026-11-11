@@ -84,6 +84,17 @@ function Circles.windowsFor(
 	return { perfect = net.perfect * scale, good = net.good * scale }
 end
 
+-- #2913 follow-up: how much wider a player's bands are with `caughtByHand` cats caught by hand so far (SecondCat.caught):
+-- Config.EarlyCatchWindowScale before Config.EarlyCatchCount, else 1.
+function Circles.earlyScale(caughtByHand: number): number
+	return if caughtByHand < Config.EarlyCatchCount then Config.EarlyCatchWindowScale else 1
+end
+
+-- `windows` with both bands times `scale`.
+function Circles.scaled(windows: Types.NetWindows, scale: number): Types.NetWindows
+	return { perfect = windows.perfect * scale, good = windows.good * scale }
+end
+
 -- #3140 (Derek2 2026-11-10: "speed up commons/rare in further maps slightly like tier 5+", "speed up the circles"):
 -- what a `rarity` stray's ring shrink time is multiplied by in `areaId`: Config.QuickRingScale's entry from
 -- QuickRingTier on, 1 for an earlier area, a rarer cat or no area. The bands keep their width in seconds.

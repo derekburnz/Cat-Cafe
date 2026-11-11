@@ -299,6 +299,7 @@ export type PlayerState = {
 	-- sends it, and the client-found tips, the help card and the feedback ask wait for it
 	tipsSeen: { [string]: boolean }?,
 	feedbackAsked: boolean?, -- F87: the one slide-in feedback ask has shown, or a face was sent
+	sessionFeedbackDay: number?, -- #3272: the UTC day the session ask was last answered or skipped
 	stuckHelpShown: { [string]: boolean }?, -- F87: tutorialStep ("0" to "5") to true once its help card showed
 	longNap: boolean?, -- F95: owns the Long Nap pass, for the welcome back card's line; nil reads as not owned
 	-- F91 (front-lawn.md section 5): the lawn pieces and styles owned (id to true), the piece on each lawn spot (spot
@@ -308,6 +309,8 @@ export type PlayerState = {
 	lawnStyles: LawnStyles?,
 	-- #1574: the Legendary and up decor and lawn pieces unlocked to trade (id to true); nil until ProfileSync sends it
 	decorUnlocked: { [string]: boolean }?,
+	-- #3285: the first bowl's food (the server's BaitView: lureId, readyAt, and cat once it arrived), false while empty
+	bait: any?,
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,

@@ -47,6 +47,7 @@ export type TargetCheck = {
 	targetFlying: boolean?, -- F84: mid Cat Cannon flight or cloud hop: the lunge passes through
 	targetNewcomer: boolean?, -- F87: has not checked in a cat yet (easy-start.md section 2c): nobody tackles them
 	targetTrading: boolean?, -- #2568: has a trade open, so the window can't be pushed around
+	targetShielded: boolean?, -- #3342: still inside their first TackleShieldSeconds on the server
 	sinceShoveTarget: number?, -- since this tackler last hit this player
 	sinceTargetShoved: number?, -- since anyone last hit this player (S45)
 }
@@ -79,6 +80,23 @@ export type PickUpCheck = {
 	distance: number?, -- from the caller to the cat; nil without a character
 	sinceGrab: number?, -- since the caller last started a catch or a pick up
 }
+
+-- #3342: what a tackler hears when the lunge passes through someone in their first TackleShieldSeconds.
+Shove.SHIELDED = "They just joined, so they're safe from tackles for a bit"
+
+-- #3342: the server time a player's join shield ends, joining at `joinedAt`, or nil when there is none.
+function Shove.shieldUntil(joinedAt: number): number?
+	local seconds = Config.TackleShieldSeconds
+	if type(seconds) ~= "number" or seconds <= 0 then
+		return nil
+	end
+	return joinedAt + seconds
+end
+
+-- #3342: whether the shield ending at `untilAt` still runs at `now`.
+function Shove.shielded(untilAt: number?, now: number): boolean
+	return untilAt ~= nil and now < untilAt
+end
 
 -- Why this press is refused, in words for the tackler, or nil when it lunges. A refusal spends no cooldown.
 function Shove.tackleRefusal(check: TackleCheck): string?
@@ -125,6 +143,9 @@ function Shove.targetRefusal(check: TargetCheck): string?
 	end
 	if check.targetTrading == true then
 		return "They're trading"
+	end
+	if check.targetShielded == true then
+		return Shove.SHIELDED -- #3342
 	end
 	if check.sinceShoveTarget ~= nil and check.sinceShoveTarget < Config.BumpSameTargetSeconds then
 		return "Give them a break"

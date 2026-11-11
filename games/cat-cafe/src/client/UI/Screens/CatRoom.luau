@@ -228,6 +228,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		ScrollBarThickness = 4,
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.X,
+		Selectable = false, -- #2965 leftover, as the grid below
 		Parent = crew,
 	}, {
 		Create("UIListLayout", {
@@ -379,6 +380,9 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		ScrollBarThickness = 6,
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
+		-- #2965 leftover: not a gamepad stop of its own, so the DPad lands on the first card; the frame still
+		-- scrolls to keep the selected card in view
+		Selectable = false,
 		Parent = parent,
 	}, {
 		Create("UIGridLayout", {

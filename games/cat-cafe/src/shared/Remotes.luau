@@ -129,6 +129,8 @@ Remotes.ClientToServer = {
 	-- "prompt" (shared/StationOpens.valid); 2 a second, counted into station_open events, nothing else changes
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
+	"SessionFeedback", -- (answer: string)  #3272: the once-a-day ask's answer, in SessionFeedback.ANSWERS (a face or
+	-- "skipped"); 1 per 30 s and once a UTC day (sessionFeedbackDay); logs session_feedback, nothing else changes
 	"PassClaim", -- (track: "free" | "paid", level: number)  #1645: level 1 to PassLevels, reached in the running
 	-- season, a reward there, unclaimed, and on the paid track only once it is bought; answered with CafePassState
 	"PassClaimAll", -- ()  #1645: every reward PassClaim would take, in order
@@ -204,7 +206,8 @@ Remotes.ClientToServer = {
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
 	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
-	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game,
+	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game.
+	-- #3296: the first game of each UTC day is free (no fish, no trade freeze check). Starts are
 	-- answered with ArcadeBlock (refusals are a toast); 1 a second
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
@@ -233,6 +236,7 @@ Remotes.ServerToClient = {
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
 	-- or Mythical check-in shout-out at most once a minute a player (RareMomentService)
+	"OwnerShout", -- (text: string)  #3301: an owner's filtered /shout, to everyone on every server, for the OWNER bubble
 	"RareCatchChat", -- (text: string, rarity: Types.Rarity, elsewhere: boolean)  #2203: a catch shout-out as a chat
 	-- line, to everyone: this server's (elsewhere false, with its Announce) or another server's from MessagingService
 	-- (elsewhere true, no toast), at most one every GlobalCatch.SHOW_GAP_SECONDS (GlobalCatchService)

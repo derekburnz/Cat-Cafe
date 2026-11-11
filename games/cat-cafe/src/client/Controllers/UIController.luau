@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -26,6 +27,7 @@ local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
+local FirstFive = require(Shared:WaitForChild("FirstFive"))
 local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
 local Invite = require(script.Parent.Parent.UI.Components.Invite)
 local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLogic)
@@ -847,6 +849,10 @@ local function applyState(s: Types.PlayerState)
 		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
 		tutorialStep = s.tutorialStep,
+		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
+		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
+		-- empty, as UI.update skips a nil.
+		bait = if s.bait ~= nil then s.bait else false,
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
@@ -868,6 +874,7 @@ local function applyState(s: Types.PlayerState)
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,
 		feedbackAsked = s.feedbackAsked,
+		sessionFeedbackDay = s.sessionFeedbackDay, -- #3272: the once-a-day session ask
 		stuckHelpShown = s.stuckHelpShown,
 		-- F88: the player's Luck and what makes it, for the HUD chip and its card (luck-and-rare-moments.md section 1)
 		luck = s.luck,
@@ -1332,6 +1339,11 @@ local function wireIntents()
 			Net.fire("SendFeedback", face, chip)
 		end)
 	end
+	if events.sessionFeedback ~= nil then -- #3272: the once-a-day session ask
+		events.sessionFeedback:Connect(function(answer: string)
+			Net.fire("SessionFeedback", answer)
+		end)
+	end
 	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
 	-- "help_shown", "show_me") as TelemetryReport, which allowlists both with their session caps. A nudge goes once
 	-- per tutorial step and kind, as the server logs it, so a repeating pulse never reaches the remote's limit.
@@ -1417,6 +1429,23 @@ local function wireIntents()
 			local ScreenShort = require(script.Parent.Parent.UI.Components.ScreenShort)
 			Net.fire("TelemetryReport", "screen_short", ScreenShort.bucket(camera.ViewportSize))
 		end
+	end)
+	-- #3098 P2: health_check, once a session FirstFive.HEALTH_AT seconds in: the client's memory in MB, then its frames
+	-- a second over FirstFive.HEALTH_SAMPLE seconds (the server adds the ping and keeps it to Tier 1 accounts)
+	task.delay(FirstFive.HEALTH_AT, function()
+		local frames = 0
+		local counting = RunService.RenderStepped:Connect(function()
+			frames += 1
+		end)
+		task.wait(FirstFive.HEALTH_SAMPLE)
+		counting:Disconnect()
+		local memory = math.floor(Stats:GetTotalMemoryUsageMb())
+		Net.fire("TelemetryReport", "health_mem", math.clamp(memory, 0, FirstFive.MEMORY_MAX))
+		Net.fire(
+			"TelemetryReport",
+			"health_fps",
+			math.clamp(math.floor(frames / FirstFive.HEALTH_SAMPLE), 0, FirstFive.FPS_MAX)
+		)
 	end)
 	local screensReported: { [string]: boolean } = {}
 	-- #1273: the screen open now ("none" when it closes), for a new player's time markers and leave events. Sent while
@@ -1994,6 +2023,10 @@ local function wireServerEvents()
 	end)
 	Net.on("Toast", function(text: string, kind: Types.ToastKind?)
 		UI.toast(text, kind)
+	end)
+	-- #3301: an owner's /shout from any server, in the OWNER bubble
+	Net.on("OwnerShout", function(text: string)
+		(UI :: any).ownerShout(text)
 	end)
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said

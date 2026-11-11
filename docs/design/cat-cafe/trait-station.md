@@ -32,6 +32,7 @@ Each cat holds one trait at a time.
 
 ## 3. Rolls and costs
 - **5 free starter rolls** (Derek2, 2026-11-11). Every player gets them once, the first time the Cat Trainer unlocks for them. Players who already own the Park's camp extra get them when the flag turns on. They are their own counter (`traitFreeRolls`), used before tokens and fish, can go on any cat, and never come back.
+- **Save shape (Review-Agent, 2026-11-11):** store `traitFreeRollsUsed` (0 to 5, counts up), not a count left, and never write a default of 5 for a missing field. Free rolls left = 5 minus used. The field only ships with the save version step and its restart publish (§6), so no older server can drop it and hand the 5 out again.
 - A roll picks one of the six traits evenly, then its strength: **I 70%, II 25%, III 5%**.
 - The first trait and every re-roll cost the same: **10 golden fish or 1 Trait Token**.
 - A Strength III of the trait you want takes about 120 rolls (6 traits × 1 in 20), or about 20 for any III. With keep-or-swap, a cat never gets worse. That makes this a long, optional golden fish sink.
@@ -61,7 +62,7 @@ Each cat holds one trait at a time.
 - Quick Paws +1.0 is a quarter of the Swift Potion's +4. Lucky Bowl stays under `LuckMax`. So no paid perk is undercut.
 
 ## 6. Save and publish
-- A trait is a new field on each saved cat, `trait = { id, strength }`, plus a `traitTokens` count, a `traitFreeRolls` count (starts at 5) and the station's token timer on the profile.
+- A trait is a new field on each saved cat, `trait = { id, strength }`, plus a `traitTokens` count, a `traitFreeRollsUsed` count (starts at 0) and the station's token timer on the profile.
 - Older servers would drop these when they save, so this needs a save version step and **one publish with a server restart**. That restart needs Derek's yes at the time.
 - Everything else (the menu, the circle, the token drops, the spin slice) is built first behind a LiveFlag `traits`, switched off.
 

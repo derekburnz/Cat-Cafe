@@ -921,3 +921,4 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - Derek2 said yes to the whole trait station plan (#3196, trait-station.md) and added 5 free re-rolls for every player at the start.
 - They are a separate `traitFreeRolls` counter (starts at 5, never refills), used before tokens and fish. Players who already own the Park's camp extra get them when the `traits` flag turns on.
 - Why a separate counter and not 5 tokens: tokens have a "holds 2" timer cap and drop from other sources, so mixing them would hide the gift and confuse the "Next in" line.
+- Save shape (Review-Agent): saved as `traitFreeRollsUsed` counting up from 0, never a defaulted count of 5, and only with the save version step and restart, so a no-restart rollout can't regrant them.

@@ -45,6 +45,7 @@ LiveFlags.KEYS = {
 	"swiftPaws",
 	"loadingScreen",
 	"alleyBin",
+	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT =

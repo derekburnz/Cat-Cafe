@@ -718,6 +718,8 @@ def cat_rbx_extras(name):
             attachments.append(("_" + part, "Outfit_" + n,
                                 Matrix.Translation(Vector(joints[part]) + Vector(off) * s) @ turn))
     extras = {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
+    if spec.get("held_scale"):              # #3018: carried smaller so a big boxy body clears the arms (HeldCat)
+        extras["attributes"]["HeldScale"] = {"Float64": float(spec["held_scale"])}
     slot = props.slot(cat)
     if slot:                                # a themed cat's prop: its slot, and which piece its parts follow
         rides = props.follows(slot)
@@ -1049,7 +1051,8 @@ def main():
         order = list(all_assets().keys())
         manifest = sorted(old.values(), key=lambda e: order.index(e["name"]) if e["name"] in order else 999)
     with open(mpath, "w") as f:
-        json.dump({"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "units": "studs",
+        # no build time in it: a timestamp line made every two model PRs conflict here and in gates.md
+        json.dump({"units": "studs",
                    "palette": os.path.relpath(png, ROOT),
                    "pose_convention": poses.__doc__.strip().splitlines()[-5:],
                    "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},

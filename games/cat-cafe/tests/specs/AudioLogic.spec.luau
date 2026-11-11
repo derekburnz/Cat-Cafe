@@ -556,6 +556,18 @@ return function()
 			end
 		end)
 	end)
+	-- #3050: the Rummage Bin's prize plays an existing cue, by how big the prize is.
+	describe("Audio.Logic rummage prize cue", function()
+		it("picks a cue by prize, and dings for anything else", function()
+			expect(Logic.rummageCue("golden")).to.equal("goldReveal")
+			expect(Logic.rummageCue("crate")).to.equal("indexReward")
+			for _, id in { "tuna", "fish", "salmon", "potion", "nope" } do
+				expect(Logic.rummageCue(id)).to.equal("giftClaim")
+			end
+			expect(Logic.rummageCue(nil)).to.equal("giftClaim")
+		end)
+	end)
+
 	-- #2997: the weekly update gift's Toast line plays the reward jingle; no other Toast does.
 	describe("Audio.Logic update gift toast", function()
 		it("matches only the gift line", function()
@@ -577,6 +589,17 @@ return function()
 			expect(Logic.focusTick(a, nil)).to.equal(false)
 			expect(Logic.focusTick(a, a)).to.equal(false)
 			expect(Logic.focusTick(nil, nil)).to.equal(false)
+		end)
+	end)
+
+	-- #3222: a Golden find's toast plays the gold reveal; the update gift's plays the reward jingle.
+	describe("Audio.Logic toast jingles", function()
+		it("maps only the two jingle toasts", function()
+			expect(Logic.toastJingle("Golden find! Golden Bench")).to.equal("goldReveal")
+			expect(Logic.toastJingle("Update gift! 🐟 15 + 1 spin")).to.equal("indexReward")
+			expect(Logic.toastJingle("Golden find!")).to.equal(nil)
+			expect(Logic.toastJingle("You got a golden find")).to.equal(nil)
+			expect(Logic.toastJingle(7)).to.equal(nil)
 		end)
 	end)
 

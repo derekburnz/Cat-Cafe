@@ -163,6 +163,8 @@ A helper's bar fires the same RescueStart, RescueHit, RescueDone and RescueFail 
 | `arcadeMilestone` | #3062: moment `ArcadeMilestone()` at every 10 circles of a streak, and the run keeps going | 2D | 0.7 s | a quick glockenspiel run up and a small coin sparkle, lighter than the Spin Wheel win | P2 |
 | `arcadeEnd` | #3062: moment `ArcadeEnd(streak, won)`; a run with a streak above 0 that is not a win | 2D | 1.0 s | three soft falling celesta notes, "nice try", kind rather than sad; a win plays `indexReward` instead | P2 |
 | `indexReward` (again) | #2997 the Saturday update gift: the Toast line "Update gift! ..." (PlaytimeGiftService has no client event; `Logic.isUpdateGiftToast`) | 2D | 1.5 s | the existing reward jingle, no new file | P2 |
+| `goldReveal` (again) | #3222 a Golden find: the Toast line "Golden find! ..." (`Logic.toastJingle`) | 2D | 1.2 s | the existing gold reveal, no new file | P2 |
+| `giftClaim`, `goldReveal`, `indexReward` (again) | #3050 the Rummage Bin's prize: moment `RummageWin(rowId, first)` after the bar's own win chime (`Logic.rummageCue`): golden plays the gold reveal, a crate the reward jingle, anything else the small gift ding | 2D | 1 s | existing cues, no new file | P2 |
 
 ### 5.4 Bait bowl (data-model section 8)
 

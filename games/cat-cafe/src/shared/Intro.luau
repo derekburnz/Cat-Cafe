@@ -339,6 +339,23 @@ function Intro.campGround(): { points: { Vector3 }, middle: Vector3 }
 	}
 end
 
+-- #3303 (Laptop-Tester 11-11: shot 2 "Boom! Every area starts at a safe camp" showed only flat orange ground in
+-- Studio): the floor streams in before the camp's set, so the floor alone let the cut land on bare ground. The camp
+-- counts as in only once its own Cat Cannon (CAMP_CANNON_STUDS behind the pad, at the back wall) has streamed in too.
+-- campSetNear(cannons, pad): any of `cannons` (positions of streamed-in Cat Cannon parts) within SET_RADIUS of `pad`.
+Intro.SET_RADIUS = 20
+Intro.CANNON_TAG = "CatCannon" -- WorldBuilder's tag on every Cat Cannon (TutorialMoves.CANNON_TAG)
+
+function Intro.campSetNear(cannons: { Vector3 }, pad: Vector3): boolean
+	for _, at in cannons do
+		local flat = Vector3.new(at.X - pad.X, 0, at.Z - pad.Z)
+		if flat.Magnitude <= Intro.SET_RADIUS then
+			return true
+		end
+	end
+	return false
+end
+
 -- #2961: whether a downward ray's hit at height `y` is the area's floor (a few studs either way), not a roof or a
 -- prop's top far above it.
 function Intro.floorHit(y: number): boolean

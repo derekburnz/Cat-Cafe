@@ -132,6 +132,27 @@ return function()
 			end
 		)
 
+		it(
+			"passes through a player in their first minutes on the server (#3342 join shield)",
+			function()
+				expect(Shove.targetRefusal(target({ targetShielded = true }))).to.equal(
+					Shove.SHIELDED
+				)
+				expect(Shove.targetRefusal(target({ targetShielded = false }))).never.to.be.ok()
+			end
+		)
+
+		it("shields a join for TackleShieldSeconds, 5 minutes (#3342)", function()
+			local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+			expect(Config.TackleShieldSeconds).to.equal(300)
+			local untilAt = Shove.shieldUntil(1000)
+			expect(untilAt).to.equal(1300)
+			expect(Shove.shielded(untilAt, 1000)).to.equal(true)
+			expect(Shove.shielded(untilAt, 1299.9)).to.equal(true)
+			expect(Shove.shielded(untilAt, 1300)).to.equal(false)
+			expect(Shove.shielded(nil, 1000)).to.equal(false)
+		end)
+
 		it("passes through a player with a trade open (#2568, trading from anywhere)", function()
 			expect(Shove.targetRefusal(target({ targetTrading = true }))).to.equal(
 				"They're trading"
@@ -409,6 +430,7 @@ return function()
 			{ targetBusy = true },
 			{ targetFlying = true }, -- F84
 			{ targetNewcomer = true }, -- F87
+			{ targetShielded = true }, -- #3342
 			-- sinceShoveTarget and sinceTargetShoved break nothing since #2193 (both waits are 0); the tuned-up test
 			-- in "who the lunge hits" keeps their words apart
 		}

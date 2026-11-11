@@ -38,6 +38,7 @@ type Flight = {
 	free: CFrame?, -- where the root stood last frame while not launching, in the world
 	launchAt: number?, -- the CannonLaunchAt being drawn
 	from: CFrame?, -- where the root stood just before that launch, in the world
+	seat: Vector3?, -- #3292: where the root was held in the barrel this flight, in the world
 	done: number?, -- a CannonLaunchAt already drawn to its end, so a late clear does not play it again
 	centre: CFrame?, -- the body's middle this frame in the root's frame, nil while hidden or not flying
 }
@@ -58,7 +59,15 @@ function CannonGlide.frames(
 	now: number
 ): ({ [Avatar.Joint]: CFrame }?, number)
 	local f: Flight = flights[character]
-		or { root = rig.root, free = nil, launchAt = nil, from = nil, done = nil, centre = nil }
+		or {
+			root = rig.root,
+			free = nil,
+			launchAt = nil,
+			from = nil,
+			seat = nil,
+			done = nil,
+			centre = nil,
+		}
 	flights[character] = f
 	f.root = rig.root
 	f.centre = nil
@@ -67,9 +76,9 @@ function CannonGlide.frames(
 	local at = character:GetAttribute("CannonLaunchAt")
 	local launching = character:GetAttribute("Launching") == true and type(at) == "number"
 	if launching and at ~= f.launchAt and at ~= f.done then
-		f.launchAt, f.from = at :: number, f.free
+		f.launchAt, f.from, f.seat = at :: number, f.free, nil
 	elseif not launching and f.launchAt ~= nil and now < f.launchAt + c.drop then
-		f.launchAt, f.from = nil, nil -- called off
+		f.launchAt, f.from, f.seat = nil, nil, nil -- called off
 	end
 	local launchAt = f.launchAt
 	if launchAt == nil then
@@ -80,14 +89,30 @@ function CannonGlide.frames(
 	end
 	local from = if f.from ~= nil then root:Inverse() * f.from else nil
 	local heading = character:GetAttribute("CannonHeading")
+	local seconds = now - launchAt
+	-- #3292: the root waits at the barrel's seat until the server's move to the pad arrives. Note where that is while
+	-- the body is out of sight, and if the move comes in late, keep it out of sight (up to `lateHold` seconds past
+	-- `drop`) rather than drawing the fall from the seat.
+	if seconds >= c.boom and seconds < c.gone then
+		f.seat = root.Position
+	end
+	local seat = f.seat
+	if
+		seat ~= nil
+		and seconds >= c.drop
+		and seconds < c.drop + c.lateHold
+		and (root.Position - seat).Magnitude < c.seatNear
+	then
+		seconds = c.drop - 1e-3
+	end
 	local frames, weight, centre = Avatar.cannon(
 		rig,
-		now - launchAt,
+		seconds,
 		from,
 		if typeof(heading) == "Vector3" then root:VectorToObjectSpace(heading) else nil
 	)
 	if frames == nil then
-		f.done, f.launchAt, f.from = launchAt, nil, nil
+		f.done, f.launchAt, f.from, f.seat = launchAt, nil, nil, nil
 	end
 	f.centre = centre
 	return frames, weight

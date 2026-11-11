@@ -104,6 +104,7 @@ export type Callbacks = {
 	openIndex: () -> (), -- the Index on its cat pages, or closes it
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
+	buyUpgrade: (upgradeId: string) -> (), -- #2912: the tutorial strip's Buy button
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
@@ -294,6 +295,41 @@ local function rowGap(foot: number): number
 end
 local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 20 on touch)
 local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
+-- #3033 (Laptop-Tester, live 494: "the chat window covers the top left Store tile"): the bottom of Roblox's chat
+-- window in pixels from the top of `root`, when it is on and reaches over the left column's first `columnW` pixels;
+-- nil otherwise (touch, no TextChatService window, or one placed elsewhere). Roblox terms: TextChatService's
+-- ChatWindowConfiguration reports where the chat window is drawn (AbsolutePosition, AbsoluteSize).
+local function chatWindow(): Instance?
+	local ok, service = pcall(function(): Instance?
+		return game:GetService("TextChatService")
+	end)
+	if not ok or service == nil then
+		return nil
+	end
+	return (service :: Instance):FindFirstChildOfClass("ChatWindowConfiguration")
+end
+
+local function chatBottom(root: GuiObject, columnW: number): number?
+	local config: any = chatWindow()
+	if config == nil or config.Enabled ~= true then
+		return nil
+	end
+	local okPos, at = pcall(function(): Vector2
+		return config.AbsolutePosition
+	end)
+	local okSize, size = pcall(function(): Vector2
+		return config.AbsoluteSize
+	end)
+	if not okPos or not okSize or typeof(at) ~= "Vector2" or typeof(size) ~= "Vector2" then
+		return nil
+	end
+	local left = (at :: Vector2).X - root.AbsolutePosition.X
+	if size.X <= 0 or size.Y <= 0 or left > columnW then
+		return nil
+	end
+	return (at :: Vector2).Y + (size :: Vector2).Y - root.AbsolutePosition.Y
+end
+
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
 end
@@ -375,6 +411,8 @@ local DROP_W = if TOUCH then 88 else 104
 local DROP_H = if TOUCH then 36 else 44 -- a 36 px face at the desktop's 0.9 scale (the UI gate's tap check)
 local PACK_DROP_W = if TOUCH then 132 else 160 -- #2731: "Drop bag cat" with its icon
 local PACK_DROP_H = if TOUCH then 36 else 44 -- as the carry banner's Drop
+local STRIP_BUY_W = if TOUCH then 210 else 260 -- #2912: "Buy the Bait bowl · 600" on one line
+local STRIP_BUY_H = if TOUCH then 36 else 44
 local DROP_TEXT = if TOUCH then Theme.sizes.textSmall else Theme.sizes.textBody
 -- more room between the bottom row and what stacks on it; with a mouse too, where the pill's outline lay 2 px over
 -- the My Cafe tile's (the UI gate's tilesnear)
@@ -2172,6 +2210,26 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		MaxSize = Vector2.new(strip.w, strip.maxH),
 		Parent = self._tutorial,
 	})
+	-- #2912: over the strip while its step asks for a table or the Bait bowl and the coins cover it, a Buy button
+	-- that buys it in one press (TutorialHints.offer), so the step needs no trip into Upgrades
+	local stripBuy = Button.new({
+		name = "TutorialBuy",
+		text = "",
+		size = UDim2.fromOffset(STRIP_BUY_W, STRIP_BUY_H),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -MARGIN),
+		textSize = DROP_TEXT,
+		parent = root,
+		onClick = function()
+			local offer = self._stripOffer
+			if offer ~= nil then
+				callbacks.buyUpgrade(offer.id)
+			end
+		end,
+	})
+	stripBuy.instance.Visible = false
+	table.insert(self._buttons, stripBuy)
+	self._stripBuy = stripBuy
 
 	self:_layoutBottom()
 	self:_buildBoosts(root)
@@ -2251,6 +2309,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- pair; the layouts wait for this flag, then run once here
 	self._built = true
 	self:_layoutMenu()
+	-- #3033: and Roblox's chat window, which can sit over the Store tile on a computer
+	local chat: any = if TOUCH then nil else chatWindow()
+	if chat ~= nil then
+		for _, property in { "AbsolutePosition", "AbsoluteSize", "Enabled" } do
+			local okSignal, signal = pcall(function(): RBXScriptSignal
+				return chat:GetPropertyChangedSignal(property)
+			end)
+			if okSignal then
+				table.insert(
+					self._connections,
+					signal:Connect(function()
+						self:_layoutMenu()
+					end)
+				)
+			end
+		end
+	end
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
 		self._connections,
@@ -2830,6 +2905,17 @@ function HUD.render(self: any, state: Types.PlayerState)
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
+	-- #2912: the strip's Buy button
+	local offer = if held
+		then nil
+		else TutorialHints.offer(
+			state.tutorialStep,
+			state.upgradeLevels,
+			state.money,
+			if catalog then catalog.upgrades else nil
+		)
+	self._stripOffer = offer
+	self:_renderStripBuy()
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
@@ -3157,6 +3243,24 @@ function HUD.setTutorial(self: any, text: string?)
 	else
 		self._tutorial.Visible = false
 	end
+	self:_renderStripBuy()
+end
+
+-- #2912: the Buy button shows with the strip, while there is an offer; it lays out with the strip
+function HUD._renderStripBuy(self: any)
+	local button = self._stripBuy
+	if button == nil then
+		return
+	end
+	local offer = self._stripOffer
+	local shown = offer ~= nil and self._tutorial.Visible
+	if shown then
+		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
+		if not button.instance.Visible then
+			Tween.popIn(button.instance, 0.92)
+		end
+	end
+	button.instance.Visible = shown
 	self:_layoutBottom()
 end
 
@@ -3226,6 +3330,12 @@ function HUD._layoutBottom(self: any)
 		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
+	-- #2912: the Buy button stands on the strip
+	local buy = self._stripBuy
+	if buy ~= nil and buy.instance.Visible and self._tutorial.Visible then
+		local stripH = self._tutorial.AbsoluteSize.Y / math.max(Scale.get(), 0.01)
+		buy.instance.Position = UDim2.new(0.5, 0, 1, y - stripH - Theme.sizes.gap)
+	end
 end
 
 -- Just above whatever the bottom centre stacks (the bottom row, the carry banner or the bag pill on its lift, the
@@ -3244,6 +3354,9 @@ function HUD.bottomTop(self: any): number
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
+		if self._stripBuy ~= nil and self._stripBuy.instance.Visible then
+			y -= STRIP_BUY_H + Theme.sizes.gap -- #2912
+		end
 	end
 	return y
 end
@@ -4907,6 +5020,17 @@ function HUD._layoutMenu(self: any)
 	local block = storeH + menuH + (if roomy then foldUnder else 0)
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
+	-- #3033: on a computer, the column starts under Roblox's chat window when that covers it and the column still
+	-- fits above the counters; else it stays where it was
+	if not TOUCH and scale > 0 then
+		local under = chatBottom(self._root, (MARGIN + menuW) * scale)
+		if under ~= nil then
+			local top = math.ceil(under / scale) + gap
+			if top > self._menuTop and top + block <= bandBottom then
+				self._menuTop = top
+			end
+		end
+	end
 	self._gridTop = self._menuTop + storeH
 	self._foldBeside = not roomy
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid

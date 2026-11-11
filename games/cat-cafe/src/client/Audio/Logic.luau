@@ -412,6 +412,29 @@ function Logic.focusTick(before: any, after: any): boolean
 	return before ~= nil and after ~= nil and before ~= after
 end
 
+-- #3050: the Rummage Bin's prize pops out (Moments.RummageWin(row id, first)). The bar already rang its win chime
+-- (RescueDone), so this is the prize itself and reuses existing cues: a golden prize its reveal, a crate the reward
+-- jingle, and every other prize (tuna, fish, salmon, potion) a small gift ding. Unknown ids ding too.
+function Logic.rummageCue(rowId: any): string
+	if rowId == "golden" then
+		return "goldReveal"
+	elseif rowId == "crate" then
+		return "indexReward"
+	end
+	return "giftClaim"
+end
+
+-- Toast lines that earn their own jingle, since the server sends them as a toast only: the update gift (#2997) the
+-- reward jingle, and a Golden find (#3222, LawnService.giveDrop: "Golden find! ...") the gold reveal. Nil for any other.
+function Logic.toastJingle(text: any): string?
+	if Logic.isUpdateGiftToast(text) then
+		return "indexReward"
+	elseif type(text) == "string" and string.sub(text, 1, 13) == "Golden find! " then
+		return "goldReveal"
+	end
+	return nil
+end
+
 -- #3022: whether the stray waiting for your second catch (its WaitsFor is your user id) calls out now. It calls once as
 -- you come within `near` studs, then every `gap` seconds while you stay that near, at most `most` times in all, so
 -- it helps a lost new player without nagging. `lastAt` is when it last called (nil for never), `calls` how often.

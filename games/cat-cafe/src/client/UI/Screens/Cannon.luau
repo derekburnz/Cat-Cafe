@@ -28,6 +28,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
@@ -35,6 +36,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RallyLogic = require(script.Parent.Parent.Components.RallyLogic)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -42,6 +44,9 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
+-- #3347 (Derek2: "make the spa symbol better and not some simple symbols"): a station's drawn picture on its picker
+-- line, in place of its emoji (which shows until the picture loads)
+local LINE_IMAGES: { [string]: string? } = { spa = ShopIcons.clean("Spa") }
 
 export type Callbacks = {
 	launch: (cannonId: string, destination: string) -> (),
@@ -709,6 +714,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		if line ~= nil then
 			tall = true
 			card.extraIcon.Text = line.icon
+			IconArt.setImage(card.extraIcon, LINE_IMAGES[line.extraId], 0.95) -- #3347: drawn, not the emoji
 			card.extraName.Text = line.name
 			card.extraState.Text = line.state
 			card.extraState.TextColor3 = if line.ready then PAL.good else PAL.subtext

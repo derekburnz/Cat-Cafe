@@ -116,6 +116,9 @@ local ICON_MYSTERY: WalkUpCircles.Icon =
 	{ emoji = "❔", art = "CatCafe_Square_MysteryCart_RingIcon_Decor" }
 local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
+-- #3338 (Derek2: "add a circle to open the station infront of it"): the Cat Arcade's ring in arcade purple
+local RING_ARCADE = Color3.fromRGB(176, 110, 240)
+local ICON_ARCADE: WalkUpCircles.Icon = { emoji = "🕹️" }
 local ICON_FEEDBACK: WalkUpCircles.Icon =
 	{ emoji = "✉️", art = "CatCafe_Town_FeedbackStand_RingIcon_Decor" }
 -- #3113: the camp stations' rings (no art yet, so each shows its emoji card) and the Index Boards'
@@ -132,7 +135,9 @@ local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
 	yardSale = { emoji = "🏷️" },
 	pond = { emoji = "🎣" },
 	lostFound = { emoji = "🧦" },
-	spa = { emoji = "🛁" },
+	-- #3347 (Derek2: "make the spa symbol better"): the Spa's drawn tub (the client's Icon_Clean_Spa, also its window's
+	-- badge) on the card, the emoji under it until it loads
+	spa = { emoji = "♨️", image = "rbxassetid://90117647745743" },
 	museum = { emoji = "🏺" },
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
@@ -276,6 +281,35 @@ local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	model:PivotTo(cframe)
 	model.Parent = parent
 	return model
+end
+
+-- #3348: takes an area set's invisible barriers inside the area out (Layout.keepsBarrier), keeping its edge ring, and
+-- lets the visible body of each piece that had one collide instead (Layout.barrierPiece, Layout.bodyCollides): a hall
+-- wall or a fallen log is still solid, a pool's water or a stream stays walk-in. Returns how many barrier pieces went.
+local function dropInnerBarriers(set: Instance): number
+	local dropped = 0
+	local pieces: { [string]: boolean } = {}
+	for _, item in set:GetDescendants() do
+		local piece = Layout.barrierPiece(item.Name)
+		if item.Parent ~= nil and piece ~= nil and (item:IsA("BasePart") or item:IsA("Model")) then
+			pieces[piece] = true
+			item:Destroy()
+			dropped += 1
+		end
+	end
+	for _, item in set:GetDescendants() do
+		if item:IsA("BasePart") and pieces[item.Name] and not item.CanCollide then
+			local body = item :: BasePart
+			local up = body.CFrame:VectorToObjectSpace(Vector3.yAxis)
+			local height = math.abs(up.X) * body.Size.X
+				+ math.abs(up.Y) * body.Size.Y
+				+ math.abs(up.Z) * body.Size.Z
+			if Layout.bodyCollides(body.Transparency, body.Material.Name, height) then
+				body.CanCollide = true
+			end
+		end
+	end
+	return dropped
 end
 
 -- True once the front lawn's art is in ReplicatedStorage.Assets (F91): LawnService sells and places pieces and
@@ -1576,13 +1610,14 @@ local function buildArea(
 		if set ~= nil and hasSet then
 			-- Pivot at the area's centre on the floor's top, its gate side (-Z) turned toward the town. The wall
 			-- facing the town still blocks but is hidden: the set's see-through border stands there.
-			place(
+			local setModel = place(
 				set,
 				CFrame.new(cx, spec.floorY, cz)
 					* CFrame.Angles(0, math.rad(Layout.gateTurn(spec)), 0),
 				model
-			).Name =
-				"Set"
+			)
+			setModel.Name = "Set"
+			dropInnerBarriers(setModel) -- #3348: no invisible walls inside the area
 			for _, name in { "WallNearL", "WallNearR" } do
 				local near = walls:FindFirstChild(name)
 				if near ~= nil and near:IsA("BasePart") then
@@ -2326,6 +2361,8 @@ local function buildArcadeCabinet(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
+	-- #3338: the walk-in ring in front of it (Controllers/WalkUpController opens the window on stepping in)
+	WalkUpCircles.front(model, RING_ARCADE, Arcade.PROMPT_RANGE, nil, ICON_ARCADE)
 	return model
 end
 

@@ -30,6 +30,79 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-11 21:00): player-facing changes since #3259, 67 merges; no new player ideas
+	{
+		id = "swift_paws_five",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Swift Paws: 5 speed levels",
+	},
+	{
+		id = "arcade_free_daily",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Free Arcade game every day",
+	},
+	{
+		id = "arcade_leaderboard",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Cat Arcade leaderboard",
+	},
+	{
+		id = "titles_bag_tab",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Titles tab in your Bag",
+	},
+	{
+		id = "shorter_nights",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Shorter nights",
+	},
+	{
+		id = "tackle_shield_new",
+		date = "2026-11-11",
+		icon = "new",
+		text = "New players can't be tackled",
+	},
+	{
+		id = "stray_calls_over",
+		date = "2026-11-11",
+		icon = "cat",
+		text = "Strays call you over",
+	},
+	{
+		id = "station_reveal_show",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Station reveal with confetti",
+	},
+	{
+		id = "first_catches_easier",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Easier first catches",
+	},
+	{
+		id = "tutorial_one_tap_buy",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Tutorial: one-tap Buy",
+	},
+	{
+		id = "decor_unlocked",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Decor arrives unlocked",
+	},
+	{
+		id = "ruins_waterfall_mist",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Ruins waterfall and mist",
+	},
 	-- #2718 refresh (11-11 04:00): player-facing changes since #3220, 27 merges; no new player ideas
 	{
 		id = "rummage_bin",

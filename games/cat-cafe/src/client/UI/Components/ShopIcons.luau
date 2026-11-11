@@ -188,6 +188,13 @@ local IDS: { [string]: string } = {
 	-- #3137 batch 3 (upload run 42938004143): the moon and the open padlock
 	Icon_Clean_Moon = "rbxassetid://113770680051546",
 	Icon_Clean_Unlock = "rbxassetid://96025123745905",
+	-- #3347 batch 4 (group upload run 43100302103): the station ring cards; Arcade is also its window badge
+	Icon_Clean_Museum = "rbxassetid://106957137610323",
+	Icon_Clean_Picnic = "rbxassetid://92455587075019",
+	Icon_Clean_YardSale = "rbxassetid://132170661858712",
+	Icon_Clean_Pond = "rbxassetid://116298242454261",
+	Icon_Clean_LostFound = "rbxassetid://106814161165186",
+	Icon_Clean_Arcade = "rbxassetid://120353026211586",
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://73874755116021",
 	Icon_Hud_SetMusicVolume = "rbxassetid://105488499187015",

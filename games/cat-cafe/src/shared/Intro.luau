@@ -211,7 +211,8 @@ local AREA_FLOOR = 0.1 -- every area's floor top (Layout's floorY)
 -- Where Layout puts the pad, the carrier basket and an Index Board in camp space (x across, z toward the area).
 local CAMP_PAD_Z = -13
 local CAMP_BASKET = { x = -11, z = -13 }
-local BOARD_IN = -4
+local BOARD_IN = -7 -- as Layout.indexBoards (#3349): 7 in at a gated area, 4 at the Alleyway
+local ALLEY_BOARD_IN = -4
 local BOARD_OUT = 4
 local ALLEY_BOARD_OUT = 7
 
@@ -259,9 +260,11 @@ function Intro.camp(area: string): Camp?
 	local function point(x: number, z: number): Vector3
 		return origin + across * x + u * z
 	end
-	-- every board beside the opening, on the left of it, 4 in; the Alleyway's further out, past its low walls (F85)
-	local board =
-		point(-(opening + if area == "alley" then ALLEY_BOARD_OUT else BOARD_OUT), BOARD_IN)
+	-- every board beside the opening, on the left of it, 7 in; the Alleyway's 4 in and further out, past its low walls (F85)
+	local board = point(
+		-(opening + if area == "alley" then ALLEY_BOARD_OUT else BOARD_OUT),
+		if area == "alley" then ALLEY_BOARD_IN else BOARD_IN
+	)
 	return {
 		area = area,
 		turn = turn,

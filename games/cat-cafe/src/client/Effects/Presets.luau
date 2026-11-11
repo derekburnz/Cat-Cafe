@@ -1901,7 +1901,7 @@ Presets.carryPose = {
 -- salting", "it's cool to see your character fly"), drawn by CannonGlide.luau on every character from its
 -- `CannonLaunchAt`, in seconds from it (CannonLaunchSeconds 3.75 in all, #2690). The server holds the character's root
 -- anchored at the barrel's seat, upright and facing where the barrel fires, then on the landing pad from
--- CannonTeleportAtSeconds (2.6); the body moves away from the root through the Root joint, so nothing replicates.
+-- CannonTeleportAtSeconds (2.2 since #3292, was 2.6); the body moves away from the root through the Root joint, so nothing replicates.
 -- From where it stood the character crouches for `hopCrouch` and hops in a `hopHeight` arc into the barrel by `hop`,
 -- curling into the ball on the way. At `boom` the ball leaves along the barrel, tipped `tilt` degrees up, at `speed`
 -- studs a second under `gravity`. It makes `flips` forward rolls over the first `flipFor` seconds, slowing as it
@@ -1939,6 +1939,8 @@ Presets.cannonPose = {
 	back = 30,
 	arrive = 0.2,
 	open = 0.15,
+	lateHold = 0.3, -- #3292: seconds past `drop` the body stays out of sight while the move to the pad is late
+	seatNear = 2, -- studs: the root still this close to the barrel's seat means the move has not arrived
 	kneel = 0.08,
 	hold = 0.12,
 	blendOut = 0.15,

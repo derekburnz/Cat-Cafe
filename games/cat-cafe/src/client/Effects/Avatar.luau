@@ -871,15 +871,20 @@ function Avatar.flight(
 	end
 	if seconds < c.touch then
 		-- back over the pad feet first, falling along a curve from behind it and slowing as it comes down, the legs
-		-- swinging under it for the landing at the last moment
+		-- swinging under it for the landing at the last moment. #3292 (Derek2: "cannon changes course slightly mid
+		-- air"): it comes in along the way it flew (`heading`), from behind it, not from behind the way the pad
+		-- faces, and turns to the pad's facing as it swings into the landing, so the course never jumps when the
+		-- two differ (a first flight's pad faces the stray).
 		local u = (seconds - c.drop) / (c.touch - c.drop)
 		local k = (2 - c.arrive) * u + (c.arrive - 1) * u * u
-		local start = Vector3.new(0, c.height, c.back)
-		local bend = Vector3.new(0, c.height, c.back * 0.3)
+		local turn = heading or 0
+		local sinT, cosT = math.sin(turn), math.cos(turn)
+		local start = Vector3.new(c.back * sinT, c.height, c.back * cosT)
+		local bend = Vector3.new(c.back * 0.3 * sinT, c.height, c.back * 0.3 * cosT)
 		local open = smooth((seconds - (c.touch - c.open)) / c.open)
 		return Avatar.mix(cannonKey("drop"), cannonKey("land"), open),
 			start * ((1 - k) * (1 - k)) + bend * (2 * k * (1 - k)),
-			0,
+			turn * (1 - open),
 			0,
 			1,
 			0

@@ -154,6 +154,25 @@ return function()
 			end
 		)
 
+		it("#3292: comes in along the way it flew and turns to the pad only as it lands", function()
+			local turn = math.rad(60)
+			local _, start, yaw0 = Avatar.flight(c.drop, nil, nil, turn)
+			-- behind the body along the heading: the heading is (-sin, -cos), so behind is (sin, cos)
+			local want = Vector3.new(c.back * math.sin(turn), c.height, c.back * math.cos(turn))
+			expect((start - want).Magnitude < 1e-6).to.equal(true)
+			expect(yaw0).to.be.near(turn, 1e-9)
+			local lastYaw = yaw0
+			for s = c.drop + STEP, c.touch, STEP do
+				local _, _, yaw = Avatar.flight(s, nil, nil, turn)
+				expect(math.abs(yaw - lastYaw) < math.rad(20)).to.equal(true) -- no snap
+				lastYaw = yaw
+			end
+			local _, place, yaw = Avatar.flight(c.touch, nil, nil, turn)
+			expect(place.Magnitude < 1e-6).to.equal(true)
+			expect(yaw).to.be.near(0, 1e-9)
+			expect(c.lateHold > 0 and c.drop + c.lateHold < c.touch).to.equal(true)
+		end)
+
 		it(
 			"lands on one knee with a fist down, holds it, then stands, with nothing jerky",
 			function()

@@ -176,6 +176,35 @@ function Leaderboards.crowned(lists: { [List]: { Types.LeaderboardRow } }, userI
 	return false
 end
 
+-- #3333: each player's best place (1 to 3) across `boards` (each a list of ranked rows, best first), with
+-- `skip`'s players (the owner's account) left out so the next player moves up. userId -> place.
+function Leaderboards.topPlaces(
+	boards: { { Types.LeaderboardRow } },
+	skip: (number) -> boolean
+): { [number]: number }
+	local places: { [number]: number } = {}
+	for _, rows in boards do
+		local sorted = table.clone(rows)
+		table.sort(sorted, function(a: Types.LeaderboardRow, b: Types.LeaderboardRow): boolean
+			return a.rank < b.rank
+		end)
+		local place = 0
+		for _, row in sorted do
+			if place >= 3 then
+				break
+			end
+			if not skip(row.userId) then
+				place += 1
+				local had = places[row.userId]
+				if had == nil or place < had then
+					places[row.userId] = place
+				end
+			end
+		end
+	end
+	return places
+end
+
 -- Store entries ({ key, value } from GetSortedAsync, best first) as ranked rows: keys that are not a user id, hidden
 -- players and anything past LeaderboardSize are dropped, and the ranks close up over them. `nameOf` gives each
 -- user's display name.

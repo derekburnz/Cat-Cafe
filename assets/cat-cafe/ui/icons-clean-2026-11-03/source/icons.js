@@ -378,3 +378,61 @@ Object.assign(window.ICONS, {
     <circle cx="28" cy="42" r="4" fill="${O}"/><path d="M28 44 V51" stroke="${O}" stroke-width="4" stroke-linecap="round"/>
     <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M54 30 L56 35 L61 36 L56 38 L54 43 L52 38 L47 36 L52 35 Z"/>`,
 });
+// #3347 batch 4: the station ring cards that still drew emoji (Relic Museum, Picnic, Yard Sale, Pond, Lost and Found,
+// Cat Arcade). The Index Boards reuse Icon_Clean_Index, already uploaded.
+Object.assign(window.ICONS, {
+  // the Relic Museum: a clay amphora with two handles and a painted band
+  museum: `<path d="M22 20 Q10 20 12 32 Q13 38 19 38 M42 20 Q54 20 52 32 Q51 38 45 38" stroke="${O}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M22 20 Q10 20 12 32 Q13 38 19 38 M42 20 Q54 20 52 32 Q51 38 45 38" stroke="#d9874a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#e89a5a" d="M24 6 H40 V14 Q40 18 44 22 Q54 32 50 46 Q46 58 32 58 Q18 58 14 46 Q10 32 20 22 Q24 18 24 14 Z"/>
+    <rect ${S} stroke-width="3.5" x="21" y="3" width="22" height="6" rx="2.5" fill="#f2b27a"/>
+    <path d="M14.5 34 H49.5 M15 42 H49" stroke="${O}" stroke-width="2.6"/>
+    <path d="M14.5 34 H49.5 L49 42 H15 Z" fill="#2a1a12" opacity=".85"/>
+    <path d="M18 38 L22 35 L26 38 L30 35 L34 38 L38 35 L42 38 L46 35" stroke="#ffd23f" stroke-width="2.2" fill="none" stroke-linejoin="round"/>
+    <path d="M20 26 Q17 32 18 30" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/>`,
+  // the Picnic: a wicker basket with a red gingham cloth peeking out and an arched handle
+  picnic: `<path d="M14 30 Q14 6 32 6 Q50 6 50 30" stroke="${O}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M14 30 Q14 6 32 6 Q50 6 50 30" stroke="#d99a52" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#fff" d="M10 30 Q16 22 24 28 Q32 20 40 28 Q48 22 54 30 Z"/>
+    <path d="M16 26 V30 M24 27 V30 M32 24 V30 M40 27 V30 M48 26 V30" stroke="#ff5a5a" stroke-width="3.2"/>
+    <path ${S} fill="#e0a45c" d="M6 30 H58 L52 58 H12 Z"/>
+    <path d="M8 38 H56 M10 46 H54 M11.5 53 H52.5" stroke="#a8682c" stroke-width="2.6"/>
+    <path d="M20 30 L22 58 M32 30 V58 M44 30 L42 58" stroke="#a8682c" stroke-width="2.6"/>
+    <rect ${S} stroke-width="3.5" x="4" y="28" width="56" height="6" rx="3" fill="#c9843e"/>`,
+  // the Yard Sale: a price tag on a string with a coin-gold hole ring and a big dollar-free paw
+  yardSale: `<path d="M50 6 Q60 4 58 14" stroke="${O}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#ffb15a" d="M30 6 H52 Q58 6 58 12 V34 L30 62 L2 34 Z" transform="rotate(0)"/>
+    <circle cx="47" cy="17" r="4.5" fill="#fff" stroke="${O}" stroke-width="3.5"/>
+    <ellipse cx="30" cy="38" rx="7" ry="6" fill="#fff" stroke="${O}" stroke-width="2.6"/>
+    <circle cx="21" cy="29" r="3.4" fill="#fff" stroke="${O}" stroke-width="2.4"/><circle cx="27" cy="25" r="3.4" fill="#fff" stroke="${O}" stroke-width="2.4"/>
+    <circle cx="34" cy="25" r="3.4" fill="#fff" stroke="${O}" stroke-width="2.4"/><circle cx="40" cy="29" r="3.4" fill="#fff" stroke="${O}" stroke-width="2.4"/>`,
+  // the Pond: a fishing rod bending over blue water, its red and white bobber floating in a ripple
+  pond: `<ellipse ${S} cx="32" cy="50" rx="28" ry="10" fill="#5fc0f0"/>
+    <path d="M14 50 Q22 46 30 50 M38 54 Q44 51 50 54" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M8 58 Q20 10 56 6" stroke="${O}" stroke-width="7.5" fill="none" stroke-linecap="round"/>
+    <path d="M8 58 Q20 10 56 6" stroke="#c97f45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M56 6 Q52 26 42 42" stroke="${O}" stroke-width="1.8" fill="none"/>
+    <ellipse cx="42" cy="46" rx="9" ry="2.6" fill="none" stroke="#fff" stroke-width="2"/>
+    <circle cx="42" cy="42" r="6" fill="#fff" stroke="${O}" stroke-width="3.5"/>
+    <path d="M36.2 42 A6 6 0 0 1 47.8 42 Z" fill="#ff4f5e"/>
+    <circle cx="42" cy="42" r="6" fill="none" stroke="${O}" stroke-width="3.5"/>
+    <rect x="9" y="44" width="7" height="6" rx="2" fill="#5b6b82" stroke="${O}" stroke-width="2.6" transform="rotate(-20 12 47)"/>`,
+  // Lost and Found: a striped odd sock with a little sparkle, found again
+  lostFound: `<path ${S} fill="#fff" d="M22 4 H44 V34 Q44 40 40 44 L30 54 Q22 62 14 56 Q6 50 12 42 L22 32 Z"/>
+    <path d="M22.5 13 H43.5 M22.5 22 H43.5" stroke="#4fc3a0" stroke-width="5"/>
+    <rect ${S} stroke-width="3.5" x="20" y="2" width="26" height="7" rx="3" fill="#7ad9bb"/>
+    <path d="M13 43 Q9 50 14 55 Q20 60 27 53" stroke="#ff8fb3" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M22 4 H44 V34 Q44 40 40 44 L30 54 Q22 62 14 56 Q6 50 12 42 L22 32 Z" stroke="${O}" stroke-width="4.5" fill="none" stroke-linejoin="round"/>
+    <path fill="#ffd23f" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M54 28 L56 34 L62 36 L56 38 L54 44 L52 38 L46 36 L52 34 Z"/>`,
+  // the Cat Arcade: a joystick with a red ball top and two round buttons on a purple base
+  arcade: `<path ${S} fill="#9b6bff" d="M6 40 Q6 34 12 34 H52 Q58 34 58 40 V52 Q58 58 52 58 H12 Q6 58 6 52 Z"/>
+    <path d="M10 40 H54" stroke="#c4a6ff" stroke-width="3" stroke-linecap="round"/>
+    <path d="M22 38 V18" stroke="${O}" stroke-width="9" stroke-linecap="round"/>
+    <path d="M22 38 V18" stroke="#c9d3de" stroke-width="4" stroke-linecap="round"/>
+    <ellipse ${S} stroke-width="3.5" cx="22" cy="40" rx="9" ry="3.5" fill="#5b4a8a"/>
+    <circle ${S} cx="22" cy="14" r="9" fill="#ff4f5e"/>
+    <circle cx="19" cy="11" r="2.6" fill="#fff" opacity=".85"/>
+    <circle ${S} stroke-width="3.5" cx="40" cy="44" r="5" fill="#ffd23f"/>
+    <circle ${S} stroke-width="3.5" cx="51" cy="44" r="5" fill="#4fc3ff"/>
+    <path d="M12 52 H52" stroke="#7a52d6" stroke-width="2.6" stroke-linecap="round"/>`,
+});

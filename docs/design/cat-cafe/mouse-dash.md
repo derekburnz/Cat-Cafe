@@ -57,6 +57,7 @@ The first three mice of a player's first ever run are slow (2.0 s windows), with
 - Each mouse of a pair gets **1.35 times the window**, so one thumb can reach both at the 0.40 s floor.
 - A wave with a mouse and a kitten ends when the mouse is caught or gone, and the kitten ducks back with it. A kitten alone stays its whole window.
 - The streak for the heart back breaks on an escape or a tapped kitten. An empty-hole tap does not break it.
+- A golden mouse is up for max(0.75 x the wave's window, the 0.40 s floor): the floor applies after the golden scale, so it is never shorter than a phone can manage. A golden mouse that gets away does not break the streak; only a grey mouse escaping or a tapped kitten does.
 - Ping allowance: the full round trip, at most `CatchLatencyCapSeconds` (0.15 s), because the pop also has to travel to the client. (Section 4 said half.)
 - A first run's three safe mice break nothing when missed: no heart and no streak.
 
@@ -67,6 +68,8 @@ The bar is "would you play this again right away". These are part of the build, 
 - **Read at a glance:** hearts as three paw pads top left, the score big at the top centre, best at the top right. A "Faster!" banner on each speed step. Nothing else on screen during a run.
 - **End card:** points, best (with "New best!"), today's milestones and one big "Play again" button with its cost. Only the window's X closes it.
 - **Controls:** tap or click a hole. Keyboard: Q W E, A S D, Z X C for the nine holes. Gamepad: the left stick points at a hole (resting is the centre hole) and A bops it.
+- **Keep the holes clear (Derek, 2026-11-11 23:44 UTC, on the art preview: "the top left symbol is a little too close to the possible spawn and distracting"):** nothing that draws the eye sits near a hole. Backdrop shapes (cheese wheels, wedges, rings) stay at least half a hole's width away from every hole and from anything that can pop out of one, and stay low contrast. The hearts, score and best sit in their own band above the board, never over it.
+- **Everything is centred (Derek, 23:45 UTC: "some of the kittens/things look off centred also so make sure thats fixed for the game"):** every mouse, kitten and dust puff is centred on its hole, left to right, and each picture's pivot is the middle of its base so pictures of different widths line up. "Zzz", "+1", "+3" and stars are drawn as separate pieces so they never push a picture off centre.
 - **Reduce Motion:** no screen shake and no squash, the pops still show.
 - Checked on phone, tablet, desktop and console.
 
@@ -149,3 +152,4 @@ What carries over on the switch:
 - With `mouseDash` off there is no tab and the remotes refuse.
 - Old server and new server side by side: nothing pays twice and nothing errors.
 - Phone, tablet, desktop (mouse and keys) and gamepad all play. Reduce Motion works.
+- A screenshot with all nine holes filled (mice, golden mice and kittens) shows every one centred on its hole and no backdrop shape within half a hole's width of a hole.

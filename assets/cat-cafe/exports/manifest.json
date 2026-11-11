@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-11 01:10 UTC",
+  "generated": "2026-11-11 01:55 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -278076,7 +278076,8 @@
       "module": "crate_decor",
       "objects": [
         "CatCafe_Decor_CaravanBench",
-        "CatCafe_Decor_CaravanBench_Glow"
+        "CatCafe_Decor_CaravanBench_Lantern_Swing",
+        "CatCafe_Decor_CaravanBench_Lantern_Glow"
       ],
       "triangles": 998,
       "budget": 3000,
@@ -278102,6 +278103,30 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_CaravanBench_Lantern_Swing": [
+          -0.0,
+          0.0,
+          3.6
+        ],
+        "CatCafe_Decor_CaravanBench_Lantern_Glow": [
+          -0.0,
+          0.0,
+          3.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_CaravanBench_Lantern_Swing": [
+          0.0,
+          3.6,
+          0.0
+        ],
+        "CatCafe_Decor_CaravanBench_Lantern_Glow": [
+          0.0,
+          3.6,
+          0.0
+        ]
+      },
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CaravanBench.model.json",
       "rbx_parts": 75,
@@ -278122,7 +278147,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CaravanBench.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CaravanBench.png"
     },
     {
       "name": "CatCafe_Decor_LanternPalm",
@@ -278292,9 +278319,11 @@
       "category": "Decor",
       "module": "crate_decor",
       "objects": [
-        "CatCafe_Decor_StoneThrone"
+        "CatCafe_Decor_StoneThrone",
+        "CatCafe_Decor_StoneThrone_Gem_Bob",
+        "CatCafe_Decor_StoneThrone_Gem_Glow"
       ],
-      "triangles": 300,
+      "triangles": 396,
       "budget": 3000,
       "size_studs": {
         "x": 3.2,
@@ -278318,9 +278347,33 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_StoneThrone_Gem_Bob": [
+          -0.0,
+          0.77,
+          3.42
+        ],
+        "CatCafe_Decor_StoneThrone_Gem_Glow": [
+          -0.0,
+          0.77,
+          3.42
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_StoneThrone_Gem_Bob": [
+          0.0,
+          3.42,
+          0.77
+        ],
+        "CatCafe_Decor_StoneThrone_Gem_Glow": [
+          0.0,
+          3.42,
+          0.77
+        ]
+      },
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_StoneThrone.model.json",
-      "rbx_parts": 34,
+      "rbx_parts": 42,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_StoneThrone.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_StoneThrone.glb"
@@ -278330,15 +278383,17 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "300/3000 tris",
+          "budget": "396/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "166 faces on swatch centers",
+          "uv": "220 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.02"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_StoneThrone.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_StoneThrone.png"
     },
     {
       "name": "CatCafe_Decor_BrazierPair",

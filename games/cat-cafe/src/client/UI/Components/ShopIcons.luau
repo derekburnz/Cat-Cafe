@@ -185,6 +185,9 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Desert = "rbxassetid://105252509632683",
 	Icon_Clean_Ruins = "rbxassetid://117006304300316",
 	Icon_Clean_Town = "rbxassetid://84240054469741",
+	-- #3137 batch 3 (upload run 42938004143): the moon and the open padlock
+	Icon_Clean_Moon = "rbxassetid://113770680051546",
+	Icon_Clean_Unlock = "rbxassetid://96025123745905",
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://73874755116021",
 	Icon_Hud_SetMusicVolume = "rbxassetid://105488499187015",

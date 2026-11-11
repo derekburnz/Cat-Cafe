@@ -168,8 +168,13 @@ end
 
 -- #3276: lock or unlock owned piece `id` on its card, keeping the old servers' mirror in step.
 function Trade.setPieceLocked(profile: Types.PlayerProfile, id: string, locked: boolean)
-	profile.decorLocked[id] = if locked then true else nil
-	profile.decorUnlocked[id] = if locked then nil else true
+	if locked then
+		profile.decorLocked[id] = true
+		profile.decorUnlocked[id] = nil
+	else
+		profile.decorLocked[id] = nil
+		profile.decorUnlocked[id] = true
+	end
 end
 
 -- Why piece `id` cannot go on `profile`'s side next to `offered` (the ids already there), in a trade with

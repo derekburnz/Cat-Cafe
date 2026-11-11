@@ -27,9 +27,9 @@ return function()
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
-		DayLengthSeconds = 320, -- #2192: was 300
-		NightLengthSeconds = 70, -- v0.9 (F66): a short night between hunts; #2192: was 90
-		ServerStartDaySeconds = 320, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		DayLengthSeconds = 345, -- #2192: was 300; #3195: was 320
+		NightLengthSeconds = 45, -- v0.9 (F66): a short night between hunts; #2192: was 90; #3195: was 70
+		ServerStartDaySeconds = 345, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day; #3195: was 320
 		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,

@@ -848,6 +848,10 @@ function UI.init(config: Types.InitConfig)
 		dropCat = function()
 			UI.events.dropCat:Fire()
 		end,
+		-- #2912: the tutorial strip's Buy button, the same request as the Upgrades row's Buy
+		buyUpgrade = function(upgradeId: string)
+			UI.events.buyUpgrade:Fire(upgradeId)
+		end,
 		replayIntro = function()
 			UI.events.introChoice:Fire("tile")
 			UI.events.introReplay:Fire()

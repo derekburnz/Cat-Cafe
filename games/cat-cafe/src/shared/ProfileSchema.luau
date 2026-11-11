@@ -111,6 +111,10 @@ local ProfileSchema = {}
 -- the food and letting the player roll that bowl again by hopping servers during a rollout.
 -- #1574 (no new version): decorUnlocked, the Legendary and up pieces unlocked to trade, and the trade log's gaveDecor
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
+-- #3276 (no new version): decorLocked, the Legendary and up pieces locked on their card; nothing arrives locked any
+-- more. decorUnlocked stays as its mirror (every other owned lockable piece) so an older server sees the same locks;
+-- An older server drops decorLocked, which unlocks those pieces again (the player can lock them again); decorLocked
+-- is not rebuilt from decorUnlocked's gaps, as those gaps are every piece a save before #3276 never unlocked.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
 -- #1168 row 2 (no new version): jukebox, the Jukebox track pick (free since #1875). An older server drops it, which only plays the
@@ -271,6 +275,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		decorOwned = {},
 		decorPlaced = {},
 		decorUnlocked = {},
+		decorLocked = {},
 		lures = {},
 		bait = nil,
 		bait2 = nil,
@@ -1031,21 +1036,24 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- F91 (version 28): the front lawn, kept to what the tier opens
 	profile.lawnOwned, profile.lawn, profile.lawnStyles =
 		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
-	-- #1574 (no new version): the Legendary and up pieces unlocked to trade, owned ones only. An older server drops the
-	-- list, which only locks those pieces again.
-	profile.decorUnlocked = {}
-	if type(raw.decorUnlocked) == "table" then
-		for id, unlocked in raw.decorUnlocked do
+	-- #3276 (no new version): the Legendary and up pieces locked on their card, owned ones only; every other owned one
+	-- is unlocked, so a save from before (when they arrived locked) has them all unlocked. decorUnlocked (#1574) is
+	-- rebuilt as the mirror for older servers.
+	profile.decorLocked = {}
+	if type(raw.decorLocked) == "table" then
+		for id, locked in raw.decorLocked do
+			local info = if type(id) == "string" then Trade.piece(id) else nil
 			if
-				type(id) == "string"
-				and unlocked == true
+				info ~= nil
+				and locked == true
 				and Trade.ownsPiece(profile, id)
-				and Trade.pieceLocked(profile, id)
+				and Trade.lockable(info.rarity)
 			then
-				profile.decorUnlocked[id] = true
+				profile.decorLocked[id] = true
 			end
 		end
 	end
+	profile.decorUnlocked = Trade.unlockedPieces(profile)
 	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
 	-- #1537 (version 35): the Yard Sale's lawn rows bought today; saves before it have bought none

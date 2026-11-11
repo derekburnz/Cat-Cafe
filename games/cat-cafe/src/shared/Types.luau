@@ -1224,8 +1224,11 @@ export type PlayerProfile = {
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
 	-- #1574 (trading.md section 1b, no save version bump): the Legendary and up pieces (crate decor and lawn pieces) the
-	-- player unlocked on their card to trade; every other such piece is locked (Trade.pieceLocked)
+	-- player can trade; #3276: every owned one not in decorLocked (Trade.unlockedPieces)
 	decorUnlocked: { [string]: boolean },
+	-- #3276 (no save version bump): the Legendary and up pieces the player locked on their card; nothing arrives
+	-- locked, and decorUnlocked is kept as the mirror (Trade.unlockedPieces) for older servers
+	decorLocked: { [string]: boolean },
 	lures: { [string]: number },
 	bait: BaitState?,
 	bait2: BaitState?, -- #1161: the Second Bait Bowl's bait (save version 34), nil when that bowl is empty

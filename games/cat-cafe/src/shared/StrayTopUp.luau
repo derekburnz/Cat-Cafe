@@ -1,8 +1,8 @@
 --!strict
 -- Daytime stray top-ups (#1159). The sunrise wave still fills each area; then, while an area's live strays are under
 -- its floor, one more stray arrives each time a timer drawn from StrayTopUpMinSeconds to StrayTopUpMaxSeconds runs
--- out, at a far point (a "deep" point in the long areas, a "nook" in the Alleyway) when one is free, so the back of
--- the area is never left bare. The floor grows with the players who have the area open, so a full server finds about
+-- out, at a far point (a "deep" point in the long areas; any free point in the Alleyway since #3170) when one is
+-- free, so the back of the area is never left bare. The floor grows with the players who have the area open, so a full server finds about
 -- as many strays each as a lone player, and it never passes StrayLiveMax live cats in one area. A top-up rolls its
 -- rarity from the area's normal odds, so the rare odds per stray are unchanged. Pure: CatService runs it.
 -- Since Derek2's "no cats start of sewer" (2026-11-05) a gated area also keeps Config.StrayEntryFloor strays within
@@ -13,7 +13,9 @@ local Config = require(script.Parent.Config)
 
 local StrayTopUp = {}
 
-StrayTopUp.FAR_ZONES = table.freeze({ deep = true, nook = true }) :: { [string]: boolean }
+-- #3170 (Derek2: "all the cats in alleyway are piled into the back"): not the Alleyway's nooks any more; a top-up
+-- there takes any free point, so the back is no longer where every new stray lands
+StrayTopUp.FAR_ZONES = table.freeze({ deep = true }) :: { [string]: boolean }
 
 -- The live strays an area keeps by day with `players` players who have it open (a lone player counts as one).
 -- `base` is the area's own floorBase (#2794: the Alleyway and the Park), Config.StrayFloorBase when nil.

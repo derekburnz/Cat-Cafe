@@ -318,14 +318,17 @@ function TradeLogic.changed(state: any, now: number): Changed?
 	return { side = change.side, uid = change.uid }
 end
 
+-- #3211 (Derek2 11-11: "sort trade by highest rarity first for all sections"): the rarest first, whatever a card's
+-- state; a locked or offered cat keeps its place among its rarity (it sorted below every free cat before, so the
+-- best cats, which players lock, sat at the bottom). Within a rarity: free cards, then coat, level and rating.
 local function before(a: Pick, b: Pick): boolean
-	local sa, sb = STATUS_ORDER[a.status], STATUS_ORDER[b.status]
-	if sa ~= sb then
-		return sa < sb
-	end
 	local ra, rb = RANK[a.rarity] or 0, RANK[b.rarity] or 0
 	if ra ~= rb then
 		return ra > rb
+	end
+	local sa, sb = STATUS_ORDER[a.status], STATUS_ORDER[b.status]
+	if sa ~= sb then
+		return sa < sb
 	end
 	local ca, cb = COAT[a.variant or ""] or 0, COAT[b.variant or ""] or 0
 	if ca ~= cb then
@@ -451,13 +454,13 @@ function TradeLogic.myPieces(
 		end
 	end
 	table.sort(picks, function(a: PiecePick, b: PiecePick): boolean
+		local ra, rb = PIECE_RANK[a.rarity] or 0, PIECE_RANK[b.rarity] or 0
+		if ra ~= rb then
+			return ra > rb -- #3211: the rarest first, then the free ones within a rarity
+		end
 		local sa, sb = PIECE_STATUS_ORDER[a.status], PIECE_STATUS_ORDER[b.status]
 		if sa ~= sb then
 			return sa < sb
-		end
-		local ra, rb = PIECE_RANK[a.rarity] or 0, PIECE_RANK[b.rarity] or 0
-		if ra ~= rb then
-			return ra > rb
 		end
 		if a.name ~= b.name then
 			return a.name < b.name
@@ -506,7 +509,7 @@ local function crateTotals(side: any): (number, number)
 end
 
 -- #2745: your banked crates for the Crates tab: every crate id with a count of 1 or more that `defOf` knows and isn't
--- golden, in catalog order; `offered` is crate id -> how many are on your side, `blocked` the server's crateBlocked.
+-- golden, the last in the catalog first (#3211); `offered` is crate id -> how many are on your side, `blocked` the server's crateBlocked.
 function TradeLogic.myCrates(
 	banked: { [string]: number }?,
 	defOf: (id: string) -> CrateInfo?,
@@ -540,13 +543,10 @@ function TradeLogic.myCrates(
 		end
 	end
 	table.sort(picks, function(a: CratePick, b: CratePick): boolean
-		local sa, sb =
-			if a.status == "blocked" then 2 else 1, if b.status == "blocked" then 2 else 1
-		if sa ~= sb then
-			return sa < sb
-		end
+		-- #3211: a crate has no rarity of its own; the later a crate comes in the catalog (a further area, a dearer
+		-- crate) the rarer its pieces, so the last comes first
 		if order[a.id] ~= order[b.id] then
-			return order[a.id] < order[b.id]
+			return order[a.id] > order[b.id]
 		end
 		return a.id < b.id
 	end)
@@ -634,6 +634,12 @@ end
 
 function TradeLogic.countText(n: number): string
 	return "x" .. tostring(math.max(0, math.floor(n)))
+end
+
+-- #3211: when a row's Asked wears off once the server says the ask ended at `at` (os.clock): after REASK_SECONDS
+-- for a decline or a lapse, at once (`now`) for an ask that was refused or could not open.
+function TradeLogic.askedUntil(at: number, now: boolean): number
+	return if now then at else at + TradeLogic.REASK_SECONDS
 end
 
 function TradeLogic.playerButton(row: PlayerRow, minTier: number): ButtonView

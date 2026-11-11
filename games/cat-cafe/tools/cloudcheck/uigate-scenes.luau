@@ -2380,6 +2380,39 @@ local SCENES = {
 		assert(name.Text == "Rainbow Duchess Marzipan", "uigate: the catch header reads " .. name.Text .. " (#2110)")
 		assert(name.TextFits, "uigate: Rainbow Duchess Marzipan does not fit the catch header (#2110)")
 	end },
+	-- #3224 (Derek2: the card "just shows cat on top instead of what it is"): a catch that begins with the net swing
+	-- has no prompt card up for its stray; the header names the cat from the stray's own attributes
+	{ "CatchSwingName", function()
+		local model = Instance.new("Model")
+		model.Name = "Stray_gate_swing"
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(2, 2, 3)
+		body.Position = Vector3.new(0, 3, -12)
+		body.Parent = model
+		model.PrimaryPart = body
+		model:SetAttribute("StrayId", "gate_swing")
+		model:SetAttribute("CatId", Catalog.cats[2].id)
+		model:SetAttribute("CatName", "Sand Cat")
+		model:SetAttribute("Rarity", "Epic")
+		model:SetAttribute("Gold", true)
+		model:SetAttribute("Variant", "gold")
+		model.Parent = workspace
+		model:AddTag("Stray")
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.3, shrinkSeconds = 0.8, x = 0.4, y = 0.5 }, { startsAt = t + 1.0, shrinkSeconds = 0.8, x = 0.6, y = 0.5 } }
+		UI.catch.showCircles("gate_swing", list :: any, { perfect = 0.037, good = 0.09 })
+		UIShim.advance(0.2)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local name = layer and layer:FindFirstChild("CatName", true)
+		local rarity = layer and layer:FindFirstChild("Rarity", true)
+		assert(name and name:IsA("TextLabel"), "uigate: no catch header name (#3224)")
+		assert(name.Text == "Gold Sand Cat", "uigate: a net-swing catch's header reads " .. name.Text .. ", not Gold Sand Cat (#3224)")
+		assert(rarity and rarity.Text == "Epic", "uigate: a net-swing catch's rarity pill reads " .. tostring(rarity and rarity.Text) .. " (#3224)")
+		assert(name.TextFits, "uigate: Gold Sand Cat does not fit the catch header (#3224)")
+		model:RemoveTag("Stray")
+		model:Destroy()
+	end },
 	-- #2099 (luck-and-rare-moments.md 1j): a "Pity cat" tag over each stray with PityCat, gold for a Legendary and
 	-- violet with a rainbow edge for a Mythical, none over a plain stray; hidden in a net, back on a bolt, gone with
 	-- the attribute
@@ -5612,9 +5645,21 @@ local SCENES = {
 		UI.intro.setTackleStager(function(shot: number)
 			table.insert(staged, shot)
 		end)
+		-- #3206 (Derek2: "make sure to not play tackle cutscene when not in safezone"): due out in a catching area, the
+		-- lesson waits; it starts once the player is back on the safe street
+		UI.setZone("Alley")
 		UI.tips.show("tackle_lesson")
-		UIShim.advance(0.5)
-		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
+		UIShim.advance(1.5)
+		assert(not UI.intro.playing(), "uigate: the tackling lesson started outside the safe zone (#3206)")
+		UI.setZone(nil)
+		for _ = 1, 60 do -- (a tip card that took the free moment out there finishes first)
+			if UI.intro.playing() then
+				break
+			end
+			UIShim.advance(0.25)
+		end
+		assert(UI.intro.playing(), "uigate: the tackling lesson did not start back on the safe street (#3206, #2198)")
+		UIShim.advance(0.25)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
 		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
 		local skip = gui:FindFirstChild("Skip", true) :: GuiObject
@@ -5633,7 +5678,7 @@ local SCENES = {
 		UIShim.advance(0.6)
 		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
 		assert(caption.Text == "Get tackled and you drop your cat!", "uigate: Next did not move the lesson on (#2198)")
-		assert(#seen == 0, "uigate: the lesson was saved as seen before it ended (#2198)")
+		assert(table.find(seen, "tackle_lesson") == nil, "uigate: the lesson was saved as seen before it ended (#2198) " .. table.concat(seen, ","))
 		assert(gui:FindFirstChild("TackleCue", true) == nil, "uigate: the Tackle cue shows before its caption (#2469)")
 		-- #2469: the third caption shows the Tackle bar with this device's key and presses it as the lunge starts
 		UIShim.advance(1.1)
@@ -5658,7 +5703,7 @@ local SCENES = {
 		assert(gui:FindFirstChild("TackleCue", true) == nil, "uigate: the Tackle cue stays on the last caption (#2469)")
 		UIShim.advance(20)
 		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
-		assert(#seen == 1 and seen[1] == "tackle_lesson", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		assert(seen[#seen] == "tackle_lesson", "uigate: the lesson's end did not save the tackle tip as seen (#2198) " .. table.concat(seen, ","))
 		local shots = table.concat(staged, ",")
 		assert(shots == "1,2,3,4,0", "uigate: the lesson staged the camera as " .. shots .. ", not 1,2,3,4,0 (#2312)")
 		UI.intro.setTackleStager(nil)
@@ -5865,7 +5910,11 @@ local SCENES = {
 		assert(nextPill.AbsolutePosition.X >= 0, "uigate: Next runs off the screen (#2182)")
 		assert(read.Visible, "uigate: no read bar on a shot with a hold (#2182)")
 		assert(read.AbsolutePosition.Y >= caption.AbsolutePosition.Y + caption.AbsoluteSize.Y - 1, "uigate: the read bar is not under the caption (#2182)")
-		assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= bottom.AbsolutePosition.Y + 1, "uigate: the read bar sits on the lower bar (#2182)")
+		-- #3024: only where the lower bar shows (a PC); on touch it is hidden, and on a 4:3 iPad its hidden frame sat above
+		-- the read bar and failed this for nothing. The touch branch below checks the read bar against Skip and Next.
+		if bottom.Visible then
+			assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= bottom.AbsolutePosition.Y + 1, "uigate: the read bar sits on the lower bar (#2182)")
+		end
 		-- #2394 (Derek2: "the bottom just takes up a lot of space that could be camera"): on touch no lower bar; the
 		-- caption and its read bar sit over Skip and Next, which stay inside the screen
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
@@ -6830,6 +6879,21 @@ local SCENES = {
 		for _, kind in { "potion", "food", "bait" } do
 			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
 		end
+		-- #3209 (Derek2: "add different section buttons at top of day cart for potions/cat food/bait"): a tab per
+		-- section; the open tab shows only its own header and rows
+		local function shows(kind: string): boolean
+			local header = window:FindFirstChild("Section_" .. kind, true) :: GuiObject
+			return header.Visible
+		end
+		for _, kind in { "potion", "food", "bait" } do
+			assert(window:FindFirstChild(kind .. "Tab", true), "uigate: no " .. kind .. " tab on the Day Cart (#3209)")
+		end
+		assert(shows("potion") and not shows("food") and not shows("bait"), "uigate: the Day Cart does not open on Potions alone (#3209)")
+		assert(not (window:FindFirstChild("kibble", true) :: GuiObject).Visible, "uigate: a bait row shows on the Potions tab (#3209)")
+		press("CornerShop", "foodTab")
+		assert(shows("food") and not shows("potion"), "uigate: the Cat food tab did not switch the list (#3209)")
+		assert((window:FindFirstChild("cat_snack", true) :: GuiObject).Visible, "uigate: no food rows on the Cat food tab (#3209)")
+		assert(not (window:FindFirstChild("swift_potion", true) :: GuiObject).Visible, "uigate: a potion row shows on the Cat food tab (#3209)")
 	end },
 	-- #2593 (Derek2: a Buy all for each Day Cart section): a real window's stock, so the shared planAll and the rows
 	-- agree. Each section with something to buy has Buy all; its card lists the plan, Cancel sends nothing, Buy sends
@@ -6880,6 +6944,7 @@ local SCENES = {
 		connection:Disconnect()
 		assert(#sent == 1 and sent[1] == "potion:" .. window, "uigate: Buy sent " .. table.concat(sent, ","))
 		UI.cornerShop.setStock(view()) -- the answer ends the wait
+		press("CornerShop", "baitTab") -- #3209: the bait section is on its own tab
 		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card
 	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;

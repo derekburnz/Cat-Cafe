@@ -648,10 +648,11 @@ return function()
 					scale
 				).speed :: number
 			end
-			expect(speed(nil, nil)).to.be.near(0.85, 1e-9)
-			expect(speed(Rescue.speedScale(0), nil)).to.be.near(0.85 * 0.85, 1e-9)
-			expect(speed(Rescue.speedScale(0), "alley")).to.be.near(0.85 * 0.75 * 0.85, 1e-9)
-			expect(speed(Rescue.speedScale(9), "alley")).to.be.near(0.85 * 0.75, 1e-9)
+			local common = Config.RescueBarSpeed.Common -- (#3223: 1.00, was 0.85)
+			expect(speed(nil, nil)).to.be.near(common, 1e-9)
+			expect(speed(Rescue.speedScale(0), nil)).to.be.near(common * 0.85, 1e-9)
+			expect(speed(Rescue.speedScale(0), "alley")).to.be.near(common * 0.75 * 0.85, 1e-9)
+			expect(speed(Rescue.speedScale(9), "alley")).to.be.near(common * 0.75, 1e-9)
 		end)
 
 		it("multiplies into the bar with the area and the station perk", function()

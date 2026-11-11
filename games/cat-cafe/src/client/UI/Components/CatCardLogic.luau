@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CatStats = require(Shared:WaitForChild("CatStats")) :: any
 local Config = require(Shared:WaitForChild("Config")) :: any
+local Traits = require(Shared:WaitForChild("Traits")) :: any
 
 local CatCardLogic = {}
 
@@ -25,6 +26,22 @@ end
 -- "barista" -> "Barista" (Format.roleName)
 local function roleName(role: string): string
 	return role:sub(1, 1):upper() .. role:sub(2)
+end
+
+-- #3196: a cat's Mystic Pool trait for its card: the title in rich text, a dot in the rarity's colour before
+-- "Rare Big Tipper", and one line per effect ("+12% this cat's income"). Nil and no lines for no trait or an id this
+-- client does not know (a newer server's).
+function CatCardLogic.trait(trait: { id: string }?): (string?, { string })
+	if type(trait) ~= "table" or type(trait.id) ~= "string" then
+		return nil, {}
+	end
+	local def = Traits.get(trait.id)
+	if def == nil then
+		return nil, {}
+	end
+	local hex = tostring(def.rarity.color):gsub("^#", "")
+	local title = string.format('<font color="#%s">●</font> %s', hex, Traits.fullTitle(trait))
+	return title, Traits.effectLines(trait)
 end
 
 -- The big line and the small one under it: "Biscuit" over "Pirate Cat" for a named cat, else the catalog name alone.

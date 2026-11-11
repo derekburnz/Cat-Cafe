@@ -2380,6 +2380,39 @@ local SCENES = {
 		assert(name.Text == "Rainbow Duchess Marzipan", "uigate: the catch header reads " .. name.Text .. " (#2110)")
 		assert(name.TextFits, "uigate: Rainbow Duchess Marzipan does not fit the catch header (#2110)")
 	end },
+	-- #3224 (Derek2: the card "just shows cat on top instead of what it is"): a catch that begins with the net swing
+	-- has no prompt card up for its stray; the header names the cat from the stray's own attributes
+	{ "CatchSwingName", function()
+		local model = Instance.new("Model")
+		model.Name = "Stray_gate_swing"
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(2, 2, 3)
+		body.Position = Vector3.new(0, 3, -12)
+		body.Parent = model
+		model.PrimaryPart = body
+		model:SetAttribute("StrayId", "gate_swing")
+		model:SetAttribute("CatId", Catalog.cats[2].id)
+		model:SetAttribute("CatName", "Sand Cat")
+		model:SetAttribute("Rarity", "Epic")
+		model:SetAttribute("Gold", true)
+		model:SetAttribute("Variant", "gold")
+		model.Parent = workspace
+		model:AddTag("Stray")
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.3, shrinkSeconds = 0.8, x = 0.4, y = 0.5 }, { startsAt = t + 1.0, shrinkSeconds = 0.8, x = 0.6, y = 0.5 } }
+		UI.catch.showCircles("gate_swing", list :: any, { perfect = 0.037, good = 0.09 })
+		UIShim.advance(0.2)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local name = layer and layer:FindFirstChild("CatName", true)
+		local rarity = layer and layer:FindFirstChild("Rarity", true)
+		assert(name and name:IsA("TextLabel"), "uigate: no catch header name (#3224)")
+		assert(name.Text == "Gold Sand Cat", "uigate: a net-swing catch's header reads " .. name.Text .. ", not Gold Sand Cat (#3224)")
+		assert(rarity and rarity.Text == "Epic", "uigate: a net-swing catch's rarity pill reads " .. tostring(rarity and rarity.Text) .. " (#3224)")
+		assert(name.TextFits, "uigate: Gold Sand Cat does not fit the catch header (#3224)")
+		model:RemoveTag("Stray")
+		model:Destroy()
+	end },
 	-- #2099 (luck-and-rare-moments.md 1j): a "Pity cat" tag over each stray with PityCat, gold for a Legendary and
 	-- violet with a rainbow edge for a Mythical, none over a plain stray; hidden in a net, back on a bolt, gone with
 	-- the attribute

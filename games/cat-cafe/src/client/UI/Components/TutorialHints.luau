@@ -36,6 +36,8 @@ export type View = {
 	-- #2912: how many cats the player has caught (#3022: stats.catsCaught; nil: not known, step 3 asks for the table
 	-- alone)
 	cats: number?,
+	-- #3238: the areas are shut (dusk to sunrise), so step 3's "second" line says when the strays are back
+	night: boolean?,
 }
 
 type Line = string | { keyboard: string, touch: string, gamepad: string }
@@ -62,6 +64,12 @@ local LINES: { [string]: Line } = {
 		keyboard = "Catch another cat, or buy a table in Upgrades (U)",
 		touch = "Catch another cat, or tap Upgrades for a table",
 		gamepad = "Catch another cat, or buy a table in Upgrades",
+	},
+	-- #3238: the "second" line at night, when no stray waits; kept to the strip's one line
+	secondNight = {
+		keyboard = "Strays return at sunrise, or buy a table (U)",
+		touch = "Strays return at sunrise, or tap Upgrades",
+		gamepad = "Strays return at sunrise, or open Upgrades",
 	},
 	table = {
 		keyboard = "Buy a table in Upgrades (U): more tips per cat",
@@ -113,7 +121,13 @@ function TutorialHints.ask(view: View): string?
 end
 
 -- The view of `state` (a PlayerState), with the catalog's spots for step 2's choice.
-function TutorialHints.view(state: any, spots: { any }?, device: TipQueue.Device?): View
+-- `areasOpen` false from dusk to sunrise (the Clock folder's AreasOpen, #3238).
+function TutorialHints.view(
+	state: any,
+	spots: { any }?,
+	device: TipQueue.Device?,
+	areasOpen: boolean?
+): View
 	local levels: { [string]: number } = state.upgradeLevels or {}
 	-- #3022: the cats caught so far (stats.catsCaught), not the cats in the cafe. A new cafe's starter Tabby made that
 	-- count 2 after the first catch, so #2912's "second" line never showed.
@@ -132,6 +146,7 @@ function TutorialHints.view(state: any, spots: { any }?, device: TipQueue.Device
 		baited = state.bait ~= nil,
 		arrived = type(state.bait) == "table" and state.bait.cat ~= nil,
 		cats = cats,
+		night = areasOpen == false,
 	}
 end
 
@@ -147,6 +162,9 @@ end
 
 function TutorialHints.line(view: View): string?
 	local id = pick(view)
+	if id == "second" and view.night == true then
+		id = "secondNight"
+	end
 	local line: Line? = if id ~= nil then LINES[id] else nil
 	if line == nil then
 		return nil

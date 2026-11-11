@@ -1767,18 +1767,19 @@ local SCENES = {
 		assert(gap >= 8, ("uigate: the Perks button is %d px from the X (#2839)"):format(gap))
 	end },
 	{ "RankUpTier2", function()
-		-- #2121: the Tier 1 card lists all five upgrade caps now Bait Bowl 3 opens at Tier 2; the line still fits
+		-- #2121: the Tier 1 card lists all five upgrade caps, Bait Bowl among them; the line still fits. The level is not
+		-- pinned (#3204 moved the Tier 2 caps), only that the line is there
 		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
 		UI.update({ tier = 1 } :: any)
 		UI.open("RankUp")
 		local found = false
 		for _, inst in UIShim.playerGui:GetDescendants() do
-			if inst:IsA("TextLabel") and string.find(inst.Text, "bait bowl to 3", 1, true) then
+			if inst:IsA("TextLabel") and string.find(inst.Text, "bait bowl to %d") then
 				found = true
 				assert(inst.TextFits ~= false, "uigate: the Tier 2 upgrade line does not fit (#2121)")
 			end
 		end
-		assert(found, "uigate: the Tier 2 card does not say bait bowl to 3 (#2121)")
+		assert(found, "uigate: the Tier 2 card does not list the bait bowl cap (#2121)")
 	end },
 	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
 	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.

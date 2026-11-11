@@ -793,3 +793,27 @@ Why: "check if mutated cats gold/rainbow increase difficulty of catch and if tha
 **Quicker rings (#3140).** In the Sewer, Desert and Ruins (areas of Tier 5 and later, `QuickRingTier`) a Common cat's rings close in **0.96 s** (was 1.20) and a Rare's in **0.85 s** (was 1.00). The bands are the same seconds wide, so a ring is no harder to hit. The ring count, the gap between rings and the rarer cats are unchanged.
 
 Why: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to wait", "speed up the circles". Rare is 15% quicker, not the 20% first written on the issue, so a Rare ring stays slower than an Epic's 0.82 s.
+
+## 2026-11-10 First rescues easier, and the rescue bar smaller on screen (#3180)
+
+Derek2: "make the starting rescue's easier and slightly smaller bars".
+
+- An account's first **5** rescues (3 in #3120) have zones **1.85** times as wide (1.7) and a marker at **0.85** of its speed (`RescueFirstSpeed`, new). A first Common rescue in the Alleyway has 0.44 of the bar (0.42 before #3120, 0.24 for a veteran after it) and a marker of 0.54 bar lengths a second (0.64).
+- 1.85 and not 2.0: the widest zone there can be (a first Common in the Alleyway with Warm Paws) has to stay under half the bar.
+- The bar is drawn 492 by 40 design pixels (560 by 44). The zone is a share of the bar and the speed is in bar lengths, so the timing does not change. Taps anywhere count, so only Give up is a touch target and it keeps its size.
+
+Why: "starting rescues" is read as a new player's first rescues, not every rescue in the Alleyway and the Park, so veterans there keep the narrower zones Derek asked for in #3120. "Smaller bars" is read as the bar's size on screen.
+
+## 2026-11-10 Loading screen off behind a live switch (#3179)
+
+Derek2: "remove the loading screen honestly I think that would make people leave faster then before". The loading screen before the opening scenes (#3105, #3109) shows only when the new live switch `loadingScreen` holds true; it is off by default and with a broken store. `flags set loadingScreen true` brings it back for players who join after, with no publish, so Research can compare leave rates. Its code and art stay until #3162 decides.
+
+## 2026-11-10 A new player's waiting cat can be caught by anyone (#3181)
+
+Derek2: "certain cats atleast at the beginning of alleyway are bugged and cant be caught no matter where I put net", then "tons of bugged cats in alleyway now". Since F87 a tutorial stray was its beginner's alone, with nothing on screen saying so, and with many new players in a server most of the eight points by the arch held one. Anyone's swing lands on it now: a beginner gets the easy catch on any of them, anyone else a Common's own circles, and the beginner it waited for gets a new one at once.
+
+Why not mark or hide it instead: a mark still leaves cats a new player cannot catch in their first minute, and hiding needs every effect and sound that follows strays to know. Known trade-off: a new Common at a beginner's point per catch while they have not checked in; not capped (Review-Agent: a refill wait would hurt the beginner more than the farm matters).
+
+## 2026-11-10 Daily Treat opens by itself after the 2nd cat goal, at the cafe (#3188)
+
+Derek2: "move daily treat to after your goal catch a 2nd cat and coming back to cafe if its not already". After #3155 it waited for the tutorial alone. It now also waits until two cats are caught by hand and checked in, and until the player stands on their own plot. The Daily tile still opens it by hand.

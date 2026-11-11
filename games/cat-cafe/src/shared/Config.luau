@@ -566,8 +566,12 @@ local Config = {
 	} :: { [string]: number },
 	-- #3120: an account's first RescueFirstUses rescues (stats.rescues below it) have zones RescueFirstZone times as
 	-- wide, about the widths before the cut (Common 0.29, Rare 0.23), so a new player's first rescues are no harder.
-	RescueFirstUses = 3,
-	RescueFirstZone = 1.7,
+	-- #3180 (Derek2 2026-11-10: "make the starting rescue's easier and slightly smaller bars"): 3 rescues at 1.7
+	-- before. The first five now, 1.85 times as wide (a first Common in the Alleyway has 0.44 of the bar, 0.42 before
+	-- #3120), and the marker runs at RescueFirstSpeed of its speed on them (Rescue.speedScale).
+	RescueFirstUses = 5,
+	RescueFirstZone = 1.85,
+	RescueFirstSpeed = 0.85,
 	-- #3135 (Derek2 2026-11-10: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not
 	-- added add it"): it was not. A gold or rainbow cat's catch bands (Circles.windowsFor) and rescue zone
 	-- (Rescue.zoneScale) are this times as wide. Not on the tutorial stray or an account's first rescues.

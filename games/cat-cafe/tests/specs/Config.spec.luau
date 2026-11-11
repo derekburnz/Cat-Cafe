@@ -555,6 +555,7 @@ return function()
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 				RescueFirstUses = true, -- #3120: an account's first rescues, checked in Rescue.spec
 				RescueFirstZone = true, -- #3120: their wider zone, checked in Rescue.spec
+				RescueFirstSpeed = true, -- #3180: their slower marker, checked in Rescue.spec
 				CoatDifficulty = true, -- #3135: a table, checked in Rescue.spec and Circles.spec
 				QuickRingTier = true, -- #3140: checked in Circles.spec
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec

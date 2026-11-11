@@ -817,3 +817,19 @@ Why not mark or hide it instead: a mark still leaves cats a new player cannot ca
 ## 2026-11-10 Daily Treat opens by itself after the 2nd cat goal, at the cafe (#3188)
 
 Derek2: "move daily treat to after your goal catch a 2nd cat and coming back to cafe if its not already". After #3155 it waited for the tutorial alone. It now also waits until two cats are caught by hand and checked in, and until the player stands on their own plot. The Daily tile still opens it by hand.
+
+## 2026-11-11 Rescues: a faster marker (#3223)
+
+Derek2: "rescues are wayyy to easy making bar too big and speed to slow" (a Desert rescue on publish 497: the zone a third of the bar).
+
+- The zones were already cut in #3120 (0.17, 0.135, 0.105, 0.105, 0.125); that had merged but was not yet live when he wrote.
+- The marker's speed, in bar lengths a second: Common **1.00** (0.85), Rare **0.90** (0.735), Epic **1.12** (0.98), Legendary **1.22** (1.12), Mythical **1.38** (1.26).
+- A steady player (presses within 50 ms) now frees a stuck cat 100%, 99%, 75%, 51% and 36% of the time by rarity (100, 100, 98, 73, 59 on 497); a looser one (70 ms) 97%, 89%, 36%, 16% and 8% (100, 100, 79, 31, 19).
+
+Why these: most of the change is on Common to Epic, as #3120 asked; Legendary and Mythical were already the tightest. 1.38 and not 1.34 for the Mythical so every rarer cat still has less time in its zone. The Alleyway and Park ease (#2786) and an account's first five rescues (#3180) stay on top, so a new player's start is still easy. This takes back most of #2566's 30% slowdown for Rare and up.
+
+## 2026-11-11 Small fixes logged here (their PRs left the log alone)
+
+- **Restart warning wraps (#3205).** Derek2: "the quick update in ... gets cut off". The early restart warnings are calm info toasts, which keep to one row; a line with "your cafe is saved" now wraps whatever its kind.
+- **Tackling lesson only somewhere safe (#3206).** Derek2: "make sure to not play tackle cutscene when not in safezone". A due lesson starts only on the safe street or in a cafe; out in a catching area it stays due.
+- **Trade (#3211).** Derek2: "trade says busy but should go through at any time and still gets stuck on asked", "trade shows 0/s in the first screen", "sort trade by highest rarity first for all sections". An ask goes through whatever either player is doing, and carrying a cat never blocks a trade; a trade still does not open over a running catch, rescue or flight, and an open one still ends if a player starts one (#2568). A refused ask clears "Asked" at once. An offered cat with no job shows what it earns working. Every tab lists the rarest first. Known trade-off (Review-Agent): a carrier can sit in the trade window out in a catching area and be tackled meanwhile; not an exploit, and "no tackles while the trade window is open" is a later option if Derek wants it.

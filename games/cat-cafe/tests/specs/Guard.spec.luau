@@ -97,6 +97,7 @@ return function()
 				for i = 1, area.rescueSpots do
 					passes("rescue_" .. area.id .. "_" .. i, "rescue spot") -- WorldBuilder's naming
 				end
+				passes("rescue_" .. area.id .. "_nook", "nook rescue spot") -- #2687
 			end
 		end)
 

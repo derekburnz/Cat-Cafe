@@ -44,6 +44,11 @@ export type RescuePoint = {
 }
 -- y is the height above the area floor (0 when omitted); wall props set it.
 export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
+-- #2687 part 2: an area's hidden nook (Model-Agent's CatCafe_Nook_<Area>, assets/cat-cafe/blender/nooks.py), a little
+-- walled corner against a side wall of its set with one extra rescue spot inside. The model stands at (x, floor + y,
+-- z) turned by rotY with its gate open; `trap` is its rescue spot, which holds a trap every day on top of the area's
+-- mix from rescuePool (RescueService).
+export type Nook = { asset: string, x: number, y: number, z: number, rotY: number, trap: RescuePoint }
 -- A shared area in world space. A box area (no rects) is a wild area (v4, F84): one floor with walls on three sides
 -- and an opening in its near wall, the one facing the hometown, where its old gate stands as the way out of its camp
 -- (Layout.camps): a Z side with gateZ (the Park, the Neighbourhood), an X side with gateX (the Woods and the Sewer).
@@ -80,6 +85,7 @@ export type AreaSpec = {
 	-- #2240: every spot a trap can stand on, today's rescueSpots included, each built as scenery; each sunrise
 	-- RescueService picks rescueSpots' mix of trap types from it (RescuePick). Nil: rescueSpots are the traps every day.
 	rescuePool: { RescuePoint }?,
+	nook: Nook?, -- #2687: the area's hidden nook and its own rescue spot
 	props: { Prop },
 	-- #2651 (tier6-7-areas.md section 5): an area on a plateau over mist catches anything that falls this far below
 	-- its floor, within catchMargin of its footprint, and sends it back to the camp (FallCatchService)
@@ -972,6 +978,44 @@ local function setPropTrap(
 	}
 end
 
+-- #2687 part 2: an area's hidden nook in its set's space. The nook's pivot stands at (x, lift, z) of the set, turned
+-- `rot` (90: its back to the set's +X wall, -90: to the -X wall), so its stepping stones lead toward the middle. Its
+-- trap stands on the nook's RescueSpot (nooks.py TRAPS), `spotZ` in front of the pivot in the nook's own space and
+-- turned `pieceTurn` in it: a piece built into the nook (no prop) takes Layout.setStuckPoses[trap] like a set's
+-- trap, and a `prop` is stood there by WorldBuilder like any rescue prop.
+-- Each spot (Animation-Engineer's clearance search on the set, #2687): the nook and a 3 wide lane 9 out of its front
+-- clear of every part of the set, against the wall in the far half or the middle, its rescue spot 9 or more from every
+-- cat spot and 25 or more from every spot of the area's rescuePool. Its back stands 0.02 off the set's wall (the cap
+-- just into it), so no slot of light shows between them; the Desert's sits on the rubble at its wall's foot instead.
+local function setNook(
+	cx: number,
+	cz: number,
+	turn: number,
+	area: string,
+	spot: { number },
+	rot: number,
+	trap: string,
+	spotZ: number,
+	pieceTurn: number,
+	prop: string?
+): Nook
+	local x, lift, z = spot[1], spot[2], spot[3]
+	local a = math.rad(rot)
+	local at = { x + spotZ * math.sin(a), lift, z + spotZ * math.cos(a) }
+	local point = if prop ~= nil
+		then setPropTrap(cx, cz, turn, prop, trap, at, rot + pieceTurn)
+		else setTrap(cx, cz, turn, trap, at, rot + pieceTurn)
+	local pivot = setPoints(cx, cz, turn, 0, { spot })[1]
+	return {
+		asset = "CatCafe_Nook_" .. area,
+		x = pivot.x,
+		y = lift,
+		z = pivot.z,
+		rotY = (turn + rot) % 360,
+		trap = point,
+	}
+end
+
 -- The long Park (F85, hometown-cannon.md section 6b; Model-Agent #799, area-sets.md "The Park (F85)"): a 120 x 310
 -- wild part with its camp 30 more in front of the gate, so the run home with a cat is long and in view. Its set,
 -- camp, gate, night fence and backdrop carry the F85 suffix (artSuffix). Four blockers cross the width with their
@@ -1083,6 +1127,18 @@ Layout.park = {
 		-- fills the pool spot nearest the camp every sunrise
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -11, 0, -134 }, 0),
 	},
+	nook = setNook(
+		PX,
+		PZ,
+		PTURN,
+		"Park",
+		{ -53, 0, -2 },
+		-90,
+		"trashcan",
+		0.4,
+		0,
+		"CatCafe_Park_TrashCan"
+	),
 	props = {},
 } :: AreaSpec
 
@@ -1221,6 +1277,18 @@ Layout.neighbourhood = {
 		setTrap(NX, NZ, NTURN, "gutter", { -58.6, 7.05, 28.5 }),
 		setTrap(NX, NZ, NTURN, "gutter", { 28.6, 7.05, 65.5 }, 180),
 	},
+	nook = setNook(
+		NX,
+		NZ,
+		NTURN,
+		"Neighbourhood",
+		{ 83.04, 0, 74 },
+		90,
+		"trash_bin",
+		0.4,
+		0,
+		"CatCafe_Alley_TrashBin"
+	),
 	props = {},
 } :: AreaSpec
 
@@ -1360,6 +1428,7 @@ Layout.woods = {
 		setTrap(WX, WZ, WTURN, "bramble_bush", { 72, 0, 96 }),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -18, 0, -68 }),
 	},
+	nook = setNook(WX, WZ, WTURN, "Woods", { -71.68, 0, 67 }, -90, "bramble_bush", 0.4, 0),
 	props = {},
 } :: AreaSpec
 
@@ -1479,6 +1548,7 @@ Layout.sewer = {
 		setTrap(SX, SZ, STURN, "grate", { 50, 0.4, 183 }),
 		setTrap(SX, SZ, STURN, "grate", { 50, 0.4, -65 }),
 	},
+	nook = setNook(SX, SZ, STURN, "Sewer", { -52.35, 0.4, 183 }, -90, "grate", 0.4, 0),
 	props = {},
 } :: AreaSpec
 
@@ -1641,6 +1711,7 @@ Layout.desert = {
 		setTrap(DX, DZ, DTURN, "collapsed_canopy", { -58, 0, 156 }, 80),
 		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 56, 0, 236 }, -100),
 	},
+	nook = setNook(DX, DZ, DTURN, "Desert", { -66, 0, 228 }, -90, "clay_urn", -0.3, -90),
 	props = {},
 } :: AreaSpec
 
@@ -1796,6 +1867,7 @@ Layout.ruins = {
 		setTrap(RX, RZ, RTURN, "stone_urn", { 60, 0, 150 }),
 		setTrap(RX, RZ, RTURN, "stone_urn", { -30, 0, 290 }),
 	},
+	nook = setNook(RX, RZ, RTURN, "Ruins", { 61.56, 0, 96 }, 90, "stone_urn", 0.4, 0),
 	props = {},
 } :: AreaSpec
 

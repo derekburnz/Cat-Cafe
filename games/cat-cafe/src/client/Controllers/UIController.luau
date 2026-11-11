@@ -371,6 +371,12 @@ end
 -- #2912: step 3's stray ring follows its stray; this watches it and is dropped on every refresh
 local tutorialWatch: { connection: RBXScriptConnection? } = {}
 
+-- #3238: false from dusk to sunrise (the Clock folder's AreasOpen), when the alley has no strays to send anyone to
+local function areasShut(): boolean
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -415,7 +421,11 @@ local function refreshTutorial(s: Types.PlayerState)
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
 		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
 		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
-		if SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
+		if SecondCat.caught(s.stats) < SecondCat.CATS and areasShut() then
+			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
+			-- point at the table instead of an empty alley
+			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
+		elseif SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
@@ -2734,6 +2744,13 @@ function UIController.start()
 		local clock = ReplicatedStorage:WaitForChild("Clock")
 		UI.clock.bind(clock)
 		bindLuckyDay(clock)
+		-- #3238: step 3's "Catch another cat" card follows dusk and sunrise
+		clock:GetAttributeChangedSignal("AreasOpen"):Connect(function()
+			local current = state
+			if current ~= nil then
+				refreshTutorial(current)
+			end
+		end)
 	end)
 	wireIntents()
 	wireServerEvents()

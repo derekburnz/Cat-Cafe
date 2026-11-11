@@ -883,6 +883,12 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - It ships behind the live switch `goldenDrops`, off by default. An older server drops a lawn id it doesn't know when it loads a save, so a piece found on a new server could vanish if the player then joined an old one. Switch it on (flags workflow, `set goldenDrops true`) once no server older than the publish that adds the pieces is running, for example after the next restart publish.
 - No save version step: the pieces go into the existing `lawnOwned`.
 
+## 2026-11-11 Second cat at night: say the strays come back at sunrise (#3238, server half)
+
+- **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.
+- **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
+- **No restart.** Client only; old servers' clients keep the old words until they close.
+
 ## 2026-11-11 Shorter nights: 45 seconds (#3195)
 
 Derek2 2026-11-10: "make the night times faster to stop being leaving during night just put an exclamation mark over night market so people dont miss it".

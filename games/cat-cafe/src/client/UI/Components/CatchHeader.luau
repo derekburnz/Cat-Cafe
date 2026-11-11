@@ -21,7 +21,7 @@ local CatchHeader = {}
 function CatchHeader.fromStray(
 	strayId: string,
 	stray: Instance?,
-	defOf: (catId: string?) -> Def?
+	defOf: (catId: string?) -> any -- a catalog entry (Def or wider) or nil
 ): Named?
 	if stray == nil then
 		return nil
@@ -29,7 +29,7 @@ function CatchHeader.fromStray(
 	local catId = stray:GetAttribute("CatId")
 	local catName = stray:GetAttribute("CatName")
 	local rarity = stray:GetAttribute("Rarity")
-	local def = defOf(if type(catId) == "string" then catId else nil)
+	local def: Def? = defOf(if type(catId) == "string" then catId else nil)
 	local name: string? = if type(catName) == "string" and catName ~= ""
 		then catName
 		elseif def ~= nil then def.name

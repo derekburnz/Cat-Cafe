@@ -1395,6 +1395,28 @@ function Logic.startle(o: Offsets, alpha: number)
 	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
 end
 
+-- #3022: the waiting stray's "come here" (motion.beckon), `alpha` 0 to 1 through it, layered on whatever the cat
+-- does: a couple of small hops, its head turned `yaw` degrees to you and tipped up, ears forward, tail up and flicking,
+-- all easing in and out so it never snaps.
+function Logic.beckon(o: Offsets, alpha: number, yaw: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local b = Presets.motion.beckon
+	local ease = math.sin(alpha * math.pi)
+	local k = alpha / b.hopShare
+	if k < 1 then
+		local hopK = k * b.hops
+		o.bodyY += b.hop * math.sin((hopK - math.floor(hopK)) * math.pi)
+	end
+	o.headYaw += math.rad(yaw) * ease
+	o.headPitch += math.rad(b.lookUp) * ease
+	o.earL *= 1 - ease -- ears forward, not back
+	o.earR *= 1 - ease
+	o.tailPitch += math.rad(b.tailUp) * ease
+	o.tailYaw += math.rad(b.flick) * math.sin(alpha * b.flicks * 2 * math.pi) * ease
+end
+
 -- Asleep for the Bellhop Cat's sleepy cap: a nap or a doze.
 function Logic.asleep(style: Style): boolean
 	return style == "nap" or style == "doze"

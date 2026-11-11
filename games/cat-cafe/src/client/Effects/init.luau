@@ -80,6 +80,7 @@ local SlotWalk = require(script.SlotWalk)
 local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
+local StrayCall = require(script.StrayCall)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
@@ -172,6 +173,7 @@ function Effects.start()
 		ArcadeGlow.start,
 		GoldenFind.start,
 		StationBuild.start,
+		StrayCall.start,
 		CampGrowth.start,
 		Townsfolk.start,
 	}

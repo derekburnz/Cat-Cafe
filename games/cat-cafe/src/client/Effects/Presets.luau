@@ -1089,6 +1089,24 @@ Presets.motion = {
 	-- springs `hop` studs up over `seconds` as the server sends it off (HopAt), nose up `lean` degrees, tail up `tailUp`
 	-- and ears flat back `ears`, without the hiss: startled, then away at a run.
 	startle = { seconds = 0.4, hop = 0.8, lean = 10, tailUp = 35, ears = 40 },
+	-- #3022: the stray waiting for your second cat calls you over (Effects/StrayCall, Logic.beckon): within `near`
+	-- studs, every `every` seconds it does `hops` small hops `hop` studs high in the first `hopShare` of `seconds`,
+	-- its head turned to you (at most `look` degrees) and tipped up `lookUp`, ears forward, its tail up `tailUp` and
+	-- flicking `flicks` times `flick` degrees either way. Off with Reduce Motion.
+	beckon = {
+		near = 30,
+		every = 3.5,
+		check = 0.25,
+		seconds = 1.4,
+		hops = 2,
+		hop = 0.35,
+		hopShare = 0.55,
+		look = 60,
+		lookUp = 14,
+		tailUp = 30,
+		flick = 28,
+		flicks = 3,
+	},
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
 	-- The Barista's working bob while it makes an order (F90, cats-make-orders.md section 2: "two small hops and a head
 	-- tilt, on a loop"; Logic.makingBob and makingPose, drawn by Cats.luau while the cat's local Making attribute is

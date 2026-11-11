@@ -2,7 +2,7 @@
 -- The rare-catch chat line (#2203, Dread via Derek2 2026-11-07: "a global caught rare cats message in chat"), pure.
 -- Every catch shout-out (Catching.shoutOut: Legendary and up, or a gold or rainbow coat, #2205) also goes in the chat
 -- of its own server, and on MessagingService topic TOPIC to every other server, where it shows as a chat line only
--- ("From another cafe: Sam caught a Legendary Maine Coon!"), no toast. server/Services/GlobalCatchService sends and
+-- ("🌍 Global: Sam caught a Legendary Maine Coon!"), no toast. server/Services/GlobalCatchService sends and
 -- reads it; client/Controllers/RareCatchChatController writes the line. #2429: Legendary and Mythical crate pieces
 -- too (crateLine).
 --
@@ -18,7 +18,11 @@ GlobalCatch.TOPIC = "CatCafeRareCatch" -- not RestartNotice.TOPIC, which the Ope
 GlobalCatch.MAX_TEXT = 120 -- longer text in a message is ignored
 GlobalCatch.PUBLISH_GAP_SECONDS = 5
 GlobalCatch.SHOW_GAP_SECONDS = 3
-GlobalCatch.ELSEWHERE = "From another cafe: "
+-- #3033 (Derek2 2026-11-10: "the chat works now but only server the global one doesn't work"): the chat window's
+-- Global tab is Roblox's own cross-server chat between players (on for every game since May 2026), and a game has no
+-- way to write a line into it, only the on/off switch in the Creator Dashboard. A system line always lands in the
+-- Here tab, so the line from another server says "Global" itself (it was "From another cafe: ").
+GlobalCatch.ELSEWHERE = "🌍 Global: "
 
 -- The chat colour of each rarity, the hex of Catalog.rarities' swatches (the same as Effects' Presets.rarity).
 GlobalCatch.COLORS = {

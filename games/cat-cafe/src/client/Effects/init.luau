@@ -54,6 +54,7 @@ local LuckyCat = require(script.LuckyCat)
 local LuckyPaw = require(script.LuckyPaw)
 local Market = require(script.Market)
 local Motion = require(script.Motion)
+local MuseumPlaques = require(script.MuseumPlaques)
 local Mystery = require(script.Mystery)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
@@ -81,6 +82,7 @@ local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
+local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
 
 local Effects = {}
@@ -160,9 +162,11 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		MuseumPlaques.start,
 		StationMotion.start,
 		HoldPulse.start,
 		BaitCrumbs.start,
+		WaitingCat.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,

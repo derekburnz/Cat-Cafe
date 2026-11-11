@@ -9,8 +9,8 @@
 -- YARD_SALE_HOLD seconds rather than WorldBuilder's 0.3, so a buy is never a tap (review N325). CampExtraResult ok
 -- fires Moments.CampExtraCollect(extraId, anchor position) and shows what it paid with
 -- `UI.campExtras.collected(extraId, paid, prize)`, else a toast; a refusal's toast comes from the server.
--- #2498 (Derek2: "auto claim when walking infront of it instead of needing a click"): standing within the prompt's
--- reach of an extra with something waiting (CampExtras.autoClaim) sends the same CollectCampExtra, or BuyYardSale for
+-- #2498 (Derek2: "auto claim when walking infront of it instead of needing a click"): standing in the floor ring in
+-- front of an extra (#3113; within the prompt's reach where it has no ring) with something waiting (CampExtras.autoClaim) sends the same CollectCampExtra, or BuyYardSale for
 -- the Yard Sale's free crate, as a press would, once until the server answers; the press still works. Nothing is
 -- claimed during a catch, a rescue, a flight or the intro, or while the prompts are off. The server checks the range
 -- and what waits, as for a press.
@@ -28,6 +28,7 @@ local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
+local WalkUp = require(Shared:WaitForChild("WalkUp"))
 
 local CampExtrasController = {}
 
@@ -150,7 +151,30 @@ local function busy(): boolean
 		or ui.intro.playing()
 end
 
--- #2498: takes what waits at each extra the player stands at, within its prompt's reach.
+-- #3114: the reach each extra's prompt came with
+local ownReach: { [ProximityPrompt]: number } = {}
+
+-- #3113: the flat centre and radius of an extra's floor ring (World/WalkUpCircles), or nil while it has none or the
+-- ring is streamed out.
+local function ringOf(prompt: ProximityPrompt): (Vector3?, number)
+	local model = prompt:FindFirstAncestorWhichIsA("Model")
+	while model ~= nil and not CollectionService:HasTag(model, CampExtras.TAG) do
+		model = model:FindFirstAncestorWhichIsA("Model")
+	end
+	local link = if model ~= nil then model:FindFirstChild(WalkUp.CIRCLE) else nil
+	local ring = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	if ring == nil or not ring:IsA("BasePart") then
+		return nil, 0
+	end
+	local radius = ring:GetAttribute("Radius")
+	return (ring :: BasePart).Position,
+		if type(radius) == "number" then radius else (ring :: BasePart).Size.X / 2
+end
+
+-- #2498: takes what waits at each extra the player stands at: inside its floor ring (#3113), or within its prompt's
+-- reach where it has no ring.
 local function autoClaim()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -160,8 +184,23 @@ local function autoClaim()
 	local at = (root :: BasePart).Position
 	local now = os.clock()
 	for prompt, extraId in prompts do
+		local centre, radius = ringOf(prompt)
+		-- #3114: an extra with a ring has no click prompt; stepping into the ring collects or opens its card. While
+		-- the ring is away (streamed out) the prompt has the reach it came with again.
+		local own = ownReach[prompt]
+		if own == nil then
+			own = prompt.MaxActivationDistance
+			ownReach[prompt] = own
+		end
+		local reach = WalkUp.promptReach(centre ~= nil, own)
+		if prompt.MaxActivationDistance ~= reach then
+			prompt.MaxActivationDistance = reach
+		end
 		local position = anchorPosition(extraId)
-		if position == nil or (position - at).Magnitude > prompt.MaxActivationDistance then
+		local away = if centre ~= nil
+			then Vector2.new(at.X - centre.X, at.Z - centre.Z).Magnitude > radius
+			else position == nil or (position - at).Magnitude > own
+		if away then
 			if pending[extraId] == math.huge then
 				pending[extraId] = nil -- walked away after a refusal: the next walk-up tries again
 			end
@@ -218,6 +257,7 @@ local function track(instance: Instance)
 		if not found:IsDescendantOf(Workspace) then
 			prompts[found] = nil
 			holds[found] = nil
+			ownReach[found] = nil
 		end
 	end)
 end

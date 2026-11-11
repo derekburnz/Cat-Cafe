@@ -4,6 +4,9 @@
 -- It draws within 500 studs, or `maxDistance` when given (#1458).
 -- #2697: a `flash` marker (the tutorial's) also flashes its target and points at it from the screen's edge while it is
 -- off screen (Components/StepTarget), and its arrow is twice the size and bobs (still with Reduce Motion on).
+-- #3055 (Derek2: "make it much smaller and less obnoxious"): a `compact` marker (the carry marker's "Bring it here" and
+-- "Check in here") is one quiet line, the label and "24 m" side by side on a see-through pill with a thin outline
+-- and a small arrow, 160 x 36 px (half the area of the full 180 x 64); the tutorial's flash marker keeps its size.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -28,24 +31,32 @@ WorldMarker.__index = WorldMarker
 
 local BIG_ARROW = 36 -- a flash marker's arrow, px
 local BOB = 8 -- px it bobs down toward the target
+local COMPACT_W, COMPACT_H, COMPACT_ARROW = 160, 24, 12 -- #3055: the carry marker's card and arrow, px
 
 function WorldMarker.new(
 	parent: Instance,
 	name: string,
 	maxDistance: number?,
-	flash: boolean?
+	flash: boolean?,
+	compact: boolean?
 ): WorldMarker
 	local self = setmetatable({}, WorldMarker) :: any
 	self._attachment = nil :: Attachment?
 	self._loop = nil :: RBXScriptConnection?
 	self._step = if flash then StepTarget.new(parent) else nil
 
-	local arrowSize = if flash then BIG_ARROW else 20
+	local small = compact == true and not flash
+	self._compact = small
+	local arrowSize = if flash then BIG_ARROW elseif small then COMPACT_ARROW else 20
+	local cardH = if small then COMPACT_H else 44
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = name,
 		AlwaysOnTop = true,
-		Size = UDim2.fromOffset(180, 44 + arrowSize + (if flash then BOB + 4 else 0)),
-		StudsOffset = Vector3.new(0, 4, 0),
+		Size = UDim2.fromOffset(
+			if small then COMPACT_W else 180,
+			cardH + arrowSize + (if flash then BOB + 4 else 0)
+		),
+		StudsOffset = Vector3.new(0, if small then 3 else 4, 0),
 		MaxDistance = maxDistance or 500,
 		ResetOnSpawn = false,
 		Enabled = false,
@@ -55,22 +66,26 @@ function WorldMarker.new(
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		BackgroundColor3 = Theme.hud.panel,
-		BackgroundTransparency = Theme.hud.panelTransparency,
+		BackgroundTransparency = if small then 0.25 else Theme.hud.panelTransparency,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, cardH),
 		Parent = billboard,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 2 }),
+		Create(
+			"UICorner",
+			{ CornerRadius = UDim.new(0, if small then cardH // 2 else Theme.sizes.radius) }
+		),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = if small then 1 else 2 }),
 	})
 	self._card = card
 	self._label = Create("TextLabel", {
 		Name = "Label",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(10, 4),
-		Size = UDim2.new(1, -20, 0, 22),
+		Position = if small then UDim2.fromOffset(9, 0) else UDim2.fromOffset(10, 4),
+		Size = if small then UDim2.new(1, -52, 1, 0) else UDim2.new(1, -20, 0, 22),
 		FontFace = Theme.fonts.display,
-		TextSize = 16,
+		TextSize = if small then 13 else 16,
+		TextXAlignment = if small then Enum.TextXAlignment.Left else Enum.TextXAlignment.Center,
 		TextColor3 = Theme.hud.text,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -79,10 +94,11 @@ function WorldMarker.new(
 	self._distance = Create("TextLabel", {
 		Name = "Distance",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(10, 24),
-		Size = UDim2.new(1, -20, 0, 16),
+		Position = if small then UDim2.new(1, -44, 0, 0) else UDim2.fromOffset(10, 24),
+		Size = if small then UDim2.new(0, 36, 1, 0) else UDim2.new(1, -20, 0, 16),
 		FontFace = Theme.fonts.body,
-		TextSize = 12,
+		TextSize = if small then 11 else 12,
+		TextXAlignment = if small then Enum.TextXAlignment.Right else Enum.TextXAlignment.Center,
 		TextColor3 = Theme.hud.subtext,
 		Text = "",
 		Parent = card,
@@ -92,7 +108,7 @@ function WorldMarker.new(
 		Name = "Arrow",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 44),
+		Position = UDim2.new(0.5, 0, 0, cardH),
 		Size = UDim2.fromOffset(arrowSize + 4, arrowSize),
 		FontFace = Theme.fonts.display,
 		TextSize = arrowSize,
@@ -158,7 +174,8 @@ function WorldMarker.show(self: any, target: Target, label: string, color: Color
 		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 		if rootPart and rootPart:IsA("BasePart") then
 			local distance = (rootPart.Position - targetPosition(target)).Magnitude
-			self._distance.Text = ("%d m away"):format(math.floor(distance / 3.57 + 0.5)) -- studs to metres-ish
+			local metres = math.floor(distance / 3.57 + 0.5) -- studs to metres-ish
+			self._distance.Text = (if self._compact then "%d m" else "%d m away"):format(metres)
 		else
 			self._distance.Text = ""
 		end

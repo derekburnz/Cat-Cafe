@@ -3,6 +3,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 
@@ -23,6 +24,18 @@ return function()
 				expect(table.find(StationOpens.WINDOWS, window)).to.be.ok()
 			end
 			expect(StationOpens.windowOfPrompt("CodesPrompt")).to.equal(nil)
+		end)
+
+		it("counts the feedback stand's Feedback window, by ring and by prompt (#3066)", function()
+			expect(StationOpens.valid(FeedbackStand.WINDOW, "ring")).to.equal(true)
+			expect(StationOpens.valid(FeedbackStand.WINDOW, "prompt")).to.equal(true)
+			expect(StationOpens.windowOfPrompt(FeedbackStand.PROMPT)).to.equal(FeedbackStand.WINDOW)
+		end)
+
+		it("counts the camp stations' and the Index Boards' ring opens (#3113)", function()
+			for _, window in { "YardSale", "OasisSpa", "RelicMuseum", "Collection" } do
+				expect(StationOpens.valid(window, "ring")).to.equal(true)
+			end
 		end)
 
 		it("has its remote in the list", function()

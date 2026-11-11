@@ -84,6 +84,7 @@ ALCOVES = ((-1, -78.0), (1, -48.0))     # (side, z): where a lane between two bu
 FLATS_Z0, FLATS_Z1 = -16.0, 146.0
 PAN_X = 50.0                            # the clay pan between the terraces
 TERRACE_X, TERRACE_H = 58.0, 1.2        # the upper step from |x| 58
+URN_TERRACE_X = -64.5                   # the west urn, on the upper terrace's top (58 to 71.5)
 MESA_Z, ISLE_M = 60.0, [(-40.0, -6.0), (18.0, 44.0)]
 MESA_TOP = 11.0
 RUIN_Z, ISLE_R = 134.0, [(-20.0, 24.0)]
@@ -1243,9 +1244,12 @@ def build_set(mat):
     for (x, z, t) in ((-62.0, -160.0, 0), (44.0, 172.0, 0)):
         put(trap_sand_dune(mat), x, z, t, r=4)
         _spot(s, "trap_sand_dune", x, z, turn=t)
-    for (x, z, t) in ((-60.0, 102.0, -30), (60.0, 262.0, 200)):
-        put(trap_clay_urn(mat), x, z, t, r=4)
-        _spot(s, "trap_clay_urn", x, z, turn=t)
+    # Derek2 2026-11-10 ("certain rescue's are in the ground in the new areas"): the west urn stood at floor height
+    # at x -60, inside the 2.4 high upper terrace, so it and its stuck cat were sunk into the stone. It now stands on
+    # the terrace's top, in the middle of it and in front of its ramp.
+    for (x, z, t, y) in ((URN_TERRACE_X, 102.0, -30, 2 * TERRACE_H + 0.02), (60.0, 262.0, 200, 0.0)):
+        put(trap_clay_urn(mat), x, z, t, r=4, y=y)
+        _spot(s, "trap_clay_urn", x, z, y=y, turn=t)
     put(trap_collapsed_canopy(mat), 30.0, 112.0, 20, r=5)
     _spot(s, "trap_collapsed_canopy", 30.0, 112.0, turn=20)
 

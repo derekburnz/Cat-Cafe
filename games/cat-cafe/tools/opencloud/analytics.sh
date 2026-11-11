@@ -18,7 +18,8 @@
 #   5. audience (#2391): players new and returning and day 1 retention by Platform, Country, AgeGroupV2 and Gender; average
 #      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
 #      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
-#   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, first_bait_wait and first_bait_arrived read
+#   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, bait_rolled, bait_resolved (#3030),
+#      first_bait_wait and first_bait_arrived read
 #      by their custom fields (CustomField1 to 3) and by Platform, players or the average value
 # The API takes 30 queries a minute, and a window with 40 custom events needs about 100, so a run paces itself and can
 # take three or four minutes.
@@ -288,8 +289,18 @@ say ""
 declare -A renumbered=(
 	[catch_attempt]="2026-11-03|F93 (live v87, 11-02 02:58 UTC) put swing_hit in as step 1; before it step 1 was engaged, 2 caught, 3 checked_in and 4 working, and old servers ran past the publish."
 )
+# Funnels the game no longer sends (#2444, live from 2026-11-08): funnel -> "last day sent|where to read instead".
+# Roblox still returns their rows for a window that reaches back that far, and those rows do not add up: bait_cycle
+# kept one run per bowl of food and its timer runs while the player is away, so a bowl set before the window (or on a
+# server that had already stopped sending) still lands in it as "tamed", and the step shows more runs than "set"
+# (#3030: 53 tamed to 43 set).
+declare -A retired=(
+	[bait_cycle]="2026-11-08|bait_rolled and bait_resolved under Event fields"
+	[grand_opening]="2026-11-08|the Grand Opening steps of the onboarding funnel"
+	[onboarding_v4_intro]="2026-11-08|the intro_cutscene custom event"
+)
 funnelTable() { # funnel: the table for one funnel, or its error
-	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change=
+	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
 	[[ ${funnel,,} != *onboarding* && ${funnel,,} != "${firstHourFunnel,,}" ]] || unit=Players
 	say "#### $funnel"
@@ -308,6 +319,11 @@ funnelTable() { # funnel: the table for one funnel, or its error
 		say "No steps of $funnel logged in this window."
 		say ""
 		return
+	fi
+	gone=${retired[$funnel]:-}
+	if [ -n "$gone" ]; then
+		say "_Retired: the game stopped sending $funnel on ${gone%%|*} (#2444). These rows are what is left from before then, a later step can count more than an earlier one, and they are not live numbers. Read ${gone#*|} instead._"
+		say ""
 	fi
 	say "| Step | Name | $unit | Of step 1 | Lost since the step before |"
 	say "|---:|---|---:|---:|---:|"
@@ -617,6 +633,8 @@ done
 #   quit_state          value seconds played; fields furthest step, where, "carry|empty bait|nobait" (Tier < 2 leavers)
 #   step_time           value account seconds of play at the step; field the onboarding step name
 #   cat_caught_area     value 1; fields area id, rarity
+#   bait_rolled         value 1; fields food, rarity rolled, Lucky Potion or none (food into a bowl; #3030)
+#   bait_resolved       value 1; fields food, rarity, choice (tame or letgo)
 #   first_bait_wait     value seconds from food in to resolve; fields lure, rarity, choice
 #   first_bait_arrived  value seconds from food in to arrival; field where the player was
 fieldEvents=(
@@ -625,15 +643,54 @@ fieldEvents=(
 	"quit_state|CustomField2|CustomEventCountUser|Leavers by where they were"
 	"quit_state|CustomField3|CustomEventCountUser|Leavers by carry and bait state"
 	"quit_state|Platform|CustomEventCountUser|Leavers by device"
+	"quit_state|Platform,CustomField1|CustomEventCountUser|Leavers by device and furthest step"
 	"step_time|CustomField1|CustomEventAvgValue|Average seconds of play when each step came"
 	"step_time|CustomField1|CustomEventCountUser|Players per step (step_time)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
+	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
+	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"
+	"bait_resolved|CustomField1,CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by food and choice"
 	"first_bait_wait|CustomField3|CustomEventAvgValue|First bait: average seconds food in to resolve, by choice"
 	"first_bait_arrived|CustomField1|CustomEventAvgValue|First bait cat arrived: average seconds, by where the player was"
 	"catch_circles|Platform,CustomField3|CustomEventCountUser|Catch results (caught, purrfect, missed, forfeit) by device"
 	"catch_finish|Platform,CustomField1|CustomEventCountUser|Catch finish kind (bolt is the cat running off) by device"
 	"first_catch_tries|Platform,CustomField1|CustomEventAvgValue|Tries before the first catch, by method and device"
 	"first_catch_tries|Platform|CustomEventCountUser|Players with a first catch, by device"
+	"left_in_phase|CustomField1|CustomEventCount|Leaves by in-game phase (#2562; night is 70 of 390 s, about 18%)"
+	"left_in_phase|CustomField1|CustomEventCountUser|Players leaving by in-game phase"
+	"left_in_phase|CustomField2|CustomEventCount|Leaves by third of the phase"
+	"left_in_phase|CustomField1,CustomField3|CustomEventCount|Leaves by phase and tier, first session or return"
+	"left_in_phase|CustomField1|CustomEventAvgValue|Average seconds played before leaving, by phase"
+	"station_open|CustomField1,CustomField2|CustomEventCount|Station opens by ring or prompt (#2910)"
+	"rescue_attempt|CustomField3|CustomEventCountUser|Players by rescue result (freed, missed_catch, out_of_paws, too_slow, walked_away, cancelled)"
+	"rescue_attempt|Platform,CustomField3|CustomEventCount|Rescue results by device"
+	"station_open|CustomField3,CustomField2|CustomEventCount|Station opens by device, ring or prompt (#2910)"
+	"session_start|CustomField1|CustomEventCountUser|Players by join source (organic, unknown, ad_<tag>)"
+	"session_start|CustomField3|CustomEventCountUser|Players by tier at join (store_v1 per Tier 2+ base)"
+	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"
+	"robux_purchase|CustomField1|CustomEventAvgValue|Average Robux per purchase, by sku (x count = revenue)"
+	"store_cancelled|CustomField1|CustomEventCount|Purchase prompts closed without buying, by sku"
+	"step_ready|CustomField1|CustomEventCountUser|First five minutes (#3098): players ready for each step"
+	"step_ready|CustomField1|CustomEventAvgValue|First five minutes: average account seconds when each step became ready"
+	"step_stall|CustomField1,CustomField2|CustomEventCountUser|First five minutes: players stalled by awaited step and 30/60/120 s"
+	"step_stall|CustomField1,CustomField3|CustomEventCountUser|First five minutes: stalls by awaited step and last hint shown"
+	"quit_snapshot|CustomField1|CustomEventCountUser|Leavers below Tier 2 by furthest step"
+	"quit_snapshot|CustomField1,CustomField2|CustomEventCountUser|Leavers below Tier 2 by furthest step, idle and open screen"
+	"quit_snapshot|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by furthest step and whether they could afford the next buy"
+	"quit_snapshot|Platform,CustomField1|CustomEventCountUser|Leavers below Tier 2 by device and furthest step"
+	"health_check|Platform,CustomField1|CustomEventCountUser|Health check (#3101): players by device and ping"
+	"health_check|Platform,CustomField2|CustomEventCountUser|Health check: players by device and memory"
+	"health_check|Platform|CustomEventAvgValue|Health check: average fps by device"
+	"quick_return|CustomField1,CustomField2|CustomEventCountUser|Quick returns by furthest step and minutes away"
+	"quick_return|CustomField3|CustomEventCountUser|Quick returns by session number"
+	"quit_cafe|CustomField1|CustomEventCountUser|Leavers by cats working"
+	"quit_cafe|CustomField2|CustomEventCountUser|Leavers by table level"
+	"quit_cafe|CustomField3|CustomEventCountUser|Leavers by cats owned"
+	"quit_scene|CustomField1|CustomEventCountUser|Leavers below Tier 2 by scene (#3101)"
+	"quit_scene|CustomField2,CustomField1|CustomEventCountUser|Leavers below Tier 2 by device and scene"
+	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
+	"first_scene|CustomField1|CustomEventAvgValue|Average seconds from join to the first intro shot, by device (minus step_time loaded = still wait)"
+	"first_scene|CustomField1,CustomField3|CustomEventCountUser|Players by device and wait before the first intro shot"
 )
 say "### Event fields"
 say ""

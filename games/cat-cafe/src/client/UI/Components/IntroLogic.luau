@@ -27,7 +27,7 @@ IntroLogic.DOTS_TOP = 18
 IntroLogic.OUT_SECONDS = 0.45 -- the bars slide out this long at the end while the HUD comes back
 -- Skip's bar fills this long into a first play before a press counts (Derek 2026-10-28: "make it 5 seconds"); a
 -- replay starts full
-IntroLogic.FIRST_SKIP = 5.0
+IntroLogic.FIRST_SKIP = 0 -- #3168: Skip from the first second (was 5.0)
 IntroLogic.MAX_CAPTION = 45 -- characters a caption fits on one line at full size; a longer one shrinks to fit
 IntroLogic.SKIP_HEIGHT = 40 -- the Skip pill, in design pixels
 IntroLogic.TOUCH_MIN = 44 -- real pixels a finger needs (Theme.sizes.touchMin)
@@ -41,7 +41,7 @@ IntroLogic.END = 2.0
 -- #2182 (intro-cutscene.md 2b; playtesters via Derek2 2026-11-07: "a next button or just slowing it down would
 -- help"): Next, a tap outside Skip, Space, Enter or gamepad A moves on once a shot has shown this long, so a double tap
 -- never skips two shots (shared/Intro's NEXT_AFTER, else 1.0)
-IntroLogic.NEXT_AFTER = if type(Intro.NEXT_AFTER) == "number" then Intro.NEXT_AFTER else 1.0
+IntroLogic.NEXT_AFTER = if type(Intro.NEXT_AFTER) == "number" then Intro.NEXT_AFTER else 0
 IntroLogic.NEXT_GAP = 10 -- design pixels between Next and Skip on the lower bar
 IntroLogic.READ_WIDTH = 220 -- the read bar under the caption, in design pixels
 IntroLogic.READ_HEIGHT = 4

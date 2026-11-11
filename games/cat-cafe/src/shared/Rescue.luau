@@ -164,6 +164,22 @@ function Rescue.barState(attempt: Attempt): Types.RescueBar
 	}
 end
 
+-- #3120, #3135: what one player's rescue of a cat with coat `variant` multiplies the zone by, on top of the station
+-- perk: RescueFirstZone for an account's first RescueFirstUses rescues (`rescues` is stats.rescues, the ones done),
+-- whatever the coat; after that a gold or rainbow coat's CoatDifficulty, and 1 for a plain coat.
+function Rescue.zoneScale(rescues: number, variant: string?): number
+	if rescues < Config.RescueFirstUses then
+		return Config.RescueFirstZone
+	end
+	return if variant ~= nil then Config.CoatDifficulty[variant] or 1 else 1
+end
+
+-- #3180: what an account's first RescueFirstUses rescues multiply the marker's speed by (RescueFirstSpeed), and 1
+-- after them.
+function Rescue.speedScale(rescues: number): number
+	return if rescues < Config.RescueFirstUses then Config.RescueFirstSpeed else 1
+end
+
 -- A new bar for a cat of `rarity` at a trap of type `trap`, from server time `now`. The marker waits at its phase
 -- for CircleLeadInSeconds, and never waits inside the first zone, where a press at the start would be free.
 -- #2786: `areaId`'s Config.RescueAreaEase (the Alleyway and the Park) widens the zones, slows the marker and takes
@@ -173,8 +189,9 @@ function Rescue.newChallenge(
 	trap: string,
 	now: number,
 	roll: () -> number,
-	zoneScale: number?, -- #2687: StationPerks.rescueZoneScale (Warm Paws), 1 when nil
-	areaId: string?
+	zoneScale: number?, -- #2687: StationPerks.rescueZoneScale (Warm Paws) times Rescue.zoneScale, 1 when nil
+	areaId: string?,
+	speedScale: number? -- #3180: Rescue.speedScale, 1 when nil
 ): Types.RescueChallenge
 	local kind: Types.RescueKind = Rescue.kind(trap)
 	local ease = if areaId ~= nil then Config.RescueAreaEase[areaId] else nil
@@ -193,7 +210,9 @@ function Rescue.newChallenge(
 		phase = if zones[1] > 0.5 then 0 else 1 -- the far end of the bar
 	end
 	local startsAt = now + Config.CircleLeadInSeconds
-	local speed = Config.RescueBarSpeed[rarity] * (if ease ~= nil then ease.speed else 1)
+	local speed = Config.RescueBarSpeed[rarity]
+		* (if ease ~= nil then ease.speed else 1)
+		* (speedScale or 1)
 	return {
 		kind = kind,
 		startsAt = startsAt,
@@ -417,6 +436,34 @@ end
 function Rescue.abandon(attempt: Attempt)
 	attempt.stage = "done"
 	attempt.success = false
+end
+
+-- #3049 (the first rescue drop: a new player who joins after others took the day's starter cats found no rescue for
+-- up to a whole day): whether a starting area's emptied camp trap gets a new cat now. `on` is the starterRefill
+-- switch, `emptyFor` the seconds the trap has stood empty, `secondsToNight` what is left of the day, and `waiting`
+-- how many players in the server have that area open and have never rescued (waitsForFirst). Never at dusk or
+-- night, and never for veterans alone, so their rescue rates stay as they were. `refills` is how many that area has
+-- had today: StarterRescueRefillsPerDay at most, so a veteran cannot farm the trap beside a waiting first-timer.
+function Rescue.starterRefill(
+	on: boolean,
+	phase: string,
+	secondsToNight: number,
+	emptyFor: number,
+	waiting: number,
+	refills: number
+): boolean
+	return on
+		and phase == "day"
+		and secondsToNight > Config.DuskWarningSeconds
+		and emptyFor >= Config.StarterRescueRefillSeconds
+		and waiting > 0
+		and refills < Config.StarterRescueRefillsPerDay
+end
+
+-- #3049: a player the starter trap refills for: no rescue yet (stats.rescues, which first_rescue_done follows) and
+-- the area open at their tier.
+function Rescue.waitsForFirst(rescues: number, tier: number, areaTier: number): boolean
+	return rescues <= 0 and tier >= areaTier
 end
 
 return Rescue

@@ -1022,3 +1022,11 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | 3 blush and cream crumbs pop off the bowl every 0.35 s while the first bait cat eats (at most 4 s); none in Low performance | `Moments.FirstBaitEat(bowlPosition, seconds)` from Animation-Engineer's FirstBaitCut |
+
+## Second cat beacon (#3022, 2026-11-10)
+
+`Effects/WaitingCat.luau`, numbers in `Presets.waitingCat` and the `waitBeacon` emitter.
+
+| Look | Hook |
+|---|---|
+| A column of gold sparkles rising off your waiting stray and a gold ring pulsing at its feet every 2.5 s, from 2 s after it shows for 120 s; your screen only; Reduce Motion keeps the sparkles, Low performance the rings | the `Stray` whose `WaitsFor` attribute is your UserId (Gameplay-Engineer's #3038, shared/SecondCat) |

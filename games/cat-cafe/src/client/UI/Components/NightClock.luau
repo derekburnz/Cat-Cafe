@@ -31,6 +31,15 @@ function NightClock.duskTitle(remaining: number): string
 	return ("Night falls in %d s!"):format(math.max(1, math.ceil(remaining)))
 end
 
+-- The dusk banner's second line. `pass` is the player's NightPass attribute (shared/NightPass, #2692 and #3035): a
+-- beginner, or a Tier 1 player in their first session, keeps catching through the night, so the banner says so
+-- instead of sending them home.
+function NightClock.duskLine(pass: any): string
+	return if pass == true
+		then "You can keep catching here tonight 🌙"
+		else "The areas close until sunrise."
+end
+
 -- The Clock folder's AreasOpen attribute: only false closes the areas, so a server without F66 leaves them open.
 function NightClock.areasOpen(value: any): boolean
 	return value ~= false

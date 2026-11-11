@@ -37,6 +37,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local Leaderstats = require(script.Parent.Leaderstats)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
@@ -52,6 +53,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
+local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
@@ -270,6 +272,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
+		secondCat = SecondCat.view(profile), -- #3022
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
@@ -1042,7 +1045,9 @@ local function refreshBowl(
 		return
 	end
 	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
-	local ready = bait ~= nil and os.time() >= readyAt
+	-- #3161: the account's first bait's cat stands at the bowl a few seconds before its timer ends (Bait.catOutAt)
+	local ready = bait ~= nil
+		and os.time() >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
 
 	if folder:FindFirstChild("Bowl") == nil then
 		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")
@@ -1339,7 +1344,11 @@ function CafeService.advanceTutorial(player: Player, profile: Profile, step: num
 			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
 		end
 		-- #2692: the night pass ends at the first check-in; the client's gates and cannon card read this at once
-		player:SetAttribute(NightPass.ATTRIBUTE, NightPass.has(step))
+		-- (#3035: or stays, for a first-session Tier 1 player while the nightCatch switch is on)
+		player:SetAttribute(
+			NightPass.ATTRIBUTE,
+			NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+		)
 		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end
@@ -1476,7 +1485,10 @@ function CafeService.addCaughtCat(
 	if notify then
 		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
 		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
-		if profile.stats.catsCaught >= 2 then
+		-- #3161 (Derek2 2026-11-10: "so many pop ups when catching first food bowl cat"): not on the first bowl cat,
+		-- whose card, reward and the tutorial's end already speak; the tip comes with the next cat
+		local firstTame = method == "bait" and profile.stats.baitsTamed <= 1
+		if profile.stats.catsCaught >= 2 and not firstTame then
 			TipService.show(player, "second_cat")
 		end
 		if isNew then
@@ -1989,6 +2001,7 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 	end
 	Telemetry.sink(player, profile, cost, "Shop", upgradeId)
 	profile.upgradeLevels[upgradeId] = Economy.level(profile, upgradeId) + 1
+	Telemetry.upgradeBought(player, profile, upgradeId, profile.upgradeLevels[upgradeId]) -- #2996
 	if upgradeId == "tables" then
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
@@ -2517,7 +2530,14 @@ function CafeService.start()
 		while true do
 			task.wait(Config.SyncIntervalSeconds)
 			for _, player in DataService.loadedPlayers() do
-				CafeService.sync(player)
+				-- #3145: one player's sync throwing must not end these for the server's life (as CatService's
+				-- check-ins, review N226): this sync is what brings a drifted screen back to the server's state
+				local ok, err = pcall(function()
+					CafeService.sync(player)
+				end)
+				if not ok then
+					warn("[CafeService] periodic sync: " .. tostring(err))
+				end
 			end
 		end
 	end)

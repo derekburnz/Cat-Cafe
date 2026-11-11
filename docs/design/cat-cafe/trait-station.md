@@ -135,6 +135,7 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 ## 6. Save and publish
 - A trait is a new field on each saved cat, `trait = { id }` (each trait id carries its rarity and effects in Config), plus a `traitTokens` count, a `traitFreeRollsUsed` count (starts at 0) and the station's token timer on the profile.
 - Older servers would drop these when they save, so this needs a save version step and **one publish with a server restart**. That restart needs Derek's yes at the time.
+- **Done 2026-11-11:** the save version step is version 48 (#3335), live since the restart at 19:13 UTC. Nothing else here needs a restart; the `traits` flag alone opens the station.
 - Everything else (the menu, the pool animation, the circle, the token drops, the spin slice) is built first behind a LiveFlag `traits`, switched off.
 
 ## 7. Telemetry

@@ -83,16 +83,23 @@ return function()
 			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
 		end)
 
-		it("starts off with nightCatch and loadingScreen alone beside it", function()
+		it("starts off with nightCatch, loadingScreen and goldenDrops alone beside it", function()
 			local count = 0
 			for key in LiveFlags.OFF_BY_DEFAULT do
 				count += 1
-				expect(key == "tradeFish" or key == "nightCatch" or key == "loadingScreen").to.equal(
-					true
-				)
+				expect(
+					key == "tradeFish"
+						or key == "nightCatch"
+						or key == "loadingScreen"
+						or key == "goldenDrops"
+				).to.equal(true)
 				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 			end
-			expect(count).to.equal(3)
+			expect(count).to.equal(4)
+			-- #3222: no Golden drop until it is switched on, even with a broken store
+			expect(LiveFlags.defaults().goldenDrops).to.equal(false)
+			expect(LiveFlags.parse(nil).goldenDrops).to.equal(false)
+			expect(LiveFlags.parse({ goldenDrops = true }).goldenDrops).to.equal(true)
 		end)
 	end)
 

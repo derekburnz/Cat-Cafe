@@ -22,6 +22,9 @@
 --   leave faster then before"): the loading screen before the opening scenes (#3105, #3109). It starts OFF
 --   (OFF_BY_DEFAULT); true brings it back for players who join after, so the leave rates can be compared. Read by
 --   the client alone (UI.intro.waiting), from the ReplicatedStorage attribute below.
+-- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
+--   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
+--   an older server's save check drops a lawn id it does not know.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -42,10 +45,15 @@ LiveFlags.KEYS = {
 	"starterRefill",
 	"swiftPaws",
 	"loadingScreen",
+	"goldenDrops",
 }
 -- Switches that stay off until the store holds an explicit true.
-LiveFlags.OFF_BY_DEFAULT =
-	{ tradeFish = true, nightCatch = true, loadingScreen = true } :: { [string]: boolean }
+LiveFlags.OFF_BY_DEFAULT = {
+	tradeFish = true,
+	nightCatch = true,
+	loadingScreen = true,
+	goldenDrops = true,
+} :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
 

@@ -849,6 +849,10 @@ local function applyState(s: Types.PlayerState)
 		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
 		tutorialStep = s.tutorialStep,
+		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
+		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
+		-- empty, as UI.update skips a nil.
+		bait = if s.bait ~= nil then s.bait else false,
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
@@ -870,6 +874,7 @@ local function applyState(s: Types.PlayerState)
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,
 		feedbackAsked = s.feedbackAsked,
+		sessionFeedbackDay = s.sessionFeedbackDay, -- #3272: the once-a-day session ask
 		stuckHelpShown = s.stuckHelpShown,
 		-- F88: the player's Luck and what makes it, for the HUD chip and its card (luck-and-rare-moments.md section 1)
 		luck = s.luck,
@@ -1332,6 +1337,11 @@ local function wireIntents()
 	if events.sendFeedback ~= nil then
 		events.sendFeedback:Connect(function(face: string, chip: string?)
 			Net.fire("SendFeedback", face, chip)
+		end)
+	end
+	if events.sessionFeedback ~= nil then -- #3272: the once-a-day session ask
+		events.sessionFeedback:Connect(function(answer: string)
+			Net.fire("SessionFeedback", answer)
 		end)
 	end
 	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",

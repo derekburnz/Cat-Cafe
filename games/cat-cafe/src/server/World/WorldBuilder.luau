@@ -116,6 +116,9 @@ local ICON_MYSTERY: WalkUpCircles.Icon =
 	{ emoji = "❔", art = "CatCafe_Square_MysteryCart_RingIcon_Decor" }
 local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
+-- #3338 (Derek2: "add a circle to open the station infront of it"): the Cat Arcade's ring in arcade purple
+local RING_ARCADE = Color3.fromRGB(176, 110, 240)
+local ICON_ARCADE: WalkUpCircles.Icon = { emoji = "🕹️" }
 local ICON_FEEDBACK: WalkUpCircles.Icon =
 	{ emoji = "✉️", art = "CatCafe_Town_FeedbackStand_RingIcon_Decor" }
 -- #3113: the camp stations' rings (no art yet, so each shows its emoji card) and the Index Boards'
@@ -2326,6 +2329,8 @@ local function buildArcadeCabinet(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
+	-- #3338: the walk-in ring in front of it (Controllers/WalkUpController opens the window on stepping in)
+	WalkUpCircles.front(model, RING_ARCADE, Arcade.PROMPT_RANGE, nil, ICON_ARCADE)
 	return model
 end
 

@@ -87,6 +87,7 @@ export type Budget = {
 	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
 	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
 	shopCatEmitters: number, -- shop cats with a steady emitter on at once (Duchess's petals #1191, Maple's leaves #1668)
+	waterfalls: number, -- Ruins waterfalls and fountains whose water runs at once (Effects/RuinsWater)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -131,6 +132,7 @@ Presets.budget = {
 		cafeOrders = 0,
 		crownGlints = 2,
 		shopCatEmitters = 1,
+		waterfalls = 1,
 	},
 	high = {
 		animatedCats = 16,
@@ -168,6 +170,7 @@ Presets.budget = {
 		cafeOrders = 3,
 		crownGlints = 5,
 		shopCatEmitters = 2,
+		waterfalls = 3,
 	},
 	console = {
 		animatedCats = 12,
@@ -205,6 +208,7 @@ Presets.budget = {
 		cafeOrders = 2,
 		crownGlints = 3,
 		shopCatEmitters = 1,
+		waterfalls = 2,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -242,6 +246,7 @@ Presets.budget = {
 		cafeOrders = 0,
 		crownGlints = 1,
 		shopCatEmitters = 0,
+		waterfalls = 1,
 	},
 } :: { [string]: Budget }
 
@@ -454,6 +459,46 @@ Presets.emitters = {
 		drag = 3,
 		lightEmission = 0.5,
 		rotSpeed = { -180, 180 },
+	},
+	-- The Ruins' falling water (Effects/RuinsWater): pale streaks sliding down a waterfall's or a fountain's sheet,
+	-- emitted through the sheet part itself, so the sheet reads as running water.
+	fallStreaks = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.35, 0.2 },
+		transparency = { 0.35, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 5, 7 },
+		spread = 4,
+		rate = 14,
+		acceleration = Vector3.new(0, -10, 0),
+		lightEmission = 0.2,
+	},
+	-- Soft spray rising where the water lands in the pool (Effects/RuinsWater).
+	fallMist = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 1.2, 2.6 },
+		transparency = { 0.6, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.6, 1.4 },
+		spread = 60,
+		rate = 4,
+		drag = 0.8,
+		lightEmission = 0.1,
+	},
+	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
+	trailSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.35, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 1.5, 2.5 },
+		spread = 15,
+		rate = 2,
+		drag = 0.5,
+		lightEmission = 1,
 	},
 	-- Water kicked up by a step in a puddle or a pond (Effects/Splash): small drops thrown up and falling back.
 	splashDrops = {
@@ -1888,7 +1933,7 @@ Presets.carryPose = {
 -- salting", "it's cool to see your character fly"), drawn by CannonGlide.luau on every character from its
 -- `CannonLaunchAt`, in seconds from it (CannonLaunchSeconds 3.75 in all, #2690). The server holds the character's root
 -- anchored at the barrel's seat, upright and facing where the barrel fires, then on the landing pad from
--- CannonTeleportAtSeconds (2.6); the body moves away from the root through the Root joint, so nothing replicates.
+-- CannonTeleportAtSeconds (2.2 since #3292, was 2.6); the body moves away from the root through the Root joint, so nothing replicates.
 -- From where it stood the character crouches for `hopCrouch` and hops in a `hopHeight` arc into the barrel by `hop`,
 -- curling into the ball on the way. At `boom` the ball leaves along the barrel, tipped `tilt` degrees up, at `speed`
 -- studs a second under `gravity`. It makes `flips` forward rolls over the first `flipFor` seconds, slowing as it
@@ -1926,6 +1971,8 @@ Presets.cannonPose = {
 	back = 30,
 	arrive = 0.2,
 	open = 0.15,
+	lateHold = 0.3, -- #3292: seconds past `drop` the body stays out of sight while the move to the pad is late
+	seatNear = 2, -- studs: the root still this close to the barrel's seat means the move has not arrived
 	kneel = 0.08,
 	hold = 0.12,
 	blendOut = 0.15,
@@ -2628,6 +2675,8 @@ Presets.arcade = {
 		wordSize = 34,
 	},
 	fish = { glyph = "🐟", colour = Presets.palette.golden, sparkles = 6, wordSize = 30 },
+	-- #3338: the shine that sweeps across the Play button while a game can start
+	shine = { every = 2.6, seconds = 0.7, width = 0.18, transparency = 0.55 },
 }
 
 Presets.tradeFly = {
@@ -4366,6 +4415,40 @@ Presets.stationMotion = {
 	dropBounce = 0.16, -- the bounce's height, as a share of dropHeight
 	dropRing = 3, -- a gold ring on the plinth as it lands
 	dropSparkle = 5,
+}
+
+-- The Ruins' waterfall by the cat colossus and the running fountain (#3257, Effects/RuinsWater): a Model whose name
+-- ends in one of `suffixes` holds the water parts. A part at least `sheetHeight` studs tall and at most `sheetThin`
+-- thin across is a falling sheet: streaks run down through it and mist rises at its foot (feet closer than `merge`
+-- studs share one mist); a ring `ring` studs wide spreads there every `rippleEvery` seconds. Only the nearest
+-- budget.waterfalls within `within` studs run, chosen every `pick` seconds. Reduce Motion keeps the streaks and mist
+-- without the rings; Low performance keeps the streaks only.
+Presets.ruinsWater = {
+	suffixes = { "_Waterfall_Water", "_Fountain_Water" },
+	sheetHeight = 3,
+	sheetThin = 0.5,
+	merge = 2,
+	within = 160,
+	pick = 1,
+	streaks = "fallStreaks",
+	mist = "fallMist",
+	mistLift = 0.3,
+	ring = 3.5,
+	ringSeconds = 1.2,
+	rippleEvery = 1.4,
+	colour = Presets.palette.milk,
+}
+
+-- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the
+-- Workspace folder `folder` (`everyLow` on a phone) carries the `emitter`; the choice is looked at again every
+-- `recheck` seconds.
+Presets.trailSparkle = {
+	folder = "CatCafeTutorialTrail",
+	dot = "Dot",
+	emitter = "trailSparkle",
+	every = 2,
+	everyLow = 4,
+	recheck = 3,
 }
 
 return Presets

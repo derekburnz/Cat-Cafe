@@ -1702,12 +1702,13 @@ local function followLateStations()
 	end)
 end
 
--- #2997: the Saturday update gift (15 golden fish and 1 spin) arrives as a Toast line only, so its reward jingle
--- plays on that line (Logic.isUpdateGiftToast). It reuses indexReward, so it needs no new file.
+-- #2997, #3222: the Saturday update gift (15 golden fish and 1 spin) and a Golden find arrive as a Toast line only, so
+-- their jingles play on that line (Logic.toastJingle). Both reuse existing cues, so there is no new file.
 local function followUpdateGift()
 	onRemote("Toast", function(text: any)
-		if Logic.isUpdateGiftToast(text) then
-			Audio.play("indexReward")
+		local cue = Logic.toastJingle(text)
+		if cue ~= nil then
+			Audio.play(cue)
 		end
 	end)
 end
@@ -1854,6 +1855,10 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		elseif (num(streak) or 0) > 0 then
 			Audio.play("arcadeEnd")
 		end
+	end,
+	-- #3050: the Rummage Bin's prize (row id, first) plays its own cue after the bar's RescueDone chime.
+	RummageWin = function(rowId: any)
+		Audio.play(Logic.rummageCue(rowId))
 	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))

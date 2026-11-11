@@ -189,14 +189,14 @@ return function()
 
 	describe("the Lucky Cat upgrade", function()
 		it(
-			"is a coins-only upgrade of seven levels, level n at Tier n, 3 at Tier 2 (#2651: 6 and 7)",
+			"is a coins-only upgrade of seven levels, level n at Tier n (#2651: 6 and 7; #3204: Tier 2 back to 2)",
 			function()
 				local def = Catalog.getUpgrade(Luck.UPGRADE) :: Types.UpgradeDef
 				expect(def ~= nil).to.equal(true)
 				expect(def.maxLevel).to.equal(7)
 				expect(def.startLevel).to.equal(0)
 				for tier, row in Catalog.tiers do
-					expect(row.caps.lucky_cat).to.equal(if tier == 2 then 3 else tier)
+					expect(row.caps.lucky_cat).to.equal(tier)
 				end
 			end
 		)

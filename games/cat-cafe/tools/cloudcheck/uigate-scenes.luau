@@ -927,7 +927,8 @@ local function stepFourFood()
 	Scenes._stepState = { upgradeLevels = before.upgradeLevels, lures = before.lures, bait = before.bait }
 	local levels = table.clone(before.upgradeLevels or {})
 	levels.lure_bowl = math.max(levels.lure_bowl or 0, 1)
-	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 } } :: any)
+	-- #3285: an empty bowl is false in the UI's state (UIController), as UI.update skips a nil
+	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 }, bait = false } :: any)
 	UI.bait.set(nil)
 	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap the Bait bowl and put Kibble in it")
 	task.wait(0.1)
@@ -3440,7 +3441,8 @@ local SCENES = {
 		end
 		assert(drawn, "uigate: the Pumpkin uniform's square does not draw its picture (#2592)")
 	end },
-	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
+	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy and Claim all. Derek2 11-11:
+	-- the chat tag button left the pass for the Bag's Titles tab
 	{ "CafePassTag", function()
 		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
@@ -3450,7 +3452,24 @@ local SCENES = {
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("CafePass", true)
 		local tag = window and window:FindFirstChild("ChatTag", true)
-		assert(tag and tag:IsA("GuiObject") and tag.Visible, "uigate: no chat tag button on the Cafe Pass")
+		assert(not (tag and tag:IsA("GuiObject") and tag.Visible), "uigate: the Cafe Pass still shows the chat tag button")
+	end },
+	-- Derek2 11-11: the Bag's Titles tab: No title, the owned VIP title equipped, the rest greyed with no Equip
+	{ "BagTitles", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 0, items = {},
+			tags = { "vip" }, tagShown = "vip" })
+		UI.open("Potions")
+		press("Potions", "TitlesTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("TitleList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Titles list is not up")
+		local vip = list:FindFirstChild("vip")
+		local equip = vip and vip:FindFirstChild("Equip", true)
+		assert(equip and (equip :: any).Visible, "uigate: the owned VIP title has no button")
+		local maple = list:FindFirstChild("tag_maple")
+		local locked = maple and maple:FindFirstChild("Equip", true)
+		assert(maple and not (locked and (locked :: any).Visible), "uigate: a locked title shows Equip")
 	end },
 	{ "Spin", function()
 		UI.spin.open()
@@ -3742,6 +3761,35 @@ local SCENES = {
 	-- F87: the one slide-in faces ask over the travel row
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
+	end },
+	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
+	-- face and thumbs down, with its title on one card
+	{ "SessionAsk", function()
+		-- it takes the card over from the F87 faces ask, as on a slow CI run where the tips clock put that one up first
+		UI.tips.showAsk()
+		UI.tips.showSessionAsk()
+		task.wait(0.3)
+		local found = {}
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local text = (piece :: TextLabel).Text
+				if text == "Enjoying Catch a Cat Cafe?" or text:find("👍") or text:find("😐") or text:find("👎") then
+					if (piece :: GuiObject).Visible then
+						found[text] = piece
+					end
+				end
+			end
+		end
+		local title = found["Enjoying Catch a Cat Cafe?"] :: TextLabel?
+		assert(title, "uigate: the session ask has no title (#3272)")
+		assert(title.TextFits, "uigate: the session ask's title does not fit (#3272)")
+		local glyphs = 0
+		for text in found do
+			if text ~= "Enjoying Catch a Cat Cafe?" then
+				glyphs += 1
+			end
+		end
+		assert(glyphs >= 3, ("uigate: the session ask shows %d of the three thumbs and face (#3272)"):format(glyphs))
 	end },
 	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
 	-- after a game
@@ -6268,6 +6316,39 @@ local SCENES = {
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
 	end },
+	-- #2912: at step 3 with coins for a table, a Buy button stands on the tutorial strip, on screen, clear of the strip
+	-- and with its words fitting; short of coins it is gone
+	{ "TutorialBuy", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, money = 850, upgradeLevels = levels } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		task.wait(0.2)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local buy = hud:FindFirstChild("TutorialBuy", true) :: GuiObject?
+		local strip: GuiObject? = nil -- the strip label, not the HUD's Tutorial tile of the same name
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Text ~= "" then
+				strip = piece
+			end
+		end
+		assert(buy ~= nil and buy.Visible, "uigate: no Buy button on the strip at step 3 with 850 coins (#2912)")
+		assert(strip ~= nil and strip.Visible, "uigate: the tutorial strip is hidden at step 3")
+		local text: TextLabel? = nil
+		for _, piece in (buy :: GuiObject):GetDescendants() do
+			if piece:IsA("TextLabel") and string.find(piece.Text, "Buy a table", 1, true) then
+				text = piece
+			end
+		end
+		assert(text ~= nil, "uigate: the Buy button does not say Buy a table (#2912)")
+		assert((text :: TextLabel).TextFits ~= false, "uigate: the Buy button's words do not fit (#2912)")
+		local b, s = (buy :: GuiObject), (strip :: GuiObject)
+		local screen = hud.AbsoluteSize
+		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the Buy button runs off screen (#2912)")
+		assert(b.AbsolutePosition.Y + b.AbsoluteSize.Y <= s.AbsolutePosition.Y + 1, ("uigate: the Buy button (bottom %d) overlaps the strip (top %d) (#2912)"):format(b.AbsolutePosition.Y + b.AbsoluteSize.Y, s.AbsolutePosition.Y))
+		UI.update({ money = 100 } :: any)
+		assert(not b.Visible, "uigate: the Buy button shows with 100 coins for a 150 table (#2912)")
+		UI.update({ money = 850 } :: any)
+	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
 	-- table row; the step done, it is gone
@@ -6343,6 +6424,21 @@ local SCENES = {
 		assert(glow, "uigate: the Bowl tile does not ring at the food step (#2697)")
 		local cats = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Cats", true)
 		assert(cats:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Cats tile rings at the food step (#2697)")
+	end },
+	-- #3285 (Derek2: "turn off the dimming and arrow for foodbowl after they put the food inside it"): once the bowl
+	-- holds food the step waits for the cat, so the Bowl tile's ring, its arrow and the dim all go
+	{ "TutorialFoodIn", function()
+		stepFourFood()
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Bowl", true)
+		assert(tile and tile:FindFirstChild("TutorialGlow", true), "uigate: the Bowl tile does not ring at the food step (#2697)")
+		local now = os.time()
+		UI.update({ bait = { lureId = "kibble", placedAt = now, readyAt = now + 5 } } :: any)
+		task.wait(0.2)
+		assert(tile:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Bowl tile still rings with food in the bowl (#3285)")
+		assert(tutorialSpotlight() == nil, "uigate: the screen still dims with food in the bowl (#3285)")
+		local line = UI.tutorial.hint(UI.getState())
+		assert(line == "A cat is on its way to your bowl", ("uigate: the food step's strip says %q with food in the bowl (#3285)"):format(tostring(line)))
+		UI.update({ bait = false } :: any)
 	end },
 	{ "TutorialFoodUse", function()
 		stepFourFood()

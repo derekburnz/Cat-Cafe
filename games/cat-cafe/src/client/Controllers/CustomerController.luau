@@ -29,6 +29,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -465,9 +466,10 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 end
 
 -- #3360: the plot's waiting money bags (the server's display records, RichBags/<bagId>): each one's id and where it
--- sits. A bag on its way out (Outcome set) or past its time is left out.
-local function waitingBags(plot: Model): { [string]: Vector3 }
-	local out: { [string]: Vector3 } = {}
+-- sits and when its time is up. A bag on its way out (Outcome set) or past its time is left out.
+type WaitingBag = { at: Vector3, expiresAt: number }
+local function waitingBags(plot: Model): { [string]: WaitingBag }
+	local out: { [string]: WaitingBag } = {}
 	local folder = plot:FindFirstChild(RichBags.FOLDER)
 	if folder == nil then
 		return out
@@ -482,7 +484,7 @@ local function waitingBags(plot: Model): { [string]: Vector3 }
 			and expiresAt > now
 			and typeof(position) == "Vector3"
 		then
-			out[record.Name] = position
+			out[record.Name] = { at = position, expiresAt = expiresAt }
 		end
 	end
 	return out
@@ -516,7 +518,7 @@ local function richSeat(plot: Model): (BasePart?, BasePart?)
 end
 
 -- A few gold coins stacked at `at`, a money bag's spot beside the anchor (whose centre sits just over the table
--- top), local to this client. The stand-in for the money bag's model (#3360) until the Model lane makes one.
+-- top), local to this client. The stand-in when the money bag's model (CatCafe_Prop_MoneyBag) is not in Assets.
 local function buildCoinPile(anchor: BasePart, at: Vector3): Model
 	local pile = Instance.new("Model")
 	pile.Name = "RichTipCoins"
@@ -548,7 +550,48 @@ local function buildCoinPile(anchor: BasePart, at: Vector3): Model
 	return pile
 end
 
--- Once a second: a coin pile on every waiting money bag of every nearby cafe (#3360), gone when the bag is paid,
+-- The money bag at `at` (#3360): the Model lane's CatCafe_Prop_MoneyBag from ReplicatedStorage.Assets, its base on
+-- the table top and turned as the anchor is, local to this client and never in anyone's way; the coin pile when the
+-- model is missing.
+local function buildBag(anchor: BasePart, at: Vector3): Model
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local source = if assets ~= nil then assets:FindFirstChild("CatCafe_Prop_MoneyBag") else nil
+	if source == nil or not source:IsA("Model") then
+		return buildCoinPile(anchor, at)
+	end
+	local bag = (source :: Model):Clone()
+	bag.Name = "RichTipBag"
+	for _, child in bag:GetDescendants() do
+		if child:IsA("BasePart") then
+			local part = child :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+		end
+	end
+	local top = anchor.Position.Y - anchor.Size.Y / 2 + 0.4 -- the table top under the anchor
+	bag:PivotTo(CFrame.new(at.X, top, at.Z) * anchor.CFrame.Rotation)
+	bag.Parent = container()
+	return bag :: Model
+end
+
+-- A bag in its last RichBagFadeSeconds fades out over what is left of them (rich-money-bags.md section 3), once.
+local fading: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local function fadeBag(bag: Model, left: number)
+	if fading[bag] or left > Config.RichBagFadeSeconds then
+		return
+	end
+	fading[bag] = true
+	local info = TweenInfo.new(math.max(0.1, left), Enum.EasingStyle.Linear)
+	for _, part in bag:GetDescendants() do
+		if part:IsA("BasePart") then
+			TweenService:Create(part, info, { Transparency = 1 }):Play()
+		end
+	end
+end
+
+-- Once a second: a money bag on every waiting bag record of every nearby cafe (#3360), gone when the bag is paid,
 -- missed or out of range, and a rich customer for each new drop (the plot's RichVisitAt), who sits
 -- RichCustomerSitSeconds for show and leaves; the bag waits on without them.
 local function updateRich()
@@ -559,14 +602,18 @@ local function updateRich()
 		local piles = coinPiles[plot]
 		local anchor = tipAnchor(plot)
 		if anchor ~= nil then
-			for id, at in bags do
+			local now = Workspace:GetServerTimeNow()
+			for id, bag in bags do
 				if piles == nil then
 					piles = {}
 					coinPiles[plot] = piles
 				end
-				if not piles[id] then
-					piles[id] = buildCoinPile(anchor, at)
+				local pile = piles[id]
+				if not pile then
+					pile = buildBag(anchor, bag.at)
+					piles[id] = pile
 				end
+				fadeBag(pile, bag.expiresAt - now)
 			end
 		end
 		if piles ~= nil then

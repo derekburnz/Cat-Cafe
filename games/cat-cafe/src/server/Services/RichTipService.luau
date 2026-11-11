@@ -287,16 +287,16 @@ local function tickTimers(dt: number)
 			continue
 		end
 		local dayRate = Economy.incomePerSecond(profile)
-		local ready = open_
-			and bagCount(plot.index) < Config.RichBagsMax
-			and dayRate > 0
-			and Economy.level(profile, "tables") >= 1
+		local counting = open_ and dayRate > 0 and Economy.level(profile, "tables") >= 1
+		-- the timer counts while bags wait; with RichBagsMax waiting it holds at 0 and the customer comes when one goes
+		local ready = counting and bagCount(plot.index) < Config.RichBagsMax
 		-- #1624: Cafe Style and Grand Cafe bring rich visitors more often (Economy.richRate)
 		local left = timers[player]
 			or VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
 				/ Economy.richRate(profile)
 		local due: boolean
-		left, due = VisitTimer.tick(left, dt, ready)
+		left, due = VisitTimer.tick(left, dt, counting)
+		due = due and ready
 		-- #2792: a new account's first rich customer comes at FirstVisitAt.rich seconds of play, timer or not
 		if ready and not due and FirstVisit.due(player, profile, "rich") then
 			due = true

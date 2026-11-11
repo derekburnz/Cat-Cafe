@@ -684,6 +684,7 @@ local Config = {
 	RichBagSeconds = 180,
 	RichBagsMax = 3,
 	RichCustomerSitSeconds = 20,
+	RichBagFadeSeconds = 5, -- a bag fades out over its last seconds (display only)
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the bag (#3360; the plot's RichTipAnchor before)
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
 	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)

@@ -689,6 +689,7 @@ end
 -- RichTipOutcome just before, and only a claim plays the payout.
 local richTipPlot: Model? = nil
 local richTipConnection: RBXScriptConnection? = nil
+local richVisitConnection: RBXScriptConnection? = nil
 local richTipAmount = 0
 -- #2792: the same plot's FirstVisit attribute (a new account's first special visitor at the cafe), for the UI's arrival
 -- line; its connection lives here next to the rich tip's
@@ -738,18 +739,27 @@ local function refreshRichTip()
 		richTipConnection:Disconnect()
 		richTipConnection = nil
 	end
+	if richVisitConnection ~= nil then
+		richVisitConnection:Disconnect()
+		richVisitConnection = nil
+	end
 	richTipPlot = plot
 	UI.richTip.bind(plot)
 	firstVisit.bind(plot)
 	if plot == nil then
 		return
 	end
-	richTipAmount = tipAmount(plot) -- a tip already waiting when this client binds plays no arrival sound
+	richTipAmount = tipAmount(plot)
+	-- the arrival sound is for a drop (the plot's RichVisitAt, #3360), not for the next waiting bag moving up front
+	-- after a claim; one already waiting when this client binds plays nothing
+	richVisitConnection = plot:GetAttributeChangedSignal("RichVisitAt"):Connect(function()
+		if type(plot:GetAttribute("RichVisitAt")) == "number" then
+			Moments.RichArrive:Fire()
+		end
+	end)
 	richTipConnection = plot:GetAttributeChangedSignal("RichTipAmount"):Connect(function()
 		local amount = tipAmount(plot)
-		if amount > 0 and richTipAmount <= 0 then
-			Moments.RichArrive:Fire()
-		elseif
+		if
 			amount <= 0
 			and richTipAmount > 0
 			and plot:GetAttribute("RichTipOutcome") == "claimed"
@@ -1244,9 +1254,10 @@ local function wireIntents()
 			Net.fire("RenameCat", uid, name)
 		end)
 	end
-	-- Collect on the rich tip marker (F31). A claim clears the plot's RichTipAmount, which the UI toasts.
-	UI.events.claimRichTip:Connect(function()
-		Net.fire("ClaimRichTip")
+	-- Collect on the rich tip marker (F31), or walking into a money bag (#3360): that bag, by its id. The server
+	-- sets the bag record's Outcome, which the UI floats as "+$X".
+	UI.events.claimRichTip:Connect(function(bagId: string)
+		Net.fire("ClaimRichTip", bagId)
 	end)
 	-- #2854: the Rewards list's Cozy gift row takes the waiting bag; the server pays it and toasts
 	UI.events.takeCozy:Connect(function()

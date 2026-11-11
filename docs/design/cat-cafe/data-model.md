@@ -973,6 +973,7 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | RichBagSeconds | 180 | #3360, replaces RichTipStaySeconds (90) | RichTipService |
 | RichBagsMax | 3 | #3360 | RichTipService |
 | RichCustomerSitSeconds | 20 | #3360 | CustomerController |
+| RichBagFadeSeconds | 5 | #3360, the bag fades over its last seconds | CustomerController |
 | DealerRangeStuds | 12 | new | DealerService |
 | DealerWindowSeconds | 600 | new | DealerService, global stock window |
 | CatNameMaxLength | 20 | new | CafeService |

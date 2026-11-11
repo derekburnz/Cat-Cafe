@@ -873,6 +873,15 @@ local function tutorialArrowStep()
 	UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 	task.wait(0.1)
 end
+-- #3153: the tutorial's spotlight while it shows (Components/TutorialArrow), or nil
+local function tutorialSpotlight(): Frame?
+	for _, piece in UIShim.playerGui:GetDescendants() do
+		if piece.Name == "TutorialSpotlight" and piece:IsA("Frame") and piece.Visible then
+			return piece
+		end
+	end
+	return nil
+end
 -- #2314: the big arrow shows, whole on the screen, off `target` and within 24 px of it
 local function assertArrowAt(target: GuiObject, where: string)
 	local found: GuiObject? = nil
@@ -885,9 +894,12 @@ local function assertArrowAt(target: GuiObject, where: string)
 	local arrow = found :: GuiObject
 	local a0, a1 = arrow.AbsolutePosition, arrow.AbsolutePosition + arrow.AbsoluteSize
 	local t0, t1 = target.AbsolutePosition, target.AbsolutePosition + target.AbsoluteSize
-	local screen = (arrow:FindFirstAncestorWhichIsA("ScreenGui") :: ScreenGui).AbsoluteSize
+	local gui = arrow:FindFirstAncestorWhichIsA("ScreenGui") :: ScreenGui
+	local screen = gui.AbsoluteSize
+	-- #3154: a ScreenGui that keeps clear of Roblox's top bar may still draw up in it
+	local bar = if gui.IgnoreGuiInset then 0 else (game:GetService("GuiService"):GetGuiInset()).Y
 	assert(
-		a0.X >= -1 and a0.Y >= -1 and a1.X <= screen.X + 1 and a1.Y <= screen.Y + 1,
+		a0.X >= -1 and a0.Y >= -1 - bar and a1.X <= screen.X + 1 and a1.Y <= screen.Y + 1,
 		("uigate: the arrow at %s runs off the screen (%d,%d to %d,%d) (#2314)"):format(where, a0.X, a0.Y, a1.X, a1.Y)
 	)
 	local overlaps = a0.X < t1.X - 1 and t0.X < a1.X - 1 and a0.Y < t1.Y - 1 and t0.Y < a1.Y - 1
@@ -5991,6 +6003,25 @@ local SCENES = {
 		tutorialArrowStep()
 		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true)
 		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile")
+		-- #3153 (Derek2: "the one pointing to upgrades randomly disapears"): still there long after the step began
+		UIShim.advance(10)
+		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile, 10 s on")
+		-- #3153 (Derek2: "your screen should darken"): the spotlight darkens round the tile and leaves it clear
+		local spot = tutorialSpotlight()
+		assert(spot, "uigate: no spotlight round the Upgrades tile (#3153)")
+		local face = tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject
+		local centre = face.AbsolutePosition + face.AbsoluteSize / 2
+		for _, box in (spot :: Frame):GetChildren() do
+			if box:IsA("Frame") then
+				local b0, b1 = box.AbsolutePosition, box.AbsolutePosition + box.AbsoluteSize
+				assert(
+					not (centre.X > b0.X and centre.X < b1.X and centre.Y > b0.Y and centre.Y < b1.Y),
+					"uigate: the spotlight darkens the Upgrades tile itself (#3153)"
+				)
+				assert(box.BackgroundTransparency < 1, "uigate: the spotlight does not darken (#3153)")
+				assert(not box.Active, "uigate: the spotlight would take taps (#3153)")
+			end
+		end
 	end },
 	{ "TutorialArrowRow", function()
 		tutorialArrowStep()
@@ -6068,12 +6099,19 @@ local SCENES = {
 		local money = (UI.getState() :: any).money
 		UI.update({ tutorialStep = 5, money = 0 } :: any)
 		task.wait(0.1)
+		-- #3154: the tutorial's end moves the arrow to the Tutorial tile's ×, which is not the Upgrades tile
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true) :: GuiObject
+		local t0, t1 = tile.AbsolutePosition, tile.AbsolutePosition + tile.AbsoluteSize
 		for _, piece in UIShim.playerGui:GetDescendants() do
-			assert(
-				not (piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible),
-				"uigate: the tutorial arrow stays after its step (#2314)"
-			)
+			if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+				local a0, a1 = piece.AbsolutePosition, piece.AbsolutePosition + piece.AbsoluteSize
+				local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
+				assert(gap > 40, "uigate: the tutorial arrow stays at Upgrades after its step (#2314)")
+			end
 		end
+		-- #3154: let the × pulse this step starts (6 s on, 12 s long) run out, so its arrow never stands in for the
+		-- goal card's in the scenes after this one
+		UIShim.advance(20)
 		UI.update({ money = money } :: any)
 	end },
 	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
@@ -6254,11 +6292,14 @@ local SCENES = {
 		end
 		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(6.5) -- the scene before may leave the tutorial mid-way, which this update just finished
+		UIShim.advance(18.5) -- #3154: a 6 s wait and a 12 s pulse; the scene before may leave the tutorial mid-way, which this update just finished
 		UI.update({ tutorialStep = 9 } :: any)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(5.5)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses before the cat card and the cannon move (#3154)")
+		UIShim.advance(0.7) -- #3154: 6 s after the tutorial's end
 		assert(dot:FindFirstChild("PulseRing"), "uigate: the × does not pulse when the tutorial ends (#2211)")
 		-- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing and the X isn't
 		-- obvious"): a gold "Hide tips with ×" tag beside the tile while it pulses, whole on the screen, and the × at
@@ -6272,9 +6313,13 @@ local SCENES = {
 		local screen = ((hud :: Instance) :: ScreenGui).AbsoluteSize
 		local t0, t1 = tag.AbsolutePosition, tag.AbsolutePosition + tag.AbsoluteSize
 		assert(t0.X >= 0 and t1.X <= screen.X, "uigate: the Hide tips tag runs off the screen (#2411)")
+		-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the big arrow points at the
+		-- ×, off the Hide tips tag, with the spotlight round it
+		assertArrowAt(dot.Parent :: GuiObject, "the Tutorial tile's ×")
+		assert(tutorialSpotlight(), "uigate: no spotlight round the Tutorial tile's × (#3154)")
 		local across = (dot :: GuiObject).AbsoluteSize.X
 		assert(across >= 21 - 0.5, ("uigate: the Tutorial tile's × is %.1f px across (#2411)"):format(across))
-		UIShim.advance(6.5)
+		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2411)")
 		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
 		assert(hint() == nil, "uigate: the Hide tips tag does not go (#2411)")
@@ -6282,15 +6327,15 @@ local SCENES = {
 		UI.setVisible(false)
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(1)
+		UIShim.advance(7) -- #3154: past the 6 s wait
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulsed with the HUD hidden (#2411)")
 		UI.setVisible(true)
 		UIShim.advance(0.5)
 		assert(dot:FindFirstChild("PulseRing"), "uigate: the × did not pulse once the HUD came back (#2411)")
-		UIShim.advance(6.5)
+		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any) -- again, for the picture
-		UIShim.advance(1)
+		UIShim.advance(7.5) -- #3154: the 6 s wait, then the icon row settles
 	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()

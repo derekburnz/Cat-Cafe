@@ -1028,3 +1028,10 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Why:** with the money bags fewer rich tips are missed, so Pace's "over 2 hours in one go with 4x Money" check gave a Tier 5 median of 1 h 59. By the economy rule the cost goes up and the bag is not cut (Design-Agent).
 - **What:** Tier 5 cost 370,000,000 to 390,000,000. 385M gave 2 h 01; 390M gives 2 h 02 (10th to 90th 1 h 29 to 2 h 22). The free player's median is 4 h 16, inside its 3.5 to 5.5 h band. A player who already has Tier 5 keeps it.
 - **Built now:** the bag on table 1, its own full 180 s, up to 3 waiting, no loss at dusk or night, the 20 s sit, and ClaimRichTip with an optional bag id. **Later, in its own PR:** tapping any bag on its own, a "total waiting" line on the HUD, the bag model and its fade.
+
+## 2026-11-11 Mouse Dash is unpaused and specced to be able to replace Circle Streak (#3296, Design-Agent)
+- **Why:** Derek, 23:30 UTC: "build mouse dash if making it high enough quality it honestly should replace the current game".
+- **What:** new spec `docs/design/cat-cafe/mouse-dash.md` (v2). Nine holes, three hearts with one back every 10 catches in a row, golden mice (+3), napping kittens you must not tap, two at once from 30 points, 100 points wins. The v1 draft in `new-activities.md` section 4 ended on the first miss and stopped at 50.
+- **Prizes:** it shares the arcade's ten daily milestones with Circle Streak, each paid once a day whichever game reaches it, so a second game adds no golden fish. 100 points gives the same Arcade Legend title; 50 gives a new Mouser title.
+- **Saves:** its record is a new DataStore and the shared milestones stay in the arcade's existing save, so there is no profile change and no restart.
+- **Taking over:** side by side first, then Mouse Dash becomes the main game if its start rate matches Circle Streak's, its played-again rate is at least 1.25 times, the median run is 10 to 15 points and Derek says it looks good. Circle Streak's board is kept as a Hall of Fame page.

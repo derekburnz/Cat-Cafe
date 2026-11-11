@@ -455,6 +455,19 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -180, 180 },
 	},
+	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
+	trailSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.35, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 1.5, 2.5 },
+		spread = 15,
+		rate = 2,
+		drag = 0.5,
+		lightEmission = 1,
+	},
 	-- Water kicked up by a step in a puddle or a pond (Effects/Splash): small drops thrown up and falling back.
 	splashDrops = {
 		texture = Presets.textures.smoke,
@@ -4366,6 +4379,18 @@ Presets.stationMotion = {
 	dropBounce = 0.16, -- the bounce's height, as a share of dropHeight
 	dropRing = 3, -- a gold ring on the plinth as it lands
 	dropSparkle = 5,
+}
+
+-- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the
+-- Workspace folder `folder` (`everyLow` on a phone) carries the `emitter`; the choice is looked at again every
+-- `recheck` seconds.
+Presets.trailSparkle = {
+	folder = "CatCafeTutorialTrail",
+	dot = "Dot",
+	emitter = "trailSparkle",
+	every = 2,
+	everyLow = 4,
+	recheck = 3,
 }
 
 return Presets

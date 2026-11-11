@@ -132,7 +132,9 @@ local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
 	yardSale = { emoji = "🏷️" },
 	pond = { emoji = "🎣" },
 	lostFound = { emoji = "🧦" },
-	spa = { emoji = "🛁" },
+	-- #3347 (Derek2: "make the spa symbol better"): the Spa's drawn tub (the client's Icon_Clean_Spa, also its window's
+	-- badge) on the card, the emoji under it until it loads
+	spa = { emoji = "♨️", image = "rbxassetid://90117647745743" },
 	museum = { emoji = "🏺" },
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour

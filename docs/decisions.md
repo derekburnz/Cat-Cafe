@@ -824,3 +824,14 @@ The Alleyway's back end has 4 nook spawn points (was 8), and 6 new `mid` points 
 Why: Derek2: "all the cats in alleyway are piled into the back now spread them out through the entire area even the decent ones and remove some of the spawns from the back area". Each top-up went to a back nook while one was free, and every Epic or better waited only there, so the cats gathered at the back.
 
 Pace: the walks are shorter, so the Pace model's Tier 2 comes about 1 minute sooner (new player 8.9 min, was just over 9; 4-friend non-stop catcher 5.9, was about 6.9), and Tier 5 in one go 4 h 28 (floor was 4.5 h). The Tier 2 bands in Pace.spec go down by that much (8.5 to 12 for a new player) and the Tier 5 floor to 4.25 h. Derek2 has a decision card in the Animation-Engineer thread to keep the old pace instead, which would mean raising Tier 2's cost.
+
+## 2026-11-11 Owner commands in live servers: /event and /shout (#3212)
+
+Derek2 2026-11-11: "I want to run it in a live game with a command from owner mode set that up so I can spawn event and for however long I want it to last like /event 10 for 10 min evfent" and "add a command to /shout "msg" across all servers so I can tell people in all servers things".
+
+- `/event 10` in a live public server starts the full Cafe Party for 10 minutes on **every server**; `/event <preset> <minutes>` keeps the presets (full, days, money, luck, showers) and `/event stop` ends an event started this way. Assumption (Gameplay-Engineer): all servers rather than only the owner's, because a party is for the players and most of them are on other servers. It works by writing a real record into the events schedule (the same store the events workflow writes), so every server runs it by the shared clock, the shower cats are claimed once game-wide and the analytics count it as a real event. Other servers pick it up within a minute at the latest (a cross-server message asks them to read the schedule at once).
+- Length is held to the live limits (5 minutes to 2 hours). It is refused while another event is running or would start inside it, so two events never overlap.
+- The full party pays the party reward (the Party Bunting piece, or the coin gift for a player who has it) as a scheduled party does; design rule 2e says rewards come back at later events.
+- In Studio or a private server `/event` stays a test in that one server and writes nothing, as before.
+- `/shout message` shows the message to every player on every server. The owner check is on the server by user id; the text goes through Roblox's text filter for a broadcast before it is sent anywhere, and is not sent if the filter fails; at most 120 characters, one shout every 20 seconds.
+- No save version step and no restart: old servers ignore the new message topic, and they read the schedule record like any other event.

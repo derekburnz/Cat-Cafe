@@ -6,6 +6,9 @@
 --                                        ring and "Good"; "miss" a grey "Miss" that rises and fades
 --   ArcadeFx.milestone(target, points)   every 10 points: two gold rings, a big sparkle and the points rising
 --   ArcadeFx.goldenFish(target)          the run's golden fish: a 🐟 hops up off the target with a few sparkles
+--   ArcadeFx.shine(face, corner)          #3338: a soft white band sweeps across the Play button now and then; returns
+--                                        a switch (on while a game can start). Its only change to the window is one
+--                                        see-through "Shine" frame laid over the face; none with Reduce Motion.
 -- Reduce Motion: no rings and half the sparkles, the words fade where they are. Low performance: half the sparkles.
 -- A target that isn't on screen plays nothing. Numbers in Presets.arcade.
 
@@ -154,6 +157,77 @@ function ArcadeFx.goldenFish(target: GuiObject)
 	local f = Presets.arcade.fish
 	burst(gui, target, { colour = f.colour, sparkles = f.sparkles, rings = 0 })
 	word(gui, target, f.glyph, f.colour, f.wordSize)
+end
+
+-- #3338: the Play button's shine. `face` gets a "Shine" frame of its size with its corner, white through a band of a
+-- UIGradient that slides across every `every` seconds over `seconds`. Returns a switch; off (or Reduce Motion) hides it.
+function ArcadeFx.shine(face: GuiObject, corner: UDim?): (on: boolean) -> ()
+	local s = Presets.arcade.shine
+	local overlay = Instance.new("Frame")
+	overlay.Name = "Shine"
+	overlay.BackgroundColor3 = Color3.new(1, 1, 1)
+	overlay.BackgroundTransparency = 0
+	overlay.BorderSizePixel = 0
+	overlay.Size = UDim2.fromScale(1, 1)
+	overlay.ZIndex = face.ZIndex + 1
+	overlay.Active = false
+	overlay.Visible = false
+	local round = Instance.new("UICorner")
+	round.CornerRadius = corner or UDim.new(0, 8)
+	round.Parent = overlay
+	local band = Instance.new("UIGradient")
+	local half = s.width / 2
+	band.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.5 - half, 1),
+		NumberSequenceKeypoint.new(0.5, s.transparency),
+		NumberSequenceKeypoint.new(0.5 + half, 1),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	band.Rotation = 20
+	band.Offset = Vector2.new(-1, 0)
+	band.Parent = overlay
+	overlay.Parent = face
+	local on = false
+	local clock = 0
+	local step: RBXScriptConnection? = nil
+	local function stop()
+		if step ~= nil then
+			step:Disconnect()
+			step = nil
+		end
+		overlay.Visible = false
+	end
+	local function start()
+		if step ~= nil then
+			return
+		end
+		clock = 0
+		step = RunService.Heartbeat:Connect(function(dt: number)
+			if overlay.Parent == nil then
+				stop()
+				return
+			end
+			clock = (clock + dt) % s.every
+			local t = clock / s.seconds
+			local sweeping = t < 1 and not Context.reducedMotion()
+			overlay.Visible = sweeping
+			if sweeping then
+				band.Offset = Vector2.new(-1 + 2 * t, 0)
+			end
+		end)
+	end
+	return function(want: boolean)
+		if want == on then
+			return
+		end
+		on = want
+		if on then
+			start()
+		else
+			stop()
+		end
+	end
 end
 
 return ArcadeFx

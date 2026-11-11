@@ -16,3 +16,5 @@ Grand style, which share its 🏛️ glyph.
 | Icon_Clean_Town | 84240054469741 |
 
 Uploaded with `upload-image.yml` run 42937300084 from `friend/icons-batch2`.
+| Icon_Clean_Moon | 113770680051546 (batch 3, run 42938004143) |
+| Icon_Clean_Unlock | 96025123745905 (batch 3, run 42938004143) |

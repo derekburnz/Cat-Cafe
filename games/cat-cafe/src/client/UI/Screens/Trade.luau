@@ -75,7 +75,7 @@ export type Trade = {
 	setTrade: (self: Trade, trade: Types.TradeState?) -> (),
 	trading: (self: Trade) -> boolean,
 	-- #2550: the server's TradeAskEnded for this player's ask to userId
-	askEnded: (self: Trade, userId: number) -> (),
+	askEnded: (self: Trade, userId: number, now: boolean?) -> (),
 	opened: (self: Trade) -> (),
 	closed: (self: Trade) -> (),
 	destroy: (self: Trade) -> (),
@@ -1108,6 +1108,7 @@ function Trade.setTrade(self: any, trade: Types.TradeState?)
 	elseif before == nil or before.tradeId ~= trade.tradeId then
 		self._hint = nil
 		self._tab = "cats" -- a new trade opens on Cats
+		table.clear(self._asked) -- #3211: a trade opened, so no ask is out; the list says Trade again after it
 	end
 	if trade == nil or trade.phase ~= "offer" then
 		self:_closePicker() -- #2745: no count picker past the offer
@@ -1626,9 +1627,10 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 end
 
 -- #2550: the server says the ask to `userId` was declined or ran out; the row says Trade again after REASK_SECONDS.
-function Trade.askEnded(self: any, userId: number)
+-- #3211 (Derek2 11-11: "still gets stuck on asked"): `now` when the ask never went out or could not open: no wait.
+function Trade.askEnded(self: any, userId: number, now: boolean?)
 	if self._asked[userId] ~= nil then
-		self._asked[userId] = os.clock() + TradeLogic.REASK_SECONDS
+		self._asked[userId] = TradeLogic.askedUntil(os.clock(), now == true)
 		self:_renderPlayers()
 	end
 end

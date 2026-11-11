@@ -20,7 +20,8 @@
 -- with at least three rewards (Components/RewardList) shows the title on its own line and the rewards under it as a
 -- wrapped row of small chips, each with its picture, and stays a little longer the more it holds.
 -- #2729 (Derek2 11-09: "big claims of index and quests cap at one line and put …"): a good or info toast, a claim
--- too, is one row that ends in "…" (ToastRules.oneLine); only a warning or a shout-out still wraps.
+-- too, is one row that ends in "…" (ToastRules.oneLine); only a warning, a shout-out or (#3205) the restart warning
+-- still wraps.
 -- #3132 (Derek2: the Collector's message "to show a face of the cat and rarity and not cut off the name make the msg
 -- shorter and easier to see"): cat(card) is a short banner in the same stack: the cat's face, a small title and under
 -- it one rich line that shrinks, then wraps onto a second row, so a name is never cut. A tap runs card.onTap.
@@ -240,7 +241,7 @@ function Toasts.show(
 		seconds or LIFETIME,
 		nil,
 		nil,
-		ToastRules.oneLine(kind)
+		ToastRules.oneLine(kind, text)
 	)
 end
 

@@ -3149,6 +3149,9 @@ Presets.decorFx = {
 	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit `light` like
 	-- paint, with a white `glint` (Gold Leaf's sheen in white) crossing it (#2734: was 0.78 shown, 18 s, 0.6 lit and
 	-- no glint, too faint to read as Mythical).
+	-- #3221: the cafe's front doorway (plot.py DOOR: 7 wide at x 0, square to 7.5, then a round arch), left out of
+	-- the front tints; `rows` bands step up the arch
+	doorway = { half = 3.5, spring = 7.5, rows = 5 },
 	rainbow = {
 		shown = 0.5,
 		seconds = 10,
@@ -3876,6 +3879,43 @@ Presets.lawn = {
 				count = 5,
 				colour = Presets.palette.golden,
 			},
+		},
+		-- #3222 rare Golden drops: each spins (the `_Spin` contract) and glints like the Golden Paw Statue
+		golden_cat_fountain = {
+			emitter = { name = "goldMote", at = "_Cat_Spin", offset = Vector3.new(0, 1, 0) },
+			pulse = {
+				at = "_Cat_Spin",
+				offset = Vector3.new(0, 1.2, 0),
+				every = 5,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.8, count = 2, colour = Presets.palette.lampWarm },
+		},
+		golden_cat_throne = {
+			emitter = { name = "goldMote", at = "_Crown_Spin", offset = Vector3.zero },
+			pulse = {
+				at = "_Crown_Spin",
+				offset = Vector3.zero,
+				every = 4,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.6, count = 2, colour = Presets.palette.lampWarm },
+		},
+		golden_yarn_kitten = {
+			emitter = { name = "goldMote", at = "_Yarn_Spin", offset = Vector3.zero },
+			pulse = {
+				at = "_Yarn_Spin",
+				offset = Vector3.zero,
+				every = 6,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.5, count = 3, colour = Presets.palette.lampWarm },
 		},
 	} :: { [string]: LawnSpec },
 }

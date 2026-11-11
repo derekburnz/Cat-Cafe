@@ -40,11 +40,15 @@ return function()
 			expect(StrayTopUp.wait(5)).to.equal(Config.StrayTopUpMaxSeconds)
 		end)
 
-		it("prefers far points (deep, nook), else any free one", function()
-			local zones: { string? } = { "near", "deep", "lane", "nook", nil }
-			expect(StrayTopUp.farPool({ 1, 2, 3, 4, 5 }, zones) :: any).to.deepEqual({ 2, 4 })
-			expect(StrayTopUp.farPool({ 1, 3, 5 }, zones) :: any).to.deepEqual({ 1, 3, 5 })
-		end)
+		it(
+			"prefers far points (deep; not the Alleyway's nooks since #3170), else any free one",
+			function()
+				local zones: { string? } = { "near", "deep", "lane", "nook", nil }
+				expect(StrayTopUp.farPool({ 1, 2, 3, 4, 5 }, zones) :: any).to.deepEqual({ 2 })
+				expect(StrayTopUp.farPool({ 1, 3, 4 }, zones) :: any).to.deepEqual({ 1, 3, 4 })
+				expect(StrayTopUp.farPool({ 1, 3, 5 }, zones) :: any).to.deepEqual({ 1, 3, 5 })
+			end
+		)
 
 		it("keeps strays by each gate (#1621, no cats at the start of the Sewer)", function()
 			expect(Config.StrayEntryFloor).to.equal(4) -- #2557 (was 3)

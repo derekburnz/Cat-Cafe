@@ -444,7 +444,7 @@ return function()
 
 	describe("the Alleyway in the wild (world-and-feel section 2, F35; v4, F84)", function()
 		it(
-			"32 spawn points: 16 on the lanes, 8 nooks at the far end and 8 near points by the camp (v4)",
+			"34 spawn points: 16 on the lanes, 4 nooks at the far end, 6 in the middle and 8 near points by the camp (#3170)",
 			function()
 				local zones: { [string]: number } = {}
 				for _, point in alley.spawnPoints do
@@ -452,9 +452,10 @@ return function()
 					local zone = point.zone :: string
 					zones[zone] = (zones[zone] or 0) + 1
 				end
-				expect(#alley.spawnPoints).to.equal(32)
+				expect(#alley.spawnPoints).to.equal(34)
 				expect(zones.lane).to.equal(2 * W.PlotCount)
-				expect(zones.nook).to.equal(8)
+				expect(zones.nook).to.equal(4)
+				expect(zones.mid).to.equal(6)
 				expect(zones.near).to.equal(W.PlotCount)
 			end
 		)
@@ -497,8 +498,35 @@ return function()
 						end
 					end
 				end
-				expect(sides.w).to.equal(4)
-				expect(sides.e).to.equal(4)
+				expect(sides.w).to.equal(2)
+				expect(sides.e).to.equal(2)
+			end
+		)
+
+		it(
+			"the middle stretch has its own points, clear of the lanes' points and every rescue spot (#3170)",
+			function()
+				for i, point in alley.spawnPoints do
+					if point.zone ~= "mid" then
+						continue
+					end
+					local _, z = toLane(point.x, point.z)
+					if z < -50 or z > 15 then
+						fail("mid point %d at lane z %g is not in the middle stretch", i, z)
+					end
+					for j, other in alley.spawnPoints do
+						local apart = math.sqrt((point.x - other.x) ^ 2 + (point.z - other.z) ^ 2)
+						if j ~= i and apart < 8 then
+							fail("mid point %d is %.1f studs from point %d", i, apart, j)
+						end
+					end
+					for _, spot in alley.rescuePool or alley.rescueSpots do
+						local apart = math.sqrt((point.x - spot.x) ^ 2 + (point.z - spot.z) ^ 2)
+						if apart < 9 then
+							fail("mid point %d is %.1f studs from a rescue spot", i, apart)
+						end
+					end
+				end
 			end
 		)
 
@@ -1048,7 +1076,7 @@ return function()
 					worst, worstPoint = seconds, n
 				end
 			end
-			expect(#nookPoints).to.equal(8)
+			expect(#nookPoints).to.equal(4) -- #3170: was 8
 			if worst >= 25 then
 				fail("nook point %d is %.1f s from the camp at carry speed", worstPoint, worst)
 			end

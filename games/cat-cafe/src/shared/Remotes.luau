@@ -102,8 +102,8 @@ Remotes.ClientToServer = {
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
-	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within
-	-- CollectorRangeStuds of him; on accept the cat he asks for is still owned, resting, unlocked and not the
+	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from
+	-- anywhere (#3216, his banner opens the card); on accept the cat he asks for is still owned, resting, unlocked and not the
 	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")
 	"ClaimQuest", -- (kind: "daily" | "weekly", slot: number)  F73: slot 1 to QuestDailyCount or QuestWeeklyCount,
 	-- finished and unclaimed; pays it and, when it is the set's last, the set prize; answered with QuestResult
@@ -211,8 +211,9 @@ Remotes.ServerToClient = {
 	-- F102 trading (TradeService)
 	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
-	"TradeAskEnded", -- (toUserId: number)  #2550: the asker's request to that player was declined or ran out; they may
-	-- ask again after TradeReaskSeconds
+	"TradeAskEnded", -- (toUserId: number, now: boolean?)  #2550: the asker's request to that player was declined or ran
+	-- out; they may ask again after TradeReaskSeconds. #3211: `now` true when it never went out or could not open: the
+	-- row says Trade again at once
 	"TradeState", -- (state: Types.TradeStateView?)  the receiver's view of their open trade after every change; nil
 	-- closes the window
 	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary }, gaveDecor:

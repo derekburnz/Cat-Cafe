@@ -354,7 +354,9 @@ end
 -- (crispi_255 via Derek2, 2026-11-07: the good cats "only spawn at the back"): "deep" held Epic and up as well, so
 -- every Epic and Legendary in the Park, Sewer, Neighbourhood and Woods stood in the far half. They spawn anywhere in
 -- the area now, spread from the others like any stray.
-Catching.KEEP_ZONES = table.freeze({ nook = "Epic", deep = "Mythical" }) :: { [string]: string }
+-- #3170 (Derek2: "all the cats in alleyway are piled into the back now spread them out through the entire area even
+-- the decent ones"): the Alleyway's nooks no longer keep its Epic and up; they spawn anywhere there.
+Catching.KEEP_ZONES = table.freeze({ deep = "Mythical" }) :: { [string]: string }
 
 -- A "rare" spawn point is a rare-biased nook (the Great Oak's top in the Woods, Derek 2026-10-28 01:35): only a Rare
 -- or rarer stray takes it, and one takes it first while it is free, so whoever climbs up finds a Rare or better.

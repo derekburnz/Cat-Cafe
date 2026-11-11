@@ -10,8 +10,8 @@ local Lawn = require(ReplicatedStorage.Shared.Lawn)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 -- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1), or in a v3.2 side area
--- "near" (the gate half) or "deep" (the far half); Epic and rarer strays take only "nook" points and Mythicals only
--- "deep" ones (Catching.KEEP_ZONES; #2210: Epic and Legendary spawn anywhere in a side area).
+-- "near" (the gate half) or "deep" (the far half); Mythicals take only "deep" ones (Catching.KEEP_ZONES; #2210: Epic
+-- and Legendary spawn anywhere in a side area; #3170: any rarity anywhere in the Alleyway, which has "mid" points too).
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
 -- reach its chairs (Layout.plot.tables).
@@ -496,13 +496,19 @@ local function laneZ(z: number): number
 end
 
 -- Two lane spawn points behind every cafe's old place, in plot order (plot p's are points 2p - 1 and 2p). Then the
--- nooks, where Epic and rarer strays go, all at the far (south) end: four either side of the middle, 6 studs off the
--- south end wall (two where each old lane's dead end was, two where the passage through the block was), at least 2
--- inside the roam rect and at least 10 studs from every lane point. Then the eight `near` points just past the camp's
+-- nooks, all at the far (south) end: two either side of the middle since #3170 (four before), 6 studs off the south
+-- end wall, at least 2 inside the roam rect and at least 10 studs from every lane point; any rarity may take one
+-- since #3170 (Epic and rarer took only these before). Then the six `mid` points (#3170). Then the eight `near` points just past the camp's
 -- way in for the tutorial stray (data-model section 9, v0.13.18), 10 and then 16 studs into the Alleyway: 5 studs
 -- right (+X for a player facing south into it) then 5 left of the middle, then the same 15 studs out (F85, one way in
 -- since the block went). Plot p owns near point p, so plot 1's stray waits where the intro shows it.
-local NOOKS = { { 82, -119 }, { 68, -119 }, { SHIFT + 5, AS + 6 }, { SHIFT + 11, AS + 6 } }
+-- #3170 (Derek2: "all the cats in alleyway are piled into the back ... remove some of the spawns from the back
+-- area"): two nooks either side, not four (the old lane's dead end and the passage's middle one)
+local NOOKS = { { 82, -119 }, { SHIFT + 11, AS + 6 } }
+-- #3170 ("spread them out through the entire area"): six `mid` points in the middle stretch, which had none, between
+-- the Skip and Van blocker rows: across the middle at 10 and 26 studs either side 18 studs south of the centre, and
+-- 20 either side on the centre line. Each is 9 or more studs from every rescue spot.
+local MIDS = { { 10, -18 }, { 26, -18 }, { 20, 2 } }
 local NEAR_IN = { 10, 16 }
 local NEAR_ACROSS = { 5, 15 }
 -- An x across the whole Alleyway (0 its middle) in lane space, which has no middle: |x| SHIFT more, the same side.
@@ -528,6 +534,11 @@ local function alleySpawnPoints(): { Point }
 	for _, side in { -1, 1 } do
 		for _, xz in NOOKS do
 			table.insert(points, { x = side * xz[1], y = 0.1, z = xz[2], zone = "nook" })
+		end
+	end
+	for _, side in { -1, 1 } do
+		for _, xz in MIDS do
+			table.insert(points, { x = fromMiddle(side * xz[1]), y = 0.1, z = xz[2], zone = "mid" })
 		end
 	end
 	for _, across in NEAR_ACROSS do
@@ -2065,6 +2076,13 @@ local ALLEY_BOARD_OUT = 7 -- the Alleyway's (F85, Model-Agent): its low walls ru
 function Layout.campPoint(camp: Camp, x: number, z: number): (number, number)
 	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
 	return camp.origin.x + x * c + z * s, camp.origin.z - x * s + z * c
+end
+
+-- #3198: the world point (x, z) in `camp`'s space, campPoint's inverse.
+function Layout.campSpace(camp: Camp, x: number, z: number): (number, number)
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	local dx, dz = x - camp.origin.x, z - camp.origin.z
+	return dx * c - dz * s, dx * s + dz * c
 end
 
 local function campFor(id: string, spec: AreaSpec): Camp?

@@ -252,6 +252,21 @@ return function()
 		)
 
 		it(
+			"lets an ask through whatever a player is doing, and never counts carrying (#3211)",
+			function()
+				local idle = { flying = false, catching = false, rescuing = false }
+				local catching = { flying = false, catching = true, rescuing = false }
+				local rescuing = { flying = false, catching = false, rescuing = true }
+				local flying = { flying = true, catching = false, rescuing = false }
+				expect(Trade.busy(idle, false)).to.equal(false) -- a carried cat is not on the list at all
+				for _, doing in { catching, rescuing, flying } do
+					expect(Trade.busy(doing, true)).to.equal(false) -- the ask still goes out and arrives
+					expect(Trade.busy(doing, false)).to.equal(true) -- a trade waits for it to end
+				end
+			end
+		)
+
+		it(
 			"ends an open trade for the kill switch or someone busy, wherever they stand (#2568)",
 			function()
 				expect(Trade.endReason(true, false, false)).to.equal(nil)

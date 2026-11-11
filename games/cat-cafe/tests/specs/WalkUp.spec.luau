@@ -327,4 +327,19 @@ return function()
 			expect(radius).to.equal(8)
 		end)
 	end)
+
+	describe("WalkUp.promptReach (#3114)", function()
+		it("gives a station with a ring no click prompt", function()
+			expect(WalkUp.promptReach(true, 12)).to.equal(0)
+			expect(WalkUp.SILENT_REACH).to.equal(0)
+		end)
+		it("leaves a station without a ring its prompt, so it always has a way in", function()
+			expect(WalkUp.promptReach(false, 12)).to.equal(12)
+		end)
+		it("gives the prompt its own reach back when the ring goes away", function()
+			local own = 12
+			expect(WalkUp.promptReach(true, own)).to.equal(0)
+			expect(WalkUp.promptReach(false, own)).to.equal(12) -- from the remembered reach, not the silenced 0
+		end)
+	end)
 end

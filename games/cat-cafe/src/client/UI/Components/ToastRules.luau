@@ -12,8 +12,9 @@
 --                                                     the shop's button, the counts and the money say it. A warning
 --                                                     (a refused buy) still shows. #2729: also every line on CUT.
 --                                                     #3080: and every green ("good") toast that is not on KEEP
---   oneLine(kind) -> boolean                           #2729: good and info toasts keep to one row and end in "…";
---                                                     a warning and a shout-out wrap so every word shows
+--   oneLine(kind, text) -> boolean                     #2729: good and info toasts keep to one row and end in "…";
+--                                                     a warning and a shout-out wrap so every word shows. #3205: so
+--                                                     does a line with one of WRAP's phrases (the restart warning)
 
 local ToastRules = {}
 
@@ -125,7 +126,20 @@ end
 -- #2729 (Derek2 11-09: "big claims of index and quests cap at one line and put … explaining ads too much clutter"):
 -- a good or info toast (a claim, a reward, a reply) is one row that ends in "…"; the whole list stays on its card in
 -- the Index, Quests or Pass window. A warning says why a press failed and a shout-out names a player, so those wrap.
-function ToastRules.oneLine(kind: string?): boolean
+-- #3205 (Derek2 11-11: "the quick update in ... gets cut off"): the restart warning's early marks are calm info
+-- toasts (#2720), and one row dropped their last words, "your cafe is saved". A line with one of these phrases
+-- (plain, any case) wraps whatever its kind. shared/RestartNotice.text ends every warning with the first.
+ToastRules.WRAP = { "your cafe is saved" }
+
+function ToastRules.oneLine(kind: string?, text: string?): boolean
+	if text ~= nil then
+		local lower = string.lower(text)
+		for _, phrase in ToastRules.WRAP do
+			if string.find(lower, phrase, 1, true) ~= nil then
+				return false
+			end
+		end
+	end
 	return kind == nil or kind == "good" or kind == "info"
 end
 

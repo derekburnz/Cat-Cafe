@@ -817,5 +817,28 @@ Why not mark or hide it instead: a mark still leaves cats a new player cannot ca
 ## 2026-11-10 Daily Treat opens by itself after the 2nd cat goal, at the cafe (#3188)
 
 Derek2: "move daily treat to after your goal catch a 2nd cat and coming back to cafe if its not already". After #3155 it waited for the tutorial alone. It now also waits until two cats are caught by hand and checked in, and until the player stands on their own plot. The Daily tile still opens it by hand.
+## 2026-11-10 Alleyway: strays spread through the whole lane (#3170)
+
+The Alleyway's back end has 4 nook spawn points (was 8), and 6 new `mid` points fill the middle stretch, which had none, between the Skip and Van blocker rows. Any rarity may now spawn on any of its points: the nooks no longer hold its Epic and up (`Catching.KEEP_ZONES` keeps only the side areas' deep half for Mythicals), and a daytime top-up takes any free point instead of the nooks first (`StrayTopUp.FAR_ZONES` is `deep` only). Before and after map: the Library's `Animation-Engineer/images/alley-spawns-3170.png`.
+
+Why: Derek2: "all the cats in alleyway are piled into the back now spread them out through the entire area even the decent ones and remove some of the spawns from the back area". Each top-up went to a back nook while one was free, and every Epic or better waited only there, so the cats gathered at the back.
+
+Pace: the walks are shorter, so the Pace model's Tier 2 comes about 1 minute sooner (new player 8.9 min, was just over 9; 4-friend non-stop catcher 5.9, was about 6.9), and Tier 5 in one go 4 h 28 (floor was 4.5 h). The Tier 2 bands in Pace.spec go down by that much (8.5 to 12 for a new player) and the Tier 5 floor to 4.25 h. Derek2 has a decision card in the Animation-Engineer thread to keep the old pace instead, which would mean raising Tier 2's cost.
+
+## 2026-11-11 Rescues: a faster marker for Common and Rare (#3223)
+
+Derek2: "rescues are wayyy to easy making bar too big and speed to slow" (a Desert rescue on publish 497: the zone a third of the bar).
+
+- The zones were already cut in #3120 (0.17, 0.135, 0.105, 0.105, 0.125); that had merged but was not yet live when he wrote.
+- The marker's speed, in bar lengths a second: Common **1.00** (0.85) and Rare **0.90** (0.735). Epic 0.98, Legendary 1.12 and Mythical 1.26 stay for now.
+- With both changes a steady player (presses within 50 ms) frees a stuck cat 100%, 99%, 87%, 62% and 48% of the time by rarity (100, 100, 98, 73, 59 on 497); a looser one (70 ms, a phone with some ping) 97%, 89%, 51%, 23% and 13% (100, 100, 79, 31, 19).
+
+Why only these two: the first draft also sped up Epic (1.12), Legendary (1.22) and Mythical (1.38). Review-Agent and Design-Agent pointed out that nobody has played #3120's zones yet, and that at 70 ms that draft left an Epic at 36%, a Legendary at 16% and a Mythical at 8% an attempt, on the cats players chase, for an audience that is mostly on phones. Common and Rare, where "way too easy" was seen, stay at 89% or better at 70 ms. The Epic and up are Derek's call once he has played the new zones. The Alleyway and Park ease (#2786) and an account's first five rescues (#3180) stay on top. This takes back most of #2566's slowdown for the Rare.
+
+## 2026-11-11 Small fixes logged here (their PRs left the log alone)
+
+- **Restart warning wraps (#3205).** Derek2: "the quick update in ... gets cut off". The early restart warnings are calm info toasts, which keep to one row; a line with "your cafe is saved" now wraps whatever its kind.
+- **Tackling lesson only somewhere safe (#3206).** Derek2: "make sure to not play tackle cutscene when not in safezone". A due lesson starts only on the safe street or in a cafe; out in a catching area it stays due.
+- **Trade (#3211).** Derek2: "trade says busy but should go through at any time and still gets stuck on asked", "trade shows 0/s in the first screen", "sort trade by highest rarity first for all sections". An ask goes through whatever either player is doing, and carrying a cat never blocks a trade; a trade still does not open over a running catch, rescue or flight, and an open one still ends if a player starts one (#2568). A refused ask clears "Asked" at once. An offered cat with no job shows what it earns working. Every tab lists the rarest first. Known trade-off (Review-Agent): a carrier can sit in the trade window out in a catching area and be tackled meanwhile; not an exploit, and "no tackles while the trade window is open" is a later option if Derek wants it.
 ## 2026-11-10: feedback stand right of the Thank You board, night market nudged (#3189)
 Derek2 asked for the feedback stand to the right of the Thank You board, away from the fish market, and the night market a little left to make room. The stand moves from (34, 18) to (50, -25), on the board's right as you face it, between the night cart and the leaderboard row; the night cart moves from (37, -35) to (33, -31). A straight move left would hide the board from the spawn, so the cart also steps 4 toward the lane. The #3070 fit rules (fit70.py) still pass with nothing excepted; the arcade's spot stays north of the lane.

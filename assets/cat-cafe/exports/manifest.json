@@ -313313,6 +313313,62 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Park_MysticPool.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Park_MysticPool.png"
+    },
+    {
+      "name": "CatCafe_Prop_MoneyBag",
+      "category": "Prop",
+      "module": "moneybag",
+      "objects": [
+        "CatCafe_Prop_MoneyBag",
+        "CatCafe_Prop_MoneyBag_Glow"
+      ],
+      "triangles": 480,
+      "budget": 500,
+      "size_studs": {
+        "x": 2.31,
+        "y": 1.57,
+        "z": 2.44
+      },
+      "size_roblox": [
+        2.31,
+        2.44,
+        1.57
+      ],
+      "bounds_min": [
+        -1.12,
+        -0.83,
+        -0.01
+      ],
+      "bounds_max": [
+        1.19,
+        0.74,
+        2.43
+      ],
+      "pivot": "the base centre on the table top (or the floor), front -Z: the coin faces the walk-up side",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#3360 (rich-money-bags.md section 5): the rich customer's money bag, cloned by the client at the plot's RichTipAnchor for each waiting bag. Pivot at the base centre, the coin toward -Z. Gold parts are Metal; _Glow (the sparkle) is Neon. Display only: set CanCollide off on the clone.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_MoneyBag.model.json",
+      "rbx_parts": 25,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_MoneyBag.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_MoneyBag.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "480/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "216 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.03 y=-0.04"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_MoneyBag.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_MoneyBag.png"
     }
   ]
 }

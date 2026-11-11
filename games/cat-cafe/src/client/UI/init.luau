@@ -147,7 +147,7 @@ UI.events = {
 	-- index is the food's row, unused since F59, and window the DealerStock's the screen showed (nil if none came)
 	buyDealerFood = Signal.new(),
 	buyDealerAll = Signal.new(), -- (window)   #2573: Buy all on the night dealer screen: forward as BuyDealerAll
-	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
+	claimRichTip = Signal.new(), -- (bagId)   Collect on the rich tip marker over a money bag: forward as ClaimRichTip (F31, #3360)
 	takeCozy = Signal.new(), -- ()   #2854: the Rewards list's "Cozy gift waiting!" row: forward as TakeCozy
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
@@ -1459,8 +1459,8 @@ function UI.init(config: Types.InitConfig)
 	rescueBar = RescueBar.new(parent)
 	actionPills = ActionPill.new(parent)
 	richTipScreen = RichTip.new(parent, {
-		collect = function()
-			UI.events.claimRichTip:Fire()
+		collect = function(bagId: string)
+			UI.events.claimRichTip:Fire(bagId)
 		end,
 		-- only a claimed tip pays (data-model 12 v0.13.4); a missed one leaves with nothing
 		collected = function(amount: number, position: Vector3?)
@@ -2951,10 +2951,10 @@ end
 
 UI.richTip = {}
 
--- Your own plot model: a gold marker over its RichTipAnchor whenever RichTipAmount and RichTipExpiresAt (server
--- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
--- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
--- it; a missed one only toasts "Rich tip missed".
+-- Your own plot model: a gold marker over the nearest of its waiting money bags (the plot's RichBags records, #3360),
+-- with Collect firing events.claimRichTip(bagId) within 12 studs; walking into a bag fires it too. When a bag's
+-- record reads "claimed", "+$X" rises from where it sat, so the server needs no Notify for it; a missed one only
+-- toasts "Rich tip missed".
 -- F63: the same plot's CollectorSpot, where the Cat Collector's tag and card follow UI.collector.offer.
 -- Call it again when the player gets a new plot; nil stops watching.
 -- #2395: the intro's staged rich tip: the same gold bubble over `position` with `amount`, Collect inert; nil hides it.

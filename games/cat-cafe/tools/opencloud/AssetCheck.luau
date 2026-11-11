@@ -11,14 +11,7 @@ local GROUP_ID = 107520049 -- Creampuff Games; the log is public, so it says "ou
 local IDS: { { name: string, id: number, kind: string } } = {
 	{ name = "control: strayCall (approved)", id = 115966888994390, kind = "Sound" },
 	{ name = "control: no such asset", id = 1, kind = "Sound" },
-	{ name = "CatCafe_Sfx_StationReveal", id = 119242621398873, kind = "Sound" },
-	{ name = "Icon_Clean_Museum", id = 106957137610323, kind = "Image" },
-	{ name = "Icon_Clean_Picnic", id = 92455587075019, kind = "Image" },
-	{ name = "Icon_Clean_YardSale", id = 132170661858712, kind = "Image" },
-	{ name = "Icon_Clean_Pond", id = 116298242454261, kind = "Image" },
-	{ name = "Icon_Clean_LostFound", id = 106814161165186, kind = "Image" },
-	{ name = "Icon_Clean_Arcade", id = 120353026211586, kind = "Image" },
-	{ name = "UI_ArcadeBg_Tile", id = 103715872453589, kind = "Image" },
+	{ name = "CatCafe_Sheet_Pool", id = 86210298933711, kind = "Sound" },
 }
 
 local lines = {}

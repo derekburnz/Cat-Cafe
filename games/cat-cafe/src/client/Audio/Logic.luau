@@ -424,6 +424,22 @@ function Logic.rummageCue(rowId: any): string
 	return "giftClaim"
 end
 
+-- #3389: the Mystic Pool's roll (Effects/MysticPool.onBeat). The cat's splash, one bubbling note per colour step
+-- (pitched a scale note higher each step, so it climbs with the rarity and stops there), the Mythic's own shimmer
+-- and the reveal chime. Returns the cue and the scale step to play it at; nil for an unknown beat.
+function Logic.poolCue(beat: any, step: any): (string?, number?)
+	if beat == "drop" then
+		return "poolDrop", nil
+	elseif beat == "step" then
+		return "poolStep", if type(step) == "number" then math.clamp(math.floor(step), 1, 5) else 1
+	elseif beat == "mythic" then
+		return "poolMythic", nil
+	elseif beat == "reveal" then
+		return "poolReveal", nil
+	end
+	return nil, nil
+end
+
 -- Toast lines that earn their own jingle, since the server sends them as a toast only: the update gift (#2997) the
 -- reward jingle, and a Golden find (#3222, LawnService.giveDrop: "Golden find! ...") the gold reveal. Nil for any other.
 function Logic.toastJingle(text: any): string?

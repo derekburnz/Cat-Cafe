@@ -159,6 +159,7 @@ return function()
 		RichBagSeconds = 180,
 		RichBagsMax = 3,
 		RichCustomerSitSeconds = 20,
+		RichBagFadeSeconds = 5,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryEveryMin = 750, -- 1250 s on average, a fifth more often than #1135's 1500 (2026-11-05)
 		MysteryEveryMax = 1750,

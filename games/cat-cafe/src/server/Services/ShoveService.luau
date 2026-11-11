@@ -41,6 +41,10 @@ local trails: { [Player]: { Seen } } = {}
 -- #3342: server time each player's join shield ends; nil once it ran out or their own tackle ended it. Mirrored to
 -- the Player's TackleShieldUntil attribute so their own Tackle bar can show the shield (display only).
 local shieldUntil: { [Player]: number } = {}
+-- #3378: tackles the join shield stopped since the last tackle_shield event, and who made the last one
+local shieldBlocks = 0
+local shieldBlocker: Player? = nil
+local SHIELD_LOG_SECONDS = 60
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
@@ -299,6 +303,10 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		Telemetry.custom(player, "shove", 1, { "miss", "none", tackleArea })
 		Net.fire(player, "ShoveResult", "miss", player.UserId, 0, at, facing)
 		local why: string = passed or ""
+		if why == Shove.SHIELDED then
+			shieldBlocks += 1 -- #3378
+			shieldBlocker = player
+		end
 		if why ~= "" then
 			-- #2193: the lunge reached someone a protection keeps safe; say so instead of a silent miss
 			Net.toast(player, why, "info")
@@ -318,6 +326,18 @@ function ShoveService.start()
 	for _, player in Players:GetPlayers() do
 		startShield(player)
 	end
+	-- #3378: one tackle_shield event a minute for the whole server, not one a hit
+	task.spawn(function()
+		while true do
+			task.wait(SHIELD_LOG_SECONDS)
+			local blocker = shieldBlocker
+			if shieldBlocks > 0 and blocker ~= nil and blocker.Parent == Players then
+				Telemetry.custom(blocker, "tackle_shield", shieldBlocks, {})
+				shieldBlocks = 0
+				shieldBlocker = nil
+			end
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		lastTackleAt[player] = nil
 		lastShoveOf[player] = nil

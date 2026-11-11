@@ -23,6 +23,7 @@ local Workspace = game:GetService("Workspace")
 
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local ArcadeBoard = require(script.Parent.ArcadeBoard)
+local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Circles = require(ReplicatedStorage.Shared.Circles)
@@ -41,7 +42,9 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local ArcadeService = {}
 
-local STORE = "CatCafe_Arcade" .. (if RunService:IsStudio() then "_dev" else "")
+local STORE = Arcade.SAVE_STORE .. (if RunService:IsStudio() then "_dev" else "")
+-- #3378: the saves from before the leaderboard reset, read once for a player with no save in STORE yet
+local OLD_STORE = Arcade.OLD_SAVE_STORE .. (if RunService:IsStudio() then "_dev" else "")
 local READ_WAITS = { 2, 5, 15, 60 } -- seconds before each further try at a join's read
 local WRITE_WAITS = { 2, 5, 15 } -- and at a write
 local WRITE_GAP = 7 -- seconds between two writes of one key (a DataStore key takes one write per 6 s)
@@ -57,6 +60,7 @@ type Run = {
 	points: number,
 	circles: number, -- circles hit
 	paid: { number },
+	free: boolean, -- #3378: the day's free game, for the funnel's field
 }
 
 local runs: { [Player]: Run } = {}
@@ -209,9 +213,28 @@ local function load(player: Player)
 			if player.Parent ~= Players then
 				return
 			end
+			local carried = false
+			if ok and raw == nil then
+				-- #3378: nothing since the reset; the old save's paid milestones, free game and title come along,
+				-- its record does not. A failed read here counts as a failed read, so nothing is lost to a hiccup.
+				local old: unknown = nil
+				ok, old = pcall(function(): unknown
+					return DataStoreService:GetDataStore(OLD_STORE):GetAsync(key)
+				end)
+				if player.Parent ~= Players then
+					return
+				end
+				if ok and old ~= nil then
+					raw = Arcade.carryOver(Arcade.sanitize(old, os.time()))
+					carried = true
+				end
+			end
 			if ok then
 				local save = Arcade.sanitize(raw, os.time())
 				saves[player] = save
+				if carried then
+					queueSave(player.UserId, save)
+				end
 				ArcadeBoard.note(player, save.best, save.bestCircles) -- #3338
 				sendState(player)
 				return
@@ -235,7 +258,7 @@ local function alive(player: Player): boolean
 end
 
 -- Ends `run`. `tell` false for a player who left (nothing to send).
-local function finish(player: Player, run: Run, tell: boolean)
+local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	if runs[player] ~= run then
 		return -- already over
 	end
@@ -248,6 +271,25 @@ local function finish(player: Player, run: Run, tell: boolean)
 		queueSave(player.UserId, save)
 		if newBest then
 			ArcadeBoard.note(player, save.best, save.bestCircles) -- #3338
+		end
+	end
+	-- #3378: the funnel's end of a game, a quit on its own event, and a new best that stands in the board's top
+	local owner = OwnerTest.isOwner(player.UserId)
+	local profile = DataService.get(player)
+	if not owner then
+		local kind = if run.free then "free" else "paid"
+		if quit == true then
+			Telemetry.custom(player, "arcade_quit", run.circles, { kind })
+		elseif tell and profile ~= nil then
+			Telemetry.arcadeStep(player, profile, ArcadeFunnel.FINISHED, run.free)
+		end
+		if newBest then
+			for _, row in ArcadeBoard.top(present(), player.UserId) do
+				if row.me == true then
+					Telemetry.custom(player, "arcade_board_top", row.rank, { kind })
+					break
+				end
+			end
 		end
 	end
 	-- #3321: an owner account (Config.OwnerTestUserIds) never takes the server's best on the cabinet; its own best
@@ -322,6 +364,12 @@ local function settle(player: Player, run: Run, attempt: Circles.Attempt, before
 		if grade == "perfect" or grade == "good" then
 			run.points = Arcade.add(run.points, grade)
 			run.circles += 1
+			if run.circles == 1 and not OwnerTest.isOwner(player.UserId) then
+				local profile = DataService.get(player)
+				if profile ~= nil then
+					Telemetry.arcadeStep(player, profile, ArcadeFunnel.FIRST_CIRCLE, run.free) -- #3378
+				end
+			end
 		end
 		local paid = payMilestones(player, run, was)
 		Net.fire(player, "ArcadeJudged", run.id, run.block, index, grade, run.points, paid)
@@ -391,12 +439,27 @@ local function onStart(player: Player)
 	if profile == nil then
 		return
 	end
+	local owner = OwnerTest.isOwner(player.UserId)
+	-- #3378: a refused Start, counted by its reason
+	local function blocked(closed: boolean, loaded: boolean, running: boolean, busyNow: boolean)
+		if not owner then
+			Telemetry.custom(
+				player,
+				"arcade_blocked",
+				1,
+				{ ArcadeFunnel.blockedReason(closed, loaded, running, busyNow) }
+			)
+		end
+	end
 	if not LiveFlagService.on(Arcade.FLAG) then
 		Net.toast(player, CLOSED_TEXT, "warn")
+		blocked(true, true, false, false)
 		return
 	end
 	local save = saves[player]
 	local free = save ~= nil and Arcade.freeToday(save, os.time())
+	-- #3378: the day's free game was used before this one, so this is a second game today
+	local freeUsed = save ~= nil and not free and save.freeDay == Arcade.day(os.time())
 	-- a free run spends no fish, so the trade fish freeze doesn't hold it up (#3296)
 	local busy = CatService.busyReason(player)
 		or (if free then nil else TradeService.fishSpendBlocker(player))
@@ -404,6 +467,7 @@ local function onStart(player: Player)
 		Arcade.startBlocker(profile.goldenFish, busy, runs[player] ~= nil, save ~= nil, free)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")
+		blocked(false, save ~= nil, runs[player] ~= nil, busy ~= nil)
 		return
 	end
 	if free and save ~= nil then
@@ -414,15 +478,26 @@ local function onStart(player: Player)
 	else
 		if not GoldenFish.trySpend(profile, Config.ArcadeCostFish) then
 			Net.toast(player, Arcade.startBlocker(0, nil, false, true) or CLOSED_TEXT, "warn")
+			blocked(false, true, false, false)
 			return
 		end
 		Telemetry.fishSink(player, profile, Config.ArcadeCostFish, "Gameplay", "arcade")
 		CafeService.sync(player)
 	end
 	nextRunId = nextRunId % MAX_RUN_ID + 1
-	local run: Run =
-		{ id = nextRunId, block = 0, attempt = nil, points = 0, circles = 0, paid = {} }
+	local run: Run = {
+		id = nextRunId,
+		block = 0,
+		attempt = nil,
+		points = 0,
+		circles = 0,
+		paid = {},
+		free = free,
+	}
 	runs[player] = run
+	if not owner then
+		Telemetry.arcadeStarted(player, profile, free, freeUsed) -- #3378
+	end
 	startBlock(player, run, serverNow() + READY_SECONDS)
 end
 
@@ -458,7 +533,20 @@ local function onQuit(player: Player, rawRun: unknown)
 	if runId == nil or run == nil or run.id ~= runId then
 		return
 	end
-	finish(player, run, true)
+	finish(player, run, true, true)
+end
+
+-- #3378: arcade_v1's steps before a game (seen, opened): "free" while the day's free game is still there.
+local function funnelBefore(player: Player, step: number)
+	if OwnerTest.isOwner(player.UserId) then
+		return
+	end
+	local profile = DataService.get(player)
+	local save = saves[player]
+	if profile == nil then
+		return
+	end
+	Telemetry.arcadeStep(player, profile, step, save ~= nil and Arcade.freeToday(save, os.time()))
 end
 
 -- Debug hooks for the specs and Studio checks.
@@ -487,6 +575,40 @@ function ArcadeService.start()
 		task.defer(showServerBest)
 	end)
 	showServerBest()
+	-- #3378: arcade_v1 step 2, the window opened by its ring or prompt (the client's StationOpened count)
+	Telemetry.onStationOpen(function(player: Player, window: string)
+		if window == "Arcade" then
+			funnelBefore(player, ArcadeFunnel.OPENED)
+		end
+	end)
+	-- step 1: everyone within SEEN_STUDS of a cabinet. Telemetry logs it once a day, so a look is cheap.
+	task.spawn(function()
+		while true do
+			task.wait(ArcadeFunnel.SEEN_EVERY)
+			local spots: { Vector3 } = {}
+			for _, model in CollectionService:GetTagged(Arcade.TAG) do
+				if model:IsA("PVInstance") then
+					table.insert(spots, (model :: PVInstance):GetPivot().Position)
+				end
+			end
+			for _, player in Players:GetPlayers() do
+				local character = player.Character
+				local root = if character ~= nil
+					then character:FindFirstChild("HumanoidRootPart")
+					else nil
+				if root ~= nil and root:IsA("BasePart") then
+					for _, at in spots do
+						if
+							((root :: BasePart).Position - at).Magnitude <= ArcadeFunnel.SEEN_STUDS
+						then
+							funnelBefore(player, ArcadeFunnel.SEEN)
+							break
+						end
+					end
+				end
+			end
+		end
+	end)
 	ArcadeBoard.start(function()
 		for player in saves do
 			if player.Parent == Players then

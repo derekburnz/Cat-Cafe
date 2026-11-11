@@ -791,7 +791,7 @@ local Cues: { [string]: Cue } = {
 		duck = true,
 	}, -- F48 Index rewards
 	stationReveal = {
-		ids = { "rbxassetid://127241224294798" }, -- the indexReward file until its own upload (#2687)
+		ids = { "rbxassetid://119242621398873" }, -- CatCafe_Sfx_StationReveal (group upload run 43101011410)
 		group = "Sfx",
 		volume = 0.5,
 		minGap = 1,

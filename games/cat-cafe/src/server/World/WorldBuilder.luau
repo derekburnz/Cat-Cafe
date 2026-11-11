@@ -2365,7 +2365,8 @@ local function buildArcadeCabinet(parent: Instance): Model
 		end
 	end
 	-- #3338: the walk-in ring in front of it (Controllers/WalkUpController opens the window on stepping in)
-	WalkUpCircles.front(model, RING_ARCADE, Arcade.PROMPT_RANGE, nil, ICON_ARCADE)
+	-- #3359: RING_RANGE, so the ring lies in front of the cabinet, not over it
+	WalkUpCircles.front(model, RING_ARCADE, Arcade.RING_RANGE, nil, ICON_ARCADE)
 	return model
 end
 

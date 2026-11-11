@@ -43,6 +43,7 @@ local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
 local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
+local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
 local HoldPulse = require(script.HoldPulse)
 local Intro = require(script.Intro)
@@ -167,6 +168,7 @@ function Effects.start()
 		HoldPulse.start,
 		BaitCrumbs.start,
 		WaitingCat.start,
+		GoldenFind.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,

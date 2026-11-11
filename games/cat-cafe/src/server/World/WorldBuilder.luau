@@ -17,6 +17,7 @@ local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
 local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
+local RummageBin = require(ReplicatedStorage.Shared.RummageBin)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -1851,6 +1852,80 @@ local function buildCampExtras(parent: Instance)
 	end
 end
 
+-- #3050: the Rummage Bin at the Alleyway camp (Layout.rummageBinAt), tagged RummageBin. Its one-press "Rummage"
+-- prompt (RummageBin.PROMPT, Custom: the UI's action pill) sits at the model's PromptAnchor; BinService checks the
+-- range from the same anchor and each client words the prompt and picks the look for its own player
+-- (Controllers/BinController). The model's two looks are child Models, `_Ready` (lid flung back, prizes poking out)
+-- and `_Empty` (lid shut): neither collides (the bin under them does) and the empty one starts hidden. Without the
+-- art a plain block stands in. Atomic, as the camp extras.
+local BIN_ART = "CatCafe_Camp_Alley_RummageBin"
+
+local function buildRummageBin(parent: Instance)
+	local x, y, z, turn = Layout.rummageBinAt()
+	if x == nil or y == nil or z == nil or turn == nil then
+		return
+	end
+	local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+	local model: Model
+	if AssetRegistry.has(BIN_ART) then
+		model = place(BIN_ART, at, parent)
+	else
+		model = Instance.new("Model")
+		model.PrimaryPart = part(
+			"Body",
+			Vector3.new(3, 4, 3),
+			at * CFrame.new(0, 2, 0),
+			CARAMEL,
+			Enum.Material.Metal,
+			model
+		)
+		model.Parent = parent
+	end
+	model.Name = "RummageBin"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	model:SetAttribute("Area", RummageBin.AREA)
+	CollectionService:AddTag(model, RummageBin.TAG)
+	for _, look in model:GetChildren() do
+		if not look:IsA("Model") then
+			continue
+		end
+		local empty = look.Name:sub(-6) == "_Empty"
+		for _, piece in look:GetDescendants() do
+			if piece:IsA("BasePart") then
+				local solid = piece :: BasePart
+				solid.CanCollide = false
+				solid.CanQuery = false
+				if empty then
+					solid.Transparency = 1
+				end
+			end
+		end
+	end
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	if anchor == nil or not anchor:IsA("Attachment") then
+		local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if host == nil then
+			return
+		end
+		local float = Instance.new("Attachment")
+		float.Name = "PromptAnchor"
+		float.Parent = host
+		float.WorldPosition = (at * CFrame.new(0, 1.5, -2)).Position
+		anchor = float
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = RummageBin.PROMPT
+	prompt.ObjectText = RummageBin.NAME
+	prompt.ActionText = RummageBin.ACTION
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = RummageBin.RANGE_STUDS
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	-- the chances, under the pill before the press (monetization-policy section 2)
+	prompt:SetAttribute("Note", RummageBin.oddsLine())
+	prompt.Parent = anchor
+end
+
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at
 -- Layout.lateStationAt, placed and prompted as the camp extras are (tag LateStation, attributes StationId and Area,
 -- prompt LateStationPrompt). Without the art a plain block stands in. Only once Config.LateStationsOpen, when the UI's
@@ -2746,6 +2821,7 @@ function WorldBuilder.build(): World
 	local extrasFolder = folder("CampExtras", root)
 	buildCampExtras(extrasFolder)
 	buildLateStations(extrasFolder) -- #2651 part 4
+	buildRummageBin(extrasFolder) -- #3050
 	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
 	-- extras too (#1132)
 	for _, info in areas do

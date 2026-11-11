@@ -278,6 +278,8 @@ Remotes.ServerToClient = {
 	-- how the marker runs and which zone to hit from now. Refusals of RescueBegin come as GrabResult. F92: a Team
 	-- Rescue helper gets these too (a done one that is not a success when they stop helping), and `bar.endsAt` is the
 	-- deadline, TeamRescueExtraSeconds later once a helper joins
+	-- #3050: the Rummage Bin's bar uses these five rescue remotes under the spot id RummageBin.SPOT; its winning
+	-- RescueResult carries one more argument, win: Types.RummageWin (the prize row and whether it is the first)
 	"TeamRescue", -- (rescueSpotId: string, rescuerUserId: number, helperUserId: number, position: Vector3,
 	-- coins: number)  F92: a helped rescue freed its cat, to the rescuer and the helper for the "Team Rescue!" pop;
 	-- coins is the helper's tip this player got (0 for the rescuer, and on the TeamRescueTipCooldown)

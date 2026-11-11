@@ -859,3 +859,11 @@ Derek2 2026-11-11: "I want to run it in a live game with a command from owner mo
 
 ## 2026-11-10: feedback stand right of the Thank You board, night market nudged (#3189)
 Derek2 asked for the feedback stand to the right of the Thank You board, away from the fish market, and the night market a little left to make room. The stand moves from (34, 18) to (50, -25), on the board's right as you face it, between the night cart and the leaderboard row; the night cart moves from (37, -35) to (33, -31). A straight move left would hide the board from the spawn, so the cart also steps 4 toward the lane. The #3070 fit rules (fit70.py) still pass with nothing excepted; the arcade's spot stays north of the lane.
+
+## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
+
+Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.
+
+- The wait and wins now live in a small DataStore of their own, `CatCafe_Bin` (key: the user id), read when a player joins and written at each win. The save shape and `ProfileSchema.VERSION` (47) are unchanged, so no restart and no save version step. Older servers know nothing of the bin and never touch the store.
+- Until the read answers, and for the rest of the visit if every try fails, the player's bin reads "Empty for now", so a failed read never hands out the two fixed first prizes again. A failed write only lets the bin fill early on the next server; the prize was paid either way.
+- The bar uses Design-Agent's absolute numbers, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, so the rescue changes (#3120, #3223) never make the bin harder. `BinFirstEase` still applies on top for the first three.

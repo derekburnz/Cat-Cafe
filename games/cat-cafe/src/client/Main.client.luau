@@ -8,6 +8,7 @@ ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
 local Audio = require(script.Parent.Audio)
+local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
 local CannonController = require(script.Parent.Controllers.CannonController)
 local ChatTagController = require(script.Parent.Controllers.ChatTagController)
@@ -45,6 +46,7 @@ NetSwingController.start() -- F93: the net swing, after the UI whose Net button 
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
+BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds

@@ -140,6 +140,11 @@ local Moments = {
 	-- #2946: (bowl position, seconds) the first bait's cat starts eating in its cutscene (Effects/FirstBaitCut), for
 	-- the purr at the bowl (Sound, #2951).
 	FirstBaitEat = Signal.new() :: Signal.Signal<Vector3, number?>,
+	-- #3062 Cat Arcade (Circle Streak), fired by UIController's arcade window for the sounds (Sound, #3244): a run begins
+	-- (the fish is paid), every 10 points, and the run ends with (points, won).
+	ArcadeStart = Signal.new() :: Signal.Signal<()>,
+	ArcadeMilestone = Signal.new() :: Signal.Signal<number>,
+	ArcadeEnd = Signal.new() :: Signal.Signal<number, boolean>,
 }
 
 return Moments

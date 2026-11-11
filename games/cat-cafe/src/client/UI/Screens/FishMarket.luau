@@ -274,6 +274,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._tradeCrates = {} :: { [string]: number } -- #2745: crate id -> how many are on my side of an open trade
 	self._itemRows = {} :: { ItemRow }
 	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() when its wait for the server ends
+	self._buyQueued = {} :: { [string]: number } -- #3190: food id -> buys pressed while one waits, sent in turn
 	self._retry = {} :: { [string]: number } -- #2577: crate id -> os.clock() until its button reads "Try again"
 	self._lastSent = {} :: { [string]: number } -- #2290: "item" or "bundle" -> os.clock() of its last send
 	self._potionById = {} :: { [string]: PotionLogic.Potion }
@@ -1535,6 +1536,22 @@ function FishMarket._expirePending(self: any): boolean
 				self._retry[id] = now + RETRY_SECONDS
 				lost = true
 			end
+			-- #3190: a food buy that ran out unanswered lets the next queued one go
+			local queued = self._buyQueued[id]
+			local row: Types.FishShopRow? = nil
+			for _, entry: ItemRow in self._itemRows do
+				if entry.row.id == id then
+					row = entry.row
+				end
+			end
+			if queued and queued > 0 and row then
+				self._buyQueued[id] = if queued > 1 then queued - 1 else nil
+				task.defer(function()
+					if not self._destroyed then
+						self:_buy(row)
+					end
+				end)
+			end
 		end
 	end
 	if lost then
@@ -1708,6 +1725,13 @@ end
 
 function FishMarket._buy(self: any, row: Types.FishShopRow)
 	if self:_pendingFor(row.id) then
+		-- #3190 (Derek2: "... delays on ... buying items too fast"): a food bought again while the last one waits
+		-- queues and goes when the sync lands (render), instead of the press doing nothing. A perk still waits: its
+		-- next level's price comes with the sync.
+		if row.kind ~= "perk" then
+			self._buyQueued[row.id] = (self._buyQueued[row.id] or 0) + 1
+			self:_refresh()
+		end
 		return
 	end
 	local wait = self:_sendSpaced("item", function()
@@ -1738,6 +1762,16 @@ function FishMarket.render(self: any, state: Types.PlayerState)
 			else state.lures[id] or 0
 		if entry.seen ~= nil and entry.seen ~= have then
 			self._pending[id] = nil
+			-- #3190: the next queued buy of this food goes now
+			local queued = self._buyQueued[id] or 0
+			if queued > 0 then
+				self._buyQueued[id] = if queued > 1 then queued - 1 else nil
+				task.defer(function()
+					if not self._destroyed then
+						self:_buy(entry.row)
+					end
+				end)
+			end
 		end
 		entry.seen = have
 	end
@@ -1895,8 +1929,14 @@ function FishMarket._refresh(self: any)
 			entry.buy:setText("Maxed")
 			entry.buy:setEnabled(false)
 		else
-			entry.buy:setText(if pending then "..." else Format.short(cost))
-			entry.buy:setEnabled(not pending and fish >= cost)
+			-- #3190: a food keeps its price and stays pressable while buys wait (each one queued counts against the
+			-- fish); a perk reads "..." until its sync brings the next level's price
+			local perk = row.kind == "perk"
+			local waiting = (self._buyQueued[row.id] or 0) + (if pending then 1 else 0)
+			entry.buy:setText(if pending and perk then "..." else Format.short(cost))
+			entry.buy:setEnabled(
+				if perk then not pending and fish >= cost else fish >= cost * (waiting + 1)
+			)
 		end
 	end
 end

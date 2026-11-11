@@ -922,3 +922,10 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - They are a separate `traitFreeRolls` counter (starts at 5, never refills), used before tokens and fish. Players who already own the Park's camp extra get them when the `traits` flag turns on.
 - Why a separate counter and not 5 tokens: tokens have a "holds 2" timer cap and drop from other sources, so mixing them would hide the gift and confuse the "Next in" line.
 - Save shape (Review-Agent): saved as `traitFreeRollsUsed` counting up from 0, never a defaulted count of 5, and only with the save version step and restart, so a no-restart rollout can't regrant them.
+
+## 2026-11-11: Trait station becomes the Mystic Pool, with 5 rarities and combo traits (#3196)
+- Derek2 asked for a wizard cat who drops your cat into a pool that changes colour with the rarity (grey, green, blue, gold, then mythic), with a Mythic around 1% that is very strong, and for Legendary and Mythic traits to combine several effects.
+- Rarities are Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%. Common to Rare are the six single traits at rising strength. Legendary has four two-effect traits, and Mythic has three three-effect traits (trait-station.md §2).
+- Shared caps still hold: bowl luck counts the best 3 cats and stays inside LuckMax; speed counts the best 1 cat, up to +1.5; the rich rate counts the best 2 cats, up to +24%, which stays under Cafe Style's paid 0.25.
+- The pool only steps up to the real result and never fakes a near-miss, because the audience is young.
+- Monetization should re-check the stacking with the Mythic numbers before the build ships.

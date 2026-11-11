@@ -30,6 +30,62 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #3217 refresh (11-11): player-facing changes since #3043; Swift Paws was its_cuzu098's idea
+	{
+		id = "swift_paws_perk",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Swift Paws walk speed perk",
+		creditId = "c12",
+	},
+	{
+		id = "tutorial_spotlight",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Clearer tutorial arrow",
+	},
+	{
+		id = "tutorial_click_through",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Click through the tutorial",
+	},
+	{
+		id = "fewer_new_badges",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Fewer New! pop-ups",
+	},
+	{
+		id = "first_rescues_easier",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "First rescues are easier",
+	},
+	{
+		id = "quick_use_and_buy",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Faster Use and buy presses",
+	},
+	{
+		id = "day_clock_top_pc",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Day clock at the top on PC",
+	},
+	{
+		id = "sky_brighter",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Brighter sky day and night",
+	},
+	{
+		id = "camps_no_drop_in",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Camps load in without drops",
+	},
 	-- #2718 refresh (11-10 16:40): player-facing changes since #2977, 37 merges; no player ideas
 	{
 		id = "town_square_grew",

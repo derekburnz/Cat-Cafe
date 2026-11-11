@@ -3,8 +3,9 @@
 -- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart, in the camps the Yard Sale,
 -- the Oasis Spa, the Relic Museum and each Index Board (#3113) and, for its owner, the cafe's
 -- bait bowl on the back step (#2476) opens its window, and
--- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
--- closed by hand opens again with a press. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
+-- walking away closes it, as the Codes Cat's circle does (CodesController). #3114: a station with a ring has no click
+-- prompt any more (its prompt's reach is set to nothing here, WalkUp.promptReach), so a window closed by hand opens
+-- again by stepping out of the ring and back in; one without a ring keeps its prompt. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
 -- #3066: the feedback stand's ring opens the Feedback window straight on its text box, without the cursor in it (a
 -- held W would type into it); the cursor goes in once a keyboard player has stood still there for a moment
@@ -163,6 +164,24 @@ local KINDS: { Kind } = {
 -- and shut the window after a second
 local prompts: { [Instance]: ProximityPrompt? } = {}
 local keys: { [Instance]: string } = {}
+-- #3114: the reach each prompt came with, so it is given back if its station's ring goes away
+local ownReach: { [ProximityPrompt]: number } = {}
+
+-- Silences a ringed station's click prompt, or gives a ringless one its own reach back.
+local function setReach(prompt: ProximityPrompt, hasRing: boolean)
+	local own = ownReach[prompt]
+	if own == nil then
+		own = prompt.MaxActivationDistance
+		ownReach[prompt] = own
+		prompt.Destroying:Connect(function()
+			ownReach[prompt] = nil
+		end)
+	end
+	local reach = WalkUp.promptReach(hasRing, own :: number)
+	if prompt.MaxActivationDistance ~= reach then
+		prompt.MaxActivationDistance = reach
+	end
+end
 local lastKey = 0
 
 -- The station's prompt, found once and again if it streamed out.
@@ -301,6 +320,10 @@ function WalkUpController.start()
 				-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
 				-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
 				local hasRing, centre, ringRadius = ringOf(model)
+				-- #3114: the ring is the only way in, so the click prompt of a station that has one never shows
+				if prompt ~= nil then
+					setReach(prompt, hasRing)
+				end
 				local off = if prompt == nil
 					then not (loose == true and hasRing)
 					else not (prompt :: ProximityPrompt).Enabled
@@ -321,8 +344,9 @@ function WalkUpController.start()
 					off = off,
 					radius = if hasRing
 						then ringRadius
-						elseif prompt ~= nil then (prompt :: ProximityPrompt).MaxActivationDistance
-							* WalkUp.RADIUS_SHARE
+						elseif prompt ~= nil then (ownReach[prompt :: ProximityPrompt] or (
+							prompt :: ProximityPrompt
+						).MaxActivationDistance) * WalkUp.RADIUS_SHARE
 						else 0,
 				})
 			end

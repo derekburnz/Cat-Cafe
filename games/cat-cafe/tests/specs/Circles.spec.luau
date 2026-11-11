@@ -1302,4 +1302,205 @@ return function()
 			expect(Circles.firstMiss(hit)).never.to.be.ok()
 		end)
 	end)
+	-- #3062: the Cat Arcade's Circle Streak (shared/Arcade), the catch's circles with no stray. Here, not in a spec
+	-- file of its own, since the cloud checker holds a fixed number of spec files.
+	describe("the Cat Arcade's Circle Streak (#3062)", function()
+		local Arcade = require(Shared.Arcade)
+		local DAY = 86400
+		local NOW = 20400 * DAY + 3600 -- 1 a.m. UTC on a day
+
+		it(
+			"pays 5, 8, 15 and 30 fish and the foods, crate and potion every 10 points, nothing sold",
+			function()
+				local list = Arcade.milestones()
+				expect(#list).to.equal(10)
+				local fish = 0
+				for i, m in list do
+					expect(m.at).to.equal(i * 10)
+					expect(type(m.name)).to.equal("string")
+					fish += m.prize.fish or 0
+					expect(m.prize.coins).to.equal(nil) -- the arcade pays no coins
+				end
+				expect(fish).to.equal(58) -- under TradeFishPerDay
+				expect(assert(Arcade.milestoneAt(10)).prize.fish).to.equal(5) -- Derek2 17:41
+				expect(assert(assert(Arcade.milestoneAt(60)).prize.crates).classic_golden_crate).to.equal(
+					1
+				)
+				expect(Config.ArcadeCostFish).to.equal(1)
+			end
+		)
+
+		it("scores Perfect +2 and Good +1, a Miss nothing, clamped at 100", function()
+			expect(Arcade.add(0, "perfect")).to.equal(2)
+			expect(Arcade.add(0, "good")).to.equal(1)
+			expect(Arcade.add(5, "miss")).to.equal(5)
+			expect(Arcade.add(99, "perfect")).to.equal(100)
+		end)
+
+		it("steps every 10 points, stopping at the 10th", function()
+			expect(Arcade.step(0)).to.equal(0)
+			expect(Arcade.step(9)).to.equal(0)
+			expect(Arcade.step(10)).to.equal(1)
+			expect(Arcade.step(57)).to.equal(5)
+			expect(Arcade.step(100)).to.equal(10)
+			expect(Arcade.step(500)).to.equal(10)
+		end)
+
+		it("starts at a net level 1 Common's pace and gets slowly harder", function()
+			local start = Arcade.windows(0)
+			local common = Circles.windowsFor(1, "Common")
+			expect(start.perfect).to.be.near(common.perfect, 1e-9)
+			expect(start.good).to.be.near(common.good, 1e-9)
+			expect(Arcade.shrink(0)).to.be.near(Catalog.rarities.Common.shrinkSeconds, 1e-9)
+			expect(Arcade.shrink(10) / Arcade.shrink(0)).to.be.near(0.96 ^ 10, 1e-9) -- about 0.66
+			expect(Arcade.windows(10).good / start.good).to.be.near(0.97 ^ 10, 1e-9)
+			expect(Arcade.gap(0)).to.be.near(Config.CircleGapMax, 1e-9)
+			expect(Arcade.gap(10)).to.be.near(Config.CircleGapMin, 1e-9)
+			expect(Arcade.jitter(0)).to.be.near(Config.CircleJitter, 1e-9)
+			expect(Arcade.jitter(10)).to.be.near(Config.ArcadeJitterMax, 1e-9)
+			for step = 1, 10 do
+				expect(Arcade.shrink(step) < Arcade.shrink(step - 1)).to.equal(true)
+				expect(Arcade.windows(step).perfect < Arcade.windows(step - 1).perfect).to.equal(
+					true
+				)
+			end
+		end)
+
+		it(
+			"builds blocks of 10 on screen, never close enough for a late press to land on the next (S24)",
+			function()
+				local roll = lcg(7)
+				for step = 0, 10 do
+					local circles = Arcade.block(step, 1000, roll)
+					expect(#circles).to.equal(Arcade.BLOCK)
+					expect(circles[1].startsAt).to.equal(1000)
+					local windows = Arcade.windows(step)
+					for i, circle in circles do
+						expect(circle.kind).to.equal("single")
+						expect(circle.x >= 0.25 and circle.x <= 0.75).to.equal(true)
+						expect(circle.y >= 0.3 and circle.y <= 0.7).to.equal(true)
+						local wobble = circle.shrinkSeconds / Arcade.shrink(step) - 1
+						expect(math.abs(wobble) <= Arcade.jitter(step) + 1e-9).to.equal(true)
+						local nextOne = circles[i + 1]
+						if nextOne ~= nil then
+							local gap = nextOne.startsAt - Circles.target(circle)
+							expect(gap).to.be.near(Arcade.gap(step), 1e-9)
+							expect(gap > windows.good + Config.CatchLatencyCapSeconds).to.equal(
+								true
+							)
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"plays a whole block through the catch's judge: all Perfect is 20 points, a Miss ends it",
+			function()
+				local circles = Arcade.block(0, 1000, lcg(3))
+				local attempt = Circles.newAttempt(circles, Arcade.windows(0))
+				local points = 0
+				for i, circle in circles do
+					local grade =
+						Circles.press(attempt, i, Circles.target(circle), Circles.target(circle))
+					points = Arcade.add(points, grade :: any)
+				end
+				expect(points).to.equal(20)
+				expect(Circles.isDone(attempt)).to.equal(true)
+				expect(attempt.missed).to.equal(false)
+				local second = Circles.newAttempt(Arcade.block(2, 2000, lcg(4)), Arcade.windows(2))
+				local late = Circles.target(second.circles[1]) + Arcade.windows(2).good + 0.01
+				expect(Circles.press(second, 1, late, late)).to.equal("miss")
+				expect(Circles.isDone(second)).to.equal(true)
+				expect(second.missed).to.equal(true)
+			end
+		)
+
+		it("pays a milestone a +2 skips over, and each one once per UTC day", function()
+			expect(Arcade.crossed(9, 11) :: any).to.deepEqual({ 10 })
+			expect(Arcade.crossed(10, 11) :: any).to.deepEqual({})
+			expect(Arcade.crossed(0, 100) :: any).to.deepEqual({
+				10,
+				20,
+				30,
+				40,
+				50,
+				60,
+				70,
+				80,
+				90,
+				100,
+			})
+			local save = Arcade.fresh()
+			expect(Arcade.claim(save, 0, 21, NOW) :: any).to.deepEqual({ 10, 20 })
+			expect(Arcade.claim(save, 0, 31, NOW + 60) :: any).to.deepEqual({ 30 })
+			expect(Arcade.claim(save, 0, 31, NOW + 120) :: any).to.deepEqual({})
+			-- the next UTC day pays them again
+			expect(Arcade.claim(save, 0, 12, NOW + DAY) :: any).to.deepEqual({ 10 })
+			expect(save.paid :: any).to.deepEqual({ 10 })
+		end)
+
+		it("reads a save back safely, and yesterday's milestones are open again", function()
+			local junk = Arcade.sanitize(
+				{ best = 250, bestCircles = -3, paid = { 10, 15, "x", 10 }, day = 20400 },
+				NOW
+			)
+			expect(junk.best).to.equal(100)
+			expect(junk.bestCircles).to.equal(0)
+			expect(junk.paid :: any).to.deepEqual({ 10 })
+			expect(
+				Arcade.sanitize({ paid = { 10, 20 }, day = 20399, legend = true }, NOW).paid :: any
+			).to.deepEqual({})
+			expect(Arcade.sanitize({ legend = true }, NOW).legend).to.equal(true)
+			expect(Arcade.sanitize("nope", NOW) :: any).to.deepEqual(Arcade.fresh() :: any)
+		end)
+
+		it(
+			"ranks records by points, then fewest circles, and 100 earns the title for good",
+			function()
+				expect(Arcade.score(100, 58)).to.equal(100941)
+				expect(Arcade.beats(100, 58, 100, 60)).to.equal(true)
+				expect(Arcade.beats(100, 60, 100, 58)).to.equal(false)
+				expect(Arcade.beats(37, 30, 0, 0)).to.equal(true)
+				expect(Arcade.beats(0, 1, 0, 0)).to.equal(false)
+				local save = Arcade.fresh()
+				expect(Arcade.record(save, 37, 30)).to.equal(true)
+				expect(Arcade.record(save, 20, 15)).to.equal(false)
+				expect(save.best).to.equal(37)
+				expect(save.legend).to.equal(false)
+				expect(Arcade.record(save, 100, 58)).to.equal(true)
+				expect(save.legend).to.equal(true)
+				expect(save.runs).to.equal(3)
+			end
+		)
+
+		it("words the card and why a game can't start", function()
+			expect(Arcade.words(37, 30)).to.equal("37")
+			expect(Arcade.words(100, 58)).to.equal("100 in 58 circles")
+			local line = Arcade.cardLine({
+				points = 37,
+				circles = 30,
+				win = false,
+				best = 52,
+				bestCircles = 40,
+				newBest = false,
+				serverBest = 61,
+				serverCircles = 45,
+				serverName = "Sam",
+				paid = {},
+				today = {},
+				legend = false,
+			})
+			expect(line).to.equal("Score 37 · Best 52 · Server best 61 (Sam)")
+			expect(Arcade.startBlocker(5, nil, false, true)).to.equal(nil)
+			expect(Arcade.startBlocker(0, nil, false, true)).to.equal(
+				"You need 1 golden fish 🐟 to play"
+			)
+			expect(Arcade.startBlocker(5, "Finish this catch first", false, true)).to.equal(
+				"Finish this catch first"
+			)
+			expect(Arcade.startBlocker(5, nil, true, true)).to.equal("Finish this game first")
+			expect(type(Arcade.startBlocker(5, nil, false, false))).to.equal("string")
+		end)
+	end)
 end

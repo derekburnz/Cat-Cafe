@@ -1,0 +1,709 @@
+--!strict
+-- The Cat Arcade window (#3062, Circle Streak; the rules are shared/Arcade, the judging ArcadeService's). The cabinet
+-- in the Town Square and the Menu list's Arcade row open it. Two faces:
+--   - the card: this player's best and the server's, the last game's line ("Score 37 · Best 52 · Server best 61
+--     (Sam)"), the ten prizes with the ones already paid today ticked, the once-a-day rule in plain words (no
+--     countdown, Monetization-Agent's conditions), "Play (1 🐟)" and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
+--     to feature the player since he suggested").
+--   - the board, while a game runs: the circles the server sends (ArcadeBlock) close onto their rings at their spots,
+--     and a tap anywhere on the board, Space or the gamepad's A presses the circle closing now. The UI only says which
+--     circle a press was for; the server stamps and judges it, and its grade (ArcadeJudged) clears the circle with
+--     VFX-Agent's ArcadeFx.hit, moves the big points counter and, at a milestone, plays ArcadeFx.milestone with the
+--     prize's name for 1.5 s. Nothing shows outside the window: no toasts (#3080).
+-- Closing the window mid game ends it (the quit callback, ArcadeQuit); the card then shows how it went.
+--
+-- Bands: the closing circle moves at a constant speed, so the Good window of w seconds is a band w x speed pixels
+-- wide outside the ring.
+
+local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local ArcadeFx = require(script.Parent.Parent.Parent.Effects.ArcadeFx)
+local Button = require(script.Parent.Parent.Components.Button)
+local Create = require(script.Parent.Parent.Components.Create)
+local Outline = require(script.Parent.Parent.Components.Outline)
+local Panel = require(script.Parent.Parent.Components.Panel)
+local Theme = require(script.Parent.Parent.Theme)
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local ArcadeRules = require(Shared:WaitForChild("Arcade"))
+local Config = require(Shared:WaitForChild("Config")) :: any
+local SharedTypes = require(Shared:WaitForChild("Types"))
+
+local PAL = Theme.dark
+
+local MAX_SIZE = Vector2.new(500, 560)
+local RING = 34 -- the ring's radius in px
+local START_SCALE = 3 -- the closing circle starts this many times the ring's size
+local PREVIEW = 0.35 -- seconds a ring's faint outline shows before its circle starts closing
+local BANNER_SECONDS = 1.5
+local OVER_SECONDS = 1.2 -- the board's last word before the card comes back
+local GAP = Theme.sizes.gap
+local ACTION_NAME = "CatCafeArcadePress" -- Space and the gamepad's A press while the board is up, and don't jump
+local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Each prize pays once a day; a new day starts at "
+	.. "midnight UTC."
+local PLAY_TEXT = string.format("Play (%d 🐟)", Config.ArcadeCostFish or 1)
+local READY_TEXT = "Ready?"
+local HINT_TEXT = "Tap when the circle meets the ring"
+
+export type Callbacks = {
+	play: () -> (),
+	press: (run: number, block: number, index: number) -> (),
+	quit: (run: number) -> (),
+	close: () -> (),
+}
+
+export type Arcade = {
+	frame: Frame,
+	setState: (self: Arcade, state: ArcadeRules.State) -> (),
+	setFish: (self: Arcade, fish: number) -> (),
+	setOn: (self: Arcade, on: boolean) -> (),
+	block: (
+		self: Arcade,
+		run: number,
+		block: number,
+		circles: { SharedTypes.CatchCircle },
+		windows: SharedTypes.CatchWindows,
+		points: number
+	) -> (),
+	judged: (
+		self: Arcade,
+		run: number,
+		block: number,
+		index: number,
+		grade: SharedTypes.RingGrade,
+		points: number,
+		milestones: { number }
+	) -> (),
+	over: (self: Arcade, run: number, result: ArcadeRules.Result) -> (),
+	playing: (self: Arcade) -> boolean,
+	onOpen: (self: Arcade) -> (),
+	onClose: (self: Arcade) -> (),
+	destroy: (self: Arcade) -> (),
+}
+
+type Ring = {
+	circle: SharedTypes.CatchCircle,
+	holder: Frame,
+	closing: Frame,
+	pressed: boolean,
+	judged: boolean,
+}
+
+local Arcade = {}
+Arcade.__index = Arcade
+
+local function text(props: { [string]: any }): TextLabel
+	local merged: { [string]: any } = {
+		BackgroundTransparency = 1,
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.text,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+	}
+	for key, value in props do
+		merged[key] = value
+	end
+	return Create("TextLabel", merged)
+end
+
+local function round(frame: GuiObject, radius: UDim?)
+	Create("UICorner", { CornerRadius = radius or UDim.new(0, Theme.sizes.radius), Parent = frame })
+end
+
+local function now(): number
+	return Workspace:GetServerTimeNow()
+end
+
+function Arcade.new(callbacks: Callbacks): Arcade
+	local self = setmetatable({}, Arcade) :: any
+	self._callbacks = callbacks
+	self._state = nil :: ArcadeRules.State?
+	self._fish = 0
+	self._on = true
+	self._run = nil :: number?
+	self._blockNo = 0
+	self._rings = {} :: { Ring }
+	self._windows = nil :: SharedTypes.CatchWindows?
+	self._points = 0
+	self._last = nil :: ArcadeRules.Result?
+	self._connections = {} :: { RBXScriptConnection }
+	self._step = nil :: RBXScriptConnection?
+	self._overToken = 0
+	self._bannerToken = 0
+
+	local panel = Panel.new({
+		dark = true,
+		name = "Arcade",
+		title = ArcadeRules.NAME,
+		subtitle = "Circle Streak",
+		color = Color3.fromHex("8E6BD8"), -- arcade purple
+		icon = "🕹️",
+		size = UDim2.fromScale(0.94, 0.9),
+		onClose = function()
+			callbacks.close()
+		end,
+	})
+	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })
+	panel.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	panel.frame.Position = UDim2.fromScale(0.5, 0.5)
+	self._panel = panel
+	self.frame = panel.frame
+
+	-- the card
+	local card: ScrollingFrame = Create("ScrollingFrame", {
+		Name = "Card",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = panel.content,
+	}, {
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, GAP), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+		Outline.listPadding(8, 6),
+	})
+	self._card = card
+	self._records = text({
+		Name = "Records",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		LayoutOrder = 1,
+		Parent = card,
+	})
+	self._lastLine = text({
+		Name = "LastGame",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextColor3 = PAL.gold,
+		Visible = false,
+		LayoutOrder = 2,
+		Parent = card,
+	})
+	text({
+		Name = "PrizesTitle",
+		Size = UDim2.new(1, 0, 0, 22),
+		FontFace = Theme.fonts.display,
+		Text = "Prizes today",
+		LayoutOrder = 5,
+		Parent = card,
+	})
+	local grid: Frame = Create("Frame", {
+		Name = "Prizes",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 6,
+		Parent = card,
+	}, {
+		Create("UIGridLayout", {
+			CellSize = UDim2.new(0.5, -GAP / 2, 0, 30),
+			CellPadding = UDim2.fromOffset(GAP, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._prizeRows = {} :: { [number]: TextLabel }
+	for order, milestone in ArcadeRules.milestones() do
+		local chip: Frame = Create("Frame", {
+			Name = "Prize" .. milestone.at,
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			LayoutOrder = order,
+			Parent = grid,
+		})
+		round(chip, UDim.new(0, Theme.sizes.radiusSmall))
+		self._prizeRows[milestone.at] = text({
+			Name = "Words",
+			Position = UDim2.fromOffset(8, 0),
+			Size = UDim2.new(1, -12, 1, 0),
+			TextSize = Theme.sizes.textSmall,
+			TextWrapped = false,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			Text = string.format("%d · %s", milestone.at, milestone.name),
+			Parent = chip,
+		})
+	end
+	text({
+		Name = "Rule",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		Text = RULE_LINE,
+		LayoutOrder = 7,
+		Parent = card,
+	})
+	self._playButton = Button.new({
+		name = "Play",
+		text = PLAY_TEXT,
+		style = "gold",
+		size = UDim2.new(1, 0, 0, 52),
+		textSize = Theme.sizes.textLarge,
+		layoutOrder = 3,
+		parent = card,
+		onClick = function()
+			if self._run == nil and self:_canPlay() then
+				callbacks.play()
+			end
+		end,
+	})
+	self._why = text({
+		Name = "Why",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.warn,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Visible = false,
+		LayoutOrder = 4,
+		Parent = card,
+	})
+	text({
+		Name = "IdeaBy",
+		Size = UDim2.new(1, 0, 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = ArcadeRules.IDEA_BY .. " 🕹️",
+		LayoutOrder = 8,
+		Parent = card,
+	})
+
+	-- the board
+	local board: TextButton = Create("TextButton", {
+		Name = "Board",
+		AutoButtonColor = false,
+		BackgroundColor3 = Color3.fromHex("231B2E"),
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Text = "",
+		ClipsDescendants = true,
+		Visible = false,
+		Parent = panel.content,
+	})
+	round(board)
+	self._board = board
+	self._pointsLabel = text({
+		Name = "Points",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 6),
+		Size = UDim2.new(0, 220, 0, 48),
+		FontFace = Theme.fonts.display,
+		TextSize = 44,
+		TextColor3 = PAL.gold,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextWrapped = false,
+		Text = "0",
+		ZIndex = 4,
+		Parent = board,
+	})
+	Outline.text(self._pointsLabel, 2)
+	self._outOf = text({
+		Name = "OutOf",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 52),
+		Size = UDim2.new(0, 220, 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = string.format("of %d", Config.ArcadeMaxPoints or 100),
+		ZIndex = 4,
+		Parent = board,
+	})
+	self._banner = text({
+		Name = "Banner",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -10),
+		Size = UDim2.new(1, -20, 0, 34),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = PAL.text,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "",
+		ZIndex = 5,
+		Visible = false,
+		Parent = board,
+	})
+	Outline.text(self._banner, 2)
+	self._ringsFolder = Create("Frame", {
+		Name = "Rings",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 2,
+		Parent = board,
+	})
+	table.insert(
+		self._connections,
+		board.Activated:Connect(function()
+			self:_press()
+		end)
+	)
+	self:_renderCard()
+	return self :: Arcade
+end
+
+function Arcade._canPlay(self: any): boolean
+	local state: ArcadeRules.State? = self._state
+	if state == nil or not state.loaded or self._on ~= true then
+		return false
+	end
+	return self._fish >= (Config.ArcadeCostFish or 1)
+end
+
+function Arcade._renderCard(self: any)
+	local state: ArcadeRules.State? = self._state
+	local best = if state ~= nil then state.best else 0
+	local bestCircles = if state ~= nil then state.bestCircles else 0
+	local records = "Best "
+		.. (if best > 0 then ArcadeRules.words(best, bestCircles) else "none yet")
+	if state ~= nil and state.serverBest > 0 then
+		records ..= " · Server best " .. ArcadeRules.words(state.serverBest, state.serverCircles)
+		if state.serverName ~= nil then
+			records ..= " (" .. state.serverName .. ")"
+		end
+	end
+	if state ~= nil and state.legend then
+		records ..= "\n⭐ " .. ArcadeRules.LEGEND_TITLE
+	end
+	self._records.Text = records
+	local last: ArcadeRules.Result? = self._last
+	if last ~= nil then
+		local line = ArcadeRules.cardLine(last)
+		if last.win then
+			line = "You reached " .. tostring(Config.ArcadeMaxPoints or 100) .. "! " .. line
+		elseif last.newBest then
+			line = "New best! " .. line
+		end
+		self._lastLine.Text = line
+		self._lastLine.Visible = true
+	else
+		self._lastLine.Visible = false
+	end
+	local today: { number } = if state ~= nil then state.today else {}
+	for at, words in self._prizeRows do
+		local milestone = ArcadeRules.milestoneAt(at)
+		local name: string = if milestone ~= nil then milestone.name else ""
+		local paid = table.find(today, at) ~= nil
+		local tick: string = if paid then "  ✓" else ""
+		words.Text = tostring(at) .. " · " .. name .. tick
+		words.TextColor3 = if paid then PAL.subtext else PAL.text
+	end
+	local why: string? = nil
+	if not self._on then
+		why = "The Cat Arcade is closed for now"
+	elseif state == nil or not state.loaded then
+		why = "Waking the arcade up..."
+	elseif self._fish < (Config.ArcadeCostFish or 1) then
+		why = "You need a golden fish 🐟 to play. Catch cats to earn them."
+	end
+	self._why.Text = why or ""
+	self._why.Visible = why ~= nil
+	self._playButton:setEnabled(why == nil and self._run == nil)
+end
+
+function Arcade.setState(self: any, state: ArcadeRules.State)
+	self._state = state
+	self:_renderCard()
+end
+
+function Arcade.setFish(self: any, fish: number)
+	if type(fish) == "number" and fish ~= self._fish then
+		self._fish = fish
+		self:_renderCard()
+	end
+end
+
+function Arcade.setOn(self: any, on: boolean)
+	self._on = on
+	self:_renderCard()
+end
+
+function Arcade.playing(self: any): boolean
+	return self._run ~= nil
+end
+
+function Arcade._clearRings(self: any)
+	for _, ring in self._rings do
+		ring.holder:Destroy()
+	end
+	self._rings = {}
+end
+
+function Arcade._showBoard(self: any, shown: boolean)
+	self._board.Visible = shown
+	self._card.Visible = not shown
+	if shown and self._step == nil then
+		self._step = RunService.RenderStepped:Connect(function()
+			self:_draw()
+		end)
+		ContextActionService:BindActionAtPriority(
+			ACTION_NAME,
+			function(_name: string, inputState: Enum.UserInputState): Enum.ContextActionResult
+				if inputState == Enum.UserInputState.Begin then
+					self:_press()
+				end
+				return Enum.ContextActionResult.Sink
+			end,
+			false,
+			Enum.ContextActionPriority.High.Value,
+			Enum.KeyCode.Space,
+			Enum.KeyCode.ButtonA
+		)
+	elseif not shown and self._step ~= nil then
+		(self._step :: RBXScriptConnection):Disconnect()
+		self._step = nil
+		ContextActionService:UnbindAction(ACTION_NAME)
+	end
+end
+
+function Arcade._say(self: any, words: string, seconds: number?)
+	self._bannerToken += 1
+	local token = self._bannerToken
+	self._banner.Text = words
+	self._banner.Visible = words ~= ""
+	if seconds ~= nil then
+		task.delay(seconds, function()
+			if self._bannerToken == token then
+				self._banner.Visible = false
+			end
+		end)
+	end
+end
+
+function Arcade.block(
+	self: any,
+	run: number,
+	block: number,
+	circles: { SharedTypes.CatchCircle },
+	windows: SharedTypes.CatchWindows,
+	points: number
+)
+	if type(circles) ~= "table" or type(windows) ~= "table" then
+		return
+	end
+	local first = self._run ~= run
+	self._run = run
+	self._blockNo = block
+	self._windows = windows
+	self._points = points
+	self._pointsLabel.Text = tostring(points)
+	self:_clearRings()
+	self._overToken += 1
+	for _, circle in circles do
+		local holder: Frame = Create("Frame", {
+			Name = "Ring",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(circle.x, circle.y),
+			Size = UDim2.fromOffset(RING * 2, RING * 2),
+			BackgroundTransparency = 1,
+			Visible = false,
+			ZIndex = 2,
+			Parent = self._ringsFolder,
+		})
+		-- the Good band outside the ring, the ring, and the circle closing onto it
+		local speed = RING * (START_SCALE - 1) / math.max(circle.shrinkSeconds, 0.05)
+		local band = math.clamp(windows.good * speed, 2, RING)
+		local goodBand: Frame = Create("Frame", {
+			Name = "Good",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			ZIndex = 2,
+			Parent = holder,
+		})
+		round(goodBand, UDim.new(1, 0))
+		Create("UIStroke", {
+			Color = Theme.colors.mint,
+			Thickness = band,
+			Transparency = 0.55,
+			Parent = goodBand,
+		})
+		local ring: Frame = Create("Frame", {
+			Name = "Target",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = Color3.fromHex("3A2D4A"),
+			BackgroundTransparency = 0.2,
+			ZIndex = 3,
+			Parent = holder,
+		})
+		round(ring, UDim.new(1, 0))
+		Create("UIStroke", { Color = PAL.gold, Thickness = 4, Parent = ring })
+		local closing: Frame = Create("Frame", {
+			Name = "Closing",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(START_SCALE, START_SCALE),
+			BackgroundTransparency = 1,
+			ZIndex = 4,
+			Parent = holder,
+		})
+		round(closing, UDim.new(1, 0))
+		Create("UIStroke", { Color = PAL.text, Thickness = 3, Parent = closing })
+		table.insert(self._rings, {
+			circle = circle,
+			holder = holder,
+			closing = closing,
+			pressed = false,
+			judged = false,
+		})
+	end
+	if first then
+		self._last = nil
+		self:_say(READY_TEXT, math.max(0.4, circles[1].startsAt - now()))
+		task.delay(math.max(0, circles[1].startsAt - now()), function()
+			if self._run == run and self._blockNo == 1 then
+				self:_say(HINT_TEXT, 2)
+			end
+		end)
+		ArcadeFx.goldenFish(self._pointsLabel)
+	end
+	self:_showBoard(true)
+	self:_renderCard()
+end
+
+function Arcade._draw(self: any)
+	local t = now()
+	for _, ring in self._rings do
+		if ring.judged then
+			ring.holder.Visible = false
+			continue
+		end
+		local circle = ring.circle
+		local start = circle.startsAt
+		local shown = t >= start - PREVIEW
+		ring.holder.Visible = shown
+		if shown then
+			local left = math.clamp(1 - (t - start) / circle.shrinkSeconds, -0.3, 1)
+			local scale = 1 + (START_SCALE - 1) * math.max(left, 0)
+			ring.closing.Size = UDim2.fromScale(scale, scale)
+			ring.closing.Visible = t >= start and not ring.pressed
+		end
+	end
+end
+
+-- The press goes to the earliest circle this device hasn't pressed that has started closing.
+function Arcade._press(self: any)
+	local run: number? = self._run
+	if run == nil then
+		return
+	end
+	local t = now()
+	for index, ring in self._rings do
+		if not ring.pressed and not ring.judged then
+			if t < ring.circle.startsAt then
+				return -- nothing closing yet: a press in the gap counts for nothing
+			end
+			ring.pressed = true
+			self._callbacks.press(run, self._blockNo, index)
+			return
+		end
+	end
+end
+
+function Arcade.judged(
+	self: any,
+	run: number,
+	block: number,
+	index: number,
+	grade: SharedTypes.RingGrade,
+	points: number,
+	milestones: { number }
+)
+	if run ~= self._run or block ~= self._blockNo then
+		return
+	end
+	local ring: Ring? = self._rings[index]
+	if ring ~= nil then
+		ring.judged = true
+		local fxGrade: ArcadeFx.Grade = if grade == "perfect"
+			then "perfect"
+			elseif grade == "good" then "good"
+			else "miss"
+		ArcadeFx.hit(ring.holder, fxGrade)
+		task.defer(function()
+			ring.holder.Visible = false
+		end)
+	end
+	if type(points) == "number" then
+		self._points = points
+		self._pointsLabel.Text = tostring(points)
+	end
+	if type(milestones) == "table" and #milestones > 0 then
+		local names: { string } = {}
+		for _, at in milestones do
+			local milestone = ArcadeRules.milestoneAt(at)
+			if milestone ~= nil then
+				table.insert(names, milestone.name)
+			end
+			ArcadeFx.milestone(self._pointsLabel, at)
+		end
+		if #names > 0 then
+			self:_say("+ " .. table.concat(names, ", "), BANNER_SECONDS)
+		end
+	end
+end
+
+function Arcade.over(self: any, run: number, result: ArcadeRules.Result)
+	if run ~= self._run or type(result) ~= "table" then
+		return
+	end
+	self._run = nil
+	self._last = result
+	for _, ring in self._rings do
+		ring.judged = true
+	end
+	self._pointsLabel.Text = tostring(result.points)
+	self:_say(if result.win then "You did it! 🎉" else "Game over", OVER_SECONDS)
+	self._overToken += 1
+	local token = self._overToken
+	task.delay(OVER_SECONDS, function()
+		if self._overToken == token and self._run == nil then
+			self:_clearRings()
+			self:_showBoard(false)
+		end
+	end)
+	self:_renderCard()
+end
+
+function Arcade.onOpen(self: any)
+	if self._run == nil then
+		self:_showBoard(false)
+	end
+	self:_renderCard()
+end
+
+-- Closing mid game ends it where it stands.
+function Arcade.onClose(self: any)
+	local run: number? = self._run
+	if run ~= nil then
+		self._callbacks.quit(run)
+	end
+end
+
+function Arcade.destroy(self: any)
+	for _, connection in self._connections do
+		connection:Disconnect()
+	end
+	if self._step ~= nil then
+		(self._step :: RBXScriptConnection):Disconnect()
+		ContextActionService:UnbindAction(ACTION_NAME)
+	end
+	self._panel:destroy()
+end
+
+return Arcade

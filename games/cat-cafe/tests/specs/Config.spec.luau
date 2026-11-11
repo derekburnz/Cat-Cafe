@@ -414,6 +414,15 @@ return function()
 		GrandExtraSlots = 1,
 		AutoEquipEverySeconds = 3, -- #1955 (auto-equip.md): one Auto Equip run every 3 s at most
 		AutoEquipHoldSeconds = 600, -- #1955: a cat placed by hand stays 10 minutes
+		-- #3062 (the Cat Arcade's Circle Streak, shared/Arcade; the milestones are checked in Circles.spec)
+		ArcadeCostFish = 1,
+		ArcadeMaxPoints = 100,
+		ArcadeStepEvery = 10,
+		ArcadeShrinkStep = 0.96,
+		ArcadeWindowStep = 0.97,
+		ArcadeJitterMax = 0.20,
+		ArcadeStartShrinkSeconds = 1.20,
+		ArcadeBlockLeadIn = 0.9,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -560,6 +569,7 @@ return function()
 				QuickRingTier = true, -- #3140: checked in Circles.spec
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
+				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

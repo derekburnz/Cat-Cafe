@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
+local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local AssetRegistry = require(script.Parent.AssetRegistry)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -2151,6 +2152,77 @@ local function buildFeedbackStand(parent: Instance): Model?
 	return model
 end
 
+-- The Cat Arcade's cabinet (#3062, shared/Arcade) at Layout.arcadeCabinet, tagged ArcadeCabinet, with a one-press
+-- "Play" prompt on its front that opens the arcade's card on this client (UIController); the game itself is
+-- ArcadeService's and can also be opened from the Menu list, so nothing here measures a range. Model-Agent's
+-- CatCafe_Town_ArcadeCabinet once its art is in; until then PH_ArcadeCabinet, a plain purple cabinet with a glowing
+-- screen, so the arcade has a home in the square from day one (the spec's "a PH_ box to start").
+local function buildArcadeCabinet(parent: Instance): Model
+	local spec = Layout.arcadeCabinet
+	local at = CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0)
+	local model: Model
+	if AssetRegistry.known(Arcade.ASSET) then
+		model = place(Arcade.ASSET, at, parent)
+	else
+		model = Instance.new("Model")
+		model.Name = "PH_ArcadeCabinet"
+		local purple = Color3.fromRGB(120, 80, 190)
+		local body =
+			part("Body", Vector3.new(3.7, 6, 3.1), at * CFrame.new(0, 3, 0), purple, nil, model)
+		part(
+			"Top",
+			Vector3.new(3.9, 0.6, 3.3),
+			at * CFrame.new(0, 6.3, 0),
+			Color3.fromRGB(255, 201, 77),
+			nil,
+			model
+		)
+		local screen = part(
+			"Screen",
+			Vector3.new(3, 2.2, 0.2),
+			at * CFrame.new(0, 4.4, -1.6),
+			Color3.fromRGB(120, 230, 255),
+			Enum.Material.Neon,
+			model
+		)
+		screen.CanCollide = false
+		part(
+			"Panel",
+			Vector3.new(3.3, 0.4, 1),
+			at * CFrame.new(0, 2.8, -1.9),
+			Color3.fromRGB(60, 40, 100),
+			nil,
+			model
+		)
+		model.PrimaryPart = body
+		model.Parent = parent
+	end
+	model.Name = "ArcadeCabinet"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, Arcade.TAG)
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = Arcade.PROMPT
+	prompt.ActionText = Arcade.ACTION
+	prompt.ObjectText = Arcade.NAME -- ArcadeService adds the server's best
+	prompt.HoldDuration = 0 -- one press, as every station's (#2326)
+	prompt.MaxActivationDistance = Arcade.PROMPT_RANGE
+	prompt.RequiresLineOfSight = false
+	local found = model:FindFirstChild("PromptAnchor", true)
+	if found ~= nil and found:IsA("Attachment") then
+		prompt.Parent = found
+	else
+		local holder = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if holder ~= nil then
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = holder
+			float.WorldPosition = (at * CFrame.new(0, 3, -2)).Position
+			prompt.Parent = float
+		end
+	end
+	return model
+end
+
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard at Layout.thanksBoard, tagged
 -- ThanksBoard. Its part "Screen" carries UI-Engineer's SurfaceGui of IdeaCreditsService's rows; nothing here draws
 -- them. Persistent, so the face fills from anywhere in the square. Left out while the art is missing (no placeholder).
@@ -2743,6 +2815,7 @@ function WorldBuilder.build(): World
 	buildCornerShop(root) -- #1052, once its art is in
 	buildThanksBoard(root) -- #1083, once its art is in
 	buildFeedbackStand(root) -- #3066
+	buildArcadeCabinet(root) -- #3062
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

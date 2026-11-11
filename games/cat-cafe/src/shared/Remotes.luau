@@ -203,6 +203,12 @@ Remotes.ClientToServer = {
 	"OwnerGrant", -- (productId: number)  #1770 owner test mode: only a Config.OwnerTestUserIds caller (anyone else is
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
+	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
+	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game,
+	-- answered with ArcadeBlock (refusals are a toast); 1 a second
+	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
+	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
+	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
 }
 
 -- Server -> client.
@@ -355,6 +361,15 @@ Remotes.ServerToClient = {
 	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
 	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
 	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
+	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
+	-- server's best, on join once the arcade is read and after every game
+	"ArcadeBlock", -- (run: number, block: number, circles: { Types.CatchCircle }, windows: Types.CatchWindows,
+	-- points: number)  #3062: the game's next BLOCK circles (the first block answers ArcadeStart)
+	"ArcadeJudged", -- (run: number, block: number, index: number, grade: Types.RingGrade, points: number, milestones:
+	-- { number })  #3062: the server's grade for each circle as it is judged, the points after it and any milestone
+	-- it paid (shown in the window only: no toast)
+	"ArcadeOver", -- (run: number, result: Arcade.Result)  #3062: the game ended (a Miss, 100 points, Close or the
+	-- switch going off before it started)
 }
 
 function Remotes.folder(): Folder

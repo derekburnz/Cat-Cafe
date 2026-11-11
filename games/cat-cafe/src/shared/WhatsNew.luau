@@ -30,6 +30,14 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #3062 + #3067: the Cat Arcade, the same player's idea as Swift Paws (the same credit)
+	{
+		id = "cat_arcade",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Cat Arcade in Town Square",
+		creditId = "c12",
+	},
 	-- #3217 refresh (11-11): player-facing changes since #3043; Swift Paws was its_cuzu098's idea
 	{
 		id = "swift_paws_perk",

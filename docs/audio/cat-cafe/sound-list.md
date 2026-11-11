@@ -159,6 +159,9 @@ A helper's bar fires the same RescueStart, RescueHit, RescueDone and RescueFail 
 | `catLevelUp` | CatLevelUp (F75: one of your cats reaches a new level; the owner only). Silent since 2026-11-02 with its toast (Derek 2026-10-28: "a little spammy", UI PR #669) | 2D, quiet, 1.5 s apart at most | 0.9 s | three quick celesta notes up and a small twinkle, beside the toast and the sparkle | P1 |
 | `catSold` | CatSold (#2952: fired by UIController once a sync shows the cat you sold gone) | 2D | 1.0 s | three coins into a pouch and a soft two-note celesta "bye" (no meow: no voices) | P2 |
 | `strayCall` | #3022: the stray whose `WaitsFor` is your user id (Audio/init.luau `strayCall`, `Logic.strayCallDue`): once as you come within 60 studs, then every 45 s while you stay near, at most 4 times | 3D on the cat, 60 studs | 0.8 s | a friendly "mrrp?" then a short "mew?" rising at the end, like asking to be picked up; cat voice only, no chime | P2 |
+| `arcadeStart` | #3062 Cat Arcade: moment `ArcadeStart()` as a run begins and the fish is paid (Audio skips it until the moment exists) | 2D | 0.8 s | a coin clink, a short slot rattle and a bright two-note "ready" blip | P2 |
+| `arcadeMilestone` | #3062: moment `ArcadeMilestone()` at every 10 circles of a streak, and the run keeps going | 2D | 0.7 s | a quick glockenspiel run up and a small coin sparkle, lighter than the Spin Wheel win | P2 |
+| `arcadeEnd` | #3062: moment `ArcadeEnd(streak, won)`; a run with a streak above 0 that is not a win | 2D | 1.0 s | three soft falling celesta notes, "nice try", kind rather than sad; a win plays `indexReward` instead | P2 |
 | `indexReward` (again) | #2997 the Saturday update gift: the Toast line "Update gift! ..." (PlaytimeGiftService has no client event; `Logic.isUpdateGiftToast`) | 2D | 1.5 s | the existing reward jingle, no new file | P2 |
 
 ### 5.4 Bait bowl (data-model section 8)

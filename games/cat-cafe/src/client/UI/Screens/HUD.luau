@@ -158,6 +158,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
+	setArcade: (self: HUD, on: boolean) -> (), -- #3062: the Menu list's Arcade row
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -4124,9 +4125,10 @@ function HUD._tradeLockedNote(self: any)
 	end)
 end
 
--- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once.
+-- The Menu tile's press: the list (Settings, the Cat Arcade, Invite) once Invite is unlocked or the arcade is on,
+-- else Settings at once.
 function HUD._pressMenu(self: any)
-	if self:_open("invite") then
+	if self:_open("invite") or self._arcadeOn ~= false then
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4192,6 +4194,17 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				callbacks.openScreen("Settings")
 			end,
 		})
+		-- #3062: the Cat Arcade from anywhere ("can play when bored"), unless its live switch is off
+		if self._arcadeOn ~= false then
+			table.insert(rows, {
+				id = "Arcade",
+				icon = "🕹️",
+				style = "purple" :: Button.Style,
+				press = function()
+					callbacks.openScreen("Arcade")
+				end,
+			})
+		end
 		if self:_open("invite") then
 			table.insert(rows, {
 				id = "Invite",
@@ -4226,6 +4239,8 @@ function HUD._popText(self: any, id: string): string
 		return if row then GiftLadderLogic.line(row) else "Gift"
 	elseif id == "Invite" then
 		return "Invite friends"
+	elseif id == "Arcade" then
+		return "Cat Arcade"
 	end
 	return id
 end
@@ -4345,6 +4360,11 @@ end
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
 -- the function that opens the Store window, hidden with nil. init's Store block calls it as soon as the window exists,
 -- passes on sale or not (#1167); hidden, the grid closes up (review N341: moved here).
+-- #3062: the `arcade` live switch, for the Menu list's Arcade row.
+function HUD.setArcade(self: any, on: boolean)
+	self._arcadeOn = on
+end
+
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile

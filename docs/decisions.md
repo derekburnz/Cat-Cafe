@@ -865,6 +865,12 @@ Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit
 - Until the read answers, and for the rest of the visit if every try fails, the player's bin reads "Empty for now", so a failed read never hands out the two fixed first prizes again. A failed write only lets the bin fill early on the next server; the prize was paid either way.
 - The bar uses Design-Agent's absolute numbers, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, so the rescue changes (#3120, #3223) never make the bin harder. `BinFirstEase` still applies on top for the first three.
 
+## 2026-11-11 Cat Arcade: Circle Streak, with no restart (#3062)
+
+- **What.** A player's idea, credited on the card as Derek2 asked. One golden fish plays a game of the catch's closing circles with no stray: Perfect +2, Good +1, the first miss ends it, 100 wins. Net level 1 windows for everyone, a little harder every 10 points. Milestones every 10 points (5 fish, 8 fish, Salmon, Lucky Potion, 15 fish, Golden Crate, Caviar, 30 fish, Moon Milk, Star Treat) pay once per UTC day each, shown in the window only. The server builds and judges every circle; no arcade bot check (Derek2 2026-11-10). Live switch `arcade`, on by default.
+- **Why this way.** Derek2 2026-11-11: no server restarts. The best, today's paid milestones and the Arcade Legend title live in their own DataStore (CatCafe_Arcade), not the save, so there's no save version step. New remotes are fine: an old server's clients never see them.
+- **Assumptions (Gameplay-Engineer, overnight).** Own remotes (ArcadeStart, ArcadePress, ArcadeQuit) rather than borrowing CatchPress, so a catch and the arcade can never mix up circles. The game is played in its window, opened by the cabinet's prompt and by a new Arcade row in the Menu list (no new HUD tile). Until Model-Agent's CatCafe_Town_ArcadeCabinet is in, a plain purple placeholder cabinet stands at Layout.arcadeCabinet. The Arcade Legend title shows on the arcade card only; a chat tag would need a save field, so it waits for a restart release. The server best is per server, in memory; a global board is a follow-up.
+
 ## 2026-11-11 Golden lawn pieces as rare free drops (#3222)
 
 Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the 12%'s you can get from p2w make sure to make the model's really good".

@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
 local CarrySync = require(Shared:WaitForChild("CarrySync"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
@@ -1632,6 +1633,30 @@ local function bindStations()
 	bindStationPrompts(FeedbackStand.TAG, FeedbackStand.PROMPT, function()
 		UI.bugReport.open(FeedbackStand.KIND, "box")
 	end)
+	-- #3062: the Cat Arcade's cabinet opens its card; the `arcade` switch off hides the prompt
+	local arcadePrompts: { ProximityPrompt } = {}
+	local function arcadeOn(): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			Arcade.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Arcade.FLAG)
+		)
+	end
+	bindStationPrompts(Arcade.TAG, Arcade.PROMPT, function()
+		UI.arcade.open()
+	end, function(prompt: ProximityPrompt)
+		table.insert(arcadePrompts, prompt)
+		prompt.Enabled = arcadeOn()
+	end)
+	local function applyArcade()
+		local on = arcadeOn()
+		UI.arcade.setOn(on)
+		for _, prompt in arcadePrompts do
+			prompt.Enabled = on
+		end
+	end
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
+	applyArcade()
 end
 
 -- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
@@ -2329,6 +2354,93 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #3062: the Cat Arcade. Its circles sound as a catch's do (CircleAppear, CircleGrade), with Sound-Agent's
+	-- ArcadeStart, ArcadeMilestone and ArcadeEnd moments when the build has them.
+	local arcadeTimers: { thread } = {}
+	local arcadeRun: number? = nil
+	local function arcadeMoment(name: string, ...: any)
+		local moment: any = (Moments :: any)[name]
+		if moment ~= nil then
+			moment:Fire(...)
+		end
+	end
+	local function cancelArcadeTimers()
+		for _, timer in arcadeTimers do
+			pcall(task.cancel, timer)
+		end
+		table.clear(arcadeTimers)
+	end
+	Net.on("ArcadeState", function(view: any)
+		UI.arcade.state(view)
+	end)
+	Net.on(
+		"ArcadeBlock",
+		function(
+			run: number,
+			block: number,
+			circles: { Types.CatchCircle },
+			windows: Types.CatchWindows,
+			points: number
+		)
+			if arcadeRun ~= run then
+				arcadeRun = run
+				arcadeMoment("ArcadeStart")
+			end
+			UI.arcade.block(run, block, circles, windows, points)
+			cancelArcadeTimers()
+			for index, circle in circles do
+				local shrink = circle.shrinkSeconds
+				table.insert(
+					arcadeTimers,
+					task.delay(
+						math.max(0, circle.startsAt - Workspace:GetServerTimeNow()),
+						function()
+							if UI.arcade.playing() then
+								Moments.CircleAppear:Fire(index, shrink)
+							end
+						end
+					)
+				)
+			end
+		end
+	)
+	Net.on(
+		"ArcadeJudged",
+		function(
+			run: number,
+			block: number,
+			index: number,
+			grade: string,
+			points: number,
+			milestones: { number }
+		)
+			if grade == "perfect" or grade == "good" or grade == "miss" then
+				Moments.CircleGrade:Fire(index, grade)
+			end
+			if type(milestones) == "table" and #milestones > 0 then
+				arcadeMoment("ArcadeMilestone", milestones[#milestones])
+			end
+			UI.arcade.judged(run, block, index, grade, points, milestones)
+		end
+	)
+	Net.on("ArcadeOver", function(run: number, result: any)
+		cancelArcadeTimers()
+		arcadeRun = nil
+		if type(result) == "table" then
+			arcadeMoment("ArcadeEnd", result.points, result.win == true)
+		end
+		UI.arcade.over(run, result)
+	end)
+	UI.events.arcadePlay:Connect(function()
+		Net.fire("ArcadeStart")
+	end)
+	UI.events.arcadePress:Connect(function(run: number, block: number, index: number)
+		Net.fire("ArcadePress", run, block, index)
+		Moments.NetSwing:Fire(index)
+	end)
+	UI.events.arcadeQuit:Connect(function(run: number)
+		Net.fire("ArcadeQuit", run)
+	end)
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
 	Net.on("RoadmapStep", function(n: number)

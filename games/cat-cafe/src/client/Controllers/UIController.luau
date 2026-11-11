@@ -307,6 +307,20 @@ end
 
 -- How to swing the net on this device (F93): the UI's UI.net.hint() ("Tap NET next to a cat", "Press R2 next to a
 -- cat" or "Click next to a cat", UI-Engineer #677) once it has it.
+-- #2871 (console pass 2 leftover): the alley step's "then tap as each circle closes" names the input the player last
+-- used, as IntroController's deviceCaption does: "press A" on a gamepad, "click" with a mouse or keyboard, "tap" on touch.
+local function circleVerb(): string
+	local last = UserInputService:GetLastInputType().Name
+	if last:sub(1, 7) == "Gamepad" then
+		return "press A"
+	elseif
+		last == "Touch" or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+	then
+		return "tap"
+	end
+	return "click"
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -378,8 +392,9 @@ local function refreshTutorial(s: Types.PlayerState)
 		showTutorial(
 			s,
 			string.format(
-				"Go out your back door to the alley. %s, then tap as each circle closes",
-				swingHint()
+				"Go out your back door to the alley. %s, then %s as each circle closes",
+				swingHint(),
+				circleVerb()
 			),
 			tutorialStrayPoint(),
 			"Alley"

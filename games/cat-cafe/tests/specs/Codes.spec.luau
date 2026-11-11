@@ -15,6 +15,61 @@ return function()
 		return ProfileSchema.template(1000)
 	end
 
+	describe("the Saturday update gift (#2997), marked in codesRedeemed", function()
+		local UpdateGift = require(Shared.UpdateGift)
+		local CodeEntry = require(
+			game:GetService("StarterPlayer").StarterPlayerScripts.Client.UI.Components.CodeEntry
+		)
+		local SATURDAY = 1794675600 -- 2026-11-14 17:00 UTC
+		local gift = { id = "2026-11-14", from = SATURDAY, fish = 15, spins = 1 }
+
+		it("is the first Saturday's 15 fish and 1 spin, from 17:00 UTC", function()
+			local live = assert(Config.UpdateGift)
+			expect(live.id).to.equal("2026-11-14")
+			expect(live.from).to.equal(SATURDAY)
+			expect(os.date("!%Y-%m-%d %H:%M %A", live.from)).to.equal("2026-11-14 17:00 Saturday")
+			expect(live.fish).to.equal(15)
+			expect(live.spins).to.equal(1)
+			expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 15 + 1 spin")
+			expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 15, spins = 1 })
+		end)
+
+		it("pays once per id, only from its start, and a new id pays again", function()
+			local profile = fresh()
+			expect(UpdateGift.due(profile.codesRedeemed, gift, SATURDAY - 1)).to.equal(false)
+			expect(UpdateGift.due(profile.codesRedeemed, gift, SATURDAY)).to.equal(true)
+			expect(UpdateGift.due(profile.codesRedeemed, nil, SATURDAY)).to.equal(false)
+			profile.codesRedeemed[UpdateGift.key(gift.id)] = SATURDAY
+			expect(UpdateGift.due(profile.codesRedeemed, gift, SATURDAY + 60)).to.equal(false)
+			local nextWeek =
+				{ id = "2026-11-21", from = SATURDAY + 7 * 86400, fish = 15, spins = 1 }
+			expect(UpdateGift.due(profile.codesRedeemed, nextWeek, SATURDAY + 7 * 86400)).to.equal(
+				true
+			)
+		end)
+
+		it(
+			"survives a save and load on any server since version 9, and never looks like a code",
+			function()
+				local key = UpdateGift.key(gift.id)
+				expect(key).to.equal("gift20261114")
+				expect(#key <= Config.CodeMaxLength).to.equal(true)
+				local profile = fresh()
+				profile.codesRedeemed[key] = SATURDAY
+				local loaded = ProfileSchema.migrate(profile, SATURDAY)
+				expect(loaded.codesRedeemed[key]).to.equal(SATURDAY)
+				for id in Catalog.codes do
+					expect(UpdateGift.isKey(id)).to.equal(false)
+				end
+				-- the Store's "Codes you've used" list leaves it out
+				local used =
+					CodeEntry.used({ [key] = SATURDAY, playtest = SATURDAY - 10 }, Catalog.codes)
+				expect(#used).to.equal(1)
+				expect(used[1].id).to.equal("playtest")
+			end
+		)
+	end)
+
 	describe("normalize (codes are not case sensitive)", function()
 		it(
 			"trims spaces and lowercases, so PlayTest, playtest and PLAYTEST are one code",

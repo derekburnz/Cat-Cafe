@@ -30,6 +30,7 @@ local StarterCat = require(script.Parent.StarterCat)
 local StoreTabs = require(script.Parent.StoreTabs)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
+local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 local YardSale = require(script.Parent.YardSale)
 
@@ -111,6 +112,10 @@ local ProfileSchema = {}
 -- the food and letting the player roll that bowl again by hopping servers during a rollout.
 -- #1574 (no new version): decorUnlocked, the Legendary and up pieces unlocked to trade, and the trade log's gaveDecor
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
+-- #3276 (no new version): decorLocked, the Legendary and up pieces locked on their card; nothing arrives locked any
+-- more. decorUnlocked stays as its mirror (every other owned lockable piece) so an older server sees the same locks;
+-- An older server drops decorLocked, which unlocks those pieces again (the player can lock them again); decorLocked
+-- is not rebuilt from decorUnlocked's gaps, as those gaps are every piece a save before #3276 never unlocked.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
 -- #1168 row 2 (no new version): jukebox, the Jukebox track pick (free since #1875). An older server drops it, which only plays the
@@ -152,7 +157,12 @@ local ProfileSchema = {}
 -- the exhibits (whose cats left the save) and their tip bonus.
 -- Version 47 (#2797, retention-ideas.md 5d) adds invites and referredBy, the invite reward's two sides: an older server
 -- would drop them and could pay a joiner or an inviter twice for the same friend.
-ProfileSchema.VERSION = 47
+-- Version 48 (#3196, trait-station.md section 6) adds each cat's trait and traits, the Mystic Pool's Trait Tokens, free
+-- starter rolls used, station timer and a re-roll waiting for its choice: an older server would drop a cat's trait
+-- and the tokens, and could give the free rolls again. It ships with a publish that restarts the servers (Derek's
+-- yes at the time); the `traits` flag opens the station after it. A save from before it has no traits, no tokens and
+-- every free roll still to use.
+ProfileSchema.VERSION = 48
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -271,6 +281,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		decorOwned = {},
 		decorPlaced = {},
 		decorUnlocked = {},
+		decorLocked = {},
 		lures = {},
 		bait = nil,
 		bait2 = nil,
@@ -312,6 +323,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
+		sessionFeedbackDay = 0,
 		stuckHelpShown = {},
 		starterCatClaimed = false,
 		notifyAskAt = 0,
@@ -319,6 +331,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		spa = LateStations.freshSpa(),
 		museum = LateStations.freshMuseum(),
 		invites = Invites.fresh(),
+		traits = Traits.fresh(now),
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
@@ -510,6 +523,8 @@ local function catFrom(
 			then sanitizeMethod(entry.method)
 			else legacyMethod(uid, entry),
 	}
+	-- #3196 (version 48): its trait; a cat from an older save has none
+	instance.trait = if fromVersion >= 48 then Traits.sanitize(entry.trait) else nil
 	-- F62: the saved lock; a save from before version 14 locks its gold, Legendary and Mythical cats
 	local locked = if fromVersion >= 14
 		then entry.locked == true
@@ -992,6 +1007,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.tipsSeen =
 		Tips.sanitizeSeen(raw.tipsSeen, fromVersion < 20 and profile.tutorialStep >= 5)
 	profile.feedbackAsked = raw.feedbackAsked == true
+	-- #3272 (no new version): the UTC day the once-a-day session ask was last answered or skipped, 0 before. An older
+	-- server drops it, which at worst asks once more that day.
+	profile.sessionFeedbackDay = if type(raw.sessionFeedbackDay) == "number"
+			and raw.sessionFeedbackDay == raw.sessionFeedbackDay
+		then math.clamp(math.floor(raw.sessionFeedbackDay), 0, 1e6)
+		else 0
 	profile.stuckHelpShown = Tips.sanitizeHelp(raw.stuckHelpShown)
 	-- F96 (version 21): the one free Bellhop Cat, kept claimed by the flag or by owning one
 	profile.starterCatClaimed = raw.starterCatClaimed == true
@@ -1011,6 +1032,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2797 (version 47): the invite reward; a save without them has invited nobody and was invited by nobody
 	profile.invites = Invites.sanitize(raw.invites)
 	profile.referredBy = Invites.sanitizeReferred(raw.referredBy)
+	-- #3196 (version 48): the Mystic Pool's side; an older save starts fresh (no tokens, every free roll to use). A
+	-- version 48 save's broken free-roll count reads as all used, never as five more (Traits.sanitizeSave).
+	local owned: { [string]: boolean } = {}
+	for _, cat in profile.cats do
+		owned[cat.uid] = true
+	end
+	profile.traits = if fromVersion >= 48
+		then Traits.sanitizeSave(raw.traits, now, owned)
+		else Traits.fresh(now)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)
 	-- F102 (version 27): the Trades page and the trades this save has applied
@@ -1019,21 +1049,24 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- F91 (version 28): the front lawn, kept to what the tier opens
 	profile.lawnOwned, profile.lawn, profile.lawnStyles =
 		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
-	-- #1574 (no new version): the Legendary and up pieces unlocked to trade, owned ones only. An older server drops the
-	-- list, which only locks those pieces again.
-	profile.decorUnlocked = {}
-	if type(raw.decorUnlocked) == "table" then
-		for id, unlocked in raw.decorUnlocked do
+	-- #3276 (no new version): the Legendary and up pieces locked on their card, owned ones only; every other owned one
+	-- is unlocked, so a save from before (when they arrived locked) has them all unlocked. decorUnlocked (#1574) is
+	-- rebuilt as the mirror for older servers.
+	profile.decorLocked = {}
+	if type(raw.decorLocked) == "table" then
+		for id, locked in raw.decorLocked do
+			local info = if type(id) == "string" then Trade.piece(id) else nil
 			if
-				type(id) == "string"
-				and unlocked == true
+				info ~= nil
+				and locked == true
 				and Trade.ownsPiece(profile, id)
-				and Trade.pieceLocked(profile, id)
+				and Trade.lockable(info.rarity)
 			then
-				profile.decorUnlocked[id] = true
+				profile.decorLocked[id] = true
 			end
 		end
 	end
+	profile.decorUnlocked = Trade.unlockedPieces(profile)
 	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
 	-- #1537 (version 35): the Yard Sale's lawn rows bought today; saves before it have bought none

@@ -180,13 +180,11 @@ return function()
 						expect(row.cost).to.equal(def.price)
 					end
 				end
-				local treat = Catalog.getFishShopRow("star_treat")
-				assert(treat)
-				expect(treat.kind).to.equal("lure")
-				expect(treat.cost).to.equal(150) -- Derek2 2026-11-07, was 80
+				-- #3317: the Star Treat is off the Market (Derek2 2026-11-11), still a lure everywhere else
+				expect(Catalog.getFishShopRow("star_treat")).never.to.be.ok()
 				expect(Catalog.getLure("star_treat")).to.be.ok()
 				local perks: { [string]: number } =
-					{ golden_espresso = 5, big_bowl = 1, extra_decor_spot = 2, swift_paws = 2 }
+					{ golden_espresso = 5, big_bowl = 1, extra_decor_spot = 2, swift_paws = 5 }
 				for id, maxLevel in perks do
 					local row = Catalog.getFishShopRow(id)
 					assert(row and row.costs)
@@ -350,11 +348,10 @@ return function()
 
 		it("prices the Market as section 3 lists, each perk level dearer than the last", function()
 			local want: { [string]: { number } } = {
-				star_treat = { 150 }, -- Derek2 2026-11-07, was 80
 				golden_espresso = { 40, 80, 150, 250, 400 },
 				big_bowl = { 150 },
 				extra_decor_spot = { 100, 250 },
-				swift_paws = { 60, 150 }, -- #3063 (Monetization-Agent: two levels)
+				swift_paws = { 60, 150, 300, 500, 800 }, -- #3317 (Monetization-Agent: five levels)
 			}
 			for _, def in Catalog.crates do
 				if not def.golden and def.area ~= Catalog.RALLY_POOL then

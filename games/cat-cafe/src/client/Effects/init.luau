@@ -72,6 +72,7 @@ local Rainbow = require(script.Rainbow)
 local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
+local RuinsWater = require(script.RuinsWater)
 local ShopCats = require(script.ShopCats)
 local Shove = require(script.Shove)
 local Signature = require(script.Signature)
@@ -81,6 +82,7 @@ local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
 local StationReveal = require(script.StationReveal)
+local StrayCall = require(script.StrayCall)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
@@ -172,10 +174,12 @@ function Effects.start()
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,
+		RuinsWater.start,
 		TrailSparkle.start,
 		GoldenFind.start,
 		StationBuild.start,
 		StationReveal.start,
+		StrayCall.start,
 		CampGrowth.start,
 		Townsfolk.start,
 	}

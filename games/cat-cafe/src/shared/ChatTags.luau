@@ -11,6 +11,8 @@
 --   validPick(pick) -> whether a saved pick is a known tag id or OFF
 --   textFor(tagId, text) -> the message text in the tag's colour, or nil
 
+local Config = require(script.Parent.Config)
+
 local ChatTags = {}
 
 ChatTags.CHAT_TAG_ATTRIBUTE = "ChatTag"
@@ -22,6 +24,14 @@ local TAGS: { [string]: Tag } = {
 	supporter = { text = "[Thank You]", color = "#FFC94D" }, -- #1168 row 4: the Thank You Badge (ChatTags.withSupporter)
 	tag_maple = { text = "[Maple]", color = "#D9822B" }, -- #1626: Season 1's paid track, level 1
 	tag_grand_opener = { text = "[Grand Opener]", color = "#F5A65B" }, -- #1893: the Grand Opening's last milestone
+	-- #3324 (Derek2 11-11: "add title beside owner in chat"): only the game owner's account shows it (PassService,
+	-- Config.OwnerUserIds); it is never a choice or a saved pick, so nobody else can show it
+	owner = { text = "[Owner]", color = "#FF7A6B" },
+	-- #3333 (Derek2 11-11: "add rank 1/2/3 titles"): held while the player is 1st, 2nd or 3rd on an all-time board
+	-- (LeaderboardService.place); they come off at the next refresh after the place is lost
+	rank_1 = { text = "[#1]", color = "#FFD54A" },
+	rank_2 = { text = "[#2]", color = "#D9DEE6" },
+	rank_3 = { text = "[#3]", color = "#E3A36B" },
 }
 for _, tag in TAGS do
 	table.freeze(tag)
@@ -30,11 +40,26 @@ table.freeze(TAGS)
 ChatTags.TAGS = TAGS
 
 -- The order tags are offered in and the default falls through: VIP, then the season tags oldest first.
-local ORDER: { string } = { "vip", "supporter", "tag_maple", "tag_grand_opener" }
+local ORDER: { string } =
+	{ "vip", "supporter", "tag_maple", "tag_grand_opener", "rank_1", "rank_2", "rank_3" }
 table.freeze(ORDER)
 ChatTags.ORDER = ORDER
 
 ChatTags.OFF = "off" -- the pick that shows no tag
+ChatTags.OWNER = "owner" -- #3324: the owner's tag, set by the server from the user id alone
+
+-- #3333: the rank title for a leaderboard place 1 to 3, or nil.
+function ChatTags.rankTag(place: number?): string?
+	if place == 1 or place == 2 or place == 3 then
+		return "rank_" .. tostring(place)
+	end
+	return nil
+end
+
+-- #3324: whether `userId` is the game owner's account (Config.OwnerUserIds).
+function ChatTags.isOwner(userId: number): boolean
+	return table.find(Config.OwnerUserIds, userId) ~= nil
+end
 
 -- The rich text in front of a name for `tagId`, or nil for no tag or one we don't know.
 function ChatTags.prefixFor(tagId: unknown): string?
@@ -106,7 +131,9 @@ end
 
 -- Whether `pick` may be saved: a known tag id or OFF (whether the player may show it is checked when shown).
 function ChatTags.validPick(pick: unknown): boolean
-	return type(pick) == "string" and (pick == ChatTags.OFF or TAGS[pick] ~= nil)
+	return type(pick) == "string"
+		and pick ~= ChatTags.OWNER
+		and (pick == ChatTags.OFF or TAGS[pick] ~= nil)
 end
 
 return ChatTags

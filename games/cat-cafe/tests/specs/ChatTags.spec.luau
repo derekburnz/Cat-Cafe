@@ -92,12 +92,41 @@ return function()
 	end)
 	describe("the message colour (Derek2 11-11)", function()
 		it("wraps the message in the tag's colour", function()
-			expect(ChatTags.textFor("vip", "hi there")).to.equal('<font color="#F2C14E">hi there</font>')
+			expect(ChatTags.textFor("vip", "hi there")).to.equal(
+				'<font color="#F2C14E">hi there</font>'
+			)
 		end)
 
 		it("leaves the message alone for no tag or an unknown one", function()
 			expect(ChatTags.textFor(nil, "hi")).to.equal(nil)
 			expect(ChatTags.textFor("admin", "hi")).to.equal(nil)
+		end)
+
+		it(
+			"shows [Owner] only for the owner's account, never as a choice or a pick (#3324)",
+			function()
+				expect(ChatTags.prefixFor(ChatTags.OWNER)).to.equal(
+					'<font color="#FF7A6B">[Owner]</font> '
+				)
+				expect(ChatTags.isOwner(140223517)).to.equal(true)
+				expect(ChatTags.isOwner(2573351)).to.equal(false)
+				expect(table.find(ChatTags.ORDER, ChatTags.OWNER)).to.equal(nil)
+				expect(ChatTags.validPick(ChatTags.OWNER)).to.equal(false)
+				expect(table.find(ChatTags.choices(true, { owner = true }), ChatTags.OWNER)).to.equal(
+					nil
+				)
+				expect(ChatTags.shown(ChatTags.OWNER, true, { owner = true })).to.equal("vip")
+			end
+		)
+
+		it("maps places 1 to 3 to the rank titles, and nothing else (#3333)", function()
+			expect(ChatTags.rankTag(1)).to.equal("rank_1")
+			expect(ChatTags.rankTag(3)).to.equal("rank_3")
+			expect(ChatTags.rankTag(4)).to.equal(nil)
+			expect(ChatTags.rankTag(nil)).to.equal(nil)
+			expect(ChatTags.validPick("rank_2")).to.equal(true)
+			expect(ChatTags.shown("rank_2", false, {})).to.equal(nil) -- a lost place shows nothing
+			expect(ChatTags.shown("rank_2", false, { rank_2 = true })).to.equal("rank_2")
 		end)
 
 		it("keeps every tag colour readable on the dark chat window (4.5:1 or more)", function()

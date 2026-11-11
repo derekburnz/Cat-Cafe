@@ -108,10 +108,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 47 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 48 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(47) -- #2797: the invite reward
-			expect(profile.version).to.equal(47)
+			expect(ProfileSchema.VERSION).to.equal(48) -- #3196: cat traits
+			expect(profile.version).to.equal(48)
 			-- #2565 (version 44): no Mystery Market item yet
 			expect(next(profile.mystery)).never.to.be.ok()
 			expect(profile.mysterySeen).to.equal(false)
@@ -338,8 +338,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 48 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 49 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 48 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 47 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 45 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 43 })).to.equal(false)
@@ -1188,6 +1189,92 @@ return function()
 			end
 		end)
 	end)
+	describe("version 48: cat traits (#3196, trait-station.md section 6)", function()
+		local NOW = 1_800_000_000
+		local function save(version: number): any
+			local raw: any = ProfileSchema.template(NOW)
+			raw.version = version
+			raw.cats = {
+				a1 = {
+					catId = "tabby",
+					variant = "base",
+					caughtAt = NOW,
+					level = 3,
+					xp = 0,
+					charm = 50,
+					trait = { id = "bigTipper_uncommon" },
+				},
+			}
+			return raw
+		end
+
+		it("a new save has no tokens, every free roll to use and an empty station", function()
+			local traits = ProfileSchema.template(NOW).traits
+			expect(traits.tokens).to.equal(0)
+			expect(traits.freeUsed).to.equal(0)
+			expect(traits.held).to.equal(0)
+			expect(traits.at).to.equal(NOW)
+			expect(traits.pending).to.equal(nil)
+		end)
+
+		it("an older save starts fresh and its cats have no trait", function()
+			local raw = save(47)
+			raw.traits = { tokens = 50, freeUsed = 5 }
+			local profile = ProfileSchema.migrate(raw, NOW)
+			expect(profile.cats.a1.trait).to.equal(nil)
+			expect(profile.traits.tokens).to.equal(0)
+			expect(profile.traits.freeUsed).to.equal(0)
+		end)
+
+		it(
+			"a version 48 save keeps its traits, tokens and a waiting re-roll for a cat it owns",
+			function()
+				local raw = save(48)
+				raw.traits = {
+					tokens = 7,
+					freeUsed = 2,
+					held = 1,
+					at = NOW - 60,
+					pending = { uid = "a1", id = "starSage", paid = "fish" },
+				}
+				local profile = ProfileSchema.migrate(raw, NOW)
+				expect(profile.cats.a1.trait :: any).to.deepEqual({ id = "bigTipper_uncommon" })
+				expect(profile.traits :: any).to.deepEqual({
+					tokens = 7,
+					freeUsed = 2,
+					held = 1,
+					at = NOW - 60,
+					pending = { uid = "a1", id = "starSage", paid = "fish" },
+				})
+			end
+		)
+
+		it(
+			"never gives the free rolls again from a broken count, and drops what it can't keep",
+			function()
+				local raw = save(48)
+				raw.cats.a1.trait = { id = "flying" }
+				raw.traits = {
+					tokens = -4,
+					held = 9,
+					at = NOW + 999,
+					pending = { uid = "gone", id = "bigTipper_common" },
+				}
+				local profile = ProfileSchema.migrate(raw, NOW)
+				expect(profile.cats.a1.trait).to.equal(nil)
+				expect(profile.traits.freeUsed).to.equal(5) -- missing reads as all used, never 5 more
+				expect(profile.traits.tokens).to.equal(0)
+				expect(profile.traits.held).to.equal(2)
+				expect(profile.traits.at).to.equal(NOW)
+				expect(profile.traits.pending).to.equal(nil)
+				raw.traits = { freeUsed = -3 }
+				expect(ProfileSchema.migrate(raw, NOW).traits.freeUsed).to.equal(0)
+				raw.traits = { freeUsed = 99 }
+				expect(ProfileSchema.migrate(raw, NOW).traits.freeUsed).to.equal(5)
+			end
+		)
+	end)
+
 	describe("migrate to version 5: Index rewards (F48, S60)", function()
 		it("a version 4 save starts with no Index rewards claimed", function()
 			local raw: any = ProfileSchema.template(500)

@@ -101,12 +101,16 @@ local Config = {
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
 		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
+		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
 	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone
 	-- else). Nobody else is ever listed.
 	OwnerTestUserIds = { 140223517 } :: { number },
+	-- #3324: the game owner's account (Derek2), for the [Owner] chat tag and the Met the Owner badge. Only the server
+	-- acts on it. Kept apart from OwnerTestUserIds so a tester added there never shows as the owner.
+	OwnerUserIds = { 140223517 } :: { number },
 	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
 	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
 	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
@@ -138,9 +142,12 @@ local Config = {
 	-- Derek2, 2026-11-07: "make the days a bit longer and maybe night a tiny bit shorter"): 320 and 70 (were 300 and
 	-- 90). The day takes the night's 20 s, so a game day is still 390 s: every sunrise, restock window, day number and
 	-- pity timer falls where it did, and only dusk moves 20 s later. ServerStartDaySeconds stays equal to the day.
-	DayLengthSeconds = 320,
-	NightLengthSeconds = 70,
-	ServerStartDaySeconds = 320, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- #3195 (Derek2 2026-11-10: "make the night times faster to stop being leaving during night"): 345 and 45 (were
+	-- 320 and 70), the same way: still 390 s a game day, every sunrise where it was, dusk 25 s later. So old and new
+	-- servers agree on the day number and every sunrise, and no restart is needed.
+	DayLengthSeconds = 345,
+	NightLengthSeconds = 45,
+	ServerStartDaySeconds = 345, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
 	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
 	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
 	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
@@ -179,9 +186,11 @@ local Config = {
 	-- with less summer salting"): the longer flight with Animation-Engineer's arc, 4.0 s with the move at 2.6, while
 	-- the body is out of sight in the clouds (2.0 to 3.0). The flyer goes into the clouds at CannonCloudsAt and the
 	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent). #2690 (Derek2
-	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0.
+	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0. #3292
+	-- (Derek2 2026-11-11: flights "changing course slightly mid air"): the move at 2.2 (was 2.6), so it reaches every
+	-- client well before the body comes back down at 3.0, drawn from wherever the root is by then.
 	CannonLaunchSeconds = 3.75,
-	CannonTeleportAtSeconds = 2.6,
+	CannonTeleportAtSeconds = 2.2,
 	CannonCloudsAt = 2.0,
 	CannonTouchdownAt = 3.5,
 	CannonCooldownSeconds = 3,
@@ -1075,6 +1084,9 @@ local Config = {
 	BumpSameTargetSeconds = 0, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
 	ShoveTargetImmuneSeconds = 0, -- after a hit lands, nobody can hit that player again for this long (S45)
+	-- #3342 (Derek2 2026-11-11: "tackling immunity for the first 5 minutes"): nobody can tackle a player for this long
+	-- after they join a server, each session. Their own tackle press (one the server takes) ends it early.
+	TackleShieldSeconds = 300,
 	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
 	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
 	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.

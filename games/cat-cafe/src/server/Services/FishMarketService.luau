@@ -344,6 +344,16 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 		Net.toast(player, "Walk to the Golden Fish Market first", "warn")
 		return
 	end
+	if
+		itemId == SwiftPaws.ID
+		and (profile.fishPerks[itemId] or 0)
+			>= SwiftPaws.topLevel(row.maxLevel or 1, LiveFlagService.on(SwiftPaws.FLAG_FIVE))
+	then
+		-- #3317: levels 3 to 5 wait on their own switch until no older server is left; nothing is spent
+		Net.toast(player, "Swift Paws levels 3 to 5 open soon", "warn")
+		CafeService.sync(player)
+		return
+	end
 	local cost, reason = Crates.buyCost(profile, row)
 	local frozen = TradeService.fishSpendBlocker(player) -- #2745 (section 1d)
 	if frozen ~= nil then
@@ -369,7 +379,18 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 		Telemetry.fishSink(player, profile, cost, "Shop", "perk")
 		Net.toast(
 			player,
-			string.format("%s level %d, yours forever", PERK_NAMES[itemId] or itemId, level),
+			if itemId == SwiftPaws.ID
+				-- #3330: say it is speed, and how much in all
+				then string.format(
+					"Swift Paws level %d: +%s speed, yours forever",
+					level,
+					tostring(SwiftPaws.speedAt(level))
+				)
+				else string.format(
+					"%s level %d, yours forever",
+					PERK_NAMES[itemId] or itemId,
+					level
+				),
 			"good"
 		)
 		if itemId == "big_bowl" then

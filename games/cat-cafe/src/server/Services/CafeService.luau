@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
+local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -65,6 +66,7 @@ local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUpCircles = require(script.Parent.Parent.World.WalkUpCircles)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -222,6 +224,15 @@ local function luckView(profile: Profile, now: number): (number, { Types.LuckSou
 	return Luck.of(profile, now, luckyDay, event), sources
 end
 
+-- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
+-- off or the tier has not opened the station (TraitService.open reads the same)
+local function traitsView(profile: Profile, now: number): Types.TraitsView?
+	local open = LiveFlagService.on(Traits.FLAG)
+		and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+	Traits.settle(profile.traits, open, now)
+	return if open then Traits.view(profile.traits) else nil
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	local plot = PlotService.get(player)
 	local now = os.time()
@@ -240,7 +251,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		upgradeLevels = profile.upgradeLevels,
 		decorOwned = profile.decorOwned,
 		decorPlaced = profile.decorPlaced,
-		decorUnlocked = profile.decorUnlocked,
+		decorUnlocked = Trade.unlockedPieces(profile), -- #3276: every owned lockable piece not locked
 		lures = profile.lures,
 		bait = baitView(profile, now, 1),
 		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
@@ -270,6 +281,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
+		traits = traitsView(profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
@@ -285,6 +297,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stats = table.clone(profile.stats),
 		tipsSeen = table.clone(profile.tipsSeen), -- F87
 		feedbackAsked = profile.feedbackAsked,
+		sessionFeedbackDay = profile.sessionFeedbackDay, -- #3272
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
@@ -1947,8 +1960,8 @@ local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	CafeService.sync(player)
 end
 
--- #1574 (trading.md section 1b): the lock on a decor or lawn card. Only a Legendary and up piece has one; it arrives
--- locked and must be unlocked here before it can go on offer, and one on offer cannot be locked.
+-- #1574 (trading.md section 1b): the lock on a decor or lawn card. Only a Legendary and up piece has one; a locked
+-- piece can't go on offer, and one on offer cannot be locked. #3276: pieces arrive unlocked; this locks one.
 local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 	local id = Guard.id(rawId)
 	local profile = profileFor(player)
@@ -1964,11 +1977,7 @@ local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 		CafeService.sync(player)
 		return
 	end
-	if rawLocked then
-		profile.decorUnlocked[id] = nil
-	else
-		profile.decorUnlocked[id] = true
-	end
+	Trade.setPieceLocked(profile, id, rawLocked)
 	CafeService.sync(player)
 end
 

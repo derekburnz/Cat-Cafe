@@ -301,6 +301,13 @@ return function()
 				expect(arrived.caughtAt).to.equal(500)
 				expect(arrived.locked).to.equal(nil) -- #2906: a gold cat arrives unlocked too
 				expect(Trade.arrival(cat("u2", "Common"), 500).locked).to.equal(nil)
+				-- #3196: its trait travels with it, as a copy
+				local trained = cat("u3", "Common")
+				trained.trait = { id = "cosmicFortune" }
+				local moved = Trade.arrival(trained, 500)
+				expect(moved.trait :: any).to.deepEqual({ id = "cosmicFortune" })
+				expect(moved.trait ~= trained.trait).to.equal(true)
+				expect(Trade.arrival(cat("u4", "Common"), 500).trait).to.equal(nil)
 			end
 		)
 
@@ -485,11 +492,18 @@ return function()
 				me.decorOwned[common] = true
 				me.decorOwned[legend] = true
 				expect(Trade.pieceRefusal(me, them, common, {})).never.to.be.ok()
-				-- Legendary and up arrive locked: unlocked on their card first
+				-- #3276: Legendary and up arrive unlocked; one locked on its card can't go on offer
+				expect(Trade.pieceLocked(me, legend)).to.equal(false)
+				expect(Trade.pieceRefusal(me, them, legend, {})).never.to.be.ok()
+				Trade.setPieceLocked(me, legend, true)
 				expect(Trade.pieceLocked(me, legend)).to.equal(true)
-				expect(Trade.pieceLocked(me, common)).to.equal(false)
+				expect(me.decorUnlocked[legend]).never.to.be.ok() -- the older servers' mirror
 				expect(Trade.pieceRefusal(me, them, legend, {})).to.equal(Trade.Messages.locked)
-				me.decorUnlocked[legend] = true
+				-- only a lockable rarity has a lock
+				Trade.setPieceLocked(me, common, true)
+				expect(Trade.pieceLocked(me, common)).to.equal(false)
+				Trade.setPieceLocked(me, legend, false)
+				expect(me.decorUnlocked[legend]).to.equal(true)
 				expect(Trade.pieceRefusal(me, them, legend, {})).never.to.be.ok()
 				them.decorOwned[common] = true
 				expect(Trade.pieceRefusal(me, them, common, {})).to.equal(Trade.Messages.theyHaveIt)
@@ -516,14 +530,14 @@ return function()
 		end)
 
 		it(
-			"moves placed pieces off their spots and lands new ones unplaced, locked when Legendary",
+			"moves placed pieces off their spots and lands new ones unplaced and unlocked (#3276)",
 			function()
 				local giver, taker = profile(), profile()
 				local decor, legend, lawn = decorOf("Common"), decorOf("Legendary"), lawnOf("Rare")
 				giver.decorOwned[decor] = true
 				giver.decorPlaced[decor] = true
 				giver.decorOwned[legend] = true
-				giver.decorUnlocked[legend] = true
+				Trade.setPieceLocked(giver, legend, false)
 				giver.lawnOwned[lawn] = true
 				local spot = (Catalog.getLawn(lawn) :: any).spot
 				local spotId = assert(Lawn.firstFreeSpot(giver, spot))
@@ -536,6 +550,7 @@ return function()
 				expect(giver.decorPlaced[decor]).never.to.be.ok()
 				expect(giver.decorOwned[legend]).never.to.be.ok()
 				expect(giver.decorUnlocked[legend]).never.to.be.ok()
+				expect(giver.decorLocked[legend]).never.to.be.ok()
 				expect(giver.lawnOwned[lawn]).never.to.be.ok()
 				expect(giver.lawn[spotId]).never.to.be.ok()
 				expect(#(giver.tradeLog[1].gaveDecor :: any)).to.equal(3)
@@ -545,7 +560,8 @@ return function()
 				expect(taker.decorOwned[decor]).to.equal(true)
 				expect(taker.decorPlaced[decor]).never.to.be.ok() -- Equip Best puts it out
 				expect(taker.lawnOwned[lawn]).to.equal(true)
-				expect(Trade.pieceLocked(taker, legend)).to.equal(true) -- arrives locked
+				expect(Trade.pieceLocked(taker, legend)).to.equal(false) -- #3276: arrives unlocked
+				expect(taker.decorUnlocked[legend]).to.equal(true)
 				expect((taker.tradeLog[1].gotDecor :: any)[3]).to.deepEqual({
 					id = lawn,
 					kind = "lawn",
@@ -559,31 +575,52 @@ return function()
 			end
 		)
 
-		it("keeps the log's decor and only owned, lockable unlocked pieces in the save", function()
-			local log = Trade.sanitizeLog({
-				{
-					id = "t1",
-					at = 5,
-					partnerName = "Sam",
-					gave = {},
-					got = {},
-					gaveDecor = { { id = "rug", kind = "decor", rarity = "Common" }, { id = 3 } },
-					gotDecor = "nope",
-				},
-			})
-			expect(log[1].gaveDecor :: any).to.deepEqual({
-				{ id = "rug", kind = "decor", rarity = "Common" },
-			})
-			expect(log[1].gotDecor :: any).to.deepEqual({})
-			local legend, common = decorOf("Legendary"), decorOf("Common")
-			local raw: any = ProfileSchema.template(1000)
-			raw.decorOwned = { [legend] = true, [common] = true }
-			raw.decorUnlocked =
-				{ [legend] = true, [common] = true, [decorOf("Mythical")] = true, nope = true }
-			local loaded = ProfileSchema.migrate(raw, 1000)
-			expect(loaded.decorUnlocked :: any).to.deepEqual({ [legend] = true })
-			expect(ProfileSchema.template(1000).decorUnlocked :: any).to.deepEqual({})
-		end)
+		it(
+			"keeps the log's decor, only owned lockable pieces as locked, and every other one unlocked (#3276)",
+			function()
+				local log = Trade.sanitizeLog({
+					{
+						id = "t1",
+						at = 5,
+						partnerName = "Sam",
+						gave = {},
+						got = {},
+						gaveDecor = {
+							{ id = "rug", kind = "decor", rarity = "Common" },
+							{ id = 3 },
+						},
+						gotDecor = "nope",
+					},
+				})
+				expect(log[1].gaveDecor :: any).to.deepEqual({
+					{ id = "rug", kind = "decor", rarity = "Common" },
+				})
+				expect(log[1].gotDecor :: any).to.deepEqual({})
+				local legend, common = decorOf("Legendary"), decorOf("Common")
+				local raw: any = ProfileSchema.template(1000)
+				raw.decorOwned = { [legend] = true, [common] = true }
+				-- a save from before #3276 (only `decorUnlocked`): every owned Legendary and up piece loads unlocked
+				local legend2 = decorOf("Mythical")
+				raw.decorOwned[legend2] = true
+				raw.decorUnlocked = { [legend] = true, [common] = true, nope = true }
+				local loaded = ProfileSchema.migrate(raw, 1000)
+				expect(loaded.decorLocked :: any).to.deepEqual({})
+				expect(loaded.decorUnlocked :: any).to.deepEqual({
+					[legend] = true,
+					[legend2] = true,
+				})
+				-- a lock is kept for an owned lockable piece only, and the mirror leaves it out
+				local again: any = ProfileSchema.template(1000)
+				again.decorOwned = { [legend] = true, [common] = true, [legend2] = true }
+				again.decorLocked =
+					{ [legend] = true, [common] = true, [decorOf("Epic")] = true, nope = true }
+				local relocked = ProfileSchema.migrate(again, 1000)
+				expect(relocked.decorLocked :: any).to.deepEqual({ [legend] = true })
+				expect(relocked.decorUnlocked :: any).to.deepEqual({ [legend2] = true })
+				expect(ProfileSchema.template(1000).decorUnlocked :: any).to.deepEqual({})
+				expect(ProfileSchema.template(1000).decorLocked :: any).to.deepEqual({})
+			end
+		)
 	end)
 
 	describe("crates join (section 1c, #2745)", function()

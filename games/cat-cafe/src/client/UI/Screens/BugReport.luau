@@ -19,7 +19,7 @@
 -- hid it still lands on the button under the finger.
 --
 -- F87 (easy-start.md section 4): the window opens on a faces page first (showFaces), "How is Cat Cafe so far?" with
--- three big faces: Love it, It's OK, Not for me. A tap is enough. Then the page asks "What would help most?" with six
+-- three big choices (#3272: thumbs up Good, a plain face OK, thumbs down Not good). A tap is enough. Then the page asks "What would help most?" with six
 -- chips (pick one), "Tell us more" (this report page on its Idea chip) and Done. Components/FeedbackLogic sends one
 -- callbacks.feedback(face, chip?) per answer: with the first chip tapped, or the face alone when the window closes,
 -- "Tell us more" is pressed or FeedbackLogic.WAIT_SECONDS pass. "Report a bug" under the faces goes to this page on

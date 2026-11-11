@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
 local LateStations = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LateStations"))
+local LateStationsController = require(script.Parent.Parent.Controllers.LateStationsController)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
 
@@ -106,7 +107,10 @@ local function apply()
 	end
 end
 
+local lastState: unknown = nil -- the state last read, from the remote or LateStationsController
+
 local function onState(state: unknown)
+	lastState = state
 	table.clear(done)
 	local museum = if type(state) == "table" and (state :: any).live == true
 		then (state :: any).museum
@@ -155,6 +159,12 @@ function MuseumPlaques.start()
 		step -= dt
 		if look <= 0 then
 			look = Presets.museumPlaques.lookSeconds
+			-- #3315: the join's state can reach LateStationsController (Net.on) before this hook is connected, so a
+			-- museum finished in an earlier session stayed unlit until the next donation; read its copy too
+			local kept = LateStationsController.state
+			if kept ~= nil and kept ~= lastState then
+				onState(kept)
+			end
 			apply() -- the museum streams in and out; its letters come back unlit
 		end
 		if step <= 0 then

@@ -12,7 +12,11 @@
 --     #941), worked out again on every refresh and every write, so a board shows the people playing at once, and in
 --     Studio too. Then every player gets LeaderboardSync with their own line, and the crowns are set: attribute
 --     Crown on the Player and on their cafe's name sign while they are in the top LeaderboardCrownRank of any
---     all-time board.
+--     all-time board. #3333: and each player's place 1 to 3 on any all-time board (owner left out) for the rank
+--     titles; `placeChanged` fires for a player here whose place changed, and CafePassService shows the new title.
+--   Owners (#3321, Derek2 2026-11-11: "clear [my account] off leaderboard since I am owner its unfair"): an account in
+--     Config.OwnerTestUserIds is never written, is dropped from every list as read and from the players put in, and
+--     on its join its entries come out of every list's store (RemoveAsync), so it never shows again.
 -- Every value comes from the server's own profile and clock; a client never sends one. Nothing here prints a user id
 -- or a name, since the CI logs are public.
 
@@ -22,10 +26,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserService = game:GetService("UserService")
 
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local Net = require(script.Parent.Net)
+local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PlotService = require(script.Parent.PlotService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -43,8 +49,19 @@ local lists: { [List]: { Row } } = {} -- as last read from the stores
 local shown: { [List]: { Row } } = {} -- as read, with the players here at their values now (#941)
 local listWeek = 0 -- the week the weekly lists were read for
 local names: { [number]: string } = {}
-local hidden: { [number]: boolean } = {}
+-- #3321: the owners are on the hidden list from the start, and stay on it whatever the store's list says
+local function withOwners(ids: { [number]: boolean }): { [number]: boolean }
+	for _, id in Config.OwnerTestUserIds do
+		ids[id] = true
+	end
+	return ids
+end
+local hidden: { [number]: boolean } = withOwners({})
 local crowned: { [number]: boolean } = {}
+local places: { [number]: number } = {} -- #3333: userId -> best place 1 to 3 on an all-time board
+local placeChanged = Instance.new("BindableEvent")
+-- #3333: (player) fired when a player here gains, changes or loses a top 3 place
+LeaderboardService.placeChanged = placeChanged.Event :: RBXScriptSignal
 -- For the Studio readout (#941): the last write and read per list, and whether the hidden list's last read worked.
 type Outcome = { ok: boolean, at: number, count: number? }
 local lastWrite: { [List]: Outcome } = {}
@@ -75,6 +92,9 @@ end
 -- Writes the lists whose value changed since this server last wrote them. Yields; `values` taken by the caller so a
 -- leave can write after the profile is gone.
 local function writeValues(player: Player, values: { [List]: number }, week: number)
+	if OwnerTest.isOwner(player.UserId) then
+		return -- #3321: an owner is never on the boards
+	end
 	local mine = written[player] or {}
 	written[player] = mine
 	for list, value in values do
@@ -204,7 +224,26 @@ local function readHidden()
 			end
 		end
 	end
-	hidden = fresh
+	hidden = withOwners(fresh)
+end
+
+-- #3321: an owner's entries come out of every list's store (all time and this week), once per join. Yields.
+local function removeOwner(player: Player)
+	if not canWrite() or not OwnerTest.isOwner(player.UserId) then
+		return
+	end
+	local week = Leaderboards.week(os.time())
+	for _, list in Leaderboards.LISTS do
+		local ok = pcall(function()
+			DataStoreService:GetOrderedDataStore(Leaderboards.storeName(list, week))
+				:RemoveAsync(tostring(player.UserId))
+		end)
+		if not ok then
+			warn(
+				"[LeaderboardService] an owner's entry could not be removed; it is tried again on their next join"
+			)
+		end
+	end
 end
 
 -- Reads one list's top LeaderboardSize; a failed read keeps the last one.
@@ -253,6 +292,18 @@ local function crown()
 		end
 	end
 	crowned = fresh
+	-- #3333: the rank titles from the same lists
+	local boards: { { Row } } = {}
+	for _, board in Leaderboards.BOARDS do
+		table.insert(boards, listOf(board))
+	end
+	local before = places
+	places = Leaderboards.topPlaces(boards, ChatTags.isOwner)
+	for _, player in Players:GetPlayers() do
+		if before[player.UserId] ~= places[player.UserId] then
+			placeChanged:Fire(player)
+		end
+	end
 	for _, list in Leaderboards.LISTS do
 		for _, row in listOf(list) do
 			row.crown = crowned[row.userId] == true
@@ -261,6 +312,11 @@ local function crown()
 	for _, player in Players:GetPlayers() do
 		wearCrown(player)
 	end
+end
+
+-- #3333: the player's best place 1 to 3 on an all-time board as of the last refresh, or nil.
+function LeaderboardService.place(player: Player): number?
+	return places[player.UserId]
 end
 
 -- Every list as shown: as last read with the players in this server put in at their values now, then the crowns.
@@ -397,6 +453,7 @@ function LeaderboardService.start()
 	DataService.onLoaded:Connect(function(player: Player)
 		wearCrown(player) -- review N322: a top player joining between refreshes wears it at once
 		task.spawn(writeNow, player)
+		task.spawn(removeOwner, player)
 	end)
 	-- On leave: the values as they stand at the end of the session, written after the profile is gone.
 	DataService.beforeRelease(function(player: Player, profile: Types.PlayerProfile)

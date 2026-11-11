@@ -102,13 +102,16 @@ local tagPicks: { [Player]: TagPick } = {}
 local function markPlayer(player: Player, set: { [number]: boolean })
 	player:SetAttribute(CampExtras.GOLD_POND_ATTRIBUTE, has(set, Config.GoldenPondPassId))
 	local pick = tagPicks[player]
+	-- #3324: the owner's account always shows [Owner], whatever its pick
 	player:SetAttribute(
 		ChatTags.CHAT_TAG_ATTRIBUTE,
-		ChatTags.shown(
-			if pick ~= nil then pick.pick else nil,
-			has(set, Config.VipPassId),
-			if pick ~= nil then pick.items else {}
-		)
+		if ChatTags.isOwner(player.UserId)
+			then ChatTags.OWNER
+			else ChatTags.shown(
+				if pick ~= nil then pick.pick else nil,
+				has(set, Config.VipPassId),
+				if pick ~= nil then pick.items else {}
+			)
 	)
 end
 
@@ -200,7 +203,7 @@ end
 -- failed lookup counts as not owned until `retry` gets an answer.
 function PassService.check(player: Player): Economy.Passes
 	local set: { [number]: boolean } = {}
-	if OwnerTest.isOwner(player.UserId) then
+	if OwnerTest.isOwnerPlayer(player) then
 		-- #1770 owner test mode: every made pass counts as owned, with no lookup and nothing bought
 		for _, id in passIds() do
 			set[id] = true

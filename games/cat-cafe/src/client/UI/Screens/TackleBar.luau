@@ -20,6 +20,9 @@
 -- and someone carrying a cat is within a step and a lunge, a big pulsing key cap with "Tackle!" hangs over the
 -- nearest of them (Components/TackleCue, TackleTry.cueTarget), until this player has landed TackleTry.CUE_HITS
 -- tackles in the session. The bar's own key cap is bigger too.
+-- #3342 (Derek2 11-11: "tackling immunity for the first 5 minutes"): while this player's join shield runs (the
+-- Player's TackleShieldUntil attribute, set by ShoveService), a small "🛡️ Safe 4:32" chip sits just over the bar or
+-- the round button, counting down. Pressing Tackle ends the shield on the server, and the chip goes with it.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
 --   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the bar
@@ -114,6 +117,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	self._touch = Scale.isTouch()
 	self._hits = 0 -- #2558: tackles landed this session; the big cue stops at TackleTry.CUE_HITS
 	self._cue = nil :: TackleCue.TackleCue?
+	self._shield = nil :: TextLabel? -- #3342
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeTackle",
@@ -182,6 +186,8 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	})
 	Outline.text(word, 2)
 	self._word = word
+	-- #3342: the join shield's chip, just over the bar
+	self._shield = self:_buildShield(bar, UDim2.new(0.5, 0, 0, -6))
 
 	do
 		local key: TextLabel = Create("TextLabel", {
@@ -311,6 +317,8 @@ function TackleBar._buildButton(self: any, screenGui: ScreenGui)
 	})
 	Outline.text(word, 2)
 	self._word = word
+	-- #3342: the join shield's chip, a sibling over the round button (the button clips its children)
+	self._shield = self:_buildShield(screenGui, UDim2.new())
 	self:_place()
 	table.insert(
 		self._connections,
@@ -352,6 +360,53 @@ function TackleBar._place(self: any)
 	local at, size = NetButtonPlace.tackle(viewport, JumpButton.read(viewport))
 	self._bar.Position = UDim2.fromOffset(at.X, at.Y)
 	self._bar.Size = UDim2.fromOffset(size, size)
+	local shield: TextLabel? = self._shield
+	if shield ~= nil then
+		shield.Position = UDim2.fromOffset(at.X + size / 2, at.Y - 4)
+	end
+end
+
+-- #3342: the join shield's chip, hidden until _drawShield has a time to show. Its bottom centre sits at `position`.
+function TackleBar._buildShield(_self: any, parent: Instance, position: UDim2): TextLabel
+	local chip: TextLabel = Create("TextLabel", {
+		Name = "Shield",
+		BackgroundColor3 = Theme.hud.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = position,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 24),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.white,
+		Text = "",
+		Visible = false,
+		ZIndex = 5,
+		Parent = parent,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+	})
+	Outline.border(chip, 2, Theme.hud.stroke)
+	Outline.text(chip, 1)
+	return chip
+end
+
+-- #3342: shows the chip with the time left while the join shield runs, hides it after.
+function TackleBar._drawShield(self: any)
+	local shield: TextLabel? = self._shield
+	if shield == nil then
+		return
+	end
+	local me = Players.LocalPlayer
+	local text = TackleLogic.shieldText(
+		if me then me:GetAttribute("TackleShieldUntil") else nil,
+		Workspace:GetServerTimeNow()
+	)
+	shield.Visible = text ~= nil
+	if text ~= nil then
+		shield.Text = text
+	end
 end
 
 -- Whether a lunge, a miss slide, a hit's hold or someone else's tackle has this player down right now.
@@ -396,6 +451,7 @@ function TackleBar._tick(self: any)
 		return
 	end
 	self:_placeCue(look == "ready")
+	self:_drawShield() -- #3342
 	if not self._touch then
 		self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
 	end

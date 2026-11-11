@@ -27,9 +27,9 @@ return function()
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
-		DayLengthSeconds = 320, -- #2192: was 300
-		NightLengthSeconds = 70, -- v0.9 (F66): a short night between hunts; #2192: was 90
-		ServerStartDaySeconds = 320, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		DayLengthSeconds = 345, -- #2192: was 300; #3195: was 320
+		NightLengthSeconds = 45, -- v0.9 (F66): a short night between hunts; #2192: was 90; #3195: was 70
+		ServerStartDaySeconds = 345, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day; #3195: was 320
 		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,
@@ -367,6 +367,7 @@ return function()
 		BumpSameTargetSeconds = 0,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 0,
+		TackleShieldSeconds = 300, -- #3342: a new join can't be tackled for its first 5 minutes
 		-- a dropped cat walks home (v0.10 F67, section 10c)
 		DropReturnWalkSpeed = 8,
 		DropHomeRadiusStuds = 2,
@@ -383,7 +384,7 @@ return function()
 		TackledDownSeconds = 0.8,
 		-- the Cat Cannon (F84, section 17 v0.13.17)
 		CannonLaunchSeconds = 3.75,
-		CannonTeleportAtSeconds = 2.6,
+		CannonTeleportAtSeconds = 2.2,
 		CannonCloudsAt = 2.0,
 		CannonTouchdownAt = 3.5,
 		CannonCooldownSeconds = 3,
@@ -477,6 +478,7 @@ return function()
 			local known = {
 				World = true,
 				OwnerTestUserIds = true, -- #1770: checked in OwnerTest.spec
+				OwnerUserIds = true, -- #3324: checked in ChatTags.spec
 				Badges = true, -- #1934: a table, checked in Badges.spec
 				ForcedDays = true, -- #1974: a table of drop windows, checked in Luck.spec
 				NetWindows = true, -- a table, checked below

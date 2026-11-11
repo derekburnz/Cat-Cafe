@@ -175,12 +175,15 @@ return function()
 			end
 		)
 
-		it("is gone by the landing (CannonTeleportAtSeconds 2.6, plus its 0.2 s zip)", function()
-			local _, _, outAt, goneAt =
-				CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
-			expect(outAt <= 2.6).to.equal(true)
-			expect(goneAt <= 2.8).to.equal(true)
-		end)
+		it(
+			"is gone as the body comes back down (cannonPose drop 3.0; 2.6 plus its 0.2 s zip)",
+			function()
+				local _, _, outAt, goneAt =
+					CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
+				expect(outAt <= 2.6).to.equal(true)
+				expect(goneAt <= 2.8).to.equal(true)
+			end
+		)
 	end)
 
 	describe("CannonLogic.hint", function()

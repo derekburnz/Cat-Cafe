@@ -11,7 +11,8 @@
 -- Each player's best, today's milestones and the Arcade Legend title live in their own DataStore, STORE (key: the
 -- user id), not in the save, so the arcade needed no save version step and no restart (Derek2 2026-11-11). They are
 -- read when the player joins (no game starts until the read answers) and written after each milestone and game, at
--- most once every WRITE_GAP seconds. The server's best is kept in memory and shown on the cabinet's prompt.
+-- most once every WRITE_GAP seconds. The server's best is kept in memory and shown on the cabinet's prompt; an owner
+-- account's games never set it (#3321).
 
 local CollectionService = game:GetService("CollectionService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -30,6 +31,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
@@ -223,7 +225,12 @@ local function finish(player: Player, run: Run, tell: boolean)
 		newBest = Arcade.record(save, run.points, run.circles)
 		queueSave(player.UserId, save)
 	end
-	if Arcade.beats(run.points, run.circles, serverBest.points, serverBest.circles) then
+	-- #3321: an owner account (Config.OwnerTestUserIds) never takes the server's best on the cabinet; its own best
+	-- and milestones are kept as anyone's
+	if
+		not OwnerTest.isOwner(player.UserId)
+		and Arcade.beats(run.points, run.circles, serverBest.points, serverBest.circles)
+	then
 		serverBest.points = run.points
 		serverBest.circles = run.circles
 		serverBest.name = player.DisplayName

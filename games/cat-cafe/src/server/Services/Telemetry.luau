@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Clock = require(ReplicatedStorage.Shared.Clock)
@@ -112,6 +113,9 @@ export type CustomEvent =
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
 	-- #3062: a Cat Arcade game's end, value its points; circles, milestones paid (comma list or "none"), win or not
 	| "arcade_run"
+	| "arcade_quit" -- #3378: a game left early, value the circles hit; free or paid
+	| "arcade_blocked" -- #3378: Start refused, value 1; the reason (closed, loading, running, busy, no_fish)
+	| "arcade_board_top" -- #3378: a new best that stands in the leaderboard's top, value its place
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
@@ -467,6 +471,7 @@ type Session = {
 	restartWarnings: number, -- #2720: restart warnings shown this session
 	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
 	stationOpens: { [string]: { count: number, values: { string } } }, -- #2910: station opens not logged yet
+	arcade: ArcadeFunnel.State, -- #3378: how far arcade_v1 got today
 	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
 	introChoices: number, -- F87: intro_choice events logged this session
@@ -1042,6 +1047,50 @@ function Telemetry.pityStep(
 		name,
 		{ kind, area, minutesBand(PlayTime.seconds(player, profile)) }
 	)
+end
+
+-- #3378: arcade_v1 (shared/ArcadeFunnel), one run per player per UTC day. `step` is one of ArcadeFunnel's; `free`
+-- says whether the game is (or, before a game, would be) the day's free one. Returns nothing; an owner in test mode
+-- logs nothing (send).
+function Telemetry.arcadeStep(player: Player, profile: Profile, step: number, free: boolean)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local day = math.floor(os.time() / 86400)
+	local due = ArcadeFunnel.due(session.arcade, day, step)
+	if #due == 0 then
+		return
+	end
+	local values = {
+		if free then "free" else "paid",
+		session.device or "unknown",
+		minutesBand(PlayTime.seconds(player, profile)),
+	}
+	local key = ArcadeFunnel.key(day, player.UserId)
+	for _, s in due do
+		funnelStep(player, ArcadeFunnel.NAME, key, s, ArcadeFunnel.STEPS[s], values)
+	end
+end
+
+-- #3378: a game started. Logs arcade_started, and arcade_played_again for a second game that day (`freeUsed`: the
+-- day's free game was already used before this one, from the arcade save).
+function Telemetry.arcadeStarted(player: Player, profile: Profile, free: boolean, freeUsed: boolean)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local again = ArcadeFunnel.started(session.arcade, math.floor(os.time() / 86400), freeUsed)
+	Telemetry.arcadeStep(player, profile, ArcadeFunnel.STARTED, free)
+	if again then
+		Telemetry.arcadeStep(player, profile, ArcadeFunnel.PLAYED_AGAIN, free)
+	end
+end
+
+-- #3378: hears every counted station open (window, as StationOpens.WINDOWS), after it is counted.
+local stationListeners: { (player: Player, window: string) -> () } = {}
+function Telemetry.onStationOpen(listener: (player: Player, window: string) -> ())
+	table.insert(stationListeners, listener)
 end
 
 function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
@@ -1914,6 +1963,7 @@ local function onLoaded(player: Player, profile: Profile)
 		restartWarnings = 0,
 		swings = {},
 		stationOpens = {},
+		arcade = ArcadeFunnel.fresh(),
 		origin = nil,
 		nudges = {},
 		introChoices = 0,
@@ -2345,6 +2395,14 @@ function Telemetry.start()
 	Net.on("StationOpened", function(player: Player, window: unknown, how: unknown)
 		if StationOpens.valid(window, how) then
 			Telemetry.stationOpen(player, window :: string, how :: string)
+			for _, listener in stationListeners do
+				local ok, err = pcall(function()
+					listener(player, window :: string)
+				end)
+				if not ok then
+					warn("[Telemetry] a station open listener failed: " .. tostring(err))
+				end
+			end
 		end
 	end)
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)

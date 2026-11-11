@@ -65,6 +65,7 @@ export type Save = {
 	legend: boolean, -- reached 100 once: the Arcade Legend title, kept for good
 	runs: number,
 	freeDay: number, -- #3296: the UTC day the free run was last used, 0 never
+	epoch: number, -- #3378: the board `best` is for (Arcade.BOARD_EPOCH)
 }
 
 export type Result = {
@@ -101,7 +102,13 @@ export type State = {
 export type Row = { rank: number, name: string, points: number, circles: number, me: boolean? }
 
 Arcade.TOP = 10 -- lines on the window's leaderboard
-Arcade.BOARD_STORE = "CatCafe_LB_Arcade" -- the OrderedDataStore of each player's best score, keyed by user id
+-- #3378 (Derek 2026-11-11, "reset for now"): the board started again once the 2x faster start (#3366) was live, so
+-- every score on it is made under the new rules. The board is a new store name; a save's record is reset by its
+-- `epoch` (sanitize drops a best from another epoch). The save store keeps its name, so the day's paid milestones
+-- and the free game stay in one place for old and new servers alike and nothing pays twice. An older server keeps
+-- the old board and writes saves without an epoch, so a best made there is dropped on the next new server.
+Arcade.BOARD_STORE = "CatCafe_LB_Arcade2" -- the OrderedDataStore of each player's best score, keyed by user id
+Arcade.BOARD_EPOCH = 2 -- which board a save's best belongs to (none or 1: before the reset)
 
 function Arcade.milestones(): { Milestone }
 	return Config.ArcadeMilestones :: any
@@ -196,7 +203,16 @@ function Arcade.day(now: number): number
 end
 
 function Arcade.fresh(): Save
-	return { best = 0, bestCircles = 0, day = 0, paid = {}, legend = false, runs = 0, freeDay = 0 }
+	return {
+		best = 0,
+		bestCircles = 0,
+		day = 0,
+		paid = {},
+		legend = false,
+		runs = 0,
+		freeDay = 0,
+		epoch = Arcade.BOARD_EPOCH,
+	}
 end
 
 local function whole(value: unknown, low: number, high: number): number
@@ -207,14 +223,18 @@ local function whole(value: unknown, low: number, high: number): number
 end
 
 -- A save read back from the DataStore, anything odd dropped. A day other than today's starts with nothing paid.
+-- #3378: a record from another board epoch (a save from before the reset, or one an older server rewrote) is dropped;
+-- the title, the games played, the free game and today's paid milestones stay.
 function Arcade.sanitize(raw: unknown, now: number): Save
 	local save = Arcade.fresh()
 	if type(raw) ~= "table" then
 		return save
 	end
 	local t = raw :: { [string]: unknown }
-	save.best = whole(t.best, 0, Config.ArcadeMaxPoints)
-	save.bestCircles = whole(t.bestCircles, 0, 999)
+	if t.epoch == Arcade.BOARD_EPOCH then
+		save.best = whole(t.best, 0, Config.ArcadeMaxPoints)
+		save.bestCircles = whole(t.bestCircles, 0, 999)
+	end
 	save.runs = whole(t.runs, 0, 2 ^ 31)
 	save.legend = t.legend == true
 	save.freeDay = whole(t.freeDay, 0, 2 ^ 31)

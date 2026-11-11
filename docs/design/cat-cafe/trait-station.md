@@ -126,6 +126,8 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
   - **Free player:** rate 1 to 1.24 is about +6% income.
   - **Cafe Style alone:** its 0.25 is about +6%. Two Mythic cats nearly match it but never pass it, and the common case (Rare, +4% each) is about a third of it.
   - **Every pass:** 2.25 to 2.49 is about +6% income on top of roughly 24x. That's inside the 11-05 stacking re-check's margin (economy-ladder.md §6a), Monetization re-checks it against every pass with the Mythic numbers **before the `traits` flag goes on**: the stacking sheet with the 2.49 rich rate cap plus one Pace worst case.
+- **Sheet result (Monetization, 2026-11-11, on #3314):** the 2.49 cap holds. Traits add at most about +4.8% income, under Cafe Style's about +5%, and the every-pass stack is x1.033.
+- **Pace gate before the flag goes on:** add a Pace profile "every pass + traits" with all working cats on Rare Big Tipper at Tier 2 and 3, plus an info-only all-Mythic run. It must still take at least 5 min to Tier 2 and at least 1 hour to Tier 5.
 - Speed tops out at +1.5, under half of the Swift Potion's +4. Bowl luck stays under `LuckMax`. Per-cat income tops out at +40% on one cat. So no paid perk is undercut.
 
 ## 6. Save and publish

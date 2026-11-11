@@ -72,6 +72,7 @@ local Rainbow = require(script.Rainbow)
 local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
+local RuinsWater = require(script.RuinsWater)
 local ShopCats = require(script.ShopCats)
 local Shove = require(script.Shove)
 local Signature = require(script.Signature)
@@ -172,6 +173,7 @@ function Effects.start()
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,
+		RuinsWater.start,
 		TrailSparkle.start,
 		GoldenFind.start,
 		StationBuild.start,

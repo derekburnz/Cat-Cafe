@@ -720,13 +720,25 @@ end
 
 -- #2961: the Alleyway's camp is in when the floor under the pad, the catch spot and the stray has streamed in. A prop
 -- or wall by the pad alone let the camp shots play over an empty sky (Derek2 11-10, slides 2 and 3).
+-- #3303: and the camp's own Cat Cannon has streamed in (Intro.campSetNear), as the floor comes before the set.
 local function campReady(staged: { Instance }?): boolean
 	for _, point in Intro.campGround().points do
 		if not floorAt(point, staged) then
 			return false
 		end
 	end
-	return true
+	local cannons: { Vector3 } = {}
+	for _, cannon in CollectionService:GetTagged(Intro.CANNON_TAG) do
+		if cannon:IsDescendantOf(Workspace) then
+			local part = if cannon:IsA("BasePart")
+				then cannon
+				else cannon:FindFirstChildWhichIsA("BasePart", true)
+			if part ~= nil then
+				table.insert(cannons, (part :: BasePart).Position)
+			end
+		end
+	end
+	return Intro.campSetNear(cannons, (Intro.camp(Intro.AREA) :: Intro.Camp).pad)
 end
 
 -- #2961: asks again for the camp's ground: the filmed spots and the area's middle, where the big ground and set

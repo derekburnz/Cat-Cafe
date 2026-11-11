@@ -87,6 +87,7 @@ export type Budget = {
 	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
 	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
 	shopCatEmitters: number, -- shop cats with a steady emitter on at once (Duchess's petals #1191, Maple's leaves #1668)
+	waterfalls: number, -- Ruins waterfalls and fountains whose water runs at once (Effects/RuinsWater)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -131,6 +132,7 @@ Presets.budget = {
 		cafeOrders = 0,
 		crownGlints = 2,
 		shopCatEmitters = 1,
+		waterfalls = 1,
 	},
 	high = {
 		animatedCats = 16,
@@ -168,6 +170,7 @@ Presets.budget = {
 		cafeOrders = 3,
 		crownGlints = 5,
 		shopCatEmitters = 2,
+		waterfalls = 3,
 	},
 	console = {
 		animatedCats = 12,
@@ -205,6 +208,7 @@ Presets.budget = {
 		cafeOrders = 2,
 		crownGlints = 3,
 		shopCatEmitters = 1,
+		waterfalls = 2,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -242,6 +246,7 @@ Presets.budget = {
 		cafeOrders = 0,
 		crownGlints = 1,
 		shopCatEmitters = 0,
+		waterfalls = 1,
 	},
 } :: { [string]: Budget }
 
@@ -454,6 +459,33 @@ Presets.emitters = {
 		drag = 3,
 		lightEmission = 0.5,
 		rotSpeed = { -180, 180 },
+	},
+	-- The Ruins' falling water (Effects/RuinsWater): pale streaks sliding down a waterfall's or a fountain's sheet,
+	-- emitted through the sheet part itself, so the sheet reads as running water.
+	fallStreaks = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.35, 0.2 },
+		transparency = { 0.35, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 5, 7 },
+		spread = 4,
+		rate = 14,
+		acceleration = Vector3.new(0, -10, 0),
+		lightEmission = 0.2,
+	},
+	-- Soft spray rising where the water lands in the pool (Effects/RuinsWater).
+	fallMist = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 1.2, 2.6 },
+		transparency = { 0.6, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.6, 1.4 },
+		spread = 60,
+		rate = 4,
+		drag = 0.8,
+		lightEmission = 0.1,
 	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
@@ -4381,6 +4413,28 @@ Presets.stationMotion = {
 	dropBounce = 0.16, -- the bounce's height, as a share of dropHeight
 	dropRing = 3, -- a gold ring on the plinth as it lands
 	dropSparkle = 5,
+}
+
+-- The Ruins' waterfall by the cat colossus and the running fountain (#3257, Effects/RuinsWater): a Model whose name
+-- ends in one of `suffixes` holds the water parts. A part at least `sheetHeight` studs tall and at most `sheetThin`
+-- thin across is a falling sheet: streaks run down through it and mist rises at its foot (feet closer than `merge`
+-- studs share one mist); a ring `ring` studs wide spreads there every `rippleEvery` seconds. Only the nearest
+-- budget.waterfalls within `within` studs run, chosen every `pick` seconds. Reduce Motion keeps the streaks and mist
+-- without the rings; Low performance keeps the streaks only.
+Presets.ruinsWater = {
+	suffixes = { "_Waterfall_Water", "_Fountain_Water" },
+	sheetHeight = 3,
+	sheetThin = 0.5,
+	merge = 2,
+	within = 160,
+	pick = 1,
+	streaks = "fallStreaks",
+	mist = "fallMist",
+	mistLift = 0.3,
+	ring = 3.5,
+	ringSeconds = 1.2,
+	rippleEvery = 1.4,
+	colour = Presets.palette.milk,
 }
 
 -- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the

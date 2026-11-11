@@ -65,6 +65,8 @@ The bar is "would you play this again right away". These are part of the build, 
 ### 5a. Pictures (Model-Agent)
 One sheet, Cozy Cream style, thick outlines, readable at 64 px: grey mouse (peeking, up, squashed), golden mouse (the same three), napping kitten with "Zzz", a hole (empty and with a dust puff), the cat paw (ready and bopping), a heart paw pad (full and empty) and the cheese cellar backdrop. Uploading the sheet needs Derek's OK on a picture first. Until then the build uses UI-drawn stand-ins, so nothing waits on it.
 
+**As drawn (Model-Agent, PR #3400, 2026-11-11):** the sheet matches this list with these differences. "Peeking" has no picture of its own: it is the up picture slid a third of the way out between the Hole and HoleFront pictures. The dust puff is a separate Dust picture laid over the hole. The hearts are paw-print hearts. Extra pictures: a woken kitten (for a tapped kitten), a cheese wedge for the score and a game picture for the arcade tab. The cellar floor is the arcade's purple with cheese shapes.
+
 ### 5b. Effects and sound (Motion-FX-Agent)
 | Moment | Effect | Sound |
 |---|---|---|

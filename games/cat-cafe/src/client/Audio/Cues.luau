@@ -1282,6 +1282,49 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 	}, -- NICE!: the pop and one marimba note
 
+	-- The Mystic Pool's roll (#3389; Effects/MysticPool.onBeat, Logic.poolCue): the Pool sheet, mono. The drop, the
+	-- steps and the Mythic play in 3D at the pool; the reveal is flat, under the trait card. Rendered by synth/synth.py.
+	sheetPool = {
+		ids = {},
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 6.05 s
+	poolDrop = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 0.000, 0.900 },
+		group = "Sfx",
+		volume = 0.6,
+		pitch = { 0.97, 1.03 },
+		range = 60,
+	}, -- the cat drops into the pool
+	poolStep = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 1.400, 1.850 },
+		group = "Sfx",
+		volume = 0.55,
+		voices = 3,
+		range = 60,
+	}, -- one per colour step, a scale note higher each time
+	poolReveal = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 2.350, 3.650 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 0.5,
+	}, -- the cat comes back with its trait
+	poolMythic = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 4.150, 6.050 },
+		group = "Sfx",
+		volume = 0.65,
+		minGap = 1,
+		range = 80,
+		duck = true,
+	}, -- the purple flash of a Mythic trait
 	-- The late stations (#2651 part 4, late-stations.md; #2927) and the first catch's held ring (#2920): the Late sheet,
 	-- mono. A finished Museum room plays indexReward, the Index milestone fanfare. Rendered by synth/synth.py.
 	sheetLate = {

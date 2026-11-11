@@ -2023,6 +2023,55 @@ def spa_chime() -> np.ndarray:
     return finish(fade_tail(mix(d, *roll, *top), 0.5), -8)
 
 
+def pool_drop() -> np.ndarray:
+    """The Mystic Pool (#3389): the cat drops into the wizard's pool. A round, deep plop with a magic ring to it: a
+    low bubble, a soft splash and three glassy drips falling back, lower and rounder than the Spa's slosh."""
+    d = 0.9
+    plop = bubble(0.16, 300, 760, 0.045) * 0.7
+    body = glide(0.3, 170, 95, 0.12) * envelope(0.3, 0.005, 0.08) * 0.4
+    splash = bandpass(bandpass(noise(0.4, 3301), 2200 - 1200 * np.clip(seconds(0.4) / 0.2, 0, 1), 0.9), 1300, 0.8)
+    splash = splash / np.max(np.abs(splash)) * envelope(0.4, 0.008, 0.09) * 0.45
+    drips = [(bell(0.3, f, ((1.0, 1.0, 0.07), (2.0, 0.2, 0.03))) * a, at)
+             for f, at, a in ((1318.5, 0.32, 0.2), (1568.0, 0.44, 0.16), (1975.5, 0.58, 0.12))]
+    return finish(fade_tail(mix(d, (plop, 0.0), (body, 0.01), (splash, 0.03), *drips), 0.2), -7)
+
+
+def pool_step() -> np.ndarray:
+    """The Mystic Pool's liquid changes colour (#3389): one bubbling "bloop" with a small glass note on top. The game
+    plays it once per colour step, a note higher each time, so the pitch climbs with the rarity and stops there."""
+    d = 0.45
+    bloops = [(bubble(0.09, f, f * 1.6, 0.025) * a, at)
+              for f, at, a in ((460, 0.0, 0.6), (580, 0.05, 0.45), (720, 0.1, 0.3))]
+    ting = bell(d - 0.06, note("A5"), ((1.0, 1.0, 0.14), (2.0, 0.25, 0.06), (3.0, 0.08, 0.03))) * 0.55
+    return finish(fade_tail(mix(d, *bloops, (ting, 0.06)), 0.1), -8)
+
+
+def pool_reveal() -> np.ndarray:
+    """The Mystic Pool gives the cat back with its trait (#3389): a quick splash out and a warm three note rise on
+    the vibraphone with a glockenspiel sparkle, short enough to sit under the trait card."""
+    d = 1.3
+    out = bandpass(noise(0.18, 3311), sweep(0.18, 900, 3200), 1.1) * envelope(0.18, 0.004, 0.05)
+    pop = bubble(0.1, 520, 1250, 0.03) * 0.5
+    rise = [(bell(d - at, note(n), VIBES) * a, at) for n, at, a in (("D5", 0.08, 0.5), ("A5", 0.17, 0.5), ("D6", 0.26, 0.55))]
+    top = [(bell(0.6, note(n), GLOCK) * 0.28, at) for n, at in (("F#6", 0.38), ("A6", 0.47))]
+    return finish(fade_tail(mix(d, (out / np.max(np.abs(out)) * 0.35, 0.0), (pop, 0.0), *rise, *top), 0.4), -6)
+
+
+def pool_mythic() -> np.ndarray:
+    """A Mythic trait from the Mystic Pool (#3389): the pool flashes purple. A shimmer sweeps up into a wide gold
+    bell chord with a falling sparkle, the biggest of the pool's sounds but still under two seconds."""
+    d = 1.9
+    rise = 0.4
+    shimmer = bandpass(bandpass(noise(rise, 3321), sweep(rise, 1800, 7500), 4.0), sweep(rise, 1800, 7500), 4.0)
+    shimmer *= (seconds(rise) / rise) ** 2
+    chord = [(bell(d - rise, note(n), GOLD, attack=0.002) * a, rise)
+             for n, a in (("D6", 0.85), ("F#6", 0.55), ("A6", 0.5), ("D7", 0.3))]
+    fall = [(bell(0.3, f, ((1.0, 1.0, 0.07),)) * 0.16, rise + 0.22 + 0.08 * i)
+            for i, f in enumerate((4698.6, 3951.1, 3520.0, 2959.9, 2349.3))]
+    spark = bell(0.25, note("A6"), ((1.0, 1.0, 0.06), (2.0, 0.2, 0.03))) * 0.3  # the flash itself, on the first sample
+    return finish(fade_tail(mix(d, (spark, 0.0), (shimmer / np.max(np.abs(shimmer)) * 0.3, 0.0), *chord, *fall), 0.5), -4)
+
+
 def museum_bell() -> np.ndarray:
     """A cat fills its Relic Museum exhibit: one soft gallery bell, a warm handbell struck lightly with a quiet
     fifth under it, ringing out in a stone hall."""
@@ -2246,6 +2295,10 @@ SOUNDS = {
     "SpaChime": ("sheet-parts/sfx", "Sfx", spa_chime),
     "MuseumBell": ("sheet-parts/sfx", "Sfx", museum_bell),
     "CircleHold": ("sheet-parts/sfx", "Sfx", circle_hold),
+    "PoolDrop": ("sheet-parts/sfx", "Sfx", pool_drop),
+    "PoolStep": ("sheet-parts/sfx", "Sfx", pool_step),
+    "PoolReveal": ("sheet-parts/sfx", "Sfx", pool_reveal),
+    "PoolMythic": ("sheet-parts/sfx", "Sfx", pool_mythic),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -2268,6 +2321,8 @@ SHEETS = {
     "Catch3": (1, ("PawSwat", "NetWobble", "NetPop", "WordNice")),
     # the late stations and the first catch's held ring (2026-11-10, #2651 part 4, #2920), mono: the splash in 3D
     "Late": (1, ("SpaSplash", "SpaChime", "MuseumBell", "CircleHold")),
+    # the Mystic Pool's roll (2026-11-11, #3389), mono: the drop and the steps play in 3D at the pool
+    "Pool": (1, ("PoolDrop", "PoolStep", "PoolReveal", "PoolMythic")),
     # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
     "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),

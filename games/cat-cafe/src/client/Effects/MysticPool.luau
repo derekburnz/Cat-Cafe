@@ -32,6 +32,22 @@ local MysticPool = {}
 
 local playing: { [Model]: () -> () } = {} -- station -> its running roll's skip
 
+-- The roll's beats, for the sounds (#3389, Audio followPool): "drop" as the cat splashes in, "step" for each colour
+-- step after the first (its number, 2 and up), "mythic" for the purple flash, and "reveal" once per roll as the cat
+-- comes back (also on a skip and with Reduce Motion). `at` is the liquid's surface. Listeners only listen.
+export type Beat = "drop" | "step" | "mythic" | "reveal"
+local listeners: { (beat: Beat, step: number, at: Vector3) -> () } = {}
+
+function MysticPool.onBeat(listener: (beat: Beat, step: number, at: Vector3) -> ())
+	table.insert(listeners, listener)
+end
+
+local function beat(name: Beat, step: number, at: Vector3)
+	for _, listener in listeners do
+		task.spawn(listener, name, step, at)
+	end
+end
+
 -- The rarity's colour from shared/Traits (the card's), grey for an unknown id.
 function MysticPool.colourOf(rarity: string): Color3
 	for _, r in Traits.RARITIES do
@@ -114,9 +130,11 @@ function MysticPool.roll(
 	end
 	local p = Presets.mysticPool
 	local revealed = false
+	local beatAt = station:GetPivot().Position -- the liquid's surface once it is found below
 	local function reveal()
 		if not revealed then
 			revealed = true
+			beat("reveal", 0, beatAt)
 			task.spawn(onReveal)
 		end
 	end
@@ -128,6 +146,7 @@ function MysticPool.roll(
 	local steps = Logic.poolSteps(rarity)
 	local drop = attachment(station, "PoolDrop")
 	local surface = if drop ~= nil then drop.WorldPosition else station:GetPivot().Position
+	beatAt = surface
 	local tip = attachment(station, "StaffTip")
 	local arm = findSuffix(station, p.armSuffix)
 	local armRest = if arm ~= nil then arm:GetPivot() else nil
@@ -270,6 +289,7 @@ function MysticPool.roll(
 			Particles.burst("splashDrops", surface, p.splash, Presets.palette.fishBelly)
 			Particles.burst("poolBubble", surface, p.bubbles, MysticPool.colourOf(steps[1]))
 			lastStep = 1
+			beat("drop", 1, surface)
 		end
 		if t < poolEnd then
 			local into = t - splashAt
@@ -280,6 +300,7 @@ function MysticPool.roll(
 			if i > lastStep then
 				lastStep = i
 				Particles.burst("poolBubble", surface, p.bubbles, colour)
+				beat(if steps[i] == "mythic" then "mythic" else "step", i, surface)
 				if steps[i] == "mythic" then
 					Particles.burst(
 						"catchSparkle",

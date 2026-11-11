@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-147 files: 144 PASS, 3 WARN, 0 FAIL.
+177 files: 168 PASS, 9 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -17,6 +17,9 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `music/CatCafe_Music_Tutorial.ogg` | music | 40.00 | 2 | 48000 | 748 | -18.1 | -2.4 | - | listen | WARN | level changes -10 -> -21 dB across the seam (fade or gap) |
 | `sfx/CatCafe_Sfx_Announce.ogg` | sfx | 0.90 | 1 | 48000 | 9 | -16.8 | -3.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_AnnounceMythical.ogg` | sfx | 2.40 | 1 | 48000 | 26 | -17.9 | -2.7 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_ArcadeEnd.ogg` | sfx | 1.00 | 1 | 48000 | 12 | -18.4 | -8.1 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_ArcadeMilestone.ogg` | sfx | 0.70 | 1 | 48000 | 10 | -17.6 | -6.0 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_ArcadeStart.ogg` | sfx | 0.80 | 1 | 48000 | 9 | -17.4 | -5.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_BumpHeld.ogg` | sfx | 0.60 | 1 | 48000 | 7 | -13.9 | -4.8 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CampCheckIn.ogg` | sfx | 1.40 | 1 | 48000 | 16 | -18.8 | -5.1 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CannonClouds.ogg` | sfx | 1.00 | 1 | 48000 | 16 | -22.4 | -9.4 | 1 | - | PASS |  |
@@ -29,6 +32,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_CatPickUp.ogg` | sfx | 0.42 | 1 | 48000 | 6 | -18.7 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatPlaced.ogg` | sfx | 0.60 | 1 | 48000 | 8 | -17.6 | -5.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatRest.ogg` | sfx | 0.65 | 1 | 48000 | 8 | -17.8 | -5.9 | 1 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CatSold.ogg` | sfx | 1.00 | 1 | 48000 | 11 | -20.1 | -9.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatchMiss.ogg` | sfx | 0.45 | 1 | 48000 | 7 | -18.8 | -6.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatchSparkle.ogg` | sfx | 0.85 | 1 | 48000 | 10 | -13.1 | -2.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatchStart.ogg` | sfx | 0.40 | 1 | 48000 | 8 | - | -5.8 | 3 | - | PASS |  |
@@ -60,6 +64,9 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_Shove.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -4.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | sfx | 1.40 | 1 | 48000 | 17 | -21.8 | -3.6 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_SignFlip.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -6.0 | 1 | - | PASS |  |
+| `sfx/CatCafe_Sfx_StationReady.ogg` | sfx | 0.70 | 1 | 48000 | 8 | -20.6 | -9.8 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_StationReveal.ogg` | sfx | 2.20 | 1 | 48000 | 23 | -18.9 | -4.2 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_StrayCall.ogg` | sfx | 0.80 | 1 | 48000 | 8 | -15.0 | -6.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StrayFlee.ogg` | sfx | 0.55 | 1 | 48000 | 9 | -20.1 | -3.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StraySprint.ogg` | sfx | 1.00 | 1 | 48000 | 16 | -23.2 | -4.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_TackleLunge.ogg` | sfx | 0.50 | 1 | 48000 | 8 | -18.4 | -5.3 | 0 | - | PASS |  |
@@ -71,6 +78,8 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_WaterStep.ogg` | sfx | 0.32 | 1 | 48000 | 7 | - | -6.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneArea.ogg` | sfx | 0.50 | 1 | 48000 | 7 | -22.9 | -9.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneSafe.ogg` | sfx | 0.75 | 1 | 48000 | 9 | -20.6 | -9.9 | 0 | - | PASS |  |
+| `sheet-parts/music/CatCafe_Music_AreaDesert.ogg` | music | 87.27 | 2 | 48000 | 1649 | -18.1 | -3.4 | - | listen | WARN | level changes -14 -> -28 dB across the seam (fade or gap) |
+| `sheet-parts/music/CatCafe_Music_AreaRuins.ogg` | music | 91.43 | 2 | 48000 | 1504 | -18.0 | -4.9 | - | listen | WARN | level changes -15 -> -22 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_DayC.ogg` | music | 73.85 | 2 | 48000 | 1391 | -18.0 | -2.9 | - | listen | WARN | level changes -15 -> -21 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_DayD.ogg` | music | 68.57 | 2 | 48000 | 1262 | -18.0 | -3.3 | - | listen | WARN | level changes -14 -> -23 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_JingleEpic.ogg` | stinger | 1.50 | 2 | 48000 | 21 | -15.3 | -6.1 | 0 | - | PASS |  |
@@ -78,11 +87,16 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/music/CatCafe_Music_JingleLuckyDay.ogg` | stinger | 2.60 | 2 | 48000 | 38 | -16.8 | -7.0 | 0 | - | PASS |  |
 | `sheet-parts/music/CatCafe_Music_JingleMythical.ogg` | stinger | 4.00 | 2 | 48000 | 61 | -14.3 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/music/CatCafe_Music_JingleRainbow.ogg` | stinger | 4.20 | 2 | 48000 | 60 | -15.9 | -5.9 | 0 | - | PASS |  |
+| `sheet-parts/music/CatCafe_Music_JukeboxBakeryBounce.ogg` | music | 35.56 | 2 | 48000 | 623 | -18.0 | -4.2 | - | listen | WARN | level changes -17 -> -25 dB across the seam (fade or gap) |
+| `sheet-parts/music/CatCafe_Music_JukeboxCatnapWaltz.ogg` | music | 34.29 | 2 | 48000 | 601 | -18.0 | -5.6 | - | listen | WARN | level changes -17 -> -24 dB across the seam (fade or gap) |
+| `sheet-parts/music/CatCafe_Music_JukeboxRainyWindow.ogg` | music | 60.00 | 2 | 48000 | 1087 | -18.0 | -3.7 | - | listen | WARN | level changes -16 -> -31 dB across the seam (fade or gap) |
+| `sheet-parts/music/CatCafe_Music_JukeboxStarlightPurr.ogg` | music | 58.18 | 2 | 48000 | 861 | -18.0 | -5.0 | - | listen | WARN | level changes -15 -> -24 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_NightB.ogg` | music | 101.05 | 2 | 48000 | 1633 | -18.0 | -4.6 | - | ok | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_BellhopBell.ogg` | sfx | 1.00 | 1 | 48000 | 14 | -21.6 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_CampBasket.ogg` | sfx | 0.95 | 1 | 48000 | 13 | -14.8 | -4.7 | 4 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_CampRattle.ogg` | sfx | 0.70 | 1 | 48000 | 11 | -24.7 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_CampSplash.ogg` | sfx | 0.90 | 1 | 48000 | 10 | -26.4 | -5.1 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_CircleHold.ogg` | sfx | 0.50 | 1 | 48000 | 7 | -15.6 | -8.7 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_DecorBathtubSofa.ogg` | sfx | 1.30 | 1 | 48000 | 9 | -14.3 | -5.3 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_DecorBlossomTree.ogg` | sfx | 2.40 | 1 | 48000 | 29 | -16.5 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_DecorCatTree.ogg` | sfx | 1.30 | 1 | 48000 | 15 | -23.5 | -6.3 | 0 | - | PASS |  |
@@ -97,11 +111,19 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/sfx/CatCafe_Sfx_FoodSardines.ogg` | sfx | 0.60 | 1 | 48000 | 9 | -24.5 | -8.0 | 1 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_FoodStarTreat.ogg` | sfx | 0.75 | 1 | 48000 | 10 | -18.6 | -9.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_FoodTuna.ogg` | sfx | 0.55 | 1 | 48000 | 8 | -24.6 | -8.0 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MuseumBell.ogg` | sfx | 1.80 | 1 | 48000 | 18 | -25.9 | -9.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_NetBounce.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -18.8 | -6.0 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_NetPop.ogg` | sfx | 0.60 | 1 | 48000 | 8 | -20.4 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_NetSmack.ogg` | sfx | 0.35 | 1 | 48000 | 6 | - | -4.1 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_NetWobble.ogg` | sfx | 0.70 | 1 | 48000 | 8 | -19.5 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_OfflineClaim.ogg` | sfx | 1.10 | 1 | 48000 | 13 | -16.3 | -6.8 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_OrderDing.ogg` | sfx | 0.90 | 1 | 48000 | 8 | -17.9 | -6.2 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_OrderPour.ogg` | sfx | 1.50 | 1 | 48000 | 19 | -21.4 | -8.1 | 2 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_PawSwat.ogg` | sfx | 0.40 | 1 | 48000 | 6 | - | -6.4 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_PoolDrop.ogg` | sfx | 0.90 | 1 | 48000 | 12 | -26.8 | -6.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_PoolMythic.ogg` | sfx | 1.90 | 1 | 48000 | 21 | -17.4 | -3.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_PoolReveal.ogg` | sfx | 1.30 | 1 | 48000 | 15 | -17.2 | -6.0 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_PoolStep.ogg` | sfx | 0.45 | 1 | 48000 | 7 | -21.4 | -8.1 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RainbowNear.ogg` | sfx | 1.60 | 1 | 48000 | 21 | -18.9 | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RallyCheer.ogg` | sfx | 1.50 | 1 | 48000 | 24 | -17.6 | -4.2 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueDone.ogg` | sfx | 1.10 | 1 | 48000 | 13 | -15.6 | -4.0 | 0 | - | PASS |  |
@@ -114,12 +136,15 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/sfx/CatCafe_Sfx_RescueHitTree.ogg` | sfx | 0.40 | 1 | 48000 | 8 | - | -4.8 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueMiss.ogg` | sfx | 0.26 | 1 | 48000 | 5 | - | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueStart.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -13.3 | -5.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_SpaChime.ogg` | sfx | 1.50 | 1 | 48000 | 16 | -19.9 | -7.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_SpaSplash.ogg` | sfx | 1.00 | 1 | 48000 | 12 | -27.2 | -6.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_StrayHop.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -23.4 | -4.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_TeamRescue.ogg` | sfx | 0.80 | 1 | 48000 | 10 | -15.4 | -4.8 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_TipBank.ogg` | sfx | 0.40 | 1 | 48000 | 7 | -24.3 | -6.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_TrayClink.ogg` | sfx | 0.28 | 1 | 48000 | 6 | - | -6.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_WordExcellent.ogg` | sfx | 0.90 | 1 | 48000 | 11 | -14.2 | -4.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_WordGreat.ogg` | sfx | 0.60 | 1 | 48000 | 8 | -19.0 | -5.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_WordNice.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -18.7 | -6.8 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_ReelStop.ogg` | ui | 0.40 | 1 | 48000 | 7 | - | -4.9 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_ReelTick.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -9.9 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_TradeDone.ogg` | ui | 1.30 | 1 | 48000 | 15 | -16.7 | -4.9 | 0 | - | PASS |  |
@@ -127,9 +152,14 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheets/CatCafe_Sheet_Bait.ogg` | sheet | 8.85 | 1 | 48000 | 55 | -20.5 | -6.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Cafe.ogg` | sheet | 4.58 | 1 | 48000 | 29 | -20.3 | -6.2 | 2 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Catch.ogg` | sheet | 4.85 | 1 | 48000 | 23 | -19.1 | -4.1 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Catch3.ogg` | sheet | 3.70 | 1 | 48000 | 19 | -21.0 | -6.0 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Decor.ogg` | sheet | 14.90 | 1 | 48000 | 130 | -18.9 | -5.3 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Late.ogg` | sheet | 6.30 | 1 | 48000 | 43 | -20.4 | -6.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Moments.ogg` | sheet | 23.22 | 2 | 48000 | 266 | -16.3 | -5.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Music.ogg` | music sheet | 244.47 | 2 | 48000 | 4279 | -18.0 | -2.9 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_MusicAreas.ogg` | music sheet | 179.20 | 2 | 48000 | 3151 | -18.0 | -3.4 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_MusicJukebox.ogg` | music sheet | 189.52 | 2 | 48000 | 3160 | -18.0 | -3.7 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Pool.ogg` | sheet | 6.05 | 1 | 48000 | 45 | -18.7 | -3.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Rescue.ogg` | sheet | 10.10 | 1 | 48000 | 52 | -18.9 | -4.0 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_World.ogg` | sheet | 7.15 | 1 | 48000 | 55 | -19.5 | -4.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Badge.ogg` | ui | 0.11 | 1 | 48000 | 4 | - | -11.0 | 0 | - | PASS |  |

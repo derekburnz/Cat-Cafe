@@ -104,6 +104,19 @@ return function()
 			expect(view.hook).to.equal(nil)
 		end)
 
+		it("says the cat comes at sunrise at night (#3238)", function()
+			local wide = SecondCatGoal.view(full(), false, "Cozy Cafe", true)
+			expect(wide.title).to.equal("2nd cat at sunrise 🌅 1/2")
+			expect(wide.chip).to.equal(wide.title)
+			expect(wide.hook).to.equal("Strays come back at sunrise")
+			local narrow = SecondCatGoal.view(full(), true, "Cozy Cafe", true)
+			expect(narrow.title).to.equal("2nd cat at sunrise 🌅 1/2")
+			expect(narrow.hook).to.equal(nil)
+			expect(SecondCatGoal.view(full(), false, "Cozy Cafe", false).title).to.equal(
+				"Catch a 2nd cat 🐾 1/2"
+			)
+		end)
+
 		it("agrees with the server's numbers", function()
 			local SecondCat =
 				require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").SecondCat)

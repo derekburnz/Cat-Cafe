@@ -6347,6 +6347,37 @@ local SCENES = {
 			assert(lines[1].Text == "New cats pay +$50 💰", "uigate: the second cat goal's money line came back as " .. lines[1].Text .. " (#3022)")
 		end
 	end },
+	-- #3238: at night no stray waits for the second cat (the areas are shut), so the goal card says it comes at
+	-- sunrise; day brings "Catch a 2nd cat" back
+	{ "SecondCatNight", function()
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local touch = Scale.isTouch()
+		local before: any = UI.getState()
+		Scenes._secondCat = { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		Scenes._secondNight = true
+		UI.update({ tier = 1, tutorialStep = 3, money = 120, secondCat = { now = 2.5, with = 2.5, cats = 1, bonus = 50 } } :: any)
+		local t = workspace:GetServerTimeNow()
+		UI.clock.set("day", t + 120)
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(title.Text == "Catch a 2nd cat 🐾 1/2", "uigate: by day the second cat goal reads " .. title.Text .. " (#3238)")
+		UI.clock.set("night", t + 45)
+		UIShim.advance(0.1)
+		assert(goal.Visible and title.Visible, "uigate: no second cat goal at night (#3238)")
+		assert(title.Text == "2nd cat at sunrise 🌅 1/2", "uigate: at night the second cat goal reads " .. title.Text .. " (#3238)")
+		assert(title.TextFits, "uigate: the night second cat goal does not fit its card (#3238)")
+		if not touch then
+			local line = goal:FindFirstChild("GoalLine1") :: TextLabel
+			assert(line.Visible and line.Text == "Strays come back at sunrise", "uigate: the night goal's line reads " .. line.Text .. " (#3238)")
+			assert(line.TextFits, "uigate: the night goal's line does not fit the card (#3238)")
+		end
+		UI.clock.set("day", t + 165)
+		UIShim.advance(0.1)
+		assert(title.Text == "Catch a 2nd cat 🐾 1/2", "uigate: at sunrise the second cat goal reads " .. title.Text .. " (#3238)")
+		UI.clock.set("night", t + 45)
+		UIShim.advance(0.1)
+	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
 	{ "TutorialDoneX", function()
@@ -8543,6 +8574,10 @@ function Scenes.close()
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back
 		Scenes._feedBefore = nil
+	end
+	if Scenes._secondNight then
+		Scenes._secondNight = nil
+		UI.clock.clear() -- #3238's scene
 	end
 	if Scenes._secondCat then
 		local was = Scenes._secondCat -- #3022's second cat goal scene: the tier goal and the sample cafe back

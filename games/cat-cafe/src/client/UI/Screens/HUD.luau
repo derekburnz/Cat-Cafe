@@ -2898,15 +2898,18 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
-	local second = SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil)
+	-- #3238: at night no stray waits (the areas are shut), so the card says the cat comes at sunrise
+	local second =
+		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._night)
 	local started = second ~= nil and self._second == nil
 	self._second = second
-	self._goal:render(
-		tierProgress,
-		Format.tier(state.tier, if catalog then catalog.tiers else nil),
-		if nudge then nudge.text else nil,
-		self:_secondGoal()
-	)
+	self._goalArgs = {
+		progress = tierProgress,
+		tier = Format.tier(state.tier, if catalog then catalog.tiers else nil),
+		nudge = if nudge then nudge.text else nil,
+		nextTier = if nextTier then nextTier.name else nil,
+	}
+	self._goal:render(tierProgress, self._goalArgs.tier, self._goalArgs.nudge, self:_secondGoal())
 	if not self:_open("goal") then
 		self._goal.frame.Visible = false
 	end
@@ -3364,9 +3367,13 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	local current: Types.ClockState = clock
 	local isNight = current.phase == "night"
 	local nightfall = isNight and not self._night and self._clockSeen == true -- not the first clock
+	local flipped = isNight ~= self._night
 	self._night = isNight
 	self._clockSeen = true
 	self:_renderBowl()
+	if flipped then
+		self:_renderSecondNight()
+	end
 	if nightfall and self._bait == nil and self._bowlSlot.Visible then
 		Tween.popIn(self._bowlSlot, 0.9)
 	end
@@ -5083,6 +5090,20 @@ end
 -- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped). #3155 (Derek2:
 -- "remove the pop ups for cat progress towards your goal at start"): no bounce, no second bounce at NUDGE_SECONDS
 -- and no preview lines ("New kind of cat: +$50", "and 1 step closer to ..."); the card just reads the goal.
+-- #3238: day turned to night or back while the second cat goal shows: the card's words change (sunrise at night).
+function HUD._renderSecondNight(self: any)
+	local args = self._goalArgs
+	local state = self._state
+	if args == nil or state == nil or self._second == nil then
+		return
+	end
+	self._second = SecondCatGoal.view(state, TOUCH, args.nextTier, self._night)
+	self._goal:render(args.progress, args.tier, args.nudge, self:_secondGoal())
+	if not self:_open("goal") then
+		self._goal.frame.Visible = false
+	end
+end
+
 function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
 end

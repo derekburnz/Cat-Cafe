@@ -11,8 +11,10 @@
 -- working is the server's, do the words become "2 cats earn 2x 💰" (at DOUBLE or more, else "earn more") and
 -- "Now +$1.5/s" / "with 2 cats +$2.5/s".
 -- While a cat is carried the card goes back to the tier goal: the carry banner says what to do with it.
+-- #3238: at night the areas are shut and no stray waits, so the title reads "2nd cat at sunrise 🌅 1/2" and a wide
+-- card's line under it "Strays come back at sunrise" (the server picks the waiting stray when day starts).
 -- Pure (no Theme, no Format), so the cloud specs load it.
---   view(state, narrow, nextTier?) -> View?   nil when there is nothing to say
+--   view(state, narrow, nextTier?, night?) -> View?   nil when there is nothing to say
 
 local ShortNumber = require(script.Parent.ShortNumber)
 
@@ -48,7 +50,7 @@ end
 
 -- `state` is a PlayerState; `narrow` the phone and tablet's narrow goal card; `nextTier` the next tier's name for
 -- the preview's second line (nil at the top tier, which drops it).
-function SecondCatGoal.view(state: any, narrow: boolean, nextTier: string?): View?
+function SecondCatGoal.view(state: any, narrow: boolean, nextTier: string?, night: boolean?): View?
 	local second = if type(state) == "table" then state.secondCat else nil
 	if type(second) ~= "table" or state.carrying ~= nil then
 		return nil
@@ -76,6 +78,10 @@ function SecondCatGoal.view(state: any, narrow: boolean, nextTier: string?): Vie
 				(if narrow then "1 step closer to " else "and 1 step closer to ") .. nextTier
 			)
 		end
+	end
+	if night == true then
+		title = "2nd cat at sunrise 🌅 " .. count
+		hook = "Strays come back at sunrise"
 	end
 	return { title = title, hook = if narrow then nil else hook, lines = lines, chip = title }
 end

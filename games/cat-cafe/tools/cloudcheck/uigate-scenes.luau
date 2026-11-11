@@ -3742,6 +3742,103 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
+	-- after a game
+	{
+		"ArcadeCard",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 37,
+				bestCircles = 30,
+				today = { 10, 20 },
+				legend = false,
+				serverBest = 61,
+				serverCircles = 45,
+				serverName = "Sam",
+			})
+			UI.arcade.open()
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			assert(
+				window and window:FindFirstChild("IdeaBy", true),
+				"uigate: no idea credit on the arcade card (#3062)"
+			)
+			assert(
+				window:FindFirstChild("Prize100", true),
+				"uigate: no milestone list on the arcade card (#3062)"
+			)
+		end,
+	},
+	{
+		"ArcadeBoard",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 0,
+				bestCircles = 0,
+				today = {},
+				legend = false,
+				serverBest = 0,
+				serverCircles = 0,
+			})
+			UI.arcade.open()
+			local at = workspace:GetServerTimeNow()
+			local circles = {}
+			for i = 1, 10 do
+				table.insert(circles, {
+					startsAt = at - 0.2 + (i - 1) * 1.9,
+					shrinkSeconds = 1.2,
+					x = 0.25 + (i % 3) * 0.25,
+					y = 0.3 + (i % 2) * 0.4,
+					kind = "single",
+				})
+			end
+			UI.arcade.block(1, 1, circles, { perfect = 0.06, good = 0.15 }, 0)
+			UI.arcade.judged(1, 1, 1, "perfect", 12, { 10 })
+		end,
+	},
+	{
+		"ArcadeOver",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 52,
+				bestCircles = 40,
+				today = { 10, 20, 30, 40, 50 },
+				legend = true,
+				serverBest = 100,
+				serverCircles = 58,
+				serverName = "Sam",
+			})
+			UI.arcade.open()
+			local at = workspace:GetServerTimeNow()
+			UI.arcade.block(
+				2,
+				1,
+				{ { startsAt = at + 1, shrinkSeconds = 1.2, x = 0.5, y = 0.5, kind = "single" } },
+				{ perfect = 0.06, good = 0.15 },
+				0
+			)
+			UI.arcade.over(2, {
+				points = 52,
+				circles = 40,
+				win = false,
+				best = 52,
+				bestCircles = 40,
+				newBest = true,
+				serverBest = 100,
+				serverCircles = 58,
+				serverName = "Sam",
+				paid = { 50 },
+				today = { 10, 20, 30, 40, 50 },
+				legend = true,
+			})
+			task.wait(1.4)
+		end,
+	},
 	-- #1633: the Codes Cat's circle opens the Store on Featured; the player taps Codes on the rail
 	{ "Codes", function()
 		UI.codes.open()

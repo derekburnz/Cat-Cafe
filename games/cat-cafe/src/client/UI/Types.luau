@@ -403,6 +403,7 @@ export type ScreenName =
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 	| "TradeLog" -- F102: the last 20 trades, opened from Settings
 	| "Store" -- the passes for Robux, from the HUD's Store tile (UI.store)
+	| "Arcade" -- #3062: the Cat Arcade, from its cabinet and the Menu list (UI.arcade)
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

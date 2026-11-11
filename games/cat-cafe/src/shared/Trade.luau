@@ -12,9 +12,10 @@
 --   shutdown (section 4), and it does nothing for a trade id the save has applied already.
 -- - #1574 (section 1b): decor joins. A piece is a crate decor id or a lawn piece id (never a lawn style, the free
 --   Tier 2 and 3 lawn gifts, or shop decor). Saves own pieces with no counts, so a piece the partner already owns
---   can't go on offer ("They already have this"). Legendary and up arrive locked: a piece of a lockable rarity is
---   locked unless the save's `decorUnlocked` has it, so every way of getting one (a crate, the lawn shop, a trade)
---   lands it locked. Up to TradeMaxDecor a side. The swap takes a placed piece off its spot; TradeService runs both
+--   can't go on offer ("They already have this"). #3276 (Derek, 2026-11-11): pieces no longer arrive locked. A piece
+--   of a lockable rarity (Legendary and up) is locked only when the save's `decorLocked` has it (LockDecor), so a
+--   crate, the lawn shop or a trade lands it unlocked. `decorUnlocked`, the list before #3276, is kept as the mirror
+--   (every owned lockable piece that isn't locked) so an older server sees the same locks. Up to TradeMaxDecor a side. The swap takes a placed piece off its spot; TradeService runs both
 --   sides' Equip Best for decor and the lawn afterwards.
 
 local CatStats = require(script.Parent.CatStats)
@@ -79,7 +80,7 @@ Trade.Messages = {
 	fishOff = "Golden fish trading is resting for now",
 }
 
--- #1574: the rarities whose pieces arrive locked (Legendary and up; Golden is the lawn's top rung).
+-- #1574: the rarities whose pieces can be locked (Legendary and up; Golden is the lawn's top rung).
 Trade.LOCKED_RARITIES =
 	table.freeze({ Legendary = true, Mythical = true, Golden = true }) :: { [string]: boolean }
 
@@ -127,19 +128,48 @@ function Trade.ownsPiece(profile: Types.PlayerProfile, id: string): boolean
 		or (Catalog.getLawn(id) ~= nil and profile.lawnOwned[id] == true)
 end
 
--- Whether a piece of `rarity` arrives locked (Legendary and up).
+-- Whether a piece of `rarity` can be locked (Legendary and up; #3276: none arrives locked).
 function Trade.lockable(rarity: string?): boolean
 	return rarity ~= nil and Trade.LOCKED_RARITIES[rarity] == true
 end
 
--- Whether piece `id` is locked in the save: a lockable rarity the player hasn't unlocked on its card.
-function Trade.pieceLocked(profile: Types.PlayerProfile, id: string): boolean
+local function pieceRarity(id: string): string?
 	local decor, lawn = Catalog.getDecor(id), Catalog.getLawn(id)
-	local rarity: string? = if decor ~= nil
-		then decor.rarity
-		elseif lawn ~= nil then lawn.rarity
-		else nil
-	return Trade.lockable(rarity) and profile.decorUnlocked[id] ~= true
+	return if decor ~= nil then decor.rarity elseif lawn ~= nil then lawn.rarity else nil
+end
+
+-- Whether piece `id` is locked in the save: a lockable rarity the player locked on its card (#3276: nothing arrives
+-- locked any more).
+function Trade.pieceLocked(profile: Types.PlayerProfile, id: string): boolean
+	return Trade.lockable(pieceRarity(id)) and profile.decorLocked[id] == true
+end
+
+-- #3276: the owned lockable pieces that aren't locked, as `decorUnlocked` held them before. The save keeps this
+-- mirror for older servers, and the client's state gets it (the Trade window's Decor tab greys a piece it lacks).
+function Trade.unlockedPieces(profile: Types.PlayerProfile): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	local function add(id: string)
+		if Trade.lockable(pieceRarity(id)) and profile.decorLocked[id] ~= true then
+			out[id] = true
+		end
+	end
+	for id, yes in profile.decorOwned do
+		if yes == true then
+			add(id)
+		end
+	end
+	for id, yes in profile.lawnOwned do
+		if yes == true and Catalog.getLawn(id) ~= nil then
+			add(id)
+		end
+	end
+	return out
+end
+
+-- #3276: lock or unlock owned piece `id` on its card, keeping the old servers' mirror in step.
+function Trade.setPieceLocked(profile: Types.PlayerProfile, id: string, locked: boolean)
+	profile.decorLocked[id] = if locked then true else nil
+	profile.decorUnlocked[id] = if locked then nil else true
 end
 
 -- Why piece `id` cannot go on `profile`'s side next to `offered` (the ids already there), in a trade with
@@ -212,10 +242,11 @@ local function takePiece(profile: Types.PlayerProfile, id: string)
 		end
 	end
 	profile.decorUnlocked[id] = nil
+	profile.decorLocked[id] = nil
 end
 
--- Piece `id` arrives in `profile`, owned and not placed (Equip Best places it); locked when its rarity is lockable,
--- as `decorUnlocked` doesn't have it. A piece the save owns already is left as it is.
+-- Piece `id` arrives in `profile`, owned, not placed (Equip Best places it) and unlocked (#3276). A piece the save
+-- owns already is left as it is.
 local function givePiece(profile: Types.PlayerProfile, id: string)
 	local info = Trade.piece(id)
 	if info == nil or Trade.ownsPiece(profile, id) then
@@ -226,7 +257,7 @@ local function givePiece(profile: Types.PlayerProfile, id: string)
 	else
 		profile.decorOwned[id] = true
 	end
-	profile.decorUnlocked[id] = nil
+	Trade.setPieceLocked(profile, id, false)
 end
 
 -- #2745 (section 1c): whether crate `id` can change hands: a known crate that isn't golden (golden crates come only

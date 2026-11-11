@@ -3149,6 +3149,9 @@ Presets.decorFx = {
 	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit `light` like
 	-- paint, with a white `glint` (Gold Leaf's sheen in white) crossing it (#2734: was 0.78 shown, 18 s, 0.6 lit and
 	-- no glint, too faint to read as Mythical).
+	-- #3221: the cafe's front doorway (plot.py DOOR: 7 wide at x 0, square to 7.5, then a round arch), left out of
+	-- the front tints; `rows` bands step up the arch
+	doorway = { half = 3.5, spring = 7.5, rows = 5 },
 	rainbow = {
 		shown = 0.5,
 		seconds = 10,

@@ -417,6 +417,37 @@ function Logic.insideCircle(
 	return wasInside
 end
 
+-- #3221: the cafe front split round its open doorway, so a front tint (Rainbow Shimmer, Gold Leaf's fallback sheen)
+-- paints the wall and never the opening. The front runs x0..x1 by y0..y1 in plot axes; the doorway is centred on x 0,
+-- `half` wide each side, square to `spring` and then a round arch of radius `half`. Pieces: the wall left and right
+-- of the doorway, the wall over the arch, and `rows` bands up the arch whose two pieces stop where the arch is widest
+-- in that band, so none covers the opening (the door's arch ring hides the thin wedge each band leaves).
+export type Rect = { x0: number, x1: number, y0: number, y1: number }
+export type Doorway = { half: number, spring: number, rows: number }
+function Logic.frontPieces(x0: number, x1: number, y0: number, y1: number, door: Doorway): { Rect }
+	local h, r = door.half, door.half
+	local top = door.spring + r
+	if x0 >= -h or x1 <= h or y1 <= top then
+		return { { x0 = x0, x1 = x1, y0 = y0, y1 = y1 } }
+	end
+	local list: { Rect } = {
+		{ x0 = x0, x1 = -h, y0 = y0, y1 = y1 },
+		{ x0 = h, x1 = x1, y0 = y0, y1 = y1 },
+		{ x0 = -h, x1 = h, y0 = top, y1 = y1 },
+	}
+	local band = r / door.rows
+	for k = 1, door.rows do
+		local up = (k - 1) * band
+		local open = math.sqrt(math.max(0, r * r - up * up))
+		if h - open > 0.05 then
+			local b0, b1 = door.spring + up, door.spring + up + band
+			table.insert(list, { x0 = -h, x1 = -open, y0 = b0, y1 = b1 })
+			table.insert(list, { x0 = open, x1 = h, y0 = b0, y1 = b1 })
+		end
+	end
+	return list
+end
+
 -- Half a box's size along the axes `frame` is measured in (the world's, or a plot's), however the box is turned.
 function Logic.halfExtents(frame: CFrame, size: Vector3): Vector3
 	local r, u, l = frame.RightVector, frame.UpVector, frame.LookVector

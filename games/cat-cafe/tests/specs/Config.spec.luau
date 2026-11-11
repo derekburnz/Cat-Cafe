@@ -477,6 +477,7 @@ return function()
 			local known = {
 				World = true,
 				OwnerTestUserIds = true, -- #1770: checked in OwnerTest.spec
+				OwnerUserIds = true, -- #3324: checked in ChatTags.spec
 				Badges = true, -- #1934: a table, checked in Badges.spec
 				ForcedDays = true, -- #1974: a table of drop windows, checked in Luck.spec
 				NetWindows = true, -- a table, checked below

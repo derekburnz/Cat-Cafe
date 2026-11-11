@@ -102,13 +102,16 @@ local tagPicks: { [Player]: TagPick } = {}
 local function markPlayer(player: Player, set: { [number]: boolean })
 	player:SetAttribute(CampExtras.GOLD_POND_ATTRIBUTE, has(set, Config.GoldenPondPassId))
 	local pick = tagPicks[player]
+	-- #3324: the owner's account always shows [Owner], whatever its pick
 	player:SetAttribute(
 		ChatTags.CHAT_TAG_ATTRIBUTE,
-		ChatTags.shown(
-			if pick ~= nil then pick.pick else nil,
-			has(set, Config.VipPassId),
-			if pick ~= nil then pick.items else {}
-		)
+		if ChatTags.isOwner(player.UserId)
+			then ChatTags.OWNER
+			else ChatTags.shown(
+				if pick ~= nil then pick.pick else nil,
+				has(set, Config.VipPassId),
+				if pick ~= nil then pick.items else {}
+			)
 	)
 end
 

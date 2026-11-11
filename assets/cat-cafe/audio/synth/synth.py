@@ -2145,6 +2145,68 @@ def arcade_end() -> np.ndarray:
     return finish(fade_tail(mix(d, *notes, (hum, 0.1)), 0.3), -8)
 
 
+def mouse_pop() -> np.ndarray:
+    """Mouse Dash (#3296): a mouse pops out of its hole. A tiny cork "pop" with a quick upward whistle, quiet and
+    short since it plays for every mouse of a run; the game pitches it down a little for the decoy cat."""
+    d = 0.22
+    pop = bubble(0.07, 420, 980, 0.02) * 0.8
+    up = glide(0.12, 900, 1700, 0.1) * envelope(0.12, 0.004, 0.035) * 0.35
+    air = bandpass(noise(0.06, 3296), 2600, 1.2) * envelope(0.06, 0.001, 0.012) * 0.2
+    return finish(fade_tail(mix(d, (pop, 0.0), (air, 0.0), (up, 0.015)), 0.06), -9)
+
+
+def mouse_catch() -> np.ndarray:
+    """Mouse Dash (#3296): a mouse caught. A soft paw pat, a short happy squeak and a small glockenspiel ting. The
+    game plays it a note higher every few catches, so a streak climbs."""
+    d = 0.4
+    pat = glide(0.06, 260, 130, 0.04) * envelope(0.06, 0.001, 0.015) * 0.5
+    cry = squeak(0.11, 2100, 3297) * 0.4
+    ting = bell(d - 0.05, note("E6"), GLOCK) * 0.5
+    return finish(fade_tail(mix(d, (pat, 0.0), (cry, 0.012), (ting, 0.05)), 0.12), -8)
+
+
+def mouse_duck() -> np.ndarray:
+    """Mouse Dash (#3296): the mouse ducks back into its hole untapped and the run ends. A quick slide down and a
+    soft dust puff: a "whoops, gone", never a buzzer."""
+    d = 0.5
+    slide = glide(0.2, 1500, 520, 0.18) * envelope(0.2, 0.003, 0.07) * 0.45
+    puff = bandpass(noise(0.32, 3298), sweep(0.32, 1600, 500), 0.8)
+    puff = puff / np.max(np.abs(puff)) * envelope(0.32, 0.01, 0.08) * 0.4
+    thud = glide(0.08, 190, 110, 0.05) * envelope(0.08, 0.002, 0.025) * 0.35
+    return finish(fade_tail(mix(d, (slide, 0.0), (thud, 0.14), (puff, 0.13)), 0.15), -9)
+
+
+def mouse_oops() -> np.ndarray:
+    """Mouse Dash (#3296): a tap on an empty hole or on the decoy cat. Two soft falling marimba notes with a small
+    hollow knock, a gentle "oops"."""
+    d = 0.5
+    knock = glide(0.07, 330, 200, 0.04) * envelope(0.07, 0.001, 0.02) * 0.5
+    notes = [(bell(0.35, note(n), MARIMBA) * a, at) for n, at, a in (("E5", 0.02, 0.6), ("B4", 0.14, 0.55))]
+    return finish(fade_tail(mix(d, (knock, 0.0), *notes), 0.15), -9)
+
+
+def mouse_faster() -> np.ndarray:
+    """Mouse Dash (#3296): the mice speed up, every 5 points. A quick three note run up on the celesta with a short
+    wind-up whirr under it, over in a third of a second so the next mouse is never covered."""
+    d = 0.42
+    whirr = bandpass(noise(0.2, 3299), sweep(0.2, 700, 2600), 2.0)
+    whirr = whirr / np.max(np.abs(whirr)) * envelope(0.2, 0.004, 0.07) * 0.2
+    run = [(bell(d - at, note(n), CELESTA) * 0.5, at) for n, at in (("A5", 0.0), ("C#6", 0.05), ("E6", 0.1))]
+    return finish(fade_tail(mix(d, (whirr, 0.0), *run), 0.14), -9)
+
+
+def mouse_best() -> np.ndarray:
+    """Mouse Dash (#3296): a run ends on a new best. A bright five note glockenspiel rise over warm vibraphone, a
+    squeak of cheer and a few sparkles; a second and a half, under the result card."""
+    d = 1.6
+    rise = [(bell(d - at, note(n), GLOCK) * 0.5, at)
+            for n, at in (("A5", 0.0), ("C#6", 0.09), ("E6", 0.18), ("A6", 0.27), ("C#7", 0.4))]
+    pad = [(bell(1.1, note(n), VIBES) * 0.3, 0.27) for n in ("A4", "E5", "C#6")]
+    cheer = [(squeak(0.09, 2300, 3300) * 0.2, 0.52), (squeak(0.08, 2700, 3301) * 0.18, 0.64)]
+    sparkles = [(bell(0.25, 3000.0 * (1 + 0.08 * (i % 4)), COIN, attack=0.0005) * 0.14, 0.5 + 0.09 * i) for i in range(5)]
+    return finish(fade_tail(mix(d, *rise, *pad, *cheer, *sparkles), 0.5), -6)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2299,6 +2361,12 @@ SOUNDS = {
     "PoolStep": ("sheet-parts/sfx", "Sfx", pool_step),
     "PoolReveal": ("sheet-parts/sfx", "Sfx", pool_reveal),
     "PoolMythic": ("sheet-parts/sfx", "Sfx", pool_mythic),
+    "MousePop": ("sheet-parts/sfx", "Sfx", mouse_pop),
+    "MouseCatch": ("sheet-parts/sfx", "Sfx", mouse_catch),
+    "MouseDuck": ("sheet-parts/sfx", "Sfx", mouse_duck),
+    "MouseOops": ("sheet-parts/sfx", "Sfx", mouse_oops),
+    "MouseFaster": ("sheet-parts/sfx", "Sfx", mouse_faster),
+    "MouseBest": ("sheet-parts/sfx", "Sfx", mouse_best),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -2323,6 +2391,8 @@ SHEETS = {
     "Late": (1, ("SpaSplash", "SpaChime", "MuseumBell", "CircleHold")),
     # the Mystic Pool's roll (2026-11-11, #3389), mono: the drop and the steps play in 3D at the pool
     "Pool": (1, ("PoolDrop", "PoolStep", "PoolReveal", "PoolMythic")),
+    # Mouse Dash, the second Cat Arcade game (2026-11-11, #3296), mono, played on the player's own screen
+    "Mouse": (1, ("MousePop", "MouseCatch", "MouseDuck", "MouseOops", "MouseFaster", "MouseBest")),
     # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
     "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),

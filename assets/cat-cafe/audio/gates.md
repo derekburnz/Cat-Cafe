@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-184 files: 175 PASS, 9 WARN, 0 FAIL.
+189 files: 180 PASS, 9 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -115,8 +115,13 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/sfx/CatCafe_Sfx_MouseCatch.ogg` | sfx | 0.40 | 1 | 48000 | 6 | - | -7.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MouseDuck.ogg` | sfx | 0.50 | 1 | 48000 | 8 | -22.6 | -8.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MouseFaster.ogg` | sfx | 0.42 | 1 | 48000 | 8 | -19.3 | -8.8 | 0 | - | PASS |  |
-| `sheet-parts/sfx/CatCafe_Sfx_MouseOops.ogg` | sfx | 0.50 | 1 | 48000 | 7 | -20.7 | -9.1 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MouseGoldCatch.ogg` | sfx | 0.85 | 1 | 48000 | 12 | -17.6 | -5.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MouseGoldUp.ogg` | sfx | 0.60 | 1 | 48000 | 9 | -17.8 | -7.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MouseHeart.ogg` | sfx | 0.80 | 1 | 48000 | 9 | -17.6 | -7.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MouseMrow.ogg` | sfx | 0.40 | 1 | 48000 | 7 | -17.6 | -8.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MousePop.ogg` | sfx | 0.22 | 1 | 48000 | 5 | - | -9.0 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MousePurr.ogg` | sfx | 0.60 | 1 | 48000 | 13 | -28.1 | -3.0 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_MouseThud.ogg` | sfx | 0.35 | 1 | 48000 | 6 | - | -9.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MuseumBell.ogg` | sfx | 1.80 | 1 | 48000 | 18 | -25.9 | -9.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_NetBounce.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -18.8 | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_NetPop.ogg` | sfx | 0.60 | 1 | 48000 | 8 | -20.4 | -5.9 | 0 | - | PASS |  |
@@ -162,7 +167,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheets/CatCafe_Sheet_Decor.ogg` | sheet | 14.90 | 1 | 48000 | 130 | -18.9 | -5.3 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Late.ogg` | sheet | 6.30 | 1 | 48000 | 43 | -20.4 | -6.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Moments.ogg` | sheet | 23.22 | 2 | 48000 | 266 | -16.3 | -5.9 | 0 | - | PASS |  |
-| `sheets/CatCafe_Sheet_Mouse.ogg` | sheet | 6.14 | 1 | 48000 | 36 | -21.2 | -6.0 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Mouse.ogg` | sheet | 11.74 | 1 | 48000 | 68 | -20.5 | -3.1 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Music.ogg` | music sheet | 244.47 | 2 | 48000 | 4279 | -18.0 | -2.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_MusicAreas.ogg` | music sheet | 179.20 | 2 | 48000 | 3151 | -18.0 | -3.4 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_MusicJukebox.ogg` | music sheet | 189.52 | 2 | 48000 | 3160 | -18.0 | -3.7 | 0 | - | PASS |  |

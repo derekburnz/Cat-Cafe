@@ -2147,7 +2147,7 @@ def arcade_end() -> np.ndarray:
 
 def mouse_pop() -> np.ndarray:
     """Mouse Dash (#3296): a mouse pops out of its hole. A tiny cork "pop" with a quick upward whistle, quiet and
-    short since it plays for every mouse of a run; the game pitches it down a little for the decoy cat."""
+    short since it plays for every mouse of a run."""
     d = 0.22
     pop = bubble(0.07, 420, 980, 0.02) * 0.8
     up = glide(0.12, 900, 1700, 0.1) * envelope(0.12, 0.004, 0.035) * 0.35
@@ -2166,7 +2166,7 @@ def mouse_catch() -> np.ndarray:
 
 
 def mouse_duck() -> np.ndarray:
-    """Mouse Dash (#3296): the mouse ducks back into its hole untapped and the run ends. A quick slide down and a
+    """Mouse Dash (#3296): the mouse ducks back into its hole untapped and a heart is lost. A quick slide down and a
     soft dust puff: a "whoops, gone", never a buzzer."""
     d = 0.5
     slide = glide(0.2, 1500, 520, 0.18) * envelope(0.2, 0.003, 0.07) * 0.45
@@ -2174,15 +2174,6 @@ def mouse_duck() -> np.ndarray:
     puff = puff / np.max(np.abs(puff)) * envelope(0.32, 0.01, 0.08) * 0.4
     thud = glide(0.08, 190, 110, 0.05) * envelope(0.08, 0.002, 0.025) * 0.35
     return finish(fade_tail(mix(d, (slide, 0.0), (thud, 0.14), (puff, 0.13)), 0.15), -9)
-
-
-def mouse_oops() -> np.ndarray:
-    """Mouse Dash (#3296): a tap on an empty hole or on the decoy cat. Two soft falling marimba notes with a small
-    hollow knock, a gentle "oops"."""
-    d = 0.5
-    knock = glide(0.07, 330, 200, 0.04) * envelope(0.07, 0.001, 0.02) * 0.5
-    notes = [(bell(0.35, note(n), MARIMBA) * a, at) for n, at, a in (("E5", 0.02, 0.6), ("B4", 0.14, 0.55))]
-    return finish(fade_tail(mix(d, (knock, 0.0), *notes), 0.15), -9)
 
 
 def mouse_faster() -> np.ndarray:
@@ -2205,6 +2196,74 @@ def mouse_best() -> np.ndarray:
     cheer = [(squeak(0.09, 2300, 3300) * 0.2, 0.52), (squeak(0.08, 2700, 3301) * 0.18, 0.64)]
     sparkles = [(bell(0.25, 3000.0 * (1 + 0.08 * (i % 4)), COIN, attack=0.0005) * 0.14, 0.5 + 0.09 * i) for i in range(5)]
     return finish(fade_tail(mix(d, *rise, *pad, *cheer, *sparkles), 0.5), -6)
+
+
+def mouse_gold_up() -> np.ndarray:
+    """Mouse Dash (#3296): the golden mouse pops up. The pop with a bright two note glockenspiel chime and a fine
+    shimmer, so it is heard as "special" before it is seen."""
+    d = 0.6
+    pop = bubble(0.07, 480, 1100, 0.02) * 0.5
+    chime = [(bell(d - at, note(n), GLOCK) * 0.55, at) for n, at in (("E6", 0.01), ("B6", 0.08))]
+    shimmer = [(bell(0.2, f, ((1.0, 1.0, 0.05), (2.76, 0.2, 0.02))) * 0.16, 0.14 + 0.045 * i)
+               for i, f in enumerate((3951.1, 4434.9, 4978.0, 5919.9))]
+    return finish(fade_tail(mix(d, (pop, 0.0), *chime, *shimmer), 0.2), -8)
+
+
+def mouse_gold_catch() -> np.ndarray:
+    """Mouse Dash (#3296): the golden mouse caught, +3. The pat and a rounder squeak, then a gold three note chord
+    with coins on top; richer than a plain catch and still under a second."""
+    d = 0.85
+    pat = glide(0.06, 260, 130, 0.04) * envelope(0.06, 0.001, 0.015) * 0.5
+    cry = squeak(0.13, 1900, 3302) * 0.35
+    chord = [(bell(d - at, note(n), GLOCK) * a, at)
+             for n, at, a in (("E6", 0.05, 0.5), ("G#6", 0.1, 0.5), ("B6", 0.15, 0.55))]
+    warm = bell(0.6, note("E5"), VIBES) * 0.3
+    coins = [(bell(0.15, 2600.0 * (1 + 0.07 * i), COIN, attack=0.0005) * 0.2, 0.24 + 0.06 * i) for i in range(3)]
+    return finish(fade_tail(mix(d, (pat, 0.0), (cry, 0.012), *chord, (warm, 0.05), *coins), 0.3), -6)
+
+
+def mouse_purr() -> np.ndarray:
+    """Mouse Dash (#3296): the napping kitten is up. Half a second of soft purr (the voice box's quick clicks through
+    a mouth filter) that swells and fades: "leave me be"."""
+    d = 0.6
+    rng = np.random.default_rng(3303)
+    clicks = np.zeros(int(d * SR))
+    at = 0.0
+    while at < d - 0.01:
+        i = int(at * SR)
+        clicks[i] = 0.7 + 0.3 * rng.random()
+        at += (1 / 26.0) * (1 + 0.06 * rng.standard_normal())
+    body = bandpass(clicks, 320, 2.5) + 0.5 * bandpass(clicks, 760, 3.0)
+    air = bandpass(noise(d, 3304), 600, 0.8) * 0.01
+    swell = np.sin(np.pi * np.clip(seconds(d) / d, 0, 1)) ** 0.7
+    return finish((body / np.max(np.abs(body)) + air * 4) * swell, -4)
+
+
+def mouse_mrow() -> np.ndarray:
+    """Mouse Dash (#3296): the napping kitten tapped awake. One small rising "mrow?", sleepy and a little puzzled,
+    never a hiss."""
+    d = 0.4
+    voice = cat_voice(0.3, 520, 640, 880, 0.5, 3305) * 0.6
+    return finish(fade_tail(mix(d, (voice, 0.0)), 0.1), -9)
+
+
+def mouse_thud() -> np.ndarray:
+    """Mouse Dash (#3296): a paw lands on an empty hole. A soft, round thud and a tiny wobble after it, like a paw
+    on a wooden box."""
+    d = 0.35
+    thud = glide(0.12, 210, 95, 0.07) * envelope(0.12, 0.001, 0.035) * 0.8
+    wood = bell(0.12, 420.0, MARIMBA) * 0.25
+    wobble = glide(0.2, 620, 480, 0.2) * (0.5 + 0.5 * np.sin(2 * np.pi * 11 * seconds(0.2))) * envelope(0.2, 0.01, 0.07) * 0.18
+    return finish(fade_tail(mix(d, (thud, 0.0), (wood, 0.0), (wobble, 0.08)), 0.1), -9)
+
+
+def mouse_heart() -> np.ndarray:
+    """Mouse Dash (#3296): a heart won back after 10 catches in a row. A warm two note rise on the vibraphone with
+    one soft glockenspiel note on top."""
+    d = 0.8
+    rise = [(bell(d - at, note(n), VIBES) * 0.55, at) for n, at in (("A4", 0.0), ("E5", 0.13))]
+    top = bell(0.45, note("C#6"), GLOCK) * 0.25
+    return finish(fade_tail(mix(d, *rise, (top, 0.24)), 0.3), -8)
 
 
 SOUNDS = {
@@ -2364,9 +2423,14 @@ SOUNDS = {
     "MousePop": ("sheet-parts/sfx", "Sfx", mouse_pop),
     "MouseCatch": ("sheet-parts/sfx", "Sfx", mouse_catch),
     "MouseDuck": ("sheet-parts/sfx", "Sfx", mouse_duck),
-    "MouseOops": ("sheet-parts/sfx", "Sfx", mouse_oops),
     "MouseFaster": ("sheet-parts/sfx", "Sfx", mouse_faster),
     "MouseBest": ("sheet-parts/sfx", "Sfx", mouse_best),
+    "MouseGoldUp": ("sheet-parts/sfx", "Sfx", mouse_gold_up),
+    "MouseGoldCatch": ("sheet-parts/sfx", "Sfx", mouse_gold_catch),
+    "MousePurr": ("sheet-parts/sfx", "Sfx", mouse_purr),
+    "MouseMrow": ("sheet-parts/sfx", "Sfx", mouse_mrow),
+    "MouseThud": ("sheet-parts/sfx", "Sfx", mouse_thud),
+    "MouseHeart": ("sheet-parts/sfx", "Sfx", mouse_heart),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -2392,7 +2456,8 @@ SHEETS = {
     # the Mystic Pool's roll (2026-11-11, #3389), mono: the drop and the steps play in 3D at the pool
     "Pool": (1, ("PoolDrop", "PoolStep", "PoolReveal", "PoolMythic")),
     # Mouse Dash, the second Cat Arcade game (2026-11-11, #3296), mono, played on the player's own screen
-    "Mouse": (1, ("MousePop", "MouseCatch", "MouseDuck", "MouseOops", "MouseFaster", "MouseBest")),
+    "Mouse": (1, ("MousePop", "MouseCatch", "MouseGoldUp", "MouseGoldCatch", "MouseDuck", "MousePurr", "MouseMrow",
+                  "MouseThud", "MouseHeart", "MouseFaster", "MouseBest")),
     # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
     "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),

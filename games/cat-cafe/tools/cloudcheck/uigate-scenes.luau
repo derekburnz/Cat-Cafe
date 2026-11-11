@@ -6039,6 +6039,9 @@ local SCENES = {
 				assert(gap > 40, "uigate: the tutorial arrow stays at Upgrades after its step (#2314)")
 			end
 		end
+		-- #3154: let the × pulse this step starts (6 s on, 12 s long) run out, so its arrow never stands in for the
+		-- goal card's in the scenes after this one
+		UIShim.advance(20)
 		UI.update({ money = money } :: any)
 	end },
 	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point

@@ -362,3 +362,19 @@ Object.assign(window.ICONS, {
     <path d="M32 26 Q32 10 20 20 Q14 26 16 40 M32 26 Q32 10 44 20 Q50 26 48 40" stroke="#8fe4ff" stroke-width="3" fill="none" stroke-linecap="round"/>
     <circle cx="32" cy="14" r="3" fill="#8fe4ff" stroke="${O}" stroke-width="2"/>`,
 });
+// #3137 batch 3: the night's moon (the night line, Night Market) and the open padlock (unlock cards), the last
+// emoji in the audit's row 5 (drop, replay and tag already have #2836 pictures)
+Object.assign(window.ICONS, {
+  // a gold crescent moon with two little stars
+  moon: `<path ${S} fill="#ffd23f" d="M40 6 Q20 10 16 30 Q14 50 34 58 Q48 62 58 50 Q40 52 32 40 Q24 26 40 6 Z"/>
+    <path d="M24 22 Q20 32 24 42" stroke="#fff1a8" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M50 14 L52 19 L57 20 L52 22 L50 27 L48 22 L43 20 L48 19 Z"/>
+    <circle cx="56" cy="34" r="2.6" fill="#fff" stroke="${O}" stroke-width="1.8"/>`,
+  // the open gold padlock, its shackle swung up and off to one side
+  unlock: `<path d="M22 30 V18 Q22 6 34 6 Q46 6 46 16" stroke="${O}" stroke-width="11" fill="none" stroke-linecap="round"/>
+    <path d="M22 30 V18 Q22 6 34 6 Q46 6 46 16" stroke="#c9d3de" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect ${S} x="8" y="28" width="40" height="30" rx="6" fill="#ffc94d"/>
+    <path d="M12 34 H44" stroke="#ffe39a" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="28" cy="42" r="4" fill="${O}"/><path d="M28 44 V51" stroke="${O}" stroke-width="4" stroke-linecap="round"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M54 30 L56 35 L61 36 L56 38 L54 43 L52 38 L47 36 L52 35 Z"/>`,
+});

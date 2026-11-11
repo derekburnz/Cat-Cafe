@@ -3201,4 +3201,28 @@ return function()
 			end
 		end)
 	end)
+
+	describe("area set barriers (#3348)", function()
+		it("keeps the edge ring and drops every invisible barrier inside an area", function()
+			expect(Layout.keepsBarrier("CatCafe_Ruins_Set_068_Walls_Barrier")).to.equal(true)
+			expect(Layout.keepsBarrier("CatCafe_Sewer_SetF85_034_Walls_Barrier")).to.equal(true)
+			for _, name in
+				{
+					"CatCafe_Ruins_Set_087_GlyphHalls_Barrier",
+					"CatCafe_Sewer_SetF85_037_Pool_Barrier",
+					"CatCafe_Woods_SetF85_085_Stream_Barrier",
+					"CatCafe_Neighbourhood_SetF85_335_Blocks_Barrier",
+					"CatCafe_Park_SetF85_124_Glasshouse_Barrier",
+				}
+			do
+				expect(Layout.keepsBarrier(name)).to.equal(false)
+			end
+		end)
+
+		it("leaves everything that is not a barrier, the climb ramps too", function()
+			expect(Layout.keepsBarrier("CatCafe_Woods_SetF85_162_Treehouse_Climb")).to.equal(true)
+			expect(Layout.keepsBarrier("CatCafe_Ruins_Set")).to.equal(true)
+			expect(Layout.keepsBarrier("BarrierPost")).to.equal(true)
+		end)
+	end)
 end

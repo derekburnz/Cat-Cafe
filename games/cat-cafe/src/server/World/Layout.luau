@@ -2491,4 +2491,16 @@ end
 -- rotY, and a character spawns facing the way its SpawnLocation faces).
 Layout.playerSpawn = { x = 0, y = 0.6, z = -14, rotY = 180 } :: Point
 
+-- #3348 (Derek2 2026-11-11: "remove invisibile barriers from all area builds"): whether an area set's invisible
+-- collision piece named `name` stays when the set loads. The sets mark theirs with a `_Barrier` suffix: the edge ring
+-- round the whole area (`_Walls_Barrier`, up to Config's 30 stud cap) keeps everyone in the map and out of a locked
+-- area, so it stays; every barrier inside the area (streams, canals, hedges, hall walls, city blocks) goes, and the
+-- visible art's own collision is what a player bumps into. Anything not a barrier (the `_Climb` ramps too) stays.
+function Layout.keepsBarrier(name: string): boolean
+	if string.sub(name, -8) ~= "_Barrier" then
+		return true
+	end
+	return string.find(name, "_Walls_Barrier", 1, true) ~= nil
+end
+
 return Layout

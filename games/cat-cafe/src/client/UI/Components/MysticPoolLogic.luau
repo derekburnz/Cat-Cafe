@@ -1,0 +1,177 @@
+--!strict
+-- The Mystic Pool on the UI (#3196, #3314, trait-station.md sections 1 and 3). Pure, so the cloud spec runner checks
+-- it. The rules are the server's (shared/Traits, TraitService); this shapes PlayerState.traits and the player's cats
+-- for the card:
+--   card(trait)                 a trait's card: its name, rarity name and colour and one line per effect; a plain
+--                               "No trait yet" card for none
+--   roll(view, hasTrait, fish)  the Roll button: its words ("Free roll (5 left)", "Re-roll · 1 Trait Token",
+--                               "Roll · 10 golden fish") and whether the player can pay; nothing rolls while a
+--                               re-roll waits for Keep old or Take new
+--   pending(view, cats)         the waiting re-roll: its cat, the old card and the new one side by side
+--   haveLine(view, fish)        "5 free rolls · 2 Trait Tokens · 34 golden fish" (free rolls only while any are left)
+--   tokens(view, now)           the station's free tokens: "1 Trait Token ready" with Collect, or "Next free token in
+--                               3h 12m"
+--   odds()                      the Odds list: one row per rarity with its colour and percent, and the line under it
+--   ODDS_LINE                   the odds line every card shows (Traits.oddsText)
+-- Button words stay neutral ("Roll again" is never "so close"), for a young audience (spec section 1a).
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Traits = require(Shared:WaitForChild("Traits")) :: any
+
+local MysticPoolLogic = {}
+
+MysticPoolLogic.WINDOW = "MysticPool"
+MysticPoolLogic.NO_TRAIT = "No trait yet"
+MysticPoolLogic.NO_TRAIT_COLOR = "#9AA0A6"
+MysticPoolLogic.KEEP_OLD = "Keep old"
+MysticPoolLogic.TAKE_NEW = "Take new"
+MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
+MysticPoolLogic.ODDS_LINE = Traits.oddsText() :: string
+
+export type Card = {
+	has: boolean,
+	name: string, -- "Big Tipper", or "No trait yet"
+	rarity: string, -- "Rare", or "" for none
+	color: string, -- hex with its "#"
+	lines: { string }, -- "+12% this cat's income"
+}
+
+export type Roll = { text: string, enabled: boolean, why: string? }
+
+export type Pending = { uid: string, old: Card, new: Card }
+
+export type OddsRow = { name: string, color: string, percent: number }
+
+-- What the card reads from PlayerState.traits (Types.TraitsView); every field checked, as it crosses the network.
+type View = {
+	tokens: number?,
+	freeLeft: number?,
+	held: number?,
+	nextAt: number?,
+	pending: { uid: string?, id: string? }?,
+}
+
+local function whole(value: any): number
+	return if type(value) == "number" and value == value then math.max(0, math.floor(value)) else 0
+end
+
+local function plural(count: number, one: string, many: string): string
+	return string.format("%d %s", count, if count == 1 then one else many)
+end
+
+-- "3h 12m", "12m", "45s": time left, rounded up to the unit shown so it never reads 0.
+local function span(seconds: number): string
+	local left = math.max(1, math.ceil(seconds))
+	if left >= 3600 then
+		local minutes = math.ceil(left / 60)
+		return string.format("%dh %02dm", minutes // 60, minutes % 60)
+	elseif left >= 60 then
+		return string.format("%dm", math.ceil(left / 60))
+	end
+	return string.format("%ds", left)
+end
+
+function MysticPoolLogic.card(trait: any): Card
+	local def: any = nil
+	if type(trait) == "table" and type(trait.id) == "string" then
+		def = Traits.get(trait.id)
+	end
+	if def == nil then
+		return {
+			has = false,
+			name = MysticPoolLogic.NO_TRAIT,
+			rarity = "",
+			color = MysticPoolLogic.NO_TRAIT_COLOR,
+			lines = {},
+		}
+	end
+	return {
+		has = true,
+		name = def.name,
+		rarity = def.rarity.name,
+		color = def.rarity.color,
+		lines = Traits.effectLines(trait),
+	}
+end
+
+-- The Roll button for the picked cat. `fish` is the player's golden fish.
+function MysticPoolLogic.roll(view: View?, hasTrait: boolean, fish: number): Roll
+	if view == nil then
+		return { text = "Roll", enabled = false, why = "The Mystic Pool is closed for now" }
+	end
+	local freeLeft = math.min(whole(view.freeLeft), Traits.FREE_ROLLS)
+	local tokens = whole(view.tokens)
+	local text = Traits.rollText(Traits.FREE_ROLLS - freeLeft, tokens, hasTrait)
+	if view.pending ~= nil then
+		return { text = text, enabled = false, why = "Pick Keep old or Take new first" }
+	end
+	if Traits.payment(Traits.FREE_ROLLS - freeLeft, tokens, whole(fish)) == nil then
+		return {
+			text = text,
+			enabled = false,
+			why = string.format("You need a Trait Token or %d golden fish", Traits.COST_FISH),
+		}
+	end
+	return { text = text, enabled = true }
+end
+
+-- The re-roll waiting for its choice, or nil. `cats` maps uid to the cat (its `trait` is the old one). A cat that
+-- is gone (traded away since) still gets its two cards, so the player can clear the choice.
+function MysticPoolLogic.pending(view: View?, cats: { [string]: any }): Pending?
+	local waiting = if view ~= nil then view.pending else nil
+	if
+		type(waiting) ~= "table"
+		or type(waiting.uid) ~= "string"
+		or type(waiting.id) ~= "string"
+	then
+		return nil
+	end
+	local cat = cats[waiting.uid]
+	return {
+		uid = waiting.uid,
+		old = MysticPoolLogic.card(if type(cat) == "table" then cat.trait else nil),
+		new = MysticPoolLogic.card({ id = waiting.id }),
+	}
+end
+
+function MysticPoolLogic.haveLine(view: View?, fish: number): string
+	local parts: { string } = {}
+	local freeLeft = if view ~= nil then whole(view.freeLeft) else 0
+	if freeLeft > 0 then
+		table.insert(parts, plural(freeLeft, "free roll", "free rolls"))
+	end
+	table.insert(
+		parts,
+		plural(if view ~= nil then whole(view.tokens) else 0, "Trait Token", "Trait Tokens")
+	)
+	table.insert(parts, string.format("%d golden fish", whole(fish)))
+	return table.concat(parts, " · ")
+end
+
+-- The station's free tokens: the line, and whether Collect has something to take. `now` is the server's time.
+function MysticPoolLogic.tokens(view: View?, now: number): (string, boolean)
+	if view == nil then
+		return "", false
+	end
+	local held = whole(view.held)
+	if held > 0 then
+		return plural(held, "Trait Token", "Trait Tokens") .. " ready", true
+	end
+	local nextAt = view.nextAt
+	if type(nextAt) == "number" and nextAt > now then
+		return "Next free token in " .. span(nextAt - now), false
+	end
+	return "Next free token soon", false
+end
+
+function MysticPoolLogic.odds(): { OddsRow }
+	local rows: { OddsRow } = {}
+	for _, rarity in Traits.RARITIES do
+		table.insert(rows, { name = rarity.name, color = rarity.color, percent = rarity.odds })
+	end
+	return rows
+end
+
+return MysticPoolLogic

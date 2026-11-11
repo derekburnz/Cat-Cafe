@@ -88,6 +88,7 @@ import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
 import mysticpool  # noqa: E402
+import moneybag  # noqa: E402
 import thanksboard  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
@@ -127,7 +128,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool]
+           arcadecabinet, mysticpool, moneybag]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -260,6 +261,7 @@ PIVOT_NOTES = {
                         "the players; placed by Gameplay (#3062)",
     campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
                        "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
+    moneybag.NAME: "the base centre on the table top (or the floor), front -Z: the coin faces the walk-up side",
     mysticpool.NAME: "the base centre on the camp's ground, front -Z, no turn; the Picnic station's spot "
                      "(Layout.campExtras.park), so Gameplay swaps the asset name when the traits flag goes on",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
@@ -480,6 +482,9 @@ STUDIO_NOTES = {
                        "blinks while a find waits. Attachments PromptAnchor (counter front, 1.5 up), BangAnchor (2 over "
                        "the LOST & FOUND sign, for ReadyBang) and Drip (the pipe's mouth). Everything collides and can "
                        "be climbed.",
+    moneybag.NAME: "#3360 (rich-money-bags.md section 5): the rich customer's money bag, cloned by the client at "
+                   "the plot's RichTipAnchor for each waiting bag. Pivot at the base centre, the coin toward -Z. Gold "
+                   "parts are Metal; _Glow (the sparkle) is Neon. Display only: set CanCollide off on the clone.",
     mysticpool.NAME: "#3314 (trait-station.md section 1): the Mystic Pool, the Picnic station reworked into the trait "
                      "station. _Liquid_Glow is Neon and walk-through; Effects/MysticPool recolours it during a roll. "
                      "Sage Sorrel's hat rides his Head Model and his staff his right arm (LegF2). Attachments: "

@@ -667,7 +667,7 @@ return function()
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
 			{ "Busy Cafe", 520000, 10, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
 			{ "Famous Cafe", 16800000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
-			{ "Grand Cafe", 370000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Grand Cafe", 390000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
 			{ "Sunstone Cafe", 5600000000, 38, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
 			{ "Wonder Cafe", 54000000000, 47, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },

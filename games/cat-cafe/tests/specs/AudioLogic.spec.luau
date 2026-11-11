@@ -557,6 +557,35 @@ return function()
 		end)
 	end)
 	-- #3050: the Rummage Bin's prize plays an existing cue, by how big the prize is.
+	describe("Audio.Logic mystic pool cues", function()
+		it("maps each beat of the roll to its cue", function()
+			expect((Logic.poolCue("drop", 1))).to.equal("poolDrop")
+			expect((Logic.poolCue("mythic", 5))).to.equal("poolMythic")
+			expect((Logic.poolCue("reveal", 0))).to.equal("poolReveal")
+			expect((Logic.poolCue("nearly", 2))).to.equal(nil)
+			expect((Logic.poolCue(nil, nil))).to.equal(nil)
+		end)
+
+		it("raises the step's pitch with each colour and never past the scale", function()
+			local last = 0
+			for step = 2, 4 do
+				local cue, scaleStep = Logic.poolCue("step", step)
+				expect(cue).to.equal("poolStep")
+				expect(scaleStep > last).to.equal(true)
+				last = scaleStep
+			end
+			expect(select(2, Logic.poolCue("step", 99))).to.equal(5)
+			expect(select(2, Logic.poolCue("step", "x"))).to.equal(1)
+		end)
+
+		it("has a cue on the Pool sheet for every beat", function()
+			for _, name in { "poolDrop", "poolStep", "poolReveal", "poolMythic" } do
+				expect(Cues[name]).to.be.ok()
+				expect(Cues[name].sheet).to.equal("sheetPool")
+			end
+		end)
+	end)
+
 	describe("Audio.Logic rummage prize cue", function()
 		it("picks a cue by prize, and dings for anything else", function()
 			expect(Logic.rummageCue("golden")).to.equal("goldReveal")

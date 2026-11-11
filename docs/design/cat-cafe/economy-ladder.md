@@ -104,6 +104,11 @@ v8, 2026-11-11 (#3195 and #3204, built together in #3253; Derek2: "make the nigh
   - Tier 6 5 h 06 after Tier 5, and Tier 7 8 h 47 after Tier 6.
 - The time table below is older (v7).
 
+v9, 2026-11-11 (#3360, rich-money-bags.md): a rich customer's money bag waits 3 minutes with no dusk cut and up to 3 stack, so fewer are missed.
+- **Tier 5 cost 390,000,000** (was 370,000,000), by the v0.8 rule: the cost goes up, the bag is not cut (Design-Agent). A player who already has Tier 5 keeps it.
+- **Why:** with the bags, check 7 (4x Money, in one go) gave a Tier 5 median of 1 h 59 at 370M, under its 2 h floor. 385M gave 2 h 01 and 390M gives 2 h 02 (10th to 90th 1 h 29 to 2 h 22).
+- The free player's Tier 5 median at 4 catches a day is 4 h 16 at 390M (10th to 90th 2 h 46 to 5 h 03), inside the 3.5 to 5.5 h band.
+
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
 | player | Tier 2 | Tier 3 | Tier 4 | Tier 5 |

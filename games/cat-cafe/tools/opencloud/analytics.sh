@@ -247,6 +247,16 @@ if [ -f "$storeFunnelFile" ]; then
 	funnelName=$(sed -n 's/^StoreFunnel\.NAME = "\([A-Za-z0-9_]*\)".*/\1/p' "$storeFunnelFile")
 	storeFunnel=${funnelName:-$storeFunnel}
 fi
+# #3378: arcade_v1 (shared/ArcadeFunnel), one run per player per UTC day; the defaults hold until that file is on main
+arcadeFunnel=arcade_v1
+arcadeSteps=(arcade_seen arcade_opened arcade_started arcade_first_circle arcade_finished arcade_played_again)
+arcadeFunnelFile=$here/../../src/shared/ArcadeFunnel.luau
+if [ -f "$arcadeFunnelFile" ]; then
+	mapfile -t list < <(sed -n '/^ArcadeFunnel\.STEPS = /,/^})/p' "$arcadeFunnelFile" | grep -o '"[a-z0-9_]*"' | tr -d '"')
+	[ "${#list[@]}" = 0 ] || arcadeSteps=("${list[@]}")
+	funnelName=$(sed -n 's/^ArcadeFunnel\.NAME = "\([A-Za-z0-9_]*\)".*/\1/p' "$arcadeFunnelFile")
+	arcadeFunnel=${funnelName:-$arcadeFunnel}
+fi
 stepName() { # funnel step label
 	local funnel=$1 step=$2 label=$3
 	local -a list=()
@@ -270,6 +280,8 @@ stepName() { # funnel step label
 			list=("${onboardingV3Steps[@]}")
 		elif [ "${funnel,,}" = "${storeFunnel,,}" ]; then
 			list=("${storeSteps[@]}")
+		elif [ "${funnel,,}" = "${arcadeFunnel,,}" ]; then
+			list=("${arcadeSteps[@]}")
 		elif [ "${funnel,,}" = onboarding_v2 ]; then
 			list=("${onboardingV2Steps[@]}")
 		elif [[ ${funnel,,} == *onboarding* && ! ${funnel,,} =~ onboarding_v[0-9]+ ]]; then
@@ -308,6 +320,7 @@ funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
 	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* ]] || unit=Players
+	[ "${funnel,,}" != "${arcadeFunnel,,}" ] || unit="Player days" # #3378: one run per player per UTC day
 	say "#### $funnel"
 	say ""
 	if ! query FunnelUserTotalCount None FunnelStep "$(only FunnelName "$funnel")"; then
@@ -571,7 +584,7 @@ if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
 else
 	platformsLogged=(Phone Computer Tablet Console)
 fi
-for funnel in "$onboardingFunnel" "$firstHourFunnel"; do
+for funnel in "$onboardingFunnel" "$firstHourFunnel" "$arcadeFunnel"; do
 	say "#### $funnel by Platform"
 	say ""
 	declare -A cell=() firstOf=() label=()
@@ -684,6 +697,18 @@ fieldEvents=(
 	"arcade_run|CustomField1|CustomEventCount|Cat Arcade: games by circles hit (#3378)"
 	"arcade_run|CustomField2|CustomEventCount|Cat Arcade: games by prizes paid (#3378)"
 	"upgrade_bought|CustomField2,CustomField3|CustomEventCountUser|Players buying each upgrade level (Swift Paws 5 levels, #3332)"
+	"arcade_quit|CustomField1|CustomEventCount|Cat Arcade: games left early, free or paid (#3378)"
+	"arcade_quit|CustomField1|CustomEventAvgValue|Cat Arcade: average circles hit before leaving early (#3378)"
+	"arcade_blocked|CustomField1|CustomEventCount|Cat Arcade: Start refused, by reason (closed, loading, running, busy, no_fish) (#3378)"
+	"arcade_blocked|CustomField1|CustomEventCountUser|Cat Arcade: players refused at Start, by reason (#3378)"
+	"arcade_board_top|CustomField1|CustomEventCountUser|Cat Arcade: players with a new best in the leaderboard's top, free or paid (#3378)"
+	"arcade_board_top|CustomField1|CustomEventAvgValue|Cat Arcade: average leaderboard place of a new best (#3378)"
+	"title_set|CustomField1|CustomEventCountUser|Titles tab: players picking each title, or off (#3378)"
+	"tackle_shield|Platform|CustomEventCount|Tackle shield: server minutes with a blocked tackle, by the tackler's device (#3378)"
+	"tackle_shield|Platform|CustomEventAvgValue|Tackle shield: average blocked tackles in such a minute (#3378)"
+	"stray_call|CustomField1|CustomEventCount|Stray calls: followed by a catch start within 10 s, yes or no (#3378)"
+	"stray_call|CustomField1|CustomEventCountUser|Stray calls: players by yes or no (#3378)"
+	"stray_call|CustomField1|CustomEventAvgValue|Stray calls: average call number (1 to 4), by yes or no (#3378)"
 	"session_start|CustomField1|CustomEventCountUser|Players by join source (organic, unknown, ad_<tag>)"
 	"session_start|CustomField3|CustomEventCountUser|Players by tier at join (store_v1 per Tier 2+ base)"
 	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"

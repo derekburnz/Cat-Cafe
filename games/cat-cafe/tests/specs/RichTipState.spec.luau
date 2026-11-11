@@ -50,4 +50,35 @@ return function()
 			expect(RichTipState.clock(0)).to.equal("0:00")
 		end)
 	end)
+	describe("RichTipState.pick (#3360)", function()
+		it("has nothing to sit on with no bags", function()
+			local index, total = RichTipState.pick({})
+			expect(index).never.to.be.ok()
+			expect(total).to.equal(0)
+		end)
+
+		it("sits on the nearest bag and adds up every bag", function()
+			local index, total = RichTipState.pick({
+				{ id = "b1", amount = 500, expiresAt = 1100, distance = 9 },
+				{ id = "b2", amount = 700, expiresAt = 1200, distance = 4 },
+				{ id = "b3", amount = 40, expiresAt = 1300, distance = 6 },
+			})
+			expect(index).to.equal(2)
+			expect(total).to.equal(1240)
+		end)
+
+		it(
+			"sits on the bag that goes first when the player's spot is unknown or the same",
+			function()
+				expect((RichTipState.pick({
+					{ id = "b1", amount = 500, expiresAt = 1200 },
+					{ id = "b2", amount = 700, expiresAt = 1100 },
+				}))).to.equal(2)
+				expect((RichTipState.pick({
+					{ id = "b2", amount = 500, expiresAt = 1100, distance = 5 },
+					{ id = "b1", amount = 700, expiresAt = 1100, distance = 5 },
+				}))).to.equal(2)
+			end
+		)
+	end)
 end

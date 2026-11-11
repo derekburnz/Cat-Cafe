@@ -15,6 +15,7 @@ Derek2, 2026-11-11 14:34 UTC: "Re-work the station to be like a mystical wizard 
   - See its trait, then Roll (or Re-roll).
   - After a re-roll, the old trait and the new one show side by side, with **Keep old** and **Take new**.
   - The odds line is always on the card.
+  - The **Odds** button lists the rarity odds (Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%) and says each trait inside a rarity is equally likely. This replaces the old I/II/III odds text.
 - While a player still has starter rolls, the Roll button reads **Free roll (5 left)** and uses those first.
 - The Picnic Basket's Money Potion every 6 h goes away. In its place is **1 free Trait Token every 12 h, holding 2**, with the same "Next in ..." line.
 
@@ -122,7 +123,7 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 - A rich tip pays 120 s of the day rate about every 480 s of open day, so each 1.0 of rate is about +25% income.
   - **Free player:** rate 1 to 1.24 is about +6% income.
   - **Cafe Style alone:** its 0.25 is about +6%. Two Mythic cats nearly match it but never pass it, and the common case (Rare, +4% each) is about a third of it.
-  - **Every pass:** 2.25 to 2.49 is about +6% income on top of roughly 24x. That's inside the 11-05 stacking re-check's margin (economy-ladder.md §6a), but Monetization should re-check it with the Mythic numbers.
+  - **Every pass:** 2.25 to 2.49 is about +6% income on top of roughly 24x. That's inside the 11-05 stacking re-check's margin (economy-ladder.md §6a), Monetization re-checks it against every pass with the Mythic numbers **before the `traits` flag goes on**.
 - Speed tops out at +1.5, under half of the Swift Potion's +4. Bowl luck stays under `LuckMax`. Per-cat income tops out at +40% on one cat. So no paid perk is undercut.
 
 ## 6. Save and publish

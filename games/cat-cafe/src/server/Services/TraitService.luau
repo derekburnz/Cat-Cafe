@@ -22,6 +22,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
+local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeService = require(script.Parent.TradeService)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -80,6 +81,11 @@ local function onRoll(player: Player, rawUid: unknown)
 		refuse(player, "That cat isn't yours anymore")
 		return
 	end
+	if CafeService.isOffered(player, uid) then
+		-- review: a cat on offer in an open trade keeps the trait the partner sees
+		refuse(player, Trade.Messages.catInTrade)
+		return
+	end
 	local save = profile.traits
 	if save.pending ~= nil then
 		refuse(player, "Pick Keep old or Take new first")
@@ -126,8 +132,13 @@ local function onChoose(player: Player, rawTakeNew: unknown)
 		CafeService.sync(player)
 		return
 	end
-	save.pending = nil
 	local cat = profile.cats[pending.uid]
+	if cat ~= nil and takeNew and CafeService.isOffered(player, pending.uid) then
+		-- review: on offer in an open trade; the choice waits until the trade is over
+		refuse(player, Trade.Messages.catInTrade)
+		return
+	end
+	save.pending = nil
 	local kept = "old"
 	if cat ~= nil and takeNew then
 		cat.trait = { id = pending.id }

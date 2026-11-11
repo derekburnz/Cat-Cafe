@@ -34,6 +34,7 @@ local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local SmoothClock = require(script.Parent.Parent.Components.SmoothClock)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -179,8 +180,13 @@ local function nextPrize(points: number, today: { number }): string
 	return "All of today's prizes won!"
 end
 
-local function now(): number
+-- #3359: server time eased from frame to frame (Components/SmoothClock), so the closing circle never hops when the
+-- clock sync corrects GetServerTimeNow(); the presses and the board read the same clock as the drawing
+local clock = SmoothClock.new(function(): number
 	return Workspace:GetServerTimeNow()
+end)
+local function now(): number
+	return clock:now()
 end
 
 function Arcade.new(callbacks: Callbacks): Arcade

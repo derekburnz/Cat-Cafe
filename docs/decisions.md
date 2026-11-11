@@ -1009,3 +1009,7 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 ## 2026-11-11 Decisions entries ride one batch PR when many PRs land together
 - **Why:** every PR appending to this file conflicts with every other one, so a batch of armed PRs blocked each other on merge after merge.
 - **What:** when several PRs are armed at once, their entries move to one docs-only PR like this one, which lands after them. A lone PR still carries its own entry.
+
+## 2026-11-11 Cat Arcade: twice as fast to start and harder all the way to 100 (#3359)
+- **Why:** Derek2: "put starting speed at 2x scaling up much faster game is too easy". The old curve started at a Common's pace and stopped getting harder at 100 points only by reaching step 10.
+- **What (numbers from Design-Agent):** ArcadeStartShrinkSeconds 1.20 to 0.60, ArcadeStepEvery 10 to 5, Arcade.MAX_STEP 10 to 20, new ArcadeShrinkFloorSeconds 0.30. ShrinkStep 0.96, WindowStep 0.97, JitterMax 0.20 and the gaps stay. Shrink is about 0.47 s at 30 points, 0.40 at 50 and 0.30 (floored) at 100; the Good half-width goes 0.13, 0.11, 0.096, 0.070. Milestones and prizes do not change. The board now draws from a steady clock (Components/SmoothClock) so a clock sync correction no longer makes the closing circle hop.

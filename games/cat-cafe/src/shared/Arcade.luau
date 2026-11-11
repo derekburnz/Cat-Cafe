@@ -8,9 +8,10 @@
 -- (100) ends it as a win, clamped (a Perfect from 99 shows 100).
 --   - Fair for everyone: every player uses the net level 1 windows of a Common (Circles.windowsFor(1, "Common")), so
 --     a net bought with coins gives no edge.
---   - Slowly harder every Config.ArcadeStepEvery (10) points: the shrink time x ArcadeShrinkStep (0.96) per step, the
---     Perfect and Good windows x ArcadeWindowStep (0.97), the gap between circles from CircleGapMax toward
---     CircleGapMin and the shrink wobble from CircleJitter up to ArcadeJitterMax. Steps stop at the 10th.
+--   - Harder every Config.ArcadeStepEvery (5 since #3359) points from a start twice a Common's pace: the shrink time x
+--     ArcadeShrinkStep (0.96) per step (never under ArcadeShrinkFloorSeconds), the Perfect and Good windows x
+--     ArcadeWindowStep (0.97), the gap between circles from CircleGapMax toward CircleGapMin and the shrink wobble
+--     from CircleJitter up to ArcadeJitterMax. Steps stop at MAX_STEP (20), which is 100 points.
 --   - The server builds the circles BLOCK at a time (block), each block at the step its first circle starts on, and
 --     judges every press as a catch's (Circles.press). The client never reports a score.
 --   - Milestones every 10 points (Config.ArcadeMilestones) pay once per UTC day each: crossing one pays it even when
@@ -35,7 +36,7 @@ Arcade.FLAG = "arcade"
 Arcade.BLOCK = 10 -- circles in each block the server builds
 Arcade.PERFECT_POINTS = 2
 Arcade.GOOD_POINTS = 1
-Arcade.MAX_STEP = 10
+Arcade.MAX_STEP = 20 -- #3359: was 10; with a step every 5 points it climbs all the way to 100
 Arcade.LEGEND_TITLE = "Arcade Legend"
 Arcade.IDEA_BY = "Idea by its_cuzu098"
 Arcade.TAG = "ArcadeCabinet"
@@ -127,7 +128,8 @@ function Arcade.windows(step: number): Types.NetWindows
 	return { perfect = base.perfect * scale, good = base.good * scale }
 end
 
--- A circle's shrink time at `step`, before its wobble: the Common's, quicker by ArcadeShrinkStep per step.
+-- A circle's shrink time at `step`, before its wobble: ArcadeStartShrinkSeconds (#3359: half a Common's), quicker by
+-- ArcadeShrinkStep per step.
 function Arcade.shrink(step: number): number
 	return Config.ArcadeStartShrinkSeconds
 		* Config.ArcadeShrinkStep ^ math.clamp(step, 0, Arcade.MAX_STEP)
@@ -153,7 +155,7 @@ function Arcade.block(step: number, startsAt: number, roll: () -> number): { Typ
 		local u = (roll() * 2 - 1) * jitter
 		local circle: Types.CatchCircle = {
 			startsAt = at,
-			shrinkSeconds = shrink * (1 + u),
+			shrinkSeconds = math.max(shrink * (1 + u), Config.ArcadeShrinkFloorSeconds), -- #3359
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
 			kind = "single",

@@ -82,6 +82,23 @@ local function headingFor(cannon: Model, destination: string, seat: CFrame): Vec
 	return Cannon.heading(cannon:GetPivot().Position, to, seat.LookVector)
 end
 
+-- #3198: whether a first flight into `destination` may land at `beside`, the spot next to its waiting stray. The
+-- Alleyway's first flight lands beside the beginner's stray wherever it waits (#2913: the alley is open floor from
+-- its camp's line on). Any other area's only inside its camp's fence or in the open gateway (Cannon.inCampReach):
+-- the spot beside a Park stray was behind the camp's fence.
+local function besideInReach(destination: string, beside: Vector3): boolean
+	local camp = Layout.camps[destination]
+	if camp == nil or destination == Cannon.OPEN_AREA then
+		return true
+	end
+	local x, z = Layout.campSpace(camp, beside.X, beside.Z)
+	return Cannon.inCampReach(x, z, {
+		halfAcross = camp.halfAcross,
+		depth = Config.World.CampDepth,
+		openingHalfWidth = camp.openingHalfWidth,
+	})
+end
+
 -- A free spot on `destination`'s landing pad (section 3b) as the root's CFrame, facing the way the pad faces; nil
 -- for a place with no pad.
 local function landingFor(player: Player, destination: string): CFrame?
@@ -99,12 +116,22 @@ local function landingFor(player: Player, destination: string): CFrame?
 	local stray = CatService.firstLandingStray(player, destination)
 	local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
 	local beside = if stray ~= nil then Cannon.besideStray(stray, centre) else nil
-	if stray ~= nil and beside ~= nil and Cannon.isClear(beside, others) then
+	if
+		stray ~= nil
+		and beside ~= nil
+		and Cannon.isClear(beside, others)
+		and besideInReach(destination, beside)
+	then
 		local root = Vector3.new(beside.X, beside.Y + 3, beside.Z)
 		return CFrame.lookAt(root, Vector3.new(stray.X, root.Y, stray.Z))
 	end
 	local at = Cannon.landingSpot(spots, others, pad.area)
-	return CFrame.new(at.X, at.Y + 3, at.Z) * CFrame.Angles(0, math.rad(pad.centre.rotY or 0), 0)
+	local root = Vector3.new(at.X, at.Y + 3, at.Z)
+	if stray ~= nil and (Vector3.new(stray.X, root.Y, stray.Z) - root).Magnitude > 1 then
+		-- #3198: on the pad, but turned toward the stray the flight could not land beside
+		return CFrame.lookAt(root, Vector3.new(stray.X, root.Y, stray.Z))
+	end
+	return CFrame.new(root) * CFrame.Angles(0, math.rad(pad.centre.rotY or 0), 0)
 end
 
 local function refuse(player: Player, destination: string, reason: string)

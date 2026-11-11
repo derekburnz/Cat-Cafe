@@ -176,6 +176,18 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Greeter = "rbxassetid://107746555479783",
 	Icon_Clean_Entertainer = "rbxassetid://79258683838050",
 	Icon_Clean_Spa = "rbxassetid://90117647745743",
+	-- #3137 batch 2 (Derek2 OK'd the night's uploads, 11-11 01:05): the seven places (upload run 42937300084,
+	-- assets/cat-cafe/ui/icons-clean-2026-11-11), drawn wherever IconArt meets their emoji (Components/CleanGlyphs)
+	Icon_Clean_Park = "rbxassetid://130402303377210",
+	Icon_Clean_Neighbourhood = "rbxassetid://81559978948079",
+	Icon_Clean_Woods = "rbxassetid://88100194069700",
+	Icon_Clean_Sewer = "rbxassetid://73407312338999",
+	Icon_Clean_Desert = "rbxassetid://105252509632683",
+	Icon_Clean_Ruins = "rbxassetid://117006304300316",
+	Icon_Clean_Town = "rbxassetid://84240054469741",
+	-- #3137 batch 3 (upload run 42938004143): the moon and the open padlock
+	Icon_Clean_Moon = "rbxassetid://113770680051546",
+	Icon_Clean_Unlock = "rbxassetid://96025123745905",
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://73874755116021",
 	Icon_Hud_SetMusicVolume = "rbxassetid://105488499187015",

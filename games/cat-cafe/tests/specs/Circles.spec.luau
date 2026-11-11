@@ -1456,6 +1456,47 @@ return function()
 		end)
 
 		it(
+			"joins a late write with the stored save, so a server hop can't pay a milestone twice (#3251 review)",
+			function()
+				local stored = Arcade.sanitize(
+					{
+						best = 40,
+						bestCircles = 30,
+						day = 20400,
+						paid = { 10, 20 },
+						legend = false,
+						runs = 6,
+					},
+					NOW
+				)
+				local mine = Arcade.sanitize(
+					{
+						best = 40,
+						bestCircles = 28,
+						day = 20400,
+						paid = { 10, 30 },
+						legend = true,
+						runs = 4,
+					},
+					NOW
+				)
+				local joined = Arcade.merge(stored, mine)
+				expect(joined.paid :: any).to.deepEqual({ 10, 20, 30 })
+				expect(joined.best).to.equal(40)
+				expect(joined.bestCircles).to.equal(28)
+				expect(joined.runs).to.equal(6)
+				expect(joined.legend).to.equal(true)
+				-- a higher best wins whatever its circles; yesterday's paid list is left out
+				local old = Arcade.fresh()
+				old.best, old.bestCircles, old.day, old.paid = 52, 60, 20399, { 10, 20, 30, 40, 50 }
+				local new = Arcade.merge(old, mine)
+				expect(new.best).to.equal(52)
+				expect(new.bestCircles).to.equal(60)
+				expect(new.paid :: any).to.deepEqual({ 10, 30 })
+			end
+		)
+
+		it(
 			"ranks records by points, then fewest circles, and 100 earns the title for good",
 			function()
 				expect(Arcade.score(100, 58)).to.equal(100941)

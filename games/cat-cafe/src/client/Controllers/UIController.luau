@@ -2403,7 +2403,7 @@ local function wireServerEvents()
 				Moments.CircleGrade:Fire(index, grade)
 			end
 			if type(milestones) == "table" and #milestones > 0 then
-				arcadeMoment("ArcadeMilestone")
+				arcadeMoment("ArcadeMilestone", milestones[#milestones])
 			end
 			UI.arcade.judged(run, block, index, grade, points, milestones)
 		end

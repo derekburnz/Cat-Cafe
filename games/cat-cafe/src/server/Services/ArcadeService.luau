@@ -59,6 +59,7 @@ local runs: { [Player]: Run } = {}
 local saves: { [Player]: Arcade.Save } = {}
 local pending: { [number]: Arcade.Save } = {} -- by user id: the newest save waiting for its write
 local writing: { [number]: boolean } = {}
+local leaving: { [number]: boolean } = {} -- a leaver's last save goes out with no WRITE_GAP wait (#3251 review)
 local serverBest = { points = 0, circles = 0, name = nil :: string? }
 local nextRunId = 0
 local rng = Random.new()
@@ -105,7 +106,12 @@ local function queueSave(userId: number, save: Arcade.Save)
 			local ok = false
 			for attempt = 1, #WRITE_WAITS + 1 do
 				ok = pcall(function()
-					(where :: DataStore):SetAsync(key, value)
+					-- #3251 review: joined with what is stored, so a late write from the player's last server can't take
+					-- back a record or a paid milestone this one wrote, and the other way round
+					(where :: DataStore):UpdateAsync(key, function(old: unknown)
+						local now = os.time()
+						return Arcade.merge(Arcade.sanitize(old, now), Arcade.sanitize(value, now))
+					end)
 				end)
 				if ok then
 					break
@@ -119,9 +125,13 @@ local function queueSave(userId: number, save: Arcade.Save)
 			if not ok then
 				warn("[ArcadeService] writing an arcade save failed") -- only this: DataStore errors can carry ids
 			end
-			task.wait(WRITE_GAP)
+			local waited = 0
+			while waited < WRITE_GAP and not leaving[userId] do
+				waited += task.wait(0.5)
+			end
 		end
 		writing[userId] = nil
+		leaving[userId] = nil
 	end)
 end
 
@@ -421,6 +431,9 @@ function ArcadeService.start()
 		load(player)
 	end)
 	Players.PlayerRemoving:Connect(function(player: Player)
+		if writing[player.UserId] then
+			leaving[player.UserId] = true
+		end
 		local run = runs[player]
 		if run ~= nil then
 			finish(player, run, false)

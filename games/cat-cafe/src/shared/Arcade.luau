@@ -214,6 +214,39 @@ function Arcade.sanitize(raw: unknown, now: number): Save
 	return save
 end
 
+-- Two saves of one player joined, for a write that lands on top of another server's (UpdateAsync): today's paid
+-- milestones from both, the better record (more points, then fewer circles), the most runs, and the title if either has
+-- it. Both should come through `sanitize` first, so a `paid` is only ever today's.
+function Arcade.merge(stored: Save, mine: Save): Save
+	local out = Arcade.fresh()
+	out.legend = stored.legend or mine.legend
+	out.runs = math.max(stored.runs, mine.runs)
+	if
+		mine.best > stored.best
+		or (
+			mine.best == stored.best
+			and mine.bestCircles > 0
+			and (stored.bestCircles == 0 or mine.bestCircles < stored.bestCircles)
+		)
+	then
+		out.best, out.bestCircles = mine.best, mine.bestCircles
+	else
+		out.best, out.bestCircles = stored.best, stored.bestCircles
+	end
+	out.day = math.max(stored.day, mine.day)
+	for _, save in { stored, mine } do
+		if save.day == out.day then
+			for _, at in save.paid do
+				if not table.find(out.paid, at) then
+					table.insert(out.paid, at)
+				end
+			end
+		end
+	end
+	table.sort(out.paid)
+	return out
+end
+
 -- The milestones paid today, after moving `save` to today (a new UTC day clears them).
 function Arcade.today(save: Save, now: number): { number }
 	local day = Arcade.day(now)

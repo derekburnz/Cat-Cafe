@@ -116,11 +116,16 @@ local function landingFor(player: Player, destination: string): CFrame?
 	local stray = CatService.firstLandingStray(player, destination)
 	local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
 	local beside = if stray ~= nil then Cannon.besideStray(stray, centre) else nil
+	-- #3292: the landing comes no further than BESIDE_MAX_FROM_PAD from the pad, but the camp rule (#3198) still reads
+	-- the plain spot by the stray, so a stray behind the fence still sends the flight to the pad
+	local byStray = if stray ~= nil then Cannon.besideStray(stray, centre, nil, math.huge) else nil
 	if
 		stray ~= nil
 		and beside ~= nil
+		and byStray ~= nil
 		and Cannon.isClear(beside, others)
 		and besideInReach(destination, beside)
+		and besideInReach(destination, byStray)
 	then
 		local root = Vector3.new(beside.X, beside.Y + 3, beside.Z)
 		return CFrame.lookAt(root, Vector3.new(stray.X, root.Y, stray.Z))

@@ -206,7 +206,8 @@ Remotes.ClientToServer = {
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
 	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
-	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game,
+	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game.
+	-- #3296: the first game of each UTC day is free (no fish, no trade freeze check). Starts are
 	-- answered with ArcadeBlock (refusals are a toast); 1 a second
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
@@ -235,6 +236,7 @@ Remotes.ServerToClient = {
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
 	-- or Mythical check-in shout-out at most once a minute a player (RareMomentService)
+	"OwnerShout", -- (text: string)  #3301: an owner's filtered /shout, to everyone on every server, for the OWNER bubble
 	"RareCatchChat", -- (text: string, rarity: Types.Rarity, elsewhere: boolean)  #2203: a catch shout-out as a chat
 	-- line, to everyone: this server's (elsewhere false, with its Announce) or another server's from MessagingService
 	-- (elsewhere true, no toast), at most one every GlobalCatch.SHOW_GAP_SECONDS (GlobalCatchService)

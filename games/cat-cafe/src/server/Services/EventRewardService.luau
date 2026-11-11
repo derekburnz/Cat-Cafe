@@ -34,7 +34,7 @@ local EARLY_SECONDS = 2 -- an event that stops this long before its endsAt has e
 
 -- A test event pays only in Studio or to an owner.
 local function pays(player: Player, event: CafeEvents.Event): boolean
-	return not event.test or RunService:IsStudio() or OwnerTest.isOwner(player.UserId)
+	return not event.test or RunService:IsStudio() or OwnerTest.isOwnerPlayer(player)
 end
 
 -- The new piece onto a free decor spot, else Auto Equip's swap (as a crate find, FishMarketService).

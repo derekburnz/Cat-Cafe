@@ -3,13 +3,20 @@
 -- in the Town Square and the Menu list's Arcade row open it. Two faces:
 --   - the card: this player's best and the server's, the last game's line ("Score 37 · Best 52 · Server best 61
 --     (Sam)"), the ten prizes with the ones already paid today ticked, the once-a-day rule in plain words (no
---     countdown, Monetization-Agent's conditions), "Play (1 🐟)" and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
+--     countdown, Monetization-Agent's conditions), Play with a FREE pill for the first game of the UTC day (#3296), then the fish coin and "x1", and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
 --     to feature the player since he suggested").
 --   - the board, while a game runs: the circles the server sends (ArcadeBlock) close onto their rings at their spots,
 --     and a tap anywhere on the board, Space or the gamepad's A presses the circle closing now. The UI only says which
 --     circle a press was for; the server stamps and judges it, and its grade (ArcadeJudged) clears the circle with
 --     VFX-Agent's ArcadeFx.hit, moves the big points counter and, at a milestone, plays ArcadeFx.milestone with the
 --     prize's name for 1.5 s. Nothing shows outside the window: no toasts (#3080).
+-- #3338 (Derek2: "little symbols beside rewards so its easy to tell and add a more cool Play button", "the menu is
+-- bigger for the game the background of game is much cooler aswell of as the banner better ... show next milestone
+-- on the top while playing"): each prize row leads with the item's own picture (the golden fish coin, the food's, the
+-- potion flask, the crate's); Play is a bold ▶ PLAY with the cost on a golden-fish pill and ArcadeFx.shine sweeping
+-- across it while a game can start; the window is bigger, its header runs violet into neon pink, the board is an
+-- arcade night with a neon grid and a pink edge, the next prize shows under the points and the milestone banner sits
+-- on a dark pill.
 -- Closing the window mid game ends it (the quit callback, ArcadeQuit); the card then shows how it went.
 --
 -- Bands: the closing circle moves at a constant speed, so the Good window of w seconds is a band w x speed pixels
@@ -23,8 +30,10 @@ local Workspace = game:GetService("Workspace")
 local ArcadeFx = require(script.Parent.Parent.Parent.Effects.ArcadeFx)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -34,17 +43,23 @@ local SharedTypes = require(Shared:WaitForChild("Types"))
 
 local PAL = Theme.dark
 
-local MAX_SIZE = Vector2.new(500, 560)
+local MAX_SIZE = Vector2.new(640, 720) -- #3338: was 500 x 560
 local RING = 34 -- the ring's radius in px
 local START_SCALE = 3 -- the closing circle starts this many times the ring's size
 local PREVIEW = 0.35 -- seconds a ring's faint outline shows before its circle starts closing
 local BANNER_SECONDS = 1.5
 local OVER_SECONDS = 1.2 -- the board's last word before the card comes back
 local GAP = Theme.sizes.gap
+local GRID_LINES = 10 -- #3338: the board's neon grid, this many cells each way
+local GRID_SEEN = 0.88 -- its lines' see-through share
 local ACTION_NAME = "CatCafeArcadePress" -- Space and the gamepad's A press while the board is up, and don't jump
-local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Each prize pays once a day; a new day starts at "
-	.. "midnight UTC."
-local PLAY_TEXT = string.format("Play (%d 🐟)", Config.ArcadeCostFish or 1)
+local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Your first game each day is free, and each prize "
+	.. "pays once a day; a new day starts at midnight UTC."
+local PLAY_TEXT = "PLAY"
+local COST = Config.ArcadeCostFish or 1
+local PRIZE_PIC = 26 -- #3338: the picture leading each prize row
+local PILL_W = 64 -- the cost pill on Play
+local FREE_TEXT = "FREE" -- #3296: the pill while today's free game is there
 local READY_TEXT = "Ready?"
 local HINT_TEXT = "Tap when the circle meets the ring"
 
@@ -115,6 +130,46 @@ local function round(frame: GuiObject, radius: UDim?)
 	Create("UICorner", { CornerRadius = radius or UDim.new(0, Theme.sizes.radius), Parent = frame })
 end
 
+-- #3338: the picture and the glyph standing in for it beside a prize: the golden fish coin, a food's own picture, the
+-- potion's flask or the crate's own (the pictures the other prize chips draw, Components/ShopIcons).
+local function prizePicture(raw: unknown): (string?, string)
+	local prize: { [string]: any } = if type(raw) == "table" then raw :: any else {}
+	if type(prize.fish) == "number" then
+		return ShopIcons.prize("fish"), Theme.icons.goldenFish
+	end
+	local function first(kind: string): string?
+		local bag = prize[kind]
+		if type(bag) ~= "table" then
+			return nil
+		end
+		local id = next(bag)
+		return if type(id) == "string" then id else nil
+	end
+	local lure = first("lures")
+	if lure ~= nil then
+		return ShopIcons.food(lure), Theme.foodIcons[lure] or Theme.icons.food
+	end
+	local potion = first("potions")
+	if potion ~= nil then
+		return ShopIcons.potion(potion), Theme.icons.potion
+	end
+	local crate = first("crates")
+	if crate ~= nil then
+		return ShopIcons.crate(crate) or ShopIcons.clean("Crate"), Theme.icons.crate
+	end
+	return nil, "🎁"
+end
+
+-- #3338: the words under the points while playing: the next prize not yet paid today above `points`.
+local function nextPrize(points: number, today: { number }): string
+	for _, milestone in ArcadeRules.milestones() do
+		if milestone.at > points and table.find(today, milestone.at) == nil then
+			return string.format("Next prize: %s at %d", milestone.name, milestone.at)
+		end
+	end
+	return "All of today's prizes won!"
+end
+
 local function now(): number
 	return Workspace:GetServerTimeNow()
 end
@@ -149,6 +204,27 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		end,
 	})
 	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })
+	-- #3338 (Derek2: "the banner better"): the header runs arcade violet into neon pink, left to right
+	local found = panel.frame:FindFirstChild("Header", true)
+	if found ~= nil and found:IsA("Frame") then
+		local header = found :: Frame
+		local neon = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromHex("7A55E0")),
+			ColorSequenceKeypoint.new(0.6, Color3.fromHex("B05FE0")),
+			ColorSequenceKeypoint.new(1, Color3.fromHex("FF6FB5")),
+		})
+		header.BackgroundColor3 = Color3.new(1, 1, 1)
+		local shade = header:FindFirstChild("Shade")
+		if shade ~= nil and shade:IsA("UIGradient") then
+			(shade :: UIGradient).Rotation = 0
+			(shade :: UIGradient).Color = neon
+		end
+		local square = header:FindFirstChild("Square")
+		if square ~= nil and square:IsA("Frame") then
+			(square :: Frame).BackgroundColor3 = Color3.new(1, 1, 1)
+			Create("UIGradient", { Color = neon, Parent = square })
+		end
+	end
 	panel.frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	panel.frame.Position = UDim2.fromScale(0.5, 0.5)
 	self._panel = panel
@@ -209,7 +285,7 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		Parent = card,
 	}, {
 		Create("UIGridLayout", {
-			CellSize = UDim2.new(0.5, -GAP / 2, 0, 30),
+			CellSize = UDim2.new(0.5, -GAP / 2, 0, 34), -- #3338: room for the prize's picture
 			CellPadding = UDim2.fromOffset(GAP, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -224,10 +300,24 @@ function Arcade.new(callbacks: Callbacks): Arcade
 			Parent = grid,
 		})
 		round(chip, UDim.new(0, Theme.sizes.radiusSmall))
+		local picture = text({
+			Name = "Picture",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 5, 0.5, 0),
+			Size = UDim2.fromOffset(PRIZE_PIC, PRIZE_PIC),
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextSize = 18,
+			Parent = chip,
+		})
+		local image, glyph = prizePicture(milestone.prize)
+		IconArt.set(picture, glyph, 0.9)
+		if image ~= nil then
+			IconArt.setImage(picture, image, 0.95)
+		end
 		self._prizeRows[milestone.at] = text({
 			Name = "Words",
-			Position = UDim2.fromOffset(8, 0),
-			Size = UDim2.new(1, -12, 1, 0),
+			Position = UDim2.fromOffset(PRIZE_PIC + 10, 0),
+			Size = UDim2.new(1, -(PRIZE_PIC + 14), 1, 0),
 			TextSize = Theme.sizes.textSmall,
 			TextWrapped = false,
 			TextTruncate = Enum.TextTruncate.AtEnd,
@@ -248,9 +338,10 @@ function Arcade.new(callbacks: Callbacks): Arcade
 	self._playButton = Button.new({
 		name = "Play",
 		text = PLAY_TEXT,
+		icon = "▶", -- #3338: a bold play symbol
 		style = "gold",
-		size = UDim2.new(1, 0, 0, 52),
-		textSize = Theme.sizes.textLarge,
+		size = UDim2.new(1, 0, 0, 56),
+		textSize = Theme.sizes.textLarge + 4,
 		layoutOrder = 3,
 		parent = card,
 		onClick = function()
@@ -259,6 +350,48 @@ function Arcade.new(callbacks: Callbacks): Arcade
 			end
 		end,
 	})
+	-- #3338: the cost on a dark pill at the button's right, the golden fish coin and "x1"
+	local pill: Frame = Create("Frame", {
+		Name = "Cost",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -14, 0.5, -2),
+		Size = UDim2.fromOffset(PILL_W, 32),
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 0.25,
+		BorderSizePixel = 0,
+		ZIndex = 5,
+		Parent = self._playButton.face,
+	})
+	round(pill, UDim.new(1, 0))
+	local coin = text({
+		Name = "Fish",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 4, 0.5, 0),
+		Size = UDim2.fromOffset(26, 26),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextSize = 18,
+		ZIndex = 6,
+		Parent = pill,
+	})
+	IconArt.set(coin, Theme.icons.goldenFish, 0.9)
+	local fishImage = ShopIcons.prize("fish")
+	if fishImage ~= nil then
+		IconArt.setImage(coin, fishImage, 0.95)
+	end
+	self._coin = coin
+	self._amount = text({
+		Name = "Amount",
+		Position = UDim2.fromOffset(30, 0),
+		Size = UDim2.new(1, -34, 1, 0),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "x" .. tostring(COST),
+		ZIndex = 6,
+		Parent = pill,
+	})
+	self._shine = ArcadeFx.shine(self._playButton.face, UDim.new(0, Theme.sizes.radius))
 	self._why = text({
 		Name = "Why",
 		Size = UDim2.new(1, 0, 0, 0),
@@ -294,6 +427,47 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		Parent = panel.content,
 	})
 	round(board)
+	-- #3338 (Derek2: "the background of game is much cooler"): an arcade night, deep violet into midnight blue, a
+	-- faint neon grid and a glowing pink edge
+	board.BackgroundColor3 = Color3.new(1, 1, 1)
+	Create("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromHex("3A1F5C")),
+			ColorSequenceKeypoint.new(0.55, Color3.fromHex("1E1640")),
+			ColorSequenceKeypoint.new(1, Color3.fromHex("0E1530")),
+		}),
+		Parent = board,
+	})
+	Create("UIStroke", {
+		Color = Color3.fromHex("FF6FB5"),
+		Thickness = 3,
+		Transparency = 0.2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = board,
+	})
+	local grid: Frame = Create("Frame", {
+		Name = "Grid",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 1,
+		Parent = board,
+	})
+	for i = 1, GRID_LINES - 1 do
+		local share = i / GRID_LINES
+		for _, across in { true, false } do
+			Create("Frame", {
+				Name = "Line",
+				BackgroundColor3 = Color3.fromHex("6FE3FF"),
+				BackgroundTransparency = GRID_SEEN,
+				BorderSizePixel = 0,
+				Position = if across then UDim2.fromScale(share, 0) else UDim2.fromScale(0, share),
+				Size = if across then UDim2.new(0, 1, 1, 0) else UDim2.new(1, 0, 0, 1),
+				ZIndex = 1,
+				Parent = grid,
+			})
+		end
+	end
 	self._board = board
 	self._pointsLabel = text({
 		Name = "Points",
@@ -322,6 +496,22 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		ZIndex = 4,
 		Parent = board,
 	})
+	-- #3338 (Derek2: "show next milestone on the top while playing")
+	self._nextLabel = text({
+		Name = "NextPrize",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 72),
+		Size = UDim2.new(1, -20, 0, 22),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Color3.fromHex("FFD86B"),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextWrapped = false,
+		Text = "",
+		ZIndex = 4,
+		Parent = board,
+	})
+	Outline.text(self._nextLabel, 1)
 	self._banner = text({
 		Name = "Banner",
 		AnchorPoint = Vector2.new(0.5, 1),
@@ -337,6 +527,16 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		Parent = board,
 	})
 	Outline.text(self._banner, 2)
+	-- #3338: the milestone banner on a dark pill with a gold edge
+	self._banner.BackgroundTransparency = 0.25
+	self._banner.BackgroundColor3 = Color3.fromHex("140C24")
+	round(self._banner, UDim.new(1, 0))
+	Create("UIStroke", {
+		Color = PAL.gold,
+		Thickness = 2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = self._banner,
+	})
 	self._ringsFolder = Create("Frame", {
 		Name = "Rings",
 		BackgroundTransparency = 1,
@@ -358,6 +558,9 @@ function Arcade._canPlay(self: any): boolean
 	local state: ArcadeRules.State? = self._state
 	if state == nil or not state.loaded or self._on ~= true then
 		return false
+	end
+	if state.free == true then
+		return true -- #3296: today's free game
 	end
 	return self._fish >= (Config.ArcadeCostFish or 1)
 end
@@ -405,12 +608,26 @@ function Arcade._renderCard(self: any)
 		why = "The Cat Arcade is closed for now"
 	elseif state == nil or not state.loaded then
 		why = "Waking the arcade up..."
-	elseif self._fish < (Config.ArcadeCostFish or 1) then
+	elseif state.free ~= true and self._fish < (Config.ArcadeCostFish or 1) then
 		why = "You need a golden fish 🐟 to play. Catch cats to earn them."
 	end
+	-- #3296: the pill reads FREE (no fish coin) while today's free game is there, else the fish coin and "x1"
+	local free = state ~= nil and state.free == true
+	self._coin.Visible = not free
+	self._amount.Position = UDim2.fromOffset(if free then 4 else 30, 0)
+	self._amount.Size = UDim2.new(1, if free then -8 else -34, 1, 0)
+	self._amount.Text = if free then FREE_TEXT else "x" .. tostring(COST)
 	self._why.Text = why or ""
 	self._why.Visible = why ~= nil
-	self._playButton:setEnabled(why == nil and self._run == nil)
+	local can = why == nil and self._run == nil
+	self._playButton:setEnabled(can)
+	self._shine(can and self.frame.Visible) -- #3338
+end
+
+-- #3338: the next prize under the points, from today's paid prizes as the card last had them.
+function Arcade._showNext(self: any)
+	local state: ArcadeRules.State? = self._state
+	self._nextLabel.Text = nextPrize(self._points, if state ~= nil then state.today else {})
 end
 
 function Arcade.setState(self: any, state: ArcadeRules.State)
@@ -443,6 +660,9 @@ end
 
 function Arcade._showBoard(self: any, shown: boolean)
 	self._board.Visible = shown
+	if shown then
+		self._shine(false) -- #3338: no shine under the board
+	end
 	self._card.Visible = not shown
 	if shown and self._step == nil then
 		self._step = RunService.RenderStepped:Connect(function()
@@ -499,6 +719,7 @@ function Arcade.block(
 	self._windows = windows
 	self._points = points
 	self._pointsLabel.Text = tostring(points)
+	self:_showNext() -- #3338
 	self:_clearRings()
 	self._overToken += 1
 	for _, circle in circles do
@@ -651,11 +872,17 @@ function Arcade.judged(
 				table.insert(names, milestone.name)
 			end
 			ArcadeFx.milestone(self._pointsLabel, at)
+			-- #3338: paid now, so the next prize line moves on before ArcadeState says so
+			local state: ArcadeRules.State? = self._state
+			if state ~= nil and type(at) == "number" and table.find(state.today, at) == nil then
+				table.insert(state.today, at)
+			end
 		end
 		if #names > 0 then
 			self:_say("+ " .. table.concat(names, ", "), BANNER_SECONDS)
 		end
 	end
+	self:_showNext() -- #3338
 end
 
 function Arcade.over(self: any, run: number, result: ArcadeRules.Result)
@@ -689,6 +916,7 @@ end
 
 -- Closing mid game ends it where it stands.
 function Arcade.onClose(self: any)
+	self._shine(false) -- #3338
 	local run: number? = self._run
 	if run ~= nil then
 		self._callbacks.quit(run)
@@ -696,6 +924,7 @@ function Arcade.onClose(self: any)
 end
 
 function Arcade.destroy(self: any)
+	self._shine(false)
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

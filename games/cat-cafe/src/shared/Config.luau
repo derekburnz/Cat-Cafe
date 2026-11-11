@@ -974,6 +974,15 @@ local Config = {
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 16, -- #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
 	CodesCircleRadius = 6, -- #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
+	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off. The first: Saturday
+	-- 2026-11-14 17:00 UTC.
+	UpdateGift = { id = "2026-11-14", from = 1794675600, fish = 15, spins = 1 } :: {
+		id: string,
+		from: number,
+		fish: number,
+		spins: number,
+	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
 	CodeWrongWindowSeconds = 60,

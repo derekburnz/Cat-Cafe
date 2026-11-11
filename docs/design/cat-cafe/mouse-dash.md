@@ -52,6 +52,14 @@ The first three mice of a player's first ever run are slow (2.0 s windows), with
 - Rate limit: taps at most 12 a second, start and quit 1 a second.
 - The same start checks as Circle Streak: the switch on, the save read, no game running, not in a catch, rescue or flight, no trade freeze on fish.
 
+### 4a. As built (Gameplay-Engineer, PR #3401, agreed 2026-11-11)
+- The server draws **one wave at a time**, when it starts, not blocks, so a client never knows a hole early. `index` in `MouseDashTap` is the wave.
+- Each mouse of a pair gets **1.35 times the window**, so one thumb can reach both at the 0.40 s floor.
+- A wave with a mouse and a kitten ends when the mouse is caught or gone, and the kitten ducks back with it. A kitten alone stays its whole window.
+- The streak for the heart back breaks on an escape or a tapped kitten. An empty-hole tap does not break it.
+- Ping allowance: the full round trip, at most `CatchLatencyCapSeconds` (0.15 s), because the pop also has to travel to the client. (Section 4 said half.)
+- A first run's three safe mice break nothing when missed: no heart and no streak.
+
 ## 5. Look, feel and controls
 The bar is "would you play this again right away". These are part of the build, not polish for later.
 - **Backdrop:** a cosy cheese cellar in the arcade's neon colours, low contrast so the mice are the brightest thing on screen.

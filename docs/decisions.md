@@ -916,3 +916,22 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **What.** economy-ladder.md v8 records #3253: 45 s nights, the Tier 2 caps, Net 2 at Tier 3 and Net 3 at Tier 5, and Tier 2 13,500, Tier 3 520,000, Tier 5 370M.
 - **Why Tier 3 went up.** The caps make Tier 2 to 3 faster than more Tier 3 cost can pull back; 520k was the smallest price that put first-hour Tier 3 back at 30 min or more.
 - **Bands.** First-hour Tier 3 is now 30 to 45 min, the longest wait 22.5 min, the fast player's Tier 2 floor 8 min and the lawn run's Tier 5 floor 4 h. Every other band is unchanged (Design-Agent, overnight call; Derek can tighten them later).
+
+## 2026-11-11 Trait station spec (#3196)
+
+- **What.** trait-station.md is the short spec for the Picnic Basket rework into the Cat Trainer, folding in the plan and comments on #3196. It's still waiting on Derek's yes, and there's no build before then.
+- **Spin slice 3.** It pays 1 Trait Token at weight 9 (4.5%), down from "3 golden fish" at 30. Slice 1 takes the freed 21, so the wheel total stays 200 and the value per spin stays about 0.45 fish.
+- **Rich Friend stacking.** It's at most +0.12 on the rich rate (2.25 to 2.37 with every pass), about +3% income. That's about half of Cafe Style's own perk, so the paid pass isn't undercut.
+
+## 2026-11-11: Trait station approved, with 5 free starter rolls (#3196)
+- Derek2 said yes to the whole trait station plan (#3196, trait-station.md) and added 5 free re-rolls for every player at the start.
+- They are a separate `traitFreeRolls` counter (starts at 5, never refills), used before tokens and fish. Players who already own the Park's camp extra get them when the `traits` flag turns on.
+- Why a separate counter and not 5 tokens: tokens have a "holds 2" timer cap and drop from other sources, so mixing them would hide the gift and confuse the "Next in" line.
+- Save shape (Review-Agent): saved as `traitFreeRollsUsed` counting up from 0, never a defaulted count of 5, and only with the save version step and restart, so a no-restart rollout can't regrant them.
+
+## 2026-11-11: Trait station becomes the Mystic Pool, with 5 rarities and combo traits (#3196)
+- Derek2 asked for a wizard cat who drops your cat into a pool that changes colour with the rarity (grey, green, blue, gold, then mythic), with a Mythic around 1% that is very strong, and for Legendary and Mythic traits to combine several effects.
+- Rarities are Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%. Common to Rare are the six single traits at rising strength. Legendary has four two-effect traits, and Mythic has three three-effect traits (trait-station.md §2).
+- Shared caps still hold: bowl luck counts the best 3 cats and stays inside LuckMax; speed counts the best 1 cat, up to +1.5; the rich rate counts the best 2 cats, up to +24%, which stays under Cafe Style's paid 0.25.
+- The pool only steps up to the real result and never fakes a near-miss, because the audience is young.
+- Monetization should re-check the stacking with the Mythic numbers before the build ships.

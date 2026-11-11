@@ -857,6 +857,9 @@ Derek2 2026-11-11: "I want to run it in a live game with a command from owner mo
 - **What.** Each Saturday content update carries `Config.UpdateGift` (id, start time, fish, spins). Every player gets it once, paid on their first join from the start time (or within a second if they are already in), with the toast "Update gift! 🐟 15 + 1 spin". No claim button, no countdown. The first one is id 2026-11-14 at 17:00 UTC, 15 golden fish and 1 spin.
 - **Why this way.** The issue first planned a new save field, which needs a save version step, and a server running the old version drops fields it does not know. Derek2 2026-11-11: no server restarts. So the paid gift is marked in the existing `codesRedeemed` table under `gift` plus the id's digits (`gift20261114`), which every server since version 9 keeps. The Store's "Codes you've used" list hides these keys, and no real code starts with `gift`. Assumption (Gameplay-Engineer, overnight): the amounts and time from the issue stand; a later update changes only the Config line.
 
+## 2026-11-10: feedback stand right of the Thank You board, night market nudged (#3189)
+Derek2 asked for the feedback stand to the right of the Thank You board, away from the fish market, and the night market a little left to make room. The stand moves from (34, 18) to (50, -25), on the board's right as you face it, between the night cart and the leaderboard row; the night cart moves from (37, -35) to (33, -31). A straight move left would hide the board from the spawn, so the cart also steps 4 toward the lane. The #3070 fit rules (fit70.py) still pass with nothing excepted; the arcade's spot stays north of the lane.
+
 ## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
 
 Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.

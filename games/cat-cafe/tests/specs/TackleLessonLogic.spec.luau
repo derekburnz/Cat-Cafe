@@ -88,6 +88,13 @@ return function()
 				expect(TackleLessonLogic.contextDue(older)).to.equal(true)
 			end
 		)
+
+		it("starts a due lesson only at a free moment somewhere safe (#3206)", function()
+			expect(TackleLessonLogic.canStart(true, true)).to.equal(true)
+			expect(TackleLessonLogic.canStart(true, false)).to.equal(false) -- back out in a catching area
+			expect(TackleLessonLogic.canStart(false, true)).to.equal(false) -- carrying, a window, a catch
+			expect(TackleLessonLogic.canStart(false, false)).to.equal(false)
+		end)
 	end)
 
 	describe("IntroLogic.shotCount (#2198)", function()

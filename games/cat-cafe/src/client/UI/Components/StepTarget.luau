@@ -166,6 +166,12 @@ function StepTarget._place(self: any)
 		arrow.Visible = false
 		return
 	end
+	-- #3153 (Derek2: "the arrow points randomly"): while the big arrow points at a button the step wants pressed (the
+	-- Upgrades tile), this one at the screen's edge keeps away, so there is one arrow to follow
+	if TutorialArrow.leading() then
+		arrow.Visible = false
+		return
+	end
 	local px = ARROW * Scale.get()
 	local point = camera:WorldToViewportPoint(at)
 	local place = StepTargetLogic.edge(point, camera.ViewportSize, px)

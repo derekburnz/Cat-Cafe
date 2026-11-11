@@ -35,9 +35,11 @@ local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CatEars = require(script.Parent.Parent.Components.CatEars)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local IntroLogic = require(script.Parent.Parent.Components.IntroLogic)
+local LoadingCount = require(script.Parent.Parent.Components.LoadingCount)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
@@ -70,6 +72,9 @@ export type Intro = {
 	tackleCue: (self: Intro, key: string?, pressIn: number?) -> (), -- #2469
 	finish: (self: Intro) -> (),
 	playing: (self: Intro) -> boolean,
+	-- #3105: the loading screen while the camera is held still before the first shot (or before the first spawn)
+	waiting: (self: Intro, on: boolean) -> (),
+	race: (self: Intro) -> number,
 	destroy: (self: Intro) -> (),
 }
 
@@ -81,6 +86,21 @@ local BARS_OUT = TweenInfo.new(OUT, Enum.EasingStyle.Quad, Enum.EasingDirection.
 local FADE = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local CAPTION_POP = TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SIDE = 24 -- design pixels kept clear at the screen's sides
+-- #3105 (Derek2 11-10, on two new players leaving at the tutorial's start: "makes me think issues loading or smth",
+-- then "a quick loading screen maybe"): before the first spawn and before the intro's first shot the camera holds
+-- still, and a still picture with no words looks frozen. A loading screen covers it.
+-- #3109 (Derek2 11-10: "a quick cute cat loading screen that instantly goes up to 100 really fast then transitions
+-- to the tutorial scenes"): a drawn cat's face, the game's name and a bar that a paw walks along as a count runs to
+-- 100 (Components/LoadingCount). The count creeps while the save loads; race() runs it to 100 and says how long
+-- that takes, and the caller starts the intro then. It slides away the moment a play starts or its caller says the
+-- wait is over, and by itself after WAIT_LIMIT whatever its caller does, so it never stays over a playable game.
+local WAIT_TITLE = "Catch a Cat Cafe"
+local WAIT_LIMIT = 20 -- seconds
+local WAIT_OUT = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local WAIT_BAR = Vector2.new(300, 22) -- the bar, in design pixels
+local WAIT_PAW = 34 -- the paw that walks the bar
+local WAIT_FACE = Vector2.new(104, 88) -- the cat's face
+local WAIT_FUR = Color3.fromHex("F3B56B") -- a ginger cat, warm on the cream
 local CAPTION_HEIGHT = 44
 local CAPTION_TEXT = 30
 local DOT = 10
@@ -411,6 +431,194 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	end) :: Signal.Connection
 	self:_layout()
 	screenGui.Parent = parent
+
+	-- #3105: the loading screen, in a ScreenGui of its own so it shows without the bars and never touches a play
+	self._waiting = false
+	self._waitToken = 0
+	self._waitOut = nil :: Tween? -- the slide away, while it runs
+	self._waitBegan = 0 -- os.clock() when it last showed
+	self._waitValue = 0 -- the count, 0 to 100
+	self._raceAt = nil :: number? -- os.clock() when race() began the run to 100
+	self._raceFrom = 0
+	self._raceSeconds = 0
+	local waitGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafeIntroWait",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 50,
+		Enabled = false,
+	})
+	self._waitGui = waitGui
+	local cover: Frame = Create("Frame", {
+		Name = "Cover",
+		Active = true, -- taps stop here: nothing under a loading screen opens
+		BackgroundColor3 = Theme.colors.cream,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Parent = waitGui,
+	})
+	self._waitCover = cover
+	local waitRoot: Frame = Create("Frame", {
+		Name = "Root",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = cover,
+	})
+	self._waitScale = Scale.bind(waitRoot)
+	-- the cat: a round ginger face with two ears behind it, eyes, a pink nose, cheeks and whiskers
+	local cat: Frame = Create("Frame", {
+		Name = "Cat",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 0.5, -40),
+		Size = UDim2.fromOffset(WAIT_FACE.X, WAIT_FACE.Y + 22),
+		Parent = waitRoot,
+	})
+	CatEars.add(cat, WAIT_FUR, { size = 38, inset = 0.24, y = 30, outline = 3, zIndex = 1 })
+	local face: Frame = Create("Frame", {
+		Name = "Face",
+		BackgroundColor3 = WAIT_FUR,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.fromScale(0.5, 1),
+		Size = UDim2.fromOffset(WAIT_FACE.X, WAIT_FACE.Y),
+		ZIndex = 2,
+		Parent = cat,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+	Outline.border(face, 3)
+	for index, x in { 0.3, 0.7 } do
+		Create("Frame", {
+			Name = "Eye" .. index,
+			BackgroundColor3 = Theme.colors.ink,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(x, 0.45),
+			Size = UDim2.fromOffset(13, 16),
+			ZIndex = 3,
+			Parent = face,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
+			Create("Frame", {
+				Name = "Shine",
+				BackgroundColor3 = Theme.colors.white,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(3, 3),
+				Size = UDim2.fromOffset(5, 5),
+				ZIndex = 4,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) }),
+		})
+		Create("Frame", {
+			Name = "Cheek" .. index,
+			BackgroundColor3 = Theme.colors.pink,
+			BackgroundTransparency = 0.35,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(if index == 1 then 0.17 else 0.83, 0.68),
+			Size = UDim2.fromOffset(16, 10),
+			ZIndex = 3,
+			Parent = face,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+		for row, turn in { -8, 8 } do
+			Create("Frame", {
+				Name = ("Whisker%d%d"):format(index, row),
+				BackgroundColor3 = Theme.colors.ink,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.new(if index == 1 then 0 else 1, 0, 0.6, (row - 1.5) * 12),
+				Size = UDim2.fromOffset(24, 2),
+				Rotation = if index == 1 then turn else -turn,
+				ZIndex = 3,
+				Parent = face,
+			})
+		end
+	end
+	Create("Frame", {
+		Name = "Nose",
+		BackgroundColor3 = Theme.colors.berry,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.6),
+		Size = UDim2.fromOffset(12, 9),
+		ZIndex = 3,
+		Parent = face,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+	Create("TextLabel", {
+		Name = "Mouth",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0.6, 1),
+		Size = UDim2.fromOffset(40, 20),
+		FontFace = Theme.fonts.bodyBold,
+		TextColor3 = Theme.colors.ink,
+		TextSize = 20,
+		Text = "w",
+		ZIndex = 3,
+		Parent = face,
+	})
+	local title: TextLabel = Create("TextLabel", {
+		Name = "Title",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, -8),
+		Size = UDim2.new(1, -2 * SIDE, 0, 56),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.gold,
+		TextSize = 44,
+		Text = WAIT_TITLE,
+		Parent = waitRoot,
+	})
+	Outline.text(title, 3)
+	-- the bar: a paper track, a gold fill from its left end and a paw that walks at the fill's tip
+	local bar: Frame = Create("Frame", {
+		Name = "Bar",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0.5, 38),
+		Size = UDim2.fromOffset(WAIT_BAR.X, WAIT_BAR.Y),
+		Parent = waitRoot,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(bar, 3)
+	local well: Frame = Create("Frame", {
+		Name = "Well",
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
+		Size = UDim2.fromScale(1, 1),
+		Parent = bar,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._waitFill = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(0, 1),
+		Parent = well,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._waitPaw = Create("TextLabel", {
+		Name = "Paw",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.fromOffset(WAIT_PAW + 6, WAIT_PAW),
+		FontFace = Theme.fonts.display,
+		TextSize = WAIT_PAW - 8,
+		Text = "🐾",
+		ZIndex = 2,
+		Parent = bar,
+	})
+	self._waitLabel = Create("TextLabel", {
+		Name = "Count",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0.5, 70),
+		Size = UDim2.fromOffset(160, 36),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.ink,
+		TextSize = 30,
+		Text = LoadingCount.text(0),
+		Parent = waitRoot,
+	})
+	waitGui.Parent = parent
 	return self :: Intro
 end
 
@@ -446,7 +654,86 @@ function Intro._renderDots(self: any)
 end
 
 -- Plays from the top: bars in, dots reset, Skip after skipAfter seconds (IntroLogic.skipAfter).
+-- #3109: the count on the loading screen: the bar's fill, the paw at its tip and the number.
+function Intro._waitSet(self: any, value: number)
+	self._waitValue = value
+	local share = math.clamp(value / LoadingCount.FULL, 0, 1)
+	self._waitFill.Size = UDim2.fromScale(share, 1)
+	self._waitPaw.Position = UDim2.fromScale(share, 0.5)
+	self._waitLabel.Text = LoadingCount.text(value)
+end
+
+-- #3105: shows the loading screen, or slides it away. A play slides it away (start), and so does WAIT_LIMIT.
+-- #3109: shown, its count creeps up until race(); sliding away it reads 100.
+function Intro.waiting(self: any, on: boolean)
+	local show = on and self._alive and not self._playing
+	if show == self._waiting then
+		return
+	end
+	self._waiting = show
+	self._waitToken += 1
+	local token = self._waitToken
+	local cover: Frame = self._waitCover
+	if not show then
+		self._raceAt = nil
+		self:_waitSet(LoadingCount.FULL)
+		local out = Tween.to(cover, WAIT_OUT, { Position = UDim2.fromScale(0, -1) })
+		self._waitOut = out
+		out.Completed:Once(function()
+			if self._alive and token == self._waitToken then
+				self._waitGui.Enabled = false
+			end
+		end)
+		return
+	end
+	-- a show straight after a hide: stop the slide, or it would carry the cover off again (review on #3107)
+	local out: Tween? = self._waitOut
+	if out ~= nil then
+		out:Cancel()
+		self._waitOut = nil
+	end
+	cover.Position = UDim2.fromScale(0, 0)
+	self._waitGui.Enabled = true
+	self._waitBegan = os.clock()
+	self._raceAt = nil
+	self:_waitSet(0)
+	task.spawn(function()
+		while self._alive and self._waiting and token == self._waitToken do
+			local now = os.clock()
+			if now - self._waitBegan > WAIT_LIMIT then
+				self:waiting(false)
+				return
+			end
+			local raceAt: number? = self._raceAt
+			local value = if raceAt ~= nil
+				then LoadingCount.race(self._raceFrom, (now - raceAt) / self._raceSeconds)
+				else LoadingCount.creep(now - self._waitBegan)
+			-- never back: a race starts from where the creep stood
+			self:_waitSet(math.max(value, self._waitValue))
+			task.wait()
+		end
+	end)
+end
+
+-- #3109: the load is over: runs the count to 100 and returns the seconds that takes (0 with no loading screen up),
+-- so the caller starts the intro as the count lands. Asked again mid-run it returns what is left.
+function Intro.race(self: any): number
+	if not self._waiting then
+		return 0
+	end
+	local now = os.clock()
+	local raceAt: number? = self._raceAt
+	if raceAt ~= nil then
+		return math.max(self._raceSeconds - (now - raceAt), 0)
+	end
+	self._raceAt = now
+	self._raceFrom = self._waitValue
+	self._raceSeconds = LoadingCount.raceSeconds(now - self._waitBegan)
+	return self._raceSeconds
+end
+
 function Intro.start(self: any, options: Types.IntroOptions?)
+	self:waiting(false) -- #3105: the wait is over
 	self._token += 1
 	local token = self._token
 	self:_clearRing()
@@ -1211,6 +1498,8 @@ function Intro.destroy(self: any)
 	table.clear(self._connections)
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)
+	Scale.unbind(self._waitScale)
+	self._waitGui:Destroy()
 	self.screenGui:Destroy()
 end
 

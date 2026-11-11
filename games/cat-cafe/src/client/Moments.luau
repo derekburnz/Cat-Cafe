@@ -133,6 +133,11 @@ local Moments = {
 	-- state.lostFound.held (its lid rattles while above 0).
 	CampExtraCollect = Signal.new() :: Signal.Signal<string, Vector3>,
 	CampExtrasState = Signal.new() :: Signal.Signal<Types.CampExtrasState>,
+	-- #3050: a Rummage Bin win on this client (UIController, from the bin's winning RescueResult): the BinTable row's
+	-- id (tuna, fish, salmon, potion, crate, golden) and whether it is the account's first. The bin is the model
+	-- tagged RummageBin (its BangAnchor is where prizes pop out, its GlowAnchor the mouth). RescueStart, RescueHit, RescueMiss, RescueDone and RescueFail fire for its bar too,
+	-- with the spot id RummageBin.SPOT and no trap or rarity.
+	RummageWin = Signal.new() :: Signal.Signal<string, boolean>,
 	-- #2687 (shared/StationReveal): (area, perkId) the first time this account walks or flies into an area whose tier
 	-- it owns, for the station's build-in beat (VFX, Animation), the fanfare (Sound) and the Unlocked card (UI, with
 	-- StationPerks.get(perkId)). Fired once per area per account (WorldController, saved through TipSeen).
@@ -140,6 +145,11 @@ local Moments = {
 	-- #2946: (bowl position, seconds) the first bait's cat starts eating in its cutscene (Effects/FirstBaitCut), for
 	-- the purr at the bowl (Sound, #2951).
 	FirstBaitEat = Signal.new() :: Signal.Signal<Vector3, number?>,
+	-- #3062 Cat Arcade (Circle Streak), fired by UIController's arcade window for the sounds (Sound, #3244): a run begins
+	-- (the fish is paid), every 10 points, and the run ends with (points, won).
+	ArcadeStart = Signal.new() :: Signal.Signal<()>,
+	ArcadeMilestone = Signal.new() :: Signal.Signal<number>,
+	ArcadeEnd = Signal.new() :: Signal.Signal<number, boolean>,
 }
 
 return Moments

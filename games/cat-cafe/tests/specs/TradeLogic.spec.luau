@@ -264,28 +264,37 @@ return function()
 			expect(table.concat(order, ",")).to.equal("e,d,c,f,b,a")
 		end)
 
-		it("sends locked and exclusive cats to the end, each with its reason", function()
-			local picks = TradeLogic.myCats({
-				a = { uid = "a", catId = "star", locked = true },
-				b = { uid = "b", catId = "bell" },
-				c = { uid = "c", catId = "tabby" },
-				d = { uid = "d", catId = "moon" },
-				x = { uid = "x", catId = "unknown" },
-			}, defOf, { d = true })
-			expect(#picks).to.equal(4)
-			expect(picks[1].uid).to.equal("d")
-			expect(picks[1].status).to.equal("offered")
-			expect(picks[2].uid).to.equal("c")
-			expect(picks[3].status).to.equal("locked")
-			expect(picks[4].status).to.equal("exclusive")
-			expect(TradeLogic.pickHint(picks[3], false)).to.equal("Unlock it on its card to trade")
-			expect(TradeLogic.pickHint(picks[4], false)).to.equal("This cat can't be traded")
-			expect(TradeLogic.pickHint(picks[2], false)).to.equal(nil)
-			expect(TradeLogic.pickHint(picks[2], true)).to.equal(
-				string.format("Up to %d cats a trade", TradeLogic.MAX_CATS)
-			)
-			expect(TradeLogic.pickHint(picks[1], true)).to.equal(nil)
-		end)
+		it(
+			"keeps the rarest first whatever a card's state, each with its reason (#3211)",
+			function()
+				local picks = TradeLogic.myCats({
+					a = { uid = "a", catId = "star", locked = true },
+					b = { uid = "b", catId = "bell" },
+					c = { uid = "c", catId = "tabby" },
+					d = { uid = "d", catId = "moon" },
+					e = { uid = "e", catId = "moon", locked = true },
+					x = { uid = "x", catId = "unknown" },
+				}, defOf, { d = true })
+				local order = {}
+				for _, pick in picks do
+					table.insert(order, pick.uid)
+				end
+				-- Legendary (locked), Epic (offered, then the locked one), Rare (exclusive), Common
+				expect(table.concat(order, ",")).to.equal("a,d,e,b,c")
+				expect(picks[1].status).to.equal("locked")
+				expect(picks[2].status).to.equal("offered")
+				expect(picks[4].status).to.equal("exclusive")
+				expect(TradeLogic.pickHint(picks[1], false)).to.equal(
+					"Unlock it on its card to trade"
+				)
+				expect(TradeLogic.pickHint(picks[4], false)).to.equal("This cat can't be traded")
+				expect(TradeLogic.pickHint(picks[5], false)).to.equal(nil)
+				expect(TradeLogic.pickHint(picks[5], true)).to.equal(
+					string.format("Up to %d cats a trade", TradeLogic.MAX_CATS)
+				)
+				expect(TradeLogic.pickHint(picks[2], true)).to.equal(nil)
+			end
+		)
 
 		it("uses a cat's own name and reads a missing list as empty", function()
 			local picks = TradeLogic.myCats(
@@ -315,6 +324,14 @@ return function()
 			expect(ok.enabled).to.equal(true)
 			expect(TradeLogic.playerButton({ asked = false }, 3).enabled).to.equal(true)
 		end)
+
+		it(
+			"clears Asked at once for an ask that was refused, after the re-ask wait for a decline (#3211)",
+			function()
+				expect(TradeLogic.askedUntil(50, true)).to.equal(50)
+				expect(TradeLogic.askedUntil(50, false)).to.equal(50 + TradeLogic.REASK_SECONDS)
+			end
+		)
 	end)
 
 	describe("TradeLogic.requestsMode", function()
@@ -392,16 +409,13 @@ return function()
 		it("keeps the last 20 and drops broken entries and cats", function()
 			local log: { any } = {}
 			for index = 1, 25 do
-				table.insert(
-					log,
-					{
-						id = "t" .. index,
-						at = BIG - index,
-						partnerName = "Sam",
-						gave = {},
-						got = {},
-					}
-				)
+				table.insert(log, {
+					id = "t" .. index,
+					at = BIG - index,
+					partnerName = "Sam",
+					gave = {},
+					got = {},
+				})
 			end
 			table.insert(log, { at = BIG, partnerName = "No id" })
 			table.insert(log, { id = "no_time", partnerName = "No time" })
@@ -435,7 +449,11 @@ return function()
 					partnerName = "Sam",
 					gave = {},
 					got = {},
-					gaveDecor = { { id = "bench", kind = "decor", rarity = "Rare" }, "junk", { kind = "lawn" } },
+					gaveDecor = {
+						{ id = "bench", kind = "decor", rarity = "Rare" },
+						"junk",
+						{ kind = "lawn" },
+					},
 					gotDecor = { { id = "tulip_bed", kind = "lawn" } },
 				},
 				{ id = "old", at = 50, partnerName = "Mia", gave = {}, got = {} },
@@ -459,7 +477,12 @@ return function()
 					partnerName = "Sam",
 					gave = {},
 					got = {},
-					gaveCrates = { { id = "alley_crate", count = 3 }, { id = "junk", count = 0 }, "junk", { count = 2 } },
+					gaveCrates = {
+						{ id = "alley_crate", count = 3 },
+						{ id = "junk", count = 0 },
+						"junk",
+						{ count = 2 },
+					},
 					gotFish = 50,
 					gaveFish = 0 / 0,
 				},
@@ -484,10 +507,12 @@ return function()
 			expect(TradeLogic.doneLine({})).to.equal("Trade done!")
 			expect(TradeLogic.doneLine(nil)).to.equal("Trade done!")
 			expect(TradeLogic.doneLine({}, { {}, {} })).to.equal("Trade done! 2 new decor")
-			expect(TradeLogic.doneLine({ {} }, { {} })).to.equal("Trade done! 1 new cat and 1 new decor")
-			expect(TradeLogic.doneLine({}, nil, { { id = "a", count = 2 }, { id = "b", count = 1 } })).to.equal(
-				"Trade done! 3 new crates"
+			expect(TradeLogic.doneLine({ {} }, { {} })).to.equal(
+				"Trade done! 1 new cat and 1 new decor"
 			)
+			expect(
+				TradeLogic.doneLine({}, nil, { { id = "a", count = 2 }, { id = "b", count = 1 } })
+			).to.equal("Trade done! 3 new crates")
 			expect(TradeLogic.doneLine({ {}, {} }, { {} }, { { id = "a", count = 1 } })).to.equal(
 				"Trade done! 2 new cats, 1 new decor and 1 new crate"
 			)
@@ -506,27 +531,22 @@ return function()
 		end
 
 		it("lists owned tradeable pieces, rarest first, each with why it cannot go", function()
-			local picks = TradeLogic.myPieces(
-				{
-					rug = true,
-					lamp = true,
-					gnome = true,
-					fountain = true,
-					bench = true,
-					shop_sign = true,
-				},
-				{ fountain = true },
-				pieceOf,
-				{ gnome = true },
-				{ "bench" }
-			)
+			local picks = TradeLogic.myPieces({
+				rug = true,
+				lamp = true,
+				gnome = true,
+				fountain = true,
+				bench = true,
+				shop_sign = true,
+			}, { fountain = true }, pieceOf, { gnome = true }, { "bench" })
 			local order, status = {}, {}
 			for _, pick in picks do
 				table.insert(order, pick.id)
 				status[pick.id] = pick.status
 			end
 			-- shop_sign can't be traded (pieceOf says nil), so it is left out
-			expect(table.concat(order, ",")).to.equal("fountain,rug,gnome,lamp,bench")
+			-- #3211: by rarity whatever the state, so the locked Legendary keeps its place
+			expect(table.concat(order, ",")).to.equal("fountain,lamp,rug,gnome,bench")
 			expect(status.fountain).to.equal("ok") -- Golden, unlocked
 			expect(status.gnome).to.equal("offered")
 			expect(status.lamp).to.equal("locked") -- Legendary, not unlocked
@@ -597,38 +617,54 @@ return function()
 			return { cats = {}, decor = {}, crates = crates }
 		end
 
-		it("lists banked crates in catalog order, never a golden one, blocked ones last", function()
-			local picks = TradeLogic.myCrates(
-				{ alley_crate = 3, classic_crate = 1, desert_crate = 2, classic_golden_crate = 4, gone = 5, none = 0 },
-				defOf,
-				{ classic_crate = 1, alley_crate = 1 },
-				{ desert_crate = "They haven't reached the Desert yet" }
-			)
-			local order = {}
-			for _, pick in picks do
-				table.insert(order, pick.id)
+		it(
+			"lists banked crates from the last in the catalog back, never a golden one (#3211)",
+			function()
+				local picks = TradeLogic.myCrates(
+					{
+						alley_crate = 3,
+						classic_crate = 1,
+						desert_crate = 2,
+						classic_golden_crate = 4,
+						gone = 5,
+						none = 0,
+					},
+					defOf,
+					{ classic_crate = 1, alley_crate = 1 },
+					{ desert_crate = "They haven't reached the Desert yet" }
+				)
+				local order = {}
+				for _, pick in picks do
+					table.insert(order, pick.id)
+				end
+				expect(table.concat(order, ",")).to.equal("desert_crate,alley_crate,classic_crate")
+				expect(picks[3].status).to.equal("offered") -- its only one is on offer
+				expect(picks[2].status).to.equal("ok")
+				expect(picks[2].banked).to.equal(3)
+				expect(picks[2].offered).to.equal(1)
+				expect(picks[1].status).to.equal("blocked")
+				expect(picks[1].reason).to.equal("They haven't reached the Desert yet")
 			end
-			expect(table.concat(order, ",")).to.equal("classic_crate,alley_crate,desert_crate")
-			expect(picks[1].status).to.equal("offered") -- its only one is on offer
-			expect(picks[2].status).to.equal("ok")
-			expect(picks[2].banked).to.equal(3)
-			expect(picks[2].offered).to.equal(1)
-			expect(picks[3].status).to.equal("blocked")
-			expect(picks[3].reason).to.equal("They haven't reached the Desert yet")
-		end)
+		)
 
 		it("says why a tap adds none", function()
 			local function pick(fields: { [string]: any }): any
-				local base = { id = "alley_crate", name = "Alley Crate", banked = 3, offered = 0, status = "ok" }
+				local base = {
+					id = "alley_crate",
+					name = "Alley Crate",
+					banked = 3,
+					offered = 0,
+					status = "ok",
+				}
 				for key, value in fields do
 					base[key] = value
 				end
 				return base
 			end
 			expect(TradeLogic.crateHint(pick({}), sideWith({}))).to.equal(nil)
-			expect(TradeLogic.crateHint(pick({ status = "blocked", reason = "Not yet" }), sideWith({}))).to.equal(
-				"Not yet"
-			)
+			expect(
+				TradeLogic.crateHint(pick({ status = "blocked", reason = "Not yet" }), sideWith({}))
+			).to.equal("Not yet")
 			expect(TradeLogic.crateHint(pick({ offered = 3, status = "offered" }), sideWith({}))).to.equal(
 				"You don't have that many"
 			)
@@ -646,11 +682,19 @@ return function()
 		end)
 
 		it("lets the picker go up to what is banked, within the caps", function()
-			local pick = { id = "alley_crate", name = "Alley Crate", banked = 30, offered = 2, status = "ok" }
-			local side = sideWith({ { id = "alley_crate", count = 2 }, { id = "classic_crate", count = 5 } })
+			local pick = {
+				id = "alley_crate",
+				name = "Alley Crate",
+				banked = 30,
+				offered = 2,
+				status = "ok",
+			}
+			local side =
+				sideWith({ { id = "alley_crate", count = 2 }, { id = "classic_crate", count = 5 } })
 			-- 20 in all, 5 of them another kind
 			expect(TradeLogic.crateMax(pick :: any, side)).to.equal(TradeLogic.MAX_CRATES - 5)
-			local few = { id = "alley_crate", name = "Alley Crate", banked = 4, offered = 0, status = "ok" }
+			local few =
+				{ id = "alley_crate", name = "Alley Crate", banked = 4, offered = 0, status = "ok" }
 			expect(TradeLogic.crateMax(few :: any, sideWith({}))).to.equal(4)
 		end)
 
@@ -669,7 +713,12 @@ return function()
 		it("counts crates toward Ready", function()
 			local onlyCrates = {
 				phase = "offer",
-				me = { ready = false, cats = {}, decor = {}, crates = { { id = "alley_crate", count = 1 } } },
+				me = {
+					ready = false,
+					cats = {},
+					decor = {},
+					crates = { { id = "alley_crate", count = 1 } },
+				},
 				them = { ready = false, cats = {}, decor = {} },
 			}
 			expect(TradeLogic.readyButton(onlyCrates).enabled).to.equal(true)
@@ -685,7 +734,11 @@ return function()
 			expect(TradeLogic.fishOf({})).to.equal(0)
 			expect(TradeLogic.offerCount({ cats = {}, fish = 10 })).to.equal(1)
 			expect(TradeLogic.offerCount({ cats = {}, fish = 0 })).to.equal(0)
-			local onlyFish = { me = { cats = {}, fish = 10, ready = false }, them = { cats = {} }, phase = "offer" }
+			local onlyFish = {
+				me = { cats = {}, fish = 10, ready = false },
+				them = { cats = {} },
+				phase = "offer",
+			}
 			expect(TradeLogic.readyButton(onlyFish).enabled).to.equal(true)
 		end)
 
@@ -707,7 +760,9 @@ return function()
 			expect(TradeLogic.fishHint(50, 100, 0)).to.equal(nil)
 			expect(TradeLogic.fishRoomLine(150)).to.equal("They can get 150 more today")
 			expect(TradeLogic.fishRoomLine(0)).to.equal("They can't get more today")
-			expect(TradeLogic.fishRoomLine(nil)).to.equal(string.format("Up to %d a trade", TradeLogic.MAX_FISH))
+			expect(TradeLogic.fishRoomLine(nil)).to.equal(
+				string.format("Up to %d a trade", TradeLogic.MAX_FISH)
+			)
 		end)
 
 		it("sets the quick amounts within the top", function()
@@ -718,7 +773,9 @@ return function()
 
 		it("joins the fish to the done line", function()
 			expect(TradeLogic.doneLine({}, nil, nil, 50)).to.equal("Trade done! 50 golden fish")
-			expect(TradeLogic.doneLine({ {} }, nil, nil, 20)).to.equal("Trade done! 1 new cat and 20 golden fish")
+			expect(TradeLogic.doneLine({ {} }, nil, nil, 20)).to.equal(
+				"Trade done! 1 new cat and 20 golden fish"
+			)
 			expect(TradeLogic.doneLine({}, nil, nil, 0)).to.equal("Trade done!")
 		end)
 	end)

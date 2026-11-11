@@ -1135,13 +1135,14 @@ def curly_moustache(ctx):
 
 
 def letter(ctx):
-    """Postie, Mail Cat's second prop: a letter held sideways in the mouth, its near half bitten in the muzzle and the
-    other half sticking out to the cat's left and forward, a cream envelope with its flap drawn on, a red seal and a
-    teal stamp. Derek2 11-10: flat on the face it "looks a little off, have it sideways with half sticking out"."""
+    """Postie, Mail Cat's second prop: a letter held flat in the mouth, its back half bitten in the muzzle and the
+    front half sticking straight out, a cream envelope lying face up with its flap drawn on, a red seal and a teal
+    stamp. Derek2 11-10: "sideways" meant "the mail is flat coming out of his mouth half" (#3192; 078125b9 had stood
+    it on its edge)."""
     F = ctx.pen("face")
-    R = _rz(-68) @ _ry(6)                       # its long edge out of the mouth, swung 22 deg off straight ahead
-    c = Vector((0.1, 0.02, ctx.mouth_z - 0.02))   # the middle at the mouth's corner, so half is inside the muzzle
-    out = tuple(R @ Vector((0, -1, 0)))         # its outer face, toward the front and the cat's left
+    R = _rx(6) @ _rz(180) @ _rx(-90)            # lying flat, the flap's point toward the front, the tip dipped 6 deg
+    c = Vector((0.0, -0.03, ctx.mouth_z - 0.02))  # the middle at the muzzle's front, so half of it is in the mouth
+    out = tuple(R @ Vector((0, -1, 0)))         # its top face
     face = R @ _rx(90)
 
     def at(u, w, v=0.0):
@@ -1149,7 +1150,7 @@ def letter(ctx):
     F.box(at(0, 0), (0.5, 0.03, 0.3), "offwhite", rot=R)                                      # the envelope
     for su in (-1, 1):                                                                          # its flap, a V
         F.bar(at(su * 0.235, 0.135, -0.018), at(0, -0.02, -0.018), 0.035, 0.008, "fur_grey", up=out)
-    F.cyl(at(0.06, -0.02, -0.023), 0.05, 0.014, "bowl_red", rot=face, segments=10)            # wax seal
+    F.cyl(at(0, -0.02, -0.023), 0.05, 0.014, "bowl_red", rot=face, segments=10)               # wax seal
     F.box(at(0.17, -0.08, -0.019), (0.09, 0.008, 0.1), "sign_teal", rot=R)                  # stamp, under the flap
     F.box(at(0.17, -0.08, -0.024), (0.05, 0.004, 0.06), "offwhite", rot=R)
 

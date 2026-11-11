@@ -14,6 +14,8 @@
 --   line(id, device, cut?, nextArea?) -> string?   a tip's card line, or its camera cut's caption when cut is true
 --   icon(id) -> string                         the glyph on the tip's card
 --   free(moment) -> boolean                    whether a tip may show now
+--   held(early) -> boolean                     #3156: tip cards wait while a tutorial step is on screen, and through a
+--                                              new player's first EARLY_SECONDS
 --   new(gap, size) -> Queue                    :push(id) -> boolean, :take(now) -> string?, :shown(now), :has(id),
 --                                              :size(), :clear()
 -- Pure, so the cloud spec runner checks it.
@@ -28,6 +30,9 @@ TipQueue.DUSK_QUIET = 5 -- no tip in the dusk warning's last seconds (section 3)
 TipQueue.SIZE = 2 -- tips waiting at most
 TipQueue.TOAST_QUIET = 20 -- seconds after a toast showed before a tip may
 TipQueue.ASK_SECONDS = 7 -- F96: the favorite and like asks stay a little longer (UI.asks.show)
+-- #3156 (Derek2: "lower the amount of pop ups for tips in the first 5 minutes"): a player who joined still in the
+-- tutorial gets no tip cards for this long into the session (the tackling lesson still plays: it is the tutorial's)
+TipQueue.EARLY_SECONDS = 300
 
 -- A line per device where the input matters; one string where it does not.
 type Line = string | { keyboard: string, touch: string, gamepad: string }
@@ -164,6 +169,20 @@ function TipQueue.free(moment: Moment): boolean
 	end
 	local dusk = moment.duskLeft
 	return dusk == nil or dusk > TipQueue.DUSK_QUIET
+end
+
+export type Early = {
+	guiding: boolean, -- the tutorial strip or the cannon hint is on screen: that step speaks, no card over it
+	newPlayer: boolean, -- joined this session before the tutorial's end
+	played: number, -- seconds since this session's UI started
+}
+
+-- #3156: true while tip cards (and the "Need a hand?" nudges) wait.
+function TipQueue.held(early: Early): boolean
+	if early.guiding then
+		return true
+	end
+	return early.newPlayer and early.played < TipQueue.EARLY_SECONDS
 end
 
 export type Queue = {

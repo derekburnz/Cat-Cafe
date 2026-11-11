@@ -41,6 +41,7 @@ import campextras  # noqa: E402
 import campgrowth  # noqa: E402
 import nooks  # noqa: E402
 import campstations  # noqa: E402
+import arcadecabinet  # noqa: E402
 import townsfolk  # noqa: E402
 import leaderboards  # noqa: E402
 import rally  # noqa: E402
@@ -124,7 +125,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, feedbackstand]
+           mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, feedbackstand,
+           arcadecabinet]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -253,6 +255,8 @@ PIVOT_NOTES = {
                         "toward the players; placed by Gameplay (#3066)",
     campstations.BIN: "the base centre on the ground, front -Z (the paw print), no turn; at the Alleyway camp "
                       "within 15 studs of its pad (#3050)",
+    arcadecabinet.NAME: "the base centre on the Town Square's paving, the screen and the control panel (-Z) toward "
+                        "the players; placed by Gameplay (#3062)",
     campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
                        "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
@@ -369,7 +373,7 @@ STUDIO_NOTES = {
                              "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
                              "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
-                               "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
+                               "CodesCircle (a flat Neon disc 12 studs across, centre 8 studs in front of the pivot, "
                                "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
                                "_Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 "
                                "studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor "
@@ -461,6 +465,12 @@ STUDIO_NOTES = {
                       "on it); hide the other (Transparency 1, CanCollide off) or parent it away. Attachments "
                       "PromptAnchor (front, 1.5 up), BangAnchor (2.6 over the rim) and GlowAnchor (just over the "
                       "mouth, for a ready glow). The bin and pallet collide.",
+    arcadecabinet.NAME: "#3062: the Cat Arcade cabinet (Circle Streak), 7.9 tall: a teal upright cabinet with cream "
+                        "sides, a red paw button, a joystick, a coin door with a gold slot and a fish, and cat ears on "
+                        "the marquee. _Screen is the 2.4 x 1.9 Screen part (night blue, for a SurfaceGui and the idle "
+                        "glow); _Glow holds the marquee's CAT ARCADE letters (Neon, for the idle pulse). Attachments "
+                        "PromptAnchor (in front of the panel, 1.5 up: the Play prompt), SlotAnchor (the coin slot, "
+                        "for the fish drop), ScreenAnchor and BangAnchor. The cabinet collides.",
     campstations.LOST: "#1732 (camp-stations.md section 4b): the Lost and Found booth, replacing "
                        "CatCafe_Camp_Sewer_LostFound at Layout.campExtras.sewer. _Bell is the desk bell (pivot at its "
                        "base, for the ring-wobble), _Bulb the sign's bulbs (night glow), _Blink_Bulb the one that "
@@ -842,6 +852,8 @@ def main():
             extra = {"nest": leaderboards.NEST}
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
+        if name == arcadecabinet.NAME:            # #3062: the Play prompt, the coin slot and the screen
+            extra = {"attachments": arcadecabinet.attachments()}
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
             extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in townsfolk.ASSETS:              # #2687: the hat rides the Head Model

@@ -12,8 +12,9 @@
 --                                                     the shop's button, the counts and the money say it. A warning
 --                                                     (a refused buy) still shows. #2729: also every line on CUT.
 --                                                     #3080: and every green ("good") toast that is not on KEEP
---   oneLine(kind) -> boolean                           #2729: good and info toasts keep to one row and end in "…";
---                                                     a warning and a shout-out wrap so every word shows
+--   oneLine(kind, text) -> boolean                     #2729: good and info toasts keep to one row and end in "…";
+--                                                     a warning and a shout-out wrap so every word shows. #3205: so
+--                                                     does a line with one of WRAP's phrases (the restart warning)
 
 local ToastRules = {}
 
@@ -86,6 +87,13 @@ ToastRules.KEEP = {
 	"^Your bait cat is here!", -- BaitService: a cat waits at the bowl while the player is out; they have to walk home
 	"^It dropped! ", -- ShoveService: a shoved player dropped their cat; the shover has seconds to pick it up
 	"^Owner test mode: ", -- OwnerTestService: the owner's own test grants, which nobody else sees
+	"^Golden find! ", -- #3222 LawnService.giveDrop: a drop-only Golden lawn piece from a freed cat
+	"^Update gift! ", -- #2997 PlaytimeGiftService: the Saturday update gift, paid with no card
+	-- #3106 (Derek2 11-10, after two new players left in the tutorial: "maybe add those two buttons back"): a new
+	-- player's first delivery and first cat. Each comes once: the server sends the second on the first check-in
+	-- only, and UI.cannon.checkedIn sends the first only while the first walk-through is not done
+	" is on its way to your cafe!$",
+	"^Your first cat! ",
 }
 
 function ToastRules.kept(text: string): boolean
@@ -120,7 +128,21 @@ end
 -- #2729 (Derek2 11-09: "big claims of index and quests cap at one line and put … explaining ads too much clutter"):
 -- a good or info toast (a claim, a reward, a reply) is one row that ends in "…"; the whole list stays on its card in
 -- the Index, Quests or Pass window. A warning says why a press failed and a shout-out names a player, so those wrap.
-function ToastRules.oneLine(kind: string?): boolean
+-- #3205 (Derek2 11-11: "the quick update in ... gets cut off"): the restart warning's early marks are calm info
+-- toasts (#2720), and one row dropped their last words, "your cafe is saved". A line with one of these phrases
+-- (plain, any case) wraps whatever its kind. shared/RestartNotice.text ends every warning with the first.
+-- #3212: and an owner command's reply ("Owner test mode: Cafe Party started on all servers for 10 minutes").
+ToastRules.WRAP = { "your cafe is saved", "owner test mode:" }
+
+function ToastRules.oneLine(kind: string?, text: string?): boolean
+	if text ~= nil then
+		local lower = string.lower(text)
+		for _, phrase in ToastRules.WRAP do
+			if string.find(lower, phrase, 1, true) ~= nil then
+				return false
+			end
+		end
+	end
 	return kind == nil or kind == "good" or kind == "info"
 end
 

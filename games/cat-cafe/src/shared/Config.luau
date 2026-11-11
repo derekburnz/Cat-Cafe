@@ -100,7 +100,7 @@ local Config = {
 		helpingPaw = 905647581887639,
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
-		partyGuest = 0, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e)
+		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -281,7 +281,12 @@ local Config = {
 	-- #2774 (Derek2 2026-11-09, the 2 to 5 minute drop: 12 set a first bait, 7 saw it land): was 120
 	-- #2946 (Derek2 2026-11-10: "a cut scene ... then the food timer left gets set to 0"): 1, so the first bait cat
 	-- arrives (BaitService checks every second) inside the 2.5 s the client's cutscene waits on the bowl (was 45, #2774)
-	FirstBaitWaitSeconds = 1,
+	FirstBaitWaitSeconds = 5,
+	-- #3161 (Derek2 2026-11-10: "set food bowl to like 5 seconds so the cutscene lines up with it"): 1 before (#2946).
+	-- The first bait's cat stands at the bowl this long before its timer ends (never sooner than a second after the
+	-- food), so the cutscene (camera over 0.5 s, the walk 1.6 s, the eat 1 s, camera back 0.5 s) plays while the
+	-- timer runs down and the Tame card comes up as it ends.
+	FirstBaitCatLeadSeconds = 4,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes
@@ -454,7 +459,7 @@ local Config = {
 	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
-	DealerRangeStuds = 12,
+	DealerRangeStuds = 16, -- #3112: 12 until the walk-up rings grew to radius 6
 	-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items"): no long dry spells. After this
 	-- many nights in a row on one server with none of the food, the next night stocks at least 1 (shared/Dealer).
 	DealerDryNights = { star_treat = 4, moon_milk = 3 } :: { [string]: number },
@@ -480,7 +485,7 @@ local Config = {
 	-- CornerDailyLimits of a family, counted for each row on its own (#1712; a family not listed has none). Cat
 	-- food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
-	CornerShopRange = 14,
+	CornerShopRange = 18, -- #3112: 14 until the walk-up rings grew to radius 6
 	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
 	-- retired). Each global game day rolls YardDecorRows rows, each a different piece or style: first a rarity by
 	-- these weights (in percent), then a piece of it; a rarity with none left moves the roll one rarity down.
@@ -513,7 +518,15 @@ local Config = {
 	DayCartStep = 0.03,
 	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
-	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
+	CornerDailyLimits = {
+		steady = 4,
+		quick_bait = 2,
+		whistle = 4,
+		lucky = 2,
+		money = 3,
+		big_money = 2,
+		gold_rush = 2,
+	} :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
 	-- and its chance shows in the catch help), and every cat rescued from a trap gives one
@@ -531,9 +544,14 @@ local Config = {
 	-- Epic and up as they were. #2566 (Derek2 2026-11-09: "nerf the rare + rescue missions 30% slower"): Rare and up
 	-- x0.7 (1.05, 1.4, 1.6 and 1.8 before), so the Rare's marker is now slower than the Common's; its narrower zone
 	-- still leaves it less time inside.
+	-- #3223 (Derek2 2026-11-11: "rescues are wayyy to easy making bar too big and speed to slow"): the zones were cut
+	-- in #3120 the day before; this is the speed. Common 0.85 and Rare 0.735 before, so 18% and 22% faster, and the
+	-- Rare is no longer far slower than the Common. Epic and up keep their speeds until Derek has played #3120's
+	-- zones (Review-Agent: sped up as well, a phone player would free an Epic 36% of the time and a Mythical 8%).
+	-- The Alleyway and Park ease and an account's first rescues (RescueFirstSpeed) still slow it.
 	RescueBarSpeed = {
-		Common = 0.85,
-		Rare = 0.735,
+		Common = 1.00,
+		Rare = 0.90,
 		Epic = 0.98,
 		Legendary = 1.12,
 		Mythical = 1.26,
@@ -541,13 +559,35 @@ local Config = {
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
 	-- #2320: Common 0.26 -> 0.30 and Rare 0.20 -> 0.23.
+	-- #3120 (Derek2 2026-11-10: "make the rescue area about 10->50% smaller especially for the common->epic rescues are
+	-- too easy now"): 0.30, 0.23, 0.15, 0.12 and 0.14 before, so 43%, 41%, 30%, 12% and 11% narrower. Speeds, hits and
+	-- the area ease are as they were.
 	RescueZoneWidth = {
-		Common = 0.30,
-		Rare = 0.23,
-		Epic = 0.15,
-		Legendary = 0.12,
-		Mythical = 0.14,
+		Common = 0.17,
+		Rare = 0.135,
+		Epic = 0.105,
+		Legendary = 0.105,
+		Mythical = 0.125,
 	} :: { [string]: number },
+	-- #3120: an account's first RescueFirstUses rescues (stats.rescues below it) have zones RescueFirstZone times as
+	-- wide, about the widths before the cut (Common 0.29, Rare 0.23), so a new player's first rescues are no harder.
+	-- #3180 (Derek2 2026-11-10: "make the starting rescue's easier and slightly smaller bars"): 3 rescues at 1.7
+	-- before. The first five now, 1.85 times as wide (a first Common in the Alleyway has 0.44 of the bar, 0.42 before
+	-- #3120), and the marker runs at RescueFirstSpeed of its speed on them (Rescue.speedScale).
+	RescueFirstUses = 5,
+	RescueFirstZone = 1.85,
+	RescueFirstSpeed = 0.85,
+	-- #3135 (Derek2 2026-11-10: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not
+	-- added add it"): it was not. A gold or rainbow cat's catch bands (Circles.windowsFor) and rescue zone
+	-- (Rescue.zoneScale) are this times as wide. Not on the tutorial stray or an account's first rescues.
+	CoatDifficulty = { gold = 0.90, rainbow = 0.80 } :: { [string]: number },
+	-- #3140 (Derek2 2026-11-10: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to
+	-- wait", "speed up the circles"): in an area of QuickRingTier or later (the Sewer, Desert and Ruins) a Common or
+	-- Rare cat's catch rings close in this times the rarity's shrink time: Common 1.20 s to 0.96 s, Rare 1.00 s to
+	-- 0.85 s, which keeps Rare slower than Epic's 0.82 s. The bands stay the same seconds wide, so a ring is no harder
+	-- to hit, only quicker to come; the ring count, the gaps and the rarer cats are unchanged.
+	QuickRingTier = 5,
+	QuickRingScale = { Common = 0.80, Rare = 0.85 } :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
 	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed
@@ -578,7 +618,8 @@ local Config = {
 	-- F87 (easy-start.md section 2): the intro waits for the Tutorial tile instead of playing by itself (true restores
 	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
-	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
+	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
+	-- nobody can tackle them either.
 	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
 	-- and a replay from the ? tile
 	IntroAutoPlay = true,
@@ -677,7 +718,7 @@ local Config = {
 	InviteCardFromSeconds = 300,
 	InviteCardBySeconds = 900,
 	InvitePendingCheckSeconds = 60,
-	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
+	CollectorRangeStuds = 12, -- his card opens this close to him (#3216: AnswerCollector works from anywhere)
 	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
@@ -733,7 +774,7 @@ local Config = {
 	BedtimeTimeoutSeconds = 15, -- a cat still on its way after this is placed on its spot or station
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
-	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
+	SpinStationRange = 18, -- #3112: 14 before the radius 6 rings; SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
 	SpinAllMax = 51, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
 	SpinBankCap = 50, -- banked spins stop here (#1414: 20 to 50, so two Tip Jar sessions a day keep every spin)
@@ -761,7 +802,7 @@ local Config = {
 	CrateDuplicateRefund = { Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 } :: {
 		[string]: number,
 	},
-	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
+	FishMarketRange = 18, -- #3112: 14 before the radius 6 rings; OpenCrate and BuyFishItem from this close to a FishMarket station
 	-- #2565 (mystery-market.md section 2): Juniper's Mystery Market. Every item is on the shelf all the time; one a week
 	-- is on sale at MysterySaleShare of its price. The week starts at MysteryEpoch, Saturday 2026-11-07 00:00 UTC, so
 	-- the launch week's sale is the Backpack (Catalog.mysteryItems' first row). MysteryOpen false refuses BuyMystery
@@ -771,7 +812,7 @@ local Config = {
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
 	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
-	MysteryMarketRange = 14, -- BuyMystery from this close to the MysteryMarket cart, like the Fish Market
+	MysteryMarketRange = 18, -- #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
 	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
@@ -892,6 +933,39 @@ local Config = {
 			lostCat: string?,
 		}
 	},
+	-- #3050 (the Rummage Bin at the Alleyway camp, shared/RummageBin): one press plays a short rescue bar and a win
+	-- pulls one BinTable prize out (chances add to 1, shown on its prompt). The account's first BinFirstUses rummages
+	-- are easier (BinFirstEase on top of BinZoneWidth and BinBarSpeed) and BinFirstRepeatSeconds apart; after that
+	-- the bin fills every BinCooldownSeconds. A miss costs nothing and waits BinMissRetrySeconds. The first win is
+	-- always BinFirstPrizes[1] and the second BinFirstPrizes[2] (row ids). Amounts: Monetization-Agent 2026-11-10.
+	BinFirstUses = 3,
+	BinFirstRepeatSeconds = 180,
+	BinCooldownSeconds = 900,
+	BinMissRetrySeconds = 10,
+	-- Design-Agent on #3050 after #3120 and #3223: the bin's bar is set in absolute numbers and never follows the
+	-- rescue bars' RescueZoneWidth or RescueBarSpeed, so a rescue change never makes the bin harder: the old Common
+	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
+	BinZoneWidth = 0.42,
+	BinBarSpeed = 0.64,
+	BinFirstEase = { zone = 1.6, speed = 0.6 },
+	BinFirstPrizes = { "tuna", "crate" },
+	BinTable = {
+		{ id = "tuna", chance = 0.40, lure = "tuna" },
+		{ id = "fish", chance = 0.25, fish = 5 },
+		{ id = "salmon", chance = 0.12, lure = "salmon" },
+		{ id = "potion", chance = 0.11, potion = "lucky_potion" },
+		{ id = "crate", chance = 0.10, crate = "alley_crate" },
+		{ id = "golden", chance = 0.02, crate = "alley_golden_crate" },
+	} :: {
+		{
+			id: string,
+			chance: number,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+		}
+	},
 	-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert camp, Tier 6) gives a cat +1 level after SpaSeconds of
 	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
 	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
@@ -903,7 +977,7 @@ local Config = {
 	SpaSlotPrices = { 0, 100, 250 },
 	MuseumRoomTipBonus = 0.05, -- #2908 (Derek2 2026-11-10: "up the tips bonus to be 5% per room filled"; was 0.02)
 	LateStationsOpen = true, -- on since the Spa and Museum cards are in (#2931)
-	CampExtraRangeStuds = 8,
+	CampExtraRangeStuds = 14, -- #3113: 8 until the camp stations got radius 6 rings; from the PromptAnchor at the front
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
 	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is
@@ -928,8 +1002,43 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 12, -- the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
-	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	CodesCatRange = 16, -- #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
+	CodesCircleRadius = 6, -- #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	-- #3062 (Circle Streak, shared/Arcade): one run costs ArcadeCostFish golden fish; Perfect +2, Good +1, to
+	-- ArcadeMaxPoints. Every ArcadeStepEvery points the circles shrink ArcadeShrinkStep quicker and the windows narrow
+	-- by ArcadeWindowStep, the wobble rising toward ArcadeJitterMax. ArcadeStartShrinkSeconds is a Common stray's
+	-- shrink time (circles 1 to 10 easy for anyone who has caught a cat). ArcadeBlockLeadIn is the breath before each
+	-- block of 10 circles. Each milestone pays once per UTC day (Derek2 2026-11-10: 5 fish at 10 "so people who are
+	-- bad get some more to attempt early on"; the fish prizes stay 5, 8, 15 and 30). Nothing here is sold.
+	ArcadeCostFish = 1,
+	ArcadeMaxPoints = 100,
+	ArcadeStepEvery = 10,
+	ArcadeShrinkStep = 0.96,
+	ArcadeWindowStep = 0.97,
+	ArcadeJitterMax = 0.20,
+	ArcadeStartShrinkSeconds = 1.20,
+	ArcadeBlockLeadIn = 0.9,
+	ArcadeMilestones = {
+		{ at = 10, prize = { fish = 5 }, name = "5 golden fish" },
+		{ at = 20, prize = { fish = 8 }, name = "8 golden fish" },
+		{ at = 30, prize = { lures = { salmon = 1 } }, name = "Salmon" },
+		{ at = 40, prize = { potions = { lucky_potion = 1 } }, name = "Lucky Potion" },
+		{ at = 50, prize = { fish = 15 }, name = "15 golden fish" },
+		{ at = 60, prize = { crates = { classic_golden_crate = 1 } }, name = "Golden Crate" },
+		{ at = 70, prize = { lures = { caviar = 1 } }, name = "Caviar" },
+		{ at = 80, prize = { fish = 30 }, name = "30 golden fish" },
+		{ at = 90, prize = { lures = { moon_milk = 1 } }, name = "Moon Milk" },
+		{ at = 100, prize = { lures = { star_treat = 1 } }, name = "Star Treat" },
+	} :: { { at: number, prize: { [string]: any }, name: string } },
+	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
+	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off. The first: Saturday
+	-- 2026-11-14 17:00 UTC.
+	UpdateGift = { id = "2026-11-14", from = 1794675600, fish = 15, spins = 1 } :: {
+		id: string,
+		from: number,
+		fish: number,
+		spins: number,
+	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
 	CodeWrongWindowSeconds = 60,

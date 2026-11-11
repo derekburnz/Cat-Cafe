@@ -7,11 +7,13 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local ArcadeService = require(script.Parent.Services.ArcadeService)
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local AwayNotifyService = require(script.Parent.Services.AwayNotifyService)
 local BadgeAwardService = require(script.Parent.Services.BadgeAwardService)
 local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
+local BinService = require(script.Parent.Services.BinService)
 local BugReportService = require(script.Parent.Services.BugReportService)
 local CafePassService = require(script.Parent.Services.CafePassService)
 local CafeService = require(script.Parent.Services.CafeService)
@@ -141,11 +143,13 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 LateStationService.start() -- #2651 part 4: the Oasis Spa and Relic Museum, before DataService (onLoaded)
+BinService.start() -- #3050: the Rummage Bin, after RescueService (its bar's remotes) and before DataService
 InviteService.start() -- #2797: the invite reward, before DataService (onLoaded links an invited new player)
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
+ArcadeService.start() -- #3062: the Cat Arcade, before DataService so its onLoaded sees every join
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)

@@ -376,6 +376,8 @@ export type PartialState = {
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 	-- #3022: the goal card's "Catch a 2nd cat", false once it ends (UI.update skips a nil, so the card would stay)
 	secondCat: (SharedTypes.SecondCatView | false)?,
+	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
+	secondCatDone: boolean?,
 }
 
 export type ScreenName =
@@ -401,6 +403,7 @@ export type ScreenName =
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 	| "TradeLog" -- F102: the last 20 trades, opened from Settings
 	| "Store" -- the passes for Robux, from the HUD's Store tile (UI.store)
+	| "Arcade" -- #3062: the Cat Arcade, from its cabinet and the Menu list (UI.arcade)
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

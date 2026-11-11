@@ -30,6 +30,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
+local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
@@ -44,6 +45,8 @@ local CHOICES = { "tame", "letgo" }
 local rng = Random.new()
 -- placedAt of the bait whose arrival this player has been sent, by bowl
 local shownArrival: { [Player]: { [number]: number } } = {}
+-- #3161: placedAt of the first bait whose cat was put at the bowl early (Bait.catOutAt), by bowl
+local shownEarly: { [Player]: { [number]: number } } = {}
 -- the second bowl's state last drawn and sent (#1161), so a pass bought in game, or one whose lookup failed at join
 -- and was found on a retry, puts bowl 2 out within a second
 local shownSecond: { [Player]: Types.SecondBowl } = {}
@@ -59,14 +62,15 @@ local function bowlOf(raw: unknown): number?
 	return nil
 end
 
--- "10 minutes", "1 minute", "45 seconds"
-local function waitText(seconds: number): string
-	if seconds >= 120 then
-		return string.format("%d minutes", math.floor(seconds / 60))
-	elseif seconds >= 60 then
-		return "1 minute"
+-- How far the player stands from their own first bowl, nil with no character or no plot.
+local function bowlDistance(player: Player): number?
+	local plot = PlotService.get(player)
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if plot == nil or root == nil or not root:IsA("BasePart") then
+		return nil
 	end
-	return string.format("%d seconds", seconds)
+	return (root.Position - plot.baitBowl.Position).Magnitude
 end
 
 local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
@@ -175,23 +179,15 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		1,
 		{ lureId, rarity, if lucky then Potions.LUCKY else "none" }
 	)
-	if profile.tutorialStep == 4 then
+	-- #3158 (Derek2 2026-11-10: "the bait bowl animation doesn't even come because its interupted by foodbowl finished
+	-- instantly into a cannon teleport"): the account's first bait holds the tutorial's last step until its cat is
+	-- tamed or let go (onResolveBait), so the move to the cannon, the full HUD and the wrap-up hint all come after the
+	-- cutscene and the cat. Any other food at step 4 finishes it now, as before.
+	if profile.tutorialStep == 4 and not Bait.isFirst(now, now + wait, profile.stats.luresUsed) then
 		CafeService.advanceTutorial(player, profile, 5) -- the last step: set bait
 	end
-	-- #2946: the first bait's cat comes at once, while the cutscene shows it, so its toast promises no wait
-	local first = profile.stats.luresUsed == 1
-	Net.toast(
-		player,
-		if first
-			then string.format("%s is in the bowl. Here comes a cat!", lure.name)
-			else string.format(
-				"%s is in the bowl. A cat will come by in %s.%s",
-				lure.name,
-				waitText(wait),
-				if night then " Night bait: half the wait." else ""
-			),
-		"good"
-	)
+	-- #3159 (Derek2 2026-11-10: "remove the coming to bowl #min pop ups its too much"): no pop-up as the food goes in;
+	-- the Bait bowl window shows the timer, and the first bait has its cutscene (#2946)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -211,6 +207,10 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 
 	-- Empty the bowl before granting, so a second press cannot tame twice.
 	Bait.setState(profile, bowl, nil)
+	-- #3158: the first bowl cat tamed or let go is the tutorial's last step (the food alone was, before)
+	if profile.tutorialStep == 4 then
+		CafeService.advanceTutorial(player, profile, 5)
+	end
 	local shown = shownArrival[player]
 	if shown ~= nil then
 		shown[bowl] = nil
@@ -309,21 +309,49 @@ local function checkArrivals()
 				changed = true
 				-- #2774: the account's first bait lands while the tutorial has them out catching (12 set a first bait,
 				-- 7 came back for it), so say so wherever they are. #2793: it is the wow cat now, whose card plays too
+				-- #3161 (Derek2 2026-11-10: "so many pop ups when catching first food bowl cat"): only when they are away
+				-- from the bowl; standing at it they have just watched the cat walk in
 				if profile.stats.luresUsed == 1 then
 					local placedAt = bait.placedAt
+					local away = Bait.away(bowlDistance(player))
 					table.insert(after, function()
 						Telemetry.firstBaitArrived(player, os.time() - placedAt)
-						Net.toast(
-							player,
-							"Your bait cat is here! Head home to your bowl to meet it.",
-							"good"
-						)
+						if away then
+							Net.toast(
+								player,
+								"Your bait cat is here! Head home to your bowl to meet it.",
+								"good"
+							)
+						end
 					end)
 				end
 				if bait.wow then
 					local send = wowArrived(player, profile, bait)
 					if send ~= nil then
 						table.insert(after, send)
+					end
+				end
+			end
+		end
+		-- #3161: the account's first bait's cat stands at the bowl before its timer ends (Bait.catOutAt), so the
+		-- cutscene shows it walking in while the timer runs down. Only the plot changes; the bowl state that names
+		-- the cat still waits for the timer.
+		local early = shownEarly[player]
+		for bowl = 1, Bait.BOWLS do
+			local bait = Bait.stateOf(profile, bowl)
+			if bait ~= nil and (early == nil or early[bowl] ~= bait.placedAt) then
+				local readyAt = CafeService.baitReadyAt(profile, bait)
+				if
+					now < readyAt
+					and now >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
+				then
+					if early == nil then
+						early = {}
+						shownEarly[player] = early
+					end
+					early[bowl] = bait.placedAt
+					if not changed then
+						CafeService.refreshPlot(player)
 					end
 				end
 			end
@@ -349,6 +377,7 @@ function BaitService.start()
 	Net.on("ResolveBait", onResolveBait)
 	Players.PlayerRemoving:Connect(function(player)
 		shownArrival[player] = nil
+		shownEarly[player] = nil
 		shownSecond[player] = nil
 	end)
 	task.spawn(function()

@@ -9,8 +9,9 @@ return function()
 	local Catching = require(Shared.Catching)
 	local Layout = require(ServerScriptService.Server.World.Layout)
 
-	-- the zones the rarest keep to, each with the rarest it holds (#2210: deep holds Mythicals only, was Epic and up)
-	local KEEP: { [string]: string } = { nook = "Epic", deep = "Mythical" }
+	-- the zones the rarest keep to, each with the rarest it holds (#2210: deep holds Mythicals only, was Epic and up;
+	-- #3170: the Alleyway's nooks no longer hold its Epic and up)
+	local KEEP: { [string]: string } = { deep = "Mythical" }
 
 	type Placed = { rarity: string, point: number }
 
@@ -149,7 +150,7 @@ return function()
 	end
 
 	it(
-		"a fresh sunrise places the whole wave, Epic and up on nook or rare points, Mythicals deep (#2210)",
+		"a fresh sunrise places the whole wave, Mythicals deep (#2210), the Alleyway's Epic and up anywhere (#3170)",
 		function()
 			local rng = Random.new(2810)
 			for _, area in Catalog.areas do

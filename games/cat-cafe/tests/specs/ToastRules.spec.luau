@@ -99,7 +99,6 @@ return function()
 			for _, line in
 				{
 					"New cat! Mochi joins the collection (+$50, 1 golden fish)",
-					"Your first cat! Mochi is your Waiter now ($2/s)",
 					"The Mochi joined your cafe! It is resting in the cat room.",
 					"Caught a cat!",
 					"Town Index reward: $5,000, 2 Golden fish",
@@ -149,6 +148,9 @@ return function()
 						"Owner test mode: 3 Luck Potions",
 						"Your bait cat is here! Head home to your bowl to meet it.",
 						"It dropped! Pick it up quick!",
+						-- #3106: a new player's first delivery and first cat are back
+						"🧺 Mochi is on its way to your cafe!",
+						"Your first cat! Mochi is your Waiter now ($2/s)",
 					}
 				do
 					expect(ToastRules.kept(line)).to.equal(true)
@@ -174,6 +176,28 @@ return function()
 			expect(ToastRules.oneLine("info")).to.equal(true)
 			expect(ToastRules.oneLine(nil)).to.equal(true)
 			expect(ToastRules.oneLine("warn")).to.equal(false)
+		end)
+
+		it("lets every restart warning wrap, the calm early ones too (#3205)", function()
+			local RestartNotice = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("RestartNotice")
+			) :: any
+			for _, seconds in RestartNotice.SHOWN do
+				local text = RestartNotice.text(seconds)
+				expect(ToastRules.oneLine(RestartNotice.kind(seconds), text)).to.equal(false)
+			end
+			expect(RestartNotice.kind(600)).to.equal("info")
+			expect(ToastRules.oneLine("info", "Welcome back! Your cats missed you")).to.equal(true)
+			-- #3212: an owner command's reply is a sentence, so it wraps too
+			expect(
+				ToastRules.oneLine(
+					"info",
+					"Owner test mode: Cafe Party started on all servers for 10 minutes"
+				)
+			).to.equal(false)
+			expect(ToastRules.oneLine("good", "Claimed 3 quests")).to.equal(true)
 		end)
 	end)
 end

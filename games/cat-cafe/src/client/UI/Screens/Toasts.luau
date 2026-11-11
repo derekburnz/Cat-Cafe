@@ -20,9 +20,15 @@
 -- with at least three rewards (Components/RewardList) shows the title on its own line and the rewards under it as a
 -- wrapped row of small chips, each with its picture, and stays a little longer the more it holds.
 -- #2729 (Derek2 11-09: "big claims of index and quests cap at one line and put …"): a good or info toast, a claim
--- too, is one row that ends in "…" (ToastRules.oneLine); only a warning or a shout-out still wraps.
+-- too, is one row that ends in "…" (ToastRules.oneLine); only a warning, a shout-out or (#3205) the restart warning
+-- still wraps.
+-- #3132 (Derek2: the Collector's message "to show a face of the cat and rarity and not cut off the name make the msg
+-- shorter and easier to see"): cat(card) is a short banner in the same stack: the cat's face, a small title and under
+-- it one rich line that shrinks, then wraps onto a second row, so a name is never cut. A tap runs card.onTap.
 
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
@@ -33,6 +39,15 @@ local Theme = require(script.Parent.Parent.Theme)
 local ToastRules = require(script.Parent.Parent.Components.ToastRules)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+
+export type CatCard = {
+	def: Types.CatDef?,
+	shiny: boolean?, -- its gold coat's picture
+	title: string, -- "Collector wants"
+	line: string, -- rich text: the name and the rarity in its colour
+	seconds: number?,
+	onTap: (() -> ())?,
+}
 
 export type Toasts = {
 	screenGui: ScreenGui,
@@ -46,6 +61,7 @@ export type Toasts = {
 	announce: (self: Toasts, text: string, rarity: string?) -> (),
 	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
 	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
+	cat: (self: Toasts, card: CatCard) -> (),
 	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
 	avoid: (self: Toasts, boxes: () -> { Types.Box }, floor: (() -> number)?) -> (),
 	setHeld: (self: Toasts, held: boolean) -> (),
@@ -72,6 +88,13 @@ local TOP = 148 -- the stack's top: under the tier pill and the corner icons
 local STACK_GAP = 6 -- between the toasts
 local REWARD_ROW = 400 -- #2479: the reward chips' row, which wraps onto more rows
 local CHIP_H = 28
+local CAT_LIFETIME = 3 -- #3132
+local CAT_FACE = 40
+local CAT_TITLE_H = 16
+local CAT_LINE_H = 38 -- two rows of textSmall
+local CAT_TEXT_W = 230
+local CAT_PAD = 7
+local CAT_WAIT_TRIES = 30 -- seconds a cat banner waits out a camera cut or a catch
 local QUEUE_MAX = 3 -- toasts waiting for room on a short screen; past that the oldest waiting one is dropped
 
 -- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
@@ -218,7 +241,7 @@ function Toasts.show(
 		seconds or LIFETIME,
 		nil,
 		nil,
-		ToastRules.oneLine(kind)
+		ToastRules.oneLine(kind, text)
 	)
 end
 
@@ -302,6 +325,130 @@ function Toasts.prize(self: any, text: string, prize: Types.IndexPrize?)
 		return -- #3080, #3054: a claim shows no bubble; the counters say it
 	end
 	self:_push(text, KIND_COLORS.good, PRIZE_LIFETIME, false, prize)
+end
+
+-- #3132: the cat banner. One at a time; a new one replaces the last. While a camera cut holds the toasts or a catch
+-- runs it waits, a second at a time, and gives up after CAT_WAIT_TRIES.
+function Toasts.cat(self: any, card: CatCard, tries: number?)
+	if self._held or self._focus then
+		local waited = (tries or 0) + 1
+		if waited <= CAT_WAIT_TRIES then
+			task.delay(1, function()
+				if self._stack.Parent then
+					self:cat(card, waited)
+				end
+			end)
+		end
+		return
+	end
+	local last: GuiObject? = self._catToast
+	if last then
+		last:Destroy()
+	end
+	self._order += 1
+	self._lastAt = os.clock()
+	local height = CAT_PAD * 2 + CAT_TITLE_H + CAT_LINE_H
+	local toast: TextButton = Create("TextButton", {
+		Name = "CatToast",
+		AutoButtonColor = false,
+		BackgroundColor3 = KIND_COLORS.info,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(CAT_PAD * 2 + CAT_FACE + 10 + CAT_TEXT_W + 8, height),
+		LayoutOrder = self._order,
+		Text = "",
+		Parent = self._stack,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 18) }) })
+	local border = Outline.border(toast)
+	border.Transparency = 1
+	local disc: Frame = Create("Frame", {
+		Name = "Face",
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0, CAT_PAD + 2, 0.5, 0),
+		Size = UDim2.fromOffset(CAT_FACE, CAT_FACE),
+		Parent = toast,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(
+		disc,
+		Theme.sizes.outline,
+		Theme.rarityColor(if card.def then card.def.rarity else nil)
+	)
+	local portrait = CatPortrait.new({
+		parent = disc,
+		size = UDim2.fromScale(1, 1),
+		still = true,
+		head = true,
+	})
+	portrait:set(card.def, card.shiny == true)
+	local left = CAT_PAD + 2 + CAT_FACE + 10
+	local title: TextLabel = Create("TextLabel", {
+		Name = "Title",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(left, CAT_PAD),
+		Size = UDim2.fromOffset(CAT_TEXT_W, CAT_TITLE_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = card.title,
+		Parent = toast,
+	})
+	Outline.text(title)
+	local line: TextLabel = Create("TextLabel", {
+		Name = "Line",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(left, CAT_PAD + CAT_TITLE_H),
+		Size = UDim2.fromOffset(CAT_TEXT_W, CAT_LINE_H),
+		FontFace = Theme.fonts.display,
+		RichText = true,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.white,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = card.line,
+		Parent = toast,
+	})
+	-- the name whole: it shrinks to textSmall, then takes the second row; never "…"
+	FitText.shrink(line, Theme.sizes.textSmall)
+	Outline.text(line)
+	self._catToast = toast
+	table.insert(self._alive, toast)
+	self:_place()
+	Tween.to(toast, Tween.FAST, { BackgroundTransparency = 0 })
+	Tween.to(border, Tween.FAST, { Transparency = 0 })
+	Tween.popIn(toast, 0.8)
+	local tapped = toast.Activated:Connect(function()
+		if card.onTap then
+			card.onTap()
+		end
+	end)
+	-- pushed off the stack by newer toasts, replaced or timed out: one clean-up
+	toast.Destroying:Once(function()
+		tapped:Disconnect()
+		portrait:destroy()
+		local index = table.find(self._alive, toast)
+		if index then
+			table.remove(self._alive, index)
+		end
+		if self._catToast == toast then
+			self._catToast = nil
+		end
+	end)
+	task.delay(card.seconds or CAT_LIFETIME, function()
+		if not toast.Parent then
+			return
+		end
+		Tween.to(border, Tween.SETTLE, { Transparency = 1 })
+		local out = Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1 })
+		disc.Visible = false
+		title.Visible = false
+		line.Visible = false
+		out.Completed:Once(function()
+			toast:Destroy()
+		end)
+	end)
 end
 
 function Toasts._push(

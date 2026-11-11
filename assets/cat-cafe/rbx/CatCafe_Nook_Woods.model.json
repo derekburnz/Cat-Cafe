@@ -3008,6 +3008,1266 @@
     }
    },
    "name": "CatCafe_Nook_Woods_GateR"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Nook_Woods/4"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4,
+         0.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.6,
+       3.2,
+       4.0
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -1.4,
+         -0.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Nook_Woods/4"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.8,
+         1.2,
+         0.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.0,
+          -0.5646,
+          0.8253
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.6217,
+         1.6875,
+         0.964
+        ],
+        "orientation": [
+         [
+          0.901,
+          -0.245,
+          0.3581
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          -0.4339,
+          -0.5087,
+          0.7436
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.1223,
+         1.4169,
+         1.4164
+        ],
+        "orientation": [
+         [
+          0.6235,
+          -0.4415,
+          0.6453
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          -0.7818,
+          -0.352,
+          0.5146
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4005,
+         0.8091,
+         1.6674
+        ],
+        "orientation": [
+         [
+          0.2225,
+          -0.5505,
+          0.8046
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          -0.9749,
+          -0.1256,
+          0.1837
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4005,
+         0.8091,
+         1.6674
+        ],
+        "orientation": [
+         [
+          -0.2225,
+          -0.5505,
+          0.8046
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          -0.9749,
+          0.1256,
+          -0.1837
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.1223,
+         1.4169,
+         1.4164
+        ],
+        "orientation": [
+         [
+          -0.6235,
+          -0.4415,
+          0.6453
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          -0.7818,
+          0.352,
+          -0.5146
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.6217,
+         1.6875,
+         0.964
+        ],
+        "orientation": [
+         [
+          -0.901,
+          -0.245,
+          0.3581
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          -0.4339,
+          0.5087,
+          -0.7436
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.8,
+         1.2,
+         0.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.0,
+          0.5646,
+          -0.8253
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.6217,
+         0.7125,
+         -0.164
+        ],
+        "orientation": [
+         [
+          -0.901,
+          0.245,
+          -0.3581
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.4339,
+          0.5087,
+          -0.7436
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.1223,
+         0.9831,
+         -0.6164
+        ],
+        "orientation": [
+         [
+          -0.6235,
+          0.4415,
+          -0.6453
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.7818,
+          0.352,
+          -0.5146
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4005,
+         1.5909,
+         -0.8674
+        ],
+        "orientation": [
+         [
+          -0.2225,
+          0.5505,
+          -0.8046
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.9749,
+          0.1256,
+          -0.1837
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4005,
+         1.5909,
+         -0.8674
+        ],
+        "orientation": [
+         [
+          0.2225,
+          0.5505,
+          -0.8046
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.9749,
+          -0.1256,
+          0.1837
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.1223,
+         0.9831,
+         -0.6164
+        ],
+        "orientation": [
+         [
+          0.6235,
+          0.4415,
+          -0.6453
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.7818,
+          -0.352,
+          0.5146
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.6217,
+         0.7125,
+         -0.164
+        ],
+        "orientation": [
+         [
+          0.901,
+          0.245,
+          -0.3581
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.4339,
+          -0.5087,
+          0.7436
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       2.4
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.1973,
+         1.5952,
+         0.8433
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.2463,
+         0.8524,
+         1.6607
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2878,
+         0.5188,
+         1.8882
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.6873,
+         1.1458,
+         1.4194
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.2972,
+         1.6971,
+         0.4736
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.8323,
+         1.2616,
+         -0.5067
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.51,
+         0.559,
+         -1.0627
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.0509,
+         0.7505,
+         -0.9343
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Nook_Woods_Trap",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.1201,
+         1.5196,
+         -0.1815
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       0.4,
+       0.4
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Nook_Woods_Trap"
   }
  ],
  "properties": {

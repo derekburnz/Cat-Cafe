@@ -7,8 +7,8 @@
 --     mid-trade; collect takes every slot with one. Taking one out before its first level gives nothing. A spa cat earns nothing and no XP (CatStats.atSpa guards the rest).
 --   Relic Museum (Ruins camp, Tier 7): one exhibit per area cat (the Index's cats: no shop, starter, Bellhop or spare
 --     cat). Giving a copy fills its exhibit for good; the copy leaves the save like a sale that pays nothing, and the
---     Index keeps it as found. A copy can be given only when another copy of that cat stays, it is unlocked and it is
---     not at the spa. Each finished room (an area's every exhibit) adds Config.MuseumRoomTipBonus to the tips-forever
+--     Index keeps it as found. A copy can be given when it is unlocked and not at the spa, even the last copy of
+--     that cat (#3123, Derek2: "make it so you CAN give your last/only cat"), but never the player's last cat of all. Each finished room (an area's every exhibit) adds Config.MuseumRoomTipBonus to the tips-forever
 --     total (IndexRewards.totals).
 -- Nothing here is sold, sped up or refilled for Robux, and nothing changes catch, luck, gold or rainbow odds.
 -- Requires no Economy or IndexRewards (IndexRewards reads the museum's bonus from here).
@@ -62,7 +62,7 @@ LateStations.Messages = {
 	noExhibit = "That cat has no exhibit",
 	filled = "That exhibit is already filled",
 	locked = "Unlock this cat first",
-	lastCopy = "Keep one: you need another copy of this cat to give one",
+	lastCopy = "Keep at least one cat in your cafe",
 }
 
 -- The Museum's rooms in Catalog.areas order, each its area's exhibits (catIds in Catalog.cats order).
@@ -390,27 +390,37 @@ end
 
 -- Relic Museum ---------------------------------------------------------------------------------------------------
 
--- The copies of `catId` the player could give, weakest first (lowest level, then lowest charm, then uid): unlocked,
--- not at the spa, and only while another copy stays (any copy counts as the one kept). Empty when the cat has no
+-- The copies of `catId` the player could give, the one to give first first (#3125): plain coats before gold and
+-- rainbow, cats not working before working ones, then lowest level, lowest charm and uid: unlocked,
+-- not at the spa, the last copy too (#3123), while the player has another cat of any kind. Empty when the cat has no
 -- exhibit or it is filled.
 function LateStations.donatable(profile: Types.PlayerProfile, catId: string): { Types.CatInstance }
 	local out: { Types.CatInstance } = {}
 	if LateStations.exhibitArea[catId] == nil or museumOf(profile)[catId] ~= nil then
 		return out
 	end
-	local copies = 0
+	local total = 0
 	for _, instance in profile.cats do
+		total += 1
 		if instance.catId == catId then
-			copies += 1
 			if instance.locked ~= true and not CatStats.atSpa(profile, instance.uid) then
 				table.insert(out, instance)
 			end
 		end
 	end
-	if copies < 2 then
+	if total < 2 then
 		return {}
 	end
 	table.sort(out, function(a: Types.CatInstance, b: Types.CatInstance): boolean
+		local sa = a.variant == "gold" or a.variant == "rainbow"
+		local sb = b.variant == "gold" or b.variant == "rainbow"
+		if sa ~= sb then
+			return sb
+		end
+		local wa, wb = a.spotId ~= nil, b.spotId ~= nil
+		if wa ~= wb then
+			return wb
+		end
 		local la, lb = CatStats.level(a), CatStats.level(b)
 		if la ~= lb then
 			return la < lb
@@ -453,16 +463,47 @@ function LateStations.donateBlocker(
 	if trading then
 		return LateStations.Messages.inTrade
 	end
-	local copies = 0
-	for _, other in profile.cats do
-		if other.catId == instance.catId then
-			copies += 1
-		end
+	-- #3123: the last copy of this cat may go, but never the player's last cat of all
+	local total = 0
+	for _ in profile.cats do
+		total += 1
 	end
-	if copies < 2 then
+	if total < 2 then
 		return LateStations.Messages.lastCopy
 	end
 	return nil
+end
+
+-- #3130 (Derek2: "auto fill area - with what they have currently"): the copies Auto fill gives for the hall of
+-- `area`, in exhibit order: for each empty exhibit the first of donatable (#3125's pick) unless that is gold or
+-- rainbow (those take a single Give with its warning), and never the player's last cat of all. Empty for an unknown
+-- area.
+function LateStations.fillPlan(profile: Types.PlayerProfile, area: string): { string }
+	local out: { string } = {}
+	local room: Room? = nil
+	for _, candidate in LateStations.rooms do
+		if candidate.area == area then
+			room = candidate
+		end
+	end
+	if room == nil then
+		return out
+	end
+	local left = 0
+	for _ in profile.cats do
+		left += 1
+	end
+	for _, catId in room.cats do
+		if left < 2 then
+			break
+		end
+		local pick = LateStations.donatable(profile, catId)[1]
+		if pick ~= nil and pick.variant ~= "gold" and pick.variant ~= "rainbow" then
+			table.insert(out, pick.uid)
+			left -= 1
+		end
+	end
+	return out
 end
 
 -- True when every exhibit of `room` is filled.
@@ -517,23 +558,24 @@ end
 function LateStations.canFill(profile: Types.PlayerProfile): number
 	local museum = museumOf(profile)
 	local spaUids = LateStations.spaUids(profile)
-	local copies: { [string]: number } = {}
+	local total = 0
 	local giveable: { [string]: boolean } = {}
 	for _, instance in profile.cats do
+		total += 1
 		local catId = instance.catId
 		if LateStations.exhibitArea[catId] == nil or museum[catId] ~= nil then
 			continue
 		end
-		copies[catId] = (copies[catId] or 0) + 1
 		if instance.locked ~= true and not spaUids[instance.uid] then
 			giveable[catId] = true
 		end
 	end
+	if total < 2 then
+		return 0 -- #3123: the player's last cat of all stays
+	end
 	local count = 0
-	for catId in giveable do
-		if copies[catId] >= 2 then
-			count += 1
-		end
+	for _ in giveable do
+		count += 1
 	end
 	return count
 end

@@ -13,17 +13,27 @@ one extra rescue spot inside, so ranking up opens a new place to look and not on
                         Attachments: `RescueSpot` in the middle of the floor (0, 0, 0.4), where the area's trap piece
                         goes, a 3 x 3 square kept clear for it; `PathEnd` at the last stone (0, 0, -10.4).
                         Everything collides except the floor patch, the stones and the flowers (`_Decor`).
+                        The Woods, Sewer, Desert and Ruins nooks carry their trap piece (TRAPS, child Model
+                        `<Name>_Trap`): the area's own bramble, grate, clay urn or stone urn, so Layout.setStuckPoses
+                        fits the stuck cat as in the set. `RescueSpot` stands on that piece's spot, turned by its
+                        turn. The Park and Neighbourhood traps are the bin props the game stands at `RescueSpot`.
 
-Client-only, like the camp growth (the epic): the game shows a nook once the player's tier opens its area's station,
-so each player sees their own. Where each nook stands in its set is the gameplay side's (Layout), with the same
-clearances as a cat spot.
+Where each nook stands is Layout's (Layout.<area>.nook, #2687): against a side wall in the set's far half, its
+stones toward the middle, 9 or more from every cat spot. Every player who can enter an area already owns its station
+(the station's tier is the area's), so WorldBuilder builds the nooks for everyone with their gates open.
 """
 
-from mathutils import Vector
+import math
 
+from mathutils import Matrix, Vector
+
+import common
+import desertset
+import ruinsset
+import woods
 from alleyway import flower_clump
 from cannon import frame_at
-from common import RB
+from common import RB, Builder
 from plot import rot_y, rot_z
 
 HW, BACK, FRONT = 4.0, 3.5, -3.5     # the walls' middle lines: sides x +-4, back z 3.5, front z -3.5
@@ -42,6 +52,29 @@ THEMES = {
     "Ruins": ("fur_dusty", "leaf_dark", "fur_soot", "fur_pewter", "fur_pewter", "ruins"),
 }
 ATTACHMENTS = {}         # asset -> [(name, Roblox point, Roblox rotation)]
+
+
+def _grate(mat):
+    """The Sewer's grate (sewer.grate) cut down to 3.2 square for the nook: the same heights, so the grate pose fits."""
+    b = Builder()
+    b.box_base((0, 0, 0), (3.2, 3.2, 0.3), "concrete")
+    b.box_base((0, 0, 0.05), (2.5, 2.5, 0.2), "fur_black", bevel=False)
+    for i in range(4):
+        b.box((-0.9 + i * 0.6, 0, 0.36), (0.2, 2.5, 0.15), "metal", bevel=False)
+    b.box((0, 0, 0.4), (2.7, 0.25, 0.12), "metal", bevel=False)
+    b.box((1.45, 0, 0.44), (0.25, 0.9, 0.3), "rust", bevel=False)                             # lift handle
+    return [b.finalize("CatCafe_Sewer_Grate", mat)]
+
+
+# area -> (TrapType, piece, spot z, turn): the piece stands on the floor at (0, spot z) turned by turn (Roblox rotY),
+# and RescueSpot with it. The clay urn's mouth (its local -X) turns to the gate, so the cat's back end shows through
+# it; the urn sits 0.3 forward of the middle so its drift stays inside the back wall.
+TRAPS = {
+    "Woods": ("bramble_bush", woods.bramble, 0.4, 0),
+    "Sewer": ("grate", _grate, 0.4, 0),
+    "Desert": ("clay_urn", desertset.trap_clay_urn, -0.3, -90),
+    "Ruins": ("stone_urn", ruinsset.trap_stone_urn, 0.4, 0),
+}
 
 
 def _walls(b, wall, cap):
@@ -138,7 +171,7 @@ def _theme(b, d, theme):
         _cushion(b, -2.4, 2.1, "fur_emerald")
         b.span((1.8, 0, 2.0), (3.2, 1.6, 3.0), "fur_pewter")                                    # a rune stone
         b.span((1.75, 1.0, 1.95), (3.25, 1.15, 3.05), "fur_emerald")
-        for x, z, r in ((2.8, 0.6, 0.35), (-3.2, 0.2, 0.28)):                                   # rubble
+        for x, z, r in ((2.8, 0.6, 0.35),):                                                     # rubble
             b.box((x, r * 0.7, z), (2 * r, 1.4 * r, 2 * r), "fur_dusty", rot=rot_y(30))
         for k in range(4):                                                                      # moss on the stones
             b.ball((-3.0 + k * 2.0, WALL_H + 0.25, BACK), 0.35, "leaf_dark", scale=(1.4, 0.6, 1.0))
@@ -160,7 +193,16 @@ def build_nook(area):
             leaf = RB()
             _leaf(leaf, side, gate, theme)
             objs.append(leaf.finalize(f"{name}_Gate{side}", mat, location=(x, 0.0, FRONT)))
-        ATTACHMENTS[name] = [("RescueSpot", Vector((0.0, 0.0, 0.4)), rot_y(0)),
+        spot_z, turn = 0.4, 0
+        if area in TRAPS:
+            _, piece, spot_z, turn = TRAPS[area]
+            M = Matrix.Translation(RB.p(0.0, 0.0, spot_z)) @ Matrix.Rotation(math.radians(turn), 4, "Z")
+            for k, ob in enumerate(piece(mat)):
+                ob.matrix_world = M @ ob.matrix_world
+                common.bake_transform(ob)
+                ob.name = f"{name}_Trap" + ("" if k == 0 else f"{k}")
+                objs.append(ob)
+        ATTACHMENTS[name] = [("RescueSpot", Vector((0.0, 0.0, spot_z)), rot_y(turn)),
                              ("PathEnd", Vector((0.0, 0.0, STONES[-1])), rot_y(0))]
         return objs
     return build

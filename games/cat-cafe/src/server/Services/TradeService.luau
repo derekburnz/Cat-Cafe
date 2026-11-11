@@ -2,8 +2,8 @@
 -- F102 trading (docs/design/cat-cafe/trading.md). Players from TradeMinTier swap cats anywhere (#2568); the client
 -- only asks, and this service holds every request and trade (Util/TradeBook) and decides.
 -- - Asking (section 2): TradeRequest(userId) is checked with Trade.askRefusal on both players (tier, kill switch,
---   busy, one request out, re-ask wait, cooldown, TradesPerDay, the target's Trade requests setting) and sends
---   the target TradeAsked. TradeRespond(requestId, accept) checks both again before the trade opens.
+--   one request out, re-ask wait, cooldown, TradesPerDay, the target's Trade requests setting; #3211: never busy)
+--   and sends the target TradeAsked. TradeRespond(requestId, accept) checks both again before the trade opens.
 -- - The trade (section 3): TradeOffer adds a cat that Trade.offerRefusal lets go (theirs, unlocked, not exclusive, up
 --   to TradeMaxCats) and that leaves the player a cat, or takes one away; either way both sides start over. Ready and
 --   Confirm carry the version and are refused for an old one. Both players get TradeState after every change.
@@ -105,16 +105,17 @@ local function publish()
 	Workspace:SetAttribute("TradeMinTier", minTier())
 end
 
--- Busy for trading: carrying, catching, rescuing or flying. `open` (#2568) is for a trade already open: the night's
--- cloud hop home (NightService) moves the player and keeps the trade.
+-- Busy for trading (#3211, Trade.busy): catching, rescuing or flying; carrying a cat is not. `open` (#2568) is for a
+-- trade already open: the night's cloud hop home (NightService) moves the player and keeps the trade.
 local function isBusy(player: Player, open: boolean?): boolean
-	return CatService.busyReason(player, open == true) ~= nil
+	return Trade.busy(CatService.tradeDoing(player, open == true), false)
 end
 
-local function facts(player: Player, profile: Profile): Trade.Facts
+-- `asking` (#3211): the facts for an ask, which goes through whatever either player is doing.
+local function facts(player: Player, profile: Profile, asking: boolean?): Trade.Facts
 	return {
 		tier = profile.tier,
-		busy = isBusy(player),
+		busy = Trade.busy(CatService.tradeDoing(player), asking == true),
 		inTrade = TradeBook.tradeFor(book, player.UserId) ~= nil,
 		sinceLastTrade = TradeBook.sinceLastSwap(book, player.UserId, now()),
 		today = Trade.today(profile, os.time()),
@@ -176,9 +177,15 @@ local function tilesFor(
 		if instance == nil or def == nil then
 			return nil
 		end
-		local rate = if ownerId == viewer.UserId
-			then Economy.catRate(instance, viewerProfile.tier) * scale(viewerProfile)
-			else CatStats.rating(instance, viewerProfile.tier) * scale(viewerProfile)
+		-- #3211 (Derek2 11-11: "trade shows 0/s in the first screen"): a cat of the viewer's own with no job earns
+		-- nothing now, and its card said "$0/s" beside the same cat's real number in the inventory. The card shows
+		-- what it earns working; `earnsNow` keeps the "Your cats: ... now" total honest.
+		local scaled = scale(viewerProfile)
+		local would = CatStats.rating(instance, viewerProfile.tier) * scaled
+		local earnsNow: number? = if ownerId == viewer.UserId
+			then Economy.catRate(instance, viewerProfile.tier) * scaled
+			else nil
+		local rate = if earnsNow ~= nil and earnsNow > 0 then earnsNow else would
 		local rarity: string = def.rarity
 		local shown: Types.TradeTile = {
 			uid = uid,
@@ -188,6 +195,7 @@ local function tilesFor(
 			level = CatStats.level(instance),
 			charm = CatStats.charm(instance),
 			rateForMe = rate,
+			earnsNow = earnsNow,
 		}
 		return shown
 	end
@@ -683,6 +691,12 @@ local function finish(trade: TradeBook.OpenTrade)
 	end
 end
 
+-- #3211 (Derek2 11-11: trade "still gets stuck on asked"): an ask that never went out, or an accepted one that could
+-- not open, tells the asker's window so the row says Trade again at once (the `true`), not after the request's time.
+local function askRefused(asker: Player, toUserId: number)
+	Net.fire(asker, "TradeAskEnded", toUserId, true)
+end
+
 local function onRequest(player: Player, rawUserId: unknown)
 	local targetId = Guard.int(rawUserId, 1, 2 ^ 53)
 	local profile = DataService.get(player)
@@ -696,6 +710,7 @@ local function onRequest(player: Player, rawUserId: unknown)
 	end
 	local targetProfile = if target ~= nil then DataService.get(target) else nil
 	if target == nil or targetProfile == nil then
+		askRefused(player, targetId)
 		return
 	end
 	local setting = requestSetting(targetProfile)
@@ -703,12 +718,13 @@ local function onRequest(player: Player, rawUserId: unknown)
 	-- the friends lookup can yield: both are looked up again
 	profile, targetProfile = DataService.get(player), DataService.get(target)
 	if profile == nil or targetProfile == nil or target.Parent ~= Players then
+		askRefused(player, targetId)
 		return
 	end
 	local at = now()
 	local refusal = Trade.askRefusal(
-		facts(player, profile),
-		facts(target, targetProfile),
+		facts(player, profile, true),
+		facts(target, targetProfile, true),
 		minTier(),
 		tradingOn,
 		TradeBook.isAsking(book, player.UserId),
@@ -718,10 +734,12 @@ local function onRequest(player: Player, rawUserId: unknown)
 	)
 	if refusal ~= nil then
 		Net.toast(player, refusal, "warn")
+		askRefused(player, target.UserId)
 		return
 	end
 	if TradeBook.declinedOut(book, player.UserId, target.UserId) then
 		Net.toast(player, string.format(Trade.Messages.declinedOut, target.DisplayName), "warn") -- #2550 review
+		askRefused(player, target.UserId)
 		return
 	end
 	local request = TradeBook.ask(book, newId(), player.UserId, target.UserId, at)
@@ -749,6 +767,9 @@ local function onRespond(player: Player, rawId: unknown, rawAccept: unknown)
 	local profile = DataService.get(player)
 	local askerProfile = if asker ~= nil then DataService.get(asker) else nil
 	if asker == nil or profile == nil or askerProfile == nil then
+		if asker ~= nil then
+			askRefused(asker, player.UserId)
+		end
 		return
 	end
 	-- both checked again from each side, since either may have moved on; the setting and the re-ask wait were the
@@ -764,6 +785,7 @@ local function onRespond(player: Player, rawId: unknown, rawAccept: unknown)
 		if forMe ~= nil then
 			Net.toast(player, forMe, "warn")
 		end
+		askRefused(asker, player.UserId)
 		return
 	end
 	local trade = TradeBook.open(

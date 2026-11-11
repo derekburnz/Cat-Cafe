@@ -3,8 +3,9 @@
 -- this session's first ProfileSync with a plot says introSeen is false (only while Config.IntroAutoPlay is true:
 -- since F87, easy-start.md section 2a, a new player starts playing at once and the Tutorial tile glows instead), and
 -- again whenever the UI's Tutorial tile or
--- Settings row asks (UI.events.introReplay). Before it starts it asks the server to stream the Alleyway's camp in and
--- waits for it for up to Intro.STREAM_WAIT seconds; without it the shots there are left out (section 2's fallback).
+-- Settings row asks (UI.events.introReplay). Before it starts it asks the server to stream the Alleyway's camp in, and
+-- it starts as the loading screen's count lands on 100 without waiting for the camp (#3109); a camp still missing at
+-- shot 1's fuse holds that shot up to Intro.CAMP_WAIT, and without it the shots there are left out (section 2).
 -- While it runs the character's controls and every proximity prompt are off and the camera is Scriptable, flown
 -- through shared/Intro's shots once a frame; the UI's intro screen (UI.intro, the ui-designer's) draws the bars,
 -- captions, dots, title cards, the demo ring, the job card and Skip, and hides the HUD.
@@ -77,7 +78,6 @@ local LESSON_CLEAR = 4 -- real strays this much further out than the intro's DEM
 local LESSON_CAMERA_BACK = 60 -- studs: the lesson's end puts back the view it started with only this near the player
 local STREAMED_RADIUS = 40 -- a camp counts as streamed in when a part stands this close to the point checked
 local CAMP_ASK_EVERY = 2 -- seconds between asks for the camp's ground while the intro plays (#2961)
-local CAMP_POLL = 0.1 -- seconds between looks for the camp's ground while play() waits for it (#2961)
 local FUSE_HOLD_EARLY = 0.001 -- shot 1 holds this short of its fuse, so the fuse waits with it (#2961)
 local WHEEL_TURNS = 2
 local BLEND = 0.15 -- seconds an animation of your copy fades in or out
@@ -1051,7 +1051,7 @@ local function enterShot(r: Run, position: number)
 end
 
 -- #2759 (Derek2 11-09: on a phone emulation the catch steps were "just a yellow screen"): a slow phone can miss
--- the Alleyway's camp in play()'s STREAM_WAIT, and then shot 2 holds in the clouds and the camp shots (3 and 4) drop
+-- the Alleyway's camp before the intro starts (#3109: nothing waits for it there now), and then shot 2 holds in the clouds and the camp shots (3 and 4) drop
 -- out. play() keeps asking for the camp through shot 1, and at the fuse this looks again: streamed in by then, the
 -- shots are rebuilt with the camp shots and the demo cat is staged, so the flight lands and the catch plays.
 -- #2961: "in" means the floor under the filmed spots (campReady). step() holds shot 1 just short of the fuse up to
@@ -2026,6 +2026,7 @@ local function park(at: Intro.Key)
 	end
 	parked = true
 	parkedAt = at
+	UI.intro.waiting(true) -- #3105: the loading screen covers the still picture until it moves
 	camera.CameraType = Enum.CameraType.Scriptable
 	setCamera(at)
 	-- a spawn resets the camera to follow the character (Laptop-Tester: 5 s behind the cannon before the intro), so
@@ -2060,6 +2061,7 @@ local function unpark()
 	end
 	parked = false
 	unbindPark()
+	UI.intro.waiting(false) -- #3105
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
 		return
@@ -2072,8 +2074,8 @@ local function unpark()
 end
 
 -- Plays the intro from the first shot. `replay` is a replay from the Tutorial tile or Settings: Skip shows at once
--- and the server saves nothing. Does nothing while one is playing or without a plot. Yields up to STREAM_WAIT while
--- the Alleyway's camp streams in.
+-- and the server saves nothing. Does nothing while one is playing or without a plot. Yields while the loading
+-- screen's count runs to 100 (#3109: LoadingCount.SHOWN_MIN at most), never for the Alleyway's camp.
 function IntroController.play(replay: boolean)
 	local state = UIController.state
 	if run ~= nil or starting or state == nil or state.plotIndex == 0 then
@@ -2090,15 +2092,17 @@ function IntroController.play(replay: boolean)
 	if first ~= nil and first.cuts[1] ~= nil then
 		park(first.cuts[1].from)
 	end
-	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's pad and wait
-	streamCamp() -- #2961: the area's middle too, where its big ground and set parts stand
-	pcall(function()
-		player:RequestStreamAroundAsync(camp.pad, Intro.STREAM_WAIT)
-	end)
-	-- #2961: the ground under the filmed spots can come after the pad; up to CAMP_WAIT more for it, still parked
-	local waitUntil = os.clock() + Intro.CAMP_WAIT
-	while not campReady() and os.clock() < waitUntil do
-		task.wait(CAMP_POLL)
+	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's camp, and its
+	-- middle too, where its big ground and set parts stand (#2961)
+	streamCamp()
+	streamAround(camp.pad)
+	-- #3109 (Derek2 11-10: "start the cutscene right after dont even check if the alleyway catching scenes are
+	-- ready it should be fine"): no wait for the camp before shot 1 any more (it was up to STREAM_WAIT 5 s, then
+	-- CAMP_WAIT 2.5 s, on a still picture). The loading screen's quick run to 100 is the only pause, and the camp
+	-- streams in behind it and behind shot 1; a camp still missing at shot 1's fuse is lateStream()'s to handle.
+	local race = UI.intro.race()
+	if race > 0 then
+		task.wait(race)
 	end
 	starting = false
 	state = UIController.state

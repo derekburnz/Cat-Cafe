@@ -662,12 +662,14 @@ return function()
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before
-			{ "Busy Cafe", 420000, 11, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			-- #3111 (Derek2: "lower the different cats requirement a little bit between 3-7"): 11, 28, 42 and 52 before at
+			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
+			{ "Busy Cafe", 420000, 10, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
 			{ "Famous Cafe", 16800000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 350000000, 28, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Grand Cafe", 350000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 5600000000, 42, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 54000000000, 52, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			{ "Sunstone Cafe", 5600000000, 38, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 54000000000, 47, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 		}
 
 		it("has seven tiers matching the table", function()
@@ -1255,7 +1257,7 @@ return function()
 				local same = { 54, 29, 11, 4.8, 1.2 } -- #1452 (was 72, 22, 5, 0.9, 0.1)
 				local want = {
 					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
-					{ "alley", "Alleyway", 1, 32, same, 11, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
+					{ "alley", "Alleyway", 1, 34, same, 11, 1 }, -- #3170: 26 and the 8 near points (v4: 24)
 					{ "park", "Park", 2, 48, same, 12, 3 }, -- F85's long set's cat spots (#799)
 					{ "neighbourhood", "Neighbourhood", 3, 77, same, 12, 9 }, -- F85's long set's cat spots (#810, #905)
 					{ "woods", "Woods", 4, 72, same, 11, 27 }, -- F85's long set (#847) and the oak top

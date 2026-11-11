@@ -175,15 +175,29 @@ function CampExtrasLogic.prizeTitle(extraId: string, paid: { string }?): string
 end
 
 -- The camp stations with a red "!" over them (camp-stations.md section 1); the Lost and Found keeps its card only.
--- #1463 (camp-stations.md section 4): a Golden Pond owner collects the pond's fish from anywhere. The server sets
--- this Player attribute for an owner and skips CollectCampExtra("pond")'s range check for them (Gameplay-Engineer,
--- PR #1406); the cannon picker's Woods strip then gets a Collect button while the pond holds fish.
+-- The Golden Pond pass's Player attribute (the server sets it for an owner). #3093: the pass doubles the owner's pond
+-- fish, which the server's numbers already carry. Until #3082 it also gave the Woods strip its Collect button (#1463).
 CampExtrasLogic.GOLD_POND_ATTRIBUTE = "GoldenPondPass" -- shared/CampExtras.GOLD_POND_ATTRIBUTE
 CampExtrasLogic.POND = "pond"
 
--- Whether the picker's strip for `line` shows Collect: the pond, with fish waiting, for a Golden Pond owner.
-function CampExtrasLogic.remoteCollect(line: Line?, owner: boolean): boolean
-	return owner and line ~= nil and line.extraId == CampExtrasLogic.POND and line.ready
+-- #3082 (Derek2 2026-11-10: "be able to claim/open from cannon menu any stations you have unlocked so you dont have
+-- to always travel", "make claiming stations from anywhere free"): what the button on a Cat Cannon card's strip does
+-- for `line`. "collect" while the Picnic Basket, Fish Pond or Lost and Found holds something (CollectCampExtra,
+-- from anywhere); "open" for a station with a card of its own (the Yard Sale, the Oasis Spa, the Relic Museum); nil
+-- for no button. A strip only shows for a station the player's tier has opened.
+export type RemoteAction = "collect" | "open"
+CampExtrasLogic.REMOTE_COLLECT =
+	{ picnic = true, pond = true, lostFound = true } :: { [string]: boolean }
+CampExtrasLogic.REMOTE_WORDS = { collect = "Collect", open = "Open" } :: { [string]: string }
+
+function CampExtrasLogic.remoteAction(line: Line?): RemoteAction?
+	if line == nil then
+		return nil
+	end
+	if CampExtrasLogic.REMOTE_COLLECT[line.extraId] then
+		return if line.ready then "collect" else nil
+	end
+	return "open"
 end
 
 CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond", "lostFound" } -- lostFound: #1733

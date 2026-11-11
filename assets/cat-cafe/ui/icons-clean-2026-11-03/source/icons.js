@@ -209,3 +209,172 @@ window.icon = (name, size = 52, arg) => {
   const body = typeof ICONS[name] === 'function' ? ICONS[name](arg) : ICONS[name];
   return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">${body}</svg>`;
 };
+// #3137 batch 1 (Derek2 2026-11-10: "go through lots of simple plain looking images for ui/buttons and make them
+// better"): the Upgrades rows and the cat role slots, which still drew emoji.
+Object.assign(window.ICONS, {
+  // Upgrades: a round cafe table with a cloth, a cup on it and a chair behind
+  tables: `<path ${S} fill="#c97f45" d="M40 20 H52 Q55 20 55 23 V44 H51 V30 H41 Z"/>
+    <path d="M45 44 V58 M52 44 V58" stroke="${O}" stroke-width="4.5" stroke-linecap="round"/>
+    <ellipse ${S} cx="28" cy="32" rx="24" ry="8" fill="#fff"/>
+    <path ${S} fill="#ff8fb3" stroke-width="3.5" d="M4 32 Q6 42 12 42 Q16 37 20 42 Q24 37 28 42 Q32 37 36 42 Q40 37 44 42 Q50 42 52 32 Q40 39 28 39 Q16 39 4 32 Z"/>
+    <path d="M28 42 V56" stroke="${O}" stroke-width="7" stroke-linecap="round"/>
+    <path d="M28 42 V56" stroke="#b8692e" stroke-width="3" stroke-linecap="round"/>
+    <path ${S} fill="#b8692e" stroke-width="3.5" d="M17 58 H39 Q39 54 28 54 Q17 54 17 58 Z"/>
+    <path ${S} fill="#fff" stroke-width="3" d="M22 22 H32 V27 Q32 31 27 31 Q22 31 22 27 Z"/>
+    <path d="M32 23.5 Q35 23.5 35 25.5 Q35 27.5 32 27.5" stroke="${O}" stroke-width="2.2" fill="none"/>
+    <path d="M25 18 Q24 15 26 13 M29 18 Q28 15 30 13" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+  // Upgrades: an espresso machine pouring into a small cup
+  espresso: `<rect ${S} x="8" y="6" width="48" height="16" rx="5" fill="#ff6b4a"/>
+    <circle cx="18" cy="14" r="3" fill="#ffd23f" stroke="${O}" stroke-width="2"/><circle cx="28" cy="14" r="3" fill="#fff" stroke="${O}" stroke-width="2"/>
+    <rect ${S} x="10" y="20" width="44" height="34" rx="4" fill="#d9dee6"/>
+    <rect ${S} stroke-width="3.5" x="22" y="22" width="20" height="7" rx="2" fill="#5b6472"/>
+    <path d="M30 30 V37 M34 30 V37" stroke="#7a4524" stroke-width="2.6" stroke-linecap="round"/>
+    <path ${S} fill="#fff" stroke-width="3.5" d="M23 38 H41 V44 Q41 50 32 50 Q23 50 23 44 Z"/>
+    <path d="M41 40 Q46 40 46 43.5 Q46 47 41 47" stroke="${O}" stroke-width="2.6" fill="none"/>
+    <rect ${S} stroke-width="3.5" x="6" y="52" width="52" height="7" rx="3" fill="#5b6472"/>`,
+  // Upgrades: a catching net, wooden handle and a mesh hoop
+  net: `<defs><clipPath id="netHoop"><circle cx="40" cy="24" r="17"/></clipPath><clipPath id="netBag"><path d="M23 26 Q26 54 42 50 Q58 46 57 26 Z"/></clipPath></defs>
+    <path d="M8 58 L27 39" stroke="${O}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M8 58 L27 39" stroke="#c97f45" stroke-width="5" stroke-linecap="round"/>
+    <path ${S} fill="#e8f6ff" d="M22 26 Q24 56 42 52 Q60 47 58 26 Z"/>
+    <g clip-path="url(#netBag)" stroke="#5fa8d8" stroke-width="2.4" fill="none">
+      <path d="M14 30 L60 56 M14 40 L50 60 M20 22 L64 46 M30 20 L64 38 M64 30 L18 56 M64 40 L28 62 M58 22 L14 46 M48 20 L14 38"/>
+    </g>
+    <path ${S} fill="none" d="M22 26 Q24 56 42 52 Q60 47 58 26"/>
+    <ellipse cx="40" cy="25" rx="19" ry="7" fill="none" stroke="${O}" stroke-width="6.5"/>
+    <ellipse cx="40" cy="25" rx="19" ry="7" fill="none" stroke="#ffd23f" stroke-width="3"/>`,
+  // Upgrades: the bait bowl, a food bowl with a fish on top
+  lureBowl: `<path ${S} fill="#ff8fb3" d="M5 34 H59 Q57 56 32 56 Q7 56 5 34 Z"/>
+    <path d="M10 40 Q32 46 54 40" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+    <path ${S} fill="#9fb3c8" stroke-width="3.5" d="M12 30 Q24 16 38 24 L50 16 L48 28 L52 38 L38 32 Q24 40 12 30 Z"/>
+    <circle cx="21" cy="27" r="2.4" fill="${O}"/>
+    <path d="M29 22 Q31 28 29 33" stroke="#7f93a8" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <circle cx="27" cy="12" r="2" fill="#fff"/><circle cx="41" cy="10" r="2.6" fill="#fff"/>`,
+  // Upgrades: a beckoning lucky cat holding a gold coin
+  luckyCat: `<path ${S} fill="#fff" d="M14 58 Q10 44 16 36 Q12 28 14 20 L13 6 L24 13 Q32 11 40 13 L51 6 L50 20 Q52 28 48 36 Q54 44 50 58 Z"/>
+    <path d="M17 15 L16 9 L22 13 Z M47 15 L48 9 L42 13 Z" fill="#ff9ec4"/>
+    <path ${S} fill="#fff" stroke-width="4" d="M48 30 Q54 22 54 12 Q54 7 58 7 Q62 7 61 13 Q60 26 52 34 Z"/>
+    <path d="M24 24 Q26 21 28 24 M36 24 Q38 21 40 24" stroke="${O}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M30 28 H34 L32 30.5 Z" fill="#ff6f9a"/>
+    <path d="M16 36 Q32 42 48 36" stroke="#ff4f5e" stroke-width="5" fill="none"/>
+    <circle cx="32" cy="41" r="3.2" fill="#ffd23f" stroke="${O}" stroke-width="2"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="50" rx="10" ry="7" fill="#ffd23f"/>
+    <path d="M27 50 H37" stroke="#e7a812" stroke-width="2.6" stroke-linecap="round"/>`,
+  // Roles: the barista, a latte cup with a heart and steam
+  barista: `<path d="M24 14 Q20 9 24 4 M32 14 Q28 9 32 4 M40 14 Q36 9 40 4" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#fff" d="M10 20 H50 V36 Q50 54 30 54 Q10 54 10 36 Z"/>
+    <path ${S} fill="none" stroke-width="5" d="M50 25 Q60 25 60 33 Q60 41 49 42"/>
+    <ellipse cx="30" cy="22" rx="17" ry="3.4" fill="#b8692e"/>
+    <path fill="#ff6f9a" stroke="${O}" stroke-width="2.4" stroke-linejoin="round" d="M30 44 Q19 36 22 30 Q25 26 30 31 Q35 26 38 30 Q41 36 30 44 Z"/>
+    <ellipse ${S} stroke-width="3.5" cx="30" cy="57" rx="24" ry="4" fill="#ffe7c2"/>`,
+  // Roles: the waiter, a tray held high with a cake slice on it
+  waiter: `<path ${S} fill="#fff" stroke-width="4" d="M27 44 Q24 54 28 60 H38 Q42 54 38 44 Z"/>
+    <ellipse ${S} cx="32" cy="40" rx="27" ry="6" fill="#d9dee6"/>
+    <path d="M12 39 Q32 43 52 39" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#ffe7c2" stroke-width="3.5" d="M16 36 V24 L46 16 V36 Z"/>
+    <path ${S} fill="#ff8fb3" stroke-width="3.5" d="M16 24 L46 16 V21 L16 29 Z"/>
+    <path d="M18 31 L44 25" stroke="#ff8fb3" stroke-width="2.6"/>
+    <path ${S} fill="#fff" stroke-width="3" d="M34 17 Q38 8 42 15 Z"/>
+    <circle cx="38" cy="8" r="3" fill="#ff4f5e" stroke="${O}" stroke-width="2"/>`,
+  // Roles: the greeter, a waving cat paw with motion lines
+  greeter: `<path d="M8 20 Q5 28 8 36 M14 16 Q11 24 14 32" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#ffb04a" d="M22 60 V40 Q20 30 26 24 Q32 18 40 18 Q50 18 54 26 Q58 34 54 42 L48 60 Z"/>
+    <ellipse ${S} stroke-width="3.5" cx="38" cy="36" rx="9" ry="8" fill="#ff9ec4"/>
+    <ellipse ${S} stroke-width="3" cx="26" cy="22" rx="4.5" ry="5.5" fill="#ff9ec4"/>
+    <ellipse ${S} stroke-width="3" cx="34" cy="16" rx="4.5" ry="5.5" fill="#ff9ec4"/>
+    <ellipse ${S} stroke-width="3" cx="44" cy="16" rx="4.5" ry="5.5" fill="#ff9ec4"/>
+    <ellipse ${S} stroke-width="3" cx="52" cy="23" rx="4.5" ry="5.5" fill="#ff9ec4"/>`,
+  // Roles: the entertainer, a ball of yarn with a loose strand and a sparkle
+  entertainer: `<defs><clipPath id="yarnBall"><circle cx="28" cy="34" r="20"/></clipPath></defs>
+    <path d="M44 46 Q54 52 50 58 Q46 62 58 60" stroke="${O}" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M44 46 Q54 52 50 58 Q46 62 58 60" stroke="#ff4f7b" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle ${S} cx="28" cy="34" r="22" fill="#ff6f9a"/>
+    <g clip-path="url(#yarnBall)" fill="none" stroke="#ffc2d6" stroke-width="3" stroke-linecap="round">
+      <path d="M10 22 Q28 30 46 20 M8 32 Q28 42 48 30 M10 44 Q28 52 46 42 M18 14 Q12 34 22 54 M34 13 Q44 34 36 55"/>
+    </g>
+    <circle cx="28" cy="34" r="22" fill="none" stroke="${O}" stroke-width="4.5"/>
+    <path fill="#ffd23f" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M52 4 L54 10 L60 12 L54 14 L52 20 L50 14 L44 12 L50 10 Z"/>`,
+  // #3136: the Oasis Spa, a round wooden tub with warm water and three rising steam curls
+  spa: `<path d="M20 22 Q15 16 20 10 Q25 4 20 -2 M32 22 Q27 16 32 10 Q37 4 32 -2 M44 22 Q39 16 44 10 Q49 4 44 -2" stroke="${O}" stroke-width="7" fill="none" stroke-linecap="round" transform="translate(0 6)"/>
+    <path d="M20 22 Q15 16 20 10 Q25 4 20 -2 M32 22 Q27 16 32 10 Q37 4 32 -2 M44 22 Q39 16 44 10 Q49 4 44 -2" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" transform="translate(0 6)"/>
+    <path ${S} fill="#c97f45" d="M6 36 H58 L54 58 H10 Z"/>
+    <path d="M9 47 H55" stroke="${O}" stroke-width="3"/>
+    <path d="M20 36 V58 M32 36 V58 M44 36 V58" stroke="#8a4f26" stroke-width="2.4"/>
+    <ellipse ${S} cx="32" cy="36" rx="27" ry="7" fill="#5fd0e8"/>
+    <path d="M18 35 Q24 33 30 35 M36 37 Q42 35 46 37" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+});
+// #3137 batch 2 (Derek2 OK'd everything for 11-10 night): the seven places, for the Cat Cannon's cards, the rank-up
+// card and the area chips, which still drew emoji. The Ruins' column temple also stands for the Relic Museum.
+Object.assign(window.ICONS, {
+  // the Park: a round leafy tree over a bench on grass
+  park: `<ellipse ${S} cx="32" cy="57" rx="28" ry="5" fill="#7fd36b"/>
+    <path d="M30 56 V36" stroke="${O}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M30 56 V36" stroke="#a8642e" stroke-width="5" stroke-linecap="round"/>
+    <path ${S} fill="#5fb85a" d="M30 6 Q44 6 46 18 Q56 20 54 32 Q52 42 40 40 Q34 46 26 42 Q12 44 10 32 Q8 22 18 18 Q18 6 30 6 Z"/>
+    <path d="M20 22 Q24 16 30 16 M38 26 Q44 24 46 30" stroke="#a6e38e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <circle cx="22" cy="30" r="2.6" fill="#ff6b6b" stroke="${O}" stroke-width="1.8"/><circle cx="42" cy="18" r="2.6" fill="#ff6b6b" stroke="${O}" stroke-width="1.8"/>
+    <rect ${S} stroke-width="3.5" x="38" y="44" width="22" height="5" rx="2" fill="#ff9a4a"/>
+    <path d="M41 49 V55 M57 49 V55" stroke="${O}" stroke-width="3.5" stroke-linecap="round"/>`,
+  // the Neighbourhood: two little houses side by side, one taller
+  neighbourhood: `<path ${S} fill="#ffe7c2" d="M6 34 H30 V58 H6 Z"/>
+    <path ${S} fill="#5fa8ff" d="M3 35 L18 20 L33 35 Z"/>
+    <rect ${S} stroke-width="3" x="13" y="44" width="9" height="14" rx="2" fill="#b8692e"/>
+    <path ${S} fill="#fff6e6" d="M30 26 H58 V58 H30 Z"/>
+    <path ${S} fill="#ff6b4a" d="M26 27 L44 8 L62 27 Z"/>
+    <rect ${S} stroke-width="3" x="36" y="33" width="8" height="8" rx="1.5" fill="#8fd8ff"/>
+    <rect ${S} stroke-width="3" x="47" y="33" width="8" height="8" rx="1.5" fill="#8fd8ff"/>
+    <rect ${S} stroke-width="3" x="40" y="46" width="10" height="12" rx="2" fill="#b8692e"/>`,
+  // the Woods: two pine trees, the front one bigger
+  woods: `<path d="M44 58 V48" stroke="${O}" stroke-width="8" stroke-linecap="round"/><path d="M44 58 V48" stroke="#8a4f26" stroke-width="3.5" stroke-linecap="round"/>
+    <path ${S} fill="#2f8f4e" d="M44 10 L56 28 H51 L60 42 H54 L62 50 H26 L34 42 H28 L37 28 H32 Z"/>
+    <path d="M24 60 V48" stroke="${O}" stroke-width="9" stroke-linecap="round"/><path d="M24 60 V48" stroke="#a8642e" stroke-width="4" stroke-linecap="round"/>
+    <path ${S} fill="#3fae5f" d="M24 4 L38 24 H32 L42 38 H35 L45 50 H3 L13 38 H6 L16 24 H10 Z"/>
+    <path d="M18 22 L24 14 M15 36 L22 28 M12 48 L20 40" stroke="#8fe0a0" stroke-width="3" stroke-linecap="round"/>`,
+  // the Sewer: a round manhole cover with a grate and a little green glow
+  sewer: `<ellipse ${S} cx="32" cy="38" rx="28" ry="20" fill="#6e7f86"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="36" rx="20" ry="13" fill="#4b585e"/>
+    <path d="M18 31 H46 M14 37 H50 M18 43 H46" stroke="${O}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M12 30 Q32 20 52 30" stroke="#a9bac0" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M26 16 Q22 10 27 5 M38 16 Q42 10 37 4" stroke="${O}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+    <path d="M26 16 Q22 10 27 5 M38 16 Q42 10 37 4" stroke="#8fe36b" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  // the Desert: a sandstone pyramid with a sun behind and a dune in front
+  desert: `<circle ${S} cx="48" cy="16" r="10" fill="#ffd23f"/>
+    <path ${S} fill="#e8a64a" d="M4 52 L28 14 L52 52 Z"/>
+    <path ${S} stroke-width="3" fill="#c98432" d="M28 14 L52 52 H34 Z"/>
+    <path d="M14 40 H40 M20 30 H34" stroke="#c98432" stroke-width="2.6" stroke-linecap="round"/>
+    <path ${S} fill="#ffd38a" d="M2 60 Q16 46 34 52 Q48 56 62 48 V60 Z"/>`,
+  // the Ruins: a little temple of four columns under a broken pediment, a vine on one column
+  ruins: `<path ${S} fill="#d8e2dc" d="M6 22 L32 6 L58 22 Z"/>
+    <path ${S} stroke-width="3.5" fill="#bccbc3" d="M8 22 H56 V28 H8 Z"/>
+    <path ${S} stroke-width="3.5" fill="#eef3ef" d="M12 28 H20 V52 H12 Z M24 28 H31 V52 H24 Z M35 28 H42 V52 H35 Z M46 28 H53 V44 L50 41 L53 38 Z"/>
+    <path d="M16 31 V49 M27.5 31 V49 M38.5 31 V49" stroke="#bccbc3" stroke-width="2"/>
+    <path ${S} stroke-width="3.5" fill="#bccbc3" d="M6 52 H58 V59 H6 Z"/>
+    <path d="M23 30 Q28 36 24 42 Q20 47 26 51" stroke="${O}" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+    <path d="M23 30 Q28 36 24 42 Q20 47 26 51" stroke="#4e9e78" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <circle cx="27" cy="36" r="2.2" fill="#6fd39b" stroke="${O}" stroke-width="1.5"/><circle cx="22" cy="45" r="2.2" fill="#6fd39b" stroke="${O}" stroke-width="1.5"/>`,
+  // Town Square: a fountain with a water arc on a round plaza
+  town: `<ellipse ${S} cx="32" cy="54" rx="28" ry="7" fill="#e9c98f"/>
+    <path ${S} fill="#bccbd8" d="M10 44 H54 V50 Q54 55 32 55 Q10 55 10 50 Z"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="44" rx="22" ry="5" fill="#5fd0e8"/>
+    <path ${S} stroke-width="3.5" fill="#bccbd8" d="M28 44 V30 H36 V44 Z"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="30" rx="11" ry="3.5" fill="#d9e3ec"/>
+    <path d="M32 26 Q32 10 20 20 Q14 26 16 40 M32 26 Q32 10 44 20 Q50 26 48 40" stroke="${O}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+    <path d="M32 26 Q32 10 20 20 Q14 26 16 40 M32 26 Q32 10 44 20 Q50 26 48 40" stroke="#8fe4ff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="32" cy="14" r="3" fill="#8fe4ff" stroke="${O}" stroke-width="2"/>`,
+});
+// #3137 batch 3: the night's moon (the night line, Night Market) and the open padlock (unlock cards), the last
+// emoji in the audit's row 5 (drop, replay and tag already have #2836 pictures)
+Object.assign(window.ICONS, {
+  // a gold crescent moon with two little stars
+  moon: `<path ${S} fill="#ffd23f" d="M40 6 Q20 10 16 30 Q14 50 34 58 Q48 62 58 50 Q40 52 32 40 Q24 26 40 6 Z"/>
+    <path d="M24 22 Q20 32 24 42" stroke="#fff1a8" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M50 14 L52 19 L57 20 L52 22 L50 27 L48 22 L43 20 L48 19 Z"/>
+    <circle cx="56" cy="34" r="2.6" fill="#fff" stroke="${O}" stroke-width="1.8"/>`,
+  // the open gold padlock, its shackle swung up and off to one side
+  unlock: `<path d="M22 30 V18 Q22 6 34 6 Q46 6 46 16" stroke="${O}" stroke-width="11" fill="none" stroke-linecap="round"/>
+    <path d="M22 30 V18 Q22 6 34 6 Q46 6 46 16" stroke="#c9d3de" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect ${S} x="8" y="28" width="40" height="30" rx="6" fill="#ffc94d"/>
+    <path d="M12 34 H44" stroke="#ffe39a" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="28" cy="42" r="4" fill="${O}"/><path d="M28 44 V51" stroke="${O}" stroke-width="4" stroke-linecap="round"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M54 30 L56 35 L61 36 L56 38 L54 43 L52 38 L47 36 L52 35 Z"/>`,
+});

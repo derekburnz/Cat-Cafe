@@ -296,6 +296,16 @@ return function()
 				expect(sam.myRateNow).to.equal(3)
 				expect(sam.theirRateForMe).to.equal(1)
 				expect(sam.phase).to.equal("offer")
+				-- #3211: a cat with no job shows what it would earn on its card, and adds nothing to "now"
+				local function idle(ownerId: number, uid: string): any
+					local shown = tile(ownerId, uid)
+					shown.earnsNow = if ownerId == 1 then 0 else nil
+					return shown
+				end
+				local resting = TradeBook.view(trade, 1, idle) :: any
+				expect(resting.me.cats[1].rateForMe).to.equal(3)
+				expect(resting.myRateNow).to.equal(0)
+				expect(resting.theirRateForMe).to.equal(1)
 				expect(sam.confirmAt).never.to.be.ok()
 				local alex = TradeBook.view(trade, 2, tile) :: any
 				expect(alex.changed.side).to.equal("me")
@@ -634,36 +644,40 @@ return function()
 	end)
 
 	describe("golden fish (section 1d, #2745)", function()
-		it("sets a side's fish, resetting both and counting them in the values and warnings", function()
-			local book, trade = opened()
-			expect(TradeBook.ready(trade, 1, 1, true, 101)).to.equal(TradeBook.EMPTY)
-			expect(TradeBook.setFish(trade, 1, 40, 101)).to.equal(true)
-			expect(trade.version).to.equal(2)
-			expect(TradeBook.fishOffered(book, 1)).to.equal(40)
-			expect(TradeBook.fishOffered(book, 2)).to.equal(0)
-			expect(TradeBook.fishOffered(book, 3)).to.equal(0) -- not trading
-			expect(TradeBook.ready(trade, 2, 2, true, 102)).never.to.be.ok() -- fish alone are an offer
-			expect(TradeBook.setFish(trade, 1, 40, 103)).to.equal(false) -- the same amount is no change
-			expect(trade.b.ready).to.equal(true)
-			expect(TradeBook.setFish(trade, 1, 80, 103)).to.equal(true)
-			expect(trade.b.ready).to.equal(false) -- any change resets both
-			local _, gift = TradeBook.warnings(trade, 2)
-			expect(gift).to.equal(false) -- Alex gets the fish
-			local lopsided
-			lopsided, gift = TradeBook.warnings(trade, 1)
-			expect(gift).to.equal(true)
-			expect(lopsided).to.equal(false)
-			local sam = TradeBook.view(trade, 1, tile, nil, nil, nil, { on = true, room = 150 }) :: any
-			expect(sam.me.fish).to.equal(80)
-			expect(sam.them.fish).to.equal(0)
-			expect(sam.giveValue).to.be.near(6, 1e-9) -- 80 x 0.075
-			expect(sam.fishOn).to.equal(true)
-			expect(sam.fishRoom).to.equal(150)
-			local alex = TradeBook.view(trade, 2, tile) :: any
-			expect(alex.them.fish).to.equal(80)
-			expect(alex.fishOn).to.equal(false)
-			expect(alex.fishRoom).to.equal(0)
-		end)
+		it(
+			"sets a side's fish, resetting both and counting them in the values and warnings",
+			function()
+				local book, trade = opened()
+				expect(TradeBook.ready(trade, 1, 1, true, 101)).to.equal(TradeBook.EMPTY)
+				expect(TradeBook.setFish(trade, 1, 40, 101)).to.equal(true)
+				expect(trade.version).to.equal(2)
+				expect(TradeBook.fishOffered(book, 1)).to.equal(40)
+				expect(TradeBook.fishOffered(book, 2)).to.equal(0)
+				expect(TradeBook.fishOffered(book, 3)).to.equal(0) -- not trading
+				expect(TradeBook.ready(trade, 2, 2, true, 102)).never.to.be.ok() -- fish alone are an offer
+				expect(TradeBook.setFish(trade, 1, 40, 103)).to.equal(false) -- the same amount is no change
+				expect(trade.b.ready).to.equal(true)
+				expect(TradeBook.setFish(trade, 1, 80, 103)).to.equal(true)
+				expect(trade.b.ready).to.equal(false) -- any change resets both
+				local _, gift = TradeBook.warnings(trade, 2)
+				expect(gift).to.equal(false) -- Alex gets the fish
+				local lopsided
+				lopsided, gift = TradeBook.warnings(trade, 1)
+				expect(gift).to.equal(true)
+				expect(lopsided).to.equal(false)
+				local sam =
+					TradeBook.view(trade, 1, tile, nil, nil, nil, { on = true, room = 150 }) :: any
+				expect(sam.me.fish).to.equal(80)
+				expect(sam.them.fish).to.equal(0)
+				expect(sam.giveValue).to.be.near(6, 1e-9) -- 80 x 0.075
+				expect(sam.fishOn).to.equal(true)
+				expect(sam.fishRoom).to.equal(150)
+				local alex = TradeBook.view(trade, 2, tile) :: any
+				expect(alex.them.fish).to.equal(80)
+				expect(alex.fishOn).to.equal(false)
+				expect(alex.fishRoom).to.equal(0)
+			end
+		)
 
 		it("refuses bad amounts, clears for the switch and holds while committing", function()
 			local _, trade = opened()

@@ -849,6 +849,10 @@ local function applyState(s: Types.PlayerState)
 		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
 		tutorialStep = s.tutorialStep,
+		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
+		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
+		-- empty, as UI.update skips a nil.
+		bait = if s.bait ~= nil then s.bait else false,
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done

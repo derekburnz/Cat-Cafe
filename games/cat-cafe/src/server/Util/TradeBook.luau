@@ -695,7 +695,7 @@ function TradeBook.view(
 			local shown = tile(side.userId, uid)
 			if shown ~= nil then
 				table.insert(cats, shown)
-				rate += shown.rateForMe
+				rate += if shown.earnsNow ~= nil then shown.earnsNow else shown.rateForMe -- #3211
 			end
 		end
 		local decor: { Types.TradeDecorTile } = {}

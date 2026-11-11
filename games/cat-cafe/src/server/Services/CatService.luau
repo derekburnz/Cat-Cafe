@@ -3519,6 +3519,23 @@ function CatService.busyReason(player: Player, hopOk: boolean?): string?
 	return nil
 end
 
+-- #3211: what TradeService asks before a trade opens and while one is open (shared/Trade.busy). Carrying or packing
+-- a cat is not on it. `hopOk` as in busyReason: the night's cloud hop home keeps a trade going (#2568).
+function CatService.tradeDoing(
+	player: Player,
+	hopOk: boolean?
+): { flying: boolean, catching: boolean, rescuing: boolean }
+	local character = player.Character
+	local hopping = character ~= nil
+		and character:GetAttribute("CloudHopAt") ~= nil
+		and character:GetAttribute("Launching") ~= true
+	return {
+		flying = inFlight(player) and not (hopOk == true and hopping),
+		catching = CatService.inCatch(player),
+		rescuing = inRescue(player),
+	}
+end
+
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
 end

@@ -7051,10 +7051,11 @@ do
 	end
 
 	-- TradeAskEnded (#2550): this player's ask to `toUserId` was declined or ran out, so its Asked wears off soon.
-	function UI.trade.askEnded(toUserId: number)
+	-- #3211: `now` when the ask never went out (refused) or could not open: the row says Trade again at once.
+	function UI.trade.askEnded(toUserId: number, now: boolean?)
 		local screen = trading.screen
 		if screen and type(toUserId) == "number" then
-			screen:askEnded(toUserId)
+			screen:askEnded(toUserId, now == true)
 		end
 	end
 

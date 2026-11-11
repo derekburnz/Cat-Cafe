@@ -47,7 +47,9 @@ for _, rarity in YardSale.RARITIES do
 	pool[rarity] = {}
 end
 for _, def in Catalog.lawn do
-	table.insert(pool[def.rarity], def.id)
+	if def.drop ~= true then -- #3222: the drop-only Golden pieces are never sold
+		table.insert(pool[def.rarity], def.id)
+	end
 end
 for _, def in Catalog.lawnStyles do
 	if def.rarity ~= nil and def.price > 0 then

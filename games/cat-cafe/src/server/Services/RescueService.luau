@@ -37,6 +37,8 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Lawn = require(ReplicatedStorage.Shared.Lawn)
+local LawnService = require(script.Parent.LawnService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
@@ -581,6 +583,13 @@ local function finish(
 			)
 			if #paid > 0 then
 				Net.toast(player, paid[1] .. " in your Bag", "good")
+			end
+			-- #3222: the rare drop-only Golden lawn piece, while its live switch is on
+			if LiveFlagService.on(Lawn.DROP_FLAG) then
+				local found = Lawn.dropPick(profile, rng:NextNumber(), rng:NextNumber())
+				if found ~= nil then
+					LawnService.giveDrop(player, profile, found)
+				end
 			end
 		end
 		-- the spot it was stuck at, so a Drop walks it back near the trap (F67)

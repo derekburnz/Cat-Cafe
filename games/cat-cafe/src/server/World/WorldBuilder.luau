@@ -142,7 +142,8 @@ local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
 local RING_BOARD = Color3.fromRGB(190, 150, 240)
-local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖" }
+-- #3347: the Index Boards show the drawn open book (the client's Icon_Clean_Index), the emoji under it until it loads
+local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖", image = "rbxassetid://138454303453433" }
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too

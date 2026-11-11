@@ -55,6 +55,7 @@ local Levels = require(script.Levels)
 local LuckyCat = require(script.LuckyCat)
 local LuckyPaw = require(script.LuckyPaw)
 local Market = require(script.Market)
+local MoneyBag = require(script.MoneyBag)
 local Motion = require(script.Motion)
 local MuseumPlaques = require(script.MuseumPlaques)
 local Mystery = require(script.Mystery)
@@ -177,6 +178,7 @@ function Effects.start()
 		RuinsWater.start,
 		TrailSparkle.start,
 		GoldenFind.start,
+		MoneyBag.start,
 		StationBuild.start,
 		StationReveal.start,
 		StrayCall.start,

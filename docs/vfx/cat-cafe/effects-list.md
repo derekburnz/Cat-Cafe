@@ -1064,6 +1064,14 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 |---|---|
 | Every 2nd dot of the guide trail (every 4th on a phone) sends up 2 soft sparkles a second in the dot's own colour, so the path to the waiting stray reads from farther off; kept with Reduce Motion, off in Low performance | GuideTrail's `Dot` parts in the Workspace folder `CatCafeTutorialTrail` (UI's; GuideTrail.luau is untouched) |
 
+## Rich customers' money bags (#3360, 2026-11-11)
+
+`Effects/MoneyBag.luau`, numbers in `Presets.moneyBag`.
+
+| Look | Hook |
+|---|---|
+| A bag drops: 8 gold sparkles and a 3 stud gold ring on its spot. A bag is collected: 16 gold sparkles and a 5 stud ring, plus 14 gold confetti in your own cafe. A missed bag just goes. Cafes over 120 studs away are skipped; Reduce Motion keeps the sparkles only, Low performance halves the collect sparkles and drops the confetti | a new child of the plot's `RichBags` folder (drop) and its `Outcome` attribute turning "claimed" (collect), both set by RichTipService for display |
+
 ## Mouse Dash pops (#3296, 2026-11-11)
 
 `Effects/MouseDashFx.luau`, numbers in `Presets.mouseDash`; drawn with the arcade's sparkles, rings and words on the `EffectsArcade` ScreenGui. Called by Gameplay-Engineer's `Screens/MouseDash`.

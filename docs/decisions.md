@@ -1028,3 +1028,8 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Why:** with the money bags fewer rich tips are missed, so Pace's "over 2 hours in one go with 4x Money" check gave a Tier 5 median of 1 h 59. By the economy rule the cost goes up and the bag is not cut (Design-Agent).
 - **What:** Tier 5 cost 370,000,000 to 390,000,000. 385M gave 2 h 01; 390M gives 2 h 02 (10th to 90th 1 h 29 to 2 h 22). The free player's median is 4 h 16, inside its 3.5 to 5.5 h band. A player who already has Tier 5 keeps it.
 - **Built now:** the bag on table 1, its own full 180 s, up to 3 waiting, no loss at dusk or night, the 20 s sit, and ClaimRichTip with an optional bag id. **Later, in its own PR:** tapping any bag on its own, a "total waiting" line on the HUD, the bag model and its fade.
+
+## 2026-11-11 Mystic Pool look: the built model is approved (#3314, Design-Agent)
+- **Why:** Derek was shown the built model and the earlier pink concept and answered "A", the built model.
+- **What:** `trait-station.md` section 1 now describes the approved look: cream and grey stone ring, soft purple liquid, moon arch with lanterns, brown wizard cat Sage Sorrel with a purple starry hat. The pool rests purple, so the Mythic step has to read as clearly stronger than the resting colour. Odds, traits, costs and caps do not change.
+- **No restart needed:** the trait save step (version 48, #3335) is already live since the restart at 19:13 UTC. What still gates the station is the `traits` switch, which stays off until the UI, the effects and the Pace gate are done.

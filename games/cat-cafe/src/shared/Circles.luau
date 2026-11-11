@@ -64,11 +64,13 @@ end
 
 -- The windows a cat of `rarity` is judged with (v0.13.15 F83): the net level's Perfect and Good times the rarity's
 -- catchWindow, so the bands narrow the rarer the cat. #2322: times the catchWindowScale of `areaId` (the stray's
--- area) when it has one, so the first area is a little easier.
+-- area) when it has one, so the first area is a little easier. #3135: times Config.CoatDifficulty of the stray's
+-- coat `variant`, so a gold cat's bands are a little narrower and a rainbow's narrower still.
 function Circles.windowsFor(
 	netLevel: number,
 	rarity: Types.Rarity,
-	areaId: string?
+	areaId: string?,
+	variant: string?
 ): Types.NetWindows
 	local net = Circles.windows(netLevel)
 	local scale = Catalog.rarities[rarity].catchWindow
@@ -76,7 +78,21 @@ function Circles.windowsFor(
 	if area ~= nil and area.catchWindowScale ~= nil then
 		scale *= area.catchWindowScale
 	end
+	if variant ~= nil then
+		scale *= Config.CoatDifficulty[variant] or 1
+	end
 	return { perfect = net.perfect * scale, good = net.good * scale }
+end
+
+-- #3140 (Derek2 2026-11-10: "speed up commons/rare in further maps slightly like tier 5+", "speed up the circles"):
+-- what a `rarity` stray's ring shrink time is multiplied by in `areaId`: Config.QuickRingScale's entry from
+-- QuickRingTier on, 1 for an earlier area, a rarer cat or no area. The bands keep their width in seconds.
+function Circles.ringSpeed(rarity: Types.Rarity, areaId: string?): number
+	local area = if areaId ~= nil then Catalog.getArea(areaId) else nil
+	if area == nil or area.tier < Config.QuickRingTier then
+		return 1
+	end
+	return Config.QuickRingScale[rarity] or 1
 end
 
 -- What CatchSchedule sends: the two half-widths the UI draws as bands.
@@ -89,13 +105,17 @@ end
 -- #1884 (catch-rework.md 7c): with the rarity's twists, each ring after the first may be a double (two circles
 -- DoubleRingGap apart on one spot, both kind "double", half 1 and 2, each using one of the ring cap's rings) and
 -- each ring after the second a paw ring (never two in a row, using none of them). Rings come until the cap is used.
+-- #3140: `areaId` is where the stray lives; a Common or Rare one's rings close quicker from QuickRingTier on
+-- (ringSpeed). Left out, the rarity's own shrink time.
 function Circles.schedule(
 	rarity: Types.Rarity,
 	_netLevel: number,
 	now: number,
-	roll: () -> number
+	roll: () -> number,
+	areaId: string?
 ): { Types.CatchCircle }
 	local def = Catalog.rarities[rarity]
+	local shrink = def.shrinkSeconds * Circles.ringSpeed(rarity, areaId)
 	local jitter = Config.CircleJitter
 	local cap = Circles.ringCap(rarity)
 	local circles: { Types.CatchCircle } = {}
@@ -112,7 +132,7 @@ function Circles.schedule(
 		local u = (roll() * 2 - 1) * jitter
 		local circle: Types.CatchCircle = {
 			startsAt = startsAt,
-			shrinkSeconds = def.shrinkSeconds * (1 + u),
+			shrinkSeconds = shrink * (1 + u),
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
 			kind = "single" :: Types.CircleKind,

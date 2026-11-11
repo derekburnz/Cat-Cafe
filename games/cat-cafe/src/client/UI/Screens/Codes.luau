@@ -67,8 +67,12 @@ export type Codes = {
 -- first (Components/CodeEntry.used). No help line: the placeholder says enough, and case is still ignored. The header
 -- and the list show only in the Store; the walk-up window keeps just the box and the answer.
 local HEADER_LINE = "New codes come with updates and in our Roblox group."
--- #2610 (Derek2 11-09): under the box in the Store, where to find codes
+-- #2610 (Derek2 11-09): under the box in the Store, where to find codes. #3131 (Derek2 11-10: "highlight/make
+-- bigger the check game description for codes"): a gold strip the width of the box with bigger bold dark words (it
+-- was a small grey line), one line on a phone.
 local HINT_LINE = "Check the game description for codes"
+local HINT_H = 36
+local HINT_TEXT = Theme.sizes.textBody + 2
 local USED_TITLE = "Codes you've used"
 local USED_EMPTY = "Codes you use show up here"
 local PLACEHOLDER = "Type a code"
@@ -257,16 +261,21 @@ function Codes.new(callbacks: Callbacks): Codes
 	-- #2610: right under the box, in the Store only
 	self._hint = text({
 		Name = "Hint",
-		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundColor3 = Theme.colors.gold,
+		BackgroundTransparency = 0,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, HINT_H),
 		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextSize = HINT_TEXT,
+		TextColor3 = Theme.colors.ink,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = HINT_LINE,
 		LayoutOrder = 3,
 		Visible = false,
 		Parent = content,
 	})
+	Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = self._hint })
+	Outline.border(self._hint, Theme.sizes.stroke)
 
 	-- the answer in place under the box: a green card with the prize, or one calm refusal line (#1714)
 	local result: Frame = Create("Frame", {

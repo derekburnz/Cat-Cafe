@@ -417,6 +417,37 @@ function Logic.insideCircle(
 	return wasInside
 end
 
+-- #3221: the cafe front split round its open doorway, so a front tint (Rainbow Shimmer, Gold Leaf's fallback sheen)
+-- paints the wall and never the opening. The front runs x0..x1 by y0..y1 in plot axes; the doorway is centred on x 0,
+-- `half` wide each side, square to `spring` and then a round arch of radius `half`. Pieces: the wall left and right
+-- of the doorway, the wall over the arch, and `rows` bands up the arch whose two pieces stop where the arch is widest
+-- in that band, so none covers the opening (the door's arch ring hides the thin wedge each band leaves).
+export type Rect = { x0: number, x1: number, y0: number, y1: number }
+export type Doorway = { half: number, spring: number, rows: number }
+function Logic.frontPieces(x0: number, x1: number, y0: number, y1: number, door: Doorway): { Rect }
+	local h, r = door.half, door.half
+	local top = door.spring + r
+	if x0 >= -h or x1 <= h or y1 <= top then
+		return { { x0 = x0, x1 = x1, y0 = y0, y1 = y1 } }
+	end
+	local list: { Rect } = {
+		{ x0 = x0, x1 = -h, y0 = y0, y1 = y1 },
+		{ x0 = h, x1 = x1, y0 = y0, y1 = y1 },
+		{ x0 = -h, x1 = h, y0 = top, y1 = y1 },
+	}
+	local band = r / door.rows
+	for k = 1, door.rows do
+		local up = (k - 1) * band
+		local open = math.sqrt(math.max(0, r * r - up * up))
+		if h - open > 0.05 then
+			local b0, b1 = door.spring + up, door.spring + up + band
+			table.insert(list, { x0 = -h, x1 = -open, y0 = b0, y1 = b1 })
+			table.insert(list, { x0 = open, x1 = h, y0 = b0, y1 = b1 })
+		end
+	end
+	return list
+end
+
 -- Half a box's size along the axes `frame` is measured in (the world's, or a plot's), however the box is turned.
 function Logic.halfExtents(frame: CFrame, size: Vector3): Vector3
 	local r, u, l = frame.RightVector, frame.UpVector, frame.LookVector
@@ -2728,6 +2759,16 @@ end
 function Logic.glowFlicker(level: number, t: number, flicker: number, hz: number): number
 	local wave = math.sin(t * hz * 2 * math.pi) * 0.6 + math.sin(t * hz * 1.73 * 2 * math.pi) * 0.4
 	return math.max(0, level * (1 + flicker * wave))
+end
+
+-- #3129: how far a finished museum room's name is toward its brighter gold, 0 to 1, `t` seconds in: one slow breath
+-- every `every` seconds. `still` (Reduce Motion, Low performance, or too far to animate) holds it at 0, the steady
+-- gold.
+function Logic.plaqueGlow(t: number, every: number, still: boolean): number
+	if still or every <= 0 then
+		return 0
+	end
+	return 0.5 - 0.5 * math.cos(t / every * 2 * math.pi)
 end
 
 -- Whether a player's leaderboard crown was just earned (F98): their `Crown` going from false to true. `before` nil

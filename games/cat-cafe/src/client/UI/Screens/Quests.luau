@@ -9,7 +9,7 @@
 --                 (Derek 2026-10-29).
 --   Weekly        the same for the week's three. Its free swap comes back every UTC day with the dailies (#1166):
 --                 once used, Swap stays on the unfinished rows, greyed, counting down ("7h 12m") to
---                 quests.dailyResetsAt; while it is free and nothing is ready, the tab carries a small quiet dot.
+--                 quests.dailyResetsAt. (#3081, Derek2 11-10: the tab's quiet "free swap" dot is gone.)
 --   Achievements  "12 of 44 claimed", then a card each: name, goal, bar, prize and Claim once met. Ready ones come
 --                 first, then the closest to done; claimed ones go last, faded.
 -- A tab with something to claim carries a red count. A Claim all button right of the tabs shows while anything in
@@ -126,6 +126,11 @@ local ROW = 80
 local BAR = 14
 local CHIP = 30
 local ACTION_W = 112
+-- #3081 (Derek2 11-10: "the side ones make them much smaller"): Swap is a small ghost pill, drawn well under the Claim
+-- button; on a touch screen Button's invisible Hit pad still reaches out to a finger's 44 px, and with a mouse it
+-- keeps the 36 px pointer floor.
+local SWAP_W = 76
+local SWAP_H = if Scale.isTouch() then 28 else 36
 local CARD = Vector2.new(0, 142) -- two cards a row; the width follows the window
 local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse needs
 local CARD_CHIP = 26
@@ -300,8 +305,7 @@ function Quests.new(callbacks: Callbacks): Quests
 	-- on a phone the row is tall enough for a 44 px finger (Scale.tapHeight), as the Spin and Decor windows
 	local tabHeight = Scale.tapHeight(TAB_HEIGHT, Theme.sizes.buttonDepth)
 	tabs.Size = UDim2.new(1, 0, 0, tabHeight)
-	self._tabs =
-		{} :: { [string]: { button: Button.Button, dot: Frame, count: TextLabel, quiet: Frame } }
+	self._tabs = {} :: { [string]: { button: Button.Button, dot: Frame, count: TextLabel } }
 	for index, tab in TABS do
 		local button = Button.new({
 			name = tab .. "Tab",
@@ -317,20 +321,7 @@ function Quests.new(callbacks: Callbacks): Quests
 			end,
 		})
 		local dot, count = countDot(button.instance)
-		-- the quiet dot (#1166): a small cream dot, no number, for "a free swap waits" on Weekly
-		local quiet: Frame = Create("Frame", {
-			Name = "QuietDot",
-			BackgroundColor3 = Theme.colors.cream,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(1, -8, 0, 8),
-			Size = UDim2.fromOffset(12, 12),
-			Visible = false,
-			ZIndex = 6,
-			Parent = button.instance,
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-		Outline.border(quiet, 2)
-		self._tabs[tab] = { button = button, dot = dot, count = count, quiet = quiet }
+		self._tabs[tab] = { button = button, dot = dot, count = count }
 	end
 	-- Claim all, right of the tabs: every ready daily, weekly and achievement reward in one go (#1073)
 	self._readyByTab = {} :: { [string]: number }
@@ -545,7 +536,8 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		text = "Swap",
 		icon = "🔄",
 		style = "ghost",
-		size = UDim2.fromOffset(ACTION_W, actionHeight),
+		textSize = Theme.sizes.textSmall,
+		size = UDim2.fromOffset(SWAP_W, SWAP_H),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = actionPosition,
 		parent = frame,
@@ -787,10 +779,6 @@ function Quests.render(self: any, state: Types.PlayerState)
 		self._readyByTab[tab] = ready
 		self:_setTabCount(tab, ready)
 		page.swapWait = quests ~= nil and rerollUsed
-		self._tabs[tab].quiet.Visible = kind == "weekly"
-			and ready == 0
-			and quests ~= nil
-			and QuestLogic.swapFree(list, rerollUsed)
 	end
 	self:_renderAchievements(state, look)
 	self:_syncClaimAll()

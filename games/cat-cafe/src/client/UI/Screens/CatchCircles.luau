@@ -1114,13 +1114,14 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 		end
 	end
 
-	-- the strip steps back so the word over it reads (its pips have their server colours by now)
-	Tween.to(self._strip, UNDER_WORD, { BackgroundTransparency = 0.85 })
+	-- the strip steps away so the word reads. #3078: all the way, since the HUD comes back the moment the result
+	-- arrives and on a phone its money and Luck row sit where the strip is (it stayed 15% solid under the word before)
+	Tween.to(self._strip, UNDER_WORD, { BackgroundTransparency = 1 })
 	for _, pip in self._pips :: { Frame } do
-		Tween.to(pip, UNDER_WORD, { BackgroundTransparency = 0.6 })
+		Tween.to(pip, UNDER_WORD, { BackgroundTransparency = 1 })
 		local stroke = pip:FindFirstChildOfClass("UIStroke")
 		if stroke then
-			Tween.to(stroke, UNDER_WORD, { Transparency = 0.7 })
+			Tween.to(stroke, UNDER_WORD, { Transparency = 1 })
 		end
 	end
 

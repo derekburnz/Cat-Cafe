@@ -281,7 +281,12 @@ local Config = {
 	-- #2774 (Derek2 2026-11-09, the 2 to 5 minute drop: 12 set a first bait, 7 saw it land): was 120
 	-- #2946 (Derek2 2026-11-10: "a cut scene ... then the food timer left gets set to 0"): 1, so the first bait cat
 	-- arrives (BaitService checks every second) inside the 2.5 s the client's cutscene waits on the bowl (was 45, #2774)
-	FirstBaitWaitSeconds = 1,
+	FirstBaitWaitSeconds = 5,
+	-- #3161 (Derek2 2026-11-10: "set food bowl to like 5 seconds so the cutscene lines up with it"): 1 before (#2946).
+	-- The first bait's cat stands at the bowl this long before its timer ends (never sooner than a second after the
+	-- food), so the cutscene (camera over 0.5 s, the walk 1.6 s, the eat 1 s, camera back 0.5 s) plays while the
+	-- timer runs down and the Tame card comes up as it ends.
+	FirstBaitCatLeadSeconds = 4,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes
@@ -454,7 +459,7 @@ local Config = {
 	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
-	DealerRangeStuds = 12,
+	DealerRangeStuds = 16, -- #3112: 12 until the walk-up rings grew to radius 6
 	-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items"): no long dry spells. After this
 	-- many nights in a row on one server with none of the food, the next night stocks at least 1 (shared/Dealer).
 	DealerDryNights = { star_treat = 4, moon_milk = 3 } :: { [string]: number },
@@ -480,7 +485,7 @@ local Config = {
 	-- CornerDailyLimits of a family, counted for each row on its own (#1712; a family not listed has none). Cat
 	-- food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
-	CornerShopRange = 14,
+	CornerShopRange = 18, -- #3112: 14 until the walk-up rings grew to radius 6
 	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
 	-- retired). Each global game day rolls YardDecorRows rows, each a different piece or style: first a rarity by
 	-- these weights (in percent), then a piece of it; a rarity with none left moves the roll one rarity down.
@@ -513,7 +518,15 @@ local Config = {
 	DayCartStep = 0.03,
 	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
-	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
+	CornerDailyLimits = {
+		steady = 4,
+		quick_bait = 2,
+		whistle = 4,
+		lucky = 2,
+		money = 3,
+		big_money = 2,
+		gold_rush = 2,
+	} :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
 	-- and its chance shows in the catch help), and every cat rescued from a trap gives one
@@ -531,9 +544,14 @@ local Config = {
 	-- Epic and up as they were. #2566 (Derek2 2026-11-09: "nerf the rare + rescue missions 30% slower"): Rare and up
 	-- x0.7 (1.05, 1.4, 1.6 and 1.8 before), so the Rare's marker is now slower than the Common's; its narrower zone
 	-- still leaves it less time inside.
+	-- #3223 (Derek2 2026-11-11: "rescues are wayyy to easy making bar too big and speed to slow"): the zones were cut
+	-- in #3120 the day before; this is the speed. Common 0.85 and Rare 0.735 before, so 18% and 22% faster, and the
+	-- Rare is no longer far slower than the Common. Epic and up keep their speeds until Derek has played #3120's
+	-- zones (Review-Agent: sped up as well, a phone player would free an Epic 36% of the time and a Mythical 8%).
+	-- The Alleyway and Park ease and an account's first rescues (RescueFirstSpeed) still slow it.
 	RescueBarSpeed = {
-		Common = 0.85,
-		Rare = 0.735,
+		Common = 1.00,
+		Rare = 0.90,
 		Epic = 0.98,
 		Legendary = 1.12,
 		Mythical = 1.26,
@@ -541,13 +559,35 @@ local Config = {
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
 	-- #2320: Common 0.26 -> 0.30 and Rare 0.20 -> 0.23.
+	-- #3120 (Derek2 2026-11-10: "make the rescue area about 10->50% smaller especially for the common->epic rescues are
+	-- too easy now"): 0.30, 0.23, 0.15, 0.12 and 0.14 before, so 43%, 41%, 30%, 12% and 11% narrower. Speeds, hits and
+	-- the area ease are as they were.
 	RescueZoneWidth = {
-		Common = 0.30,
-		Rare = 0.23,
-		Epic = 0.15,
-		Legendary = 0.12,
-		Mythical = 0.14,
+		Common = 0.17,
+		Rare = 0.135,
+		Epic = 0.105,
+		Legendary = 0.105,
+		Mythical = 0.125,
 	} :: { [string]: number },
+	-- #3120: an account's first RescueFirstUses rescues (stats.rescues below it) have zones RescueFirstZone times as
+	-- wide, about the widths before the cut (Common 0.29, Rare 0.23), so a new player's first rescues are no harder.
+	-- #3180 (Derek2 2026-11-10: "make the starting rescue's easier and slightly smaller bars"): 3 rescues at 1.7
+	-- before. The first five now, 1.85 times as wide (a first Common in the Alleyway has 0.44 of the bar, 0.42 before
+	-- #3120), and the marker runs at RescueFirstSpeed of its speed on them (Rescue.speedScale).
+	RescueFirstUses = 5,
+	RescueFirstZone = 1.85,
+	RescueFirstSpeed = 0.85,
+	-- #3135 (Derek2 2026-11-10: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not
+	-- added add it"): it was not. A gold or rainbow cat's catch bands (Circles.windowsFor) and rescue zone
+	-- (Rescue.zoneScale) are this times as wide. Not on the tutorial stray or an account's first rescues.
+	CoatDifficulty = { gold = 0.90, rainbow = 0.80 } :: { [string]: number },
+	-- #3140 (Derek2 2026-11-10: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to
+	-- wait", "speed up the circles"): in an area of QuickRingTier or later (the Sewer, Desert and Ruins) a Common or
+	-- Rare cat's catch rings close in this times the rarity's shrink time: Common 1.20 s to 0.96 s, Rare 1.00 s to
+	-- 0.85 s, which keeps Rare slower than Epic's 0.82 s. The bands stay the same seconds wide, so a ring is no harder
+	-- to hit, only quicker to come; the ring count, the gaps and the rarer cats are unchanged.
+	QuickRingTier = 5,
+	QuickRingScale = { Common = 0.80, Rare = 0.85 } :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
 	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed
@@ -563,6 +603,11 @@ local Config = {
 	RescueSpeedUpPerHit = 0.08,
 	RescuePatience = 3, -- misses one attempt can take
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
+	-- #3049: a starting area's trap by the camp, emptied during the day, gets a new cat this long after while a player
+	-- who has never rescued is in the server with that area open (RescueService; Rescue.starterRefill)
+	StarterRescueRefillSeconds = 30,
+	-- at most this many refills an area a day, so a veteran cannot farm the trap beside a waiting first-timer
+	StarterRescueRefillsPerDay = 4,
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
 	-- #2566: 15 before; the slower Rare-and-up bar (x0.7) takes about 1/0.7 as long, so a steady player still fits
 	RescueAttemptMaxSeconds = 22,
@@ -573,7 +618,8 @@ local Config = {
 	-- F87 (easy-start.md section 2): the intro waits for the Tutorial tile instead of playing by itself (true restores
 	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
-	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
+	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
+	-- nobody can tackle them either.
 	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
 	-- and a replay from the ? tile
 	IntroAutoPlay = true,
@@ -672,7 +718,7 @@ local Config = {
 	InviteCardFromSeconds = 300,
 	InviteCardBySeconds = 900,
 	InvitePendingCheckSeconds = 60,
-	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
+	CollectorRangeStuds = 12, -- his card opens this close to him (#3216: AnswerCollector works from anywhere)
 	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
@@ -728,7 +774,7 @@ local Config = {
 	BedtimeTimeoutSeconds = 15, -- a cat still on its way after this is placed on its spot or station
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
-	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
+	SpinStationRange = 18, -- #3112: 14 before the radius 6 rings; SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
 	SpinAllMax = 51, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
 	SpinBankCap = 50, -- banked spins stop here (#1414: 20 to 50, so two Tip Jar sessions a day keep every spin)
@@ -756,7 +802,7 @@ local Config = {
 	CrateDuplicateRefund = { Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 } :: {
 		[string]: number,
 	},
-	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
+	FishMarketRange = 18, -- #3112: 14 before the radius 6 rings; OpenCrate and BuyFishItem from this close to a FishMarket station
 	-- #2565 (mystery-market.md section 2): Juniper's Mystery Market. Every item is on the shelf all the time; one a week
 	-- is on sale at MysterySaleShare of its price. The week starts at MysteryEpoch, Saturday 2026-11-07 00:00 UTC, so
 	-- the launch week's sale is the Backpack (Catalog.mysteryItems' first row). MysteryOpen false refuses BuyMystery
@@ -766,7 +812,7 @@ local Config = {
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
 	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
-	MysteryMarketRange = 14, -- BuyMystery from this close to the MysteryMarket cart, like the Fish Market
+	MysteryMarketRange = 18, -- #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
 	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
@@ -836,7 +882,7 @@ local Config = {
 	-- #2745 (section 1d): golden fish a side (whole fish, at most the giver's wallet), the most one player may receive
 	-- in trades in a game day, and one fish's Collector value for the lopsided warning (40 fish count as one Rare, 3)
 	TradeMaxFish = 200,
-	TradeFishPerDay = 400,
+	TradeFishPerDay = 250, -- Derek2 2026-11-10: "250 golden fish limit lowered is fine" (400 before; less room for alt farming)
 	TradeFishValue = 0.075,
 	TradeCountdownSeconds = 5,
 	TradeLopsidedRatio = 3,
@@ -898,7 +944,7 @@ local Config = {
 	SpaSlotPrices = { 0, 100, 250 },
 	MuseumRoomTipBonus = 0.05, -- #2908 (Derek2 2026-11-10: "up the tips bonus to be 5% per room filled"; was 0.02)
 	LateStationsOpen = true, -- on since the Spa and Museum cards are in (#2931)
-	CampExtraRangeStuds = 8,
+	CampExtraRangeStuds = 14, -- #3113: 8 until the camp stations got radius 6 rings; from the PromptAnchor at the front
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
 	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is
@@ -923,8 +969,8 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 12, -- the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
-	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	CodesCatRange = 16, -- #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
+	CodesCircleRadius = 6, -- #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
 	CodeWrongWindowSeconds = 60,
@@ -1010,19 +1056,23 @@ local Config = {
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -152, -- #2707: -140 before the roomier square
-		StreetNorthZ = 152, -- #2707: 140 before; the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -178, -- #3070: -163 before the 120 x 140 square (#3001: -152, #2707: -140 before that)
+		StreetNorthZ = 178, -- #3070: 163 before; the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
 		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
 		TownGroundWidth = 272,
-		TownGroundDepth = 356, -- #2707: 332 before
+		TownGroundDepth = 408, -- #3070: 378 before (#3001: 356, #2707: 332 before that)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
 		-- fountain until v4) and a cross of open paving (the street's line and an east to west lane, which led to the
 		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
-		TownSquareHalfWidth = 48,
-		TownSquareHalfDepth = 44, -- #2707 (Derek2: "expand the town square by 25-50%"): 32 before
+		-- #3001 (Derek2 2026-11-10: "expand the town square"): 120 x 110, a quarter more each way. The width grows
+		-- inside the town edge (TownEdgeX stays), so the side gardens are 9 deep; the depth moves the cafes back 11.
+		TownSquareHalfWidth = 60, -- 48 before
+		-- #3070 (Derek2 2026-11-10: "expand the town square again"): 120 x 140. Only the depth grows (the town edge
+		-- holds the width), which moves the cafes back another 15.
+		TownSquareHalfDepth = 70, -- #3070: 55 before (#3001: 44, #2707: 32 before that)
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of

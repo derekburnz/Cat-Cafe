@@ -176,9 +176,9 @@ function MarketLogic.cost(row: ShopRow, level: number?): number?
 end
 
 -- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): the server takes
--- BuyFishItem and BuyFreshCatch 2 a second and BuyCrateBundle 1 a second, and drops the rest with no answer, which
+-- BuyFishItem 2 a second and BuyCrateBundle 1 a second, and drops the rest with no answer, which
 -- left a fast buyer's button on "..." until its wait ran out. Sends on one remote go this far apart instead.
-local SEND_GAP: { [string]: number } = { item = 0.55, fresh = 0.55, bundle = 1.05 }
+local SEND_GAP: { [string]: number } = { item = 0.55, bundle = 1.05 }
 MarketLogic.SEND_GAP = table.freeze(SEND_GAP)
 
 -- When a press on a remote whose last send went (or is set to go) at `lastAt` may go: now, or `gap` after that one.

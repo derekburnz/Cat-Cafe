@@ -30,6 +30,112 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #3217 refresh (11-11): player-facing changes since #3043; Swift Paws was its_cuzu098's idea
+	{
+		id = "swift_paws_perk",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Swift Paws walk speed perk",
+		creditId = "c12",
+	},
+	{
+		id = "tutorial_spotlight",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Clearer tutorial arrow",
+	},
+	{
+		id = "tutorial_click_through",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Click through the tutorial",
+	},
+	{
+		id = "fewer_new_badges",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Fewer New! pop-ups",
+	},
+	{
+		id = "first_rescues_easier",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "First rescues are easier",
+	},
+	{
+		id = "quick_use_and_buy",
+		date = "2026-11-11",
+		icon = "faster",
+		text = "Faster Use and buy presses",
+	},
+	{
+		id = "day_clock_top_pc",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Day clock at the top on PC",
+	},
+	{
+		id = "sky_brighter",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Brighter sky day and night",
+	},
+	{
+		id = "camps_no_drop_in",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Camps load in without drops",
+	},
+	-- #2718 refresh (11-10 16:40): player-facing changes since #2977, 37 merges; no player ideas
+	{
+		id = "town_square_grew",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Town Square grew again",
+	},
+	{ id = "drop_buttons_small", date = "2026-11-10", icon = "fix", text = "Smaller Drop buttons" },
+	{
+		id = "catch_result_flash",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Snappier catch result",
+	},
+	{
+		id = "backpack_heads_big",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Bigger cats in your Backpack",
+	},
+	{
+		id = "refill_best_food",
+		date = "2026-11-10",
+		icon = "faster",
+		text = "Refill uses your best food",
+	},
+	{
+		id = "mythical_decor_shine",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Mythical decor shines more",
+	},
+	{
+		id = "trade_log_more",
+		date = "2026-11-10",
+		icon = "new",
+		text = "Trade log shows more items",
+	},
+	{
+		id = "spa_cats_float",
+		date = "2026-11-10",
+		icon = "look",
+		text = "Spa cats float when ready",
+	},
+	{
+		id = "controller_fixes_2",
+		date = "2026-11-10",
+		icon = "fix",
+		text = "More controller fixes",
+	},
 	-- #2718 refresh (11-10 12:30): player-facing changes since #2939, 30 merges; no player ideas
 	-- #3011 (Derek2 11-10: "buff how often night market stocks good items and amount")
 	{

@@ -34,6 +34,19 @@ return function()
 		end)
 	end)
 
+	describe("NightClock.duskLine (#3035)", function()
+		it(
+			"tells a night pass holder they can stay, and everyone else that the areas close",
+			function()
+				expect(NightClock.duskLine(true)).to.equal(
+					"You can keep catching here tonight 🌙"
+				)
+				expect(NightClock.duskLine(false)).to.equal("The areas close until sunrise.")
+				expect(NightClock.duskLine(nil)).to.equal("The areas close until sunrise.")
+			end
+		)
+	end)
+
 	describe("NightClock.duskTitle", function()
 		it("counts the seconds up", function()
 			expect(NightClock.duskTitle(15)).to.equal("Night falls in 15 s!")

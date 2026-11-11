@@ -159,3 +159,12 @@ The D1 return rate is the launch number, and Home recommendations follow it (rel
 - **Longer days (#2192, PR #2208):** day 320 s and night 70 s (the 390 s game day and the global clock are unchanged). With less night, bait waits at the slower day rate more often, so fewer bowl cats come in the first hour and Lucky Cat 3 moves to about **37** minutes (was 31). Tier 3 stays inside 45 to 55, and the gaps on each side of Lucky Cat 3 (about 12 and 5 minutes) stay under the 15-minute guard, so the night bait is not compensated. Pace.spec records the new figure.
 - **Next look:** after launch, from the live `grand_opening` funnel, not the model.
 
+
+## 5. The second cat goal (#3022, built in #3038)
+
+After the first customer is served, the goal card reads "Catch a 2nd cat 🐾 1/2". The wide card adds a permanent gold line, "New cats pay +$50 💰". A one-time 6 s line follows: "New kind of cat: +$50, and 1 step closer to Cozy Cafe".
+- **Paw trail and waiting stray.** A paw-print trail leads to a stray that waits near the camp landing.
+- **Keyed on catches.** Everything keys on `stats.catsCaught`, because the starter Tabby and the first catch already fill Tier 1's two jobs. The second catch is a new kind of cat and a step toward Tier 2, not a 2x income jump.
+- **Earnings wording.** The "2x" and "Now +$X/s → +$Y/s" wording shows only when a job slot is really free.
+- **Early card.** The goal card opens before walk-through step 5 while this goal is on.
+- **Source.** `shared/SecondCat.luau`.

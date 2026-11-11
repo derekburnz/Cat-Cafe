@@ -14,6 +14,7 @@ local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
+local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
 local SafeWords = require(script.Parent.SafeWords)
@@ -102,6 +103,7 @@ local RING_CANNON = Color3.fromRGB(90, 215, 225)
 local RING_SPIN = Color3.fromRGB(255, 125, 195)
 local RING_MARKET = Color3.fromRGB(255, 201, 77)
 local RING_SHOP = Color3.fromRGB(255, 150, 70)
+local RING_FEEDBACK = Color3.fromRGB(110, 150, 255) -- #3066: post-box blue
 -- #2449: the icon in each ring (the cannon's has none); Model-Agent's art once it is in, an emoji card until then
 local ICON_SPIN: WalkUpCircles.Icon =
 	{ emoji = "🎡", art = "CatCafe_Street_SpinWheel_RingIcon_Decor" }
@@ -112,6 +114,28 @@ local ICON_MYSTERY: WalkUpCircles.Icon =
 	{ emoji = "❔", art = "CatCafe_Square_MysteryCart_RingIcon_Decor" }
 local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
+local ICON_FEEDBACK: WalkUpCircles.Icon =
+	{ emoji = "✉️", art = "CatCafe_Town_FeedbackStand_RingIcon_Decor" }
+-- #3113: the camp stations' rings (no art yet, so each shows its emoji card) and the Index Boards'
+local RING_EXTRA: { [string]: Color3 } = {
+	picnic = Color3.fromRGB(240, 110, 110), -- gingham red
+	yardSale = Color3.fromRGB(255, 170, 80),
+	pond = Color3.fromRGB(90, 180, 235),
+	lostFound = Color3.fromRGB(120, 200, 150),
+	spa = Color3.fromRGB(80, 205, 200),
+	museum = Color3.fromRGB(215, 180, 110),
+}
+local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
+	picnic = { emoji = "🧺" },
+	yardSale = { emoji = "🏷️" },
+	pond = { emoji = "🎣" },
+	lostFound = { emoji = "🧦" },
+	spa = { emoji = "🛁" },
+	museum = { emoji = "🏺" },
+}
+local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
+local RING_BOARD = Color3.fromRGB(190, 150, 240)
+local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖" }
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
@@ -1754,6 +1778,8 @@ local function buildIndexBoards(parent: Instance)
 			board.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 			board:SetAttribute("Area", areaId)
 			CollectionService:AddTag(board, "IndexBoard")
+			-- #3113: stepping into the ring in front of the board opens the Index on its area's page
+			WalkUpCircles.frontFit(board, RING_BOARD, parent, ICON_BOARD, WalkUp.BOARD_RADIUS)
 		end
 	end
 end
@@ -1814,6 +1840,14 @@ local function buildCampExtras(parent: Instance)
 		prompt.Style = Enum.ProximityPromptStyle.Custom
 		prompt:SetAttribute("ExtraId", def.id)
 		prompt.Parent = anchor
+		-- #3113: the ring in front, where a collect is taken or the Yard Sale's card opens (CampExtrasController,
+		-- WalkUpController)
+		WalkUpCircles.frontFit(
+			model,
+			RING_EXTRA[def.id] or RING_STATION,
+			parent,
+			ICON_EXTRA[def.id]
+		)
 	end
 end
 
@@ -1873,6 +1907,13 @@ local function buildLateStations(parent: Instance)
 		prompt.Style = Enum.ProximityPromptStyle.Custom
 		prompt:SetAttribute("StationId", def.id)
 		prompt.Parent = anchor
+		-- #3113: the ring in front, where the station's card opens (WalkUpController)
+		WalkUpCircles.frontFit(
+			model,
+			RING_EXTRA[def.id] or RING_STATION,
+			parent,
+			ICON_EXTRA[def.id]
+		)
 	end
 end
 
@@ -2015,7 +2056,7 @@ local function buildCodesCat(parent: Instance): Model
 		circle.Shape = Enum.PartType.Cylinder
 		circle.Size = Vector3.new(0.1, Config.CodesCircleRadius * 2, Config.CodesCircleRadius * 2)
 		circle.CFrame = model:GetPivot()
-			* CFrame.new(0, 0.05, -6)
+			* CFrame.new(0, 0.05, -(2 + Config.CodesCircleRadius)) -- #3112: its edge 2 in front, as in the asset
 			* CFrame.Angles(0, 0, math.rad(90))
 		circle.Material = Enum.Material.Neon
 		circle.Color = Color3.fromRGB(255, 214, 120)
@@ -2098,6 +2139,46 @@ local function buildCornerShop(parent: Instance): Model?
 		prompt.Parent = float
 	end
 	WalkUpCircles.front(model, RING_SHOP, Config.CornerShopRange, nil, ICON_SHOP)
+	return model
+end
+
+-- The feedback stand (#3066, shared/FeedbackStand): CatCafe_Town_FeedbackStand (a post box, a board and Postie Cat on
+-- a pile of parcels) at Layout.feedbackStand, tagged FeedbackStand, with a one-press prompt on the post box's front
+-- and a floor ring in front of it. Either opens the Feedback window on this client (WalkUpController); nothing on the
+-- server measures a range, since the form sends from anywhere. Left out while the art is missing (no placeholder).
+local function buildFeedbackStand(parent: Instance): Model?
+	if not AssetRegistry.known(FeedbackStand.ASSET) then
+		return nil
+	end
+	local spec = Layout.feedbackStand
+	local model = place(
+		FeedbackStand.ASSET,
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "FeedbackStand"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, FeedbackStand.TAG)
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = FeedbackStand.PROMPT
+	prompt.ActionText = FeedbackStand.ACTION
+	prompt.ObjectText = FeedbackStand.NAME
+	prompt.HoldDuration = 0 -- one press, as every station's (#2326)
+	prompt.MaxActivationDistance = FeedbackStand.PROMPT_RANGE
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		prompt.Parent = anchor
+	elseif found ~= nil then
+		local float = Instance.new("Attachment")
+		float.Name = "PromptAnchor"
+		float.Parent = found
+		float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2)).Position
+		prompt.Parent = float
+	end
+	WalkUpCircles.front(model, RING_FEEDBACK, FeedbackStand.RANGE, nil, ICON_FEEDBACK)
 	return model
 end
 
@@ -2692,6 +2773,7 @@ function WorldBuilder.build(): World
 	buildLeaderboards(root)
 	buildCornerShop(root) -- #1052, once its art is in
 	buildThanksBoard(root) -- #1083, once its art is in
+	buildFeedbackStand(root) -- #3066
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

@@ -71,6 +71,10 @@ export type TackleBar = {
 local TackleBar = {}
 TackleBar.__index = TackleBar
 
+-- #3119: the bar's height and width in design pixels, for the HUD, which keeps the bar's place under the Drop off touch
+TackleBar.HEIGHT = HEIGHT
+TackleBar.WIDTH = WIDTH
+
 local function character(): (Model?, BasePart?, Humanoid?)
 	local me = Players.LocalPlayer
 	local model = if me then me.Character else nil

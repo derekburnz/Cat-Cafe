@@ -673,6 +673,7 @@ export type TradeTile = {
 	level: number,
 	charm: number?,
 	rateForMe: number,
+	earnsNow: number?, -- #3211: the viewer's own cat: what it earns this second (0 with no job); the totals use it
 }
 -- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
 -- adds while placed (0.05 is +5%).
@@ -1175,6 +1176,10 @@ export type ReturnHookView = { kind: string, day: number? }
 -- #2916: one next goal (shared/ReturnGoals): `kind` one of ReturnGoals.KINDS; have and need for "cats", "rarity" and
 -- "coins" (their progress bar), tier the Tier it is for, area the area that Tier opens ("cats"), rarity ("rarity"),
 -- amount and hours for "away" (about this many coins while away, counted up to this many hours)
+-- #3022 (shared/SecondCat): the cafe's coins a second now and with one more plain Common working an open slot (equal
+-- when no slot is free, as in a new Tier 1 cafe), the cats checked in so far, and the coins a new kind of Common pays.
+export type SecondCatView = { now: number, with: number, cats: number, bonus: number }
+
 export type ReturnGoalView = {
 	kind: string,
 	have: number?,
@@ -1363,6 +1368,9 @@ export type PlayerState = {
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
 	returnGoals: { ReturnGoalView }?, -- #2916: a returning player's next goals on the welcome back card
+	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
+	-- otherwise, and from an older server
+	secondCat: SecondCatView?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag

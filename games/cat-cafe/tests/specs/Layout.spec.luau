@@ -8,7 +8,9 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
+	local FeedbackStand = require(Shared.FeedbackStand)
 	local Layout = require(ServerScriptService.Server.World.Layout)
+	local WalkUp = require(Shared.WalkUp)
 
 	type Point = Layout.Point
 	type Rect = Layout.Rect
@@ -442,7 +444,7 @@ return function()
 
 	describe("the Alleyway in the wild (world-and-feel section 2, F35; v4, F84)", function()
 		it(
-			"32 spawn points: 16 on the lanes, 8 nooks at the far end and 8 near points by the camp (v4)",
+			"34 spawn points: 16 on the lanes, 4 nooks at the far end, 6 in the middle and 8 near points by the camp (#3170)",
 			function()
 				local zones: { [string]: number } = {}
 				for _, point in alley.spawnPoints do
@@ -450,9 +452,10 @@ return function()
 					local zone = point.zone :: string
 					zones[zone] = (zones[zone] or 0) + 1
 				end
-				expect(#alley.spawnPoints).to.equal(32)
+				expect(#alley.spawnPoints).to.equal(34)
 				expect(zones.lane).to.equal(2 * W.PlotCount)
-				expect(zones.nook).to.equal(8)
+				expect(zones.nook).to.equal(4)
+				expect(zones.mid).to.equal(6)
 				expect(zones.near).to.equal(W.PlotCount)
 			end
 		)
@@ -495,8 +498,35 @@ return function()
 						end
 					end
 				end
-				expect(sides.w).to.equal(4)
-				expect(sides.e).to.equal(4)
+				expect(sides.w).to.equal(2)
+				expect(sides.e).to.equal(2)
+			end
+		)
+
+		it(
+			"the middle stretch has its own points, clear of the lanes' points and every rescue spot (#3170)",
+			function()
+				for i, point in alley.spawnPoints do
+					if point.zone ~= "mid" then
+						continue
+					end
+					local _, z = toLane(point.x, point.z)
+					if z < -50 or z > 15 then
+						fail("mid point %d at lane z %g is not in the middle stretch", i, z)
+					end
+					for j, other in alley.spawnPoints do
+						local apart = math.sqrt((point.x - other.x) ^ 2 + (point.z - other.z) ^ 2)
+						if j ~= i and apart < 8 then
+							fail("mid point %d is %.1f studs from point %d", i, apart, j)
+						end
+					end
+					for _, spot in alley.rescuePool or alley.rescueSpots do
+						local apart = math.sqrt((point.x - spot.x) ^ 2 + (point.z - spot.z) ^ 2)
+						if apart < 9 then
+							fail("mid point %d is %.1f studs from a rescue spot", i, apart)
+						end
+					end
+				end
 			end
 		)
 
@@ -1046,7 +1076,7 @@ return function()
 					worst, worstPoint = seconds, n
 				end
 			end
-			expect(#nookPoints).to.equal(8)
+			expect(#nookPoints).to.equal(4) -- #3170: was 8
 			if worst >= 25 then
 				fail("nook point %d is %.1f s from the camp at carry speed", worstPoint, worst)
 			end
@@ -1198,7 +1228,7 @@ return function()
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -74 }, { 41, -74 }, { -41, 74 }, { 41, 74 } } -- #2707: 62 before the roomier square
+			local want = { { -41, -100 }, { 41, -100 }, { -41, 100 }, { 41, 100 } } -- #3070: 85 before the 120 x 140 square
 			for n = 1, 4 do
 				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
@@ -1361,13 +1391,143 @@ return function()
 			function()
 				local codes = Layout.codesCat
 				local yaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
+				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
 				for _, lane in lanes do
 					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
 				end
 				local wheel = Layout.spinWheel
 				local gap = math.sqrt((cx - wheel.x) ^ 2 + (cz - wheel.z) ^ 2)
 				expect(gap > Config.SpinStationRange + Config.CodesCircleRadius).to.equal(true)
+			end
+		)
+
+		it("is 120 by 140: #3001's width, and 15 deeper either side (#3070)", function()
+			expect(W.TownSquareHalfWidth).to.equal(60)
+			expect(W.TownSquareHalfDepth).to.equal(70)
+			expect(square.floor.x2 - square.floor.x1).to.equal(120)
+			expect(square.floor.z2 - square.floor.z1).to.equal(140)
+			-- the width grows inside the town edge: the gardens keep a strip either side
+			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
+			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
+			expect(W.StreetNorthZ).to.equal(178)
+			expect(W.StreetSouthZ).to.equal(-178)
+			expect(W.TownGroundDepth).to.equal(408)
+		end)
+
+		it("brings the Thank You board and the Rally board out into the open (#3070)", function()
+			-- seen from the spawn, the line to the Thanks board's middle passes the night cart's middle by half the
+			-- cart's length (12) or more; it passed 3.8 away on #3001's square, the board behind the cart
+			local spawn = Layout.playerSpawn
+			local board, cart = Layout.thanksBoard, Layout.dealerCart
+			local dx, dz = board.x - spawn.x, board.z - spawn.z
+			local long = math.sqrt(dx * dx + dz * dz)
+			local off = math.abs((cart.x - spawn.x) * dz - (cart.z - spawn.z) * dx) / long
+			expect(off >= 6).to.equal(true)
+			-- the spawn's line to the Rally board's middle passes the cannon's 7 wide turret by 1.5 or more (the plinth
+			-- is low); it passed 4.6 from the middle on #3001's square
+			local rally = square.rallyBoards[1]
+			local t = (0 - spawn.z) / (rally.z - spawn.z) -- where the spawn's line to the board crosses z = 0
+			local crossX = spawn.x + t * (rally.x - spawn.x)
+			expect(math.abs(crossX) >= 3.5 + 1.5).to.equal(true)
+		end)
+
+		it(
+			"keeps a spot each for the feedback stand and the arcade cabinet, mirrored north of the lane (#3070)",
+			function()
+				local stand, arcade = Layout.feedbackStand, Layout.arcadeCabinet
+				expect(stand.x).to.equal(-arcade.x)
+				expect(stand.z).to.equal(arcade.z)
+				for _, spot in { stand, arcade } do
+					expect(inside(spot.x, spot.z, square.floor, 4)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(spot.x, spot.z, lane, -4)).to.equal(false)
+					end
+					-- 12 or more from every other station's spot, so two prompts never show at once
+					for _, other in
+						{
+							Layout.spinWheel,
+							Layout.fishMarket,
+							Layout.codesCat,
+							Layout.dealerCart,
+							Layout.bellhopStand,
+							Layout.mysteryCart,
+							Layout.leaderboards,
+							Layout.dayCart,
+							Layout.thanksBoard,
+						}
+					do
+						local gap = math.sqrt((spot.x - other.x) ^ 2 + (spot.z - other.z) ^ 2)
+						expect(gap >= 12).to.equal(true)
+					end
+					-- and it faces the cannon
+					local yaw = math.rad(spot.rotY or 0)
+					local toCannon = -spot.x * -math.sin(yaw) + -spot.z * -math.cos(yaw)
+					expect(toCannon > 0).to.equal(true)
+				end
+			end
+		)
+
+		it(
+			"keeps the feedback stand's floor ring off the lanes, where nobody walks through it (#3066)",
+			function()
+				-- the ring touches the stand's front (the model is 3.8 deep), WalkUp.FRONT_RADIUS across each way
+				local stand = Layout.feedbackStand
+				local yaw = math.rad(stand.rotY or 0)
+				local out = WalkUp.frontOffset(1.9, WalkUp.FRONT_RADIUS, FeedbackStand.RANGE)
+				local x, z = stand.x - math.sin(yaw) * out, stand.z - math.cos(yaw) * out
+				local reach = WalkUp.FRONT_RADIUS + 2 -- two studs of floor between the ring and a lane
+				expect(inside(x, z, square.floor, WalkUp.FRONT_RADIUS)).to.equal(true)
+				for _, lane in lanes do
+					expect(inside(x, z, lane, -reach)).to.equal(false)
+				end
+				-- and clear of every other station's spot, so its window is the only one that opens there
+				for _, other in
+					{
+						Layout.spinWheel,
+						Layout.fishMarket,
+						Layout.codesCat,
+						Layout.dealerCart,
+						Layout.mysteryCart,
+						Layout.leaderboards,
+						Layout.dayCart,
+						Layout.arcadeCabinet,
+					}
+				do
+					local gap = math.sqrt((x - other.x) ^ 2 + (z - other.z) ^ 2)
+					expect(gap >= 12).to.equal(true)
+				end
+			end
+		)
+
+		it(
+			"stands the Codes Cat back from the middle, between the Mystery Market and the Bellhop Cat (#3000)",
+			function()
+				local codes, cart, stand = Layout.codesCat, Layout.mysteryCart, Layout.bellhopStand
+				-- back: at least 8 studs farther from the cannon than #2707's (-29, -16)
+				local out = math.sqrt(codes.x ^ 2 + codes.z ^ 2)
+				expect(out >= math.sqrt(29 ^ 2 + 16 ^ 2) + 8).to.equal(true)
+				-- between: south of the Bellhop stand, north of the Mystery Market, on their side of the square
+				expect(codes.z < stand.z and codes.z > cart.z).to.equal(true)
+				expect(codes.x < -W.TownSquareLaneHalfWidth).to.equal(true)
+				expect(inside(codes.x, codes.z, square.floor, 4.5)).to.equal(true)
+				-- its circle (its edge 2 studs in front) keeps off the Mystery Market's ring: the box closes a stud
+				-- past the circle, and the ring is WalkUp.FRONT_RADIUS round a point touching the cart's 3.5 front
+				local yaw = math.rad(codes.rotY or 0)
+				local ahead = 2 + Config.CodesCircleRadius
+				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
+				local cartYaw = math.rad(cart.rotY or 0)
+				local ring = WalkUp.frontOffset(3.5, WalkUp.FRONT_RADIUS, Config.MysteryMarketRange)
+				local rx, rz = cart.x - ring * math.sin(cartYaw), cart.z - ring * math.cos(cartYaw)
+				local gap = math.sqrt((cx - rx) ^ 2 + (cz - rz) ^ 2)
+				expect(gap >= Config.CodesCircleRadius + 1 + WalkUp.FRONT_RADIUS + 2).to.equal(true)
+				-- and off both carts' bodies and the lane
+				for _, lane in lanes do
+					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
+				end
+				expect(
+					math.sqrt((cx - cart.x) ^ 2 + (cz - cart.z) ^ 2) > Config.CodesCircleRadius + 6
+				).to.equal(true)
 			end
 		)
 
@@ -1388,7 +1548,9 @@ return function()
 				-- walking into the stand's card never also opens the code box
 				local codes = Layout.codesCat
 				local codesYaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(codesYaw), codes.z - 6 * math.cos(codesYaw)
+				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
+				local cx, cz =
+					codes.x - ahead * math.sin(codesYaw), codes.z - ahead * math.cos(codesYaw)
 				local gap = math.sqrt((cx - stand.x) ^ 2 + (cz - stand.z) ^ 2)
 				expect(gap > Config.StarterCatRangeStuds + 1 + Config.CodesCircleRadius + 1).to.equal(
 					true
@@ -2264,10 +2426,10 @@ return function()
 		)
 
 		it(
-			"lines the square's edge with eight benches, each turned square to face in (Derek 10-28, #726, #2565, #2707)",
+			"lines the square's edge with twelve benches, each turned square to face in (Derek 10-28, #726, #2565, #2707, #3070)",
 			function()
 				local benches = piecesOf("CatCafe_Square_Bench")
-				expect(#benches).to.equal(8)
+				expect(#benches).to.equal(12) -- #3070: one more each side under the middle span
 				for i, bench in benches do
 					-- WorldBuilder turns a prop by CFrame.Angles(0, rad(rotY), 0); its front (-Z) is (-sin, -cos)
 					local turn = math.rad(bench.rotY or 0)
@@ -2315,8 +2477,8 @@ return function()
 				end
 				-- #2707: the north and south sides keep the long Bunting; the east and west sides take two BuntingSide
 				-- each between three lamps
-				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(4)
-				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(8)
+				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(8) -- #3001: two a quarter on the longer sides
+				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(12) -- #3070: three spans a quarter
 				expect(#piecesOf("CatCafe_Square_BuntingShort")).to.equal(2)
 			end
 		)
@@ -2340,7 +2502,9 @@ return function()
 					expect(math.sqrt(dx * dx + dz * dz) >= 6).to.equal(true)
 				end
 			end
-			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(16) -- #2707: a halfway lamp on each east and west side
+			-- #2707: a halfway lamp on each east and west side; #3001: one on each north and south half too; #3070: a
+			-- third span on each east and west quarter
+			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(24)
 		end)
 
 		it("puts the gardens in the garden strips, clear of the path to the side arches", function()

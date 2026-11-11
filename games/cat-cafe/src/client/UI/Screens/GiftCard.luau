@@ -1,6 +1,6 @@
 --!strict
 -- The like and favourite gift cards (#1947, like-prompts.md section 2): a small card in the middle of the screen with
--- a thank-you line, "Gift added!" over the gift's pictures (coins and potions, at most two pictures, F94) and two
+-- a thank-you line, on the like card a drawing of the game page with a cursor on its 👍 (#3171), "Gift added!" over the gift's pictures (coins and potions, at most two pictures, F94) and two
 -- buttons of the same size, "How to like" or "Favorite" and Close (#2705: the like card on touch has Got it alone). The gift was paid before the card came, so Close
 -- keeps it. There is no backdrop, countdown or guilt line, and the card never comes back. The words are
 -- Components/GiftCardLogic's.
@@ -20,6 +20,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local GiftCardLogic = require(script.Parent.Parent.Components.GiftCardLogic)
+local LikePicture = require(script.Parent.Parent.Components.LikePicture)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Scale = require(script.Parent.Parent.Scale)
@@ -122,6 +123,17 @@ function GiftCard.new(parent: Instance): GiftCard
 		Text = "",
 		Parent = card,
 	}) :: TextLabel
+
+	-- #3171: the like card's drawing of the game page, a big cursor on its 👍
+	local pictureHolder: Frame = Create("Frame", {
+		Name = "PictureHolder",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -PAD * 2, 0, LikePicture.PICTURE_H),
+		Visible = false,
+		Parent = card,
+	})
+	self._pictureHolder = pictureHolder
+	self._picture = LikePicture.new(pictureHolder)
 
 	local gift: Frame = Create("Frame", {
 		Name = "Gift",
@@ -241,6 +253,11 @@ function GiftCard._layout(self: any)
 	local y = PAD + TITLE_H
 	body.Size = UDim2.new(1, -PAD * 2, 0, bodyH)
 	y += bodyH + GAP
+	local holder: Frame = self._pictureHolder
+	if holder.Visible then
+		holder.Position = UDim2.fromOffset(PAD, y)
+		y += LikePicture.PICTURE_H + GAP
+	end
 	self._gift.Position = UDim2.fromOffset(PAD, y)
 	y += GIFT_H + GAP + 2
 	self._row.Position = UDim2.fromOffset(PAD, y)
@@ -271,6 +288,14 @@ function GiftCard.show(
 	self._closeButton.instance.Visible = not single
 	self._closeButton.instance.Size = UDim2.new(0.5, -GAP / 2, 0, Theme.sizes.touchMin)
 	self._chips:set(prize)
+	-- #3171: the like card shows where the 👍 is on the game's page
+	local picture = kind == "like"
+	self._pictureHolder.Visible = picture
+	if picture then
+		self._picture:play()
+	else
+		self._picture:stop()
+	end
 	self:_layout()
 	local card: Frame = self._card
 	card.Visible = true
@@ -329,6 +354,7 @@ end
 
 function GiftCard.hide(self: any)
 	self:_finish(nil)
+	self._picture:stop()
 	self._card.Visible = false
 	if self._focused then
 		self._focused = false
@@ -351,6 +377,7 @@ function GiftCard.destroy(self: any)
 	self._action:destroy()
 	self._closeButton:destroy()
 	self._chips:destroy()
+	self._picture:destroy()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

@@ -17,8 +17,10 @@ outline, 512 px, readable at 64 px). pack_arcade_sheet.py packs them into one sh
   Backdrop                 the cheese cellar floor from straight above in the arcade's night purples, low contrast,
                            no outline: the board the nine holes sit on
 
-The animals and the hole share one view (VIEW) so they stack. In Hole's square the hole's mouth is about 0.55 of the
-width; draw an animal at about 0.6 of the hole picture's width with its chin on the front rim.
+The animals and the hole share one view (VIEW) so they stack, and the six animal pictures share one hidden frame, so
+they are the same scale and centred left to right (the Zzz, stars and sparkles sit inside that frame). The Paw and
+PawBop pictures are centred on the paw's pad. Centre a cell on the hole and the piece lands dead centre. Draw an
+animal cell at about 0.95 of the hole picture's width.
 
 Each builder lays its object out in Blender axes (x right, -y toward the camera, z up) and returns its objects; nothing
 here is a game model. An object tagged ob["fit_only"] only frames the camera and is hidden in the render.
@@ -85,6 +87,18 @@ def hole_front(mat):
     return [_fin(front, "HoleFront", mat), _fin(back, "HoleFrontFrame", mat, fit_only=True)]
 
 
+def _frame(name, mat, centre, size):
+    """A hidden slab that frames the camera: every picture sharing a frame has the same scale and the same middle,
+    so the screen can centre a cell on a hole and the animal (or the paw's pad) lands dead centre."""
+    b = Builder()
+    b.box(centre, size, "offwhite", bevel=False)
+    return _fin(b, name + "Frame", mat, fit_only=True)
+
+
+def _animal_frame(name, mat):
+    return _frame(name, mat, (0, 0, 1.85), (4.3, 0.02, 4.1))
+
+
 def _ear(b, x, z, r, fur, inner):
     b.cyl((x, 0.15, z), r, 0.2, fur, segments=16, bevel=False, rot=FACE)
     b.cyl((x - 0.02 * (1 if x > 0 else -1), 0.03, z - 0.03), r * 0.62, 0.06, inner, segments=14, bevel=False, rot=FACE)
@@ -132,7 +146,7 @@ def _mouse(name, coat, sparkle=False):
         if sparkle:                                                                # the golden mouse twinkles
             _star(b, (-1.55, -0.3, 2.95), 0.26, "sparkle")
             _star(b, (1.6, -0.3, 1.55), 0.2, "sparkle")
-        return [_fin(b, name, mat)]
+        return [_fin(b, name, mat), _animal_frame(name, mat)]
     return build
 
 
@@ -154,7 +168,7 @@ def _mouse_hit(name, coat):
         _star(stars, (-1.75, -0.3, 2.05), 0.34)
         _star(stars, (0.1, -0.3, 2.45), 0.42)
         _star(stars, (1.8, -0.3, 2.0), 0.3, "sparkle")
-        return [body, _fin(stars, name + "Stars", mat)]
+        return [body, _fin(stars, name + "Stars", mat), _animal_frame(name, mat)]
     return build
 
 
@@ -195,10 +209,10 @@ def kitten(mat):
         for k in (-1, 1):                                                          # closed eyes, a shallow curve each
             b.box((sx * 0.48 + k * 0.12, -0.69, 1.56), (0.28, 0.06, 0.08), INK_SW,
                   rot=(math.radians(k * 24), "Y"))
-    _zed(b, 1.35, 2.25, 0.34)
-    _zed(b, 1.8, 2.75, 0.46)
-    _zed(b, 2.35, 3.4, 0.6)
-    return [_fin(b, "Kitten", mat)]
+    _zed(b, 0.95, 2.78, 0.3)                                                        # rising over one ear
+    _zed(b, 1.32, 3.17, 0.4)
+    _zed(b, 1.72, 3.6, 0.5)
+    return [_fin(b, "Kitten", mat), _animal_frame("Kitten", mat)]
 
 
 def kitten_awake(mat):
@@ -212,7 +226,7 @@ def kitten_awake(mat):
     b.box((0, -0.8, 0.9), (0.18, 0.05, 0.16), "nose_brick")                        # "mrow?"
     b.box((1.5, -0.3, 2.55), (0.16, 0.08, 0.5), "pastel_sky", bevel=False)         # a little "!"
     b.box((1.5, -0.3, 2.12), (0.16, 0.08, 0.16), "pastel_sky", bevel=False)
-    return [_fin(b, "KittenAwake", mat)]
+    return [_fin(b, "KittenAwake", mat), _animal_frame("KittenAwake", mat)]
 
 
 def dust(mat):
@@ -223,14 +237,14 @@ def dust(mat):
         b.ico((x, 0, z), r, sw, subdivisions=2)
     for x, z in ((-1.75, 1.2), (1.7, 1.25), (0.1, 2.15)):
         b.ico((x, 0, z), 0.16, "fur_vanilla", subdivisions=1)
-    return [_fin(b, "Dust", mat)]
+    return [_fin(b, "Dust", mat), _frame("Dust", mat, (0, 0, 1.2), (4.3, 0.02, 2.6))]
 
 
 def _paw(name, tilt, bop=False):
     """The player's cat paw: a cream arm coming in from the lower right, pink toe beans toward the camera."""
     def build(mat):
         b, extra = Builder(), Builder()
-        b.box((0, 0, 1.3), (0.95, 0.8, 2.6), "fur_vanilla")                        # arm
+        b.box((0, 0, 1.5), (0.95, 0.8, 2.2), "fur_vanilla")                        # arm
         b.box((0, -0.02, 3.0), (1.5, 0.95, 1.3), "fur_vanilla")                    # paw
         for dx in (-0.5, 0.0, 0.5):                                                # toes
             b.box((dx, -0.02, 3.72), (0.44, 0.9, 0.3), "fur_vanilla")
@@ -238,14 +252,17 @@ def _paw(name, tilt, bop=False):
         b.cyl((0, -0.5, 2.95), 0.36, 0.06, "nose_pink", segments=14, bevel=False, rot=FACE, scale=(1.2, 1.0, 1.0))
         arm = _fin(b, name, mat)
         arm.rotation_euler = (0, math.radians(tilt), 0)
+        k = 0.94 if bop else 1.0                                                   # the pad's middle, after the turn
+        px, pz = 2.95 * k * math.sin(math.radians(tilt)), 2.95 * k * math.cos(math.radians(tilt))
+        frame = _frame(name, mat, (px, 0, pz), (5.6, 0.02, 5.6))                   # the pad is the picture's middle
         if bop:
             arm.scale = (1.08, 1.0, 0.94)
             for a, r in ((200, 0.5), (232, 0.62), (262, 0.5)):                     # impact dashes under the paw
                 t = math.radians(a)
-                extra.box((-3.05 + 0.2 * math.cos(t) + 1.0 * math.cos(t), -0.3, 0.55 + 1.0 * math.sin(t) + 0.9),
+                extra.box((px + 1.75 * math.cos(t) * 0.8 - 0.35, -0.3, pz + 1.75 * math.sin(t) * 0.8 + 0.25),
                           (r, 0.08, 0.14), "fur_golden", bevel=False, rot=(-t, "Y"))
-            return [arm, _fin(extra, name + "Lines", mat)]
-        return [arm]
+            return [arm, _fin(extra, name + "Lines", mat), frame]
+        return [arm, frame]
     return build
 
 
@@ -292,7 +309,7 @@ def mouse_dash(mat):
 
 def backdrop(mat):
     """The cheese cellar floor seen from straight above, in the arcade's night purples at low contrast so the holes
-    and animals stand out: floorboards, a stone edge, cheese wheels and wedges and a barrel pushed to the corners."""
+    and animals stand out: floorboards, a stone edge, and a few small cheese pieces against the edge between the rows of holes."""
     b = Builder()
     S = 10.0
     b.box((0, 0, -0.1), (S, S, 0.2), "night_sky", bevel=False)                     # the gaps between the boards
@@ -314,21 +331,20 @@ def backdrop(mat):
         if cutout:                                                                 # a slice taken out
             b.prism((x, y, 0.3), [(0, 0.02), (r * 1.05, -r * 0.25), (r * 1.05, r * 0.45)], 0.5, "fur_indigo")
 
-    def wedge(x, y, turn):
-        b.prism((x, y, 0.2), [(-0.5, -0.45), (0.75, -0.45), (-0.5, 0.6)], 0.3, "velvet_lilac",
+    def wedge(x, y, turn, k=1.0):
+        b.prism((x, y, 0.2), [(-0.5 * k, -0.45 * k), (0.75 * k, -0.45 * k), (-0.5 * k, 0.6 * k)], 0.3, "velvet_lilac",
                 rot=(math.radians(turn), "Z"))
-        b.prism((x, y, 0.37), [(-0.42, -0.38), (0.55, -0.38), (-0.42, 0.44)], 0.04, "aurora_violet",
-                rot=(math.radians(turn), "Z"))
+        b.prism((x, y, 0.37), [(-0.42 * k, -0.38 * k), (0.55 * k, -0.38 * k), (-0.42 * k, 0.44 * k)], 0.04,
+                "aurora_violet", rot=(math.radians(turn), "Z"))
 
-    wheel(-3.7, 3.7, 0.95, True)
-    wheel(3.8, -3.75, 0.8, False)
-    wedge(3.6, 3.8, 200)
-    wedge(-3.8, -3.6, 30)
-    wedge(-1.3, -4.1, 120)
-    b.cyl((3.9, 0.6, 0.25), 0.62, 0.4, "galaxy_blue", segments=16, bevel=False)    # a barrel end
-    b.ring((3.9, 0.6, 0.47), 0.62, 0.1, 0.06, "velvet_lilac", segments=16, bevel=False)
-    b.box((3.9, 0.6, 0.47), (1.0, 0.07, 0.04), "night_sky", bevel=False)
-    for x, y in ((-4.2, 0.9), (0.9, 4.25), (-0.4, 3.95), (2.2, -4.3), (-4.3, -1.0)):     # crumbs
+    # Derek, 2026-11-11: nothing near a hole. The nine holes sit on thirds, so the few small pieces hug the edge on
+    # the lines between the rows and columns, where no mouse can pop up.
+    T = S / 6
+    wheel(-4.15, T, 0.42, True)
+    wheel(4.15, -T, 0.42, False)
+    wedge(-T, 4.2, 200, 0.55)
+    wedge(T, -4.2, 30, 0.55)
+    for x, y in ((-4.3, -T), (4.3, T), (T, 4.3), (-T, -4.3)):                      # crumbs
         b.box((x, y, 0.1), (0.16, 0.14, 0.1), "velvet_lilac", bevel=False)
     return [_fin(b, "Backdrop", mat)]
 

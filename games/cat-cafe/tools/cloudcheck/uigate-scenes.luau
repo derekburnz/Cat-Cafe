@@ -238,6 +238,11 @@ function Scenes.setup()
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
 	UI.update(samplePlayer(now))
+	-- #3307: the tips clock reads real seconds, so on a long full run (the big tablets take about an hour) it put the
+	-- session ask or the faces ask up on its own part way through, and that ask held the tip card for the tip scenes
+	-- after it ("did not show"). Both count as done today here; their own scenes open them by hand.
+	local SessionFeedback = UIShim.require("ReplicatedStorage.Shared.SessionFeedback") :: any
+	UI.update({ feedbackAsked = true, sessionFeedbackDay = SessionFeedback.day(now) } :: any)
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 
@@ -3644,7 +3649,7 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Alley Crate's card does not say it is in a trade (#2745)")
 	end },
-	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three Treats
+	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three perks
 	-- bought fast go to the server 0.55 s apart (its 2 a second never drops one), each shows "..." from its press, and
 	-- a buy the server never answers frees its button 2 s after it was sent, not 5
 	{ "MarketFastBuys", function()
@@ -3656,7 +3661,8 @@ local SCENES = {
 		end)
 		UI.market.open()
 		press("FishMarket", "TreatsTab")
-		local ids = { "star_treat", "golden_espresso", "big_bowl" }
+		-- #3317: the Star Treat left the Market, so three perks (Swift Paws first)
+		local ids = { "swift_paws", "golden_espresso", "big_bowl" }
 		for _, id in ids do
 			press("FishMarket", id .. ".Buy")
 		end
@@ -3673,17 +3679,10 @@ local SCENES = {
 			return if face then face.Text else ""
 		end
 		assert(#sent == 1, ("uigate: %d buys went at once, not 1 (#2290)"):format(#sent))
-		-- #3190: a perk reads "..." until its next price comes; a food (star_treat) keeps its price and a second press
-		-- queues behind the first instead of doing nothing
+		-- #3190: a perk reads "..." until its next price comes
 		for _, id in ids do
-			if id == "star_treat" then
-				assert(label(id) == "150", "uigate: a food reads " .. label(id) .. " right after its press, not its price (#3190)")
-			else
-				assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
-			end
+			assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
 		end
-		press("FishMarket", "star_treat.Buy")
-		assert(#sent == 1, "uigate: a second food press while the first waits went at once (#3190)")
 		UIShim.advance(0.6)
 		assert(#sent == 2, ("uigate: %d buys sent after 0.6 s, not 2 (#2290)"):format(#sent))
 		UIShim.advance(0.6)
@@ -3816,6 +3815,73 @@ local SCENES = {
 			assert(
 				window:FindFirstChild("Prize100", true),
 				"uigate: no milestone list on the arcade card (#3062)"
+			)
+		end,
+	},
+	-- #3296: the first game of the day is free, so Play reads "Play (free)" and is on with no golden fish
+	{
+		"ArcadeFree",
+		function()
+			UI.update({ goldenFish = 0 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 12,
+				bestCircles = 10,
+				today = {},
+				legend = false,
+				serverBest = 0,
+				serverCircles = 0,
+				free = true,
+			})
+			UI.arcade.open()
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			assert(window, "uigate: the arcade window didn't open (#3296)")
+			local found = false
+			for _, item in window:GetDescendants() do
+				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "FREE" then
+					found = true
+				end
+			end
+			assert(found, "uigate: Play's pill doesn't say FREE for the day's free game (#3296)")
+		end,
+	},
+	-- #3338: the Leaderboard tab, ten names (a long one), the viewer's line marked
+	{
+		"ArcadeLeaderboard",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			local top = {}
+			for rank = 1, 10 do
+				table.insert(top, {
+					rank = rank,
+					name = if rank == 2 then "AVeryLongDisplayName_Here" else "Player" .. rank,
+					points = if rank == 1 then 100 else 100 - rank * 7,
+					circles = 50 + rank,
+					me = if rank == 4 then true else nil,
+				})
+			end
+			UI.arcade.state({
+				loaded = true,
+				best = 72,
+				bestCircles = 54,
+				today = { 10, 20 },
+				legend = false,
+				serverBest = 72,
+				serverCircles = 54,
+				serverName = "Sam",
+				top = top,
+			} :: any)
+			UI.arcade.open()
+			press("Arcade", "LeaderboardTab")
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			local board = window and window:FindFirstChild("Leaderboard", true)
+			assert(board and board.Visible, "uigate: the arcade's Leaderboard tab does not show (#3338)")
+			local line = board:FindFirstChild("Line4", true)
+			assert(line and line.Visible, "uigate: the arcade leaderboard has no 4th line (#3338)")
+			local name = line:FindFirstChild("Name")
+			assert(
+				name and string.find(name.Text, "(you)", 1, true),
+				"uigate: the viewer's line is not marked (#3338)"
 			)
 		end,
 	},
@@ -4857,6 +4923,21 @@ local SCENES = {
 		UI.rescue.show("gate_rescue", challenge)
 	end },
 	-- F92: the Team Rescue pop on the helper's screen, with the helper's tip
+	-- #3301 (Derek2: "a quick bubble with OWNER "whatever messege I put" on screen when i shout"): the longest shout
+	-- (OwnerTest.SHOUT_MAX, 120 characters) in the bubble
+	{ "OwnerShout", function()
+		UI.ownerShout(
+			"Double coins in every cafe for the next ten minutes, go catch some strays and say hi to everyone in town!!"
+		)
+		task.wait(0.8)
+		local found = false
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and (piece :: TextLabel).Text == "OWNER" and (piece :: TextLabel).Visible then
+				found = true
+			end
+		end
+		assert(found, "uigate: the owner shout has no OWNER title (#3301)")
+	end },
 	{ "TeamRescue", function()
 		UI.teamRescue(4242, localUserId(), 1240)
 	end },
@@ -5052,6 +5133,29 @@ local SCENES = {
 	-- #2510 (Derek2: "add a tackle button instead of the bar in the middle of screen for mobile/ipad players"): in a
 	-- catching area on touch the Tackle is a round button left of the Net button, clear of the jump button, the Net
 	-- button and the potion timers; a tap greys it with the seconds left. With a mouse it stays the bar.
+	-- #3342 (Derek2: "tackling immunity for the first 5 minutes"): while the join shield runs, a "🛡️ Safe m:ss" chip
+	-- sits just over the Tackle bar or button, clear of it, and goes once the shield is over
+	{ "TackleShield", function()
+		local me = game:GetService("Players").LocalPlayer
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local button = gui:FindFirstChild("Tackle", true) :: TextButton
+		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
+		assert(chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
+		assert(chip.Text:find("Safe 4:3") ~= nil, "uigate: the shield chip reads " .. chip.Text .. " (#3342)")
+		local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+		assert(chipBottom <= button.AbsolutePosition.Y + 0.5, "uigate: the shield chip covers the Tackle (#3342)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
+		UIShim.advance(0.3)
+		assert(not chip.Visible, "uigate: the shield chip stayed after the shield ended (#3342)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UIShim.advance(0.3)
+	end },
 	{ "TackleButton", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
 		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")

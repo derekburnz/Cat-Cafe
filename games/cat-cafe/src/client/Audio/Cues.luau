@@ -790,6 +790,13 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.5,
 		duck = true,
 	}, -- F48 Index rewards
+	stationReveal = {
+		ids = { "rbxassetid://127241224294798" }, -- the indexReward file until its own upload (#2687)
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+		duck = true,
+	}, -- #2687: a new station builds in the first time you reach its area
 
 	-- Coins, tiers and the night economy (5.6) --------------------------------------------------------------
 	coinPop = {
@@ -920,6 +927,12 @@ local Cues: { [string]: Cue } = {
 	uiToast = { ids = { "rbxassetid://101668755145423" }, group = "Ui", volume = 0.5, minGap = 0.2 },
 	uiHint = { ids = { "rbxassetid://84709734267357" }, group = "Ui", volume = 0.5, minGap = 0.5 },
 	uiTab = { ids = { "rbxassetid://132990737294484" }, group = "Ui", volume = 0.4, minGap = 0.05 },
+	uiFocus = {
+		ids = { "rbxassetid://132990737294484" },
+		group = "Ui",
+		volume = 0.22,
+		minGap = 0.06,
+	}, -- #2871: the gamepad selection moves between buttons (the uiTab file, quieter)
 	uiToggle = {
 		ids = { "rbxassetid://87744600545017" },
 		group = "Ui",

@@ -248,6 +248,21 @@ def jingle_rank_up() -> np.ndarray:
     return finish(mix(d, *run, *chord, *glock) + horn, -3)
 
 
+def station_reveal() -> np.ndarray:
+    """A new station builds in (#2687, the first time you reach an area whose station you own): a quick harp sweep up
+    the D chord, a bright held chord with a glockenspiel sparkle on top and a short warm horn swell, about 2 s. It is
+    its own fanfare, shorter than the rank-up and in D so the two never sound alike."""
+    d = 2.2
+    sweep_notes = ("D4", "F#4", "A4", "D5", "F#5", "A5")
+    harp = [(bell(d, note(n), HARP, attack=0.002) * 0.4, 0.05 * i) for i, n in enumerate(sweep_notes)]
+    chord = [(bell(d - 0.4, note(n), PIANO, attack=0.003) * 0.5, 0.4) for n in ("D5", "F#5", "A5", "D6")]
+    glock = [(bell(d - 0.5, note(n), GLOCK) * 0.7, 0.4 + 0.09 * i) for i, n in enumerate(("A6", "D7", "F#7"))]
+    t = seconds(d)
+    swell = np.clip((t - 0.4) / 0.3, 0, 1) * np.clip((d - t) / 1.0, 0, 1)
+    horn = sum(np.sin(2 * np.pi * note(n) * k * t) / k for n in ("D4", "A4") for k in (1, 2, 3)) * swell * 0.1
+    return finish(fade_tail(mix(d, *harp, *chord, *glock) + horn, 0.4), -4)
+
+
 def stray_flee() -> np.ndarray:
     """A startled "mrrp!" and quick paws running off."""
     d = 0.55
@@ -2097,6 +2112,7 @@ SOUNDS = {
     "Purchase": ("sfx", "Sfx", purchase),
     "CatSold": ("sfx", "Sfx", cat_sold),
     "StrayCall": ("sfx", "Sfx", stray_call),
+    "StationReveal": ("sfx", "Sfx", station_reveal),
     "ArcadeStart": ("sfx", "Sfx", arcade_start),
     "ArcadeMilestone": ("sfx", "Sfx", arcade_milestone),
     "ArcadeEnd": ("sfx", "Sfx", arcade_end),

@@ -31,6 +31,45 @@ return function()
 		return ids
 	end
 
+	describe("the rank titles (#3333)", function()
+		local function rows(ids: { number }): { any }
+			local out = {}
+			for i, id in ids do
+				table.insert(
+					out,
+					{ rank = i, userId = id, name = "P" .. id, value = 100 - i, crown = false }
+				)
+			end
+			return out
+		end
+		local function never(_id: number): boolean
+			return false
+		end
+
+		it("gives the top 3 of each board their place, keeping each player's best", function()
+			local places =
+				Leaderboards.topPlaces({ rows({ 1, 2, 3, 4 }), rows({ 4, 1, 5 }) }, never)
+			expect(places[1]).to.equal(1)
+			expect(places[2]).to.equal(2)
+			expect(places[3]).to.equal(3)
+			expect(places[4]).to.equal(1) -- 4th on one board, 1st on the other
+			expect(places[5]).to.equal(3)
+			expect(Leaderboards.topPlaces({}, never)[1]).to.equal(nil)
+		end)
+
+		it("leaves the owner out, so the next player moves up", function()
+			local places = Leaderboards.topPlaces(
+				{ rows({ 9, 1, 2, 3 }) },
+				function(id: number): boolean
+					return id == 9
+				end
+			)
+			expect(places[9]).to.equal(nil)
+			expect(places[1]).to.equal(1)
+			expect(places[3]).to.equal(3)
+		end)
+	end)
+
 	describe("the values", function()
 		it("counts Index entries as cats found plus gold coats, never exclusive cats", function()
 			local p = profile()

@@ -301,6 +301,13 @@ return function()
 				expect(arrived.caughtAt).to.equal(500)
 				expect(arrived.locked).to.equal(nil) -- #2906: a gold cat arrives unlocked too
 				expect(Trade.arrival(cat("u2", "Common"), 500).locked).to.equal(nil)
+				-- #3196: its trait travels with it, as a copy
+				local trained = cat("u3", "Common")
+				trained.trait = { id = "cosmicFortune" }
+				local moved = Trade.arrival(trained, 500)
+				expect(moved.trait :: any).to.deepEqual({ id = "cosmicFortune" })
+				expect(moved.trait ~= trained.trait).to.equal(true)
+				expect(Trade.arrival(cat("u4", "Common"), 500).trait).to.equal(nil)
 			end
 		)
 

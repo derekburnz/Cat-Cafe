@@ -28,6 +28,9 @@ local HOW: { [string]: string } = {
 	supporter = "From the Thank You Badge",
 	tag_maple = "Cafe Pass Season 1 reward",
 	tag_grand_opener = "Grand Opening reward",
+	rank_1 = "Hold 1st place on an all-time leaderboard", -- #3333: kept only while the place is held
+	rank_2 = "Hold 2nd place on an all-time leaderboard",
+	rank_3 = "Hold 3rd place on an all-time leaderboard",
 }
 table.freeze(HOW)
 TitlesLogic.HOW = HOW

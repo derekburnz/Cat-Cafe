@@ -76,10 +76,21 @@ local PENDING_SECONDS = 3 -- a sent buy with no answer stops counting on its row
 local SEND_GAP = 0.55
 -- #3209: the tabs over the list, one per section, in this order
 local TAB_H = 36
-local TABS: { { kind: string, title: string } } = {
-	{ kind = "potion", title = "Potions" },
-	{ kind = "food", title = "Cat food" },
-	{ kind = "bait", title = "Bait" },
+-- #3350 (Derek2: "add symbols to them so its easier"): each with the Bag's own tab picture, the glyph until it loads
+local TABS: { { kind: string, title: string, icon: string, image: string? } } = {
+	{
+		kind = "potion",
+		title = "Potions",
+		icon = Theme.icons.potion,
+		image = ShopIcons.hud("Potion"),
+	},
+	{
+		kind = "food",
+		title = "Cat food",
+		icon = ShopIcons.SNACK_GLYPH,
+		image = ShopIcons.market("Treats"),
+	},
+	{ kind = "bait", title = "Bait", icon = Theme.icons.food, image = ShopIcons.hud("Bowl") },
 }
 local GAP = Theme.sizes.gap
 -- #2593: the sections with a Buy all, the header button's width, and how long Buy all waits for its CornerShopStock
@@ -193,6 +204,8 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		self._tabButtons[tab.kind] = Button.new({
 			name = tab.kind .. "Tab",
 			text = tab.title,
+			icon = tab.icon,
+			image = tab.image,
 			style = if order == 1 then "gold" else "ghost",
 			size = UDim2.new(1 / #TABS, -GAP, 1, 0),
 			textSize = Theme.sizes.textBody,

@@ -3698,7 +3698,7 @@ local SCENES = {
 		UI.update({ goldenFish = before } :: any)
 	end },
 	-- #2577 (Derek2: "the buttons for buying crates sometimes get stuck on ... for a while"): only the pressed crate reads
-	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 2.5 s
+	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 6 s (#3362: 2.5 before)
 	-- as "Try again" (with a toast), when the queued press goes
 	{ "MarketCrateWait", function()
 		local before = UI.getState()
@@ -3727,8 +3727,10 @@ local SCENES = {
 		assert(label("alley_crate") ~= "...", "uigate: another crate reads ... while one opens (#2577)")
 		press("FishMarket", "alley_crate.Open")
 		assert(#sent == 1 and label("alley_crate") == "...", "uigate: a second Open went at once or shows no wait (#2577)")
-		UIShim.advance(2.8) -- no CrateResult for park
-		assert(label("park_crate") == "Try again", "uigate: an unanswered Open reads " .. label("park_crate") .. " after 2.8 s (#2577)")
+		UIShim.advance(2.8) -- no CrateResult for park; #3362: a slow answer is still waited for
+		assert(label("park_crate") == "...", "uigate: an Open reads " .. label("park_crate") .. " after 2.8 s, before its 6 s wait is up (#3362)")
+		UIShim.advance(3.5)
+		assert(label("park_crate") == "Try again", "uigate: an unanswered Open reads " .. label("park_crate") .. " after 6.3 s (#2577)")
 		assert(#sent == 2 and sent[2] == "alley_crate", "uigate: the queued Open did not go once the first ran out (#2577)")
 		local toast = false
 		for _, d in UIShim.playerGui:GetDescendants() do
@@ -4287,7 +4289,7 @@ local SCENES = {
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
 		-- #3205 (Derek2: "the quick update in ... gets cut off"): the restart warning's calm early mark is an info
 		-- toast, and still shows every word
-		local notice = "A quick update is coming in 10 minutes. Keep playing, your cafe is saved."
+		local notice = "A quick update is coming in 10 minutes, then a 10-minute event! Keep playing, your cafe is saved."
 		UI.toast(notice, "info")
 		local warned = find(notice)
 		assert(warned.TextTruncate == Enum.TextTruncate.None, "uigate: the restart warning ends in ... (#3205)")
@@ -7913,7 +7915,9 @@ local SCENES = {
 		-- badge is in the right half, its foot over the Potions corner, clear of the right column's lines
 		local root = hud:FindFirstChild("Root") :: Frame
 		local middle = root.AbsolutePosition.X + root.AbsoluteSize.X / 2
-		if right(counters) > 0 and counters.AbsolutePosition.Y + counters.AbsoluteSize.Y <= root.AbsolutePosition.Y + 2 then
+		-- #3307: in the bar when their middle is over the root's top (on a big tablet they are taller than the bar and
+		-- hang from the screen's top edge a little past it)
+		if right(counters) > 0 and counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2 <= root.AbsolutePosition.Y then
 			-- #2447 (Derek2 11-08: "move these into this little bar between chat and tutorial"): up in Roblox's top
 			-- bar, between its buttons and the icon row
 			local inset = game:GetService("GuiService"):GetGuiInset()
@@ -8000,8 +8004,9 @@ local SCENES = {
 		assert(tile == nil or not (tile :: GuiObject).Visible, "uigate: the Potions tile shows on touch (#2710)")
 		local row = root:FindFirstChild("Potions") :: GuiObject
 		assert(row.Visible, "uigate: no Luck row with luck 2x (#2393)")
-		if bottom <= root.AbsolutePosition.Y + 2 then
-			-- #2447: in the top bar the Luck row sits right of the counters, level with them
+		if counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2 <= root.AbsolutePosition.Y then
+			-- #2447: in the top bar the Luck row sits right of the counters, level with them (#3307: the middle is in
+			-- the bar; on a big tablet the counters are taller than it)
 			local gap = row.AbsolutePosition.X - (counters.AbsolutePosition.X + counters.AbsoluteSize.X)
 			assert(gap >= 0 and gap <= 30, ("uigate: the Luck row sits %d px after the counters in the top bar (#2447)"):format(gap))
 			local rowMid = row.AbsolutePosition.Y + row.AbsoluteSize.Y / 2

@@ -179,9 +179,11 @@ local Config = {
 	-- with less summer salting"): the longer flight with Animation-Engineer's arc, 4.0 s with the move at 2.6, while
 	-- the body is out of sight in the clouds (2.0 to 3.0). The flyer goes into the clouds at CannonCloudsAt and the
 	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent). #2690 (Derek2
-	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0.
+	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0. #3292
+	-- (Derek2 2026-11-11: flights "changing course slightly mid air"): the move at 2.2 (was 2.6), so it reaches every
+	-- client well before the body comes back down at 3.0, drawn from wherever the root is by then.
 	CannonLaunchSeconds = 3.75,
-	CannonTeleportAtSeconds = 2.6,
+	CannonTeleportAtSeconds = 2.2,
 	CannonCloudsAt = 2.0,
 	CannonTouchdownAt = 3.5,
 	CannonCooldownSeconds = 3,

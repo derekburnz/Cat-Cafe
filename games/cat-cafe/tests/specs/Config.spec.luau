@@ -383,7 +383,7 @@ return function()
 		TackledDownSeconds = 0.8,
 		-- the Cat Cannon (F84, section 17 v0.13.17)
 		CannonLaunchSeconds = 3.75,
-		CannonTeleportAtSeconds = 2.6,
+		CannonTeleportAtSeconds = 2.2,
 		CannonCloudsAt = 2.0,
 		CannonTouchdownAt = 3.5,
 		CannonCooldownSeconds = 3,

@@ -896,3 +896,9 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Swift Paws (#3063):** a permanent +1/+2 walk and carry speed perk for 60/150 golden fish. It's capped at +2 so the Robux Swift Potion's +4 stays the bigger bump (Monetization-Agent). It was its_cuzu098's idea.
 - **Upgrade ladder (#3204, Derek2 chose "Yes, as proposed"):** Tier 2 opens 5 levels and Tier 3 opens 6, where it was 10 and 2. Net 2 moves to Tier 3 at 200,000 and Net 3 to Tier 5 at 60,000,000. Pace showed Tier 3 arriving sooner, not later, because coins skip Tier 2's buys. So Tier 3's cost goes up (520k, at most 560k) instead of down; the final numbers come from the combined run with #3195.
 - One place for all three specs: `docs/design/cat-cafe/new-activities.md`.
+
+## 2026-11-11: Cannon flights move earlier and first landings stay near the pad (#3292, Gameplay-Engineer)
+- **Why:** Derek2: "fix the cannon landing the occasional changing course slightly mid air". Laptop-Tester's PC pass saw first flights land 18 to 29 studs outside the landing circle.
+- **Move earlier:** `CannonTeleportAtSeconds` goes from 2.6 to 2.2. The body is hidden in the clouds from 2.0 to 3.0, and the fall is drawn from wherever the root is, so the move now has 0.8 s instead of 0.4 s to reach every client.
+- **First flight beside a stray (#2913):** the spot 7 studs short of a waiting stray now comes no further than 15 studs (`Cannon.BESIDE_MAX_FROM_PAD`) from the pad's centre, on the same line, still facing the stray. The camp rule (#3198) still reads the plain spot by the stray, so a stray behind the Park fence still sends the flight to the pad.
+- **Client part (Animation-Engineer):** the fall comes from behind the landing's facing, not along `CannonHeading`, so a landing turned toward a stray changes course. Drawing the fall along the heading belongs in `src/client/Effects/`.

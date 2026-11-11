@@ -2063,15 +2063,17 @@ Presets.cannonGlide = {
 -- (`push`, a fraction closer: 0.12 is 12%) that peaks `bumpIn` of the way through `bump` seconds and is back on the
 -- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`, when the server
 -- lets go, #2690); with Reduce Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
--- 2026-11-04) asked for a quick, slight zoom in and straight back.
+-- 2026-11-04) asked for a quick, slight zoom in and straight back. #3328 (Derek2 2026-11-11: "remove the zoom in on
+-- cannon land"): `wide` 1 and `push` 0, so the camera stays at the player's own distance all the way down and at the
+-- touch (was 1.8 and 0.12).
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
 	chase = Vector3.new(7, 2.5, 12),
 	catch = 0.15,
 	over = 0.1,
-	wide = 1.8,
-	push = 0.12,
+	wide = 1, -- #3328: no zoom in on the way down (was 1.8)
+	push = 0, -- #3328: no push at the touch (was 0.12)
 	bump = 0.25, -- touch + bump = cannonPose.ends, where the game camera takes over (was 0.5, #2690)
 	bumpIn = 0.25,
 }

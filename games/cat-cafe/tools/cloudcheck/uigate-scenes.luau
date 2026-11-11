@@ -6521,6 +6521,17 @@ local SCENES = {
 			lines = shownLines()
 			assert(#lines == 1 and lines[1].Text == "2 cats earn 2x 💰", "uigate: with a free job the goal's money line reads " .. texts(lines) .. " (#3022)")
 		end
+		-- #3238: dusk shuts the areas, and the card says when the strays come back, on a phone too
+		UI.clock.setAreasOpen(false)
+		UIShim.advance(0.1)
+		lines = shownLines()
+		local night = if touch then "Next cat at sunrise 🌅" else "Strays come back at sunrise 🌅"
+		assert(#lines == 1 and lines[1].Text == night, "uigate: at night the second cat goal reads " .. texts(lines) .. " (#3238)")
+		assert(lines[1].TextFits, "uigate: the night line does not fit its width (#3238) " .. tostring(lines[1].AbsoluteSize))
+		assert(lines[1].AbsolutePosition.Y + lines[1].AbsoluteSize.Y <= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y + 0.5, "uigate: the night line runs out of the card (#3238)")
+		assert(title.Text == expected, "uigate: the second cat goal's title changed at night (#3238)")
+		UI.clock.setAreasOpen(true)
+		UIShim.advance(0.1)
 		-- the second cat is in: the tier goal is back
 		UI.update({ secondCat = false } :: any)
 		UIShim.advance(0.1)

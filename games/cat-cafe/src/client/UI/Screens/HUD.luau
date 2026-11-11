@@ -2899,7 +2899,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
-	local second = SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil)
+	local second =
+		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
 	local started = second ~= nil and self._second == nil
 	self._second = second
 	self._goal:render(
@@ -3534,6 +3535,11 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	end
 	self._areasOpen = open
 	self:_renderTravel()
+	-- #3238: the "Catch a 2nd cat" card says when the strays come back, so it follows dusk and sunrise
+	local state = self._state
+	if state ~= nil and state.secondCat then
+		self:render(state)
+	end
 end
 
 -- How far the top right column can move up into Roblox's top bar: its height in design px when the bar's free

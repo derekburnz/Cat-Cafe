@@ -12,7 +12,9 @@
 -- "Now +$1.5/s" / "with 2 cats +$2.5/s".
 -- While a cat is carried the card goes back to the tier goal: the carry banner says what to do with it.
 -- Pure (no Theme, no Format), so the cloud specs load it.
---   view(state, narrow, nextTier?) -> View?   nil when there is nothing to say
+-- #3238: from dusk to sunrise the areas are shut and no stray waits, so the card says when one will ("Strays come
+-- back at sunrise 🌅", "Next cat at sunrise 🌅" on a narrow card) instead of sending the player out to an empty alley.
+--   view(state, narrow, nextTier?, areasOpen?) -> View?   nil when there is nothing to say
 
 local ShortNumber = require(script.Parent.ShortNumber)
 
@@ -29,6 +31,8 @@ SecondCatGoal.NEED = 2 -- cats caught that end it (shared/SecondCat.CATS)
 SecondCatGoal.DOUBLE = 1.9 -- the rate with a second cat over the rate now from which the card may say "2x"
 SecondCatGoal.PREVIEW_SECONDS = 6 -- how long `lines` show (shared/SecondCat.PREVIEW_SECONDS)
 SecondCatGoal.NUDGE_SECONDS = 45 -- the card's second bounce (shared/SecondCat.NUDGE_SECONDS)
+SecondCatGoal.NIGHT = "Strays come back at sunrise 🌅" -- #3238: the line while the areas are shut
+SecondCatGoal.NIGHT_NARROW = "Next cat at sunrise 🌅" -- and on the phone's narrower card
 
 -- 1.5 -> "+$1.5/s", 2 -> "+$2/s", 54045 -> "+$54K/s" (as Components/Format.rate)
 local function rate(perSecond: number): string
@@ -47,8 +51,13 @@ local function number(value: unknown): number?
 end
 
 -- `state` is a PlayerState; `narrow` the phone and tablet's narrow goal card; `nextTier` the next tier's name for
--- the preview's second line (nil at the top tier, which drops it).
-function SecondCatGoal.view(state: any, narrow: boolean, nextTier: string?): View?
+-- the preview's second line (nil at the top tier, which drops it); `areasOpen` false from dusk to sunrise (#3238).
+function SecondCatGoal.view(
+	state: any,
+	narrow: boolean,
+	nextTier: string?,
+	areasOpen: boolean?
+): View?
 	local second = if type(state) == "table" then state.secondCat else nil
 	if type(second) ~= "table" or state.carrying ~= nil then
 		return nil
@@ -58,6 +67,14 @@ function SecondCatGoal.view(state: any, narrow: boolean, nextTier: string?): Vie
 	local cats = math.clamp(math.floor(number(second.cats) or 1), 0, SecondCatGoal.NEED - 1)
 	local count = string.format("%d/%d", cats, SecondCatGoal.NEED)
 	local title = "Catch a 2nd cat 🐾 " .. count
+	if areasOpen == false then
+		return {
+			title = title,
+			hook = if narrow then SecondCatGoal.NIGHT_NARROW else SecondCatGoal.NIGHT,
+			lines = {},
+			chip = title,
+		}
+	end
 	local free = now ~= nil and with ~= nil and with > now -- a job is free and a second cat would earn
 	local hook: string? = nil
 	local lines: { string } = {}

@@ -54,7 +54,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	PassSetTag = RateLimiter.new(2, 1), -- #1626: the Pass screen's tag picker
 	SetSignStyle = RateLimiter.new(2, 1), -- #1625: a pick on the Style panel; each one refreshes the plot
 	SetLook = RateLimiter.new(2, 1), -- #1624: a theme or uniform pick on the Style tab; each refreshes the plot
-	SetJukeboxTrack = RateLimiter.new(2, 1), -- #1168 row 2: a song pick on the Jukebox card
+	-- #1168 row 2: a song pick on the Jukebox card; #3299: 4 a second, so the last of a few quick taps through the list
+	-- still lands (the live log showed drops, and a dropped last pick leaves the card and the music apart)
+	SetJukeboxTrack = RateLimiter.new(4, 1),
 	MarkStoreSeen = RateLimiter.new(2, 1), -- #1842: a Store tab opened (only a change syncs)
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
@@ -83,16 +85,20 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimDailyTreat = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	TipSeen = RateLimiter.new(1, 1), -- F87 (easy-start.md section 6): 1 a second
 	ClearTips = RateLimiter.new(1, 10), -- F87: 1 per 10 s; each call sends a full sync
-	StationOpened = RateLimiter.new(2, 1), -- #2910: 2 a second, a count only
+	-- #2910: a count only. #3299: 4 a second, as a ring and its prompt can both fire as a player walks in and taps
+	StationOpened = RateLimiter.new(4, 1),
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
+	SessionFeedback = RateLimiter.new(1, 30), -- #3272: 1 per 30 s; TipService also holds it to once a UTC day
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
-	-- #2651 part 4 (late-stations.md section 3): 1 a second each
-	SpaPut = RateLimiter.new(1, 1),
-	SpaTakeOut = RateLimiter.new(1, 1),
-	SpaCollect = RateLimiter.new(1, 1),
+	-- #2651 part 4 (late-stations.md section 3): 1 a second each. #3299: the live log showed drops on the Spa and the
+	-- Museum, where a player fills slots or donates relics with quick taps one after another and a dropped tap just
+	-- does nothing; 3 a second for those (each call is checked in LateStationService as before). Buying a slot stays 1.
+	SpaPut = RateLimiter.new(3, 1),
+	SpaTakeOut = RateLimiter.new(3, 1),
+	SpaCollect = RateLimiter.new(3, 1),
 	SpaBuySlot = RateLimiter.new(1, 1),
-	MuseumDonate = RateLimiter.new(1, 1),
+	MuseumDonate = RateLimiter.new(3, 1),
 	MuseumFill = RateLimiter.new(1, 2), -- #3130: Auto fill, a whole hall in one call
 	InviteCard = RateLimiter.new(1, 2), -- #2797: the invite card's report, 1 per 2 s
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second

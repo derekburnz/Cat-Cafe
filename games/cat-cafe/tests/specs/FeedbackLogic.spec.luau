@@ -22,7 +22,7 @@ return function()
 				expect(chip.id).to.equal(Tips.CHIPS[index])
 				expect(chip.label ~= chip.id).to.equal(true)
 			end
-			expect(FeedbackLogic.FACES[1].label).to.equal("Love it")
+			expect(FeedbackLogic.FACES[1].label).to.equal("Good")
 			expect(FeedbackLogic.CHIPS[5].label).to.equal("Want more cats")
 		end)
 	end)

@@ -52,6 +52,7 @@ local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
+local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -224,6 +225,12 @@ export type CustomEvent =
 	-- #2681: with each feedback answer, value 1: the face, the device, "<place version>:<err|ok>" (whether this
 	-- session's client logged an error before it)
 	| "feedback_env"
+	-- #3272: the once-a-day session ask (shared/SessionFeedback), one answer a UTC day, value 1 each: the answer (love,
+	-- ok, no or skipped), the device and the session length bucket; the answer, the furthest onboarding_v6 step and
+	-- the cats owned bucket; the answer, the screen open and the build ("<place version>:<err|ok>")
+	| "session_feedback"
+	| "session_feedback_ctx"
+	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
 	| "like_ask_shown"
 	-- #2694: how a slide-in faces ask ended, at most one per ask shown, value 1: answered, closed or ignored; early or
@@ -1458,6 +1465,31 @@ function Telemetry.feedbackAsked(player: Player, profile: Profile)
 		tierText(profile),
 		FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
 		Onboarding.furthest(profile.telemetry),
+	})
+end
+
+-- #3272: the once-a-day session ask's answer (TipService checked it): who answered, as three events of three fields.
+function Telemetry.sessionFeedback(player: Player, profile: Profile, answer: string)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local cats = 0
+	for _ in profile.cats do
+		cats += 1
+	end
+	local length = SessionFeedback.sessionBucket(os.time() - session.joinedAt)
+	Telemetry.custom(player, "session_feedback", 1, { answer, session.device or "unknown", length })
+	Telemetry.custom(
+		player,
+		"session_feedback_ctx",
+		1,
+		{ answer, Onboarding.furthest(profile.telemetry), SessionFeedback.catsBucket(cats) }
+	)
+	Telemetry.custom(player, "session_feedback_where", 1, {
+		answer,
+		session.screen,
+		FeedbackFunnel.build(game.PlaceVersion, session.clientError),
 	})
 end
 

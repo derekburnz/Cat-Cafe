@@ -3762,6 +3762,35 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
+	-- face and thumbs down, with its title on one card
+	{ "SessionAsk", function()
+		-- it takes the card over from the F87 faces ask, as on a slow CI run where the tips clock put that one up first
+		UI.tips.showAsk()
+		UI.tips.showSessionAsk()
+		task.wait(0.3)
+		local found = {}
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local text = (piece :: TextLabel).Text
+				if text == "Enjoying Catch a Cat Cafe?" or text:find("👍") or text:find("😐") or text:find("👎") then
+					if (piece :: GuiObject).Visible then
+						found[text] = piece
+					end
+				end
+			end
+		end
+		local title = found["Enjoying Catch a Cat Cafe?"] :: TextLabel?
+		assert(title, "uigate: the session ask has no title (#3272)")
+		assert(title.TextFits, "uigate: the session ask's title does not fit (#3272)")
+		local glyphs = 0
+		for text in found do
+			if text ~= "Enjoying Catch a Cat Cafe?" then
+				glyphs += 1
+			end
+		end
+		assert(glyphs >= 3, ("uigate: the session ask shows %d of the three thumbs and face (#3272)"):format(glyphs))
+	end },
 	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
 	-- after a game
 	{

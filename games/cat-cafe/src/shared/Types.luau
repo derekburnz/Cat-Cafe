@@ -1266,6 +1266,7 @@ export type PlayerProfile = {
 	-- keeps only the asks), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
 	tipsSeen: { [string]: boolean },
 	feedbackAsked: boolean,
+	sessionFeedbackDay: number, -- #3272 (no version bump): the UTC day the session ask was last answered, 0 before
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
@@ -1395,6 +1396,7 @@ export type PlayerState = {
 	-- F87: the client skips a tip, the slide-in ask or the help card it finds here (section 3, 4 and 2g)
 	tipsSeen: { [string]: boolean },
 	feedbackAsked: boolean,
+	sessionFeedbackDay: number, -- #3272: the client asks at most once a UTC day
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
 	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides

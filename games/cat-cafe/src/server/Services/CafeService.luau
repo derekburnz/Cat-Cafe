@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
+local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -65,6 +66,7 @@ local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUpCircles = require(script.Parent.Parent.World.WalkUpCircles)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -222,6 +224,15 @@ local function luckView(profile: Profile, now: number): (number, { Types.LuckSou
 	return Luck.of(profile, now, luckyDay, event), sources
 end
 
+-- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
+-- off or the tier has not opened the station (TraitService.open reads the same)
+local function traitsView(profile: Profile, now: number): Types.TraitsView?
+	local open = LiveFlagService.on(Traits.FLAG)
+		and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+	Traits.settle(profile.traits, open, now)
+	return if open then Traits.view(profile.traits) else nil
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	local plot = PlotService.get(player)
 	local now = os.time()
@@ -270,6 +281,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
+		traits = traitsView(profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022

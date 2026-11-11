@@ -24,11 +24,14 @@
 -- Everything sits behind LiveFlags `traits` (FLAG, off by default). Turning it on needs the save version step and the
 -- restart publish that ships the save fields (section 6), so no older server can drop a trait.
 
+local Types = require(script.Parent.Types)
+
 local Traits = {}
 
 Traits.FLAG = "traits"
 Traits.NAME = "Mystic Pool"
 Traits.KEEPER = "Sage Sorrel"
+Traits.STATION_EXTRA = "picnic" -- the camp extra whose spot and unlock the Mystic Pool takes (CampExtras)
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
 Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")
 Traits.COST_TOKENS = 1
@@ -374,24 +377,127 @@ function Traits.cafeBonus(working: { Trait }, kind: Kind): number
 	return math.min(math.floor(sum * 1000 + 0.5) / 1000, info.cap)
 end
 
--- Tokens the station holds at `now`: one per TOKEN_EVERY_SECONDS since `at`, up to TOKEN_HOLD on top of `held`.
--- Returns the new `held` and `at` (moved on by the whole periods counted, or to now once full).
-function Traits.fill(held: number, at: number, now: number): (number, number)
-	if held >= Traits.TOKEN_HOLD then
+-- The station's own free tokens waiting to be collected at `now` (never the banked Trait Tokens, which have no cap):
+-- one per TOKEN_EVERY_SECONDS since `at`, up to TOKEN_HOLD on top of `stationHeld`. Returns the new waiting count and
+-- `at` (moved on by the whole periods counted, or to now once full).
+function Traits.fill(stationHeld: number, at: number, now: number): (number, number)
+	if stationHeld >= Traits.TOKEN_HOLD then
 		return Traits.TOKEN_HOLD, now
 	end
 	if now <= at then
-		return held, at
+		return stationHeld, at
 	end
 	local periods = (now - at) // Traits.TOKEN_EVERY_SECONDS
 	if periods <= 0 then
-		return held, at
+		return stationHeld, at
 	end
-	local total = held + periods
+	local total = stationHeld + periods
 	if total >= Traits.TOKEN_HOLD then
 		return Traits.TOKEN_HOLD, now
 	end
 	return total, at + periods * Traits.TOKEN_EVERY_SECONDS
+end
+
+-- The save ------------------------------------------------------------------------------------------------------
+
+-- A new save's Mystic Pool side at `now`: no tokens, every free roll still to use, an empty station whose first free
+-- token comes TOKEN_EVERY_SECONDS after the station opens (settle moves `at` while it is shut).
+function Traits.fresh(now: number): Types.TraitSave
+	return { tokens = 0, freeUsed = 0, held = 0, at = now, pending = nil }
+end
+
+local function whole(value: any, low: number, high: number, default: number): number
+	if type(value) ~= "number" or value ~= value then
+		return default
+	end
+	return math.clamp(math.floor(value), low, high)
+end
+
+-- The saved side as this code keeps it. Only a save from version 48 on has it (ProfileSchema), so a missing or broken
+-- `freeUsed` there reads as all used (FREE_ROLLS), never as 5 more free rolls; a missing table (an older save) is
+-- fresh. `pending` is kept only for a cat in `cats` (uid -> true) with a known trait. `at` is never past `now`.
+function Traits.sanitizeSave(value: any, now: number, cats: { [string]: boolean }): Types.TraitSave
+	if type(value) ~= "table" then
+		return Traits.fresh(now)
+	end
+	local save: Types.TraitSave = {
+		tokens = whole(value.tokens, 0, Traits.TOKEN_MAX, 0),
+		freeUsed = whole(value.freeUsed, 0, Traits.FREE_ROLLS, Traits.FREE_ROLLS),
+		held = whole(value.held, 0, Traits.TOKEN_HOLD, 0),
+		at = whole(value.at, 0, now, now),
+		pending = nil,
+	}
+	local pending = value.pending
+	if type(pending) == "table" and type(pending.uid) == "string" and cats[pending.uid] == true then
+		local trait = Traits.sanitize(pending)
+		if trait ~= nil then
+			local paid: string? = pending.paid
+			if paid ~= "free" and paid ~= "token" and paid ~= "fish" then
+				paid = nil
+			end
+			local kept: Types.TraitPending = { uid = pending.uid, id = trait.id, paid = paid }
+			save.pending = kept
+		end
+	end
+	return save
+end
+
+-- Brings the station's free tokens up to `now` while it is `open`; while shut the timer waits from now, so the first
+-- token comes a whole period after it opens.
+function Traits.settle(save: Types.TraitSave, open: boolean, now: number)
+	if not open then
+		save.held = 0
+		save.at = now
+		return
+	end
+	save.held, save.at = Traits.fill(save.held, save.at, now)
+end
+
+-- The card's numbers (PlayerState.traits) for a settled save.
+function Traits.view(save: Types.TraitSave): Types.TraitsView
+	return {
+		tokens = save.tokens,
+		freeLeft = Traits.freeLeft(save.freeUsed),
+		held = save.held,
+		nextAt = if save.held < Traits.TOKEN_HOLD
+			then save.at + Traits.TOKEN_EVERY_SECONDS
+			else nil,
+		pending = if save.pending ~= nil then table.clone(save.pending) else nil,
+	}
+end
+
+-- Pays for one roll from `save` and the golden fish `fish` (free roll, then a token, then fish), in one step with the
+-- check: returns how it was paid and the fish to take (0 or COST_FISH), or nil and nothing changed. The caller takes
+-- the fish (GoldenFish.trySpend) and must undo with refund() if that fails.
+function Traits.pay(save: Types.TraitSave, fish: number): (Payment?, number)
+	local how = Traits.payment(save.freeUsed, save.tokens, fish)
+	if how == "free" then
+		save.freeUsed += 1
+		return how, 0
+	elseif how == "token" then
+		save.tokens -= Traits.COST_TOKENS
+		return how, 0
+	elseif how == "fish" then
+		return how, Traits.COST_FISH
+	end
+	return nil, 0
+end
+
+-- Gives back a roll paid by `how` (the fish, if any, are the caller's to credit).
+function Traits.refund(save: Types.TraitSave, how: Payment)
+	if how == "free" then
+		save.freeUsed = math.max(0, save.freeUsed - 1)
+	elseif how == "token" then
+		save.tokens = math.min(Traits.TOKEN_MAX, save.tokens + Traits.COST_TOKENS)
+	end
+end
+
+-- Adds `count` Trait Tokens to the bank (a drop, the station's collect), at most TOKEN_MAX; returns how many fit.
+function Traits.give(save: Types.TraitSave, count: number): number
+	local room = Traits.TOKEN_MAX - save.tokens
+	local added = math.clamp(math.floor(count), 0, math.max(0, room))
+	save.tokens += added
+	return added
 end
 
 return Traits

@@ -405,6 +405,13 @@ function Logic.isUpdateGiftToast(text: any): boolean
 	return type(text) == "string" and string.sub(text, 1, 12) == "Update gift!"
 end
 
+-- #2871 (console): whether moving the gamepad's selection from `before` to `after` ticks. Only a move from one button
+-- to another does: the first selection after none (a window opening and putting the selection on its first button, or
+-- the selection clearing) stays quiet, since the window's own open sound already played.
+function Logic.focusTick(before: any, after: any): boolean
+	return before ~= nil and after ~= nil and before ~= after
+end
+
 -- #3050: the Rummage Bin's prize pops out (Moments.RummageWin(row id, first)). The bar already rang its win chime
 -- (RescueDone), so this is the prize itself and reuses existing cues: a golden prize its reveal, a crate the reward
 -- jingle, and every other prize (tuna, fish, salmon, potion) a small gift ding. Unknown ids ding too.

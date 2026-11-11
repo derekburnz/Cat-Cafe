@@ -255,9 +255,10 @@ return function()
 			expect((Avatar.glide(c.gone, 0))).to.equal(nil)
 		end)
 
-		it("lands with one quick, slight push in and straight back (#1131)", function()
+		it("lands with no zoom: the player's own distance all the way down (#3328)", function()
 			local k, c = Presets.cannonCamera, Presets.cannonPose
-			expect(k.push >= 0.1 and k.push <= 0.15).to.equal(true)
+			expect(k.wide).to.equal(1)
+			expect(k.push).to.equal(0)
 			expect(k.bump > 0 and k.bump < 1).to.equal(true) -- well under a second
 			expect(k.bumpIn > 0 and k.bumpIn < 1).to.equal(true)
 			expect(c.touch + k.bump <= c.ends).to.equal(true)

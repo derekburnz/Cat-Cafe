@@ -513,6 +513,22 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -35, 0),
 		lightEmission = 0.2,
 	},
+	-- The Mystic Pool's bubbles (#3314): a burst of round bubbles bobbing up off the liquid at each colour step,
+	-- tinted that step's colour (Particles.burst's tint), glowing a little.
+	poolBubble = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.milk },
+		size = { 0.35, 0.15 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 3, 6 },
+		spread = 35,
+		rate = 0,
+		acceleration = Vector3.new(0, 4, 0),
+		drag = 1.5,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
 	-- A pipe's drip landing on the Lost and Found's lid (Effects/CampWater, F100): a few tiny drops hopping off it.
 	dripSplash = {
 		texture = Presets.textures.smoke,
@@ -1134,6 +1150,24 @@ Presets.motion = {
 	-- springs `hop` studs up over `seconds` as the server sends it off (HopAt), nose up `lean` degrees, tail up `tailUp`
 	-- and ears flat back `ears`, without the hiss: startled, then away at a run.
 	startle = { seconds = 0.4, hop = 0.8, lean = 10, tailUp = 35, ears = 40 },
+	-- #3022: the stray waiting for your second cat calls you over (Effects/StrayCall, Logic.beckon): within `near`
+	-- studs, every `every` seconds it does `hops` small hops `hop` studs high in the first `hopShare` of `seconds`,
+	-- its head turned to you (at most `look` degrees) and tipped up `lookUp`, ears forward, its tail up `tailUp` and
+	-- flicking `flicks` times `flick` degrees either way. Off with Reduce Motion.
+	beckon = {
+		near = 30,
+		every = 3.5,
+		check = 0.25,
+		seconds = 1.4,
+		hops = 2,
+		hop = 0.35,
+		hopShare = 0.55,
+		look = 60,
+		lookUp = 14,
+		tailUp = 30,
+		flick = 28,
+		flicks = 3,
+	},
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
 	-- The Barista's working bob while it makes an order (F90, cats-make-orders.md section 2: "two small hops and a head
 	-- tilt, on a loop"; Logic.makingBob and makingPose, drawn by Cats.luau while the cat's local Making attribute is
@@ -2063,15 +2097,17 @@ Presets.cannonGlide = {
 -- (`push`, a fraction closer: 0.12 is 12%) that peaks `bumpIn` of the way through `bump` seconds and is back on the
 -- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`, when the server
 -- lets go, #2690); with Reduce Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
--- 2026-11-04) asked for a quick, slight zoom in and straight back.
+-- 2026-11-04) asked for a quick, slight zoom in and straight back. #3328 (Derek2 2026-11-11: "remove the zoom in on
+-- cannon land"): `wide` 1 and `push` 0, so the camera stays at the player's own distance all the way down and at the
+-- touch (was 1.8 and 0.12).
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
 	chase = Vector3.new(7, 2.5, 12),
 	catch = 0.15,
 	over = 0.1,
-	wide = 1.8,
-	push = 0.12,
+	wide = 1, -- #3328: no zoom in on the way down (was 1.8)
+	push = 0, -- #3328: no push at the touch (was 0.12)
 	bump = 0.25, -- touch + bump = cannonPose.ends, where the game camera takes over (was 0.5, #2690)
 	bumpIn = 0.25,
 }
@@ -4449,6 +4485,50 @@ Presets.trailSparkle = {
 	every = 2,
 	everyLow = 4,
 	recheck = 3,
+}
+
+-- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the
+-- rolled cat floats up over the pool in a sparkle and drops in with a splash, the liquid steps grey, green, blue, gold
+-- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to purple with a
+-- rainbow shimmer and a star burst), then the cat pops back out and the trait card rises (the caller's onReveal).
+-- Never a near miss: the steps only go up and stop on the real rarity. A tap skips to the card at any point. The
+-- colours are shared/Traits.RARITIES' (the card's), so the pool and the card always match.
+Presets.mysticPool = {
+	liquidSuffix = "_Liquid_Glow", -- Model-Agent's mysticpool.py: the liquid's Model
+	armSuffix = "_Sage_LegF2", -- the staff arm's Model; the staff rides it
+	step = 0.6, -- seconds per colour step
+	blend = 0.25, -- seconds a step's colour takes to blend in
+	flash = 0.12, -- the Mythic's fast flash from gold to purple
+	hold = 0.6, -- seconds on the last colour before the cat pops out
+	mythicHold = 1.6, -- a Mythic's purple flash and shimmer, so its pool time is about 4 s
+	shimmerHz = 0.9, -- rainbow cycles per second over a Mythic's liquid
+	shimmerMix = 0.55, -- how much rainbow over the purple (0 to 1)
+	raise = 0.4, -- seconds Sorrel takes to raise his staff
+	raiseDegrees = 75, -- forward, about his shoulder
+	lower = 0.6, -- seconds to lower it again after the card
+	rise = 0.7, -- seconds the cat floats up
+	riseHeight = 4.5, -- studs over the liquid it floats to
+	hang = 0.15, -- seconds it hangs there
+	drop = 0.3, -- seconds it falls into the liquid
+	sink = 1.2, -- studs under the surface it sinks to (out of sight)
+	popUp = 0.45, -- seconds it pops back out
+	popHeight = 3, -- studs over the liquid it pops to
+	showCat = 1.6, -- seconds it floats there over the card before fading
+	fadeBack = 1.5, -- seconds the liquid takes to go back to its rest colour
+	startFront = 1.2, -- studs in front of the pool's middle the cat starts, on the liquid's surface
+	sparkles = 14, -- the float's sparkle burst
+	bubbles = 10, -- each step's bubble burst
+	splash = 14, -- the drop's and the pop's splash
+	stars = 30, -- a Mythic's star burst
+	confetti = 40, -- a Mythic's confetti
+	revealSparkles = 18, -- the pop's sparkles, in the rarity's colour
+	mythicColours = {
+		Color3.fromHex("B04FE0"),
+		Color3.fromHex("FF6B81"),
+		Color3.fromHex("F4C430"),
+		Color3.fromHex("4CAF50"),
+		Color3.fromHex("3F8FE0"),
+	},
 }
 
 return Presets

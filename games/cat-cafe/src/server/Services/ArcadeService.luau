@@ -11,7 +11,8 @@
 -- Each player's best, today's milestones and the Arcade Legend title live in their own DataStore, STORE (key: the
 -- user id), not in the save, so the arcade needed no save version step and no restart (Derek2 2026-11-11). They are
 -- read when the player joins (no game starts until the read answers) and written after each milestone and game, at
--- most once every WRITE_GAP seconds. The server's best is kept in memory and shown on the cabinet's prompt.
+-- most once every WRITE_GAP seconds. The server's best is kept in memory and shown on the cabinet's prompt; an owner
+-- account's games never set it (#3321).
 
 local CollectionService = game:GetService("CollectionService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -21,6 +22,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
+local ArcadeBoard = require(script.Parent.ArcadeBoard)
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Circles = require(ReplicatedStorage.Shared.Circles)
@@ -28,8 +30,10 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
@@ -136,6 +140,21 @@ local function queueSave(userId: number, save: Arcade.Save)
 	end)
 end
 
+-- #3338: the players here with an arcade best, at their bests now, for the leaderboard (ArcadeBoard.top)
+local function present(): { Leaderboards.Present }
+	local out: { Leaderboards.Present } = {}
+	for player, save in saves do
+		if save.best > 0 and player.Parent == Players then
+			table.insert(out, {
+				userId = player.UserId,
+				name = player.DisplayName,
+				value = Arcade.score(save.best, save.bestCircles),
+			})
+		end
+	end
+	return out
+end
+
 local function stateOf(player: Player): Arcade.State
 	local save = saves[player]
 	return {
@@ -148,6 +167,7 @@ local function stateOf(player: Player): Arcade.State
 		serverCircles = serverBest.circles,
 		serverName = serverBest.name,
 		free = save ~= nil and Arcade.freeToday(save, os.time()),
+		top = ArcadeBoard.top(present(), player.UserId),
 	}
 end
 
@@ -190,7 +210,9 @@ local function load(player: Player)
 				return
 			end
 			if ok then
-				saves[player] = Arcade.sanitize(raw, os.time())
+				local save = Arcade.sanitize(raw, os.time())
+				saves[player] = save
+				ArcadeBoard.note(player, save.best, save.bestCircles) -- #3338
 				sendState(player)
 				return
 			end
@@ -224,8 +246,16 @@ local function finish(player: Player, run: Run, tell: boolean)
 	if save ~= nil then
 		newBest = Arcade.record(save, run.points, run.circles)
 		queueSave(player.UserId, save)
+		if newBest then
+			ArcadeBoard.note(player, save.best, save.bestCircles) -- #3338
+		end
 	end
-	if Arcade.beats(run.points, run.circles, serverBest.points, serverBest.circles) then
+	-- #3321: an owner account (Config.OwnerTestUserIds) never takes the server's best on the cabinet; its own best
+	-- and milestones are kept as anyone's
+	if
+		not OwnerTest.isOwner(player.UserId)
+		and Arcade.beats(run.points, run.circles, serverBest.points, serverBest.circles)
+	then
 		serverBest.points = run.points
 		serverBest.circles = run.circles
 		serverBest.name = player.DisplayName
@@ -457,6 +487,13 @@ function ArcadeService.start()
 		task.defer(showServerBest)
 	end)
 	showServerBest()
+	ArcadeBoard.start(function()
+		for player in saves do
+			if player.Parent == Players then
+				sendState(player)
+			end
+		end
+	end)
 end
 
 return ArcadeService

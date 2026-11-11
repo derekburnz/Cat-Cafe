@@ -159,6 +159,7 @@ A helper's bar fires the same RescueStart, RescueHit, RescueDone and RescueFail 
 | `catLevelUp` | CatLevelUp (F75: one of your cats reaches a new level; the owner only). Silent since 2026-11-02 with its toast (Derek 2026-10-28: "a little spammy", UI PR #669) | 2D, quiet, 1.5 s apart at most | 0.9 s | three quick celesta notes up and a small twinkle, beside the toast and the sparkle | P1 |
 | `catSold` | CatSold (#2952: fired by UIController once a sync shows the cat you sold gone) | 2D | 1.0 s | three coins into a pouch and a soft two-note celesta "bye" (no meow: no voices) | P2 |
 | `strayCall` | #3022: the stray whose `WaitsFor` is your user id (Audio/init.luau `strayCall`, `Logic.strayCallDue`): once as you come within 60 studs, then every 45 s while you stay near, at most 4 times | 3D on the cat, 60 studs | 0.8 s | a friendly "mrrp?" then a short "mew?" rising at the end, like asking to be picked up; cat voice only, no chime | P2 |
+| `stationReveal` | #2687: moment `StationReveal(area, perkId)`, the first time this account reaches an area whose station it owns (once per area) | 2D, ducks | 2.2 s | a quick harp sweep up the D chord, a bright held chord with a glockenspiel sparkle and a short warm horn swell; its own fanfare, shorter than the rank-up | P1 |
 | `arcadeStart` | #3062 Cat Arcade: moment `ArcadeStart()` as a run begins and the fish is paid (Audio skips it until the moment exists) | 2D | 0.8 s | a coin clink, a short slot rattle and a bright two-note "ready" blip | P2 |
 | `arcadeMilestone` | #3062: moment `ArcadeMilestone()` at every 10 circles of a streak, and the run keeps going | 2D | 0.7 s | a quick glockenspiel run up and a small coin sparkle, lighter than the Spin Wheel win | P2 |
 | `arcadeEnd` | #3062: moment `ArcadeEnd(streak, won)`; a run with a streak above 0 that is not a win | 2D | 1.0 s | three soft falling celesta notes, "nice try", kind rather than sad; a win plays `indexReward` instead | P2 |
@@ -225,6 +226,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 | `uiToast` | Toast of kind info or good | 0.2 s | small pop; good adds a chime | P1 |
 | `uiHint` | a new tutorial prompt | 0.3 s | soft ding | P1 |
 | `uiTab` | tab or filter chip | 0.05 s | tick | P2 |
+| `uiFocus` | #2871 console: the gamepad's selection walks from one button to another (`Logic.focusTick`; the first selection when a window opens stays quiet) | 2D | 0.1 s | the tab tick again, quieter (0.22), no new file | P2 |
 | `uiToggle` | a Settings ON/OFF switch | 0.1 s | click | P2 |
 | `uiSlider` | each 5 % step of a volume slider while dragged | 0.04 s | tiny soft tick; it plays through the sound channel, so it previews the new volume | P2 |
 | `uiGiftReady` | a Tip Jar gift becomes ready (the ready count goes up, never on the first state) | 0.6 s | glass jar ting and a small two-note chime | P1 |

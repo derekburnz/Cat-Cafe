@@ -1856,6 +1856,11 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play("arcadeEnd")
 		end
 	end,
+	-- #2687: the first time this account reaches an area whose station it owns, the station builds in (Effects) and
+	-- this fanfare plays. Fired once per area per account, so it never repeats.
+	StationReveal = function()
+		Audio.play("stationReveal")
+	end,
 	-- #3050: the Rummage Bin's prize (row id, first) plays its own cue after the bar's RescueDone chime.
 	RummageWin = function(rowId: any)
 		Audio.play(Logic.rummageCue(rowId))

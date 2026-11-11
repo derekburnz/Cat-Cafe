@@ -83,7 +83,26 @@ v7, 2026-11-10 (#2683 and #2895, then #2915 step 3, built in #2973):
 
 v7.1, 2026-11-10 (#3111, built in #3122; Derek2: "lower the different cats requirement a little bit between 3-7"): different cats to rank up are now **Tier 3 10** (was 11), **Tier 5 26** (28), **Tier 6 38** (42) and **Tier 7 47** (52). Tier 4 stays at **22**: 21 or 20 puts a 4x Money owner at Tier 5 in 1 h 47 to 1 h 53, under section 8 check 7's 2 hour floor. Coin costs are unchanged. Tier 2 keeps 5.
 
-Pending (not on main yet): #3195 shorter nights (45 s night, 345 s day) and #3204 new tier caps and net prices, each with a Pace re-band. A v8 entry follows when they merge.
+v8, 2026-11-11 (#3195 and #3204, built together in #3253; Derek2: "make the night times faster to stop being leaving during night" and "move some of the upgrades around and net upgrades later on in tiers"):
+- **Nights 45 s, days 345 s** (were 70 and 320). A game day stays 390 s, so sunrises, restocks and pity timers fall where they did.
+- **Tier 2 caps:** Tables 4, Espresso 3, Net 1, Bait Bowl 2, Lucky Cat 2 (were 5, 4, 2, 3, 3). Net 2 opens at Tier 3 and Net 3 at Tier 5. A level already owned above a cap is kept.
+- **Net costs:** 2,500 / 200,000 / 60,000,000 (were 2,500 / 25,000 / 800,000).
+- **Tier costs:** Tier 2 **13,500** (was 12,000), Tier 3 **520,000** (420,000), Tier 5 **370,000,000** (350,000,000). Tier 4 is unchanged.
+- **Why Tier 3 went up, not down:** the caps make Tier 2 to 3 faster, because coins no longer go into upgrade levels that aren't open yet. At 420k Tier 3 came at 27.7 min. 520k gives 30.2, and 560k only 1.2 min more while pushing the longest wait and Lucky Cat 3 out of band, so 520k it is.
+- **Bands moved, only where the change needs it:**
+
+| guard | band now | was | median |
+|---|---|---|---|
+| first hour: Tier 3 | 30 to 45 min, fastest tenth 20 or later | 33 to 45, tenth 25 | 30.2 (tenth 20.1) |
+| first hour: longest wait | 22.5 min at most | 16 | 22.1 |
+| first hour, fast player: Tier 2 | 8 min floor | 10 | 8.1 |
+| lawn run: Tier 5 | 4 h floor | 4.25 h | 4 h 14 |
+
+- **Why the Tier 2 floor moved and not the price:** 17,500 pulled the fast player back over 10 min, but it pushed the 4-catch and stray top-up runs past their 20 min Tier 2 ceiling and Tier 6 under its 5 h gap. The slower players are the ones we lose, so their ceiling wins.
+- **Pace.spec:** 30 pass. At 4 catches a day the medians are:
+  - Tier 2 0 h 14, Tier 3 0 h 32, Tier 4 1 h 42, Tier 5 3 h 59 (10th to 90th 2 h 59 to 4 h 50);
+  - Tier 6 5 h 06 after Tier 5, and Tier 7 8 h 47 after Tier 6.
+- The time table below is older (v7).
 
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 

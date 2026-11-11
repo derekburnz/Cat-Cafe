@@ -1537,6 +1537,29 @@ return function()
 			expect(Arcade.startBlocker(5, nil, true, true)).to.equal("Finish this game first")
 			expect(type(Arcade.startBlocker(5, nil, false, false))).to.equal("string")
 		end)
+
+		it("gives one free game each UTC day (#3296)", function()
+			local save = Arcade.fresh()
+			expect(Arcade.freeToday(save, NOW)).to.equal(true)
+			expect(Arcade.startBlocker(0, nil, false, true, true)).to.equal(nil)
+			expect(Arcade.playText(true)).to.equal("Play (free)")
+			expect(Arcade.playText(false)).to.equal("Play (1 🐟)")
+			expect(Arcade.useFree(save, NOW)).to.equal(true)
+			expect(Arcade.freeToday(save, NOW)).to.equal(false)
+			expect(Arcade.useFree(save, NOW)).to.equal(false)
+			expect(Arcade.startBlocker(0, nil, false, true, false)).to.equal(
+				"You need 1 golden fish 🐟 to play"
+			)
+			-- the next UTC day it's back
+			expect(Arcade.freeToday(save, NOW + Arcade.DAY_SECONDS)).to.equal(true)
+			-- kept through a save read and a join with another server's older save
+			local read = Arcade.sanitize(save, NOW)
+			expect(read.freeDay).to.equal(Arcade.day(NOW))
+			local joined = Arcade.merge(Arcade.fresh(), read)
+			expect(Arcade.freeToday(joined, NOW)).to.equal(false)
+			expect(Arcade.freeToday(Arcade.merge(read, Arcade.fresh()), NOW)).to.equal(false)
+			expect(Arcade.sanitize({ freeDay = "x" }, NOW).freeDay).to.equal(0)
+		end)
 	end)
 
 	describe("Circles.earlyScale (#2913 follow-up)", function()

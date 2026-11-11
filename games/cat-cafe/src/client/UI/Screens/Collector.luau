@@ -530,6 +530,9 @@ function Collector._refresh(self: any)
 		local variant = if instance then instance.variant else nil
 		self._portrait:set(def, CatVariant.isGold(variant))
 		self._discStroke.Color = Theme.rarityColor(if def then def.rarity else nil)
+		-- #3320: the tag over him shows the same face (it was made in #3132 but never given the cat)
+		self._tagPortrait:set(def, CatVariant.isGold(variant))
+		self._tagStroke.Color = Theme.rarityColor(if def then def.rarity else nil)
 		local custom = if instance then instance.name else nil
 		local breed = if def then def.name else "Your cat"
 		self._name.Text = if custom and custom ~= "" then custom else breed

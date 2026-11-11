@@ -40,6 +40,8 @@ type Entry = {
 	changedAt: number,
 	phase: number,
 	hissAt: number?,
+	beckonAt: number?, -- #3022: the waiting stray's call started then (Cats.beckon)
+	beckonYaw: number,
 	startleAt: number?, -- os.clock() of a near miss's spring (HopAt), until it lands
 	react: Logic.CatchReact?, -- catch v3 (#1892): the reaction to a judged ring or the net wrap playing now
 	reactAt: number, -- os.clock() it started
@@ -522,6 +524,8 @@ local function bind(model: Model): Entry?
 		changedAt = 0,
 		phase = rng:NextNumber(0, 20),
 		hissAt = nil,
+		beckonAt = nil,
+		beckonYaw = 0,
 		startleAt = nil,
 		react = nil,
 		reactAt = 0,
@@ -776,6 +780,15 @@ local function step(dt: number)
 				Logic.startle(o, k)
 			end
 		end
+		local beckonAt = entry.beckonAt
+		if beckonAt ~= nil then
+			local k = (now - beckonAt) / motion.beckon.seconds
+			if k >= 1 then
+				entry.beckonAt = nil
+			else
+				Logic.beckon(o, k, entry.beckonYaw)
+			end
+		end
 		-- catch v3 (#1892): the mood stance on a free stray, and the reaction to a judged ring or the net wrap
 		local mood = if entry.style == "stray" then model:GetAttribute("Mood") else nil
 		local moodOn = (mood == "Curious" or mood == "Skittish") and not fleeing
@@ -868,6 +881,23 @@ function Cats.startle(model: Model, lag: number?)
 	end
 	if entry ~= nil then
 		entry.startleAt = os.clock() - (lag or 0)
+	end
+end
+
+-- #3022 (Effects/StrayCall): the stray waiting for this player's second cat calls them over, its head turned `yaw`
+-- degrees. Picked up at once like a hiss, since the caller has already checked the player is near. A call while one
+-- plays is ignored.
+function Cats.beckon(model: Model, yaw: number)
+	if hidden(model) then
+		return
+	end
+	local entry: Entry? = active[model]
+	if entry == nil and model.Parent ~= nil then
+		entry = bind(model)
+	end
+	if entry ~= nil and entry.beckonAt == nil then
+		entry.beckonAt = os.clock()
+		entry.beckonYaw = yaw
 	end
 end
 

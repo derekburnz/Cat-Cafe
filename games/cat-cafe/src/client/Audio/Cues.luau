@@ -790,6 +790,13 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.5,
 		duck = true,
 	}, -- F48 Index rewards
+	stationReveal = {
+		ids = { "rbxassetid://127241224294798" }, -- the indexReward file until its own upload (#2687)
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+		duck = true,
+	}, -- #2687: a new station builds in the first time you reach its area
 
 	-- Coins, tiers and the night economy (5.6) --------------------------------------------------------------
 	coinPop = {

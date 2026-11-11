@@ -2024,6 +2024,10 @@ local function wireServerEvents()
 	Net.on("Toast", function(text: string, kind: Types.ToastKind?)
 		UI.toast(text, kind)
 	end)
+	-- #3301: an owner's /shout from any server, in the OWNER bubble
+	Net.on("OwnerShout", function(text: string)
+		(UI :: any).ownerShout(text)
+	end)
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
 		-- nothing before #2426, which counts as shown)

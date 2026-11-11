@@ -19,7 +19,8 @@
 --   update(before, view) -> (shown, opened)   shown(view) keeping every key that showed before this session (selling
 --                                       cats never hides the Index), and the keys new since before (none on the
 --                                       first sync: before nil)
---   pops(opened) -> { Key }             #3161: the keys that pop with "New!": none when many open at once
+--   pops(opened, guiding?) -> { Key }   #3161: the keys that pop with "New!": none when many open at once;
+--                                       #3183: none while the tutorial is still guiding (its steps open them)
 -- Pure, so the cloud spec runner checks it.
 
 local HudUnlocks = {}
@@ -134,8 +135,10 @@ end
 -- pointer is the one thing asking for a look.
 HudUnlocks.POP_MOST = 2
 
-function HudUnlocks.pops(opened: { Key }): { Key }
-	return if #opened > HudUnlocks.POP_MOST then {} else opened
+-- #3183 (Derek2 2026-11-10: "remove all the new pop ups in buttons when finishing tutorial steps"): `guiding` is
+-- true when the pieces opened at a tutorial step (the step before the update was under DONE); those just appear too.
+function HudUnlocks.pops(opened: { Key }, guiding: boolean?): { Key }
+	return if guiding or #opened > HudUnlocks.POP_MOST then {} else opened
 end
 
 function HudUnlocks.update(before: { [Key]: boolean }?, view: View): ({ [Key]: boolean }, { Key })

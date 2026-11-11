@@ -3722,7 +3722,7 @@ Presets.contextCut = {
 	far = 70,
 	rise = 0.45,
 	lookUp = 0.15,
-	skipAfter = 0.2, -- #3168: was 1
+	skipAfter = 0, -- #3168: was 1, then 0.2
 	skipOut = 0.35,
 	bars = 0.11,
 	captionSize = 26,
@@ -4100,6 +4100,10 @@ Presets.areaFx = {
 -- station builds in. Every part drops in from above, turning, and snaps into place, bottom to top, fading in as it
 -- falls. With Reduce Motion the whole station only fades in.
 Presets.stationBuild = {
+	-- #3191 (Derek2 2026-11-10: "when landing here the first time the picnic table and stuff load in block at a time
+	-- falling from sky", and the Yard Sale the same): off, so every camp station and its growth is simply there on a
+	-- first visit; the reveal's burst, sparkle, fanfare and Unlocked card still play
+	on = false,
 	wait = 4, -- seconds to wait for the station to stream in after the reveal
 	spread = 1.8, -- seconds from the first piece starting to the last
 	piece = 0.45, -- seconds each piece takes to drop into place

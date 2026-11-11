@@ -786,8 +786,8 @@ return function()
 			expect(Intro.launchTime(shot, shot.hold)).to.be.near(shot.seconds, 1e-9)
 		end)
 
-		it("lets Next in from 1.0 s, before any shot's hold ends", function()
-			expect(Intro.NEXT_AFTER).to.equal(0.2) -- #3168: was 1.0
+		it("lets Next in at once, before any shot's hold ends (#3168)", function()
+			expect(Intro.NEXT_AFTER).to.equal(0) -- #3168: was 1.0, then 0.2
 			for _, shot in Intro.shots(EAST, true, true) do
 				expect(Intro.NEXT_AFTER < shot.hold).to.equal(true)
 			end

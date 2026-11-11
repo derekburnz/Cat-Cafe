@@ -1047,6 +1047,7 @@ local function enterShot(r: Run, position: number)
 	-- #2182: the hold fills the caption's read bar (UI-Engineer's fourth argument; the UI ignores it until then)
 	(UI.intro :: any).setShot(shot.index, deviceCaption(shot.caption), nil, shot.hold)
 	Moments.IntroShot:Fire(shot.index)
+	Net.fire("TelemetryReport", "intro_shot", shot.index) -- #3098: quit_scene's shot and first_scene (analytics only)
 end
 
 -- #2759 (Derek2 11-09: on a phone emulation the catch steps were "just a yellow screen"): a slow phone can miss

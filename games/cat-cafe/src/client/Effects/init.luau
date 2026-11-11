@@ -80,10 +80,12 @@ local SlotWalk = require(script.SlotWalk)
 local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
+local StationReveal = require(script.StationReveal)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
+local TrailSparkle = require(script.TrailSparkle)
 local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
 
@@ -170,8 +172,10 @@ function Effects.start()
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,
+		TrailSparkle.start,
 		GoldenFind.start,
 		StationBuild.start,
+		StationReveal.start,
 		CampGrowth.start,
 		Townsfolk.start,
 	}

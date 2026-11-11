@@ -697,7 +697,7 @@ return function()
 			expect(Economy.nextUpgradeCost(p, "net")).to.equal(2500)
 			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(600)
 			p.upgradeLevels.net = 1
-			expect(Economy.nextUpgradeCost(p, "net")).to.equal(25000)
+			expect(Economy.nextUpgradeCost(p, "net")).to.equal(200000) -- #3204: 25,000 before
 			p.upgradeLevels.tables = 6
 			expect(Economy.nextUpgradeCost(p, "tables")).never.to.be.ok()
 			expect(Economy.nextUpgradeCost(p, "cafe_level")).never.to.be.ok()
@@ -753,15 +753,15 @@ return function()
 					{ "tables", 1, nil },
 					{ "tables", 2, 2 },
 					{ "tables", 3, 2 },
-					{ "tables", 4, 2 }, -- #1896: Tables 5 at Tier 2
+					{ "tables", 4, 3 }, -- #3204: Tables 5 at Tier 3 (Tier 2 from #1896)
 					{ "tables", 5, 3 },
 					{ "espresso", 1, nil },
 					{ "espresso", 2, 2 },
-					{ "espresso", 3, 2 }, -- #1896: Espresso 4 at Tier 2
+					{ "espresso", 3, 3 }, -- #3204: Espresso 4 at Tier 3 (Tier 2 from #1896)
 					{ "espresso", 4, 4 },
 					{ "net", 0, nil },
-					{ "net", 1, 2 },
-					{ "net", 2, 3 },
+					{ "net", 1, 3 }, -- #3204: Net 2 at Tier 3 and Net 3 at Tier 5 (were 2 and 3)
+					{ "net", 2, 5 },
 				}
 				for _, case in ipairs(cases) do
 					local id, level, needs = case[1], case[2], case[3]
@@ -783,7 +783,7 @@ return function()
 						p.tier = needs
 						expect(Economy.upgradeBlocker(p, id)).to.equal("Not enough coins")
 					end
-					p.coins = 1e8 -- F95: the dearest of these, espresso 5, is 6,000,000
+					p.coins = 1e8 -- F95: the dearest of these, Net 3 (#3204), is 60,000,000
 					p.tier = needs or 1
 					expect(Economy.upgradeBlocker(p, id)).never.to.be.ok()
 				end
@@ -1135,17 +1135,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 12,000 coins (#2915; 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
+			"Tier 1 to 2: 5 different cats and 13,500 coins (#3195; 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 12000
+				p.coins = 13500
 				for _, id in { "ginger", "tuxedo", "smoke" } do
 					p.collection[id] = 1000
 				end
 				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 				p.collection.calico = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 11999
+				p.coins = 13499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)

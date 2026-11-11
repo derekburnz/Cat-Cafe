@@ -4306,12 +4306,13 @@ for _, def in Catalog.crates do
 		shopRow({ id = def.id, kind = "crate", cost = def.price })
 	end
 end
-shopRow({ id = "star_treat", kind = "lure", cost = 150 }) -- Derek2 2026-11-07: "more expensive like 150" (was 80)
+-- #3317 (Derek2 2026-11-11: "move to the top of perks"): Swift Paws first, five levels (shared/SwiftPaws; Monetization-
+-- Agent's prices, 1,810 fish in all). The Star Treat's row (150 fish) is gone from the Market only (Derek2: "remove
+-- star treat from fish market"); it still comes from the Daily Treat, the Dealer and prizes, and saved ones stay.
+shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150, 300, 500, 800 }, maxLevel = 5 })
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })
--- #3063 (shared/SwiftPaws): +1 walk speed a level, normal walk and carrying; two levels (Monetization-Agent)
-shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150 }, maxLevel = 2 })
 
 Catalog.fishShopById = {} :: { [string]: Types.FishShopRow }
 for _, row in Catalog.fishShop do

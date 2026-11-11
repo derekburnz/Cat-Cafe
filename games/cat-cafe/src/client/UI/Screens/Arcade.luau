@@ -3,7 +3,7 @@
 -- in the Town Square and the Menu list's Arcade row open it. Two faces:
 --   - the card: this player's best and the server's, the last game's line ("Score 37 · Best 52 · Server best 61
 --     (Sam)"), the ten prizes with the ones already paid today ticked, the once-a-day rule in plain words (no
---     countdown, Monetization-Agent's conditions), "Play (1 🐟)" and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
+--     countdown, Monetization-Agent's conditions), Play with a FREE pill for the first game of the UTC day (#3296), then the fish coin and "x1", and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
 --     to feature the player since he suggested").
 --   - the board, while a game runs: the circles the server sends (ArcadeBlock) close onto their rings at their spots,
 --     and a tap anywhere on the board, Space or the gamepad's A presses the circle closing now. The UI only says which
@@ -53,12 +53,22 @@ local GAP = Theme.sizes.gap
 local GRID_LINES = 10 -- #3338: the board's neon grid, this many cells each way
 local GRID_SEEN = 0.88 -- its lines' see-through share
 local ACTION_NAME = "CatCafeArcadePress" -- Space and the gamepad's A press while the board is up, and don't jump
-local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Each prize pays once a day; a new day starts at "
-	.. "midnight UTC."
+local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Your first game each day is free, and each prize "
+	.. "pays once a day; a new day starts at midnight UTC."
 local PLAY_TEXT = "PLAY"
 local COST = Config.ArcadeCostFish or 1
 local PRIZE_PIC = 26 -- #3338: the picture leading each prize row
 local PILL_W = 64 -- the cost pill on Play
+local FREE_TEXT = "FREE" -- #3296: the pill while today's free game is there
+local TAB_H = 40 -- #3338: the Prizes / Leaderboard tabs
+local TOP_LINE_H = 32 -- one leaderboard line
+local SCORE_W = 150 -- its score, room for "100 in 58 circles"
+-- the top three ranks in gold, silver and bronze
+local RANK_COLORS: { [number]: Color3 } = {
+	Color3.fromHex("FFD34D"),
+	Color3.fromHex("D7DCE6"),
+	Color3.fromHex("E2A26B"),
+}
 local READY_TEXT = "Ready?"
 local HINT_TEXT = "Tap when the circle meets the ring"
 
@@ -267,13 +277,114 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		LayoutOrder = 2,
 		Parent = card,
 	})
-	text({
-		Name = "PrizesTitle",
-		Size = UDim2.new(1, 0, 0, 22),
-		FontFace = Theme.fonts.display,
-		Text = "Prizes today",
+	-- #3338 (Derek2: the leaderboard button): two tabs over the list, today's prizes or the arcade's top players
+	local tabs: Frame = Create("Frame", {
+		Name = "Tabs",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, TAB_H),
 		LayoutOrder = 5,
 		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._tab = "prizes"
+	self._prizesTab = Button.new({
+		name = "PrizesTab",
+		text = "Prizes today",
+		icon = "🎁",
+		style = "gold",
+		size = UDim2.new(0.5, -GAP / 2, 0, TAB_H),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 1,
+		parent = tabs,
+		onClick = function()
+			self:_showTab("prizes")
+		end,
+	})
+	self._topTab = Button.new({
+		name = "LeaderboardTab",
+		text = "Leaderboard",
+		icon = "🏆",
+		style = "ghost",
+		size = UDim2.new(0.5, -GAP / 2, 0, TAB_H),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 2,
+		parent = tabs,
+		onClick = function()
+			self:_showTab("top")
+		end,
+	})
+	local top: Frame = Create("Frame", {
+		Name = "Leaderboard",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		LayoutOrder = 6,
+		Parent = card,
+	}, {
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	self._top = top
+	self._topLines = {} :: { Frame }
+	for rank = 1, ArcadeRules.TOP do
+		local line: Frame = Create("Frame", {
+			Name = "Line" .. rank,
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, TOP_LINE_H),
+			Visible = false,
+			LayoutOrder = rank,
+			Parent = top,
+		})
+		round(line, UDim.new(0, Theme.sizes.radiusSmall))
+		text({
+			Name = "Rank",
+			Position = UDim2.fromOffset(8, 0),
+			Size = UDim2.new(0, 40, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextColor3 = RANK_COLORS[rank] or PAL.subtext,
+			TextWrapped = false,
+			Parent = line,
+		})
+		text({
+			Name = "Name",
+			Position = UDim2.fromOffset(52, 0),
+			Size = UDim2.new(1, -(52 + SCORE_W + 16), 1, 0),
+			TextWrapped = false,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			Parent = line,
+		})
+		text({
+			Name = "Score",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -10, 0, 0),
+			Size = UDim2.new(0, SCORE_W, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextColor3 = PAL.gold,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			TextWrapped = false,
+			Parent = line,
+		})
+		table.insert(self._topLines, line)
+	end
+	self._topEmpty = text({
+		Name = "Empty",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "No scores yet. Play to be the first!",
+		LayoutOrder = ArcadeRules.TOP + 1,
+		Parent = top,
 	})
 	local grid: Frame = Create("Frame", {
 		Name = "Prizes",
@@ -289,6 +400,7 @@ function Arcade.new(callbacks: Callbacks): Arcade
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._prizeGrid = grid
 	self._prizeRows = {} :: { [number]: TextLabel }
 	for order, milestone in ArcadeRules.milestones() do
 		local chip: Frame = Create("Frame", {
@@ -377,7 +489,8 @@ function Arcade.new(callbacks: Callbacks): Arcade
 	if fishImage ~= nil then
 		IconArt.setImage(coin, fishImage, 0.95)
 	end
-	text({
+	self._coin = coin
+	self._amount = text({
 		Name = "Amount",
 		Position = UDim2.fromOffset(30, 0),
 		Size = UDim2.new(1, -34, 1, 0),
@@ -557,6 +670,9 @@ function Arcade._canPlay(self: any): boolean
 	if state == nil or not state.loaded or self._on ~= true then
 		return false
 	end
+	if state.free == true then
+		return true -- #3296: today's free game
+	end
 	return self._fish >= (Config.ArcadeCostFish or 1)
 end
 
@@ -589,6 +705,7 @@ function Arcade._renderCard(self: any)
 	else
 		self._lastLine.Visible = false
 	end
+	self:_renderTop()
 	local today: { number } = if state ~= nil then state.today else {}
 	for at, words in self._prizeRows do
 		local milestone = ArcadeRules.milestoneAt(at)
@@ -603,14 +720,49 @@ function Arcade._renderCard(self: any)
 		why = "The Cat Arcade is closed for now"
 	elseif state == nil or not state.loaded then
 		why = "Waking the arcade up..."
-	elseif self._fish < (Config.ArcadeCostFish or 1) then
+	elseif state.free ~= true and self._fish < (Config.ArcadeCostFish or 1) then
 		why = "You need a golden fish 🐟 to play. Catch cats to earn them."
 	end
+	-- #3296: the pill reads FREE (no fish coin) while today's free game is there, else the fish coin and "x1"
+	local free = state ~= nil and state.free == true
+	self._coin.Visible = not free
+	self._amount.Position = UDim2.fromOffset(if free then 4 else 30, 0)
+	self._amount.Size = UDim2.new(1, if free then -8 else -34, 1, 0)
+	self._amount.Text = if free then FREE_TEXT else "x" .. tostring(COST)
 	self._why.Text = why or ""
 	self._why.Visible = why ~= nil
 	local can = why == nil and self._run == nil
 	self._playButton:setEnabled(can)
 	self._shine(can and self.frame.Visible) -- #3338
+end
+
+-- #3338: shows today's prizes or the leaderboard under the Play button.
+function Arcade._showTab(self: any, tab: string)
+	self._tab = tab
+	self._prizesTab:setStyle(if tab == "prizes" then "gold" else "ghost")
+	self._topTab:setStyle(if tab == "top" then "gold" else "ghost")
+	self._prizeGrid.Visible = tab == "prizes"
+	self._top.Visible = tab == "top"
+end
+
+-- #3338: the leaderboard's lines from the state's top players.
+function Arcade._renderTop(self: any)
+	local state: ArcadeRules.State? = self._state
+	local rows: { ArcadeRules.Row } = if state ~= nil and state.top ~= nil then state.top else {}
+	for index, line in self._topLines :: { Frame } do
+		local row = rows[index]
+		line.Visible = row ~= nil
+		if row ~= nil then
+			local rank = line:FindFirstChild("Rank") :: TextLabel
+			local name = line:FindFirstChild("Name") :: TextLabel
+			local score = line:FindFirstChild("Score") :: TextLabel
+			rank.Text = "#" .. row.rank
+			name.Text = if row.me then row.name .. " (you)" else row.name
+			score.Text = ArcadeRules.words(row.points, row.circles)
+			line.BackgroundColor3 = if row.me then PAL.goldCard else PAL.card
+		end
+	end
+	self._topEmpty.Visible = #rows == 0
 end
 
 -- #3338: the next prize under the points, from today's paid prizes as the card last had them.

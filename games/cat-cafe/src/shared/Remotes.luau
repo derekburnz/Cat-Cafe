@@ -206,11 +206,19 @@ Remotes.ClientToServer = {
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
 	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
-	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game,
+	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game.
+	-- #3296: the first game of each UTC day is free (no fish, no trade freeze check). Starts are
 	-- answered with ArcadeBlock (refusals are a toast); 1 a second
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
 	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
+	-- #3196 (trait-station.md, TraitService, shared/Traits): each refused while the `traits` switch is off or the tier
+	-- has not opened the Park's camp extra; no range check (it opens from the Cannon menu too); answered with one sync
+	"RollTrait", -- (uid: string)  the cat owned and no re-roll waiting; paid by a free starter roll, else a Trait Token,
+	-- else 10 golden fish (none held in an open trade). A cat with no trait takes the roll; one with a trait keeps it
+	-- and the roll waits (PlayerState.traits.pending) for ChooseTrait. 1 a second
+	"ChooseTrait", -- (takeNew: boolean)  the waiting re-roll goes on its cat (true) or is dropped; 1 a second
+	"CollectTraitTokens", -- ()  the station's free tokens (one each 12 h, holding 2) go to the bank; 1 a second
 }
 
 -- Server -> client.
@@ -235,6 +243,7 @@ Remotes.ServerToClient = {
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
 	-- or Mythical check-in shout-out at most once a minute a player (RareMomentService)
+	"OwnerShout", -- (text: string)  #3301: an owner's filtered /shout, to everyone on every server, for the OWNER bubble
 	"RareCatchChat", -- (text: string, rarity: Types.Rarity, elsewhere: boolean)  #2203: a catch shout-out as a chat
 	-- line, to everyone: this server's (elsewhere false, with its Announce) or another server's from MessagingService
 	-- (elsewhere true, no toast), at most one every GlobalCatch.SHOW_GAP_SECONDS (GlobalCatchService)

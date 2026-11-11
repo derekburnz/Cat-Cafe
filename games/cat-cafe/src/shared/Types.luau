@@ -561,6 +561,35 @@ export type CatInstance = {
 	-- F62 (section 4): true when the player locked it, so it cannot be sold or traded; nil is unlocked. Gold,
 	-- Legendary and Mythical cats arrive locked.
 	locked: boolean?,
+	-- #3196 (trait-station.md, save version 48): its one trait from the Mystic Pool, nil for none; it travels with the
+	-- cat in a trade
+	trait: TraitData?,
+}
+
+-- #3196: a cat's trait, a shared/Traits id (its rarity and effects come with the id)
+export type TraitData = { id: string }
+
+-- #3196 (trait-station.md sections 3 and 4, save version 48): the Mystic Pool's side of the save. `freeUsed` counts the
+-- free starter rolls used, 0 to Traits.FREE_ROLLS, up (so a missing field never grants them again); `tokens` the
+-- Trait Tokens banked; `held` and `at` the station's free tokens waiting and when the next one started (os.time());
+-- `pending` a re-roll waiting for Keep old or Take new, saved so the roll paid for is never lost.
+export type TraitSave = {
+	tokens: number,
+	freeUsed: number,
+	held: number,
+	at: number,
+	pending: TraitPending?,
+}
+export type TraitPending = { uid: string, id: string, paid: string? } -- paid: free, token or fish
+
+-- #3196: PlayerState.traits, the Mystic Pool card's numbers (nil while the `traits` flag is off or the station is
+-- shut for the tier). `nextAt` is the next free token in server time, nil while the station holds TOKEN_HOLD.
+export type TraitsView = {
+	tokens: number,
+	freeLeft: number,
+	held: number,
+	nextAt: number?,
+	pending: TraitPending?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
@@ -576,6 +605,7 @@ export type CatView = {
 	name: string?,
 	method: CatchMethod?,
 	locked: boolean, -- F62: the lock icon on its card
+	trait: TraitData?, -- #3196
 	level: number,
 	xp: number,
 	xpToNext: number, -- 0 at the level cap
@@ -1275,6 +1305,7 @@ export type PlayerProfile = {
 	museum: MuseumSave, -- #2651 part 4 (late-stations.md section 2, save version 46): the Relic Museum
 	invites: InviteSave, -- #2797 (save version 47): the invite reward, the inviter's side
 	referredBy: ReferredBy?, -- #2797 (save version 47): the joiner's side, set once on a fresh save
+	traits: TraitSave, -- #3196 (trait-station.md, save version 48): the Mystic Pool's tokens, free rolls and timer
 	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
 	-- F102 (trading.md sections 4 and 5, save version 27): the last TradeLogMax trades for the Trades page, and the ids
 	-- of the last TradeIdsMax trades applied to this save, so a trade pending after a shutdown is applied only once
@@ -1376,6 +1407,8 @@ export type PlayerState = {
 	giftNext: { GiftStepView }?,
 	-- #2797 (retention-ideas.md 5d): the invite card and the Friends button (shared/Invites.view); nil from an older server
 	invite: InviteView?,
+	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server
+	traits: TraitsView?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

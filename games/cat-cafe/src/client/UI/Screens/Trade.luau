@@ -98,12 +98,13 @@ type PieceCard = {
 }
 
 type Tab = "cats" | "decor" | "crates"
-local TABS: { { id: Tab, label: string } } = {
-	{ id = "cats", label = "Cats" },
-	{ id = "decor", label = "Decor" },
-	{ id = "crates", label = "Crates" }, -- #2745: shown while the server's cratesOn says so
+-- #3350 (Derek2: "add symbols to them so its easier"): a symbol before each tab's name
+local TABS: { { id: Tab, label: string, icon: string } } = {
+	{ id = "cats", label = "Cats", icon = "🐱" },
+	{ id = "decor", label = "Decor", icon = "🌿" },
+	{ id = "crates", label = "Crates", icon = "📦" }, -- #2745: shown while the server's cratesOn says so
 }
-local TAB_W = 70
+local TAB_W = 96 -- #3350: room for the symbol (70 with the name alone)
 local PIECE_ORDER = 100 -- pieces follow the cats in a grid or a confirm row
 local CRATE_ORDER = 150 -- #2745: crates follow the pieces
 local FISH_ORDER = 190 -- #2745: then the golden fish
@@ -589,7 +590,7 @@ function Trade._buildOffer(self: any, content: Frame)
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
 			TextColor3 = PAL.text,
-			Text = tab.label,
+			Text = tab.icon .. " " .. tab.label,
 			LayoutOrder = order,
 			Visible = id ~= "crates", -- #2745: until a TradeState says cratesOn
 			Parent = tabs,

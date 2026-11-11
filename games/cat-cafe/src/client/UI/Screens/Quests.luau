@@ -117,6 +117,9 @@ type Pending = {
 }
 
 local TABS: { Tab } = { "Daily", "Weekly", "Achievements" }
+-- #3350 (Derek2: "add symbols to them so its easier"): a symbol beside each tab's name
+local TAB_ICONS: { [string]: string } =
+	{ Daily = "📅", Weekly = "🗓️", Achievements = "🏆" }
 local MAX_SIZE = Vector2.new(660, 560)
 local TAB_HEIGHT = Theme.sizes.touchMin
 local TAB_WIDTH = 150
@@ -310,6 +313,7 @@ function Quests.new(callbacks: Callbacks): Quests
 		local button = Button.new({
 			name = tab .. "Tab",
 			text = tab,
+			icon = TAB_ICONS[tab],
 			style = if tab == "Daily" then "gold" else "ghost",
 			size = UDim2.fromOffset(TAB_WIDTH, tabHeight),
 			textSize = Theme.sizes.textBody,

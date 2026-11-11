@@ -1084,6 +1084,9 @@ local Config = {
 	BumpSameTargetSeconds = 0, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
 	ShoveTargetImmuneSeconds = 0, -- after a hit lands, nobody can hit that player again for this long (S45)
+	-- #3342 (Derek2 2026-11-11: "tackling immunity for the first 5 minutes"): nobody can tackle a player for this long
+	-- after they join a server, each session. Their own tackle press (one the server takes) ends it early.
+	TackleShieldSeconds = 300,
 	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
 	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
 	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.

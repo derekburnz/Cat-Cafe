@@ -587,8 +587,8 @@ function Trade.summaries(cats: { Types.CatInstance }): { Types.CatSummary }
 	return out
 end
 
--- The cat as it arrives in its new owner's save at `now`: the same uid, kind, coat, level, xp, charm and rescued
--- flag; no name and no slot; method "trade"; unlocked (#2906).
+-- The cat as it arrives in its new owner's save at `now`: the same uid, kind, coat, level, xp, charm, rescued flag
+-- and trait; no name and no slot; method "trade"; unlocked (#2906).
 function Trade.arrival(instance: Types.CatInstance, now: number): Types.CatInstance
 	local arrived: Types.CatInstance = {
 		uid = instance.uid,
@@ -603,6 +603,8 @@ function Trade.arrival(instance: Types.CatInstance, now: number): Types.CatInsta
 		name = nil,
 		method = "trade",
 		locked = nil, -- #2906: never auto-locked
+		-- #3196: its trait travels with it (trait-station.md QA check 1)
+		trait = if instance.trait ~= nil then table.clone(instance.trait) else nil,
 	}
 	return arrived
 end

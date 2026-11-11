@@ -11,7 +11,8 @@
 --   to the events store; from anyone else it is refused with a line in the output.
 -- - #3212: in a live public server the same command (`/event 10` is the full party for 10 minutes) runs a real event
 --   on every server through the events schedule (EventService.ownerStart), and `/shout <message>` shows a filtered
---   message to every player on every server (MessagingService topic OwnerTest.TOPIC).
+--   message to every player on every server (MessagingService topic OwnerTest.TOPIC). #3301: the message shows in the
+--   OWNER bubble (OwnerShout), and the experience's own owner counts as an owner (OwnerTest.isOwnerPlayer).
 -- Nothing a product holds can be traded (OwnerTest.tradeableIn, OwnerTest.spec), and grants never reach the Thank
 -- You board, which lists idea credits only.
 
@@ -33,8 +34,18 @@ local Products = require(ReplicatedStorage.Shared.Products)
 
 local OwnerTestService = {}
 
+-- #3301: on the list, or the experience's own owner (OwnerTest.isOwnerPlayer); a user id with no player here goes
+-- by the list alone
+local function ownerId(userId: number): boolean
+	if OwnerTest.isOwner(userId) then
+		return true
+	end
+	local player = Players:GetPlayerByUserId(userId)
+	return player ~= nil and OwnerTest.isOwnerPlayer(player)
+end
+
 local function mark(player: Player)
-	if OwnerTest.isOwner(player.UserId) then
+	if OwnerTest.isOwnerPlayer(player) then
 		player:SetAttribute(OwnerTest.ATTRIBUTE, true)
 		print(
 			string.format(
@@ -47,7 +58,7 @@ local function mark(player: Player)
 end
 
 local function onOwnerGrant(player: Player, rawProductId: unknown)
-	if not OwnerTest.isOwner(player.UserId) then
+	if not OwnerTest.isOwnerPlayer(player) then
 		warn(
 			string.format(
 				"[OwnerTest] OwnerGrant from %d, who is not an owner: dropped",
@@ -125,7 +136,7 @@ end
 -- (Derek2 2026-11-11: "I want to run it in a live game with a command from owner mode"): in a live public server
 -- it is a real event on every server (EventService.ownerStart), for an owner only.
 function OwnerTestService.eventCommand(userId: number, text: string): string?
-	if not OwnerTest.isOwner(userId) and not RunService:IsStudio() then
+	if not ownerId(userId) and not RunService:IsStudio() then
 		warn(`[OwnerTest] /event from {userId}, who is not an owner: dropped`)
 		return nil
 	end
@@ -155,7 +166,7 @@ local lastShoutAt: number? = nil
 -- through Roblox's filter for a broadcast first (TextService:FilterStringAsync, then the string for everyone), one
 -- shout every SHOUT_GAP_SECONDS a server. Returns the reply for the owner's toast.
 function OwnerTestService.shoutCommand(userId: number, text: string): string?
-	if not OwnerTest.isOwner(userId) and not RunService:IsStudio() then
+	if not ownerId(userId) and not RunService:IsStudio() then
 		warn(`[OwnerTest] /shout from {userId}, who is not an owner: dropped`)
 		return nil
 	end
@@ -186,7 +197,7 @@ function OwnerTestService.shoutCommand(userId: number, text: string): string?
 	end
 	local shown = passed :: string
 	print(`[OwnerTest] {userId} /shout sent ({#shown} bytes)`)
-	Net.fireAll("Announce", OwnerTest.SHOUT_PREFIX .. shown)
+	Net.fireAll("OwnerShout", shown)
 	tellServers(OwnerTest.shoutMessage(shown, game.JobId))
 	return if shown == body
 		then "Owner test mode: shout sent to all servers"
@@ -302,7 +313,7 @@ local function onServerMessage(message: any)
 	end
 	lastShown[kind] = now
 	if kind == "shout" and text ~= nil then
-		Net.fireAll("Announce", OwnerTest.SHOUT_PREFIX .. text)
+		Net.fireAll("OwnerShout", text)
 	elseif kind == "event" then
 		EventService.refresh()
 	end
@@ -332,9 +343,12 @@ function OwnerTestService.start()
 	Net.on("OwnerGrant", onOwnerGrant)
 	eventCommand()
 	listenToServers()
-	Players.PlayerAdded:Connect(mark)
+	-- mark can yield on a group-owned experience (OwnerTest.isOwnerPlayer's rank lookup)
+	Players.PlayerAdded:Connect(function(player: Player)
+		task.spawn(mark, player)
+	end)
 	for _, player in Players:GetPlayers() do
-		mark(player)
+		task.spawn(mark, player)
 	end
 end
 

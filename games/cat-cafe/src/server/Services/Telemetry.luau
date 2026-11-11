@@ -229,6 +229,12 @@ export type CustomEvent =
 	-- ok, no or skipped), the device and the session length bucket; the answer, the furthest onboarding_v6 step and
 	-- the cats owned bucket; the answer, the screen open and the build ("<place version>:<err|ok>")
 	| "session_feedback"
+	-- #3196 (trait-station.md section 7): a trait rolled, value its rarity rank (1 Common to 5 Mythic): the trait id
+	-- (its rarity comes with it), how it was paid (free, token, fish), and "first", "reroll_new" or "reroll_old" (which
+	-- was kept; a re-roll logs at its choice). Three fields, the most a custom event carries
+	| "trait_roll"
+	-- #3196: Trait Tokens gained, value how many: the source (station, spin, daily_treat, quest, lost_found, code)
+	| "trait_token"
 	| "session_feedback_ctx"
 	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device

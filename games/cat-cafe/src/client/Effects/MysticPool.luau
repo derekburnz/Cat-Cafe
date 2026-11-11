@@ -1,0 +1,333 @@
+--!strict
+-- The Mystic Pool's roll (#3314, trait-station.md section 1a). The server has already rolled; this only shows it:
+--   1. Sage Sorrel raises his staff, and the rolled cat floats up over the pool in a sparkle and drops in with a
+--      splash.
+--   2. The liquid steps grey, green, blue, gold (one step every Presets.mysticPool.step seconds, a bubble burst on
+--      each) and stops on the rolled rarity's colour. A mythic flashes on to purple with a rainbow shimmer, a star
+--      burst and confetti.
+--   3. The cat pops back out on a splash and `onReveal` runs (the trait card rises). The liquid then fades back to
+--      its rest colour and Sorrel lowers his staff.
+-- The steps only ever go up and stop on the real rarity (Logic.poolAt), never past it and back, and never pause to
+-- fake a "nearly": no near-miss teasing for a young audience. The colours are shared/Traits.RARITIES', so the pool
+-- and the card match.
+--
+--   local skip = MysticPool.roll(station, catModelOrAssetName, "rare", function() showCard() end)
+--   -- a tap: skip()  -- jumps straight to the card, from the very first roll
+--
+-- `station` is Model-Agent's CatCafe_Camp_Park_MysticPool (mysticpool.py: `_Liquid_Glow`, `_Sage_LegF2` with the
+-- staff, PoolDrop and StaffTip attachments). `cat` is a cat Model to copy, an asset name in ReplicatedStorage.Assets
+-- ("CatCafe_Cat_Tabby_Sit") or nil (the liquid alone). onReveal runs exactly once, whatever happens. Reduce Motion
+-- shows the final colour, one sparkle burst and the card at once. Client only, nothing replicates.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Context = require(script.Parent.Context)
+local Logic = require(script.Parent.Logic)
+local Particles = require(script.Parent.Particles)
+local Presets = require(script.Parent.Presets)
+local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits"))
+
+local MysticPool = {}
+
+local playing: { [Model]: () -> () } = {} -- station -> its running roll's skip
+
+-- The rarity's colour from shared/Traits (the card's), grey for an unknown id.
+function MysticPool.colourOf(rarity: string): Color3
+	for _, r in Traits.RARITIES do
+		if r.id == rarity then
+			return Color3.fromHex(r.color)
+		end
+	end
+	return Color3.fromHex(Traits.RARITIES[1].color)
+end
+
+local function findSuffix(root: Instance, suffix: string): Model?
+	for _, d in root:GetDescendants() do
+		if d:IsA("Model") and string.sub(d.Name, -#suffix) == suffix then
+			return d :: Model
+		end
+	end
+	return nil
+end
+
+local function attachment(root: Instance, name: string): Attachment?
+	local found = root:FindFirstChild(name, true)
+	return if found ~= nil and found:IsA("Attachment") then found :: Attachment else nil
+end
+
+local function partsOf(model: Model?): { BasePart }
+	local out = {}
+	if model ~= nil then
+		for _, d in model:GetDescendants() do
+			if d:IsA("BasePart") then
+				table.insert(out, d :: BasePart)
+			end
+		end
+	end
+	return out
+end
+
+-- A copy of the rolled cat to float, anchored and walk-through, or nil.
+local function copyCat(cat: (Model | string)?): Model?
+	local source: Instance? = nil
+	if typeof(cat) == "Instance" then
+		source = cat
+	elseif type(cat) == "string" then
+		local assets = ReplicatedStorage:FindFirstChild("Assets")
+		source = if assets ~= nil then assets:FindFirstChild(cat) else nil
+	end
+	if source == nil or not source:IsA("Model") then
+		return nil
+	end
+	local copy = (source :: Model):Clone() :: Model
+	for _, d in copy:GetDescendants() do
+		if d:IsA("BasePart") then
+			local part = d :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+		elseif d:IsA("Script") or d:IsA("LocalScript") then
+			d:Destroy()
+		end
+	end
+	copy.Name = "MysticPool_Cat"
+	copy.Parent = Context.folder()
+	return copy
+end
+
+local function ease(k: number): number
+	k = math.clamp(k, 0, 1)
+	return k * k * (3 - 2 * k)
+end
+
+function MysticPool.roll(
+	station: Model,
+	cat: (Model | string)?,
+	rarity: string,
+	onReveal: () -> ()
+): () -> ()
+	local old = playing[station]
+	if old ~= nil then
+		old() -- one roll at a time per pool: the last one jumps to its end
+	end
+	local p = Presets.mysticPool
+	local revealed = false
+	local function reveal()
+		if not revealed then
+			revealed = true
+			task.spawn(onReveal)
+		end
+	end
+
+	local liquidModel = findSuffix(station, p.liquidSuffix)
+	local liquid = partsOf(liquidModel)
+	local rest = if #liquid > 0 then liquid[1].Color else Color3.new(1, 1, 1)
+	local final = MysticPool.colourOf(rarity)
+	local steps = Logic.poolSteps(rarity)
+	local drop = attachment(station, "PoolDrop")
+	local surface = if drop ~= nil then drop.WorldPosition else station:GetPivot().Position
+	local tip = attachment(station, "StaffTip")
+	local arm = findSuffix(station, p.armSuffix)
+	local armRest = if arm ~= nil then arm:GetPivot() else nil
+	local turn = station:GetAttribute("SageTurn")
+	local right = station:GetPivot():VectorToWorldSpace(
+		CFrame.Angles(0, math.rad(if type(turn) == "number" then turn else 0), 0).RightVector
+	)
+
+	local function paint(colour: Color3)
+		for _, part in liquid do
+			part.Color = colour
+		end
+	end
+	local armK = 0
+	local function setArm(k: number)
+		armK = k
+		if arm ~= nil and armRest ~= nil then
+			local spin = CFrame.fromAxisAngle(right, math.rad(p.raiseDegrees) * k)
+			arm:PivotTo(CFrame.new(armRest.Position) * spin * armRest.Rotation)
+		end
+	end
+
+	local copy: Model? = nil
+	local loop: RBXScriptConnection? = nil
+	local finished = false
+	local skip: () -> ()
+	local function stop()
+		if loop ~= nil then
+			loop:Disconnect()
+			loop = nil
+		end
+		if copy ~= nil then
+			copy:Destroy()
+			copy = nil
+		end
+		if playing[station] == skip then
+			playing[station] = nil
+		end
+	end
+	-- After the card: the liquid fades back to rest and the staff comes down. A new roll takes over at once.
+	local function settle(from: Color3, armFrom: number)
+		local began = os.clock()
+		local fade: RBXScriptConnection
+		fade = RunService.Heartbeat:Connect(function()
+			if playing[station] ~= nil then
+				fade:Disconnect()
+				return
+			end
+			local k = (os.clock() - began) / p.fadeBack
+			paint(from:Lerp(rest, ease(k)))
+			setArm(armFrom * (1 - ease((os.clock() - began) / p.lower)))
+			if k >= 1 then
+				fade:Disconnect()
+				paint(rest)
+				setArm(0)
+			end
+		end)
+	end
+	skip = function()
+		if finished then
+			return
+		end
+		finished = true
+		stop()
+		paint(final)
+		reveal()
+		settle(final, armK)
+	end
+
+	if Context.reducedMotion() then
+		finished = true
+		paint(final)
+		Particles.burst("catchSparkle", surface + Vector3.new(0, 1, 0), p.revealSparkles, final)
+		reveal()
+		task.delay(p.showCat, function()
+			if playing[station] == nil then
+				settle(final, 0)
+			end
+		end)
+		return function() end
+	end
+	playing[station] = skip
+
+	copy = copyCat(cat)
+	local catSize = if copy ~= nil then copy:GetExtentsSize() else Vector3.zero
+	local start = surface + station:GetPivot().LookVector * p.startFront -- in front of the middle, on the liquid
+	local over = surface + Vector3.new(0, p.riseHeight, 0)
+	local under = surface - Vector3.new(0, p.sink + catSize.Y, 0)
+	local facing = station:GetPivot().Rotation * CFrame.Angles(0, math.pi, 0) -- the cat looks out at the players
+	local function placeCat(at: Vector3, spin: number)
+		if copy ~= nil then
+			copy:PivotTo(CFrame.new(at) * facing * CFrame.Angles(0, spin, 0))
+		end
+	end
+
+	local riseAt = p.raise
+	local dropAt = riseAt + p.rise + p.hang
+	local splashAt = dropAt + p.drop
+	local poolEnd = splashAt + Logic.poolSeconds(rarity)
+	local popEnd = poolEnd + p.popUp
+	local doneAt = popEnd + p.showCat
+	local began = os.clock()
+	local lastStep = 0
+	local sparkled, splashed, popped = false, false, false
+	placeCat(start - Vector3.new(0, catSize.Y + 1, 0), 0)
+	if tip ~= nil then
+		Particles.burst("catchSparkle", tip.WorldPosition, p.sparkles, Presets.palette.sparkle)
+	end
+
+	loop = RunService.Heartbeat:Connect(function()
+		local t = os.clock() - began
+		setArm(ease(t / p.raise))
+		if t < riseAt then
+			return
+		end
+		if not sparkled then
+			sparkled = true
+			Particles.burst(
+				"catchSparkle",
+				start + Vector3.new(0, 1, 0),
+				p.sparkles,
+				Presets.palette.sparkle
+			)
+		end
+		if t < dropAt then -- floating up and hanging over the pool, turning slowly
+			local k = ease((t - riseAt) / p.rise)
+			local at = start:Lerp(over, k) + Vector3.new(0, 0.15 * math.sin(t * 6), 0)
+			placeCat(at, k * math.pi * 0.5)
+			return
+		end
+		if t < splashAt then -- falling faster and faster into the liquid
+			local k = (t - dropAt) / p.drop
+			placeCat(over:Lerp(under, k * k), math.pi * 0.5)
+			return
+		end
+		if not splashed then
+			splashed = true
+			placeCat(under, 0)
+			paint(MysticPool.colourOf(steps[1]))
+			Particles.burst("splashDrops", surface, p.splash, Presets.palette.fishBelly)
+			Particles.burst("poolBubble", surface, p.bubbles, MysticPool.colourOf(steps[1]))
+			lastStep = 1
+		end
+		if t < poolEnd then
+			local into = t - splashAt
+			local i, k = Logic.poolAt(rarity, into)
+			local colour = MysticPool.colourOf(steps[i])
+			local from = MysticPool.colourOf(steps[math.max(i - 1, 1)])
+			paint(from:Lerp(colour, k))
+			if i > lastStep then
+				lastStep = i
+				Particles.burst("poolBubble", surface, p.bubbles, colour)
+				if steps[i] == "mythic" then
+					Particles.burst(
+						"catchSparkle",
+						surface + Vector3.new(0, 1.5, 0),
+						p.stars,
+						Presets.palette.sparkle
+					)
+					Particles.confetti(surface + Vector3.new(0, 2, 0), p.confetti, p.mythicColours)
+					Particles.ring(surface + Vector3.new(0, 0.2, 0), colour, 8, 0.9)
+				end
+			end
+			if steps[i] == "mythic" and k >= 1 then -- the rainbow shimmer over the purple
+				local hue = (into * p.shimmerHz) % 1
+				paint(
+					colour:Lerp(
+						Color3.fromHSV(hue, 0.65, 1),
+						p.shimmerMix * (0.5 + 0.5 * math.sin(into * 9))
+					)
+				)
+			end
+			return
+		end
+		if not popped then
+			popped = true
+			paint(final)
+			Particles.burst("splashDrops", surface, p.splash, Presets.palette.fishBelly)
+			Particles.burst(
+				"catchSparkle",
+				surface + Vector3.new(0, 1.5, 0),
+				p.revealSparkles,
+				final
+			)
+			finished = true
+			reveal()
+		end
+		if t < popEnd then
+			local k = ease((t - poolEnd) / p.popUp)
+			placeCat(under:Lerp(surface + Vector3.new(0, p.popHeight, 0), k), 0)
+			return
+		end
+		if t < doneAt then
+			placeCat(surface + Vector3.new(0, p.popHeight + 0.15 * math.sin(t * 4), 0), 0)
+			return
+		end
+		stop()
+		settle(final, 1)
+	end)
+	return skip
+end
+
+return MysticPool

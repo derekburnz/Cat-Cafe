@@ -2564,6 +2564,35 @@ Presets.storeBurst = {
 	},
 }
 
+-- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
+-- costs (Effects/ArcadeFx). Pixels and seconds.
+Presets.arcade = {
+	displayOrder = 23, -- over the arcade window (a modal, 20), under toasts (30)
+	sparkSize = 10,
+	sparkSeconds = 0.4,
+	sparkStagger = 0.08,
+	reach = 46,
+	ringFrom = 0.5, -- of the target's longer side
+	ringTo = 1.5,
+	ringSeconds = 0.35,
+	wordSize = 26,
+	wordRise = 34,
+	wordSeconds = 0.6,
+	grades = {
+		perfect = { word = "Perfect!", colour = Presets.palette.golden, sparkles = 8, rings = 1 },
+		good = { word = "Good", colour = Presets.palette.mint, sparkles = 4, rings = 1 },
+		miss = { word = "Miss", colour = Presets.palette.furGrey, sparkles = 0, rings = 0 },
+	},
+	milestone = {
+		colour = Presets.palette.golden,
+		sparkles = 12, -- the phone's burst cap
+		rings = 2,
+		ringGap = 0.15,
+		wordSize = 34,
+	},
+	fish = { glyph = "🐟", colour = Presets.palette.golden, sparkles = 6, wordSize = 30 },
+}
+
 Presets.tradeFly = {
 	displayOrder = 21, -- over the trade window (a modal, 20), under the bait card (35) and toasts (30)
 	seconds = 0.75,

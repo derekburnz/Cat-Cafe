@@ -277,4 +277,77 @@ function EventService.startTest(preset: string, minutes: number): string
 	return string.format("%s until %d", event.id, math.floor(event.endsAt))
 end
 
+-- #3212: reads the schedule now, not at the next poll (another server's owner changed it, OwnerTestService).
+function EventService.refresh()
+	read()
+	apply(now())
+end
+
+-- The schedule in the store, changed by `change` (pure; nil keeps it as it is). False when the store did not answer.
+local function rewrite(change: (raw: unknown) -> { any }?): boolean
+	local ok = pcall(function()
+		local store = DataStoreService:GetDataStore(CafeEvents.STORE .. SUFFIX)
+		store:UpdateAsync(CafeEvents.KEY, function(raw: unknown)
+			return change(raw)
+		end)
+	end)
+	return ok
+end
+
+-- #3212 (Derek2 2026-11-11: "/event 10 for 10 min evfent" from a live server): the owner's event for every server.
+-- A real record goes into the schedule (CafeEvents.ownerRecord, starting now), so each server runs it by the shared
+-- clock within its next read, as it would one from the events workflow. The caller (OwnerTestService) has checked
+-- the owner. Returns the line for the owner's toast and whether the schedule changed.
+function EventService.ownerStart(preset: string, minutes: number): (string, boolean)
+	local record = CafeEvents.ownerRecord(preset, now(), minutes)
+	if record == nil then
+		return "no such preset: " .. table.concat(CafeEvents.PRESETS, ", ") .. ", or stop", false
+	end
+	if not live() then
+		return "the events store is off in this place", false
+	end
+	local why: string? = nil
+	local ok = rewrite(function(raw: unknown): { any }?
+		local list, refusal = CafeEvents.ownerAdd(raw, record, now())
+		why = refusal
+		return list
+	end)
+	if not ok then
+		return "the events store did not answer; nothing started", false
+	end
+	if why ~= nil then
+		return why, false
+	end
+	EventService.refresh()
+	print(string.format("[EventService] owner event %s written to the schedule", record.id))
+	return string.format(
+		"%s started on all servers for %d minutes",
+		record.title,
+		(record.endsAt - record.startsAt) // 60
+	),
+		true
+end
+
+-- #3212: `/event stop` in a live server: the owner's own records come out of the schedule, running or coming.
+function EventService.ownerStop(): (string, boolean)
+	if not live() then
+		return "the events store is off in this place", false
+	end
+	local removed = 0
+	local ok = rewrite(function(raw: unknown): { any }?
+		local list, count = CafeEvents.ownerRemove(raw, now())
+		removed = count
+		return if count > 0 then list else nil
+	end)
+	if not ok then
+		return "the events store did not answer; nothing changed", false
+	end
+	if removed == 0 then
+		return "no event of yours is running or coming (one from the events workflow ends there)",
+			false
+	end
+	EventService.refresh()
+	return "your event ended on all servers", true
+end
+
 return EventService

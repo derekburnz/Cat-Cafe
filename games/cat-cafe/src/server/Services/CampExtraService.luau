@@ -254,7 +254,9 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	-- #3361: each lost cat on its own, so an error on one still brings the others, and the sync and the fresh view
 	-- always go out (a skipped view left "3 to claim" on screen after a claim had taken them)
 	for _, rarity in lostCats do
-		local ok, err = pcall(giveLostCat, player, profile, rarity, tier)
+		local ok, err = pcall(function()
+			giveLostCat(player, profile, rarity, tier)
+		end)
 		if not ok then
 			warn(
 				string.format(

@@ -3,7 +3,7 @@
 -- in the Town Square and the Menu list's Arcade row open it. Two faces:
 --   - the card: this player's best and the server's, the last game's line ("Score 37 · Best 52 · Server best 61
 --     (Sam)"), the ten prizes with the ones already paid today ticked, the once-a-day rule in plain words (no
---     countdown, Monetization-Agent's conditions), "Play (1 🐟)" and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
+--     countdown, Monetization-Agent's conditions), "Play (free)" for the first game of the UTC day (#3296), then "Play (1 🐟)", and the idea credit (Arcade.IDEA_BY) (Derek2 2026-11-10: "remember
 --     to feature the player since he suggested").
 --   - the board, while a game runs: the circles the server sends (ArcadeBlock) close onto their rings at their spots,
 --     and a tap anywhere on the board, Space or the gamepad's A presses the circle closing now. The UI only says which
@@ -42,9 +42,8 @@ local BANNER_SECONDS = 1.5
 local OVER_SECONDS = 1.2 -- the board's last word before the card comes back
 local GAP = Theme.sizes.gap
 local ACTION_NAME = "CatCafeArcadePress" -- Space and the gamepad's A press while the board is up, and don't jump
-local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Each prize pays once a day; a new day starts at "
-	.. "midnight UTC."
-local PLAY_TEXT = string.format("Play (%d 🐟)", Config.ArcadeCostFish or 1)
+local RULE_LINE = "Perfect +2, Good +1. One miss ends the game. Your first game each day is free, and each prize "
+	.. "pays once a day; a new day starts at midnight UTC."
 local READY_TEXT = "Ready?"
 local HINT_TEXT = "Tap when the circle meets the ring"
 
@@ -247,7 +246,7 @@ function Arcade.new(callbacks: Callbacks): Arcade
 	})
 	self._playButton = Button.new({
 		name = "Play",
-		text = PLAY_TEXT,
+		text = ArcadeRules.playText(false),
 		style = "gold",
 		size = UDim2.new(1, 0, 0, 52),
 		textSize = Theme.sizes.textLarge,
@@ -359,6 +358,9 @@ function Arcade._canPlay(self: any): boolean
 	if state == nil or not state.loaded or self._on ~= true then
 		return false
 	end
+	if state.free == true then
+		return true -- #3296: today's free game
+	end
 	return self._fish >= (Config.ArcadeCostFish or 1)
 end
 
@@ -405,9 +407,10 @@ function Arcade._renderCard(self: any)
 		why = "The Cat Arcade is closed for now"
 	elseif state == nil or not state.loaded then
 		why = "Waking the arcade up..."
-	elseif self._fish < (Config.ArcadeCostFish or 1) then
+	elseif state.free ~= true and self._fish < (Config.ArcadeCostFish or 1) then
 		why = "You need a golden fish 🐟 to play. Catch cats to earn them."
 	end
+	self._playButton:setText(ArcadeRules.playText(state ~= nil and state.free == true))
 	self._why.Text = why or ""
 	self._why.Visible = why ~= nil
 	self._playButton:setEnabled(why == nil and self._run == nil)

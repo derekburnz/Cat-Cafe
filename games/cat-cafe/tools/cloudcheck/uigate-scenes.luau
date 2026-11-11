@@ -3819,6 +3819,33 @@ local SCENES = {
 			)
 		end,
 	},
+	-- #3296: the first game of the day is free, so Play reads "Play (free)" and is on with no golden fish
+	{
+		"ArcadeFree",
+		function()
+			UI.update({ goldenFish = 0 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 12,
+				bestCircles = 10,
+				today = {},
+				legend = false,
+				serverBest = 0,
+				serverCircles = 0,
+				free = true,
+			})
+			UI.arcade.open()
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			assert(window, "uigate: the arcade window didn't open (#3296)")
+			local found = false
+			for _, item in window:GetDescendants() do
+				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "Play (free)" then
+					found = true
+				end
+			end
+			assert(found, "uigate: Play doesn't say free for the day's free game (#3296)")
+		end,
+	},
 	{
 		"ArcadeBoard",
 		function()

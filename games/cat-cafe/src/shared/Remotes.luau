@@ -206,7 +206,8 @@ Remotes.ClientToServer = {
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
 	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
-	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game,
+	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game.
+	-- #3296: the first game of each UTC day is free (no fish, no trade freeze check). Starts are
 	-- answered with ArcadeBlock (refusals are a toast); 1 a second
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does

@@ -570,6 +570,9 @@ local Cues: { [string]: Cue } = {
 		minGap = 2,
 		range = 60,
 	}, -- #3022, run 42858357100 (group)
+	arcadeStart = { ids = {}, group = "Sfx", volume = 0.5, minGap = 0.3 }, -- #3062: a golden fish into the cabinet
+	arcadeMilestone = { ids = {}, group = "Sfx", volume = 0.5, minGap = 0.3 }, -- #3062: every 10 circles of a streak
+	arcadeEnd = { ids = {}, group = "Sfx", volume = 0.45, minGap = 0.5 }, -- #3062: a run ends, "nice try"
 
 	-- Bait bowl (5.4) ---------------------------------------------------------------------------------------
 	-- 2026-11-02: reused files until the upload quota allows the bowl its own (Derek: "continue with sounds needed to

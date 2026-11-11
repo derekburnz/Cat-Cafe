@@ -2805,6 +2805,10 @@ local SCENES = {
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
 		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
 		assert(card.Visible, "uigate: no like gift card when idle (#1947)")
+		-- #3171: the drawing of the game page with the cursor on its 👍
+		local holder = card:FindFirstChild("PictureHolder") :: Frame
+		local cursor = holder and holder:FindFirstChild("Cursor", true) :: TextLabel?
+		assert(holder and holder.Visible and cursor and cursor.Text == "👆", "uigate: the like card has no game page picture with a cursor (#3171)")
 		local action = card:FindFirstChild("Action", true)
 		local close = card:FindFirstChild("Close", true)
 		-- #2705: on touch the like card has Got it alone, the row's width, and says to tap 👍 next time
@@ -2821,6 +2825,7 @@ local SCENES = {
 		UI.gift.show("fav", { "+$25000", "1 Tip Potion", "1 Lucky Potion", "1 Swift Potion" })
 		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
 		assert(card.Visible, "uigate: no favourite gift card when idle (#1947)")
+		assert(not (card:FindFirstChild("PictureHolder") :: Frame).Visible, "uigate: the favourite card shows the like picture (#3171)")
 	end },
 	-- How to like pressed: the thumbs-up hint and Close alone; the press is reported once
 	{ "GiftCardLiked", function()

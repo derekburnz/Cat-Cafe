@@ -130,7 +130,8 @@ end
 -- #3205 (Derek2 11-11: "the quick update in ... gets cut off"): the restart warning's early marks are calm info
 -- toasts (#2720), and one row dropped their last words, "your cafe is saved". A line with one of these phrases
 -- (plain, any case) wraps whatever its kind. shared/RestartNotice.text ends every warning with the first.
-ToastRules.WRAP = { "your cafe is saved" }
+-- #3212: and an owner command's reply ("Owner test mode: Cafe Party started on all servers for 10 minutes").
+ToastRules.WRAP = { "your cafe is saved", "owner test mode:" }
 
 function ToastRules.oneLine(kind: string?, text: string?): boolean
 	if text ~= nil then

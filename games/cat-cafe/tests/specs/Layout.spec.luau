@@ -1480,6 +1480,46 @@ return function()
 		)
 
 		it(
+			"keeps the arcade's floor ring in front of the cabinet, off the Spin Wheel's ring and the lanes (#3359)",
+			function()
+				local Arcade = require(Shared.Arcade)
+				local R = WalkUp.FRONT_RADIUS
+				local function ringAt(spot: any, out: number): (number, number)
+					local yaw = math.rad(spot.rotY or 0)
+					return spot.x - math.sin(yaw) * out, spot.z - math.cos(yaw) * out
+				end
+				local arcade, wheel = Layout.arcadeCabinet, Layout.spinWheel
+				-- the cabinet is 3.1 deep; its art may be up to 4: the ring touches the front, never lies over it
+				for _, front in { 1.55, 2 } do
+					local out = WalkUp.frontOffset(front, R, Arcade.RING_RANGE)
+					expect(out).to.be.near(front + R, 1e-9)
+					local x, z = ringAt(arcade, out)
+					expect(inside(x, z, square.floor, R)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -(R + 2))).to.equal(false)
+					end
+					-- the wheel's ring sits anywhere from touching a thin wheel to its range's limit
+					for _, wheelFront in { 0, 2, 4, 10 } do
+						local wx, wz = ringAt(
+							wheel,
+							WalkUp.frontOffset(wheelFront, R, Config.SpinStationRange)
+						)
+						local gap = math.sqrt((x - wx) ^ 2 + (z - wz) ^ 2)
+						expect(gap >= 2 * R + 2).to.equal(true)
+						-- and the wheel's ring is clear of the cabinet itself
+						local body = math.sqrt((arcade.x - wx) ^ 2 + (arcade.z - wz) ^ 2)
+						expect(body >= R + 3.5).to.equal(true)
+					end
+					-- clear of the Bellhop stand's 9.2 stud dais
+					local stand = Layout.bellhopStand
+					expect(math.sqrt((x - stand.x) ^ 2 + (z - stand.z) ^ 2) >= R + 4.6 + 2).to.equal(
+						true
+					)
+				end
+			end
+		)
+
+		it(
 			"keeps the feedback stand's floor ring off the lanes, where nobody walks through it (#3066)",
 			function()
 				-- the ring touches the stand's front (the model is 3.8 deep), WalkUp.FRONT_RADIUS across each way

@@ -101,7 +101,7 @@ local Config = {
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
 		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
-		metOwner = 0, -- #3324: "Met the Owner", for being in a server with the owner; not made yet (Derek, Creator Hub)
+		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).

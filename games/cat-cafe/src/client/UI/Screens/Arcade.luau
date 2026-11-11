@@ -23,6 +23,7 @@
 -- wide outside the ring.
 
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -45,6 +46,11 @@ local PAL = Theme.dark
 
 local MAX_SIZE = Vector2.new(640, 720) -- #3338: was 500 x 560
 local RING = 34 -- the ring's radius in px
+-- #3359: the board's cat pattern (group-owned picture, upload-image.yml), its tile size, how faint and its drift
+local BG_TILE = "rbxassetid://103715872453589"
+local BG_TILE_PX = 300
+local BG_SEEN = 0.82
+local BG_DRIFT = 8 -- px a second
 local START_SCALE = 3 -- the closing circle starts this many times the ring's size
 local PREVIEW = 0.35 -- seconds a ring's faint outline shows before its circle starts closing
 local BANNER_SECONDS = 1.5
@@ -207,6 +213,7 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		subtitle = "Circle Streak",
 		color = Color3.fromHex("8E6BD8"), -- arcade purple
 		icon = "🕹️",
+		image = ShopIcons.clean("Arcade"), -- #3347: the drawn joystick over the emoji
 		size = UDim2.fromScale(0.94, 0.9),
 		onClose = function()
 			callbacks.close()
@@ -579,6 +586,22 @@ function Arcade.new(callbacks: Callbacks): Arcade
 			})
 		end
 	end
+	-- #3359 (Derek2 2026-11-11: "the background is too dull have some sort of cat themed background"): Motion-FX-Agent's
+	-- seamless tile of neon paws, cat faces and stars (assets/cat-cafe/ui/textures/UI_ArcadeBg_Tile.png), faint so
+	-- the gold rings stay the brightest thing on the board (Design-Agent: 10 to 15% over the base). One tile wider
+	-- and taller than the board, so _draw can drift it a tile's length and wrap unseen.
+	self._pattern = Create("ImageLabel", {
+		Name = "Pattern",
+		BackgroundTransparency = 1,
+		Image = BG_TILE,
+		ImageTransparency = BG_SEEN,
+		ScaleType = Enum.ScaleType.Tile,
+		TileSize = UDim2.fromOffset(BG_TILE_PX, BG_TILE_PX),
+		Position = UDim2.fromOffset(-BG_TILE_PX, -BG_TILE_PX),
+		Size = UDim2.new(1, BG_TILE_PX, 1, BG_TILE_PX),
+		ZIndex = 1,
+		Parent = board,
+	})
 	self._board = board
 	self._pointsLabel = text({
 		Name = "Points",
@@ -939,6 +962,11 @@ function Arcade.block(
 end
 
 function Arcade._draw(self: any)
+	-- #3359: the pattern drifts slowly down and right, a tile's length and round again; still with Reduce Motion
+	if not GuiService.ReducedMotionEnabled then
+		local shift = (os.clock() * BG_DRIFT) % BG_TILE_PX
+		self._pattern.Position = UDim2.fromOffset(shift - BG_TILE_PX, shift - BG_TILE_PX)
+	end
 	local t = now()
 	for _, ring in self._rings do
 		if ring.judged then

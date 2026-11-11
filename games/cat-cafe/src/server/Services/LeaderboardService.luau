@@ -12,7 +12,8 @@
 --     #941), worked out again on every refresh and every write, so a board shows the people playing at once, and in
 --     Studio too. Then every player gets LeaderboardSync with their own line, and the crowns are set: attribute
 --     Crown on the Player and on their cafe's name sign while they are in the top LeaderboardCrownRank of any
---     all-time board.
+--     all-time board. #3333: and each player's place 1 to 3 on any all-time board (owner left out) for the rank
+--     titles; `placeChanged` fires for a player here whose place changed, and CafePassService shows the new title.
 --   Owners (#3321, Derek2 2026-11-11: "clear [my account] off leaderboard since I am owner its unfair"): an account in
 --     Config.OwnerTestUserIds is never written, is dropped from every list as read and from the players put in, and
 --     on its join its entries come out of every list's store (RemoveAsync), so it never shows again.
@@ -25,6 +26,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserService = game:GetService("UserService")
 
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
@@ -56,6 +58,10 @@ local function withOwners(ids: { [number]: boolean }): { [number]: boolean }
 end
 local hidden: { [number]: boolean } = withOwners({})
 local crowned: { [number]: boolean } = {}
+local places: { [number]: number } = {} -- #3333: userId -> best place 1 to 3 on an all-time board
+local placeChanged = Instance.new("BindableEvent")
+-- #3333: (player) fired when a player here gains, changes or loses a top 3 place
+LeaderboardService.placeChanged = placeChanged.Event :: RBXScriptSignal
 -- For the Studio readout (#941): the last write and read per list, and whether the hidden list's last read worked.
 type Outcome = { ok: boolean, at: number, count: number? }
 local lastWrite: { [List]: Outcome } = {}
@@ -286,6 +292,18 @@ local function crown()
 		end
 	end
 	crowned = fresh
+	-- #3333: the rank titles from the same lists
+	local boards: { { Row } } = {}
+	for _, board in Leaderboards.BOARDS do
+		table.insert(boards, listOf(board))
+	end
+	local before = places
+	places = Leaderboards.topPlaces(boards, ChatTags.isOwner)
+	for _, player in Players:GetPlayers() do
+		if before[player.UserId] ~= places[player.UserId] then
+			placeChanged:Fire(player)
+		end
+	end
 	for _, list in Leaderboards.LISTS do
 		for _, row in listOf(list) do
 			row.crown = crowned[row.userId] == true
@@ -294,6 +312,11 @@ local function crown()
 	for _, player in Players:GetPlayers() do
 		wearCrown(player)
 	end
+end
+
+-- #3333: the player's best place 1 to 3 on an all-time board as of the last refresh, or nil.
+function LeaderboardService.place(player: Player): number?
+	return places[player.UserId]
 end
 
 -- Every list as shown: as last read with the players in this server put in at their values now, then the crowns.

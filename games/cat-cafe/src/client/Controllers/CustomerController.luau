@@ -564,14 +564,14 @@ local function updateRich()
 					piles = {}
 					coinPiles[plot] = piles
 				end
-				if piles[id] == nil then
+				if not piles[id] then
 					piles[id] = buildCoinPile(anchor, at)
 				end
 			end
 		end
 		if piles ~= nil then
 			for id, pile in piles do
-				if bags[id] == nil then
+				if not bags[id] then
 					pile:Destroy()
 					piles[id] = nil
 				end

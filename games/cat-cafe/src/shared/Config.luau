@@ -101,12 +101,16 @@ local Config = {
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
 		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
+		metOwner = 0, -- #3324: "Met the Owner", for being in a server with the owner; not made yet (Derek, Creator Hub)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
 	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone
 	-- else). Nobody else is ever listed.
 	OwnerTestUserIds = { 140223517 } :: { number },
+	-- #3324: the game owner's account (Derek2), for the [Owner] chat tag and the Met the Owner badge. Only the server
+	-- acts on it. Kept apart from OwnerTestUserIds so a tester added there never shows as the owner.
+	OwnerUserIds = { 140223517 } :: { number },
 	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
 	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
 	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
@@ -1080,6 +1084,9 @@ local Config = {
 	BumpSameTargetSeconds = 0, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
 	ShoveTargetImmuneSeconds = 0, -- after a hit lands, nobody can hit that player again for this long (S45)
+	-- #3342 (Derek2 2026-11-11: "tackling immunity for the first 5 minutes"): nobody can tackle a player for this long
+	-- after they join a server, each session. Their own tackle press (one the server takes) ends it early.
+	TackleShieldSeconds = 300,
 	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
 	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
 	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.

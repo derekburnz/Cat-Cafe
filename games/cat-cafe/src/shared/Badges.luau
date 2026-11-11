@@ -1,5 +1,5 @@
 --!strict
--- Roblox badges (#1934, release.md section 1), pure: the 21 badges in creation order (5 a day in Creator Hub), what
+-- Roblox badges (#1934, release.md section 1), pure: the 22 badges in creation order (5 a day in Creator Hub), what
 -- earns each, read from the profile alone, and which are due. The server's BadgeAwardService awards them; nothing
 -- here is sent to the client. A badge is earned by playing only: never for liking, favouriting, buying or inviting
 -- (a shop-only cat counts toward none), and nothing has a streak that can be lost once earned.
@@ -225,6 +225,16 @@ local LIST: { Badge } = {
 			return profile.eventLast ~= ""
 		end,
 	},
+	-- #3324 (Derek2 11-11): being in a server while the owner is there. Nothing in the profile earns it: the server
+	-- passes it in `due`'s `extra` while the owner is in the server (BadgeAwardService), so it can't be earned alone.
+	{
+		key = "metOwner",
+		name = "Met the Owner",
+		description = "Be in a server while the game's owner is playing.",
+		earned = function(_profile)
+			return false
+		end,
+	},
 }
 for _, badge in LIST do
 	table.freeze(badge)
@@ -259,15 +269,25 @@ function Badges.earned(profile: Profile): { string }
 end
 
 -- The badges to award now: earned, made (id not 0), not in `owned` (badge id -> true, this join's cache) and not
--- waiting on a retry (`waitUntil[key]` later than `now`).
+-- waiting on a retry (`waitUntil[key]` later than `now`). `extra` (#3324): keys earned by something outside the
+-- profile right now (Met the Owner while the owner is here), added after the profile's, in LIST order.
 function Badges.due(
 	profile: Profile,
 	owned: { [number]: boolean },
 	waitUntil: { [string]: number },
-	now: number
+	now: number,
+	extra: { [string]: boolean }?
 ): { string }
+	local earned = Badges.earned(profile)
+	if extra ~= nil then
+		for _, badge in LIST do
+			if extra[badge.key] == true and not table.find(earned, badge.key) then
+				table.insert(earned, badge.key)
+			end
+		end
+	end
 	local keys: { string } = {}
-	for _, key in Badges.earned(profile) do
+	for _, key in earned do
 		local id = Badges.id(key)
 		local wait = waitUntil[key]
 		if id ~= 0 and owned[id] ~= true and (wait == nil or wait <= now) then

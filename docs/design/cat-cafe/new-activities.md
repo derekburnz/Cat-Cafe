@@ -123,7 +123,7 @@ Derek2, 2026-11-11: "no market luck because thats all decided stock per global, 
   - Each level is worth one Lucky Cat statue level (`LuckPerStatueLevel` 0.1).
   - It adds inside `LuckMax` (3), like every other Luck source, and never goes past it.
   - It feeds the same Luck total that the odds cards read (`FoodOdds.atBowl` and the crate odds), so the printed odds always include it.
-- **Earned only:** it's bought with golden fish and never sold for Robux, in any pack or pass. Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
+- **Earned only:** it's bought with golden fish only. It's never sold for Robux, never part of any Robux bundle, pack or pass, and can't be traded or gifted (Monetization-Agent, 11-11). Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
 - **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
 - **Flag:** `luckyCharm`.
 - **Judge by:** level 1 buys among players with 100+ fish. Lucky Potion use shouldn't drop much; if it does, use the flag.

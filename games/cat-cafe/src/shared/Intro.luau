@@ -41,7 +41,7 @@ Intro.CAMP_WAIT = 2.5
 -- 0.8 + 0.32 s a word, a fifth off the 1.0 + 0.4 s every caption-bound hold had (about 31 s down to 25 s).
 Intro.CAPTION_BASE = 0.8
 Intro.CAPTION_PER_WORD = 0.32
-Intro.NEXT_AFTER = 0.2 -- #3168: was 1.0; just long enough that one press never counts twice
+Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 
 Intro.AREA = "alley" -- the camp shots 2 to 4 film, where a new player's first flight goes

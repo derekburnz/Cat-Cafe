@@ -5852,15 +5852,12 @@ local SCENES = {
 		else
 			assert(bottom.Visible, "uigate: no lower bar on a PC (#2394)")
 		end
-		-- a press in the first second of a shot does nothing (the shim's os.clock runs with UIShim.advance; its tweens end at once,
-		-- so the bar's fill is not checked here)
+		-- #3168: a press moves on at once, the shot it lands in (was not in a shot's first second, #2182), and a second
+		-- press on the same shot does nothing (the shim's tweens end at once, so the bar's fill is not checked here)
 		UI.intro.setShot(2, "Boom! Every area starts at a safe camp", nil, 4.2)
-		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
-		assert(#fired == 0, "uigate: Next moved on in a shot's first second (#2182)")
-		UIShim.advance(1.05)
 		UIShim.fire(UIShim.eventOf(tap, "Activated"))
 		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
-		assert(#fired == 1 and fired[1] == 2, ("uigate: a tap after a second fired introNext %d times (#2182)"):format(#fired))
+		assert(#fired == 1 and fired[1] == 2, ("uigate: a press at once fired introNext %d times (#3168)"):format(#fired))
 		counting:Disconnect()
 	end },
 	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller

@@ -99,7 +99,8 @@ Derek2, 2026-11-11: "arcade game 1 free attempt daily".
   | Prize | 3 🐟 | 5 🐟 | Salmon | 8 🐟 | Lucky Potion + "Mouser" title (once) |
 
   - That's at most 16 golden fish a day. The free run alone can pay back the next paid run from the 10 milestone.
-- **Best and leaderboard:** the same boards as Circle Streak (All time, This week, Server), under their own key `MouseDash`. They're written only on a new best, at most once per 60 s.
+  - "Mouser" is a chat title: add it to `ChatTags.TAGS` and `ORDER`, with a `TitlesLogic.HOW` line ("Mouse Dash 50 points"), so it shows in the Bag's Titles tab (#3291).
+- **Best and leaderboard:** the same boards as Circle Streak (All time, This week, Server), under their own key `MouseDash`. They're written only on a new best, at most once per 60 s. Like Circle Streak, a scripted tapper could top the board; there's no bot check for now (Derek2: "not worried about bots yet").
 - **Flags:** `mouseDash` (its own, so it can ship after Circle Streak).
 - **Effects:** VFX-Agent: a dust puff when the mouse ducks back in, and a squeak on a catch (Sound-Agent).
 - **Judge by:** the share of daily players who use the free run (40% or more in week one). The median run should be 10 to 15 points.
@@ -121,6 +122,7 @@ Derek2, 2026-11-11: "no market luck because thats all decided stock per global, 
 
   - Each level is worth one Lucky Cat statue level (`LuckPerStatueLevel` 0.1).
   - It adds inside `LuckMax` (3), like every other Luck source, and never goes past it.
+  - It feeds the same Luck total that the odds cards read (`FoodOdds.atBowl` and the crate odds), so the printed odds always include it.
 - **Earned only:** it's bought with golden fish and never sold for Robux, in any pack or pass. Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
 - **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
 - **Flag:** `luckyCharm`.

@@ -143,7 +143,7 @@ function TutorialHints.view(
 		device = device or "keyboard",
 		resting = TutorialHints.resting(state.cats, spots, state.tier or 1),
 		bowl = (levels[TutorialHints.BOWL] or 0) >= 1,
-		baited = state.bait ~= nil,
+		baited = type(state.bait) == "table", -- #3285: the UI's state sends false for an empty bowl
 		arrived = type(state.bait) == "table" and state.bait.cat ~= nil,
 		cats = cats,
 		night = areasOpen == false,

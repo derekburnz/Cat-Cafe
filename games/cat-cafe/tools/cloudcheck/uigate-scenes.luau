@@ -927,7 +927,8 @@ local function stepFourFood()
 	Scenes._stepState = { upgradeLevels = before.upgradeLevels, lures = before.lures, bait = before.bait }
 	local levels = table.clone(before.upgradeLevels or {})
 	levels.lure_bowl = math.max(levels.lure_bowl or 0, 1)
-	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 } } :: any)
+	-- #3285: an empty bowl is false in the UI's state (UIController), as UI.update skips a nil
+	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 }, bait = false } :: any)
 	UI.bait.set(nil)
 	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap the Bait bowl and put Kibble in it")
 	task.wait(0.1)
@@ -6346,6 +6347,21 @@ local SCENES = {
 		assert(glow, "uigate: the Bowl tile does not ring at the food step (#2697)")
 		local cats = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Cats", true)
 		assert(cats:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Cats tile rings at the food step (#2697)")
+	end },
+	-- #3285 (Derek2: "turn off the dimming and arrow for foodbowl after they put the food inside it"): once the bowl
+	-- holds food the step waits for the cat, so the Bowl tile's ring, its arrow and the dim all go
+	{ "TutorialFoodIn", function()
+		stepFourFood()
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Bowl", true)
+		assert(tile and tile:FindFirstChild("TutorialGlow", true), "uigate: the Bowl tile does not ring at the food step (#2697)")
+		local now = os.time()
+		UI.update({ bait = { lureId = "kibble", placedAt = now, readyAt = now + 5 } } :: any)
+		task.wait(0.2)
+		assert(tile:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Bowl tile still rings with food in the bowl (#3285)")
+		assert(tutorialSpotlight() == nil, "uigate: the screen still dims with food in the bowl (#3285)")
+		local line = UI.tutorial.hint(UI.getState())
+		assert(line == "A cat is on its way to your bowl", ("uigate: the food step's strip says %q with food in the bowl (#3285)"):format(tostring(line)))
+		UI.update({ bait = false } :: any)
 	end },
 	{ "TutorialFoodUse", function()
 		stepFourFood()

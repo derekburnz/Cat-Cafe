@@ -222,6 +222,9 @@ return function()
 			)
 			local owned = state({ tutorialStep = 4, upgradeLevels = { lure_bowl = 1 } })
 			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("food")
+			-- #3285: the UI's state sends false for an empty bowl
+			owned.bait = false
+			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("food")
 			owned.bait = { readyAt = 10 }
 			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("waiting")
 			-- #3158: step 4 lasts until the first bowl cat is tamed or let go, so it says the cat is there

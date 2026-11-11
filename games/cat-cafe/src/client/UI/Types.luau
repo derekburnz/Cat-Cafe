@@ -308,6 +308,8 @@ export type PlayerState = {
 	lawnStyles: LawnStyles?,
 	-- #1574: the Legendary and up decor and lawn pieces unlocked to trade (id to true); nil until ProfileSync sends it
 	decorUnlocked: { [string]: boolean }?,
+	-- #3285: the first bowl's food (the server's BaitView: lureId, readyAt, and cat once it arrived), false while empty
+	bait: any?,
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,

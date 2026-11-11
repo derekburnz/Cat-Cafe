@@ -167,15 +167,20 @@ end
 function TutorialArrowLogic.holes(position: Vector2, size: Vector2, screen: Vector2): { Rect }
 	local pad, bleed = TutorialArrowLogic.SPOT_PAD, TutorialArrowLogic.SPOT_BLEED
 	local outerMin = Vector2.new(-bleed, -bleed)
-	local outerMax = screen + Vector2.new(bleed, bleed)
+	local outerMax = Vector2.new(math.ceil(screen.X + bleed), math.ceil(screen.Y + bleed))
 	local function clampV(v: Vector2): Vector2
 		return Vector2.new(
 			math.clamp(v.X, outerMin.X, outerMax.X),
 			math.clamp(v.Y, outerMin.Y, outerMax.Y)
 		)
 	end
-	local holeMin = clampV(position - Vector2.new(pad, pad))
-	local holeMax = clampV(position + size + Vector2.new(pad, pad))
+	-- #3285 (Derek2: "a slight line across the middle of screen"): a target off the pixel grid (a scaled HUD tile's
+	-- AbsolutePosition is often x.5) put the boxes' shared edges mid-pixel, and that row came out half covered, a thin
+	-- bright line the width of the screen. Whole pixels, the hole rounded outward, make the boxes meet exactly.
+	local holeMin = clampV(Vector2.new(math.floor(position.X - pad), math.floor(position.Y - pad)))
+	local holeMax = clampV(
+		Vector2.new(math.ceil(position.X + size.X + pad), math.ceil(position.Y + size.Y + pad))
+	)
 	return {
 		{ min = outerMin, max = Vector2.new(outerMax.X, holeMin.Y) },
 		{ min = Vector2.new(outerMin.X, holeMax.Y), max = outerMax },

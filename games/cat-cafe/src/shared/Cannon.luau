@@ -182,4 +182,72 @@ function Cannon.besideStray(stray: Vector3, pad: Vector3, gap: number?): Vector3
 	return Vector3.new(at.X, pad.Y, at.Z)
 end
 
+-- #3198 (Derek2 2026-11-10: "now when cannoning into park it lands you over the fence and not in the proper area"):
+-- the Park's waiting strays stand past the camp's fence, so the spot beside one was behind a stretch of fence, out in
+-- the wild part. A first Park flight now lands beside its stray only where the landing reads as the camp: inside the
+-- camp's fence, or in its open gateway. Anywhere else the flight lands on the pad, turned toward the stray.
+--   GATEWAY_DEPTH   how far past the fence line, inside the opening, still counts as the gateway
+--   GATEWAY_INSET   studs kept from the opening's posts, the fence and the camp's edges
+-- `x`, `z` are the spot in camp space (Layout.camps: origin the middle of the opening, +Z into the wild part, X
+-- across); `yard` is the camp: half its width, its depth, and half its opening.
+Cannon.GATEWAY_DEPTH = 12
+Cannon.GATEWAY_INSET = 2
+-- The Alleyway keeps #2913's landing beside the beginner's stray wherever it waits: the alley is one open floor from
+-- its camp's line on, and that landing is the first catch's.
+Cannon.OPEN_AREA = "alley"
+
+export type Yard = { halfAcross: number, depth: number, openingHalfWidth: number }
+
+function Cannon.inCampReach(x: number, z: number, yard: Yard): boolean
+	local inset = Cannon.GATEWAY_INSET
+	if z <= -inset then
+		return z >= -yard.depth + inset and math.abs(x) <= yard.halfAcross - inset
+	end
+	return z <= Cannon.GATEWAY_DEPTH and math.abs(x) <= yard.openingHalfWidth - inset
+end
+
+-- #3072 (Derek2 2026-11-10: "you spawn with camera inside cannon when rejoining put yourself infront of your cafe"):
+-- a returning player's first character of a session moves from the Town Square spawn to the street outside their own
+-- front door, facing it (CannonService.homeArrival), and their camera starts behind them (CannonController).
+--   HOME_WAIT_SECONDS   how long the move waits for the save and the cafe to be ready after the character spawns
+--   HOME_SPAWN_STUDS    a character further than this from the spawn has walked off already and is left alone
+--   HOME_ATTRIBUTE      the Player attribute the server sets to the landing's position once it has moved them
+--   HOME_CAMERA         how far behind and above the character the camera starts, and how high it looks
+Cannon.HOME_WAIT_SECONDS = 20
+Cannon.HOME_SPAWN_STUDS = 10
+Cannon.HOME_ATTRIBUTE = "HomeArrival"
+Cannon.HOME_CAMERA = table.freeze({ back = 14, up = 7, look = 2 })
+
+-- Whether a join starts at home. A player whose intro is still to play stays at the Town Square, where the intro
+-- starts (`introPlays`: Config.IntroAutoPlay), and so does one who has not caught their first cat yet
+-- (`tutorialStep` below `doneStep`, Config.TutorialGuaranteedStrayStep): the walk-through leads from the cannon.
+function Cannon.joinsAtHome(
+	introSeen: boolean?,
+	introPlays: boolean,
+	tutorialStep: number?,
+	doneStep: number
+): boolean
+	if introPlays and introSeen ~= true then
+		return false
+	end
+	return (tutorialStep or 0) >= doneStep
+end
+
+-- Whether a character at `at` still stands at the spawn `spawn` (flat distance), so moving it surprises nobody.
+function Cannon.stillAtSpawn(at: Vector3, spawn: Vector3): boolean
+	local dx, dz = at.X - spawn.X, at.Z - spawn.Z
+	return math.sqrt(dx * dx + dz * dz) <= Cannon.HOME_SPAWN_STUDS
+end
+
+-- The camera's place and what it looks at for a character whose root is at `at`, facing `facing`: behind and above
+-- it, looking the way it faces. The game's camera starts looking north whichever way a character spawns, which at the
+-- Town Square put it inside the Cat Cannon.
+function Cannon.cameraBehind(at: Vector3, facing: Vector3): (Vector3, Vector3)
+	local flat = Vector3.new(facing.X, 0, facing.Z)
+	local look = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+	local focus = at + Vector3.new(0, Cannon.HOME_CAMERA.look, 0)
+	local from = at - look * Cannon.HOME_CAMERA.back + Vector3.new(0, Cannon.HOME_CAMERA.up, 0)
+	return from, focus
+end
+
 return Cannon

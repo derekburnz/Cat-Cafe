@@ -55,6 +55,8 @@ jobs:
 
       - name: Read the reports
         if: github.event_name != 'schedule'
+        env:
+          MASK: "1" # #3103: a hand run's log is public too: names to a letter, ids to 3 digits, no JSON
         run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "$DAY" "$COUNT" $STUDIO
 
       - name: Read yesterday's reports (daily run)

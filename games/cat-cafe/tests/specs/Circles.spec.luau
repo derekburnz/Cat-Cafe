@@ -160,6 +160,121 @@ return function()
 			end
 		)
 
+		-- #3140 (Derek2 2026-11-10: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring
+		-- to wait", "speed up the circles")
+		it(
+			"Common and Rare rings close quicker in the Sewer, Desert and Ruins, and nowhere else (#3140)",
+			function()
+				expect(Config.QuickRingTier).to.equal(5)
+				expect(Config.QuickRingScale.Common).to.equal(0.80)
+				expect(Config.QuickRingScale.Rare).to.equal(0.85)
+				for _, area in Catalog.areas do
+					local late = area.tier >= 5
+					for _, rarity in Catalog.rarityOrder do
+						local quick = late and (rarity == "Common" or rarity == "Rare")
+						local want = if quick then Config.QuickRingScale[rarity] else 1
+						expect(Circles.ringSpeed(rarity, area.id)).to.equal(want)
+						-- the same rolls give the same rings, each one's shrink time scaled and nothing else
+						local plain = Circles.schedule(rarity, 0, NOW, lcg(7))
+						local here = Circles.schedule(rarity, 0, NOW, lcg(7), area.id)
+						expect(#here).to.equal(#plain)
+						for index, circle in here do
+							expect(circle.shrinkSeconds).to.be.near(
+								plain[index].shrinkSeconds * want,
+								1e-12
+							)
+							expect(circle.kind).to.equal(plain[index].kind)
+							expect(circle.x).to.equal(plain[index].x)
+						end
+					end
+				end
+				for _, id in { "sewer", "desert", "ruins" } do
+					local area = Catalog.getArea(id)
+					assert(area ~= nil, id)
+					expect(area.tier >= 5).to.equal(true)
+				end
+				expect(Circles.ringSpeed("Common", nil)).to.equal(1)
+				expect(Circles.ringSpeed("Common", "nowhere")).to.equal(1)
+				-- a quick Rare ring is still slower than an Epic one, and a quick Common than a quick Rare
+				local rarities = Catalog.rarities
+				local common = rarities.Common.shrinkSeconds * Config.QuickRingScale.Common
+				local rare = rarities.Rare.shrinkSeconds * Config.QuickRingScale.Rare
+				expect(common).to.be.near(0.96, 1e-9)
+				expect(rare).to.be.near(0.85, 1e-9)
+				expect(common > rare).to.equal(true)
+				expect(rare > rarities.Epic.shrinkSeconds).to.equal(true)
+			end
+		)
+
+		it(
+			"a quick ring's bands are as many seconds wide, and its beat still clears the gap (#3140)",
+			function()
+				for level = 0, 3 do
+					for _, rarity in { "Common", "Rare" } do
+						-- the bands come from the net, the rarity, the area and the coat, never the ring's speed
+						local windows = Circles.windowsFor(level, rarity :: any, "ruins")
+						local shortest = Catalog.rarities[rarity].shrinkSeconds
+							* Config.QuickRingScale[rarity]
+							* (1 - Config.CircleJitter)
+						-- the whole Good band fits inside the quickest ring's closing time with room to see it come
+						expect(windows.good < shortest / 2).to.equal(true)
+						expect(windows.good + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(
+							true
+						)
+					end
+				end
+				-- rings stay a steady beat: each starts the one before's shrink time plus CircleGapMin later
+				local circles = Circles.schedule("Common", 0, NOW, constant(0.5), "sewer")
+				for index = 2, #circles do
+					local before = circles[index - 1]
+					expect(circles[index].startsAt).to.be.near(
+						before.startsAt + before.shrinkSeconds + Config.CircleGapMin,
+						1e-9
+					)
+				end
+			end
+		)
+
+		-- #3135 (Derek2 2026-11-10: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not
+		-- added add it"): it was not, so a gold stray's bands are 0.90 and a rainbow's 0.80 times as wide
+		it(
+			"a gold cat's bands are a little narrower and a rainbow's narrower still (#3135)",
+			function()
+				expect(Config.CoatDifficulty.gold).to.equal(0.90)
+				expect(Config.CoatDifficulty.rainbow).to.equal(0.80)
+				for level = 0, 3 do
+					for _, rarity in Catalog.rarityOrder do
+						local plain = Circles.windowsFor(level, rarity, "woods")
+						local base = Circles.windowsFor(level, rarity, "woods", "base")
+						local gold = Circles.windowsFor(level, rarity, "woods", "gold")
+						local rainbow = Circles.windowsFor(level, rarity, "woods", "rainbow")
+						expect(base.perfect).to.equal(plain.perfect)
+						expect(base.good).to.equal(plain.good)
+						expect(gold.perfect).to.be.near(plain.perfect * 0.90, 1e-12)
+						expect(gold.good).to.be.near(plain.good * 0.90, 1e-12)
+						expect(rainbow.perfect).to.be.near(plain.perfect * 0.80, 1e-12)
+						expect(rainbow.good).to.be.near(plain.good * 0.80, 1e-12)
+					end
+				end
+				-- on top of the first area's wider bands, and a coat the table does not know changes nothing
+				expect(Circles.windowsFor(0, "Common", "alley", "gold").good).to.be.near(
+					Circles.windowsFor(0, "Common").good * 1.2 * 0.90,
+					1e-12
+				)
+				expect(Circles.windowsFor(0, "Common", nil, "plaid").good).to.equal(
+					Circles.windowsFor(0, "Common").good
+				)
+			end
+		)
+
+		it("leaves the tutorial stray's bands alone whatever its coat (#3135)", function()
+			-- CatService uses tutorialWindows for a beginner's own stray, which takes no coat
+			local tutorial = Circles.tutorialWindows(0)
+			expect(tutorial.good > Circles.windowsFor(0, "Common", "alley", "rainbow").good).to.equal(
+				true
+			)
+		end)
+
 		it("rarer is never wider, at every net", function()
 			for level = 0, 3 do
 				for i = 2, #Catalog.rarityOrder do

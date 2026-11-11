@@ -48,9 +48,12 @@ return function()
 			expect(Logic.cutWeight(3, 3, p, true)).to.equal(0)
 		end)
 
-		it("skips only after a second, inside a cut of three", function()
-			expect(p.skipAfter).to.equal(1)
-			expect(p.swingIn + p.swingOut < 3).to.equal(true)
-		end)
+		it(
+			"skips from the first press (#3168: was a second, then 0.2 s), inside a cut of three",
+			function()
+				expect(p.skipAfter).to.equal(0)
+				expect(p.swingIn + p.swingOut < 3).to.equal(true)
+			end
+		)
 	end)
 end

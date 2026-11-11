@@ -22,7 +22,10 @@
 --   then publishes on Pity.TOPIC and every server reads the new timer. A server that starts while that cat is out
 --   finds it from the moved timer (Pity.previous). On a catch the winner publishes too, and every other server's
 --   copy puffs away (CatService.removePity) with "Sam caught the pity cat!".
--- - At night every uncaught copy goes with the other strays (CatService.nightFalls) and its State clears.
+-- - #3077 (Derek2 2026-11-10: "sometimes pity spawns right before night, make pity not cleared by one night before
+--   disappearing"): an uncaught pity cat waits through the first night after it came out (Pity.stillOut;
+--   CatService.nightFalls asks keepsTonight) and is still there the next day. The second nightfall takes it with the
+--   other strays and its State clears. A caught cat's "Caught by" clears at the first night, as before.
 -- No client remote: clients only read the folder, the stray's PityCat attribute and the clock. Analytics `pity_cat`.
 -- #2486 (live-events.md 2c): a Cafe Event's rare showers ride the same path. Each shower (CafeEvents.showerTimes of
 -- EventService.recent()) is a pity cat on its own claim key (CafeEvents.showerKey) with its own cat number here
@@ -441,7 +444,8 @@ local function startCat(kind: Pity.Kind, timer: Pity.Timer, now: number, debug: 
 end
 
 -- Night (or a debug jump) ended `kind`'s cat: an uncaught one is gone with the other strays (its timer restarted
--- when it spawned, #2003).
+-- when it spawned, #2003). #3077: that is its second nightfall now, and any copy the night's sweep left (it runs on
+-- its own clock tick, a moment before or after this one) goes here.
 local function endCat(kind: Pity.Kind)
 	local c = currents[kind]
 	if c == nil then
@@ -449,6 +453,7 @@ local function endCat(kind: Pity.Kind)
 	end
 	currents[kind] = nil
 	if c.state == "out" then
+		CatService.removePity(Pity.number(c.seq, c.kind))
 		log(nil, c, "expired")
 		Net.fireAll("PityAnnounce", c.kind, c.areaId, "gone", nil)
 	end
@@ -542,7 +547,7 @@ end
 -- Each tick: showers past dusk go, and the event's due ones start (by day only).
 local function showerTick(now: number)
 	for key, s in showers do
-		if not Pity.stillOut(s.spawnedAt, now) then
+		if not Pity.sameDay(s.spawnedAt, now) then
 			showers[key] = nil
 			if s.state == "out" then
 				logShower(nil, s, "expired")
@@ -564,7 +569,7 @@ local function showerTick(now: number)
 		if now < spawn then
 			break -- in time order: the rest are later
 		end
-		if not Pity.stillOut(spawn, now) then
+		if not Pity.sameDay(spawn, now) then
 			showerHandled[key] = true -- a night came since: that one went at dusk
 			continue
 		end
@@ -631,9 +636,11 @@ local function tick()
 	eachKind(function(kind: Pity.Kind)
 		local c = currents[kind]
 		if c ~= nil then
+			-- #3077: an uncaught cat waits through one night; a caught one's word clears at the first, as before
 			local over = if c.debug
 				then not ClockService.areasOpen()
-				else not Pity.stillOut(c.spawnedAt, now)
+				elseif c.state == "out" then not Pity.stillOut(c.spawnedAt, now)
+				else not Pity.sameDay(c.spawnedAt, now)
 			if over then
 				endCat(kind)
 			end
@@ -817,6 +824,15 @@ function PityService.start()
 	end
 	publishState()
 	CatService.setPityClaim(claim)
+	-- #3077: at nightfall an uncaught pity cat still inside its time (Pity.stillOut) waits; a shower cat or a Studio
+	-- debug cat goes with the other strays
+	CatService.setPityKeeps(function(number: number): boolean
+		local c = currentFor(number)
+		return c ~= nil
+			and c.state == "out"
+			and not c.debug
+			and Pity.stillOut(c.spawnedAt, ClockService.now())
+	end)
 	-- #2796: pity_v1's catch-started step
 	CatService.setPityStarted(function(player: Player, number: number)
 		local c = currentFor(number)

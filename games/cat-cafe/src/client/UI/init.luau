@@ -44,8 +44,6 @@ local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
 local FishMarket = require(script.Screens.FishMarket)
 local Format = require(script.Components.Format)
-local FreshCatchBoard = require(script.Screens.FreshCatchBoard)
-local FreshCatchLogic = require(script.Components.FreshCatchLogic)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
@@ -162,7 +160,6 @@ UI.events = {
 	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
 	openAllCrates = Signal.new(), -- (crateId)   Open all on a Market crate card: forward as OpenAllCrates (#2402)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
-	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
@@ -195,8 +192,8 @@ UI.events = {
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
-	collectCampExtra = Signal.new(), -- (extraId)   #1463: Collect on the cannon picker's pond strip (Golden Pond
-	-- owners): forward as CollectCampExtra
+	collectCampExtra = Signal.new(), -- (extraId)   #3082: Collect on a cannon picker card's strip (every player;
+	-- #1463 had it for Golden Pond owners): forward as CollectCampExtra
 	-- F87 (easy-start.md sections 3 and 6): a context tip shown (skipped true when its camera cut was skipped), and
 	-- Settings' "Show tips again"
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
@@ -224,7 +221,7 @@ UI.events = {
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
-	-- SpaTakeOut, SpaCollect, SpaBuySlot or MuseumDonate) with its arguments
+	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
@@ -328,8 +325,6 @@ local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, sc
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
-local freshBoard: FreshCatchBoard.FreshCatchBoard? = nil -- the Fresh Catch chalkboard on the stall (F94)
-local freshStock: FreshCatchLogic.Stock? = nil -- the last FreshCatchStock, nil at night (F94)
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
@@ -507,6 +502,8 @@ end
 
 -- F70: the Daily Treat window opens by itself once when the player joins with a stamp due, after the tutorial and the
 -- intro, while no other window is open and nothing is being carried, caught or rescued.
+-- #3188: and only once the "Catch a 2nd cat" goal is finished and the player is at their cafe (UI.giftWait.atCafe;
+-- its once-a-second look also runs this, so the window opens as they arrive).
 local function autoOpenDailyTreat()
 	if dailyAutoOpen == false or state.dailyTreat == nil then
 		return
@@ -520,12 +517,23 @@ local function autoOpenDailyTreat()
 	dailyAutoOpen = true
 	local windows = modal
 	if
-		not DailyTreatLogic.autoOpen(view, now, state.tutorialStep)
+		not DailyTreatLogic.autoOpen(
+			view,
+			now,
+			state.tutorialStep,
+			(state :: any).secondCatDone -- (UIController's; the HUD's own state type has no use for it)
+		)
 		or not visible
 		or windows == nil
 		or windows:current() ~= nil
 		or UI.intro.playing()
 		or introBlocked()
+		-- #3155 (Derek2: "daily treat pop up should also wait until after tutorial steps are done"): the step's
+		-- strip and the cannon walk-through after it go first
+		or tutorialText ~= nil
+		or hintShown ~= nil
+		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
+		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
 	then
 		return
 	end
@@ -970,9 +978,19 @@ function UI.init(config: Types.InitConfig)
 		launch = function(cannonId: string, destination: string)
 			UI.events.launchCannon:Fire(cannonId, destination)
 		end,
-		-- #1463: a Golden Pond owner's Collect on the Woods strip (UIController sends CollectCampExtra)
+		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
+		-- Golden Pond owner's pond)
 		collect = function(extraId: string)
 			UI.events.collectCampExtra:Fire(extraId)
+		end,
+		-- #3082: Open on a card's strip: the station's own card takes the picker's place
+		open = function(stationId: string)
+			-- #3213: opened from the Cannon, the card stays open wherever the player stands (no walk-away close)
+			if stationId == "yardSale" then
+				UI.campExtras.openYardSale(nil, true)
+			else
+				UI.lateStations.open(stationId, true)
+			end
 		end,
 		close = closeModal,
 	})
@@ -1079,6 +1097,7 @@ function UI.init(config: Types.InitConfig)
 		frame = dealerView.frame,
 		onOpen = function()
 			dealerView:render(state)
+			UI.dealer.seen() -- #3195: the "!" over the cart goes for the rest of the night
 		end,
 	})
 	settingsScreen = Settings.new({
@@ -1118,7 +1137,7 @@ function UI.init(config: Types.InitConfig)
 		showTipsAgain = function()
 			UI.tips.reset()
 			UI.events.clearTips:Fire()
-			UI.toast("Tips will show again as you play.", "good")
+			UI.toast("Tips will show again as you play.", "info") -- #3080: the press's only answer
 		end,
 		replayTutorial = function()
 			if introBlocked() then
@@ -1230,15 +1249,12 @@ function UI.init(config: Types.InitConfig)
 		useDecor = function(decorId: string)
 			UI.events.toggleDecor:Fire(decorId, true)
 		end,
-		toast = function(text: string)
+		toast = function(text: string, kind: Types.ToastKind?)
 			if toasts then
-				toasts:show(text, "good")
+				toasts:show(text, kind or "good")
 			end
 		end,
 		close = closeModal,
-		buyFresh = function(itemId: string, window: number?)
-			UI.events.buyFreshCatch:Fire(itemId, window)
-		end,
 		bigPull = function(decorId: string, onUse: (() -> ())?)
 			UI.bigPull.piece(decorId, onUse)
 		end,
@@ -1246,7 +1262,6 @@ function UI.init(config: Types.InitConfig)
 			UI.events.storeSeen:Fire(tab) -- #2571: the Treats tab opened, forwarded as MarkStoreSeen
 		end,
 	})
-	freshBoard = FreshCatchBoard.new(parent)
 	local marketView = marketScreen :: FishMarket.FishMarket
 	modalInstance:register("Market", {
 		frame = marketView.frame,
@@ -1347,6 +1362,20 @@ function UI.init(config: Types.InitConfig)
 				modalInstance:close()
 			end
 		end,
+		-- #3132: his arrival as a short banner with the cat's face in the toast stack
+		announce = function(def: Types.CatDef?, shiny: boolean, line: string, tap: () -> ())
+			if toasts then
+				local CollectorLogic = require(script.Components.CollectorLogic)
+				toasts:cat({
+					def = def,
+					shiny = shiny,
+					title = CollectorLogic.BANNER_TITLE,
+					line = line,
+					seconds = CollectorLogic.BANNER_SECONDS,
+					onTap = tap,
+				})
+			end
+		end,
 	})
 	local collectorView = collectorScreen :: Collector.Collector
 	modalInstance:register("Collector", {
@@ -1423,7 +1452,7 @@ function UI.init(config: Types.InitConfig)
 				or UI.intro.playing()
 		end,
 		lift = function()
-			return hudInstance:bottomTop()
+			return hudInstance:tackleTop() -- #3119: under the Drop off touch
 		end,
 	})
 	netButton = NetButton.new(parent, {
@@ -1454,8 +1483,8 @@ function UI.init(config: Types.InitConfig)
 		end
 	)
 	popups = Popups.new(parent)
-	-- #2157 (Desktop-Tester on #2128): a replay waits up to STREAM_WAIT for the camp to stream in before the intro
-	-- hides the UI, so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
+	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
+	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server
 	-- credits them anyway at the next save), so the card never comes back
 	replayTidy = UI.events.introReplay:Connect(function()
@@ -1525,6 +1554,7 @@ function UI.init(config: Types.InitConfig)
 	local markers = LocationMarkers.new(parent)
 	markers:setEnabled(settingsView:value("markers")) -- the map icons switch (My Cafe, Night Market)
 	locationMarkers = markers
+	UI.dealer.startBang(parent) -- #3195: the "!" over the Night Market until it is opened tonight
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
@@ -1766,10 +1796,6 @@ function UI.destroy()
 		marketScreen:destroy()
 	end
 	marketScreen = nil
-	if freshBoard then
-		freshBoard:destroy()
-	end
-	freshBoard, freshStock = nil, nil
 	if codesScreen then
 		codesScreen:destroy()
 	end
@@ -1856,6 +1882,7 @@ function UI.destroy()
 	if locationMarkers then
 		locationMarkers:destroy()
 	end
+	UI.dealer.stopBang()
 	if cafeSigns then
 		cafeSigns:destroy()
 	end
@@ -2024,17 +2051,19 @@ end
 
 -- `seconds` (optional) keeps the toast up that long in place of the usual 2.4 s.
 function UI.toast(text: string, kind: Types.ToastKind?, seconds: number?)
-	-- #2600: no "Bought ..." pop-ups (ToastRules.quiet); init.luau is at the 200-local limit, so it loads here
-	if require(script.Components.ToastRules).quiet(text, kind) then
-		return
-	end
 	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any
-	-- other toast leaves the report waiting (review N151)
+	-- other toast leaves the report waiting (review N151). #3080: read before the rules below, so the window gets
+	-- its answer whether or not the words show
 	if bugReportScreen and bugReportScreen:pending() then
 		local answer = BugReportLogic.answer(text)
 		if answer ~= nil then
 			bugReportScreen:result(answer)
 		end
+	end
+	-- #2600: no "Bought ..." pop-ups, #3080: nor any green one off the keep list (ToastRules.quiet); init.luau is at
+	-- the 200-local limit, so it loads here
+	if require(script.Components.ToastRules).quiet(text, kind) then
+		return
 	end
 	if toasts then
 		toasts:show(text, kind, nil, seconds)
@@ -2470,6 +2499,60 @@ function UI.dealer.setStock(stock: Types.DealerStock?)
 	end
 end
 
+-- #3195 (Derek2: a "!" over the Night Market so nobody misses it): the red "!" and "🌙 Rare foods tonight!" over the
+-- dealer's cart (Components/MarketBang on the DealerCart tag) from nightfall until this player opens the market that
+-- night; then it stays gone until the next night. Only this player sees theirs.
+UI.dealer.bang = nil :: any
+UI.dealer.night = false
+UI.dealer.opened = false
+UI.dealer.BANG_LINE = "🌙 Rare foods tonight!"
+
+function UI.dealer.bangLine(): string?
+	return if UI.dealer.night and not UI.dealer.opened then UI.dealer.BANG_LINE else nil
+end
+
+function UI.dealer.startBang(into: Instance)
+	UI.dealer.stopBang()
+	local MarketBang = require(script.Components.MarketBang)
+	local bang = MarketBang.new(into, {
+		tag = "DealerCart",
+		name = "CatCafeNightMarketBang",
+		line = function(): string?
+			return UI.dealer.bangLine()
+		end,
+	})
+	bang:update(nil)
+	UI.dealer.bang = bang
+end
+
+function UI.dealer.stopBang()
+	local bang = UI.dealer.bang
+	if bang then
+		bang:destroy()
+	end
+	UI.dealer.bang = nil
+end
+
+-- The clock's phase: a new night brings the "!" back, daylight resets it for the next night.
+function UI.dealer.setNight(night: boolean)
+	if night ~= UI.dealer.night then
+		UI.dealer.night = night
+		UI.dealer.opened = false
+	end
+	local bang = UI.dealer.bang
+	if bang then
+		bang:update(nil)
+	end
+end
+
+function UI.dealer.seen()
+	UI.dealer.opened = true
+	local bang = UI.dealer.bang
+	if bang then
+		bang:update(nil)
+	end
+end
+
 -- Opens the dealer screen (the cart's prompt). It shows the last stock from setStock and "Opening the cart..."
 -- until one arrives.
 function UI.dealer.open()
@@ -2560,60 +2643,6 @@ function UI.market.allResult(crateId: string, opened: { any })
 	if marketScreen then
 		marketScreen:allResult(crateId, opened)
 	end
-end
-
-----------------------------------------------------------------------------------------------------
--- The Fresh Catch shelf (F94, rewards-and-shops.md section 3)
-----------------------------------------------------------------------------------------------------
-
-UI.freshCatch = {}
-
--- A Fresh Catch row's name: its potion's or crate's, from the catalog.
-local function freshName(itemId: string): string
-	local catalog = currentCatalog
-	if catalog then
-		for _, potion in PotionLogic.list(catalog) do
-			if potion.id == itemId then
-				return potion.name
-			end
-		end
-		local crates: { Types.CrateDef } = catalog.crates or {}
-		for _, crate in crates do
-			if crate.id == itemId then
-				return crate.name
-			end
-		end
-	end
-	return itemId
-end
-
--- From FreshCatchStock(stock?): this player's Fresh Catch stock by day, nil at night,
--- `{ window, restocksAt, stock = { { itemId, fish, amount, bought } } }`. It reaches the Market's Fresh Catch tab and
--- the chalkboard on the stall; the server sends it whenever it changes and after every BuyFreshCatch.
-function UI.freshCatch.setStock(stock: any)
-	freshStock = FreshCatchLogic.normalize(stock)
-	if marketScreen then
-		marketScreen:setFreshStock(freshStock)
-	end
-	if freshBoard then
-		freshBoard:set(freshStock, freshName)
-	end
-end
-
--- From ShopAlert(itemId): the once a window heads up when the Fresh Catch stocks a Gold Rush Potion or the cheap
--- Classic Crate ("Gold Rush Potions at the Fish Market!"). The server sends it only with "Shop alerts" on.
-function UI.shopAlert(itemId: string)
-	if toasts == nil or type(itemId) ~= "string" then
-		return
-	end
-	local name = freshName(itemId)
-	local isCrate = string.find(itemId, "_crate$") ~= nil
-	toasts:show(
-		if isCrate
-			then ("A cheap %s at the Fish Market!"):format(name)
-			else ("%ss at the Fish Market!"):format(name),
-		"info"
-	)
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -2762,14 +2791,34 @@ UI.bugReport = {}
 -- it from the HUD's Feedback tile (on Idea), the one way in since Settings lost its Report a bug row (2026-11-01).
 -- With a kind ("bug", "stuck", "idea") the report page on that chip; without one (the HUD's Feedback tile, Settings'
 -- Feedback row) the F87 faces page first.
-function UI.bugReport.open(kind: string?)
+-- #3066: `focus` is the feedback stand's: "none" (its floor ring) opens without the cursor in the box, "box" (a press
+-- of its prompt) with it, a phone's keyboard included. Without it a PC's cursor goes in the box and a phone waits
+-- for a tap, as ever.
+function UI.bugReport.open(kind: string?, focus: ("none" | "box")?)
 	if modal then
 		if bugReportScreen and kind then
 			bugReportScreen:setKind(kind)
 		elseif bugReportScreen then
 			bugReportScreen:showFaces()
 		end
+		if bugReportScreen and focus ~= nil then
+			if modal:current() == "BugReport" then
+				if focus == "box" then
+					bugReportScreen:focusBox() -- already up: only the cursor moves
+				end
+			else
+				bugReportScreen:focusNext(focus)
+			end
+		end
 		modal:open("BugReport")
+	end
+end
+
+-- #3066: the cursor into the Feedback window's box now, when its report page is up (the stand's ring, once a
+-- keyboard player stands still).
+function UI.bugReport.focus()
+	if bugReportScreen then
+		bugReportScreen:focusBox()
 	end
 end
 
@@ -2919,6 +2968,17 @@ function UI.setCarrying(info: Types.CarryInfo?)
 	UI.carryMarker.apply()
 end
 
+-- #3145: what the screen holds for a carried cat (shared/CarrySync.View), so UIController can set it again when it
+-- has drifted from the server's: the HUD and marker exist, the cat this state names, and whether the banner is up.
+function UI.carryView(): { built: boolean, catId: string?, banner: boolean }
+	local hudScreen = hud
+	return {
+		built = hudScreen ~= nil and carryMarker ~= nil,
+		catId = (state :: any).carrying,
+		banner = hudScreen ~= nil and hudScreen:carryShown(),
+	}
+end
+
 -- #2864 (Derek2: a Backpack cat alone showed no way home): the carry marker follows a cat in the hands first, else one
 -- packed in the Backpack (UI.setBagCarry), which leaves state.carrying and the HUD's carry banner alone, so the "Drop
 -- bag cat" pill stays.
@@ -3048,6 +3108,37 @@ function UI.intro.finish()
 	if introScreen then
 		introScreen:finish()
 	end
+end
+
+-- #3105: the loading screen while the camera is held still: before the first spawn, and before a play's first
+-- shot (IntroController's park and unpark). A play starting slides it away.
+-- #3179 (Derek2 11-10: "remove the loading screen honestly I think that would make people leave faster then
+-- before"): it shows only with the `loadingScreen` live switch on (off unless set to true), so by default the wait
+-- is the still picture alone and the intro starts the moment the save is in (race() is 0 with no screen up).
+function UI.intro.waiting(on: boolean)
+	if on then
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local key = "loadingScreen"
+		if
+			not LiveFlags.shown(
+				key,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			)
+		then
+			return
+		end
+	end
+	if introScreen then
+		introScreen:waiting(on)
+	end
+end
+
+-- #3109: the load is over: the loading screen's count runs to 100. Returns the seconds that takes (0 with no
+-- loading screen up); IntroController starts the intro then, which slides the screen away.
+function UI.intro.race(): number
+	local screen = introScreen
+	return if screen ~= nil then screen:race() else 0
 end
 
 function UI.intro.playing(): boolean
@@ -3248,7 +3339,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
+-- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
+-- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
+-- basket and the camp chime say it.
 function UI.cannon.checkedIn(catName: string?)
+	local cannon: any = UI.cannon
+	if
+		cannon._deliverySaid
+		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+	then
+		return
+	end
+	cannon._deliverySaid = true
 	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
 end
 
@@ -3538,6 +3640,17 @@ do
 		end
 		local v3 = type(trustNeed) == "number" and trustNeed > 0
 		local model: Model? = if v3 then UI.catch.strayModel(strayId) else nil
+		if info == nil or info.strayId ~= strayId then
+			-- #3224 (Derek2 11-11: the card "just shows cat on top instead of what it is"): a catch that began with the
+			-- net swing has no prompt card up for this stray, and the card read "Cat" and "Common". The stray says what
+			-- it is itself (CatService's attributes on its model).
+			local stray = model or UI.catch.strayModel(strayId)
+			local named =
+				require(script.Components.CatchHeader).fromStray(strayId, stray, lookupCat)
+			if named ~= nil then
+				info = named :: any
+			end
+		end
 		if info and info.strayId == strayId then
 			local rarity: string? = info.rarity
 			local built: CatchCircles.Header = {
@@ -3620,10 +3733,13 @@ do
 		if not outcome.success and outcome.hint == nil and toasts then
 			toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
 		end
+		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
+		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
+		-- the net wrap on a catch); the word still flashes over it.
+		if hud then
+			hud:setCatching(false)
+		end
 		screen:showResult(outcome, function()
-			if hud then
-				hud:setCatching(false)
-			end
 			local info = activeInfo
 			local card = catch
 			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
@@ -3785,6 +3901,9 @@ do
 				then "miss"
 				elseif guess == "perfect" then "perfect"
 				else "good"
+			if hud then
+				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+			end
 			screen:showResult({ grades = { grade }, success = success }, function()
 				endRescue(success)
 			end)
@@ -4245,6 +4364,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if dealerScreen then
 		dealerScreen:setNight(phase == "night")
 	end
+	UI.dealer.setNight(phase == "night") -- #3195
 	if tipJarScreen then
 		tipJarScreen:setNight(phase == "night")
 	end
@@ -4481,6 +4601,12 @@ do
 	-- one table, as the module is short of locals
 	local TIP = {
 		GAP = ((Config :: any).TipGapSeconds or 60) :: number,
+		TUTORIAL_DONE = 5, -- #3156: tutorialStep at the tutorial's end
+		start = 0, -- #3156: os.clock() at the tips' start
+		joinedNew = nil :: boolean?,
+		held = function(): boolean
+			return false
+		end,
 		CUT_SECONDS = cutSeconds,
 		CUT_TIMEOUT = cutSeconds + 3, -- a cut whose done never comes frees the queue after this
 		STUCK_RANGE = 30, -- studs from a stuck cat (section 3: "within 30 studs")
@@ -4533,6 +4659,21 @@ do
 		return nil
 	end
 
+	-- #3156: whether tip cards wait (TipQueue.held): a tutorial step on screen, or a new player's first minutes
+	-- (in TIP, as the module is short of locals: TIP.start, and TIP.joinedNew whether this session began before the
+	-- tutorial's end, from the first state)
+	TIP.start = os.clock()
+	TIP.held = function(): boolean
+		if TIP.joinedNew == nil and state.tutorialStep ~= nil then
+			TIP.joinedNew = state.tutorialStep < TIP.TUTORIAL_DONE
+		end
+		return TipQueue.held({
+			guiding = tutorialText ~= nil or hintShown ~= nil,
+			newPlayer = TIP.joinedNew == true,
+			played = os.clock() - TIP.start,
+		})
+	end
+
 	local function tipMoment(): TipQueue.Moment
 		local duskLeft: number? = nil
 		local endsAt = duskEndsAt
@@ -4567,7 +4708,11 @@ do
 			and not tipBusy
 			and initialized
 			and introScreen ~= nil
-			and TipQueue.free(tipMoment())
+			-- #3206: and only somewhere safe; out in a catching area it stays due
+			and TackleLessonLogic.canStart(
+				TipQueue.free(tipMoment()),
+				Wayfinding.isSafe(currentZone)
+			)
 		then
 			TIP.lessonDue = false
 			tipBusy = true
@@ -4603,6 +4748,7 @@ do
 			and not tipBusy
 			and initialized
 			and tutorialButtonOn
+			and not TIP.held()
 			and TipQueue.free(tipMoment())
 		then
 			TIP.nudge = nil
@@ -4623,6 +4769,7 @@ do
 			or not initialized
 			or not tutorialButtonOn
 			or tipQueue:size() == 0
+			or TIP.held() -- #3156
 		then
 			return
 		end
@@ -6131,6 +6278,21 @@ do
 		return GiftLogic.tier(plot:GetAttribute("MysteryGiftTier"))
 	end
 
+	-- #3188: whether this player stands on their own cafe plot (the box the till's Collect accepts), for the Daily
+	-- Treat's own open. False with no plot or no character yet.
+	function UI.giftWait.atCafe(): boolean
+		local plot = myPlot()
+		local character = Players.LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if plot == nil or not plot:IsA("Model") or root == nil or not root:IsA("BasePart") then
+			return false
+		end
+		local TillTips = require(script.Components.TillTips) :: any
+		return TillTips.onPlot(
+			(plot :: Model):GetPivot():PointToObjectSpace((root :: BasePart).Position)
+		)
+	end
+
 	function UI.giftWait.start()
 		wait.run += 1
 		local run = wait.run
@@ -6139,6 +6301,9 @@ do
 				local view = hud
 				if view then
 					view:setGift(UI.giftWait.look())
+				end
+				if initialized then
+					autoOpenDailyTreat() -- #3188: it waits for the player to reach their cafe
 				end
 				task.wait(LOOK_SECONDS)
 			end
@@ -6255,6 +6420,9 @@ do
 				end
 			end,
 			far = function(): boolean
+				if camp.yardAnywhere == true then
+					return false -- #3213: opened from the Cannon menu
+				end
 				local distance = yardDistance()
 				return distance ~= nil and distance > FAR_STUDS
 			end,
@@ -6328,7 +6496,8 @@ do
 	end
 
 	-- The Yard Sale's prompt: its card with today's crates.
-	function UI.campExtras.openYardSale(view: Types.CampExtraView?)
+	function UI.campExtras.openYardSale(view: Types.CampExtraView?, anywhere: boolean?)
+		camp.yardAnywhere = anywhere == true -- #3213: from the Cannon menu, walking away does not close it
 		local yard = camp.yard
 		local modalView = modal
 		if yard == nil or modalView == nil then
@@ -6426,6 +6595,7 @@ do
 	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
 	local WINDOWS: { [string]: string } = { spa = "OasisSpa", museum = "RelicMuseum" }
 	local late = {
+		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
 		state = nil :: any,
 		spa = nil :: OasisSpa.OasisSpa?,
 		museum = nil :: RelicMuseum.RelicMuseum?,
@@ -6452,6 +6622,9 @@ do
 
 	local function far(stationId: string): () -> boolean
 		return function(): boolean
+			if late.anywhere then
+				return false
+			end
 			local studs = distance(stationId)
 			return studs ~= nil and studs > FAR_STUDS
 		end
@@ -6523,6 +6696,9 @@ do
 			donate = function(uid: string)
 				send("MuseumDonate", uid)
 			end,
+			fill = function(area: string)
+				send("MuseumFill", area) -- #3130: Auto fill
+			end,
 			close = closer(WINDOWS.museum),
 			far = far(LateStationsLogic.MUSEUM),
 		})
@@ -6564,7 +6740,10 @@ do
 	end
 
 	-- A station's prompt: its card, or a toast while its tier is still ahead (the server refuses every press then).
-	function UI.lateStations.open(stationId: string)
+	-- #3213 (Derek2: "if I open the relic museum from the menu of cannon during night it auto closes"): `anywhere` when
+	-- the Cannon menu opens it (#3082), so the walk-away check (far) leaves it open; a station's own prompt passes nil.
+	function UI.lateStations.open(stationId: string, anywhere: boolean?)
+		late.anywhere = anywhere == true
 		local name = WINDOWS[stationId]
 		local modalView = modal
 		if name == nil or modalView == nil then
@@ -6953,10 +7132,11 @@ do
 	end
 
 	-- TradeAskEnded (#2550): this player's ask to `toUserId` was declined or ran out, so its Asked wears off soon.
-	function UI.trade.askEnded(toUserId: number)
+	-- #3211: `now` when the ask never went out (refused) or could not open: the row says Trade again at once.
+	function UI.trade.askEnded(toUserId: number, now: boolean?)
 		local screen = trading.screen
 		if screen and type(toUserId) == "number" then
-			screen:askEnded(toUserId)
+			screen:askEnded(toUserId, now == true)
 		end
 	end
 

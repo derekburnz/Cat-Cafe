@@ -25,6 +25,12 @@
 -- "Tell us more" is pressed or FeedbackLogic.WAIT_SECONDS pass. "Report a bug" under the faces goes to this page on
 -- its Bug chip. setKind (a report from somewhere that already knows its kind) opens the report page directly.
 --
+-- #3066 (the feedback stand in the Town Square): focusNext says where the cursor goes on the next open. "none" leaves
+-- it out of the box (the stand's floor ring opens the window while the player is still walking, and a held W would
+-- type into a focused box); "box" puts it in on any device, a phone's keyboard included (a press of the stand's
+-- prompt), a moment later so the E that pressed the prompt is not typed. focusBox puts it in now (the ring's window,
+-- once a keyboard player stands still).
+--
 -- Roblox terms: a TextBox is an editable text field; MultiLine lets Enter start a new line. UserInputService's
 -- OnScreenKeyboardVisible and OnScreenKeyboardSize describe a phone's keyboard, when the device reports them.
 
@@ -60,6 +66,8 @@ export type BugReport = {
 	-- picks a chip ("bug", "stuck", "idea") before opening, unless a draft or a Send is waiting
 	setKind: (self: BugReport, id: string) -> (),
 	showFaces: (self: BugReport) -> (), -- F87: the next open starts on the faces page
+	focusNext: (self: BugReport, mode: "none" | "box") -> (), -- #3066: the cursor on the next open
+	focusBox: (self: BugReport) -> (), -- #3066: the cursor into the box now, if the report page is up
 	pending: (self: BugReport) -> boolean,
 	destroy: (self: BugReport) -> (),
 }
@@ -69,6 +77,7 @@ local NO_ANSWER = "No answer yet. Your words are still here, try Send again"
 local SEND_TIMEOUT = 10 -- seconds without a toast before Send lights again
 local KEYBOARD_GUESS = 0.55 -- of the screen's height, when a phone does not say how tall its keyboard is
 local UNFOLD_DELAY = 0.4 -- seconds after the keyboard hides before the window moves back
+local FOCUS_DELAY = 0.1 -- #3066: seconds after a prompt's key press before the box takes the cursor
 
 local MAX_SIZE = Vector2.new(520, 420)
 local PROMPT_HEIGHT = 24
@@ -130,6 +139,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 	self._answer = FeedbackLogic.answer()
 	self._page = "report" :: "faces" | "chips" | "report"
 	self._facesNext = false -- the next open starts on the faces page
+	self._focusNext = nil :: ("none" | "box")? -- #3066: the next open's cursor; nil is a PC's own (in the box)
 	self._faceButtons = {} :: { [string]: Button.Button }
 	self._chipButtons = {} :: { [string]: Button.Button }
 	self._waitToken = 0 -- one per face picked, so only the latest one's wait sends it alone
@@ -660,6 +670,22 @@ function BugReport.showFaces(self: any)
 	self._facesNext = self._facesPage ~= nil
 end
 
+function BugReport.focusNext(self: any, mode: "none" | "box")
+	self._focusNext = mode
+end
+
+function BugReport.focusBox(self: any)
+	if
+		self._alive
+		and self._open
+		and self._page == "report"
+		and not self._pending
+		and not self._box:IsFocused()
+	then
+		self._box:CaptureFocus()
+	end
+end
+
 function BugReport._submit(self: any)
 	local text = BugReportLogic.text(self._box.Text)
 	if self._pending or text == nil then
@@ -718,12 +744,19 @@ function BugReport.onOpen(self: any)
 	elseif self._page ~= "chips" then
 		self:_showPage("report")
 	end
+	local focus = self._focusNext
+	self._focusNext = nil
 	if self._page ~= "report" then
 		return
 	end
 	self:_refresh()
-	-- a phone's keyboard waits for a tap on the box; on a PC the box is ready to type in
-	if not Scale.isTouch() and not self._pending then
+	if focus == "box" then
+		-- #3066: a press of the stand's prompt; a moment later, so the key that pressed it is not typed
+		task.delay(FOCUS_DELAY, function()
+			self:focusBox()
+		end)
+	elseif focus == nil and not Scale.isTouch() and not self._pending then
+		-- a phone's keyboard waits for a tap on the box; on a PC the box is ready to type in
 		self._box:CaptureFocus()
 	end
 	self:_fit()

@@ -53,6 +53,7 @@ import cannon  # noqa: E402
 import areakit  # noqa: E402
 import areas  # noqa: E402
 import bellhop  # noqa: E402
+import feedbackstand  # noqa: E402
 import shopcats  # noqa: E402
 import signstyles  # noqa: E402
 import boards  # noqa: E402
@@ -124,7 +125,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, arcadecabinet]
+           mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, feedbackstand,
+           arcadecabinet]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -249,6 +251,8 @@ PIVOT_NOTES = {
     campstations.SPA_TOWEL: "the middle of its underside, on top of a soaking cat's head",
     campstations.MUSEUM: "the base centre on the camp's ground, front -Z, no turn; the Ruins camp's station spot "
                          "(Layout.campExtras.ruins, Ruins set space)",
+    feedbackstand.NAME: "the base centre on the Town Square's paving, the post box's slot and the board's words (-Z) "
+                        "toward the players; placed by Gameplay (#3066)",
     campstations.BIN: "the base centre on the ground, front -Z (the paw print), no turn; at the Alleyway camp "
                       "within 15 studs of its pad (#3050)",
     arcadecabinet.NAME: "the base centre on the Town Square's paving, the screen and the control panel (-Z) toward "
@@ -369,7 +373,7 @@ STUDIO_NOTES = {
                              "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
                              "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
-                               "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
+                               "CodesCircle (a flat Neon disc 12 studs across, centre 8 studs in front of the pivot, "
                                "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
                                "_Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 "
                                "studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor "
@@ -450,6 +454,11 @@ STUDIO_NOTES = {
                          "round the gold cat idol (see-through). Attachments PromptAnchor (the velvet rope, 1.5 up), "
                          "BangAnchor (2 over the RELIC MUSEUM sign) and SparkleAnchor (the idol). Everything else "
                          "collides and can be climbed.",
+    feedbackstand.NAME: "#3066: the Town Square's feedback stand: a red pillar post box (FEEDBACK plate, a letter in "
+                        "its slot) on a paved plinth, a teal FEEDBACK / TELL US! board behind, and the Postie Cat at "
+                        "1.5 times sitting on a parcel stack (_Cat_<Piece>, its cap _Cat_Prop and letter _Cat_Prop2 in "
+                        "its Head Model). Attachments PromptAnchor (the box's front, 1.5 up: the feedback prompt), "
+                        "BangAnchor (2 over the board) and CatSeat. Everything collides.",
     campstations.BIN: "#3050: the Alleyway camp's Rummage Bin, about 4 tall: a teal bin with a cream band and paw "
                       "print on a pallet. Two looks as child Models, show one: _Ready (lid flung back, a tuna, a "
                       "golden fish tail and a crate corner poking out, sparkles) and _Empty (lid shut, a fish bone "
@@ -805,6 +814,9 @@ def main():
             extra = {"nest": {"_Prop": "_Head"}}
         if name in shopcats.ASSETS:               # #1191: King Croissant's cushion throne, its Seat
             extra = {"attachments": shopcats.attachments()}
+        if name == feedbackstand.NAME:            # #3066: the feedback prompt's spot; the Postie's cap and letter in its Head
+            extra = {"attachments": feedbackstand.attachments(), "nest": feedbackstand.NEST,
+                     "part_attributes": feedbackstand.FOLLOWS}
         if name == bellhop.NAME:                  # F96: the claim card's spots; the cat's cap and collar in its Head
             extra = {"attachments": bellhop.attachments(), "nest": bellhop.NEST, "part_attributes": bellhop.FOLLOWS}
         if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw

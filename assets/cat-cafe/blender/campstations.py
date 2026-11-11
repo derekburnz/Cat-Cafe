@@ -1005,11 +1005,13 @@ def _museum_case(b, glass):
     glass.span((x - 0.51, 1.3, z - 0.51), (x + 0.51, 2.5, z + 0.51), "glass")
 
 
-def _gallery(b):
+def _gallery(b, plaques):
     """#2908: the exhibit gallery on the museum's +X side, open at the front: seven stepped rows of sandstone, each
     with a coloured band in its room's colour, a name plaque at the museum end and ten plinths, every plinth an
     ExhibitSpot_<area>_<1-10> Attachment on its top (1 at the museum end), facing -Z; a back wall with a jade frieze,
-    an end wall, three front columns and a flat roof with a cornice, so the rows stay in shade like a hall."""
+    an end wall, three front columns and a flat roof with a cornice, so the rows stay in shade like a hall. Each
+    plaque's letters go in `plaques[area]` (#3129; Derek2 11-10: "have the title of the area glow gold when its
+    completed"), a child Model <name>_Plaque_<area> that the client lights (Effects/MuseumPlaques)."""
     back = GZ0 + len(ROOMS) * ROW_D                                      # the back wall's front face
     for k, (area, label, colour) in enumerate(ROOMS):
         z0 = GZ0 + k * ROW_D
@@ -1019,7 +1021,8 @@ def _gallery(b):
         zc = z0 + ROW_D / 2
         px = min(0.06, (PLAQUE_W - 0.55) / text_width(label, 1.0))                             # its plaque
         b.span((GX0 + 0.2, y1, zc - 0.06), (GX0 + PLAQUE_W - 0.2, y1 + 0.5, zc + 0.06), "night_sky")
-        _label_front(b, label, GX0 + PLAQUE_W / 2, y1 + 0.13, zc - 0.06, px, 0.03, GOLD)
+        plaques[area] = RB()                    # #3129: its letters, their own Plaque_<area> Model, lit when the room is full
+        _label_front(plaques[area], label, GX0 + PLAQUE_W / 2, y1 + 0.13, zc - 0.06, px, 0.03, GOLD)
         for i in range(EXHIBITS):                                                               # its plinths
             x = GX0 + PLAQUE_W + (i + 0.5) * PLINTH_STEP
             b.span((x - PLINTH_W / 2, y1, zc - PLINTH_W / 2), (x + PLINTH_W / 2, y1 + PLINTH_H, zc + PLINTH_W / 2),
@@ -1045,7 +1048,8 @@ def _gallery(b):
 def build_relic_museum(mat):
     b, glass = RB(), RB()
     _museum_steps(b)
-    _gallery(b)
+    plaques = {}
+    _gallery(b, plaques)
     _museum_front(b)
     _museum_columns(b)
     top = _museum_sign(b)
@@ -1054,7 +1058,8 @@ def build_relic_museum(mat):
     _anchor(MUSEUM, "PromptAnchor", (rope[0], 1.5, rope[2] - 0.5))
     _anchor(MUSEUM, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
     _anchor(MUSEUM, "SparkleAnchor", (CASE_X, 2.0, MZ0 - 2.6))
-    return [b.finalize(MUSEUM, mat), glass.finalize(MUSEUM + "_Glass", mat)]
+    return ([b.finalize(MUSEUM, mat), glass.finalize(MUSEUM + "_Glass", mat)]
+            + [rb.finalize(f"{MUSEUM}_Plaque_{area}", mat) for area, rb in plaques.items()])
 
 
 # ------------------------------------------------------------------------------------------ rummage bin --

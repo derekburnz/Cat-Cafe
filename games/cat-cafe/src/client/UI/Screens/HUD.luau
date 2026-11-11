@@ -84,9 +84,11 @@ local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
+local TackleBar = require(script.Parent.TackleBar)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
+local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
 local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -138,7 +140,9 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
 	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
+	carryShown: (self: HUD) -> boolean, -- #3145: the carry banner itself is up (UI.carryView)
 	bottomTop: (self: HUD) -> number,
+	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
@@ -207,7 +211,6 @@ local COUNTER_GAP = 14
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
 local TOP_GAP = 10 -- #2447: on touch, between the top bar's ends, the counters and the Luck row
-local CASH_TAG_H = 24 -- #2447: the owned Cash multiplier's small tag beside the money on touch
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
 local BOOST_ROWS_TIGHT = 10 -- more rows than this draw each row shorter (#1624)
@@ -324,14 +327,19 @@ local POP_W = 220
 local POP_ROW_H = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 local POP_PAD = 8
 -- #2411 (Derek2: "the X isn't obvious"): a bigger red × (it was a 20 px dot) taking bigger taps
-local HIDE_DOT = if Scale.isTouch() then 28 else 24
-local HIDE_HIT = if Scale.isTouch() then 42 else 36 -- the Tutorial tile's × takes taps this big round its red dot
+-- #3184 (Derek2 11-10: "redo the tutorial button and X to make it more obvious"): bigger again, a white rim and a
+-- bigger, bolder ×, its right edge still no more than 2 px past the tile (#1176)
+local HIDE_DOT = if Scale.isTouch() then 34 else 30
+local HIDE_HIT = if Scale.isTouch() then 46 else 40 -- the Tutorial tile's × takes taps this big round its red dot
+local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 -- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
 -- #2411: twice as long, with a "Hide tips" tag beside the tile
-local HIDE_PULSE_SECONDS = 6
+local HIDE_PULSE_SECONDS = 12 -- #3154: was 6
+local HIDE_AFTER = 6 -- #3154: seconds after the tutorial's end before the × pulses
 local HIDE_HINT_H = 24
 local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
-local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
+local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- #3154: for the whole pulse
+local HIDE_GROW = 1.6 -- #3154: how big the × bounces (was 1.35)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
 local CARRY_W = 420
@@ -370,6 +378,12 @@ local DROP_TEXT = if TOUCH then Theme.sizes.textSmall else Theme.sizes.textBody
 -- more room between the bottom row and what stacks on it; with a mouse too, where the pill's outline lay 2 px over
 -- the My Cafe tile's (the UI gate's tilesnear)
 local DROP_LIFT = 8
+-- #3119 (Derek2 11-10: "drop bag cat / drop on pc now goes inside my cafe/cannon ui make it stack on top of tackle
+-- for PC"): off touch the Drop (the carry banner or the bag pill) stands on the Tackle bar's place over the bottom
+-- row, kept whether or not the bar shows (it hides while carrying and outside catching areas), so the Drop is a
+-- bar's height clear of the tiles and never jumps as the bar comes and goes. On touch the Tackle is a round button
+-- by the jump button, and #3010's small lift stays.
+local TACKLE_SLOT = if TOUCH then 0 else TackleBar.HEIGHT + Theme.sizes.gap
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
@@ -555,6 +569,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._dots = {} :: { [string]: Frame }
 	self._stepTiles = {} :: { [string]: any } -- #2697: the Cats and Bowl tiles, by name
 	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
+	self._affordable = {} :: { [string]: boolean } -- #2996: the upgrades affordable at the last render
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
 	self._openScreen = nil :: string?
@@ -878,9 +893,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._icons = icons
 	self._lift = 0 -- design px the top right column sits higher, up in the top bar's free stretch
-	-- Tutorial (F72): purple with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
-	-- the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off; greyed while
-	-- carrying or during a catch or rescue.
+	-- Tutorial (F72): gold (#3184; was purple) with a "?", a red × in its corner hides it (Settings brings it back).
+	-- Hidden until the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off;
+	-- greyed while carrying or during a catch or rescue.
 	local tutorial = Button.new({
 		name = "Tutorial",
 		text = "Tutorial",
@@ -888,7 +903,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		image = ShopIcons.hud("Tutorial"),
 		layout = "clean",
 		textSize = ICON_TEXT,
-		style = "purple",
+		style = "gold", -- #3184: was purple; the brightest tile in its row
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 1,
 		parent = icons,
@@ -910,8 +925,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176: "the Claim button's red ! badge hangs over into the Feedback button"): no more than 2 px past the edge
-		Position = UDim2.new(1, 4, 0, 6),
+		-- #3184: on the tile's top-left corner, its middle on the corner, so the bigger dot leaves the "?" clear and never
+		-- reaches the next tile (#1176: the Rewards badge's corner on the right); low enough that its bounce stays on
+		-- screen
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0, 2, 0, 10),
 		Size = UDim2.fromOffset(HIDE_HIT, HIDE_HIT),
 		ZIndex = 8,
 		Parent = tutorial.instance,
@@ -926,12 +944,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		ZIndex = 8,
 		Parent = hide,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(hideDot, 2)
+	Outline.border(hideDot, 3, Theme.colors.white) -- #3184: a white rim, so the red dot stands off any tile colour
 	self._hideDot = hideDot
+	self._hideButton = hide
 	label({
 		Name = "Cross",
 		Size = UDim2.fromScale(1, 1),
-		TextSize = Theme.sizes.textBody, -- #2411: was textSmall
+		TextSize = HIDE_CROSS, -- #2411: was textSmall; #3184: was textBody
+		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "×",
 		ZIndex = 9,
@@ -1085,8 +1105,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
+	-- #3178 (Derek2 11-10: "on pc the things like days should go in the top middle of screen it's too squished"): on a
+	-- PC the clock and the status banner under it sit at the top middle (_placeTopMiddle); touch keeps the right column
 	local clock = bare("Clock", {
-		AnchorPoint = Vector2.new(1, 0),
+		AnchorPoint = if TOUCH then Vector2.new(1, 0) else Vector2.new(0.5, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP),
 		Size = UDim2.fromOffset(CLOCK_W, CLOCK_H),
 		Visible = false,
@@ -1094,7 +1116,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			HorizontalAlignment = if TOUCH
+				then Enum.HorizontalAlignment.Right
+				else Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
@@ -1331,7 +1355,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundColor3 = Theme.dark.panel,
 		BackgroundTransparency = 0.1,
 		BorderSizePixel = 0,
-		AnchorPoint = if TOUCH then Vector2.new(0, 0) else Vector2.new(1, 0),
+		AnchorPoint = if TOUCH then Vector2.new(0, 0) else Vector2.new(0.5, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
 		Size = UDim2.fromOffset(0, 0),
 		AutomaticSize = Enum.AutomaticSize.XY,
@@ -1355,7 +1379,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			FillDirection = Enum.FillDirection.Vertical,
 			HorizontalAlignment = if TOUCH
 				then Enum.HorizontalAlignment.Left
-				else Enum.HorizontalAlignment.Right,
+				else Enum.HorizontalAlignment.Center, -- #3178: centred under the clock at the top middle
 			Padding = UDim.new(0, BANNER_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -1418,7 +1442,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #3022: the second cat goal now (nil for none), whether its preview lines have had their time, and a counter so
 	-- an older start's bounce does nothing
 	self._second = nil :: SecondCatGoal.View?
-	self._secondPreviewed = false
+	self._secondPreviewed = true -- #3155: the preview lines no longer show
 	self._secondRun = 0
 	self._gone = false
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
@@ -2185,85 +2209,27 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 	)
 	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
+	-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join move the friend join bonuses and make
+	-- it smaller"): on touch it is not in that row (a pal joining made the row too wide for the top bar, and the Luck
+	-- chip, the money badge and the status banner all dropped a line). It is a small label in the clock's own line,
+	-- left of the sun: the clock is right-aligned, so the chip grows into free space and nothing is laid out from it
 	self._palIds = {} :: { number }
-	self._pals = PalChip.new(self._buffs.frame, function(shown: boolean)
-		self._buffs:setLead(shown, "pals")
-	end, function()
-		self:_toggleBoosts()
-	end)
-	self._palMarker = PalMarker.new()
-	-- #1962 (Derek2 11-07: "not in your face enough it should be on the side"): once a money pass is owned, a bold gold
-	-- "💰 Cash x2" chip leads the row over the money in place of the small "2x" beside it; a tap opens the boosts card
-	local cash: TextButton = Create("TextButton", {
-		Name = "CashChip",
-		AutoButtonColor = false,
-		BackgroundColor3 = Theme.colors.gold,
-		BorderSizePixel = 0,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, Scale.tapHeight(36)),
-		FontFace = Theme.fonts.display,
-		TextSize = 22,
-		TextColor3 = Theme.colors.white,
-		Text = "",
-		LayoutOrder = -1, -- before the Luck chip
-		Visible = false,
-		Parent = self._buffs.frame,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
-	})
-	if TOUCH then
-		-- #2447 (Derek2 11-08: "if someone bought 4x cash make the bubble much smaller on the side of the money"): on
-		-- touch the chip is a small gold tag right after the amount, in the counters' row at the top; the button
-		-- around it keeps the counters' height so a finger still finds it
-		cash.BackgroundTransparency = 1
-		cash.Size = UDim2.fromOffset(0, self._counterH)
-		cash.LayoutOrder = 2
-		cash.Parent = self._counters
-		self._fishPanel.LayoutOrder = 3
-		local pad = cash:FindFirstChildOfClass("UIPadding")
-		if pad then
-			pad:Destroy()
-		end
-		local tag: TextLabel = Create("TextLabel", {
-			Name = "Tag",
-			BackgroundColor3 = Theme.colors.gold,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.fromScale(0, 0.5),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, CASH_TAG_H),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + 1,
-			TextColor3 = Theme.colors.white,
-			Text = "",
-			Parent = cash,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			Create("UIPadding", { PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7) }),
-		})
-		Outline.text(tag, 1.5)
-		Outline.border(tag, 2)
-		-- the button sizes to its tag
-		tag:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-			local scale = math.max(Scale.get(), 0.01)
-			cash.Size = UDim2.fromOffset(
-				math.max(math.ceil(tag.AbsoluteSize.X / scale), Scale.tapHeight(0)),
-				self._counterH
-			)
-		end)
-		self._cashTag = tag
-	else
-		Outline.text(cash, 2.5)
-		Outline.border(cash, 3)
-	end
-	self._cashChip = cash
-	table.insert(
-		self._connections,
-		cash.Activated:Connect(function()
+	self._pals = PalChip.new(
+		if TOUCH then self._clock else self._buffs.frame,
+		function(shown: boolean)
+			if not TOUCH then
+				self._buffs:setLead(shown, "pals")
+			end
+		end,
+		function()
 			self:_toggleBoosts()
-		end)
+		end,
+		TOUCH
 	)
+	self._palMarker = PalMarker.new()
+	-- #3052 (Derek2 11-10: "if 4x money is bought just add it to money breakdown no need for a symbol"): an owned money
+	-- pass has no chip or tag in the HUD (#1962's gold "💰 Cash x2" chip, #2447's small tag after the amount); its
+	-- "Money pass x4" row is in the boosts card a tap on the money opens (Components/BoostList)
 	-- #1895: "🐾 A cat is coming! 1m 42s" in the potion timers' row over the money while the account's short first
 	-- bait waits (Components/FirstBait), so the player stays and does something else meanwhile
 	self._coming = Create("TextLabel", {
@@ -2476,6 +2442,11 @@ end
 
 function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
+end
+
+-- #3145: whether the carry banner itself is up (UI.carryView).
+function HUD.carryShown(self: any): boolean
+	return self._carry.Visible
 end
 
 -- #2731: follows the character's PackedCatId attribute (CatService), through respawns.
@@ -2771,11 +2742,17 @@ function HUD.pulseHide(self: any)
 		Parent = dot,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 3 }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 5 }), -- #3154: was 3
 	})
 	if not GuiService.ReducedMotionEnabled then
-		TweenService:Create(scale, HIDE_BOUNCE, { Scale = 1.35 }):Play()
+		TweenService:Create(scale, HIDE_BOUNCE, { Scale = HIDE_GROW }):Play()
+	else
+		scale.Scale = HIDE_GROW
 	end
+	-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the step's big gold arrow and
+	-- spotlight point at the × too, and the ring is thicker
+	local hideButton: TextButton = self._hideButton
+	TutorialArrow.add(hideButton)
 	Sound.play("uiHint")
 	-- #2411: a gold "Hide tips ×" tag beside the tile, pointing at the × while it pulses
 	local hint: TextLabel = label({
@@ -2793,6 +2770,7 @@ function HUD.pulseHide(self: any)
 		ZIndex = 9,
 		Parent = dot.Parent, -- the × button: left of the ×, on its line
 	})
+	hint:SetAttribute(TutorialArrow.AVOID, true) -- #3154: the arrow keeps off the tag
 	Create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = hint })
 	Create(
 		"UIPadding",
@@ -2800,6 +2778,7 @@ function HUD.pulseHide(self: any)
 	)
 	Outline.border(hint, 2)
 	task.delay(HIDE_PULSE_SECONDS, function()
+		TutorialArrow.remove(hideButton)
 		scale:Destroy()
 		ring:Destroy()
 		hint:Destroy()
@@ -2829,7 +2808,13 @@ function HUD.render(self: any, state: Types.PlayerState)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
-		self:pulseHide()
+		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
+		-- go first; pulseHide then waits for the HUD to be back on screen
+		task.delay(HIDE_AFTER, function()
+			if not self._gone then
+				self:pulseHide()
+			end
+		end)
 	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
@@ -2971,16 +2956,25 @@ function HUD._renderUnlocks(self: any, state: Types.PlayerState)
 		return
 	end
 	local before: { [HudUnlocks.Key]: boolean }? = self._unlocks
+	-- #3183: the step this update comes from; a piece a tutorial step opens shows with no "New!"
+	local stepBefore: number = self._unlockStep or state.tutorialStep
+	self._unlockStep = state.tutorialStep
 	local now, opened = HudUnlocks.update(before, HudUnlocks.view(state :: any))
 	if before ~= nil and #opened == 0 then
 		return -- update keeps what showed, so no new key means no change
 	end
 	self._unlocks = now
 	self:_applyUnlocks()
-	for _, key in opened do
+	-- #3161: the tutorial's end opens eight pieces at once; those just appear (HudUnlocks.pops). #3183: so does
+	-- anything a tutorial step opens
+	local pops = HudUnlocks.pops(
+		opened,
+		stepBefore < HudUnlocks.DONE or state.tutorialStep < HudUnlocks.DONE
+	)
+	for _, key in pops do
 		self:_popNew(key)
 	end
-	if #opened > 0 then
+	if #pops > 0 then
 		Sound.play("uiHint")
 	end
 end
@@ -3204,6 +3198,15 @@ function HUD._chipsLift(self: any): number
 	return BuffChips.potionsHeight() + Theme.sizes.gap
 end
 
+-- What the Drop (the carry banner or the bag pill) stands on over the bottom row: off touch the Tackle bar's place
+-- (#3119), on touch #3010's small lift while the row shows.
+local function dropLift(overRow: boolean): number
+	if not TOUCH then
+		return TACKLE_SLOT
+	end
+	return if overRow then DROP_LIFT else 0
+end
+
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
 	local overRow = self._travelRow.Visible and not self._travelFolded
@@ -3212,19 +3215,19 @@ function HUD._layoutBottom(self: any)
 	end
 	y -= self:_chipsLift()
 	if self._carry.Visible then
-		y -= if overRow then DROP_LIFT else 0 -- #3010: clear of the bottom row's tiles on touch
+		y -= dropLift(overRow) -- #3010: clear of the bottom row's tiles on touch; #3119: over the Tackle bar off touch
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
 	elseif self._packDrop.instance.Visible then
-		y -= if overRow then DROP_LIFT else 0
+		y -= dropLift(overRow)
 		self._packDrop.instance.Position = UDim2.new(0.5, 0, 1, y)
 		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end
 
--- Just above whatever the bottom centre stacks (the bottom row, the carry banner, the tutorial strip), in design
--- pixels from the screen's bottom edge, for the Tackle bar (Screens/TackleBar) to sit on.
+-- Just above whatever the bottom centre stacks (the bottom row, the carry banner or the bag pill on its lift, the
+-- tutorial strip), in design pixels from the screen's bottom edge, for the toasts and the ask card to sit on.
 function HUD.bottomTop(self: any): number
 	local y = -MARGIN
 	local overRow = self._travelRow.Visible and not self._travelFolded
@@ -3233,12 +3236,26 @@ function HUD.bottomTop(self: any): number
 	end
 	y -= self:_chipsLift()
 	if self._carry.Visible then
-		y -= CARRY_H + Theme.sizes.gap + (if overRow then DROP_LIFT else 0)
+		y -= CARRY_H + Theme.sizes.gap + dropLift(overRow)
 	elseif self._packDrop.instance.Visible then
-		y -= PACK_DROP_H + Theme.sizes.gap + (if overRow then DROP_LIFT else 0)
+		y -= PACK_DROP_H + Theme.sizes.gap + dropLift(overRow)
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
+	end
+	return y
+end
+
+-- Where the Tackle bar's foot sits (Screens/TackleBar), in design pixels from the screen's bottom edge. #3119: off
+-- touch, while a Drop shows, right over the bottom row, in the place the Drop keeps for it; else on top of the stack
+-- as before (over the tutorial strip).
+function HUD.tackleTop(self: any): number
+	if TOUCH or not (self._carry.Visible or self._packDrop.instance.Visible) then
+		return self:bottomTop()
+	end
+	local y = -MARGIN
+	if self._travelRow.Visible and not self._travelFolded then
+		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	return y
 end
@@ -3290,6 +3307,10 @@ function HUD.toastAvoid(self: any): { Types.Box }
 	if TOUCH then
 		box({ self._counters }) -- #2393: the top middle
 		box({ self._moneyBadge }) -- under the money (#2533)
+	end
+	if not TOUCH then
+		-- #3178: on a PC the clock, the status banner and its day card sit at the top middle, in the toasts' column
+		box({ self._clock, self._banner, self._dayCard })
 	end
 	box({ self._goal.frame })
 	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
@@ -3537,22 +3558,23 @@ function HUD._layoutRight(self: any)
 	local lift = self._lift
 	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
 	self._pop.Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6 - lift)
-	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
-	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
-	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
+	local top: number
+	if TOUCH then
+		self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
+		self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
+		top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
+	else
+		-- #3178: on a PC the clock is at the top middle, so the column starts right under the icon row
+		self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
+		top = CLOCK_TOP
+	end
 	if self._nightTips.Visible then
 		top += NIGHT_LINE
 	end
 	-- F88, F101, #2487: the Lucky Day line, the Rally countdown, the Cafe Event and its next shower, since #2885 in the
-	-- status banner: under the clock on a PC, under the counters on touch (_placeBanner)
-	local banner: Frame = self._banner
+	-- status banner: under the clock, at the top middle on a PC (#3178), under the counters on touch (_placeBanner)
 	if not TOUCH then
-		banner.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
-		self._dayCard.AnchorPoint = Vector2.new(1, 0)
-		self._dayCard.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift + self:_bannerHeight() + 4)
-		if banner.Visible then
-			top += self:_bannerHeight() + 4
-		end
+		self:_placeTopMiddle()
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
@@ -3580,6 +3602,16 @@ function HUD._layoutRight(self: any)
 		self:_placePotionTimers() -- #2393: the money badge keeps clear of the column
 	end
 	self:_placeBanner()
+end
+
+-- #3178: on a PC the clock at the top middle and the status banner and its day card centred under it.
+function HUD._placeTopMiddle(self: any)
+	local clockTop = MARGIN
+	self._clock.Position = UDim2.new(0.5, 0, 0, clockTop)
+	local bannerTop = clockTop + CLOCK_H + 2
+	self._banner.Position = UDim2.new(0.5, 0, 0, bannerTop)
+	self._dayCard.AnchorPoint = Vector2.new(0.5, 0)
+	self._dayCard.Position = UDim2.new(0.5, 0, 0, bannerTop + self:_bannerHeight() + 4)
 end
 
 -- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
@@ -3917,6 +3949,23 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 			lit = true
+		elseif show and screen == "Upgrades" and self._dotsRendered then
+			-- #2996 (retention-ideas.md 5e): one soft pulse each time another upgrade becomes affordable while
+			-- the "!" is already up, so every buy coming into reach is a small beat
+			local had: { [string]: boolean } = self._affordable
+			for _, key in keys do
+				if not had[key] then
+					Tween.popIn(dot, 0.75)
+					break
+				end
+			end
+		end
+		if screen == "Upgrades" then
+			local now: { [string]: boolean } = {}
+			for _, key in keys do
+				now[key] = true
+			end
+			self._affordable = now
 		end
 		dot.Visible = show
 	end
@@ -4370,20 +4419,8 @@ function HUD.setMoneyBadge(
 )
 	local button: TextButton = self._moneyBadge
 	self._moneyBadgeId = if badge ~= nil and not badge.owned then badge.id else nil
-	-- #1962: an owned multiplier shows as the side chip, not beside the money
-	local chip: TextButton = self._cashChip
+	-- #3052: an owned multiplier shows nowhere in the HUD; the boosts card has its row
 	local owned = badge ~= nil and badge.owned
-	chip.Visible = owned
-	if badge ~= nil and owned then
-		local said = (badge.text:gsub("^(%d+)x$", "x%1"))
-		local tag: TextLabel? = self._cashTag
-		if tag then
-			tag.Text = "💰 " .. said -- #2447: the small tag beside the money on touch
-		else
-			chip.Text = "💰 Cash " .. said
-		end
-	end
-	self._buffs:setLead(owned and not TOUCH, "cash")
 	button.Visible = badge ~= nil and not owned
 	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): the golden
 	-- fish sits a normal gap after the amount with or without the badge (since #2383 the money's room is its shape's)
@@ -4778,8 +4815,22 @@ function HUD._layoutMenu(self: any)
 	end
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
-	local storeH = if store.Visible and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
-	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
+	-- a Store that only stepped aside for a catch (_applyFocus) still has its place, or a layout mid-catch closes
+	-- the gap and the Store comes back on top of the menu's first row (#3164)
+	local storeUp = store.Visible or self._focusHidden[store] == true
+	local storeH = if storeUp and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
+	local foldShown = shown > 0 or storeUp -- no tab to fold an empty menu (F87)
+	local fold: GuiObject = self._menuFold.instance
+	if self._catching then
+		-- #3164 (Derek2 11-10: "this menu close arrow on the left sometimes flashes into screen on first catch or
+		-- catch"): this layout also runs outside a render (the money counter growing, the window resized), where
+		-- nothing hid the tab again, so it stood alone on the left until the next render. Mid-catch it stays down
+		-- and is noted for the catch's end (_applyFocus).
+		self._focusHidden[fold] = if foldShown then true else nil
+		fold.Visible = false
+	else
+		fold.Visible = foldShown
+	end
 	local foldUnder = FOLD_UNDER + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
@@ -5029,32 +5080,11 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 	return { title = second.title, lines = lines, chip = second.chip }
 end
 
--- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped): one bounce, the
--- preview lines for PREVIEW_SECONDS the first time, and one more bounce at NUDGE_SECONDS if it is still the goal.
+-- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped). #3155 (Derek2:
+-- "remove the pop ups for cat progress towards your goal at start"): no bounce, no second bounce at NUDGE_SECONDS
+-- and no preview lines ("New kind of cat: +$50", "and 1 step closer to ..."); the card just reads the goal.
 function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
-	local run = self._secondRun
-	self._goal:bounce()
-	if not self._secondPreviewed then
-		task.delay(SecondCatGoal.PREVIEW_SECONDS, function()
-			if self._gone then
-				return
-			end
-			self._secondPreviewed = true
-			if self._second ~= nil then
-				self._goal:setGoal(self:_secondGoal())
-				if not self:_open("goal") then
-					self._goal.frame.Visible = false
-				end
-				self:_layoutRight()
-			end
-		end)
-	end
-	task.delay(SecondCatGoal.NUDGE_SECONDS, function()
-		if not self._gone and self._secondRun == run and self._second ~= nil then
-			self._goal:bounce()
-		end
-	end)
 end
 
 function HUD.destroy(self: any)

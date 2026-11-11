@@ -13,6 +13,8 @@
 -- over the barrel while the areas are closed and lifted by day (section 3a: "At dusk a moon cover drops").
 -- F92 (playing-together.md section 5): a first spawn after joining through a pal's invite or by following them stands
 -- at that pal's front door instead (palArrival).
+-- #3072 (Derek2 2026-11-10: "you spawn with camera inside cannon when rejoining put yourself infront of your cafe"):
+-- any other first spawn of a returning player moves to the street outside their own front door (homeArrival).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,6 +36,7 @@ local NightService = require(script.Parent.NightService)
 local PalService = require(script.Parent.PalService)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
+local TravelService = require(script.Parent.TravelService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local CannonService = {}
@@ -79,6 +82,23 @@ local function headingFor(cannon: Model, destination: string, seat: CFrame): Vec
 	return Cannon.heading(cannon:GetPivot().Position, to, seat.LookVector)
 end
 
+-- #3198: whether a first flight into `destination` may land at `beside`, the spot next to its waiting stray. The
+-- Alleyway's first flight lands beside the beginner's stray wherever it waits (#2913: the alley is open floor from
+-- its camp's line on). Any other area's only inside its camp's fence or in the open gateway (Cannon.inCampReach):
+-- the spot beside a Park stray was behind the camp's fence.
+local function besideInReach(destination: string, beside: Vector3): boolean
+	local camp = Layout.camps[destination]
+	if camp == nil or destination == Cannon.OPEN_AREA then
+		return true
+	end
+	local x, z = Layout.campSpace(camp, beside.X, beside.Z)
+	return Cannon.inCampReach(x, z, {
+		halfAcross = camp.halfAcross,
+		depth = Config.World.CampDepth,
+		openingHalfWidth = camp.openingHalfWidth,
+	})
+end
+
 -- A free spot on `destination`'s landing pad (section 3b) as the root's CFrame, facing the way the pad faces; nil
 -- for a place with no pad.
 local function landingFor(player: Player, destination: string): CFrame?
@@ -96,12 +116,22 @@ local function landingFor(player: Player, destination: string): CFrame?
 	local stray = CatService.firstLandingStray(player, destination)
 	local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
 	local beside = if stray ~= nil then Cannon.besideStray(stray, centre) else nil
-	if stray ~= nil and beside ~= nil and Cannon.isClear(beside, others) then
+	if
+		stray ~= nil
+		and beside ~= nil
+		and Cannon.isClear(beside, others)
+		and besideInReach(destination, beside)
+	then
 		local root = Vector3.new(beside.X, beside.Y + 3, beside.Z)
 		return CFrame.lookAt(root, Vector3.new(stray.X, root.Y, stray.Z))
 	end
 	local at = Cannon.landingSpot(spots, others, pad.area)
-	return CFrame.new(at.X, at.Y + 3, at.Z) * CFrame.Angles(0, math.rad(pad.centre.rotY or 0), 0)
+	local root = Vector3.new(at.X, at.Y + 3, at.Z)
+	if stray ~= nil and (Vector3.new(stray.X, root.Y, stray.Z) - root).Magnitude > 1 then
+		-- #3198: on the pad, but turned toward the stray the flight could not land beside
+		return CFrame.lookAt(root, Vector3.new(stray.X, root.Y, stray.Z))
+	end
+	return CFrame.new(root) * CFrame.Angles(0, math.rad(pad.centre.rotY or 0), 0)
 end
 
 local function refuse(player: Player, destination: string, reason: string)
@@ -242,11 +272,11 @@ end
 -- path just out from that pal's front door, facing the street (Layout.plot.palArrival), new players too. Then every
 -- client gets PalArrived(joinerUserId, palUserId, palArea) for the wave from both characters, and the joiner's HUD
 -- says where the pal is: palArea is the catching area the pal stands in, nil in town or a cafe.
-local function palArrival(player: Player, character: Model)
+local function palArrival(player: Player, character: Model): boolean
 	local pal = PalService.joinedVia(player)
 	local plot = if pal ~= nil then PlotService.get(pal) else nil
 	if pal == nil or plot == nil then
-		return
+		return false
 	end
 	task.wait(0.1) -- after Roblox has placed the character at the town spawn
 	local spot = Layout.plot.palArrival
@@ -255,17 +285,70 @@ local function palArrival(player: Player, character: Model)
 		player:RequestStreamAroundAsync(landing.Position, 2)
 	end)
 	if player.Character ~= character or character.Parent == nil or pal.Parent ~= Players then
-		return
+		return false
 	end
 	character:PivotTo(landing)
 	local palRoot = rootOf(pal.Character)
 	local area = if palRoot ~= nil then WorldBuilder.areaAt(world, palRoot.Position) else nil
 	Net.fireAll("PalArrived", player.UserId, pal.UserId, area)
+	return true
+end
+
+-- #3072: a returning player's first character of the session moves from the Town Square spawn to the street outside
+-- their own front door, facing it (TravelService.homeFront, where the Home button lands). The save and the cafe come
+-- a moment after the character (PlotService assigns the plot once the profile has loaded), so this waits for both,
+-- up to Cannon.HOME_WAIT_SECONDS, and then moves only a character that still stands at the spawn. The landing's
+-- position goes in the player's Cannon.HOME_ATTRIBUTE so their client can put the camera behind them.
+local function homeArrival(player: Player, character: Model)
+	local deadline = os.clock() + Cannon.HOME_WAIT_SECONDS
+	local profile = DataService.get(player)
+	while profile == nil or PlotService.get(player) == nil do
+		if os.clock() >= deadline or player.Parent ~= Players or player.Character ~= character then
+			return
+		end
+		task.wait(0.25)
+		profile = DataService.get(player)
+	end
+	if profile == nil then
+		return
+	end
+	if
+		not Cannon.joinsAtHome(
+			profile.introSeen,
+			Config.IntroAutoPlay,
+			profile.tutorialStep,
+			Config.TutorialGuaranteedStrayStep
+		)
+	then
+		return
+	end
+	local landing = TravelService.homeFront(player)
+	if landing == nil then
+		return
+	end
+	pcall(function()
+		player:RequestStreamAroundAsync((landing :: CFrame).Position, STREAM_TIMEOUT)
+	end)
+	local root = rootOf(character)
+	local spawn = Layout.playerSpawn
+	if
+		root == nil
+		or player.Character ~= character
+		or character.Parent == nil
+		or character:GetAttribute("Launching") == true
+		or CatService.isLoaded(player)
+		or not Cannon.stillAtSpawn(root.Position, Vector3.new(spawn.x, spawn.y, spawn.z))
+	then
+		return -- gone, flying, carrying or walked off already: left where they are
+	end
+	character:PivotTo(landing :: CFrame)
+	player:SetAttribute(Cannon.HOME_ATTRIBUTE, (landing :: CFrame).Position)
 end
 
 -- Where a respawn lands: on its camp's pad after a death in a wild area by day (section 4), on a free spot, else
--- inside its own cafe. A first spawn of the session stays at the hometown spawn, facing the cannon, unless the player
--- joined through a pal (palArrival).
+-- inside its own cafe. A first spawn of the session goes to a pal's door for a player who joined through one
+-- (palArrival), to the player's own front door for a returning player (homeArrival, #3072), and stays at the
+-- hometown spawn, facing the cannon, for a new one.
 local function watchCharacter(player: Player, character: Model, respawn: boolean)
 	local area = diedIn[player]
 	diedIn[player] = nil
@@ -285,7 +368,9 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 		return
 	end
 	if not respawn then
-		palArrival(player, character)
+		if not palArrival(player, character) then
+			homeArrival(player, character) -- #3072
+		end
 		return
 	end
 	task.wait(0.1) -- after Roblox has placed the character at the town spawn

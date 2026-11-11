@@ -102,7 +102,6 @@ return function()
 			["no end"] = { endsAt = NONE },
 			["shorter than EventMinSeconds"] = { endsAt = NOW + HOUR + 299 },
 			["longer than EventMaxSeconds"] = { endsAt = NOW + HOUR + 7201 },
-			["already over"] = { startsAt = NOW - 2 * HOUR, endsAt = NOW },
 			["a bad big"] = { big = "yes" },
 			["no effects"] = { effects = "all" },
 			["an unknown day kind"] = { effects = effects({ days = { "lucky", "sunny" } }) },
@@ -127,6 +126,13 @@ return function()
 				expect(string.find(notes[1], "record 1 ignored", 1, true)).to.equal(1)
 			end)
 		end
+
+		it("drops an event that is already over without a note (#3064)", function()
+			local list, notes =
+				CafeEvents.parse({ raw({ startsAt = NOW - 2 * HOUR, endsAt = NOW }), raw() }, NOW)
+			expect(#list).to.equal(1)
+			expect(#notes).to.equal(0)
+		end)
 
 		it("keeps the first of an id that comes twice", function()
 			local list, notes = CafeEvents.parse(

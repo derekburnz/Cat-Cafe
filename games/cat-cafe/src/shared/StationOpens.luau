@@ -6,9 +6,24 @@
 
 local StationOpens = {}
 
--- The windows a walk-up station opens (WalkUpController's KINDS, plus the own bait bowl).
-StationOpens.WINDOWS =
-	table.freeze({ "Cannon", "Spin", "Market", "CornerShop", "MysteryMarket", "Dealer", "Bait" })
+-- The windows a walk-up station opens (WalkUpController's KINDS, plus the own bait bowl). "BugReport" is the Feedback
+-- window, opened by the feedback stand (#3066). The Yard Sale, the Oasis Spa, the Relic Museum and the Index Boards
+-- ("Collection") count their ring opens too since #3113; their prompts are not in PROMPTS, so only rings are counted.
+StationOpens.WINDOWS = table.freeze({
+	"Cannon",
+	"Spin",
+	"Market",
+	"CornerShop",
+	"MysteryMarket",
+	"Dealer",
+	"Bait",
+	"BugReport",
+	-- #3113: the camp stations' rings and the Index Boards'
+	"YardSale",
+	"OasisSpa",
+	"RelicMuseum",
+	"Collection",
+})
 StationOpens.HOWS = table.freeze({ "ring", "prompt" })
 
 -- The prompt name of each station's ProximityPrompt, by its window (WalkUpController's KINDS; the bowl's is
@@ -21,6 +36,7 @@ StationOpens.PROMPTS = table.freeze({
 	MysteryPrompt = "MysteryMarket",
 	DealerPrompt = "Dealer",
 	BaitPrompt = "Bait",
+	FeedbackPrompt = "BugReport",
 } :: { [string]: string })
 
 -- Whether (window, how) from a client names a known station and way; anything else is dropped.

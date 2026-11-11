@@ -17,6 +17,8 @@
 --   contextDue(view) -> boolean  #2626: whether the lesson is due as a context tip: this session tackled the player,
 --                                they are back on the safe street or in a cafe, the tutorial strip is done
 --                                (TutorialHints.DONE) and the lesson was never seen
+--   canStart(free, safe) -> boolean  #3206: whether a due lesson starts now: the moment is free (TipQueue.free)
+--                                and the player stands somewhere safe; out in a catching area it waits
 -- Pure, so the cloud spec runner checks it.
 -- #2626 (Derek2: "make tackle lesson removed from tutorial for now so less people leave ... add tackle tutorial as a
 -- context tutorial your first time your in the safe after being tackled"): no longer the intro's tail; UI's tip pump
@@ -83,6 +85,14 @@ function TackleLessonLogic.contextDue(view: Context): boolean
 		and view.safe == true
 		and view.seen ~= true
 		and step >= TackleLessonLogic.DONE_STEP
+end
+
+-- #3206 (Derek2 11-11: "make sure to not play tackle cutscene when not in safezone"): contextDue looks at where the
+-- player is when the lesson comes due, but it then waits for a free moment (no carry, no window, no catch), and by
+-- then the player may be back out in a catching area, where the cutscene takes their camera among tacklers. A due
+-- lesson starts only while `safe` (Wayfinding.isSafe: the street or a cafe); otherwise it stays due for the next time.
+function TackleLessonLogic.canStart(free: boolean, safe: boolean): boolean
+	return free == true and safe == true
 end
 
 return TackleLessonLogic

@@ -186,7 +186,7 @@ return function()
 				expect(treat.cost).to.equal(150) -- Derek2 2026-11-07, was 80
 				expect(Catalog.getLure("star_treat")).to.be.ok()
 				local perks: { [string]: number } =
-					{ golden_espresso = 5, big_bowl = 1, extra_decor_spot = 2 }
+					{ golden_espresso = 5, big_bowl = 1, extra_decor_spot = 2, swift_paws = 2 }
 				for id, maxLevel in perks do
 					local row = Catalog.getFishShopRow(id)
 					assert(row and row.costs)
@@ -354,6 +354,7 @@ return function()
 				golden_espresso = { 40, 80, 150, 250, 400 },
 				big_bowl = { 150 },
 				extra_decor_spot = { 100, 250 },
+				swift_paws = { 60, 150 }, -- #3063 (Monetization-Agent: two levels)
 			}
 			for _, def in Catalog.crates do
 				if not def.golden and def.area ~= Catalog.RALLY_POOL then

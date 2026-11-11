@@ -109,5 +109,34 @@ return function()
 			expect(math.abs(half.Y - 0.5) < 1e-6).to.equal(true)
 			expect(math.abs(half.Z - 2) < 1e-6).to.equal(true)
 		end)
+
+		it(
+			"splits the cafe front round its doorway so no tint covers the opening (#3221)",
+			function()
+				local door = Presets.decorFx.doorway
+				local h, spring = door.half, door.spring
+				local pieces = Logic.frontPieces(-19, 19, 0, 12.8, door)
+				expect(#pieces > 3).to.equal(true)
+				local area = 0
+				for _, p in pieces do
+					area += (p.x1 - p.x0) * (p.y1 - p.y0)
+					-- every corner of every piece is outside the opening: below the spring past the jambs, above it
+					-- outside the arch
+					for _, x in { p.x0 + 1e-6, p.x1 - 1e-6 } do
+						for _, y in { p.y0 + 1e-6, p.y1 - 1e-6 } do
+							local inside = if y <= spring
+								then math.abs(x) < h
+								else (x * x + (y - spring) ^ 2) < h * h - 1e-6
+							expect(inside).to.equal(false)
+						end
+					end
+				end
+				-- the wall left uncovered is little more than the opening itself
+				local opening = 2 * h * spring + math.pi * h * h / 2
+				expect(38 * 12.8 - area - opening < 4).to.equal(true)
+				-- a front too small for the doorway stays one piece
+				expect(#Logic.frontPieces(-2, 2, 0, 12.8, door)).to.equal(1)
+			end
+		)
 	end)
 end

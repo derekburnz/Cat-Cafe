@@ -130,7 +130,7 @@ local function days(raw: unknown): DayKinds?
 	return out
 end
 
--- One record against the rules, or nil and why; `notes` takes the clamps.
+-- One record against the rules, or nil and why (nil and no why for one that is over); `notes` takes the clamps.
 local function record(raw: unknown, now: number, notes: { string }): (Event?, string?)
 	if type(raw) ~= "table" then
 		return nil, "not a record"
@@ -158,7 +158,9 @@ local function record(raw: unknown, now: number, notes: { string }): (Event?, st
 		return nil, id .. ": shorter or longer than an event may be"
 	end
 	if endsAt <= now then
-		return nil, id .. ": already over"
+		-- #3064: a finished event still in the schedule is how every schedule ends up, not a fault: no note (the
+		-- live log had "record 1 ignored: ...: already over" as a warning from every new server)
+		return nil, nil
 	end
 	local big = values.big
 	if big ~= nil and type(big) ~= "boolean" then
@@ -253,7 +255,9 @@ function CafeEvents.parse(raw: unknown, now: number): ({ Event }, { string })
 		end
 		local event, why = record(item, now, notes)
 		if event == nil then
-			table.insert(notes, string.format("record %d ignored: %s", index, why or "?"))
+			if why ~= nil then
+				table.insert(notes, string.format("record %d ignored: %s", index, why))
+			end
 		elseif seen[event.id] then
 			table.insert(
 				notes,

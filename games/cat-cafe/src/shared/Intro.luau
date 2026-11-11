@@ -25,11 +25,13 @@ Intro.SHOTS = 8
 -- alleyway at the end scene is not needed") took out the last shot, "Your first cat is waiting in the Alleyway!", 10
 -- since #2626 (Derek2: "make tutorial slightly faster 20% roughly") read faster and dropped the tackling lesson's tail.
 Intro.VERSION = 10
-Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
+Intro.SKIP_AFTER = 0 -- #3168 (Derek2: "no delay on clicking through scenes in tutorial so impatient people can instantly
+-- click through it"): Skip works from the first second (it was 5.0 s, its bar filling until then)
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
-Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
 -- #2961 (Derek2 11-10: "don't make intro skip those slides ... just wait up to a couple seconds for loading"): the
--- most the intro waits for the camp's ground before it starts, and again on shot 1's fuse before the cut to the camp
+-- most shot 1 holds on its fuse for the camp's ground before the cut to the camp. #3109 (Derek2 11-10: "start the
+-- cutscene right after dont even check if the alleyway catching scenes are ready"): nothing waits before shot 1 any
+-- more (STREAM_WAIT, 5 s, and this wait a second time are gone), so the camp has the loading screen and shot 1 to come
 Intro.CAMP_WAIT = 2.5
 
 -- #2182 (section 2b, two playtesters: the captions go by too fast to read): each shot shows for its hold, its section
@@ -39,7 +41,7 @@ Intro.CAMP_WAIT = 2.5
 -- 0.8 + 0.32 s a word, a fifth off the 1.0 + 0.4 s every caption-bound hold had (about 31 s down to 25 s).
 Intro.CAPTION_BASE = 0.8
 Intro.CAPTION_PER_WORD = 0.32
-Intro.NEXT_AFTER = 1.0
+Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 
 Intro.AREA = "alley" -- the camp shots 2 to 4 film, where a new player's first flight goes
@@ -587,9 +589,11 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	-- between the Spin Wheel and the Codes Cat; #2707's roomier square put them 38 studs apart (-28, 22 and -29, -16),
 	-- so the camera stands back east of the cannon to fit both on a phone; #3001's 120 x 110 square and #3000's Codes
 	-- spot put them at (-35, 27.5) and (-45, -20), further out and 48 apart, so the shot looks further west along
-	-- z = 5 (28 and 25 degrees off the axis) from a little nearer the cannon
+	-- z = 5 (28 and 25 degrees off the axis) from a little nearer the cannon; #3070's 120 x 140 square put them at
+	-- (-35, 35) and (-45, -25.5), 60 apart, so the camera stands 12 further east and 4 higher to keep the same angles
+	-- (29 and 25 degrees) and still look over the cannon
 	local stations = v(-40, 3, 5)
-	local stationsCam = v(8, 20, 5)
+	local stationsCam = v(20, 24, 5)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

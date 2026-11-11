@@ -1045,7 +1045,9 @@ local function refreshBowl(
 		return
 	end
 	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
-	local ready = bait ~= nil and os.time() >= readyAt
+	-- #3161: the account's first bait's cat stands at the bowl a few seconds before its timer ends (Bait.catOutAt)
+	local ready = bait ~= nil
+		and os.time() >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
 
 	if folder:FindFirstChild("Bowl") == nil then
 		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")
@@ -1483,7 +1485,10 @@ function CafeService.addCaughtCat(
 	if notify then
 		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
 		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
-		if profile.stats.catsCaught >= 2 then
+		-- #3161 (Derek2 2026-11-10: "so many pop ups when catching first food bowl cat"): not on the first bowl cat,
+		-- whose card, reward and the tutorial's end already speak; the tip comes with the next cat
+		local firstTame = method == "bait" and profile.stats.baitsTamed <= 1
+		if profile.stats.catsCaught >= 2 and not firstTame then
 			TipService.show(player, "second_cat")
 		end
 		if isNew then
@@ -1996,6 +2001,7 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 	end
 	Telemetry.sink(player, profile, cost, "Shop", upgradeId)
 	profile.upgradeLevels[upgradeId] = Economy.level(profile, upgradeId) + 1
+	Telemetry.upgradeBought(player, profile, upgradeId, profile.upgradeLevels[upgradeId]) -- #2996
 	if upgradeId == "tables" then
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
@@ -2524,7 +2530,14 @@ function CafeService.start()
 		while true do
 			task.wait(Config.SyncIntervalSeconds)
 			for _, player in DataService.loadedPlayers() do
-				CafeService.sync(player)
+				-- #3145: one player's sync throwing must not end these for the server's life (as CatService's
+				-- check-ins, review N226): this sync is what brings a drifted screen back to the server's state
+				local ok, err = pcall(function()
+					CafeService.sync(player)
+				end)
+				if not ok then
+					warn("[CafeService] periodic sync: " .. tostring(err))
+				end
 			end
 		end
 	end)

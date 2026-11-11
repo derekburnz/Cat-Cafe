@@ -19,6 +19,8 @@
 --   update(before, view) -> (shown, opened)   shown(view) keeping every key that showed before this session (selling
 --                                       cats never hides the Index), and the keys new since before (none on the
 --                                       first sync: before nil)
+--   pops(opened, guiding?) -> { Key }   #3161: the keys that pop with "New!": none when many open at once;
+--                                       #3183: none while the tutorial is still guiding (its steps open them)
 -- Pure, so the cloud spec runner checks it.
 
 local HudUnlocks = {}
@@ -125,6 +127,18 @@ function HudUnlocks.shown(view: View): { [Key]: boolean }
 	out.fish = tier2 or view.fish > 0
 	out.areas = tier2
 	return out :: any
+end
+
+-- #3161 (Derek2 2026-11-10: "it highlights all buttons and so many pop ups when catching first food bowl cat"): the
+-- keys that get the gold "New!" pop and the hint sound. One or two opening together pop as before; when the
+-- tutorial's end opens the rest of the HUD at once (eight pieces) they all just appear, so the next step's own
+-- pointer is the one thing asking for a look.
+HudUnlocks.POP_MOST = 2
+
+-- #3183 (Derek2 2026-11-10: "remove all the new pop ups in buttons when finishing tutorial steps"): `guiding` is
+-- true when the pieces opened at a tutorial step (the step before the update was under DONE); those just appear too.
+function HudUnlocks.pops(opened: { Key }, guiding: boolean?): { Key }
+	return if guiding or #opened > HudUnlocks.POP_MOST then {} else opened
 end
 
 function HudUnlocks.update(before: { [Key]: boolean }?, view: View): ({ [Key]: boolean }, { Key })

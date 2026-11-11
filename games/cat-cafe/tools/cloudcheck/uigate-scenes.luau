@@ -4287,7 +4287,7 @@ local SCENES = {
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
 		-- #3205 (Derek2: "the quick update in ... gets cut off"): the restart warning's calm early mark is an info
 		-- toast, and still shows every word
-		local notice = "A quick update is coming in 10 minutes. Keep playing, your cafe is saved."
+		local notice = "A quick update is coming in 10 minutes, then a 10-minute event! Keep playing, your cafe is saved."
 		UI.toast(notice, "info")
 		local warned = find(notice)
 		assert(warned.TextTruncate == Enum.TextTruncate.None, "uigate: the restart warning ends in ... (#3205)")

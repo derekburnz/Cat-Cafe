@@ -16,7 +16,8 @@ return function()
 			funnel = 6,
 			firstDay = 0,
 			introStep = 0,
-			firstHourStep = 0,
+			firstHourStep = 10,
+			firstHourV3Step = 0,
 		}
 	end
 
@@ -483,14 +484,16 @@ return function()
 		end)
 	end)
 
-	describe("first_hour_v2 (#2391, #2636)", function()
+	describe("first_hour_v3 (#2391, #2636, #3308)", function()
 		it("is joined then 30 seconds to 60 minutes of play, as analytics.sh reads it", function()
-			expect(Onboarding.FIRST_HOUR_FUNNEL).to.equal("first_hour_v2")
+			expect(Onboarding.FIRST_HOUR_FUNNEL).to.equal("first_hour_v3")
 			expect(Onboarding.FIRST_HOUR_STEPS :: any).to.deepEqual({
 				"joined",
 				"played_30s",
 				"played_60s",
 				"played_2m",
+				"played_3m",
+				"played_4m",
 				"played_5m",
 				"played_10m",
 				"played_20m",
@@ -498,6 +501,12 @@ return function()
 				"played_45m",
 				"played_60m",
 			})
+			-- v2's steps stay for the report: v3 without played_3m and played_4m
+			local v2 = table.clone(Onboarding.FIRST_HOUR_STEPS)
+			table.remove(v2, 6)
+			table.remove(v2, 5)
+			expect(Onboarding.FIRST_HOUR_V2_STEPS :: any).to.deepEqual(v2)
+			expect(Onboarding.FIRST_HOUR_V2_COUNT).to.equal(10)
 			expect(#Onboarding.FIRST_HOUR_SECONDS).to.equal(Onboarding.FIRST_HOUR_COUNT)
 			for i = 2, Onboarding.FIRST_HOUR_COUNT do
 				local name = Onboarding.FIRST_HOUR_STEPS[i]
@@ -513,7 +522,10 @@ return function()
 			expect(Onboarding.firstHourDue(1, 29) :: any).to.deepEqual({})
 			expect(Onboarding.firstHourDue(1, 30) :: any).to.deepEqual({ 2 })
 			expect(Onboarding.firstHourDue(1, 120) :: any).to.deepEqual({ 2, 3, 4 })
-			expect(Onboarding.firstHourDue(4, 650) :: any).to.deepEqual({ 5, 6 })
+			expect(Onboarding.firstHourDue(4, 179) :: any).to.deepEqual({})
+			expect(Onboarding.firstHourDue(4, 180) :: any).to.deepEqual({ 5 })
+			expect(Onboarding.firstHourDue(5, 240) :: any).to.deepEqual({ 6 })
+			expect(Onboarding.firstHourDue(4, 650) :: any).to.deepEqual({ 5, 6, 7, 8 })
 			expect(Onboarding.firstHourDue(0, 99999) :: any).to.deepEqual({
 				1,
 				2,
@@ -525,8 +537,10 @@ return function()
 				8,
 				9,
 				10,
+				11,
+				12,
 			})
-			expect(Onboarding.firstHourDue(10, 99999) :: any).to.deepEqual({})
+			expect(Onboarding.firstHourDue(12, 99999) :: any).to.deepEqual({})
 			expect(Onboarding.firstHourDue(1, 0 / 0) :: any).to.deepEqual({})
 		end)
 	end)

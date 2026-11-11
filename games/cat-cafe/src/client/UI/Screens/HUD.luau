@@ -367,7 +367,11 @@ local POP_PAD = 8
 -- #3184 (Derek2 11-10: "redo the tutorial button and X to make it more obvious"): bigger again, a white rim and a
 -- bigger, bolder ×, its right edge still no more than 2 px past the tile (#1176)
 local HIDE_DOT = if Scale.isTouch() then 34 else 30
-local HIDE_HIT = if Scale.isTouch() then 46 else 40 -- the Tutorial tile's × takes taps this big round its red dot
+-- the Tutorial tile's × takes taps this big round its red dot; #3307: on touch, 44 px on screen even at the touch floor
+-- scale (Scale.tapHeight), as an iPad 4:3 drew 46 at 36.8 px
+local HIDE_HIT = if Scale.isTouch() then Scale.tapHeight(46) else 40
+-- design px the bigger pad's middle sits under the red dot, so its top stays where 46 put it (on screen)
+local HIDE_DROP = math.max(0, HIDE_HIT - 46) / 2
 local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 -- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
 -- #2411: twice as long, with a "Hide tips" tag beside the tile
@@ -968,7 +972,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		-- reaches the next tile (#1176: the Rewards badge's corner on the right); low enough that its bounce stays on
 		-- screen
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(0, 2, 0, 10),
+		Position = UDim2.new(0, 2, 0, 10 + HIDE_DROP),
 		Size = UDim2.fromOffset(HIDE_HIT, HIDE_HIT),
 		ZIndex = 8,
 		Parent = tutorial.instance,
@@ -978,7 +982,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, -HIDE_DROP),
 		Size = UDim2.fromOffset(HIDE_DOT, HIDE_DOT),
 		ZIndex = 8,
 		Parent = hide,
@@ -2834,7 +2838,7 @@ function HUD.pulseHide(self: any)
 	local hint: TextLabel = label({
 		Name = "HideHint",
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(0, -2, 0.5, 0),
+		Position = UDim2.new(0, -2, 0.5, -HIDE_DROP), -- on the red dot's line (#3307: the touch pad sits lower)
 		Size = UDim2.fromOffset(0, HIDE_HINT_H),
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundColor3 = Theme.colors.gold,
@@ -3923,6 +3927,15 @@ function HUD._counterTop(self: any): number
 	return self._counterY or MARGIN
 end
 
+-- The counters' top in the root's design px when they sit in Roblox's top bar (`barBottom` screen px tall): centred in
+-- the bar, but never over the screen's top with their outline. #3307: on a big tablet (an iPad Pro, an Android 16:10)
+-- the UI scale is over 1 and the counters are taller than the bar, so centred they poked 2.5 px over the top; they
+-- hang from the top edge instead, still mostly in the bar.
+function HUD._barTop(self: any, barBottom: number, scale: number): number
+	local centred = -(barBottom / scale + self._counterH) / 2
+	return math.max(centred, Theme.sizes.outline - barBottom / scale)
+end
+
 function HUD._liftTop(self: any)
 	if not TOUCH then
 		return
@@ -3950,13 +3963,13 @@ function HUD._liftTop(self: any)
 			fits = true
 			x = (left + (right - left - width) / 2 - origin) / scale
 			-- the bar sits over the root's top, so the counters are centred in it at a negative Y
-			top = -(inset.Max.Y / scale + self._counterH) / 2
+			top = self:_barTop(inset.Max.Y, scale)
 		elseif counters.AbsoluteSize.X <= right - left then
 			-- #2712 (Derek2 11-09: "fix this reoccuring issue of currencys being shoved down on mobile"): a chip that
 			-- makes the pair too wide no longer takes the counters out of the bar; they stay, and the row goes under them
 			alone = true
 			x = (left + (right - left - counters.AbsoluteSize.X) / 2 - origin) / scale
-			top = -(inset.Max.Y / scale + self._counterH) / 2
+			top = self:_barTop(inset.Max.Y, scale)
 		end
 	end
 	self._counterY = top

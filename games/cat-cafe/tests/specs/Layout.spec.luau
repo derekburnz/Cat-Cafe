@@ -716,6 +716,16 @@ return function()
 				local board = Layout.indexBoards.alley
 				local bx, bz = Layout.campPoint(camp, board.x, board.z)
 				expect(inside(bx, bz, camp.rect, 0)).to.equal(true)
+				-- #3349: 4 in from the camp line here; a gated area's board stands 7 in, clear of the gate's dressing
+				expect(board.z).to.equal(-4)
+				for id, other in Layout.indexBoards do
+					if id ~= "alley" then
+						expect(other.z).to.equal(-7)
+						local gated = Layout.camps[id]
+						local ox, oz = Layout.campPoint(gated, other.x, other.z)
+						expect(inside(ox, oz, gated.rect, 0)).to.equal(true)
+					end
+				end
 				expect(math.abs(bx - W.AlleyCenterX) > W.AlleyWayHalfWidth).to.equal(true)
 				-- one arch over the way in, as wide as it
 				local arches = alley.arches :: { Layout.Arch }

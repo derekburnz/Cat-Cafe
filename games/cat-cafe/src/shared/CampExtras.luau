@@ -303,6 +303,15 @@ function CampExtras.lostFoundPrize(roll: number): (Types.IndexPrize, string?)
 	return rowPrize(rows[#rows])
 end
 
+-- #3361: the most spins one Lost and Found find can give (the biggest `spins` on LostFoundTable).
+function CampExtras.lostFoundMaxSpins(): number
+	local most = 0
+	for _, row in Config.LostFoundTable do
+		most = math.max(most, row.spins or 0)
+	end
+	return most
+end
+
 local function addCounts(
 	into: { [string]: number }?,
 	from: { [string]: number }?
@@ -380,13 +389,18 @@ end
 -- Takes everything `extraId` holds from a save for a player of `tier` (settling it first): the prize, how many
 -- fills it was and the rarities of the Lost and Found's lost cats (#1732), or nil, 0 and none when nothing waits.
 -- `roll` gives the Lost and Found's rolls in [0, 1), one a find.
+-- #3361: `spinRoom` is how many spins the player's bank still takes (nil: no limit). A find is only rolled while the
+-- bank has room for the most spins any row gives (lostFoundMaxSpins), so a find of spins is never paid into a full
+-- bank and lost. The finds that are not rolled stay in the Lost and Found (the save's `held`). Stopping is decided
+-- before the roll, never by it, so a full bank cannot reroll a find or shift the odds shown on the card.
 function CampExtras.take(
 	save: Types.CampExtrasSave,
 	extraId: string,
 	tier: number,
 	now: number,
 	roll: () -> number,
-	pondTimes: number?
+	pondTimes: number?,
+	spinRoom: number?
 ): (Types.IndexPrize?, number, { string })
 	CampExtras.settle(save, tier, now)
 	if not CampExtras.isOpen(extraId, tier) then
@@ -416,15 +430,26 @@ function CampExtras.take(
 		end
 		local prize: Types.IndexPrize = {}
 		local lostCats: { string } = {}
+		local room = spinRoom or math.huge
+		local most = CampExtras.lostFoundMaxSpins()
+		local taken = 0
 		for _ = 1, held do
+			if room < most then
+				break -- #3361: no room for a find of spins; this find and the rest wait here, unrolled
+			end
 			local find, lostCat = CampExtras.lostFoundPrize(roll())
+			room -= find.spins or 0
+			taken += 1
 			prize = CampExtras.merge(prize, find)
 			if lostCat ~= nil then
 				table.insert(lostCats, lostCat)
 			end
 		end
-		save.lostFound.held = 0
-		return prize, held, lostCats
+		if taken == 0 then
+			return nil, 0, {}
+		end
+		save.lostFound.held = held - taken
+		return prize, taken, lostCats
 	end
 	return nil, 0, {}
 end

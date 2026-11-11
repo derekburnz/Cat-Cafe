@@ -1,5 +1,5 @@
 --!strict
--- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v2 and catch_attempt funnels (only
+-- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v3 and catch_attempt funnels (only
 -- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
 -- the feedback_v1 funnel (#2681: the slide-in faces ask, a face, a chip),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
@@ -36,6 +36,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventGate = require(script.Parent.Parent.Util.EventGate)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
+local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -550,6 +551,7 @@ end
 
 -- Sending ----------------------------------------------------------------------------------------------------
 
+-- FieldText.clean: Roblox drops a field that holds , " ' or / ("Event field CustomField02 is invalid")
 local function customFields(values: { string }): { [string]: any }?
 	if #values == 0 then
 		return nil
@@ -559,7 +561,7 @@ local function customFields(values: { string }): { [string]: any }?
 		if i > #FIELD_KEYS then
 			break
 		end
-		fields[FIELD_KEYS[i]] = value
+		fields[FIELD_KEYS[i]] = FieldText.clean(value)
 	end
 	return fields
 end
@@ -979,11 +981,11 @@ function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
 end
 
 -- #2391: the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), one run per player with the user id as its session:
--- every step the account's play time has reached since the last one logged.
+-- every step the account's play time has reached since the last one logged. #3308: first_hour_v3, in firstHourV3Step.
 local function logFirstHour(player: Player, profile: Profile)
 	local state = profile.telemetry
-	for _, step in Onboarding.firstHourDue(state.firstHourStep, PlayTime.seconds(player, profile)) do
-		state.firstHourStep = step
+	for _, step in Onboarding.firstHourDue(state.firstHourV3Step, PlayTime.seconds(player, profile)) do
+		state.firstHourV3Step = step
 		local name = Onboarding.FIRST_HOUR_STEPS[step]
 		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, {})
 		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()

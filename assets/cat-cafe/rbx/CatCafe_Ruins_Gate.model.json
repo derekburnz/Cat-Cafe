@@ -482,15 +482,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -14.34,
+       -14.14,
        0.35,
-       -2.6
+       -2.0
       ],
       "orientation": [
        [
-        0.9903,
+        0.9994,
         0.0,
-        0.1392
+        0.0349
        ],
        [
         0.0,
@@ -498,9 +498,9 @@
         0.0
        ],
        [
-        -0.1392,
+        -0.0349,
         0.0,
-        0.9903
+        0.9994
        ]
       ]
      }
@@ -531,58 +531,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -15.14,
-       0.225,
-       -3.3
-      ],
-      "orientation": [
-       [
-        0.848,
-        0.0,
-        0.5299
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.5299,
-        0.0,
-        0.848
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.585,
-     0.45,
-     0.45
-    ],
-    "Color": [
-     0.5882,
-     0.5686,
-     0.549
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_Gate",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -13.54,
        0.25,
-       -3.4
+       -2.4
       ],
       "orientation": [
        [
@@ -629,7 +580,56 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.2,
+       -12.94,
+       0.225,
+       -2.1
+      ],
+      "orientation": [
+       [
+        0.829,
+        0.0,
+        -0.5592
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5592,
+        0.0,
+        0.829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.585,
+     0.45,
+     0.45
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Ruins_Gate",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.8,
        0.15,
        -3.0
       ],
@@ -678,7 +678,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.2,
+       -15.8,
        1.25,
        -3.0
       ],
@@ -728,7 +728,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.2,
+       -15.8,
        2.2833,
        -3.0
       ],
@@ -778,7 +778,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.2,
+       -15.8,
        2.45,
        -3.0
       ],
@@ -828,7 +828,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.2,
+       -15.8,
        2.6167,
        -3.0
       ],
@@ -1319,15 +1319,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       14.34,
+       14.14,
        0.35,
-       -2.6
+       -2.0
       ],
       "orientation": [
        [
-        0.5299,
+        0.6157,
         0.0,
-        0.848
+        0.788
        ],
        [
         0.0,
@@ -1335,9 +1335,9 @@
         0.0
        ],
        [
-        -0.848,
+        -0.788,
         0.0,
-        0.5299
+        0.6157
        ]
       ]
      }
@@ -1368,58 +1368,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       15.14,
-       0.225,
-       -3.3
-      ],
-      "orientation": [
-       [
-        0.1392,
-        0.0,
-        0.9903
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9903,
-        0.0,
-        0.1392
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.585,
-     0.45,
-     0.45
-    ],
-    "Color": [
-     0.5882,
-     0.5686,
-     0.549
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_Gate",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        13.54,
        0.25,
-       -3.4
+       -2.4
       ],
       "orientation": [
        [
@@ -1466,7 +1417,56 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.2,
+       12.94,
+       0.225,
+       -2.1
+      ],
+      "orientation": [
+       [
+        0.9613,
+        0.0,
+        0.2756
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2756,
+        0.0,
+        0.9613
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.585,
+     0.45,
+     0.45
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Ruins_Gate",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.8,
        0.15,
        -3.0
       ],
@@ -1515,7 +1515,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.2,
+       15.8,
        1.25,
        -3.0
       ],
@@ -1565,7 +1565,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.2,
+       15.8,
        2.2833,
        -3.0
       ],
@@ -1615,7 +1615,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.2,
+       15.8,
        2.45,
        -3.0
       ],
@@ -1665,7 +1665,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.2,
+       15.8,
        2.6167,
        -3.0
       ],
@@ -2505,7 +2505,7 @@
      "CFrame": {
       "position": [
        0.0,
-       15.86,
+       15.875,
        0.0
       ],
       "orientation": [
@@ -2529,7 +2529,7 @@
     },
     "Size": [
      17.7,
-     2.48,
+     2.25,
      0.5
     ],
     "Color": [
@@ -13650,7 +13650,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.2,
+         -15.8,
          2.7833,
          -3.0
         ],
@@ -13695,7 +13695,7 @@
        "CFrame": {
         "position": [
          -2.7833,
-         -16.2,
+         -15.8,
          3.0
         ],
         "orientation": [
@@ -13729,7 +13729,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.2,
+         -15.8,
          3.05,
          -3.0
         ],
@@ -13779,7 +13779,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.2,
+         -15.8,
          3.3167,
          -3.0
         ],
@@ -13829,7 +13829,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.2,
+         15.8,
          2.7833,
          -3.0
         ],
@@ -13879,7 +13879,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.2,
+         15.8,
          3.05,
          -3.0
         ],
@@ -13929,7 +13929,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.2,
+         15.8,
          3.3167,
          -3.0
         ],

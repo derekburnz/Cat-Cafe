@@ -889,6 +889,14 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
 - **No restart.** Client only; old servers' clients keep the old words until they close.
 
+## 2026-11-11 New activities and the upgrade ladder, as Derek2 settled them on 2026-11-10 (Design-Agent)
+
+- **Rummage Bin (#3050):** an Alleyway activity on its own easy bar. Prizes are food, golden fish, crates and a potion; Derek2: "not money ... every 15 minutes or smth". It's ready at once, then every 3 min for the first 3 uses, then every 15 min, so it lands inside the first 5 minutes. Monetization-Agent approved it with no countdown text.
+- **Cat Arcade (#3062):** Circle Streak, 1 golden fish a run, Perfect +2 and Good +1, up to 100 points. There's a milestone every 10 points, each paid once a day; Derek2 set the first at 5 golden fish "so people who are bad get some more to attempt". There's a leaderboard and no bot check for now. It was its_cuzu098's idea.
+- **Swift Paws (#3063):** a permanent +1/+2 walk and carry speed perk for 60/150 golden fish. It's capped at +2 so the Robux Swift Potion's +4 stays the bigger bump (Monetization-Agent). It was its_cuzu098's idea.
+- **Upgrade ladder (#3204, Derek2 chose "Yes, as proposed"):** Tier 2 opens 5 levels and Tier 3 opens 6, where it was 10 and 2. Net 2 moves to Tier 3 at 200,000 and Net 3 to Tier 5 at 60,000,000. Pace showed Tier 3 arriving sooner, not later, because coins skip Tier 2's buys. So Tier 3's cost goes up (520k, at most 560k) instead of down; the final numbers come from the combined run with #3195.
+- One place for all three specs: `docs/design/cat-cafe/new-activities.md`.
+
 ## 2026-11-11 Trait station spec (#3196)
 
 - **What.** trait-station.md is the short spec for the Picnic Basket rework into the Cat Trainer, folding in the plan and comments on #3196. It's still waiting on Derek's yes, and there's no build before then.

@@ -81,6 +81,10 @@ v7, 2026-11-10 (#2683 and #2895, then #2915 step 3, built in #2973):
 - **Why the faster floors are fine:** fast and social players reaching the Park around minute 7 helps the 2–5 minute drop (retention-ideas.md), and Tier 3's cost still paces the hour after (Design-Agent, 2026-11-10).
 - **Other tiers:** Tiers 3 to 5 keep #2895's 30% cut, and their guards are unchanged.
 
+v7.1, 2026-11-10 (#3111, built in #3122; Derek2: "lower the different cats requirement a little bit between 3-7"): different cats to rank up are now **Tier 3 10** (was 11), **Tier 5 26** (28), **Tier 6 38** (42) and **Tier 7 47** (52). Tier 4 stays at **22**: 21 or 20 puts a 4x Money owner at Tier 5 in 1 h 47 to 1 h 53, under section 8 check 7's 2 hour floor. Coin costs are unchanged. Tier 2 keeps 5.
+
+Pending (not on main yet): #3195 shorter nights (45 s night, 345 s day) and #3204 new tier caps and net prices, each with a Pace re-band. A v8 entry follows when they merge.
+
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
 | player | Tier 2 | Tier 3 | Tier 4 | Tier 5 |

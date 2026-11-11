@@ -294,6 +294,41 @@ local function rowGap(foot: number): number
 end
 local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 20 on touch)
 local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
+-- #3033 (Laptop-Tester, live 494: "the chat window covers the top left Store tile"): the bottom of Roblox's chat
+-- window in pixels from the top of `root`, when it is on and reaches over the left column's first `columnW` pixels;
+-- nil otherwise (touch, no TextChatService window, or one placed elsewhere). Roblox terms: TextChatService's
+-- ChatWindowConfiguration reports where the chat window is drawn (AbsolutePosition, AbsoluteSize).
+local function chatWindow(): Instance?
+	local ok, service = pcall(function(): Instance?
+		return game:GetService("TextChatService")
+	end)
+	if not ok or service == nil then
+		return nil
+	end
+	return (service :: Instance):FindFirstChildOfClass("ChatWindowConfiguration")
+end
+
+local function chatBottom(root: GuiObject, columnW: number): number?
+	local config: any = chatWindow()
+	if config == nil or config.Enabled ~= true then
+		return nil
+	end
+	local okPos, at = pcall(function(): Vector2
+		return config.AbsolutePosition
+	end)
+	local okSize, size = pcall(function(): Vector2
+		return config.AbsoluteSize
+	end)
+	if not okPos or not okSize or typeof(at) ~= "Vector2" or typeof(size) ~= "Vector2" then
+		return nil
+	end
+	local left = (at :: Vector2).X - root.AbsolutePosition.X
+	if size.X <= 0 or size.Y <= 0 or left > columnW then
+		return nil
+	end
+	return (at :: Vector2).Y + (size :: Vector2).Y - root.AbsolutePosition.Y
+end
+
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
 end
@@ -2251,6 +2286,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- pair; the layouts wait for this flag, then run once here
 	self._built = true
 	self:_layoutMenu()
+	-- #3033: and Roblox's chat window, which can sit over the Store tile on a computer
+	local chat: any = if TOUCH then nil else chatWindow()
+	if chat ~= nil then
+		for _, property in { "AbsolutePosition", "AbsoluteSize", "Enabled" } do
+			local okSignal, signal = pcall(function(): RBXScriptSignal
+				return chat:GetPropertyChangedSignal(property)
+			end)
+			if okSignal then
+				table.insert(
+					self._connections,
+					signal:Connect(function()
+						self:_layoutMenu()
+					end)
+				)
+			end
+		end
+	end
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
 		self._connections,
@@ -4907,6 +4959,17 @@ function HUD._layoutMenu(self: any)
 	local block = storeH + menuH + (if roomy then foldUnder else 0)
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
+	-- #3033: on a computer, the column starts under Roblox's chat window when that covers it and the column still
+	-- fits above the counters; else it stays where it was
+	if not TOUCH and scale > 0 then
+		local under = chatBottom(self._root, (MARGIN + menuW) * scale)
+		if under ~= nil then
+			local top = math.ceil(under / scale) + gap
+			if top > self._menuTop and top + block <= bandBottom then
+				self._menuTop = top
+			end
+		end
+	end
 	self._gridTop = self._menuTop + storeH
 	self._foldBeside = not roomy
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid

@@ -151,6 +151,9 @@ local function busy(): boolean
 		or ui.intro.playing()
 end
 
+-- #3114: the reach each extra's prompt came with
+local ownReach: { [ProximityPrompt]: number } = {}
+
 -- #3113: the flat centre and radius of an extra's floor ring (World/WalkUpCircles), or nil while it has none or the
 -- ring is streamed out.
 local function ringOf(prompt: ProximityPrompt): (Vector3?, number)
@@ -182,10 +185,21 @@ local function autoClaim()
 	local now = os.clock()
 	for prompt, extraId in prompts do
 		local centre, radius = ringOf(prompt)
+		-- #3114: an extra with a ring has no click prompt; stepping into the ring collects or opens its card. While
+		-- the ring is away (streamed out) the prompt has the reach it came with again.
+		local own = ownReach[prompt]
+		if own == nil then
+			own = prompt.MaxActivationDistance
+			ownReach[prompt] = own
+		end
+		local reach = WalkUp.promptReach(centre ~= nil, own)
+		if prompt.MaxActivationDistance ~= reach then
+			prompt.MaxActivationDistance = reach
+		end
 		local position = anchorPosition(extraId)
 		local away = if centre ~= nil
 			then Vector2.new(at.X - centre.X, at.Z - centre.Z).Magnitude > radius
-			else position == nil or (position - at).Magnitude > prompt.MaxActivationDistance
+			else position == nil or (position - at).Magnitude > own
 		if away then
 			if pending[extraId] == math.huge then
 				pending[extraId] = nil -- walked away after a refusal: the next walk-up tries again
@@ -243,6 +257,7 @@ local function track(instance: Instance)
 		if not found:IsDescendantOf(Workspace) then
 			prompts[found] = nil
 			holds[found] = nil
+			ownReach[found] = nil
 		end
 	end)
 end

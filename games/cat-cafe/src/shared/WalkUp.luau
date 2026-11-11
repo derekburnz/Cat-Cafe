@@ -15,6 +15,8 @@
 --   FRONT_FIT_LEAST, BOARD_RADIUS     the camp stations' fitted front rings and the Index Boards' smaller one (#3113)
 --   fitRing(radius, blocks, most, least, keep?)  where that ring moves, and how small it gets, to clear what stands
 --                                     in it while still holding the station's base
+--   promptReach(hasRing, own)         how far a station's click prompt reaches: nothing once the station has a ring
+--                                     (#3114), so the ring is the only way in; its own reach while it has none
 -- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
 -- lays the rings.
 
@@ -147,6 +149,19 @@ function WalkUp.fitRing(
 		reach = math.max(reach, (point - shift).Magnitude)
 	end
 	return shift, math.min(radius, math.max(math.min(least, radius), reach, fitted))
+end
+
+-- #3114 (Derek2: "remove all \"one click to open menu\" buttons in game for stations etc but make sure they each have
+-- a circle area to open menus first"): a station with a floor ring gets no click prompt: its prompt's reach
+-- (MaxActivationDistance) goes to SILENT_REACH, so its pill never shows and no key or tap presses it. The prompt
+-- itself stays in the model, as its Enabled still says whether the station is open (a flight, a closed stall). A
+-- station without a ring keeps its prompt, so nothing is ever left with no way in.
+WalkUp.SILENT_REACH = 0
+
+-- `own` is the reach the prompt came with (the caller remembers it the first time it sees the prompt), so a station
+-- whose ring goes away again (streamed out) gets its prompt back and is never left with no way in.
+function WalkUp.promptReach(hasRing: boolean, own: number): number
+	return if hasRing then WalkUp.SILENT_REACH else own
 end
 
 -- One station this look: its key, the window it opens (the UI's modal name), the flat studs from the character

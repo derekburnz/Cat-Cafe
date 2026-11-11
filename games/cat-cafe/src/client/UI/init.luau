@@ -1097,6 +1097,7 @@ function UI.init(config: Types.InitConfig)
 		frame = dealerView.frame,
 		onOpen = function()
 			dealerView:render(state)
+			UI.dealer.seen() -- #3195: the "!" over the cart goes for the rest of the night
 		end,
 	})
 	settingsScreen = Settings.new({
@@ -1553,6 +1554,7 @@ function UI.init(config: Types.InitConfig)
 	local markers = LocationMarkers.new(parent)
 	markers:setEnabled(settingsView:value("markers")) -- the map icons switch (My Cafe, Night Market)
 	locationMarkers = markers
+	UI.dealer.startBang(parent) -- #3195: the "!" over the Night Market until it is opened tonight
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
@@ -1880,6 +1882,7 @@ function UI.destroy()
 	if locationMarkers then
 		locationMarkers:destroy()
 	end
+	UI.dealer.stopBang()
 	if cafeSigns then
 		cafeSigns:destroy()
 	end
@@ -2493,6 +2496,60 @@ function UI.dealer.setStock(stock: Types.DealerStock?)
 	end
 	if stock == nil and modal and modal:current() == "Dealer" then
 		modal:close()
+	end
+end
+
+-- #3195 (Derek2: a "!" over the Night Market so nobody misses it): the red "!" and "🌙 Rare foods tonight!" over the
+-- dealer's cart (Components/MarketBang on the DealerCart tag) from nightfall until this player opens the market that
+-- night; then it stays gone until the next night. Only this player sees theirs.
+UI.dealer.bang = nil :: any
+UI.dealer.night = false
+UI.dealer.opened = false
+UI.dealer.BANG_LINE = "🌙 Rare foods tonight!"
+
+function UI.dealer.bangLine(): string?
+	return if UI.dealer.night and not UI.dealer.opened then UI.dealer.BANG_LINE else nil
+end
+
+function UI.dealer.startBang(into: Instance)
+	UI.dealer.stopBang()
+	local MarketBang = require(script.Components.MarketBang)
+	local bang = MarketBang.new(into, {
+		tag = "DealerCart",
+		name = "CatCafeNightMarketBang",
+		line = function(): string?
+			return UI.dealer.bangLine()
+		end,
+	})
+	bang:update(nil)
+	UI.dealer.bang = bang
+end
+
+function UI.dealer.stopBang()
+	local bang = UI.dealer.bang
+	if bang then
+		bang:destroy()
+	end
+	UI.dealer.bang = nil
+end
+
+-- The clock's phase: a new night brings the "!" back, daylight resets it for the next night.
+function UI.dealer.setNight(night: boolean)
+	if night ~= UI.dealer.night then
+		UI.dealer.night = night
+		UI.dealer.opened = false
+	end
+	local bang = UI.dealer.bang
+	if bang then
+		bang:update(nil)
+	end
+end
+
+function UI.dealer.seen()
+	UI.dealer.opened = true
+	local bang = UI.dealer.bang
+	if bang then
+		bang:update(nil)
 	end
 end
 
@@ -3583,6 +3640,17 @@ do
 		end
 		local v3 = type(trustNeed) == "number" and trustNeed > 0
 		local model: Model? = if v3 then UI.catch.strayModel(strayId) else nil
+		if info == nil or info.strayId ~= strayId then
+			-- #3224 (Derek2 11-11: the card "just shows cat on top instead of what it is"): a catch that began with the
+			-- net swing has no prompt card up for this stray, and the card read "Cat" and "Common". The stray says what
+			-- it is itself (CatService's attributes on its model).
+			local stray = model or UI.catch.strayModel(strayId)
+			local named =
+				require(script.Components.CatchHeader).fromStray(strayId, stray, lookupCat)
+			if named ~= nil then
+				info = named :: any
+			end
+		end
 		if info and info.strayId == strayId then
 			local rarity: string? = info.rarity
 			local built: CatchCircles.Header = {
@@ -4296,6 +4364,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if dealerScreen then
 		dealerScreen:setNight(phase == "night")
 	end
+	UI.dealer.setNight(phase == "night") -- #3195
 	if tipJarScreen then
 		tipJarScreen:setNight(phase == "night")
 	end

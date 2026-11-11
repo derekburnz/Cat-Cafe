@@ -2380,6 +2380,39 @@ local SCENES = {
 		assert(name.Text == "Rainbow Duchess Marzipan", "uigate: the catch header reads " .. name.Text .. " (#2110)")
 		assert(name.TextFits, "uigate: Rainbow Duchess Marzipan does not fit the catch header (#2110)")
 	end },
+	-- #3224 (Derek2: the card "just shows cat on top instead of what it is"): a catch that begins with the net swing
+	-- has no prompt card up for its stray; the header names the cat from the stray's own attributes
+	{ "CatchSwingName", function()
+		local model = Instance.new("Model")
+		model.Name = "Stray_gate_swing"
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(2, 2, 3)
+		body.Position = Vector3.new(0, 3, -12)
+		body.Parent = model
+		model.PrimaryPart = body
+		model:SetAttribute("StrayId", "gate_swing")
+		model:SetAttribute("CatId", Catalog.cats[2].id)
+		model:SetAttribute("CatName", "Sand Cat")
+		model:SetAttribute("Rarity", "Epic")
+		model:SetAttribute("Gold", true)
+		model:SetAttribute("Variant", "gold")
+		model.Parent = workspace
+		model:AddTag("Stray")
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.3, shrinkSeconds = 0.8, x = 0.4, y = 0.5 }, { startsAt = t + 1.0, shrinkSeconds = 0.8, x = 0.6, y = 0.5 } }
+		UI.catch.showCircles("gate_swing", list :: any, { perfect = 0.037, good = 0.09 })
+		UIShim.advance(0.2)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local name = layer and layer:FindFirstChild("CatName", true)
+		local rarity = layer and layer:FindFirstChild("Rarity", true)
+		assert(name and name:IsA("TextLabel"), "uigate: no catch header name (#3224)")
+		assert(name.Text == "Gold Sand Cat", "uigate: a net-swing catch's header reads " .. name.Text .. ", not Gold Sand Cat (#3224)")
+		assert(rarity and rarity.Text == "Epic", "uigate: a net-swing catch's rarity pill reads " .. tostring(rarity and rarity.Text) .. " (#3224)")
+		assert(name.TextFits, "uigate: Gold Sand Cat does not fit the catch header (#3224)")
+		model:RemoveTag("Stray")
+		model:Destroy()
+	end },
 	-- #2099 (luck-and-rare-moments.md 1j): a "Pity cat" tag over each stray with PityCat, gold for a Legendary and
 	-- violet with a rainbow edge for a Mythical, none over a plain stray; hidden in a net, back on a bolt, gone with
 	-- the attribute
@@ -6948,6 +6981,34 @@ local SCENES = {
 		UI.update({ starterCatClaimed = before } :: any)
 		stand:Destroy()
 	end },
+	-- #3195: the red "!" over the Night Market's cart from nightfall until the market is opened that night
+	{ "NightMarketBang", function()
+		local cart = Instance.new("Model")
+		cart.Name = "DealerCart"
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(6, 5, 4)
+		body.Position = Vector3.new(6, 2.5, -18)
+		body.Parent = cart
+		cart.PrimaryPart = body
+		cart:SetAttribute("Open", true)
+		cart.Parent = workspace
+		cart:AddTag("DealerCart")
+		UI.dealer.setNight(true)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeNightMarketBang", true) :: BillboardGui?
+		assert(gui and gui.Enabled and gui.Adornee == body, "uigate: no ! over the Night Market at night (#3195)")
+		local line = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "🌙 Rare foods tonight!", "uigate: the Night Market bubble reads " .. line.Text .. " (#3195)")
+		UI.dealer.open()
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the Night Market's ! stays after it was opened (#3195)")
+		UI.close()
+		UI.dealer.setNight(true)
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the Night Market's ! came back the same night (#3195)")
+		UI.dealer.setNight(false)
+		UI.dealer.setNight(true)
+		assert((gui :: BillboardGui).Enabled, "uigate: the Night Market's ! did not come back the next night (#3195)")
+		Scenes._nightCart = cart
+	end },
 	{ "MarketBang", function()
 		local stall = Instance.new("Model")
 		stall.Name = "CatCafe_FishMarket"
@@ -8368,6 +8429,11 @@ function Scenes.close()
 	if Scenes._spinState ~= nil then
 		UI.update(Scenes._spinState :: any) -- #2345 and #2358's scenes
 		Scenes._spinState = nil
+	end
+	if Scenes._nightCart ~= nil then
+		Scenes._nightCart:Destroy() -- #3195's scene
+		UI.dealer.setNight(false)
+		Scenes._nightCart = nil
 	end
 	if Scenes._market ~= nil then
 		Scenes._market.stall:Destroy() -- #2214's scene

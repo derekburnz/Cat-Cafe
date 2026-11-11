@@ -544,9 +544,14 @@ local Config = {
 	-- Epic and up as they were. #2566 (Derek2 2026-11-09: "nerf the rare + rescue missions 30% slower"): Rare and up
 	-- x0.7 (1.05, 1.4, 1.6 and 1.8 before), so the Rare's marker is now slower than the Common's; its narrower zone
 	-- still leaves it less time inside.
+	-- #3223 (Derek2 2026-11-11: "rescues are wayyy to easy making bar too big and speed to slow"): the zones were cut
+	-- in #3120 the day before; this is the speed. Common 0.85 and Rare 0.735 before, so 18% and 22% faster, and the
+	-- Rare is no longer far slower than the Common. Epic and up keep their speeds until Derek has played #3120's
+	-- zones (Review-Agent: sped up as well, a phone player would free an Epic 36% of the time and a Mythical 8%).
+	-- The Alleyway and Park ease and an account's first rescues (RescueFirstSpeed) still slow it.
 	RescueBarSpeed = {
-		Common = 0.85,
-		Rare = 0.735,
+		Common = 1.00,
+		Rare = 0.90,
 		Epic = 0.98,
 		Legendary = 1.12,
 		Mythical = 1.26,

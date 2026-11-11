@@ -888,12 +888,13 @@ return function()
 		)
 
 		it(
-			"the rescue bar matches the section 10b table: rarer has less time in the zone (v0.13.15 F83, #2219, #2320, #2566)",
+			"the rescue bar matches the section 10b table: rarer has less time in the zone (v0.13.15 F83, #2219, #2320, #2566, #3223)",
 			function()
 				local rows = {
 					-- #3120: the zones were 0.30, 0.23, 0.15, 0.12 and 0.14
-					Common = { 0.85, 0.17 }, -- #2320
-					Rare = { 0.735, 0.135 }, -- #2320; #2566: Rare and up x0.7
+					-- #3223: Common and Rare were 0.85 and 0.735
+					Common = { 1.00, 0.17 },
+					Rare = { 0.90, 0.135 }, -- #2566 made the Rare slower than the Common; #3223 keeps a little of that
 					Epic = { 0.98, 0.105 },
 					Legendary = { 1.12, 0.105 },
 					Mythical = { 1.26, 0.125 },

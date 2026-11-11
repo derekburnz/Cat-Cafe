@@ -2042,6 +2042,15 @@ def cat_sold() -> np.ndarray:
     return finish(fade_tail(mix(d, *coins, (pouch, 0.15), *bye), 0.3), -9)
 
 
+def stray_call() -> np.ndarray:
+    """The stray that waits for a new player's second catch calls out (#3022): a friendly "mrrp?" then a short
+    "mew?" that rises at the end, like asking to be picked up. Plain cat voice, no chime, so it reads as the cat."""
+    d = 0.8
+    mrrp = cat_voice(0.17, 540, 700, 660, 0.7, 3022) * 0.55
+    mew = cat_voice(0.26, 600, 720, 900, 0.1, 3023) * 0.7
+    return finish(fade_tail(mix(d, (mrrp, 0.0), (mew, 0.3)), 0.2), -6)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2057,6 +2066,7 @@ SOUNDS = {
     "CoinPop": ("sfx", "Sfx", coin_pop),
     "Purchase": ("sfx", "Sfx", purchase),
     "CatSold": ("sfx", "Sfx", cat_sold),
+    "StrayCall": ("sfx", "Sfx", stray_call),
     "CheckInBell": ("sfx", "Sfx", check_in_bell),
     "StrayFlee": ("sfx", "Sfx", stray_flee),
     "JingleCatFound": ("music", "Music", jingle_cat_found),

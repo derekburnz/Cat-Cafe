@@ -535,6 +535,29 @@ def village_sign(mat, lines=("WHISKER", "GREEN")):
     return [b.finalize(N + "VillageSign", mat), rb.finalize(N + "VillageSignText", mat)]
 
 
+def green_clock(mat):
+    """The green's landmark (#2834 model pass): a black street clock on a post about 13 high, standing on a two step
+    stone plinth, a white face on each side (south to the road, north to the allotments) at ten past ten, a gold
+    collar and finial. 15 parts, no cat spot."""
+    b = Builder()
+    b.box_base((0, 0, 0), (2.6, 2.6, 0.8), "concrete", bevel=False)
+    b.box_base((0, 0, 0.8), (1.8, 1.8, 0.5), "fur_grey", bevel=False)
+    b.cyl_base((0, 0, 1.3), 0.45, 1.2, "fur_black", segments=8, bevel=False)
+    b.cyl_base((0, 0, 2.5), 0.22, 6.6, "fur_black", segments=8, bevel=False)
+    b.cyl_base((0, 0, 9.1), 0.42, 0.3, "gold_mid", segments=8, bevel=False)
+    cz = 10.8
+    b.cyl((0, 0, cz), 1.5, 0.7, "fur_black", segments=12, bevel=False, rot=rx(90))
+    for sy in (-1, 1):
+        b.cyl((0, sy * 0.37, cz), 1.25, 0.06, "offwhite", segments=12, bevel=False, rot=rx(90))
+        for (deg, L, w) in ((-55, 0.7, 0.14), (60, 1.0, 0.09)):              # ten past ten, read from that side
+            t = math.radians(deg * -sy)
+            b.box((math.sin(t) * L / 2, sy * 0.42, cz + math.cos(t) * L / 2), (w, 0.04, L), "fur_black",
+                  bevel=False, rot=Matrix.Rotation(t, 3, "Y"))
+    b.pyramid((0, 0, cz + 1.5), 1.1, 0.7, "fur_black")
+    b.ico((0, 0, cz + 2.45), 0.26, "gold_mid", subdivisions=1)
+    return [b.finalize(N + "GreenClock", mat)]
+
+
 def _near(s, g, mat):
     """The verge by the gate, the cars, the village green and the allotments."""
     # the verge: the bus stop on Whisker Lane, the post box, benches, bins, beds, the street sign
@@ -571,6 +594,7 @@ def _near(s, g, mat):
         s.put(pk.flower_bed(mat, i), x, z, 0)
     _spot(s, "flowerbed", -18.0, -100.0, y=0.62)
     s.put(village_sign(mat), -2.0, -101.0, 0)
+    s.put(green_clock(mat), -8.0, -80.0, 0)                 # by the footpath's bend, clear of every cat spot
     s.put(bird_bath(mat), 34.0, -82.0, 0)
     _spot(s, "birdbath", 36.5, -82.0)
     s.put(nb.ice_cream_van(mat), -48.0, S2_Z + 1.6, 90, y=ROAD_Y + 0.006)

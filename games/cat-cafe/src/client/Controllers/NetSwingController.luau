@@ -103,7 +103,6 @@ local function findInReach(): Model?
 		local model = instance :: Model
 		local fleeing = model:GetAttribute("FleeingUntil")
 		local locked = model:GetAttribute("LockedBy")
-		local beginner = model:GetAttribute("Beginner") -- F87: another beginner's tutorial stray
 		local id = model:GetAttribute("StrayId")
 		local body = bodyOf(model)
 		if
@@ -111,7 +110,8 @@ local function findInReach(): Model?
 			or body == nil
 			or (type(fleeing) == "number" and fleeing > now)
 			or (type(locked) == "number" and locked ~= 0 and locked ~= player.UserId)
-			or (type(beginner) == "number" and beginner ~= 0 and beginner ~= player.UserId)
+			-- (#3181: another beginner's tutorial stray is a target like any other; the server no longer keeps it
+			-- for them alone)
 		then
 			continue
 		end

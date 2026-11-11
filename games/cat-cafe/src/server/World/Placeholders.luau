@@ -1604,7 +1604,7 @@ end
 
 -- Every asset name the game can ask for.
 -- The Codes Cat (F65, data-model section 11d) until the art is synced: a booth with a "Codes" sign and the cat on
--- top, and the CodesCircle (a flat Neon disc, radius CodesCircleRadius) 6 studs in front, as in the asset.
+-- top, and the CodesCircle (a flat Neon disc, radius CodesCircleRadius) its edge 2 studs in front, as in the asset.
 builders.CatCafe_Street_CodesCat = function()
 	local model = newModel("CatCafe_Street_CodesCat")
 	local booth = addPart(model, {
@@ -1647,7 +1647,7 @@ builders.CatCafe_Street_CodesCat = function()
 	addPart(model, {
 		name = "CodesCircle",
 		size = Vector3.new(0.1, Config.CodesCircleRadius * 2, Config.CodesCircleRadius * 2),
-		offset = Vector3.new(0, 0.05, -6),
+		offset = Vector3.new(0, 0.05, -(2 + Config.CodesCircleRadius)), -- #3112: 8 in front at radius 6
 		rotation = Vector3.new(0, 0, 90),
 		color = Color3.fromRGB(255, 214, 120),
 		material = Enum.Material.Neon,

@@ -81,7 +81,9 @@ Session id: GUID created at step 1, held with the carry state. Custom fields: `r
 
 Reading it: 1 to 2 is catch difficulty by rarity (compare with the net feel targets in data-model section 10). 2 to 3 is the carry home, which now includes bumps: a drop here that grew after bumps shipped is the bump cost. 3 to 4 is slot pressure (role slots full at the player's tier).
 
-### 4.2 bait_cycle
+### 4.2 bait_cycle (retired 2026-11-08, #2444)
+
+**Retired.** Read bait from the live custom events instead (#3030): `bait_rolled` (fields food, rarity, potion) and `bait_resolved` (fields food, rarity, choice `tame` or `letgo`). Set to resolved is `bait_resolved` players over `bait_rolled` players, and the let-go rate is `letgo` over all `bait_resolved`. For new players, onboarding_v6 `first_bait` to `first_bait_resolved` covers the first bowl. The table below is kept for history.
 
 | Step | stepName | Fired when |
 |---|---|---|
@@ -137,7 +139,7 @@ Custom fields on every economy event: `tier` (1 to 5), `phase` (day, night), `ca
 | Rank up | Sink | Gameplay | rank_up_<tier> |
 | Adoption Van cat bought (launch) | Sink | Shop | van_<rarity> |
 
-Using food at the bowl spends no coins and is not an economy event; bait_rolled and the bait_cycle funnel cover it. The v2 to v3 save migration refunds are not logged; they only touch test saves.
+Using food at the bowl spends no coins and is not an economy event; bait_rolled and bait_resolved cover it (the bait_cycle funnel was retired on 2026-11-08). The v2 to v3 save migration refunds are not logged; they only touch test saves.
 
 Dashboard health: net sources minus sinks per day should sit near zero once players have things to buy. A wallet that climbs for a week means a desirable sink is missing at that tier (watch whether rank_up costs absorb it). A wallet pinned near zero with a high `affordable=no` rate means income is too slow. If `sell_cat` is a top source, duplicates are too common or worth too much. Filter by `phase` to see whether night play earns enough to feel worth it at 60%.
 
@@ -190,6 +192,18 @@ Bumps are the first player-versus-player contact in the game, and the GDD names 
 | error_recovered | 1 | system (datastore, catalog, remote, policy, filter) | Server recovers from a known failure | Health without reading logs |
 | catch_flagged | 1 | reason (perfect_rate, low_spread), net_level | Section 8 check trips, at most once per player per session | Volume of suspected auto-pressers |
 
+### 6.4a First five minutes (#3098, accounts below Tier 2)
+
+Built from Monetization-Agent's plan (library `Monetization-Agent/notes/first-five-minutes-funnel-plan-2026-11-10.md`). The logic and buckets live in `shared/FirstFive.luau` and the logging in `Telemetry.luau`. Owner test mode logs nothing.
+
+| eventName | value | customFields (max 3) | Fired when | Why |
+|---|---|---|---|---|
+| step_ready | account seconds of play | step (table_afford, bowl_afford, second_stray_up), kind (coins, stray), device | Once a session per step: coins first cover the first table or the bait bowl while that buy is due, or a free stray stands within 120 studs while the second cat is due | Ready-to-done time (`step_time` minus `step_ready`) splits waiting for money from not finding the step |
+| step_stall | the bucket's seconds | awaited step (the one after the furthest), bucket (30, 60, 120), hint (last stuck nudge for it: pulse, help_shown, show_me, none) | No new onboarding step for 30, 60 or 120 s, once per bucket per awaited step a session, in the first 600 s of account play | How long players sit on each step, and whether a nudge was showing |
+| quit_snapshot | session seconds | furthest onboarding step (as `quit_state`), idle and screen joined as one field ("5-15 upgrades": idle 0-5, 5-15, 15-60 or 60+ s with no movement or client report; screen none, store, upgrades, index, settings or other), afford (yes, no, na for the next table or bowl buy) | Leaving, beside `quit_state` | Bored or confused (idle) vs fighting the game; afford no is income pace, yes is guidance |
+
+`first_goal_card` was left out of `step_ready`. The `next_goal_shown` onboarding step already logs it. P2 (health_check, quick_return, quit_cafe) follows in its own PR.
+
 ### 6.5 Launch-phase features (common-features.md)
 
 | eventName | value | customFields (max 3) | Fired when | Why |
@@ -239,7 +253,7 @@ Benchmarks from the GameAnalytics 2026 Roblox report (titles over 1 million MAU,
 |---|---|---|---|
 | 2 Slice | Onboarding steps 1 to 7 fire in order in the QA loop script; no event fires out of order | All fire, loop under 10 minutes | Engineering ticket |
 | 3 Friends alpha | No onboarding step under 70% of the previous one; session_end median over 10 minutes; catch_circles average chance on Commons with a Basic Net above 70%; left_after_bump rare (a handful across the alpha) and drop_outcome not dominated by bumper | The loop completes in under 10 minutes and bumps read as play | Fix the worst step first; turn BumpEnabled off if bumps drive leaves |
-| 4 Soft launch, first 2 weeks (needs about 100 new players a day to read) | D1, session length, catch_attempt conversion, bait_cycle return rate, economy net flow by phase | D1 at or above 12%, session at or above 10 minutes, bait_cycle set to seen above 60% | Decision rules in comps.md section 8 |
+| 4 Soft launch, first 2 weeks (needs about 100 new players a day to read) | D1, session length, catch_attempt conversion, bait return rate (bait_resolved over bait_rolled), economy net flow by phase | D1 at or above 12%, session at or above 10 minutes, bait_resolved over bait_rolled above 60% | Decision rules in comps.md section 8 |
 | 5 Iterate | D7, tier pacing from rank_up, offline_claim capped share, robux_purchase prompt-to-complete, wallet trend, bait_rolled odds audit | D7 at or above 3%, prompt-to-complete over 10% on every live pass, bait results within 2 points of the cards | Re-price or cut the pass; add a sink at the wallet plateau tier; fix the roll if odds drift |
 
 Weekly ritual (Sunday, after the Saturday update): growth-analyst reads the dashboards, writes ten lines to docs/growth/weekly/<date>.md (D1, D7, session, worst funnel step, top sink, top source, catch conversion, bump leaves, one surprise, one action) and files the action as a ticket for the designer or QA.

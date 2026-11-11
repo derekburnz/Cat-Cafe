@@ -74,6 +74,13 @@ local PENDING_SECONDS = 3 -- a sent buy with no answer stops counting on its row
 -- #1820 (Derek2: "stuck in ... for like a second"): no "..." any more. A press counts on its row at once, as if the
 -- server said yes ("x1 left" -> "Sold out"), and the next CornerShopStock puts right anything it refused.
 local SEND_GAP = 0.55
+-- #3209: the tabs over the list, one per section, in this order
+local TAB_H = 36
+local TABS: { { kind: string, title: string } } = {
+	{ kind = "potion", title = "Potions" },
+	{ kind = "food", title = "Cat food" },
+	{ kind = "bait", title = "Bait" },
+}
 local GAP = Theme.sizes.gap
 -- #2593: the sections with a Buy all, the header button's width, and how long Buy all waits for its CornerShopStock
 local ALL_KINDS: { [string]: boolean } = { potion = true, food = true, bait = true }
@@ -163,13 +170,49 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Parent = content,
 	})
 
+	-- #3209 (Derek2: "add different section buttons at top of day cart for potions/cat food/bait"): one tab per
+	-- section over the list; the list shows that section's header (with its Buy all) and rows only
+	local tabH = Scale.tapHeight(TAB_H, Theme.sizes.buttonDepth)
+	local tabBar: Frame = Create("Frame", {
+		Name = "Tabs",
+		BackgroundColor3 = PAL.panel,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, tabH),
+		ZIndex = 2,
+		Parent = content,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._tab = TABS[1].kind
+	self._tabButtons = {} :: { [string]: Button.Button }
+	for order, tab in TABS do
+		self._tabButtons[tab.kind] = Button.new({
+			name = tab.kind .. "Tab",
+			text = tab.title,
+			style = if order == 1 then "gold" else "ghost",
+			size = UDim2.new(1 / #TABS, -GAP, 1, 0),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = order,
+			parent = tabBar,
+			sound = "uiTab",
+			onClick = function()
+				self:_showTab(tab.kind)
+			end,
+		})
+	end
+
 	self._list = Create("ScrollingFrame", {
 		Name = "Items",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		-- the whole window since the help line (#1688) and lawn note (#1689) went; the restock clock and snack
-		-- line above it are empty since #1190 and #1255
-		Size = UDim2.fromScale(1, 1),
+		-- the whole window under the tabs (#3209) since the help line (#1688) and lawn note (#1689) went; the
+		-- restock clock and snack line behind the tabs are empty since #1190 and #1255
+		Position = UDim2.fromOffset(0, tabH + GAP),
+		Size = UDim2.new(1, 0, 1, -(tabH + GAP)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -453,11 +496,32 @@ function CornerShop._clear(self: any)
 	table.clear(self._headers)
 end
 
+-- #3209: shows one section: its tab gold, its header and rows in the list, the list back at the top.
+function CornerShop._showTab(self: any, kind: string)
+	self._tab = kind
+	for each, button in self._tabButtons do
+		button:setStyle(if each == kind then "gold" else "ghost")
+	end
+	for _, child in self._list:GetChildren() do
+		if child:IsA("GuiObject") and child ~= self._empty then
+			local name = child.Name
+			local of: string? = if name:sub(1, 8) == "Section_"
+				then name:sub(9)
+				else (rowOf(name) or {} :: any).kind
+			if of ~= nil then
+				child.Visible = of == kind
+			end
+		end
+	end
+	self._list.CanvasPosition = Vector2.zero
+end
+
 -- #1599: a section's header over its rows ("Potions").
 function CornerShop._header(self: any, section: CornerShopLogic.Section, order: number)
 	local hasAll = ALL_KINDS[section.kind] == true and self._callbacks.buyAll ~= nil
 	local header = text({
 		Name = "Section_" .. section.kind,
+		Visible = section.kind == self._tab, -- #3209
 		Size = UDim2.new(
 			1,
 			0,
@@ -597,10 +661,12 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 	for index, item in stock.stock do
 		local itemId = item.itemId
 		local def = rowOf(itemId)
+		local kind: string = if def ~= nil then def.kind else "other"
 		local frame: Frame = Create("Frame", {
 			Name = itemId,
 			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
+			Visible = kind == self._tab, -- #3209: only the open tab's rows
 			LayoutOrder = orderOf[index] or index,
 			Size = UDim2.new(1, 0, 0, rowH),
 			Parent = self._list,
@@ -790,6 +856,9 @@ function CornerShop.destroy(self: any)
 	self:_clearPicker()
 	self._card:destroy()
 	self._pickerBack:destroy()
+	for _, button in self._tabButtons do
+		button:destroy()
+	end
 	self._panel:destroy()
 end
 

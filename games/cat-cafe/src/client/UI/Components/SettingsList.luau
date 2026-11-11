@@ -123,19 +123,9 @@ if Settings.kinds[SettingsList.TUTORIAL_KEY] then
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end
 
--- F94 (rewards-and-shops.md section 3): the Fresh Catch heads up ("Gold Rush Potions at the Fish Market!"), once
--- shared/Settings saves its key (default on). The server sends ShopAlert only while it is on.
+-- F94's "Shop alerts" switch left with the Fresh Catch (#3118). shared/Settings still saves its key, so old saves
+-- keep it, but no row shows it.
 SettingsList.SHOP_ALERTS_KEY = "shopAlerts"
-if Settings.kinds[SettingsList.SHOP_ALERTS_KEY] then
-	local row: Row = {
-		key = SettingsList.SHOP_ALERTS_KEY,
-		kind = "switch",
-		icon = "📣",
-		name = "Shop alerts",
-		detail = "A heads up when the Fish Market stocks something rare",
-	}
-	table.insert(SettingsList.SECTIONS[2].rows, row)
-end
 
 -- #1920 (first-hour.md section 6): the session recap card's switch, once shared/Settings saves its key (default on).
 -- Off, the card never shows (UI.recap).
@@ -174,6 +164,7 @@ SettingsList.OTHER_KEYS = {
 	[SettingsList.TRADE_REQUESTS_KEY] = true,
 	roadmapOpen = true,
 	goalFolded = true, -- #2714: the goal card's fold tab and chip set it
+	shopAlerts = true, -- #3118: still saved, but its Fresh Catch alert is gone, so no row
 } :: { [string]: boolean }
 
 -- Every row in screen order.

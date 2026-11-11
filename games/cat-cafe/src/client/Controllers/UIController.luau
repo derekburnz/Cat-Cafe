@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -26,6 +27,7 @@ local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
+local FirstFive = require(Shared:WaitForChild("FirstFive"))
 local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
 local Invite = require(script.Parent.Parent.UI.Components.Invite)
 local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLogic)
@@ -1417,6 +1419,23 @@ local function wireIntents()
 			local ScreenShort = require(script.Parent.Parent.UI.Components.ScreenShort)
 			Net.fire("TelemetryReport", "screen_short", ScreenShort.bucket(camera.ViewportSize))
 		end
+	end)
+	-- #3098 P2: health_check, once a session FirstFive.HEALTH_AT seconds in: the client's memory in MB, then its frames
+	-- a second over FirstFive.HEALTH_SAMPLE seconds (the server adds the ping and keeps it to Tier 1 accounts)
+	task.delay(FirstFive.HEALTH_AT, function()
+		local frames = 0
+		local counting = RunService.RenderStepped:Connect(function()
+			frames += 1
+		end)
+		task.wait(FirstFive.HEALTH_SAMPLE)
+		counting:Disconnect()
+		local memory = math.floor(Stats:GetTotalMemoryUsageMb())
+		Net.fire("TelemetryReport", "health_mem", math.clamp(memory, 0, FirstFive.MEMORY_MAX))
+		Net.fire(
+			"TelemetryReport",
+			"health_fps",
+			math.clamp(math.floor(frames / FirstFive.HEALTH_SAMPLE), 0, FirstFive.FPS_MAX)
+		)
 	end)
 	local screensReported: { [string]: boolean } = {}
 	-- #1273: the screen open now ("none" when it closes), for a new player's time markers and leave events. Sent while

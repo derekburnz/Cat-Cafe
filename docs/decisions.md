@@ -777,3 +777,19 @@ Why this shape: the cause of the missing cutscene was the order of events, so th
 Not changed here (Animation-Engineer has them): tip pop-ups in the first five minutes (#3156), the Daily Treat and goal-progress pop-ups (#3155), the × highlight (#3154). The GDD's line 'a cat will come by in 10 minutes' (first ten minutes, beat 4) describes the old pop-up; proposed to the game-designer to drop it.
 
 For Research-Agent: `tutorial_step 5` now logs when the first bowl cat is tamed or let go, a few seconds later than before and only for players who answer the card, so the step 4 to 5 rate from this publish on is not comparable with earlier days.
+
+## 2026-11-10 Harder rescues, harder gold and rainbow cats, quicker rings late on (#3120, #3135, #3140)
+
+Three catch tuning asks from Derek on the same evening, shipped together.
+
+**Rescue zone (#3120).** The share of the bar that counts, by rarity: Common **0.17** (was 0.30), Rare **0.135** (was 0.23), Epic **0.105** (was 0.15), Legendary **0.105** (was 0.12), Mythical **0.125** (was 0.14). That is 43%, 41%, 30%, 12% and 11% narrower. An account's first 3 rescues get a zone 1.7 times as wide (`RescueFirstUses`, `RescueFirstZone`), about the old Common and Rare widths. Steady Paw and the first two areas' easier bars multiply on top as before. In CatchFeel's model a steady player (50 ms) frees 100, 100, 87, 62 and 48% of Common to Mythical (was 100, 100, 98, 73, 59), a shaky one (70 ms) 99, 98, 51, 23 and 13% (was 100, 100, 79, 31, 19).
+
+Why: "make the rescue area about 10->50% smaller especially for the common->epic rescues are too easy now". The cut is biggest where he asked. Rare is 0.135 and Legendary 0.105, not the 0.14 and 0.10 first written on the issue, so that every rarer rarity still has less time in the zone than the one before (Config.spec). The first-rescues help is there because no tablet player got past a first rescue before #2786. Watch the tablet rescue cancel rate (#3024) after it ships. The Rummage Bin keeps its own wider zone when it lands (#3050, Design-Agent).
+
+**Gold and rainbow cats (#3135).** A gold cat's catch bands and rescue zone are **0.90** times as wide, a rainbow's **0.80** (`CoatDifficulty`). Not on the tutorial stray or an account's first rescues.
+
+Why: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not added add it". It was not added: the coat changed nothing about the catch or the rescue.
+
+**Quicker rings (#3140).** In the Sewer, Desert and Ruins (areas of Tier 5 and later, `QuickRingTier`) a Common cat's rings close in **0.96 s** (was 1.20) and a Rare's in **0.85 s** (was 1.00). The bands are the same seconds wide, so a ring is no harder to hit. The ring count, the gap between rings and the rarer cats are unchanged.
+
+Why: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to wait", "speed up the circles". Rare is 15% quicker, not the 20% first written on the issue, so a Rare ring stays slower than an Epic's 0.82 s.

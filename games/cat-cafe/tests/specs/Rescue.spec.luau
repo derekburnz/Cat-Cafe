@@ -591,6 +591,73 @@ return function()
 			end
 		)
 	end)
+	-- #3120 (Derek2 2026-11-10: "make the rescue area about 10->50% smaller especially for the common->epic rescues
+	-- are too easy now") and #3135 ("check if mutated cats gold/rainbow increase difficulty of catch and if thats not
+	-- added add it")
+	describe("a player's zone scale: first rescues and coats (#3120, #3135)", function()
+		it("keeps an account's first three rescues about as wide as before the cut", function()
+			expect(Config.RescueFirstUses).to.equal(3)
+			for done = 0, 2 do
+				expect(Rescue.zoneScale(done, nil)).to.equal(Config.RescueFirstZone)
+			end
+			expect(Rescue.zoneScale(3, nil)).to.equal(1)
+			-- the widths before #3120, which the first rescues stay within a tenth of for a Common and a Rare
+			expect(math.abs(Config.RescueZoneWidth.Common * Config.RescueFirstZone - 0.30) < 0.03).to.equal(
+				true
+			)
+			expect(math.abs(Config.RescueZoneWidth.Rare * Config.RescueFirstZone - 0.23) < 0.03).to.equal(
+				true
+			)
+		end)
+
+		it("narrows a gold cat's zone a little and a rainbow's a little more", function()
+			expect(Rescue.zoneScale(3, "base")).to.equal(1)
+			expect(Rescue.zoneScale(50, nil)).to.equal(1)
+			expect(Rescue.zoneScale(3, "gold")).to.equal(0.90)
+			expect(Rescue.zoneScale(3, "rainbow")).to.equal(0.80)
+			expect(Rescue.zoneScale(3, "rainbow") < Rescue.zoneScale(3, "gold")).to.equal(true)
+			expect(Rescue.zoneScale(3, "plaid")).to.equal(1) -- a coat the table does not know
+		end)
+
+		it("leaves the coat out of a first rescue, so a lucky first gold is no harder", function()
+			for done = 0, 2 do
+				expect(Rescue.zoneScale(done, "gold")).to.equal(Config.RescueFirstZone)
+				expect(Rescue.zoneScale(done, "rainbow")).to.equal(Config.RescueFirstZone)
+			end
+		end)
+
+		it("multiplies into the bar with the area and the station perk", function()
+			local function width(scale: number, areaId: string?): number
+				return Rescue.newChallenge(
+					"Common",
+					"trash_bin",
+					0,
+					rolls({ 0.2, 0.7, 0.4, 0.9 }),
+					scale,
+					areaId
+				).zoneWidth :: number
+			end
+			expect(width(Rescue.zoneScale(9, "gold"), nil)).to.be.near(0.17 * 0.90, 1e-9)
+			expect(width(Rescue.zoneScale(9, "rainbow"), "alley")).to.be.near(
+				0.17 * 0.80 * 1.4,
+				1e-9
+			)
+			expect(width(1.10 * Rescue.zoneScale(9, "gold"), nil)).to.be.near(
+				0.17 * 1.10 * 0.90,
+				1e-9
+			)
+			expect(width(Rescue.zoneScale(0, "rainbow"), "alley")).to.be.near(
+				0.17 * 1.7 * 1.4,
+				1e-9
+			)
+		end)
+
+		it("still leaves room on the bar for every zone at its widest", function()
+			-- the widest any zone gets: a first rescue of a Common in the Alleyway with Warm Paws
+			local widest = Config.RescueZoneWidth.Common * Config.RescueFirstZone * 1.4 * 1.10
+			expect(widest < 0.5).to.equal(true)
+		end)
+	end)
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty")
 	describe("easier bars in the Alleyway and the Park (#2786)", function()
 		local function bar(rarity: any, areaId: string?, scale: number?): any

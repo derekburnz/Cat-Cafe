@@ -225,7 +225,11 @@ function Net.on(
 		if not (globalLimiter:allow(key) and limiterFor(name):allow(key .. name)) then
 			noteDrop(player, name)
 			if onDrop ~= nil and dropAnswerLimiter:allow(key .. name) then
-				local ok, err = pcall(onDrop, player, ...)
+				local answer = onDrop
+				local args = table.pack(...)
+				local ok, err = pcall(function()
+					answer(player, table.unpack(args, 1, args.n))
+				end)
 				if not ok then
 					logOnce(
 						player,

@@ -896,3 +896,12 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Swift Paws (#3063):** a permanent +1/+2 walk and carry speed perk for 60/150 golden fish. It's capped at +2 so the Robux Swift Potion's +4 stays the bigger bump (Monetization-Agent). It was its_cuzu098's idea.
 - **Upgrade ladder (#3204, Derek2 chose "Yes, as proposed"):** Tier 2 opens 5 levels and Tier 3 opens 6, where it was 10 and 2. Net 2 moves to Tier 3 at 200,000 and Net 3 to Tier 5 at 60,000,000. Pace showed Tier 3 arriving sooner, not later, because coins skip Tier 2's buys. So Tier 3's cost goes up (520k, at most 560k) instead of down; the final numbers come from the combined run with #3195.
 - One place for all three specs: `docs/design/cat-cafe/new-activities.md`.
+
+## 2026-11-11 Once-a-day session ask with thumbs, and the faces become thumbs (#3272)
+- What: Roblox does not tell a game who liked or disliked it, so Derek2 asked for the closest thing. Once a UTC day, after 5 minutes of a session, at a natural stop (as the Roblox menu closes, since nothing can show over the menu itself, or after a minute with no input), the ask card asks "Enjoying Catch a Cat Cafe?". It follows AskPacing, and it never shows mid-activity. Closing it or letting it run out sends "skipped". The new SessionFeedback remote (1 per 30 s, once a UTC day through the new save field sessionFeedbackDay) logs three custom events of three fields each:
+  - session_feedback: answer, device, session length bucket
+  - session_feedback_ctx: answer, furthest onboarding step, cats owned bucket
+  - session_feedback_where: answer, screen open, build
+- Derek2 ("change the how is it so far to be a thumb up or down or neutral face very simple"): the F87 faces now read 👍 Good, 😐 OK and 👎 Not good, on both asks and the Feedback page. The ids stay love, ok and no, so the server and the analytics read them as before.
+- Assumptions: there is no age bracket, because Roblox gives games no age and PolicyService has none. There is no reward and no free text. The session ask doesn't count as the F87 ask.
+- Saves: no version bump. An older server drops sessionFeedbackDay, which at worst asks once more that day.

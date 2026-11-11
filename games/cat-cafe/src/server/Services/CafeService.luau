@@ -285,6 +285,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stats = table.clone(profile.stats),
 		tipsSeen = table.clone(profile.tipsSeen), -- F87
 		feedbackAsked = profile.feedbackAsked,
+		sessionFeedbackDay = profile.sessionFeedbackDay, -- #3272
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides

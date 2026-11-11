@@ -33,10 +33,12 @@ FeedbackLogic.ASK_MINUTES = (Config.FeedbackAskMinutes or 12) :: number
 -- ask left unanswered no longer comes back at ASK_MINUTES (init); AskPacing spaces it from the other asks
 FeedbackLogic.EARLY_MINUTES = 8
 
+-- #3272 (Derek2 11-11: "a thumb up or down or neutral face very simple"): thumbs up, a plain face, thumbs down. The
+-- ids stay love, ok and no, the values the server and the analytics already take.
 local FACE_LOOKS: { [string]: { label: string, glyph: string } } = {
-	love = { label = "Love it", glyph = "😍" },
-	ok = { label = "It's OK", glyph = "🙂" },
-	no = { label = "Not for me", glyph = "🙁" },
+	love = { label = "Good", glyph = "👍" },
+	ok = { label = "OK", glyph = "😐" },
+	no = { label = "Not good", glyph = "👎" },
 }
 local CHIP_LOOKS: { [string]: { label: string, glyph: string } } = {
 	too_hard = { label = "Too hard", glyph = "😣" },

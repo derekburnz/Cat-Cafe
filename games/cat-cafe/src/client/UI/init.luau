@@ -502,6 +502,8 @@ end
 
 -- F70: the Daily Treat window opens by itself once when the player joins with a stamp due, after the tutorial and the
 -- intro, while no other window is open and nothing is being carried, caught or rescued.
+-- #3188: and only once the "Catch a 2nd cat" goal is finished and the player is at their cafe (UI.giftWait.atCafe;
+-- its once-a-second look also runs this, so the window opens as they arrive).
 local function autoOpenDailyTreat()
 	if dailyAutoOpen == false or state.dailyTreat == nil then
 		return
@@ -515,7 +517,12 @@ local function autoOpenDailyTreat()
 	dailyAutoOpen = true
 	local windows = modal
 	if
-		not DailyTreatLogic.autoOpen(view, now, state.tutorialStep)
+		not DailyTreatLogic.autoOpen(
+			view,
+			now,
+			state.tutorialStep,
+			(state :: any).secondCatDone -- (UIController's; the HUD's own state type has no use for it)
+		)
 		or not visible
 		or windows == nil
 		or windows:current() ~= nil
@@ -525,6 +532,8 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
+		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
 	then
 		return
 	end
@@ -3045,7 +3054,23 @@ end
 
 -- #3105: the loading screen while the camera is held still: before the first spawn, and before a play's first
 -- shot (IntroController's park and unpark). A play starting slides it away.
+-- #3179 (Derek2 11-10: "remove the loading screen honestly I think that would make people leave faster then
+-- before"): it shows only with the `loadingScreen` live switch on (off unless set to true), so by default the wait
+-- is the still picture alone and the intro starts the moment the save is in (race() is 0 with no screen up).
 function UI.intro.waiting(on: boolean)
+	if on then
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local key = "loadingScreen"
+		if
+			not LiveFlags.shown(
+				key,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			)
+		then
+			return
+		end
+	end
 	if introScreen then
 		introScreen:waiting(on)
 	end
@@ -6179,6 +6204,21 @@ do
 		return GiftLogic.tier(plot:GetAttribute("MysteryGiftTier"))
 	end
 
+	-- #3188: whether this player stands on their own cafe plot (the box the till's Collect accepts), for the Daily
+	-- Treat's own open. False with no plot or no character yet.
+	function UI.giftWait.atCafe(): boolean
+		local plot = myPlot()
+		local character = Players.LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if plot == nil or not plot:IsA("Model") or root == nil or not root:IsA("BasePart") then
+			return false
+		end
+		local TillTips = require(script.Components.TillTips) :: any
+		return TillTips.onPlot(
+			(plot :: Model):GetPivot():PointToObjectSpace((root :: BasePart).Position)
+		)
+	end
+
 	function UI.giftWait.start()
 		wait.run += 1
 		local run = wait.run
@@ -6187,6 +6227,9 @@ do
 				local view = hud
 				if view then
 					view:setGift(UI.giftWait.look())
+				end
+				if initialized then
+					autoOpenDailyTreat() -- #3188: it waits for the player to reach their cafe
 				end
 				task.wait(LOOK_SECONDS)
 			end

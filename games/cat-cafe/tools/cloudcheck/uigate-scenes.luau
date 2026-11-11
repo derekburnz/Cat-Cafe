@@ -873,6 +873,15 @@ local function tutorialArrowStep()
 	UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 	task.wait(0.1)
 end
+-- #3153: the tutorial's spotlight while it shows (Components/TutorialArrow), or nil
+local function tutorialSpotlight(): Frame?
+	for _, piece in UIShim.playerGui:GetDescendants() do
+		if piece.Name == "TutorialSpotlight" and piece:IsA("Frame") and piece.Visible then
+			return piece
+		end
+	end
+	return nil
+end
 -- #2314: the big arrow shows, whole on the screen, off `target` and within 24 px of it
 local function assertArrowAt(target: GuiObject, where: string)
 	local found: GuiObject? = nil
@@ -885,9 +894,12 @@ local function assertArrowAt(target: GuiObject, where: string)
 	local arrow = found :: GuiObject
 	local a0, a1 = arrow.AbsolutePosition, arrow.AbsolutePosition + arrow.AbsoluteSize
 	local t0, t1 = target.AbsolutePosition, target.AbsolutePosition + target.AbsoluteSize
-	local screen = (arrow:FindFirstAncestorWhichIsA("ScreenGui") :: ScreenGui).AbsoluteSize
+	local gui = arrow:FindFirstAncestorWhichIsA("ScreenGui") :: ScreenGui
+	local screen = gui.AbsoluteSize
+	-- #3154: a ScreenGui that keeps clear of Roblox's top bar may still draw up in it
+	local bar = if gui.IgnoreGuiInset then 0 else (game:GetService("GuiService"):GetGuiInset()).Y
 	assert(
-		a0.X >= -1 and a0.Y >= -1 and a1.X <= screen.X + 1 and a1.Y <= screen.Y + 1,
+		a0.X >= -1 and a0.Y >= -1 - bar and a1.X <= screen.X + 1 and a1.Y <= screen.Y + 1,
 		("uigate: the arrow at %s runs off the screen (%d,%d to %d,%d) (#2314)"):format(where, a0.X, a0.Y, a1.X, a1.Y)
 	)
 	local overlaps = a0.X < t1.X - 1 and t0.X < a1.X - 1 and a0.Y < t1.Y - 1 and t0.Y < a1.Y - 1
@@ -1965,6 +1977,27 @@ local SCENES = {
 			if other and other.Visible and other ~= banner then
 				assert(apart(banner, other), "uigate: the status banner overlaps " .. name .. " (#2885)")
 			end
+		end
+		-- #3178: on a PC the clock and banner are at the top middle, where toasts stack; a toast keeps clear of them
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			press("CatCafeHUD", "LuckyDay.Tap") -- the day card open under the banner, the lowest of the three
+			local dayCard = hud:FindFirstChild("DayCard", true) :: GuiObject
+			assert(dayCard and dayCard.Visible, "uigate: the day card did not open (#3178)")
+			UI.toast("Welcome back! +$12,345 while you were away", "info") -- the stack places itself again
+			UIShim.advance(0.5)
+			local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")
+			local stack = toasts and toasts:FindFirstChild("Stack", true)
+			local clockPiece = hud:FindFirstChild("Clock", true) :: GuiObject
+			local checked = 0
+			for _, pill in (stack and stack:GetChildren() or {}) :: { Instance } do
+				if pill:IsA("GuiObject") and pill.Visible then
+					checked += 1
+					assert(apart(pill, banner), "uigate: a toast lies over the status banner on a PC (#3178)")
+					assert(apart(pill, clockPiece), "uigate: a toast lies over the clock on a PC (#3178)")
+					assert(apart(pill, dayCard), "uigate: a toast lies over the open day card on a PC (#3178)")
+				end
+			end
+			assert(checked > 0, "uigate: no toast to check against the top middle banner (#3178)")
 		end
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
 			local below = banner.AbsolutePosition.Y >= counters.AbsolutePosition.Y + counters.AbsoluteSize.Y - 1
@@ -3563,9 +3596,17 @@ local SCENES = {
 			return if face then face.Text else ""
 		end
 		assert(#sent == 1, ("uigate: %d buys went at once, not 1 (#2290)"):format(#sent))
+		-- #3190: a perk reads "..." until its next price comes; a food (star_treat) keeps its price and a second press
+		-- queues behind the first instead of doing nothing
 		for _, id in ids do
-			assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
+			if id == "star_treat" then
+				assert(label(id) == "150", "uigate: a food reads " .. label(id) .. " right after its press, not its price (#3190)")
+			else
+				assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
+			end
 		end
+		press("FishMarket", "star_treat.Buy")
+		assert(#sent == 1, "uigate: a second food press while the first waits went at once (#3190)")
 		UIShim.advance(0.6)
 		assert(#sent == 2, ("uigate: %d buys sent after 0.6 s, not 2 (#2290)"):format(#sent))
 		UIShim.advance(0.6)
@@ -4133,6 +4174,29 @@ local SCENES = {
 		assert(badgeDraws("Potions", "96046816170155"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
+	-- #3190 (Derek2: "... delays on using potions too fast"): two quick Use presses both count at once, the button never
+	-- reads "...", and the bag's count drops before the server answers
+	{ "PotionsFastUse", function()
+		UI.update({ potions = { tip_potion = 3 }, buffs = {} })
+		UI.open("Potions")
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local function texts(): string
+			local all = {}
+			for _, piece in window:GetDescendants() do
+				if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+					table.insert(all, (piece :: any).Text)
+				end
+			end
+			return table.concat(all, "|")
+		end
+		press("Potions", "Use")
+		press("Potions", "Use")
+		UIShim.advance(0.1)
+		local now = texts()
+		assert(not now:find("|%.%.%.|") and not now:find("^%.%.%.|"), "uigate: Use reads ... after a fast press (#3190)")
+		assert(now:find("x1", 1, true), "uigate: two fast Uses did not count at once, the bag shows " .. now)
+	end },
 	{ "BagBait", function()
 		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
 		UI.open("Potions")
@@ -5652,8 +5716,19 @@ local SCENES = {
 	end },
 	-- #3105: the loading screen over the still wait before the first shot, and a play sliding it away
 	{ "IntroLoading", function()
-		UI.intro.waiting(true)
+		-- #3179: with the loadingScreen switch off (its default, and before its attribute arrives) nothing shows and
+		-- the intro has no count to wait for; an explicit true brings the screen back
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		for _, off in { nil, false } :: { any } do
+			ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", off)
+			UI.intro.waiting(true)
+			UIShim.advance(0.3)
+			assert(not gui.Enabled, "uigate: the loading screen showed with its switch off (#3179)")
+			assert(UI.intro.race() == 0, "uigate: the intro waits for a loading screen that is not up (#3179)")
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", true)
+		UI.intro.waiting(true)
 		assert(gui.Enabled, "uigate: the loading screen did not show (#3105)")
 		local count = gui:FindFirstChild("Count", true) :: TextLabel
 		local fill = gui:FindFirstChild("Fill", true) :: Frame
@@ -5674,12 +5749,15 @@ local SCENES = {
 		assert(cover.Position.Y.Scale == 0, "uigate: the loading screen slid away after a quick hide and show (#3105)")
 		UIShim.advance(10)
 		assert(count.Text ~= "100%", "uigate: the loading count sat at 100 while still loading (#3109)")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil) -- #3179: back to its default
 	end },
 	-- #3109 (Derek2 11-10: "instantly goes up to 100 really fast then transitions to the tutorial scenes"): once the
 	-- save is in the count races to 100 in SHOWN_MIN at most from the screen's start, and stays up until the play
 	{ "IntroLoadingRace", function()
 		local LoadingCount = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LoadingCount")
 		assert(UI.intro.race() == 0, "uigate: a race with no loading screen up should take no time (#3109)")
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", true) -- #3179: the screen is behind this switch
 		UI.intro.waiting(true)
 		UIShim.advance(0.3)
 		local seconds = UI.intro.race()
@@ -5697,14 +5775,18 @@ local SCENES = {
 		assert(count.Text == "100%", "uigate: the count reads " .. count.Text .. " after its race (#3109)")
 		assert(fill.Size.X.Scale == 1, "uigate: the bar is not full at 100 (#3109)")
 		assert(gui.Enabled, "uigate: the loading screen left before the intro started (#3109)")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil)
 	end },
 	{ "IntroLoadingLifts", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_loadingScreen", true) -- #3179
 		UI.intro.waiting(true)
 		UI.intro.start({ skipAfter = 5 })
 		UI.intro.setShot(1, "Welcome to your cat cafe!", nil, 4.2)
 		UIShim.advance(0.5)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
 		assert(not gui.Enabled, "uigate: the loading screen stayed up over the intro (#3105)")
+		-- #3179: the switch back to its default for the scenes after these three
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_loadingScreen", nil)
 	end },
 	{ "IntroRichTip", function()
 		UI.intro.start({ skipAfter = 5 })
@@ -5782,15 +5864,12 @@ local SCENES = {
 		else
 			assert(bottom.Visible, "uigate: no lower bar on a PC (#2394)")
 		end
-		-- a press in the first second of a shot does nothing (the shim's os.clock runs with UIShim.advance; its tweens end at once,
-		-- so the bar's fill is not checked here)
+		-- #3168: a press moves on at once, the shot it lands in (was not in a shot's first second, #2182), and a second
+		-- press on the same shot does nothing (the shim's tweens end at once, so the bar's fill is not checked here)
 		UI.intro.setShot(2, "Boom! Every area starts at a safe camp", nil, 4.2)
-		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
-		assert(#fired == 0, "uigate: Next moved on in a shot's first second (#2182)")
-		UIShim.advance(1.05)
 		UIShim.fire(UIShim.eventOf(tap, "Activated"))
 		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
-		assert(#fired == 1 and fired[1] == 2, ("uigate: a tap after a second fired introNext %d times (#2182)"):format(#fired))
+		assert(#fired == 1 and fired[1] == 2, ("uigate: a press at once fired introNext %d times (#3168)"):format(#fired))
 		counting:Disconnect()
 	end },
 	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller
@@ -5880,6 +5959,12 @@ local SCENES = {
 	-- many opening at once carry no gold "New!" (Components/HudUnlocks.pops); one or two opening together still do
 	{ "SmallHUDNew", function()
 		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+		-- #3183 (Derek2 11-10: "remove all the new pop ups in buttons when finishing tutorial steps"): step 2 opens
+		-- Cats and Upgrades with no gold "New!" either
+		UI.update({ tutorialStep = 2 } :: any)
+		for _, piece in (UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui):GetDescendants() do
+			assert(not (piece.Name == "New" and piece:IsA("TextLabel")), "uigate: a New! badge on " .. piece.Parent.Name .. " at a tutorial step (#3183)")
+		end
 		local player = samplePlayer(os.time())
 		player.tutorialStep = 5
 		UI.update(player)
@@ -5918,6 +6003,25 @@ local SCENES = {
 		tutorialArrowStep()
 		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true)
 		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile")
+		-- #3153 (Derek2: "the one pointing to upgrades randomly disapears"): still there long after the step began
+		UIShim.advance(10)
+		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile, 10 s on")
+		-- #3153 (Derek2: "your screen should darken"): the spotlight darkens round the tile and leaves it clear
+		local spot = tutorialSpotlight()
+		assert(spot, "uigate: no spotlight round the Upgrades tile (#3153)")
+		local face = tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject
+		local centre = face.AbsolutePosition + face.AbsoluteSize / 2
+		for _, box in (spot :: Frame):GetChildren() do
+			if box:IsA("Frame") then
+				local b0, b1 = box.AbsolutePosition, box.AbsolutePosition + box.AbsoluteSize
+				assert(
+					not (centre.X > b0.X and centre.X < b1.X and centre.Y > b0.Y and centre.Y < b1.Y),
+					"uigate: the spotlight darkens the Upgrades tile itself (#3153)"
+				)
+				assert(box.BackgroundTransparency < 1, "uigate: the spotlight does not darken (#3153)")
+				assert(not box.Active, "uigate: the spotlight would take taps (#3153)")
+			end
+		end
 	end },
 	{ "TutorialArrowRow", function()
 		tutorialArrowStep()
@@ -5995,12 +6099,19 @@ local SCENES = {
 		local money = (UI.getState() :: any).money
 		UI.update({ tutorialStep = 5, money = 0 } :: any)
 		task.wait(0.1)
+		-- #3154: the tutorial's end moves the arrow to the Tutorial tile's ×, which is not the Upgrades tile
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true) :: GuiObject
+		local t0, t1 = tile.AbsolutePosition, tile.AbsolutePosition + tile.AbsoluteSize
 		for _, piece in UIShim.playerGui:GetDescendants() do
-			assert(
-				not (piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible),
-				"uigate: the tutorial arrow stays after its step (#2314)"
-			)
+			if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+				local a0, a1 = piece.AbsolutePosition, piece.AbsolutePosition + piece.AbsoluteSize
+				local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
+				assert(gap > 40, "uigate: the tutorial arrow stays at Upgrades after its step (#2314)")
+			end
 		end
+		-- #3154: let the × pulse this step starts (6 s on, 12 s long) run out, so its arrow never stands in for the
+		-- goal card's in the scenes after this one
+		UIShim.advance(20)
 		UI.update({ money = money } :: any)
 	end },
 	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
@@ -6181,11 +6292,14 @@ local SCENES = {
 		end
 		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(6.5) -- the scene before may leave the tutorial mid-way, which this update just finished
+		UIShim.advance(18.5) -- #3154: a 6 s wait and a 12 s pulse; the scene before may leave the tutorial mid-way, which this update just finished
 		UI.update({ tutorialStep = 9 } :: any)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(5.5)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses before the cat card and the cannon move (#3154)")
+		UIShim.advance(0.7) -- #3154: 6 s after the tutorial's end
 		assert(dot:FindFirstChild("PulseRing"), "uigate: the × does not pulse when the tutorial ends (#2211)")
 		-- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing and the X isn't
 		-- obvious"): a gold "Hide tips with ×" tag beside the tile while it pulses, whole on the screen, and the × at
@@ -6199,9 +6313,13 @@ local SCENES = {
 		local screen = ((hud :: Instance) :: ScreenGui).AbsoluteSize
 		local t0, t1 = tag.AbsolutePosition, tag.AbsolutePosition + tag.AbsoluteSize
 		assert(t0.X >= 0 and t1.X <= screen.X, "uigate: the Hide tips tag runs off the screen (#2411)")
+		-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the big arrow points at the
+		-- ×, off the Hide tips tag, with the spotlight round it
+		assertArrowAt(dot.Parent :: GuiObject, "the Tutorial tile's ×")
+		assert(tutorialSpotlight(), "uigate: no spotlight round the Tutorial tile's × (#3154)")
 		local across = (dot :: GuiObject).AbsoluteSize.X
 		assert(across >= 21 - 0.5, ("uigate: the Tutorial tile's × is %.1f px across (#2411)"):format(across))
-		UIShim.advance(6.5)
+		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2411)")
 		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
 		assert(hint() == nil, "uigate: the Hide tips tag does not go (#2411)")
@@ -6209,15 +6327,15 @@ local SCENES = {
 		UI.setVisible(false)
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(1)
+		UIShim.advance(7) -- #3154: past the 6 s wait
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulsed with the HUD hidden (#2411)")
 		UI.setVisible(true)
 		UIShim.advance(0.5)
 		assert(dot:FindFirstChild("PulseRing"), "uigate: the × did not pulse once the HUD came back (#2411)")
-		UIShim.advance(6.5)
+		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any) -- again, for the picture
-		UIShim.advance(1)
+		UIShim.advance(7.5) -- #3154: the 6 s wait, then the icon row settles
 	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()

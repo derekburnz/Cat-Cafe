@@ -318,8 +318,11 @@ return function()
 					-- #2327 (Derek2: "instead of resetting a rescue make it go down 1 progress bar on miss"): a miss takes
 					-- one hit away (was 100, 100, 69, 20, 10 and 100, 98, 29, 4, 2)
 					-- #2566 (Derek2: Rare and up 30% slower): was 100, 100, 77, 29, 17 and 100, 98, 38, 7, 3
-					rowMatches("bar 50 ms", at50, { 100, 100, 98, 73, 59 })
-					rowMatches("bar 70 ms", at70, { 100, 100, 79, 31, 19 })
+					-- #3120 (Derek2: "make the rescue area about 10->50% smaller especially for the common->epic rescues are
+					-- too easy now"): zones 0.17, 0.135, 0.105, 0.105 and 0.125 (was 100, 100, 98, 73, 59 and 100, 100, 79,
+					-- 31, 19)
+					rowMatches("bar 50 ms", at50, { 100, 100, 87, 62, 48 })
+					rowMatches("bar 70 ms", at70, { 99, 98, 51, 23, 13 })
 				end
 			)
 

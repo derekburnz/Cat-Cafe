@@ -818,6 +818,8 @@ local function applyState(s: Types.PlayerState)
 		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
 		-- showed; false once it ends, as UI.update skips a nil and the card would stay
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
+		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
+		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
 		tutorialStep = s.tutorialStep,
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches

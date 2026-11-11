@@ -777,3 +777,43 @@ Why this shape: the cause of the missing cutscene was the order of events, so th
 Not changed here (Animation-Engineer has them): tip pop-ups in the first five minutes (#3156), the Daily Treat and goal-progress pop-ups (#3155), the × highlight (#3154). The GDD's line 'a cat will come by in 10 minutes' (first ten minutes, beat 4) describes the old pop-up; proposed to the game-designer to drop it.
 
 For Research-Agent: `tutorial_step 5` now logs when the first bowl cat is tamed or let go, a few seconds later than before and only for players who answer the card, so the step 4 to 5 rate from this publish on is not comparable with earlier days.
+
+## 2026-11-10 Harder rescues, harder gold and rainbow cats, quicker rings late on (#3120, #3135, #3140)
+
+Three catch tuning asks from Derek on the same evening, shipped together.
+
+**Rescue zone (#3120).** The share of the bar that counts, by rarity: Common **0.17** (was 0.30), Rare **0.135** (was 0.23), Epic **0.105** (was 0.15), Legendary **0.105** (was 0.12), Mythical **0.125** (was 0.14). That is 43%, 41%, 30%, 12% and 11% narrower. An account's first 3 rescues get a zone 1.7 times as wide (`RescueFirstUses`, `RescueFirstZone`), about the old Common and Rare widths. Steady Paw and the first two areas' easier bars multiply on top as before. In CatchFeel's model a steady player (50 ms) frees 100, 100, 87, 62 and 48% of Common to Mythical (was 100, 100, 98, 73, 59), a shaky one (70 ms) 99, 98, 51, 23 and 13% (was 100, 100, 79, 31, 19).
+
+Why: "make the rescue area about 10->50% smaller especially for the common->epic rescues are too easy now". The cut is biggest where he asked. Rare is 0.135 and Legendary 0.105, not the 0.14 and 0.10 first written on the issue, so that every rarer rarity still has less time in the zone than the one before (Config.spec). The first-rescues help is there because no tablet player got past a first rescue before #2786. Watch the tablet rescue cancel rate (#3024) after it ships. The Rummage Bin keeps its own wider zone when it lands (#3050, Design-Agent).
+
+**Gold and rainbow cats (#3135).** A gold cat's catch bands and rescue zone are **0.90** times as wide, a rainbow's **0.80** (`CoatDifficulty`). Not on the tutorial stray or an account's first rescues.
+
+Why: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not added add it". It was not added: the coat changed nothing about the catch or the rescue.
+
+**Quicker rings (#3140).** In the Sewer, Desert and Ruins (areas of Tier 5 and later, `QuickRingTier`) a Common cat's rings close in **0.96 s** (was 1.20) and a Rare's in **0.85 s** (was 1.00). The bands are the same seconds wide, so a ring is no harder to hit. The ring count, the gap between rings and the rarer cats are unchanged.
+
+Why: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to wait", "speed up the circles". Rare is 15% quicker, not the 20% first written on the issue, so a Rare ring stays slower than an Epic's 0.82 s.
+
+## 2026-11-10 First rescues easier, and the rescue bar smaller on screen (#3180)
+
+Derek2: "make the starting rescue's easier and slightly smaller bars".
+
+- An account's first **5** rescues (3 in #3120) have zones **1.85** times as wide (1.7) and a marker at **0.85** of its speed (`RescueFirstSpeed`, new). A first Common rescue in the Alleyway has 0.44 of the bar (0.42 before #3120, 0.24 for a veteran after it) and a marker of 0.54 bar lengths a second (0.64).
+- 1.85 and not 2.0: the widest zone there can be (a first Common in the Alleyway with Warm Paws) has to stay under half the bar.
+- The bar is drawn 492 by 40 design pixels (560 by 44). The zone is a share of the bar and the speed is in bar lengths, so the timing does not change. Taps anywhere count, so only Give up is a touch target and it keeps its size.
+
+Why: "starting rescues" is read as a new player's first rescues, not every rescue in the Alleyway and the Park, so veterans there keep the narrower zones Derek asked for in #3120. "Smaller bars" is read as the bar's size on screen.
+
+## 2026-11-10 Loading screen off behind a live switch (#3179)
+
+Derek2: "remove the loading screen honestly I think that would make people leave faster then before". The loading screen before the opening scenes (#3105, #3109) shows only when the new live switch `loadingScreen` holds true; it is off by default and with a broken store. `flags set loadingScreen true` brings it back for players who join after, with no publish, so Research can compare leave rates. Its code and art stay until #3162 decides.
+
+## 2026-11-10 A new player's waiting cat can be caught by anyone (#3181)
+
+Derek2: "certain cats atleast at the beginning of alleyway are bugged and cant be caught no matter where I put net", then "tons of bugged cats in alleyway now". Since F87 a tutorial stray was its beginner's alone, with nothing on screen saying so, and with many new players in a server most of the eight points by the arch held one. Anyone's swing lands on it now: a beginner gets the easy catch on any of them, anyone else a Common's own circles, and the beginner it waited for gets a new one at once.
+
+Why not mark or hide it instead: a mark still leaves cats a new player cannot catch in their first minute, and hiding needs every effect and sound that follows strays to know. Known trade-off: a new Common at a beginner's point per catch while they have not checked in; not capped (Review-Agent: a refill wait would hurt the beginner more than the farm matters).
+
+## 2026-11-10 Daily Treat opens by itself after the 2nd cat goal, at the cafe (#3188)
+
+Derek2: "move daily treat to after your goal catch a 2nd cat and coming back to cafe if its not already". After #3155 it waited for the tutorial alone. It now also waits until two cats are caught by hand and checked in, and until the player stands on their own plot. The Daily tile still opens it by hand.

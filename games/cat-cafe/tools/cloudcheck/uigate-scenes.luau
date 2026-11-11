@@ -5587,9 +5587,21 @@ local SCENES = {
 		UI.intro.setTackleStager(function(shot: number)
 			table.insert(staged, shot)
 		end)
+		-- #3206 (Derek2: "make sure to not play tackle cutscene when not in safezone"): due out in a catching area, the
+		-- lesson waits; it starts once the player is back on the safe street
+		UI.setZone("Alley")
 		UI.tips.show("tackle_lesson")
-		UIShim.advance(0.5)
-		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
+		UIShim.advance(1.5)
+		assert(not UI.intro.playing(), "uigate: the tackling lesson started outside the safe zone (#3206)")
+		UI.setZone(nil)
+		for _ = 1, 60 do -- (a tip card that took the free moment out there finishes first)
+			if UI.intro.playing() then
+				break
+			end
+			UIShim.advance(0.25)
+		end
+		assert(UI.intro.playing(), "uigate: the tackling lesson did not start back on the safe street (#3206, #2198)")
+		UIShim.advance(0.25)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
 		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
 		local skip = gui:FindFirstChild("Skip", true) :: GuiObject
@@ -5608,7 +5620,7 @@ local SCENES = {
 		UIShim.advance(0.6)
 		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
 		assert(caption.Text == "Get tackled and you drop your cat!", "uigate: Next did not move the lesson on (#2198)")
-		assert(#seen == 0, "uigate: the lesson was saved as seen before it ended (#2198)")
+		assert(table.find(seen, "tackle_lesson") == nil, "uigate: the lesson was saved as seen before it ended (#2198) " .. table.concat(seen, ","))
 		assert(gui:FindFirstChild("TackleCue", true) == nil, "uigate: the Tackle cue shows before its caption (#2469)")
 		-- #2469: the third caption shows the Tackle bar with this device's key and presses it as the lunge starts
 		UIShim.advance(1.1)
@@ -5633,7 +5645,7 @@ local SCENES = {
 		assert(gui:FindFirstChild("TackleCue", true) == nil, "uigate: the Tackle cue stays on the last caption (#2469)")
 		UIShim.advance(20)
 		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
-		assert(#seen == 1 and seen[1] == "tackle_lesson", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		assert(seen[#seen] == "tackle_lesson", "uigate: the lesson's end did not save the tackle tip as seen (#2198) " .. table.concat(seen, ","))
 		local shots = table.concat(staged, ",")
 		assert(shots == "1,2,3,4,0", "uigate: the lesson staged the camera as " .. shots .. ", not 1,2,3,4,0 (#2312)")
 		UI.intro.setTackleStager(nil)

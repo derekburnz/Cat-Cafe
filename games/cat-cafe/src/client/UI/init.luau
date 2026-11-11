@@ -4638,7 +4638,11 @@ do
 			and not tipBusy
 			and initialized
 			and introScreen ~= nil
-			and TipQueue.free(tipMoment())
+			-- #3206: and only somewhere safe; out in a catching area it stays due
+			and TackleLessonLogic.canStart(
+				TipQueue.free(tipMoment()),
+				Wayfinding.isSafe(currentZone)
+			)
 		then
 			TIP.lessonDue = false
 			tipBusy = true

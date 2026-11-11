@@ -22,6 +22,8 @@
 --   leave faster then before"): the loading screen before the opening scenes (#3105, #3109). It starts OFF
 --   (OFF_BY_DEFAULT); true brings it back for players who join after, so the leave rates can be compared. Read by
 --   the client alone (UI.intro.waiting), from the ReplicatedStorage attribute below.
+-- - `alleyBin` (#3050): false hides the Rummage Bin's prompt at the Alleyway camp and refuses a rummage (BinService).
+--   Saves keep their wait and wins.
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
@@ -45,6 +47,7 @@ LiveFlags.KEYS = {
 	"starterRefill",
 	"swiftPaws",
 	"loadingScreen",
+	"alleyBin",
 	"goldenDrops",
 }
 -- Switches that stay off until the store holds an explicit true.

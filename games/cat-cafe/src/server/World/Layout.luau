@@ -2140,6 +2140,25 @@ Layout.campExtras = {
 	sewer = { x = 20, y = 0, z = -289.5 }, -- F85: the Lost and Found 3.5 inside the long camp's gate line (Model-Agent)
 } :: { [string]: Point }
 
+-- #3050: the Rummage Bin (CatCafe_Camp_Alley_RummageBin, its pivot the base centre, front -Z) in the Alleyway camp's
+-- own space (Layout.campPoint: x across the camp, z back from the gate line): 11.6 studs from the landing pad's centre
+-- on the side away from the carrier basket (3.6 past the pad's landing spots), 8 in from the gate line, its front
+-- turned to the pad so a player who lands sees its paw print. No other prompt stands within 12 studs (the cannon's
+-- front is 16 away, the basket 22, the Index Board 38 and the nearest stray spawn 18), and it keeps off the walk from
+-- the pad to the arch and the bench behind it.
+Layout.rummageBin = { area = "alley", x = 10.5, z = -8, rotY = 65 }
+
+-- Where the Rummage Bin stands in the world: x, the floor's y, z and its turn about Y, or nil without that camp.
+function Layout.rummageBinAt(): (number?, number?, number?, number?)
+	local at = Layout.rummageBin
+	local spec, camp = Layout.areas[at.area], Layout.camps[at.area]
+	if spec == nil or camp == nil then
+		return nil, nil, nil, nil
+	end
+	local x, z = Layout.campPoint(camp, at.x, at.z)
+	return x, spec.floorY, z, (camp.turn + at.rotY) % 360
+end
+
 -- #2651 (tier6-7-areas.md section 5): true when (x, y, z) has fallen into `spec`'s mist catch: more than catchBelow
 -- under its floor, within catchMargin of its footprint. Always false for an area without one.
 function Layout.fallCaught(spec: AreaSpec, x: number, y: number, z: number): boolean

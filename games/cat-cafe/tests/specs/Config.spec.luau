@@ -339,6 +339,12 @@ return function()
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 14,
+		BinFirstUses = 3, -- #3050 (the Rummage Bin); BinTable is checked in RummageBin.spec
+		BinFirstRepeatSeconds = 180,
+		BinCooldownSeconds = 900,
+		BinMissRetrySeconds = 10,
+		BinZoneWidth = 0.42, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed
+		BinBarSpeed = 0.64,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -560,6 +566,9 @@ return function()
 				QuickRingTier = true, -- #3140: checked in Circles.spec
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
+				BinTable = true, -- #3050: a table, checked in RummageBin.spec
+				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
+				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 			}
 			for name, value in pairs(Config :: any) do

@@ -11,6 +11,7 @@
 #   awayNotes     false stops the game noting who is due an away notification (#2768), if the notes crowd MemoryStore
 #   starterRefill false stops the starting areas' camp trap refilling by day for players who never rescued (#3049)
 #   swiftPaws     false hides the Golden Fish Market's Swift Paws perk and drops its speed (#3063); levels are kept
+#   alleyBin      false hides the Rummage Bin at the Alleyway camp and refuses a rummage (#3050); its waits are kept
 # and two start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
@@ -29,10 +30,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch|loadingScreen|goldenDrops true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch|loadingScreen|goldenDrops
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|tradeFish|nightCatch|loadingScreen|goldenDrops true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|tradeFish|nightCatch|loadingScreen|goldenDrops
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill and swiftPaws, and false for tradeFish, nightCatch, loadingScreen and goldenDrops (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws and alleyBin, and false for tradeFish, nightCatch, loadingScreen and goldenDrops (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -42,7 +43,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch|loadingScreen|goldenDrops true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|tradeFish|nightCatch|loadingScreen|goldenDrops" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|tradeFish|nightCatch|loadingScreen|goldenDrops true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|tradeFish|nightCatch|loadingScreen|goldenDrops" >&2
 	exit 2
 }
 
@@ -96,6 +97,7 @@ show_key() {
 	awayNotes) if [ "$raw" = false ]; then meaning="away notes OFF in every server (no new away notifications)"; else meaning="away notes on"; fi ;;
 	starterRefill) if [ "$raw" = false ]; then meaning="starter trap refill OFF in every server (one cat a day there)"; else meaning="starter trap refill on"; fi ;;
 	swiftPaws) if [ "$raw" = false ]; then meaning="Swift Paws OFF in every server (row hidden, no speed)"; else meaning="Swift Paws on"; fi ;;
+	alleyBin) if [ "$raw" = false ]; then meaning="Rummage Bin OFF in every server (prompt hidden)"; else meaning="Rummage Bin on"; fi ;;
 	tradeFish) if [ "$raw" = true ]; then meaning="golden fish trading ON in every server"; else meaning="golden fish trading off (its default)"; fi ;;
 	nightCatch) if [ "$raw" = true ]; then meaning="first-session night catching ON in every server"; else meaning="first-session night catching off (its default)"; fi ;;
 	loadingScreen) if [ "$raw" = true ]; then meaning="loading screen ON before the opening scenes in every server"; else meaning="no loading screen (its default)"; fi ;;
@@ -123,6 +125,7 @@ show() {
 	show_key awayNotes
 	show_key starterRefill
 	show_key swiftPaws
+	show_key alleyBin
 	show_key tradeFish
 	show_key nightCatch
 	show_key loadingScreen
@@ -146,7 +149,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | tradeFish | nightCatch | loadingScreen | goldenDrops) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | tradeFish | nightCatch | loadingScreen | goldenDrops) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -156,7 +159,7 @@ clear)
 	[ $# -eq 2 ] || usage
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
-	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws) write "$2" true ;;
+	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin) write "$2" true ;;
 	tradeFish | nightCatch | loadingScreen | goldenDrops) write "$2" false ;;
 	*) usage ;;
 	esac

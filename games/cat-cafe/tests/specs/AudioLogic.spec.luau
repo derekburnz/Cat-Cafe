@@ -580,6 +580,18 @@ return function()
 		end)
 	end)
 
+	-- #2871: a gamepad selection that walks from one button to another ticks; the first selection and a clear do not.
+	describe("Audio.Logic gamepad focus tick", function()
+		it("ticks only when moving between two different buttons", function()
+			local a, b = {}, {}
+			expect(Logic.focusTick(a, b)).to.equal(true)
+			expect(Logic.focusTick(nil, b)).to.equal(false)
+			expect(Logic.focusTick(a, nil)).to.equal(false)
+			expect(Logic.focusTick(a, a)).to.equal(false)
+			expect(Logic.focusTick(nil, nil)).to.equal(false)
+		end)
+	end)
+
 	-- #3222: a Golden find's toast plays the gold reveal; the update gift's plays the reward jingle.
 	describe("Audio.Logic toast jingles", function()
 		it("maps only the two jingle toasts", function()

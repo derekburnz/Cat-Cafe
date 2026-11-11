@@ -155,6 +155,34 @@ return function()
 			expect(OwnerTest.isRepeat(last, 2, "/event full 5", 10.5, 1)).to.equal(false)
 		end)
 
+		it(
+			"counts the experience's own owner, user or group, with no id in the repo (#3301)",
+			function()
+				-- a user-owned experience: its creator only
+				expect(OwnerTest.isCreator(555, "User", 555, nil)).to.equal(true)
+				expect(OwnerTest.isCreator(556, "User", 555, nil)).to.equal(false)
+				-- a group-owned experience: the group's owner (rank 255) only
+				expect(OwnerTest.isCreator(777, "Group", 4242, 255)).to.equal(true)
+				expect(OwnerTest.isCreator(777, "Group", 4242, 254)).to.equal(false)
+				expect(OwnerTest.isCreator(777, "Group", 4242, 0)).to.equal(false)
+				expect(OwnerTest.isCreator(777, "Group", 4242, nil)).to.equal(false)
+				-- a group id that matches the user id means nothing
+				expect(OwnerTest.isCreator(4242, "Group", 4242, 1)).to.equal(false)
+				-- an unpublished place (creator 0) and bad ids
+				expect(OwnerTest.isCreator(555, "User", 0, nil)).to.equal(false)
+				expect(OwnerTest.isCreator(0, "User", 0, nil)).to.equal(false)
+				expect(OwnerTest.isCreator("555", "User", 555, nil)).to.equal(false)
+			end
+		)
+
+		it("shows a shout as OWNER over the quoted message, on its own remote (#3301)", function()
+			expect(OwnerTest.BUBBLE_TITLE).to.equal("OWNER")
+			expect(OwnerTest.bubbleLine("hello all")).to.equal('"hello all"')
+			expect(OwnerTest.BUBBLE_SECONDS >= 4 and OwnerTest.BUBBLE_SECONDS <= 8).to.equal(true)
+			expect(table.find(Remotes.ServerToClient, "OwnerShout")).to.be.ok()
+			expect(table.find(Remotes.ClientToServer, "OwnerShout")).to.equal(nil)
+		end)
+
 		it("has the OwnerGrant remote and an owner_test_ sku apart from sales", function()
 			expect(table.find(Remotes.ClientToServer, "OwnerGrant")).to.be.ok()
 			expect(OwnerTest.SKU_PREFIX).to.equal("owner_test_")

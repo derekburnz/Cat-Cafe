@@ -367,6 +367,7 @@ return function()
 		BumpSameTargetSeconds = 0,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 0,
+		TackleShieldSeconds = 300, -- #3342: a new join can't be tackled for its first 5 minutes
 		-- a dropped cat walks home (v0.10 F67, section 10c)
 		DropReturnWalkSpeed = 8,
 		DropHomeRadiusStuds = 2,
@@ -477,6 +478,7 @@ return function()
 			local known = {
 				World = true,
 				OwnerTestUserIds = true, -- #1770: checked in OwnerTest.spec
+				OwnerUserIds = true, -- #3324: checked in ChatTags.spec
 				Badges = true, -- #1934: a table, checked in Badges.spec
 				ForcedDays = true, -- #1974: a table of drop windows, checked in Luck.spec
 				NetWindows = true, -- a table, checked below

@@ -6086,11 +6086,13 @@ do
 	local Invite = require(script.Components.Invite)
 	local PalsLogic = require(script.Components.PalsLogic)
 	local TeamRescuePop = require(script.Screens.TeamRescuePop)
+	local OwnerShout = require(script.Screens.OwnerShout)
 	local TAG_SECONDS = 120 -- the pal's tag on the Cannon picker card stays this long after they arrive
 	local ASK_SECONDS = 14 -- the invite nudge stays up this long with no answer
 	local together = {
 		ids = {} :: { number },
 		pop = nil :: TeamRescuePop.TeamRescuePop?,
+		shout = nil :: OwnerShout.OwnerShout?, -- #3301 the owner's /shout bubble
 		tagToken = 0,
 		taggedPal = nil :: number?,
 	}
@@ -6112,8 +6114,17 @@ do
 	function UI.together.start(parent: Instance)
 		UI.together.reset()
 		together.pop = TeamRescuePop.new(parent)
+		together.shout = OwnerShout.new(parent)
 		if hud then
 			hud:setPals(together.ids)
+		end
+	end
+
+	-- #3301 OwnerShout(text): an owner's /shout, filtered by the server, in the OWNER bubble for everyone.
+	function UI.ownerShout(text: string)
+		local shout = together.shout
+		if shout and type(text) == "string" and text ~= "" then
+			shout:show(text)
 		end
 	end
 
@@ -6224,6 +6235,11 @@ do
 			pop:destroy()
 		end
 		together.pop = nil
+		local shout = together.shout
+		if shout then
+			shout:destroy()
+		end
+		together.shout = nil
 		together.tagToken += 1
 		together.taggedPal = nil
 	end

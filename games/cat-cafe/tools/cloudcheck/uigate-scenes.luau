@@ -3839,11 +3839,11 @@ local SCENES = {
 			assert(window, "uigate: the arcade window didn't open (#3296)")
 			local found = false
 			for _, item in window:GetDescendants() do
-				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "Play (free)" then
+				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "FREE" then
 					found = true
 				end
 			end
-			assert(found, "uigate: Play doesn't say free for the day's free game (#3296)")
+			assert(found, "uigate: Play's pill doesn't say FREE for the day's free game (#3296)")
 		end,
 	},
 	{

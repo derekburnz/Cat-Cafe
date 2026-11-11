@@ -27,6 +27,8 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
+-- - `traits` (#3196): the Mystic Pool's cat traits (shared/Traits). It starts OFF (OFF_BY_DEFAULT): switch it on only with
+--   the restart publish that ships the trait save fields, so no older server can drop a cat's trait.
 -- - `swiftPaws5` (#3317): Swift Paws levels 3 to 5 in the Golden Fish Market (shared/SwiftPaws). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
 --   older server keeps a saved level only up to 2.
@@ -53,6 +55,7 @@ LiveFlags.KEYS = {
 	"alleyBin",
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
+	"traits",
 	"swiftPaws5",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -61,6 +64,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightCatch = true,
 	loadingScreen = true,
 	goldenDrops = true,
+	traits = true,
 	swiftPaws5 = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

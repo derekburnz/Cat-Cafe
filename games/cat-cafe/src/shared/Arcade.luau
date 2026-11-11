@@ -17,9 +17,13 @@
 --     a +2 skips its number (9 -> 11 pays the 10). After a day's are paid, runs still chase the records.
 --   - Records rank by points, then fewest circles: score(points, circles) = points * 1000 + (999 - circles).
 -- No Robux anywhere: no extra try, continue or skip (Monetization-Agent's conditions, #3062).
+-- #3296 (Derek2 2026-11-11: "arcade game 1 free attempt daily"): the first run of each UTC day is free; later runs
+-- cost ArcadeCostFish. `freeDay` is the UTC day the free run was last used.
 --
 -- The save (its own DataStore, not the profile, so it needed no save version step or restart):
---   Save = { best, bestCircles, day, paid, legend, runs }  `paid` the milestone points paid on UTC `day`
+--   Save = { best, bestCircles, day, paid, legend, runs, freeDay }  `paid` the milestone points paid on UTC `day`
+-- An older server reading a save drops `freeDay` (sanitize keeps only what it knows), so for the few minutes old and
+-- new servers overlap a player could get one more free run; nothing else is lost.
 
 local Circles = require(script.Parent.Circles)
 local Config = require(script.Parent.Config)
@@ -55,6 +59,7 @@ export type Save = {
 	paid: { number }, -- milestone points paid on `day`
 	legend: boolean, -- reached 100 once: the Arcade Legend title, kept for good
 	runs: number,
+	freeDay: number, -- #3296: the UTC day the free run was last used, 0 never
 }
 
 export type Result = {
@@ -82,6 +87,7 @@ export type State = {
 	serverBest: number,
 	serverCircles: number,
 	serverName: string?,
+	free: boolean?, -- #3296: today's free run is still there (nil from an older server: none)
 }
 
 function Arcade.milestones(): { Milestone }
@@ -176,7 +182,7 @@ function Arcade.day(now: number): number
 end
 
 function Arcade.fresh(): Save
-	return { best = 0, bestCircles = 0, day = 0, paid = {}, legend = false, runs = 0 }
+	return { best = 0, bestCircles = 0, day = 0, paid = {}, legend = false, runs = 0, freeDay = 0 }
 end
 
 local function whole(value: unknown, low: number, high: number): number
@@ -197,6 +203,7 @@ function Arcade.sanitize(raw: unknown, now: number): Save
 	save.bestCircles = whole(t.bestCircles, 0, 999)
 	save.runs = whole(t.runs, 0, 2 ^ 31)
 	save.legend = t.legend == true
+	save.freeDay = whole(t.freeDay, 0, 2 ^ 31)
 	local today = Arcade.day(now)
 	if whole(t.day, 0, 2 ^ 31) == today and type(t.paid) == "table" then
 		save.day = today
@@ -221,6 +228,7 @@ function Arcade.merge(stored: Save, mine: Save): Save
 	local out = Arcade.fresh()
 	out.legend = stored.legend or mine.legend
 	out.runs = math.max(stored.runs, mine.runs)
+	out.freeDay = math.max(stored.freeDay, mine.freeDay) -- a free run used on either server stays used
 	if
 		mine.best > stored.best
 		or (
@@ -270,6 +278,28 @@ function Arcade.claim(save: Save, before: number, after: number, now: number): {
 	end
 	table.sort(paid)
 	return out
+end
+
+-- #3296: whether today's free run is still there.
+function Arcade.freeToday(save: Save, now: number): boolean
+	return save.freeDay ~= Arcade.day(now)
+end
+
+-- #3296: uses today's free run; false when it was already used.
+function Arcade.useFree(save: Save, now: number): boolean
+	if not Arcade.freeToday(save, now) then
+		return false
+	end
+	save.freeDay = Arcade.day(now)
+	return true
+end
+
+-- The Play button's words: "Play (free)" while today's free run is there, else "Play (1 🐟)".
+function Arcade.playText(free: boolean): string
+	if free then
+		return "Play (free)"
+	end
+	return string.format("Play (%d 🐟)", Config.ArcadeCostFish)
 end
 
 -- The leaderboard score: points first, then fewer circles.
@@ -324,12 +354,14 @@ function Arcade.cardLine(result: Result): string
 	return line
 end
 
--- Why `profile` can't start a run now, in words, or nil. `busy` names a catch, rescue or flight in progress.
+-- Why `profile` can't start a run now, in words, or nil. `busy` names a catch, rescue or flight in progress. `free`
+-- (#3296): today's free run is still there, so no fish are needed.
 function Arcade.startBlocker(
 	fish: number,
 	busy: string?,
 	running: boolean,
-	loaded: boolean
+	loaded: boolean,
+	free: boolean?
 ): string?
 	if not loaded then
 		return "The arcade is still waking up, try again in a moment"
@@ -340,7 +372,7 @@ function Arcade.startBlocker(
 	if busy ~= nil then
 		return busy
 	end
-	if fish < Config.ArcadeCostFish then
+	if free ~= true and fish < Config.ArcadeCostFish then
 		return string.format("You need %d golden fish 🐟 to play", Config.ArcadeCostFish)
 	end
 	return nil

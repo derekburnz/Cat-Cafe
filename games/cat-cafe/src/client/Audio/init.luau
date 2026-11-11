@@ -1855,6 +1855,11 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play("arcadeEnd")
 		end
 	end,
+	-- #2687: the first time this account reaches an area whose station it owns, the station builds in (Effects) and
+	-- this fanfare plays. Fired once per area per account, so it never repeats.
+	StationReveal = function()
+		Audio.play("stationReveal")
+	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))
 		if cueId == "circleMiss" then

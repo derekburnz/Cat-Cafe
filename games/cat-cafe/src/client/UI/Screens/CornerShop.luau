@@ -4,7 +4,7 @@
 -- per kind ("Potions", "Cat food", "Bait", #1599), each a compact row in Catalog.cornerShop order: its picture, name,
 -- what it does, "Opens at Tier 3" on a row the player's tier doesn't reach yet, else what is left this restock
 -- ("x2 left", #1456; still no chances, restock clock or daily limits: #1190), and a green Buy with the coin price
--- ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag
+-- ("Sold out", "Out of stock", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag
 -- (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". No help line or
 -- lawn note since #1688 and #1689: the prices and clock say it. No toasts of its own: the server's answer is a fresh CornerShopStock and,
 -- when refused, its toast. Words and rules in Components/CornerShopLogic.
@@ -641,6 +641,13 @@ function CornerShop._confirmAll(self: any)
 	self._allUntil[kind] = os.clock() + ALL_PENDING_SECONDS
 	send(kind, stock.window)
 	self:_paint()
+	-- #3340 (Derek2: "sometimes the buy all gets stuck on ..."): an unanswered Buy all (a dropped send) leaves
+	-- "Buying..." after ALL_PENDING_SECONDS on its own, not only on the open window's next tick
+	task.delay(ALL_PENDING_SECONDS + 0.1, function()
+		if self._alive then
+			self:_paint()
+		end
+	end)
 end
 
 -- The rows under their section headers (#1599), each section in the stock's order; rebuilt only when the items
@@ -836,7 +843,11 @@ function CornerShop.opened(self: any)
 					self._callbacks.close()
 					return
 				end
-				self:_paint()
+				-- #3340: one bad paint must not stop the clock (it is what ends a Buy all's "Buying...")
+				local ok, err = pcall(self._paint, self)
+				if not ok then
+					warn("[CornerShop] a repaint failed: " .. tostring(err))
+				end
 			end
 		end
 	end)

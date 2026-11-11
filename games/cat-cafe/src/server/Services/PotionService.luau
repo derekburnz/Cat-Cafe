@@ -71,11 +71,21 @@ local function onUsePotion(player: Player, rawId: unknown, rawCount: unknown)
 	Economy.settle(profile, now, ClockService.epoch())
 	local blocker = Potions.useBlocker(profile, def.id, now)
 	if blocker == "Full" then
-		Net.toast(
-			player,
-			string.format("%s is full: up to %d minutes at once", def.name, Config.PotionMaxMinutes),
-			"warn"
-		)
+		-- #3344: a Small or Big size fills its regular potion's timer, so name that timer when it is the full one
+		local buff = Catalog.getPotion(Potions.buffOf(def.id))
+		local text = if buff ~= nil and buff.id ~= def.id
+			then string.format(
+				"%s adds to your %s time, which is full: up to %d minutes at once",
+				def.name,
+				buff.name,
+				Config.PotionMaxMinutes
+			)
+			else string.format(
+				"%s is full: up to %d minutes at once",
+				def.name,
+				Config.PotionMaxMinutes
+			)
+		Net.toast(player, text, "warn")
 		return
 	elseif blocker ~= nil then
 		return -- none in the bag: the bag's Use button is grey, so only a stale or forged call lands here

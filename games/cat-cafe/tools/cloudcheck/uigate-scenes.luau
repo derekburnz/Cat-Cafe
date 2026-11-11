@@ -3698,7 +3698,7 @@ local SCENES = {
 		UI.update({ goldenFish = before } :: any)
 	end },
 	-- #2577 (Derek2: "the buttons for buying crates sometimes get stuck on ... for a while"): only the pressed crate reads
-	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 2.5 s
+	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 6 s (#3362: 2.5 before)
 	-- as "Try again" (with a toast), when the queued press goes
 	{ "MarketCrateWait", function()
 		local before = UI.getState()
@@ -3727,8 +3727,10 @@ local SCENES = {
 		assert(label("alley_crate") ~= "...", "uigate: another crate reads ... while one opens (#2577)")
 		press("FishMarket", "alley_crate.Open")
 		assert(#sent == 1 and label("alley_crate") == "...", "uigate: a second Open went at once or shows no wait (#2577)")
-		UIShim.advance(2.8) -- no CrateResult for park
-		assert(label("park_crate") == "Try again", "uigate: an unanswered Open reads " .. label("park_crate") .. " after 2.8 s (#2577)")
+		UIShim.advance(2.8) -- no CrateResult for park; #3362: a slow answer is still waited for
+		assert(label("park_crate") == "...", "uigate: an Open reads " .. label("park_crate") .. " after 2.8 s, before its 6 s wait is up (#3362)")
+		UIShim.advance(3.5)
+		assert(label("park_crate") == "Try again", "uigate: an unanswered Open reads " .. label("park_crate") .. " after 6.3 s (#2577)")
 		assert(#sent == 2 and sent[2] == "alley_crate", "uigate: the queued Open did not go once the first ran out (#2577)")
 		local toast = false
 		for _, d in UIShim.playerGui:GetDescendants() do
@@ -4287,7 +4289,7 @@ local SCENES = {
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
 		-- #3205 (Derek2: "the quick update in ... gets cut off"): the restart warning's calm early mark is an info
 		-- toast, and still shows every word
-		local notice = "A quick update is coming in 10 minutes. Keep playing, your cafe is saved."
+		local notice = "A quick update is coming in 10 minutes, then a 10-minute event! Keep playing, your cafe is saved."
 		UI.toast(notice, "info")
 		local warned = find(notice)
 		assert(warned.TextTruncate == Enum.TextTruncate.None, "uigate: the restart warning ends in ... (#3205)")

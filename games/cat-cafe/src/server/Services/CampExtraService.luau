@@ -180,6 +180,15 @@ local function giveLostCat(
 	)
 end
 
+-- #3361: the warning when the spin bank is full and Lost and Found finds of spins wait for room.
+local function spinsFullLine(left: number): string
+	return string.format(
+		"Spins full: %d %s left at the Lost and Found. Spin, then claim the rest",
+		left,
+		if left == 1 then "find" else "finds"
+	)
+end
+
 local function refuse(player: Player, extraId: string, reason: string)
 	Net.toast(player, reason, "warn")
 	Net.fire(player, "CampExtraResult", extraId, false, {})
@@ -223,10 +232,14 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		function(): number
 			return random:NextNumber()
 		end,
-		pondTimes(player)
+		pondTimes(player),
+		-- #3361: a find of spins is kept here when the bank is full, instead of being paid into it and lost
+		math.max(0, Config.SpinBankCap - profile.spin.banked)
 	)
+	local left = if extraId == "lostFound" then profile.campExtras.lostFound.held else 0
 	if prize == nil then
-		refuse(player, extraId, "Nothing yet")
+		refuse(player, extraId, if left > 0 then spinsFullLine(left) else "Nothing yet")
+		refresh(player, profile, true)
 		return
 	end
 	local paid = Payout.pay(player, profile, prize, "camp_extra")
@@ -238,11 +251,26 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		{ extraId, whatOf(prize, #lostCats), tostring(tier) }
 	)
 	Net.fire(player, "CampExtraResult", extraId, true, paid, prize)
+	-- #3361: each lost cat on its own, so an error on one still brings the others, and the sync and the fresh view
+	-- always go out (a skipped view left "3 to claim" on screen after a claim had taken them)
 	for _, rarity in lostCats do
-		giveLostCat(player, profile, rarity, tier)
+		local ok, err = pcall(giveLostCat, player, profile, rarity, tier)
+		if not ok then
+			warn(
+				string.format(
+					"[CampExtras] lost cat (%s) failed for user %d: %s",
+					rarity,
+					player.UserId,
+					tostring(err)
+				)
+			)
+		end
+	end
+	if left > 0 then
+		Net.toast(player, spinsFullLine(left), "warn")
 	end
 	CafeService.sync(player)
-	refresh(player, profile, false)
+	refresh(player, profile, true)
 end
 
 local function onBuyYardSale(player: Player, rawCrateId: unknown)

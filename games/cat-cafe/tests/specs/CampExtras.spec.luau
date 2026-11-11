@@ -174,6 +174,46 @@ return function()
 			expect(at(save, 5, T + 10 * DAY).lostFound.nextAt).to.equal(T + 10 * DAY + 2 * HOUR)
 		end)
 
+		-- #3361: a roll in the spins row (after fish 0.30 and potions 0.22)
+		local function spinsRoll(): number
+			return 0.6
+		end
+
+		it(
+			"keeps a spins find that does not fit a full bank, and the finds after it (#3361)",
+			function()
+				local save = emptied(5)
+				at(save, 5, T + 7 * HOUR) -- 3 held
+				local prize, count =
+					CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, spinsRoll, nil, 0)
+				expect(prize).to.equal(nil)
+				expect(count).to.equal(0)
+				expect(save.lostFound.held).to.equal(3)
+				-- room for one find of spins: one is taken, two wait
+				local spins = assert(Config.LostFoundTable[3].spins)
+				local some, taken =
+					CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, spinsRoll, nil, spins)
+				expect(taken).to.equal(1)
+				expect((some :: any).spins).to.equal(spins)
+				expect(save.lostFound.held).to.equal(2)
+				-- with room the rest come at once
+				local rest, more =
+					CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, spinsRoll, nil, 50)
+				expect(more).to.equal(2)
+				expect((rest :: any).spins).to.equal(2 * spins)
+				expect(save.lostFound.held).to.equal(0)
+			end
+		)
+
+		it("a full spin bank does not hold back finds that are not spins (#3361)", function()
+			local save = emptied(5)
+			at(save, 5, T + 7 * HOUR)
+			local prize, count = CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, half, nil, 0)
+			expect(count).to.equal(3)
+			expect(prize ~= nil).to.equal(true)
+			expect(save.lostFound.held).to.equal(0)
+		end)
+
 		it("brings a lost Epic cat for each lostCat row a take lands on", function()
 			local save = emptied(5)
 			at(save, 5, T + 7 * HOUR)

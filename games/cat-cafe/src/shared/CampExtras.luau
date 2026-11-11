@@ -380,13 +380,17 @@ end
 -- Takes everything `extraId` holds from a save for a player of `tier` (settling it first): the prize, how many
 -- fills it was and the rarities of the Lost and Found's lost cats (#1732), or nil, 0 and none when nothing waits.
 -- `roll` gives the Lost and Found's rolls in [0, 1), one a find.
+-- #3361: `spinRoom` is how many spins the player's bank still takes (nil: no limit). A Lost and Found find of spins
+-- that does not fit stays in the Lost and Found, with every find after it, instead of being paid into a full bank
+-- and lost; the save's `held` says how many are left. Only that find's roll is spent: it rolls again next time.
 function CampExtras.take(
 	save: Types.CampExtrasSave,
 	extraId: string,
 	tier: number,
 	now: number,
 	roll: () -> number,
-	pondTimes: number?
+	pondTimes: number?,
+	spinRoom: number?
 ): (Types.IndexPrize?, number, { string })
 	CampExtras.settle(save, tier, now)
 	if not CampExtras.isOpen(extraId, tier) then
@@ -416,15 +420,26 @@ function CampExtras.take(
 		end
 		local prize: Types.IndexPrize = {}
 		local lostCats: { string } = {}
+		local room = spinRoom or math.huge
+		local taken = 0
 		for _ = 1, held do
 			local find, lostCat = CampExtras.lostFoundPrize(roll())
+			local spins = find.spins or 0
+			if spins > room then
+				break -- #3361: the bank is full; this find and the rest wait here
+			end
+			room -= spins
+			taken += 1
 			prize = CampExtras.merge(prize, find)
 			if lostCat ~= nil then
 				table.insert(lostCats, lostCat)
 			end
 		end
-		save.lostFound.held = 0
-		return prize, held, lostCats
+		if taken == 0 then
+			return nil, 0, {}
+		end
+		save.lostFound.held = held - taken
+		return prize, taken, lostCats
 	end
 	return nil, 0, {}
 end

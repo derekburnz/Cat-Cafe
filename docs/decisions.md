@@ -1033,6 +1033,7 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Why:** Derek was shown the built model and the earlier pink concept and answered "A", the built model.
 - **What:** `trait-station.md` section 1 now describes the approved look: cream and grey stone ring, soft purple liquid, moon arch with lanterns, brown wizard cat Sage Sorrel with a purple starry hat. The pool rests purple, so the Mythic step has to read as clearly stronger than the resting colour. Odds, traits, costs and caps do not change.
 - **No restart needed:** the trait save step (version 48, #3335) is already live since the restart at 19:13 UTC. What still gates the station is the `traits` switch, which stays off until the UI, the effects and the Pace gate are done.
+
 ## 2026-11-11 Mouse Dash is unpaused and specced to be able to replace Circle Streak (#3296, Design-Agent)
 - **Why:** Derek, 23:30 UTC: "build mouse dash if making it high enough quality it honestly should replace the current game".
 - **What:** new spec `docs/design/cat-cafe/mouse-dash.md` (v2). Nine holes, three hearts with one back every 10 catches in a row, golden mice (+3), napping kittens you must not tap, two at once from 30 points, 100 points wins. The v1 draft in `new-activities.md` section 4 ended on the first miss and stopped at 50.

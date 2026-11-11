@@ -179,7 +179,7 @@ local function pick()
 		else
 			table.insert(
 				candidates,
-				{ key = s, distance = Context.distance(model:GetPivot().Position) }
+				{ key = s, distance = Context.distance(s.model:GetPivot().Position) }
 			)
 		end
 	end

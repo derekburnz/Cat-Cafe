@@ -16,7 +16,7 @@
 #      (session_start carries the join source in its first field: organic, unknown or ad_<tag> from a link's
 #      launchData=ad_<tag>; robux_purchase, store_cancelled, cafe_pass_level and jukebox_pick since #1888)
 #   5. audience (#2391): players new and returning and day 1 retention by Platform, Country, AgeGroupV2 and Gender; average
-#      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
+#      session by Platform; the current onboarding funnel and first_hour (time steps, played_30s to played_60m) by
 #      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
 #   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, bait_rolled, bait_resolved (#3030),
 #      first_bait_wait and first_bait_arrived read
@@ -207,6 +207,7 @@ declare -A names=(
 # win when Onboarding.luau has them; these are the names Research-Agent proposed.
 firstHourFunnel=first_hour
 firstHourSteps=(joined played_2m played_5m played_10m played_20m played_30m played_45m played_60m)
+firstHourV2Steps=()
 onboardingFunnel=onboarding_v4
 introFunnel=onboarding_v4_intro
 onboardingSteps=()
@@ -231,6 +232,8 @@ if [ -f "$onboarding" ]; then
 	mapfile -t onboardingV4Steps < <(luaNames V4_STEPS)
 	mapfile -t list < <(luaNames FIRST_HOUR_STEPS)
 	[ "${#list[@]}" = 0 ] || firstHourSteps=("${list[@]}")
+	# #3308: first_hour_v3 put played_3m and played_4m in; v2's rows keep their labels through FIRST_HOUR_V2_STEPS
+	mapfile -t firstHourV2Steps < <(luaNames FIRST_HOUR_V2_STEPS)
 	funnelName=$(luaString FIRST_HOUR_FUNNEL)
 	firstHourFunnel=${funnelName:-$firstHourFunnel}
 	funnelName=$(luaString FUNNEL)
@@ -259,6 +262,8 @@ stepName() { # funnel step label
 			list=("${onboardingSteps[@]}")
 		elif [ "${funnel,,}" = "${firstHourFunnel,,}" ]; then
 			list=("${firstHourSteps[@]}")
+		elif [ "${funnel,,}" = first_hour_v2 ]; then
+			list=("${firstHourV2Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v4 ]; then
 			list=("${onboardingV4Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v3 ]; then
@@ -302,7 +307,7 @@ declare -A retired=(
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* && ${funnel,,} != "${firstHourFunnel,,}" ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* ]] || unit=Players
 	say "#### $funnel"
 	say ""
 	if ! query FunnelUserTotalCount None FunnelStep "$(only FunnelName "$funnel")"; then
@@ -672,6 +677,13 @@ fieldEvents=(
 	"session_feedback_ctx|CustomField1,CustomField2|CustomEventCount|Session feedback answers by furthest step (#3272)"
 	"session_feedback_ctx|CustomField1,CustomField3|CustomEventCount|Session feedback answers by cats owned (#3272)"
 	"session_feedback_where|CustomField1,CustomField2|CustomEventCount|Session feedback answers by screen at the time (#3272)"
+	"arcade_run|CustomField3|CustomEventCountUser|Cat Arcade: players by result (win, over) (#3378)"
+	"arcade_run|CustomField3|CustomEventCount|Cat Arcade: games by result (#3378)"
+	"arcade_run|Platform|CustomEventCountUser|Cat Arcade: players by device (#3378)"
+	"arcade_run|Platform|CustomEventAvgValue|Cat Arcade: average points a game, by device (#3378)"
+	"arcade_run|CustomField1|CustomEventCount|Cat Arcade: games by circles hit (#3378)"
+	"arcade_run|CustomField2|CustomEventCount|Cat Arcade: games by prizes paid (#3378)"
+	"upgrade_bought|CustomField2,CustomField3|CustomEventCountUser|Players buying each upgrade level (Swift Paws 5 levels, #3332)"
 	"session_start|CustomField1|CustomEventCountUser|Players by join source (organic, unknown, ad_<tag>)"
 	"session_start|CustomField3|CustomEventCountUser|Players by tier at join (store_v1 per Tier 2+ base)"
 	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"

@@ -531,8 +531,27 @@ end
 -- logged by account play time (PlayTime.seconds) only: joined, then each FIRST_HOUR_SECONDS mark as it is passed.
 -- tools/opencloud/analytics.sh reads FIRST_HOUR_FUNNEL and FIRST_HOUR_STEPS.
 -- v2 (#2636): played_30s and played_60s in front of played_2m, as first_hour_v2 (the step numbers moved).
-Onboarding.FIRST_HOUR_FUNNEL = "first_hour_v2"
+-- v3 (#3308, Derek 2026-11-11: "the start is the most important part"): played_3m and played_4m between played_2m and
+-- played_5m, as first_hour_v3. Its step sits in its own telemetry field (firstHourV3Step), not firstHourStep, so a
+-- server still on v2 during a rollout never reads v3's numbers as v2's; a save that logged any of v2 leaves v3.
+Onboarding.FIRST_HOUR_FUNNEL = "first_hour_v3"
 Onboarding.FIRST_HOUR_STEPS = {
+	"joined",
+	"played_30s",
+	"played_60s",
+	"played_2m",
+	"played_3m",
+	"played_4m",
+	"played_5m",
+	"played_10m",
+	"played_20m",
+	"played_30m",
+	"played_45m",
+	"played_60m",
+} :: { string }
+Onboarding.FIRST_HOUR_COUNT = #Onboarding.FIRST_HOUR_STEPS
+-- first_hour_v2's steps, for the report (analytics.sh labels the v2 rows still in a window with them)
+Onboarding.FIRST_HOUR_V2_STEPS = {
 	"joined",
 	"played_30s",
 	"played_60s",
@@ -544,9 +563,10 @@ Onboarding.FIRST_HOUR_STEPS = {
 	"played_45m",
 	"played_60m",
 } :: { string }
-Onboarding.FIRST_HOUR_COUNT = #Onboarding.FIRST_HOUR_STEPS
+Onboarding.FIRST_HOUR_V2_COUNT = #Onboarding.FIRST_HOUR_V2_STEPS
 -- the play time each step needs, by index (joined needs none)
-Onboarding.FIRST_HOUR_SECONDS = { 0, 30, 60, 120, 300, 600, 1200, 1800, 2700, 3600 } :: { number }
+Onboarding.FIRST_HOUR_SECONDS =
+	{ 0, 30, 60, 120, 180, 240, 300, 600, 1200, 1800, 2700, 3600 } :: { number }
 
 -- The first_hour step numbers to log now, in order, for a player at `playSeconds` of account play whose furthest
 -- logged step is `logged` (0 before joined): every step past `logged` that the play time has reached.

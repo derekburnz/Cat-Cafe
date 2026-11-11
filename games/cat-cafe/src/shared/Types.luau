@@ -1163,6 +1163,11 @@ export type TelemetryState = {
 	-- #2391: the furthest step logged of the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), 0 before any; a default
 	-- too, and COUNT for a player who was out of the onboarding funnel when it came (a veteran's hour is behind them)
 	firstHourStep: number,
+	-- #3308: the furthest step logged of first_hour_v3 (Onboarding.FIRST_HOUR_STEPS), 0 before any. firstHourStep keeps
+	-- first_hour_v2's numbers for a server still on v2 during a rollout, and this code writes it as v2's count, so
+	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
+	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
+	firstHourV3Step: number,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

@@ -1030,3 +1030,11 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | A column of gold sparkles rising off your waiting stray and a gold ring pulsing at its feet every 2.5 s, from 2 s after it shows for 120 s; your screen only; Reduce Motion keeps the sparkles, Low performance the rings | the `Stray` whose `WaitsFor` attribute is your UserId (Gameplay-Engineer's #3038, shared/SecondCat) |
+
+## Ruins waterfall and fountain (#3257, 2026-11-11)
+
+`Effects/RuinsWater.luau`, numbers in `Presets.ruinsWater`, emitters `fallStreaks` and `fallMist`, budget `waterfalls`.
+
+| Look | Hook |
+|---|---|
+| Pale streaks slide down every falling sheet (a water part at least 3 studs tall and at most 0.5 thin), soft mist rises at each sheet's foot (feet within 2 studs share one) and a 3.5 stud ring spreads there every 1.4 s; only the nearest budget.waterfalls within 160 studs run; Reduce Motion drops the rings, Low performance keeps the streaks only | Models named `*_Waterfall_Water` and `*_Fountain_Water` (Animation-Engineer's CatCafe_Ruins_Set, #3257) |

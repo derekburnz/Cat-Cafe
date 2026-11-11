@@ -320,9 +320,11 @@ return function()
 			expect(ShopIcons.setting(nil)).to.equal(nil)
 		end)
 
-		it("reads the station ring pictures from the shared table the server rings use (#3396)", function()
+		it("shares the station ring pictures with the server rings (#3396)", function()
 			local StationIcons = require(
-				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("StationIcons")
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("StationIcons")
 			) :: any
 			local names = {
 				arcade = "Arcade",

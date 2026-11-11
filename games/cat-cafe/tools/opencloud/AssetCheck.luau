@@ -1,0 +1,63 @@
+-- Asset load check, run by tools/opencloud/run-luau.sh (run-luau.yml): does each id below load from Roblox yet?
+-- A sound or picture still in moderation (or rejected) fails to fetch, so this tells a thread whether a fresh
+-- upload is safe to ship. Read-only. The first two rows are controls: a sound known to be approved and an id
+-- that does not exist. Edit IDS on your branch and run the workflow from that branch.
+
+local ContentProvider = game:GetService("ContentProvider")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local IDS: { { name: string, id: number, kind: string } } = {
+	{ name = "control: strayCall (approved)", id = 115966888994390, kind = "Sound" },
+	{ name = "control: no such asset", id = 1, kind = "Sound" },
+	{ name = "CatCafe_Sfx_StationReveal", id = 119242621398873, kind = "Sound" },
+	{ name = "Icon_Clean_Museum", id = 106957137610323, kind = "Image" },
+	{ name = "Icon_Clean_Picnic", id = 92455587075019, kind = "Image" },
+	{ name = "Icon_Clean_YardSale", id = 132170661858712, kind = "Image" },
+	{ name = "Icon_Clean_Pond", id = 116298242454261, kind = "Image" },
+	{ name = "Icon_Clean_LostFound", id = 106814161165186, kind = "Image" },
+	{ name = "Icon_Clean_Arcade", id = 120353026211586, kind = "Image" },
+	{ name = "UI_ArcadeBg_Tile", id = 103715872453589, kind = "Image" },
+}
+
+local lines = {}
+for _, row in IDS do
+	local url = "rbxassetid://" .. row.id
+	local instance: Instance
+	if row.kind == "Sound" then
+		local sound = Instance.new("Sound")
+		sound.SoundId = url
+		instance = sound
+	else
+		local label = Instance.new("ImageLabel")
+		label.Image = url
+		instance = label
+	end
+	instance.Parent = workspace
+	local status = "no callback"
+	local okPreload, errPreload = pcall(function()
+		ContentProvider:PreloadAsync({ instance }, function(_, fetchStatus)
+			status = fetchStatus.Name
+		end)
+	end)
+	if not okPreload then
+		status = "preload error: " .. tostring(errPreload)
+	end
+	local extra = ""
+	if instance:IsA("Sound") then
+		local waited = 0
+		while not instance.IsLoaded and waited < 5 do
+			waited += task.wait(0.25)
+		end
+		extra = string.format(" IsLoaded=%s TimeLength=%.2f", tostring(instance.IsLoaded), instance.TimeLength)
+	end
+	local okInfo, info = pcall(MarketplaceService.GetProductInfo, MarketplaceService, row.id)
+	local infoText = if okInfo
+		then string.format("name=%q creator=%s", tostring(info.Name), tostring(info.Creator and info.Creator.Name))
+		else "info error: " .. tostring(info)
+	table.insert(lines, string.format("%-32s %d  fetch=%s%s  %s", row.name, row.id, status, extra, infoText))
+	instance:Destroy()
+end
+
+local report = table.concat(lines, "\n")
+print(report)
+return report

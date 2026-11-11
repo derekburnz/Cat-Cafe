@@ -840,3 +840,10 @@ Why only these two: the first draft also sped up Epic (1.12), Legendary (1.22) a
 - **Restart warning wraps (#3205).** Derek2: "the quick update in ... gets cut off". The early restart warnings are calm info toasts, which keep to one row; a line with "your cafe is saved" now wraps whatever its kind.
 - **Tackling lesson only somewhere safe (#3206).** Derek2: "make sure to not play tackle cutscene when not in safezone". A due lesson starts only on the safe street or in a cafe; out in a catching area it stays due.
 - **Trade (#3211).** Derek2: "trade says busy but should go through at any time and still gets stuck on asked", "trade shows 0/s in the first screen", "sort trade by highest rarity first for all sections". An ask goes through whatever either player is doing, and carrying a cat never blocks a trade; a trade still does not open over a running catch, rescue or flight, and an open one still ends if a player starts one (#2568). A refused ask clears "Asked" at once. An offered cat with no job shows what it earns working. Every tab lists the rarest first. Known trade-off (Review-Agent): a carrier can sit in the trade window out in a catching area and be tackled meanwhile; not an exploit, and "no tackles while the trade window is open" is a later option if Derek wants it.
+
+## 2026-11-11 Shorter nights: 45 seconds (#3195)
+
+Derek2 2026-11-10: "make the night times faster to stop being leaving during night just put an exclamation mark over night market so people dont miss it".
+
+- Night 45 seconds and day 345 (were 70 and 320), as #3195 proposed. A game day stays 390 seconds, so every sunrise, day number, restock and pity timer falls where it did; only dusk comes 25 seconds later. Old and new servers agree on the day, so no restart is needed. While old servers run, their dusk comes 25 seconds before a new server's.
+- The "!" over the Night Market is VFX-Agent's PR #3231.

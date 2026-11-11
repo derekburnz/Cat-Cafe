@@ -317,6 +317,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
+		sessionFeedbackDay = 0,
 		stuckHelpShown = {},
 		starterCatClaimed = false,
 		notifyAskAt = 0,
@@ -997,6 +998,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.tipsSeen =
 		Tips.sanitizeSeen(raw.tipsSeen, fromVersion < 20 and profile.tutorialStep >= 5)
 	profile.feedbackAsked = raw.feedbackAsked == true
+	-- #3272 (no new version): the UTC day the once-a-day session ask was last answered or skipped, 0 before. An older
+	-- server drops it, which at worst asks once more that day.
+	profile.sessionFeedbackDay = if type(raw.sessionFeedbackDay) == "number"
+			and raw.sessionFeedbackDay == raw.sessionFeedbackDay
+		then math.clamp(math.floor(raw.sessionFeedbackDay), 0, 1e6)
+		else 0
 	profile.stuckHelpShown = Tips.sanitizeHelp(raw.stuckHelpShown)
 	-- F96 (version 21): the one free Bellhop Cat, kept claimed by the flag or by owning one
 	profile.starterCatClaimed = raw.starterCatClaimed == true

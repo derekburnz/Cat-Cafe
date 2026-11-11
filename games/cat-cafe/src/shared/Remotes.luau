@@ -129,6 +129,8 @@ Remotes.ClientToServer = {
 	-- "prompt" (shared/StationOpens.valid); 2 a second, counted into station_open events, nothing else changes
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
+	"SessionFeedback", -- (answer: string)  #3272: the once-a-day ask's answer, in SessionFeedback.ANSWERS (a face or
+	-- "skipped"); 1 per 30 s and once a UTC day (sessionFeedbackDay); logs session_feedback, nothing else changes
 	"PassClaim", -- (track: "free" | "paid", level: number)  #1645: level 1 to PassLevels, reached in the running
 	-- season, a reward there, unclaimed, and on the paid track only once it is bought; answered with CafePassState
 	"PassClaimAll", -- ()  #1645: every reward PassClaim would take, in order

@@ -1285,10 +1285,10 @@ local Cues: { [string]: Cue } = {
 	-- The Mystic Pool's roll (#3389; Effects/MysticPool.onBeat, Logic.poolCue): the Pool sheet, mono. The drop, the
 	-- steps and the Mythic play in 3D at the pool; the reveal is flat, under the trait card. Rendered by synth/synth.py.
 	sheetPool = {
-		ids = {},
+		ids = { "rbxassetid://86210298933711" },
 		group = "Sfx",
 		volume = 1,
-	}, -- mono, 6.05 s
+	}, -- mono, 6.05 s; uploaded by upload-audio run 43113223077 (group)
 	poolDrop = {
 		ids = {},
 		sheet = "sheetPool",

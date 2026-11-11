@@ -7,3 +7,12 @@ Grand style, which share its 🏛️ glyph.
 
 | Icon | rbxassetid |
 |---|---|
+| Icon_Clean_Park | 130402303377210 |
+| Icon_Clean_Neighbourhood | 81559978948079 |
+| Icon_Clean_Woods | 88100194069700 |
+| Icon_Clean_Sewer | 73407312338999 |
+| Icon_Clean_Desert | 105252509632683 |
+| Icon_Clean_Ruins | 117006304300316 |
+| Icon_Clean_Town | 84240054469741 |
+
+Uploaded with `upload-image.yml` run 42937300084 from `friend/icons-batch2`.

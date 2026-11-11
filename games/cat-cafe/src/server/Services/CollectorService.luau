@@ -5,7 +5,7 @@
 -- counter's CollectorSpot for CollectorStaySeconds. The plot attributes CollectorUntil and CollectorCatId are display
 -- only: every client stands him there from them (CustomerController) and Audio plays his arrival. The owner gets
 -- CollectorOffer(catUid, offer, endsAt) for the card, and CollectorOffer("") when the visit ends.
--- AnswerCollector(accept) from the owner within CollectorRangeStuds of him: No thanks ends the visit. Trade checks the
+-- AnswerCollector(accept) from the owner, from anywhere (#3216: his banner or tag opens the card): No thanks ends the visit. Trade checks the
 -- cat is still theirs, resting, unlocked and not their last (else a toast says why and he waits on), then takes the
 -- visit, removes the cat (collection and goldCollection keep it, so the Index never goes back) and pays the offer.
 -- The timeout, nightfall, the owner leaving, or the cat being locked, put to work or sold ends the visit and nothing
@@ -62,23 +62,6 @@ end
 local function catName(catId: string): string
 	local def = Catalog.getCat(catId)
 	return if def ~= nil then def.name else catId
-end
-
--- Where he stands: the plot's CollectorSpot, else the order point's line.
-local function spotOf(plot: WorldBuilder.Plot): Vector3
-	local spot = plot.model:FindFirstChild("CollectorSpot")
-	if spot ~= nil and spot:IsA("BasePart") then
-		return (spot :: BasePart).Position
-	end
-	return plot.customerEntry.Position
-end
-
-local function withinRange(player: Player, position: Vector3, range: number): boolean
-	local character = player.Character
-	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
-	return root ~= nil
-		and root:IsA("BasePart")
-		and ((root :: BasePart).Position - position).Magnitude <= range
 end
 
 local function show(plot: WorldBuilder.Plot, endsAt: number, catId: string)
@@ -153,11 +136,8 @@ local function onAnswer(player: Player, rawAccept: unknown)
 	if os.time() >= visit.endsAt then
 		return -- gone; the expiry check ends it within a second
 	end
-	-- his card opens at CollectorRangeStuds; 2 studs of slack for movement in flight
-	if not withinRange(player, spotOf(plot), Config.CollectorRangeStuds + 2) then
-		Net.toast(player, "Walk over to the Cat Collector to answer him", "info")
-		return
-	end
+	-- #3216 (Derek2: "accept cat collector trade through banner not needing to be beside it"): no range check; the
+	-- visit is the owner's own and live, the remote is rate-limited, and Trade keeps every check on the cat below
 	if not accept then
 		local declined = take(plot.index)
 		if declined ~= nil then

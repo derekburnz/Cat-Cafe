@@ -10,6 +10,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ContentProvider = game:GetService("ContentProvider")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -1082,6 +1083,19 @@ local function followSplashes()
 	end)
 end
 
+-- #2871 (console): a soft tick each time the gamepad's selection walks from one button to the next (Logic.focusTick),
+-- so a player on a controller hears where they are in a menu. It reuses the tab tick at a lower volume (uiFocus).
+local function followGamepadFocus()
+	local before: GuiObject? = GuiService.SelectedObject
+	GuiService:GetPropertyChangedSignal("SelectedObject"):Connect(function()
+		local after: GuiObject? = GuiService.SelectedObject
+		if Logic.focusTick(before, after) then
+			Audio.play("uiFocus")
+		end
+		before = after
+	end)
+end
+
 local function followStrays()
 	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(unwatchStray)
@@ -2112,6 +2126,7 @@ function Audio.start()
 	followTags()
 	followStrays()
 	followSplashes()
+	followGamepadFocus()
 	followHolds()
 	followHeldCats()
 	followCharacters()

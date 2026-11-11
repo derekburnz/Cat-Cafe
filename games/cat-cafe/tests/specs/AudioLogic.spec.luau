@@ -568,6 +568,18 @@ return function()
 		end)
 	end)
 
+	-- #2871: a gamepad selection that walks from one button to another ticks; the first selection and a clear do not.
+	describe("Audio.Logic gamepad focus tick", function()
+		it("ticks only when moving between two different buttons", function()
+			local a, b = {}, {}
+			expect(Logic.focusTick(a, b)).to.equal(true)
+			expect(Logic.focusTick(nil, b)).to.equal(false)
+			expect(Logic.focusTick(a, nil)).to.equal(false)
+			expect(Logic.focusTick(a, a)).to.equal(false)
+			expect(Logic.focusTick(nil, nil)).to.equal(false)
+		end)
+	end)
+
 	-- #3022: the stray waiting for your second catch calls once as you come near, then every 45 s, at most 4 times.
 	describe("Audio.Logic second cat call", function()
 		local NEAR, GAP, MOST = 60, 45, 4

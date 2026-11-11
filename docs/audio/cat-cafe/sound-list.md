@@ -223,6 +223,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 | `uiToast` | Toast of kind info or good | 0.2 s | small pop; good adds a chime | P1 |
 | `uiHint` | a new tutorial prompt | 0.3 s | soft ding | P1 |
 | `uiTab` | tab or filter chip | 0.05 s | tick | P2 |
+| `uiFocus` | #2871 console: the gamepad's selection walks from one button to another (`Logic.focusTick`; the first selection when a window opens stays quiet) | 2D | 0.1 s | the tab tick again, quieter (0.22), no new file | P2 |
 | `uiToggle` | a Settings ON/OFF switch | 0.1 s | click | P2 |
 | `uiSlider` | each 5 % step of a volume slider while dragged | 0.04 s | tiny soft tick; it plays through the sound channel, so it previews the new volume | P2 |
 | `uiGiftReady` | a Tip Jar gift becomes ready (the ready count goes up, never on the first state) | 0.6 s | glass jar ting and a small two-note chime | P1 |

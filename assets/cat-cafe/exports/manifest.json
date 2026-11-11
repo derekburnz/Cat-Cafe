@@ -272756,22 +272756,22 @@
       "triangles": 3298,
       "budget": 6000,
       "size_studs": {
-        "x": 33.9,
-        "y": 5.84,
+        "x": 33.1,
+        "y": 5.8,
         "z": 20.25
       },
       "size_roblox": [
-        33.9,
+        33.1,
         20.25,
-        5.84
+        5.8
       ],
       "bounds_min": [
-        -16.95,
-        -3.79,
+        -16.55,
+        -3.75,
         0.0
       ],
       "bounds_max": [
-        16.95,
+        16.55,
         2.05,
         20.25
       ],
@@ -272809,9 +272809,11 @@
           "uv": "1677 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.87"
+          "centered": "footprint center x=0.00 y=-0.85"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Ruins_Gate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Ruins_Gate.png"
     },
     {
       "name": "CatCafe_Plot_Cafe_Mint",

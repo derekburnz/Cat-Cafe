@@ -226,6 +226,7 @@ export type CustomEvent =
 	-- F91 (front-lawn.md section 5): a lawn piece or path or fence style bought, value 1, once per id ever (moves log
 	-- nothing, review S119); its id, tier. The coins it cost are the economy sink "lawn"
 	| "lawn_placed"
+	| "lawn_drop" -- #3222: a drop-only Golden lawn piece from a freed cat (id, tier)
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"

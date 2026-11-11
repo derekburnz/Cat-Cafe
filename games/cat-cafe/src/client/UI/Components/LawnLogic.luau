@@ -187,6 +187,15 @@ function LawnLogic.pieceAction(state: Types.PlayerState, piece: Types.LawnPieceD
 			enabled = false,
 		}
 	end
+	if piece.drop == true then
+		-- #3222: never sold; a rare find from freeing a cat
+		return {
+			mode = "locked",
+			text = "Rare find",
+			style = "ghost",
+			enabled = false,
+		}
+	end
 	return buyOrLocked(state, piece.price, piece.tier, nil)
 end
 

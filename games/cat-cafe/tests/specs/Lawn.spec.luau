@@ -39,7 +39,7 @@ return function()
 			})
 		end)
 
-		it("sells the sixteen pieces at their sizes, tiers, rarities and ladder prices", function()
+		it("lists the nineteen pieces at their sizes, tiers, rarities and ladder prices", function()
 			local expected = {
 				{ "tulip_bed", "small", 2, "Common" },
 				{ "sandwich_board", "small", 2, "Common" },
@@ -57,6 +57,10 @@ return function()
 				{ "balloon_bunch", "small", 4, "Legendary" },
 				{ "cat_tree_sign", "big", 5, "Golden" },
 				{ "golden_paw_statue", "big", 5, "Golden" },
+				-- #3222: drop-only
+				{ "golden_cat_fountain", "big", 5, "Golden" },
+				{ "golden_cat_throne", "big", 5, "Golden" },
+				{ "golden_yarn_kitten", "big", 5, "Golden" },
 			}
 			expect(#Catalog.lawn).to.equal(#expected)
 			for i, row in expected do
@@ -112,6 +116,55 @@ return function()
 				expect(Catalog.getLawnStyle(def.id)).never.to.be.ok()
 				expect(Catalog.getDecor(def.id)).never.to.be.ok()
 			end
+		end)
+	end)
+
+	describe("the drop-only Golden pieces (#3222)", function()
+		local DROPS = { "golden_cat_fountain", "golden_cat_throne", "golden_yarn_kitten" }
+
+		it("marks exactly the three new Golden pieces as drops, and none is sold", function()
+			local drops = {}
+			for _, def in Catalog.lawn do
+				if def.drop == true then
+					table.insert(drops, def.id)
+					expect(def.rarity).to.equal("Golden")
+					expect(def.spot).to.equal("big")
+					expect(Lawn.rarityBonus(def.rarity)).to.equal(0.12)
+				end
+			end
+			expect(drops).to.deepEqual(DROPS)
+			local profile = profileAt(5)
+			profile.money = 10 ^ 12
+			for _, id in DROPS do
+				expect(string.find(assert(Lawn.buyBlocker(profile, id)), "never sold", 1, true)).to.be.ok()
+			end
+			expect(Lawn.buyBlocker(profile, "golden_paw_statue")).to.equal(nil)
+		end)
+
+		it("drops one only under DROP_CHANCE, and only a piece not owned yet", function()
+			local profile = profileAt(2)
+			expect(Lawn.DROP_CHANCE > 0 and Lawn.DROP_CHANCE <= 0.005).to.equal(true)
+			expect(Lawn.dropPick(profile, Lawn.DROP_CHANCE, 0)).to.equal(nil)
+			expect(Lawn.dropPick(profile, 0.5, 0)).to.equal(nil)
+			expect(Lawn.dropPick(profile, 0 / 0, 0)).to.equal(nil)
+			expect(Lawn.dropPick(profile, 0, 0)).to.equal(DROPS[1])
+			expect(Lawn.dropPick(profile, 0, 0.5)).to.equal(DROPS[2])
+			expect(Lawn.dropPick(profile, 0, 0.9999)).to.equal(DROPS[3])
+			profile.lawnOwned[DROPS[2]] = true
+			expect(Lawn.dropPick(profile, 0, 0.9999)).to.equal(DROPS[3])
+			expect(Lawn.dropPick(profile, 0, 0.4)).to.equal(DROPS[1])
+			profile.lawnOwned[DROPS[1]] = true
+			profile.lawnOwned[DROPS[3]] = true
+			expect(Lawn.dropPick(profile, 0, 0.5)).to.equal(nil)
+		end)
+
+		it("keeps a dropped piece through a save and load, and places it on a big spot", function()
+			local profile = profileAt(2)
+			profile.lawnOwned.golden_cat_throne = true
+			expect(Lawn.putOut(profile, "golden_cat_throne")).to.equal(true)
+			local loaded = ProfileSchema.migrate(profile, T) :: any
+			expect(loaded.lawnOwned.golden_cat_throne).to.equal(true)
+			expect(Lawn.spotOf(loaded, "golden_cat_throne")).to.equal("big1")
 		end)
 	end)
 
@@ -722,7 +775,8 @@ return function()
 						local profile = profileAt(tier)
 						local blocker = Lawn.buyBlocker(profile, id)
 						local free = row.price == 0
-						if (blocker == nil) ~= (row.tier <= tier and not free) then
+						local drop = row.drop == true -- #3222: never sold
+						if (blocker == nil) ~= (row.tier <= tier and not free and not drop) then
 							fail("%s at Tier %d: %s", id, tier, tostring(blocker))
 						end
 						if blocker == nil then

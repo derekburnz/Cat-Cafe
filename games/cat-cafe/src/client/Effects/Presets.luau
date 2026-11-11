@@ -2564,6 +2564,27 @@ Presets.storeBurst = {
 	},
 }
 
+-- A Golden find (#3222; Effects/GoldenFind): the toast line starting `prefix` (LawnService.giveDrop's) plays a gold
+-- `beamWidth` by `beamHeight` stud beam off the player for `beamSeconds`, `sparkles` catchSparkle and `confetti` pieces
+-- `lift` studs over their middle, and `rings` gold rings `ringGap` seconds apart, `ring` studs wider each, at their
+-- feet (`feet` studs under it). At most one every `gap` seconds.
+Presets.goldenFind = {
+	prefix = "Golden find! ",
+	gap = 3,
+	lift = 1,
+	feet = 2.8,
+	sparkles = 18,
+	confetti = 30,
+	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
+	beamWidth = 2.5,
+	beamHeight = 18,
+	beamSeconds = 1.6,
+	rings = 2,
+	ring = 7,
+	ringGap = 0.3,
+	ringSeconds = 0.9,
+}
+
 -- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
 -- costs (Effects/ArcadeFx). Pixels and seconds.
 Presets.arcade = {

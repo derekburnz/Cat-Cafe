@@ -23,6 +23,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
 local Logic = require(script.Logic)
+local MysticPool = require(script.Parent.Effects.MysticPool)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
@@ -2130,6 +2131,16 @@ local HANDLERS: { [string]: (...any) -> () } = {
 
 -- Builds the channels, preloads the short cues and starts following the server clock. Music and ambience wait for
 -- the first applySettings, so a player who turned music off never hears a note.
+-- #3389: the Mystic Pool's roll plays its sounds off the effect's own beats, so they stay in step with the liquid.
+local function followPool()
+	MysticPool.onBeat(function(beat, step, at)
+		local cue, scaleStep = Logic.poolCue(beat, step)
+		if cue ~= nil then
+			Audio.play(cue, if cue == "poolReveal" then nil else at, scaleStep)
+		end
+	end)
+end
+
 function Audio.start()
 	if started then
 		return
@@ -2148,6 +2159,7 @@ function Audio.start()
 	followPlots()
 	followShopCats()
 	followBeats()
+	followPool()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
 end

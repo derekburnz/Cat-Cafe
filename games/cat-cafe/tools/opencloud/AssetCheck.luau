@@ -5,7 +5,9 @@
 
 local ContentProvider = game:GetService("ContentProvider")
 local MarketplaceService = game:GetService("MarketplaceService")
+local ServerStorage = game:GetService("ServerStorage")
 
+local GROUP_ID = 107520049 -- Creampuff Games; the log is public, so it says "ours" and never prints a creator name
 local IDS: { { name: string, id: number, kind: string } } = {
 	{ name = "control: strayCall (approved)", id = 115966888994390, kind = "Sound" },
 	{ name = "control: no such asset", id = 1, kind = "Sound" },
@@ -32,7 +34,10 @@ for _, row in IDS do
 		label.Image = url
 		instance = label
 	end
-	instance.Parent = workspace
+	-- a Sound needs a parent to load; ServerStorage keeps it away from any players. The label preloads unparented
+	if instance:IsA("Sound") then
+		instance.Parent = ServerStorage
+	end
 	local status = "no callback"
 	local okPreload, errPreload = pcall(function()
 		ContentProvider:PreloadAsync({ instance }, function(_, fetchStatus)
@@ -48,13 +53,24 @@ for _, row in IDS do
 		while not instance.IsLoaded and waited < 5 do
 			waited += task.wait(0.25)
 		end
-		extra = string.format(" IsLoaded=%s TimeLength=%.2f", tostring(instance.IsLoaded), instance.TimeLength)
+		extra = string.format(
+			" IsLoaded=%s TimeLength=%.2f",
+			tostring(instance.IsLoaded),
+			instance.TimeLength
+		)
 	end
 	local okInfo, info = pcall(MarketplaceService.GetProductInfo, MarketplaceService, row.id)
 	local infoText = if okInfo
-		then string.format("name=%q creator=%s", tostring(info.Name), tostring(info.Creator and info.Creator.Name))
+		then string.format(
+			"name=%q ours=%s",
+			tostring(info.Name),
+			tostring(info.Creator ~= nil and info.Creator.CreatorTargetId == GROUP_ID)
+		)
 		else "info error: " .. tostring(info)
-	table.insert(lines, string.format("%-32s %d  fetch=%s%s  %s", row.name, row.id, status, extra, infoText))
+	table.insert(
+		lines,
+		string.format("%-32s %d  fetch=%s%s  %s", row.name, row.id, status, extra, infoText)
+	)
 	instance:Destroy()
 end
 

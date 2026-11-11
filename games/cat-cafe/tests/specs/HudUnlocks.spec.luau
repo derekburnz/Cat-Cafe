@@ -141,6 +141,12 @@ return function()
 			expect(#opened > HudUnlocks.POP_MOST).to.equal(true)
 			expect(#HudUnlocks.pops(opened)).to.equal(0)
 		end)
+
+		it("pops none for a piece a tutorial step opens (#3183)", function()
+			expect(#HudUnlocks.pops({ "upgrades" }, true)).to.equal(0)
+			expect(#HudUnlocks.pops({ "cats", "upgrades" }, true)).to.equal(0)
+			expect(#HudUnlocks.pops({ "potions" }, false)).to.equal(1)
+		end)
 	end)
 
 	describe("HudUnlocks.view", function()

@@ -5919,6 +5919,12 @@ local SCENES = {
 	-- many opening at once carry no gold "New!" (Components/HudUnlocks.pops); one or two opening together still do
 	{ "SmallHUDNew", function()
 		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+		-- #3183 (Derek2 11-10: "remove all the new pop ups in buttons when finishing tutorial steps"): step 2 opens
+		-- Cats and Upgrades with no gold "New!" either
+		UI.update({ tutorialStep = 2 } :: any)
+		for _, piece in (UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui):GetDescendants() do
+			assert(not (piece.Name == "New" and piece:IsA("TextLabel")), "uigate: a New! badge on " .. piece.Parent.Name .. " at a tutorial step (#3183)")
+		end
 		local player = samplePlayer(os.time())
 		player.tutorialStep = 5
 		UI.update(player)

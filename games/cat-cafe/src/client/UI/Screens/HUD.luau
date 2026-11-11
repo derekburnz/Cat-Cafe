@@ -2931,14 +2931,21 @@ function HUD._renderUnlocks(self: any, state: Types.PlayerState)
 		return
 	end
 	local before: { [HudUnlocks.Key]: boolean }? = self._unlocks
+	-- #3183: the step this update comes from; a piece a tutorial step opens shows with no "New!"
+	local stepBefore: number = self._unlockStep or state.tutorialStep
+	self._unlockStep = state.tutorialStep
 	local now, opened = HudUnlocks.update(before, HudUnlocks.view(state :: any))
 	if before ~= nil and #opened == 0 then
 		return -- update keeps what showed, so no new key means no change
 	end
 	self._unlocks = now
 	self:_applyUnlocks()
-	-- #3161: the tutorial's end opens eight pieces at once; those just appear (HudUnlocks.pops)
-	local pops = HudUnlocks.pops(opened)
+	-- #3161: the tutorial's end opens eight pieces at once; those just appear (HudUnlocks.pops). #3183: so does
+	-- anything a tutorial step opens
+	local pops = HudUnlocks.pops(
+		opened,
+		stepBefore < HudUnlocks.DONE or state.tutorialStep < HudUnlocks.DONE
+	)
 	for _, key in pops do
 		self:_popNew(key)
 	end

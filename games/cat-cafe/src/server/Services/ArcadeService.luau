@@ -42,9 +42,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local ArcadeService = {}
 
-local STORE = Arcade.SAVE_STORE .. (if RunService:IsStudio() then "_dev" else "")
--- #3378: the saves from before the leaderboard reset, read once for a player with no save in STORE yet
-local OLD_STORE = Arcade.OLD_SAVE_STORE .. (if RunService:IsStudio() then "_dev" else "")
+local STORE = "CatCafe_Arcade" .. (if RunService:IsStudio() then "_dev" else "")
 local READ_WAITS = { 2, 5, 15, 60 } -- seconds before each further try at a join's read
 local WRITE_WAITS = { 2, 5, 15 } -- and at a write
 local WRITE_GAP = 7 -- seconds between two writes of one key (a DataStore key takes one write per 6 s)
@@ -92,6 +90,7 @@ local function copy(save: Arcade.Save): Arcade.Save
 		legend = save.legend,
 		runs = save.runs,
 		freeDay = save.freeDay,
+		epoch = save.epoch,
 	}
 end
 
@@ -213,28 +212,9 @@ local function load(player: Player)
 			if player.Parent ~= Players then
 				return
 			end
-			local carried = false
-			if ok and raw == nil then
-				-- #3378: nothing since the reset; the old save's paid milestones, free game and title come along,
-				-- its record does not. A failed read here counts as a failed read, so nothing is lost to a hiccup.
-				local old: unknown = nil
-				ok, old = pcall(function(): unknown
-					return DataStoreService:GetDataStore(OLD_STORE):GetAsync(key)
-				end)
-				if player.Parent ~= Players then
-					return
-				end
-				if ok and old ~= nil then
-					raw = Arcade.carryOver(Arcade.sanitize(old, os.time()))
-					carried = true
-				end
-			end
 			if ok then
 				local save = Arcade.sanitize(raw, os.time())
 				saves[player] = save
-				if carried then
-					queueSave(player.UserId, save)
-				end
 				ArcadeBoard.note(player, save.best, save.bestCircles) -- #3338
 				sendState(player)
 				return

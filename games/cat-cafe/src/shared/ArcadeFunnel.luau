@@ -28,11 +28,18 @@ ArcadeFunnel.SEEN_STUDS = 40 -- "near the cabinet": about the Town Square corner
 ArcadeFunnel.SEEN_EVERY = 2 -- seconds between two looks at who is near
 
 -- `day` is the UTC day the steps so far were logged for (0 none yet), `step` the furthest step logged that day,
--- `starts` the games started that day on this server.
-export type State = { day: number, step: number, starts: number }
+-- `starts` the games started that day on this server, `again` a second game started before any game was finished
+-- (arcade_played_again waits for arcade_finished, so the steps always come in order).
+export type State = { day: number, step: number, starts: number, again: boolean }
 
 function ArcadeFunnel.fresh(): State
-	return { day = 0, step = 0, starts = 0 }
+	return { day = 0, step = 0, starts = 0, again = false }
+end
+
+local function newDay(state: State, day: number)
+	if state.day ~= day then
+		state.day, state.step, state.starts, state.again = day, 0, 0, false
+	end
 end
 
 -- The funnel session of one player's day.
@@ -43,38 +50,37 @@ end
 -- The steps to log, in order, now that the player reached `step` on `day`; `state` moves on. A new day starts the
 -- run again. Seen, opened and started fill in the steps before them (a player who starts a game has seen and opened
 -- the cabinet, whatever the range check caught). The later steps are logged alone and only once a day, so a quit
--- game never counts as finished.
+-- game never counts as finished. Played again before any game was finished (game 1 was quit) is kept back and
+-- logged right after the day's first finished game, so step 6 never comes before step 5 or shuts it out.
 function ArcadeFunnel.due(state: State, day: number, step: number): { number }
 	if step < 1 or step > #ArcadeFunnel.STEPS or step ~= math.floor(step) then
 		return {}
 	end
-	if state.day ~= day then
-		state.day, state.step, state.starts = day, 0, 0
-	end
-	if step <= state.step then
-		return {}
-	end
+	newDay(state, day)
 	local out: { number } = {}
-	if step <= ArcadeFunnel.STARTED then
-		for s = state.step + 1, step do
-			table.insert(out, s)
-		end
-	else
-		for s = state.step + 1, ArcadeFunnel.STARTED do
-			table.insert(out, s)
-		end
-		table.insert(out, step)
+	for s = state.step + 1, math.min(step, ArcadeFunnel.STARTED) do
+		table.insert(out, s)
 	end
-	state.step = step
+	state.step = math.max(state.step, math.min(step, ArcadeFunnel.STARTED))
+	if step == ArcadeFunnel.PLAYED_AGAIN and state.step < ArcadeFunnel.FINISHED then
+		state.again = true
+		return out
+	end
+	if step > state.step then
+		table.insert(out, step)
+		state.step = step
+		if step == ArcadeFunnel.FINISHED and state.again then
+			table.insert(out, ArcadeFunnel.PLAYED_AGAIN)
+			state.step = ArcadeFunnel.PLAYED_AGAIN
+		end
+	end
 	return out
 end
 
 -- Counts a game started on `day` and says whether it is a second one that day: one was started here already, or
 -- the day's free game was used before this paid one (`freeUsed`, from the arcade save, so another server's counts).
 function ArcadeFunnel.started(state: State, day: number, freeUsed: boolean): boolean
-	if state.day ~= day then
-		state.day, state.step, state.starts = day, 0, 0
-	end
+	newDay(state, day)
 	state.starts += 1
 	return state.starts >= 2 or freeUsed
 end

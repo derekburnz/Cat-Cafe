@@ -54,6 +54,10 @@ return {
 	flower_cart = "rbxassetid://99053053147653",
 	garden_bench = "rbxassetid://116968932278144",
 	garden_gnome_cat = "rbxassetid://83134617096351",
+	-- #3222's rare Golden drops (Animation-Engineer #3228), uploaded owned by the group on 11-11
+	golden_cat_fountain = "rbxassetid://128453686845268",
+	golden_cat_throne = "rbxassetid://102333689815347",
+	golden_yarn_kitten = "rbxassetid://70973813369554",
 	golden_paw_statue = "rbxassetid://139696163430636",
 	grey_slabs = "rbxassetid://76163786922360",
 	index_alley = "rbxassetid://120270556687670",

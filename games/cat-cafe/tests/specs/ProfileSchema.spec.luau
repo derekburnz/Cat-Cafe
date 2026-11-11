@@ -232,7 +232,7 @@ return function()
 			expect(ProfileSchema.template(0).flags :: any).to.deepEqual({ autoPress = false })
 		end)
 		it(
-			"has telemetry = { onboardingStep = 0, achieved = {}, funnel = 6, firstDay, introStep = 0, firstHourStep = 0 } (F87, #1273, #1888, #2391)",
+			"has telemetry = { onboardingStep = 0, achieved = {}, funnel = 6, firstDay, introStep = 0, firstHourStep = 10, firstHourV3Step = 0 } (F87, #1273, #1888, #2391, #3308)",
 			function()
 				expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({
 					onboardingStep = 0,
@@ -240,7 +240,8 @@ return function()
 					funnel = 6,
 					firstDay = 0,
 					introStep = 0,
-					firstHourStep = 0,
+					firstHourStep = 10,
+					firstHourV3Step = 0,
 				})
 				expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
 			end
@@ -262,6 +263,7 @@ return function()
 					firstDay = 0,
 					introStep = 13,
 					firstHourStep = 10,
+					firstHourV3Step = 12,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
 				expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({
@@ -270,7 +272,8 @@ return function()
 					funnel = 6,
 					firstDay = 0,
 					introStep = 0,
-					firstHourStep = 0,
+					firstHourStep = 10,
+					firstHourV3Step = 0,
 				})
 				raw.telemetry = "junk"
 				expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({
@@ -279,7 +282,8 @@ return function()
 					funnel = 6,
 					firstDay = 0,
 					introStep = 0,
-					firstHourStep = 0,
+					firstHourStep = 10,
+					firstHourV3Step = 0,
 				})
 			end
 		)
@@ -2023,6 +2027,7 @@ return function()
 						firstDay = 0, -- not known for an account from before version 19
 						introStep = 13,
 						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 				end
 			)
@@ -2044,6 +2049,7 @@ return function()
 						firstDay = DAY - 3,
 						introStep = 13,
 						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 					raw.telemetry = {
 						onboardingStep = 6,
@@ -2057,7 +2063,8 @@ return function()
 						funnel = 6,
 						firstDay = DAY,
 						introStep = 0,
-						firstHourStep = 0,
+						firstHourStep = 10,
+						firstHourV3Step = 0,
 					})
 				end
 			)
@@ -2080,6 +2087,7 @@ return function()
 						firstDay = DAY - 3,
 						introStep = 13,
 						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 					raw.telemetry = {
 						onboardingStep = 12,
@@ -2094,7 +2102,8 @@ return function()
 						funnel = 6,
 						firstDay = DAY,
 						introStep = 0,
-						firstHourStep = 0,
+						firstHourStep = 10,
+						firstHourV3Step = 0,
 					})
 				end
 			)
@@ -2117,6 +2126,7 @@ return function()
 						firstDay = DAY - 3,
 						introStep = 4, -- v5 logs v4's intro funnel, so its step stays
 						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 					raw.telemetry = {
 						onboardingStep = 12,
@@ -2131,7 +2141,8 @@ return function()
 						funnel = 6,
 						firstDay = DAY,
 						introStep = 13,
-						firstHourStep = 0,
+						firstHourStep = 10,
+						firstHourV3Step = 0,
 					})
 				end
 			)
@@ -2154,7 +2165,8 @@ return function()
 						funnel = 6,
 						firstDay = DAY - 3,
 						introStep = 5,
-						firstHourStep = 3,
+						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 					raw.telemetry = {
 						onboardingStep = 99,
@@ -2168,6 +2180,13 @@ return function()
 					expect(telemetry.onboardingStep).to.equal(49)
 					expect(telemetry.introStep).to.equal(13)
 					expect(telemetry.firstHourStep).to.equal(10)
+					expect(telemetry.firstHourV3Step).to.equal(12) -- logged v2, so out of v3
+					raw.telemetry.firstHourV3Step = 99
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourV3Step).to.equal(12)
+					raw.telemetry.firstHourV3Step = 5
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourV3Step).to.equal(5)
+					raw.telemetry.firstHourV3Step = "x"
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourV3Step).to.equal(12)
 					raw.telemetry = {
 						onboardingStep = 1,
 						achieved = {},
@@ -2198,6 +2217,7 @@ return function()
 						firstDay = DAY - 1,
 						introStep = 6, -- v6 logs v4's intro funnel too, so its step stays
 						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 					raw.telemetry = {
 						onboardingStep = 4,
@@ -2214,9 +2234,43 @@ return function()
 						firstDay = DAY,
 						introStep = 2,
 						firstHourStep = 10,
+						firstHourV3Step = 12,
 					})
 					raw.telemetry.firstHourStep = 0
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourStep).to.equal(0)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourV3Step).to.equal(0)
+				end
+			)
+
+			it(
+				"starts first_hour_v3 (#3308) only for a save that logged none of first_hour_v2, and keeps v2's field at its count",
+				function()
+					local raw: any = ProfileSchema.template(NOW)
+					-- a v6 save from a server on v2: joined to played_2m logged, so out of v3
+					raw.telemetry = {
+						onboardingStep = 8,
+						achieved = {},
+						funnel = 6,
+						firstDay = DAY,
+						introStep = 13,
+						firstHourStep = 4,
+					}
+					local telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+					expect(telemetry.firstHourStep).to.equal(10)
+					expect(telemetry.firstHourV3Step).to.equal(12)
+					-- none of v2 logged: v3 from its start
+					raw.telemetry.firstHourStep = 0
+					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+					expect(telemetry.firstHourStep).to.equal(10)
+					expect(telemetry.firstHourV3Step).to.equal(0)
+					-- saved by this code: v3's own step, whatever v2's field says
+					raw.telemetry.firstHourStep = 10
+					raw.telemetry.firstHourV3Step = 6
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourV3Step).to.equal(6)
+					-- the template round trips
+					local fresh: any = ProfileSchema.template(NOW)
+					telemetry = ProfileSchema.migrate(fresh, NOW).telemetry
+					expect(telemetry.firstHourStep).to.equal(10)
+					expect(telemetry.firstHourV3Step).to.equal(0)
 				end
 			)
 

@@ -3746,6 +3746,8 @@ local SCENES = {
 	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
 	-- face and thumbs down, with its title on one card
 	{ "SessionAsk", function()
+		-- it takes the card over from the F87 faces ask, as on a slow CI run where the tips clock put that one up first
+		UI.tips.showAsk()
 		UI.tips.showSessionAsk()
 		task.wait(0.3)
 		local found = {}

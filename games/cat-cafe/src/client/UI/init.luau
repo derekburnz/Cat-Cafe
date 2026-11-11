@@ -5375,9 +5375,11 @@ do
 	end
 
 	-- #3272: the session ask now, whatever the clock says (QA in Studio and the UI gate); its answer is sent as usual.
+	-- It takes the card over from any ask already on it (AskCard.show ends that one as "replaced"): on a slow run the
+	-- tips clock may have put the F87 faces ask up first.
 	function UI.tips.showSessionAsk()
 		local card = askCard
-		if card ~= nil and not card:isShowing() then
+		if card ~= nil then
 			openSessionAsk(card)
 		end
 	end

@@ -864,6 +864,7 @@ export type LawnPieceDef = {
 	rarity: LawnRarity,
 	price: number,
 	model: string,
+	drop: boolean?, -- #3222: never sold (off the Yard Sale); found only as a rare free drop (Lawn.dropPick)
 }
 export type LawnStyleKind = "path" | "fence"
 export type LawnStyleDef = {

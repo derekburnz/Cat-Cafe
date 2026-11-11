@@ -100,6 +100,13 @@ return function()
 	end)
 
 	describe("LawnLogic.pieceAction", function()
+		it("shows a drop-only Golden piece as a rare find, never for sale (#3222)", function()
+			local action = LawnLogic.pieceAction(player(5, 10 ^ 12), piece("golden_cat_throne"))
+			expect(action.mode).to.equal("locked")
+			expect(action.text).to.equal("Rare find")
+			expect(action.enabled).to.equal(false)
+		end)
+
 		it("sells an open piece at its price, grey when the coins fall short", function()
 			-- #1200: the Tulip Bed is a Common, 10,000 at the Garden Nursery; open from Tier 2 since #1382
 			local action = LawnLogic.pieceAction(player(2, 10000), piece("tulip_bed"))
@@ -552,7 +559,17 @@ return function()
 			local def: any = button.piece or button.style
 			local after = clone(state)
 			if not action.enabled then
-				if action.mode == "locked" then
+				if action.mode == "locked" and def.drop == true then
+					-- #3222: a drop-only piece, which the server never sells
+					local refusal = server(after, "BuyLawn", def.id, nil)
+					if
+						action.text ~= "Rare find"
+						or refusal == nil
+						or string.find(refusal, "never sold", 1, true) == nil
+					then
+						fail("%s says %s; the server says %s", name, action.text, tostring(refusal))
+					end
+				elseif action.mode == "locked" then
 					if action.text ~= "Tier " .. def.tier or state.tier >= def.tier then
 						fail("%s says %s at Tier %d", name, action.text, state.tier)
 					end

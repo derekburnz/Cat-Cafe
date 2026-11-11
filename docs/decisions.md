@@ -916,3 +916,8 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **What.** trait-station.md is the short spec for the Picnic Basket rework into the Cat Trainer, folding in the plan and comments on #3196. It's still waiting on Derek's yes, and there's no build before then.
 - **Spin slice 3.** It pays 1 Trait Token at weight 9 (4.5%), down from "3 golden fish" at 30. Slice 1 takes the freed 21, so the wheel total stays 200 and the value per spin stays about 0.45 fish.
 - **Rich Friend stacking.** It's at most +0.12 on the rich rate (2.25 to 2.37 with every pass), about +3% income. That's about half of Cafe Style's own perk, so the paid pass isn't undercut.
+
+## 2026-11-11: Trait station approved, with 5 free starter rolls (#3196)
+- Derek2 said yes to the whole trait station plan (#3196, trait-station.md) and added 5 free re-rolls for every player at the start.
+- They are a separate `traitFreeRolls` counter (starts at 5, never refills), used before tokens and fish. Players who already own the Park's camp extra get them when the `traits` flag turns on.
+- Why a separate counter and not 5 tokens: tokens have a "holds 2" timer cap and drop from other sources, so mixing them would hide the gift and confuse the "Next in" line.

@@ -1,6 +1,6 @@
 # Trait station: one trait per cat (#3196)
 
-Status: **plan, waiting for Derek's yes.** No build before then. The plan on #3196 is the source; this file is the short spec the build follows, with the numbers the comments asked for.
+Status: **approved** (Derek2, 2026-11-11 14:23 UTC: "Yes for everything ... also give 5 free rerolls off start"). Build behind the `traits` flag. The plan on #3196 is the source; this file is the short spec the build follows, with the numbers the comments asked for.
 
 Derek2, 2026-11-10: "re-work the picnic into a station ... to add traits 1 per cat that do things like increase food bowl luck, extra money, slight speed bonus etc make it cost gold fish or trait re-roll tokens and add those to the game into certain rewards like spins etc... (also make the circle infront open the menu)". Then at 23:59 UTC: "make re-rolls the same cost as first trait".
 
@@ -12,6 +12,7 @@ Derek2, 2026-11-10: "re-work the picnic into a station ... to add traits 1 per c
   - See its trait, then Roll (or Re-roll).
   - After a re-roll, the old trait and the new one show side by side, with **Keep old** and **Take new**.
   - The odds line is always on the card.
+- While a player still has starter rolls, the Roll button reads **Free roll (5 left)** and uses those first.
 - The Picnic Basket's Money Potion every 6 h goes away. In its place is **1 free Trait Token every 12 h, holding 2**, with the same "Next in ..." line.
 
 ## 2. Traits
@@ -30,6 +31,7 @@ Each cat holds one trait at a time.
 - No trait touches catch difficulty, rescue bars or wild rarity odds.
 
 ## 3. Rolls and costs
+- **5 free starter rolls** (Derek2, 2026-11-11). Every player gets them once, the first time the Cat Trainer unlocks for them. Players who already own the Park's camp extra get them when the flag turns on. They are their own counter (`traitFreeRolls`), used before tokens and fish, can go on any cat, and never come back.
 - A roll picks one of the six traits evenly, then its strength: **I 70%, II 25%, III 5%**.
 - The first trait and every re-roll cost the same: **10 golden fish or 1 Trait Token**.
 - A Strength III of the trait you want takes about 120 rolls (6 traits × 1 in 20), or about 20 for any III. With keep-or-swap, a cat never gets worse. That makes this a long, optional golden fish sink.
@@ -38,6 +40,7 @@ Each cat holds one trait at a time.
 ## 4. Where Trait Tokens drop
 | Source | Amount |
 |---|---|
+| Starter gift | 5 free rolls, once (see §3) |
 | Cat Trainer | 1 every 12 h, holds 2 |
 | Spin Wheel slice 3 | 1 token, weight **9** (4.5%; was "3 golden fish" at weight 30, 15%) |
 | Spin Wheel slice 1 | weight **91** (was 70), so the wheel total stays 200 |
@@ -58,7 +61,7 @@ Each cat holds one trait at a time.
 - Quick Paws +1.0 is a quarter of the Swift Potion's +4. Lucky Bowl stays under `LuckMax`. So no paid perk is undercut.
 
 ## 6. Save and publish
-- A trait is a new field on each saved cat, `trait = { id, strength }`, plus a `traitTokens` count and the station's token timer on the profile.
+- A trait is a new field on each saved cat, `trait = { id, strength }`, plus a `traitTokens` count, a `traitFreeRolls` count (starts at 5) and the station's token timer on the profile.
 - Older servers would drop these when they save, so this needs a save version step and **one publish with a server restart**. That restart needs Derek's yes at the time.
 - Everything else (the menu, the circle, the token drops, the spin slice) is built first behind a LiveFlag `traits`, switched off.
 
@@ -73,4 +76,5 @@ Each cat holds one trait at a time.
 4. A re-roll that rolls worse can be declined, and the cat keeps the old trait.
 5. Rolling with 9 golden fish and no token is refused server-side.
 6. The token timer holds at 2 and shows "Next in ...".
-7. Spin slice 3 pays 1 token at about 4.5% over 2,000 spins.
+7. A new player's first 5 rolls cost nothing and show "Free roll (n left)"; the 6th asks for a token or 10 fish. A rejoin mid-way keeps the count.
+8. Spin slice 3 pays 1 token at about 4.5% over 2,000 spins.

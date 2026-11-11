@@ -9,14 +9,15 @@
 --                                             Upgrades glow (Components/TutorialGlow); nil otherwise
 --   view(state, spots, device?) -> View       #2697: the view of a player's state, for line and ask
 --   ask(view) -> string?                      #2697: what the step asks for ("catch", "job", "more", "second",
---                                             "table", "bowl", "food" or "waiting"), so each screen rings its own part
+--                                             "table", "bowl", "food", "waiting" or "arrived"), so each screen rings its own part
 --                                             of it
 --                                             (Components/StepTarget): "job" the HUD's Cats tile and Equip Best,
 --                                             "food" the HUD's Bowl tile and the Kibble row's Use
 -- The steps (server tutorialStep): below 2 the first catch, 2 the first check-in with no free slot, 3 the first
--- table, 4 the Bait bowl and food in it, 5 done. Each line keeps to about 50 characters, one line on the strip.
+-- table, 4 the Bait bowl, food in it and (#3158) its first cat tamed or let go, 5 done. Each line keeps to about 50 characters, one line on the strip.
 -- #2912 (Nov 10 read: 21% leave between the first customer served and the second cat): step 3 with one cat asks for
--- another cat or the table ("second"), and UIController rings the nearest Alleyway stray.
+-- another cat or the table ("second"), and UIController rings the nearest Alleyway stray. #3022: "one cat" is one
+-- cat caught, since every cafe also has its starter Tabby.
 -- Pure, so the cloud spec runner checks it.
 
 local TipQueue = require(script.Parent.TipQueue)
@@ -31,7 +32,12 @@ export type View = {
 	resting: boolean?, -- step 2: a cat rests while a role slot is free
 	bowl: boolean?, -- step 4: the Bait bowl is owned
 	baited: boolean?, -- step 4: food is in it
-	cats: number?, -- #2912: how many cats the player has (nil: not known, step 3 asks for the table alone)
+	arrived: boolean?, -- step 4: the food's cat is at the bowl (#3158)
+	-- #2912: how many cats the player has caught (#3022: stats.catsCaught; nil: not known, step 3 asks for the table
+	-- alone)
+	cats: number?,
+	-- #3238: the areas are shut (dusk to sunrise), so step 3's "second" line says when the strays are back
+	night: boolean?,
 }
 
 type Line = string | { keyboard: string, touch: string, gamepad: string }
@@ -59,6 +65,12 @@ local LINES: { [string]: Line } = {
 		touch = "Catch another cat, or tap Upgrades for a table",
 		gamepad = "Catch another cat, or buy a table in Upgrades",
 	},
+	-- #3238: the "second" line at night, when no stray waits; kept to the strip's one line
+	secondNight = {
+		keyboard = "Strays return at sunrise, or buy a table (U)",
+		touch = "Strays return at sunrise, or tap Upgrades",
+		gamepad = "Strays return at sunrise, or open Upgrades",
+	},
 	table = {
 		keyboard = "Buy a table in Upgrades (U): more tips per cat",
 		touch = "Tap Upgrades and buy a table: more tips per cat",
@@ -75,6 +87,8 @@ local LINES: { [string]: Line } = {
 		gamepad = "Put Kibble in your bowl on the back step",
 	},
 	waiting = "A cat is on its way to your bowl",
+	-- #3158: step 4 lasts until the first bowl cat is tamed or let go
+	arrived = "Your bowl cat is here! Tame it",
 }
 
 -- What the view asks for, nil when none.
@@ -90,6 +104,9 @@ local function pick(view: View): string?
 		if not view.bowl then
 			return "bowl"
 		end
+		if view.arrived then
+			return "arrived"
+		end
 		return if view.baited then "waiting" else "food"
 	end
 	return nil
@@ -104,15 +121,22 @@ function TutorialHints.ask(view: View): string?
 end
 
 -- The view of `state` (a PlayerState), with the catalog's spots for step 2's choice.
-function TutorialHints.view(state: any, spots: { any }?, device: TipQueue.Device?): View
+-- `areasOpen` false from dusk to sunrise (the Clock folder's AreasOpen, #3238).
+function TutorialHints.view(
+	state: any,
+	spots: { any }?,
+	device: TipQueue.Device?,
+	areasOpen: boolean?
+): View
 	local levels: { [string]: number } = state.upgradeLevels or {}
+	-- #3022: the cats caught so far (stats.catsCaught), not the cats in the cafe. A new cafe's starter Tabby made that
+	-- count 2 after the first catch, so #2912's "second" line never showed.
 	local cats: number? = nil
-	if type(state.cats) == "table" then
-		local count = 0
-		for _ in state.cats do
-			count += 1
-		end
-		cats = count
+	local stats = state.stats
+	if type(stats) == "table" and type(stats.catsCaught) == "number" then
+		-- #3160: caught by hand; a cat tamed at the bait bowl is not one (shared/SecondCat.caught)
+		local tamed = if type(stats.baitsTamed) == "number" then stats.baitsTamed else 0
+		cats = math.max(0, stats.catsCaught - tamed)
 	end
 	return {
 		step = state.tutorialStep or TutorialHints.DONE,
@@ -120,7 +144,9 @@ function TutorialHints.view(state: any, spots: { any }?, device: TipQueue.Device
 		resting = TutorialHints.resting(state.cats, spots, state.tier or 1),
 		bowl = (levels[TutorialHints.BOWL] or 0) >= 1,
 		baited = state.bait ~= nil,
+		arrived = type(state.bait) == "table" and state.bait.cat ~= nil,
 		cats = cats,
+		night = areasOpen == false,
 	}
 end
 
@@ -136,6 +162,9 @@ end
 
 function TutorialHints.line(view: View): string?
 	local id = pick(view)
+	if id == "second" and view.night == true then
+		id = "secondNight"
+	end
 	local line: Line? = if id ~= nil then LINES[id] else nil
 	if line == nil then
 		return nil

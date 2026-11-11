@@ -11,6 +11,10 @@ return function()
 	local c = Presets.stationBuild
 
 	describe("Effects station build-in", function()
+		it("is off, so a camp station is simply there on a first visit (#3191)", function()
+			expect(c.on).to.equal(false)
+		end)
+
 		it("starts the bottom piece at once and the top one spread seconds later", function()
 			expect(Logic.buildPiece(1, 10, 0, c.spread, c.piece)).to.equal(0)
 			expect(Logic.buildPiece(10, 10, c.spread - 0.01, c.spread, c.piece)).to.equal(nil)

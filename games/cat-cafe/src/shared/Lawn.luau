@@ -96,6 +96,12 @@ function Lawn.buyBlocker(profile: Profile, id: string): string?
 	else
 		return "That is not in the lawn shop."
 	end
+	if piece ~= nil and piece.drop == true then
+		return string.format(
+			"The %s is never sold. It is a rare find from freeing a cat.",
+			piece.name
+		)
+	end
 	if Lawn.owns(profile, id) then
 		return string.format("You already have the %s.", name)
 	end
@@ -357,6 +363,31 @@ function Lawn.best(profile: Profile): ({ [string]: string }, Types.LawnStyles)
 		end
 	end
 	return placed, styles
+end
+
+-- #3222 (Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the 12%'s you can get from
+-- p2w"): every cat a player frees from a trap has a DROP_CHANCE chance of a Golden lawn piece nobody can buy
+-- (Catalog.lawn rows with `drop`), one the player does not own yet, picked evenly. Free: rescues cost no Robux and
+-- nothing paid changes the roll, so it is not a paid random item. RescueService rolls it while the live switch
+-- DROP_FLAG is on; it starts off so that no one gets a piece an older server would not know.
+--   dropPick(profile, roll, pick) -> id?   the piece for rolls `roll` and `pick` in [0, 1), or nil
+Lawn.DROP_CHANCE = 1 / 400
+Lawn.DROP_FLAG = "goldenDrops"
+
+function Lawn.dropPick(profile: Profile, roll: number, pick: number): string?
+	if not (roll < Lawn.DROP_CHANCE) then
+		return nil
+	end
+	local left: { string } = {}
+	for _, piece in Catalog.lawn do
+		if piece.drop == true and not Lawn.owns(profile, piece.id) then
+			table.insert(left, piece.id)
+		end
+	end
+	if #left == 0 then
+		return nil
+	end
+	return left[math.clamp(math.floor(pick * #left) + 1, 1, #left)]
 end
 
 -- #1751: a newly owned piece or style goes out without moving anything the player chose: a piece onto the first empty

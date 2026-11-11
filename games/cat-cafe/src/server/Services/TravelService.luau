@@ -45,6 +45,11 @@ local function homeLanding(player: Player): CFrame?
 	return CFrame.lookAt(outside, Vector3.new(door.X, outside.Y, door.Z))
 end
 
+-- #3072: the same spot for CannonService's home arrival at join.
+function TravelService.homeFront(player: Player): CFrame?
+	return homeLanding(player)
+end
+
 -- The wild area the player's character stands in (its camp included), or nil in the hometown.
 local function wildAreaOf(player: Player): string?
 	local character = player.Character

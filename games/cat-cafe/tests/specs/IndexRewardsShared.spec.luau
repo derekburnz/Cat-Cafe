@@ -111,7 +111,7 @@ return function()
 						)
 					).to.be.near(0.07, 1e-9)
 					-- #2651 (tier6-7-areas.md 7b): the first five pages already reach GoldLuckMax, so the Desert and Ruins add none
-					local late = areaId == "desert" or areaId == "ruins"
+					local late = table.find({ "desert", "ruins" }, areaId :: string) ~= nil
 					expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
 					expect(sum(prizes, "baitSpeed")).to.equal(0)
 					expect(prizes.gold10.tag).to.equal(

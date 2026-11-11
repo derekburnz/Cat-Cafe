@@ -37,6 +37,9 @@ local sentKey: { [Player]: string } = {} -- what this player was last sent, so a
 local random = Random.new()
 local night = 0 -- this server's night count, 1 from its first dusk; DealerStock and BuyDealerFood carry it
 local stock: { Dealer.FoodAmount }? = nil -- tonight's stock, rolled at dusk; nil by day
+-- #3011: this server's nights in a row without a Star Treat and without Moon Milk, for Dealer.roll's dry-spell rule;
+-- in memory only, so a new server starts at 0
+local dry: Dealer.Dry = {}
 local bought: { [number]: { [string]: number } } = {} -- tonight's buys by user id; cleared at sunrise
 
 -- Puts a model's lowest point on the street, since the art and the stand-ins pivot at different heights.
@@ -331,9 +334,11 @@ local function onPhase(phase: Types.ClockPhase)
 		if cart == nil then
 			-- dusk: this server's stock for the night, held until sunrise
 			night += 1
-			stock = Dealer.roll(function()
+			local rolled = Dealer.roll(function()
 				return random:NextNumber()
-			end)
+			end, dry)
+			stock = rolled
+			dry = Dealer.dryAfter(dry, rolled)
 			bought = {}
 		end
 		park()

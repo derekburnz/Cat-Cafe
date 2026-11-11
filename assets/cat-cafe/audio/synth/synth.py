@@ -2042,6 +2042,45 @@ def cat_sold() -> np.ndarray:
     return finish(fade_tail(mix(d, *coins, (pouch, 0.15), *bye), 0.3), -9)
 
 
+def stray_call() -> np.ndarray:
+    """The stray that waits for a new player's second catch calls out (#3022): a friendly "mrrp?" then a short
+    "mew?" that rises at the end, like asking to be picked up. Plain cat voice, no chime, so it reads as the cat."""
+    d = 0.8
+    mrrp = cat_voice(0.17, 540, 700, 660, 0.7, 3022) * 0.55
+    mew = cat_voice(0.26, 600, 720, 900, 0.1, 3023) * 0.7
+    return finish(fade_tail(mix(d, (mrrp, 0.0), (mew, 0.3)), 0.2), -6)
+
+
+def arcade_start() -> np.ndarray:
+    """A golden fish drops into the Cat Arcade cabinet (#3062): a coin clink, a short slot rattle and a bright
+    two-note "ready" blip, the way an old arcade says "go". Plays once as a run begins."""
+    d = 0.8
+    clink = bell(0.3, 2600.0, COIN, attack=0.0005) * 0.7
+    slot = [(bandpass(noise(0.03, 3062 + i), 3000, 3) * envelope(0.03, 0.0005, 0.006) * 0.3, 0.16 + 0.03 * i)
+            for i in range(3)]
+    blips = [(bell(0.3, note(n), CELESTA) * 0.55, at) for n, at in (("E6", 0.34), ("A6", 0.46))]
+    return finish(fade_tail(mix(d, (clink, 0.0), *slot, *blips), 0.25), -6)
+
+
+def arcade_milestone() -> np.ndarray:
+    """A Circle Streak milestone (every 10 circles, #3062): a quick glockenspiel run up and a small sparkle, shorter
+    and lighter than the Spin Wheel win since it plays up to ten times in a run and the game carries on."""
+    d = 0.7
+    run = [(bell(d - at, note(n), GLOCK) * 0.6, at) for n, at in (("G5", 0.0), ("B5", 0.06), ("D6", 0.12), ("G6", 0.18))]
+    pad = [(bell(0.5, note(n), CELESTA) * 0.35, 0.22) for n in ("G5", "D6")]
+    coins = [(bell(0.15, 2500.0 * (1 + 0.06 * (i % 3)), COIN, attack=0.0005) * 0.25, 0.26 + 0.06 * i) for i in range(3)]
+    return finish(fade_tail(mix(d, *run, *pad, *coins), 0.2), -6)
+
+
+def arcade_end() -> np.ndarray:
+    """A Circle Streak run ends (#3062): three soft falling celesta notes, kind rather than sad, like an arcade
+    saying "nice try". A short run-out of the machine's hum underneath."""
+    d = 1.0
+    notes = [(bell(0.6, note(n), CELESTA) * 0.5, at) for n, at in (("E6", 0.0), ("C6", 0.14), ("A5", 0.3))]
+    hum = bandpass(noise(0.5, 3064), 220, 2.0) * envelope(0.5, 0.01, 0.12) * 0.15
+    return finish(fade_tail(mix(d, *notes, (hum, 0.1)), 0.3), -8)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2057,6 +2096,10 @@ SOUNDS = {
     "CoinPop": ("sfx", "Sfx", coin_pop),
     "Purchase": ("sfx", "Sfx", purchase),
     "CatSold": ("sfx", "Sfx", cat_sold),
+    "StrayCall": ("sfx", "Sfx", stray_call),
+    "ArcadeStart": ("sfx", "Sfx", arcade_start),
+    "ArcadeMilestone": ("sfx", "Sfx", arcade_milestone),
+    "ArcadeEnd": ("sfx", "Sfx", arcade_end),
     "CheckInBell": ("sfx", "Sfx", check_in_bell),
     "StrayFlee": ("sfx", "Sfx", stray_flee),
     "JingleCatFound": ("music", "Music", jingle_cat_found),

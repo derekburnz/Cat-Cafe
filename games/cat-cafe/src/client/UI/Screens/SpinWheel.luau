@@ -221,6 +221,12 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	self._slot = 1
 	self._turn = nil :: Turn?
 	self._landed = nil :: number?
+	-- #3157: a Use all chain playing: its rolls, the next one to turn, and the totals card's prize
+	self._chain = nil :: {
+		rolls: { { slice: number, amount: number } },
+		next: number,
+		prize: Types.IndexPrize,
+	}?
 	self._pressedAt = nil :: number? -- os.clock() of a Spin press still waiting for SpinResult
 	self._readyAt = 0 -- os.clock() when the server's cooldown has passed (a calm spin lands before it)
 
@@ -635,6 +641,10 @@ end
 -- SpinResult from the server: turn to `slice` and show what `amount` paid, or say why a 0 was refused.
 -- Use all (#1078): one SpinAll; the button reads "..." until SpinAllResult or PENDING_SECONDS.
 function SpinWheel._pressAll(self: any)
+	if self._chain then
+		self:_skipAll() -- #3157: during the chain this button reads Skip all
+		return
+	end
 	local spinAll: (() -> ())? = self._callbacks.spinAll
 	if spinAll == nil or self._turn ~= nil or self._pressedAt ~= nil then
 		return
@@ -648,8 +658,10 @@ function SpinWheel._pressAll(self: any)
 	self:_refresh()
 end
 
--- SpinAllResult(rolls, totals): the wheel turns to the last roll, then one card sums every prize (no popup per spin).
--- Empty lists mean refused (out of range, cooldown, no spins); the window says why as for one spin.
+-- SpinAllResult(rolls, totals): the server has paid every roll already. #3157 (Derek2): the wheel plays them one after
+-- another, each landing on its slice with "Spin 3 of 8" above Spin, faster as they go (SpinLogic.chainSeconds), then
+-- one card sums every prize. Skip lands the turning roll, Skip all goes straight to the card. Empty lists mean
+-- refused (out of range, cooldown, no spins); the window says why as for one spin.
 function SpinWheel.allResult(
 	self: any,
 	rolls: { { slice: number, amount: number } },
@@ -660,14 +672,81 @@ function SpinWheel.allResult(
 		self:result(0, 0)
 		return
 	end
-	local last = rolls[#rolls]
-	self:result(last.slice, last.amount)
-	local count = #rolls
-	local prize = SpinLogic.totalsPrize(totals)
-	local wait = if GuiService.ReducedMotionEnabled then CALM_SECONDS else SPIN_SECONDS
-	task.delay(wait, function()
-		self:_showAllCard(count, prize)
+	self._pressedAt = nil
+	self:_light(nil)
+	self:_say("", PAL.text)
+	self._chain = {
+		rolls = rolls,
+		next = 1,
+		prize = SpinLogic.totalsPrize(totals),
+	}
+	self:_chainNext()
+end
+
+-- Starts the chain's next roll turning, or ends the chain when none is left (a slice this catalog does not know is
+-- passed over: it is paid all the same and shows in the card).
+function SpinWheel._chainNext(self: any)
+	local chain = self._chain
+	if chain == nil then
+		return
+	end
+	while chain.next <= #chain.rolls do
+		local position = chain.next
+		local roll = chain.rolls[position]
+		chain.next += 1
+		local index = SpinLogic.indexOf(self._rows, roll.slice)
+		if index ~= nil then
+			local calm = GuiService.ReducedMotionEnabled
+			self:_turnTo(
+				index,
+				roll.amount,
+				SpinLogic.chainSeconds(position, calm),
+				SpinLogic.chainTurns(position, calm)
+			)
+			return
+		end
+	end
+	self:_endChain()
+end
+
+-- The chain is done (or skipped): the totals card after a short beat, so the last prize is seen landing.
+function SpinWheel._endChain(self: any)
+	local chain = self._chain
+	if chain == nil then
+		return
+	end
+	self._chain = nil
+	self:_refresh()
+	task.delay(0.5, function()
+		if self._tick.Connected then
+			self:_showAllCard(#chain.rolls, chain.prize)
+		end
 	end)
+end
+
+-- Skip all: the wheel rests on the last roll's slice and the card shows now.
+function SpinWheel._skipAll(self: any)
+	local chain = self._chain
+	if chain == nil then
+		return
+	end
+	self._chain = nil
+	self._turn = nil
+	local last = chain.rolls[#chain.rolls]
+	local index = SpinLogic.indexOf(self._rows, last.slice)
+	if index ~= nil then
+		self:_land({
+			from = self._angle,
+			to = SpinLogic.landing(self._angle, index, self._spans, 0),
+			start = os.clock(),
+			duration = 0,
+			index = index,
+			amount = last.amount,
+			skippable = true,
+		})
+	end
+	self._chain = chain
+	self:_endChain()
 end
 
 -- The one results card over the window: "5 spins used", every prize as pictures with amounts, and Nice!.
@@ -767,20 +846,37 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 		self:_refresh()
 		return
 	end
-	self:_light(nil)
 	self:_say("", PAL.text)
 	local calm = GuiService.ReducedMotionEnabled
-	local start = os.clock()
+	self:_turnTo(
+		index,
+		amount,
+		if calm then CALM_SECONDS else SPIN_SECONDS,
+		if calm then CALM_TURNS else TURNS
+	)
+	self._readyAt = self._turn.start + SPIN_SECONDS -- a full spin lands right on it, so Spin! comes back as it stops
+	self:_refresh()
+end
+
+-- Turns the wheel to slot `index` over `duration` seconds and at least `turns` full turns (one spin, or a roll of
+-- the Use all chain).
+function SpinWheel._turnTo(
+	self: any,
+	index: number,
+	amount: number,
+	duration: number,
+	turns: number
+)
+	self:_light(nil)
 	self._turn = {
 		from = self._angle,
-		to = SpinLogic.landing(self._angle, index, self._spans, if calm then CALM_TURNS else TURNS),
-		start = start,
-		duration = if calm then CALM_SECONDS else SPIN_SECONDS,
+		to = SpinLogic.landing(self._angle, index, self._spans, turns),
+		start = os.clock(),
+		duration = duration,
 		index = index,
 		amount = amount,
 		skippable = false,
 	}
-	self._readyAt = start + SPIN_SECONDS -- a full spin lands right on it, so Spin! comes back as it stops
 	Sound.play("uiSpinStart")
 	self:_refresh()
 end
@@ -1135,11 +1231,26 @@ function SpinWheel._land(self: any, turn: Turn)
 	end
 	Sound.play("uiSpinWin")
 	-- a jackpot's toast comes from the server (SpinService, #1500), so the closed window does not add a second
-	if not self.frame.Visible and not jackpot then
+	local chain = self._chain
+	if not self.frame.Visible and not jackpot and chain == nil then
 		local won = if row
 			then "You won " .. self:_prize(row, turn.amount) .. "!"
 			else "You won a prize!"
 		self._callbacks.toast("Spin Wheel: " .. won)
+	end
+	-- #3157: the Use all chain turns its next roll after a beat; with the window closed it ends at once (one card,
+	-- no toast per roll)
+	if chain then
+		if not self.frame.Visible then
+			self:_endChain()
+		else
+			local position = chain.next
+			task.delay(SpinLogic.chainGap(position), function()
+				if self._chain == chain and chain.next == position and self._turn == nil then
+					self:_chainNext()
+				end
+			end)
+		end
 	end
 	self:_refresh()
 	-- landed early (a Skip or a calm spin): Spin! comes back the moment the cooldown ends, not up to a second later
@@ -1231,7 +1342,7 @@ function SpinWheel._press(self: any)
 		end
 		return
 	end
-	if self._pressedAt or os.clock() < self._readyAt then
+	if self._pressedAt or self._chain or os.clock() < self._readyAt then
 		return
 	end
 	self._pressedAt = os.clock()
@@ -1299,7 +1410,10 @@ function SpinWheel._refresh(self: any)
 	end
 
 	local spins = SpinLogic.spins(spin, now)
-	self._spinsLabel.Text = ("Spins: %d"):format(spins)
+	local chain = self._chain
+	self._spinsLabel.Text = if chain
+		then SpinLogic.chainText(math.max(1, chain.next - 1), #chain.rolls)
+		else ("Spins: %d"):format(spins)
 
 	local turn: Turn? = self._turn
 	self._skipTap.Visible = turn ~= nil
@@ -1308,7 +1422,7 @@ function SpinWheel._refresh(self: any)
 		self._skipHint.Text = SpinLogic.skipHint(UserInputService:GetLastInputType().Name) -- #2871
 	end
 	local button = SpinLogic.button({
-		turning = turn ~= nil,
+		turning = turn ~= nil or chain ~= nil, -- #3157: between two rolls of the chain too
 		skippable = turn ~= nil and turn.skippable,
 		waiting = self._pressedAt ~= nil,
 		readyIn = math.max(0, self._readyAt - os.clock()),
@@ -1321,6 +1435,13 @@ function SpinWheel._refresh(self: any)
 	-- Use all (#1078): two or more spins, not while a spin turns or waits
 	local allPending = self._allPending ~= nil and os.clock() - self._allPending < PENDING_SECONDS
 	local all: Button.Button = self._allButton
+	if chain then
+		-- #3157: while the chain plays, this button jumps to the totals card
+		all.instance.Visible = true
+		all:setText("Skip all")
+		all:setEnabled(true)
+		return
+	end
 	local showAll = self._callbacks.spinAll ~= nil and spins > 1
 	all.instance.Visible = showAll
 	all:setText(if allPending then "..." else SpinLogic.allText(spins, (Config :: any).SpinAllMax))
@@ -1328,6 +1449,7 @@ function SpinWheel._refresh(self: any)
 end
 
 function SpinWheel.destroy(self: any)
+	self._chain = nil
 	self._tick:Disconnect()
 	self._skipKeys:Disconnect()
 	for _, tile in self._tiles do

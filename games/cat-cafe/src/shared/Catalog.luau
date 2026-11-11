@@ -1230,7 +1230,7 @@ Catalog.tiers = {
 		tier = 3,
 		name = "Busy Cafe",
 		cost = 420000, -- #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
-		distinctCats = 11, -- #2683: 13 before; #2230: 12 before
+		distinctCats = 10, -- #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
 		slots = 6,
@@ -1242,7 +1242,7 @@ Catalog.tiers = {
 		tier = 4,
 		name = "Famous Cafe",
 		cost = 16800000, -- #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
-		distinctCats = 22, -- #2683: 25 before; #2230: 20 before
+		distinctCats = 22, -- #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
 		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
@@ -1254,7 +1254,7 @@ Catalog.tiers = {
 		tier = 5,
 		name = "Grand Cafe",
 		cost = 350000000, -- #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
-		distinctCats = 28, -- #2683: 33 before; #2230: 30 before
+		distinctCats = 26, -- #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
 		slots = 10,
@@ -1269,7 +1269,7 @@ Catalog.tiers = {
 		tier = 6,
 		name = "Sunstone Cafe",
 		cost = 5600000000, -- #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
-		distinctCats = 42,
+		distinctCats = 38, -- #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
 		slots = 12,
@@ -1281,7 +1281,7 @@ Catalog.tiers = {
 		tier = 7,
 		name = "Wonder Cafe",
 		cost = 54000000000, -- #2895 (10% off): 60,000,000,000 before
-		distinctCats = 52,
+		distinctCats = 47, -- #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
 		slots = 14,
@@ -2485,14 +2485,17 @@ Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
 -- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a stock holds 0, 1, 2, 3 or 4 of each dealer food.
--- Averages 1.85, 0.95, 0.65 and 0.20: #1442 (Derek 2026-11-05, "a little bit" more) raises Moon Milk from 0.45 (in
--- stock 40% of nights, now 55%) and Star Treat from 0.10 (one night in ten, now one in five). F94 (rewards-and-shops.md
--- section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
+-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items and amount"): averages 2.45, 1.60, 1.20
+-- and 0.55, in stock 95%, 85%, 75% and 45% of nights. Before it (#1442, Derek 2026-11-05, "a little bit" more):
+-- sardines { 15, 25, 30, 20, 10 }, caviar { 35, 40, 20, 5, 0 }, moon_milk { 45, 45, 10, 0, 0 } and star_treat
+-- { 80, 20, 0, 0, 0 }, averages 1.85, 0.95, 0.65 and 0.20. Prices and bait odds are unchanged. With
+-- Config.DealerDryNights a long run without Moon Milk or a Star Treat ends on its own (shared/Dealer). F94
+-- (rewards-and-shops.md section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
-	sardines = { 15, 25, 30, 20, 10 },
-	caviar = { 35, 40, 20, 5, 0 },
-	moon_milk = { 45, 45, 10, 0, 0 },
-	star_treat = { 80, 20, 0, 0, 0 },
+	sardines = { 5, 15, 30, 30, 20 },
+	caviar = { 15, 35, 30, 15, 5 },
+	moon_milk = { 25, 40, 25, 10, 0 },
+	star_treat = { 55, 35, 10, 0, 0 },
 } :: { [string]: { number } }
 
 -- Section 9. Every area has the same odds since v0.13.7; farther areas pay more through incomeMultiplier instead.
@@ -2508,9 +2511,10 @@ Catalog.areas = {
 		id = "alley",
 		name = "Alleyway",
 		tier = 1,
-		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
-		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
-		spawnPoints = 32,
+		-- two on the lanes for each cafe's old place, four nooks at the far end (eight before #3170), six in the middle
+		-- (#3170) and eight `near` points by the camp for the tutorial stray only (layout v3.1; v4, F84, data-model
+		-- section 9 v0.13.18)
+		spawnPoints = 34,
 		-- #2794 (Derek2 2026-11-09: "make sure alleyway and park have lots of starting cats and lots of spawns since
 		-- that's where a lot of players start also have rescues near start for them"): kept at 16 live by day (the
 		-- top-up floor), 6 near the camp, 2 stuck cats each sunrise, one in the trap nearest the camp. The sunrise wave
@@ -2995,6 +2999,20 @@ Catalog.codes = {
 		active = false, -- week 4, Saturday 2026-12-05, the Winter Cafe's start
 		endsAt = 1801612800, -- 2027-02-03
 		prize = { coins = 2000, coinSeconds = 600 },
+	},
+	-- #3148 (Derek2 2026-11-10: "make UPDATE1 a code and 500VISITS no case sensitivity and make them decent"): the
+	-- update's code and the 500 visits thank-you, on for everyone with no end. Beside `release` in size and well short
+	-- of a tier: coins as minutes of the player's own income, golden fish and one more thing, three pictures each
+	-- (rewards rule 3), nothing from the shop's food (rule 1). Typed in any case (Codes.normalize lowercases).
+	update1 = {
+		id = "update1",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, potions = { lucky_potion = 2 } },
+	},
+	["500visits"] = {
+		id = "500visits",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 40, crates = { classic_crate = 1 } },
 	},
 	group = {
 		id = "group",
@@ -4273,7 +4291,7 @@ Catalog.rallySteps = {
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
 -- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a
--- level.
+-- level, Swift Paws a little walk speed a level (#3063).
 Catalog.fishShop = {} :: { Types.FishShopRow }
 local function shopRow(row: Types.FishShopRow)
 	table.insert(Catalog.fishShop, row)
@@ -4287,6 +4305,8 @@ shopRow({ id = "star_treat", kind = "lure", cost = 150 }) -- Derek2 2026-11-07: 
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })
+-- #3063 (shared/SwiftPaws): +1 walk speed a level, normal walk and carrying; two levels (Monetization-Agent)
+shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150 }, maxLevel = 2 })
 
 Catalog.fishShopById = {} :: { [string]: Types.FishShopRow }
 for _, row in Catalog.fishShop do
@@ -4448,6 +4468,51 @@ Catalog.cornerShop = {
 		potionId = "quick_bait_potion_big",
 		price = 240000000,
 		needsTier = 3,
+	},
+	-- #3118 (Derek2 2026-11-10: the Fresh Catch is gone, "add any item that could be found in there to the day cart for
+	-- an appropriate price based on how good the item is"): its four potions the cart didn't sell, priced from their
+	-- old golden fish prices against Steady (12 fish, 400K) and Quick Bait (15 fish, 1.2M). The cart's "nothing that
+	-- raises income" rule is lifted for these by that ask; every one is capped a day (Config.CornerDailyLimits).
+	-- Monetization-Agent's pass: Big Money is Tier 4 and about 30 minutes of a Tier 4 income (~300M an hour, Tier 4 to
+	-- 5 in economy-ladder.md v4), so its +50% for 30 minutes is a coin sink, not a skip; Money is Tier 3 and 3 a day.
+	-- At most +75% for half an hour a day with both running: never a quiet 2x.
+	{
+		id = "tip_potion",
+		name = "Money Potion",
+		family = "money",
+		size = "regular",
+		kind = "potion",
+		potionId = "tip_potion",
+		price = 5000000,
+		needsTier = 3,
+	},
+	{
+		id = "lucky_potion",
+		name = "Lucky Potion",
+		family = "lucky",
+		size = "regular",
+		kind = "potion",
+		potionId = "lucky_potion",
+		price = 1500000,
+	},
+	{
+		id = "big_tip_potion",
+		name = "Big Money Potion",
+		family = "big_money",
+		size = "regular",
+		kind = "potion",
+		potionId = "big_tip_potion",
+		price = 150000000,
+		needsTier = 4,
+	},
+	{
+		id = "gold_rush_potion",
+		name = "Gold Rush Potion",
+		family = "gold_rush",
+		size = "regular",
+		kind = "potion",
+		potionId = "gold_rush_potion",
+		price = 3000000,
 	},
 	{
 		id = "small_cat_snack",
@@ -4991,6 +5056,39 @@ Catalog.lawn = {
 		rarity = "Golden",
 		price = 500000000,
 		model = "CatCafe_Lawn_GoldenPawStatue",
+	},
+	-- #3222 (Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the 12%'s you can get from
+	-- p2w"): Golden pieces nobody can buy, found only as a rare drop from a freed cat (Lawn.dropPick). Model-Agent's
+	-- models (PR #3228). `price` is the Golden rung of the ladder for the specs and the trade value, never charged.
+	{
+		id = "golden_cat_fountain",
+		name = "Golden Cat Fountain",
+		spot = "big",
+		tier = 5,
+		rarity = "Golden",
+		price = 500000000,
+		model = "CatCafe_Lawn_GoldenCatFountain",
+		drop = true,
+	},
+	{
+		id = "golden_cat_throne",
+		name = "Golden Cat Throne",
+		spot = "big",
+		tier = 5,
+		rarity = "Golden",
+		price = 500000000,
+		model = "CatCafe_Lawn_GoldenCatThrone",
+		drop = true,
+	},
+	{
+		id = "golden_yarn_kitten",
+		name = "Golden Yarn Kitten",
+		spot = "big",
+		tier = 5,
+		rarity = "Golden",
+		price = 500000000,
+		model = "CatCafe_Lawn_GoldenYarnKitten",
+		drop = true,
 	},
 } :: { Types.LawnPieceDef }
 

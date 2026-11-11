@@ -1,0 +1,61 @@
+# Send the "Your cats earned $X while you were away!" notifications that are due (#2768, Derek2 2026-11-10: "Yes,
+# once a day, 12 h after leaving"). Runs every hour; also from the Actions tab (away-notify > Run workflow) or from
+# any thread with the GitHub actions_run_trigger tool on main. Script and rules:
+# games/cat-cafe/tools/opencloud/away-notify.sh.
+#
+# The game notes who is due and the true amount when a player leaves (src/shared/AwayNotify.luau); this only sends.
+# Roblox delivers to players aged 13 and up who turned notifications on for the game, at most one a day each.
+# To stop the messages: Actions tab > away-notify > "..." > Disable workflow. The notes then expire by themselves.
+# The log never shows a user id (this repo and its logs are public): counts and error codes only.
+# Needs the repo secret OWNER_KEY with memory-store.sorted-map:read and :write and user.user-notification:write.
+name: away-notify
+
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly, off the top of the hour, when GitHub's scheduler is busiest
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "count (how many notes are waiting and due; sends nothing) | send (send the due ones now)"
+        type: choice
+        options: [count, send]
+        default: count
+
+permissions:
+  contents: read
+
+concurrency:
+  group: away-notify
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  away-notify:
+    name: Away notifications
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.OWNER_KEY }}
+      # the hourly run sends; a run started by hand does what was picked
+      ACTION: ${{ inputs.action || 'send' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            games/cat-cafe/tools/opencloud
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret OWNER_KEY is missing."
+            exit 1
+          fi
+
+      - name: Count or send
+        run: |
+          case "$ACTION" in
+          count | send) bash games/cat-cafe/tools/opencloud/away-notify.sh "$ACTION" | tee -a "$GITHUB_STEP_SUMMARY" ;;
+          *) echo "::error::action must be count or send"; exit 1 ;;
+          esac

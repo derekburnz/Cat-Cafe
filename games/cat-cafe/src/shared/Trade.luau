@@ -686,12 +686,25 @@ end
 -- What TradeService knows about one player when they ask or are asked (section 2).
 export type Facts = {
 	tier: number,
-	busy: boolean, -- carrying, catching, rescuing or flying
+	busy: boolean, -- Trade.busy: catching, rescuing or flying when a trade opens; never at the ask (#3211)
 	inTrade: boolean,
 	sinceLastTrade: number, -- seconds since their last trade ended in a swap, math.huge for none
 	today: number, -- trades today
 	name: string, -- the display name, for the asker's toasts
 }
+
+-- #3211 (Derek2 11-11: "trade says busy but should go through at any time"): what a player is doing, and whether it
+-- keeps them from a trade. Carrying (or packing) a cat never does: that is most of the game. An ask goes out and
+-- arrives whatever either player is doing (`asking`); only opening a trade, and a trade already open, wait for a
+-- catch, a rescue or a flight to end.
+export type Doing = { flying: boolean, catching: boolean, rescuing: boolean }
+
+function Trade.busy(doing: Doing, asking: boolean): boolean
+	if asking then
+		return false
+	end
+	return doing.flying or doing.catching or doing.rescuing
+end
 
 -- Why `from` cannot ask `to` to trade, or nil when they can. `minTier` is the live TradeMinTier, `on` the kill
 -- switch, `asking` whether `from` has a request out already, `reaskLeft` the seconds until `from` may ask `to`

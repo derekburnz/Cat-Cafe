@@ -3600,7 +3600,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          1.8383,
          -315.0
         ],
@@ -3643,7 +3643,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          -1.8383,
          315.0
         ],
@@ -3678,7 +3678,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          0.5,
          -315.0
         ],
@@ -3727,7 +3727,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          3.505,
          -315.0
         ],
@@ -3776,7 +3776,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          5.1717,
          -315.0
         ],
@@ -3825,7 +3825,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          6.8383,
          -315.0
         ],
@@ -3874,7 +3874,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          8.505,
          -315.0
         ],
@@ -3923,7 +3923,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          10.1717,
          -315.0
         ],
@@ -3972,7 +3972,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          9.4,
          -315.0
         ],
@@ -4021,7 +4021,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          7.0,
          -317.07
         ],
@@ -4071,7 +4071,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         36.75,
+         53.75,
          12.5,
          -315.0
         ],
@@ -4120,7 +4120,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         35.05,
+         52.05,
          12.06,
          -315.0
         ],
@@ -4169,7 +4169,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         33.35,
+         50.35,
          11.62,
          -315.0
         ],
@@ -4218,7 +4218,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.6,
+         55.6,
          0.6,
          -316.2
         ],
@@ -5767,7 +5767,7 @@
        "CFrame": {
         "position": [
          54.0,
-         3.2,
+         3.7,
          -328.0
         ],
         "orientation": [
@@ -5810,7 +5810,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -3.2,
+         -3.7,
          54.0,
          328.0
         ],
@@ -5894,8 +5894,500 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         53.8,
-         6.15,
+         54.0,
+         0.75,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       2.64,
+       2.64
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
+         1.0,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       2.36,
+       2.36
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.0576,
+         3.6,
+         -327.6096
+        ],
+        "orientation": [
+         [
+          0.9239,
+          0.0,
+          0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.3827,
+          0.0,
+          0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.4,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6097,
+         3.59,
+         -327.0576
+        ],
+        "orientation": [
+         [
+          0.3827,
+          0.0,
+          0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9239,
+          0.0,
+          0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.38,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.3903,
+         3.6,
+         -327.0576
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          0.0,
+          0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9239,
+          0.0,
+          -0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.4,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.9424,
+         3.59,
+         -327.6096
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          0.0,
+          0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.3827,
+          0.0,
+          -0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.38,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.9424,
+         3.6,
+         -328.3904
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          0.0,
+          -0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.3827,
+          0.0,
+          -0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.4,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.3903,
+         3.59,
+         -328.9424
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          0.0,
+          -0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9239,
+          0.0,
+          -0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.38,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6097,
+         3.6,
+         -328.9424
+        ],
+        "orientation": [
+         [
+          0.3827,
+          0.0,
+          -0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9239,
+          0.0,
+          0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.4,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.0576,
+         3.59,
+         -328.3904
+        ],
+        "orientation": [
+         [
+          0.9239,
+          0.0,
+          -0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.3827,
+          0.0,
+          0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       4.38,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.75,
+         6.7,
          -327.9
         ],
         "orientation": [
@@ -5918,9 +6410,9 @@
        }
       },
       "Size": [
-       1.2,
-       0.7,
-       1.4
+       1.3,
+       0.8,
+       1.17
       ],
       "Color": [
        0.6471,
@@ -5934,6 +6426,154 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.45,
+         6.53,
+         -328.3
+        ],
+        "orientation": [
+         [
+          0.4536,
+          0.0,
+          0.8912
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.8912,
+          0.0,
+          0.4536
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       0.46,
+       0.81
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6,
+         6.91,
+         -328.45
+        ],
+        "orientation": [
+         [
+          0.9801,
+          0.0,
+          0.1987
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.1987,
+          0.0,
+          0.9801
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.7,
+       1.22,
+       0.63
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.7,
+         0.95,
+         -325.65
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.9,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     }
    ],
@@ -5971,6 +6611,929 @@
    "className": "Model",
    "attributes": {
     "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
+         2.175,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       2.26,
+       2.26
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -2.175,
+         54.0,
+         328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/8"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
+         6.75,
+         -328.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.6,
+       0.36,
+       1.4
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.648,
+         6.81,
+         -328.21
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.72,
+       0.3,
+       0.7
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6,
+         1.85,
+         -325.65
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.3,
+       0.36,
+       1.0
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.886,
+         1.91,
+         -325.8
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.585,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.0756,
+         2.6,
+         -327.3676
+        ],
+        "orientation": [
+         [
+          0.8253,
+          -0.2707,
+          0.4955
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.5646,
+          -0.3957,
+          0.7243
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.9767,
+         2.9857,
+         -326.8802
+        ],
+        "orientation": [
+         [
+          0.0208,
+          -0.4793,
+          0.8774
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.9998,
+          -0.01,
+          0.0182
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.3725,
+       0.7216,
+       0.3529
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.8973,
+         3.3714,
+         -327.3297
+        ],
+        "orientation": [
+         [
+          -0.8011,
+          -0.2869,
+          0.5252
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.5985,
+          0.3841,
+          -0.7031
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.0672,
+         3.7571,
+         -328.34
+        ],
+        "orientation": [
+         [
+          -0.9528,
+          0.1455,
+          -0.2664
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          0.3035,
+          0.4568,
+          -0.8362
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.3725,
+       0.7216,
+       0.3529
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.3442,
+         4.1429,
+         -329.0658
+        ],
+        "orientation": [
+         [
+          -0.3073,
+          0.4562,
+          -0.8351
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          0.9516,
+          0.1473,
+          -0.2697
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.3333,
+         4.5286,
+         -328.8999
+        ],
+        "orientation": [
+         [
+          0.5953,
+          0.3852,
+          -0.7052
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          0.8035,
+          -0.2854,
+          0.5224
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.3725,
+       0.7216,
+       0.3529
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.8802,
+         4.9143,
+         -327.9812
+        ],
+        "orientation": [
+         [
+          0.9999,
+          -0.0081,
+          0.0148
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.0168,
+          -0.4794,
+          0.8775
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.1,
+         0.6,
+         -328.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       0.36,
+       1.0
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.88,
+         0.66,
+         -329.05
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.95,
+         0.6,
+         -327.15
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       0.36,
+       1.0
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.148,
+         0.66,
+         -327.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.405,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_004_ColumnBroken_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/9"
    },
    "children": [
     {
@@ -6049,7 +7612,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/8"
+      "Rojo_Id": "CatCafe_Camp_Ruins/9"
      }
     },
     {
@@ -6436,7 +7999,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/9"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/10"
    },
    "children": [
     {
@@ -6446,7 +8009,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          1.8383,
          -315.0
         ],
@@ -6489,7 +8052,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         34.0,
+         51.0,
          -1.8383,
          315.0
         ],
@@ -6514,7 +8077,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/9"
+      "Rojo_Id": "CatCafe_Camp_Ruins/10"
      }
     },
     {
@@ -6524,7 +8087,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          0.5,
          -315.0
         ],
@@ -6573,7 +8136,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          3.505,
          -315.0
         ],
@@ -6622,7 +8185,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          5.1717,
          -315.0
         ],
@@ -6671,7 +8234,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          6.8383,
          -315.0
         ],
@@ -6720,7 +8283,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          8.505,
          -315.0
         ],
@@ -6769,7 +8332,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          10.1717,
          -315.0
         ],
@@ -6818,7 +8381,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          9.4,
          -315.0
         ],
@@ -6867,7 +8430,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.0,
+         -51.0,
          7.0,
          -317.07
         ],
@@ -6917,7 +8480,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -36.75,
+         -53.75,
          12.5,
          -315.0
         ],
@@ -6966,7 +8529,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -35.05,
+         -52.05,
          12.06,
          -315.0
         ],
@@ -7015,7 +8578,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.35,
+         -50.35,
          11.62,
          -315.0
         ],
@@ -7064,7 +8627,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.6,
+         -55.6,
          0.6,
          -316.2
         ],
@@ -7140,7 +8703,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/10"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/11"
    },
    "children": [
     {
@@ -7219,7 +8782,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/10"
+      "Rojo_Id": "CatCafe_Camp_Ruins/11"
      }
     },
     {
@@ -7505,7 +9068,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/11"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/12"
    },
    "children": [
     {
@@ -7584,7 +9147,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/11"
+      "Rojo_Id": "CatCafe_Camp_Ruins/12"
      }
     },
     {
@@ -7871,7 +9434,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/12"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/13"
    },
    "children": [
     {
@@ -7950,7 +9513,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/12"
+      "Rojo_Id": "CatCafe_Camp_Ruins/13"
      }
     },
     {
@@ -8236,7 +9799,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/13"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/14"
    },
    "children": [
     {
@@ -8315,7 +9878,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/13"
+      "Rojo_Id": "CatCafe_Camp_Ruins/14"
      }
     },
     {
@@ -8602,7 +10165,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/14"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/15"
    },
    "children": [
     {
@@ -8613,7 +10176,7 @@
        "CFrame": {
         "position": [
          -54.0,
-         5.4,
+         5.35,
          -328.0
         ],
         "orientation": [
@@ -8636,7 +10199,7 @@
        }
       },
       "Size": [
-       9.6,
+       8.5,
        2.1,
        2.1
       ],
@@ -8656,7 +10219,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -5.4,
+         -5.35,
          -54.0,
          328.0
         ],
@@ -8681,7 +10244,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/14"
+      "Rojo_Id": "CatCafe_Camp_Ruins/15"
      }
     },
     {
@@ -8741,7 +10304,7 @@
        "CFrame": {
         "position": [
          -54.0,
-         10.4,
+         0.75,
          -328.0
         ],
         "orientation": [
@@ -8764,9 +10327,9 @@
        }
       },
       "Size": [
-       0.4,
-       2.5,
-       2.5
+       0.3,
+       2.64,
+       2.64
       ],
       "Color": [
        0.5882,
@@ -8791,7 +10354,549 @@
        "CFrame": {
         "position": [
          -54.0,
-         10.8,
+         1.0,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       2.36,
+       2.36
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.9424,
+         5.25,
+         -327.6096
+        ],
+        "orientation": [
+         [
+          0.9239,
+          0.0,
+          0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.3827,
+          0.0,
+          0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.7,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.3903,
+         5.24,
+         -327.0576
+        ],
+        "orientation": [
+         [
+          0.3827,
+          0.0,
+          0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9239,
+          0.0,
+          0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.68,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.6097,
+         5.25,
+         -327.0576
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          0.0,
+          0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9239,
+          0.0,
+          -0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.7,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.0576,
+         5.24,
+         -327.6096
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          0.0,
+          0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.3827,
+          0.0,
+          -0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.68,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.0576,
+         5.25,
+         -328.3904
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          0.0,
+          -0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.3827,
+          0.0,
+          -0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.7,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.6097,
+         5.24,
+         -328.9424
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          0.0,
+          -0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9239,
+          0.0,
+          -0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.68,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.3903,
+         5.25,
+         -328.9424
+        ],
+        "orientation": [
+         [
+          0.3827,
+          0.0,
+          -0.9239
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9239,
+          0.0,
+          0.3827
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.7,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.9424,
+         5.24,
+         -328.3904
+        ],
+        "orientation": [
+         [
+          0.9239,
+          0.0,
+          -0.3827
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.3827,
+          0.0,
+          0.9239
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       7.68,
+       0.22
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         9.75,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       2.285,
+       2.285
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         10.05,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       2.655,
+       2.655
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         10.425,
          -328.0
         ],
         "orientation": [
@@ -8814,9 +10919,9 @@
        }
       },
       "Size": [
-       2.8,
-       0.4,
-       2.8
+       2.9,
+       0.45,
+       2.9
       ],
       "Color": [
        0.6471,
@@ -8830,6 +10935,105 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         9.85,
+         -328.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.96,
+       0.3,
+       0.3
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         9.85,
+         -328.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.0,
+       0.64,
+       0.64
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     }
    ],
@@ -8866,7 +11070,814 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/15"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/16"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         2.175,
+         -328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       2.26,
+       2.26
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -2.175,
+         -54.0,
+         328.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/16"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.6,
+         10.65,
+         -327.6
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.6,
+       0.36,
+       1.4
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.248,
+         10.71,
+         -327.81
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.72,
+       0.3,
+       0.7
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.9244,
+         2.6,
+         -327.3676
+        ],
+        "orientation": [
+         [
+          0.8253,
+          -0.2707,
+          0.4955
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.5646,
+          -0.3957,
+          0.7243
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0233,
+         3.4571,
+         -326.8802
+        ],
+        "orientation": [
+         [
+          0.0208,
+          -0.4793,
+          0.8774
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.9998,
+          -0.01,
+          0.0182
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.3725,
+       0.7216,
+       0.3529
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.1027,
+         4.3143,
+         -327.3297
+        ],
+        "orientation": [
+         [
+          -0.8011,
+          -0.2869,
+          0.5252
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.5985,
+          0.3841,
+          -0.7031
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -52.9328,
+         5.1714,
+         -328.34
+        ],
+        "orientation": [
+         [
+          -0.9528,
+          0.1455,
+          -0.2664
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          0.3035,
+          0.4568,
+          -0.8362
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.3725,
+       0.7216,
+       0.3529
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.6558,
+         6.0286,
+         -329.0658
+        ],
+        "orientation": [
+         [
+          -0.3073,
+          0.4562,
+          -0.8351
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          0.9516,
+          0.1473,
+          -0.2697
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.6667,
+         6.8857,
+         -328.8999
+        ],
+        "orientation": [
+         [
+          0.5953,
+          0.3852,
+          -0.7052
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          0.8035,
+          -0.2854,
+          0.5224
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.3725,
+       0.7216,
+       0.3529
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -55.1198,
+         7.7429,
+         -327.9812
+        ],
+        "orientation": [
+         [
+          0.9999,
+          -0.0081,
+          0.0148
+         ],
+         [
+          0.0,
+          0.8776,
+          0.4794
+         ],
+         [
+          -0.0168,
+          -0.4794,
+          0.8775
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.3,
+       0.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.9,
+         0.6,
+         -328.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       0.36,
+       1.0
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -55.12,
+         0.66,
+         -329.05
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.05,
+         0.6,
+         -327.15
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       0.36,
+       1.0
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_009_Column_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -52.852,
+         0.66,
+         -327.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.405,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_009_Column_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/17"
    },
    "children": [
     {
@@ -8945,7 +11956,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/15"
+      "Rojo_Id": "CatCafe_Camp_Ruins/17"
      }
     },
     {
@@ -9332,7 +12343,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/16"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/18"
    },
    "children": [
     {
@@ -9410,7 +12421,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/16"
+      "Rojo_Id": "CatCafe_Camp_Ruins/18"
      }
     },
     {
@@ -9693,7 +12704,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/17"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/19"
    },
    "children": [
     {
@@ -9772,7 +12783,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/17"
+      "Rojo_Id": "CatCafe_Camp_Ruins/19"
      }
     },
     {
@@ -9783,7 +12794,7 @@
        "CFrame": {
         "position": [
          48.5114,
-         1.05,
+         0.7,
          -322.3271
         ],
         "orientation": [
@@ -9882,6 +12893,106 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         47.2222,
+         1.0,
+         -322.5385
+        ],
+        "orientation": [
+         [
+          -0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       1.96,
+       1.96
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         44.7781,
+         1.0,
+         -323.4627
+        ],
+        "orientation": [
+         [
+          -0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       1.96,
+       1.96
+      ],
+      "Color": [
+       0.5882,
+       0.5686,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          41.0151,
          1.2,
          -323.7145
@@ -9958,7 +13069,653 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/18"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/20"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.1957,
+         1.7,
+         -322.3081
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.6,
+       0.36,
+       1.2
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         36.8659,
+         -1.7,
+         323.7997
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/20"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         47.9023,
+         1.76,
+         -322.5731
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.72,
+       0.3,
+       0.6
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.1566,
+         0.0,
+         -323.1895
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.4,
+       0.36,
+       0.7
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.4813,
+         0.06,
+         -323.2112
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.63,
+       0.3,
+       0.35
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         46.6452,
+         0.0,
+         -323.8624
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.4,
+       0.36,
+       0.7
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         46.3749,
+         0.06,
+         -324.0435
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.63,
+       0.3,
+       0.35
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         43.1729,
+         2.05,
+         -323.654
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.6,
+       0.36,
+       1.2
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         42.8795,
+         2.11,
+         -323.9189
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.72,
+       0.3,
+       0.6
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         44.1338,
+         0.0,
+         -324.5353
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.4,
+       0.36,
+       0.7
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_012_Drums_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         44.4585,
+         0.06,
+         -324.557
+        ],
+        "orientation": [
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.63,
+       0.3,
+       0.35
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_012_Drums_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/21"
    },
    "children": [
     {
@@ -10036,7 +13793,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/18"
+      "Rojo_Id": "CatCafe_Camp_Ruins/21"
      },
      "children": [
       {
@@ -11018,7 +14775,305 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/19"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/22"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_013_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -25.3,
+         0.5,
+         -325.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.7,
+       0.36,
+       1.6
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         25.3,
+         -0.5,
+         325.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/22"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_013_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -23.0,
+         0.5,
+         -327.8
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.4,
+       0.36,
+       0.7
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_013_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -23.308,
+         0.56,
+         -327.905
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.63,
+       0.3,
+       0.35
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_013_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -25.146,
+         0.56,
+         -326.14
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.315,
+       0.3,
+       0.8
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_013_Gargoyle_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/23"
    },
    "children": [
     {
@@ -11096,7 +15151,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/19"
+      "Rojo_Id": "CatCafe_Camp_Ruins/23"
      },
      "children": [
       {
@@ -12078,7 +16133,305 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/20"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/24"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_014_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         22.7,
+         0.5,
+         -325.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.7,
+       0.36,
+       1.6
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -22.7,
+         -0.5,
+         325.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/24"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_014_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         25.0,
+         0.5,
+         -327.8
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.4,
+       0.36,
+       0.7
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_014_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         24.692,
+         0.56,
+         -327.905
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.63,
+       0.3,
+       0.35
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_014_Gargoyle_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         22.854,
+         0.56,
+         -326.14
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.315,
+       0.3,
+       0.8
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_014_Gargoyle_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/25"
    },
    "children": [
     {
@@ -12156,7 +16509,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/20"
+      "Rojo_Id": "CatCafe_Camp_Ruins/25"
      }
     },
     {
@@ -12244,9 +16597,9 @@
        1.0
       ],
       "Color": [
-       0.8431,
-       0.7255,
-       0.5294
+       0.5882,
+       0.5686,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -12305,6 +16658,300 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -61.3119,
+         0.12,
+         -309.6889
+        ],
+        "orientation": [
+         [
+          0.5474,
+          0.0,
+          -0.8369
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.8369,
+          0.0,
+          0.5474
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.42,
+       0.24,
+       0.36
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -63.3267,
+         0.125,
+         -312.18
+        ],
+        "orientation": [
+         [
+          0.9817,
+          0.0,
+          -0.1904
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.1904,
+          0.0,
+          0.9817
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.42,
+       0.25,
+       0.36
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -62.9683,
+         0.13,
+         -310.9304
+        ],
+        "orientation": [
+         [
+          0.8301,
+          0.0,
+          -0.5576
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.5576,
+          0.0,
+          0.8301
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.42,
+       0.26,
+       0.36
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -61.4522,
+         0.4,
+         -312.7175
+        ],
+        "orientation": [
+         [
+          0.7027,
+          0.0,
+          -0.7114
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7114,
+          0.0,
+          0.7027
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.3,
+       0.8,
+       0.9
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -61.5554,
+         1.15,
+         -312.896
+        ],
+        "orientation": [
+         [
+          0.7027,
+          0.0,
+          -0.7114
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7114,
+          0.0,
+          0.7027
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.7,
+       0.7,
+       0.6
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -60.9591,
+         0.45,
+         -312.7029
+        ],
+        "orientation": [
+         [
+          0.7027,
+          0.0,
+          -0.7114
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7114,
+          0.0,
+          0.7027
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.08
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     }
    ],
    "properties": {
@@ -12340,7 +16987,247 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/21"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/26"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -62.4792,
+         0.2,
+         -309.4062
+        ],
+        "orientation": [
+         [
+          0.2756,
+          0.0,
+          -0.9613
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9613,
+          0.0,
+          0.2756
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       0.5,
+       0.8
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         314.6419,
+         -0.2,
+         25.2248
+        ],
+        "orientation": [
+         [
+          0.2756,
+          0.0,
+          0.9613
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9613,
+          0.0,
+          0.2756
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/26"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -62.2749,
+         1.35,
+         -311.2332
+        ],
+        "orientation": [
+         [
+          0.2756,
+          0.0,
+          -0.9613
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9613,
+          0.0,
+          0.2756
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       0.36,
+       0.8
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_015_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -62.2142,
+         1.41,
+         -311.4567
+        ],
+        "orientation": [
+         [
+          0.2756,
+          0.0,
+          -0.9613
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9613,
+          0.0,
+          0.2756
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.405,
+       0.3,
+       0.4
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_015_Rubble_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/27"
    },
    "children": [
     {
@@ -12418,7 +17305,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/21"
+      "Rojo_Id": "CatCafe_Camp_Ruins/27"
      }
     },
     {
@@ -12506,9 +17393,9 @@
        1.2
       ],
       "Color": [
-       0.8431,
-       0.7255,
-       0.5294
+       0.5882,
+       0.5686,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -12567,6 +17454,300 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.5582,
+         0.144,
+         -311.6869
+        ],
+        "orientation": [
+         [
+          0.2217,
+          0.0,
+          0.9751
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9751,
+          0.0,
+          0.2217
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.504,
+       0.288,
+       0.432
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.0873,
+         0.149,
+         -307.8712
+        ],
+        "orientation": [
+         [
+          -0.545,
+          0.0,
+          0.8384
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.8384,
+          0.0,
+          -0.545
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.504,
+       0.298,
+       0.432
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.8673,
+         0.154,
+         -309.2222
+        ],
+        "orientation": [
+         [
+          -0.1755,
+          0.0,
+          0.9845
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9845,
+          0.0,
+          -0.1755
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.504,
+       0.308,
+       0.432
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         58.0608,
+         0.48,
+         -309.0412
+        ],
+        "orientation": [
+         [
+          0.0236,
+          0.0,
+          0.9997
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9997,
+          0.0,
+          0.0236
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.56,
+       0.96,
+       1.08
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         57.9927,
+         1.38,
+         -308.8033
+        ],
+        "orientation": [
+         [
+          0.0236,
+          0.0,
+          0.9997
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9997,
+          0.0,
+          0.0236
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.84,
+       0.84,
+       0.72
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         57.6623,
+         0.54,
+         -309.479
+        ],
+        "orientation": [
+         [
+          0.0236,
+          0.0,
+          0.9997
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9997,
+          0.0,
+          0.0236
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.6,
+       0.36,
+       0.08
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     }
    ],
    "properties": {
@@ -12602,7 +17783,247 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/22"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/28"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         61.7753,
+         0.24,
+         -310.9149
+        ],
+        "orientation": [
+         [
+          0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.08,
+       0.6,
+       0.96
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -300.1479,
+         -0.24,
+         101.9585
+        ],
+        "orientation": [
+         [
+          0.5,
+          0.0,
+          -0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.866,
+          0.0,
+          0.5
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/28"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.0278,
+         1.62,
+         -309.5682
+        ],
+        "orientation": [
+         [
+          0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.08,
+       0.36,
+       0.96
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_016_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         59.7843,
+         1.68,
+         -309.4344
+        ],
+        "orientation": [
+         [
+          0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.486,
+       0.3,
+       0.48
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_016_Rubble_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/29"
    },
    "children": [
     {
@@ -12680,7 +18101,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/22"
+      "Rojo_Id": "CatCafe_Camp_Ruins/29"
      }
     },
     {
@@ -12768,9 +18189,9 @@
        0.9
       ],
       "Color": [
-       0.8431,
-       0.7255,
-       0.5294
+       0.5882,
+       0.5686,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -12829,6 +18250,300 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -31.2652,
+         0.108,
+         -329.4187
+        ],
+        "orientation": [
+         [
+          -0.9751,
+          0.0,
+          0.2217
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.2217,
+          0.0,
+          -0.9751
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.378,
+       0.216,
+       0.324
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -28.4034,
+         0.113,
+         -329.0655
+        ],
+        "orientation": [
+         [
+          -0.8384,
+          0.0,
+          -0.545
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.545,
+          0.0,
+          -0.8384
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.378,
+       0.226,
+       0.324
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.4166,
+         0.118,
+         -329.6505
+        ],
+        "orientation": [
+         [
+          -0.9845,
+          0.0,
+          -0.1755
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.1755,
+          0.0,
+          -0.9845
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.378,
+       0.236,
+       0.324
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.2809,
+         0.36,
+         -327.5456
+        ],
+        "orientation": [
+         [
+          -0.9997,
+          0.0,
+          0.0236
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.0236,
+          0.0,
+          -0.9997
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.17,
+       0.72,
+       0.81
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.1025,
+         1.035,
+         -327.4945
+        ],
+        "orientation": [
+         [
+          -0.9997,
+          0.0,
+          0.0236
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.0236,
+          0.0,
+          -0.9997
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.63,
+       0.63,
+       0.54
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.6093,
+         0.405,
+         -327.2467
+        ],
+        "orientation": [
+         [
+          -0.9997,
+          0.0,
+          0.0236
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.0236,
+          0.0,
+          -0.9997
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.27,
+       0.08
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     }
    ],
    "properties": {
@@ -12864,7 +18579,247 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/23"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/30"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -30.6862,
+         0.18,
+         -330.3315
+        ],
+        "orientation": [
+         [
+          -0.866,
+          0.0,
+          0.5
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.5,
+          0.0,
+          -0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.81,
+       0.45,
+       0.72
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -191.7408,
+         -0.18,
+         -270.7323
+        ],
+        "orientation": [
+         [
+          -0.866,
+          0.0,
+          -0.5
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.5,
+          0.0,
+          -0.866
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/30"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.6762,
+         1.215,
+         -329.0209
+        ],
+        "orientation": [
+         [
+          -0.866,
+          0.0,
+          0.5
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.5,
+          0.0,
+          -0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.81,
+       0.36,
+       0.72
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_017_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.5758,
+         1.275,
+         -328.8383
+        ],
+        "orientation": [
+         [
+          -0.866,
+          0.0,
+          0.5
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.5,
+          0.0,
+          -0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3645,
+       0.3,
+       0.36
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_017_Rubble_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/31"
    },
    "children": [
     {
@@ -12942,7 +18897,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/23"
+      "Rojo_Id": "CatCafe_Camp_Ruins/31"
      }
     },
     {
@@ -13030,9 +18985,9 @@
        1.1
       ],
       "Color": [
-       0.8431,
-       0.7255,
-       0.5294
+       0.5882,
+       0.5686,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -13091,6 +19046,300 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         38.2179,
+         0.132,
+         -326.8859
+        ],
+        "orientation": [
+         [
+          0.2282,
+          0.0,
+          -0.9736
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9736,
+          0.0,
+          0.2282
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.462,
+       0.264,
+       0.396
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         37.0726,
+         0.137,
+         -330.2189
+        ],
+        "orientation": [
+         [
+          0.8574,
+          0.0,
+          -0.5147
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.5147,
+          0.0,
+          0.8574
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.462,
+       0.274,
+       0.396
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         36.9729,
+         0.142,
+         -328.7924
+        ],
+        "orientation": [
+         [
+          0.5893,
+          0.0,
+          -0.8079
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.8079,
+          0.0,
+          0.5893
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.462,
+       0.284,
+       0.396
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         39.2124,
+         0.44,
+         -330.0692
+        ],
+        "orientation": [
+         [
+          0.417,
+          0.0,
+          -0.9089
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9089,
+          0.0,
+          0.417
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.43,
+       0.88,
+       0.99
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         39.1729,
+         1.265,
+         -330.2925
+        ],
+        "orientation": [
+         [
+          0.417,
+          0.0,
+          -0.9089
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9089,
+          0.0,
+          0.417
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.77,
+       0.77,
+       0.66
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         39.7167,
+         0.495,
+         -329.8686
+        ],
+        "orientation": [
+         [
+          0.417,
+          0.0,
+          -0.9089
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9089,
+          0.0,
+          0.417
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.33,
+       0.08
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     }
    ],
    "properties": {
@@ -13126,7 +19375,247 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/24"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/32"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         36.905,
+         0.22,
+         -327.0328
+        ],
+        "orientation": [
+         [
+          -0.0698,
+          0.0,
+          -0.9976
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9976,
+          0.0,
+          -0.0698
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.99,
+       0.55,
+       0.88
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         328.8105,
+         -0.22,
+         14.0023
+        ],
+        "orientation": [
+         [
+          -0.0698,
+          0.0,
+          0.9976
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9976,
+          0.0,
+          -0.0698
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Ruins/32"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         37.8036,
+         1.485,
+         -328.8445
+        ],
+        "orientation": [
+         [
+          -0.0698,
+          0.0,
+          -0.9976
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9976,
+          0.0,
+          -0.0698
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.99,
+       0.36,
+       0.88
+      ],
+      "Color": [
+       0.5529,
+       0.6078,
+       0.4314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Ruins_018_Rubble_Decor",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         37.9504,
+         1.545,
+         -329.0526
+        ],
+        "orientation": [
+         [
+          -0.0698,
+          0.0,
+          -0.9976
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9976,
+          0.0,
+          -0.0698
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4455,
+       0.3,
+       0.44
+      ],
+      "Color": [
+       0.6431,
+       0.7529,
+       0.5608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Ruins_018_Rubble_Decor"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Ruins/33"
    },
    "children": [
     {
@@ -13205,7 +19694,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Ruins/24"
+      "Rojo_Id": "CatCafe_Camp_Ruins/33"
      }
     },
     {

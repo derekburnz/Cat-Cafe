@@ -17,6 +17,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
 local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
@@ -43,6 +44,7 @@ local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
 local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
+local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
 local HoldPulse = require(script.HoldPulse)
 local Intro = require(script.Intro)
@@ -54,6 +56,7 @@ local LuckyCat = require(script.LuckyCat)
 local LuckyPaw = require(script.LuckyPaw)
 local Market = require(script.Market)
 local Motion = require(script.Motion)
+local MuseumPlaques = require(script.MuseumPlaques)
 local Mystery = require(script.Mystery)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
@@ -81,6 +84,7 @@ local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
+local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
 
 local Effects = {}
@@ -160,9 +164,13 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		MuseumPlaques.start,
 		StationMotion.start,
 		HoldPulse.start,
 		BaitCrumbs.start,
+		WaitingCat.start,
+		ArcadeGlow.start,
+		GoldenFind.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,

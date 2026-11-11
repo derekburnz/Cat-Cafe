@@ -27,6 +27,8 @@
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
+--   D:Invoke("bin", nil, "ready")      -- your Rummage Bin full now ("reset": and its two fixed first prizes again;
+--                                      "hit" or "miss": a press on its running bar) (#3050)
 --   D:Invoke("spaAway", nil, 3600)     -- an hour away for the Oasis Spa: every soaking cat ready (#2651 part 4)
 --   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
@@ -45,7 +47,6 @@
 --   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
 --   D:Invoke("event", "full", 10)     -- a 10 minute test Cafe Event in this server (full, days, money, luck, showers;
 --                                      -- "stop" ends it); returns "<id> until <unix seconds>" (#2486)
---   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("seedCafe", nil, 5, 12, { extraSlot = true, grandCafe = true })  -- Tier 5, 12 cats, slots filled (#2050)
 --   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
 --   D:Invoke("placeCat", nil, "<uid>", "greeter_1")   -- PlaceCat as the client sends it; unplaceCat too (#2050)
@@ -73,6 +74,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bait = require(ReplicatedStorage.Shared.Bait)
+local BinService = require(script.Parent.BinService)
 local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
 local CampExtraService = require(script.Parent.CampExtraService)
@@ -90,7 +92,6 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
 local FishMarketService = require(script.Parent.FishMarketService)
-local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local LateStationService = require(script.Parent.LateStationService)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -486,6 +487,19 @@ function Debug.campExtras(player: (Player | number | string)?, seconds: number?)
 	return table.concat(parts, " ")
 end
 
+-- #3050: the Rummage Bin. "ready" fills the player's bin now and "reset" also forgets its wins (the fixed Tuna and
+-- Alley Crate come again); returns "nextAt=0 uses=2". "hit" or "miss" presses its running bar (BinService.debugPress).
+function Debug.bin(player: (Player | number | string)?, how: string?): string
+	local p = resolve(player)
+	if how == "hit" or how == "miss" then
+		return BinService.debugPress(p, how)
+	end
+	local save = BinService.debugSet(p, if how == "reset" then "reset" else "ready")
+	return if save ~= nil
+		then string.format("nextAt=%d uses=%d", save.nextAt, save.uses)
+		else "no profile"
+end
+
 -- #2651 part 4 (late-stations.md section 4, check 1): every Oasis Spa cat's start `seconds` (default an hour) into
 -- the past. Returns "slots=2 ready=1 museum=23/70 canFill=4".
 function Debug.spaAway(player: (Player | number | string)?, seconds: number?): string
@@ -581,19 +595,6 @@ function Debug.rally(player: (Player | number | string)?, action: string?, value
 		RallyService.debugLaps(p, profileOf(p), tonumber(value) or 0)
 	end
 	return RallyService.debugSummary(p)
-end
-
--- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and
--- the alert can come again. Returns the window and its stock, "<window>: <itemId>=<amount> ..." in shelf order.
-function Debug.freshCatch(player: (Player | number | string)?): string
-	local profile = profileOf(resolve(player))
-	profile.freshCatch = FreshCatch.fresh()
-	local window = FreshCatch.window(os.time())
-	local parts: { string } = {}
-	for _, item in FreshCatch.stock(window) do
-		table.insert(parts, string.format("%s=%d", item.itemId, item.amount))
-	end
-	return string.format("%d: %s", window, table.concat(parts, " "))
 end
 
 -- Puts `count` (default 1) of a potion in the bag, or of every potion when `potionId` is nil (F64).

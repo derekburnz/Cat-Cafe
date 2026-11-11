@@ -52,6 +52,10 @@ type Piece = {
 -- A plot-space box round a plot's tagged parts, and the top of its side walls (the front and back carry gables).
 type Box = { lo: Vector3, hi: Vector3, eave: number }
 type Sheet = { frame: CFrame, width: number, height: number, back: boolean }
+-- #3221: where one piece of a split front sits in the whole front, so a tint scrolls across all the pieces as one:
+-- ax and ay are studs from the front's street-view left and top edges to the piece's, w and h the piece's size,
+-- W and H the whole front's.
+type Window = { ax: number, ay: number, w: number, h: number, W: number, H: number }
 
 local styles: { [Model]: { [string]: Piece } } = {} -- plot, then style attribute
 local placed: { [Model]: Piece } = {} -- a placed decoration model
@@ -214,6 +218,34 @@ local function frontSheet(plot: Model, box: Box): Sheet
 		height = box.eave - lo.Y,
 		back = false,
 	}
+end
+
+-- #3221: the same front in pieces round the open doorway (Logic.frontPieces), each with its Window in the whole
+-- front, so a tint paints the wall and never the opening.
+local function frontPieces(plot: Model, box: Box): { { sheet: Sheet, win: Window } }
+	local lo, hi = box.lo, box.hi
+	local W, H = hi.X - lo.X, box.eave - lo.Y
+	local pivot = plot:GetPivot()
+	local list = {}
+	for _, rect in Logic.frontPieces(lo.X, hi.X, lo.Y, box.eave, Presets.decorFx.doorway) do
+		local w, h = rect.x1 - rect.x0, rect.y1 - rect.y0
+		local at = Vector3.new(
+			(rect.x0 + rect.x1) / 2,
+			(rect.y0 + rect.y1) / 2,
+			lo.Z - Presets.decorFx.lift
+		)
+		table.insert(list, {
+			sheet = {
+				frame = facing(pivot, at, Vector3.new(0, 0, -1)),
+				width = w,
+				height = h,
+				back = false,
+			},
+			-- the Front face reads right to left in plot X from the street, so its left edge is the piece's x1
+			win = { ax = hi.X - rect.x1, ay = box.eave - rect.y1, w = w, h = h, W = W, H = H },
+		})
+	end
+	return list
 end
 
 -- The plot's biggest floor part the Floor style paints.
@@ -483,8 +515,10 @@ end
 
 -- Rainbow Shimmer's tint over the cafe front: the rainbow twice over on a strip twice as wide, so scrolling it one
 -- width across in "full" loops without a seam.
-local function rainbow(piece: Piece, gui: SurfaceGui, mode: Mode)
+local function rainbow(piece: Piece, gui: SurfaceGui, mode: Mode, win: Window)
 	local r = Presets.decorFx.rainbow
+	local start = -win.ax / win.w
+	local across = win.W / win.w
 	local list: { Color3 } = {}
 	for _ = 1, 2 do
 		for _, colour in r.colors do
@@ -495,8 +529,8 @@ local function rainbow(piece: Piece, gui: SurfaceGui, mode: Mode)
 	local strip = shape(gui, {
 		Name = "Rainbow",
 		AnchorPoint = Vector2.new(0, 0),
-		Position = UDim2.fromScale(0, 0),
-		Size = UDim2.fromScale(2, 1),
+		Position = UDim2.fromScale(start, 0),
+		Size = UDim2.fromScale(2 * across, 1),
 		BackgroundColor3 = palette.offwhite,
 	})
 	local keys: { ColorSequenceKeypoint } = {}
@@ -508,28 +542,32 @@ local function rainbow(piece: Piece, gui: SurfaceGui, mode: Mode)
 	gradient.Transparency = NumberSequence.new(r.shown)
 	gradient.Parent = strip
 	if mode == "full" then
-		drift(piece, strip, 0, -1, 0, r.seconds)
+		drift(piece, strip, start, start - across, start, r.seconds)
 	end
 end
 
 -- Gold Leaf's sheen: a light band sweeping over the front, on the sheet only part of each crossing, in "full".
 -- Rainbow Shimmer's glint (#2734) is the same sweep in white, `width` wide and `shown`, every `seconds`.
 type Glint = { width: number, shown: number, seconds: number }
-local function sheen(piece: Piece, gui: SurfaceGui, glint: Glint?)
+local function sheen(piece: Piece, gui: SurfaceGui, win: Window, glint: Glint?)
 	local s = Presets.decorFx.sheen
 	local edge = if glint ~= nil then palette.offwhite else palette.goldLight
 	local width = if glint ~= nil then glint.width else s.width
 	local shown = if glint ~= nil then glint.shown else s.shown
 	local seconds = if glint ~= nil then glint.seconds else s.seconds
+	-- whole-front scale x to this piece's scale, and the band's middle at the whole front's middle height
+	local function x(at: number): number
+		return (at * win.W - win.ax) / win.w
+	end
 	local band = shape(gui, {
 		Name = "Sheen",
-		Position = UDim2.fromScale(-1.5, 0.5),
-		Size = UDim2.fromScale(width, 1.6),
+		Position = UDim2.fromScale(x(-1.5), (win.H / 2 - win.ay) / win.h),
+		Size = UDim2.fromScale(width * win.W / win.w, 1.6 * win.H / win.h),
 		Rotation = s.tilt,
 		BackgroundColor3 = edge,
 	})
 	softBand(band, { edge, palette.offwhite, edge }, shown, 0)
-	drift(piece, band, -1.5, 2.5, -1.5, seconds)
+	drift(piece, band, x(-1.5), x(2.5), x(-1.5), seconds)
 end
 
 -- Gold Leaf's real gold trims (F89 2c) -----------------------------------------------------------------------------
@@ -731,20 +769,21 @@ local function build(piece: Piece, mode: Mode): boolean
 			return false
 		end
 		local front = frontSheet(plot, box)
-		local size = Vector3.new(front.width, front.height, 0.05)
 		if look == "rainbow" then
-			local gui = sheet(
-				piece,
-				"Decor_rainbow",
-				front.frame,
-				size,
-				Enum.NormalId.Front,
-				fx.floorPixels,
-				fx.rainbow.light
-			)
-			rainbow(piece, gui, mode)
-			if mode == "full" then
-				sheen(piece, gui, fx.rainbow.glint)
+			for _, part in frontPieces(plot, box) do
+				local gui = sheet(
+					piece,
+					"Decor_rainbow",
+					part.sheet.frame,
+					Vector3.new(part.sheet.width, part.sheet.height, 0.05),
+					Enum.NormalId.Front,
+					fx.floorPixels,
+					fx.rainbow.light
+				)
+				rainbow(piece, gui, mode, part.win)
+				if mode == "full" then
+					sheen(piece, gui, part.win, fx.rainbow.glint)
+				end
 			end
 			if mode ~= "still" then
 				sprayer(
@@ -758,17 +797,24 @@ local function build(piece: Piece, mode: Mode): boolean
 			-- without them yet gets a sheen over the front instead.
 			local fallback: Instance? = nil
 			if mode == "full" and #(readTrims(plot, {})) == 0 then
-				local gui = sheet(
-					piece,
-					"Decor_goldLeaf",
-					front.frame,
-					size,
-					Enum.NormalId.Front,
-					fx.floorPixels,
-					0.6
-				)
-				sheen(piece, gui)
-				fallback = gui.Parent
+				local holder = Instance.new("Folder")
+				holder.Name = "Decor_goldLeaf"
+				holder.Parent = Context.folder()
+				table.insert(piece.made, holder)
+				for _, part in frontPieces(plot, box) do
+					local gui = sheet(
+						piece,
+						"Decor_goldLeaf",
+						part.sheet.frame,
+						Vector3.new(part.sheet.width, part.sheet.height, 0.05),
+						Enum.NormalId.Front,
+						fx.floorPixels,
+						0.6
+					)
+					sheen(piece, gui, part.win);
+					(gui.Parent :: Instance).Parent = holder
+				end
+				fallback = holder
 			end
 			goldTrims(piece, box, mode, fallback)
 			sprayer(

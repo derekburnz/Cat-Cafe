@@ -808,25 +808,26 @@ return function()
 			)
 
 			it(
-				"keeps the Alleyway's Epic and up to the nooks, and the deep half for Mythicals (#2210)",
+				"lets the Alleyway's Epic and up spawn anywhere (#3170), and keeps the deep half for Mythicals (#2210)",
 				function()
-					expect(Catching.KEEP_ZONES.nook).to.equal("Epic")
+					expect(Catching.KEEP_ZONES.nook).to.equal(nil)
 					expect(Catching.KEEP_ZONES.deep).to.equal("Mythical")
-					local alley = slots({ { "lane", true }, { "nook", true } })
-					for _, rarity in { "Epic", "Legendary", "Mythical" } do
-						expect(Catching.spawnPool(alley, rarity :: any) :: any).to.deepEqual({ 2 })
+					local alley = slots({ { "lane", true }, { "nook", true }, { "mid", true } })
+					for _, rarity in { "Common", "Epic", "Legendary", "Mythical" } do
+						expect(Catching.spawnPool(alley, rarity :: any) :: any).to.deepEqual({
+							1,
+							2,
+							3,
+						})
 					end
 				end
 			)
 
-			it(
-				"leaves an Epic with nowhere to go when every nook or deep point is taken",
-				function()
-					local alley = slots({ { "lane", true }, { "lane", true }, { "nook", false } })
-					expect(#Catching.spawnPool(alley, "Epic")).to.equal(0)
-					expect(Catching.spawnPool(alley, "Rare") :: any).to.deepEqual({ 1, 2 })
-				end
-			)
+			it("leaves a Mythical with nowhere to go when every deep point is taken", function()
+				local park = slots({ { "near", true }, { "near", true }, { "deep", false } })
+				expect(#Catching.spawnPool(park, "Mythical")).to.equal(0)
+				expect(Catching.spawnPool(park, "Rare") :: any).to.deepEqual({ 1, 2 })
+			end)
 
 			it("takes any free point in an area with no zones", function()
 				local plain = slots({ { nil, true }, { nil, false }, { nil, true } })

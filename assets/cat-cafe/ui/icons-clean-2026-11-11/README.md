@@ -24,13 +24,13 @@ Uploaded with `upload-image.yml` run 42937300084 from `friend/icons-batch2`.
 The station rings that still drew emoji: Relic Museum, Picnic, Yard Sale, Pond, Lost and Found and the Cat Arcade
 (the Arcade icon is also the Arcade window's header badge). Same source (`../icons-clean-2026-11-03/source/icons.js`,
 batch 4 block) and renderer. The Index Boards reuse `Icon_Clean_Index` (138454303453433), so they need no upload.
-Not uploaded yet: Derek's OK is pending. Ids go here once `upload-image.yml` runs.
+Derek OK'd the upload (2026-11-11 21:06, "OWNER_KEY ... for anything"); `upload-image.yml` run 43100302103, group owned.
 
 | Icon | rbxassetid |
 |---|---|
-| Icon_Clean_Museum | pending |
-| Icon_Clean_Picnic | pending |
-| Icon_Clean_YardSale | pending |
-| Icon_Clean_Pond | pending |
-| Icon_Clean_LostFound | pending |
-| Icon_Clean_Arcade | pending |
+| Icon_Clean_Museum | 106957137610323 |
+| Icon_Clean_Picnic | 92455587075019 |
+| Icon_Clean_YardSale | 132170661858712 |
+| Icon_Clean_Pond | 116298242454261 |
+| Icon_Clean_LostFound | 106814161165186 |
+| Icon_Clean_Arcade | 120353026211586 |

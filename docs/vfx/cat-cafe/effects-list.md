@@ -1030,3 +1030,21 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | A column of gold sparkles rising off your waiting stray and a gold ring pulsing at its feet every 2.5 s, from 2 s after it shows for 120 s; your screen only; Reduce Motion keeps the sparkles, Low performance the rings | the `Stray` whose `WaitsFor` attribute is your UserId (Gameplay-Engineer's #3038, shared/SecondCat) |
+
+#3238 (2026-11-11): a gold paw badge (BillboardGui, drawn through walls, 3.2 studs plus 26 px, bobbing 0.6 studs every 1.4 s) floats 2.5 studs over the waiting stray out to 700 studs, so it shows from the cafe. Rings are now 10 studs every 1.6 s, and after the 120 s they slow to one every 4 s instead of stopping, until the cat is caught or gone. Reduce Motion keeps a still badge and the sparkles.
+
+## Golden find (#3222, 2026-11-11)
+
+`Effects/GoldenFind.luau`, numbers in `Presets.goldenFind`.
+
+| Look | Hook |
+|---|---|
+| An 18 stud gold beam for 1.6 s, 30 gold confetti, 18 sparkles and two 7 stud gold rings 0.3 s apart at the player's feet, at most once every 3 s; Reduce Motion keeps the sparkles only, Low performance keeps the beam and rings with fewer pieces | a `Toast` line starting "Golden find! " (LawnService.giveDrop, 1 in 400 freed cats) |
+
+## Cat Arcade cabinet glow (#3062, 2026-11-11)
+
+`Effects/ArcadeGlow.luau`, numbers in `Presets.arcadeGlow`.
+
+| Look | Hook |
+|---|---|
+| Within 120 studs the Neon `Screen` drifts through sky, blush, mint and light gold, one step every 2.5 s, with a few soft sparkles off the top; farther away it rests on its first colour; Reduce Motion holds the first colour, Low performance keeps the drift only | models tagged `ArcadeCabinet` (Gameplay-Engineer's cabinet) |

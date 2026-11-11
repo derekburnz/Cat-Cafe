@@ -183,9 +183,13 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 	},
 	-- #3063: walking and carrying a cat; the card credits the player who suggested it (Derek2 17:42)
 	[SwiftPaws.ID] = {
-		name = "Swift Paws",
-		icon = "🐾",
-		blurb = ("+1 walk speed a level, forever. Idea by %s"):format(SwiftPaws.CREDIT),
+		-- #3330 (Derek2: "make the swift paws speed upgrade way more obvious its for speed"): Speed in the name and the
+		-- first words; #3317: +1 for levels 1 and 2, +0.5 for 3 to 5
+		name = "Swift Paws: +Speed",
+		icon = "💨",
+		blurb = ("Run faster, forever: +1 speed, +1, then +0.5 a level. Idea by %s"):format(
+			SwiftPaws.CREDIT
+		),
 	},
 }
 
@@ -1915,6 +1919,16 @@ function FishMarket._refresh(self: any)
 	for _, entry: ItemRow in self._itemRows do
 		local row = entry.row
 		entry.frame.Visible = rowShown(row)
+		if row.id == SwiftPaws.ID then
+			-- #3317: levels 3 to 5 show once their switch (copied to ReplicatedStorage) is on
+			local fiveOn = LiveFlags.shown(
+				SwiftPaws.FLAG_FIVE,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_FIVE)
+			)
+			local shown = table.clone(row)
+			shown.maxLevel = SwiftPaws.topLevel(row.maxLevel or 1, fiveOn)
+			row = shown
+		end
 		local level = if state.fishPerks then state.fishPerks[row.id] else nil
 		local cost = MarketLogic.cost(row, level)
 		local pending = self:_pendingFor(row.id)

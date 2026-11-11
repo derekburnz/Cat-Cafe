@@ -3877,6 +3877,43 @@ Presets.lawn = {
 				colour = Presets.palette.golden,
 			},
 		},
+		-- #3222 rare Golden drops: each spins (the `_Spin` contract) and glints like the Golden Paw Statue
+		golden_cat_fountain = {
+			emitter = { name = "goldMote", at = "_Cat_Spin", offset = Vector3.new(0, 1, 0) },
+			pulse = {
+				at = "_Cat_Spin",
+				offset = Vector3.new(0, 1.2, 0),
+				every = 5,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.8, count = 2, colour = Presets.palette.lampWarm },
+		},
+		golden_cat_throne = {
+			emitter = { name = "goldMote", at = "_Crown_Spin", offset = Vector3.zero },
+			pulse = {
+				at = "_Crown_Spin",
+				offset = Vector3.zero,
+				every = 4,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.6, count = 2, colour = Presets.palette.lampWarm },
+		},
+		golden_yarn_kitten = {
+			emitter = { name = "goldMote", at = "_Yarn_Spin", offset = Vector3.zero },
+			pulse = {
+				at = "_Yarn_Spin",
+				offset = Vector3.zero,
+				every = 6,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.5, count = 3, colour = Presets.palette.lampWarm },
+		},
 	} :: { [string]: LawnSpec },
 }
 

@@ -80,6 +80,7 @@ The #2687 unlock perks for these areas (Warm Paws, Curator) come from the tier a
   - `SpaSeconds` 3600, `SpaSlotPrices` { 0, 100, 250 }.
   - `MuseumRoomTipBonus` 0.02.
   - `CampExtraRangeStuds` 8 is reused.
+  - **Update, #3094 (2026-11-10):** the Spa and Museum cards also open from the Cat Cannon menu, from anywhere. The server no longer asks for the player to be in range; tier and every other check in the Remotes below still apply. "the player is in range" and the out-of-range exploit row (QA 6) no longer apply.
 - **Save:** both fields are optional, and this is a save version bump, so claim `DataService.luau` and `ProfileSchema.luau`. It can share part 3's bump if that hasn't shipped.
   - `spa = { slots: number (1 to 3), soaking: { [slot]: { uid: string, at: number } } }`.
   - `museum = { [catId]: "base" | "gold" | "rainbow" }`.

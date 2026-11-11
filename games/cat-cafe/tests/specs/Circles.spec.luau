@@ -1337,40 +1337,45 @@ return function()
 			expect(Arcade.add(99, "perfect")).to.equal(100)
 		end)
 
-		it("steps every 10 points, stopping at the 10th", function()
+		it("steps every 5 points, stopping at the 20th (100 points) (#3359)", function()
 			expect(Arcade.step(0)).to.equal(0)
-			expect(Arcade.step(9)).to.equal(0)
-			expect(Arcade.step(10)).to.equal(1)
-			expect(Arcade.step(57)).to.equal(5)
-			expect(Arcade.step(100)).to.equal(10)
-			expect(Arcade.step(500)).to.equal(10)
+			expect(Arcade.step(4)).to.equal(0)
+			expect(Arcade.step(5)).to.equal(1)
+			expect(Arcade.step(57)).to.equal(11)
+			expect(Arcade.step(99)).to.equal(19)
+			expect(Arcade.step(100)).to.equal(20)
+			expect(Arcade.step(500)).to.equal(20)
 		end)
 
-		it("starts at a net level 1 Common's pace and gets slowly harder", function()
-			local start = Arcade.windows(0)
-			local common = Circles.windowsFor(1, "Common")
-			expect(start.perfect).to.be.near(common.perfect, 1e-9)
-			expect(start.good).to.be.near(common.good, 1e-9)
-			expect(Arcade.shrink(0)).to.be.near(Catalog.rarities.Common.shrinkSeconds, 1e-9)
-			expect(Arcade.shrink(10) / Arcade.shrink(0)).to.be.near(0.96 ^ 10, 1e-9) -- about 0.66
-			expect(Arcade.windows(10).good / start.good).to.be.near(0.97 ^ 10, 1e-9)
-			expect(Arcade.gap(0)).to.be.near(Config.CircleGapMax, 1e-9)
-			expect(Arcade.gap(10)).to.be.near(Config.CircleGapMin, 1e-9)
-			expect(Arcade.jitter(0)).to.be.near(Config.CircleJitter, 1e-9)
-			expect(Arcade.jitter(10)).to.be.near(Config.ArcadeJitterMax, 1e-9)
-			for step = 1, 10 do
-				expect(Arcade.shrink(step) < Arcade.shrink(step - 1)).to.equal(true)
-				expect(Arcade.windows(step).perfect < Arcade.windows(step - 1).perfect).to.equal(
-					true
-				)
+		it(
+			"starts at twice a Common's pace with its windows and keeps getting harder (#3359)",
+			function()
+				local start = Arcade.windows(0)
+				local common = Circles.windowsFor(1, "Common")
+				expect(start.perfect).to.be.near(common.perfect, 1e-9)
+				expect(start.good).to.be.near(common.good, 1e-9)
+				expect(Arcade.shrink(0)).to.be.near(Catalog.rarities.Common.shrinkSeconds / 2, 1e-9)
+				expect(Arcade.shrink(6)).to.be.near(0.60 * 0.96 ^ 6, 1e-9) -- about 0.47 s at 30 points
+				expect(Arcade.shrink(20) / Arcade.shrink(0)).to.be.near(0.96 ^ 20, 1e-9) -- about 0.44
+				expect(Arcade.windows(20).good / start.good).to.be.near(0.97 ^ 20, 1e-9)
+				expect(Arcade.gap(0)).to.be.near(Config.CircleGapMax, 1e-9)
+				expect(Arcade.gap(Arcade.MAX_STEP)).to.be.near(Config.CircleGapMin, 1e-9)
+				expect(Arcade.jitter(0)).to.be.near(Config.CircleJitter, 1e-9)
+				expect(Arcade.jitter(Arcade.MAX_STEP)).to.be.near(Config.ArcadeJitterMax, 1e-9)
+				for step = 1, Arcade.MAX_STEP do
+					expect(Arcade.shrink(step) < Arcade.shrink(step - 1)).to.equal(true)
+					expect(Arcade.windows(step).perfect < Arcade.windows(step - 1).perfect).to.equal(
+						true
+					)
+				end
 			end
-		end)
+		)
 
 		it(
 			"builds blocks of 10 on screen, never close enough for a late press to land on the next (S24)",
 			function()
 				local roll = lcg(7)
-				for step = 0, 10 do
+				for step = 0, Arcade.MAX_STEP do
 					local circles = Arcade.block(step, 1000, roll)
 					expect(#circles).to.equal(Arcade.BLOCK)
 					expect(circles[1].startsAt).to.equal(1000)
@@ -1379,8 +1384,14 @@ return function()
 						expect(circle.kind).to.equal("single")
 						expect(circle.x >= 0.25 and circle.x <= 0.75).to.equal(true)
 						expect(circle.y >= 0.3 and circle.y <= 0.7).to.equal(true)
-						local wobble = circle.shrinkSeconds / Arcade.shrink(step) - 1
-						expect(math.abs(wobble) <= Arcade.jitter(step) + 1e-9).to.equal(true)
+						-- #3359: never under the floor, else within the step's wobble
+						expect(circle.shrinkSeconds >= Config.ArcadeShrinkFloorSeconds).to.equal(
+							true
+						)
+						if circle.shrinkSeconds > Config.ArcadeShrinkFloorSeconds then
+							local wobble = circle.shrinkSeconds / Arcade.shrink(step) - 1
+							expect(math.abs(wobble) <= Arcade.jitter(step) + 1e-9).to.equal(true)
+						end
 						local nextOne = circles[i + 1]
 						if nextOne ~= nil then
 							local gap = nextOne.startsAt - Circles.target(circle)
@@ -1440,9 +1451,17 @@ return function()
 			expect(save.paid :: any).to.deepEqual({ 10 })
 		end)
 
+		local EPOCH = Arcade.BOARD_EPOCH -- #3378: a best counts only with the board's epoch
+
 		it("reads a save back safely, and yesterday's milestones are open again", function()
 			local junk = Arcade.sanitize(
-				{ best = 250, bestCircles = -3, paid = { 10, 15, "x", 10 }, day = 20400 },
+				{
+					best = 250,
+					bestCircles = -3,
+					paid = { 10, 15, "x", 10 },
+					day = 20400,
+					epoch = EPOCH,
+				},
 				NOW
 			)
 			expect(junk.best).to.equal(100)
@@ -1461,6 +1480,7 @@ return function()
 				local stored = Arcade.sanitize({
 					best = 40,
 					bestCircles = 30,
+					epoch = EPOCH,
 					day = 20400,
 					paid = { 10, 20 },
 					legend = false,
@@ -1469,6 +1489,7 @@ return function()
 				local mine = Arcade.sanitize({
 					best = 40,
 					bestCircles = 28,
+					epoch = EPOCH,
 					day = 20400,
 					paid = { 10, 30 },
 					legend = true,

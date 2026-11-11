@@ -174,6 +174,58 @@ return function()
 			expect(at(save, 5, T + 10 * DAY).lostFound.nextAt).to.equal(T + 10 * DAY + 2 * HOUR)
 		end)
 
+		-- #3361: a roll in the spins row (after fish 0.30 and potions 0.22), counted
+		local function counted(value: number): (() -> number, () -> number)
+			local calls = 0
+			return function(): number
+				calls += 1
+				return value
+			end, function(): number
+				return calls
+			end
+		end
+
+		it("with no room for spins, a claim rolls nothing and every find waits (#3361)", function()
+			local most = CampExtras.lostFoundMaxSpins()
+			expect(most).to.equal(2)
+			for _, value in { 0.1, 0.5, 0.6, 0.999 } do
+				local save = emptied(5)
+				at(save, 5, T + 7 * HOUR) -- 3 held
+				local roll, calls = counted(value)
+				local prize, count =
+					CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, roll, nil, most - 1)
+				expect(prize).to.equal(nil)
+				expect(count).to.equal(0)
+				expect(calls()).to.equal(0) -- nothing rolled, so nothing rerolled
+				expect(save.lostFound.held).to.equal(3)
+			end
+		end)
+
+		it("stops by the room left, never by what was rolled (#3361)", function()
+			-- room for one find of spins: a spins find uses it up and the other two wait
+			local save = emptied(5)
+			at(save, 5, T + 7 * HOUR)
+			local roll, calls = counted(0.6)
+			local some, taken = CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, roll, nil, 2)
+			expect(taken).to.equal(1)
+			expect(calls()).to.equal(1)
+			expect((some :: any).spins).to.equal(2)
+			expect(save.lostFound.held).to.equal(2)
+			-- the same room with finds that are not spins: all three come, the room never shrinks
+			local other = emptied(5)
+			at(other, 5, T + 7 * HOUR)
+			local potions, potionCalls = counted(0.5)
+			local _, all = CampExtras.take(other, "lostFound", 5, T + 7 * HOUR, potions, nil, 2)
+			expect(all).to.equal(3)
+			expect(potionCalls()).to.equal(3)
+			expect(other.lostFound.held).to.equal(0)
+			-- with plenty of room the rest of the first save comes at once
+			local rest, more = CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, roll, nil, 50)
+			expect(more).to.equal(2)
+			expect((rest :: any).spins).to.equal(4)
+			expect(save.lostFound.held).to.equal(0)
+		end)
+
 		it("brings a lost Epic cat for each lostCat row a take lands on", function()
 			local save = emptied(5)
 			at(save, 5, T + 7 * HOUR)

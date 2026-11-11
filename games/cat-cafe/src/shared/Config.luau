@@ -1031,13 +1031,18 @@ local Config = {
 	-- shrink time (circles 1 to 10 easy for anyone who has caught a cat). ArcadeBlockLeadIn is the breath before each
 	-- block of 10 circles. Each milestone pays once per UTC day (Derek2 2026-11-10: 5 fish at 10 "so people who are
 	-- bad get some more to attempt early on"; the fish prizes stay 5, 8, 15 and 30). Nothing here is sold.
+	-- #3359 (Derek2 2026-11-11: "put starting speed at 2x scaling up much faster game is too easy"; numbers from
+	-- Design-Agent): the start is twice a Common's pace (1.20 to 0.60 s), a step every 5 points (was 10) up to
+	-- Arcade.MAX_STEP 20 (was 10), so it keeps getting harder to 100: about 0.47 s at 30, 0.40 at 50, 0.27 at 100.
+	-- ArcadeShrinkFloorSeconds keeps the wobble from pushing a circle under reaction time.
 	ArcadeCostFish = 1,
 	ArcadeMaxPoints = 100,
-	ArcadeStepEvery = 10,
+	ArcadeStepEvery = 5,
 	ArcadeShrinkStep = 0.96,
 	ArcadeWindowStep = 0.97,
 	ArcadeJitterMax = 0.20,
-	ArcadeStartShrinkSeconds = 1.20,
+	ArcadeStartShrinkSeconds = 0.60,
+	ArcadeShrinkFloorSeconds = 0.30,
 	ArcadeBlockLeadIn = 0.9,
 	ArcadeMilestones = {
 		{ at = 10, prize = { fish = 5 }, name = "5 golden fish" },

@@ -894,7 +894,7 @@ Layout.alley = {
 					{ asset = "CatCafe_Alley_TrashCan", x = AO - 3.8, z = -28 },
 					{ asset = "CatCafe_Alley_Crate", x = AO - 3.8, z = 100 },
 					{ asset = "CatCafe_Alley_Crate", x = AO - 4, z = AN - 7 },
-					{ asset = "CatCafe_Alley_Crate", x = AO - 2.9, z = AN - 9.5 },
+					{ asset = "CatCafe_Alley_Crate", x = AO - 3.5, z = AN - 9.5 }, -- #3349: clear of the Music Shop step
 					{ asset = "CatCafe_Alley_Puddle", x = AI + 17, z = -12 },
 					{ asset = "CatCafe_Alley_Puddle", x = AI + 12, z = 26 },
 				} :: { Prop }
@@ -1097,7 +1097,7 @@ Layout.park = {
 	-- a tree's branch points along its -X, a bin's open lid is at its back
 	rescueSpots = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -52, 0, 30 }, 180), -- #3349: was -46, in the willow
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 22 }, 180), -- #3349: was (-46, 30) in the willow, then (-52, 30) in the set's poplar
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
@@ -1109,7 +1109,7 @@ Layout.park = {
 	-- the middle.
 	rescuePool = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -52, 0, 30 }, 180), -- #3349: was -46, in the willow
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 22 }, 180), -- #3349: was (-46, 30) in the willow, then (-52, 30) in the set's poplar
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
@@ -2147,6 +2147,8 @@ local CAMP_CANNON = { x = 0, z = -26.5 }
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_OUT = 4 -- an Index Board stands this far beside the way out
 local ALLEY_BOARD_OUT = 7 -- the Alleyway's (F85, Model-Agent): its low walls run on from the opening
+local BOARD_IN = 7 -- and this far in from the gate line (#3349: 4 stood in the gate's dressing)
+local ALLEY_BOARD_IN = 4 -- the Alleyway has an arch, no gate dressing
 
 -- A camp-space point (x, z) in world space: the same turn as setPoints, about the camp's origin.
 function Layout.campPoint(camp: Camp, x: number, z: number): (number, number)
@@ -2207,9 +2209,14 @@ for id, spec in Layout.areas do
 		-- Beside the way out, 4 in from the gate line, its front toward the pad and turned 20 degrees toward the path:
 		-- left of the opening for a player walking out. The Alleyway's (F85, one way in under the arch) stands 7 beside
 		-- its opening (Model-Agent), past where its low walls begin; 4 in keeps the turned board's near post out of
-		-- the low wall on the camp line, which 2.5 in put it through (worldscan).
-		local out = if spec.rects ~= nil then ALLEY_BOARD_OUT else BOARD_OUT
-		Layout.indexBoards[id] = { x = -(camp.openingHalfWidth + out), y = 0, z = -4, rotY = -20 }
+		-- the low wall on the camp line, which 2.5 in put it through (worldscan). #3349: a gated area's board stands
+		-- 7 in, because at 4 it stood in the gate's own dressing (the Ruins board's top ran into the gate pier and
+		-- vines, the brazier stood in its screen); Model-Agent's overlap check has all six at least 0.5 clear at 7.
+		local alleyway = spec.rects ~= nil
+		local out = if alleyway then ALLEY_BOARD_OUT else BOARD_OUT
+		local back = if alleyway then ALLEY_BOARD_IN else BOARD_IN
+		Layout.indexBoards[id] =
+			{ x = -(camp.openingHalfWidth + out), y = 0, z = -back, rotY = -20 }
 	end
 end
 

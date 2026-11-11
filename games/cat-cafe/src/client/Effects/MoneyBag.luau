@@ -8,14 +8,16 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local RichBags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RichBags"))
 
 local MoneyBag = {}
 
-local FOLDER = "RichBags" -- shared/RichBags.FOLDER
+local FOLDER = RichBags.FOLDER
 local started = false
 local watched: { [Instance]: boolean } = {}
 

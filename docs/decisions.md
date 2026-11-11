@@ -1015,7 +1015,18 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **What:** the customer drops a money bag on table 1 and leaves after 20 s. The bag waits `RichBagSeconds` 180 from the drop with no dusk clamp, up to `RichBagsMax` 3 at once, and only the owner collects it by walking into or tapping it. An uncollected bag fades and pays nothing (the 2026-10-28 "if you miss it you miss it" rule stands). Spec: `docs/design/cat-cafe/rich-money-bags.md`.
 - **Saves:** none; bags never save, so no restart is needed.
 
+<<<<<<< HEAD
 ## 2026-11-11 Tier 5 costs 390M, up from 370M, with the money bags (#3360)
 - **Why:** with the money bags fewer rich tips are missed, so Pace's "over 2 hours in one go with 4x Money" check gave a Tier 5 median of 1 h 59. By the economy rule the cost goes up and the bag is not cut (Design-Agent).
 - **What:** Tier 5 cost 370,000,000 to 390,000,000. 385M gave 2 h 01; 390M gives 2 h 02 (10th to 90th 1 h 29 to 2 h 22). The free player's median is 4 h 16, inside its 3.5 to 5.5 h band. A player who already has Tier 5 keeps it.
 - **Built now:** the bag on table 1, its own full 180 s, up to 3 waiting, no loss at dusk or night, the 20 s sit, and ClaimRichTip with an optional bag id. **Later, in its own PR:** tapping any bag on its own, a "total waiting" line on the HUD, the bag model and its fade.
+=======
+## 2026-11-11 Cat Arcade: twice as fast to start and harder all the way to 100 (#3359)
+- **Why:** Derek2: "put starting speed at 2x scaling up much faster game is too easy". The old curve started at a Common's pace and stopped getting harder at 100 points only by reaching step 10.
+- **What (numbers from Design-Agent):** ArcadeStartShrinkSeconds 1.20 to 0.60, ArcadeStepEvery 10 to 5, Arcade.MAX_STEP 10 to 20, new ArcadeShrinkFloorSeconds 0.30. ShrinkStep 0.96, WindowStep 0.97, JitterMax 0.20 and the gaps stay. Shrink is about 0.47 s at 30 points, 0.40 at 50 and 0.30 (floored) at 100; the Good half-width goes 0.13, 0.11, 0.096, 0.070. Milestones and prizes do not change. The board now draws from a steady clock (Components/SmoothClock) so a clock sync correction no longer makes the closing circle hop.
+
+## 2026-11-11 The Cat Arcade leaderboard starts again, and the arcade gets a funnel (#3378)
+- **Why:** Derek: "reset for now and setup a funnel for it and the new info". The 2x faster start (#3366) made old scores much easier than new ones.
+- **What (reset):** the board moves to a new store (`CatCafe_LB_Arcade2`) and each arcade save carries the board's number (`epoch` 2). A best score without that number is dropped when the save is read, so everyone's best starts at 0. The arcade save store keeps its name, so today's paid prizes, the free game used, the Arcade Legend title and the games played stay where old and new servers both read them and no daily prize can pay twice (Review-QA-Agent caught that a renamed save store would have let it). It ships on top of #3366, so no score on the new board was made under the old rules. No restart: an old server keeps the old board until it closes, and a best made there is dropped on the next new server.
+- **What (funnel):** `arcade_v1`, one run per player per UTC day: seen, opened, started, first circle, finished, played again (held back until a game is finished, so the steps stay in order); fields free or paid, device, minutes band. Plus `arcade_quit`, `arcade_blocked` (reason) and `arcade_board_top` (place). Owner accounts are left out. Step list by Growth-Agent.
+>>>>>>> origin/main

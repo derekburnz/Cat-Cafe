@@ -281,7 +281,12 @@ local Config = {
 	-- #2774 (Derek2 2026-11-09, the 2 to 5 minute drop: 12 set a first bait, 7 saw it land): was 120
 	-- #2946 (Derek2 2026-11-10: "a cut scene ... then the food timer left gets set to 0"): 1, so the first bait cat
 	-- arrives (BaitService checks every second) inside the 2.5 s the client's cutscene waits on the bowl (was 45, #2774)
-	FirstBaitWaitSeconds = 1,
+	FirstBaitWaitSeconds = 5,
+	-- #3161 (Derek2 2026-11-10: "set food bowl to like 5 seconds so the cutscene lines up with it"): 1 before (#2946).
+	-- The first bait's cat stands at the bowl this long before its timer ends (never sooner than a second after the
+	-- food), so the cutscene (camera over 0.5 s, the walk 1.6 s, the eat 1 s, camera back 0.5 s) plays while the
+	-- timer runs down and the Tame card comes up as it ends.
+	FirstBaitCatLeadSeconds = 4,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes
@@ -513,7 +518,15 @@ local Config = {
 	DayCartStep = 0.03,
 	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
-	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
+	CornerDailyLimits = {
+		steady = 4,
+		quick_bait = 2,
+		whistle = 4,
+		lucky = 2,
+		money = 3,
+		big_money = 2,
+		gold_rush = 2,
+	} :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
 	-- and its chance shows in the catch help), and every cat rescued from a trap gives one
@@ -541,13 +554,35 @@ local Config = {
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
 	-- #2320: Common 0.26 -> 0.30 and Rare 0.20 -> 0.23.
+	-- #3120 (Derek2 2026-11-10: "make the rescue area about 10->50% smaller especially for the common->epic rescues are
+	-- too easy now"): 0.30, 0.23, 0.15, 0.12 and 0.14 before, so 43%, 41%, 30%, 12% and 11% narrower. Speeds, hits and
+	-- the area ease are as they were.
 	RescueZoneWidth = {
-		Common = 0.30,
-		Rare = 0.23,
-		Epic = 0.15,
-		Legendary = 0.12,
-		Mythical = 0.14,
+		Common = 0.17,
+		Rare = 0.135,
+		Epic = 0.105,
+		Legendary = 0.105,
+		Mythical = 0.125,
 	} :: { [string]: number },
+	-- #3120: an account's first RescueFirstUses rescues (stats.rescues below it) have zones RescueFirstZone times as
+	-- wide, about the widths before the cut (Common 0.29, Rare 0.23), so a new player's first rescues are no harder.
+	-- #3180 (Derek2 2026-11-10: "make the starting rescue's easier and slightly smaller bars"): 3 rescues at 1.7
+	-- before. The first five now, 1.85 times as wide (a first Common in the Alleyway has 0.44 of the bar, 0.42 before
+	-- #3120), and the marker runs at RescueFirstSpeed of its speed on them (Rescue.speedScale).
+	RescueFirstUses = 5,
+	RescueFirstZone = 1.85,
+	RescueFirstSpeed = 0.85,
+	-- #3135 (Derek2 2026-11-10: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not
+	-- added add it"): it was not. A gold or rainbow cat's catch bands (Circles.windowsFor) and rescue zone
+	-- (Rescue.zoneScale) are this times as wide. Not on the tutorial stray or an account's first rescues.
+	CoatDifficulty = { gold = 0.90, rainbow = 0.80 } :: { [string]: number },
+	-- #3140 (Derek2 2026-11-10: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to
+	-- wait", "speed up the circles"): in an area of QuickRingTier or later (the Sewer, Desert and Ruins) a Common or
+	-- Rare cat's catch rings close in this times the rarity's shrink time: Common 1.20 s to 0.96 s, Rare 1.00 s to
+	-- 0.85 s, which keeps Rare slower than Epic's 0.82 s. The bands stay the same seconds wide, so a ring is no harder
+	-- to hit, only quicker to come; the ring count, the gaps and the rarer cats are unchanged.
+	QuickRingTier = 5,
+	QuickRingScale = { Common = 0.80, Rare = 0.85 } :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
 	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed
@@ -578,7 +613,8 @@ local Config = {
 	-- F87 (easy-start.md section 2): the intro waits for the Tutorial tile instead of playing by itself (true restores
 	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
-	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
+	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
+	-- nobody can tackle them either.
 	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
 	-- and a replay from the ? tile
 	IntroAutoPlay = true,

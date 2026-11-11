@@ -1045,7 +1045,9 @@ local function refreshBowl(
 		return
 	end
 	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
-	local ready = bait ~= nil and os.time() >= readyAt
+	-- #3161: the account's first bait's cat stands at the bowl a few seconds before its timer ends (Bait.catOutAt)
+	local ready = bait ~= nil
+		and os.time() >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
 
 	if folder:FindFirstChild("Bowl") == nil then
 		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")
@@ -1483,7 +1485,10 @@ function CafeService.addCaughtCat(
 	if notify then
 		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
 		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
-		if profile.stats.catsCaught >= 2 then
+		-- #3161 (Derek2 2026-11-10: "so many pop ups when catching first food bowl cat"): not on the first bowl cat,
+		-- whose card, reward and the tutorial's end already speak; the tip comes with the next cat
+		local firstTame = method == "bait" and profile.stats.baitsTamed <= 1
+		if profile.stats.catsCaught >= 2 and not firstTame then
 			TipService.show(player, "second_cat")
 		end
 		if isNew then

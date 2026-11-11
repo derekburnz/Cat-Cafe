@@ -96,8 +96,10 @@ type Stray = {
 	knocks: number, -- F84: times tackles knocked this cat loose since it was first caught (camp_checkin)
 	pity: boolean?, -- #2567: a pity or shower cat (and the cat it became when knocked loose): no cross-server line
 	-- F87 (easy-start.md section 2b): the user id of the beginner this tutorial stray waits for, mirrored in the
-	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
-	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
+	-- model's Beginner attribute (0 when none). Their catch is one slow circle and a Miss brings it back instead of
+	-- sending the cat running. LockedBy stays the catch lock the effects read.
+	-- #3181: it is no longer theirs alone. Anyone may swing at it and catch it (a beginner with the same easy catch,
+	-- anyone else with a Common's own circles), and tutorialTick puts a new one at the beginner's point.
 	beginner: number?,
 	-- #3022 (shared/SecondCat): the user id of the player this stray waits for near the Alleyway camp's landing, from
 	-- their first customer served until their second cat, mirrored in the model's WaitsFor attribute (0 when none).
@@ -822,7 +824,8 @@ end
 
 -- A beginner always finds a Common stray waiting just past the Alleyway camp's way out, at their plot's own `near`
 -- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it. Since F87
--- (easy-start.md section 2b) it is theirs alone until their first check-in: one that waits at their point for
+-- (easy-start.md section 2b) it is theirs until their first check-in (#3181: no longer theirs alone; anyone may
+-- catch it, and the next tick, or the catch itself, puts a new one at the point): one that waits at their point for
 -- someone who left the plot is handed over, and one whose beginner left or checked in a cat is freed.
 -- #2692: nothing else spawns at night (v0.9, F66), but a beginner holds the night pass, so their stray comes at night
 -- too, and one whose beginner has gone or checked in leaves at once by night instead of waiting for the sunrise.
@@ -1450,6 +1453,27 @@ local function keepBackpack(player: Player)
 	end
 end
 
+-- #3165: the cat in the hands stays in them. A carry the server still holds whose model is gone or no longer welded
+-- to the character's torso (the avatar's appearance rebuilt it after a respawn, or the cat went on the root before
+-- the torso was there) is put back, so the carry banner never stands over empty arms.
+local function keepHeld(player: Player)
+	local carry = carrying[player]
+	local character = player.Character
+	if carry == nil or character == nil or character.Parent == nil then
+		return
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if humanoid == nil or humanoid.Health <= 0 or root == nil or not root:IsA("BasePart") then
+		return
+	end
+	if not HeldCat.held(carry.model, character, root :: BasePart) then
+		attachHeldCat(player, carry)
+		-- the attach sets plain carry speed; a Catch Rush or a Startled slow still running keeps its own (review N247)
+		CatService.refreshSpeed(player)
+	end
+end
+
 -- #2565: takes the packed cat off the back (nil when none), its model gone.
 local function endPacked(player: Player): Carry?
 	local carry = packed[player]
@@ -1772,8 +1796,8 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
 		return true
 	end
+	-- #3181: another beginner's tutorial stray too, now that anyone may catch one
 	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
-		and (stray.beginner == nil or stray.beginner == player.UserId)
 end
 
 -- startCatch, below; a beginner's Miss on their tutorial stray starts the circle again through it (F87).
@@ -1919,6 +1943,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local knocks = stray.knocks
 		local pity = stray.pity
 		local area = stray.area
+		local waitedFor = stray.beginner -- #3181: someone else's tutorial stray
 		-- #1181 (corner-shop-v2.md section 3): 1 in CatchSnackChance a stray's net catch drops a Small Snack, never a
 		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
 		local dropsSnack = stray.drop == nil
@@ -1929,6 +1954,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			then Config.CatXpBase
 			else nil
 		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp, pity)
+		if waitedFor ~= nil and waitedFor ~= player.UserId then
+			-- #3181: the beginner it waited for gets a new one at their point now, not at the next 5 s tick
+			task.defer(tutorialTick)
+		end
 		if dropsSnack then
 			local paid =
 				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
@@ -2039,9 +2068,6 @@ function startCatch(
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
 	end
-	if stray.beginner ~= nil and stray.beginner ~= player.UserId then
-		return "This cat is waiting for a new player" -- F87; the swing skips it, so this is only a guard
-	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		return "Too far away"
 	end
@@ -2073,12 +2099,13 @@ function startCatch(
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
-		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area) -- #2322: wider in the first area
+		-- #2322: wider in the first area; #3135: a little narrower for a gold or rainbow coat
+		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	local hold = tutorial and Config.CatchHoldFirstRing and profile.stats.catsCaught == 0
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
-		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
+		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
@@ -2267,9 +2294,9 @@ local function swingable(stray: Stray, player: Player, now: number): boolean
 	if not stray.alive or stray.jumping or now < stray.fleeingUntil then
 		return false
 	end
-	if stray.beginner ~= nil and stray.beginner ~= player.UserId then
-		return false -- F87: a beginner's tutorial stray is theirs alone
-	end
+	-- #3181 (Derek2 2026-11-10: "certain cats atleast at the beginning of alleyway are bugged and cant be caught no
+	-- matter where I put net"): a beginner's tutorial stray was theirs alone (F87), so to everyone else, other new
+	-- players included, it was a cat no net could catch. Anyone's swing lands on it now.
 	return stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray)
 end
 
@@ -3069,13 +3096,14 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	end)
 
 	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light
-	-- check every PACK_CHECK_SECONDS for any other way it came off.
+	-- check every PACK_CHECK_SECONDS for any other way it came off. #3165: the cat in the hands the same way.
 	task.spawn(function()
 		while true do
 			task.wait(PACK_CHECK_SECONDS)
 			for _, player in Players:GetPlayers() do
 				local ok, err = pcall(function()
 					keepBackpack(player)
+					keepHeld(player) -- #3165
 				end)
 				if not ok then
 					warn("[CatService] keepBackpack: " .. tostring(err))
@@ -3088,6 +3116,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		player.CharacterAppearanceLoaded:Connect(function()
 			task.wait(0.1)
 			keepBackpack(player)
+			keepHeld(player) -- #3165: a carry kept through a respawn went on before the appearance was in
 		end)
 		player.CharacterAdded:Connect(function(character)
 			local body = character:WaitForChild("Humanoid", 10)

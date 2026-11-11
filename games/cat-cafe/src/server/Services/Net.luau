@@ -66,7 +66,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
 	BuyMystery = RateLimiter.new(1, 1), -- #2565 (mystery-market.md section 5): 1 a second
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
-	BuyFreshCatch = RateLimiter.new(2, 1), -- F94 (rewards-and-shops.md section 6): answers with FreshCatchStock every time
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes
 	IntroDone = RateLimiter.new(1, 1), -- intro-cutscene.md section 3: 1 a second; each call logs one event
 	SetHideCredit = RateLimiter.new(1, 1), -- #1083: 1 a second

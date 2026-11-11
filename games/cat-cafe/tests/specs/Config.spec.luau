@@ -223,7 +223,8 @@ return function()
 		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
-		FirstBaitWaitSeconds = 1, -- #1895: the account's first bait; #2946: was 45 (#2774), 120 before
+		FirstBaitWaitSeconds = 5, -- #1895: the account's first bait; #3161: was 1 (#2946), 45 (#2774), 120 before
+		FirstBaitCatLeadSeconds = 4, -- #3161: the first bait's cat stands at the bowl this long before its timer ends
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
 		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
@@ -552,6 +553,12 @@ return function()
 				LateStationsOpen = true, -- #2651 part 4: on since the Spa and Museum cards are in (#2931)
 				CatchHoldFirstRing = true, -- #2920: on since the Catch screen draws the hold (#2922)
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
+				RescueFirstUses = true, -- #3120: an account's first rescues, checked in Rescue.spec
+				RescueFirstZone = true, -- #3120: their wider zone, checked in Rescue.spec
+				RescueFirstSpeed = true, -- #3180: their slower marker, checked in Rescue.spec
+				CoatDifficulty = true, -- #3135: a table, checked in Rescue.spec and Circles.spec
+				QuickRingTier = true, -- #3140: checked in Circles.spec
+				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 			}
 			for name, value in pairs(Config :: any) do
@@ -884,11 +891,12 @@ return function()
 			"the rescue bar matches the section 10b table: rarer has less time in the zone (v0.13.15 F83, #2219, #2320, #2566)",
 			function()
 				local rows = {
-					Common = { 0.85, 0.30 }, -- #2320
-					Rare = { 0.735, 0.23 }, -- #2320; #2566: Rare and up x0.7
-					Epic = { 0.98, 0.15 },
-					Legendary = { 1.12, 0.12 },
-					Mythical = { 1.26, 0.14 },
+					-- #3120: the zones were 0.30, 0.23, 0.15, 0.12 and 0.14
+					Common = { 0.85, 0.17 }, -- #2320
+					Rare = { 0.735, 0.135 }, -- #2320; #2566: Rare and up x0.7
+					Epic = { 0.98, 0.105 },
+					Legendary = { 1.12, 0.105 },
+					Mythical = { 1.26, 0.125 },
 				}
 				-- how long the marker stays inside a zone (tolerance included) on its first pass
 				local function inZoneSeconds(row: { number }): number

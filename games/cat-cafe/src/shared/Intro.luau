@@ -25,7 +25,8 @@ Intro.SHOTS = 8
 -- alleyway at the end scene is not needed") took out the last shot, "Your first cat is waiting in the Alleyway!", 10
 -- since #2626 (Derek2: "make tutorial slightly faster 20% roughly") read faster and dropped the tackling lesson's tail.
 Intro.VERSION = 10
-Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
+Intro.SKIP_AFTER = 0 -- #3168 (Derek2: "no delay on clicking through scenes in tutorial so impatient people can instantly
+-- click through it"): Skip works from the first second (it was 5.0 s, its bar filling until then)
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 -- #2961 (Derek2 11-10: "don't make intro skip those slides ... just wait up to a couple seconds for loading"): the
 -- most shot 1 holds on its fuse for the camp's ground before the cut to the camp. #3109 (Derek2 11-10: "start the
@@ -40,7 +41,7 @@ Intro.CAMP_WAIT = 2.5
 -- 0.8 + 0.32 s a word, a fifth off the 1.0 + 0.4 s every caption-bound hold had (about 31 s down to 25 s).
 Intro.CAPTION_BASE = 0.8
 Intro.CAPTION_PER_WORD = 0.32
-Intro.NEXT_AFTER = 1.0
+Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 
 Intro.AREA = "alley" -- the camp shots 2 to 4 film, where a new player's first flight goes

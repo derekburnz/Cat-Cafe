@@ -1105,8 +1105,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
+	-- #3178 (Derek2 11-10: "on pc the things like days should go in the top middle of screen it's too squished"): on a
+	-- PC the clock and the status banner under it sit at the top middle (_placeTopMiddle); touch keeps the right column
 	local clock = bare("Clock", {
-		AnchorPoint = Vector2.new(1, 0),
+		AnchorPoint = if TOUCH then Vector2.new(1, 0) else Vector2.new(0.5, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP),
 		Size = UDim2.fromOffset(CLOCK_W, CLOCK_H),
 		Visible = false,
@@ -1114,7 +1116,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			HorizontalAlignment = if TOUCH
+				then Enum.HorizontalAlignment.Right
+				else Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
@@ -1351,7 +1355,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundColor3 = Theme.dark.panel,
 		BackgroundTransparency = 0.1,
 		BorderSizePixel = 0,
-		AnchorPoint = if TOUCH then Vector2.new(0, 0) else Vector2.new(1, 0),
+		AnchorPoint = if TOUCH then Vector2.new(0, 0) else Vector2.new(0.5, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
 		Size = UDim2.fromOffset(0, 0),
 		AutomaticSize = Enum.AutomaticSize.XY,
@@ -1375,7 +1379,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			FillDirection = Enum.FillDirection.Vertical,
 			HorizontalAlignment = if TOUCH
 				then Enum.HorizontalAlignment.Left
-				else Enum.HorizontalAlignment.Right,
+				else Enum.HorizontalAlignment.Center, -- #3178: centred under the clock at the top middle
 			Padding = UDim.new(0, BANNER_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -1438,7 +1442,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #3022: the second cat goal now (nil for none), whether its preview lines have had their time, and a counter so
 	-- an older start's bounce does nothing
 	self._second = nil :: SecondCatGoal.View?
-	self._secondPreviewed = false
+	self._secondPreviewed = true -- #3155: the preview lines no longer show
 	self._secondRun = 0
 	self._gone = false
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
@@ -2952,16 +2956,25 @@ function HUD._renderUnlocks(self: any, state: Types.PlayerState)
 		return
 	end
 	local before: { [HudUnlocks.Key]: boolean }? = self._unlocks
+	-- #3183: the step this update comes from; a piece a tutorial step opens shows with no "New!"
+	local stepBefore: number = self._unlockStep or state.tutorialStep
+	self._unlockStep = state.tutorialStep
 	local now, opened = HudUnlocks.update(before, HudUnlocks.view(state :: any))
 	if before ~= nil and #opened == 0 then
 		return -- update keeps what showed, so no new key means no change
 	end
 	self._unlocks = now
 	self:_applyUnlocks()
-	for _, key in opened do
+	-- #3161: the tutorial's end opens eight pieces at once; those just appear (HudUnlocks.pops). #3183: so does
+	-- anything a tutorial step opens
+	local pops = HudUnlocks.pops(
+		opened,
+		stepBefore < HudUnlocks.DONE or state.tutorialStep < HudUnlocks.DONE
+	)
+	for _, key in pops do
 		self:_popNew(key)
 	end
-	if #opened > 0 then
+	if #pops > 0 then
 		Sound.play("uiHint")
 	end
 end
@@ -3295,6 +3308,10 @@ function HUD.toastAvoid(self: any): { Types.Box }
 		box({ self._counters }) -- #2393: the top middle
 		box({ self._moneyBadge }) -- under the money (#2533)
 	end
+	if not TOUCH then
+		-- #3178: on a PC the clock, the status banner and its day card sit at the top middle, in the toasts' column
+		box({ self._clock, self._banner, self._dayCard })
+	end
 	box({ self._goal.frame })
 	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
 	-- a line's words: each label's text, from its right edge when right-aligned
@@ -3541,22 +3558,23 @@ function HUD._layoutRight(self: any)
 	local lift = self._lift
 	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
 	self._pop.Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6 - lift)
-	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
-	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
-	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
+	local top: number
+	if TOUCH then
+		self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
+		self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
+		top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
+	else
+		-- #3178: on a PC the clock is at the top middle, so the column starts right under the icon row
+		self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
+		top = CLOCK_TOP
+	end
 	if self._nightTips.Visible then
 		top += NIGHT_LINE
 	end
 	-- F88, F101, #2487: the Lucky Day line, the Rally countdown, the Cafe Event and its next shower, since #2885 in the
-	-- status banner: under the clock on a PC, under the counters on touch (_placeBanner)
-	local banner: Frame = self._banner
+	-- status banner: under the clock, at the top middle on a PC (#3178), under the counters on touch (_placeBanner)
 	if not TOUCH then
-		banner.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
-		self._dayCard.AnchorPoint = Vector2.new(1, 0)
-		self._dayCard.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift + self:_bannerHeight() + 4)
-		if banner.Visible then
-			top += self:_bannerHeight() + 4
-		end
+		self:_placeTopMiddle()
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
@@ -3584,6 +3602,16 @@ function HUD._layoutRight(self: any)
 		self:_placePotionTimers() -- #2393: the money badge keeps clear of the column
 	end
 	self:_placeBanner()
+end
+
+-- #3178: on a PC the clock at the top middle and the status banner and its day card centred under it.
+function HUD._placeTopMiddle(self: any)
+	local clockTop = MARGIN
+	self._clock.Position = UDim2.new(0.5, 0, 0, clockTop)
+	local bannerTop = clockTop + CLOCK_H + 2
+	self._banner.Position = UDim2.new(0.5, 0, 0, bannerTop)
+	self._dayCard.AnchorPoint = Vector2.new(0.5, 0)
+	self._dayCard.Position = UDim2.new(0.5, 0, 0, bannerTop + self:_bannerHeight() + 4)
 end
 
 -- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
@@ -4787,8 +4815,22 @@ function HUD._layoutMenu(self: any)
 	end
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
-	local storeH = if store.Visible and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
-	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
+	-- a Store that only stepped aside for a catch (_applyFocus) still has its place, or a layout mid-catch closes
+	-- the gap and the Store comes back on top of the menu's first row (#3164)
+	local storeUp = store.Visible or self._focusHidden[store] == true
+	local storeH = if storeUp and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
+	local foldShown = shown > 0 or storeUp -- no tab to fold an empty menu (F87)
+	local fold: GuiObject = self._menuFold.instance
+	if self._catching then
+		-- #3164 (Derek2 11-10: "this menu close arrow on the left sometimes flashes into screen on first catch or
+		-- catch"): this layout also runs outside a render (the money counter growing, the window resized), where
+		-- nothing hid the tab again, so it stood alone on the left until the next render. Mid-catch it stays down
+		-- and is noted for the catch's end (_applyFocus).
+		self._focusHidden[fold] = if foldShown then true else nil
+		fold.Visible = false
+	else
+		fold.Visible = foldShown
+	end
 	local foldUnder = FOLD_UNDER + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
@@ -5038,32 +5080,11 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 	return { title = second.title, lines = lines, chip = second.chip }
 end
 
--- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped): one bounce, the
--- preview lines for PREVIEW_SECONDS the first time, and one more bounce at NUDGE_SECONDS if it is still the goal.
+-- #3022: the goal just became "Catch a 2nd cat" (or came back after a carried cat was dropped). #3155 (Derek2:
+-- "remove the pop ups for cat progress towards your goal at start"): no bounce, no second bounce at NUDGE_SECONDS
+-- and no preview lines ("New kind of cat: +$50", "and 1 step closer to ..."); the card just reads the goal.
 function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
-	local run = self._secondRun
-	self._goal:bounce()
-	if not self._secondPreviewed then
-		task.delay(SecondCatGoal.PREVIEW_SECONDS, function()
-			if self._gone then
-				return
-			end
-			self._secondPreviewed = true
-			if self._second ~= nil then
-				self._goal:setGoal(self:_secondGoal())
-				if not self:_open("goal") then
-					self._goal.frame.Visible = false
-				end
-				self:_layoutRight()
-			end
-		end)
-	end
-	task.delay(SecondCatGoal.NUDGE_SECONDS, function()
-		if not self._gone and self._secondRun == run and self._second ~= nil then
-			self._goal:bounce()
-		end
-	end)
 end
 
 function HUD.destroy(self: any)

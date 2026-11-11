@@ -12,6 +12,7 @@
 --     the player, so the client's pointer and the trail find it),
 --   three step_time events say how far the player got (STEPS).
 -- It ends by itself at the second check-in and reads only what the save already holds, so it needs no save field.
+-- #3160: the two cats are cats caught by hand (`caught`): a cat tamed at the bait bowl does not end it.
 -- Pure.
 
 local CatStats = require(script.Parent.CatStats)
@@ -23,7 +24,7 @@ local Types = require(script.Parent.Types)
 
 local SecondCat = {}
 
-SecondCat.CATS = 2 -- cats checked in (stats.catsCaught) that end it
+SecondCat.CATS = 2 -- cats caught by hand and checked in (SecondCat.caught) that end it
 SecondCat.AREA = "alley" -- where the stray waits
 SecondCat.ATTRIBUTE = "WaitsFor" -- on the stray's model: the user id of the player it waits for, 0 for none
 SecondCat.MAX_RARITY = "Rare" -- the rarest stray that may wait: the easy catch is never a Legendary near the pad
@@ -42,9 +43,22 @@ SecondCat.STEPS = { SecondCat.SHOWN, SecondCat.FOLLOWED, SecondCat.CAUGHT }
 
 local PREVIEW_UID = "__second_cat" -- the pretend cat's key in the copy `preview` reads; never saved
 
+-- #3160 (Derek2 2026-11-10: "because the food bowl finished instantly it finishes the catch first cat tutorial step so
+-- make that still need to happen after cannon"): the cats caught by hand, with the net or a rescue. A cat tamed at
+-- the bait bowl counts in stats.catsCaught too, and since the first bowl cat comes in seconds (#2946) it ended this
+-- goal before the player had gone out for a second cat. `stats` is a save's or a PlayerState's.
+function SecondCat.caught(stats: Types.Stats): number
+	-- (read as unknown: a PlayerState from an older server has no baitsTamed)
+	local caught: unknown, tamed: unknown = stats.catsCaught, stats.baitsTamed
+	if type(caught) ~= "number" then
+		return 0
+	end
+	return math.max(0, caught - (if type(tamed) == "number" then tamed else 0))
+end
+
 -- Whether the save is between its first customer served and its second cat checked in.
 function SecondCat.waiting(profile: Types.PlayerProfile): boolean
-	return profile.stats.catsCaught < SecondCat.CATS
+	return SecondCat.caught(profile.stats) < SecondCat.CATS
 		and Onboarding.reached(profile.telemetry, "first_customer_served")
 end
 
@@ -125,7 +139,7 @@ function SecondCat.view(profile: Types.PlayerProfile): Types.SecondCatView?
 	return {
 		now = now,
 		with = with,
-		cats = profile.stats.catsCaught,
+		cats = SecondCat.caught(profile.stats), -- #3160: by hand; a tamed bowl cat is not one
 		bonus = Catalog.rarities.Common.firstCatchReward,
 	}
 end

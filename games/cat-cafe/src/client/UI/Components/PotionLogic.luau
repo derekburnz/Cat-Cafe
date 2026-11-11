@@ -239,6 +239,38 @@ end
 -- The potion bag's rows (Derek 2026-11-03: "it only shows use on potions you have and disappear when used"): the
 -- potions in the bag and the ones still running, in bag order; a potion you have none of and that is not running
 -- has no row.
+-- #3190 (Derek2: "... delays on using potions too fast"): the state as it will be once the Use presses still on their
+-- way go through: `extra` is potion id -> how many are pressed but not answered yet. Each comes out of the bag and adds
+-- its minutes to the timer (from now if it is not running), as the server's Potions.use does. A copy; `state` is kept.
+function PotionLogic.ahead(
+	catalog: Types.Catalog?,
+	state: Types.PlayerState,
+	extra: { [string]: number },
+	now: number
+): Types.PlayerState
+	if next(extra) == nil then
+		return state
+	end
+	local minutes: { [string]: number } = {}
+	for _, potion in PotionLogic.list(catalog) do
+		minutes[potion.id] = potion.minutes
+	end
+	local shown: any = table.clone(state :: any)
+	local counts: { [string]: number } = table.clone(state.potions or {})
+	local buffs: { [string]: number } = table.clone(state.buffs or {})
+	for id, n in extra do
+		if n > 0 then
+			counts[id] = math.max(0, (counts[id] or 0) - n)
+			local endsAt = buffs[id]
+			local from = if type(endsAt) == "number" and endsAt > now then endsAt else now
+			buffs[id] = from + n * (minutes[id] or 0) * 60
+		end
+	end
+	shown.potions = counts
+	shown.buffs = buffs
+	return shown :: Types.PlayerState
+end
+
 function PotionLogic.owned(catalog: Types.Catalog?, state: Types.PlayerState, now: number): { Row }
 	local owned: { Row } = {}
 	for _, row in PotionLogic.rows(catalog, state, now) do

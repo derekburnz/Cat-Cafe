@@ -888,3 +888,9 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.
 - **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
 - **No restart.** Client only; old servers' clients keep the old words until they close.
+
+## 2026-11-11 A one-tap Buy button on the tutorial strip (#2912)
+
+- **What.** While tutorial step 3 asks for a table (or step 4 for the Bait bowl) and the player's coins cover it, a green "Buy a table · $150" ("Buy the Bait bowl · $600") button stands on the tutorial strip. One press sends the same BuyUpgrade request as the Upgrades row's Buy, so the server checks it the same way. Short of coins, it isn't shown, and the Upgrades tile still glows.
+- **Why.** Nov 10 read: 105 new players caught a second cat and 93 bought the first table, 12 lost on a step that needs two presses in a menu. Every other step from the table to the bait loses under 5%.
+- **Assumed.** The button sits above the strip and doesn't change the strip's words. It's client only, so new servers pick it up with no restart.

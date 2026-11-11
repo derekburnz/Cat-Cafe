@@ -6252,6 +6252,39 @@ local SCENES = {
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
 	end },
+	-- #2912: at step 3 with coins for a table, a Buy button stands on the tutorial strip, on screen, clear of the strip
+	-- and with its words fitting; short of coins it is gone
+	{ "TutorialBuy", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, money = 850, upgradeLevels = levels } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		task.wait(0.2)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local buy = hud:FindFirstChild("TutorialBuy", true) :: GuiObject?
+		local strip: GuiObject? = nil -- the strip label, not the HUD's Tutorial tile of the same name
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Text ~= "" then
+				strip = piece
+			end
+		end
+		assert(buy ~= nil and buy.Visible, "uigate: no Buy button on the strip at step 3 with 850 coins (#2912)")
+		assert(strip ~= nil and strip.Visible, "uigate: the tutorial strip is hidden at step 3")
+		local text: TextLabel? = nil
+		for _, piece in (buy :: GuiObject):GetDescendants() do
+			if piece:IsA("TextLabel") and string.find(piece.Text, "Buy a table", 1, true) then
+				text = piece
+			end
+		end
+		assert(text ~= nil, "uigate: the Buy button does not say Buy a table (#2912)")
+		assert((text :: TextLabel).TextFits ~= false, "uigate: the Buy button's words do not fit (#2912)")
+		local b, s = (buy :: GuiObject), (strip :: GuiObject)
+		local screen = hud.AbsoluteSize
+		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the Buy button runs off screen (#2912)")
+		assert(b.AbsolutePosition.Y + b.AbsoluteSize.Y <= s.AbsolutePosition.Y + 1, ("uigate: the Buy button (bottom %d) overlaps the strip (top %d) (#2912)"):format(b.AbsolutePosition.Y + b.AbsoluteSize.Y, s.AbsolutePosition.Y))
+		UI.update({ money = 100 } :: any)
+		assert(not b.Visible, "uigate: the Buy button shows with 100 coins for a 150 table (#2912)")
+		UI.update({ money = 850 } :: any)
+	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
 	-- table row; the step done, it is gone

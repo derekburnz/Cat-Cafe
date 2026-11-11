@@ -104,6 +104,7 @@ export type Callbacks = {
 	openIndex: () -> (), -- the Index on its cat pages, or closes it
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
+	buyUpgrade: (upgradeId: string) -> (), -- #2912: the tutorial strip's Buy button
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
@@ -375,6 +376,8 @@ local DROP_W = if TOUCH then 88 else 104
 local DROP_H = if TOUCH then 36 else 44 -- a 36 px face at the desktop's 0.9 scale (the UI gate's tap check)
 local PACK_DROP_W = if TOUCH then 132 else 160 -- #2731: "Drop bag cat" with its icon
 local PACK_DROP_H = if TOUCH then 36 else 44 -- as the carry banner's Drop
+local STRIP_BUY_W = if TOUCH then 210 else 260 -- #2912: "Buy the Bait bowl · 600" on one line
+local STRIP_BUY_H = if TOUCH then 36 else 44
 local DROP_TEXT = if TOUCH then Theme.sizes.textSmall else Theme.sizes.textBody
 -- more room between the bottom row and what stacks on it; with a mouse too, where the pill's outline lay 2 px over
 -- the My Cafe tile's (the UI gate's tilesnear)
@@ -2172,6 +2175,26 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		MaxSize = Vector2.new(strip.w, strip.maxH),
 		Parent = self._tutorial,
 	})
+	-- #2912: over the strip while its step asks for a table or the Bait bowl and the coins cover it, a Buy button
+	-- that buys it in one press (TutorialHints.offer), so the step needs no trip into Upgrades
+	local stripBuy = Button.new({
+		name = "TutorialBuy",
+		text = "",
+		size = UDim2.fromOffset(STRIP_BUY_W, STRIP_BUY_H),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -MARGIN),
+		textSize = DROP_TEXT,
+		parent = root,
+		onClick = function()
+			local offer = self._stripOffer
+			if offer ~= nil then
+				callbacks.buyUpgrade(offer.id)
+			end
+		end,
+	})
+	stripBuy.instance.Visible = false
+	table.insert(self._buttons, stripBuy)
+	self._stripBuy = stripBuy
 
 	self:_layoutBottom()
 	self:_buildBoosts(root)
@@ -2830,6 +2853,17 @@ function HUD.render(self: any, state: Types.PlayerState)
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
+	-- #2912: the strip's Buy button
+	local offer = if held
+		then nil
+		else TutorialHints.offer(
+			state.tutorialStep,
+			state.upgradeLevels,
+			state.money,
+			if catalog then catalog.upgrades else nil
+		)
+	self._stripOffer = offer
+	self:_renderStripBuy()
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
@@ -3157,6 +3191,24 @@ function HUD.setTutorial(self: any, text: string?)
 	else
 		self._tutorial.Visible = false
 	end
+	self:_renderStripBuy()
+end
+
+-- #2912: the Buy button shows with the strip, while there is an offer; it lays out with the strip
+function HUD._renderStripBuy(self: any)
+	local button = self._stripBuy
+	if button == nil then
+		return
+	end
+	local offer = self._stripOffer
+	local shown = offer ~= nil and self._tutorial.Visible
+	if shown then
+		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
+		if not button.instance.Visible then
+			Tween.popIn(button.instance, 0.92)
+		end
+	end
+	button.instance.Visible = shown
 	self:_layoutBottom()
 end
 
@@ -3226,6 +3278,12 @@ function HUD._layoutBottom(self: any)
 		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
+	-- #2912: the Buy button stands on the strip
+	local buy = self._stripBuy
+	if buy ~= nil and buy.instance.Visible and self._tutorial.Visible then
+		local stripH = self._tutorial.AbsoluteSize.Y / math.max(Scale.get(), 0.01)
+		buy.instance.Position = UDim2.new(0.5, 0, 1, y - stripH - Theme.sizes.gap)
+	end
 end
 
 -- Just above whatever the bottom centre stacks (the bottom row, the carry banner or the bag pill on its lift, the
@@ -3244,6 +3302,9 @@ function HUD.bottomTop(self: any): number
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
+		if self._stripBuy ~= nil and self._stripBuy.instance.Visible then
+			y -= STRIP_BUY_H + Theme.sizes.gap -- #2912
+		end
 	end
 	return y
 end

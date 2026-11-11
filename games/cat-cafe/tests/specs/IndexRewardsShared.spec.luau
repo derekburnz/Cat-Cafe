@@ -114,9 +114,9 @@ return function()
 					local late = areaId == "desert" or areaId == "ruins"
 					expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
 					expect(sum(prizes, "baitSpeed")).to.equal(0)
-					expect(prizes.gold10.tag).to.equal(
-						(Catalog.getArea(areaId) :: any).name .. " Gold Master"
-					)
+					local area: any = Catalog.getArea(areaId)
+					local gold10: any = prizes.gold10
+					expect(gold10.tag).to.equal(area.name .. " Gold Master")
 					-- the finishing prizes (v0.10): the area's Golden Crate at cats10, two at gold10
 					expect((prizes.cats10.crates :: any)[areaId .. "_golden_crate"]).to.equal(1)
 					expect((prizes.gold10.crates :: any)[areaId .. "_golden_crate"]).to.equal(2)

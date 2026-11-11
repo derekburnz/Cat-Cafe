@@ -27,7 +27,7 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `traits` (#3196): the Cat Trainer's traits (shared/Traits). It starts OFF (OFF_BY_DEFAULT): switch it on only with
+-- - `traits` (#3196): the Mystic Pool's cat traits (shared/Traits). It starts OFF (OFF_BY_DEFAULT): switch it on only with
 --   the restart publish that ships the trait save fields, so no older server can drop a cat's trait.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on

@@ -308,7 +308,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
 			introStep = 0,
-			firstHourStep = 0,
+			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
+			firstHourV3Step = 0,
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
@@ -785,7 +786,8 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		funnel = Onboarding.VERSION,
 		firstDay = 0,
 		introStep = 0,
-		firstHourStep = 0,
+		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
+		firstHourV3Step = 0,
 	}
 	if type(value) ~= "table" then
 		return telemetry
@@ -825,7 +827,17 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		end
 	end
 	telemetry.introStep = math.clamp(introStep, 0, Onboarding.INTRO_COUNT)
-	telemetry.firstHourStep = math.clamp(firstHourStep, 0, Onboarding.FIRST_HOUR_COUNT)
+	-- #3308: first_hour_v3 from its own field once this code has saved it; before that (or after a server on v2
+	-- dropped it), a save that logged any of first_hour_v2, or was taken out of it above, leaves v3 too. firstHourStep
+	-- is then written as v2's count, so a server still on v2 logs no v2 step for this player.
+	local v3Step = value.firstHourV3Step
+	local firstHourV3Step = if type(v3Step) == "number"
+			and value.funnel == Onboarding.VERSION
+		then math.max(0, asInt(v3Step, 0))
+		elseif firstHourStep >= 1 then Onboarding.FIRST_HOUR_COUNT
+		else 0
+	telemetry.firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT
+	telemetry.firstHourV3Step = math.clamp(firstHourV3Step, 0, Onboarding.FIRST_HOUR_COUNT)
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	return telemetry
 end

@@ -60,6 +60,15 @@ local COST = Config.ArcadeCostFish or 1
 local PRIZE_PIC = 26 -- #3338: the picture leading each prize row
 local PILL_W = 64 -- the cost pill on Play
 local FREE_TEXT = "FREE" -- #3296: the pill while today's free game is there
+local TAB_H = 40 -- #3338: the Prizes / Leaderboard tabs
+local TOP_LINE_H = 32 -- one leaderboard line
+local SCORE_W = 150 -- its score, room for "100 in 58 circles"
+-- the top three ranks in gold, silver and bronze
+local RANK_COLORS: { [number]: Color3 } = {
+	Color3.fromHex("FFD34D"),
+	Color3.fromHex("D7DCE6"),
+	Color3.fromHex("E2A26B"),
+}
 local READY_TEXT = "Ready?"
 local HINT_TEXT = "Tap when the circle meets the ring"
 
@@ -268,13 +277,114 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		LayoutOrder = 2,
 		Parent = card,
 	})
-	text({
-		Name = "PrizesTitle",
-		Size = UDim2.new(1, 0, 0, 22),
-		FontFace = Theme.fonts.display,
-		Text = "Prizes today",
+	-- #3338 (Derek2: the leaderboard button): two tabs over the list, today's prizes or the arcade's top players
+	local tabs: Frame = Create("Frame", {
+		Name = "Tabs",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, TAB_H),
 		LayoutOrder = 5,
 		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._tab = "prizes"
+	self._prizesTab = Button.new({
+		name = "PrizesTab",
+		text = "Prizes today",
+		icon = "🎁",
+		style = "gold",
+		size = UDim2.new(0.5, -GAP / 2, 0, TAB_H),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 1,
+		parent = tabs,
+		onClick = function()
+			self:_showTab("prizes")
+		end,
+	})
+	self._topTab = Button.new({
+		name = "LeaderboardTab",
+		text = "Leaderboard",
+		icon = "🏆",
+		style = "ghost",
+		size = UDim2.new(0.5, -GAP / 2, 0, TAB_H),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 2,
+		parent = tabs,
+		onClick = function()
+			self:_showTab("top")
+		end,
+	})
+	local top: Frame = Create("Frame", {
+		Name = "Leaderboard",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		LayoutOrder = 6,
+		Parent = card,
+	}, {
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	self._top = top
+	self._topLines = {} :: { Frame }
+	for rank = 1, ArcadeRules.TOP do
+		local line: Frame = Create("Frame", {
+			Name = "Line" .. rank,
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, TOP_LINE_H),
+			Visible = false,
+			LayoutOrder = rank,
+			Parent = top,
+		})
+		round(line, UDim.new(0, Theme.sizes.radiusSmall))
+		text({
+			Name = "Rank",
+			Position = UDim2.fromOffset(8, 0),
+			Size = UDim2.new(0, 40, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextColor3 = RANK_COLORS[rank] or PAL.subtext,
+			TextWrapped = false,
+			Parent = line,
+		})
+		text({
+			Name = "Name",
+			Position = UDim2.fromOffset(52, 0),
+			Size = UDim2.new(1, -(52 + SCORE_W + 16), 1, 0),
+			TextWrapped = false,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			Parent = line,
+		})
+		text({
+			Name = "Score",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -10, 0, 0),
+			Size = UDim2.new(0, SCORE_W, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextColor3 = PAL.gold,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			TextWrapped = false,
+			Parent = line,
+		})
+		table.insert(self._topLines, line)
+	end
+	self._topEmpty = text({
+		Name = "Empty",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "No scores yet. Play to be the first!",
+		LayoutOrder = ArcadeRules.TOP + 1,
+		Parent = top,
 	})
 	local grid: Frame = Create("Frame", {
 		Name = "Prizes",
@@ -290,6 +400,7 @@ function Arcade.new(callbacks: Callbacks): Arcade
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._prizeGrid = grid
 	self._prizeRows = {} :: { [number]: TextLabel }
 	for order, milestone in ArcadeRules.milestones() do
 		local chip: Frame = Create("Frame", {
@@ -594,6 +705,7 @@ function Arcade._renderCard(self: any)
 	else
 		self._lastLine.Visible = false
 	end
+	self:_renderTop()
 	local today: { number } = if state ~= nil then state.today else {}
 	for at, words in self._prizeRows do
 		local milestone = ArcadeRules.milestoneAt(at)
@@ -622,6 +734,35 @@ function Arcade._renderCard(self: any)
 	local can = why == nil and self._run == nil
 	self._playButton:setEnabled(can)
 	self._shine(can and self.frame.Visible) -- #3338
+end
+
+-- #3338: shows today's prizes or the leaderboard under the Play button.
+function Arcade._showTab(self: any, tab: string)
+	self._tab = tab
+	self._prizesTab:setStyle(if tab == "prizes" then "gold" else "ghost")
+	self._topTab:setStyle(if tab == "top" then "gold" else "ghost")
+	self._prizeGrid.Visible = tab == "prizes"
+	self._top.Visible = tab == "top"
+end
+
+-- #3338: the leaderboard's lines from the state's top players.
+function Arcade._renderTop(self: any)
+	local state: ArcadeRules.State? = self._state
+	local rows: { ArcadeRules.Row } = if state ~= nil and state.top ~= nil then state.top else {}
+	for index, line in self._topLines :: { Frame } do
+		local row = rows[index]
+		line.Visible = row ~= nil
+		if row ~= nil then
+			local rank = line:FindFirstChild("Rank") :: TextLabel
+			local name = line:FindFirstChild("Name") :: TextLabel
+			local score = line:FindFirstChild("Score") :: TextLabel
+			rank.Text = "#" .. row.rank
+			name.Text = if row.me then row.name .. " (you)" else row.name
+			score.Text = ArcadeRules.words(row.points, row.circles)
+			line.BackgroundColor3 = if row.me then PAL.goldCard else PAL.card
+		end
+	end
+	self._topEmpty.Visible = #rows == 0
 end
 
 -- #3338: the next prize under the points, from today's paid prizes as the card last had them.

@@ -3851,6 +3851,46 @@ local SCENES = {
 			assert(found, "uigate: Play's pill doesn't say FREE for the day's free game (#3296)")
 		end,
 	},
+	-- #3338: the Leaderboard tab, ten names (a long one), the viewer's line marked
+	{
+		"ArcadeLeaderboard",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			local top = {}
+			for rank = 1, 10 do
+				table.insert(top, {
+					rank = rank,
+					name = if rank == 2 then "AVeryLongDisplayName_Here" else "Player" .. rank,
+					points = if rank == 1 then 100 else 100 - rank * 7,
+					circles = 50 + rank,
+					me = if rank == 4 then true else nil,
+				})
+			end
+			UI.arcade.state({
+				loaded = true,
+				best = 72,
+				bestCircles = 54,
+				today = { 10, 20 },
+				legend = false,
+				serverBest = 72,
+				serverCircles = 54,
+				serverName = "Sam",
+				top = top,
+			} :: any)
+			UI.arcade.open()
+			press("Arcade", "LeaderboardTab")
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			local board = window and window:FindFirstChild("Leaderboard", true)
+			assert(board and board.Visible, "uigate: the arcade's Leaderboard tab does not show (#3338)")
+			local line = board:FindFirstChild("Line4", true)
+			assert(line and line.Visible, "uigate: the arcade leaderboard has no 4th line (#3338)")
+			local name = line:FindFirstChild("Name")
+			assert(
+				name and string.find(name.Text, "(you)", 1, true),
+				"uigate: the viewer's line is not marked (#3338)"
+			)
+		end,
+	},
 	{
 		"ArcadeBoard",
 		function()

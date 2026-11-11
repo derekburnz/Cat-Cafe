@@ -3,8 +3,8 @@
 -- comes into an area whose station it owns (Moments.StationReveal, Gameplay's WorldController, once per area), a gold
 -- beam rises off that camp's station, gold sparkles and confetti burst over it and two rings spread at its foot, then
 -- the Unlocked card follows (UI). The build-in is off since #3191, so this is what marks the moment in the world.
--- Reduce Motion keeps the sparkles only; Low performance halves the pieces. It also fires the `stationReveal` beat
--- from the station for Sound-Agent's fanfare. Listening only.
+-- Reduce Motion keeps the sparkles only; Low performance halves the pieces. Sound-Agent's fanfare listens to the
+-- same moment itself (#3270), so this fires no beat. Listening only.
 --
 -- Source: the `CampExtra`-tagged station models (shared/CampExtras.TAG) whose `Area` attribute is that area; they
 -- stream in whole, so it waits up to `wait` seconds for one.
@@ -12,7 +12,6 @@
 local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 
-local Beats = require(script.Parent.Parent.Audio.Beats)
 local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
 local Particles = require(script.Parent.Particles)
@@ -45,7 +44,6 @@ function StationReveal.play(model: Model)
 	local foot = frame.Position - Vector3.new(0, size.Y / 2, 0)
 	local over = foot + Vector3.new(0, size.Y + p.lift, 0)
 	local few = Context.lowPerformance
-	Beats.hit:Fire("stationReveal", model)
 	Particles.burst(
 		"catchSparkle",
 		over,

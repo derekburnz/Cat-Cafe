@@ -1210,7 +1210,7 @@ return function()
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 4.25 to 7 hours in one go for a player who buys the best affordable lawn (#1283; #3170: was 4.5; #2683: was 9 to 14)",
+			"takes 4 to 7 hours in one go for a player who buys the best affordable lawn (#1283; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1222,8 +1222,9 @@ return function()
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
 				-- #2683: 5 h 33 with the cheaper Tiers 2 to 5
 				-- #3170: 4 h 28 with the Alleyway's strays spread through it
-				if median < 4.25 * HOUR or median > 7 * HOUR then
-					error("Tier 5 outside 4.25 to 7 hours of play: " .. text)
+				-- #3195 + #3204: 4 h 14 with 45 s nights, the Tier 2 caps and Tier 3 at 520,000
+				if median < 4 * HOUR or median > 7 * HOUR then
+					error("Tier 5 outside 4 to 7 hours of play: " .. text)
 				end
 			end
 		)
@@ -1445,15 +1446,15 @@ return function()
 		end)
 
 		it(
-			"reaches Tier 3 at 33 to 45 minutes (the middle run, #2895: was 40 to 50; #2683: was 50 to 62), the fastest tenth at 25 or later",
+			"reaches Tier 3 at 30 to 45 minutes (the middle run, #3195 + #3204: was 33 to 45; #2895: was 40 to 50; #2683: was 50 to 62), the fastest tenth at 20 or later",
 			function()
 				local list = firstHour()
 				local median = quantile(list, tierAt(3), 0.5, HOUR + 15 * 60 + 1) / 60
 				local fast = quantile(list, tierAt(3), 0.1, HOUR + 15 * 60 + 1) / 60
-				if median < 33 or median > 45 or fast < 25 then
+				if median < 30 or median > 45 or fast < 20 then
 					error(
 						string.format(
-							"Tier 3 at %.1f min (tenth %.1f), outside 33 to 45 or before 25",
+							"Tier 3 at %.1f min (tenth %.1f), outside 30 to 45 or before 20",
 							median,
 							fast
 						)
@@ -1531,7 +1532,7 @@ return function()
 		-- #2121 (first-hour.md 4e): the guard is 15 minutes between coin buys and rank ups (was 18) and 10 with new cats
 		-- and roadmap steps counted (was 12); the 6 above stays the stretch goal
 		it(
-			"the middle run's longest wait is 16 minutes or less, 10 with new cats and roadmap steps (#2557: was 15)",
+			"the middle run's longest wait is 22.5 minutes or less, 10 with new cats and roadmap steps (#3195 + #3204: was 16; #2557: was 15)",
 			function()
 				local list = firstHour()
 				local plain = quantile(list, function(run: Run): number?
@@ -1542,7 +1543,7 @@ return function()
 						timesOf(run, { buy = true, rank = true, newcat = true, roadmap = true })
 					)
 				end, 0.5, HOUR)
-				if plain > 16 * 60 or cats > 10 * 60 then -- #2557 (Design-Agent): 15.8 with a third more cats
+				if plain > 22.5 * 60 or cats > 10 * 60 then -- #3195 + #3204 (Design-Agent): the save for Tier 3 is longer with the Tier 2 caps; #2557: 15.8 with a third more cats
 					error(
 						string.format(
 							"longest gap %.1f min, %.1f with new cats and roadmap steps",

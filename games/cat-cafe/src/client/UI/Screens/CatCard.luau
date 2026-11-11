@@ -60,6 +60,8 @@ local SUB_H = 16
 local TAGS_H = 22
 local ROLE_H = 22
 local LOVES_H = 18
+local TRAIT_H = 18 -- #3196: the trait's title line
+local TRAIT_FX_H = 15 -- and each of its effect lines
 local LEVEL_H = 20
 local BAR_H = 10
 local PILL_H = 20
@@ -328,6 +330,26 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.caramelDark,
 		RichText = true,
+		Visible = false,
+		Parent = card,
+	})
+
+	-- #3196: the cat's Mystic Pool trait, own cats only: its title, then one small line per effect
+	self._trait = label({
+		Name = "Trait",
+		Size = UDim2.new(1, -2 * PAD, 0, TRAIT_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		RichText = true,
+		Visible = false,
+		Parent = card,
+	})
+	self._traitFx = label({
+		Name = "TraitEffects",
+		Size = UDim2.new(1, -2 * PAD, 0, TRAIT_FX_H),
+		TextSize = Theme.sizes.textTiny + 1,
+		TextColor3 = Theme.modal.subtext,
+		TextYAlignment = Enum.TextYAlignment.Top,
 		Visible = false,
 		Parent = card,
 	})
@@ -618,7 +640,8 @@ function CatCard._layout(
 	sub: boolean,
 	own: boolean,
 	level: boolean,
-	loves: boolean
+	loves: boolean,
+	traitLines: number? -- #3196: nil for no trait, else how many effect lines it has
 ): number
 	local textHeight = NAME_H + (if sub then SUB_H else 0) + GAP + TAGS_H
 	local block = math.max(HEAD, textHeight)
@@ -645,6 +668,18 @@ function CatCard._layout(
 	if loves then
 		self._loves.Position = UDim2.fromOffset(PAD, y + 2)
 		y += LOVES_H + 2
+	end
+	self._trait.Visible = traitLines ~= nil
+	self._traitFx.Visible = traitLines ~= nil and traitLines > 0
+	if traitLines ~= nil then
+		y += 2
+		self._trait.Position = UDim2.fromOffset(PAD, y)
+		y += TRAIT_H
+		if traitLines > 0 then
+			self._traitFx.Position = UDim2.fromOffset(PAD, y)
+			self._traitFx.Size = UDim2.new(1, -2 * PAD, 0, TRAIT_FX_H * traitLines)
+			y += TRAIT_FX_H * traitLines
+		end
 	end
 	self._level.Visible = level
 	self._xp.Visible = level and own
@@ -782,7 +817,20 @@ function CatCard._fill(self: any)
 		self._shownUid = uid
 	end
 
-	self._cardHeight = self:_layout(under ~= nil, withBar, hasLevel, lovesShows)
+	-- #3196: an own cat's trait (ProfileSync sends it only while the Mystic Pool is switched on)
+	local traitTitle, traitLines = CatCardLogic.trait(if instance then instance.trait else nil)
+	if traitTitle ~= nil then
+		self._trait.Text = traitTitle
+		self._traitFx.Text = table.concat(traitLines, "\n")
+	end
+
+	self._cardHeight = self:_layout(
+		under ~= nil,
+		withBar,
+		hasLevel,
+		lovesShows,
+		if traitTitle ~= nil then #traitLines else nil
+	)
 	self:_size()
 	local tagShows = CollectionService:HasTag(model, WORKING)
 		and model:GetAttribute("Napping") ~= true

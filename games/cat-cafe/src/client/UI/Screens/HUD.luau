@@ -327,8 +327,11 @@ local POP_W = 220
 local POP_ROW_H = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 local POP_PAD = 8
 -- #2411 (Derek2: "the X isn't obvious"): a bigger red × (it was a 20 px dot) taking bigger taps
-local HIDE_DOT = if Scale.isTouch() then 28 else 24
-local HIDE_HIT = if Scale.isTouch() then 42 else 36 -- the Tutorial tile's × takes taps this big round its red dot
+-- #3184 (Derek2 11-10: "redo the tutorial button and X to make it more obvious"): bigger again, a white rim and a
+-- bigger, bolder ×, its right edge still no more than 2 px past the tile (#1176)
+local HIDE_DOT = if Scale.isTouch() then 34 else 30
+local HIDE_HIT = if Scale.isTouch() then 46 else 40 -- the Tutorial tile's × takes taps this big round its red dot
+local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 -- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
 -- #2411: twice as long, with a "Hide tips" tag beside the tile
 local HIDE_PULSE_SECONDS = 12 -- #3154: was 6
@@ -890,9 +893,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._icons = icons
 	self._lift = 0 -- design px the top right column sits higher, up in the top bar's free stretch
-	-- Tutorial (F72): purple with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
-	-- the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off; greyed while
-	-- carrying or during a catch or rescue.
+	-- Tutorial (F72): gold (#3184; was purple) with a "?", a red × in its corner hides it (Settings brings it back).
+	-- Hidden until the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off;
+	-- greyed while carrying or during a catch or rescue.
 	local tutorial = Button.new({
 		name = "Tutorial",
 		text = "Tutorial",
@@ -900,7 +903,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		image = ShopIcons.hud("Tutorial"),
 		layout = "clean",
 		textSize = ICON_TEXT,
-		style = "purple",
+		style = "gold", -- #3184: was purple; the brightest tile in its row
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 1,
 		parent = icons,
@@ -922,8 +925,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176: "the Claim button's red ! badge hangs over into the Feedback button"): no more than 2 px past the edge
-		Position = UDim2.new(1, 4, 0, 6),
+		-- #3184: on the tile's top-left corner, its middle on the corner, so the bigger dot leaves the "?" clear and never
+		-- reaches the next tile (#1176: the Rewards badge's corner on the right); low enough that its bounce stays on
+		-- screen
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0, 2, 0, 10),
 		Size = UDim2.fromOffset(HIDE_HIT, HIDE_HIT),
 		ZIndex = 8,
 		Parent = tutorial.instance,
@@ -938,13 +944,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		ZIndex = 8,
 		Parent = hide,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(hideDot, 2)
+	Outline.border(hideDot, 3, Theme.colors.white) -- #3184: a white rim, so the red dot stands off any tile colour
 	self._hideDot = hideDot
 	self._hideButton = hide
 	label({
 		Name = "Cross",
 		Size = UDim2.fromScale(1, 1),
-		TextSize = Theme.sizes.textBody, -- #2411: was textSmall
+		TextSize = HIDE_CROSS, -- #2411: was textSmall; #3184: was textBody
+		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "×",
 		ZIndex = 9,

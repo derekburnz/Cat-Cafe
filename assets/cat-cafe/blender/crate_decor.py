@@ -1395,11 +1395,16 @@ def build_caravan_bench(mat):
             x = -1.84 + k * 3.68 / 15
             b.span((x - 0.05, 3.44, sz * 1.06 - 0.025), (x + 0.05, 3.6, sz * 1.06 + 0.025),
                    "fur_golden" if k % 2 == 0 else "bowl_red")
-    b.span((-0.02, 3.0, -0.02), (0.02, 3.6, 0.02), "brass")                                # hanging lantern
-    b.span((-0.16, 2.95, -0.16), (0.16, 3.0, 0.16), "brass")
-    glow.span((-0.12, 2.65, -0.12), (0.12, 2.95, 0.12), "lamp_warm")
-    b.span((-0.16, 2.6, -0.16), (0.16, 2.65, 0.16), "brass")
-    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+    # the hanging lantern swings from its hook under the canopy (#3247, VFX-Agent): `_Lantern_Swing`, its light the
+    # nested `_Glow`, both built about the hook
+    hook = (0.0, 3.6, 0.0)
+    sw = RB()
+    sw.span((-0.02, -0.6, -0.02), (0.02, 0.0, 0.02), "brass")
+    sw.span((-0.16, -0.65, -0.16), (0.16, -0.6, 0.16), "brass")
+    glow.span((-0.12, -0.95, -0.12), (0.12, -0.65, 0.12), "lamp_warm")
+    sw.span((-0.16, -1.0, -0.16), (0.16, -0.95, 0.16), "brass")
+    return [b.finalize(name, mat), sw.finalize(name + "_Lantern_Swing", mat, location=hook),
+            glow.finalize(name + "_Lantern_Glow", mat, location=hook)]
 
 
 def build_lantern_palm(mat):
@@ -1501,7 +1506,18 @@ def build_stone_throne(mat):
         b.span((x0, 0.4, -0.6), (x1, 1.6, 0.6), "fur_dusty")                                # arms
         b.ball((sx * 1.19, 1.62, -0.55), 0.22, "fur_pewter", scale=(1.0, 0.7, 1.2))            # paw ends
         b.box((sx * 1.19, 1.62, -0.1), (0.2, 0.1, 0.2), "fur_emerald", rot=rot_y(45))
-    return [b.finalize("CatCafe_Decor_StoneThrone", mat)]
+    # a jade gem bobbing between the ears (#3247, VFX-Agent): `_Gem_Bob` (a gold claw setting) with the glowing gem
+    # its nested `_Gem_Glow`, both about the gem's centre
+    name = "CatCafe_Decor_StoneThrone"
+    gem = (0.0, 3.42, 0.775)
+    bob, glow = RB(), RB()
+    bob.cyl((0, -0.2, 0), 0.08, 0.06, "fur_golden", r2=0.13, segments=8)
+    for k in range(4):
+        a = math.radians(45 + 90 * k)
+        bob.box((0.13 * math.cos(a), -0.12, 0.13 * math.sin(a)), (0.04, 0.14, 0.04), "fur_golden")
+    glow.ball((0, 0, 0), 0.17, "fur_emerald")
+    return [b.finalize(name, mat), bob.finalize(name + "_Gem_Bob", mat, location=gem),
+            glow.finalize(name + "_Gem_Glow", mat, location=gem)]
 
 
 def build_brazier_pair(mat):
@@ -1563,6 +1579,10 @@ MOVING = {
     "CatCafe_Decor_RetroJukebox": {"model_attributes": {"_Spin": {"Seconds": _f(1.8)}},
                                    "pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}},
     "CatCafe_Decor_CatTreeTower": {"nest": {"_Glow": "_Swing"}, "model_attributes": {"_Swing": {"Angle": _f(12)}}},
+    "CatCafe_Decor_CaravanBench": {"nest": {"_Glow": "_Swing"},
+                                   "model_attributes": {"_Swing": {"Angle": _f(9), "Seconds": _f(2.6)}}},
+    "CatCafe_Decor_StoneThrone": {"nest": {"_Glow": "_Bob"},
+                                  "model_attributes": {"_Bob": {"Rise": _f(0.12), "Seconds": _f(2.4)}}},
 }
 
 ASSETS = {

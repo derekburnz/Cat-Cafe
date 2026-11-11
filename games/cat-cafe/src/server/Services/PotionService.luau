@@ -5,6 +5,7 @@
 -- nearby sees. The effects are read where they apply: Economy.settle and CafeService's rate (Tip), RichTipService
 -- (Tip), BaitService (Lucky) and CatService's walk speeds (Swift) and circles (Steady). Timers count play time only:
 -- Economy.settle counts them down and DataService.load resets lastTick, so time away runs none of them down.
+-- #3326: UsePotionAll drinks every kind in the bag at once, as many of each as fit (Potions.useAll), in one sync.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -50,6 +51,20 @@ local function prune(player: Player, profile: Types.PlayerProfile, now: number):
 	return ended
 end
 
+-- Puts the buff `potionId` runs at the end of the player's drink order, as the newest drink. Returns that buff.
+-- A Small or Big size runs its regular potion's timer, so the drink order and the chip use that id.
+local function drank(player: Player, potionId: string): string
+	local buff = Potions.buffOf(potionId)
+	local list = order[player] or {}
+	local at = table.find(list, buff)
+	if at ~= nil then
+		table.remove(list, at) -- a kind already running moves to the end, as the newest drink
+	end
+	table.insert(list, buff)
+	order[player] = list
+	return buff
+end
+
 -- The most a "Use all" may ask for at once; the bag's count and PotionMaxMinutes cut it further.
 local MAX_COUNT = 1000
 
@@ -89,20 +104,45 @@ local function onUsePotion(player: Player, rawId: unknown, rawCount: unknown)
 	if drunk <= 0 then
 		return
 	end
-	-- a Small or Big size runs its regular potion's timer, so the drink order and the chip use that id
-	local buff = Potions.buffOf(def.id)
-	local list = order[player] or {}
-	local at = table.find(list, buff)
-	if at ~= nil then
-		table.remove(list, at) -- a kind already running moves to the end, as the newest drink
-	end
-	table.insert(list, buff)
-	order[player] = list
+	local buff = drank(player, def.id)
 	showActive(player)
 	if buff == Potions.SWIFT then
 		CatService.refreshSpeed(player)
 	end
 	Telemetry.custom(player, "potion_used", drunk, { def.id, tostring(Economy.tier(profile)) })
+	CafeService.sync(player)
+end
+
+-- #3326: the Bag's "Use all potions". Takes no arguments, so there is nothing to validate but the profile; the
+-- counts come from the server's own bag and timers.
+local function onUsePotionAll(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local now = os.time()
+	Economy.settle(profile, now, ClockService.epoch()) -- as UsePotion: the time so far at the old multipliers
+	local drunk, total = Potions.useAll(profile, now)
+	if total <= 0 then
+		Net.toast(player, "No potion fits: their timers are full or the bag is empty", "warn")
+		return
+	end
+	local swift = false
+	for _, def in Catalog.potions do
+		if (drunk[def.id] or 0) > 0 and drank(player, def.id) == Potions.SWIFT then
+			swift = true
+		end
+	end
+	showActive(player)
+	if swift then
+		CatService.refreshSpeed(player)
+	end
+	Telemetry.custom(player, "potion_used", total, { "all", tostring(Economy.tier(profile)) })
+	Net.toast(
+		player,
+		string.format("Drank %d potion%s", total, if total == 1 then "" else "s"),
+		"good"
+	)
 	CafeService.sync(player)
 end
 
@@ -138,6 +178,7 @@ end
 
 function PotionService.start()
 	Net.on("UsePotion", onUsePotion)
+	Net.on("UsePotionAll", onUsePotionAll) -- #3326
 	DataService.onLoaded:Connect(onLoaded)
 	local function watch(player: Player)
 		-- a respawn shows the running potions again (CatService sets the speed on every spawn)

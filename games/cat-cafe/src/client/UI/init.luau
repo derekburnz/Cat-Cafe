@@ -179,6 +179,7 @@ UI.events = {
 	introReplay = Signal.new(),
 	-- F64
 	usePotion = Signal.new(), -- (potionId, count?)   Use (or #1600's Use all) in the potion bag: forward as UsePotion
+	usePotionAll = Signal.new(), -- ()   #3326: the Bag's "Use all potions", confirmed: forward as UsePotionAll
 	-- F61
 	collectTips = Signal.new(), -- ()   the till's Collect (F61); unbound since F97 pays tip piles on arrival
 	-- F73
@@ -1325,6 +1326,9 @@ function UI.init(config: Types.InitConfig)
 	potionsScreen = Potions.new({
 		use = function(potionId: string, count: number?)
 			UI.events.usePotion:Fire(potionId, count)
+		end,
+		useEvery = function()
+			UI.events.usePotionAll:Fire()
 		end,
 		feed = function(foodId: string, catUid: string)
 			local cat = (state.cats or {})[catUid]

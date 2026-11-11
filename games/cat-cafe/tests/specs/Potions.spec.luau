@@ -157,6 +157,31 @@ return function()
 			expect(Potions.fitCount(p, "nope", 1000)).to.equal(0)
 		end)
 
+		it("drinks every kind that fits at once for Use all potions (#3326)", function()
+			local p = fresh(1000)
+			local max = Config.PotionMaxMinutes * 60
+			p.potions.tip_potion = 3
+			p.potions.swift_potion = 2
+			p.potions.swift_potion_small = 4 -- shares the Swift Potion's timer
+			p.potions.lucky_potion = 1
+			p.buffs.lucky_potion = max -- full: skipped and kept
+			p.buffs.swift_potion = max - 600 - 2 * 180 -- room for one Swift and two Small Swift
+			local drunk, total = Potions.useAll(p, 1000)
+			expect(drunk.tip_potion).to.equal(3)
+			expect(drunk.swift_potion).to.equal(1)
+			expect(drunk.swift_potion_small).to.equal(2)
+			expect(drunk.lucky_potion).to.equal(nil)
+			expect(total).to.equal(6)
+			expect(p.potions.tip_potion).to.equal(nil)
+			expect(p.potions.swift_potion).to.equal(1)
+			expect(p.potions.swift_potion_small).to.equal(2)
+			expect(p.potions.lucky_potion).to.equal(1)
+			expect(Potions.left(p, "swift_potion", 1000)).to.equal(max)
+			local again, none = Potions.useAll(p, 1000)
+			expect(next(again)).to.equal(nil)
+			expect(none).to.equal(0)
+		end)
+
 		it("ticks every timer down by the time played and drops the ones that ran out", function()
 			local p = fresh(1000)
 			p.buffs.tip_potion = 30

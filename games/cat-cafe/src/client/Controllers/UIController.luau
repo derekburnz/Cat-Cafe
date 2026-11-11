@@ -1085,6 +1085,10 @@ local function wireIntents()
 	UI.events.usePotion:Connect(function(potionId: string, count: number?)
 		Net.fire("UsePotion", potionId, count)
 	end)
+	-- #3326: the Bag's "Use all potions", after its confirm card; the server drinks every kind that fits
+	UI.events.usePotionAll:Connect(function()
+		Net.fire("UsePotionAll")
+	end)
 	-- #1463: Collect on the Woods card (Golden Pond pass, camp-extras.md section 4). The server checks the pass, the
 	-- range and the extraId. Guarded until the UI's collectCampExtra event (PR #1472) is on main.
 	local collectCampExtra = (UI.events :: any).collectCampExtra

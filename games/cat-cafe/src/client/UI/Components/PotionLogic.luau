@@ -271,6 +271,59 @@ function PotionLogic.ahead(
 	return shown :: Types.PlayerState
 end
 
+-- #3326 (the Bag's "Use all potions"): what one press drinks, in bag order, as the server's Potions.useAll does:
+-- each kind as many as fit under PotionMaxMinutes, counted after the kinds before it went in. Kinds that fit none are
+-- left out; an empty list hides the button.
+export type Drink = { potion: Potion, n: number }
+function PotionLogic.allPlan(
+	catalog: Types.Catalog?,
+	state: Types.PlayerState,
+	now: number
+): { Drink }
+	-- a Small or Big size runs its regular potion's timer (the catalog's `buff`), as the server's Potions.buffOf
+	local timerOf: { [string]: string } = {}
+	local defs: { any } = if catalog ~= nil and type((catalog :: any).potions) == "table"
+		then (catalog :: any).potions
+		else {}
+	for _, def in defs do
+		if type(def) == "table" and type(def.id) == "string" then
+			timerOf[def.id] = if type(def.buff) == "string" then def.buff else def.id
+		end
+	end
+	local maxSeconds = PotionLogic.MAX_MINUTES * 60
+	local added: { [string]: number } = {} -- timer id -> seconds the kinds before put on it
+	local plan: { Drink } = {}
+	for _, row in PotionLogic.rows(catalog, state, now) do
+		local potion = row.potion
+		if row.count > 0 and potion.minutes > 0 then
+			local timer = timerOf[potion.id] or potion.id
+			local left = secondsLeft(state.buffs, timer, now) + (added[timer] or 0)
+			local n = math.clamp(
+				math.floor((maxSeconds + 0.5 - left) / (potion.minutes * 60)),
+				0,
+				row.count
+			)
+			if n > 0 then
+				table.insert(plan, { potion = potion, n = n })
+				added[timer] = (added[timer] or 0) + n * potion.minutes * 60
+			end
+		end
+	end
+	return plan
+end
+
+-- #3326: the confirm card's line, "Tip x4, Swift x2, Lucky x1" (" Potion" dropped from each name), and the total.
+function PotionLogic.allLine(plan: { Drink }): (string, number)
+	local parts: { string } = {}
+	local total = 0
+	for _, drink in plan do
+		local name = string.gsub(drink.potion.name, " Potion$", "")
+		table.insert(parts, ("%s x%d"):format(name, drink.n))
+		total += drink.n
+	end
+	return table.concat(parts, ", "), total
+end
+
 function PotionLogic.owned(catalog: Types.Catalog?, state: Types.PlayerState, now: number): { Row }
 	local owned: { Row } = {}
 	for _, row in PotionLogic.rows(catalog, state, now) do

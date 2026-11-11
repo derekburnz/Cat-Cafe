@@ -4413,6 +4413,29 @@ local SCENES = {
 		assert(not now:find("|%.%.%.|") and not now:find("^%.%.%.|"), "uigate: Use reads ... after a fast press (#3190)")
 		assert(now:find("x1", 1, true), "uigate: two fast Uses did not count at once, the bag shows " .. now)
 	end },
+	-- #3326 (Derek2: "add a use all potions in inventory button right below potions button in bag"): the button heads
+	-- the Potions list while a potion would take, and a press asks first on a card naming what it drinks
+	{ "PotionsUseAll", function()
+		UI.update({ potions = { tip_potion = 3, swift_potion = 2 }, buffs = {} })
+		UI.open("Potions")
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local row = window:FindFirstChild("UseAllRow", true) :: GuiObject
+		assert(row and row.Visible, "uigate: no Use all potions button on the Potions tab (#3326)")
+		press("Potions", "UseAllPotions")
+		local ask = window:FindFirstChild("UseAllConfirm", true) :: GuiObject
+		assert(ask and ask.Visible, "uigate: Use all potions did not ask first (#3326)")
+		local line = (ask:FindFirstChild("Line", true) :: TextLabel).Text
+		assert(line == "Money x3, Swift x2", "uigate: the confirm card reads " .. line)
+	end },
+	{ "PotionsUseAllHidden", function()
+		UI.update({ potions = { tip_potion = 3 }, buffs = {} })
+		UI.open("Potions")
+		press("Potions", "BaitTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local row = window:FindFirstChild("UseAllRow", true) :: GuiObject
+		assert(not row:FindFirstAncestorWhichIsA("ScrollingFrame").Visible, "uigate: Use all potions shows off the Potions tab")
+	end },
 	{ "BagBait", function()
 		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
 		UI.open("Potions")

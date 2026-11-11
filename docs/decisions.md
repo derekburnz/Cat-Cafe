@@ -897,19 +897,7 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Upgrade ladder (#3204, Derek2 chose "Yes, as proposed"):** Tier 2 opens 5 levels and Tier 3 opens 6, where it was 10 and 2. Net 2 moves to Tier 3 at 200,000 and Net 3 to Tier 5 at 60,000,000. Pace showed Tier 3 arriving sooner, not later, because coins skip Tier 2's buys. So Tier 3's cost goes up (520k, at most 560k) instead of down; the final numbers come from the combined run with #3195.
 - One place for all three specs: `docs/design/cat-cafe/new-activities.md`.
 
-## 2026-11-11 Shorter nights: 45 seconds (#3195)
-
-Derek2 2026-11-10: "make the night times faster to stop being leaving during night just put an exclamation mark over night market so people dont miss it".
-
-- Night 45 seconds and day 345 (were 70 and 320), as #3195 proposed. A game day stays 390 seconds, so every sunrise, day number, restock and pity timer falls where it did; only dusk comes 25 seconds later. Old and new servers agree on the day, so no restart is needed. While old servers run, their dusk comes 25 seconds before a new server's.
-- The "!" over the Night Market is VFX-Agent's PR #3231.
-
-## 2026-11-11 Upgrades spread across the tiers, Net later (#3204), and the Pace re-band with 45 s nights
-
-Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on in tiers".
-
-- **Caps.** Tier 2 opens fewer levels: Tables 4, Espresso 3, Net 1, Bait Bowl 2, Lucky Cat 2 (were 5, 4, 2, 3, 3). Net 2 opens at Tier 3 and Net 3 at Tier 5 (were Tier 2 and Tier 3). Caps gate buying only, so a level a player already owns above a cap is kept.
-- **Net costs** 2,500, 200,000 and 60,000,000 (were 2,500, 25,000 and 800,000), so the later Net levels still cost something at the tier where they open.
-- **Tier costs.** Tier 2 13,500 (was 12,000) and Tier 5 370,000,000 (was 350,000,000) for the 45 s nights (#3195). Tier 3 520,000 (was 420,000): the nights and the Tier 2 caps had brought the middle first-hour Tier 3 to 27.7 min; 520,000 gives 30.2, and 560,000 only 1.2 min more.
-- **Pace re-band (Design-Agent).** The caps speed Tier 2 to 3 more than the Tier 3 cost can pull back, so: Tier 3 in the first hour 30 to 45 min with the fastest tenth at 20 or later (was 33 to 45 and 25); the lawn run's Tier 5 floor 4 h (was 4.25; 4 h 14 measured); the first hour's longest wait 22.5 min (was 16). The fast first-hour player's Tier 2 floor is 8 min (was 10; 8.1 measured): raising Tier 2 to 17,500 to pull it back put the 4-catch and stray-top-up Tier 2 runs past their 20 min ceiling, and the slower players are the ones we lose. Every other band is unchanged.
-- **No restart.** No save change; old servers keep the old caps and costs until they close.
+## 2026-11-11 Automatic publishes never restart servers unless AUTO_RESTART is on
+- What: Derek asked for automatic publishing back on, with no server restart ("do NOT restart servers" while ads run). publish.yml's automatic path restarted running servers whenever the save version differed from the last record, or when no record could be read. Manual no-restart publishes write no record, so the first automatic publish would most likely have restarted. Those restart steps now also need the repo variable AUTO_RESTART set to true. With it off (the default), an automatic publish reaches new servers only, warns in the log that the restart was skipped, and writes no published-build record, so a later run with AUTO_RESTART on still sees the version change.
+- Risk accepted by Derek's rule: after a save version bump, a player saved on a new server who then joins an old one is kicked by the newer-save guard until the old servers empty out.
+- Safe for old servers: workflow only, no game code.

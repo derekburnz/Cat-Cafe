@@ -4,7 +4,8 @@
 # AUTO_PUBLISH set to true, the tip of main goes live once a check run on it has passed (a gate job publishes the
 # tip at most once, whichever run gets there; a label merge's own dispatch publishes it at once). An automatic publish first
 # shares every picture and sound with the experience (asset-permissions.yml grant), and afterwards restarts running
-# servers, after the 10 and 2 minute and 30 second in-game warnings (#2720), only when ProfileSchema.VERSION differs from the last published build's. A run
+# servers, after the 10 and 2 minute and 30 second in-game warnings (#2720), only when ProfileSchema.VERSION differs from the last published build's
+# and the repo variable AUTO_RESTART is true (off by default since 2026-11-11: new servers only). A run
 # that leaves every server on its build (an automatic publish, or a manual Published with restart_servers on, the
 # restart included) records its save version in a `published-build` artifact for the next automatic publish.
 name: publish
@@ -297,13 +298,32 @@ jobs:
       # 10 and 2 minute and 30 second warnings as a manual restart (#2720), then the restart,
       # so no player saved by a new server lands on an old one and nobody is cut off mid-catch. Skips itself
       # quickly if the key cannot send in-game messages.
+      # Derek 2026-11-11 ("do NOT restart servers", ads running): an automatic restart also needs the repo variable
+      # AUTO_RESTART set to true. Without it an automatic publish only reaches new servers, like a manual Published
+      # without restart_servers, and the log says the restart was skipped.
       - name: Warn players in game before the automatic restart (10 and 2 minutes, 30 seconds, then now)
-        if: needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true'
+        if: >-
+          needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true' &&
+          vars.AUTO_RESTART == 'true'
         run: bash tools/opencloud/restart-countdown.sh
 
       - name: Restart running servers (automatic publish, save version changed)
-        if: needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true'
+        if: >-
+          needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true' &&
+          vars.AUTO_RESTART == 'true'
         run: bash tools/opencloud/restart-servers.sh
+
+      - name: Note the skipped restart (AUTO_RESTART is off)
+        if: >-
+          needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true' &&
+          vars.AUTO_RESTART != 'true'
+        env:
+          PREVIOUS: ${{ steps.last.outputs.previous }}
+          VERSION: ${{ steps.schema.outputs.version }}
+        run: >-
+          echo "::warning::Running servers were NOT restarted (repo variable AUTO_RESTART is off). Save version
+          $PREVIOUS -> $VERSION; the new build reaches new servers only. No published-build record is written, so the
+          next automatic publish checks again."
 
       # What every running server is now on, for the next automatic publish's restart check. Last, so a failed
       # countdown or restart (which skips these steps) leaves the older record and the next automatic run restarts.
@@ -312,7 +332,8 @@ jobs:
       - name: Write the published-build record
         if: >-
           steps.live.outcome == 'success' &&
-          (needs.gate.outputs.auto == 'true' || inputs.restart_servers)
+          ((needs.gate.outputs.auto == 'true' && (steps.last.outputs.restart != 'true' || vars.AUTO_RESTART == 'true')) ||
+          inputs.restart_servers)
         env:
           SHA: ${{ needs.gate.outputs.sha }}
           VERSION: ${{ steps.schema.outputs.version }}
@@ -321,7 +342,8 @@ jobs:
       - name: Upload the published-build record
         if: >-
           steps.live.outcome == 'success' &&
-          (needs.gate.outputs.auto == 'true' || inputs.restart_servers)
+          ((needs.gate.outputs.auto == 'true' && (steps.last.outputs.restart != 'true' || vars.AUTO_RESTART == 'true')) ||
+          inputs.restart_servers)
         uses: actions/upload-artifact@v4
         with:
           name: published-build

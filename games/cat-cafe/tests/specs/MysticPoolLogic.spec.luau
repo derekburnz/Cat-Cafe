@@ -1,0 +1,179 @@
+--!strict
+-- UI/Components/MysticPoolLogic.luau (#3196, trait-station.md): the Mystic Pool card's words and button states.
+return function()
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
+	local MysticPoolLogic = require(Components:WaitForChild("MysticPoolLogic")) :: any
+	local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
+
+	local first = Traits.LIST[1]
+	local last = Traits.LIST[#Traits.LIST]
+
+	describe("MysticPoolLogic.card", function()
+		it("shows a plain card for no trait or one it does not know", function()
+			for _, value in { nil, {}, { id = 3 }, { id = "no_such_trait" } } :: { any } do
+				local card = MysticPoolLogic.card(value)
+				expect(card.has).to.equal(false)
+				expect(card.name).to.equal("No trait yet")
+				expect(card.rarity).to.equal("")
+				expect(#card.lines).to.equal(0)
+			end
+		end)
+
+		it("shows every trait's name, rarity, colour and effects", function()
+			for _, def in Traits.LIST do
+				local card = MysticPoolLogic.card({ id = def.id })
+				expect(card.has).to.equal(true)
+				expect(card.name).to.equal(def.name)
+				expect(card.rarity).to.equal(def.rarity.name)
+				expect(card.color).to.equal(def.rarity.color)
+				expect(#card.lines).to.equal(#def.effects)
+			end
+		end)
+	end)
+
+	describe("MysticPoolLogic.roll", function()
+		it("is shut without the station's numbers", function()
+			local roll = MysticPoolLogic.roll(nil, false, 999)
+			expect(roll.enabled).to.equal(false)
+			expect(roll.why).to.be.ok()
+		end)
+
+		it("uses a free roll first and says how many are left", function()
+			local roll = MysticPoolLogic.roll({ tokens = 2, freeLeft = 5, held = 0 }, false, 0)
+			expect(roll.text).to.equal("Free roll (5 left)")
+			expect(roll.enabled).to.equal(true)
+			roll = MysticPoolLogic.roll({ tokens = 0, freeLeft = 1, held = 0 }, true, 0)
+			expect(roll.text).to.equal("Free roll (1 left)")
+			expect(roll.enabled).to.equal(true)
+		end)
+
+		it("then a token, then golden fish, and says Re-roll for a cat with a trait", function()
+			local roll = MysticPoolLogic.roll({ tokens = 1, freeLeft = 0, held = 0 }, false, 0)
+			expect(roll.text).to.equal("Roll · 1 Trait Token")
+			expect(roll.enabled).to.equal(true)
+			roll =
+				MysticPoolLogic.roll({ tokens = 0, freeLeft = 0, held = 0 }, true, Traits.COST_FISH)
+			expect(roll.text).to.equal(string.format("Re-roll · %d golden fish", Traits.COST_FISH))
+			expect(roll.enabled).to.equal(true)
+		end)
+
+		it("rests with one golden fish too few and no token (QA check 5)", function()
+			local roll = MysticPoolLogic.roll(
+				{ tokens = 0, freeLeft = 0, held = 0 },
+				false,
+				Traits.COST_FISH - 1
+			)
+			expect(roll.enabled).to.equal(false)
+			expect(roll.why).to.be.ok()
+		end)
+
+		it("rests while a re-roll waits for its choice", function()
+			local roll = MysticPoolLogic.roll(
+				{ tokens = 3, freeLeft = 2, held = 0, pending = { uid = "c1", id = first.id } },
+				true,
+				100
+			)
+			expect(roll.enabled).to.equal(false)
+			expect(roll.why).to.equal("Pick Keep old or Take new first")
+		end)
+
+		it("reads odd numbers from the network as none", function()
+			local roll = MysticPoolLogic.roll({ tokens = "9", freeLeft = -4 } :: any, false, 0 / 0)
+			expect(roll.enabled).to.equal(false)
+		end)
+	end)
+
+	describe("MysticPoolLogic.pending", function()
+		it("is nil with nothing waiting or a broken record", function()
+			expect(MysticPoolLogic.pending(nil, {})).never.to.be.ok()
+			expect(MysticPoolLogic.pending({ tokens = 0 }, {})).never.to.be.ok()
+			expect(MysticPoolLogic.pending({ pending = { uid = "c1" } }, {})).never.to.be.ok()
+		end)
+
+		it("puts the cat's old trait beside the new one", function()
+			local cats = { c1 = { uid = "c1", trait = { id = first.id } } }
+			local waiting =
+				MysticPoolLogic.pending({ pending = { uid = "c1", id = last.id } }, cats)
+			expect(waiting.uid).to.equal("c1")
+			expect(waiting.old.name).to.equal(first.name)
+			expect(waiting.new.name).to.equal(last.name)
+		end)
+
+		it("still shows the choice when the cat is gone, so it can be cleared", function()
+			local waiting = MysticPoolLogic.pending(
+				{ pending = { uid = "gone", id = last.id } },
+				{}
+			)
+			expect(waiting.old.has).to.equal(false)
+			expect(waiting.new.has).to.equal(true)
+		end)
+	end)
+
+	describe("MysticPoolLogic.haveLine and tokens", function()
+		it("lists free rolls only while any are left", function()
+			expect(MysticPoolLogic.haveLine({ tokens = 2, freeLeft = 5 }, 34)).to.equal(
+				"5 free rolls · 2 Trait Tokens · 34 golden fish"
+			)
+			expect(MysticPoolLogic.haveLine({ tokens = 1, freeLeft = 1 }, 0)).to.equal(
+				"1 free roll · 1 Trait Token · 0 golden fish"
+			)
+			expect(MysticPoolLogic.haveLine({ tokens = 0, freeLeft = 0 }, 7)).to.equal(
+				"0 Trait Tokens · 7 golden fish"
+			)
+		end)
+
+		it("offers Collect while the station holds a token", function()
+			local line, ready = MysticPoolLogic.tokens({ held = 2 }, 1000)
+			expect(line).to.equal("2 Trait Tokens ready")
+			expect(ready).to.equal(true)
+			line, ready = MysticPoolLogic.tokens({ held = 1 }, 1000)
+			expect(line).to.equal("1 Trait Token ready")
+			expect(ready).to.equal(true)
+		end)
+
+		it("counts down to the next free token (QA check 6)", function()
+			local line, ready =
+				MysticPoolLogic.tokens({ held = 0, nextAt = 1000 + 3 * 3600 + 12 * 60 }, 1000)
+			expect(line).to.equal("Next free token in 3h 12m")
+			expect(ready).to.equal(false)
+			expect((MysticPoolLogic.tokens({ held = 0, nextAt = 1000 + 61 }, 1000))).to.equal(
+				"Next free token in 2m"
+			)
+			expect((MysticPoolLogic.tokens({ held = 0, nextAt = 1000 + 45 }, 1000))).to.equal(
+				"Next free token in 45s"
+			)
+			expect((MysticPoolLogic.tokens({ held = 0, nextAt = 900 }, 1000))).to.equal(
+				"Next free token soon"
+			)
+			expect((MysticPoolLogic.tokens(nil, 1000))).to.equal("")
+		end)
+	end)
+
+	describe("MysticPoolLogic.odds", function()
+		it("lists every rarity with its percent, adding up to 100", function()
+			local rows = MysticPoolLogic.odds()
+			expect(#rows).to.equal(#Traits.RARITIES)
+			local total = 0
+			for index, row in rows do
+				expect(row.name).to.equal(Traits.RARITIES[index].name)
+				expect(row.color).to.equal(Traits.RARITIES[index].color)
+				total += row.percent
+			end
+			expect(total).to.equal(100)
+			expect(MysticPoolLogic.ODDS_LINE:find("equally likely", 1, true)).to.be.ok()
+		end)
+
+		it("never uses near-miss words on its buttons", function()
+			for _, text in
+				{ MysticPoolLogic.KEEP_OLD, MysticPoolLogic.TAKE_NEW, MysticPoolLogic.NO_TRAIT }
+			do
+				local low = text:lower()
+				expect(low:find("almost", 1, true)).never.to.be.ok()
+				expect(low:find("close", 1, true)).never.to.be.ok()
+			end
+		end)
+	end)
+end

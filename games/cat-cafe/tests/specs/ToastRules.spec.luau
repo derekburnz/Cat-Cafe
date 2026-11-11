@@ -177,5 +177,20 @@ return function()
 			expect(ToastRules.oneLine(nil)).to.equal(true)
 			expect(ToastRules.oneLine("warn")).to.equal(false)
 		end)
+
+		it("lets every restart warning wrap, the calm early ones too (#3205)", function()
+			local RestartNotice = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("RestartNotice")
+			) :: any
+			for _, seconds in RestartNotice.SHOWN do
+				local text = RestartNotice.text(seconds)
+				expect(ToastRules.oneLine(RestartNotice.kind(seconds), text)).to.equal(false)
+			end
+			expect(RestartNotice.kind(600)).to.equal("info")
+			expect(ToastRules.oneLine("info", "Welcome back! Your cats missed you")).to.equal(true)
+			expect(ToastRules.oneLine("good", "Claimed 3 quests")).to.equal(true)
+		end)
 	end)
 end

@@ -3996,6 +3996,19 @@ local SCENES = {
 		local lonePill = lone.Parent :: Frame
 		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
+		-- #3205 (Derek2: "the quick update in ... gets cut off"): the restart warning's calm early mark is an info
+		-- toast, and still shows every word
+		local notice = "A quick update is coming in 10 minutes. Keep playing, your cafe is saved."
+		UI.toast(notice, "info")
+		local warned = find(notice)
+		assert(warned.TextTruncate == Enum.TextTruncate.None, "uigate: the restart warning ends in ... (#3205)")
+		assert(warned.TextFits, "uigate: the restart warning's words do not all fit (#3205)")
+		local warnedPill = warned.Parent :: Frame
+		local view = workspace.CurrentCamera.ViewportSize
+		assert(
+			warnedPill.AbsolutePosition.X >= -0.5 and warnedPill.AbsolutePosition.X + warnedPill.AbsoluteSize.X <= view.X + 0.5,
+			"uigate: the restart warning's pill runs off screen (#3205)"
+		)
 	end },
 	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"; "remove all the extra ones"): a long
 	-- Index claim is one row ending in "…", no reward chips under it; a cut nudge never shows; a long warning wraps

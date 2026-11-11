@@ -1395,6 +1395,28 @@ function Logic.startle(o: Offsets, alpha: number)
 	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
 end
 
+-- #3022: the waiting stray's "come here" (motion.beckon), `alpha` 0 to 1 through it, layered on whatever the cat
+-- does: a couple of small hops, its head turned `yaw` degrees to you and tipped up, ears forward, tail up and flicking,
+-- all easing in and out so it never snaps.
+function Logic.beckon(o: Offsets, alpha: number, yaw: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local b = Presets.motion.beckon
+	local ease = math.sin(alpha * math.pi)
+	local k = alpha / b.hopShare
+	if k < 1 then
+		local hopK = k * b.hops
+		o.bodyY += b.hop * math.sin((hopK - math.floor(hopK)) * math.pi)
+	end
+	o.headYaw += math.rad(yaw) * ease
+	o.headPitch += math.rad(b.lookUp) * ease
+	o.earL *= 1 - ease -- ears forward, not back
+	o.earR *= 1 - ease
+	o.tailPitch += math.rad(b.tailUp) * ease
+	o.tailYaw += math.rad(b.flick) * math.sin(alpha * b.flicks * 2 * math.pi) * ease
+end
+
 -- Asleep for the Bellhop Cat's sleepy cap: a nap or a doze.
 function Logic.asleep(style: Style): boolean
 	return style == "nap" or style == "doze"
@@ -3259,6 +3281,49 @@ function Logic.dropBounce(k: number): number
 	end
 	local q = (k - s.dropFall) / (1 - s.dropFall)
 	return s.dropBounce * math.sin(q * math.pi)
+end
+
+-- The Mystic Pool (#3314, trait-station.md section 1a): the rarity ids its liquid steps through, lowest first, the
+-- same ids and order as shared/Traits.RARITIES (EffectsMysticPool.spec checks).
+Logic.POOL_RARITIES = { "common", "uncommon", "rare", "legendary", "mythic" }
+
+-- The colours the pool shows for a roll of `rarity`, grey first, one step per rarity up to it and never past it: a
+-- common stays grey, a rare goes grey, green, blue. An unknown rarity shows grey only.
+function Logic.poolSteps(rarity: string): { string }
+	local out = {}
+	for _, name in Logic.POOL_RARITIES do
+		table.insert(out, name)
+		if name == rarity then
+			return out
+		end
+	end
+	return { Logic.POOL_RARITIES[1] }
+end
+
+-- How long the liquid takes for a roll of `rarity`, from the cat's splash to the card: a step every `step` seconds,
+-- the last held a step and `hold` more; a mythic's last step is the fast purple flash and its longer shimmer, `mythicHold`.
+function Logic.poolSeconds(rarity: string): number
+	local p = Presets.mysticPool
+	local steps = Logic.poolSteps(rarity)
+	local n = #steps
+	if steps[n] == "mythic" then
+		return (n - 1) * p.step + p.mythicHold
+	end
+	return n * p.step + p.hold
+end
+
+-- Where the liquid is `t` seconds after the splash: the index into Logic.poolSteps(rarity) it is on, how far (0 to 1)
+-- its blend into that colour has got (`blend` seconds, the Mythic flash `flash`), and whether the pool is done. The
+-- index only ever goes up and stops on the rolled rarity, so the pool never shows a colour past it and comes back.
+function Logic.poolAt(rarity: string, t: number): (number, number, boolean)
+	local p = Presets.mysticPool
+	local steps = Logic.poolSteps(rarity)
+	local n = #steps
+	local i = math.clamp(math.floor(math.max(t, 0) / p.step) + 1, 1, n)
+	local into = math.max(t, 0) - (i - 1) * p.step
+	local blend = if steps[i] == "mythic" then p.flash else p.blend
+	local k = if i == 1 then 1 else math.clamp(into / blend, 0, 1)
+	return i, k, t >= Logic.poolSeconds(rarity)
 end
 
 return Logic

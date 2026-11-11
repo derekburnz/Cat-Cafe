@@ -83,24 +83,31 @@ return function()
 			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
 		end)
 
-		it("starts off with nightCatch, loadingScreen and goldenDrops alone beside it", function()
-			local count = 0
-			for key in LiveFlags.OFF_BY_DEFAULT do
-				count += 1
-				expect(
-					key == "tradeFish"
-						or key == "nightCatch"
-						or key == "loadingScreen"
-						or key == "goldenDrops"
-				).to.equal(true)
-				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
+		it(
+			"starts off with nightCatch, loadingScreen, goldenDrops and traits alone beside it",
+			function()
+				local count = 0
+				for key in LiveFlags.OFF_BY_DEFAULT do
+					count += 1
+					expect(
+						key == "tradeFish"
+							or key == "nightCatch"
+							or key == "loadingScreen"
+							or key == "goldenDrops"
+							or key == "traits"
+					).to.equal(true)
+					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
+				end
+				expect(count).to.equal(5)
+				-- #3222: no Golden drop until it is switched on, even with a broken store
+				expect(LiveFlags.defaults().goldenDrops).to.equal(false)
+				expect(LiveFlags.parse(nil).goldenDrops).to.equal(false)
+				expect(LiveFlags.parse({ goldenDrops = true }).goldenDrops).to.equal(true)
+				-- #3196: no traits until the restart publish that ships their save fields switches them on
+				expect(LiveFlags.defaults().traits).to.equal(false)
+				expect(LiveFlags.parse({ traits = true }).traits).to.equal(true)
 			end
-			expect(count).to.equal(4)
-			-- #3222: no Golden drop until it is switched on, even with a broken store
-			expect(LiveFlags.defaults().goldenDrops).to.equal(false)
-			expect(LiveFlags.parse(nil).goldenDrops).to.equal(false)
-			expect(LiveFlags.parse({ goldenDrops = true }).goldenDrops).to.equal(true)
-		end)
+		)
 	end)
 
 	describe("loadingScreen (#3179, off until switched on)", function()

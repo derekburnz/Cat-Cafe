@@ -38,6 +38,9 @@ local lastShovedAt: { [number]: number } = {} -- target UserId -> server time an
 -- whose position reaches the server late still counts
 type Seen = { at: number, position: Vector3 }
 local trails: { [Player]: { Seen } } = {}
+-- #3342: server time each player's join shield ends; nil once it ran out or their own tackle ended it. Mirrored to
+-- the Player's TackleShieldUntil attribute so their own Tackle bar can show the shield (display only).
+local shieldUntil: { [Player]: number } = {}
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
@@ -82,9 +85,27 @@ local function targetRefusal(
 		targetFlying = CatService.inFlight(target),
 		targetNewcomer = newcomer(target),
 		targetTrading = TradeService.isTrading(target), -- #2568: trading from anywhere
+		targetShielded = Shove.shielded(shieldUntil[target], now), -- #3342
 		sinceShoveTarget = since((lastShoveOf[player] or {})[target.UserId], now),
 		sinceTargetShoved = since(lastShovedAt[target.UserId], now),
 	})
+end
+
+-- #3342: starts `player`'s join shield.
+local function startShield(player: Player)
+	local untilAt = Shove.shieldUntil(serverNow())
+	if untilAt ~= nil then
+		shieldUntil[player] = untilAt
+		player:SetAttribute("TackleShieldUntil", untilAt)
+	end
+end
+
+-- #3342: ends `player`'s join shield (their own tackle).
+local function endShield(player: Player)
+	if shieldUntil[player] ~= nil then
+		shieldUntil[player] = nil
+		player:SetAttribute("TackleShieldUntil", nil)
+	end
 end
 
 local function noteTrails()
@@ -234,6 +255,7 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		return
 	end
 	lastTackleAt[player] = now
+	endShield(player) -- #3342: tackling gives up your own join shield
 	profile.stats.bumpsGiven += 1
 	local character = player.Character
 	if character ~= nil then
@@ -291,10 +313,16 @@ end
 function ShoveService.start()
 	Net.on("Tackle", onTackle)
 	RunService.Heartbeat:Connect(noteTrails) -- #2193
+	-- #3342: every join gets TackleShieldSeconds nobody can tackle them in
+	Players.PlayerAdded:Connect(startShield)
+	for _, player in Players:GetPlayers() do
+		startShield(player)
+	end
 	Players.PlayerRemoving:Connect(function(player)
 		lastTackleAt[player] = nil
 		lastShoveOf[player] = nil
 		trails[player] = nil
+		shieldUntil[player] = nil
 		-- lastShovedAt stays by UserId: a rejoin does not lift the few seconds of immunity early or late
 	end)
 end

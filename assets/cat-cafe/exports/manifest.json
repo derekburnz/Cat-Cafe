@@ -313093,6 +313093,222 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_ArcadeCabinet.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Town_ArcadeCabinet.png"
+    },
+    {
+      "name": "CatCafe_Camp_Park_MysticPool",
+      "category": "Camp",
+      "module": "mysticpool",
+      "objects": [
+        "CatCafe_Camp_Park_MysticPool",
+        "CatCafe_Camp_Park_MysticPool_Liquid_Glow",
+        "CatCafe_Camp_Park_MysticPool_Sage_Body",
+        "CatCafe_Camp_Park_MysticPool_Sage_Head",
+        "CatCafe_Camp_Park_MysticPool_Sage_Eye1",
+        "CatCafe_Camp_Park_MysticPool_Sage_Eye2",
+        "CatCafe_Camp_Park_MysticPool_Sage_EarL",
+        "CatCafe_Camp_Park_MysticPool_Sage_EarR",
+        "CatCafe_Camp_Park_MysticPool_Sage_Tail",
+        "CatCafe_Camp_Park_MysticPool_Sage_LegF1",
+        "CatCafe_Camp_Park_MysticPool_Sage_LegF2",
+        "CatCafe_Camp_Park_MysticPool_Sage_LegB1",
+        "CatCafe_Camp_Park_MysticPool_Sage_LegB2",
+        "CatCafe_Camp_Park_MysticPool_Sage_Prop",
+        "CatCafe_Camp_Park_MysticPool_Sage_Prop2",
+        "CatCafe_Camp_Park_MysticPool_Sage_Staff"
+      ],
+      "triangles": 4966,
+      "budget": 9000,
+      "size_studs": {
+        "x": 10.0,
+        "y": 8.87,
+        "z": 5.99
+      },
+      "size_roblox": [
+        10.0,
+        5.99,
+        8.87
+      ],
+      "bounds_min": [
+        -5.0,
+        -4.2,
+        0.0
+      ],
+      "bounds_max": [
+        5.0,
+        4.67,
+        5.99
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Picnic station's spot (Layout.campExtras.park), so Gameplay swaps the asset name when the traits flag goes on",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Park_MysticPool_Sage_Body": [
+          3.5,
+          2.9,
+          0.12
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Head": [
+          3.43,
+          2.71,
+          2.15
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Eye1": [
+          3.51,
+          1.45,
+          2.67
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Eye2": [
+          2.56,
+          1.8,
+          2.67
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_EarL": [
+          3.92,
+          2.3,
+          3.57
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_EarR": [
+          2.79,
+          2.71,
+          3.57
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Tail": [
+          3.64,
+          3.27,
+          1.12
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegF1": [
+          4.35,
+          2.46,
+          1.76
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegF2": [
+          2.57,
+          3.11,
+          1.76
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegB1": [
+          3.78,
+          2.67,
+          1.0
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegB2": [
+          3.14,
+          2.9,
+          1.0
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Prop": [
+          3.43,
+          2.71,
+          2.15
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Prop2": [
+          3.5,
+          2.9,
+          0.12
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Staff": [
+          2.56,
+          3.09,
+          1.04
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Park_MysticPool_Sage_Body": [
+          -3.5,
+          0.12,
+          2.9
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Head": [
+          -3.43,
+          2.15,
+          2.71
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Eye1": [
+          -3.51,
+          2.67,
+          1.45
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Eye2": [
+          -2.56,
+          2.67,
+          1.8
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_EarL": [
+          -3.92,
+          3.57,
+          2.3
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_EarR": [
+          -2.79,
+          3.57,
+          2.71
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Tail": [
+          -3.64,
+          1.12,
+          3.27
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegF1": [
+          -4.35,
+          1.76,
+          2.46
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegF2": [
+          -2.57,
+          1.76,
+          3.11
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegB1": [
+          -3.78,
+          1.0,
+          2.67
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_LegB2": [
+          -3.14,
+          1.0,
+          2.9
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Prop": [
+          -3.43,
+          2.15,
+          2.71
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Prop2": [
+          -3.5,
+          0.12,
+          2.9
+        ],
+        "CatCafe_Camp_Park_MysticPool_Sage_Staff": [
+          -2.56,
+          1.04,
+          3.09
+        ]
+      },
+      "studio": "#3314 (trait-station.md section 1): the Mystic Pool, the Picnic station reworked into the trait station. _Liquid_Glow is Neon and walk-through; Effects/MysticPool recolours it during a roll. Sage Sorrel's hat rides his Head Model and his staff his right arm (LegF2). Attachments: PromptAnchor, BangAnchor, GlowAnchor, PoolDrop (the liquid's surface) and StaffTip (the orb).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_MysticPool.model.json",
+      "rbx_parts": 506,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_MysticPool.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_MysticPool.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "4966/9000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2707 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.24"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Park_MysticPool.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Park_MysticPool.png"
     }
   ]
 }

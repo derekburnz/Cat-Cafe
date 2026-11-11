@@ -1,8 +1,8 @@
 --!strict
 -- The Cat Arcade on the server (#3062; the rules are shared/Arcade). ArcadeStart checks the `arcade` switch, that the
 -- player's arcade save is read, that no game is running, that they are in no catch, rescue or flight
--- (CatService.busyReason) and have no trade fish freeze (TradeService.fishSpendBlocker), then spends ArcadeCostFish
--- golden fish and sends the first block of circles (ArcadeBlock). Every press (ArcadePress) is stamped on arrival,
+-- (CatService.busyReason) and have no trade fish freeze (TradeService.fishSpendBlocker), then uses today's free run
+-- (#3296) or spends ArcadeCostFish golden fish and sends the first block of circles (ArcadeBlock). Every press (ArcadePress) is stamped on arrival,
 -- half the ping taken off, and judged by Circles.press with the arcade's windows, exactly as a catch's; a circle left
 -- alone is a Miss at its deadline. Each judged circle goes back as ArcadeJudged with the points and any milestone it
 -- paid (Payout.pay, once per UTC day each; shown in the window only, no toast, #3080). A block played through brings
@@ -87,6 +87,7 @@ local function copy(save: Arcade.Save): Arcade.Save
 		paid = table.clone(save.paid),
 		legend = save.legend,
 		runs = save.runs,
+		freeDay = save.freeDay,
 	}
 end
 
@@ -165,6 +166,7 @@ local function stateOf(player: Player): Arcade.State
 		serverBest = serverBest.points,
 		serverCircles = serverBest.circles,
 		serverName = serverBest.name,
+		free = save ~= nil and Arcade.freeToday(save, os.time()),
 		top = ArcadeBoard.top(present(), player.UserId),
 	}
 end
@@ -393,19 +395,30 @@ local function onStart(player: Player)
 		Net.toast(player, CLOSED_TEXT, "warn")
 		return
 	end
-	local busy = CatService.busyReason(player) or TradeService.fishSpendBlocker(player)
+	local save = saves[player]
+	local free = save ~= nil and Arcade.freeToday(save, os.time())
+	-- a free run spends no fish, so the trade fish freeze doesn't hold it up (#3296)
+	local busy = CatService.busyReason(player)
+		or (if free then nil else TradeService.fishSpendBlocker(player))
 	local blocker =
-		Arcade.startBlocker(profile.goldenFish, busy, runs[player] ~= nil, saves[player] ~= nil)
+		Arcade.startBlocker(profile.goldenFish, busy, runs[player] ~= nil, save ~= nil, free)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")
 		return
 	end
-	if not GoldenFish.trySpend(profile, Config.ArcadeCostFish) then
-		Net.toast(player, Arcade.startBlocker(0, nil, false, true) or CLOSED_TEXT, "warn")
-		return
+	if free and save ~= nil then
+		-- #3296: today's free run; the free day is written at once so another server can't give it again
+		Arcade.useFree(save, os.time())
+		queueSave(player.UserId, save)
+		sendState(player)
+	else
+		if not GoldenFish.trySpend(profile, Config.ArcadeCostFish) then
+			Net.toast(player, Arcade.startBlocker(0, nil, false, true) or CLOSED_TEXT, "warn")
+			return
+		end
+		Telemetry.fishSink(player, profile, Config.ArcadeCostFish, "Gameplay", "arcade")
+		CafeService.sync(player)
 	end
-	Telemetry.fishSink(player, profile, Config.ArcadeCostFish, "Gameplay", "arcade")
-	CafeService.sync(player)
 	nextRunId = nextRunId % MAX_RUN_ID + 1
 	local run: Run =
 		{ id = nextRunId, block = 0, attempt = nil, points = 0, circles = 0, paid = {} }

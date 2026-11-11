@@ -1049,7 +1049,8 @@ def main():
         order = list(all_assets().keys())
         manifest = sorted(old.values(), key=lambda e: order.index(e["name"]) if e["name"] in order else 999)
     with open(mpath, "w") as f:
-        json.dump({"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "units": "studs",
+        # no build time in it: a timestamp line made every two model PRs conflict here and in gates.md
+        json.dump({"units": "studs",
                    "palette": os.path.relpath(png, ROOT),
                    "pose_convention": poses.__doc__.strip().splitlines()[-5:],
                    "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},

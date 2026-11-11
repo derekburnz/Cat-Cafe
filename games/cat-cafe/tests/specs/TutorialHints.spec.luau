@@ -222,6 +222,9 @@ return function()
 			)
 			local owned = state({ tutorialStep = 4, upgradeLevels = { lure_bowl = 1 } })
 			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("food")
+			-- #3285: the UI's state sends false for an empty bowl
+			owned.bait = false
+			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("food")
 			owned.bait = { readyAt = 10 }
 			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("waiting")
 			-- #3158: step 4 lasts until the first bowl cat is tamed or let go, so it says the cat is there
@@ -239,6 +242,33 @@ return function()
 			})
 			expect(TutorialHints.ask(TutorialHints.view(tamed, spots))).to.equal("second")
 		end)
+
+		it(
+			"offers the step's upgrade for one press only while the coins cover it (#2912)",
+			function()
+				local upgrades = {
+					{ id = "tables", startLevel = 0, costs = { 150, 600 } },
+					{ id = "lure_bowl", startLevel = 0, costs = { 600, 6000 } },
+				}
+				local offer = TutorialHints.offer(3, { tables = 0 }, 850, upgrades)
+				expect(offer.id).to.equal("tables")
+				expect(offer.cost).to.equal(150)
+				expect(offer.text).to.equal("Buy a table")
+				expect(TutorialHints.offer(3, { tables = 0 }, 149, upgrades)).to.equal(nil)
+				local bowl = TutorialHints.offer(4, { tables = 1, lure_bowl = 0 }, 600, upgrades)
+				expect(bowl.id).to.equal("lure_bowl")
+				expect(bowl.cost).to.equal(600)
+				-- the bowl owned, a step with no upgrade, an unknown balance or no catalog: no button
+				expect(TutorialHints.offer(4, { lure_bowl = 1 }, 99999, upgrades)).to.equal(nil)
+				for _, step in { 1, 2, 5 } do
+					expect(TutorialHints.offer(step, {}, 99999, upgrades)).to.equal(nil)
+				end
+				expect(TutorialHints.offer(3, {}, nil, upgrades)).to.equal(nil)
+				expect(TutorialHints.offer(3, {}, 850, nil)).to.equal(nil)
+				-- a level past the price list (a save from a bigger list) is no offer
+				expect(TutorialHints.offer(3, { tables = 2 }, 99999, upgrades)).to.equal(nil)
+			end
+		)
 
 		it("asks for nothing once the walk-through is done, or with no step saved", function()
 			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = 5 }), spots))).to.equal(

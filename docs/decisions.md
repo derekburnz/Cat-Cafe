@@ -896,3 +896,23 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Swift Paws (#3063):** a permanent +1/+2 walk and carry speed perk for 60/150 golden fish. It's capped at +2 so the Robux Swift Potion's +4 stays the bigger bump (Monetization-Agent). It was its_cuzu098's idea.
 - **Upgrade ladder (#3204, Derek2 chose "Yes, as proposed"):** Tier 2 opens 5 levels and Tier 3 opens 6, where it was 10 and 2. Net 2 moves to Tier 3 at 200,000 and Net 3 to Tier 5 at 60,000,000. Pace showed Tier 3 arriving sooner, not later, because coins skip Tier 2's buys. So Tier 3's cost goes up (520k, at most 560k) instead of down; the final numbers come from the combined run with #3195.
 - One place for all three specs: `docs/design/cat-cafe/new-activities.md`.
+
+## 2026-11-11 Automatic publishes never restart servers unless AUTO_RESTART is on
+- What: Derek asked for automatic publishing back on, with no server restart ("do NOT restart servers" while ads run). publish.yml's automatic path restarted running servers whenever the save version differed from the last record, or when no record could be read. Manual no-restart publishes write no record, so the first automatic publish would most likely have restarted. Those restart steps now also need the repo variable AUTO_RESTART set to true. With it off (the default), an automatic publish reaches new servers only, warns in the log that the restart was skipped, and writes no published-build record, so a later run with AUTO_RESTART on still sees the version change.
+- Risk accepted by Derek's rule: after a save version bump, a player saved on a new server who then joins an old one is kicked by the newer-save guard until the old servers empty out.
+- Safe for old servers: workflow only, no game code.
+
+## 2026-11-11 Mouse Dash and Lucky Charm (#3296, #3298, player ideas)
+
+- **What.** Derek2 answered three player ideas.
+  - **Mouse Dash (#3296):** a second Cat Arcade game, with 1 free run a day and 1 golden fish per run after that.
+  - **Lucky Charm (#3298):** a Golden Fish Market perk, +0.1 Luck a level, 3 levels, at 100, 250 and 500 fish.
+  - **Walking speed (#3297):** closed, because Swift Paws already covers it.
+- **Why overall Luck.** Derek ruled out market luck because stock is global. Spin luck would make the Spin Wheel's printed odds wrong, and the Bait Bowl upgrade already gives bowl luck. Overall Luck stays inside `LuckMax`, and it's earned only.
+- **Specs.** new-activities.md §4 and §5.
+
+## 2026-11-11 Economy ladder v8: shorter nights and the tier caps (#3195, #3204)
+
+- **What.** economy-ladder.md v8 records #3253: 45 s nights, the Tier 2 caps, Net 2 at Tier 3 and Net 3 at Tier 5, and Tier 2 13,500, Tier 3 520,000, Tier 5 370M.
+- **Why Tier 3 went up.** The caps make Tier 2 to 3 faster than more Tier 3 cost can pull back; 520k was the smallest price that put first-hour Tier 3 back at 30 min or more.
+- **Bands.** First-hour Tier 3 is now 30 to 45 min, the longest wait 22.5 min, the fast player's Tier 2 floor 8 min and the lawn run's Tier 5 floor 4 h. Every other band is unchanged (Design-Agent, overnight call; Derek can tighten them later).

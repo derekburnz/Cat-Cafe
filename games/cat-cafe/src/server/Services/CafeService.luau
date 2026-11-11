@@ -240,7 +240,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		upgradeLevels = profile.upgradeLevels,
 		decorOwned = profile.decorOwned,
 		decorPlaced = profile.decorPlaced,
-		decorUnlocked = profile.decorUnlocked,
+		decorUnlocked = Trade.unlockedPieces(profile), -- #3276: every owned lockable piece not locked
 		lures = profile.lures,
 		bait = baitView(profile, now, 1),
 		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
@@ -285,6 +285,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stats = table.clone(profile.stats),
 		tipsSeen = table.clone(profile.tipsSeen), -- F87
 		feedbackAsked = profile.feedbackAsked,
+		sessionFeedbackDay = profile.sessionFeedbackDay, -- #3272
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
@@ -1947,8 +1948,8 @@ local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	CafeService.sync(player)
 end
 
--- #1574 (trading.md section 1b): the lock on a decor or lawn card. Only a Legendary and up piece has one; it arrives
--- locked and must be unlocked here before it can go on offer, and one on offer cannot be locked.
+-- #1574 (trading.md section 1b): the lock on a decor or lawn card. Only a Legendary and up piece has one; a locked
+-- piece can't go on offer, and one on offer cannot be locked. #3276: pieces arrive unlocked; this locks one.
 local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 	local id = Guard.id(rawId)
 	local profile = profileFor(player)
@@ -1964,11 +1965,7 @@ local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 		CafeService.sync(player)
 		return
 	end
-	if rawLocked then
-		profile.decorUnlocked[id] = nil
-	else
-		profile.decorUnlocked[id] = true
-	end
+	Trade.setPieceLocked(profile, id, rawLocked)
 	CafeService.sync(player)
 end
 

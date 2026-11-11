@@ -24,6 +24,9 @@
 -- feeding list should "show what cat is being fed much easier"): Feed's cat list is a card per cat with its head in
 -- its rarity's colour, its gold or rainbow coat on the edge and name, "Epic · Level 24" and a bar toward the next
 -- level, and a green Feed.
+-- Derek2 11-11 ("add a title area maybe inside bag with all titles unlocked instead of having it inside pass"): a
+-- fourth tab, Titles, lists every chat title (Components/TitlesLogic): No title, the ones the player has with Equip
+-- (PassSetTag), then the rest greyed with where they come from. The Cafe Pass no longer has its Chat tag button.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -44,6 +47,7 @@ local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local TitlesLogic = require(script.Parent.Parent.Components.TitlesLogic)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -52,16 +56,18 @@ local PAL = Theme.dark
 export type Callbacks = {
 	use: (potionId: string, count: number?) -> (), -- count: #1600's Use all, nil for one
 	feed: ((foodId: string, catUid: string) -> ())?, -- #1181: one food to one cat (FeedCat)
+	setTitle: ((pick: string) -> ())?, -- the Titles tab's Equip: a ChatTags id or "off" (PassSetTag)
 	close: () -> (),
 }
 
-export type Tab = "Potions" | "Food" | "Bait"
+export type Tab = "Potions" | "Food" | "Bait" | "Titles"
 
 export type Potions = {
 	frame: Frame,
 	setCatalog: (self: Potions, catalog: Types.Catalog) -> (),
 	render: (self: Potions, state: Types.PlayerState) -> (),
 	showTab: (self: Potions, tab: Tab) -> (),
+	setPassView: (self: Potions, view: Types.CafePassView?) -> (), -- the Titles tab's titles (CafePassState)
 	destroy: (self: Potions) -> (),
 }
 
@@ -69,7 +75,8 @@ local ROW_H = 76
 local TILE = 56
 local USE_W = 104
 local TAB_H = 40
-local TAB_W = 136 -- three tabs fit the small phone's window
+local TAB_W = 104 -- four tabs fit the small phone's window (136 while there were three)
+local EQUIP_W = 104 -- the Titles tab's Equip button
 local FOOD_W = 104 -- the Feed button
 local PENDING_SECONDS = 3 -- a sent Use with no answer stops counting on its row after this long (#3190)
 local SEND_GAP = 0.55 -- UsePotion is 2 a second on the server (Net.luau); queued presses go this far apart
@@ -178,6 +185,8 @@ function Potions.new(callbacks: Callbacks): Potions
 	self._catOrder = {} :: { CatEntry } -- every cat in the list, highest level first
 	self._catFood = "" -- the food the list feeds
 	self._baitRows = {} :: { [string]: { frame: Frame, icon: ItemIcon.ItemIcon, count: TextLabel } }
+	self._titleRows = {} :: { [string]: { frame: Frame, how: TextLabel, equip: Button.Button } }
+	self._passView = nil :: Types.CafePassView?
 	self._feeding = nil :: string? -- the food whose cat list shows
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
@@ -235,6 +244,21 @@ function Potions.new(callbacks: Callbacks): Potions
 			sound = "uiTab",
 			onClick = function()
 				self:showTab("Bait")
+			end,
+		}),
+		-- Derek2 11-11: every title in one place, in place of the Cafe Pass's Chat tag button
+		Titles = Button.new({
+			name = "TitlesTab",
+			text = "Titles",
+			icon = Theme.icons.tag,
+			style = "ghost",
+			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = 4,
+			parent = tabs,
+			sound = "uiTab",
+			onClick = function()
+				self:showTab("Titles")
 			end,
 		}),
 	}
@@ -315,6 +339,16 @@ function Potions.new(callbacks: Callbacks): Potions
 		Visible = false,
 		Parent = self._baitList,
 	})
+	-- the Titles tab's list: No title, the titles the player has, then the rest greyed (TitlesLogic)
+	self._titleList = (self._list :: ScrollingFrame):Clone()
+	self._titleList.Name = "TitleList"
+	for _, child in self._titleList:GetChildren() do
+		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+			child:Destroy()
+		end
+	end
+	self._titleList.Visible = false
+	self._titleList.Parent = panel.content
 	-- Feed's cat list: a heading with Back, then a row per cat
 	self._catList = (self._list :: ScrollingFrame):Clone()
 	self._catList.Name = "CatList"
@@ -436,6 +470,10 @@ function Potions._refreshFood(self: any)
 	self._foodList.Visible = food and self._feeding == nil
 	self._catList.Visible = food and self._feeding ~= nil
 	self._baitList.Visible = bait
+	self._titleList.Visible = self._tab == "Titles"
+	if self._tab == "Titles" then
+		self:_refreshTitles()
+	end
 	local state: Types.PlayerState? = self._state
 	if state ~= nil and bait then
 		self:_refreshBait(state)
@@ -496,6 +534,79 @@ function Potions._refreshBait(self: any, state: Types.PlayerState)
 		end
 	end
 	self._baitHint.Visible = #baits == 0
+end
+
+-- The Titles tab's titles follow the last CafePassState.
+function Potions.setPassView(self: any, view: Types.CafePassView?)
+	self._passView = view
+	if self._tab == "Titles" then
+		self:_refreshTitles()
+	end
+end
+
+-- One row per title (TitlesLogic.rows); a row is made once and its words and button follow the pass state.
+function Potions._refreshTitles(self: any)
+	for order, entry in TitlesLogic.rows(self._passView) do
+		local row = self._titleRows[entry.id] or self:_titleRow(entry)
+		self._titleRows[entry.id] = row
+		row.frame.LayoutOrder = order
+		row.frame.BackgroundTransparency = if entry.owned then 0 else 0.45
+		row.how.Text = entry.how
+		row.equip.instance.Visible = entry.owned
+		row.equip:setText(if entry.equipped then "Equipped" else "Equip")
+		row.equip:setStyle(if entry.equipped then "ghost" else "gold")
+		row.equip:setEnabled(not entry.equipped)
+	end
+end
+
+function Potions._titleRow(self: any, entry: TitlesLogic.Row)
+	local frame: Frame = Create("Frame", {
+		Name = entry.id,
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, ROW_H),
+		Parent = self._titleList,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+	local textLeft = 16
+	local name = text({
+		Name = "TitleName",
+		Position = UDim2.fromOffset(textLeft, 12),
+		Size = UDim2.new(1, -(textLeft + EQUIP_W + 24), 0, 26),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 3,
+		TextColor3 = if entry.color then Color3.fromHex(entry.color) else PAL.text,
+		Text = entry.text,
+		Parent = frame,
+	})
+	Outline.text(name, 2)
+	local how = text({
+		Name = "How",
+		Position = UDim2.fromOffset(textLeft, 40),
+		Size = UDim2.new(1, -(textLeft + EQUIP_W + 24), 0, 22),
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.subtext,
+		Parent = frame,
+	})
+	local equip = Button.new({
+		name = "Equip",
+		text = "Equip",
+		style = "gold",
+		size = UDim2.fromOffset(EQUIP_W, 42),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -12, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = frame,
+		onClick = function()
+			local callback: ((string) -> ())? = self._callbacks.setTitle
+			if callback then
+				callback(entry.id)
+			end
+		end,
+	})
+	return { frame = frame, how = how, equip = equip }
 end
 
 function Potions._baitRow(self: any, entry: BagLogic.Bait)
@@ -1202,6 +1313,9 @@ function Potions.destroy(self: any)
 	self._tick:Disconnect()
 	for _, row in self._foodRows do
 		row.feed:destroy()
+	end
+	for _, row in self._titleRows do
+		row.equip:destroy()
 	end
 	for _, connection in self._catScroll do
 		connection:Disconnect()

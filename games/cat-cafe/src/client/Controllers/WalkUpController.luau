@@ -24,6 +24,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Arcade = require(Shared:WaitForChild("Arcade"))
 local CampExtras = require(Shared:WaitForChild("CampExtras"))
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local LateStations = require(Shared:WaitForChild("LateStations"))
@@ -99,6 +100,14 @@ local KINDS: { Kind } = {
 		window = "Dealer",
 		open = function()
 			UI.dealer.open()
+		end,
+	},
+	{
+		tag = Arcade.TAG, -- #3338 (Derek2: "add a circle to open the station infront of it"): the Cat Arcade
+		prompt = Arcade.PROMPT,
+		window = "Arcade",
+		open = function()
+			UI.arcade.open()
 		end,
 	},
 	{
@@ -379,7 +388,8 @@ function WalkUpController.start()
 			if not ok then
 				continue -- a UI that is rebuilding misses one look
 			end
-			if close then
+			-- #3338: walking out of the arcade's ring mid game leaves the game running; it closes when it ends
+			if close and not (UI.isOpen() == "Arcade" and UI.arcade.playing()) then
 				UI.close()
 			end
 			local run = if open ~= nil then opener[open :: string] else nil

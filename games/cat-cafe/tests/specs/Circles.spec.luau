@@ -1458,28 +1458,22 @@ return function()
 		it(
 			"joins a late write with the stored save, so a server hop can't pay a milestone twice (#3251 review)",
 			function()
-				local stored = Arcade.sanitize(
-					{
-						best = 40,
-						bestCircles = 30,
-						day = 20400,
-						paid = { 10, 20 },
-						legend = false,
-						runs = 6,
-					},
-					NOW
-				)
-				local mine = Arcade.sanitize(
-					{
-						best = 40,
-						bestCircles = 28,
-						day = 20400,
-						paid = { 10, 30 },
-						legend = true,
-						runs = 4,
-					},
-					NOW
-				)
+				local stored = Arcade.sanitize({
+					best = 40,
+					bestCircles = 30,
+					day = 20400,
+					paid = { 10, 20 },
+					legend = false,
+					runs = 6,
+				}, NOW)
+				local mine = Arcade.sanitize({
+					best = 40,
+					bestCircles = 28,
+					day = 20400,
+					paid = { 10, 30 },
+					legend = true,
+					runs = 4,
+				}, NOW)
 				local joined = Arcade.merge(stored, mine)
 				expect(joined.paid :: any).to.deepEqual({ 10, 20, 30 })
 				expect(joined.best).to.equal(40)
@@ -1542,6 +1536,26 @@ return function()
 			)
 			expect(Arcade.startBlocker(5, nil, true, true)).to.equal("Finish this game first")
 			expect(type(Arcade.startBlocker(5, nil, false, false))).to.equal("string")
+		end)
+	end)
+
+	describe("Circles.earlyScale (#2913 follow-up)", function()
+		it("widens a new player's first catches by hand, then stops", function()
+			expect(Circles.earlyScale(0)).to.equal(Config.EarlyCatchWindowScale)
+			expect(Circles.earlyScale(Config.EarlyCatchCount - 1)).to.equal(
+				Config.EarlyCatchWindowScale
+			)
+			expect(Circles.earlyScale(Config.EarlyCatchCount)).to.equal(1)
+			expect(Circles.earlyScale(500)).to.equal(1)
+			expect(Config.EarlyCatchWindowScale > 1 and Config.EarlyCatchWindowScale <= 1.5).to.equal(
+				true
+			)
+		end)
+
+		it("scales both bands", function()
+			local w = Circles.scaled({ perfect = 0.05, good = 0.1 }, 1.3)
+			expect(math.abs(w.perfect - 0.065) < 1e-9).to.equal(true)
+			expect(math.abs(w.good - 0.13) < 1e-9).to.equal(true)
 		end)
 	end)
 end

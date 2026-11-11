@@ -297825,7 +297825,7 @@
         "CatCafe_Lawn_GoldenCatFountain_Bulbs",
         "CatCafe_Lawn_GoldenCatFountain_Cat_Spin"
       ],
-      "triangles": 2480,
+      "triangles": 2780,
       "budget": 3000,
       "size_studs": {
         "x": 3.14,
@@ -297874,10 +297874,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "2480/3000 tris",
+          "budget": "2780/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1634 faces on swatch centers",
+          "uv": "1784 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -297895,7 +297895,7 @@
         "CatCafe_Lawn_GoldenCatThrone_Bulbs",
         "CatCafe_Lawn_GoldenCatThrone_Crown_Spin"
       ],
-      "triangles": 1438,
+      "triangles": 1902,
       "budget": 3000,
       "size_studs": {
         "x": 3.14,
@@ -297934,7 +297934,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GoldenCatThrone.model.json",
-      "rbx_parts": 114,
+      "rbx_parts": 128,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatThrone.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatThrone.glb"
@@ -297944,10 +297944,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1438/3000 tris",
+          "budget": "1902/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1047 faces on swatch centers",
+          "uv": "1255 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.04"

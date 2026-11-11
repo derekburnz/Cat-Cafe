@@ -160,6 +160,39 @@ return function()
 			end
 		end)
 
+		it(
+			"puts every box edge on a whole pixel, so no bright seam shows between them (#3285)",
+			function()
+				-- a scaled HUD tile sits off the pixel grid
+				local at, size = Vector2.new(100.5, 400.37), Vector2.new(90.25, 89.6)
+				local rects = Logic.holes(at, size, Vector2.new(1279.5, 719.5))
+				for _, rect in rects do
+					for _, value in { rect.min.X, rect.min.Y, rect.max.X, rect.max.Y } do
+						expect(value).to.equal(math.floor(value))
+					end
+				end
+				-- the top box ends on the row the side boxes start on, and the bottom box starts where they end
+				expect(rects[1].max.Y).to.equal(rects[3].min.Y)
+				expect(rects[1].max.Y).to.equal(rects[4].min.Y)
+				expect(rects[2].min.Y).to.equal(rects[3].max.Y)
+				-- rounded outward: the whole target and its pad stay clear
+				expect(covers(rects, Vector2.new(at.X - Logic.SPOT_PAD, at.Y - Logic.SPOT_PAD))).to.equal(
+					false
+				)
+				expect(
+					covers(
+						rects,
+						at + size + Vector2.new(Logic.SPOT_PAD - 0.01, Logic.SPOT_PAD - 0.01)
+					)
+				).to.equal(false)
+				-- and every row across the screen is covered left and right of the hole
+				for y = 0, 719, 7 do
+					expect(covers(rects, Vector2.new(2, y + 0.5))).to.equal(true)
+					expect(covers(rects, Vector2.new(1270, y + 0.5))).to.equal(true)
+				end
+			end
+		)
+
 		it("keeps the boxes whole for a target at the screen's corner", function()
 			local rects = Logic.holes(Vector2.new(0, 0), Vector2.new(60, 60), SCREEN)
 			for _, rect in rects do

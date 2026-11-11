@@ -683,11 +683,8 @@ function CafePassScreen._refresh(self: any)
 	self._track.Visible = open
 	self._side.Visible = open
 	self._foot.Visible = open
-	local tag = PassLogic.tagButton(view)
-	self._tag.instance.Visible = tag ~= nil
-	if tag then
-		self._tag:setText(tag.text)
-	end
+	-- Derek2 11-11: titles are picked in the Bag's Titles tab now, so the pass's Chat tag button stays hidden
+	self._tag.instance.Visible = false
 	if view == nil or not open then
 		self._levelText.Text = "Level 0"
 		self._xpFill.Size = UDim2.fromScale(0, 1)

@@ -839,14 +839,19 @@ def build_golden_paw_statue(mat):
 
 # -- #3222 rare Golden drops: three hero pieces at the Golden +12% level -----------------------------------------------
 
+def _smooth(b, c, r, sw, scale=(1, 1, 1), segments=10, rings=7):
+    """#3271: a smooth sphere for the gold cats' big curves (RB.ball is a 20-face icosphere, which reads faceted)."""
+    b.b.sphere(RB.p(*c), r, sw, segments=segments, rings=rings, scale=(scale[0], scale[2], scale[1]))
+
+
 def _gold_cat(b, x, y, z, s, wave=False, sw="gold_mid", face=-1):
     """A gold cat sitting on y facing the street (-Z): body, head, ears with pink insides, eyes, nose, a curled tail
     and front paws. `wave` raises the right paw like a lucky cat."""
     f = face
-    b.ball((x, y + 0.42 * s, z), 0.42 * s, sw, scale=(0.95, 1.1, 0.85))                         # body
-    b.ball((x, y + 0.2 * s, z + f * 0.1 * s), 0.36 * s, sw, scale=(1.05, 0.65, 0.9))           # haunches
+    _smooth(b, (x, y + 0.42 * s, z), 0.42 * s, sw, scale=(0.95, 1.1, 0.85))                         # body
+    _smooth(b, (x, y + 0.2 * s, z + f * 0.1 * s), 0.36 * s, sw, scale=(1.05, 0.65, 0.9))           # haunches
     hy, hz = y + 1.0 * s, z + f * 0.12 * s
-    b.ball((x, hy, hz), 0.34 * s, sw, scale=(1.12, 0.95, 0.95))                                 # head
+    _smooth(b, (x, hy, hz), 0.34 * s, sw, scale=(1.12, 0.95, 0.95))                                 # head
     for sx in (-1, 1):
         b.b.pyramid(RB.p(x + sx * 0.19 * s, hy + 0.22 * s, hz), 0.2 * s, 0.24 * s, sw)
         b.b.pyramid(RB.p(x + sx * 0.19 * s, hy + 0.23 * s, hz + f * 0.055 * s), 0.1 * s, 0.15 * s, "nose_pink")
@@ -975,6 +980,18 @@ def build_golden_cat_throne(mat):
         _tri(b, (sx * 0.95, 3.58, 0.98), (sx * 0.2, 3.58, 0.98), (sx * 0.72, 4.5, 0.98), 0.23, "gold_mid")
         _tri(b, (sx * 0.78, 3.62, 0.74), (sx * 0.35, 3.62, 0.74), (sx * 0.7, 4.22, 0.74), 0.03, "nose_pink")
         b.ball((sx * 0.95, 3.6, 0.87), 0.12, "gold_light")
+    # #3271: the back's outside, so it reads finished from behind and the side: a berry inset in a gold frame
+    # with a gold paw emblem, and a berry inset on each arm's outside
+    b.span((-0.72, 1.7, 0.98), (0.72, 3.35, 1.02), "royal_berry")
+    for x0, x1, y0, y1 in ((-0.8, 0.8, 1.62, 1.7), (-0.8, 0.8, 3.35, 3.43), (-0.8, -0.72, 1.62, 3.43),
+                           (0.72, 0.8, 1.62, 3.43)):
+        b.span((x0, y0, 0.98), (x1, y1, 1.05), "gold_light")
+    b.cyl((0, 2.45, 1.05), 0.26, 0.05, "gold_light", axis="Z", segments=12)
+    for dx, dy in ((-0.27, 2.78), (-0.1, 2.9), (0.1, 2.9), (0.27, 2.78)):
+        b.cyl((dx, dy, 1.05), 0.1, 0.05, "gold_light", axis="Z", segments=8)
+    for sx in (-1, 1):
+        b.span((sx * 1.15, 1.35, -0.12), (sx * 1.18, 1.85, 0.82), "royal_berry")
+        b.span((sx * 1.15, 1.31, -0.16), (sx * 1.19, 1.35, 0.86), "gold_light")
     b.ball((0, 3.95, 0.85), 0.3, "gold_light", scale=(1.0, 0.9, 0.5))                  # paw crest
     b.ball((0, 3.88, 0.69), 0.13, "nose_pink", scale=(1.2, 1.0, 0.4))
     for dx, dy in ((-0.18, 4.08), (-0.065, 4.17), (0.065, 4.17), (0.18, 4.08)):
@@ -982,8 +999,8 @@ def build_golden_cat_throne(mat):
     # the sleeping gold cat, curled nose to tail on a little round cushion
     b.cyl((0.05, 1.56, 0.3), 0.5, 0.12, "pastel_lilac", segments=12)
     _ring_flat(b, (0.05, 1.6, 0.3), 0.52, 0.08, 0.14, "gold_light", segments=12)
-    b.ball((0.08, 1.8, 0.33), 0.38, "gold_mid", scale=(1.15, 0.6, 1.0))
-    b.ball((-0.25, 1.86, 0.12), 0.22, "gold_mid", scale=(1.0, 0.9, 1.0))
+    _smooth(b, (0.08, 1.8, 0.33), 0.38, "gold_mid", scale=(1.15, 0.6, 1.0))
+    _smooth(b, (-0.25, 1.86, 0.12), 0.22, "gold_mid", scale=(1.0, 0.9, 1.0))
     for dx in (-0.1, 0.1):
         b.b.pyramid(RB.p(-0.25 + dx, 2.0, 0.12), 0.11, 0.13, "gold_mid")
         b.span((-0.25 + dx - 0.05, 1.86, -0.09), (-0.25 + dx + 0.05, 1.88, -0.08), "fur_black")

@@ -111,8 +111,12 @@ return function()
 						)
 					).to.be.near(0.07, 1e-9)
 					-- #2651 (tier6-7-areas.md 7b): the first five pages already reach GoldLuckMax, so the Desert and Ruins add none
-					local late = areaId == "desert" or areaId == "ruins"
-					expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
+					local wantLuck: number = 0.30
+					if areaId == "desert" or areaId == "ruins" then
+						wantLuck = 0
+					end
+					local gotLuck: number = sum(prizes, "goldLuck")
+					expect(gotLuck).to.be.near(wantLuck, 1e-9)
 					expect(sum(prizes, "baitSpeed")).to.equal(0)
 					local area: any = Catalog.getArea(areaId)
 					local gold10: any = prizes.gold10

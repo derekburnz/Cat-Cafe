@@ -65,6 +65,19 @@ function TackleLogic.isHit(outcome: string?): boolean
 	return outcome ~= nil and HITS[outcome] == true
 end
 
+-- #3342: the shield chip over the Tackle bar while this player's join shield runs, "🛡️ Safe 4:32", or nil once it
+-- is over. `untilAt` is the Player's TackleShieldUntil attribute (a server time), `now` the server time.
+function TackleLogic.shieldText(untilAt: unknown, now: number): string?
+	if type(untilAt) ~= "number" or untilAt ~= untilAt then
+		return nil
+	end
+	local left = math.ceil(untilAt - now)
+	if left <= 0 then
+		return nil
+	end
+	return ("🛡️ Safe %d:%02d"):format(left // 60, left % 60)
+end
+
 -- The tackler's toast for a ShoveResult and whether it is good news: "Missed!" (false) or "Tackled Alex!" (true),
 -- nothing for a refusal or an unknown outcome.
 function TackleLogic.toast(ok: boolean, outcome: string?, name: string?): (string?, boolean)

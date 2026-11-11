@@ -5029,6 +5029,29 @@ local SCENES = {
 	-- #2510 (Derek2: "add a tackle button instead of the bar in the middle of screen for mobile/ipad players"): in a
 	-- catching area on touch the Tackle is a round button left of the Net button, clear of the jump button, the Net
 	-- button and the potion timers; a tap greys it with the seconds left. With a mouse it stays the bar.
+	-- #3342 (Derek2: "tackling immunity for the first 5 minutes"): while the join shield runs, a "🛡️ Safe m:ss" chip
+	-- sits just over the Tackle bar or button, clear of it, and goes once the shield is over
+	{ "TackleShield", function()
+		local me = game:GetService("Players").LocalPlayer
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local button = gui:FindFirstChild("Tackle", true) :: TextButton
+		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
+		assert(chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
+		assert(chip.Text:find("Safe 4:3") ~= nil, "uigate: the shield chip reads " .. chip.Text .. " (#3342)")
+		local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+		assert(chipBottom <= button.AbsolutePosition.Y + 0.5, "uigate: the shield chip covers the Tackle (#3342)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
+		UIShim.advance(0.3)
+		assert(not chip.Visible, "uigate: the shield chip stayed after the shield ended (#3342)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UIShim.advance(0.3)
+	end },
 	{ "TackleButton", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
 		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")

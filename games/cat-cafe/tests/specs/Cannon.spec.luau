@@ -136,6 +136,85 @@ return function()
 		end)
 	end)
 
+	describe("a first flight beside a stray stays in the camp or its gateway (#3198)", function()
+		local Layout = require(game:GetService("ServerScriptService").Server.World.Layout)
+		local yard = { halfAcross = 60, depth = 30, openingHalfWidth = 12 }
+
+		it("takes a spot inside the camp's fence, off its edges", function()
+			expect(Cannon.inCampReach(0, -13, yard)).to.equal(true)
+			expect(Cannon.inCampReach(40, -6, yard)).to.equal(true)
+			expect(Cannon.inCampReach(-57, -27, yard)).to.equal(true)
+			expect(Cannon.inCampReach(59, -6, yard)).to.equal(false) -- on the side fence
+			expect(Cannon.inCampReach(0, -29, yard)).to.equal(false) -- on the back fence
+			expect(Cannon.inCampReach(0, -40, yard)).to.equal(false) -- behind the camp
+		end)
+
+		it(
+			"takes the open gateway, and nothing behind the fence beside it or deep in the wild part",
+			function()
+				expect(Cannon.inCampReach(0, 0, yard)).to.equal(true)
+				expect(Cannon.inCampReach(-9, 6, yard)).to.equal(true)
+				expect(Cannon.inCampReach(0, Cannon.GATEWAY_DEPTH, yard)).to.equal(true)
+				expect(Cannon.inCampReach(0, Cannon.GATEWAY_DEPTH + 1, yard)).to.equal(false)
+				-- Derek's landing: a few studs past the fence, beside the opening
+				expect(Cannon.inCampReach(13, 6, yard)).to.equal(false)
+				expect(Cannon.inCampReach(30, 3, yard)).to.equal(false)
+				-- on the fence line, at a post
+				expect(Cannon.inCampReach(11, 0, yard)).to.equal(false)
+				expect(Cannon.inCampReach(20, -1, yard)).to.equal(false)
+			end
+		)
+
+		it("turns world points into camp space and back for every camp", function()
+			for _, camp in Layout.camps do
+				for _, at in { { 0, -13 }, { 7, 5 }, { -20, -28 } } do
+					local wx, wz = Layout.campPoint(camp, at[1], at[2])
+					local x, z = Layout.campSpace(camp, wx, wz)
+					expect(x).to.be.near(at[1], 1e-6)
+					expect(z).to.be.near(at[2], 1e-6)
+				end
+			end
+		end)
+
+		it(
+			"lands every Park spawn point's flight in the camp, the gateway or on the pad",
+			function()
+				local camp, pad = Layout.camps.park, Layout.landingPads.park
+				local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
+				local park: Cannon.Yard = {
+					halfAcross = camp.halfAcross,
+					depth = Config.World.CampDepth,
+					openingHalfWidth = camp.openingHalfWidth,
+				}
+				-- the pad itself is in reach, so the rule never refuses the camp
+				local px, pz = Layout.campSpace(camp, centre.X, centre.Z)
+				expect(Cannon.inCampReach(px, pz, park)).to.equal(true)
+				local near, beside, refused = 0, 0, 0
+				for _, point in Layout.areas.park.spawnPoints do
+					local stray = Vector3.new(point.x, centre.Y + (point.y or 0), point.z)
+					if (stray - centre).Magnitude < 60 then
+						near += 1
+						local at = Cannon.besideStray(stray, centre)
+						if at ~= nil then
+							local x, z = Layout.campSpace(camp, at.X, at.Z)
+							if Cannon.inCampReach(x, z, park) then
+								beside += 1
+								-- never behind a stretch of fence
+								expect(z <= 0 or math.abs(x) < camp.openingHalfWidth).to.equal(true)
+							else
+								refused += 1
+							end
+						end
+					end
+				end
+				expect(near > 0).to.equal(true)
+				-- the flowerbed's strays stand behind the fence: those flights land on the pad now
+				expect(refused > 0).to.equal(true)
+				expect(beside + refused <= near).to.equal(true)
+			end
+		)
+	end)
+
 	describe("a returning player's join at their own front door (#3072)", function()
 		it(
 			"sends home only a player whose intro has played and who has caught their first cat",

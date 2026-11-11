@@ -127,6 +127,10 @@ local overLimitLog: { [number]: number } = {} -- userId -> last handler-failure 
 local DROP_SUMMARY_SECONDS = 60
 local dropCounts: { [number]: { [string]: number } } = {} -- userId -> remote -> drops since the last summary
 local dropLoggedAt: { [number]: number } = {} -- userId -> when the last summary line was written
+-- #3362: a remote connected with an onDrop answer (Net.on's third argument) still answers a dropped call, so a client
+-- waiting on that answer frees its button at once instead of timing out. At most 2 such answers a second per player
+-- and remote, so a flood of calls cannot turn into a flood of answers.
+local dropAnswerLimiter = RateLimiter.new(2, 1)
 
 local function limiterFor(name: string): RateLimiter.RateLimiter
 	return slowLimiters[name] or defaultLimiter
@@ -195,6 +199,9 @@ function Net.start()
 		for name, limiter in slowLimiters do
 			limiter:forget(key .. name)
 		end
+		for name in events do
+			dropAnswerLimiter:forget(key .. name)
+		end
 		overLimitLog[player.UserId] = nil
 		dropCounts[player.UserId] = nil
 		dropLoggedAt[player.UserId] = nil
@@ -202,7 +209,13 @@ function Net.start()
 end
 
 -- Connects a client -> server handler behind the rate limiter. Over the limit: dropped, counted in a summary line.
-function Net.on(name: string, handler: (player: Player, ...any) -> ())
+-- #3362: `onDrop`, when given, runs for a dropped call (its own limit, see dropAnswerLimiter) so it can send the
+-- refusal answer the client waits for. It gets the raw arguments: validate them as the handler would.
+function Net.on(
+	name: string,
+	handler: (player: Player, ...any) -> (),
+	onDrop: ((player: Player, ...any) -> ())?
+)
 	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
@@ -211,6 +224,24 @@ function Net.on(name: string, handler: (player: Player, ...any) -> ())
 		local key = tostring(player.UserId)
 		if not (globalLimiter:allow(key) and limiterFor(name):allow(key .. name)) then
 			noteDrop(player, name)
+			if onDrop ~= nil and dropAnswerLimiter:allow(key .. name) then
+				local answer = onDrop
+				local args = table.pack(...)
+				local ok, err = pcall(function()
+					answer(player, table.unpack(args, 1, args.n))
+				end)
+				if not ok then
+					logOnce(
+						player,
+						string.format(
+							"[Net] %s drop answer failed for user %d: %s",
+							name,
+							player.UserId,
+							tostring(err)
+						)
+					)
+				end
+			end
 			return
 		end
 		local ok, err = xpcall(function(...: any)

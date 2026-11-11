@@ -164,10 +164,41 @@ local function open(
 	return def, duplicate, refund, placed
 end
 
+-- #3362: an open never goes unanswered once its crate id is a real id. The Market window waits for the answer, and
+-- with none its Open button gave up with "That didn't go through. Try again!" while nothing said why.
+local STILL_LOADING = "Your save is still loading. Try again in a moment"
+local FAILED = "That crate didn't open. Try again!"
+
+local function traceback(message: any): string
+	return debug.traceback(tostring(message), 2)
+end
+
+-- #3362: Net's answer to an OpenCrate dropped by its rate limit: the quiet empty CrateResult a spam refusal sends.
+local function answerDroppedOpen(player: Player, rawCrateId: unknown)
+	local crateId = Guard.id(rawCrateId)
+	if crateId ~= nil then
+		Net.fire(player, "CrateResult", crateId, "", false, 0)
+	end
+end
+
+-- #3362: the same for a dropped Open all.
+local function answerDroppedOpenAll(player: Player, rawCrateId: unknown)
+	local crateId = Guard.id(rawCrateId)
+	if crateId ~= nil then
+		Net.fire(player, "CrateAllResult", crateId, {})
+	end
+end
+
 local function onOpenCrate(player: Player, rawCrateId: unknown)
 	local crateId = Guard.id(rawCrateId)
+	if crateId == nil then
+		return
+	end
 	local profile = DataService.get(player)
-	if crateId == nil or profile == nil then
+	if profile == nil then
+		-- #3362: just joined or just after a restart, before the save has loaded
+		Net.toast(player, STILL_LOADING, "warn")
+		Net.fire(player, "CrateResult", crateId, "", false, 0)
 		return
 	end
 	local function refuse(reason: string)
@@ -213,8 +244,23 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 	end
 	lastOpenAt[player] = now
 	inFlight[player] = now
-	local def, duplicate, refund, placed =
-		open(player, profile, Catalog.getCrate(crateId) :: Types.CrateDef)
+	-- #3362: an error in the open still answers (and syncs, so the count shown is the server's), instead of leaving
+	-- the button waiting and the in-flight flag set for IN_FLIGHT_SECONDS
+	local ok, def, duplicate, refund, placed =
+		xpcall(open, traceback, player, profile, Catalog.getCrate(crateId) :: Types.CrateDef)
+	if not ok then
+		inFlight[player] = nil
+		warn(
+			string.format(
+				"[FishMarket] OpenCrate %s failed for user %d: %s",
+				crateId,
+				player.UserId,
+				tostring(def)
+			)
+		)
+		refuse(FAILED)
+		return
+	end
 	Net.fire(player, "CrateResult", crateId, def.id, duplicate, refund)
 	inFlight[player] = nil
 	RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
@@ -229,8 +275,13 @@ end
 -- it never spends golden fish. Answers CrateAllResult(crateId, opened), empty when refused, then one sync.
 local function onOpenAllCrates(player: Player, rawCrateId: unknown)
 	local crateId = Guard.id(rawCrateId)
+	if crateId == nil then
+		return
+	end
 	local profile = DataService.get(player)
-	if crateId == nil or profile == nil then
+	if profile == nil then
+		Net.toast(player, STILL_LOADING, "warn") -- #3362
+		Net.fire(player, "CrateAllResult", crateId, {})
 		return
 	end
 	local function refuse(reason: string?)
@@ -276,14 +327,32 @@ local function onOpenAllCrates(player: Player, rawCrateId: unknown)
 	inFlight[player] = now
 	local opened: { Crates.Opened } = {}
 	local placedAny = false
-	for _ = 1, count do
-		if (profile.crates[crateId] or 0) < 1 then
-			break -- banked only: open() would buy one with golden fish
+	-- #3362: an error part way still answers with the pieces already opened (they are the player's), then syncs
+	local ok, err = xpcall(function(): any
+		for _ = 1, count do
+			if (profile.crates[crateId] or 0) < 1 then
+				break -- banked only: open() would buy one with golden fish
+			end
+			local def, duplicate, refund, placed = open(player, profile, crate :: Types.CrateDef)
+			table.insert(opened, { decorId = def.id, duplicate = duplicate, refund = refund })
+			placedAny = placedAny or placed
+			RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
 		end
-		local def, duplicate, refund, placed = open(player, profile, crate :: Types.CrateDef)
-		table.insert(opened, { decorId = def.id, duplicate = duplicate, refund = refund })
-		placedAny = placedAny or placed
-		RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
+		return nil :: any
+	end, traceback)
+	if not ok then
+		warn(
+			string.format(
+				"[FishMarket] OpenAllCrates %s failed for user %d after %d: %s",
+				crateId,
+				player.UserId,
+				#opened,
+				tostring(err)
+			)
+		)
+		if #opened == 0 then
+			Net.toast(player, FAILED, "warn")
+		end
 	end
 	Net.fire(player, "CrateAllResult", crateId, opened)
 	inFlight[player] = nil
@@ -410,8 +479,8 @@ function FishMarketService.start()
 		inFlight[player] = nil
 		luckLogs[player] = nil
 	end)
-	Net.on("OpenCrate", onOpenCrate)
-	Net.on("OpenAllCrates", onOpenAllCrates) -- #2402
+	Net.on("OpenCrate", onOpenCrate, answerDroppedOpen) -- #3362: a rate limit drop still answers
+	Net.on("OpenAllCrates", onOpenAllCrates, answerDroppedOpenAll) -- #2402
 	Net.on("BuyCrateBundle", onBuyCrateBundle)
 	Net.on("BuyFishItem", onBuyFishItem)
 end

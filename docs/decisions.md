@@ -902,6 +902,15 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - Risk accepted by Derek's rule: after a save version bump, a player saved on a new server who then joins an old one is kicked by the newer-save guard until the old servers empty out.
 - Safe for old servers: workflow only, no game code.
 
+## 2026-11-11 Mouse Dash and Lucky Charm (#3296, #3298, player ideas)
+
+- **What.** Derek2 answered three player ideas.
+  - **Mouse Dash (#3296):** a second Cat Arcade game, with 1 free run a day and 1 golden fish per run after that.
+  - **Lucky Charm (#3298):** a Golden Fish Market perk, +0.1 Luck a level, 3 levels, at 100, 250 and 500 fish.
+  - **Walking speed (#3297):** closed, because Swift Paws already covers it.
+- **Why overall Luck.** Derek ruled out market luck because stock is global. Spin luck would make the Spin Wheel's printed odds wrong, and the Bait Bowl upgrade already gives bowl luck. Overall Luck stays inside `LuckMax`, and it's earned only.
+- **Specs.** new-activities.md §4 and §5.
+
 ## 2026-11-11 Shorter nights: 45 seconds (#3195)
 
 Derek2 2026-11-10: "make the night times faster to stop being leaving during night just put an exclamation mark over night market so people dont miss it".

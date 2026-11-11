@@ -30,6 +30,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
+local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Telemetry = require(script.Parent.Telemetry)
 local Tips = require(ReplicatedStorage.Shared.Tips)
@@ -209,6 +210,23 @@ local function onSendFeedback(player: Player, rawFace: unknown, rawChip: unknown
 	Telemetry.feedbackAnswered(player, profile, face, chip) -- #2681: feedback_ctx, feedback_env, feedback_v1
 end
 
+-- #3272: the once-a-day session ask's answer (a face or "skipped"); a second one the same UTC day is dropped. Logs
+-- session_feedback only: no reward, and it does not count as the F87 ask or its feedback.
+local function onSessionFeedback(player: Player, rawAnswer: unknown)
+	local answer = Guard.oneOf(rawAnswer, SessionFeedback.ANSWERS :: { string })
+	local profile = DataService.get(player)
+	if answer == nil or profile == nil then
+		return
+	end
+	local today = SessionFeedback.day(os.time())
+	if profile.sessionFeedbackDay >= today then
+		return
+	end
+	profile.sessionFeedbackDay = today
+	Telemetry.sessionFeedback(player, profile, answer)
+	TipService.changed:Fire(player)
+end
+
 -- Studio hook (Debug.tips): forgets every tip, the asks and the help cards, and this session's sends.
 function TipService.debugReset(player: Player, profile: Profile): number
 	local n = 0
@@ -217,6 +235,7 @@ function TipService.debugReset(player: Player, profile: Profile): number
 	end
 	profile.tipsSeen = {}
 	profile.feedbackAsked = false
+	profile.sessionFeedbackDay = 0 -- #3272
 	profile.stuckHelpShown = {}
 	profile.notifyAskAt = 0
 	local session = sessionOf(player)
@@ -241,6 +260,7 @@ function TipService.start()
 	Net.on("TipSeen", onTipSeen)
 	Net.on("ClearTips", onClearTips)
 	Net.on("SendFeedback", onSendFeedback)
+	Net.on("SessionFeedback", onSessionFeedback)
 	task.spawn(function()
 		while true do
 			task.wait(1)

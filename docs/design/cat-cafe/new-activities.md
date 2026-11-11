@@ -1,4 +1,4 @@
-# New activities: Rummage Bin, Cat Arcade, Swift Paws
+# New activities: Rummage Bin, Cat Arcade, Swift Paws, Mouse Dash, Lucky Charm
 
 Draft v1, 2026-11-11, Design-Agent (friend's project). One place for the final specs that were settled in issue comments on 2026-11-10. **The issues are the build tickets; where this file and an issue disagree, the latest issue comment wins and this file gets fixed.** Ideas 2 and 3 came from player its_cuzu098, and both ship with a credit on the newest What's new page (#3067) and an "Idea by its_cuzu098" line on their card.
 
@@ -76,6 +76,57 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
   - It stacks with the Swift Potion (+4).
 - **Flag:** `swiftPaws`.
 - **Judge by:** level 1 buys among players with 60+ fish. Swift Potion sales shouldn't drop; if they do, use the flag.
+
+## 4. Cat Arcade: Mouse Dash (#3296, second Arcade game; a player idea)
+
+Derek2, 2026-11-11: "arcade game 1 free attempt daily".
+
+- **Where:** a second game on the same Arcade cabinet and menu row, as a tab beside Circle Streak.
+- **Cost:** **1 free run each UTC day**. Every later run costs 1 golden fish (`GoldenFish.spend`), the same as Circle Streak. The button reads "Play (free)" or "Play (1 🐟)".
+- **Run:**
+  - Six mouse holes in a 3 × 2 grid. A mouse pops out of one hole and stays up for a short window, and the player taps it.
+  - A catch is +1 point. The run ends on the first escape (the window closes with no tap) or the first tap on an empty hole.
+  - One thumb, with big targets, so it works on a phone.
+- **Server authority:** the server draws the whole run (each hole and its window) and grades each tap against its own clock, the same way as the `CatchPress` path. The client sends only "tapped hole n". It never sends a score.
+- **Harder every 5 points:**
+  - the window shrinks x0.93, from 1.1 s down to a 0.35 s floor;
+  - the gap between mice shrinks x0.95.
+  - From 20 points on, a decoy cat can pop up instead of a mouse. Tapping the decoy ends the run.
+- **Milestones:** each pays once per UTC day, the same rule as Circle Streak.
+
+  | Points | 10 | 20 | 30 | 40 | 50 |
+  |---|---|---|---|---|---|
+  | Prize | 3 🐟 | 5 🐟 | Salmon | 8 🐟 | Lucky Potion + "Mouser" title (once) |
+
+  - That's at most 16 golden fish a day. The free run alone can pay back the next paid run from the 10 milestone.
+  - "Mouser" is a chat title: add it to `ChatTags.TAGS` and `ORDER`, with a `TitlesLogic.HOW` line ("Mouse Dash 50 points"), so it shows in the Bag's Titles tab (#3291).
+- **Best and leaderboard:** the same boards as Circle Streak (All time, This week, Server), under their own key `MouseDash`. They're written only on a new best, at most once per 60 s. Like Circle Streak, a scripted tapper could top the board; there's no bot check for now (Derek2: "not worried about bots yet").
+- **Flags:** `mouseDash` (its own, so it can ship after Circle Streak).
+- **Effects:** VFX-Agent: a dust puff when the mouse ducks back in, and a squeak on a catch (Sound-Agent).
+- **Judge by:** the share of daily players who use the free run (40% or more in week one). The median run should be 10 to 15 points.
+
+## 5. Lucky Charm (#3298, Golden Fish Market perk; a player idea)
+
+Derek2, 2026-11-11: "no market luck because thats all decided stock per global, make it like crate luck or spin luck or foodbowl or overall luck".
+
+- **Which luck:** **overall Luck** (shared/Luck). That's the one number that already lifts the Epic, Legendary and Mythical chances of bait and crate rolls.
+  - **Not spin luck.** The Spin Wheel's odds are printed on its Odds button, so changing them per player would make the shown odds wrong.
+  - **Not bowl luck alone.** `BowlLuck` is already the Bait Bowl upgrade's row.
+- **Levels:**
+
+  | Level | Luck | Cost |
+  |---|---|---|
+  | 1 | +0.1 | 100 🐟 |
+  | 2 | +0.2 | 250 🐟 |
+  | 3 | +0.3 | 500 🐟 |
+
+  - Each level is worth one Lucky Cat statue level (`LuckPerStatueLevel` 0.1).
+  - It adds inside `LuckMax` (3), like every other Luck source, and never goes past it.
+  - It feeds the same Luck total that the odds cards read (`FoodOdds.atBowl` and the crate odds), so the printed odds always include it.
+- **Earned only:** it's bought with golden fish only. It's never sold for Robux, never part of any Robux bundle, pack or pass, and can't be traded or gifted (Monetization-Agent, 11-11). Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
+- **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
+- **Flag:** `luckyCharm`.
+- **Judge by:** level 1 buys among players with 100+ fish. Lucky Potion use shouldn't drop much; if it does, use the flag.
 
 ## Related
 

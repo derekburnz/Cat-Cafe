@@ -821,5 +821,24 @@ return function()
 				expect(Intro.floorHit(-5)).to.equal(false)
 			end)
 		end)
+		describe("the camp counts as in only with its set (#3303)", function()
+			it("finds the Alleyway camp's own cannon by its pad, and no other cannon", function()
+				local camp = Layout.camps[Intro.AREA]
+				local pad = (Intro.camp(Intro.AREA) :: Intro.Camp).pad
+				local cannon = Vector3.new(camp.cannon.x, camp.cannon.y + 3, camp.cannon.z)
+				expect(Intro.campSetNear({ cannon }, pad)).to.equal(true)
+				-- the floor alone (no cannon part in) is not the camp
+				expect(Intro.campSetNear({}, pad)).to.equal(false)
+				-- the town cannon and the other camps' cannons stand far off
+				for id, other in Layout.camps do
+					if id ~= Intro.AREA then
+						local at = Vector3.new(other.cannon.x, other.cannon.y, other.cannon.z)
+						expect(Intro.campSetNear({ at }, pad)).to.equal(false)
+					end
+				end
+				expect(Intro.campSetNear({ Vector3.new(0, 0, 0) }, pad)).to.equal(false)
+				expect(Intro.CANNON_TAG).to.equal("CatCannon")
+			end)
+		end)
 	end)
 end

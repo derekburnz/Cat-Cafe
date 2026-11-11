@@ -53,7 +53,7 @@ local lastNotes = ""
 local joined: { [Player]: boolean } = {} -- event_join logged for the running event
 local ended: CafeEvents.Event? = nil -- the last event that ended here, and when (server time), for recent()
 local endedAt = 0
-local RECENT_SECONDS = 300 -- a shower due by its end at night still spawns at the next sunrise (nights are 70 s)
+local RECENT_SECONDS = 300 -- a shower due by its end at night still spawns at the next sunrise (nights are 45 s)
 
 local function now(): number
 	return Workspace:GetServerTimeNow()

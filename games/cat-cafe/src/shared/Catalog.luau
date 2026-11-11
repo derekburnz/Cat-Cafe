@@ -1218,25 +1218,28 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 12000, -- #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
+		cost = 13500, -- #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
 		-- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3; #2121 (4d): Bait Bowl 3 too
-		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 3, lucky_cat = 3 },
+		-- #3204 (Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on in tiers"): each tier opens
+		-- a handful; Net 2 at Tier 3 and Net 3 at Tier 5 (were 2 and 3). Caps gate buying only: a level owned above
+		-- one is kept.
+		caps = { tables = 4, espresso = 3, net = 1, lure_bowl = 2, lucky_cat = 2 },
 	},
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 420000, -- #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		cost = 520000, -- #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 10, -- #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
-		caps = { tables = 6, espresso = 4, net = 3, lure_bowl = 3, lucky_cat = 3 },
+		caps = { tables = 6, espresso = 4, net = 2, lure_bowl = 3, lucky_cat = 3 }, -- #3204
 	},
 	{
 		tier = 4,
@@ -1248,12 +1251,12 @@ Catalog.tiers = {
 		slots = 8,
 		multiplier = 1.75,
 		area = "woods",
-		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 4, lucky_cat = 4 },
+		caps = { tables = 6, espresso = 5, net = 2, lure_bowl = 4, lucky_cat = 4 }, -- #3204
 	},
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 350000000, -- #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		cost = 370000000, -- #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 26, -- #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -1335,7 +1338,9 @@ Catalog.upgrades = {
 		name = "Net",
 		description = "A better net: higher odds on every swing",
 		maxLevel = 3,
-		costs = { 2500, 25000, 800000 }, -- F95: the Master Net four times
+		-- F95: the Master Net four times; #3204: Net 2 at Tier 3 for 200,000 and Net 3 at Tier 5 for 60,000,000 (were
+		-- 25,000 and 800,000, which would be pocket change that late)
+		costs = { 2500, 200000, 60000000 },
 		startLevel = 0,
 	},
 	{

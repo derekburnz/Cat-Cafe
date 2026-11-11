@@ -67,12 +67,23 @@ return function()
 			"moves the character while the body is in the clouds, before the feet touch down",
 			function()
 				expect(Config.CannonLaunchSeconds).to.be.near(3.75, 1e-12)
-				expect(Config.CannonTeleportAtSeconds).to.be.near(2.6, 1e-12)
+				expect(Config.CannonTeleportAtSeconds).to.be.near(2.2, 1e-12)
 				expect(Config.CannonCloudsAt < Config.CannonTeleportAtSeconds).to.equal(true)
 				expect(Config.CannonTeleportAtSeconds < Config.CannonTouchdownAt).to.equal(true)
 				expect(Config.CannonTouchdownAt < Config.CannonLaunchSeconds).to.equal(true)
 			end
 		)
+		it("moves the character well before the body comes back down (#3292)", function()
+			-- the fall is drawn from wherever the root is, so the move gets at least 0.5 s to reach every client
+			local Presets = require(
+				game:GetService("StarterPlayer")
+					:WaitForChild("StarterPlayerScripts")
+					:WaitForChild("Client")
+					:WaitForChild("Effects")
+					:WaitForChild("Presets")
+			) :: any
+			expect(Config.CannonTeleportAtSeconds + 0.5 <= Presets.cannonPose.drop).to.equal(true)
+		end)
 		it("lets the landed player move again soon after the feet touch (#2690)", function()
 			local held = Config.CannonLaunchSeconds - Config.CannonTouchdownAt
 			expect(held > 0 and held <= 0.3).to.equal(true)
@@ -118,7 +129,7 @@ return function()
 	describe("besideStray (#2913, #2915)", function()
 		it("lands the gap short of the stray, toward the pad, at the pad's height", function()
 			local pad = Vector3.new(-1400, 0.1, -1261.5)
-			local stray = Vector3.new(-1395, 1.2, -1285)
+			local stray = Vector3.new(-1395, 1.2, -1281)
 			local at = Cannon.besideStray(stray, pad, 7) :: Vector3
 			expect(at).never.to.equal(nil)
 			local flat = Vector3.new(at.X - stray.X, 0, at.Z - stray.Z)
@@ -127,6 +138,28 @@ return function()
 			-- closer to the pad than the stray is
 			expect((at - pad).Magnitude < (stray - pad).Magnitude).to.equal(true)
 		end)
+
+		it(
+			"stays within BESIDE_MAX_FROM_PAD of the pad for a far stray, still toward it (#3292)",
+			function()
+				local pad = Vector3.new(10, 0.5, -20)
+				local stray = Vector3.new(10 + 32, 1, -20)
+				local at = Cannon.besideStray(stray, pad) :: Vector3
+				expect(at).never.to.equal(nil)
+				expect((Vector3.new(at.X, pad.Y, at.Z) - pad).Magnitude).to.be.near(
+					Cannon.BESIDE_MAX_FROM_PAD,
+					1e-6
+				)
+				expect(at.Z).to.be.near(-20, 1e-6)
+				expect(at.X > pad.X).to.equal(true)
+				expect(at.Y).to.equal(0.5)
+				-- a stray close enough keeps the plain gap, and math.huge always does
+				local near = Cannon.besideStray(Vector3.new(10 + 20, 0, -20), pad, 7) :: Vector3
+				expect(near.X).to.be.near(10 + 13, 1e-6)
+				local plain = Cannon.besideStray(stray, pad, nil, math.huge) :: Vector3
+				expect(plain.X).to.be.near(10 + 32 - Cannon.BESIDE_STRAY_STUDS, 1e-6)
+			end
+		)
 
 		it("leaves it to the pad when the stray is that close already, or up a tree", function()
 			local pad = Vector3.new(0, 0, 0)
@@ -195,9 +228,14 @@ return function()
 					if (stray - centre).Magnitude < 60 then
 						near += 1
 						local at = Cannon.besideStray(stray, centre)
-						if at ~= nil then
+						-- #3292: CannonService reads the camp rule on the plain spot by the stray as well
+						local byStray = Cannon.besideStray(stray, centre, nil, math.huge)
+						if at ~= nil and byStray ~= nil then
 							local x, z = Layout.campSpace(camp, at.X, at.Z)
-							if Cannon.inCampReach(x, z, park) then
+							local sx, sz = Layout.campSpace(camp, byStray.X, byStray.Z)
+							if
+								Cannon.inCampReach(x, z, park) and Cannon.inCampReach(sx, sz, park)
+							then
 								beside += 1
 								-- never behind a stretch of fence
 								expect(z <= 0 or math.abs(x) < camp.openingHalfWidth).to.equal(true)

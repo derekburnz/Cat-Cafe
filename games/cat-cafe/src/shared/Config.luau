@@ -138,9 +138,12 @@ local Config = {
 	-- Derek2, 2026-11-07: "make the days a bit longer and maybe night a tiny bit shorter"): 320 and 70 (were 300 and
 	-- 90). The day takes the night's 20 s, so a game day is still 390 s: every sunrise, restock window, day number and
 	-- pity timer falls where it did, and only dusk moves 20 s later. ServerStartDaySeconds stays equal to the day.
-	DayLengthSeconds = 320,
-	NightLengthSeconds = 70,
-	ServerStartDaySeconds = 320, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- #3195 (Derek2 2026-11-10: "make the night times faster to stop being leaving during night"): 345 and 45 (were
+	-- 320 and 70), the same way: still 390 s a game day, every sunrise where it was, dusk 25 s later. So old and new
+	-- servers agree on the day number and every sunrise, and no restart is needed.
+	DayLengthSeconds = 345,
+	NightLengthSeconds = 45,
+	ServerStartDaySeconds = 345, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
 	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
 	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
 	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
@@ -179,9 +182,11 @@ local Config = {
 	-- with less summer salting"): the longer flight with Animation-Engineer's arc, 4.0 s with the move at 2.6, while
 	-- the body is out of sight in the clouds (2.0 to 3.0). The flyer goes into the clouds at CannonCloudsAt and the
 	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent). #2690 (Derek2
-	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0.
+	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0. #3292
+	-- (Derek2 2026-11-11: flights "changing course slightly mid air"): the move at 2.2 (was 2.6), so it reaches every
+	-- client well before the body comes back down at 3.0, drawn from wherever the root is by then.
 	CannonLaunchSeconds = 3.75,
-	CannonTeleportAtSeconds = 2.6,
+	CannonTeleportAtSeconds = 2.2,
 	CannonCloudsAt = 2.0,
 	CannonTouchdownAt = 3.5,
 	CannonCooldownSeconds = 3,

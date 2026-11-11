@@ -190,6 +190,13 @@ return function()
 			end
 			expect(RestartNotice.kind(600)).to.equal("info")
 			expect(ToastRules.oneLine("info", "Welcome back! Your cats missed you")).to.equal(true)
+			-- #3212: an owner command's reply is a sentence, so it wraps too
+			expect(
+				ToastRules.oneLine(
+					"info",
+					"Owner test mode: Cafe Party started on all servers for 10 minutes"
+				)
+			).to.equal(false)
 			expect(ToastRules.oneLine("good", "Claimed 3 quests")).to.equal(true)
 		end)
 	end)

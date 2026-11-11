@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 23:57 UTC",
+  "generated": "2026-11-11 01:10 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -297751,6 +297751,217 @@
       }
     },
     {
+      "name": "CatCafe_Lawn_GoldenCatFountain",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_GoldenCatFountain",
+        "CatCafe_Lawn_GoldenCatFountain_Water",
+        "CatCafe_Lawn_GoldenCatFountain_Bulbs",
+        "CatCafe_Lawn_GoldenCatFountain_Cat_Spin"
+      ],
+      "triangles": 2480,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.14,
+        "y": 3.14,
+        "z": 3.68
+      },
+      "size_roblox": [
+        3.14,
+        3.68,
+        3.14
+      ],
+      "bounds_min": [
+        -1.57,
+        -1.57,
+        0.0
+      ],
+      "bounds_max": [
+        1.57,
+        1.57,
+        3.68
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_GoldenCatFountain_Cat_Spin": [
+          0.0,
+          0.0,
+          1.89
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_GoldenCatFountain_Cat_Spin": [
+          0.0,
+          1.89,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GoldenCatFountain.model.json",
+      "rbx_parts": 183,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2480/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1634 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Lawn_GoldenCatFountain.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Lawn_GoldenCatFountain.png"
+    },
+    {
+      "name": "CatCafe_Lawn_GoldenCatThrone",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_GoldenCatThrone",
+        "CatCafe_Lawn_GoldenCatThrone_Bulbs",
+        "CatCafe_Lawn_GoldenCatThrone_Crown_Spin"
+      ],
+      "triangles": 1438,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.14,
+        "y": 2.95,
+        "z": 5.25
+      },
+      "size_roblox": [
+        3.14,
+        5.25,
+        2.95
+      ],
+      "bounds_min": [
+        -1.57,
+        -1.43,
+        0.0
+      ],
+      "bounds_max": [
+        1.57,
+        1.52,
+        5.25
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_GoldenCatThrone_Crown_Spin": [
+          0.0,
+          0.85,
+          4.8
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_GoldenCatThrone_Crown_Spin": [
+          0.0,
+          4.8,
+          0.85
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GoldenCatThrone.model.json",
+      "rbx_parts": 114,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatThrone.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatThrone.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1438/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1047 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.04"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Lawn_GoldenCatThrone.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Lawn_GoldenCatThrone.png"
+    },
+    {
+      "name": "CatCafe_Lawn_GoldenYarnKitten",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_GoldenYarnKitten",
+        "CatCafe_Lawn_GoldenYarnKitten_Bulbs",
+        "CatCafe_Lawn_GoldenYarnKitten_Yarn_Spin"
+      ],
+      "triangles": 2864,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.04,
+        "y": 3.04,
+        "z": 2.39
+      },
+      "size_roblox": [
+        3.04,
+        2.39,
+        3.04
+      ],
+      "bounds_min": [
+        -1.52,
+        -1.52,
+        0.0
+      ],
+      "bounds_max": [
+        1.52,
+        1.52,
+        2.39
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_GoldenYarnKitten_Yarn_Spin": [
+          -0.35,
+          0.2,
+          1.55
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_GoldenYarnKitten_Yarn_Spin": [
+          0.35,
+          1.55,
+          0.2
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GoldenYarnKitten.model.json",
+      "rbx_parts": 255,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenYarnKitten.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenYarnKitten.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2864/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1662 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Lawn_GoldenYarnKitten.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Lawn_GoldenYarnKitten.png"
+    },
+    {
       "name": "CatCafe_Lawn_Path_GreySlabs",
       "category": "Lawn",
       "module": "lawn",
@@ -311455,6 +311666,65 @@
       }
     },
     {
+      "name": "CatCafe_Sign_VipPlate",
+      "category": "Sign",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Sign_VipPlate"
+      ],
+      "triangles": 412,
+      "budget": 600,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        3.0,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.5,
+        -18.76,
+        13.05
+      ],
+      "bounds_max": [
+        1.5,
+        -18.54,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
+      ],
+      "gates": {
+        "pass": false,
+        "failed": [
+          "naming"
+        ],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "412/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "bad asset name",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.65"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
+    },
+    {
       "name": "CatCafe_NPC_Townsfolk_Trader",
       "category": "NPC",
       "module": "townsfolk",
@@ -311851,65 +312121,6 @@
           "centered": "footprint center x=0.00 y=-3.56"
         }
       }
-    },
-    {
-      "name": "CatCafe_Sign_VipPlate",
-      "category": "Sign",
-      "module": "signstyles",
-      "objects": [
-        "CatCafe_Sign_VipPlate"
-      ],
-      "triangles": 412,
-      "budget": 600,
-      "size_studs": {
-        "x": 3.0,
-        "y": 0.22,
-        "z": 0.8
-      },
-      "size_roblox": [
-        3.0,
-        0.8,
-        0.22
-      ],
-      "bounds_min": [
-        -1.5,
-        -18.76,
-        13.05
-      ],
-      "bounds_max": [
-        1.5,
-        -18.54,
-        13.85
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
-      "rbx_parts": 13,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
-        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
-      ],
-      "gates": {
-        "pass": false,
-        "failed": [
-          "naming"
-        ],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "412/600 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "142 faces on swatch centers",
-          "naming": "bad asset name",
-          "pivot": "floor at z=13.05 (want 0)",
-          "centered": "footprint center x=0.00 y=-18.65"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
     },
     {
       "name": "CatCafe_Nook_Neighbourhood",

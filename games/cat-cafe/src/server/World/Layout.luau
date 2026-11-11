@@ -2071,6 +2071,13 @@ function Layout.campPoint(camp: Camp, x: number, z: number): (number, number)
 	return camp.origin.x + x * c + z * s, camp.origin.z - x * s + z * c
 end
 
+-- #3198: the world point (x, z) in `camp`'s space, campPoint's inverse.
+function Layout.campSpace(camp: Camp, x: number, z: number): (number, number)
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	local dx, dz = x - camp.origin.x, z - camp.origin.z
+	return dx * c - dz * s, dx * s + dz * c
+end
+
 local function campFor(id: string, spec: AreaSpec): Camp?
 	local gx, gz = Layout.gatePosition(spec)
 	if gx == nil or gz == nil then

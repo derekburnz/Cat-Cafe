@@ -35,12 +35,26 @@ CleanGlyphs.icons = {
 	lock = "Lock",
 	-- #1258: the luck clover, bright green with a black outline drawn into the art (an emoji can't take an outline)
 	luck = "Clover",
+	-- #3137 batch 2: the seven places (the Cannon's cards, the rank-up card, the area chips). The Ruins' column temple
+	-- also draws for the Relic Museum and the Grand style, which use the same 🏛️
+	park = "Park",
+	neighbourhood = "Neighbourhood",
+	woods = "Woods",
+	sewer = "Sewer",
+	desert = "Desert",
+	ruins = "Ruins",
+	town = "Town",
 } :: { [string]: string }
 
 -- Theme.foodIcons key -> clean symbol name
 CleanGlyphs.foods = {
 	kibble = "Bowl",
 	caviar = "Caviar",
+	-- #3137 row 3: their clean pictures were drawn and uploaded on 11-04 (#1070). Moon milk (🥛, also the milk order)
+	-- and star treat (⭐, used all over) keep their emoji here; ShopIcons.food draws their pictures where it is asked
+	tuna = "Tuna",
+	salmon = "Salmon",
+	sardines = "Sardines",
 } :: { [string]: string }
 
 -- Theme.icons key -> its cell (column, row) on the old 2026-10-27 icon sheet (Theme.iconSheet), kept here so the cloud

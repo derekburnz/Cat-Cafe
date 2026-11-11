@@ -303,3 +303,62 @@ Object.assign(window.ICONS, {
     <ellipse ${S} cx="32" cy="36" rx="27" ry="7" fill="#5fd0e8"/>
     <path d="M18 35 Q24 33 30 35 M36 37 Q42 35 46 37" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
 });
+// #3137 batch 2 (Derek2 OK'd everything for 11-10 night): the seven places, for the Cat Cannon's cards, the rank-up
+// card and the area chips, which still drew emoji. The Ruins' column temple also stands for the Relic Museum.
+Object.assign(window.ICONS, {
+  // the Park: a round leafy tree over a bench on grass
+  park: `<ellipse ${S} cx="32" cy="57" rx="28" ry="5" fill="#7fd36b"/>
+    <path d="M30 56 V36" stroke="${O}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M30 56 V36" stroke="#a8642e" stroke-width="5" stroke-linecap="round"/>
+    <path ${S} fill="#5fb85a" d="M30 6 Q44 6 46 18 Q56 20 54 32 Q52 42 40 40 Q34 46 26 42 Q12 44 10 32 Q8 22 18 18 Q18 6 30 6 Z"/>
+    <path d="M20 22 Q24 16 30 16 M38 26 Q44 24 46 30" stroke="#a6e38e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <circle cx="22" cy="30" r="2.6" fill="#ff6b6b" stroke="${O}" stroke-width="1.8"/><circle cx="42" cy="18" r="2.6" fill="#ff6b6b" stroke="${O}" stroke-width="1.8"/>
+    <rect ${S} stroke-width="3.5" x="38" y="44" width="22" height="5" rx="2" fill="#ff9a4a"/>
+    <path d="M41 49 V55 M57 49 V55" stroke="${O}" stroke-width="3.5" stroke-linecap="round"/>`,
+  // the Neighbourhood: two little houses side by side, one taller
+  neighbourhood: `<path ${S} fill="#ffe7c2" d="M6 34 H30 V58 H6 Z"/>
+    <path ${S} fill="#5fa8ff" d="M3 35 L18 20 L33 35 Z"/>
+    <rect ${S} stroke-width="3" x="13" y="44" width="9" height="14" rx="2" fill="#b8692e"/>
+    <path ${S} fill="#fff6e6" d="M30 26 H58 V58 H30 Z"/>
+    <path ${S} fill="#ff6b4a" d="M26 27 L44 8 L62 27 Z"/>
+    <rect ${S} stroke-width="3" x="36" y="33" width="8" height="8" rx="1.5" fill="#8fd8ff"/>
+    <rect ${S} stroke-width="3" x="47" y="33" width="8" height="8" rx="1.5" fill="#8fd8ff"/>
+    <rect ${S} stroke-width="3" x="40" y="46" width="10" height="12" rx="2" fill="#b8692e"/>`,
+  // the Woods: two pine trees, the front one bigger
+  woods: `<path d="M44 58 V48" stroke="${O}" stroke-width="8" stroke-linecap="round"/><path d="M44 58 V48" stroke="#8a4f26" stroke-width="3.5" stroke-linecap="round"/>
+    <path ${S} fill="#2f8f4e" d="M44 10 L56 28 H51 L60 42 H54 L62 50 H26 L34 42 H28 L37 28 H32 Z"/>
+    <path d="M24 60 V48" stroke="${O}" stroke-width="9" stroke-linecap="round"/><path d="M24 60 V48" stroke="#a8642e" stroke-width="4" stroke-linecap="round"/>
+    <path ${S} fill="#3fae5f" d="M24 4 L38 24 H32 L42 38 H35 L45 50 H3 L13 38 H6 L16 24 H10 Z"/>
+    <path d="M18 22 L24 14 M15 36 L22 28 M12 48 L20 40" stroke="#8fe0a0" stroke-width="3" stroke-linecap="round"/>`,
+  // the Sewer: a round manhole cover with a grate and a little green glow
+  sewer: `<ellipse ${S} cx="32" cy="38" rx="28" ry="20" fill="#6e7f86"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="36" rx="20" ry="13" fill="#4b585e"/>
+    <path d="M18 31 H46 M14 37 H50 M18 43 H46" stroke="${O}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M12 30 Q32 20 52 30" stroke="#a9bac0" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M26 16 Q22 10 27 5 M38 16 Q42 10 37 4" stroke="${O}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+    <path d="M26 16 Q22 10 27 5 M38 16 Q42 10 37 4" stroke="#8fe36b" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  // the Desert: a sandstone pyramid with a sun behind and a dune in front
+  desert: `<circle ${S} cx="48" cy="16" r="10" fill="#ffd23f"/>
+    <path ${S} fill="#e8a64a" d="M4 52 L28 14 L52 52 Z"/>
+    <path ${S} stroke-width="3" fill="#c98432" d="M28 14 L52 52 H34 Z"/>
+    <path d="M14 40 H40 M20 30 H34" stroke="#c98432" stroke-width="2.6" stroke-linecap="round"/>
+    <path ${S} fill="#ffd38a" d="M2 60 Q16 46 34 52 Q48 56 62 48 V60 Z"/>`,
+  // the Ruins: a little temple of four columns under a broken pediment, a vine on one column
+  ruins: `<path ${S} fill="#d8e2dc" d="M6 22 L32 6 L58 22 Z"/>
+    <path ${S} stroke-width="3.5" fill="#bccbc3" d="M8 22 H56 V28 H8 Z"/>
+    <path ${S} stroke-width="3.5" fill="#eef3ef" d="M12 28 H20 V52 H12 Z M24 28 H31 V52 H24 Z M35 28 H42 V52 H35 Z M46 28 H53 V44 L50 41 L53 38 Z"/>
+    <path d="M16 31 V49 M27.5 31 V49 M38.5 31 V49" stroke="#bccbc3" stroke-width="2"/>
+    <path ${S} stroke-width="3.5" fill="#bccbc3" d="M6 52 H58 V59 H6 Z"/>
+    <path d="M23 30 Q28 36 24 42 Q20 47 26 51" stroke="${O}" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+    <path d="M23 30 Q28 36 24 42 Q20 47 26 51" stroke="#4e9e78" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <circle cx="27" cy="36" r="2.2" fill="#6fd39b" stroke="${O}" stroke-width="1.5"/><circle cx="22" cy="45" r="2.2" fill="#6fd39b" stroke="${O}" stroke-width="1.5"/>`,
+  // Town Square: a fountain with a water arc on a round plaza
+  town: `<ellipse ${S} cx="32" cy="54" rx="28" ry="7" fill="#e9c98f"/>
+    <path ${S} fill="#bccbd8" d="M10 44 H54 V50 Q54 55 32 55 Q10 55 10 50 Z"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="44" rx="22" ry="5" fill="#5fd0e8"/>
+    <path ${S} stroke-width="3.5" fill="#bccbd8" d="M28 44 V30 H36 V44 Z"/>
+    <ellipse ${S} stroke-width="3.5" cx="32" cy="30" rx="11" ry="3.5" fill="#d9e3ec"/>
+    <path d="M32 26 Q32 10 20 20 Q14 26 16 40 M32 26 Q32 10 44 20 Q50 26 48 40" stroke="${O}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+    <path d="M32 26 Q32 10 20 20 Q14 26 16 40 M32 26 Q32 10 44 20 Q50 26 48 40" stroke="#8fe4ff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="32" cy="14" r="3" fill="#8fe4ff" stroke="${O}" stroke-width="2"/>`,
+});

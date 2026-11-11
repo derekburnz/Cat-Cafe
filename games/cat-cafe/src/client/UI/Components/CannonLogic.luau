@@ -65,8 +65,8 @@ CannonLogic.CARD_GONE = 2.6
 -- gets one; the lag there only shortens the hold), wobbles at 0.25, zips off at 0.5 with the BOOM
 -- (Presets.cannon.boomAt) and is gone by 0.7.
 -- #1444 (the friend 11-05: "pop-ups for areas like this when shooting out of cannon to stay for 2 second longer it is
--- gone way too quick"): it now holds 2 s longer, zipping off at 2.5 and gone by 2.7, just as the flight lands (the
--- server moves the player at CannonTeleportAtSeconds, 2.6). The card sits at the top centre, so the flying character
+-- gone way too quick"): it now holds 2 s longer, zipping off at 2.5 and gone by 2.7, before the body comes back down at
+-- 3.0 (the server moves the player at CannonTeleportAtSeconds, 2.2 since #3292, while the body is in the clouds). The card sits at the top centre, so the flying character
 -- stays in view under it.
 CannonLogic.CHOSEN_IN = 0
 CannonLogic.CHOSEN_HOLD = 2.5

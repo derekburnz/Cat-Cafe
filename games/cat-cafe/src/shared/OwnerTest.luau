@@ -15,12 +15,66 @@ OwnerTest.ATTRIBUTE = "OwnerTest"
 OwnerTest.LABEL = "Owner test mode"
 OwnerTest.SKU_PREFIX = "owner_test_" -- Payout's sku for a grant, kept apart from "product_" sales
 
--- Whether `userId` is in owner test mode. Server only decides with it.
+-- Whether `userId` is in owner test mode by the list (Config.OwnerTestUserIds). Server only decides with it; a
+-- server check on a player in the game uses isOwnerPlayer, which also counts the experience's own owner.
 function OwnerTest.isOwner(userId: unknown): boolean
 	if type(userId) ~= "number" or userId <= 0 then
 		return false
 	end
 	return table.find(Config.OwnerTestUserIds, userId) ~= nil
+end
+
+-- #3301 (Derek2 2026-11-11: "make the event and /shout commands work on live"; the live log said "/event from a
+-- non-owner: dropped" for him): the experience's own owner is an owner too, with no id in the repo. For a
+-- user-owned experience that is its creator; for a group-owned one the group's owner (rank 255). `creatorType` is
+-- Enum.CreatorType's name, `groupRank` the player's rank in the creator group (nil when not known).
+OwnerTest.GROUP_OWNER_RANK = 255
+
+function OwnerTest.isCreator(
+	userId: unknown,
+	creatorType: string,
+	creatorId: number,
+	groupRank: number?
+): boolean
+	if type(userId) ~= "number" or userId <= 0 or creatorId <= 0 then
+		return false
+	end
+	if creatorType == "User" then
+		return userId == creatorId
+	elseif creatorType == "Group" then
+		return groupRank == OwnerTest.GROUP_OWNER_RANK
+	end
+	return false
+end
+
+-- A group rank lookup per user, kept for the server's life once it has an answer (a failed lookup is asked again).
+local creatorKnown: { [number]: boolean } = {}
+
+-- Whether `player` is in owner test mode: on the list, or the experience's own owner (isCreator). Yields the first
+-- time for a group-owned experience (Player:GetRankInGroup). Server only.
+function OwnerTest.isOwnerPlayer(player: Player): boolean
+	local userId = player.UserId
+	if OwnerTest.isOwner(userId) then
+		return true
+	end
+	local known = creatorKnown[userId]
+	if known ~= nil then
+		return known
+	end
+	local creatorType = game.CreatorType.Name
+	local rank: number? = nil
+	if creatorType == "Group" then
+		local ok, value = pcall(function(): number
+			return player:GetRankInGroup(game.CreatorId)
+		end)
+		if not ok or type(value) ~= "number" then
+			return false
+		end
+		rank = value
+	end
+	local owner = OwnerTest.isCreator(userId, creatorType, game.CreatorId, rank)
+	creatorKnown[userId] = owner
+	return owner
 end
 
 -- What `product` gives that a trade could move: its cats that are not exclusive. Sign styles and potions never
@@ -62,7 +116,14 @@ OwnerTest.TOPIC = "CatCafeOwner"
 OwnerTest.EVENT_MINUTES = 10
 OwnerTest.SHOUT_MAX = 120
 OwnerTest.SHOUT_GAP_SECONDS = 20
-OwnerTest.SHOUT_PREFIX = "📣 "
+-- #3301 (Derek2: "make the /shout make a quick bubble with OWNER "whatever messege I put" on screen"): the bubble's
+-- title and its quoted line (Screens/OwnerShout)
+OwnerTest.BUBBLE_TITLE = "OWNER"
+OwnerTest.BUBBLE_SECONDS = 6
+
+function OwnerTest.bubbleLine(text: string): string
+	return '"' .. text .. '"'
+end
 
 function OwnerTest.isShoutCommand(text: unknown): boolean
 	if type(text) ~= "string" then

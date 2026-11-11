@@ -233,6 +233,7 @@ Remotes.ServerToClient = {
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
 	-- or Mythical check-in shout-out at most once a minute a player (RareMomentService)
+	"OwnerShout", -- (text: string)  #3301: an owner's filtered /shout, to everyone on every server, for the OWNER bubble
 	"RareCatchChat", -- (text: string, rarity: Types.Rarity, elsewhere: boolean)  #2203: a catch shout-out as a chat
 	-- line, to everyone: this server's (elsewhere false, with its Announce) or another server's from MessagingService
 	-- (elsewhere true, no toast), at most one every GlobalCatch.SHOW_GAP_SECONDS (GlobalCatchService)

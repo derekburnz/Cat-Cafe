@@ -4786,6 +4786,21 @@ local SCENES = {
 		UI.rescue.show("gate_rescue", challenge)
 	end },
 	-- F92: the Team Rescue pop on the helper's screen, with the helper's tip
+	-- #3301 (Derek2: "a quick bubble with OWNER "whatever messege I put" on screen when i shout"): the longest shout
+	-- (OwnerTest.SHOUT_MAX, 120 characters) in the bubble
+	{ "OwnerShout", function()
+		UI.ownerShout(
+			"Double coins in every cafe for the next ten minutes, go catch some strays and say hi to everyone in town!!"
+		)
+		task.wait(0.8)
+		local found = false
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and (piece :: TextLabel).Text == "OWNER" and (piece :: TextLabel).Visible then
+				found = true
+			end
+		end
+		assert(found, "uigate: the owner shout has no OWNER title (#3301)")
+	end },
 	{ "TeamRescue", function()
 		UI.teamRescue(4242, localUserId(), 1240)
 	end },

@@ -6,7 +6,8 @@
 -- (LeaderboardService). Every Config.LeaderboardRefreshSeconds the top Arcade.TOP x 2 are read, names looked up in
 -- batches and cached for the server's life; the players in this server are put in at their bests now
 -- (Leaderboards.withPresent), so the board is right between reads and in Studio. Owner accounts
--- (Config.OwnerTestUserIds, #3321) are never written and never shown. ArcadeService sends the board in ArcadeState.
+-- (Config.OwnerTestUserIds, #3321) and the main boards' hide list (CatCafe_LB_Hidden) are never written or shown.
+-- ArcadeService sends the board in ArcadeState.
 -- Every value comes from the server's own arcade saves; a client never sends one. Nothing here prints an id or name.
 
 local DataStoreService = game:GetService("DataStoreService")
@@ -22,19 +23,43 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local ArcadeBoard = {}
 
-local READ_COUNT = Arcade.TOP * 2 -- owners and unknown keys dropped still leave TOP
+local READ_COUNT = Arcade.TOP * 2 -- owners, hidden players and unknown keys dropped still leave TOP
 local NAME_BATCH = 100
+-- the main boards' moderation hide list (LeaderboardService's HIDDEN_STORE and HIDDEN_KEY), read here too so a player
+-- hidden there is hidden on the arcade's board (Review-Agent on #3352)
+local HIDDEN_STORE = "CatCafe_LB"
+local HIDDEN_KEY = "CatCafe_LB_Hidden"
 
 local read: { Types.LeaderboardRow } = {} -- as last read from the store
 local written: { [number]: number } = {} -- user id -> the score this server last wrote
 local names: { [number]: string } = {}
+local hiddenIds: { [number]: boolean } = {} -- the hide list as last read; a failed read keeps the last one
 
-local function owners(): { [number]: boolean }
-	local out: { [number]: boolean } = {}
+-- Who never shows: the owner accounts (#3321) and the main boards' hide list.
+local function hidden(): { [number]: boolean }
+	local out: { [number]: boolean } = table.clone(hiddenIds)
 	for _, id in Config.OwnerTestUserIds do
 		out[id] = true
 	end
 	return out
+end
+
+local function readHidden()
+	local ok, value = pcall(function()
+		return DataStoreService:GetDataStore(HIDDEN_STORE):GetAsync(HIDDEN_KEY)
+	end)
+	if not ok then
+		return
+	end
+	local fresh: { [number]: boolean } = {}
+	if type(value) == "table" then
+		for _, id in value :: { any } do
+			if type(id) == "number" then
+				fresh[id] = true
+			end
+		end
+	end
+	hiddenIds = fresh
 end
 
 local function canWrite(): boolean
@@ -56,7 +81,7 @@ end
 -- After the arcade save is read and after each game: puts the player's best on the board.
 function ArcadeBoard.note(player: Player, best: number, bestCircles: number)
 	local userId = player.UserId
-	if best <= 0 or owners()[userId] or not canWrite() then
+	if best <= 0 or hidden()[userId] or not canWrite() then
 		return
 	end
 	local value = Arcade.score(best, bestCircles)
@@ -103,6 +128,7 @@ end
 
 -- One read of the store's top; a failed read keeps the last one.
 local function refresh()
+	readHidden()
 	local ok, entries = pcall(function()
 		local pages = DataStoreService:GetOrderedDataStore(Arcade.BOARD_STORE)
 			:GetSortedAsync(false, READ_COUNT)
@@ -119,13 +145,13 @@ local function refresh()
 		end
 	end
 	lookUpNames(ids)
-	read = Leaderboards.rows(entries :: { any }, owners(), nameOf)
+	read = Leaderboards.rows(entries :: { any }, hidden(), nameOf)
 end
 
 -- The board for `viewer`: as last read, with `present` (the players in this server with an arcade best, as
--- { userId, name, value = Arcade.score }) put in at their bests now, owners left out.
+-- { userId, name, value = Arcade.score }) put in at their bests now, owners and hidden players left out.
 function ArcadeBoard.top(present: { Leaderboards.Present }, viewer: number?): { Arcade.Row }
-	return Arcade.topRows(Leaderboards.withPresent(read, present, owners()), viewer)
+	return Arcade.topRows(Leaderboards.withPresent(read, present, hidden()), viewer)
 end
 
 -- Starts the read loop; `refreshed` runs after each read (ArcadeService sends everyone their window's state).

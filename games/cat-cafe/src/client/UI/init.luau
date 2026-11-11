@@ -985,10 +985,11 @@ function UI.init(config: Types.InitConfig)
 		end,
 		-- #3082: Open on a card's strip: the station's own card takes the picker's place
 		open = function(stationId: string)
+			-- #3213: opened from the Cannon, the card stays open wherever the player stands (no walk-away close)
 			if stationId == "yardSale" then
-				UI.campExtras.openYardSale(nil)
+				UI.campExtras.openYardSale(nil, true)
 			else
-				UI.lateStations.open(stationId)
+				UI.lateStations.open(stationId, true)
 			end
 		end,
 		close = closeModal,
@@ -6350,6 +6351,9 @@ do
 				end
 			end,
 			far = function(): boolean
+				if camp.yardAnywhere == true then
+					return false -- #3213: opened from the Cannon menu
+				end
 				local distance = yardDistance()
 				return distance ~= nil and distance > FAR_STUDS
 			end,
@@ -6423,7 +6427,8 @@ do
 	end
 
 	-- The Yard Sale's prompt: its card with today's crates.
-	function UI.campExtras.openYardSale(view: Types.CampExtraView?)
+	function UI.campExtras.openYardSale(view: Types.CampExtraView?, anywhere: boolean?)
+		camp.yardAnywhere = anywhere == true -- #3213: from the Cannon menu, walking away does not close it
 		local yard = camp.yard
 		local modalView = modal
 		if yard == nil or modalView == nil then
@@ -6521,6 +6526,7 @@ do
 	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
 	local WINDOWS: { [string]: string } = { spa = "OasisSpa", museum = "RelicMuseum" }
 	local late = {
+		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
 		state = nil :: any,
 		spa = nil :: OasisSpa.OasisSpa?,
 		museum = nil :: RelicMuseum.RelicMuseum?,
@@ -6547,6 +6553,9 @@ do
 
 	local function far(stationId: string): () -> boolean
 		return function(): boolean
+			if late.anywhere then
+				return false
+			end
 			local studs = distance(stationId)
 			return studs ~= nil and studs > FAR_STUDS
 		end
@@ -6662,7 +6671,10 @@ do
 	end
 
 	-- A station's prompt: its card, or a toast while its tier is still ahead (the server refuses every press then).
-	function UI.lateStations.open(stationId: string)
+	-- #3213 (Derek2: "if I open the relic museum from the menu of cannon during night it auto closes"): `anywhere` when
+	-- the Cannon menu opens it (#3082), so the walk-away check (far) leaves it open; a station's own prompt passes nil.
+	function UI.lateStations.open(stationId: string, anywhere: boolean?)
+		late.anywhere = anywhere == true
 		local name = WINDOWS[stationId]
 		local modalView = modal
 		if name == nil or modalView == nil then

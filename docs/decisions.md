@@ -888,3 +888,9 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.
 - **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
 - **No restart.** Client only; old servers' clients keep the old words until they close.
+
+## 2026-11-11 Economy ladder v8: shorter nights and the tier caps (#3195, #3204)
+
+- **What.** economy-ladder.md v8 records #3253: 45 s nights, the Tier 2 caps, Net 2 at Tier 3 and Net 3 at Tier 5, and Tier 2 13,500, Tier 3 520,000, Tier 5 370M.
+- **Why Tier 3 went up.** The caps make Tier 2 to 3 faster than more Tier 3 cost can pull back; 520k was the smallest price that put first-hour Tier 3 back at 30 min or more.
+- **Bands.** First-hour Tier 3 is now 30 to 45 min, the longest wait 22.5 min, the fast player's Tier 2 floor 8 min and the lawn run's Tier 5 floor 4 h. Every other band is unchanged (Design-Agent, overnight call; Derek can tighten them later).

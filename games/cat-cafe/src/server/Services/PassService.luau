@@ -203,7 +203,7 @@ end
 -- failed lookup counts as not owned until `retry` gets an answer.
 function PassService.check(player: Player): Economy.Passes
 	local set: { [number]: boolean } = {}
-	if OwnerTest.isOwner(player.UserId) then
+	if OwnerTest.isOwnerPlayer(player) then
 		-- #1770 owner test mode: every made pass counts as owned, with no lookup and nothing bought
 		for _, id in passIds() do
 			set[id] = true

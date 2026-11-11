@@ -1256,7 +1256,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 370000000, -- #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		cost = 390000000, -- #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 26, -- #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,

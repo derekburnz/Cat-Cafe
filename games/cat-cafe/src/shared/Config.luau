@@ -677,8 +677,14 @@ local Config = {
 	RichEveryMin = 240,
 	RichEveryMax = 720,
 	RichTipSeconds = 120, -- a rich tip is this many seconds of the day rate (at least $50; F61: was 45)
-	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
-	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
+	-- #3360 (rich-money-bags.md): the rich customer leaves a money bag on table 1 that waits RichBagSeconds from the
+	-- drop, with no dusk clamp (RichTipStaySeconds 90, cut short at dusk, before). Unclaimed, it is gone (Derek
+	-- 2026-10-28: "if you miss it you miss it"). Up to RichBagsMax wait at once; the customer sits
+	-- RichCustomerSitSeconds for show.
+	RichBagSeconds = 180,
+	RichBagsMax = 3,
+	RichCustomerSitSeconds = 20,
+	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the bag (#3360; the plot's RichTipAnchor before)
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
 	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)
 	-- a pile pays its owner the moment it appears, wherever they are; it shows on a table for TipPileShowSeconds and

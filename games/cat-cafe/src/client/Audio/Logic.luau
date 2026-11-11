@@ -399,6 +399,12 @@ function Logic.rareNotice(
 	return distance <= near, distance <= near
 end
 
+-- #2997: whether a Toast line is the weekly update gift's ("Update gift! 🐟 15 + 1 spin", PlaytimeGiftService), the
+-- one gift that has no client event of its own, so Audio hears it on the Toast remote.
+function Logic.isUpdateGiftToast(text: any): boolean
+	return type(text) == "string" and string.sub(text, 1, 12) == "Update gift!"
+end
+
 -- #3022: whether the stray waiting for your second catch (its WaitsFor is your user id) calls out now. It calls once as
 -- you come within `near` studs, then every `gap` seconds while you stay that near, at most `most` times in all, so
 -- it helps a lost new player without nagging. `lastAt` is when it last called (nil for never), `calls` how often.

@@ -556,6 +556,18 @@ return function()
 			end
 		end)
 	end)
+	-- #2997: the weekly update gift's Toast line plays the reward jingle; no other Toast does.
+	describe("Audio.Logic update gift toast", function()
+		it("matches only the gift line", function()
+			expect(Logic.isUpdateGiftToast("Update gift! 🐟 15 + 1 spin")).to.equal(true)
+			expect(Logic.isUpdateGiftToast("Update gift!")).to.equal(true)
+			expect(Logic.isUpdateGiftToast("Your update gift is ready")).to.equal(false)
+			expect(Logic.isUpdateGiftToast("")).to.equal(false)
+			expect(Logic.isUpdateGiftToast(nil)).to.equal(false)
+			expect(Logic.isUpdateGiftToast(12)).to.equal(false)
+		end)
+	end)
+
 	-- #3022: the stray waiting for your second catch calls once as you come near, then every 45 s, at most 4 times.
 	describe("Audio.Logic second cat call", function()
 		local NEAR, GAP, MOST = 60, 45, 4

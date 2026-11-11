@@ -1,0 +1,2039 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Camp_Alley_RummageBin/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.8,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.0,
+     2.65,
+     2.65
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       -1.8,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Camp_Alley_RummageBin/0"
+   },
+   "children": [
+    {
+     "name": "PromptAnchor",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3,
+         0.0,
+         -2.2
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "BangAnchor",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.1,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "GlowAnchor",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.1,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.1,
+       0.21,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.96,
+     0.18,
+     3.2
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.21,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.96,
+     0.18,
+     3.2
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.1,
+       0.21,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.96,
+     0.18,
+     3.2
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.06,
+       -1.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.2,
+     0.12,
+     0.4
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.06,
+       1.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.2,
+     0.12,
+     0.4
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.05,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     2.64,
+     2.64
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       3.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     2.92,
+     2.92
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     2.84,
+     2.84
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.49,
+       2.4,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.1,
+     0.6
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.49,
+       2.4,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.1,
+     0.6
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.5,
+       -1.32
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.72,
+     0.72
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.42,
+       1.98,
+       -1.33
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.3,
+     0.3
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.15,
+       2.13,
+       -1.33
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.32,
+     0.32
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.15,
+       2.13,
+       -1.33
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.32,
+     0.32
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Alley_RummageBin",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.42,
+       1.98,
+       -1.33
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.3,
+     0.3
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Alley_RummageBin/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         4.7523,
+         1.7623
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -0.2588,
+          0.0,
+          -0.9659
+         ],
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       3.0,
+       3.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.4723,
+         0.0,
+         5.0465
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Alley_RummageBin/1"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.32,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.03,
+       2.56,
+       2.56
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6,
+         3.4,
+         0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.8,
+       0.8,
+       0.8
+      ],
+      "Color": [
+       0.7882,
+       0.5412,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6,
+         3.5,
+         -0.11
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.8,
+       0.1,
+       0.02
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2,
+         3.4,
+         -0.35
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.08,
+       0.54,
+       0.54
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.0,
+         3.6,
+         -0.35
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.6,
+       0.45
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4,
+         3.48,
+         -0.68
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       0.16,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.75,
+         3.424,
+         0.35
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.396,
+       0.748,
+       0.22
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.75,
+         3.93,
+         0.35
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.704,
+       0.264,
+       0.132
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.7,
+         4.6,
+         -0.3
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6,
+         4.4,
+         -0.5
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       0.16,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Ready",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         4.9,
+         0.2
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Alley_RummageBin_Ready"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Alley_RummageBin/2"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.38,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.0,
+       3.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -3.38,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Alley_RummageBin/2"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.52,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       2.3,
+       2.3
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.65,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.14,
+       0.16
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.55,
+         3.495,
+         0.575
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.7,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.75,
+         3.495,
+         0.575
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.05,
+       0.25
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.55,
+         3.495,
+         0.575
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.05,
+       0.25
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Alley_RummageBin_Empty",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.35,
+         3.495,
+         0.575
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.05,
+       0.25
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Alley_RummageBin_Empty"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

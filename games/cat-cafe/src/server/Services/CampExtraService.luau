@@ -87,12 +87,18 @@ local function inReach(player: Player, def: Types.CampExtraDef): boolean
 		and (position - anchor).Magnitude <= Config.CampExtraRangeStuds + RANGE_SLACK
 end
 
+-- #3093: 2 for a Golden Pond owner (PassService sets the attribute on the server after checking the pass; a client's
+-- own attribute never reaches the server), else 1.
+local function pondTimes(player: Player): number
+	return CampExtras.pondTimes(player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true)
+end
+
 -- Settles the player's extras and sends CampExtrasState when it differs from the last one sent (or `force`).
 local function refresh(player: Player, profile: Types.PlayerProfile, force: boolean)
 	local now = os.time()
 	local tier = Economy.tier(profile)
 	CampExtras.settle(profile.campExtras, tier, now)
-	local state = CampExtras.view(profile.campExtras, tier, now)
+	local state = CampExtras.view(profile.campExtras, tier, now, pondTimes(player))
 	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
 	local day = YardSale.dayAt(now)
 	YardSale.refresh(profile.yardDecor, day)
@@ -196,11 +202,9 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		)
 		return
 	end
-	-- #1463 (camp-stations.md section 4): a Golden Pond owner collects the pond from anywhere, the same fish a walker
-	-- gets. PassService sets the attribute on the server, and a client's own attribute never reaches it.
-	local anywhere = extraId == "pond"
-		and player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true
-	if not anywhere and not inReach(player, def) then
+	-- #3082: every extra collects from anywhere (the Cat Cannon's menu has the button), so only the tier above gates
+	-- it. Until then only a Golden Pond owner's pond did (#1463); the pass doubles the fish instead (#3093).
+	if not CampExtras.FROM_ANYWHERE and not inReach(player, def) then
 		refuse(player, extraId, string.format("Walk up to the %s first", def.name))
 		return
 	end
@@ -218,7 +222,8 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		now,
 		function(): number
 			return random:NextNumber()
-		end
+		end,
+		pondTimes(player)
 	)
 	if prize == nil then
 		refuse(player, extraId, "Nothing yet")
@@ -250,7 +255,11 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	local tier = Economy.tier(profile)
 	local now = os.time()
 	CampExtras.settle(profile.campExtras, tier, now)
-	if CampExtras.isOpen(CampExtras.YARD_SALE, tier) and not inReach(player, def) then
+	if
+		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
+		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
+		and not inReach(player, def)
+	then
 		refuse(player, CampExtras.YARD_SALE, "Walk up to the Yard Sale first")
 		return
 	end
@@ -273,10 +282,13 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	refresh(player, profile, false)
 end
 
--- #1537: true when the player's tier opens the Yard Sale and they stand within reach of it (LawnService's BuyLawn).
+-- #1537: true when the player's tier opens the Yard Sale and they may buy at it (LawnService's BuyLawn): from
+-- anywhere since #3082, within reach of it before.
 function CampExtraService.atYardSale(player: Player, tier: number): boolean
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE)
-	return def ~= nil and CampExtras.isOpen(CampExtras.YARD_SALE, tier) and inReach(player, def)
+	return def ~= nil
+		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
+		and (CampExtras.FROM_ANYWHERE or inReach(player, def))
 end
 
 -- #1537: sends the player's CampExtrasState again (after a Yard Sale lawn buy, or a refused one).
@@ -322,7 +334,7 @@ function CampExtraService.debugAway(
 	save.lostFound.at -= seconds
 	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
-	return CampExtras.view(save, Economy.tier(profile), os.time())
+	return CampExtras.view(save, Economy.tier(profile), os.time(), pondTimes(player))
 end
 
 return CampExtraService

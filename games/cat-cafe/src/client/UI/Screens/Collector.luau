@@ -26,6 +26,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local CollectorLogic = require(script.Parent.Parent.Components.CollectorLogic)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -42,6 +43,8 @@ export type Callbacks = {
 	answer: (accept: boolean) -> (),
 	open: (force: boolean) -> (), -- open the card's window; unless forced (a tap on the tag), not over another one
 	close: () -> (), -- close the card's window if it is the open one
+	-- #3132: the arrival banner; `line` is rich text and `tap` opens the card
+	announce: ((def: Types.CatDef?, shiny: boolean, line: string, tap: () -> ()) -> ())?,
 }
 
 export type Collector = {
@@ -64,10 +67,12 @@ export type Collector = {
 type Visit = { catUid: string, offer: Types.CollectorOffer, endsAt: number }
 
 local NOTE = "Your Index keeps this cat"
-local MAX_SIZE = Vector2.new(440, 320)
+local MAX_SIZE = Vector2.new(440, 334)
 local LEFT_WIDTH = 140 -- the cat's picture, name and rarity
 local ART = 100
-local NAME_HEIGHT = 22
+local NAME_HEIGHT = 36 -- #3132: two rows, so a long name wraps instead of ending in "…"
+local TAG_FACE = 28
+local TAG_ROW = 38
 local LINE_HEIGHT = 18
 local ARROW_WIDTH = 40
 local TILE = 52 -- an offer picture
@@ -162,8 +167,11 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		Size = UDim2.fromOffset(LEFT_WIDTH, NAME_HEIGHT),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
+		TextTruncate = Enum.TextTruncate.None,
+		TextWrapped = true,
 		Parent = content,
 	})
+	FitText.shrink(self._name, Theme.sizes.textSmall) -- #3132: smaller first, then the second row
 	self._rarity = text({
 		Name = "Rarity",
 		Position = UDim2.fromOffset(0, ART + 2 + NAME_HEIGHT),
@@ -252,7 +260,7 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		LightInfluence = 0,
 		MaxDistance = TAG_DISTANCE,
 		ResetOnSpawn = false,
-		Size = UDim2.fromOffset(200, 52),
+		Size = UDim2.fromOffset(240, 34 + TAG_ROW),
 		StudsOffset = Vector3.new(0, TAG_OFFSET, 0),
 		Adornee = self._anchor,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -285,15 +293,37 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		Parent = tagButton,
 	})
 	Outline.text(tagName, Theme.sizes.textOutline)
+	-- #3132: the cat he wants under his name: its face, then its name, rarity and the time left on one rich line that
+	-- shrinks and wraps, so the name is whole
+	local tagDisc: Frame = Create("Frame", {
+		Name = "Face",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(10, 28 + (TAG_ROW - TAG_FACE) / 2),
+		Size = UDim2.fromOffset(TAG_FACE, TAG_FACE),
+		Parent = tagButton,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._tagStroke = Outline.border(tagDisc, 2, Theme.rarityColor("Common"))
+	self._tagPortrait = CatPortrait.new({
+		parent = tagDisc,
+		size = UDim2.fromScale(1, 1),
+		still = true,
+		head = true,
+	})
 	self._tagTime = text({
 		Name = "Time",
-		Position = UDim2.fromOffset(0, 28),
-		Size = UDim2.new(1, 0, 0, 22),
+		Position = UDim2.fromOffset(10 + TAG_FACE + 6, 28),
+		Size = UDim2.new(1, -(10 + TAG_FACE + 6 + 8), 0, TAG_ROW),
 		FontFace = Theme.fonts.display,
+		RichText = true,
 		TextSize = Theme.sizes.textBody + 2,
-		TextColor3 = Theme.colors.gold,
+		TextColor3 = Theme.colors.white,
+		TextTruncate = Enum.TextTruncate.None,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = tagButton,
 	})
+	FitText.shrink(self._tagTime, Theme.sizes.textSmall)
 	Outline.text(self._tagTime, Theme.sizes.textOutline)
 	self._tagClick = tagButton.Activated:Connect(function()
 		if self._visit then
@@ -337,6 +367,21 @@ function Collector._cat(self: any): (Types.CatInstance?, Types.CatDef?)
 	return instance, def
 end
 
+-- #3132: the wanted cat's name (its own, else its breed), rarity and coat, as the card, the tag and the banner say it.
+function Collector._wanted(self: any): (string, string?, string?)
+	local instance, def = self:_cat()
+	local custom = if instance then instance.name else nil
+	local breed = if def then def.name else "Your cat"
+	return if custom and custom ~= "" then custom else breed,
+		if def then def.rarity else nil,
+		if instance then instance.variant else nil
+end
+
+function Collector._line(self: any, clock: string?): string
+	local name, rarity, variant = self:_wanted()
+	return CollectorLogic.wantLine(name, rarity, variant, Theme.rarityColor(rarity):ToHex(), clock)
+end
+
 function Collector.offer(
 	self: any,
 	catUid: string,
@@ -371,6 +416,23 @@ function Collector.offer(
 	self:_startLoop()
 	self:_refresh()
 	self:_check()
+	local callbacks: Callbacks = self._callbacks
+	local announce = callbacks.announce
+	if fresh and announce ~= nil then
+		local instance, def = self:_cat()
+		announce(
+			def,
+			CatVariant.isGold(if instance then instance.variant else nil),
+			self:_line(nil),
+			function()
+				if self._visit then
+					Sound.play("uiClick")
+					self._dismissed = false
+					self._callbacks.open(true)
+				end
+			end
+		)
+	end
 end
 
 function Collector._startLoop(self: any)
@@ -420,7 +482,7 @@ function Collector._check(self: any)
 		if self._anchor.Parent == nil then
 			self._anchor.Parent = Workspace.Terrain
 		end
-		self._tagTime.Text = CollectorLogic.clock(left)
+		self._tagTime.Text = self:_line(CollectorLogic.clock(left))
 	end
 	if self._billboard.Enabled ~= showTag then
 		self._billboard.Enabled = showTag
@@ -566,6 +628,7 @@ function Collector.destroy(self: any)
 	self._trade:destroy()
 	self._chips:destroy()
 	self._portrait:destroy()
+	self._tagPortrait:destroy()
 	self._panel:destroy()
 	self._billboard:Destroy()
 	self._anchor:Destroy()

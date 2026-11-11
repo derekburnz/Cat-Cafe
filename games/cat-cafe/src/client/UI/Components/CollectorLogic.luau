@@ -8,6 +8,11 @@
 --                                       it, so it does not flicker at the edge
 --   catLine(rarity, variant) -> "Gold Rare", "Rainbow Epic"
 --   clock(seconds) -> "2:41"
+--   escape(text)                        a cat's name made safe for a rich text line
+--   wantLine(name, rarity, variant, hex, clock?)  the banner's and the tag's line (#3132): the name, " · " and
+--                                       "Gold Rare" in the rarity's colour (`hex`, "ffcc00"), then the time left
+--                                       when given: "Tabby · <font color=...>Rare</font> · 2:41"
+--   BANNER_TITLE, BANNER_SECONDS        the arrival banner's small title and how long it stays
 -- No Theme, Format or CFrame here, so the cloud test runner (no fonts, no CFrame) can load and test it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -102,6 +107,35 @@ end
 function CollectorLogic.clock(seconds: number): string
 	local whole = math.max(0, math.ceil(seconds))
 	return ("%d:%02d"):format(whole // 60, whole % 60)
+end
+
+CollectorLogic.BANNER_TITLE = "Collector wants"
+CollectorLogic.BANNER_SECONDS = 3
+
+local ESCAPES: { [string]: string } =
+	{ ["&"] = "&amp;", ["<"] = "&lt;", [">"] = "&gt;", ['"'] = "&quot;", ["'"] = "&apos;" }
+
+function CollectorLogic.escape(text: string): string
+	return (string.gsub(text, "[&<>\"']", ESCAPES))
+end
+
+function CollectorLogic.wantLine(
+	name: string?,
+	rarity: string?,
+	variant: string?,
+	hex: string,
+	clock: string?
+): string
+	local shown = if type(name) == "string" and name ~= "" then name else "Your cat"
+	local line = ('%s · <font color="#%s">%s</font>'):format(
+		CollectorLogic.escape(shown),
+		hex,
+		CollectorLogic.catLine(rarity, variant)
+	)
+	if clock ~= nil and clock ~= "" then
+		line ..= " · " .. clock
+	end
+	return line
 end
 
 return CollectorLogic

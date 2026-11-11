@@ -45,10 +45,25 @@ local Config = require(Shared:WaitForChild("Config"))
 -- one formula for the bar and the server's judge (reviewer N74)
 local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 
+-- #3050: a bar that is not a stuck cat's (the Rummage Bin's) words its own ends. Any line left out reads as a rescue's.
+export type Words = {
+	slow: string?, -- the hint when the time runs out ("Too slow! It's still stuck.")
+	gaveUp: string?, -- the hint after Give up ("You let it be for now.")
+	won: string?, -- the hint on a win ("It's free!")
+	win: string?, -- the banner's title and detail on a win, when update() brings no closing words
+	winDetail: string?,
+	lose: string?, -- the banner's title and detail on anything else
+	loseDetail: string?,
+}
+
 export type Header = {
 	catName: string?,
-	rarity: string?,
+	rarity: string?, -- nil with `words`: no rarity chip
+	words: Words?,
 }
+
+-- #3050: the win banner's words when the server names what was won (the Rummage Bin's prize).
+export type Closing = { title: string, detail: string }
 
 export type Callbacks = {
 	press: () -> (), -- every press: forward as RescuePress
@@ -71,14 +86,18 @@ export type RescueBar = {
 		pawsLeft: number?,
 		done: boolean,
 		success: boolean,
-		bar: Types.RescueBar?
+		bar: Types.RescueBar?,
+		closing: Closing?
 	) -> (),
 	isActive: (self: RescueBar) -> boolean,
 	hide: (self: RescueBar) -> (),
 	destroy: (self: RescueBar) -> (),
 }
 
-local BAR = Vector2.new(560, 44) -- design pixels at 1280 x 720
+-- #3180 (Derek2 2026-11-10: "slightly smaller bars"): 560 by 44 before, the needle 56 tall, the paw 30 and the pips
+-- 22; about an eighth smaller. The zone is a share of the bar and the marker's speed is in bar lengths, so the timing
+-- is the same. Taps anywhere still count, so nothing here is a touch target but Give up, which keeps its size.
+local BAR = Vector2.new(492, 40) -- design pixels at 1280 x 720
 local WORD = Vector2.new(160, 34) -- NICE!, MISS or Too slow! over the marker
 local WORD_SIZE = 28
 -- #2219 (crispi_255): a rescuer's miss after hits sends the bar back to the start; the flash says so, wider and a
@@ -86,9 +105,9 @@ local WORD_SIZE = 28
 local RESET_WORDS = "MISS! Back to the start"
 local RESET_WORD = Vector2.new(420, 34)
 local RESET_SIZE = 26
-local NEEDLE = Vector2.new(6, 56) -- the marker's line, a little taller than the bar
-local PAW = 30 -- the paw on top of the needle
-local PIP = 22
+local NEEDLE = Vector2.new(6, 50) -- the marker's line, a little taller than the bar
+local PAW = 28 -- the paw on top of the needle
+local PIP = 20
 local BAR_TOP = PIP + 34 -- room for the paw between the pips and the bar
 local LIFE = 6 -- the zone's draining bottom edge, the bar's one timer
 local GIVE_UP_H = 36 -- Give up's face on a mouse screen (Theme.sizes.tapMouse)
@@ -181,6 +200,7 @@ function RescueBar.new(parent: Instance): RescueBar
 	self._zoneIndex = 1 -- zones[zoneIndex] is the one to hit
 	self._zoneSince = 0 -- server time the live zone came up (F93)
 	self._zoneEndsAt = nil :: number? -- server time it moves on unhit (F93); nil on an older server
+	self._words = {} :: Words -- #3050: the running bar's own closing words, if any
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeRescueBar",
@@ -533,7 +553,9 @@ function RescueBar.show(
 
 	local info: Header = header or {}
 	local rarity = info.rarity or "Common"
+	self._words = info.words or {} :: Words
 	self._name.Text = info.catName or "Stuck cat"
+	self._rarity.Visible = info.words == nil or info.rarity ~= nil -- #3050: the bin has no rarity
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
@@ -640,7 +662,7 @@ function RescueBar._step(self: any, t: number)
 	local ends = deadline(current)
 	if not self._done and t >= ends then
 		self._done = true
-		self._hint.Text = "Too slow! It's still stuck."
+		self._hint.Text = (self._words :: Words).slow or "Too slow! It's still stuck."
 	end
 	if t >= ends + NO_RESULT_TIMEOUT and self._active then
 		self:_finish(false) -- the server's answer never came
@@ -755,7 +777,7 @@ function RescueBar._giveUp(self: any)
 	end
 	self._done = true
 	self._cancel:setEnabled(false)
-	self._hint.Text = "You let it be for now."
+	self._hint.Text = (self._words :: Words).gaveUp or "You let it be for now."
 	local callbacks: Callbacks? = self._callbacks
 	if callbacks then
 		callbacks.cancel()
@@ -785,7 +807,8 @@ function RescueBar.update(
 	pawsLeft: number?,
 	done: boolean,
 	success: boolean,
-	bar: Types.RescueBar?
+	bar: Types.RescueBar?,
+	closing: Closing?
 )
 	if not self._active then
 		return
@@ -856,20 +879,24 @@ function RescueBar.update(
 	-- moment the attempt is over, so the result banner shows over a screen that moves again (a thumbstick or a tap
 	-- to move) instead of eating every touch until it closes
 	self._tap.Visible = false
+	local words: Words = self._words
 	if success then
-		self._outcome.Text = "Rescued!"
+		self._outcome.Text = if closing ~= nil then closing.title else words.win or "Rescued!"
 		self._outcome.TextColor3 = Theme.colors.good
 		-- F92: the helper's cat goes to the rescuer
-		self._detail.Text = if self._helper
-			then "Thanks for helping!"
+		self._detail.Text = if closing ~= nil
+			then closing.detail
+			elseif words.win ~= nil then words.winDetail or ""
+			elseif self._helper then "Thanks for helping!"
 			else "Carry it home to check in"
 		self._banner.UIStroke.Color = Theme.colors.good
-		self._hint.Text = "It's free!"
+		self._hint.Text = words.won or "It's free!"
 	else
-		self._outcome.Text = "Still stuck"
+		self._outcome.Text = words.lose or "Still stuck"
 		self._outcome.TextColor3 = Theme.colors.red
-		self._detail.Text = if self._helper
-			then "Thanks for helping"
+		self._detail.Text = if words.lose ~= nil
+			then words.loseDetail or ""
+			elseif self._helper then "Thanks for helping"
 			elseif pawsLeft == 0 then "Out of paws. Try again soon"
 			else "Try again in a moment"
 		self._banner.UIStroke.Color = Theme.colors.red

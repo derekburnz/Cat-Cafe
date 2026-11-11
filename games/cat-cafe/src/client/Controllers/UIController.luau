@@ -15,7 +15,9 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
+local CarrySync = require(Shared:WaitForChild("CarrySync"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
@@ -23,6 +25,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
+local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
 local Invite = require(script.Parent.Parent.UI.Components.Invite)
 local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLogic)
@@ -31,6 +34,7 @@ local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
+local SecondCat = require(Shared:WaitForChild("SecondCat"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
@@ -60,6 +64,9 @@ local predictedMoney = 0
 local lastCornerShopBuy = -math.huge
 local CORNER_SHOP_QUIET_SECONDS = 3
 local lastCarrying: string? = nil
+-- #3145: the newest ProfileSync's `carrying`, noted the moment the sync arrives and before anything else runs, so
+-- the carry banner follows the server's latest word whatever order the syncs finish applying in (refreshCarry)
+local latestCarrying: string? = nil
 local shownCamp: BasePart? = nil -- #2730: the camp basket the carry marker leads to now, or nil for the door
 -- #2864: the Backpack cat the marker leads home while the hands are empty (the character's PackedCatId), and its
 -- camp basket now; nil when none is shown
@@ -202,7 +209,8 @@ end
 
 -- #2912 (Nov 10 read: 21% leave between the first customer served and the second cat): the Alleyway stray nearest the
 -- character that this player may catch (not another beginner's, not in someone else's catch), for step 3's ring while
--- only one cat is caught; nil while none has streamed in.
+-- only one cat is caught; nil while none has streamed in. #3022: the stray the server has waiting for this player
+-- (shared/SecondCat, the model's WaitsFor attribute) comes before a nearer one.
 local function nearestAlleyStray(): BasePart?
 	local world = Workspace:FindFirstChild("World")
 	local strays = if world ~= nil then world:FindFirstChild("Strays") else nil
@@ -222,6 +230,9 @@ local function nearestAlleyStray(): BasePart?
 		if model:IsA("Model") and model:GetAttribute("Area") == "alley" and mine then
 			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 			if part ~= nil then
+				if model:GetAttribute(SecondCat.ATTRIBUTE) == me then
+					return part
+				end
 				local distance = (part.Position - root.Position).Magnitude
 				if distance < bestDistance then
 					best, bestDistance = part, distance
@@ -297,6 +308,20 @@ end
 
 -- How to swing the net on this device (F93): the UI's UI.net.hint() ("Tap NET next to a cat", "Press R2 next to a
 -- cat" or "Click next to a cat", UI-Engineer #677) once it has it.
+-- #2871 (console pass 2 leftover): the alley step's "then tap as each circle closes" names the input the player last
+-- used, as IntroController's deviceCaption does: "press A" on a gamepad, "click" with a mouse or keyboard, "tap" on touch.
+local function circleVerb(): string
+	local last = UserInputService:GetLastInputType().Name
+	if last:sub(1, 7) == "Gamepad" then
+		return "press A"
+	elseif
+		last == "Touch" or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+	then
+		return "tap"
+	end
+	return "click"
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -346,6 +371,12 @@ end
 -- #2912: step 3's stray ring follows its stray; this watches it and is dropped on every refresh
 local tutorialWatch: { connection: RBXScriptConnection? } = {}
 
+-- #3238: false from dusk to sunrise (the Clock folder's AreasOpen), when the alley has no strays to send anyone to
+local function areasShut(): boolean
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -368,8 +399,9 @@ local function refreshTutorial(s: Types.PlayerState)
 		showTutorial(
 			s,
 			string.format(
-				"Go out your back door to the alley. %s, then tap as each circle closes",
-				swingHint()
+				"Go out your back door to the alley. %s, then %s as each circle closes",
+				swingHint(),
+				circleVerb()
 			),
 			tutorialStrayPoint(),
 			"Alley"
@@ -387,12 +419,13 @@ local function refreshTutorial(s: Types.PlayerState)
 		end
 	elseif s.tutorialStep == 3 then
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
-		-- a stray caught by someone else or run off picks the next one
-		local count = 0
-		for _ in s.cats do
-			count += 1
-		end
-		if count < 2 then
+		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
+		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
+		if SecondCat.caught(s.stats) < SecondCat.CATS and areasShut() then
+			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
+			-- point at the table instead of an empty alley
+			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
+		elseif SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
@@ -419,7 +452,8 @@ local function refreshTutorial(s: Types.PlayerState)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
 			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
 		elseif s.bait ~= nil then
-			-- baited before the first table on an older save: the server moved new ones to 5 (S48)
+			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
+			-- "waiting", then "arrived")
 			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
 		else
 			showTutorial(
@@ -750,6 +784,26 @@ local function applySettings()
 	})
 end
 
+-- The carry banner, marker and door follow the server's carried cat. #3145 (Derek2 2026-11-10: the banner stayed up
+-- for a cat that was gone, and Drop did nothing): set again whenever the screen has drifted from the newest sync's
+-- value (shared/CarrySync), not only when that value changes; called on every sync and from the camp watch twice a
+-- second, so a banner left behind by a sync applied late, or by an error part way, comes down within half a second.
+local function refreshCarry()
+	local want = latestCarrying
+	local view: CarrySync.View = UI.carryView()
+	if not CarrySync.stale(want, lastCarrying, view) then
+		return
+	end
+	lastCarrying = want
+	if want ~= nil then
+		shownCamp = carryCamp()
+		UI.setCarrying({ catId = want, door = UIController.ownDoor(), camp = shownCamp })
+	else
+		shownCamp = nil
+		UI.setCarrying(nil)
+	end
+end
+
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	local shopBuy = os.clock() - lastCornerShopBuy < CORNER_SHOP_QUIET_SECONDS
@@ -787,6 +841,11 @@ local function applyState(s: Types.PlayerState)
 		rainbowCollection = s.rainbowCollection, -- F99: the Index's Rainbow tab
 		rainbowLuck = s.rainbowLuck, -- F99: the food card's "Rainbow 0.5%" line, capped
 		carrying = s.carrying,
+		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
+		-- showed; false once it ends, as UI.update skips a nil and the card would stay
+		secondCat = if s.secondCat ~= nil then s.secondCat else false,
+		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
+		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
 		tutorialStep = s.tutorialStep,
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
@@ -859,16 +918,7 @@ local function applyState(s: Types.PlayerState)
 		Moments.RankUp:Fire(s.tier)
 	end
 	lastTier = s.tier
-	if s.carrying ~= lastCarrying then
-		lastCarrying = s.carrying
-		if s.carrying ~= nil then
-			shownCamp = carryCamp()
-			UI.setCarrying({ catId = s.carrying, door = UIController.ownDoor(), camp = shownCamp })
-		else
-			shownCamp = nil
-			UI.setCarrying(nil)
-		end
-	end
+	refreshCarry()
 	refreshBait(s)
 	refreshTutorial(s)
 	refreshRichTip()
@@ -877,8 +927,6 @@ end
 -- The night dealer: the night of the last DealerStock (F94; the 5 minute window before), which a buy sends back when
 -- the screen has none.
 local dealerWindow: number? = nil
--- The Fresh Catch shelf (F94): the window of the last FreshCatchStock, which a buy sends back when the screen has none.
-local freshWindow: number? = nil
 
 -- Team Rescue (F92, playing-together.md section 3). A stuck cat's model is tagged StuckCat and carries its trap's
 -- RescueSpotId, LockedBy (the rescuer, else 0) and HelpedBy (the helper while the attempt runs, else 0).
@@ -1266,14 +1314,6 @@ local function wireIntents()
 	UI.events.buyDealerAll:Connect(function(window: number?)
 		Net.fire("BuyDealerAll", window or dealerWindow or -1)
 	end)
-	-- The Fresh Catch tab (F94), once the UI has it: (itemId, window) the row and the window the tab showed; the server
-	-- answers every buy with FreshCatchStock, bought or refused.
-	local buyFreshCatch = (UI.events :: any).buyFreshCatch
-	if buyFreshCatch ~= nil then
-		buyFreshCatch:Connect(function(itemId: string, window: number?)
-			Net.fire("BuyFreshCatch", itemId, window or freshWindow or -1)
-		end)
-	end
 	-- F87 context tips and feedback (easy-start.md sections 3 and 4), once the UI has them: a tip or ask shown (skipped
 	-- true when a camera cut was skipped), Settings' "Show tips again", and a face with an optional chip.
 	local events = UI.events :: any
@@ -1599,6 +1639,34 @@ local function bindStations()
 	bindStationPrompts("MysteryMarket", "MysteryPrompt", function()
 		UI.mystery.open()
 	end)
+	-- #3066: the feedback stand's post box: one press and the Feedback window is up with the cursor in its box
+	bindStationPrompts(FeedbackStand.TAG, FeedbackStand.PROMPT, function()
+		UI.bugReport.open(FeedbackStand.KIND, "box")
+	end)
+	-- #3062: the Cat Arcade's cabinet opens its card; the `arcade` switch off hides the prompt
+	local arcadePrompts: { ProximityPrompt } = {}
+	local function arcadeOn(): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			Arcade.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Arcade.FLAG)
+		)
+	end
+	bindStationPrompts(Arcade.TAG, Arcade.PROMPT, function()
+		UI.arcade.open()
+	end, function(prompt: ProximityPrompt)
+		table.insert(arcadePrompts, prompt)
+		prompt.Enabled = arcadeOn()
+	end)
+	local function applyArcade()
+		local on = arcadeOn()
+		UI.arcade.setOn(on)
+		for _, prompt in arcadePrompts do
+			prompt.Enabled = on
+		end
+	end
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
+	applyArcade()
 end
 
 -- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
@@ -1917,6 +1985,7 @@ end
 
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
+		latestCarrying = s.carrying -- #3145: first, before anything that could hold this sync up
 		applyState(s)
 		offerEvent()
 		offerInvite()
@@ -2175,35 +2244,6 @@ local function wireServerEvents()
 			}
 			else nil)
 	end)
-	-- The Fresh Catch shelf (F94): this player's stock by day, nil at night; the UI's tab takes it once it exists.
-	Net.on("FreshCatchStock", function(stock: Types.FreshCatchStock?)
-		freshWindow = if stock ~= nil then stock.window else nil
-		local fresh: any = (UI :: any).freshCatch
-		local setStock: unknown = if fresh ~= nil then fresh.setStock else nil
-		if type(setStock) == "function" then
-			(setStock :: (Types.FreshCatchStock?) -> ())(stock)
-		end
-	end)
-	-- The once a window heads up (F94): the UI's own alert once it has one, else a plain toast. The server sends it
-	-- only with settings.shopAlerts on.
-	Net.on("ShopAlert", function(itemId: unknown)
-		local row = if type(itemId) == "string" then Catalog.getFreshCatchRow(itemId) else nil
-		if row == nil then
-			return
-		end
-		local alert: unknown = (UI :: any).shopAlert
-		if type(alert) == "function" then
-			(alert :: (string) -> ())(row.id)
-			return
-		end
-		local potion = Catalog.getPotion(row.potionId or "")
-		local crate = Catalog.getCrate(row.crateId or "")
-		local text = if potion ~= nil
-			then potion.name .. "s at the Fish Market!"
-			elseif crate ~= nil then "A cheap " .. crate.name .. " at the Fish Market!"
-			else "Something good at the Fish Market!"
-		UI.toast(text, "info")
-	end)
 	-- F87: a server-side context tip's moment (shared/Tips). The UI's tip queue times it and answers tipSeen; until
 	-- the UI has one the tips wait unseen, so they still show once the cards land. F96: the notification and favorite
 	-- asks (and F92's invite nudge) are this controller's (showAsk); the like ask goes to the queue when there is one.
@@ -2324,6 +2364,93 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #3062: the Cat Arcade. Its circles sound as a catch's do (CircleAppear, CircleGrade), with Sound-Agent's
+	-- ArcadeStart, ArcadeMilestone and ArcadeEnd moments when the build has them.
+	local arcadeTimers: { thread } = {}
+	local arcadeRun: number? = nil
+	local function arcadeMoment(name: string, ...: any)
+		local moment: any = (Moments :: any)[name]
+		if moment ~= nil then
+			moment:Fire(...)
+		end
+	end
+	local function cancelArcadeTimers()
+		for _, timer in arcadeTimers do
+			pcall(task.cancel, timer)
+		end
+		table.clear(arcadeTimers)
+	end
+	Net.on("ArcadeState", function(view: any)
+		UI.arcade.state(view)
+	end)
+	Net.on(
+		"ArcadeBlock",
+		function(
+			run: number,
+			block: number,
+			circles: { Types.CatchCircle },
+			windows: Types.CatchWindows,
+			points: number
+		)
+			if arcadeRun ~= run then
+				arcadeRun = run
+				arcadeMoment("ArcadeStart")
+			end
+			UI.arcade.block(run, block, circles, windows, points)
+			cancelArcadeTimers()
+			for index, circle in circles do
+				local shrink = circle.shrinkSeconds
+				table.insert(
+					arcadeTimers,
+					task.delay(
+						math.max(0, circle.startsAt - Workspace:GetServerTimeNow()),
+						function()
+							if UI.arcade.playing() then
+								Moments.CircleAppear:Fire(index, shrink)
+							end
+						end
+					)
+				)
+			end
+		end
+	)
+	Net.on(
+		"ArcadeJudged",
+		function(
+			run: number,
+			block: number,
+			index: number,
+			grade: string,
+			points: number,
+			milestones: { number }
+		)
+			if grade == "perfect" or grade == "good" or grade == "miss" then
+				Moments.CircleGrade:Fire(index, grade)
+			end
+			if type(milestones) == "table" and #milestones > 0 then
+				arcadeMoment("ArcadeMilestone", milestones[#milestones])
+			end
+			UI.arcade.judged(run, block, index, grade, points, milestones)
+		end
+	)
+	Net.on("ArcadeOver", function(run: number, result: any)
+		cancelArcadeTimers()
+		arcadeRun = nil
+		if type(result) == "table" then
+			arcadeMoment("ArcadeEnd", result.points, result.win == true)
+		end
+		UI.arcade.over(run, result)
+	end)
+	UI.events.arcadePlay:Connect(function()
+		Net.fire("ArcadeStart")
+	end)
+	UI.events.arcadePress:Connect(function(run: number, block: number, index: number)
+		Net.fire("ArcadePress", run, block, index)
+		Moments.NetSwing:Fire(index)
+	end)
+	UI.events.arcadeQuit:Connect(function(run: number)
+		Net.fire("ArcadeQuit", run)
+	end)
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
 	Net.on("RoadmapStep", function(n: number)
@@ -2395,42 +2522,43 @@ local function wireServerEvents()
 		}
 		Moments.RescueStart:Fire(rescueSpotId)
 	end)
-	Net.on(
-		"RescueResult",
-		function(
-			rescueSpotId: string,
-			hits: number,
-			pawsLeft: number,
-			done: boolean,
-			success: boolean,
-			bar: Types.RescueBar?
-		)
-			-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
-			-- after a hit); a UI that does not take it yet ignores it
-			local update: any = UI.rescue.update
-			update(rescueSpotId, hits, pawsLeft, done, success, bar)
-			local current = rescue
-			if current == nil or current.spotId ~= rescueSpotId then
-				return
-			end
-			if hits > current.hits then
-				Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
-			end
-			if pawsLeft < current.paws then
-				Moments.RescueMiss:Fire(pawsLeft)
-			end
-			current.hits = hits
-			current.paws = pawsLeft
-			if done then
-				rescue = nil
-				if success then
-					Moments.RescueDone:Fire(rescueSpotId, current.rarity)
-				else
-					Moments.RescueFail:Fire(rescueSpotId)
-				end
+	Net.on("RescueResult", function(
+		rescueSpotId: string,
+		hits: number,
+		pawsLeft: number,
+		done: boolean,
+		success: boolean,
+		bar: Types.RescueBar?,
+		win: Types.RummageWin? -- #3050: the Rummage Bin's prize, on its winning result
+	)
+		-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
+		-- after a hit); a UI that does not take it yet ignores it
+		local update: any = UI.rescue.update
+		update(rescueSpotId, hits, pawsLeft, done, success, bar, win)
+		if done and success and win ~= nil and type(win.id) == "string" then
+			Moments.RummageWin:Fire(win.id, win.first == true)
+		end
+		local current = rescue
+		if current == nil or current.spotId ~= rescueSpotId then
+			return
+		end
+		if hits > current.hits then
+			Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
+		end
+		if pawsLeft < current.paws then
+			Moments.RescueMiss:Fire(pawsLeft)
+		end
+		current.hits = hits
+		current.paws = pawsLeft
+		if done then
+			rescue = nil
+			if success then
+				Moments.RescueDone:Fire(rescueSpotId, current.rarity)
+			else
+				Moments.RescueFail:Fire(rescueSpotId)
 			end
 		end
-	)
+	end)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)
 		-- Strays and rescue spots share this event and the card. A late answer for a target the card has moved
 		-- on from (a stray's auto-resolve landing after the next hold began) is dropped (reviewer N21).
@@ -2485,6 +2613,9 @@ local function startCampWatch()
 	task.spawn(function()
 		while true do
 			task.wait(CAMP_CHECK_SECONDS)
+			if state ~= nil then
+				refreshCarry() -- #3145: the banner against the server's newest word, whatever the last sync did
+			end
 			local catId = lastCarrying
 			if catId ~= nil then
 				local camp = carryCamp()
@@ -2613,6 +2744,13 @@ function UIController.start()
 		local clock = ReplicatedStorage:WaitForChild("Clock")
 		UI.clock.bind(clock)
 		bindLuckyDay(clock)
+		-- #3238: step 3's "Catch another cat" card follows dusk and sunrise
+		clock:GetAttributeChangedSignal("AreasOpen"):Connect(function()
+			local current = state
+			if current ~= nil then
+				refreshTutorial(current)
+			end
+		end)
 	end)
 	wireIntents()
 	wireServerEvents()

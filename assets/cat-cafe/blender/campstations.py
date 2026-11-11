@@ -1005,11 +1005,13 @@ def _museum_case(b, glass):
     glass.span((x - 0.51, 1.3, z - 0.51), (x + 0.51, 2.5, z + 0.51), "glass")
 
 
-def _gallery(b):
+def _gallery(b, plaques):
     """#2908: the exhibit gallery on the museum's +X side, open at the front: seven stepped rows of sandstone, each
     with a coloured band in its room's colour, a name plaque at the museum end and ten plinths, every plinth an
     ExhibitSpot_<area>_<1-10> Attachment on its top (1 at the museum end), facing -Z; a back wall with a jade frieze,
-    an end wall, three front columns and a flat roof with a cornice, so the rows stay in shade like a hall."""
+    an end wall, three front columns and a flat roof with a cornice, so the rows stay in shade like a hall. Each
+    plaque's letters go in `plaques[area]` (#3129; Derek2 11-10: "have the title of the area glow gold when its
+    completed"), a child Model <name>_Plaque_<area> that the client lights (Effects/MuseumPlaques)."""
     back = GZ0 + len(ROOMS) * ROW_D                                      # the back wall's front face
     for k, (area, label, colour) in enumerate(ROOMS):
         z0 = GZ0 + k * ROW_D
@@ -1019,7 +1021,8 @@ def _gallery(b):
         zc = z0 + ROW_D / 2
         px = min(0.06, (PLAQUE_W - 0.55) / text_width(label, 1.0))                             # its plaque
         b.span((GX0 + 0.2, y1, zc - 0.06), (GX0 + PLAQUE_W - 0.2, y1 + 0.5, zc + 0.06), "night_sky")
-        _label_front(b, label, GX0 + PLAQUE_W / 2, y1 + 0.13, zc - 0.06, px, 0.03, GOLD)
+        plaques[area] = RB()                    # #3129: its letters, their own Plaque_<area> Model, lit when the room is full
+        _label_front(plaques[area], label, GX0 + PLAQUE_W / 2, y1 + 0.13, zc - 0.06, px, 0.03, GOLD)
         for i in range(EXHIBITS):                                                               # its plinths
             x = GX0 + PLAQUE_W + (i + 0.5) * PLINTH_STEP
             b.span((x - PLINTH_W / 2, y1, zc - PLINTH_W / 2), (x + PLINTH_W / 2, y1 + PLINTH_H, zc + PLINTH_W / 2),
@@ -1045,7 +1048,8 @@ def _gallery(b):
 def build_relic_museum(mat):
     b, glass = RB(), RB()
     _museum_steps(b)
-    _gallery(b)
+    plaques = {}
+    _gallery(b, plaques)
     _museum_front(b)
     _museum_columns(b)
     top = _museum_sign(b)
@@ -1054,7 +1058,76 @@ def build_relic_museum(mat):
     _anchor(MUSEUM, "PromptAnchor", (rope[0], 1.5, rope[2] - 0.5))
     _anchor(MUSEUM, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
     _anchor(MUSEUM, "SparkleAnchor", (CASE_X, 2.0, MZ0 - 2.6))
-    return [b.finalize(MUSEUM, mat), glass.finalize(MUSEUM + "_Glass", mat)]
+    return ([b.finalize(MUSEUM, mat), glass.finalize(MUSEUM + "_Glass", mat)]
+            + [rb.finalize(f"{MUSEUM}_Plaque_{area}", mat) for area, rb in plaques.items()])
+
+
+# ------------------------------------------------------------------------------------------ rummage bin --
+# #3050 (Derek2 11-10: "rummage bin ... make it often also like every 15 minutes"): the Alleyway camp's Rummage Bin,
+# about 4 tall, a round painted bin in the cafe's teal with a cream band and a big cream paw print on its front, on a
+# little pallet, so it reads as the camp's own (not a rescue trap's green wheelie bin or grey can) and as tappable
+# from across the camp on a phone. Two looks: `_Ready` (the lid flung back, a tuna and a golden fish tail and a crate
+# corner poking out, sparkles over the mouth) and `_Empty` (the lid shut, a fish bone on it); Gameplay shows one
+BIN = "CatCafe_Camp_Alley_RummageBin"
+BIN_R0, BIN_R1, BIN_H, BIN_BASE = 1.25, 1.4, 3.0, 0.3       # bottom and top radius, body height, the pallet's top
+
+
+def _bin_body(b):
+    for x in (-1.1, 0.0, 1.1):                                                          # the pallet's boards
+        b.span((x - 0.48, 0.12, -1.6), (x + 0.48, BIN_BASE, 1.6), WOOD)
+    for z in (-1.3, 1.3):
+        b.span((-1.6, 0.0, z - 0.2), (1.6, 0.12, z + 0.2), DARK)
+    y0 = BIN_BASE
+    b.b.cyl(RB.p(0, y0 + BIN_H / 2, 0), BIN_R0, BIN_H, "sign_teal", segments=16, radius2=BIN_R1)
+    for (y, r) in ((y0 + 0.75, 1.32), (y0 + BIN_H - 0.1, BIN_R1 + 0.06)):           # a hoop and the rim, its top
+        b.cyl((0, y, 0), r, 0.16, "metal", segments=16)                                # just under the mouth's
+    b.cyl((0, y0 + 2.3, 0), BIN_R1 - 0.03 + 0.05, 0.45, "cream", segments=16)        # the cream band
+    for sx in (-1, 1):                                                                 # handles
+        b.span((sx * 1.38, y0 + 2.05, -0.3), (sx * 1.6, y0 + 2.15, 0.3), "metal")
+    # the paw print on the front (-Z), cream on the teal: a big pad and four toes
+    zf = -1.3
+    b.cyl((0, y0 + 1.2, zf - 0.02), 0.36, 0.1, "cream", axis="Z", segments=12)
+    for (dx, dy, r) in ((-0.42, 1.68, 0.15), (-0.15, 1.83, 0.16), (0.15, 1.83, 0.16), (0.42, 1.68, 0.15)):
+        b.cyl((dx, y0 + dy, zf - 0.03), r, 0.1, "cream", axis="Z", segments=8)
+    return y0 + BIN_H
+
+
+def _bin_ready(r, top):
+    """The lid flung back on its hinge, the prizes poking out of the mouth, sparkles over it."""
+    a = math.radians(-105)                                                         # past upright, resting back
+    hinge = Vector(RB.p(0, top + 0.1, BIN_R1))
+    lid_c = hinge + Matrix.Rotation(a, 3, "X") @ Vector((0, -BIN_R1, 0))
+    r.b.cyl(tuple(lid_c), BIN_R1 + 0.1, 0.14, "metal", segments=16, rot=Matrix.Rotation(a, 3, "X"))
+    r.cyl((0, top + 0.02, 0), BIN_R1 - 0.12, 0.03, "dark_wood", segments=16)         # the dark inside
+    r.span((0.2, top - 0.3, -0.1), (1.0, top + 0.5, 0.7), WOOD)                       # a crate's corner
+    r.span((0.2, top + 0.15, -0.12), (1.0, top + 0.25, -0.1), DARK)
+    r.ball((-0.2, top + 0.1, -0.35), 0.45, "fish_blue", scale=(1.6, 0.8, 0.8))          # the tuna, side on
+    r.box((-1.0, top + 0.3, -0.35), (0.12, 0.6, 0.45), "fish_blue")                    # its tail
+    r.ball((0.4, top + 0.18, -0.68), 0.08, "fur_black")                                 # its eye (front)
+    gold_fish(r, -0.75, top - 0.25, 0.35, s=2.2, up=True)                              # a golden fish tail up
+    for (x, y, z, s) in ((-0.7, top + 1.3, -0.3, 0.22), (0.6, top + 1.1, -0.5, 0.16), (0.0, top + 1.6, 0.2, 0.18)):
+        r.box((x, y, z), (s, s, 0.06), "sparkle", rot=Matrix.Rotation(math.radians(45), 3, "Z"))
+
+
+def _bin_empty(e, top):
+    """The lid shut, its knob, and a fish bone left on top."""
+    e.cyl((0, top + 0.08, 0), BIN_R1 + 0.1, 0.16, "metal", segments=16)
+    e.cyl((0, top + 0.22, 0), BIN_R1 - 0.25, 0.12, "metal", segments=16)
+    e.span((-0.25, top + 0.28, -0.08), (0.25, top + 0.42, 0.08), "concrete_dark")      # the knob
+    e.span((-0.9, top + 0.17, 0.55), (-0.2, top + 0.22, 0.6), "fish_belly")            # a fish bone
+    for x in (-0.75, -0.55, -0.35):
+        e.span((x - 0.02, top + 0.17, 0.45), (x + 0.02, top + 0.22, 0.7), "fish_belly")
+
+
+def build_rummage_bin(mat):
+    b, ready, empty = RB(), RB(), RB()
+    top = _bin_body(b)
+    _bin_ready(ready, top)
+    _bin_empty(empty, top)
+    _anchor(BIN, "PromptAnchor", (0.0, 1.5, -2.2))
+    _anchor(BIN, "BangAnchor", (0.0, top + 2.6, 0.0))
+    _anchor(BIN, "GlowAnchor", (0.0, top + 0.6, 0.0))
+    return [b.finalize(BIN, mat), ready.finalize(BIN + "_Ready", mat), empty.finalize(BIN + "_Empty", mat)]
 
 
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
@@ -1077,4 +1150,5 @@ ASSETS = {
     SPA: (build_oasis_spa, 5000),
     SPA_TOWEL: (build_spa_towel, 200),
     MUSEUM: (build_relic_museum, 12000),
+    BIN: (build_rummage_bin, 2500),
 }

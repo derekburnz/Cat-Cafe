@@ -35,11 +35,14 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
+local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
@@ -51,6 +54,7 @@ local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
+local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
 
 type Profile = Types.PlayerProfile
 
@@ -62,6 +66,9 @@ export type TransactionType = "Gameplay" | "Onboarding" | "Shop" | "TimedReward"
 export type CustomEvent =
 	"rank_up"
 	| "session_end"
+	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
+	-- (else since the join); fields: "1", "2", "3" or "4+" (the account's nth buy), the upgrade id, the new level
+	| "upgrade_bought"
 	| "offline_claim"
 	| "dealer_buy"
 	-- F94 (rewards-and-shops.md section 6): a Fresh Catch buy, value the golden fish spent; the row id, tier
@@ -93,18 +100,24 @@ export type CustomEvent =
 	-- #1884 (catch-rework.md 7d): a net catch's end, value the rings judged; purrfect, great, nice or bolt, rarity, mood
 	| "catch_finish"
 	| "rescue_attempt"
+	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
+	-- #3062: a Cat Arcade game's end, value its points; circles, milestones paid (comma list or "none"), win or not
+	| "arcade_run"
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
 	| "grant_failed" -- #2127: value 1; the product, the step that threw, and "retry" (nothing paid) or "kept"
 	| "shove"
 	| "drop_outcome"
+	-- #3145: a Drop press the server refused, value 1, with why: "none" (the server holds no cat: the player's
+	-- screen had drifted), "no_home" or "no_body" (the night's refusal is not counted)
+	| "drop_refused"
 	| "left_after_shove"
 	| "left_after_restart_warning" -- #2720: value the seconds since the last restart warning; warnings seen, its seconds left
 	| "slots_full"
@@ -162,6 +175,15 @@ export type CustomEvent =
 	| "first_bait_wait"
 	-- #2774: an onboarding step reached, value the account's seconds of play then; the step name
 	| "step_time"
+	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
+	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
+	| "step_ready"
+	-- #3098: no new onboarding step for a bucket's seconds, value those seconds; the awaited step, the bucket (30, 60,
+	-- 120), the last stuck nudge shown (pulse, help_shown, show_me or none)
+	| "step_stall"
+	-- #3098: beside quit_state, value the session's seconds; the furthest step, "<idle bucket> <screen>" (one field,
+	-- e.g. "5-15 upgrades"), afford (yes, no or na)
+	| "quit_snapshot"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
 	| "first_bait_arrived"
 	-- #2651 part 4 (late-stations.md section 3): a cat into the Oasis Spa or collected from it, value 1; the level band
@@ -171,6 +193,10 @@ export type CustomEvent =
 	-- a copy given to the Relic Museum, value 1; its rarity and coat. A room finished, value the rooms done; its area
 	| "museum_donate"
 	| "museum_room"
+	| "museum_fill" -- #3130: an Auto fill, value the copies given; its area
+	-- #3050: a Rummage Bin win, value 1; the prize row (tuna, fish, salmon, potion, crate, golden), the win's number
+	-- on the account ("1" to "10", 10 for any later one). The first win also logs step_time "first_bin"
+	| "bin_play"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
@@ -200,6 +226,7 @@ export type CustomEvent =
 	-- F91 (front-lawn.md section 5): a lawn piece or path or fence style bought, value 1, once per id ever (moves log
 	-- nothing, review S119); its id, tier. The coins it cost are the economy sink "lawn"
 	| "lawn_placed"
+	| "lawn_drop" -- #3222: a drop-only Golden lawn piece from a freed cat (id, tier)
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
@@ -237,6 +264,9 @@ export type CustomEvent =
 	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
 	| "session_start"
+	-- #3073: each Store visit (the store_v1 opened step's), value 1; the join source (JoinSource), tier, device.
+	-- A custom event can be broken down by its fields, which a funnel step can't, so the Store reads ad vs organic.
+	| "store_opened"
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
 	-- "first" for the account's first spend here or "repeat"
 	| "robux_purchase"
@@ -282,6 +312,7 @@ export type CustomEvent =
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
 	-- step ("m2", "m4", "m6", "like", "m15", "m20", "fav") and "paid"
 	| "playtime_gift"
+	| "update_gift" -- #2997: the Saturday update gift paid, value 1; its id
 	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
 	-- (earned this session) or "catchup" (earned before, awarded on join)
 	| "badge_awarded"
@@ -394,6 +425,7 @@ local FIELD_KEYS = {
 type Session = {
 	accounted: number, -- lifetimeCoins already logged, as tips or as a Source of its own
 	joinedAt: number,
+	lastUpgradeAt: number?, -- #2996: os.time() of this session's last upgrade buy
 	caughtAtJoin: number,
 	device: string?, -- from the client's one device report
 	joinLogged: boolean,
@@ -428,6 +460,17 @@ type Session = {
 	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
 	feedbackAsks: number, -- #2681: feedback_v1 runs started this session (FeedbackFunnel.ASKS_PER_SESSION)
 	feedbackEnds: number, -- #2694: feedback_ask_end events logged this session, never more than feedbackAsks
+	-- #3098 (shared/FirstFive): step_ready logged this session by step; the awaited step's index, os.clock() since
+	-- it was the furthest, its stall buckets logged and the last stuck nudge for it; the last activity and position;
+	-- the screen open as quit_snapshot names it
+	readyLogged: { [string]: boolean },
+	stallStep: number,
+	stallSince: number,
+	stallLogged: { [number]: boolean },
+	lastNudge: string,
+	activeAt: number,
+	lastAt: Vector3?,
+	snapScreen: string,
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -607,6 +650,13 @@ end
 -- #1273 (easy-start.md section 5): the funnel goes out as Onboarding.FUNNEL with the player's user id as its one funnel
 -- session, since LogOnboardingFunnelStepEvent has no name to keep it apart from the earlier funnels. v3 replaced
 -- onboarding_v2 outright (Derek 2026-11-04), and v4 (#1888, 45 steps) replaces v3.
+-- #3022: a listener hears each step as it is reached (CatService starts the second cat's waiting stray at
+-- first_customer_served), after the step is logged. A listener that errors is logged and the rest still run.
+local stepListeners: { (player: Player, name: string) -> () } = {}
+function Telemetry.onStep(listener: (player: Player, name: string) -> ())
+	table.insert(stepListeners, listener)
+end
+
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -628,13 +678,40 @@ function Telemetry.onboarding(
 			)
 		end)
 		-- #2774 (Derek2: "setup funnels"): when in the account's play the step came, once per step
-		Telemetry.custom(
-			player,
-			"step_time",
-			math.floor(PlayTime.seconds(player, profile)),
-			{ name }
-		)
+		Telemetry.stepTime(player, profile, name)
+		for _, listener in stepListeners do
+			local ok, err = pcall(function()
+				listener(player, name)
+			end)
+			if not ok then
+				warn("[Telemetry] step listener: " .. tostring(err))
+			end
+		end
 	end
+end
+
+-- #2774: a step_time event, value the seconds of play on the account when `name` came. Onboarding steps log theirs
+-- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
+function Telemetry.stepTime(player: Player, profile: Profile, name: string)
+	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
+end
+
+-- #2996: call right after an upgrade's level went up. Logs how long after the previous buy it came, so the first
+-- three buys' spacing can be read per day (shared/UpgradePace).
+function Telemetry.upgradeBought(player: Player, profile: Profile, upgradeId: string, level: number)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local now = os.time()
+	local gap = UpgradePace.gap(now, session.lastUpgradeAt, session.joinedAt)
+	session.lastUpgradeAt = now
+	Telemetry.custom(
+		player,
+		"upgrade_bought",
+		gap,
+		{ UpgradePace.nth(UpgradePace.bought(profile.upgradeLevels)), upgradeId, tostring(level) }
+	)
 end
 
 -- Call right after Economy.credit(profile, amount) for anything that is not cafe income (section 5).
@@ -1462,6 +1539,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 	if name == nil or session == nil or profile == nil then
 		return
 	end
+	session.activeAt = os.clock() -- #3098: a report counts as activity for quit_snapshot's idle
 	if name == "device" then
 		local device = Guard.oneOf(rawValue, DEVICES)
 		if device ~= nil and session.device == nil then
@@ -1479,6 +1557,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if kind ~= nil then
 			local step = tostring(profile.tutorialStep)
 			local key = step .. ":" .. kind
+			session.lastNudge = kind -- #3098: step_stall's hint
 			if not session.nudges[key] then
 				session.nudges[key] = true
 				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
@@ -1507,6 +1586,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if type(rawValue) == "string" and #(rawValue :: string) <= SCREEN_NAME_MAX then
 			local raw = rawValue :: string
 			session.screen = if raw == "none" then "none" else SCREENS[raw] or "other"
+			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then
@@ -1532,6 +1612,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.storeVisits += 1
 			session.store = { id = HttpService:GenerateGUID(false), step = 0, sku = nil }
 			storeStep(player, "opened", { from, tierText(profile), session.source })
+			Telemetry.custom(
+				player,
+				"store_opened",
+				1,
+				{ session.source, tierText(profile), session.device or "unknown" }
+			)
 			Telemetry.onboarding(player, profile, "first_store_open")
 		end
 	elseif name == "store_tab" then
@@ -1714,6 +1800,14 @@ local function onLoaded(player: Player, profile: Profile)
 		feedbackRun = nil,
 		feedbackAsks = 0,
 		feedbackEnds = 0,
+		readyLogged = {},
+		stallStep = profile.telemetry.onboardingStep,
+		stallSince = os.clock(),
+		stallLogged = {},
+		lastNudge = "none",
+		activeAt = os.clock(),
+		lastAt = nil,
+		snapScreen = "none",
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -1882,7 +1976,15 @@ local function onRelease(player: Player, profile: Profile)
 	Telemetry.custom(player, "left_in_phase", math.max(0, now - session.joinedAt), {
 		phase,
 		third,
-		"T" .. tierText(profile) .. (if profile.stats.sessions <= 1 then "_first" else "_return"),
+		"T"
+			.. tierText(profile)
+			.. (if profile.stats.sessions <= 1 then "_first" else "_return")
+			-- #3035: "_nc" while night catching was open to them, so one read splits switch on from off
+			.. (
+				if NightPass.firstOf(profile, LiveFlagService.on(NightPass.FLAG))
+					then NightPass.LEFT_SUFFIX
+					else ""
+			),
 	})
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
@@ -1916,9 +2018,94 @@ local function onRelease(player: Player, profile: Profile)
 			where,
 			(if carrying then "carry" else "empty") .. (if baiting then " bait" else " nobait"),
 		})
+		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
+		local buy = FirstFive.nextBuy(profile.telemetry)
+		Telemetry.custom(player, "quit_snapshot", played, {
+			Onboarding.furthest(profile.telemetry),
+			FirstFive.idleBucket(os.clock() - session.activeAt) .. " " .. session.snapScreen,
+			FirstFive.afford(
+				buy,
+				profile.coins,
+				if buy ~= nil then Economy.nextUpgradeCost(profile, buy) else nil
+			),
+		})
 	end
 	sessions[player] = nil
 	pendingPasses[player] = nil
+end
+
+-- #3098: whether a free stray (not locked by a catch) stands within FirstFive.STRAY_NEAR studs of `at`.
+local function strayNear(at: Vector3): boolean
+	for _, model in CollectionService:GetTagged("Stray") do
+		if model:IsA("Model") and (model:GetAttribute("LockedBy") or 0) == 0 then
+			local pivot = (model :: Model):GetPivot().Position
+			if (pivot - at).Magnitude <= FirstFive.STRAY_NEAR then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- #3098 (shared/FirstFive): activity, step_ready and step_stall for an account below Tier 2, each watch tick.
+local function watchFirstFive(player: Player, session: Session, profile: Profile)
+	local root = if player.Character ~= nil
+		then player.Character:FindFirstChild("HumanoidRootPart")
+		else nil
+	local at: Vector3? = if root ~= nil and root:IsA("BasePart")
+		then (root :: BasePart).Position
+		else nil
+	local last = session.lastAt
+	if at ~= nil and (last == nil or (at - last).Magnitude >= FirstFive.MOVE_STUDS) then
+		session.lastAt = at
+		session.activeAt = os.clock()
+	end
+	if Economy.tier(profile) >= 2 then
+		return
+	end
+	local state = profile.telemetry
+	local device = session.device or "unknown"
+	local function ready(step: string, kind: string)
+		if not session.readyLogged[step] then
+			session.readyLogged[step] = true
+			Telemetry.custom(
+				player,
+				"step_ready",
+				math.floor(PlayTime.seconds(player, profile)),
+				{ step, kind, device }
+			)
+		end
+	end
+	local buy = FirstFive.nextBuy(state)
+	if buy ~= nil then
+		local cost = Economy.nextUpgradeCost(profile, buy)
+		if cost ~= nil and profile.coins >= cost then
+			ready(if buy == "tables" then "table_afford" else "bowl_afford", "coins")
+		end
+	end
+	if
+		FirstFive.secondCatDue(state)
+		and not session.readyLogged.second_stray_up
+		and at ~= nil
+		and strayNear(at)
+	then
+		ready("second_stray_up", "stray")
+	end
+	-- step_stall: the clock restarts whenever the furthest step moves on
+	if state.onboardingStep ~= session.stallStep then
+		session.stallStep = state.onboardingStep
+		session.stallSince = os.clock()
+		session.stallLogged = {}
+		session.lastNudge = "none"
+	end
+	local awaited = FirstFive.awaited(state.onboardingStep)
+	if awaited == nil or PlayTime.seconds(player, profile) > FirstFive.STALL_WINDOW then
+		return
+	end
+	for _, edge in FirstFive.newStalls(os.clock() - session.stallSince, session.stallLogged) do
+		session.stallLogged[edge] = true
+		Telemetry.custom(player, "step_stall", edge, { awaited, tostring(edge), session.lastNudge })
+	end
 end
 
 -- F87: the onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS across
@@ -1933,6 +2120,7 @@ local function watchOnboarding(player: Player, session: Session)
 	if session.joinLogged then
 		logFirstHour(player, profile)
 	end
+	watchFirstFive(player, session, profile)
 	if not Onboarding.reached(profile.telemetry, "first_move") then
 		local character = player.Character
 		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil

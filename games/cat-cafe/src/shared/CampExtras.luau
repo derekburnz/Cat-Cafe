@@ -27,10 +27,16 @@ CampExtras.TAG = "CampExtra" -- the placed models, with attributes ExtraId and A
 CampExtras.PROMPT = "CampExtraPrompt" -- each model's ProximityPrompt, at its PromptAnchor
 CampExtras.YARD_SALE = "yardSale"
 CampExtras.COLLECT = { "picnic", "pond", "lostFound" } -- what CollectCampExtra takes
+-- #3082 (Derek2 2026-11-10: "be able to claim/open from cannon menu any stations you have unlocked so you dont have
+-- to always travel", then "make claiming stations from anywhere free"): every extra, and the late stations, can be
+-- used from the Cat Cannon's menu, so the server no longer asks the player to stand at one. The unlock (the tier)
+-- is still checked on every remote. False brings the walk-up check back.
+CampExtras.FROM_ANYWHERE = true
 CampExtras.CLASSIC_CRATE = "classic_crate"
 -- #1368: the Golden Pond pass's gold Fishing Hut. PassService sets GOLD_POND_ATTRIBUTE true on an owner's Player;
--- that owner's client recolours the shared hut from GOLD_HUT_MODEL (Controllers/GoldHutController). #1463: the same
--- attribute lets CollectCampExtra("pond") skip the range check, and the UI shows the Woods card's Collect button.
+-- that owner's client recolours the shared hut from GOLD_HUT_MODEL (Controllers/GoldHutController). #3093: the same
+-- attribute doubles the owner's pond fish (pondTimes). Until #3082 it let an owner collect the pond from anywhere
+-- (#1463), which everyone can do now.
 CampExtras.GOLD_POND_ATTRIBUTE = "GoldenPondPass"
 CampExtras.GOLD_HUT_MODEL = "CatCafe_Camp_Woods_FishingHut_Gold"
 CampExtras.TAKEN = "You took this crate" -- buyBlocker adds ". A new one in 3 h 59 m"
@@ -125,9 +131,19 @@ local function pondSteps(save: Types.CampExtrasSave, now: number): number
 	return math.max(0, math.floor((now - save.pond.at) / Config.PondStepSeconds))
 end
 
--- The golden fish waiting in the Fish Pond.
-function CampExtras.pondFish(save: Types.CampExtrasSave, now: number): number
-	return math.min(Config.PondHold, pondSteps(save, now) * Config.PondFishPerStep)
+-- #3093 (Derek2 2026-11-10: "change the 99 golden pond pass to make it produce 2x more fish"): how many times the
+-- fish a Golden Pond owner's pond lands and holds. The server passes it from the pass it checked itself.
+CampExtras.POND_PASS_TIMES = 2
+
+-- 2 for a Golden Pond owner, else 1.
+function CampExtras.pondTimes(owner: boolean): number
+	return if owner then CampExtras.POND_PASS_TIMES else 1
+end
+
+-- The golden fish waiting in the Fish Pond; `times` (pondTimes, 1 when left out) multiplies the steps' fish and
+-- the hold alike, so an owner's pond fills in the same hours.
+function CampExtras.pondFish(save: Types.CampExtrasSave, now: number, times: number?): number
+	return math.min(Config.PondHold, pondSteps(save, now) * Config.PondFishPerStep) * (times or 1)
 end
 
 -- Adds the fills `every` seconds apart since `slot.at`, up to `hold`, in place: the clock moves on by the fills
@@ -200,7 +216,8 @@ end
 function CampExtras.view(
 	save: Types.CampExtrasSave,
 	tier: number,
-	now: number
+	now: number,
+	pondTimes: number?
 ): Types.CampExtrasState
 	local today = CampExtras.day(now)
 	local picnic = shut()
@@ -215,8 +232,8 @@ function CampExtras.view(
 	if CampExtras.isOpen("pond", tier) then
 		local steps = pondSteps(save, now)
 		pond.open = true
-		pond.held = CampExtras.pondFish(save, now)
-		if pond.held < Config.PondHold then
+		pond.held = CampExtras.pondFish(save, now, pondTimes)
+		if pond.held < Config.PondHold * (pondTimes or 1) then
 			pond.nextAt = save.pond.at + (steps + 1) * Config.PondStepSeconds
 		end
 	end
@@ -368,7 +385,8 @@ function CampExtras.take(
 	extraId: string,
 	tier: number,
 	now: number,
-	roll: () -> number
+	roll: () -> number,
+	pondTimes: number?
 ): (Types.IndexPrize?, number, { string })
 	CampExtras.settle(save, tier, now)
 	if not CampExtras.isOpen(extraId, tier) then
@@ -383,7 +401,7 @@ function CampExtras.take(
 		return { potions = { [Config.PicnicPotion] = held } }, held, {}
 	elseif extraId == "pond" then
 		local steps = pondSteps(save, now)
-		local fish = CampExtras.pondFish(save, now)
+		local fish = CampExtras.pondFish(save, now, pondTimes)
 		if fish <= 0 then
 			return nil, 0, {}
 		end

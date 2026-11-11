@@ -591,6 +591,102 @@ return function()
 			end
 		)
 	end)
+	-- #3120 (Derek2 2026-11-10: "make the rescue area about 10->50% smaller especially for the common->epic rescues
+	-- are too easy now") and #3135 ("check if mutated cats gold/rainbow increase difficulty of catch and if thats not
+	-- added add it")
+	describe("a player's zone scale: first rescues and coats (#3120, #3135)", function()
+		it(
+			"keeps an account's first five rescues about as wide as before the cut (#3180: 3 before)",
+			function()
+				expect(Config.RescueFirstUses).to.equal(5)
+				expect(Config.RescueFirstZone).to.equal(1.85)
+				for done = 0, 4 do
+					expect(Rescue.zoneScale(done, nil)).to.equal(Config.RescueFirstZone)
+				end
+				expect(Rescue.zoneScale(5, nil)).to.equal(1)
+				-- the widths before #3120, which the first rescues stay within a tenth of for a Common and a Rare
+				expect(
+					math.abs(Config.RescueZoneWidth.Common * Config.RescueFirstZone - 0.30) < 0.03
+				).to.equal(true)
+				expect(math.abs(Config.RescueZoneWidth.Rare * Config.RescueFirstZone - 0.23) < 0.03).to.equal(
+					true
+				)
+			end
+		)
+
+		it("narrows a gold cat's zone a little and a rainbow's a little more", function()
+			expect(Rescue.zoneScale(5, "base")).to.equal(1)
+			expect(Rescue.zoneScale(50, nil)).to.equal(1)
+			expect(Rescue.zoneScale(5, "gold")).to.equal(0.90)
+			expect(Rescue.zoneScale(5, "rainbow")).to.equal(0.80)
+			expect(Rescue.zoneScale(5, "rainbow") < Rescue.zoneScale(5, "gold")).to.equal(true)
+			expect(Rescue.zoneScale(5, "plaid")).to.equal(1) -- a coat the table does not know
+		end)
+
+		it("leaves the coat out of a first rescue, so a lucky first gold is no harder", function()
+			for done = 0, 4 do
+				expect(Rescue.zoneScale(done, "gold")).to.equal(Config.RescueFirstZone)
+				expect(Rescue.zoneScale(done, "rainbow")).to.equal(Config.RescueFirstZone)
+			end
+		end)
+
+		-- #3180 (Derek2 2026-11-10: "make the starting rescue's easier and slightly smaller bars")
+		it("runs the marker slower on those first rescues, on top of the area's ease", function()
+			expect(Config.RescueFirstSpeed).to.equal(0.85)
+			for done = 0, 4 do
+				expect(Rescue.speedScale(done)).to.equal(0.85)
+			end
+			expect(Rescue.speedScale(5)).to.equal(1)
+			local function speed(scale: number?, areaId: string?): number
+				return Rescue.newChallenge(
+					"Common",
+					"trash_bin",
+					0,
+					rolls({ 0.2, 0.7, 0.4, 0.9 }),
+					nil,
+					areaId,
+					scale
+				).speed :: number
+			end
+			local common = Config.RescueBarSpeed.Common -- (#3223: 1.00, was 0.85)
+			expect(speed(nil, nil)).to.be.near(common, 1e-9)
+			expect(speed(Rescue.speedScale(0), nil)).to.be.near(common * 0.85, 1e-9)
+			expect(speed(Rescue.speedScale(0), "alley")).to.be.near(common * 0.75 * 0.85, 1e-9)
+			expect(speed(Rescue.speedScale(9), "alley")).to.be.near(common * 0.75, 1e-9)
+		end)
+
+		it("multiplies into the bar with the area and the station perk", function()
+			local function width(scale: number, areaId: string?): number
+				return Rescue.newChallenge(
+					"Common",
+					"trash_bin",
+					0,
+					rolls({ 0.2, 0.7, 0.4, 0.9 }),
+					scale,
+					areaId
+				).zoneWidth :: number
+			end
+			expect(width(Rescue.zoneScale(9, "gold"), nil)).to.be.near(0.17 * 0.90, 1e-9)
+			expect(width(Rescue.zoneScale(9, "rainbow"), "alley")).to.be.near(
+				0.17 * 0.80 * 1.4,
+				1e-9
+			)
+			expect(width(1.10 * Rescue.zoneScale(9, "gold"), nil)).to.be.near(
+				0.17 * 1.10 * 0.90,
+				1e-9
+			)
+			expect(width(Rescue.zoneScale(0, "rainbow"), "alley")).to.be.near(
+				0.17 * 1.85 * 1.4,
+				1e-9
+			)
+		end)
+
+		it("still leaves room on the bar for every zone at its widest", function()
+			-- the widest any zone gets: a first rescue of a Common in the Alleyway with Warm Paws
+			local widest = Config.RescueZoneWidth.Common * Config.RescueFirstZone * 1.4 * 1.10
+			expect(widest < 0.5).to.equal(true)
+		end)
+	end)
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty")
 	describe("easier bars in the Alleyway and the Park (#2786)", function()
 		local function bar(rarity: any, areaId: string?, scale: number?): any
@@ -647,6 +743,47 @@ return function()
 			expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
 			expect(attempt.stage).to.equal("done")
 			expect(attempt.success).to.equal(true)
+		end)
+	end)
+
+	describe("the starter trap's refill (#3049)", function()
+		local WAIT = Config.StarterRescueRefillSeconds
+		local DAY_LEFT = Config.DuskWarningSeconds + 60
+
+		it("waits 30 seconds", function()
+			expect(WAIT).to.equal(30)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT - 1, 1, 0)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1, 0)).to.equal(true)
+		end)
+
+		it("fills only by day, not in the dusk warning and not at night", function()
+			expect(Rescue.starterRefill(true, "night", DAY_LEFT, WAIT, 1, 0)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds, WAIT, 1, 0)).to.equal(
+				false
+			)
+			expect(Rescue.starterRefill(true, "day", Config.DuskWarningSeconds + 1, WAIT, 1, 0)).to.equal(
+				true
+			)
+		end)
+
+		it("needs someone who has never rescued, and the switch on", function()
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 0, 0)).to.equal(false)
+			expect(Rescue.starterRefill(false, "day", DAY_LEFT, WAIT, 3, 0)).to.equal(false)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT * 10, 3, 0)).to.equal(true)
+		end)
+
+		it("stops after 4 refills an area a day", function()
+			local cap = Config.StarterRescueRefillsPerDay
+			expect(cap).to.equal(4)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1, cap - 1)).to.equal(true)
+			expect(Rescue.starterRefill(true, "day", DAY_LEFT, WAIT, 1, cap)).to.equal(false)
+		end)
+
+		it("counts a player with no rescue whose tier has the area open", function()
+			expect(Rescue.waitsForFirst(0, 1, 1)).to.equal(true)
+			expect(Rescue.waitsForFirst(0, 2, 1)).to.equal(true)
+			expect(Rescue.waitsForFirst(0, 1, 2)).to.equal(false) -- the Park, still shut for them
+			expect(Rescue.waitsForFirst(1, 5, 1)).to.equal(false) -- a veteran gains nothing
 		end)
 	end)
 end

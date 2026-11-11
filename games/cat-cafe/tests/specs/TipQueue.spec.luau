@@ -137,4 +137,26 @@ return function()
 			expect(queue:size()).to.equal(0)
 		end)
 	end)
+	describe("TipQueue.held (#3156)", function()
+		it("holds tip cards while a tutorial step is on screen", function()
+			expect(TipQueue.held({ guiding = true, newPlayer = false, played = 9999 })).to.equal(
+				true
+			)
+		end)
+		it("holds them through a new player's first EARLY_SECONDS only", function()
+			expect(TipQueue.EARLY_SECONDS).to.equal(300)
+			expect(TipQueue.held({ guiding = false, newPlayer = true, played = 0 })).to.equal(true)
+			expect(TipQueue.held({ guiding = false, newPlayer = true, played = 299 })).to.equal(
+				true
+			)
+			expect(TipQueue.held({ guiding = false, newPlayer = true, played = 300 })).to.equal(
+				false
+			)
+		end)
+		it("never holds a returning player's tips with no step on screen", function()
+			expect(TipQueue.held({ guiding = false, newPlayer = false, played = 0 })).to.equal(
+				false
+			)
+		end)
+	end)
 end

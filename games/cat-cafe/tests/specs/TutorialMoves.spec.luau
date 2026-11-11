@@ -31,6 +31,28 @@ return function()
 			expect(look.Z).to.be.near(1, 1e-6)
 		end)
 
+		it(
+			"waits a few seconds before the move to the cannon, none before the bowl's (#3158)",
+			function()
+				expect(TutorialMoves.delay("bowl")).to.equal(0)
+				expect(TutorialMoves.delay("cannon")).to.equal(TutorialMoves.CANNON_DELAY)
+				expect(TutorialMoves.CANNON_DELAY >= 2).to.equal(true)
+			end
+		)
+
+		it("drops the move for a player who walked off in that time (#3158)", function()
+			local from = Vector3.new(100, 3, 50)
+			expect(TutorialMoves.stayed(from, from)).to.equal(true)
+			expect(TutorialMoves.stayed(from, from + Vector3.new(10, 0, -10))).to.equal(true)
+			expect(TutorialMoves.stayed(from, from + Vector3.new(0, 40, 0))).to.equal(true) -- a jump is not a walk
+			expect(TutorialMoves.stayed(from, from + Vector3.new(TutorialMoves.LEFT_STUDS, 0, 0))).to.equal(
+				true
+			)
+			expect(
+				TutorialMoves.stayed(from, from + Vector3.new(TutorialMoves.LEFT_STUDS + 1, 0, 0))
+			).to.equal(false)
+		end)
+
 		it("stands the cannon move inside the cannon's range", function()
 			expect(TutorialMoves.CANNON_STUDS < 10).to.equal(true)
 		end)

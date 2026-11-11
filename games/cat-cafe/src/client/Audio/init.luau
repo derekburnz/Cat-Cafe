@@ -888,6 +888,8 @@ type StrayWatch = {
 	connections: { RBXScriptConnection },
 	last: { [string]: number },
 	noticed: boolean,
+	calledAt: number?, -- #3022: when the stray waiting for you last called
+	calls: number,
 }
 local strayWatches: { [Instance]: StrayWatch } = {}
 
@@ -896,7 +898,7 @@ local function watchStray(instance: Instance)
 	if existing then
 		return
 	end
-	local watch: StrayWatch = { connections = {}, last = {}, noticed = false }
+	local watch: StrayWatch = { connections = {}, last = {}, noticed = false, calls = 0 }
 	strayWatches[instance] = watch
 	-- part is nil while the cat streams in: no sound rather than a flat one everywhere
 	local function once(cueId: string, onCat: boolean)
@@ -961,12 +963,46 @@ end
 local RARE_NOTICE = 30
 local RARE_FORGET = 45
 
+-- #3022 (second cat nudge): the stray that waits for your second catch carries WAITS_FOR = your user id. It calls
+-- (strayCall, from the cat) as you come within CALL_NEAR studs and again every CALL_GAP seconds (SecondCat's 45 s
+-- nudge) while you stay near, at most CALL_MOST times (Logic.strayCallDue). Other strays and other players' waiting
+-- strays stay quiet.
+local WAITS_FOR = "WaitsFor" -- SecondCat.ATTRIBUTE
+local CALL_NEAR = 60
+local CALL_GAP = 45
+local CALL_MOST = 4
+
+local function strayCall(instance: Instance, watch: StrayWatch, part: BasePart, distance: number)
+	if instance:GetAttribute(WAITS_FOR) ~= Players.LocalPlayer.UserId then
+		return
+	end
+	local now = os.clock()
+	if
+		Logic.strayCallDue(
+			watch.calledAt,
+			watch.calls,
+			now,
+			distance,
+			CALL_NEAR,
+			CALL_GAP,
+			CALL_MOST
+		)
+	then
+		watch.calledAt = now
+		watch.calls += 1
+		Audio.play("strayCall", part)
+	end
+end
+
 local function noticeRareStrays()
 	while true do
 		task.wait(LOOP_CHECK_SECONDS)
 		local root = you()
 		for instance, watch in strayWatches do
 			local part = partOf(instance)
+			if root ~= nil and part ~= nil then
+				strayCall(instance, watch, part, (part.Position - root.Position).Magnitude)
+			end
 			local cue = noticeCue(instance)
 			if cue == nil then
 				watch.noticed = false
@@ -1666,6 +1702,16 @@ local function followLateStations()
 	end)
 end
 
+-- #2997: the Saturday update gift (15 golden fish and 1 spin) arrives as a Toast line only, so its reward jingle
+-- plays on that line (Logic.isUpdateGiftToast). It reuses indexReward, so it needs no new file.
+local function followUpdateGift()
+	onRemote("Toast", function(text: any)
+		if Logic.isUpdateGiftToast(text) then
+			Audio.play("indexReward")
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -1677,6 +1723,7 @@ local function followServerState()
 	task.defer(followRally)
 	task.defer(followBait)
 	task.defer(followLateStations)
+	task.defer(followUpdateGift)
 end
 
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),
@@ -1791,6 +1838,22 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- #2920: the first catch's ring stopped on its target and waits for the press (the Catch screen fires it once)
 	CircleHold = function(index: any)
 		Audio.play("circleHold", nil, num(index))
+	end,
+	-- #3062 Cat Arcade (Circle Streak): ArcadeStart() as a run begins (the fish is paid), ArcadeMilestone() at each
+	-- 10 circles, ArcadeEnd(streak, won) when the run ends (a win plays the Museum's reward jingle). The circles
+	-- sound through CircleAppear and CircleGrade. Skipped until Gameplay-Engineer adds the moments.
+	ArcadeStart = function()
+		Audio.play("arcadeStart")
+	end,
+	ArcadeMilestone = function()
+		Audio.play("arcadeMilestone")
+	end,
+	ArcadeEnd = function(streak: any, won: any)
+		if won == true then
+			Audio.play("indexReward")
+		elseif (num(streak) or 0) > 0 then
+			Audio.play("arcadeEnd")
+		end
 	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))

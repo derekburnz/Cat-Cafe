@@ -3,7 +3,8 @@
 -- so it feels like you are actually unlocking progress"). The first time this account comes into an area whose
 -- station it owns, that area's camp station builds itself on this client: every part starts up in the air, a little
 -- to the side and turned, then drops into place and lands with a snap, bottom to top, fading in as it falls
--- (Presets.stationBuild, about 2.3 s, inside the reveal's 3 s beat). Each landing sounds the stationClunk beat, at most
+-- (Presets.stationBuild, about 2.3 s, inside the reveal's 3 s beat). #3191: off (Presets.stationBuild.on) since it read
+-- as the station loading in block by block; play does nothing then. Each landing sounds the stationClunk beat, at most
 -- one every clunkGap seconds, for Sound-Agent's clunk set. With Reduce Motion the station only fades in.
 --
 -- Source: Moments.StationReveal(area, perkId) from Gameplay's WorldController (#2755), and the `CampExtra`-tagged
@@ -170,7 +171,7 @@ end
 
 -- Starts the build-in on `model` (once at a time).
 function StationBuild.play(model: Model)
-	if builds[model] ~= nil then
+	if not Presets.stationBuild.on or builds[model] ~= nil then
 		return
 	end
 	local c = Presets.stationBuild

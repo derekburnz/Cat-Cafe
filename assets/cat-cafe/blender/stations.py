@@ -33,7 +33,7 @@ DESK_W, DESK_H, DESK_FRONT, DESK_BACK = 4.8, 2.6, -1.2, 0.0
 SEAT_Y, CAT_Z, CAT_SCALE = 1.9, 0.9, 1.5         # the stool top, the cat's pivot (Roblox z) and its size
 WALL_Z = 1.75                                      # the pigeonhole wall's front face
 PROMPT_ROBLOX = (0.0, 3.0, DESK_FRONT - 0.2)       # PromptAnchor, Roblox studs from the pivot
-CIRCLE_R = 4.0                                     # the walk-in circle's radius (CodesCircle is 8 across)
+CIRCLE_R = 6.0                                     # the walk-in circle's radius (CodesCircle is 12 across; 8 until #3112)
 CIRCLE_Z = DESK_FRONT - 0.8 - CIRCLE_R             # its centre, its edge 0.8 studs in front of the desk
 
 # A flame point (white with ginger points): not a collectable coat, so nobody takes it for a cat to catch.

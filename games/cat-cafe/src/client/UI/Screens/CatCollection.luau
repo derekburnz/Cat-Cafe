@@ -396,6 +396,10 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		}),
 		Outline.listPadding(10, 8), -- #2294: room for the cards' outlines
 	})
+	-- #3056: and over the first area's Rewards button for its red badge, which sits 6 px over the button's top with a
+	-- 2 px outline (its top was cut off by 1.6 px on a 4:3 iPad's Gold and Rainbow pages)
+	local bookPad = self._book:FindFirstChildOfClass("UIPadding") :: UIPadding
+	bookPad.PaddingTop = UDim.new(0, Outline.ROOM + 4)
 
 	-- Decor Index: a page per crate (Screens/DecorIndex)
 	self._decor = Create("Frame", {

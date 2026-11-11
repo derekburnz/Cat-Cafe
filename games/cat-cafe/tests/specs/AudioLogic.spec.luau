@@ -556,6 +556,37 @@ return function()
 			end
 		end)
 	end)
+	-- #2997: the weekly update gift's Toast line plays the reward jingle; no other Toast does.
+	describe("Audio.Logic update gift toast", function()
+		it("matches only the gift line", function()
+			expect(Logic.isUpdateGiftToast("Update gift! 🐟 15 + 1 spin")).to.equal(true)
+			expect(Logic.isUpdateGiftToast("Update gift!")).to.equal(true)
+			expect(Logic.isUpdateGiftToast("Your update gift is ready")).to.equal(false)
+			expect(Logic.isUpdateGiftToast("")).to.equal(false)
+			expect(Logic.isUpdateGiftToast(nil)).to.equal(false)
+			expect(Logic.isUpdateGiftToast(12)).to.equal(false)
+		end)
+	end)
+
+	-- #3022: the stray waiting for your second catch calls once as you come near, then every 45 s, at most 4 times.
+	describe("Audio.Logic second cat call", function()
+		local NEAR, GAP, MOST = 60, 45, 4
+
+		it("calls first when you come within reach", function()
+			expect(Logic.strayCallDue(nil, 0, 10, 61, NEAR, GAP, MOST)).to.equal(false)
+			expect(Logic.strayCallDue(nil, 0, 10, 60, NEAR, GAP, MOST)).to.equal(true)
+		end)
+
+		it("waits the gap between calls", function()
+			expect(Logic.strayCallDue(10, 1, 54, 20, NEAR, GAP, MOST)).to.equal(false)
+			expect(Logic.strayCallDue(10, 1, 55, 20, NEAR, GAP, MOST)).to.equal(true)
+		end)
+
+		it("stops after the last call and stays quiet when far", function()
+			expect(Logic.strayCallDue(10, 4, 500, 5, NEAR, GAP, MOST)).to.equal(false)
+			expect(Logic.strayCallDue(10, 1, 500, 80, NEAR, GAP, MOST)).to.equal(false)
+		end)
+	end)
 	-- Sound-Agent PR #430 (Derek 2026-10-28 01:41): a Mythical stray's `rareNear` plays once as you come within 30
 	-- studs and not again until you have walked past 45 (Audio/init.luau RARE_NOTICE and RARE_FORGET; review N234).
 	describe("Audio.Logic rare stray notice (QA)", function()

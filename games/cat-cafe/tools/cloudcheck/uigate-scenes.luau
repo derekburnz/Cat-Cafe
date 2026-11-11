@@ -3649,7 +3649,7 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Alley Crate's card does not say it is in a trade (#2745)")
 	end },
-	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three Treats
+	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three perks
 	-- bought fast go to the server 0.55 s apart (its 2 a second never drops one), each shows "..." from its press, and
 	-- a buy the server never answers frees its button 2 s after it was sent, not 5
 	{ "MarketFastBuys", function()
@@ -3661,7 +3661,8 @@ local SCENES = {
 		end)
 		UI.market.open()
 		press("FishMarket", "TreatsTab")
-		local ids = { "star_treat", "golden_espresso", "big_bowl" }
+		-- #3317: the Star Treat left the Market, so three perks (Swift Paws first)
+		local ids = { "swift_paws", "golden_espresso", "big_bowl" }
 		for _, id in ids do
 			press("FishMarket", id .. ".Buy")
 		end
@@ -3678,17 +3679,10 @@ local SCENES = {
 			return if face then face.Text else ""
 		end
 		assert(#sent == 1, ("uigate: %d buys went at once, not 1 (#2290)"):format(#sent))
-		-- #3190: a perk reads "..." until its next price comes; a food (star_treat) keeps its price and a second press
-		-- queues behind the first instead of doing nothing
+		-- #3190: a perk reads "..." until its next price comes
 		for _, id in ids do
-			if id == "star_treat" then
-				assert(label(id) == "150", "uigate: a food reads " .. label(id) .. " right after its press, not its price (#3190)")
-			else
-				assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
-			end
+			assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
 		end
-		press("FishMarket", "star_treat.Buy")
-		assert(#sent == 1, "uigate: a second food press while the first waits went at once (#3190)")
 		UIShim.advance(0.6)
 		assert(#sent == 2, ("uigate: %d buys sent after 0.6 s, not 2 (#2290)"):format(#sent))
 		UIShim.advance(0.6)

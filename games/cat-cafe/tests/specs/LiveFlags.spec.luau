@@ -52,15 +52,28 @@ return function()
 		end)
 	end)
 
-	describe("tradeFish (#2745, off until QA and the security review pass)", function()
-		it("starts off, and stays off for a missing key, a wrong type or an unreadable store", function()
-			expect(LiveFlags.defaults().tradeFish).to.equal(false)
-			expect(LiveFlags.parse({}).tradeFish).to.equal(false)
-			expect(LiveFlags.parse(nil).tradeFish).to.equal(false)
-			for _, value in { "true", 1, {}, "on", false } do
-				expect(LiveFlags.parse({ tradeFish = value }).tradeFish).to.equal(false)
-			end
+	describe("starterRefill (#3049, on unless switched off)", function()
+		it("is a live switch that only an explicit false turns off", function()
+			expect(table.find(LiveFlags.KEYS, "starterRefill") ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT.starterRefill).to.equal(nil)
+			expect(LiveFlags.defaults().starterRefill).to.equal(true)
+			expect(LiveFlags.parse({}).starterRefill).to.equal(true)
+			expect(LiveFlags.parse({ starterRefill = false }).starterRefill).to.equal(false)
 		end)
+	end)
+
+	describe("tradeFish (#2745, off until QA and the security review pass)", function()
+		it(
+			"starts off, and stays off for a missing key, a wrong type or an unreadable store",
+			function()
+				expect(LiveFlags.defaults().tradeFish).to.equal(false)
+				expect(LiveFlags.parse({}).tradeFish).to.equal(false)
+				expect(LiveFlags.parse(nil).tradeFish).to.equal(false)
+				for _, value in { "true", 1, {}, "on", false } do
+					expect(LiveFlags.parse({ tradeFish = value }).tradeFish).to.equal(false)
+				end
+			end
+		)
 
 		it("turns on only for an explicit true, and leaves the other switches alone", function()
 			local flags = LiveFlags.parse({ tradeFish = true })
@@ -70,11 +83,62 @@ return function()
 			expect(LiveFlags.parse({ codes = true }).tradeFish).to.equal(false)
 		end)
 
-		it("is the only switch that starts off", function()
+		it("starts off with nightCatch and loadingScreen alone beside it", function()
+			local count = 0
 			for key in LiveFlags.OFF_BY_DEFAULT do
-				expect(key).to.equal("tradeFish")
+				count += 1
+				expect(key == "tradeFish" or key == "nightCatch" or key == "loadingScreen").to.equal(
+					true
+				)
 				expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 			end
+			expect(count).to.equal(3)
+		end)
+	end)
+
+	describe("loadingScreen (#3179, off until switched on)", function()
+		it("is off by default, with a broken store, and with anything but true", function()
+			expect(LiveFlags.defaults().loadingScreen).to.equal(false)
+			expect(LiveFlags.parse(nil).loadingScreen).to.equal(false)
+			for _, value in { false, "true", 1, {} } :: { any } do
+				expect(LiveFlags.parse({ loadingScreen = value }).loadingScreen).to.equal(false)
+			end
+			expect(LiveFlags.parse({ loadingScreen = true }).loadingScreen).to.equal(true)
+		end)
+
+		it("is off on a client until its attribute reads true", function()
+			expect(LiveFlags.shown("loadingScreen", nil)).to.equal(false)
+			expect(LiveFlags.shown("loadingScreen", false)).to.equal(false)
+			expect(LiveFlags.shown("loadingScreen", "true")).to.equal(false)
+			expect(LiveFlags.shown("loadingScreen", true)).to.equal(true)
+		end)
+
+		it("leaves a switch that is on by default on until its attribute reads false", function()
+			expect(LiveFlags.shown("swiftPaws", nil)).to.equal(true)
+			expect(LiveFlags.shown("swiftPaws", true)).to.equal(true)
+			expect(LiveFlags.shown("swiftPaws", false)).to.equal(false)
+		end)
+	end)
+
+	describe("nightCatch (#3035, off until switched on)", function()
+		it("is on only for an explicit true", function()
+			expect(LiveFlags.defaults().nightCatch).to.equal(false)
+			expect(LiveFlags.parse({}).nightCatch).to.equal(false)
+			expect(LiveFlags.parse(nil).nightCatch).to.equal(false)
+			for _, value in { "true", 1, false } :: { any } do
+				expect(LiveFlags.parse({ nightCatch = value }).nightCatch).to.equal(false)
+			end
+			expect(LiveFlags.parse({ nightCatch = true }).nightCatch).to.equal(true)
+		end)
+	end)
+
+	describe("swiftPaws (#3063, on unless switched off)", function()
+		it("is a switch, on by default and off only for an explicit false", function()
+			expect(table.find(LiveFlags.KEYS, "swiftPaws") ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT.swiftPaws).to.equal(nil)
+			expect(LiveFlags.defaults().swiftPaws).to.equal(true)
+			expect(LiveFlags.parse({ swiftPaws = "false" }).swiftPaws).to.equal(true)
+			expect(LiveFlags.parse({ swiftPaws = false }).swiftPaws).to.equal(false)
 		end)
 	end)
 

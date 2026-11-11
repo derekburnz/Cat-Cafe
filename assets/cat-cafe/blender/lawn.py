@@ -837,6 +837,234 @@ def build_golden_paw_statue(mat):
             _hang(spin, name + "_Paw_Spin", mat, (0, 2.36, 0))]
 
 
+# -- #3222 rare Golden drops: three hero pieces at the Golden +12% level -----------------------------------------------
+
+def _gold_cat(b, x, y, z, s, wave=False, sw="gold_mid", face=-1):
+    """A gold cat sitting on y facing the street (-Z): body, head, ears with pink insides, eyes, nose, a curled tail
+    and front paws. `wave` raises the right paw like a lucky cat."""
+    f = face
+    b.ball((x, y + 0.42 * s, z), 0.42 * s, sw, scale=(0.95, 1.1, 0.85))                         # body
+    b.ball((x, y + 0.2 * s, z + f * 0.1 * s), 0.36 * s, sw, scale=(1.05, 0.65, 0.9))           # haunches
+    hy, hz = y + 1.0 * s, z + f * 0.12 * s
+    b.ball((x, hy, hz), 0.34 * s, sw, scale=(1.12, 0.95, 0.95))                                 # head
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(x + sx * 0.19 * s, hy + 0.22 * s, hz), 0.2 * s, 0.24 * s, sw)
+        b.b.pyramid(RB.p(x + sx * 0.19 * s, hy + 0.23 * s, hz + f * 0.055 * s), 0.1 * s, 0.15 * s, "nose_pink")
+        b.span((x + sx * 0.13 * s - 0.045 * s, hy + 0.02 * s, hz + f * 0.315 * s - 0.02 * s),
+               (x + sx * 0.13 * s + 0.045 * s, hy + 0.11 * s, hz + f * 0.315 * s + 0.02 * s), "fur_black")
+        b.ball((x + sx * 0.09 * s, hy - 0.1 * s, hz + f * 0.29 * s), 0.08 * s, "gold_light")      # muzzle
+    b.span((x - 0.04 * s, hy - 0.06 * s, hz + f * 0.36 * s - 0.02 * s),
+           (x + 0.04 * s, hy - 0.01 * s, hz + f * 0.36 * s + 0.02 * s), "nose_pink")
+    b.ball((x, y + 0.55 * s, z + f * 0.33 * s), 0.2 * s, "gold_light", scale=(1.0, 1.3, 0.5))   # chest
+    for sx in (-1, 1):
+        if wave and sx == 1:
+            b.ball((x + 0.36 * s, y + 0.85 * s, z + f * 0.2 * s), 0.12 * s, sw, scale=(1, 1.9, 1))
+            b.ball((x + 0.4 * s, y + 1.12 * s, z + f * 0.24 * s), 0.13 * s, sw)
+            b.ball((x + 0.4 * s, y + 1.12 * s, z + f * 0.34 * s), 0.065 * s, "nose_pink", scale=(1, 1, 0.5))
+        else:
+            b.ball((x + sx * 0.17 * s, y + 0.1 * s, z + f * 0.36 * s), 0.12 * s, sw, scale=(1, 0.8, 1.3))
+    _arc(b, x - 0.05 * s, y + 0.18 * s, z - f * 0.15 * s, 0.42 * s, 190, 330, 5, 0.13 * s, 0.13 * s, sw)
+
+
+def _gold_coin(b, x, y, z, r=0.13):
+    b.cyl((x, y, z), r, 0.035, "gold_light", segments=8)
+    b.cyl((x, y + 0.02, z), r * 0.6, 0.012, "gold_dark", segments=6)
+
+
+def build_golden_cat_fountain(mat):
+    """#3222 Golden drop, big: a white marble fountain trimmed in gold. Four gold koi on the basin rim spout water into
+    it, a gold lucky cat waves from the top bowl, gold coins shine in the water and uplights glow in the plinth's
+    corners at night (`_Bulbs`). All the water is `_Water` (VFX ripples it); the top cat and its bowl are
+    `_Cat_Spin`, pivot on the column top (it turns slowly and VFX makes it glint)."""
+    name = "CatCafe_Lawn_GoldenCatFountain"
+    b, water, bulbs, spin = RB(), RB(), RB(), RB()
+    b.span((-1.55, 0, -1.55), (1.55, 0.18, 1.55), "paving_light")                       # plinth and gold band
+    b.span((-1.57, 0.16, -1.57), (1.57, 0.22, 1.57), "gold_mid")
+    b.cyl((0, 0.45, 0), 1.42, 0.5, "pearl", segments=16)                                # basin
+    _ring_flat(b, (0, 0.72, 0), 1.48, 0.16, 0.1, "gold_mid", segments=16)
+    for k in range(8):                                                                  # gold studs round the basin
+        a = math.radians(22.5 + 45 * k)
+        b.ball((1.43 * math.cos(a), 0.42, 1.43 * math.sin(a)), 0.07, "gold_light")
+    water.cyl((0, 0.69, 0), 1.33, 0.05, "fish_blue", segments=16)
+    for x, z in ((-0.7, -0.6), (0.85, -0.3), (-0.3, 0.85), (0.5, 0.75), (0.2, -0.95)):
+        _gold_coin(b, x, 0.715, z, 0.1)
+    b.cyl((0, 1.3, 0), 0.28, 1.2, "pearl", r2=0.2, segments=10)                         # column
+    for y in (0.78, 1.85):
+        b.cyl((0, y, 0), 0.32, 0.08, "gold_mid", segments=10)
+    for k in range(4):                                                                  # leaping koi on the rim
+        a = math.radians(45 + 90 * k)
+        ox, oz = math.cos(a), math.sin(a)
+        cx, cz = 1.22 * ox, 1.22 * oz
+        yaw = math.degrees(math.atan2(-oz, ox))                                         # local +X points outward
+        R = rot_y(yaw)
+        def at(u, v):                                                                   # u outward, v up
+            return (cx + ox * u, v, cz + oz * u)
+        b.ball(at(0.0, 0.92), 0.13, "gold_mid", scale=(1.0, 1.0, 1.0))                  # tail end on the rim
+        b.box(at(0.04, 0.83), (0.06, 0.2, 0.26), "gold_light", rot=R @ rot_x(0))        # tail fin, a fan
+        b.box(at(0.08, 0.8), (0.04, 0.16, 0.36), "gold_dark", rot=R)
+        b.ball(at(-0.06, 1.12), 0.16, "gold_mid", scale=(1.0, 1.25, 0.9))               # body arching up
+        b.ball(at(-0.16, 1.32), 0.14, "gold_light", scale=(1.15, 0.95, 0.85))           # head, leaning in
+        for side in (-1, 1):
+            px, pz = -oz * side * 0.11, ox * side * 0.11
+            b.span((cx - 0.19 * ox + px - 0.03, 1.33, cz - 0.19 * oz + pz - 0.03),
+                   (cx - 0.19 * ox + px + 0.03, 1.39, cz - 0.19 * oz + pz + 0.03), "fur_black")
+            b.box((cx - 0.02 * ox + px * 1.2, 1.12, cz - 0.02 * oz + pz * 1.2), (0.03, 0.14, 0.12), "gold_light",
+                  rot=R)                                                                # side fins
+        pts = [at(-0.28, 1.36), at(-0.45, 1.3), at(-0.58, 1.08), at(-0.66, 0.72)]       # water arc into the basin
+        for p0, p1 in zip(pts, pts[1:]):
+            _rod(water, p0, p1, 0.07, "fish_blue")
+    for sx in (-1, 1):                                                                  # corner uplights
+        for sz in (-1, 1):
+            x, z = sx * 1.38, sz * 1.38
+            b.span((x - 0.1, 0.22, z - 0.1), (x + 0.1, 0.28, z + 0.1), "fur_black")
+            bulbs.span((x - 0.07, 0.28, z - 0.07), (x + 0.07, 0.36, z + 0.07), "lamp_warm")
+    spin.cyl((0, 2.0, 0), 0.25, 0.25, "gold_dark", r2=0.85, segments=12)              # top bowl
+    _ring_flat(spin, (0, 2.15, 0), 0.9, 0.12, 0.08, "gold_light", segments=12)
+    for k in range(12):                                                                 # scallops
+        a = math.radians(15 + 30 * k)
+        spin.ball((0.92 * math.cos(a), 2.08, 0.92 * math.sin(a)), 0.09, "gold_mid", scale=(1, 0.8, 1))
+    water.cyl((0, 2.13, 0), 0.8, 0.04, "fish_blue", segments=12)
+    spin.cyl((0, 2.25, 0), 0.32, 0.18, "royal_berry", segments=10)                      # velvet cushion
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            spin.ball((sx * 0.22, 2.3, sz * 0.22), 0.05, "gold_light")
+    _gold_cat(spin, 0, 2.33, 0.02, 0.85, wave=True)
+    spin.b.star(RB.p(0, 3.52, 0.0), 0.16, 0.07, 0.06, "gold_light", rot=(math.radians(90), "X"))
+    spin.span((-0.2, 2.98, -0.24), (0.2, 3.05, -0.08), "shirt_red")                    # a red collar and bell
+    spin.ball((0, 2.93, -0.29), 0.07, "gold_light")
+    return [b.finalize(name, mat), water.finalize(name + "_Water", mat), bulbs.finalize(name + "_Bulbs", mat),
+            _hang(spin, name + "_Cat_Spin", mat, (0, 1.89, 0))]
+
+
+def build_golden_cat_throne(mat):
+    """#3222 Golden drop, big: a royal throne on a two-step dais with a berry carpet runner. The gold frame's back
+    rises into two cat ears with a gold paw crest between them; the berry velvet seat holds a gold cat curled up
+    asleep on a cushion, and a gold crown floats over the crest (`_Crown_Spin`, turning). Gold torches either side
+    glow at night (`_Bulbs`)."""
+    name = "CatCafe_Lawn_GoldenCatThrone"
+    b, bulbs, crown = RB(), RB(), RB()
+    b.span((-1.55, 0, -1.4), (1.55, 0.2, 1.5), "pearl")                                  # dais
+    b.span((-1.57, 0.18, -1.42), (1.57, 0.24, 1.52), "gold_mid")
+    b.span((-1.2, 0.24, -0.7), (1.2, 0.44, 1.3), "pearl")
+    b.span((-1.22, 0.42, -0.72), (1.22, 0.48, 1.32), "gold_mid")
+    b.span((-0.45, 0.2, -1.42), (0.45, 0.245, -0.7), "royal_berry")                    # carpet runner
+    b.span((-0.45, 0.44, -0.72), (0.45, 0.485, 0.0), "royal_berry")
+    for x in (-0.45, 0.45):
+        b.span((x - 0.03, 0.2, -1.43), (x + 0.03, 0.25, -0.7), "gold_light")
+    # seat
+    b.span((-0.95, 0.48, -0.2), (0.95, 1.25, 0.95), "gold_mid")                         # base box
+    b.span((-0.85, 0.6, -0.22), (0.85, 1.15, -0.19), "royal_berry")                    # front panel
+    b.cyl((0, 0.88, -0.24), 0.16, 0.03, "gold_light", axis="Z", segments=8)
+    b.span((-0.9, 1.25, -0.25), (0.9, 1.5, 0.92), "royal_berry")                        # velvet seat cushion
+    for x in (-0.6, 0, 0.6):
+        b.ball((x, 1.5, 0.3), 0.06, "gold_light")
+    for sx in (-1, 1):                                                                  # arms with lion-paw ends
+        b.span((sx * 0.9, 1.25, -0.25), (sx * 1.15, 1.95, 0.95), "gold_mid")
+        b.span((sx * 0.88, 1.95, -0.3), (sx * 1.17, 2.07, 0.97), "gold_light")
+        b.ball((sx * 1.025, 2.02, -0.32), 0.17, "gold_mid", scale=(1, 0.8, 1))
+        for k in (-1, 0, 1):
+            b.ball((sx * 1.025 + k * 0.07, 2.04, -0.46), 0.05, "gold_light")
+        b.span((sx * 0.92, 1.35, -0.27), (sx * 1.13, 1.85, -0.24), "royal_berry")
+    # back: a tall panel that rises into cat ears
+    b.span((-0.95, 1.5, 0.75), (0.95, 3.6, 0.98), "gold_mid")
+    b.span((-0.78, 1.6, 0.72), (0.78, 3.45, 0.76), "royal_berry")                      # velvet back
+    for k in range(3):                                                                  # tufted buttons
+        for j in range(2):
+            b.ball((-0.4 + 0.4 * k, 2.1 + 0.6 * j + 0.3 * (k % 2), 0.71), 0.045, "gold_light")
+    for sx in (-1, 1):
+        _tri(b, (sx * 0.95, 3.58, 0.98), (sx * 0.2, 3.58, 0.98), (sx * 0.72, 4.5, 0.98), 0.23, "gold_mid")
+        _tri(b, (sx * 0.78, 3.62, 0.74), (sx * 0.35, 3.62, 0.74), (sx * 0.7, 4.22, 0.74), 0.03, "nose_pink")
+        b.ball((sx * 0.95, 3.6, 0.87), 0.12, "gold_light")
+    b.ball((0, 3.95, 0.85), 0.3, "gold_light", scale=(1.0, 0.9, 0.5))                  # paw crest
+    b.ball((0, 3.88, 0.69), 0.13, "nose_pink", scale=(1.2, 1.0, 0.4))
+    for dx, dy in ((-0.18, 4.08), (-0.065, 4.17), (0.065, 4.17), (0.18, 4.08)):
+        b.ball((dx, dy, 0.71), 0.055, "nose_pink", scale=(1.0, 1.15, 0.5))
+    # the sleeping gold cat, curled nose to tail on a little round cushion
+    b.cyl((0.05, 1.56, 0.3), 0.5, 0.12, "pastel_lilac", segments=12)
+    _ring_flat(b, (0.05, 1.6, 0.3), 0.52, 0.08, 0.14, "gold_light", segments=12)
+    b.ball((0.08, 1.8, 0.33), 0.38, "gold_mid", scale=(1.15, 0.6, 1.0))
+    b.ball((-0.25, 1.86, 0.12), 0.22, "gold_mid", scale=(1.0, 0.9, 1.0))
+    for dx in (-0.1, 0.1):
+        b.b.pyramid(RB.p(-0.25 + dx, 2.0, 0.12), 0.11, 0.13, "gold_mid")
+        b.span((-0.25 + dx - 0.05, 1.86, -0.09), (-0.25 + dx + 0.05, 1.88, -0.08), "fur_black")
+    _arc(b, 0.08, 1.8, 0.33, 0.38, 200, 340, 5, 0.1, 0.1, "gold_light")
+    # torches at the dais's front corners
+    for sx in (-1, 1):
+        x, z = sx * 1.32, -1.15
+        b.cyl((x, 0.75, z), 0.07, 1.0, "gold_dark", segments=8)
+        b.cyl((x, 1.3, z), 0.08, 0.16, "gold_mid", r2=0.17, segments=8)
+        bulbs.ball((x, 1.46, z), 0.12, "lamp_warm", scale=(1, 1.4, 1))
+    # crown floating over the crest
+    crown.cyl((0, 4.8, 0.85), 0.4, 0.24, "gold_light", segments=10)
+    crown.cyl((0, 4.76, 0.85), 0.33, 0.2, "royal_berry", segments=10)
+    for k in range(5):
+        a = math.radians(90 + 72 * k)
+        x, z = 0.37 * math.cos(a), 0.85 + 0.37 * math.sin(a)
+        crown.b.pyramid(RB.p(x, 4.92, z), 0.16, 0.26, "gold_light")
+        crown.ball((x, 5.2, z), 0.05, "pearl")
+    crown.ball((0, 4.8, 0.43), 0.08, "royal_berry")
+    return [b.finalize(name, mat), bulbs.finalize(name + "_Bulbs", mat),
+            _hang(crown, name + "_Crown_Spin", mat, (0, 4.8, 0.85))]
+
+
+def build_golden_yarn_kitten(mat):
+    """#3222 Golden drop, big: a gold kitten on its back legs batting a giant gold ball of yarn, on a round marble
+    plinth with a gold rim and paw prints. The yarn ball and its loose strand are `_Yarn_Spin` (it rolls round
+    slowly, pivot its centre); gold sparkle bulbs ring the plinth (`_Bulbs`, lit at night)."""
+    name = "CatCafe_Lawn_GoldenYarnKitten"
+    b, bulbs, yarn = RB(), RB(), RB()
+    b.cyl((0, 0.15, 0), 1.5, 0.3, "paving_light", segments=16)
+    b.cyl((0, 0.45, 0), 1.3, 0.3, "pearl", segments=16)
+    _ring_flat(b, (0, 0.6, 0), 1.34, 0.1, 0.06, "gold_mid", segments=16)
+    _ring_flat(b, (0, 0.3, 0), 1.52, 0.1, 0.06, "gold_mid", segments=16)
+    for k in range(10):
+        a = math.radians(18 + 36 * k)
+        bulbs.ball((1.42 * math.cos(a), 0.36, 1.42 * math.sin(a)), 0.06, "lamp_warm")
+    for x, z in ((-0.95, -1.0), (-0.45, -1.3), (0.1, -1.35)):                            # paw prints on the step
+        b.cyl((x, 0.305, z), 0.07, 0.012, "gold_light", segments=8)
+        for dx, dz in ((-0.07, -0.08), (0.0, -0.11), (0.07, -0.08)):
+            b.cyl((x + dx, 0.305, z + dz), 0.03, 0.012, "gold_light", segments=6)
+    b.cyl((0.25, 0.65, 0.15), 0.62, 0.1, "royal_berry", segments=12)                    # cushion under the ball
+    _ring_flat(b, (0.25, 0.68, 0.15), 0.64, 0.06, 0.12, "gold_light", segments=12)
+    for k in range(4):
+        a = math.radians(45 + 90 * k)
+        b.ball((0.25 + 0.6 * math.cos(a), 0.66, 0.15 + 0.6 * math.sin(a)), 0.07, "gold_light")
+    cx, cy, cz, R = 0.35, 1.55, 0.2, 0.82
+    yarn.b.sphere(RB.p(cx, cy, cz), R, "gold_mid", segments=14, rings=9)
+    for turn, tilt in ((0, 90), (36, 90), (72, 90), (108, 90), (144, 90), (0, 25), (90, 155), (45, 60),
+                       (135, 120)):                                                     # wound bands round it
+        yarn.b.ring(RB.p(cx, cy, cz), R + 0.02, 0.07, 0.09, "gold_light", segments=16, bevel=False,
+                    rot=RB._rot(rot_y(turn) @ rot_x(tilt)))
+    # loose strand curling off the ball to the plinth
+    pts = [(cx - 0.55, cy - 0.55, cz - 0.45), (cx - 0.8, cy - 0.85, cz - 0.6), (cx - 0.9, 0.75, cz - 0.9),
+           (cx - 0.6, 0.66, cz - 1.15), (cx - 0.2, 0.63, cz - 1.15)]
+    for p0, p1 in zip(pts, pts[1:]):
+        _rod(yarn, p0, p1, 0.06, "gold_light")
+    # the kitten up on its back legs, both front paws on the ball
+    kx, ky, kz = -0.75, 0.6, -0.05
+    b.ball((kx, ky + 0.2, kz), 0.3, "gold_mid", scale=(1.0, 0.7, 1.0))                  # haunches
+    b.ball((kx + 0.08, ky + 0.62, kz + 0.02), 0.3, "gold_mid", scale=(0.9, 1.25, 0.85))   # body, leaning in
+    b.ball((kx + 0.2, ky + 0.66, kz - 0.18), 0.15, "gold_light", scale=(1, 1.4, 0.6))   # chest
+    for sz in (-1, 1):                                                                  # back feet
+        b.ball((kx - 0.02, ky + 0.06, kz + sz * 0.2), 0.1, "gold_mid", scale=(1.4, 0.7, 1))
+    for sz, yy in ((-1, 1.25), (1, 1.05)):                                              # arms up to the ball
+        _rod(b, (kx + 0.15, ky + 0.82, kz + sz * 0.18), (kx + 0.42, ky + yy - 0.05, kz + sz * 0.22), 0.13, "gold_mid")
+        b.ball((kx + 0.47, ky + yy, kz + sz * 0.22), 0.1, "gold_mid")
+    hx, hy, hz = kx + 0.05, ky + 1.15, kz - 0.08
+    b.ball((hx, hy, hz), 0.27, "gold_mid", scale=(1.1, 0.95, 1.0))                      # head, looking out
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(hx + sx * 0.15, hy + 0.17, hz), 0.17, 0.2, "gold_mid")
+        b.b.pyramid(RB.p(hx + sx * 0.15, hy + 0.18, hz - 0.045), 0.085, 0.12, "nose_pink")
+        b.ball((hx + sx * 0.1, hy + 0.02, hz - 0.22), 0.06, "fur_black", scale=(0.8, 1.2, 0.5))
+        b.ball((hx + sx * 0.07, hy - 0.09, hz - 0.22), 0.065, "gold_light")
+    b.span((hx - 0.035, hy - 0.05, hz - 0.29), (hx + 0.035, hy - 0.01, hz - 0.26), "nose_pink")
+    _arc(b, kx - 0.2, ky + 0.25, kz + 0.25, 0.4, 100, 220, 4, 0.11, 0.11, "gold_mid")    # tail curling up
+    b.span((kx - 0.08, ky + 0.88, kz - 0.25), (kx + 0.24, ky + 0.94, kz - 0.06), "shirt_red")
+    b.ball((kx + 0.1, ky + 0.83, kz - 0.27), 0.055, "gold_light")
+    return [b.finalize(name, mat), bulbs.finalize(name + "_Bulbs", mat),
+            _hang(yarn, name + "_Yarn_Spin", mat, (cx, cy, cz))]
+
+
 # -- paths ---------------------------------------------------------------------------------------------------------
 PX, PZ = 3.5, 2.5                         # half the path's width and depth
 
@@ -1071,6 +1299,9 @@ ASSETS = {
     "CatCafe_Lawn_FlowerCart": (build_flower_cart, 2500),
     "CatCafe_Lawn_CatTreeSign": (build_cat_tree_sign, 2500),
     "CatCafe_Lawn_GoldenPawStatue": (build_golden_paw_statue, 2500),
+    "CatCafe_Lawn_GoldenCatFountain": (build_golden_cat_fountain, 3000),
+    "CatCafe_Lawn_GoldenCatThrone": (build_golden_cat_throne, 3000),
+    "CatCafe_Lawn_GoldenYarnKitten": (build_golden_yarn_kitten, 3000),
     "CatCafe_Lawn_Path_GreySlabs": (build_path_grey_slabs, 1000),
     "CatCafe_Lawn_Path_RedBrick": (build_path_red_brick, 1000),
     "CatCafe_Lawn_Path_SteppingStones": (build_path_stepping_stones, 1000),

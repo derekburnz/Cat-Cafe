@@ -1,7 +1,8 @@
 --!strict
 -- The rare-catch chat line (#2203, shared/GlobalCatch): RareCatchChat(text, rarity, elsewhere) from the server becomes
--- a system line in the chat window, in the rarity's colour, "From another cafe: " first when it came from another
--- server. The toast for this server's catches is UIController's Announce, as before.
+-- a system line in the chat window, in the rarity's colour, "🌍 Global: " first when it came from another
+-- server (#3033: system lines land in the window's Here tab; its Global tab is Roblox's own player chat between
+-- servers, which a game cannot write to). The toast for this server's catches is UIController's Announce, as before.
 --
 -- Roblox terms: TextChatService is the built-in chat. Its RBXGeneral channel is the one every player sees, and
 -- DisplaySystemMessage adds a line to it on this client only, with no speaker.

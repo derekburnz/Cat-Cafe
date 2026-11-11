@@ -130,7 +130,7 @@ local function days(raw: unknown): DayKinds?
 	return out
 end
 
--- One record against the rules, or nil and why; `notes` takes the clamps.
+-- One record against the rules, or nil and why (nil and no why for one that is over); `notes` takes the clamps.
 local function record(raw: unknown, now: number, notes: { string }): (Event?, string?)
 	if type(raw) ~= "table" then
 		return nil, "not a record"
@@ -158,7 +158,9 @@ local function record(raw: unknown, now: number, notes: { string }): (Event?, st
 		return nil, id .. ": shorter or longer than an event may be"
 	end
 	if endsAt <= now then
-		return nil, id .. ": already over"
+		-- #3064: a finished event still in the schedule is how every schedule ends up, not a fault: no note (the
+		-- live log had "record 1 ignored: ...: already over" as a warning from every new server)
+		return nil, nil
 	end
 	local big = values.big
 	if big ~= nil and type(big) ~= "boolean" then
@@ -253,7 +255,9 @@ function CafeEvents.parse(raw: unknown, now: number): ({ Event }, { string })
 		end
 		local event, why = record(item, now, notes)
 		if event == nil then
-			table.insert(notes, string.format("record %d ignored: %s", index, why or "?"))
+			if why ~= nil then
+				table.insert(notes, string.format("record %d ignored: %s", index, why))
+			end
 		elseif seen[event.id] then
 			table.insert(
 				notes,
@@ -473,6 +477,134 @@ function CafeEvents.test(preset: string, now: number, minutes: number): Event?
 		},
 	}
 	return event
+end
+
+-- #3212 (Derek2 2026-11-11: "I want to run it in a live game with a command from owner mode ... like /event 10"):
+-- the owner's /event in a live server writes a real record into the schedule, so every server runs it by the shared
+-- clock like any event (rewards, analytics and one shower catch game-wide), with no workflow run.
+--   ownerRecord(preset, now, minutes) -> record?   the record, starting now: id OWNER_PREFIX .. now, title
+--                                                   OWNER_TITLE, EventMinSeconds to EventMaxSeconds long; a preset
+--                                                   from PRESETS with the live caps (showers EventShowerGapMinSeconds
+--                                                   apart, the first OWNER_SHOWER_FIRST in)
+--   ownerAdd(raw, record, now) -> (list?, why?)    the schedule with it added and finished records dropped; nil and
+--                                                   why when another event runs or starts inside its window, the
+--                                                   schedule is full, or the stored value is not a list
+--   ownerRemove(raw, now) -> (list?, count)        the schedule without the owner's records that are not over yet
+CafeEvents.OWNER_PREFIX = "owner-"
+CafeEvents.OWNER_TITLE = "Cafe Party"
+CafeEvents.OWNER_SHOWER_FIRST = 120
+
+function CafeEvents.ownerRecord(preset: string, now: number, minutes: number): { [string]: any }?
+	if table.find(CafeEvents.PRESETS, preset) == nil or minutes ~= minutes then
+		return nil
+	end
+	local seconds =
+		math.clamp(math.floor(minutes) * 60, Config.EventMinSeconds, Config.EventMaxSeconds)
+	local startsAt = math.floor(now)
+	local all = preset == "full"
+	local effects: { [string]: any } = {}
+	if all or preset == "days" then
+		effects.days = { "lucky", "golden", "rainbow" }
+	end
+	if all or preset == "money" then
+		effects.money = Config.EventMoneyMax
+	end
+	if all or preset == "luck" then
+		effects.luck = 0.5
+	end
+	if all or preset == "showers" then
+		local gap = Config.EventShowerGapMinSeconds
+		local first = CafeEvents.OWNER_SHOWER_FIRST
+		effects.showers = {
+			count = math.min(Config.EventShowerMax, (seconds - first - 1) // gap + 1),
+			gapSeconds = gap,
+			firstAfter = first,
+		}
+	end
+	if all then
+		effects.reward = { cosmeticId = CafeEvents.TEST_REWARD }
+	end
+	return {
+		id = CafeEvents.OWNER_PREFIX .. tostring(startsAt),
+		title = CafeEvents.OWNER_TITLE,
+		startsAt = startsAt,
+		endsAt = startsAt + seconds,
+		effects = effects,
+	}
+end
+
+-- The stored list's records that are not over at `now`, in order; nil when the stored value is not a list.
+local function standing(raw: unknown, now: number): { any }?
+	if raw == nil then
+		return {}
+	end
+	if type(raw) ~= "table" then
+		return nil
+	end
+	local list: { any } = {}
+	local stored = raw :: { any }
+	for index = 1, #stored do
+		local item = stored[index]
+		local endsAt = if type(item) == "table" then (item :: { [string]: any }).endsAt else nil
+		if type(endsAt) ~= "number" or endsAt > now then
+			table.insert(list, item)
+		end
+	end
+	return list
+end
+
+function CafeEvents.ownerAdd(
+	raw: unknown,
+	record: { [string]: any },
+	now: number
+): ({ any }?, string?)
+	local list = standing(raw, now)
+	if list == nil then
+		return nil, "the stored schedule is not a list; fix it from the events workflow first"
+	end
+	local events = CafeEvents.parse(list, now)
+	for _, event in events do
+		if event.startsAt < record.endsAt and record.startsAt < event.endsAt then
+			if event.startsAt <= now then
+				return nil,
+					string.format(
+						"%s is already running for %d more minutes (/event stop ends one you started)",
+						event.title,
+						math.ceil((event.endsAt - now) / 60)
+					)
+			end
+			return nil,
+				string.format(
+					"%s starts in %d minutes; a shorter party would fit before it",
+					event.title,
+					math.ceil((event.startsAt - now) / 60)
+				)
+		end
+	end
+	if #list >= Config.EventScheduleMax then
+		return nil, "the schedule is full; clear old events from the events workflow first"
+	end
+	table.insert(list, record)
+	return list, nil
+end
+
+function CafeEvents.ownerRemove(raw: unknown, now: number): ({ any }?, number)
+	local list = standing(raw, now)
+	if list == nil then
+		return nil, 0
+	end
+	local kept: { any } = {}
+	local removed = 0
+	for _, item in list do
+		local id = if type(item) == "table" then (item :: { [string]: any }).id else nil
+		local prefix = CafeEvents.OWNER_PREFIX
+		if type(id) == "string" and string.sub(id, 1, #prefix) == prefix then
+			removed += 1
+		else
+			table.insert(kept, item)
+		end
+	end
+	return kept, removed
 end
 
 -- Section 2e: the key `event`'s reward is paid under, once per account (profile.eventLast): its id, or for a test

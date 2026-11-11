@@ -58,4 +58,59 @@ return function()
 			end
 		)
 	end)
+
+	describe("CatchHeader.fromStray (#3224)", function()
+		local CatchHeader = require(Components:WaitForChild("CatchHeader")) :: any
+		local function stray(attributes: { [string]: any }): any
+			return {
+				GetAttribute = function(_self: any, name: string): any
+					return attributes[name]
+				end,
+			}
+		end
+		local function defOf(catId: string?): any
+			return if catId == "sand_cat" then { name = "Sand Cat", rarity = "Rare" } else nil
+		end
+
+		it("names a stray from its own attributes when no prompt card is up", function()
+			local named = CatchHeader.fromStray(
+				"s1",
+				stray({
+					CatId = "sand_cat",
+					CatName = "Sand Cat",
+					Rarity = "Rare",
+					Variant = "base",
+				}),
+				defOf
+			)
+			expect(named.strayId).to.equal("s1")
+			expect(named.catName).to.equal("Sand Cat")
+			expect(named.rarity).to.equal("Rare")
+			expect(named.shiny).to.equal(false)
+			expect(named.rainbow).to.equal(false)
+		end)
+
+		it("reads the coat, and falls back to the catalog for a missing name or rarity", function()
+			local gold =
+				CatchHeader.fromStray("s2", stray({ CatId = "sand_cat", Variant = "gold" }), defOf)
+			expect(gold.catName).to.equal("Sand Cat")
+			expect(gold.rarity).to.equal("Rare")
+			expect(gold.shiny).to.equal(true)
+			local rainbow = CatchHeader.fromStray(
+				"s3",
+				stray({ CatId = "sand_cat", Variant = "rainbow", Gold = false }),
+				defOf
+			)
+			expect(rainbow.rainbow).to.equal(true)
+			expect(rainbow.shiny).to.equal(false)
+			local older =
+				CatchHeader.fromStray("s4", stray({ CatId = "sand_cat", Gold = true }), defOf)
+			expect(older.shiny).to.equal(true)
+		end)
+
+		it("gives nothing for no model or a model with no cat on it", function()
+			expect(CatchHeader.fromStray("s5", nil, defOf)).to.equal(nil)
+			expect(CatchHeader.fromStray("s6", stray({}), defOf)).to.equal(nil)
+		end)
+	end)
 end

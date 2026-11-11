@@ -53,7 +53,7 @@ Derek2, 2026-11-09: "create an issue to start doing research on implementing gol
 
 - **The amount.** An offer gains `fish: number`, a whole number from 0 to the giver's balance and at most `TradeMaxFish` (200) a side.
   - The server refuses anything negative, fractional, NaN or infinite, or over the cap or the balance, on every change and again at the swap.
-- **Daily cap.** A player can receive at most `TradeFishPerDay` (400) a game day across all trades. The trade window shows the receiver's room left ("They can get 150 more today"), and an offer above it is refused.
+- **Daily cap.** A player can receive at most `TradeFishPerDay` (250; Derek2 2026-11-10, 400 before, lowered to leave less room for alt farming) a game day across all trades. The trade window shows the receiver's room left ("They can get 150 more today"), and an offer above it is refused.
 - **Freeze.** While a player is in an open trade, every golden fish spend is refused with "Finish your trade first": Market buys, perks, crate buys and spa slots. All spends go through one helper, `GoldenFish.spend`, which checks this.
 - **Doesn't count for progress.** Received fish don't count toward `lifetimeGoldenFish`, leaderboards, quests or milestones. Nothing pays per trade (§1).
 - **Window.** A fish row sits under each 3 × 3 grid with the 🐟 icon and the amount. Your own row has − and + buttons and 10, 50 and Max (up to the cap and the partner's room left). There's no text box. Any change resets both Ready presses.

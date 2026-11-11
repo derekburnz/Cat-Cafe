@@ -208,29 +208,49 @@ def _log_line(s, mat, z, runs):
         s.put(wd.lantern(mat), x, z - 9.0, rot)                         # #2265: out of a jump of its barrier
 
 
+STONE_LENGTHS = (1.0, 0.7, 1.3, 0.85, 1.15, 0.9, 1.1)
+
+
 def _stone_wall(s, mat, z, runs):
     """Stretches of dry stone field wall (runs, x0 to x1), taller than a jump (#2265, was 3.4): 2.2 thick and
-    WALL_H high, cap stones on edge 0.45 more, coursing on both faces, moss on the caps and ferns at its foot, a tall
+    WALL_H high in five courses of rough stones (each through the wall, its own grey, a little proud or shy of
+    its neighbours), cap stones on edge 0.45 more, moss on the caps and ferns at its foot, a tall
     stone pier PIER_H high at each end and lanterns either side of the trail's way. A barrier BLOCK_OVER over the
     moss on each stretch and pier."""
     b, bar = Builder(), Builder()
     H, T = WALL_H, 2.2
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
-        x, y, _ = bl((a0 + a1) / 2, z + T / 2)
-        b.box_base((x, y, 0), (L, T, H), "concrete")
-        n = max(2, round(L / 1.6))
+        # five courses of rough stones, bigger at the foot, each stone through the wall's whole thickness (one part
+        # shows on both faces) in its own grey and standing 0 to 0.12 proud of its neighbours, the lengths uneven and
+        # the joints staggered course to course, so the wall reads as laid stone, not a slab (it was one concrete box
+        # with drawn coursing lines; same footprint and part count, #2834 model pass)
+        zc = 0.0
+        for c, ch in enumerate((1.8, 1.7, 1.6, 1.5, 1.4)):
+            w0 = 8.0
+            pos = a0 + (0.45 * w0 if (c + k) % 2 else 0.0)
+            edges = [a0] if pos > a0 else []
+            j = c * 2 + k
+            while pos < a1 - 2.0:
+                edges.append(pos)
+                pos += w0 * STONE_LENGTHS[j % len(STONE_LENGTHS)]
+                j += 1
+            edges.append(a1)
+            for i in range(len(edges) - 1):
+                e0, e1 = edges[i], edges[i + 1]
+                grey = ("concrete", "fur_grey", "fur_smoke_light", "concrete", "fur_pewter")[(i * 3 + c * 2 + k) % 5]
+                proud = 0.06 * ((i + c) % 3)
+                x, y, _ = bl((e0 + e1) / 2, z + T / 2)
+                b.box_base((x, y, zc), (e1 - e0, T + proud, ch), grey, bevel=False)
+            zc += ch
+        n = max(2, round(L / 3.4))
         for i in range(n):
             cx = a0 + (i + 0.5) * L / n
             x, y, _ = bl(cx, z + T / 2)
             b.box_base((x, y, H), (L / n - 0.08, T + 0.2, 0.45 + 0.006 * (i % 2)), ("concrete_dark", "fur_grey")[i % 2],
                        bevel=False)
-            if (i + k) % 5 == 2:
+            if (i + k) % 3 == 1:
                 b.ico((x, y, H + 0.5), 0.9, "fur_moss", subdivisions=1, scale=(1.4, 1.1, 0.35))
-        for zz in (1.1, 2.3, 3.5, 4.7, 5.9, 7.1):                                             # coursing
-            for f in (-0.03, T + 0.03):
-                x, y, _ = bl((a0 + a1) / 2, z + f)
-                b.box((x, y, zz), (L, 0.06, 0.1), "concrete_dark", bevel=False)
         m = max(1, round(L / 7.0))
         for i in range(m):
             cx = a0 + (i + 0.5) * L / m

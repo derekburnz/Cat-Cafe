@@ -85,4 +85,40 @@ return function()
 			expect(prize.catFood.nothing).to.equal(nil)
 		end)
 	end)
+
+	describe("CollectorLogic.wantLine (#3132)", function()
+		it("says the name and the rarity in its colour", function()
+			expect(CollectorLogic.wantLine("Tabby", "Rare", nil, "3a8dde")).to.equal(
+				'Tabby · <font color="#3a8dde">Rare</font>'
+			)
+		end)
+		it("names the coat before the rarity and adds the time left for the tag", function()
+			expect(CollectorLogic.wantLine("Tabby", "Epic", "gold", "aa55ff", "2:41")).to.equal(
+				'Tabby · <font color="#aa55ff">Gold Epic</font> · 2:41'
+			)
+		end)
+		it("keeps a long name whole and a name with markup harmless", function()
+			local long = "Sir Whiskers the Magnificent Third"
+			expect(
+				string.find(CollectorLogic.wantLine(long, "Common", nil, "ffffff"), long, 1, true)
+			).to.equal(1)
+			expect(
+				string.find(
+					CollectorLogic.wantLine("<b>&", "Common", nil, "ffffff"),
+					"&lt;b&gt;&amp;",
+					1,
+					true
+				)
+			).to.equal(1)
+		end)
+		it("falls back when the cat is not in the save yet", function()
+			expect(string.sub(CollectorLogic.wantLine(nil, nil, nil, "ffffff"), 1, 8)).to.equal(
+				"Your cat"
+			)
+		end)
+		it("is a short banner", function()
+			expect(CollectorLogic.BANNER_SECONDS).to.equal(3)
+			expect(#CollectorLogic.BANNER_TITLE <= 16).to.equal(true)
+		end)
+	end)
 end

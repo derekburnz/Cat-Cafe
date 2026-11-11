@@ -2684,6 +2684,20 @@ Presets.goldenFind = {
 	ringSeconds = 0.9,
 }
 
+-- #3360 (rich customers' money bags, Effects/MoneyBag): the gold ring and sparkles when a bag drops on table 1 and
+-- the pop when it is collected. Studs and seconds; one beat per bag, so nothing repeats faster than a bag can drop.
+Presets.moneyBag = {
+	within = 120, -- studs from this player; further cafes are skipped
+	lift = 0.6, -- the sparkles start this far over the table top
+	dropSparkles = 8,
+	dropRing = 3,
+	collectSparkles = 16,
+	collectRing = 5,
+	ringSeconds = 0.7,
+	confetti = 14, -- in your own cafe only
+	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
+}
+
 -- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
 -- costs (Effects/ArcadeFx). Pixels and seconds.
 Presets.arcade = {

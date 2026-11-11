@@ -1828,6 +1828,22 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	CircleHold = function(index: any)
 		Audio.play("circleHold", nil, num(index))
 	end,
+	-- #3062 Cat Arcade (Circle Streak): ArcadeStart() as a run begins (the fish is paid), ArcadeMilestone() at each
+	-- 10 circles, ArcadeEnd(streak, won) when the run ends (a win plays the Museum's reward jingle). The circles
+	-- sound through CircleAppear and CircleGrade. Skipped until Gameplay-Engineer adds the moments.
+	ArcadeStart = function()
+		Audio.play("arcadeStart")
+	end,
+	ArcadeMilestone = function()
+		Audio.play("arcadeMilestone")
+	end,
+	ArcadeEnd = function(streak: any, won: any)
+		if won == true then
+			Audio.play("indexReward")
+		elseif (num(streak) or 0) > 0 then
+			Audio.play("arcadeEnd")
+		end
+	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))
 		if cueId == "circleMiss" then

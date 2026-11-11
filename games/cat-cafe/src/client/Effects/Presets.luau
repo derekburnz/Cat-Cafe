@@ -2564,6 +2564,22 @@ Presets.storeBurst = {
 	},
 }
 
+-- The arcade cabinet's idle glow (#3062; Effects/ArcadeGlow): its `screen` part drifts through `colours`, one every
+-- `step` seconds, and `emitter` sparkles rise `lift` studs over its top, within `within` studs.
+Presets.arcadeGlow = {
+	screen = "Screen",
+	step = 2.5,
+	within = 120,
+	lift = 0.3,
+	emitter = "waitBeacon",
+	colours = {
+		Presets.palette.pastelSky,
+		Presets.palette.blush,
+		Presets.palette.mint,
+		Presets.palette.goldLight,
+	},
+}
+
 -- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
 -- costs (Effects/ArcadeFx). Pixels and seconds.
 Presets.arcade = {

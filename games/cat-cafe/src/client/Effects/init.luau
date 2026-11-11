@@ -17,6 +17,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
 local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
@@ -167,6 +168,7 @@ function Effects.start()
 		HoldPulse.start,
 		BaitCrumbs.start,
 		WaitingCat.start,
+		ArcadeGlow.start,
 		StationBuild.start,
 		CampGrowth.start,
 		Townsfolk.start,

@@ -19,7 +19,7 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
   - Its own absolute bar: `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64. It never follows the rescue tables.
   - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x0.6).
   - A miss costs nothing and allows a retry after 10 s.
-- **Timing:** saved per player (`bin = { nextAt, uses }`), server side.
+- **Timing:** server side, per player, in its own DataStore `CatCafe_Bin` keyed by user id (#3104). It is **not** a profile save field, so it needs no save version step or restart.
   - Ready on the first visit, then 180 s after each of the first 3 uses, then every 900 s.
   - Nothing banks.
 - **Prizes, one per success:**

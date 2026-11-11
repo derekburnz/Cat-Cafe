@@ -153,6 +153,24 @@ function HeldCat.attach(model: Model, character: Model, root: BasePart?): Weld?
 	return hold
 end
 
+-- #3165 (Derek2 2026-11-10: "sometimes cat goes home to spawn without catching and glitches", standing at the town
+-- spawn with the carry banner up and nothing in the arms): whether `model` is still in `character`'s arms: inside
+-- the character, its HoldWeld joining its body to the character's torso as it is now (or to `root` while there is no
+-- torso). False once the avatar's appearance rebuilt the torso (the weld went with the old one and the cat fell away),
+-- once the cat was welded to the root and a torso has arrived since, or once the model is gone. CatService puts the
+-- cat back then, as it does the Backpack (#2856).
+function HeldCat.held(model: Model?, character: Model, root: BasePart?): boolean
+	if model == nil or model.Parent ~= character then
+		return false
+	end
+	local weld = model:FindFirstChild("HoldWeld", true)
+	if weld == nil or not weld:IsA("Weld") then
+		return false
+	end
+	local holder: BasePart? = HeldCat.torso(character) or root
+	return holder ~= nil and (weld :: Weld).Part0 == holder and (weld :: Weld).Part1 ~= nil
+end
+
 -- #2719 (Derek2 2026-11-09: "make players wear a backpack when bought and the first cat they grab goes in it with
 -- just their head sticking out"): the Backpack's owner wears Model-Agent's CatCafe_Item_Backpack behind the torso,
 -- and the packed cat rides in it with only its head out of the top. Numbers are in the pack's own space at scale 1

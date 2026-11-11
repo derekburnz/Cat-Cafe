@@ -138,6 +138,8 @@ end
 -- Clears the bought counts and each row's count toward its family's daily limit once the window (a game day since
 -- #1437) has moved on (never on a step back: two servers' clocks can differ by a second at a window edge, reviewer
 -- N32), and the food XP once the UTC day has. #1629 (Derek2): the family limits reset at every in-game sunrise, not at 00:00 UTC.
+-- #3118 (Monetization-Agent): only the window clears them now, so the daily caps and the stock roll share one
+-- in-game day; 00:00 UTC no longer gives a second reset in between.
 function CornerShop.refresh(state: Types.CornerShopState, window: number, day: number)
 	if window > state.window then
 		state.window = window
@@ -146,7 +148,6 @@ function CornerShop.refresh(state: Types.CornerShopState, window: number, day: n
 	end
 	if day > state.day then
 		state.day = day
-		state.today = {}
 		state.foodXpToday = 0
 	end
 end

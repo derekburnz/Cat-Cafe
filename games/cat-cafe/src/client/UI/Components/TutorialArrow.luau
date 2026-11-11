@@ -3,12 +3,15 @@
 -- pointing toward what to click next"): a big gold arrow with the dark outline, bobbing toward the thing a tutorial
 -- step glows (Components/TutorialGlow adds and removes its targets here). One arrow at a time, at the newest target
 -- that is on screen: hidden while the target is hidden, scrolled out of its list or under an open window, so the
--- HUD's Upgrades tile hands over to the row inside Upgrades once the window opens. It shows for SHOW_SECONDS when a
--- target starts to glow, then comes back every AGAIN_SECONDS while the step still waits, and goes with the glow.
+-- HUD's Upgrades tile hands over to the row inside Upgrades once the window opens. #3153: it stays for as long as the
+-- step waits (it used to hide and come back), never points at a target folded off the screen, and a tutorial target
+-- gets the spotlight: the rest of the screen darkens round it (TutorialArrowLogic.dim and holes), and the world's edge
+-- arrow (Components/StepTarget) steps aside so there is one arrow to follow. It goes with the glow.
 -- With Roblox's Reduce Motion on it holds still. It sits in the target's own ScreenGui, over everything there.
 --   add(target, low?)  the arrow may point at target (newest first); a `low` target (#2331, the goal card's ready
 --                      rank up) only while no tutorial target is on screen, so it never takes the tutorial's arrow
 --   remove(target)   not any more
+--   leading()        true while the arrow points at a tutorial (not `low`) target
 
 local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
@@ -24,15 +27,22 @@ local TutorialArrowLogic = require(script.Parent.TutorialArrowLogic)
 local TutorialArrow = {}
 
 TutorialArrow.NAME = "TutorialArrow"
+TutorialArrow.SPOT_NAME = "TutorialSpotlight"
+TutorialArrow.AVOID = "TutorialArrowAvoid" -- #3154: an attribute; a label with it set true is kept off like a button
 local SIZE = 64 -- design px; Scale makes it a phone's or a big screen's
 local BOB = 8 -- px it bobs toward the target
 local BOB_INFO = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 local Z = 60 -- over the target's ScreenGui's own pieces (they stay under 30)
+local SPOT_Z = Z - 1 -- #3153: the spotlight's dim, under the arrow and over the rest of the ScreenGui
 
 type Entry = { target: GuiObject, since: number, low: boolean }
 
 local entries: { Entry } = {}
 local arrow: Frame? = nil
+local spot: Frame? = nil -- #3153: the spotlight's four dark boxes
+local spotFor: GuiObject? = nil
+local spotSince = 0
+local lead = false
 local loop: RBXScriptConnection? = nil
 -- the other buttons the arrow should keep off, measured again every OTHERS_SECONDS (a walk of the whole ScreenGui)
 local OTHERS_SECONDS = 0.5
@@ -121,6 +131,20 @@ local function shownIn(target: GuiObject): ScreenGui?
 	if not gui.Enabled then
 		return nil
 	end
+	-- #3153: a tile folded off the screen's edge (the menu's arrow tab) is still Visible, but not on screen
+	local screen = gui.AbsoluteSize
+	local top = if gui.IgnoreGuiInset then 0 else (GuiService:GetGuiInset()).Y
+	if
+		screen.X > 0
+		and not TutorialArrowLogic.onScreen(
+			target.AbsolutePosition,
+			target.AbsoluteSize,
+			screen,
+			top
+		)
+	then
+		return nil
+	end
 	-- a HUD piece while a window is open: the windows' dim is over it
 	local dim = gui.Parent and gui.Parent:FindFirstChild("CatCafeModalDim")
 	if dim and dim:IsA("ScreenGui") and dim.Enabled and gui.DisplayOrder < dim.DisplayOrder then
@@ -151,7 +175,10 @@ local function measureOthers(
 	local tile = target.Parent
 	for _, piece in gui:GetDescendants() do
 		if
-			piece:IsA("GuiButton")
+			(
+				piece:IsA("GuiButton")
+				or (piece:IsA("GuiObject") and piece:GetAttribute(TutorialArrow.AVOID) == true)
+			)
 			and piece ~= (target :: Instance)
 			and piece ~= tile
 			and not piece:IsDescendantOf(target)
@@ -173,11 +200,73 @@ local function measureOthers(
 	return found
 end
 
+-- #3153: the spotlight's holder, four black boxes round a hole; never Active, so taps go through to what is under it.
+local function makeSpot(): Frame
+	local holder: Frame = Create("Frame", {
+		Name = TutorialArrow.SPOT_NAME,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Active = false,
+		Visible = false,
+		ZIndex = SPOT_Z,
+	})
+	for index = 1, 4 do
+		Create("Frame", {
+			Name = "Dim" .. index,
+			BackgroundColor3 = Color3.new(0, 0, 0),
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Active = false,
+			ZIndex = SPOT_Z,
+			Parent = holder,
+		})
+	end
+	return holder
+end
+
+local function hideSpot()
+	local current = spot
+	if current then
+		current.Visible = false
+	end
+	spotFor = nil
+end
+
 local function hide()
 	local current = arrow
 	if current then
 		current.Visible = false
 	end
+	hideSpot()
+	lead = false
+end
+
+-- #3153: the dim round `target` in `into`, `now` seconds on the clock.
+local function showSpot(into: ScreenGui, target: GuiObject, screen: Vector2, now: number)
+	local holder = spot or makeSpot()
+	spot = holder
+	if spotFor ~= target then
+		spotFor = target
+		spotSince = now
+	end
+	if holder.Parent ~= into then
+		holder.Parent = into
+	end
+	-- the holder sits at the ScreenGui's origin, in the same pixels as the arrow and AbsolutePosition
+	local rects = TutorialArrowLogic.holes(target.AbsolutePosition, target.AbsoluteSize, screen)
+	local shade = if GuiService.ReducedMotionEnabled
+		then TutorialArrowLogic.SPOT_SOFT
+		else TutorialArrowLogic.dim(now - spotSince)
+	for index, rect in rects do
+		local box = holder:FindFirstChild("Dim" .. index)
+		if box and box:IsA("Frame") then
+			local frame = box :: Frame
+			frame.Position = UDim2.fromOffset(rect.min.X, rect.min.Y)
+			frame.Size = UDim2.fromOffset(rect.max.X - rect.min.X, rect.max.Y - rect.min.Y)
+			frame.BackgroundTransparency = shade
+		end
+	end
+	holder.Visible = true
 end
 
 local function update()
@@ -215,8 +304,15 @@ local function update()
 		othersFor = target
 		othersAt = now
 	end
-	local place =
-		TutorialArrowLogic.place(target.AbsolutePosition, target.AbsoluteSize, screen, px, others)
+	local top = if into.IgnoreGuiInset then 0 else (GuiService:GetGuiInset()).Y
+	local place = TutorialArrowLogic.place(
+		target.AbsolutePosition,
+		target.AbsoluteSize,
+		screen,
+		px,
+		others,
+		top
+	)
 	current.Size = UDim2.fromOffset(px, px)
 	current.Position = UDim2.fromOffset(place.x, place.y)
 	current.Rotation = place.rotation
@@ -228,6 +324,12 @@ local function update()
 		current.Parent = into
 	end
 	current.Visible = true
+	lead = not chosen.low
+	if lead then
+		showSpot(into, target, screen, now)
+	else
+		hideSpot() -- the goal card's rank up nudge is no tutorial step: no dim for it
+	end
 end
 
 local function watch()
@@ -263,6 +365,18 @@ function TutorialArrow.remove(target: GuiObject)
 		end
 	end
 	watch()
+end
+
+-- #3153: true while the arrow points at a tutorial target (Components/StepTarget's edge arrow keeps away then).
+function TutorialArrow.leading(): boolean
+	local current = arrow
+	return lead and current ~= nil and current.Visible
+end
+
+-- The spotlight's holder while it shows, or nil (the UI gate's scenes read it).
+function TutorialArrow.spotlight(): Frame?
+	local current = spot
+	return if current and current.Visible then current else nil
 end
 
 -- The arrow frame while it shows, or nil (the UI gate's scenes read it).

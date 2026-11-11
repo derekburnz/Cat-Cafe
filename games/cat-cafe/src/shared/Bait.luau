@@ -14,6 +14,11 @@
 --   setState(profile, bowl, state?)        puts or clears it
 --   secondBowl(ownsPass) -> SecondBowl     "on" with the pass, "offer" (the Store shows the pass) without it
 --   oddsCard(bowlLevel) -> { FoodOdds }    every shop and dealer food's odds at that level
+-- The account's first bait (#1895, #2946, #3158, #3161):
+--   firstWait(wait, luresUsed) -> number   its short wait
+--   isFirst(placedAt, readyAt, luresUsed) -> boolean   whether the bait in the bowl is that one
+--   catOutAt(placedAt, readyAt, luresUsed) -> number   when the bait's cat stands at the bowl
+--   away(distance?) -> boolean             whether the player is too far from the bowl to have seen it arrive
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -75,13 +80,38 @@ function Bait.waitSeconds(bowlLevel: number, bigBowl: boolean, night: boolean?):
 end
 
 -- #1895: the wait for food going in now when the account has set `luresUsed` baits before: the account's first
--- bait waits at most FirstBaitWaitSeconds (45 seconds since #2774, so a first session sees its first bait cat), every later one
+-- bait waits at most FirstBaitWaitSeconds (5 seconds since #3161, so a first session sees its first bait cat), every later one
 -- `wait` (Economy.baitWaitSeconds). Speed-ups only ever shorten it. No Robux buys it.
 function Bait.firstWait(wait: number, luresUsed: number): number
 	if luresUsed <= 0 then
 		return math.min(wait, Config.FirstBaitWaitSeconds)
 	end
 	return wait
+end
+
+-- #3158, #3161: whether the bait in a bowl is the account's short first one (`luresUsed` counts it already): its
+-- whole wait is FirstBaitWaitSeconds or less. Its cat's cutscene plays at the bowl, so the tutorial waits for that
+-- cat to be tamed or let go before it moves on (BaitService), and the cat stands at the bowl early (catOutAt).
+function Bait.isFirst(placedAt: number, readyAt: number, luresUsed: number): boolean
+	return luresUsed <= 1 and readyAt - placedAt <= Config.FirstBaitWaitSeconds
+end
+
+-- When the bait's cat stands at the bowl for everyone to see: as its wait ends, or for the account's first bait
+-- FirstBaitCatLeadSeconds sooner (never less than a second after the food went in), so the first bait's cutscene
+-- shows it walking in and eating while the timer runs down (#3161). The Tame card still waits for `readyAt`.
+function Bait.catOutAt(placedAt: number, readyAt: number, luresUsed: number): number
+	if not Bait.isFirst(placedAt, readyAt, luresUsed) then
+		return readyAt
+	end
+	return math.min(readyAt, math.max(placedAt + 1, readyAt - Config.FirstBaitCatLeadSeconds))
+end
+
+-- #3161: whether a player `distance` studs from their own bowl counts as away from it (nil: not known, so away), for
+-- the first bait's "Your bait cat is here!" pop-up: at the bowl they have just watched the cat walk in.
+Bait.AWAY_STUDS = 40
+
+function Bait.away(distance: number?): boolean
+	return distance == nil or distance > Bait.AWAY_STUDS
 end
 
 -- #1897 (first-hour.md section 2, Derek2 2026-11-06): each account's first bait (#2793, Derek2 2026-11-09: was the
@@ -91,7 +121,7 @@ end
 Bait.WOW_EPIC_CHANCE = 0.15 -- a Common the guarantee lifts becomes Epic this often, else Rare
 
 -- Whether the food going in now gets the guarantee: the account has not had it. #2793: from the first bait, so the
--- first "wow" lands about 45 s in (FirstBaitWaitSeconds), before the 2 to 5 minute drop.
+-- first "wow" lands seconds after the first food (FirstBaitWaitSeconds), before the 2 to 5 minute drop.
 function Bait.wowDue(firstWow: boolean): boolean
 	return not firstWow
 end

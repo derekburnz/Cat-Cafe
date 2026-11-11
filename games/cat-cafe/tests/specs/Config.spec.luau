@@ -428,11 +428,12 @@ return function()
 		-- #3062 (the Cat Arcade's Circle Streak, shared/Arcade; the milestones are checked in Circles.spec)
 		ArcadeCostFish = 1,
 		ArcadeMaxPoints = 100,
-		ArcadeStepEvery = 10,
+		ArcadeStepEvery = 5, -- #3359: was 10
 		ArcadeShrinkStep = 0.96,
 		ArcadeWindowStep = 0.97,
 		ArcadeJitterMax = 0.20,
-		ArcadeStartShrinkSeconds = 1.20,
+		ArcadeStartShrinkSeconds = 0.60, -- #3359: was 1.20 (a Common's)
+		ArcadeShrinkFloorSeconds = 0.30, -- #3359
 		ArcadeBlockLeadIn = 0.9,
 	}
 

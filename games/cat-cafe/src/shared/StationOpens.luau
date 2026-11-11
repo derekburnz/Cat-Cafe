@@ -23,6 +23,7 @@ StationOpens.WINDOWS = table.freeze({
 	"OasisSpa",
 	"RelicMuseum",
 	"Collection",
+	"Arcade", -- #3378: the Cat Arcade's ring and prompt (arcade_v1 step 2 hears it)
 })
 StationOpens.HOWS = table.freeze({ "ring", "prompt" })
 
@@ -37,6 +38,7 @@ StationOpens.PROMPTS = table.freeze({
 	DealerPrompt = "Dealer",
 	BaitPrompt = "Bait",
 	FeedbackPrompt = "BugReport",
+	ArcadePrompt = "Arcade",
 } :: { [string]: string })
 
 -- Whether (window, how) from a client names a known station and way; anything else is dropped.

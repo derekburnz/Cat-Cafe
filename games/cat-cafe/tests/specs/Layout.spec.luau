@@ -3219,6 +3219,25 @@ return function()
 			end
 		end)
 
+		it("names the piece a dropped barrier stood in for, so its body can collide", function()
+			expect(Layout.barrierPiece("CatCafe_Ruins_Set_087_GlyphHalls_Barrier")).to.equal(
+				"CatCafe_Ruins_Set_087_GlyphHalls"
+			)
+			expect(Layout.barrierPiece("CatCafe_Ruins_Set_068_Walls_Barrier")).never.to.be.ok()
+			expect(Layout.barrierPiece("CatCafe_Ruins_Set_087_GlyphHalls")).never.to.be.ok()
+		end)
+
+		it(
+			"makes solid bodies collide and leaves glow, glass, water and flat trim walk-over",
+			function()
+				expect(Layout.bodyCollides(0, "SmoothPlastic", 8)).to.equal(true)
+				expect(Layout.bodyCollides(0, "SmoothPlastic", 0.4)).to.equal(false)
+				expect(Layout.bodyCollides(0, "Neon", 8)).to.equal(false)
+				expect(Layout.bodyCollides(0, "Glass", 8)).to.equal(false)
+				expect(Layout.bodyCollides(0.6, "SmoothPlastic", 8)).to.equal(false)
+			end
+		)
+
 		it("leaves everything that is not a barrier, the climb ramps too", function()
 			expect(Layout.keepsBarrier("CatCafe_Woods_SetF85_162_Treehouse_Climb")).to.equal(true)
 			expect(Layout.keepsBarrier("CatCafe_Ruins_Set")).to.equal(true)

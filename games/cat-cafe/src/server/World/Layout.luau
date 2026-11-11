@@ -2503,4 +2503,28 @@ function Layout.keepsBarrier(name: string): boolean
 	return string.find(name, "_Walls_Barrier", 1, true) ~= nil
 end
 
+-- #3348: the piece an inner barrier stood in for, "CatCafe_Ruins_Set_087_GlyphHalls" for
+-- "CatCafe_Ruins_Set_087_GlyphHalls_Barrier", or nil for a name that is kept. That piece's own body parts carry the
+-- same name; WorldBuilder makes the solid looking ones collide once the barrier is gone, so a wall stays a wall.
+function Layout.barrierPiece(name: string): string?
+	if Layout.keepsBarrier(name) then
+		return nil
+	end
+	return string.sub(name, 1, -9)
+end
+
+-- #3348: whether a body part of a piece that lost its barrier should collide: drawn, solid looking (not glowing,
+-- glass or water), and at least `minHeight` studs tall in the world, so flat trim, pool water and floor tiles stay
+-- walk-over.
+Layout.BODY_MIN_HEIGHT = 1
+function Layout.bodyCollides(transparency: number, material: string, height: number): boolean
+	if transparency >= 0.5 or height < Layout.BODY_MIN_HEIGHT then
+		return false
+	end
+	return material ~= "Neon"
+		and material ~= "Glass"
+		and material ~= "ForceField"
+		and material ~= "Water"
+end
+
 return Layout

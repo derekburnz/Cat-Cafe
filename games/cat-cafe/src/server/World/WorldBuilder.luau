@@ -278,18 +278,30 @@ local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	return model
 end
 
--- #3348: takes an area set's invisible barriers inside the area out (Layout.keepsBarrier), keeping its edge ring.
--- Returns how many pieces went.
+-- #3348: takes an area set's invisible barriers inside the area out (Layout.keepsBarrier), keeping its edge ring, and
+-- lets the visible body of each piece that had one collide instead (Layout.barrierPiece, Layout.bodyCollides): a hall
+-- wall or a fallen log is still solid, a pool's water or a stream stays walk-in. Returns how many barrier pieces went.
 local function dropInnerBarriers(set: Instance): number
 	local dropped = 0
+	local pieces: { [string]: boolean } = {}
 	for _, item in set:GetDescendants() do
-		if
-			item.Parent ~= nil
-			and (item:IsA("BasePart") or item:IsA("Model"))
-			and not Layout.keepsBarrier(item.Name)
-		then
+		local piece = Layout.barrierPiece(item.Name)
+		if item.Parent ~= nil and piece ~= nil and (item:IsA("BasePart") or item:IsA("Model")) then
+			pieces[piece] = true
 			item:Destroy()
 			dropped += 1
+		end
+	end
+	for _, item in set:GetDescendants() do
+		if item:IsA("BasePart") and pieces[item.Name] and not item.CanCollide then
+			local body = item :: BasePart
+			local up = body.CFrame:VectorToObjectSpace(Vector3.yAxis)
+			local height = math.abs(up.X) * body.Size.X
+				+ math.abs(up.Y) * body.Size.Y
+				+ math.abs(up.Z) * body.Size.Z
+			if Layout.bodyCollides(body.Transparency, body.Material.Name, height) then
+				body.CanCollide = true
+			end
 		end
 	end
 	return dropped

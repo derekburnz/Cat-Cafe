@@ -462,6 +462,21 @@ v0.3 change (Gavin, Q8): the 4 s hold becomes a short minigame on an area-specif
 
 v0.13.15 (Derek 12:15, harder rescues): every marker runs 0.2 bar lengths a second faster and every zone is narrower, so the time the marker spends in the zone (tolerance included) drops by 21% (Mythical) to 29% (Common). `rescueHits`, RescuePatience (3), RescueTolerance (0.03) and the 15 s deadline stay. With presses within about 50 ms a bar attempt succeeds 100 / 100 / 97 / 73 / 37% of the time by rarity (it was 100 / 100 / 100 / 95 / 65%), and within 70 ms 100 / 99 / 77 / 37 / 11% (was 100 / 100 / 96 / 68 / 27%). A failed rescue still never loses the cat: it stays stuck and the player tries again after RescueSelfRetrySeconds.
 
+**Current values (2026-11-11, after #2219, #2320, #2566, #3120, #3180 and #3225).** The table above is history; main reads:
+
+| rarity | RescueBarSpeed | RescueZoneWidth |
+|---|---|---|
+| Common | 1.00 | 0.17 |
+| Rare | 0.90 | 0.135 |
+| Epic | 0.98 | 0.105 |
+| Legendary | 1.12 | 0.105 |
+| Mythical | 1.26 | 0.125 |
+
+- **#3120 (Derek2 2026-11-10, "make the rescue area about 10->50% smaller"):** zones cut from 0.30 / 0.23 / 0.15 / 0.12 / 0.14. **#3225 (#3223, "rescues are wayyy to easy"):** Common 0.85 -> 1.00 and Rare 0.735 -> 0.90; Epic and up unchanged.
+- **Eases on top:** the Alleyway (`RescueAreaEase` zone x1.4, speed x0.75, one fewer hit) and the Park (zone x1.2, speed x0.85). An account's first **5** rescues (`RescueFirstUses`) get zones x**1.85** (`RescueFirstZone`) and the marker at x**0.85** (`RescueFirstSpeed`), #3180. A gold or rainbow cat's zone is wider (#3135). The Oasis Spa's Warm Paws widens zones from Tier 6.
+- **The Rummage Bin (#3050)** uses its own absolute bar, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, and never follows these.
+- **Watch:** at 70 ms of latency, Legendary frees about 16% and Mythical about 8% of attempts (Gameplay-Engineer's numbers on #3223). Tablets already cancel half their rescues (#3024), so `rescue_attempt` by platform is read after the publish.
+
 ## 10c. Carry and shove
 
 v0.3 change (Gavin, Q9): one cat at a time on the way home, and other players can knock it loose. This replaces the v0.2 no-stealing rule.

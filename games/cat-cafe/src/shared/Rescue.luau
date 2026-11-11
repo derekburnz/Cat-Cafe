@@ -174,6 +174,12 @@ function Rescue.zoneScale(rescues: number, variant: string?): number
 	return if variant ~= nil then Config.CoatDifficulty[variant] or 1 else 1
 end
 
+-- #3180: what an account's first RescueFirstUses rescues multiply the marker's speed by (RescueFirstSpeed), and 1
+-- after them.
+function Rescue.speedScale(rescues: number): number
+	return if rescues < Config.RescueFirstUses then Config.RescueFirstSpeed else 1
+end
+
 -- A new bar for a cat of `rarity` at a trap of type `trap`, from server time `now`. The marker waits at its phase
 -- for CircleLeadInSeconds, and never waits inside the first zone, where a press at the start would be free.
 -- #2786: `areaId`'s Config.RescueAreaEase (the Alleyway and the Park) widens the zones, slows the marker and takes
@@ -184,7 +190,8 @@ function Rescue.newChallenge(
 	now: number,
 	roll: () -> number,
 	zoneScale: number?, -- #2687: StationPerks.rescueZoneScale (Warm Paws) times Rescue.zoneScale, 1 when nil
-	areaId: string?
+	areaId: string?,
+	speedScale: number? -- #3180: Rescue.speedScale, 1 when nil
 ): Types.RescueChallenge
 	local kind: Types.RescueKind = Rescue.kind(trap)
 	local ease = if areaId ~= nil then Config.RescueAreaEase[areaId] else nil
@@ -203,7 +210,9 @@ function Rescue.newChallenge(
 		phase = if zones[1] > 0.5 then 0 else 1 -- the far end of the bar
 	end
 	local startsAt = now + Config.CircleLeadInSeconds
-	local speed = Config.RescueBarSpeed[rarity] * (if ease ~= nil then ease.speed else 1)
+	local speed = Config.RescueBarSpeed[rarity]
+		* (if ease ~= nil then ease.speed else 1)
+		* (speedScale or 1)
 	return {
 		kind = kind,
 		startsAt = startsAt,

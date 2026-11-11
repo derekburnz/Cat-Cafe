@@ -595,35 +595,63 @@ return function()
 	-- are too easy now") and #3135 ("check if mutated cats gold/rainbow increase difficulty of catch and if thats not
 	-- added add it")
 	describe("a player's zone scale: first rescues and coats (#3120, #3135)", function()
-		it("keeps an account's first three rescues about as wide as before the cut", function()
-			expect(Config.RescueFirstUses).to.equal(3)
-			for done = 0, 2 do
-				expect(Rescue.zoneScale(done, nil)).to.equal(Config.RescueFirstZone)
+		it(
+			"keeps an account's first five rescues about as wide as before the cut (#3180: 3 before)",
+			function()
+				expect(Config.RescueFirstUses).to.equal(5)
+				expect(Config.RescueFirstZone).to.equal(1.85)
+				for done = 0, 4 do
+					expect(Rescue.zoneScale(done, nil)).to.equal(Config.RescueFirstZone)
+				end
+				expect(Rescue.zoneScale(5, nil)).to.equal(1)
+				-- the widths before #3120, which the first rescues stay within a tenth of for a Common and a Rare
+				expect(
+					math.abs(Config.RescueZoneWidth.Common * Config.RescueFirstZone - 0.30) < 0.03
+				).to.equal(true)
+				expect(math.abs(Config.RescueZoneWidth.Rare * Config.RescueFirstZone - 0.23) < 0.03).to.equal(
+					true
+				)
 			end
-			expect(Rescue.zoneScale(3, nil)).to.equal(1)
-			-- the widths before #3120, which the first rescues stay within a tenth of for a Common and a Rare
-			expect(math.abs(Config.RescueZoneWidth.Common * Config.RescueFirstZone - 0.30) < 0.03).to.equal(
-				true
-			)
-			expect(math.abs(Config.RescueZoneWidth.Rare * Config.RescueFirstZone - 0.23) < 0.03).to.equal(
-				true
-			)
-		end)
+		)
 
 		it("narrows a gold cat's zone a little and a rainbow's a little more", function()
-			expect(Rescue.zoneScale(3, "base")).to.equal(1)
+			expect(Rescue.zoneScale(5, "base")).to.equal(1)
 			expect(Rescue.zoneScale(50, nil)).to.equal(1)
-			expect(Rescue.zoneScale(3, "gold")).to.equal(0.90)
-			expect(Rescue.zoneScale(3, "rainbow")).to.equal(0.80)
-			expect(Rescue.zoneScale(3, "rainbow") < Rescue.zoneScale(3, "gold")).to.equal(true)
-			expect(Rescue.zoneScale(3, "plaid")).to.equal(1) -- a coat the table does not know
+			expect(Rescue.zoneScale(5, "gold")).to.equal(0.90)
+			expect(Rescue.zoneScale(5, "rainbow")).to.equal(0.80)
+			expect(Rescue.zoneScale(5, "rainbow") < Rescue.zoneScale(5, "gold")).to.equal(true)
+			expect(Rescue.zoneScale(5, "plaid")).to.equal(1) -- a coat the table does not know
 		end)
 
 		it("leaves the coat out of a first rescue, so a lucky first gold is no harder", function()
-			for done = 0, 2 do
+			for done = 0, 4 do
 				expect(Rescue.zoneScale(done, "gold")).to.equal(Config.RescueFirstZone)
 				expect(Rescue.zoneScale(done, "rainbow")).to.equal(Config.RescueFirstZone)
 			end
+		end)
+
+		-- #3180 (Derek2 2026-11-10: "make the starting rescue's easier and slightly smaller bars")
+		it("runs the marker slower on those first rescues, on top of the area's ease", function()
+			expect(Config.RescueFirstSpeed).to.equal(0.85)
+			for done = 0, 4 do
+				expect(Rescue.speedScale(done)).to.equal(0.85)
+			end
+			expect(Rescue.speedScale(5)).to.equal(1)
+			local function speed(scale: number?, areaId: string?): number
+				return Rescue.newChallenge(
+					"Common",
+					"trash_bin",
+					0,
+					rolls({ 0.2, 0.7, 0.4, 0.9 }),
+					nil,
+					areaId,
+					scale
+				).speed :: number
+			end
+			expect(speed(nil, nil)).to.be.near(0.85, 1e-9)
+			expect(speed(Rescue.speedScale(0), nil)).to.be.near(0.85 * 0.85, 1e-9)
+			expect(speed(Rescue.speedScale(0), "alley")).to.be.near(0.85 * 0.75 * 0.85, 1e-9)
+			expect(speed(Rescue.speedScale(9), "alley")).to.be.near(0.85 * 0.75, 1e-9)
 		end)
 
 		it("multiplies into the bar with the area and the station perk", function()
@@ -647,7 +675,7 @@ return function()
 				1e-9
 			)
 			expect(width(Rescue.zoneScale(0, "rainbow"), "alley")).to.be.near(
-				0.17 * 1.7 * 1.4,
+				0.17 * 1.85 * 1.4,
 				1e-9
 			)
 		end)

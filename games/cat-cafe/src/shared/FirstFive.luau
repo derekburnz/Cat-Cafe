@@ -11,6 +11,20 @@
 -- - quit_snapshot: on leaving, value the session's seconds. Fields: the furthest step (as quit_state), the idle bucket
 --   (no movement or report) and the screen open (SNAP_SCREENS) joined as one, e.g. "5-15 upgrades", and whether the
 --   coins cover the next onboarding buy (yes, no, na).
+-- P2:
+-- - health_check: once a session at HEALTH_AT seconds in, value the client's frames a second; ping bucket (the
+--   server's GetNetworkPing), memory bucket (the client's total MB), device.
+-- - quick_return: on a join within QUICK_RETURN_SECONDS of the last leave, value the whole minutes away; the furthest
+--   step, the minutes bucket (0-10, 10-30, 30-60), the session number bucket (2, 3, 4+).
+-- - quit_cafe: beside quit_snapshot, value the session's seconds; cats working (0, 1, 2, 3+), table level (0, 1,
+--   2+), cats owned (1, 2, 3, 4+).
+-- P1b (Derek2 20:09: "track what exact step of tutorial scenes people leave on"). The server hears the intro's shots
+-- only from the client (TelemetryReport intro_shot, 1 to INTRO_SHOTS as each starts; the onboarding_v4_intro funnel
+-- was retired in #2444), so Telemetry keeps the furthest shot of the session:
+-- - first_scene: on the session's first intro_shot 1, value the seconds since the join; device, "intro", bucket
+--   (0-10, 10-20, 20-40, 40+). Minus step_time "loaded", it is the still wait before the cutscene.
+-- - quit_scene: on leaving, value the session's seconds; the scene (SCENES, picked by `scene`), device, seconds
+--   bucket (0-30, 30-60, 60-120, 120-300, 300+).
 
 local Onboarding = require(script.Parent.Onboarding)
 local Types = require(script.Parent.Types)
@@ -30,6 +44,162 @@ FirstFive.SNAP_SCREENS = table.freeze({
 	Collection = "index",
 	Settings = "settings",
 }) :: { [string]: string }
+
+FirstFive.HEALTH_AT = 150 -- session seconds before the client measures
+FirstFive.HEALTH_SAMPLE = 2 -- seconds of frames counted
+FirstFive.FPS_MAX = 240
+FirstFive.MEMORY_MAX = 65536 -- MB; a report above it is dropped
+FirstFive.QUICK_RETURN_SECONDS = 3600
+
+-- health_check's ping field for a round trip of `ms` milliseconds.
+function FirstFive.pingBucket(ms: number): string
+	if ms < 100 then
+		return "lt100"
+	elseif ms < 250 then
+		return "100-250"
+	end
+	return "250+"
+end
+
+-- health_check's memory field for the client's `mb` in use.
+function FirstFive.memoryBucket(mb: number): string
+	if mb < 800 then
+		return "lt800"
+	elseif mb < 1500 then
+		return "800-1500"
+	end
+	return "1500+"
+end
+
+-- quick_return's fields after the step: the minutes away bucket and the session number bucket.
+function FirstFive.awayBucket(minutes: number): string
+	if minutes < 10 then
+		return "0-10"
+	elseif minutes < 30 then
+		return "10-30"
+	end
+	return "30-60"
+end
+
+function FirstFive.sessionBucket(sessions: number): string
+	return if sessions <= 2 then "2" elseif sessions == 3 then "3" else "4+"
+end
+
+-- quit_cafe's counts: cats working, table level and cats owned, as their buckets.
+function FirstFive.cafeFields(working: number, tables: number, owned: number): { string }
+	return {
+		if working >= 3 then "3+" else tostring(math.max(0, working)),
+		if tables >= 2 then "2+" else tostring(math.max(0, tables)),
+		if owned >= 4 then "4+" else tostring(math.max(1, owned)),
+	}
+end
+
+local INTRO_SHOTS = 10
+FirstFive.INTRO_SHOTS = INTRO_SHOTS
+FirstFive.FIRST_SCENE_LABELS = { "0-10", "10-20", "20-40", "40+" }
+
+-- first_scene's bucket for `seconds` from the join to the first intro shot.
+function FirstFive.firstSceneBucket(seconds: number): string
+	if seconds < 10 then
+		return "0-10"
+	elseif seconds < 20 then
+		return "10-20"
+	elseif seconds < 40 then
+		return "20-40"
+	end
+	return "40+"
+end
+
+-- quit_scene's scenes: where a beginner was when they left
+FirstFive.SCENES = {
+	"loading",
+	"intro_start",
+	"intro_shot_1",
+	"intro_shot_2",
+	"intro_shot_3",
+	"intro_shot_4",
+	"intro_shot_5",
+	"intro_shot_6",
+	"intro_shot_7",
+	"intro_shot_8",
+	"intro_shot_9",
+	"intro_shot_10",
+	"tut_0",
+	"tut_1",
+	"tut_3",
+	"tut_4",
+	"cannon_flight",
+	"carry",
+	"circle_open",
+	"catch_prompt",
+	"alley",
+	"cafe",
+	"other",
+}
+
+export type SceneFacts = {
+	loaded: boolean, -- the client has reported in this session (its device report)
+	introSeen: boolean, -- the intro has played out or been skipped (profile.introSeen)
+	introShot: number, -- the furthest intro shot the client reported this session (TelemetryReport intro_shot), 0 none
+	launching: boolean, -- in a cannon flight (the character's Launching)
+	carrying: boolean, -- carrying a cat (the character's CarryingCatId)
+	furthest: string, -- the furthest onboarding step (Onboarding.furthest)
+	where: string, -- quit_state's where: "cafe", an area id or "none"
+}
+
+-- The scene a leaver was in, most specific first: loading, an intro shot while the intro runs, a cannon flight, a
+-- carry, the catch circles or the catch prompt (the furthest step), a tutorial card still the furthest step, then
+-- where they stood (the Alleyway, their cafe) or other.
+function FirstFive.scene(facts: SceneFacts): string
+	if not facts.loaded then
+		return "loading"
+	end
+	if not facts.introSeen then
+		-- intro_start: loaded but no shot on screen yet (the still wait before the cutscene)
+		local shot = math.floor(facts.introShot)
+		return if shot >= 1 and shot <= INTRO_SHOTS then "intro_shot_" .. shot else "intro_start"
+	end
+	if facts.launching then
+		return "cannon_flight"
+	end
+	if facts.carrying then
+		return "carry"
+	end
+	local furthest = facts.furthest
+	if furthest == "catch_started" or furthest == "first_circle_hit" then
+		return "circle_open"
+	elseif furthest == "near_stray" or furthest == "catch_card_opened" then
+		return "catch_prompt"
+	elseif furthest == "tut_0_shown" then
+		return "tut_0"
+	elseif furthest == "tut_1_shown" then
+		return "tut_1"
+	elseif furthest == "tut_3_shown" then
+		return "tut_3"
+	elseif furthest == "tut_4_shown" then
+		return "tut_4"
+	end
+	if facts.where == "alley" then
+		return "alley"
+	elseif facts.where == "cafe" then
+		return "cafe"
+	end
+	return "other"
+end
+
+-- quit_scene's seconds bucket.
+function FirstFive.secondsBucket(seconds: number): string
+	if seconds < 30 then
+		return "0-30"
+	elseif seconds < 60 then
+		return "30-60"
+	elseif seconds < 120 then
+		return "60-120"
+	elseif seconds < 300 then
+		return "120-300"
+	end
+	return "300+"
+end
 
 -- quit_snapshot's idle field for `seconds` with no movement or report.
 function FirstFive.idleBucket(seconds: number): string

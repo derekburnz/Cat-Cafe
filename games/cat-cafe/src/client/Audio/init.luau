@@ -1702,6 +1702,16 @@ local function followLateStations()
 	end)
 end
 
+-- #2997: the Saturday update gift (15 golden fish and 1 spin) arrives as a Toast line only, so its reward jingle
+-- plays on that line (Logic.isUpdateGiftToast). It reuses indexReward, so it needs no new file.
+local function followUpdateGift()
+	onRemote("Toast", function(text: any)
+		if Logic.isUpdateGiftToast(text) then
+			Audio.play("indexReward")
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -1713,6 +1723,7 @@ local function followServerState()
 	task.defer(followRally)
 	task.defer(followBait)
 	task.defer(followLateStations)
+	task.defer(followUpdateGift)
 end
 
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),

@@ -42,7 +42,12 @@ return function()
 					count += 1
 				end
 			end
-			local expected = #Catalog.lawn
+			local expected = 0
+			for _, def in Catalog.lawn do
+				if def.drop ~= true then -- #3222: the drop-only pieces are never sold
+					expected += 1
+				end
+			end
 			for _, style in Catalog.lawnStyles do
 				if style.rarity ~= nil and style.price > 0 then
 					expected += 1

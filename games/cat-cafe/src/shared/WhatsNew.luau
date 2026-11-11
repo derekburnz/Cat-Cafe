@@ -30,6 +30,81 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-11 04:00): player-facing changes since #3220, 27 merges; no new player ideas
+	{
+		id = "rummage_bin",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Rummage Bin in the Alleyway",
+	},
+	{
+		id = "saturday_gift",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Saturday update gifts",
+	},
+	{
+		id = "hidden_nooks",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Hidden nooks in wild areas",
+	},
+	{
+		id = "ruins_desert_detail",
+		date = "2026-11-11",
+		icon = "look",
+		text = "More Ruins and Desert detail",
+	},
+	{
+		id = "second_stray_paw",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Easier to find a second cat",
+	},
+	{
+		id = "night_market_alert",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Night Market ! at nightfall",
+	},
+	{
+		id = "decor_lantern_gem",
+		date = "2026-11-11",
+		icon = "look",
+		text = "Bench lantern and gem move",
+	},
+	{
+		id = "rainbow_paint_door",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Rainbow paint skips the door",
+	},
+	{
+		id = "catch_card_net",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Catch card names net catches",
+	},
+	{
+		id = "cannon_menus_open",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Cannon menus stay open",
+	},
+	{
+		id = "park_cannon_camp",
+		date = "2026-11-11",
+		icon = "fix",
+		text = "Park cannon lands in camp",
+	},
+	-- #3062 + #3067: the Cat Arcade, the same player's idea as Swift Paws (the same credit)
+	{
+		id = "cat_arcade",
+		date = "2026-11-11",
+		icon = "new",
+		text = "Cat Arcade in Town Square",
+		creditId = "c12",
+	},
 	-- #3217 refresh (11-11): player-facing changes since #3043; Swift Paws was its_cuzu098's idea
 	{
 		id = "swift_paws_perk",

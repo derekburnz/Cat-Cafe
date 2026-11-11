@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
+local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local AssetRegistry = require(script.Parent.AssetRegistry)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -17,6 +18,7 @@ local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
 local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
+local RummageBin = require(ReplicatedStorage.Shared.RummageBin)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -72,6 +74,8 @@ export type AreaInfo = {
 	spawnPoints: { BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits, the whole pool (#2240)
 	rescueMix: { [string]: number }, -- #2240: TrapType -> how many of the pool hold a trap each day
+	-- #2687: the hidden nook's rescue spot (in rescueSpots too), out of the pool's pick: it holds a trap every day
+	nookSpot: string?,
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
 	rects: { Layout.Rect }, -- the floor pieces (one zone box each)
 	roam: { Layout.Rect }, -- where strays stay (WorldBuilder.clampToArea): the floors, less any dressed wall strip
@@ -1646,8 +1650,7 @@ local function buildArea(
 	for _, point in spec.rescueSpots do
 		rescueMix[point.trap] = (rescueMix[point.trap] or 0) + 1
 	end
-	for i, point in spec.rescuePool or spec.rescueSpots do
-		local name = "rescue_" .. id .. "_" .. i
+	local function buildSpot(name: string, point: Layout.RescuePoint)
 		local base = CFrame.new(point.x, spec.floorY + (point.y or 0), point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
 		-- A prop trap poses the cat in the prop's space; a trap built into the area's set has no prop, so the cat is
@@ -1676,6 +1679,35 @@ local function buildArea(
 		CollectionService:AddTag(spot, "RescueSpot")
 		rescueSpots[name] = spot
 	end
+	for i, point in spec.rescuePool or spec.rescueSpots do
+		buildSpot("rescue_" .. id .. "_" .. i, point)
+	end
+
+	-- #2687 part 2: the hidden nook, against a side wall of the set with its gate open (each leaf turned 100 degrees
+	-- about its hinge, in toward the nook), and its rescue spot, which RescueService fills every day.
+	local nookSpot: string? = nil
+	local nook = spec.nook
+	if nook ~= nil and AssetRegistry.known(nook.asset) then
+		local nookModel = place(
+			nook.asset,
+			CFrame.new(nook.x, spec.floorY + nook.y, nook.z)
+				* CFrame.Angles(0, math.rad(nook.rotY), 0),
+			model
+		)
+		nookModel.Name = "Nook"
+		for _, side in { "L", "R" } do
+			local leaf = nookModel:FindFirstChild(nook.asset .. "_Gate" .. side)
+			if leaf ~= nil and leaf:IsA("Model") then
+				local leafModel = leaf :: Model
+				leafModel:PivotTo(
+					leafModel:GetPivot()
+						* CFrame.Angles(0, math.rad(if side == "L" then -100 else 100), 0)
+				)
+			end
+		end
+		nookSpot = "rescue_" .. id .. "_nook"
+		buildSpot(nookSpot :: string, nook.trap)
+	end
 
 	if camp ~= nil then
 		buildCamp(camp, look, model)
@@ -1689,6 +1721,7 @@ local function buildArea(
 		spawnPoints = spawnPoints,
 		rescueSpots = rescueSpots,
 		rescueMix = rescueMix,
+		nookSpot = nookSpot,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 		rects = rects,
 		-- strays keep to the wild part: a camp is outside their roam (section 4)
@@ -1818,6 +1851,80 @@ local function buildCampExtras(parent: Instance)
 			ICON_EXTRA[def.id]
 		)
 	end
+end
+
+-- #3050: the Rummage Bin at the Alleyway camp (Layout.rummageBinAt), tagged RummageBin. Its one-press "Rummage"
+-- prompt (RummageBin.PROMPT, Custom: the UI's action pill) sits at the model's PromptAnchor; BinService checks the
+-- range from the same anchor and each client words the prompt and picks the look for its own player
+-- (Controllers/BinController). The model's two looks are child Models, `_Ready` (lid flung back, prizes poking out)
+-- and `_Empty` (lid shut): neither collides (the bin under them does) and the empty one starts hidden. Without the
+-- art a plain block stands in. Atomic, as the camp extras.
+local BIN_ART = "CatCafe_Camp_Alley_RummageBin"
+
+local function buildRummageBin(parent: Instance)
+	local x, y, z, turn = Layout.rummageBinAt()
+	if x == nil or y == nil or z == nil or turn == nil then
+		return
+	end
+	local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+	local model: Model
+	if AssetRegistry.has(BIN_ART) then
+		model = place(BIN_ART, at, parent)
+	else
+		model = Instance.new("Model")
+		model.PrimaryPart = part(
+			"Body",
+			Vector3.new(3, 4, 3),
+			at * CFrame.new(0, 2, 0),
+			CARAMEL,
+			Enum.Material.Metal,
+			model
+		)
+		model.Parent = parent
+	end
+	model.Name = "RummageBin"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	model:SetAttribute("Area", RummageBin.AREA)
+	CollectionService:AddTag(model, RummageBin.TAG)
+	for _, look in model:GetChildren() do
+		if not look:IsA("Model") then
+			continue
+		end
+		local empty = look.Name:sub(-6) == "_Empty"
+		for _, piece in look:GetDescendants() do
+			if piece:IsA("BasePart") then
+				local solid = piece :: BasePart
+				solid.CanCollide = false
+				solid.CanQuery = false
+				if empty then
+					solid.Transparency = 1
+				end
+			end
+		end
+	end
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	if anchor == nil or not anchor:IsA("Attachment") then
+		local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if host == nil then
+			return
+		end
+		local float = Instance.new("Attachment")
+		float.Name = "PromptAnchor"
+		float.Parent = host
+		float.WorldPosition = (at * CFrame.new(0, 1.5, -2)).Position
+		anchor = float
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = RummageBin.PROMPT
+	prompt.ObjectText = RummageBin.NAME
+	prompt.ActionText = RummageBin.ACTION
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = RummageBin.RANGE_STUDS
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	-- the chances, under the pill before the press (monetization-policy section 2)
+	prompt:SetAttribute("Note", RummageBin.oddsLine())
+	prompt.Parent = anchor
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at
@@ -2148,6 +2255,77 @@ local function buildFeedbackStand(parent: Instance): Model?
 		prompt.Parent = float
 	end
 	WalkUpCircles.front(model, RING_FEEDBACK, FeedbackStand.RANGE, nil, ICON_FEEDBACK)
+	return model
+end
+
+-- The Cat Arcade's cabinet (#3062, shared/Arcade) at Layout.arcadeCabinet, tagged ArcadeCabinet, with a one-press
+-- "Play" prompt on its front that opens the arcade's card on this client (UIController); the game itself is
+-- ArcadeService's and can also be opened from the Menu list, so nothing here measures a range. Model-Agent's
+-- CatCafe_Town_ArcadeCabinet once its art is in; until then PH_ArcadeCabinet, a plain purple cabinet with a glowing
+-- screen, so the arcade has a home in the square from day one (the spec's "a PH_ box to start").
+local function buildArcadeCabinet(parent: Instance): Model
+	local spec = Layout.arcadeCabinet
+	local at = CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0)
+	local model: Model
+	if AssetRegistry.known(Arcade.ASSET) then
+		model = place(Arcade.ASSET, at, parent)
+	else
+		model = Instance.new("Model")
+		model.Name = "PH_ArcadeCabinet"
+		local purple = Color3.fromRGB(120, 80, 190)
+		local body =
+			part("Body", Vector3.new(3.7, 6, 3.1), at * CFrame.new(0, 3, 0), purple, nil, model)
+		part(
+			"Top",
+			Vector3.new(3.9, 0.6, 3.3),
+			at * CFrame.new(0, 6.3, 0),
+			Color3.fromRGB(255, 201, 77),
+			nil,
+			model
+		)
+		local screen = part(
+			"Screen",
+			Vector3.new(3, 2.2, 0.2),
+			at * CFrame.new(0, 4.4, -1.6),
+			Color3.fromRGB(120, 230, 255),
+			Enum.Material.Neon,
+			model
+		)
+		screen.CanCollide = false
+		part(
+			"Panel",
+			Vector3.new(3.3, 0.4, 1),
+			at * CFrame.new(0, 2.8, -1.9),
+			Color3.fromRGB(60, 40, 100),
+			nil,
+			model
+		)
+		model.PrimaryPart = body
+		model.Parent = parent
+	end
+	model.Name = "ArcadeCabinet"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, Arcade.TAG)
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = Arcade.PROMPT
+	prompt.ActionText = Arcade.ACTION
+	prompt.ObjectText = Arcade.NAME -- ArcadeService adds the server's best
+	prompt.HoldDuration = 0 -- one press, as every station's (#2326)
+	prompt.MaxActivationDistance = Arcade.PROMPT_RANGE
+	prompt.RequiresLineOfSight = false
+	local found = model:FindFirstChild("PromptAnchor", true)
+	if found ~= nil and found:IsA("Attachment") then
+		prompt.Parent = found
+	else
+		local holder = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if holder ~= nil then
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = holder
+			float.WorldPosition = (at * CFrame.new(0, 3, -2)).Position
+			prompt.Parent = float
+		end
+	end
 	return model
 end
 
@@ -2715,6 +2893,7 @@ function WorldBuilder.build(): World
 	local extrasFolder = folder("CampExtras", root)
 	buildCampExtras(extrasFolder)
 	buildLateStations(extrasFolder) -- #2651 part 4
+	buildRummageBin(extrasFolder) -- #3050
 	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
 	-- extras too (#1132)
 	for _, info in areas do
@@ -2743,6 +2922,7 @@ function WorldBuilder.build(): World
 	buildCornerShop(root) -- #1052, once its art is in
 	buildThanksBoard(root) -- #1083, once its art is in
 	buildFeedbackStand(root) -- #3066
+	buildArcadeCabinet(root) -- #3062
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

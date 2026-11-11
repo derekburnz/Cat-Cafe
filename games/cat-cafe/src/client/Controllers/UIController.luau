@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
 local CarrySync = require(Shared:WaitForChild("CarrySync"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
@@ -1627,6 +1628,30 @@ local function bindStations()
 	bindStationPrompts(FeedbackStand.TAG, FeedbackStand.PROMPT, function()
 		UI.bugReport.open(FeedbackStand.KIND, "box")
 	end)
+	-- #3062: the Cat Arcade's cabinet opens its card; the `arcade` switch off hides the prompt
+	local arcadePrompts: { ProximityPrompt } = {}
+	local function arcadeOn(): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			Arcade.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Arcade.FLAG)
+		)
+	end
+	bindStationPrompts(Arcade.TAG, Arcade.PROMPT, function()
+		UI.arcade.open()
+	end, function(prompt: ProximityPrompt)
+		table.insert(arcadePrompts, prompt)
+		prompt.Enabled = arcadeOn()
+	end)
+	local function applyArcade()
+		local on = arcadeOn()
+		UI.arcade.setOn(on)
+		for _, prompt in arcadePrompts do
+			prompt.Enabled = on
+		end
+	end
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
+	applyArcade()
 end
 
 -- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
@@ -2324,6 +2349,93 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #3062: the Cat Arcade. Its circles sound as a catch's do (CircleAppear, CircleGrade), with Sound-Agent's
+	-- ArcadeStart, ArcadeMilestone and ArcadeEnd moments when the build has them.
+	local arcadeTimers: { thread } = {}
+	local arcadeRun: number? = nil
+	local function arcadeMoment(name: string, ...: any)
+		local moment: any = (Moments :: any)[name]
+		if moment ~= nil then
+			moment:Fire(...)
+		end
+	end
+	local function cancelArcadeTimers()
+		for _, timer in arcadeTimers do
+			pcall(task.cancel, timer)
+		end
+		table.clear(arcadeTimers)
+	end
+	Net.on("ArcadeState", function(view: any)
+		UI.arcade.state(view)
+	end)
+	Net.on(
+		"ArcadeBlock",
+		function(
+			run: number,
+			block: number,
+			circles: { Types.CatchCircle },
+			windows: Types.CatchWindows,
+			points: number
+		)
+			if arcadeRun ~= run then
+				arcadeRun = run
+				arcadeMoment("ArcadeStart")
+			end
+			UI.arcade.block(run, block, circles, windows, points)
+			cancelArcadeTimers()
+			for index, circle in circles do
+				local shrink = circle.shrinkSeconds
+				table.insert(
+					arcadeTimers,
+					task.delay(
+						math.max(0, circle.startsAt - Workspace:GetServerTimeNow()),
+						function()
+							if UI.arcade.playing() then
+								Moments.CircleAppear:Fire(index, shrink)
+							end
+						end
+					)
+				)
+			end
+		end
+	)
+	Net.on(
+		"ArcadeJudged",
+		function(
+			run: number,
+			block: number,
+			index: number,
+			grade: string,
+			points: number,
+			milestones: { number }
+		)
+			if grade == "perfect" or grade == "good" or grade == "miss" then
+				Moments.CircleGrade:Fire(index, grade)
+			end
+			if type(milestones) == "table" and #milestones > 0 then
+				arcadeMoment("ArcadeMilestone", milestones[#milestones])
+			end
+			UI.arcade.judged(run, block, index, grade, points, milestones)
+		end
+	)
+	Net.on("ArcadeOver", function(run: number, result: any)
+		cancelArcadeTimers()
+		arcadeRun = nil
+		if type(result) == "table" then
+			arcadeMoment("ArcadeEnd", result.points, result.win == true)
+		end
+		UI.arcade.over(run, result)
+	end)
+	UI.events.arcadePlay:Connect(function()
+		Net.fire("ArcadeStart")
+	end)
+	UI.events.arcadePress:Connect(function(run: number, block: number, index: number)
+		Net.fire("ArcadePress", run, block, index)
+		Moments.NetSwing:Fire(index)
+	end)
+	UI.events.arcadeQuit:Connect(function(run: number)
+		Net.fire("ArcadeQuit", run)
+	end)
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
 	Net.on("RoadmapStep", function(n: number)
@@ -2395,42 +2507,43 @@ local function wireServerEvents()
 		}
 		Moments.RescueStart:Fire(rescueSpotId)
 	end)
-	Net.on(
-		"RescueResult",
-		function(
-			rescueSpotId: string,
-			hits: number,
-			pawsLeft: number,
-			done: boolean,
-			success: boolean,
-			bar: Types.RescueBar?
-		)
-			-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
-			-- after a hit); a UI that does not take it yet ignores it
-			local update: any = UI.rescue.update
-			update(rescueSpotId, hits, pawsLeft, done, success, bar)
-			local current = rescue
-			if current == nil or current.spotId ~= rescueSpotId then
-				return
-			end
-			if hits > current.hits then
-				Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
-			end
-			if pawsLeft < current.paws then
-				Moments.RescueMiss:Fire(pawsLeft)
-			end
-			current.hits = hits
-			current.paws = pawsLeft
-			if done then
-				rescue = nil
-				if success then
-					Moments.RescueDone:Fire(rescueSpotId, current.rarity)
-				else
-					Moments.RescueFail:Fire(rescueSpotId)
-				end
+	Net.on("RescueResult", function(
+		rescueSpotId: string,
+		hits: number,
+		pawsLeft: number,
+		done: boolean,
+		success: boolean,
+		bar: Types.RescueBar?,
+		win: Types.RummageWin? -- #3050: the Rummage Bin's prize, on its winning result
+	)
+		-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
+		-- after a hit); a UI that does not take it yet ignores it
+		local update: any = UI.rescue.update
+		update(rescueSpotId, hits, pawsLeft, done, success, bar, win)
+		if done and success and win ~= nil and type(win.id) == "string" then
+			Moments.RummageWin:Fire(win.id, win.first == true)
+		end
+		local current = rescue
+		if current == nil or current.spotId ~= rescueSpotId then
+			return
+		end
+		if hits > current.hits then
+			Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
+		end
+		if pawsLeft < current.paws then
+			Moments.RescueMiss:Fire(pawsLeft)
+		end
+		current.hits = hits
+		current.paws = pawsLeft
+		if done then
+			rescue = nil
+			if success then
+				Moments.RescueDone:Fire(rescueSpotId, current.rarity)
+			else
+				Moments.RescueFail:Fire(rescueSpotId)
 			end
 		end
-	)
+	end)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)
 		-- Strays and rescue spots share this event and the card. A late answer for a target the card has moved
 		-- on from (a stray's auto-resolve landing after the next hold began) is dropped (reviewer N21).

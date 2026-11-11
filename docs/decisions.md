@@ -857,6 +857,32 @@ Derek2 2026-11-11: "I want to run it in a live game with a command from owner mo
 - **What.** Each Saturday content update carries `Config.UpdateGift` (id, start time, fish, spins). Every player gets it once, paid on their first join from the start time (or within a second if they are already in), with the toast "Update gift! 🐟 15 + 1 spin". No claim button, no countdown. The first one is id 2026-11-14 at 17:00 UTC, 15 golden fish and 1 spin.
 - **Why this way.** The issue first planned a new save field, which needs a save version step, and a server running the old version drops fields it does not know. Derek2 2026-11-11: no server restarts. So the paid gift is marked in the existing `codesRedeemed` table under `gift` plus the id's digits (`gift20261114`), which every server since version 9 keeps. The Store's "Codes you've used" list hides these keys, and no real code starts with `gift`. Assumption (Gameplay-Engineer, overnight): the amounts and time from the issue stand; a later update changes only the Config line.
 
+## 2026-11-10: feedback stand right of the Thank You board, night market nudged (#3189)
+Derek2 asked for the feedback stand to the right of the Thank You board, away from the fish market, and the night market a little left to make room. The stand moves from (34, 18) to (50, -25), on the board's right as you face it, between the night cart and the leaderboard row; the night cart moves from (37, -35) to (33, -31). A straight move left would hide the board from the spawn, so the cart also steps 4 toward the lane. The #3070 fit rules (fit70.py) still pass with nothing excepted; the arcade's spot stays north of the lane.
+
+## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
+
+Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.
+
+- The wait and wins now live in a small DataStore of their own, `CatCafe_Bin` (key: the user id), read when a player joins and written at each win. The save shape and `ProfileSchema.VERSION` (47) are unchanged, so no restart and no save version step. Older servers know nothing of the bin and never touch the store.
+- Until the read answers, and for the rest of the visit if every try fails, the player's bin reads "Empty for now", so a failed read never hands out the two fixed first prizes again. A failed write only lets the bin fill early on the next server; the prize was paid either way.
+- The bar uses Design-Agent's absolute numbers, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, so the rescue changes (#3120, #3223) never make the bin harder. `BinFirstEase` still applies on top for the first three.
+
+## 2026-11-11 Cat Arcade: Circle Streak, with no restart (#3062)
+
+- **What.** A player's idea, credited on the card as Derek2 asked. One golden fish plays a game of the catch's closing circles with no stray: Perfect +2, Good +1, the first miss ends it, 100 wins. Net level 1 windows for everyone, a little harder every 10 points. Milestones every 10 points (5 fish, 8 fish, Salmon, Lucky Potion, 15 fish, Golden Crate, Caviar, 30 fish, Moon Milk, Star Treat) pay once per UTC day each, shown in the window only. The server builds and judges every circle; no arcade bot check (Derek2 2026-11-10). Live switch `arcade`, on by default.
+- **Why this way.** Derek2 2026-11-11: no server restarts. The best, today's paid milestones and the Arcade Legend title live in their own DataStore (CatCafe_Arcade), not the save, so there's no save version step. New remotes are fine: an old server's clients never see them.
+- **Assumptions (Gameplay-Engineer, overnight).** Own remotes (ArcadeStart, ArcadePress, ArcadeQuit) rather than borrowing CatchPress, so a catch and the arcade can never mix up circles. The game is played in its window, opened by the cabinet's prompt and by a new Arcade row in the Menu list (no new HUD tile). Until Model-Agent's CatCafe_Town_ArcadeCabinet is in, a plain purple placeholder cabinet stands at Layout.arcadeCabinet. The Arcade Legend title shows on the arcade card only; a chat tag would need a save field, so it waits for a restart release. The server best is per server, in memory; a global board is a follow-up.
+
+## 2026-11-11 Golden lawn pieces as rare free drops (#3222)
+
+Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the 12%'s you can get from p2w make sure to make the model's really good".
+
+- Three new Golden big-spot lawn pieces (Model-Agent's models, PR #3228): Golden Cat Fountain, Golden Cat Throne and Golden Yarn Kitten, +12% money like the other Golden pieces. They are never sold: off the Yard Sale, and the lawn tab shows "Rare find" until one is found.
+- Source (Gameplay-Engineer's assumption): every cat a player frees from a trap has a 1 in 400 chance of one they don't own yet, picked evenly. Rescues are free and nothing paid changes the roll, so this is not a paid random item and monetization-policy's odds rules don't apply. A player freeing about 20 cats a day finds one roughly once a month; all three take a long while. Tunable in `Lawn.DROP_CHANCE`.
+- It ships behind the live switch `goldenDrops`, off by default. An older server drops a lawn id it doesn't know when it loads a save, so a piece found on a new server could vanish if the player then joined an old one. Switch it on (flags workflow, `set goldenDrops true`) once no server older than the publish that adds the pieces is running, for example after the next restart publish.
+- No save version step: the pieces go into the existing `lawnOwned`.
+
 ## 2026-11-11 Second cat at night: say the strays come back at sunrise (#3238, server half)
 
 - **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.

@@ -100,7 +100,7 @@ local Config = {
 		helpingPaw = 905647581887639,
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
-		partyGuest = 0, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e)
+		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -933,6 +933,39 @@ local Config = {
 			lostCat: string?,
 		}
 	},
+	-- #3050 (the Rummage Bin at the Alleyway camp, shared/RummageBin): one press plays a short rescue bar and a win
+	-- pulls one BinTable prize out (chances add to 1, shown on its prompt). The account's first BinFirstUses rummages
+	-- are easier (BinFirstEase on top of BinZoneWidth and BinBarSpeed) and BinFirstRepeatSeconds apart; after that
+	-- the bin fills every BinCooldownSeconds. A miss costs nothing and waits BinMissRetrySeconds. The first win is
+	-- always BinFirstPrizes[1] and the second BinFirstPrizes[2] (row ids). Amounts: Monetization-Agent 2026-11-10.
+	BinFirstUses = 3,
+	BinFirstRepeatSeconds = 180,
+	BinCooldownSeconds = 900,
+	BinMissRetrySeconds = 10,
+	-- Design-Agent on #3050 after #3120 and #3223: the bin's bar is set in absolute numbers and never follows the
+	-- rescue bars' RescueZoneWidth or RescueBarSpeed, so a rescue change never makes the bin harder: the old Common
+	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
+	BinZoneWidth = 0.42,
+	BinBarSpeed = 0.64,
+	BinFirstEase = { zone = 1.6, speed = 0.6 },
+	BinFirstPrizes = { "tuna", "crate" },
+	BinTable = {
+		{ id = "tuna", chance = 0.40, lure = "tuna" },
+		{ id = "fish", chance = 0.25, fish = 5 },
+		{ id = "salmon", chance = 0.12, lure = "salmon" },
+		{ id = "potion", chance = 0.11, potion = "lucky_potion" },
+		{ id = "crate", chance = 0.10, crate = "alley_crate" },
+		{ id = "golden", chance = 0.02, crate = "alley_golden_crate" },
+	} :: {
+		{
+			id: string,
+			chance: number,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+		}
+	},
 	-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert camp, Tier 6) gives a cat +1 level after SpaSeconds of
 	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
 	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
@@ -971,6 +1004,32 @@ local Config = {
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 16, -- #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
 	CodesCircleRadius = 6, -- #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	-- #3062 (Circle Streak, shared/Arcade): one run costs ArcadeCostFish golden fish; Perfect +2, Good +1, to
+	-- ArcadeMaxPoints. Every ArcadeStepEvery points the circles shrink ArcadeShrinkStep quicker and the windows narrow
+	-- by ArcadeWindowStep, the wobble rising toward ArcadeJitterMax. ArcadeStartShrinkSeconds is a Common stray's
+	-- shrink time (circles 1 to 10 easy for anyone who has caught a cat). ArcadeBlockLeadIn is the breath before each
+	-- block of 10 circles. Each milestone pays once per UTC day (Derek2 2026-11-10: 5 fish at 10 "so people who are
+	-- bad get some more to attempt early on"; the fish prizes stay 5, 8, 15 and 30). Nothing here is sold.
+	ArcadeCostFish = 1,
+	ArcadeMaxPoints = 100,
+	ArcadeStepEvery = 10,
+	ArcadeShrinkStep = 0.96,
+	ArcadeWindowStep = 0.97,
+	ArcadeJitterMax = 0.20,
+	ArcadeStartShrinkSeconds = 1.20,
+	ArcadeBlockLeadIn = 0.9,
+	ArcadeMilestones = {
+		{ at = 10, prize = { fish = 5 }, name = "5 golden fish" },
+		{ at = 20, prize = { fish = 8 }, name = "8 golden fish" },
+		{ at = 30, prize = { lures = { salmon = 1 } }, name = "Salmon" },
+		{ at = 40, prize = { potions = { lucky_potion = 1 } }, name = "Lucky Potion" },
+		{ at = 50, prize = { fish = 15 }, name = "15 golden fish" },
+		{ at = 60, prize = { crates = { classic_golden_crate = 1 } }, name = "Golden Crate" },
+		{ at = 70, prize = { lures = { caviar = 1 } }, name = "Caviar" },
+		{ at = 80, prize = { fish = 30 }, name = "30 golden fish" },
+		{ at = 90, prize = { lures = { moon_milk = 1 } }, name = "Moon Milk" },
+		{ at = 100, prize = { lures = { star_treat = 1 } }, name = "Star Treat" },
+	} :: { { at: number, prize: { [string]: any }, name: string } },
 	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
 	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off. The first: Saturday
 	-- 2026-11-14 17:00 UTC.

@@ -3440,7 +3440,8 @@ local SCENES = {
 		end
 		assert(drawn, "uigate: the Pumpkin uniform's square does not draw its picture (#2592)")
 	end },
-	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
+	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy and Claim all. Derek2 11-11:
+	-- the chat tag button left the pass for the Bag's Titles tab
 	{ "CafePassTag", function()
 		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
@@ -3450,7 +3451,24 @@ local SCENES = {
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("CafePass", true)
 		local tag = window and window:FindFirstChild("ChatTag", true)
-		assert(tag and tag:IsA("GuiObject") and tag.Visible, "uigate: no chat tag button on the Cafe Pass")
+		assert(not (tag and tag:IsA("GuiObject") and tag.Visible), "uigate: the Cafe Pass still shows the chat tag button")
+	end },
+	-- Derek2 11-11: the Bag's Titles tab: No title, the owned VIP title equipped, the rest greyed with no Equip
+	{ "BagTitles", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 0, items = {},
+			tags = { "vip" }, tagShown = "vip" })
+		UI.open("Potions")
+		press("Potions", "TitlesTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("TitleList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Titles list is not up")
+		local vip = list:FindFirstChild("vip")
+		local equip = vip and vip:FindFirstChild("Equip", true)
+		assert(equip and (equip :: any).Visible, "uigate: the owned VIP title has no button")
+		local maple = list:FindFirstChild("tag_maple")
+		local locked = maple and maple:FindFirstChild("Equip", true)
+		assert(maple and not (locked and (locked :: any).Visible), "uigate: a locked title shows Equip")
 	end },
 	{ "Spin", function()
 		UI.spin.open()

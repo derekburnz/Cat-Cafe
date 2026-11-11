@@ -191,7 +191,7 @@ UI.events = {
 	-- #1646 (cafe-pass.md section 5)
 	passClaim = Signal.new(), -- (track, level)   Claim on a Cafe Pass reward, track "free" or "paid": forward as PassClaim
 	passClaimAll = Signal.new(), -- ()   Claim all on the Pass window: forward as PassClaimAll
-	passSetTag = Signal.new(), -- (pick)   #1626: the Pass window's chat tag button, a ChatTags id or "off": forward as PassSetTag
+	passSetTag = Signal.new(), -- (pick)   #1626: the Bag's Titles tab (was the Pass's chat tag button), a ChatTags id or "off": forward as PassSetTag
 	-- #1624 (store-pass-looks.md)
 	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
@@ -1326,6 +1326,9 @@ function UI.init(config: Types.InitConfig)
 			bagFed[catUid] = if cat and type(cat.level) == "number" then cat.level else 0
 			local events: any = UI.events
 			events.feedCat:Fire(foodId, catUid)
+		end,
+		setTitle = function(pick: string)
+			UI.events.passSetTag:Fire(pick) -- the server checks the pick (ChatTags.choices) and sends CafePassState
 		end,
 		close = closeModal,
 	})
@@ -7884,6 +7887,9 @@ do
 			end,
 		})
 		screen:setView(pass.view)
+		if potionsScreen then
+			potionsScreen:setPassView(pass.view) -- the Bag's Titles tab
+		end
 		pass.prices = PassShop.changed:Connect(buyButton)
 		buyButton()
 		UI.pass.render()
@@ -7896,6 +7902,9 @@ do
 		local screen = pass.screen
 		if screen then
 			screen:setView(view)
+		end
+		if potionsScreen then
+			potionsScreen:setPassView(view) -- the Bag's Titles tab
 		end
 		buyButton()
 		tile()

@@ -817,3 +817,10 @@ Why not mark or hide it instead: a mark still leaves cats a new player cannot ca
 ## 2026-11-10 Daily Treat opens by itself after the 2nd cat goal, at the cafe (#3188)
 
 Derek2: "move daily treat to after your goal catch a 2nd cat and coming back to cafe if its not already". After #3155 it waited for the tutorial alone. It now also waits until two cats are caught by hand and checked in, and until the player stands on their own plot. The Daily tile still opens it by hand.
+## 2026-11-10 Alleyway: strays spread through the whole lane (#3170)
+
+The Alleyway's back end has 4 nook spawn points (was 8), and 6 new `mid` points fill the middle stretch, which had none, between the Skip and Van blocker rows. Any rarity may now spawn on any of its points: the nooks no longer hold its Epic and up (`Catching.KEEP_ZONES` keeps only the side areas' deep half for Mythicals), and a daytime top-up takes any free point instead of the nooks first (`StrayTopUp.FAR_ZONES` is `deep` only). Before and after map: the Library's `Animation-Engineer/images/alley-spawns-3170.png`.
+
+Why: Derek2: "all the cats in alleyway are piled into the back now spread them out through the entire area even the decent ones and remove some of the spawns from the back area". Each top-up went to a back nook while one was free, and every Epic or better waited only there, so the cats gathered at the back.
+
+Pace: the walks are shorter, so the Pace model's Tier 2 comes about 1 minute sooner (new player 8.9 min, was just over 9; 4-friend non-stop catcher 5.9, was about 6.9), and Tier 5 in one go 4 h 28 (floor was 4.5 h). The Tier 2 bands in Pace.spec go down by that much (8.5 to 12 for a new player) and the Tier 5 floor to 4.25 h. Derek2 has a decision card in the Animation-Engineer thread to keep the old pace instead, which would mean raising Tier 2's cost.

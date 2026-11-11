@@ -2511,9 +2511,10 @@ Catalog.areas = {
 		id = "alley",
 		name = "Alleyway",
 		tier = 1,
-		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
-		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
-		spawnPoints = 32,
+		-- two on the lanes for each cafe's old place, four nooks at the far end (eight before #3170), six in the middle
+		-- (#3170) and eight `near` points by the camp for the tutorial stray only (layout v3.1; v4, F84, data-model
+		-- section 9 v0.13.18)
+		spawnPoints = 34,
 		-- #2794 (Derek2 2026-11-09: "make sure alleyway and park have lots of starting cats and lots of spawns since
 		-- that's where a lot of players start also have rescues near start for them"): kept at 16 live by day (the
 		-- top-up floor), 6 near the camp, 2 stuck cats each sunrise, one in the trap nearest the camp. The sunrise wave

@@ -11,12 +11,15 @@
 -- * The first pass after the lookup is the catch-up: badges earned before this join (or made after they were
 --   earned) are awarded quietly and logged as "catchup"; later ones are "live" (Telemetry badge_awarded).
 -- A badge whose Config.Badges id is 0 is not made yet and is skipped.
+-- #3324: while the owner's account (Config.OwnerUserIds) is in the server, every other loaded player is due Met the
+-- Owner: everyone already here when the owner joins, and anyone who joins while the owner stays.
 
 local BadgeService = game:GetService("BadgeService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Badges = require(ReplicatedStorage.Shared.Badges)
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local DataService = require(script.Parent.DataService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local Telemetry = require(script.Parent.Telemetry)
@@ -111,7 +114,17 @@ local function award(player: Player, state: State, key: string)
 	state.retryDelay[key] = math.min(delay * 2, RETRY_MAX_SECONDS)
 end
 
-local function check(player: Player)
+-- #3324: whether the owner's account is in this server now.
+local function ownerHere(): boolean
+	for _, other in Players:GetPlayers() do
+		if ChatTags.isOwner(other.UserId) then
+			return true
+		end
+	end
+	return false
+end
+
+local function check(player: Player, owner: boolean)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
@@ -154,7 +167,8 @@ local function check(player: Player)
 		end)
 		return
 	end
-	local due = Badges.due(profile, state.owned, state.waitUntil, now)
+	local extra = if owner and not ChatTags.isOwner(player.UserId) then { metOwner = true } else nil
+	local due = Badges.due(profile, state.owned, state.waitUntil, now, extra)
 	if not state.caughtUp then
 		state.caughtUp = true
 		for _, key in due do
@@ -183,9 +197,10 @@ function BadgeAwardService.start()
 	task.spawn(function()
 		while true do
 			task.wait(CHECK_SECONDS)
+			local owner = ownerHere()
 			for _, player in DataService.loadedPlayers() do
 				local ok, err = pcall(function()
-					check(player)
+					check(player, owner)
 				end)
 				if not ok then
 					warn("[BadgeAwardService] " .. tostring(err))

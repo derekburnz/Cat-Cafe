@@ -658,15 +658,16 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 12000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
+			-- #3204: Tables 4, Espresso 3 and Net 1 at Tier 2 (were 5, 4 and 2); Net 2 at Tier 3 and Net 3 at Tier 5
+			{ "Cozy Cafe", 13500, 5, nil, nil, 4, 1.25, "park", { 4, 3, 1 } },
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before
 			-- #3111 (Derek2: "lower the different cats requirement a little bit between 3-7"): 11, 28, 42 and 52 before at
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
-			{ "Busy Cafe", 420000, 10, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 16800000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 350000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Busy Cafe", 520000, 10, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
+			{ "Famous Cafe", 16800000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
+			{ "Grand Cafe", 370000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
 			{ "Sunstone Cafe", 5600000000, 38, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
 			{ "Wonder Cafe", 54000000000, 47, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
@@ -760,16 +761,16 @@ return function()
 				{ "tables", 2, 1 },
 				{ "tables", 3, 2 },
 				{ "tables", 4, 2 },
-				{ "tables", 5, 2 }, -- #1896
+				{ "tables", 5, 3 }, -- #3204 (Tier 2 from #1896 until then)
 				{ "tables", 6, 3 },
 				{ "tables", 7, nil },
 				{ "espresso", 2, 1 },
 				{ "espresso", 3, 2 },
-				{ "espresso", 4, 2 }, -- #1896
+				{ "espresso", 4, 3 }, -- #3204 (Tier 2 from #1896 until then)
 				{ "espresso", 5, 4 },
 				{ "net", 1, 1 },
-				{ "net", 2, 2 },
-				{ "net", 3, 3 },
+				{ "net", 2, 3 }, -- #3204 (were Tiers 2 and 3)
+				{ "net", 3, 5 },
 				{ "lure_bowl", 1, 1 },
 				{ "lure_bowl", 2, 2 },
 				{ "lure_bowl", 5, 5 },
@@ -798,35 +799,35 @@ return function()
 					maxLevel = 6,
 					costs = { 150, 600, 3000, 10000, 170000, 600000 }, -- F95 (economy-ladder.md section 4); #1896
 					startLevel = 0,
-					atLevel = { [3] = 2, [4] = 2, [5] = 2, [6] = 3 }, -- #1896: Tables 5 at Tier 2
+					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 }, -- #3204: Tables 5 at Tier 3 (Tier 2 from #1896)
 				},
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
 					costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- F95; #1896; #2651
 					startLevel = 1,
-					atLevel = { [3] = 2, [4] = 2, [5] = 4, [6] = 6, [7] = 7 }, -- #1896: Espresso 4 at Tier 2
+					atLevel = { [3] = 2, [4] = 3, [5] = 4, [6] = 6, [7] = 7 }, -- #3204: Espresso 4 at Tier 3
 				},
 				net = {
 					name = "Net",
 					maxLevel = 3,
-					costs = { 2500, 25000, 800000 }, -- F95
+					costs = { 2500, 200000, 60000000 }, -- F95; #3204: were 25,000 and 800,000
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 3 },
+					atLevel = { [2] = 3, [3] = 5 }, -- #3204: were Tiers 2 and 3
 				},
 				lure_bowl = {
 					name = "Bait bowl",
 					maxLevel = 5,
 					costs = { 600, 6000, 150000, 4000000, 50000000 }, -- F82, v0.13.15; F95 prices; #2121 level 3
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5 }, -- #2121: level 3 at Tier 2
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 }, -- #3204: level 3 at Tier 3 (Tier 2 from #2121)
 				},
 				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
 					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
 					costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 }, -- #2651
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5, [6] = 6, [7] = 7 },
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5, [6] = 6, [7] = 7 }, -- #3204: level 3 at Tier 3
 				},
 			}
 

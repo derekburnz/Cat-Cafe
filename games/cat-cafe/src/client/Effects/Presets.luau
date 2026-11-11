@@ -2675,6 +2675,8 @@ Presets.arcade = {
 		wordSize = 34,
 	},
 	fish = { glyph = "🐟", colour = Presets.palette.golden, sparkles = 6, wordSize = 30 },
+	-- #3338: the shine that sweeps across the Play button while a game can start
+	shine = { every = 2.6, seconds = 0.7, width = 0.18, transparency = 0.55 },
 }
 
 Presets.tradeFly = {

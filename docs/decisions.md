@@ -911,6 +911,12 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Why overall Luck.** Derek ruled out market luck because stock is global. Spin luck would make the Spin Wheel's printed odds wrong, and the Bait Bowl upgrade already gives bowl luck. Overall Luck stays inside `LuckMax`, and it's earned only.
 - **Specs.** new-activities.md §4 and §5.
 
+## 2026-11-11 Economy ladder v8: shorter nights and the tier caps (#3195, #3204)
+
+- **What.** economy-ladder.md v8 records #3253: 45 s nights, the Tier 2 caps, Net 2 at Tier 3 and Net 3 at Tier 5, and Tier 2 13,500, Tier 3 520,000, Tier 5 370M.
+- **Why Tier 3 went up.** The caps make Tier 2 to 3 faster than more Tier 3 cost can pull back; 520k was the smallest price that put first-hour Tier 3 back at 30 min or more.
+- **Bands.** First-hour Tier 3 is now 30 to 45 min, the longest wait 22.5 min, the fast player's Tier 2 floor 8 min and the lawn run's Tier 5 floor 4 h. Every other band is unchanged (Design-Agent, overnight call; Derek can tighten them later).
+
 ## 2026-11-11 Trait station spec (#3196)
 
 - **What.** trait-station.md is the short spec for the Picnic Basket rework into the Cat Trainer, folding in the plan and comments on #3196. It's still waiting on Derek's yes, and there's no build before then.

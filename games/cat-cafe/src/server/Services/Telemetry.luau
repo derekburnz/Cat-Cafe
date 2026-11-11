@@ -36,6 +36,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventGate = require(script.Parent.Parent.Util.EventGate)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
+local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -550,6 +551,7 @@ end
 
 -- Sending ----------------------------------------------------------------------------------------------------
 
+-- FieldText.clean: Roblox drops a field that holds , " ' or / ("Event field CustomField02 is invalid")
 local function customFields(values: { string }): { [string]: any }?
 	if #values == 0 then
 		return nil
@@ -559,7 +561,7 @@ local function customFields(values: { string }): { [string]: any }?
 		if i > #FIELD_KEYS then
 			break
 		end
-		fields[FIELD_KEYS[i]] = value
+		fields[FIELD_KEYS[i]] = FieldText.clean(value)
 	end
 	return fields
 end

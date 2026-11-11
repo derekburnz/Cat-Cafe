@@ -2844,6 +2844,70 @@ return function()
 		)
 
 		it(
+			"stands the Rummage Bin in the Alleyway camp by the pad, 12 studs from every other prompt (#3050)",
+			function()
+				local RummageBin = require(game:GetService("ReplicatedStorage").Shared.RummageBin)
+				local function far(ax: number, az: number, bx: number, bz: number): number
+					return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
+				end
+				expect(Layout.rummageBin.area).to.equal(RummageBin.AREA)
+				local camp = Layout.camps.alley
+				local spec = Layout.areas.alley
+				local x, y, z, turn = Layout.rummageBinAt()
+				assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, "no bin spot")
+				expect(y).to.equal(spec.floorY)
+				-- in the camp (the safe zone), its 3.3 stud pallet 2 in from every edge and behind the gate line
+				if not inside(x, z, camp.rect, 2) then
+					fail("the bin at (%g, %g) is not inside the Alleyway camp", x, z)
+				end
+				expect(Layout.campAt(x, z)).to.equal("alley")
+				-- in plain view of the landing pad: within 15 studs, but past its landing spots
+				local pad = Layout.landingPads.alley.centre
+				local toPad = far(x, z, pad.x, pad.z)
+				expect(toPad <= 15).to.equal(true)
+				expect(toPad > W.LandingPadRadius + 3).to.equal(true)
+				-- off the walk from the pad out through the arch
+				local lx = Layout.campLocal(camp, x, z)
+				expect(math.abs(lx) > 6).to.equal(true)
+				-- its front (-Z) faces the pad: the pad lies within 15 degrees of where the bin looks
+				local look = Vector3.new(-math.sin(math.rad(turn)), 0, -math.cos(math.rad(turn)))
+				local toward = Vector3.new(pad.x - x, 0, pad.z - z).Unit
+				expect(look:Dot(toward) > math.cos(math.rad(15))).to.equal(true)
+				-- no other prompt within 12 studs, so prompts never stack on a phone: the cannon and its walk-up
+				-- front, the carrier basket, the Index Board, every stray spawn and every trap spot of the Alleyway
+				local board = Layout.indexBoards.alley
+				local bx, bz = Layout.campPoint(camp, board.x, board.z)
+				local others: { { x: number, z: number } } = {
+					Layout.cannons.alley,
+					Layout.cannonFronts.alley,
+					camp.basket,
+					{ x = bx, z = bz },
+				}
+				for _, point in spec.spawnPoints do
+					table.insert(others, point)
+				end
+				for _, point in spec.rescueSpots do
+					table.insert(others, point)
+				end
+				for _, point in spec.rescuePool or {} do
+					table.insert(others, point)
+				end
+				expect(#others > 20).to.equal(true)
+				-- the prompt hangs on the bin's front, up to 2.2 studs from its pivot
+				for _, point in others do
+					if far(x, z, point.x, point.z) < 12 + 2.2 then
+						fail(
+							"a prompt at (%g, %g) is %.1f studs from the bin",
+							point.x,
+							point.z,
+							far(x, z, point.x, point.z)
+						)
+					end
+				end
+			end
+		)
+
+		it(
 			"stands the Oasis Spa and the Relic Museum in their camps, clear of the board, pad and cannon (#2651)",
 			function()
 				local LateStations =

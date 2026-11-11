@@ -22,6 +22,8 @@
 --   leave faster then before"): the loading screen before the opening scenes (#3105, #3109). It starts OFF
 --   (OFF_BY_DEFAULT); true brings it back for players who join after, so the leave rates can be compared. Read by
 --   the client alone (UI.intro.waiting), from the ReplicatedStorage attribute below.
+-- - `alleyBin` (#3050): false hides the Rummage Bin's prompt at the Alleyway camp and refuses a rummage (BinService).
+--   Saves keep their wait and wins.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -42,6 +44,7 @@ LiveFlags.KEYS = {
 	"starterRefill",
 	"swiftPaws",
 	"loadingScreen",
+	"alleyBin",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT =

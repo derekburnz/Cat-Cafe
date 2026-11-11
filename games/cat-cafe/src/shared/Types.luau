@@ -900,6 +900,13 @@ export type CampExtrasSave = {
 	lostFound: { at: number, held: number }, -- #1732 (save version 40): was { day, held }, one a UTC day
 }
 
+-- #3050: the Rummage Bin (shared/RummageBin): the os.time() it is full again (0: ready) and the wins so far. Kept in its
+-- own DataStore (BinService), not the save, so it needs no save version step.
+export type RummageBinSave = { nextAt: number, uses: number }
+-- A Rummage Bin win as RescueResult's last argument carries it: the BinTable row's id and whether it is the account's
+-- first win (shared/RummageBin.winWords).
+export type RummageWin = { id: string, first: boolean }
+
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
 export type YardSaleCrate = { crateId: string, price: number, bought: boolean }
 

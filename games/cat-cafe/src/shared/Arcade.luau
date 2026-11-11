@@ -82,7 +82,15 @@ export type State = {
 	serverBest: number,
 	serverCircles: number,
 	serverName: string?,
+	-- #3338 (Derek2: the leaderboard button): the arcade's top players across every server, best first, at most TOP
+	top: { Row }?,
 }
+
+-- #3338: one line of the arcade's leaderboard (ArcadeState.top).
+export type Row = { rank: number, name: string, points: number, circles: number, me: boolean? }
+
+Arcade.TOP = 10 -- lines on the window's leaderboard
+Arcade.BOARD_STORE = "CatCafe_LB_Arcade" -- the OrderedDataStore of each player's best score, keyed by user id
 
 function Arcade.milestones(): { Milestone }
 	return Config.ArcadeMilestones :: any
@@ -276,6 +284,40 @@ end
 function Arcade.score(points: number, circles: number): number
 	return math.clamp(math.floor(points), 0, Config.ArcadeMaxPoints) * 1000
 		+ (999 - math.clamp(circles, 0, 999))
+end
+
+-- The points and circles a leaderboard score holds (score's other way round); 0, 0 for anything not a score.
+function Arcade.fromScore(value: unknown): (number, number)
+	if type(value) ~= "number" or value ~= value or value <= 0 then
+		return 0, 0
+	end
+	local whole = math.floor(value :: number)
+	local points = math.clamp(whole // 1000, 0, Config.ArcadeMaxPoints)
+	local circles = math.clamp(999 - whole % 1000, 0, 999)
+	return points, circles
+end
+
+-- #3338: leaderboard rows (Leaderboards.rows or withPresent, values are scores) as the window's lines, at most TOP,
+-- `me` marking the viewer's.
+function Arcade.topRows(rows: { Types.LeaderboardRow }, viewer: number?): { Row }
+	local out: { Row } = {}
+	for _, row in rows do
+		if #out >= Arcade.TOP then
+			break
+		end
+		local points, circles = Arcade.fromScore(row.value)
+		if points <= 0 then
+			continue
+		end
+		table.insert(out, {
+			rank = #out + 1,
+			name = row.name,
+			points = points,
+			circles = circles,
+			me = if viewer ~= nil and row.userId == viewer then true else nil,
+		})
+	end
+	return out
 end
 
 -- Whether a run of `points` in `circles` beats a record of `best` in `bestCircles` (nothing beats an empty one with 0).

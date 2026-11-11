@@ -6,6 +6,8 @@
 #
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key with luau-execution-sessions Write on the Cat Cafe experience
 #   UNIVERSE_ID, PLACE_ID  defaults below
+#   LUAU_IDS             optional: asset ids (digits, spaces, commas) written into the script's
+#                        `local INPUT_IDS = ""` line, for AssetCheck.luau
 #
 # Usage, from games/cat-cafe:  tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau <place version | latest>
 # "latest" runs against the place's newest version (the Open Cloud path with no version); the task path it prints
@@ -33,7 +35,16 @@ call() { # method url [json body] -> sets $status and $body
 	body=$(cat "$reply")
 }
 
-request=$(jq -n --rawfile script "$SCRIPT" '{script: $script, timeout: "180s"}')
+LUAU_IDS=${LUAU_IDS:-}
+case "$LUAU_IDS" in
+*[!0-9\ ,]*) echo "LUAU_IDS takes digits, spaces and commas only." >&2; exit 1 ;;
+esac
+if [ -n "$LUAU_IDS" ] && ! grep -qF 'local INPUT_IDS = ""' "$SCRIPT"; then
+	echo "$SCRIPT has no 'local INPUT_IDS = \"\"' line, so it takes no ids." >&2
+	exit 1
+fi
+request=$(jq -n --rawfile script "$SCRIPT" --arg ids "$LUAU_IDS" \
+	'{script: ($script | sub("local INPUT_IDS = \"\""; "local INPUT_IDS = \"" + $ids + "\"")), timeout: "180s"}')
 # Roblox answers 5xx or a busy 409 now and then (a 502 here stopped a publish on 2026-10-27), so those and 429 get
 # three more tries over about two and a half minutes. A task started by one that went through anyway just runs on
 # its own; this script follows the last one.

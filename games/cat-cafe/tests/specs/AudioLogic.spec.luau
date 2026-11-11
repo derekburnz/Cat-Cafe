@@ -586,6 +586,72 @@ return function()
 		end)
 	end)
 
+	-- #3296: Mouse Dash, the second Cat Arcade game.
+	describe("Audio.Logic mouse dash cues", function()
+		it("picks the pop by what is in the hole", function()
+			expect(Logic.mousePopCue("mouse")).to.equal("mousePop")
+			expect(Logic.mousePopCue("golden")).to.equal("mouseGoldUp")
+			expect(Logic.mousePopCue("kitten")).to.equal("mousePurr")
+			expect(Logic.mousePopCue(nil)).to.equal("mousePop")
+		end)
+
+		it("climbs the catch squeak inside each five of a streak and starts again", function()
+			for streak = 1, 5 do
+				local cue, step = Logic.mouseCatchCue("mouse", streak)
+				expect(cue).to.equal("mouseCatch")
+				expect(step).to.equal(streak)
+			end
+			expect(select(2, Logic.mouseCatchCue("mouse", 6))).to.equal(1)
+			expect(select(2, Logic.mouseCatchCue("mouse", 50))).to.equal(5)
+			expect(select(2, Logic.mouseCatchCue("mouse", 0))).to.equal(1)
+			expect(select(2, Logic.mouseCatchCue("mouse", "x"))).to.equal(1)
+			expect(select(2, Logic.mouseCatchCue(nil, 0 / 0))).to.equal(1)
+			local gold, goldStep = Logic.mouseCatchCue("golden", 7)
+			expect(gold).to.equal("mouseGoldCatch")
+			expect(goldStep).to.equal(nil)
+		end)
+
+		it("gives each way to lose a heart its own soft sound", function()
+			expect(Logic.mouseMissCue("escape")).to.equal("mouseDuck")
+			expect(Logic.mouseMissCue("kitten")).to.equal("mouseMrow")
+			expect(Logic.mouseMissCue("empty")).to.equal("mouseThud")
+			expect(Logic.mouseMissCue("golden")).to.equal(nil) -- a missed golden mouse is never rubbed in
+			expect(Logic.mouseMissCue(nil)).to.equal(nil)
+		end)
+
+		it("ends a run with the fanfare, the nice try or nothing", function()
+			expect(Logic.mouseEndCue(100, "win", false)).to.equal("mouseBest")
+			expect(Logic.mouseEndCue(42, "hearts", true)).to.equal("mouseBest")
+			expect(Logic.mouseEndCue(12, "hearts", false)).to.equal("arcadeEnd")
+			expect(Logic.mouseEndCue(0, "hearts", false)).to.equal(nil)
+			expect(Logic.mouseEndCue(30, "quit", true)).to.equal(nil)
+			expect(Logic.mouseEndCue(nil, nil, nil)).to.equal(nil)
+		end)
+
+		it("has a cue on the Mouse sheet for every sound, inside the sheet's length", function()
+			for _, name in
+				{
+					"mousePop",
+					"mouseCatch",
+					"mouseGoldUp",
+					"mouseGoldCatch",
+					"mouseDuck",
+					"mousePurr",
+					"mouseMrow",
+					"mouseThud",
+					"mouseHeart",
+					"mouseFaster",
+					"mouseBest",
+				}
+			do
+				expect(Cues[name]).to.be.ok()
+				expect(Cues[name].sheet).to.equal("sheetMouse")
+				expect(Cues[name].region[1] < Cues[name].region[2]).to.equal(true)
+				expect(Cues[name].region[2] <= 11.74).to.equal(true)
+			end
+		end)
+	end)
+
 	describe("Audio.Logic rummage prize cue", function()
 		it("picks a cue by prize, and dings for anything else", function()
 			expect(Logic.rummageCue("golden")).to.equal("goldReveal")

@@ -1729,6 +1729,133 @@
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
+  },
+  {
+   "className": "Model",
+   "name": "CatCafe_Decor_StoneThrone_Gem_Bob",
+   "attributes": {
+    "Rise": {
+     "Float64": 0.12
+    },
+    "Seconds": {
+     "Float64": 2.4
+    }
+   },
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       3.42,
+       0.775
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "children": [
+    {
+     "className": "Model",
+     "name": "CatCafe_Decor_StoneThrone_Gem_Glow",
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         3.42,
+         0.775
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "children": [
+      {
+       "name": "CatCafe_Decor_StoneThrone_Gem_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           3.42,
+           0.775
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.34,
+         0.34,
+         0.34
+        ],
+        "Color": [
+         0.3608,
+         0.8392,
+         0.5843
+        ],
+        "Material": "Neon",
+        "Shape": "Ball",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CanQuery": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ]
+    }
+   ]
   }
  ],
  "properties": {

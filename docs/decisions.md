@@ -1014,3 +1014,8 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Why:** Derek2: "sometimes rich people don't have their timer start at the full time make it so rich customers leave money bags that sit there for a while instead of they themselves being the timer". The tip's expiry is clamped to dusk, so a rich customer arriving in the last 90 s of the day got as little as 15 s.
 - **What:** the customer drops a money bag on table 1 and leaves after 20 s. The bag waits `RichBagSeconds` 180 from the drop with no dusk clamp, up to `RichBagsMax` 3 at once, and only the owner collects it by walking into or tapping it. An uncollected bag fades and pays nothing (the 2026-10-28 "if you miss it you miss it" rule stands). Spec: `docs/design/cat-cafe/rich-money-bags.md`.
 - **Saves:** none; bags never save, so no restart is needed.
+
+## 2026-11-11 Tier 5 costs 390M, up from 370M, with the money bags (#3360)
+- **Why:** with the money bags fewer rich tips are missed, so Pace's "over 2 hours in one go with 4x Money" check gave a Tier 5 median of 1 h 59. By the economy rule the cost goes up and the bag is not cut (Design-Agent).
+- **What:** Tier 5 cost 370,000,000 to 390,000,000. 385M gave 2 h 01; 390M gives 2 h 02 (10th to 90th 1 h 29 to 2 h 22). The free player's median is 4 h 16, inside its 3.5 to 5.5 h band. A player who already has Tier 5 keeps it.
+- **Built now:** the bag on table 1, its own full 180 s, up to 3 waiting, no loss at dusk or night, the 20 s sit, and ClaimRichTip with an optional bag id. **Later, in its own PR:** tapping any bag on its own, a "total waiting" line on the HUD, the bag model and its fade.

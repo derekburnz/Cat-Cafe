@@ -264,7 +264,8 @@ ROSTER = {
                     pattern="solid", muzzle=None, nose="nose_brick", tiles=True),
     "Golem":   dict(rarity="Legendary", fur="fur_dusty", second="sign_teal", third="fur_ash", eyes="sign_teal",
                     pattern="solid", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.2, rocks=True,
-                    body_scale=(1.15, 1.0, 1.1), tail_thick=0.3),
+                    body_scale=(1.15, 1.0, 1.1), tail_thick=0.3,
+                    held_scale=0.85),   # #3018: its wide stone body poked through the carrier's arms; held at 1.02
     # a jade statue fading to dark jade, its gold kept to the trim (the ruff, the tail tip and the crown, props.py)
     "JadeGuardian": dict(rarity="Mythical", fur="fur_emerald", second="leaf_dark", third="paw_woods", eyes="gold_light",
                          pattern="gradient", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.15,

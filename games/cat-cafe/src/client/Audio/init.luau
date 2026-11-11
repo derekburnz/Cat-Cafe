@@ -992,6 +992,11 @@ local function strayCall(instance: Instance, watch: StrayWatch, part: BasePart, 
 		watch.calledAt = now
 		watch.calls += 1
 		Audio.play("strayCall", part)
+		-- #3378: counted on the server (stray_call), with whether a catch starts within 10 s
+		local report = Remotes.folder():FindFirstChild("TelemetryReport")
+		if report ~= nil and report:IsA("RemoteEvent") then
+			(report :: RemoteEvent):FireServer("stray_call", watch.calls)
+		end
 	end
 end
 

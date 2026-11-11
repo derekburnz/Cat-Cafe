@@ -115,6 +115,13 @@ export type CustomEvent =
 	| "arcade_quit" -- #3378: a game left early, value the circles hit; free or paid
 	| "arcade_blocked" -- #3378: Start refused, value 1; the reason (closed, loading, running, busy, no_fish)
 	| "arcade_board_top" -- #3378: a new best that stands in the leaderboard's top, value its place
+	| "title_set" -- #3378: a title (chat tag) picked in the Bag's Titles tab, value 1; the title id or "off"
+	-- #3378: tackles the join shield (#3342) stopped on this server in the last minute, value the count; logged on
+	-- the last such tackler
+	| "tackle_shield"
+	-- #3378: the waiting second-cat stray called the player over (#3022), value the call's number this visit; "yes"
+	-- when a catch started within STRAY_CALL_SECONDS of it, else "no"
+	| "stray_call"
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
@@ -381,6 +388,7 @@ local REPORTS = {
 	"screen",
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
+	"stray_call", -- #3378: the waiting stray's call played for this player; the value is the call's number (1 to 4)
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
 	"session_recap", -- #1920: the recap card is on screen (value true)
@@ -471,6 +479,8 @@ type Session = {
 	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
 	stationOpens: { [string]: { count: number, values: { string } } }, -- #2910: station opens not logged yet
 	arcade: ArcadeFunnel.State, -- #3378: how far arcade_v1 got today
+	strayCall: number?, -- #3378: the number of the stray call still waiting for its catch start
+	strayCalls: number, -- #3378: stray calls counted this session
 	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
 	introChoices: number, -- F87: intro_choice events logged this session
@@ -943,6 +953,35 @@ local function funnelStep(
 	end)
 end
 
+-- #3378: stray_call. The client reports each call of its own waiting stray (TelemetryReport "stray_call"); a catch
+-- that starts within STRAY_CALL_SECONDS answers it "yes", otherwise it is logged "no" when the time is up.
+local STRAY_CALL_SECONDS = 10
+local STRAY_CALLS_MOST = 8 -- a session; the client calls 4 times a stray at most
+
+local function strayCalled(player: Player, number: number)
+	local session = sessions[player]
+	if session == nil or session.strayCall ~= nil or session.strayCalls >= STRAY_CALLS_MOST then
+		return
+	end
+	session.strayCalls += 1
+	session.strayCall = number
+	task.delay(STRAY_CALL_SECONDS, function()
+		if sessions[player] == session and session.strayCall == number then
+			session.strayCall = nil
+			Telemetry.custom(player, "stray_call", number, { "no" })
+		end
+	end)
+end
+
+local function strayCallAnswered(player: Player)
+	local session = sessions[player]
+	local number = if session ~= nil then session.strayCall else nil
+	if session ~= nil and number ~= nil then
+		session.strayCall = nil
+		Telemetry.custom(player, "stray_call", number, { "yes" })
+	end
+end
+
 -- catch_attempt step 1 (F93, catch-rework.md section 5): a net swing landed on a stray. `method` is net, rescue or
 -- net_dropped (a knocked-loose cat).
 function Telemetry.swingHit(
@@ -953,6 +992,7 @@ function Telemetry.swingHit(
 ): CatchFunnel
 	local funnel = { id = HttpService:GenerateGUID(false), values = { rarity, method, area } }
 	funnelStep(player, "catch_attempt", funnel.id, 1, "swing_hit", funnel.values)
+	strayCallAnswered(player) -- #3378
 	return funnel
 end
 
@@ -1687,6 +1727,11 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
 		end
+	elseif name == "stray_call" then
+		local number = Guard.int(rawValue, 1, 4) -- #3378
+		if number ~= nil then
+			strayCalled(player, number)
+		end
 	elseif name == "stuck_nudge" then
 		local kind = Guard.oneOf(rawValue, NUDGE_KINDS)
 		if kind ~= nil then
@@ -1962,6 +2007,8 @@ local function onLoaded(player: Player, profile: Profile)
 		swings = {},
 		stationOpens = {},
 		arcade = ArcadeFunnel.fresh(),
+		strayCall = nil,
+		strayCalls = 0,
 		origin = nil,
 		nudges = {},
 		introChoices = 0,

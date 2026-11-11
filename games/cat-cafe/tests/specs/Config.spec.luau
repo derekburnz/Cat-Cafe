@@ -570,6 +570,7 @@ return function()
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
+				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

@@ -997,6 +997,15 @@ local Config = {
 		{ at = 90, prize = { lures = { moon_milk = 1 } }, name = "Moon Milk" },
 		{ at = 100, prize = { lures = { star_treat = 1 } }, name = "Star Treat" },
 	} :: { { at: number, prize: { [string]: any }, name: string } },
+	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
+	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off. The first: Saturday
+	-- 2026-11-14 17:00 UTC.
+	UpdateGift = { id = "2026-11-14", from = 1794675600, fish = 15, spins = 1 } :: {
+		id: string,
+		from: number,
+		fish: number,
+		spins: number,
+	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
 	CodeWrongWindowSeconds = 60,

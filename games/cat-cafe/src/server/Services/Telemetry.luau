@@ -113,6 +113,9 @@ export type CustomEvent =
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
 	-- #3062: a Cat Arcade game's end, value its points; circles, milestones paid (comma list or "none"), win or not
 	| "arcade_run"
+	-- #3296: a Mouse Dash game's end, value its points; hearts lost, seconds, free or paid, and how it ended (hearts,
+	-- win, quit)
+	| "mouse_dash_run"
 	| "arcade_quit" -- #3378: a game left early, value the circles hit; free or paid
 	| "arcade_blocked" -- #3378: Start refused, value 1; the reason (closed, loading, running, busy, no_fish)
 	| "arcade_board_top" -- #3378: a new best that stands in the leaderboard's top, value its place

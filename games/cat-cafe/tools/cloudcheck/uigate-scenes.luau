@@ -7913,7 +7913,9 @@ local SCENES = {
 		-- badge is in the right half, its foot over the Potions corner, clear of the right column's lines
 		local root = hud:FindFirstChild("Root") :: Frame
 		local middle = root.AbsolutePosition.X + root.AbsoluteSize.X / 2
-		if right(counters) > 0 and counters.AbsolutePosition.Y + counters.AbsoluteSize.Y <= root.AbsolutePosition.Y + 2 then
+		-- #3307: in the bar when their middle is over the root's top (on a big tablet they are taller than the bar and
+		-- hang from the screen's top edge a little past it)
+		if right(counters) > 0 and counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2 <= root.AbsolutePosition.Y then
 			-- #2447 (Derek2 11-08: "move these into this little bar between chat and tutorial"): up in Roblox's top
 			-- bar, between its buttons and the icon row
 			local inset = game:GetService("GuiService"):GetGuiInset()
@@ -8000,8 +8002,9 @@ local SCENES = {
 		assert(tile == nil or not (tile :: GuiObject).Visible, "uigate: the Potions tile shows on touch (#2710)")
 		local row = root:FindFirstChild("Potions") :: GuiObject
 		assert(row.Visible, "uigate: no Luck row with luck 2x (#2393)")
-		if bottom <= root.AbsolutePosition.Y + 2 then
-			-- #2447: in the top bar the Luck row sits right of the counters, level with them
+		if counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2 <= root.AbsolutePosition.Y then
+			-- #2447: in the top bar the Luck row sits right of the counters, level with them (#3307: the middle is in
+			-- the bar; on a big tablet the counters are taller than it)
 			local gap = row.AbsolutePosition.X - (counters.AbsolutePosition.X + counters.AbsoluteSize.X)
 			assert(gap >= 0 and gap <= 30, ("uigate: the Luck row sits %d px after the counters in the top bar (#2447)"):format(gap))
 			local rowMid = row.AbsolutePosition.Y + row.AbsoluteSize.Y / 2

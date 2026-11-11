@@ -34,6 +34,8 @@ export type Potion = {
 	name: string,
 	minutes: number,
 	effect: string, -- one short line for the bag ("+25% money")
+	-- #3344: the timer it runs: a Small or Big size's regular potion (Catalog's `buff`), as the server's Potions.buffOf
+	buff: string?,
 }
 
 export type Row = {
@@ -42,6 +44,8 @@ export type Row = {
 	secondsLeft: number, -- 0 when it is not running
 	canUse: boolean, -- one in the bag and room under PotionMaxMinutes for its time
 	fit: number, -- #1600: how many Use all drinks now, the bag's count cut to the room under PotionMaxMinutes
+	-- #3344: a Small or Big size, whose secondsLeft is its regular potion's timer; the regular row carries the chip
+	shared: boolean,
 }
 
 export type Boosts = {
@@ -149,6 +153,7 @@ function PotionLogic.list(catalog: Types.Catalog?): { Potion }
 				then row.minutes
 				elseif known then known.minutes
 				else 0,
+			buff = if type(row.buff) == "string" and row.buff ~= id then row.buff else nil,
 			effect = if known
 				then known.effect
 				elseif type(row.effect) == "string" then row.effect
@@ -181,7 +186,9 @@ function PotionLogic.rows(catalog: Types.Catalog?, state: Types.PlayerState, now
 		seen[potion.id] = true
 		local count = counts[potion.id]
 		count = if type(count) == "number" then math.max(0, math.floor(count)) else 0
-		local left = secondsLeft(buffs, potion.id, now)
+		-- #3344: a size drinks into its regular potion's timer (the server's Potions.buffOf), so its time left, its
+		-- room under PotionMaxMinutes and Use come from that timer
+		local left = secondsLeft(buffs, potion.buff or potion.id, now)
 		-- as the server's Potions.fitCount: whole potions in the room left under PotionMaxMinutes
 		local fit = if potion.minutes > 0
 			then math.clamp(math.floor((maxSeconds + 0.5 - left) / (potion.minutes * 60)), 0, count)
@@ -192,6 +199,7 @@ function PotionLogic.rows(catalog: Types.Catalog?, state: Types.PlayerState, now
 			secondsLeft = left,
 			canUse = count > 0 and left + potion.minutes * 60 <= maxSeconds + 0.5,
 			fit = fit,
+			shared = potion.buff ~= nil,
 		})
 	end
 	for _, potion in PotionLogic.list(catalog) do
@@ -229,7 +237,7 @@ function PotionLogic.running(
 ): { Row }
 	local running: { Row } = {}
 	for _, row in PotionLogic.rows(catalog, state, now) do
-		if row.secondsLeft > 0 then
+		if row.secondsLeft > 0 and not row.shared then -- #3344: one chip per timer
 			table.insert(running, row)
 		end
 	end
@@ -252,8 +260,10 @@ function PotionLogic.ahead(
 		return state
 	end
 	local minutes: { [string]: number } = {}
+	local timerOf: { [string]: string } = {} -- #3344: a size's minutes go on its regular potion's timer
 	for _, potion in PotionLogic.list(catalog) do
 		minutes[potion.id] = potion.minutes
+		timerOf[potion.id] = potion.buff or potion.id
 	end
 	local shown: any = table.clone(state :: any)
 	local counts: { [string]: number } = table.clone(state.potions or {})
@@ -261,9 +271,10 @@ function PotionLogic.ahead(
 	for id, n in extra do
 		if n > 0 then
 			counts[id] = math.max(0, (counts[id] or 0) - n)
-			local endsAt = buffs[id]
+			local timer = timerOf[id] or id
+			local endsAt = buffs[timer]
 			local from = if type(endsAt) == "number" and endsAt > now then endsAt else now
-			buffs[id] = from + n * (minutes[id] or 0) * 60
+			buffs[timer] = from + n * (minutes[id] or 0) * 60
 		end
 	end
 	shown.potions = counts
@@ -327,7 +338,8 @@ end
 function PotionLogic.owned(catalog: Types.Catalog?, state: Types.PlayerState, now: number): { Row }
 	local owned: { Row } = {}
 	for _, row in PotionLogic.rows(catalog, state, now) do
-		if row.count > 0 or row.secondsLeft > 0 then
+		-- #3344: a size with none in the bag has no row; its time shows on the regular potion's
+		if row.count > 0 or (row.secondsLeft > 0 and not row.shared) then
 			table.insert(owned, row)
 		end
 	end

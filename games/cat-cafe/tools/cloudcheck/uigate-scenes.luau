@@ -7268,6 +7268,18 @@ local SCENES = {
 		press("CornerShop", "BuyAllCover.Buy")
 		connection:Disconnect()
 		assert(#sent == 1 and sent[1] == "potion:" .. window, "uigate: Buy sent " .. table.concat(sent, ","))
+		-- #3340 (Derek2: "sometimes the buy all gets stuck on ..."): with no answer, "Buying..." ends on its own
+		local function allText(): string
+			for _, piece in (all :: Instance):GetDescendants() do
+				if (piece:IsA("TextLabel") or piece:IsA("TextButton")) and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return if all:IsA("TextButton") then all.Text else ""
+		end
+		assert(allText() == "Buying...", "uigate: Buy all reads " .. allText() .. " while it waits (#2593)")
+		UIShim.advance(3.3)
+		assert(allText() == "Buy all", "uigate: an unanswered Buy all still reads " .. allText() .. " (#3340)")
 		UI.cornerShop.setStock(view()) -- the answer ends the wait
 		press("CornerShop", "baitTab") -- #3209: the bait section is on its own tab
 		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card

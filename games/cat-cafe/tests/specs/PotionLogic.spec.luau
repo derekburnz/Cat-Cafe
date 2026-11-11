@@ -383,4 +383,64 @@ return function()
 			expect(PotionLogic.giftPrize("hat", nil, 1)).to.deepEqual({})
 		end)
 	end)
+
+	describe("Small and Big sizes share their regular potion's timer (#3344)", function()
+		local catalog = {
+			potions = {
+				{ id = "quick_bait_potion", name = "Quick Bait Potion", minutes = 30 },
+				{
+					id = "quick_bait_potion_big",
+					name = "Big Quick Bait Potion",
+					minutes = 60,
+					buff = "quick_bait_potion",
+				},
+			},
+		}
+		local now = 1000
+		local function rowOf(rows: { any }, id: string): any
+			for _, row in rows do
+				if row.potion.id == id then
+					return row
+				end
+			end
+			return nil
+		end
+
+		it("reads the regular timer, so a full one greys the Big size's Use", function()
+			local state: any = {
+				potions = { quick_bait_potion = 3, quick_bait_potion_big = 2 },
+				buffs = { quick_bait_potion = now + 1439 * 60 + 15 },
+			}
+			local big = rowOf(PotionLogic.rows(catalog :: any, state, now), "quick_bait_potion_big")
+			expect(big.shared).to.equal(true)
+			expect(big.secondsLeft).to.equal(1439 * 60 + 15)
+			expect(big.canUse).to.equal(false)
+			expect(big.fit).to.equal(0)
+		end)
+
+		it(
+			"puts a pressed Big size's minutes on the regular timer, not a timer of its own",
+			function()
+				local state: any = {
+					potions = { quick_bait_potion_big = 2 },
+					buffs = { quick_bait_potion = now + 600 },
+				}
+				local shown =
+					PotionLogic.ahead(catalog :: any, state, { quick_bait_potion_big = 2 }, now)
+				expect(shown.buffs.quick_bait_potion).to.equal(now + 600 + 120 * 60)
+				expect(shown.buffs.quick_bait_potion_big).never.to.be.ok()
+				expect(shown.potions.quick_bait_potion_big).to.equal(0)
+			end
+		)
+
+		it("shows one chip per timer, and no Big row once none are left in the bag", function()
+			local state: any = { potions = {}, buffs = { quick_bait_potion = now + 600 } }
+			local running = PotionLogic.running(catalog :: any, state, now)
+			expect(#running).to.equal(1)
+			expect(running[1].potion.id).to.equal("quick_bait_potion")
+			local owned = PotionLogic.owned(catalog :: any, state, now)
+			expect(#owned).to.equal(1)
+			expect(owned[1].potion.id).to.equal("quick_bait_potion")
+		end)
+	end)
 end

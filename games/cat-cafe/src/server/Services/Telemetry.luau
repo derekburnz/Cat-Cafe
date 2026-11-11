@@ -194,6 +194,9 @@ export type CustomEvent =
 	| "museum_donate"
 	| "museum_room"
 	| "museum_fill" -- #3130: an Auto fill, value the copies given; its area
+	-- #3050: a Rummage Bin win, value 1; the prize row (tuna, fish, salmon, potion, crate, golden), the win's number
+	-- on the account ("1" to "10", 10 for any later one). The first win also logs step_time "first_bin"
+	| "bin_play"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS

@@ -857,6 +857,14 @@ Derek2 2026-11-11: "I want to run it in a live game with a command from owner mo
 - **What.** Each Saturday content update carries `Config.UpdateGift` (id, start time, fish, spins). Every player gets it once, paid on their first join from the start time (or within a second if they are already in), with the toast "Update gift! 🐟 15 + 1 spin". No claim button, no countdown. The first one is id 2026-11-14 at 17:00 UTC, 15 golden fish and 1 spin.
 - **Why this way.** The issue first planned a new save field, which needs a save version step, and a server running the old version drops fields it does not know. Derek2 2026-11-11: no server restarts. So the paid gift is marked in the existing `codesRedeemed` table under `gift` plus the id's digits (`gift20261114`), which every server since version 9 keeps. The Store's "Codes you've used" list hides these keys, and no real code starts with `gift`. Assumption (Gameplay-Engineer, overnight): the amounts and time from the issue stand; a later update changes only the Config line.
 
+## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
+
+Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.
+
+- The wait and wins now live in a small DataStore of their own, `CatCafe_Bin` (key: the user id), read when a player joins and written at each win. The save shape and `ProfileSchema.VERSION` (47) are unchanged, so no restart and no save version step. Older servers know nothing of the bin and never touch the store.
+- Until the read answers, and for the rest of the visit if every try fails, the player's bin reads "Empty for now", so a failed read never hands out the two fixed first prizes again. A failed write only lets the bin fill early on the next server; the prize was paid either way.
+- The bar uses Design-Agent's absolute numbers, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, so the rescue changes (#3120, #3223) never make the bin harder. `BinFirstEase` still applies on top for the first three.
+
 ## 2026-11-11 Cat Arcade: Circle Streak, with no restart (#3062)
 
 - **What.** A player's idea, credited on the card as Derek2 asked. One golden fish plays a game of the catch's closing circles with no stray: Perfect +2, Good +1, the first miss ends it, 100 wins. Net level 1 windows for everyone, a little harder every 10 points. Milestones every 10 points (5 fish, 8 fish, Salmon, Lucky Potion, 15 fish, Golden Crate, Caviar, 30 fish, Moon Milk, Star Treat) pay once per UTC day each, shown in the window only. The server builds and judges every circle; no arcade bot check (Derek2 2026-11-10). Live switch `arcade`, on by default.

@@ -6769,6 +6769,21 @@ local SCENES = {
 		for _, kind in { "potion", "food", "bait" } do
 			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
 		end
+		-- #3209 (Derek2: "add different section buttons at top of day cart for potions/cat food/bait"): a tab per
+		-- section; the open tab shows only its own header and rows
+		local function shows(kind: string): boolean
+			local header = window:FindFirstChild("Section_" .. kind, true) :: GuiObject
+			return header.Visible
+		end
+		for _, kind in { "potion", "food", "bait" } do
+			assert(window:FindFirstChild(kind .. "Tab", true), "uigate: no " .. kind .. " tab on the Day Cart (#3209)")
+		end
+		assert(shows("potion") and not shows("food") and not shows("bait"), "uigate: the Day Cart does not open on Potions alone (#3209)")
+		assert(not (window:FindFirstChild("kibble", true) :: GuiObject).Visible, "uigate: a bait row shows on the Potions tab (#3209)")
+		press("CornerShop", "foodTab")
+		assert(shows("food") and not shows("potion"), "uigate: the Cat food tab did not switch the list (#3209)")
+		assert((window:FindFirstChild("cat_snack", true) :: GuiObject).Visible, "uigate: no food rows on the Cat food tab (#3209)")
+		assert(not (window:FindFirstChild("swift_potion", true) :: GuiObject).Visible, "uigate: a potion row shows on the Cat food tab (#3209)")
 	end },
 	-- #2593 (Derek2: a Buy all for each Day Cart section): a real window's stock, so the shared planAll and the rows
 	-- agree. Each section with something to buy has Buy all; its card lists the plan, Cancel sends nothing, Buy sends
@@ -6819,6 +6834,7 @@ local SCENES = {
 		connection:Disconnect()
 		assert(#sent == 1 and sent[1] == "potion:" .. window, "uigate: Buy sent " .. table.concat(sent, ","))
 		UI.cornerShop.setStock(view()) -- the answer ends the wait
+		press("CornerShop", "baitTab") -- #3209: the bait section is on its own tab
 		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card
 	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;

@@ -65,7 +65,7 @@ return function()
 	end
 
 	describe("the list (section 1)", function()
-		it("is the 21 badges in creation order, each with a Config key", function()
+		it("is the 22 badges in creation order, each with a Config key", function()
 			local keys = {
 				"welcome",
 				"firstCatch",
@@ -88,6 +88,7 @@ return function()
 				"firstTrade",
 				"purrfectStreak",
 				"partyGuest",
+				"metOwner",
 			}
 			expect(#Badges.LIST).to.equal(#keys)
 			for i, key in keys do
@@ -293,6 +294,27 @@ return function()
 				expect(table.concat(due, ",")).to.equal("welcome,busyCafe")
 			end)
 		end)
+
+		it(
+			"adds Met the Owner only while the server passes it, and only once made (#3324)",
+			function()
+				local profile = fresh()
+				expect(table.find(Badges.earned(profile), "metOwner")).to.equal(nil)
+				withIds({ metOwner = 0 }, function()
+					expect(#Badges.due(profile, {}, {}, 0, { metOwner = true })).to.equal(0)
+				end)
+				withIds({ metOwner = 21 }, function()
+					expect(#Badges.due(profile, {}, {}, 0)).to.equal(0)
+					expect(table.concat(Badges.due(profile, {}, {}, 0, { metOwner = true }), ",")).to.equal(
+						"metOwner"
+					)
+					expect(#Badges.due(profile, { [21] = true }, {}, 0, { metOwner = true })).to.equal(
+						0
+					)
+					expect(#Badges.due(profile, {}, {}, 0, { notABadge = true })).to.equal(0)
+				end)
+			end
+		)
 
 		it("is empty while no badge is made", function()
 			local profile = fresh()

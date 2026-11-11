@@ -852,6 +852,11 @@ Derek2 2026-11-11: "I want to run it in a live game with a command from owner mo
 - `/shout message` shows the message to every player on every server. The owner check is on the server by user id; the text goes through Roblox's text filter for a broadcast before it is sent anywhere, and is not sent if the filter fails; at most 120 characters, one shout every 20 seconds.
 - No save version step and no restart: old servers ignore the new message topic, and they read the schedule record like any other event.
 
+## 2026-11-11 Saturday update gift, with no new save field (#2997)
+
+- **What.** Each Saturday content update carries `Config.UpdateGift` (id, start time, fish, spins). Every player gets it once, paid on their first join from the start time (or within a second if they are already in), with the toast "Update gift! 🐟 15 + 1 spin". No claim button, no countdown. The first one is id 2026-11-14 at 17:00 UTC, 15 golden fish and 1 spin.
+- **Why this way.** The issue first planned a new save field, which needs a save version step, and a server running the old version drops fields it does not know. Derek2 2026-11-11: no server restarts. So the paid gift is marked in the existing `codesRedeemed` table under `gift` plus the id's digits (`gift20261114`), which every server since version 9 keeps. The Store's "Codes you've used" list hides these keys, and no real code starts with `gift`. Assumption (Gameplay-Engineer, overnight): the amounts and time from the issue stand; a later update changes only the Config line.
+
 ## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
 
 Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.

@@ -569,6 +569,7 @@ return function()
 				BinTable = true, -- #3050: a table, checked in RummageBin.spec
 				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
 				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
+				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

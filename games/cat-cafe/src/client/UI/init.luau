@@ -5203,8 +5203,14 @@ do
 
 	local function hintFor(s: any, device: TipQueue.Device): string?
 		local catalog = currentCatalog
+		-- #3238: step 3 says the strays come back at sunrise while the areas are shut
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local areasOpen: boolean? = nil
+		if clock ~= nil then
+			areasOpen = clock:GetAttribute("AreasOpen") :: boolean?
+		end
 		return TutorialHints.line(
-			TutorialHints.view(s, if catalog then catalog.spots else nil, device)
+			TutorialHints.view(s, if catalog then catalog.spots else nil, device, areasOpen)
 		)
 	end
 

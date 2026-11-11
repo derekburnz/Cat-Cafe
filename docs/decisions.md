@@ -897,8 +897,7 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **Upgrade ladder (#3204, Derek2 chose "Yes, as proposed"):** Tier 2 opens 5 levels and Tier 3 opens 6, where it was 10 and 2. Net 2 moves to Tier 3 at 200,000 and Net 3 to Tier 5 at 60,000,000. Pace showed Tier 3 arriving sooner, not later, because coins skip Tier 2's buys. So Tier 3's cost goes up (520k, at most 560k) instead of down; the final numbers come from the combined run with #3195.
 - One place for all three specs: `docs/design/cat-cafe/new-activities.md`.
 
-## 2026-11-11 Tutorial dim: no seam line, and it goes once food is in the bowl (#3285)
-- What: Derek2's playtest of the #3153 spotlight found two problems.
-  - A thin bright line ran across the screen. The four dim boxes met on half-pixel edges, which happens when a scaled HUD tile sits off the pixel grid. `TutorialArrowLogic.holes` now rounds the hole outward to whole pixels, so the boxes meet exactly.
-  - The Bowl tile's ring, its arrow and the dim stayed on through the wait for the bowl cat. The UI's state never carried the bowl's food, so the HUD and the Bait window still read the step as "put food in". UIController now sends `bait`, with false for an empty bowl because UI.update skips a nil. `TutorialHints.view` counts only a table as food. The strip's own line already used the raw state, so it said "A cat is on its way" while the ring disagreed.
-- Safe for old servers: client only, so new servers pick it up with no restart.
+## 2026-11-11 Automatic publishes never restart servers unless AUTO_RESTART is on
+- What: Derek asked for automatic publishing back on, with no server restart ("do NOT restart servers" while ads run). publish.yml's automatic path restarted running servers whenever the save version differed from the last record, or when no record could be read. Manual no-restart publishes write no record, so the first automatic publish would most likely have restarted. Those restart steps now also need the repo variable AUTO_RESTART set to true. With it off (the default), an automatic publish reaches new servers only, warns in the log that the restart was skipped, and writes no published-build record, so a later run with AUTO_RESTART on still sees the version change.
+- Risk accepted by Derek's rule: after a save version bump, a player saved on a new server who then joins an old one is kicked by the newer-save guard until the old servers empty out.
+- Safe for old servers: workflow only, no game code.

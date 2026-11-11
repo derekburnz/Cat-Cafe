@@ -888,3 +888,9 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.
 - **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
 - **No restart.** Client only; old servers' clients keep the old words until they close.
+
+## 2026-11-11 Trait station spec (#3196)
+
+- **What.** trait-station.md is the short spec for the Picnic Basket rework into the Cat Trainer, folding in the plan and comments on #3196. It's still waiting on Derek's yes, and there's no build before then.
+- **Spin slice 3.** It pays 1 Trait Token at weight 9 (4.5%), down from "3 golden fish" at 30. Slice 1 takes the freed 21, so the wheel total stays 200 and the value per spin stays about 0.45 fish.
+- **Rich Friend stacking.** It's at most +0.12 on the rich rate (2.25 to 2.37 with every pass), about +3% income. That's about half of Cafe Style's own perk, so the paid pass isn't undercut.

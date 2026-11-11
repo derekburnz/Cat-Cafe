@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-11 02:39 UTC",
+  "generated": "2026-11-11 03:23 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -278076,7 +278076,8 @@
       "module": "crate_decor",
       "objects": [
         "CatCafe_Decor_CaravanBench",
-        "CatCafe_Decor_CaravanBench_Glow"
+        "CatCafe_Decor_CaravanBench_Lantern_Swing",
+        "CatCafe_Decor_CaravanBench_Lantern_Glow"
       ],
       "triangles": 998,
       "budget": 3000,
@@ -278102,6 +278103,30 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_CaravanBench_Lantern_Swing": [
+          -0.0,
+          0.0,
+          3.6
+        ],
+        "CatCafe_Decor_CaravanBench_Lantern_Glow": [
+          -0.0,
+          0.0,
+          3.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_CaravanBench_Lantern_Swing": [
+          0.0,
+          3.6,
+          0.0
+        ],
+        "CatCafe_Decor_CaravanBench_Lantern_Glow": [
+          0.0,
+          3.6,
+          0.0
+        ]
+      },
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CaravanBench.model.json",
       "rbx_parts": 75,
@@ -278122,7 +278147,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CaravanBench.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CaravanBench.png"
     },
     {
       "name": "CatCafe_Decor_LanternPalm",
@@ -278292,9 +278319,11 @@
       "category": "Decor",
       "module": "crate_decor",
       "objects": [
-        "CatCafe_Decor_StoneThrone"
+        "CatCafe_Decor_StoneThrone",
+        "CatCafe_Decor_StoneThrone_Gem_Bob",
+        "CatCafe_Decor_StoneThrone_Gem_Glow"
       ],
-      "triangles": 300,
+      "triangles": 396,
       "budget": 3000,
       "size_studs": {
         "x": 3.2,
@@ -278318,9 +278347,33 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_StoneThrone_Gem_Bob": [
+          -0.0,
+          0.77,
+          3.42
+        ],
+        "CatCafe_Decor_StoneThrone_Gem_Glow": [
+          -0.0,
+          0.77,
+          3.42
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_StoneThrone_Gem_Bob": [
+          0.0,
+          3.42,
+          0.77
+        ],
+        "CatCafe_Decor_StoneThrone_Gem_Glow": [
+          0.0,
+          3.42,
+          0.77
+        ]
+      },
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_StoneThrone.model.json",
-      "rbx_parts": 34,
+      "rbx_parts": 42,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_StoneThrone.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_StoneThrone.glb"
@@ -278330,15 +278383,17 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "300/3000 tris",
+          "budget": "396/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "166 faces on swatch centers",
+          "uv": "220 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.02"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_StoneThrone.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_StoneThrone.png"
     },
     {
       "name": "CatCafe_Decor_BrazierPair",
@@ -296635,6 +296690,7 @@
         "CatCafe_Camp_Ruins_003_Brazier",
         "CatCafe_Camp_Ruins_003_Brazier_Glow",
         "CatCafe_Camp_Ruins_004_ColumnBroken",
+        "CatCafe_Camp_Ruins_004_ColumnBroken_Decor",
         "CatCafe_Camp_Ruins_005_Urn",
         "CatCafe_Camp_Ruins_006_GatePylon",
         "CatCafe_Camp_Ruins_007_Brazier",
@@ -296642,18 +296698,26 @@
         "CatCafe_Camp_Ruins_008_Brazier",
         "CatCafe_Camp_Ruins_008_Brazier_Glow",
         "CatCafe_Camp_Ruins_009_Column",
+        "CatCafe_Camp_Ruins_009_Column_Decor",
         "CatCafe_Camp_Ruins_010_Urn",
         "CatCafe_Camp_Ruins_011_FallenLintel",
         "CatCafe_Camp_Ruins_012_Drums",
+        "CatCafe_Camp_Ruins_012_Drums_Decor",
         "CatCafe_Camp_Ruins_013_Gargoyle",
+        "CatCafe_Camp_Ruins_013_Gargoyle_Decor",
         "CatCafe_Camp_Ruins_014_Gargoyle",
+        "CatCafe_Camp_Ruins_014_Gargoyle_Decor",
         "CatCafe_Camp_Ruins_015_Rubble",
+        "CatCafe_Camp_Ruins_015_Rubble_Decor",
         "CatCafe_Camp_Ruins_016_Rubble",
+        "CatCafe_Camp_Ruins_016_Rubble_Decor",
         "CatCafe_Camp_Ruins_017_Rubble",
+        "CatCafe_Camp_Ruins_017_Rubble_Decor",
         "CatCafe_Camp_Ruins_018_Rubble",
+        "CatCafe_Camp_Ruins_018_Rubble_Decor",
         "CatCafe_Camp_Ruins_Barrier"
       ],
-      "triangles": 7060,
+      "triangles": 9550,
       "budget": 20000,
       "size_studs": {
         "x": 142.0,
@@ -296720,7 +296784,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Ruins.model.json",
-      "rbx_parts": 236,
+      "rbx_parts": 348,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Ruins.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Ruins.glb"
@@ -296733,15 +296797,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "7060/20000 tris",
+          "budget": "9550/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3376 faces on swatch centers",
+          "uv": "4861 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-316.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Ruins.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Ruins.png"
     },
     {
       "name": "CatCafe_Lawn_TulipBed",
@@ -306144,7 +306210,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-7.22 y=-0.33"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Ruins_RelicMuseum.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Ruins_RelicMuseum.png"
     },
     {
       "name": "CatCafe_Camp_Alley_RummageBin",
@@ -309628,74 +309696,169 @@
       "objects": [
         "CatCafe_Ruins_Set",
         "CatCafe_Ruins_Set_000_WallColonnade",
+        "CatCafe_Ruins_Set_000_WallColonnade_Decor",
         "CatCafe_Ruins_Set_001_Pier",
+        "CatCafe_Ruins_Set_001_Pier_Glow",
+        "CatCafe_Ruins_Set_001_Pier_Decor",
         "CatCafe_Ruins_Set_002_WallBroken",
+        "CatCafe_Ruins_Set_002_WallBroken_Decor",
         "CatCafe_Ruins_Set_003_Pier",
+        "CatCafe_Ruins_Set_003_Pier_Glow",
+        "CatCafe_Ruins_Set_003_Pier_Decor",
         "CatCafe_Ruins_Set_004_WallBroken",
+        "CatCafe_Ruins_Set_004_WallBroken_Decor",
         "CatCafe_Ruins_Set_005_Pier",
+        "CatCafe_Ruins_Set_005_Pier_Glow",
+        "CatCafe_Ruins_Set_005_Pier_Decor",
         "CatCafe_Ruins_Set_006_WallColonnade",
+        "CatCafe_Ruins_Set_006_WallColonnade_Decor",
         "CatCafe_Ruins_Set_007_Pier",
+        "CatCafe_Ruins_Set_007_Pier_Glow",
+        "CatCafe_Ruins_Set_007_Pier_Decor",
         "CatCafe_Ruins_Set_008_WallBroken",
+        "CatCafe_Ruins_Set_008_WallBroken_Decor",
         "CatCafe_Ruins_Set_009_WallBroken",
+        "CatCafe_Ruins_Set_009_WallBroken_Decor",
         "CatCafe_Ruins_Set_010_Pier",
+        "CatCafe_Ruins_Set_010_Pier_Glow",
+        "CatCafe_Ruins_Set_010_Pier_Decor",
         "CatCafe_Ruins_Set_011_WallColonnade",
+        "CatCafe_Ruins_Set_011_WallColonnade_Decor",
         "CatCafe_Ruins_Set_012_Pier",
+        "CatCafe_Ruins_Set_012_Pier_Glow",
+        "CatCafe_Ruins_Set_012_Pier_Decor",
         "CatCafe_Ruins_Set_013_WallBroken",
+        "CatCafe_Ruins_Set_013_WallBroken_Decor",
         "CatCafe_Ruins_Set_014_Pier",
+        "CatCafe_Ruins_Set_014_Pier_Glow",
+        "CatCafe_Ruins_Set_014_Pier_Decor",
         "CatCafe_Ruins_Set_015_WallBroken",
+        "CatCafe_Ruins_Set_015_WallBroken_Decor",
         "CatCafe_Ruins_Set_016_Pier",
+        "CatCafe_Ruins_Set_016_Pier_Glow",
+        "CatCafe_Ruins_Set_016_Pier_Decor",
         "CatCafe_Ruins_Set_017_WallColonnade",
+        "CatCafe_Ruins_Set_017_WallColonnade_Decor",
         "CatCafe_Ruins_Set_018_Pier",
+        "CatCafe_Ruins_Set_018_Pier_Glow",
+        "CatCafe_Ruins_Set_018_Pier_Decor",
         "CatCafe_Ruins_Set_019_WallBroken",
+        "CatCafe_Ruins_Set_019_WallBroken_Decor",
         "CatCafe_Ruins_Set_020_Pier",
+        "CatCafe_Ruins_Set_020_Pier_Glow",
+        "CatCafe_Ruins_Set_020_Pier_Decor",
         "CatCafe_Ruins_Set_021_WallBroken",
+        "CatCafe_Ruins_Set_021_WallBroken_Decor",
         "CatCafe_Ruins_Set_022_Pier",
+        "CatCafe_Ruins_Set_022_Pier_Glow",
+        "CatCafe_Ruins_Set_022_Pier_Decor",
         "CatCafe_Ruins_Set_023_WallColonnade",
+        "CatCafe_Ruins_Set_023_WallColonnade_Decor",
         "CatCafe_Ruins_Set_024_Pier",
+        "CatCafe_Ruins_Set_024_Pier_Glow",
+        "CatCafe_Ruins_Set_024_Pier_Decor",
         "CatCafe_Ruins_Set_025_WallBroken",
+        "CatCafe_Ruins_Set_025_WallBroken_Decor",
         "CatCafe_Ruins_Set_026_Pier",
+        "CatCafe_Ruins_Set_026_Pier_Glow",
+        "CatCafe_Ruins_Set_026_Pier_Decor",
         "CatCafe_Ruins_Set_027_WallBroken",
+        "CatCafe_Ruins_Set_027_WallBroken_Decor",
         "CatCafe_Ruins_Set_028_Pier",
+        "CatCafe_Ruins_Set_028_Pier_Glow",
+        "CatCafe_Ruins_Set_028_Pier_Decor",
         "CatCafe_Ruins_Set_029_WallBroken",
+        "CatCafe_Ruins_Set_029_WallBroken_Decor",
         "CatCafe_Ruins_Set_030_WallBroken",
+        "CatCafe_Ruins_Set_030_WallBroken_Decor",
         "CatCafe_Ruins_Set_031_Pier",
+        "CatCafe_Ruins_Set_031_Pier_Glow",
+        "CatCafe_Ruins_Set_031_Pier_Decor",
         "CatCafe_Ruins_Set_032_WallBroken",
+        "CatCafe_Ruins_Set_032_WallBroken_Decor",
         "CatCafe_Ruins_Set_033_Pier",
+        "CatCafe_Ruins_Set_033_Pier_Glow",
+        "CatCafe_Ruins_Set_033_Pier_Decor",
         "CatCafe_Ruins_Set_034_WallColonnade",
+        "CatCafe_Ruins_Set_034_WallColonnade_Decor",
         "CatCafe_Ruins_Set_035_Pier",
+        "CatCafe_Ruins_Set_035_Pier_Glow",
+        "CatCafe_Ruins_Set_035_Pier_Decor",
         "CatCafe_Ruins_Set_036_WallBroken",
+        "CatCafe_Ruins_Set_036_WallBroken_Decor",
         "CatCafe_Ruins_Set_037_Pier",
+        "CatCafe_Ruins_Set_037_Pier_Glow",
+        "CatCafe_Ruins_Set_037_Pier_Decor",
         "CatCafe_Ruins_Set_038_WallBroken",
+        "CatCafe_Ruins_Set_038_WallBroken_Decor",
         "CatCafe_Ruins_Set_039_Pier",
+        "CatCafe_Ruins_Set_039_Pier_Glow",
+        "CatCafe_Ruins_Set_039_Pier_Decor",
         "CatCafe_Ruins_Set_040_WallColonnade",
+        "CatCafe_Ruins_Set_040_WallColonnade_Decor",
         "CatCafe_Ruins_Set_041_Pier",
+        "CatCafe_Ruins_Set_041_Pier_Glow",
+        "CatCafe_Ruins_Set_041_Pier_Decor",
         "CatCafe_Ruins_Set_042_WallBroken",
+        "CatCafe_Ruins_Set_042_WallBroken_Decor",
         "CatCafe_Ruins_Set_043_Pier",
+        "CatCafe_Ruins_Set_043_Pier_Glow",
+        "CatCafe_Ruins_Set_043_Pier_Decor",
         "CatCafe_Ruins_Set_044_WallBroken",
+        "CatCafe_Ruins_Set_044_WallBroken_Decor",
         "CatCafe_Ruins_Set_045_Pier",
+        "CatCafe_Ruins_Set_045_Pier_Glow",
+        "CatCafe_Ruins_Set_045_Pier_Decor",
         "CatCafe_Ruins_Set_046_WallColonnade",
+        "CatCafe_Ruins_Set_046_WallColonnade_Decor",
         "CatCafe_Ruins_Set_047_Pier",
+        "CatCafe_Ruins_Set_047_Pier_Glow",
+        "CatCafe_Ruins_Set_047_Pier_Decor",
         "CatCafe_Ruins_Set_048_WallBroken",
+        "CatCafe_Ruins_Set_048_WallBroken_Decor",
         "CatCafe_Ruins_Set_049_Pier",
+        "CatCafe_Ruins_Set_049_Pier_Glow",
+        "CatCafe_Ruins_Set_049_Pier_Decor",
         "CatCafe_Ruins_Set_050_WallBroken",
+        "CatCafe_Ruins_Set_050_WallBroken_Decor",
         "CatCafe_Ruins_Set_051_Pier",
+        "CatCafe_Ruins_Set_051_Pier_Glow",
+        "CatCafe_Ruins_Set_051_Pier_Decor",
         "CatCafe_Ruins_Set_052_WallColonnade",
+        "CatCafe_Ruins_Set_052_WallColonnade_Decor",
         "CatCafe_Ruins_Set_053_Pier",
+        "CatCafe_Ruins_Set_053_Pier_Glow",
+        "CatCafe_Ruins_Set_053_Pier_Decor",
         "CatCafe_Ruins_Set_054_WallBroken",
+        "CatCafe_Ruins_Set_054_WallBroken_Decor",
         "CatCafe_Ruins_Set_055_Pier",
+        "CatCafe_Ruins_Set_055_Pier_Glow",
+        "CatCafe_Ruins_Set_055_Pier_Decor",
         "CatCafe_Ruins_Set_056_WallBroken",
+        "CatCafe_Ruins_Set_056_WallBroken_Decor",
         "CatCafe_Ruins_Set_057_Pier",
+        "CatCafe_Ruins_Set_057_Pier_Glow",
+        "CatCafe_Ruins_Set_057_Pier_Decor",
         "CatCafe_Ruins_Set_058_WallBroken",
+        "CatCafe_Ruins_Set_058_WallBroken_Decor",
         "CatCafe_Ruins_Set_059_Pier",
+        "CatCafe_Ruins_Set_059_Pier_Glow",
+        "CatCafe_Ruins_Set_059_Pier_Decor",
         "CatCafe_Ruins_Set_060_WallColonnade",
+        "CatCafe_Ruins_Set_060_WallColonnade_Decor",
         "CatCafe_Ruins_Set_061_CatHeadWall",
-        "CatCafe_Ruins_Set_061_CatHeadWall_Glow",
         "CatCafe_Ruins_Set_062_Pier",
+        "CatCafe_Ruins_Set_062_Pier_Glow",
+        "CatCafe_Ruins_Set_062_Pier_Decor",
         "CatCafe_Ruins_Set_063_LowWall",
+        "CatCafe_Ruins_Set_063_LowWall_Decor",
         "CatCafe_Ruins_Set_064_Brazier",
         "CatCafe_Ruins_Set_064_Brazier_Glow",
         "CatCafe_Ruins_Set_065_Pier",
+        "CatCafe_Ruins_Set_065_Pier_Glow",
+        "CatCafe_Ruins_Set_065_Pier_Decor",
         "CatCafe_Ruins_Set_066_LowWall",
+        "CatCafe_Ruins_Set_066_LowWall_Decor",
         "CatCafe_Ruins_Set_067_Brazier",
         "CatCafe_Ruins_Set_067_Brazier_Glow",
         "CatCafe_Ruins_Set_068_Walls_Barrier",
@@ -309706,19 +309869,31 @@
         "CatCafe_Ruins_Set_070_TriumphalArch_Barrier",
         "CatCafe_Ruins_Set_071_Stylobate",
         "CatCafe_Ruins_Set_072_Column",
+        "CatCafe_Ruins_Set_072_Column_Decor",
         "CatCafe_Ruins_Set_073_Column",
+        "CatCafe_Ruins_Set_073_Column_Decor",
         "CatCafe_Ruins_Set_074_Column",
+        "CatCafe_Ruins_Set_074_Column_Decor",
         "CatCafe_Ruins_Set_075_Beam",
         "CatCafe_Ruins_Set_076_ColumnBroken",
+        "CatCafe_Ruins_Set_076_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_077_Column",
+        "CatCafe_Ruins_Set_077_Column_Decor",
         "CatCafe_Ruins_Set_078_ColumnBroken",
+        "CatCafe_Ruins_Set_078_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_079_Column",
+        "CatCafe_Ruins_Set_079_Column_Decor",
         "CatCafe_Ruins_Set_080_Column",
+        "CatCafe_Ruins_Set_080_Column_Decor",
         "CatCafe_Ruins_Set_081_Column",
+        "CatCafe_Ruins_Set_081_Column_Decor",
         "CatCafe_Ruins_Set_082_Beam",
         "CatCafe_Ruins_Set_083_ColumnBroken",
+        "CatCafe_Ruins_Set_083_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_084_Column",
+        "CatCafe_Ruins_Set_084_Column_Decor",
         "CatCafe_Ruins_Set_085_ColumnBroken",
+        "CatCafe_Ruins_Set_085_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_086_Pediment",
         "CatCafe_Ruins_Set_086_Pediment_Barrier",
         "CatCafe_Ruins_Set_087_GlyphHalls",
@@ -309726,57 +309901,102 @@
         "CatCafe_Ruins_Set_087_GlyphHalls_Barrier",
         "CatCafe_Ruins_Set_088_CourtRings",
         "CatCafe_Ruins_Set_089_Fountain",
+        "CatCafe_Ruins_Set_089_Fountain_Water",
+        "CatCafe_Ruins_Set_089_Fountain_Decor",
         "CatCafe_Ruins_Set_090_Throne",
         "CatCafe_Ruins_Set_091_Gargoyle",
+        "CatCafe_Ruins_Set_091_Gargoyle_Decor",
         "CatCafe_Ruins_Set_092_Gargoyle",
+        "CatCafe_Ruins_Set_092_Gargoyle_Decor",
         "CatCafe_Ruins_Set_093_Gargoyle",
+        "CatCafe_Ruins_Set_093_Gargoyle_Decor",
         "CatCafe_Ruins_Set_094_Gargoyle",
+        "CatCafe_Ruins_Set_094_Gargoyle_Decor",
         "CatCafe_Ruins_Set_095_Gargoyle",
+        "CatCafe_Ruins_Set_095_Gargoyle_Decor",
         "CatCafe_Ruins_Set_096_Gargoyle",
+        "CatCafe_Ruins_Set_096_Gargoyle_Decor",
         "CatCafe_Ruins_Set_097_Gargoyle",
+        "CatCafe_Ruins_Set_097_Gargoyle_Decor",
         "CatCafe_Ruins_Set_098_Gargoyle",
+        "CatCafe_Ruins_Set_098_Gargoyle_Decor",
         "CatCafe_Ruins_Set_099_Gargoyle",
+        "CatCafe_Ruins_Set_099_Gargoyle_Decor",
         "CatCafe_Ruins_Set_100_Gargoyle",
+        "CatCafe_Ruins_Set_100_Gargoyle_Decor",
         "CatCafe_Ruins_Set_101_Gargoyle",
+        "CatCafe_Ruins_Set_101_Gargoyle_Decor",
         "CatCafe_Ruins_Set_102_Gargoyle",
+        "CatCafe_Ruins_Set_102_Gargoyle_Decor",
         "CatCafe_Ruins_Set_103_Gargoyle",
+        "CatCafe_Ruins_Set_103_Gargoyle_Decor",
         "CatCafe_Ruins_Set_104_Gargoyle",
+        "CatCafe_Ruins_Set_104_Gargoyle_Decor",
         "CatCafe_Ruins_Set_105_LaneWall",
+        "CatCafe_Ruins_Set_105_LaneWall_Decor",
         "CatCafe_Ruins_Set_106_LaneWall",
+        "CatCafe_Ruins_Set_106_LaneWall_Decor",
         "CatCafe_Ruins_Set_107_LaneWall",
+        "CatCafe_Ruins_Set_107_LaneWall_Decor",
         "CatCafe_Ruins_Set_108_Brazier",
         "CatCafe_Ruins_Set_108_Brazier_Glow",
         "CatCafe_Ruins_Set_109_LaneWall",
+        "CatCafe_Ruins_Set_109_LaneWall_Decor",
         "CatCafe_Ruins_Set_110_LaneWall",
+        "CatCafe_Ruins_Set_110_LaneWall_Decor",
         "CatCafe_Ruins_Set_111_LaneWall",
+        "CatCafe_Ruins_Set_111_LaneWall_Decor",
         "CatCafe_Ruins_Set_112_Brazier",
         "CatCafe_Ruins_Set_112_Brazier_Glow",
         "CatCafe_Ruins_Set_113_Rubble",
+        "CatCafe_Ruins_Set_113_Rubble_Decor",
         "CatCafe_Ruins_Set_114_Rubble",
+        "CatCafe_Ruins_Set_114_Rubble_Decor",
         "CatCafe_Ruins_Set_115_Rubble",
+        "CatCafe_Ruins_Set_115_Rubble_Decor",
         "CatCafe_Ruins_Set_116_Rubble",
+        "CatCafe_Ruins_Set_116_Rubble_Decor",
         "CatCafe_Ruins_Set_117_Rubble",
+        "CatCafe_Ruins_Set_117_Rubble_Decor",
         "CatCafe_Ruins_Set_118_Rubble",
+        "CatCafe_Ruins_Set_118_Rubble_Decor",
         "CatCafe_Ruins_Set_119_Rubble",
+        "CatCafe_Ruins_Set_119_Rubble_Decor",
         "CatCafe_Ruins_Set_120_Urn",
         "CatCafe_Ruins_Set_121_Urn",
         "CatCafe_Ruins_Set_122_Urn",
         "CatCafe_Ruins_Set_123_ColumnBroken",
+        "CatCafe_Ruins_Set_123_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_124_Column",
+        "CatCafe_Ruins_Set_124_Column_Decor",
         "CatCafe_Ruins_Set_125_ColumnBroken",
+        "CatCafe_Ruins_Set_125_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_126_Drums",
+        "CatCafe_Ruins_Set_126_Drums_Decor",
         "CatCafe_Ruins_Set_127_Drums",
+        "CatCafe_Ruins_Set_127_Drums_Decor",
         "CatCafe_Ruins_Set_128_Drums",
+        "CatCafe_Ruins_Set_128_Drums_Decor",
         "CatCafe_Ruins_Set_129_Drums",
+        "CatCafe_Ruins_Set_129_Drums_Decor",
         "CatCafe_Ruins_Set_130_Drums",
+        "CatCafe_Ruins_Set_130_Drums_Decor",
         "CatCafe_Ruins_Set_131_Column",
+        "CatCafe_Ruins_Set_131_Column_Decor",
         "CatCafe_Ruins_Set_132_ColumnBroken",
+        "CatCafe_Ruins_Set_132_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_133_ColumnBroken",
+        "CatCafe_Ruins_Set_133_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_134_Column",
+        "CatCafe_Ruins_Set_134_Column_Decor",
         "CatCafe_Ruins_Set_135_ColumnBroken",
+        "CatCafe_Ruins_Set_135_ColumnBroken_Decor",
         "CatCafe_Ruins_Set_136_Rubble",
+        "CatCafe_Ruins_Set_136_Rubble_Decor",
         "CatCafe_Ruins_Set_137_Rubble",
+        "CatCafe_Ruins_Set_137_Rubble_Decor",
         "CatCafe_Ruins_Set_138_Rubble",
+        "CatCafe_Ruins_Set_138_Rubble_Decor",
         "CatCafe_Ruins_Set_139_Brazier",
         "CatCafe_Ruins_Set_139_Brazier_Glow",
         "CatCafe_Ruins_Set_140_Brazier",
@@ -309792,9 +310012,11 @@
         "CatCafe_Ruins_Set_147_Brazier",
         "CatCafe_Ruins_Set_147_Brazier_Glow",
         "CatCafe_Ruins_Set_148_Gargoyle",
+        "CatCafe_Ruins_Set_148_Gargoyle_Decor",
         "CatCafe_Ruins_Set_149_Brazier",
         "CatCafe_Ruins_Set_149_Brazier_Glow",
         "CatCafe_Ruins_Set_150_Gargoyle",
+        "CatCafe_Ruins_Set_150_Gargoyle_Decor",
         "CatCafe_Ruins_Set_151_TrapRubble",
         "CatCafe_Ruins_Set_152_TrapRubble",
         "CatCafe_Ruins_Set_153_TrapRubble",
@@ -309809,72 +310031,155 @@
         "CatCafe_Ruins_Set_162_TrapUrn",
         "CatCafe_Ruins_Set_163_TrapUrn",
         "CatCafe_Ruins_Set_164_TrapUrn",
-        "CatCafe_Ruins_Set_165_Rubble",
-        "CatCafe_Ruins_Set_166_Rubble",
-        "CatCafe_Ruins_Set_167_Rubble",
-        "CatCafe_Ruins_Set_168_Rubble",
-        "CatCafe_Ruins_Set_169_Rubble",
-        "CatCafe_Ruins_Set_170_Rubble",
-        "CatCafe_Ruins_Set_171_Rubble",
-        "CatCafe_Ruins_Set_172_Rubble",
-        "CatCafe_Ruins_Set_173_Rubble",
-        "CatCafe_Ruins_Set_174_Rubble",
-        "CatCafe_Ruins_Set_175_Rubble",
-        "CatCafe_Ruins_Set_176_Rubble",
-        "CatCafe_Ruins_Set_177_Rubble",
+        "CatCafe_Ruins_Set_165_Colossus",
+        "CatCafe_Ruins_Set_165_Colossus_Glow",
+        "CatCafe_Ruins_Set_165_Colossus_Decor",
+        "CatCafe_Ruins_Set_165_Colossus_Barrier",
+        "CatCafe_Ruins_Set_166_Waterfall",
+        "CatCafe_Ruins_Set_166_Waterfall_Water",
+        "CatCafe_Ruins_Set_166_Waterfall_Decor",
+        "CatCafe_Ruins_Set_166_Waterfall_Barrier",
+        "CatCafe_Ruins_Set_167_Trilithon",
+        "CatCafe_Ruins_Set_167_Trilithon_Glow",
+        "CatCafe_Ruins_Set_167_Trilithon_Decor",
+        "CatCafe_Ruins_Set_168_RuneStone",
+        "CatCafe_Ruins_Set_168_RuneStone_Glow",
+        "CatCafe_Ruins_Set_168_RuneStone_Decor",
+        "CatCafe_Ruins_Set_169_RuneStone",
+        "CatCafe_Ruins_Set_169_RuneStone_Glow",
+        "CatCafe_Ruins_Set_169_RuneStone_Decor",
+        "CatCafe_Ruins_Set_170_RuneStone",
+        "CatCafe_Ruins_Set_170_RuneStone_Glow",
+        "CatCafe_Ruins_Set_170_RuneStone_Decor",
+        "CatCafe_Ruins_Set_171_RuneStone",
+        "CatCafe_Ruins_Set_171_RuneStone_Glow",
+        "CatCafe_Ruins_Set_171_RuneStone_Decor",
+        "CatCafe_Ruins_Set_172_RuneStone",
+        "CatCafe_Ruins_Set_172_RuneStone_Glow",
+        "CatCafe_Ruins_Set_172_RuneStone_Decor",
+        "CatCafe_Ruins_Set_173_RuneStone",
+        "CatCafe_Ruins_Set_173_RuneStone_Glow",
+        "CatCafe_Ruins_Set_173_RuneStone_Decor",
+        "CatCafe_Ruins_Set_174_RuneStone",
+        "CatCafe_Ruins_Set_174_RuneStone_Glow",
+        "CatCafe_Ruins_Set_174_RuneStone_Decor",
+        "CatCafe_Ruins_Set_175_RuneStone",
+        "CatCafe_Ruins_Set_175_RuneStone_Glow",
+        "CatCafe_Ruins_Set_175_RuneStone_Decor",
+        "CatCafe_Ruins_Set_176_RuneStone",
+        "CatCafe_Ruins_Set_176_RuneStone_Glow",
+        "CatCafe_Ruins_Set_176_RuneStone_Decor",
+        "CatCafe_Ruins_Set_177_RuneStone",
+        "CatCafe_Ruins_Set_177_RuneStone_Glow",
+        "CatCafe_Ruins_Set_177_RuneStone_Decor",
         "CatCafe_Ruins_Set_178_Rubble",
+        "CatCafe_Ruins_Set_178_Rubble_Decor",
         "CatCafe_Ruins_Set_179_Rubble",
+        "CatCafe_Ruins_Set_179_Rubble_Decor",
         "CatCafe_Ruins_Set_180_Rubble",
+        "CatCafe_Ruins_Set_180_Rubble_Decor",
         "CatCafe_Ruins_Set_181_Rubble",
+        "CatCafe_Ruins_Set_181_Rubble_Decor",
         "CatCafe_Ruins_Set_182_Rubble",
+        "CatCafe_Ruins_Set_182_Rubble_Decor",
         "CatCafe_Ruins_Set_183_Rubble",
+        "CatCafe_Ruins_Set_183_Rubble_Decor",
         "CatCafe_Ruins_Set_184_Rubble",
+        "CatCafe_Ruins_Set_184_Rubble_Decor",
         "CatCafe_Ruins_Set_185_Rubble",
+        "CatCafe_Ruins_Set_185_Rubble_Decor",
         "CatCafe_Ruins_Set_186_Rubble",
+        "CatCafe_Ruins_Set_186_Rubble_Decor",
         "CatCafe_Ruins_Set_187_Rubble",
+        "CatCafe_Ruins_Set_187_Rubble_Decor",
         "CatCafe_Ruins_Set_188_Rubble",
+        "CatCafe_Ruins_Set_188_Rubble_Decor",
         "CatCafe_Ruins_Set_189_Rubble",
+        "CatCafe_Ruins_Set_189_Rubble_Decor",
         "CatCafe_Ruins_Set_190_Rubble",
+        "CatCafe_Ruins_Set_190_Rubble_Decor",
         "CatCafe_Ruins_Set_191_Rubble",
+        "CatCafe_Ruins_Set_191_Rubble_Decor",
         "CatCafe_Ruins_Set_192_Rubble",
+        "CatCafe_Ruins_Set_192_Rubble_Decor",
         "CatCafe_Ruins_Set_193_Rubble",
+        "CatCafe_Ruins_Set_193_Rubble_Decor",
         "CatCafe_Ruins_Set_194_Rubble",
+        "CatCafe_Ruins_Set_194_Rubble_Decor",
         "CatCafe_Ruins_Set_195_Rubble",
+        "CatCafe_Ruins_Set_195_Rubble_Decor",
         "CatCafe_Ruins_Set_196_Rubble",
+        "CatCafe_Ruins_Set_196_Rubble_Decor",
         "CatCafe_Ruins_Set_197_Rubble",
+        "CatCafe_Ruins_Set_197_Rubble_Decor",
         "CatCafe_Ruins_Set_198_Rubble",
+        "CatCafe_Ruins_Set_198_Rubble_Decor",
         "CatCafe_Ruins_Set_199_Rubble",
+        "CatCafe_Ruins_Set_199_Rubble_Decor",
         "CatCafe_Ruins_Set_200_Rubble",
+        "CatCafe_Ruins_Set_200_Rubble_Decor",
         "CatCafe_Ruins_Set_201_Rubble",
+        "CatCafe_Ruins_Set_201_Rubble_Decor",
         "CatCafe_Ruins_Set_202_Rubble",
+        "CatCafe_Ruins_Set_202_Rubble_Decor",
         "CatCafe_Ruins_Set_203_Rubble",
+        "CatCafe_Ruins_Set_203_Rubble_Decor",
         "CatCafe_Ruins_Set_204_Rubble",
+        "CatCafe_Ruins_Set_204_Rubble_Decor",
         "CatCafe_Ruins_Set_205_Rubble",
+        "CatCafe_Ruins_Set_205_Rubble_Decor",
         "CatCafe_Ruins_Set_206_Rubble",
+        "CatCafe_Ruins_Set_206_Rubble_Decor",
         "CatCafe_Ruins_Set_207_Rubble",
-        "CatCafe_Ruins_Set_208_Rubble"
+        "CatCafe_Ruins_Set_207_Rubble_Decor",
+        "CatCafe_Ruins_Set_208_Rubble",
+        "CatCafe_Ruins_Set_208_Rubble_Decor",
+        "CatCafe_Ruins_Set_209_Rubble",
+        "CatCafe_Ruins_Set_209_Rubble_Decor",
+        "CatCafe_Ruins_Set_210_Rubble",
+        "CatCafe_Ruins_Set_210_Rubble_Decor",
+        "CatCafe_Ruins_Set_211_Rubble",
+        "CatCafe_Ruins_Set_211_Rubble_Decor",
+        "CatCafe_Ruins_Set_212_Rubble",
+        "CatCafe_Ruins_Set_212_Rubble_Decor",
+        "CatCafe_Ruins_Set_213_Rubble",
+        "CatCafe_Ruins_Set_213_Rubble_Decor",
+        "CatCafe_Ruins_Set_214_Rubble",
+        "CatCafe_Ruins_Set_214_Rubble_Decor",
+        "CatCafe_Ruins_Set_215_Rubble",
+        "CatCafe_Ruins_Set_215_Rubble_Decor",
+        "CatCafe_Ruins_Set_216_Rubble",
+        "CatCafe_Ruins_Set_216_Rubble_Decor",
+        "CatCafe_Ruins_Set_217_Rubble",
+        "CatCafe_Ruins_Set_217_Rubble_Decor",
+        "CatCafe_Ruins_Set_218_Rubble",
+        "CatCafe_Ruins_Set_218_Rubble_Decor",
+        "CatCafe_Ruins_Set_219_Rubble",
+        "CatCafe_Ruins_Set_219_Rubble_Decor",
+        "CatCafe_Ruins_Set_220_Rubble",
+        "CatCafe_Ruins_Set_220_Rubble_Decor"
       ],
-      "triangles": 77664,
+      "triangles": 136002,
       "budget": 150000,
       "size_studs": {
         "x": 140.0,
         "y": 600.0,
-        "z": 30.3
+        "z": 44.33
       },
       "size_roblox": [
         140.0,
-        30.3,
+        44.33,
         600.0
       ],
       "bounds_min": [
         -70.0,
         -300.0,
-        -0.3
+        -0.33
       ],
       "bounds_max": [
         70.0,
         300.0,
-        30.0
+        44.0
       ],
       "pivot": "the wild part's centre on the floor, camp side -Z (areakit; Tier 7)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -310623,7 +310928,7 @@
       },
       "studio": "Tier 7 (tier6-7-areas.md section 5). Place it at the Ruins' centre on its floor with the camp's turn (0: the camp on the south edge, toward the town), like the F85 sets. Every blocker has a _Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -300 and the east bridge bay (a 9 high parapet barrier). The rescue spots (points_roblox trap_rubble_pile, trap_stone_urn, trap_bridge_ledge) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Ruins_Set.model.json",
-      "rbx_parts": 4280,
+      "rbx_parts": 6952,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.glb"
@@ -310635,16 +310940,18 @@
           "pivot"
         ],
         "checks": {
-          "budget": "77664/150000 tris",
+          "budget": "136002/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "39636 faces on swatch centers",
+          "uv": "77206 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.30 (want 0)",
+          "pivot": "floor at z=-0.33 (want 0)",
           "centered": "footprint center x=0.00 y=0.00",
           "cat_spots": "100 cat spots clear of every collidable part"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Ruins_Set.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Ruins_Set.png"
     },
     {
       "name": "CatCafe_Camp_Park_Growth",
@@ -311031,7 +311338,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-28.75 y=-6.50"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Ruins_Growth.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Ruins_Growth.png"
     },
     {
       "name": "CatCafe_NPC_Townsfolk_Picnicker",
@@ -312212,24 +312521,25 @@
         "CatCafe_Nook_Woods",
         "CatCafe_Nook_Woods_Decor",
         "CatCafe_Nook_Woods_GateL",
-        "CatCafe_Nook_Woods_GateR"
+        "CatCafe_Nook_Woods_GateR",
+        "CatCafe_Nook_Woods_Trap"
       ],
-      "triangles": 912,
+      "triangles": 1728,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
         "y": 14.88,
-        "z": 3.22
+        "z": 3.42
       },
       "size_roblox": [
         8.76,
-        3.22,
+        3.42,
         14.88
       ],
       "bounds_min": [
         -4.38,
         -11.0,
-        0.0
+        -0.2
       ],
       "bounds_max": [
         4.38,
@@ -312264,7 +312574,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Woods.model.json",
-      "rbx_parts": 54,
+      "rbx_parts": 78,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Woods.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Woods.glb"
@@ -312273,18 +312583,21 @@
         "pass": true,
         "failed": [],
         "warnings": [
+          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "912/3000 tris",
+          "budget": "1728/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "456 faces on swatch centers",
+          "uv": "1020 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
+          "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Woods.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Woods.png"
     },
     {
       "name": "CatCafe_Nook_Sewer",
@@ -312294,9 +312607,10 @@
         "CatCafe_Nook_Sewer",
         "CatCafe_Nook_Sewer_Decor",
         "CatCafe_Nook_Sewer_GateL",
-        "CatCafe_Nook_Sewer_GateR"
+        "CatCafe_Nook_Sewer_GateR",
+        "CatCafe_Nook_Sewer_Trap"
       ],
-      "triangles": 680,
+      "triangles": 808,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
@@ -312346,7 +312660,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Sewer.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 48,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Sewer.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Sewer.glb"
@@ -312358,15 +312672,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "680/3000 tris",
+          "budget": "808/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "314 faces on swatch centers",
+          "uv": "382 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Sewer.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Sewer.png"
     },
     {
       "name": "CatCafe_Nook_Desert",
@@ -312376,24 +312692,25 @@
         "CatCafe_Nook_Desert",
         "CatCafe_Nook_Desert_Decor",
         "CatCafe_Nook_Desert_GateL",
-        "CatCafe_Nook_Desert_GateR"
+        "CatCafe_Nook_Desert_GateR",
+        "CatCafe_Nook_Desert_Trap"
       ],
-      "triangles": 816,
+      "triangles": 1944,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
         "y": 14.88,
-        "z": 3.22
+        "z": 4.02
       },
       "size_roblox": [
         8.76,
-        3.22,
+        4.02,
         14.88
       ],
       "bounds_min": [
         -4.38,
         -11.0,
-        0.0
+        -0.8
       ],
       "bounds_max": [
         4.38,
@@ -312428,7 +312745,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Desert.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 71,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Desert.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Desert.glb"
@@ -312437,18 +312754,21 @@
         "pass": true,
         "failed": [],
         "warnings": [
+          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "816/3000 tris",
+          "budget": "1944/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "384 faces on swatch centers",
+          "uv": "940 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
+          "pivot": "floor at z=-0.80 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Desert.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Desert.png"
     },
     {
       "name": "CatCafe_Nook_Ruins",
@@ -312458,24 +312778,25 @@
         "CatCafe_Nook_Ruins",
         "CatCafe_Nook_Ruins_Decor",
         "CatCafe_Nook_Ruins_GateL",
-        "CatCafe_Nook_Ruins_GateR"
+        "CatCafe_Nook_Ruins_GateR",
+        "CatCafe_Nook_Ruins_Trap"
       ],
-      "triangles": 748,
+      "triangles": 1896,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
         "y": 14.88,
-        "z": 3.22
+        "z": 3.37
       },
       "size_roblox": [
         8.76,
-        3.22,
+        3.37,
         14.88
       ],
       "bounds_min": [
         -4.38,
         -11.0,
-        0.0
+        -0.15
       ],
       "bounds_max": [
         4.38,
@@ -312510,7 +312831,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Ruins.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 67,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Ruins.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Ruins.glb"
@@ -312519,18 +312840,21 @@
         "pass": true,
         "failed": [],
         "warnings": [
+          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "748/3000 tris",
+          "budget": "1896/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "394 faces on swatch centers",
+          "uv": "969 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
+          "pivot": "floor at z=-0.15 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Ruins.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Ruins.png"
     },
     {
       "name": "CatCafe_Town_FeedbackStand",

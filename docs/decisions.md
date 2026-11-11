@@ -851,3 +851,9 @@ Derek2 2026-11-11: "I want to run it in a live game with a command from owner mo
 - In Studio or a private server `/event` stays a test in that one server and writes nothing, as before.
 - `/shout message` shows the message to every player on every server. The owner check is on the server by user id; the text goes through Roblox's text filter for a broadcast before it is sent anywhere, and is not sent if the filter fails; at most 120 characters, one shout every 20 seconds.
 - No save version step and no restart: old servers ignore the new message topic, and they read the schedule record like any other event.
+
+## 2026-11-11 Second cat at night: say the strays come back at sunrise (#3238, server half)
+
+- **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.
+- **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
+- **No restart.** Client only; old servers' clients keep the old words until they close.

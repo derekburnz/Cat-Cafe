@@ -90,4 +90,31 @@ return function()
 			end
 		end)
 	end)
+	describe("the message colour (Derek2 11-11)", function()
+		it("wraps the message in the tag's colour", function()
+			expect(ChatTags.textFor("vip", "hi there")).to.equal('<font color="#F2C14E">hi there</font>')
+		end)
+
+		it("leaves the message alone for no tag or an unknown one", function()
+			expect(ChatTags.textFor(nil, "hi")).to.equal(nil)
+			expect(ChatTags.textFor("admin", "hi")).to.equal(nil)
+		end)
+
+		it("keeps every tag colour readable on the dark chat window (4.5:1 or more)", function()
+			local function lum(c: Color3): number
+				local function ch(v: number): number
+					return if v <= 0.03928 then v / 12.92 else ((v + 0.055) / 1.055) ^ 2.4
+				end
+				return 0.2126 * ch(c.R) + 0.7152 * ch(c.G) + 0.0722 * ch(c.B)
+			end
+			local back = lum(Color3.fromRGB(25, 27, 29))
+			for id, tag in ChatTags.TAGS do
+				local fore = lum(Color3.fromHex(tag.color))
+				local ratio = (fore + 0.05) / (back + 0.05)
+				if ratio < 4.5 then
+					error(("%s is %.2f:1"):format(id, ratio))
+				end
+			end
+		end)
+	end)
 end

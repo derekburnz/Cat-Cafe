@@ -138,9 +138,12 @@ local Config = {
 	-- Derek2, 2026-11-07: "make the days a bit longer and maybe night a tiny bit shorter"): 320 and 70 (were 300 and
 	-- 90). The day takes the night's 20 s, so a game day is still 390 s: every sunrise, restock window, day number and
 	-- pity timer falls where it did, and only dusk moves 20 s later. ServerStartDaySeconds stays equal to the day.
-	DayLengthSeconds = 320,
-	NightLengthSeconds = 70,
-	ServerStartDaySeconds = 320, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- #3195 (Derek2 2026-11-10: "make the night times faster to stop being leaving during night"): 345 and 45 (were
+	-- 320 and 70), the same way: still 390 s a game day, every sunrise where it was, dusk 25 s later. So old and new
+	-- servers agree on the day number and every sunrise, and no restart is needed.
+	DayLengthSeconds = 345,
+	NightLengthSeconds = 45,
+	ServerStartDaySeconds = 345, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
 	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
 	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
 	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
@@ -249,6 +252,12 @@ local Config = {
 		[3] = { perfect = 0.08, good = 0.18 },
 	} :: { [number]: { perfect: number, good: number } },
 	CircleJitter = 0.10,
+	-- #2913 follow-up (Nov 10 read: after the sure first catch, phones still miss more, 37 of 186 new players missed
+	-- at least once and 48 saw a cat bolt): a player's catches by hand before EarlyCatchCount (SecondCat.caught) are
+	-- judged with bands EarlyCatchWindowScale times as wide. By the player's save, not their device, which the server
+	-- never trusts; the widest band stays under CircleGapMin (Config.spec S24).
+	EarlyCatchCount = 5,
+	EarlyCatchWindowScale = 1.3,
 	-- The net swing (F93, catch-rework.md section 1): one SwingNet per NetSwingCooldown. NetSmackDelay after it
 	-- arrives, when the net lands, the server looks for the nearest free stray within NetReachStuds plus
 	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes

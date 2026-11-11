@@ -1030,3 +1030,11 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | A column of gold sparkles rising off your waiting stray and a gold ring pulsing at its feet every 2.5 s, from 2 s after it shows for 120 s; your screen only; Reduce Motion keeps the sparkles, Low performance the rings | the `Stray` whose `WaitsFor` attribute is your UserId (Gameplay-Engineer's #3038, shared/SecondCat) |
+
+## Guide trail sparkles (#3022, 2026-11-11)
+
+`Effects/TrailSparkle.luau`, numbers in `Presets.trailSparkle` and the `trailSparkle` emitter.
+
+| Look | Hook |
+|---|---|
+| Every 2nd dot of the guide trail (every 4th on a phone) sends up 2 soft sparkles a second in the dot's own colour, so the path to the waiting stray reads from farther off; kept with Reduce Motion, off in Low performance | GuideTrail's `Dot` parts in the Workspace folder `CatCafeTutorialTrail` (UI's; GuideTrail.luau is untouched) |

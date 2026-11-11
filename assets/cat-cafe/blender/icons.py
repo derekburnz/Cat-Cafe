@@ -43,6 +43,7 @@ import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 
 import common  # noqa: E402
+import arcade_icons  # noqa: E402
 import cats  # noqa: E402
 import crates  # noqa: E402
 import icon_art  # noqa: E402
@@ -154,6 +155,10 @@ ICONS = {
     "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
     # Derek2 11-09: the Cafe Pass and Style tab's uniform colours and chat tags (pass_reward_icons.py)
     **{n: (fn, INK, 10, pass_reward_icons.VIEWS[n]) for n, fn in pass_reward_icons.ICONS.items()},
+    # #3296: Mouse Dash, the Cat Arcade's second game (arcade_icons.py): mice, kitten, hole, paw, hearts, cellar
+    **{f"CatCafe_Icon_Arcade_{n}": (fn, INK, arcade_icons.WIDTHS.get(n, arcade_icons.WIDTH), arcade_icons.VIEWS[n],
+                                      arcade_icons.PADS.get(n))
+       for n, fn in arcade_icons.BUILDERS.items()},
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},
@@ -309,6 +314,9 @@ def render_icon(name, mat, samples=48):
         fl.hide_render = True
     _lights()
     _camera(objs, view, pad, fit)
+    for ob in objs:                         # arcade_icons.py: an object that only frames the camera
+        if ob.get("fit_only"):
+            ob.hide_render = True
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name + ".png")
     sc.render.filepath = path

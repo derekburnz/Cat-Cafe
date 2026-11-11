@@ -87,6 +87,8 @@ ToastRules.KEEP = {
 	"^Your bait cat is here!", -- BaitService: a cat waits at the bowl while the player is out; they have to walk home
 	"^It dropped! ", -- ShoveService: a shoved player dropped their cat; the shover has seconds to pick it up
 	"^Owner test mode: ", -- OwnerTestService: the owner's own test grants, which nobody else sees
+	"^Golden find! ", -- #3222 LawnService.giveDrop: a drop-only Golden lawn piece from a freed cat
+	"^Update gift! ", -- #2997 PlaytimeGiftService: the Saturday update gift, paid with no card
 	-- #3106 (Derek2 11-10, after two new players left in the tutorial: "maybe add those two buttons back"): a new
 	-- player's first delivery and first cat. Each comes once: the server sends the second on the first check-in
 	-- only, and UI.cannon.checkedIn sends the first only while the first walk-through is not done
@@ -129,7 +131,8 @@ end
 -- #3205 (Derek2 11-11: "the quick update in ... gets cut off"): the restart warning's early marks are calm info
 -- toasts (#2720), and one row dropped their last words, "your cafe is saved". A line with one of these phrases
 -- (plain, any case) wraps whatever its kind. shared/RestartNotice.text ends every warning with the first.
-ToastRules.WRAP = { "your cafe is saved" }
+-- #3212: and an owner command's reply ("Owner test mode: Cafe Party started on all servers for 10 minutes").
+ToastRules.WRAP = { "your cafe is saved", "owner test mode:" }
 
 function ToastRules.oneLine(kind: string?, text: string?): boolean
 	if text ~= nil then

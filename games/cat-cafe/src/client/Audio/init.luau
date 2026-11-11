@@ -1702,6 +1702,16 @@ local function followLateStations()
 	end)
 end
 
+-- #2997: the Saturday update gift (15 golden fish and 1 spin) arrives as a Toast line only, so its reward jingle
+-- plays on that line (Logic.isUpdateGiftToast). It reuses indexReward, so it needs no new file.
+local function followUpdateGift()
+	onRemote("Toast", function(text: any)
+		if Logic.isUpdateGiftToast(text) then
+			Audio.play("indexReward")
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -1713,6 +1723,7 @@ local function followServerState()
 	task.defer(followRally)
 	task.defer(followBait)
 	task.defer(followLateStations)
+	task.defer(followUpdateGift)
 end
 
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),
@@ -1827,6 +1838,22 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- #2920: the first catch's ring stopped on its target and waits for the press (the Catch screen fires it once)
 	CircleHold = function(index: any)
 		Audio.play("circleHold", nil, num(index))
+	end,
+	-- #3062 Cat Arcade (Circle Streak): ArcadeStart() as a run begins (the fish is paid), ArcadeMilestone() at each
+	-- 10 circles, ArcadeEnd(streak, won) when the run ends (a win plays the Museum's reward jingle). The circles
+	-- sound through CircleAppear and CircleGrade. Skipped until Gameplay-Engineer adds the moments.
+	ArcadeStart = function()
+		Audio.play("arcadeStart")
+	end,
+	ArcadeMilestone = function()
+		Audio.play("arcadeMilestone")
+	end,
+	ArcadeEnd = function(streak: any, won: any)
+		if won == true then
+			Audio.play("indexReward")
+		elseif (num(streak) or 0) > 0 then
+			Audio.play("arcadeEnd")
+		end
 	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))

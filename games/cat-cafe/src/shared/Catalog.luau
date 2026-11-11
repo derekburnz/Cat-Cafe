@@ -5057,6 +5057,39 @@ Catalog.lawn = {
 		price = 500000000,
 		model = "CatCafe_Lawn_GoldenPawStatue",
 	},
+	-- #3222 (Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the 12%'s you can get from
+	-- p2w"): Golden pieces nobody can buy, found only as a rare drop from a freed cat (Lawn.dropPick). Model-Agent's
+	-- models (PR #3228). `price` is the Golden rung of the ladder for the specs and the trade value, never charged.
+	{
+		id = "golden_cat_fountain",
+		name = "Golden Cat Fountain",
+		spot = "big",
+		tier = 5,
+		rarity = "Golden",
+		price = 500000000,
+		model = "CatCafe_Lawn_GoldenCatFountain",
+		drop = true,
+	},
+	{
+		id = "golden_cat_throne",
+		name = "Golden Cat Throne",
+		spot = "big",
+		tier = 5,
+		rarity = "Golden",
+		price = 500000000,
+		model = "CatCafe_Lawn_GoldenCatThrone",
+		drop = true,
+	},
+	{
+		id = "golden_yarn_kitten",
+		name = "Golden Yarn Kitten",
+		spot = "big",
+		tier = 5,
+		rarity = "Golden",
+		price = 500000000,
+		model = "CatCafe_Lawn_GoldenYarnKitten",
+		drop = true,
+	},
 } :: { Types.LawnPieceDef }
 
 -- One path and one fence at a time. Grey Slabs is free and laid at every cafe; a cafe starts with no fence.

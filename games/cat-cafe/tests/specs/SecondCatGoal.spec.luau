@@ -60,6 +60,30 @@ return function()
 			})
 		end)
 
+		it(
+			"says when the strays come back while the areas are shut, on every card (#3238)",
+			function()
+				for _, narrow in { true, false } do
+					local view = SecondCatGoal.view(full(), narrow, "Cozy Cafe", false)
+					expect(view.title).to.equal("Catch a 2nd cat 🐾 1/2")
+					expect(view.hook).to.equal(
+						if narrow
+							then "Next cat at sunrise 🌅"
+							else "Strays come back at sunrise 🌅"
+					)
+					expect(view.lines :: any).to.deepEqual({})
+				end
+				-- open (or not known) reads as before
+				expect(SecondCatGoal.view(full(), false, "Cozy Cafe", true).hook).to.equal(
+					"New cats pay +$50 💰"
+				)
+				expect(SecondCatGoal.view(full(), true, "Cozy Cafe", true).hook).to.equal(nil)
+				expect(SecondCatGoal.view(full({ carrying = "tuxedo" }), false, "Cozy Cafe", false)).to.equal(
+					nil
+				)
+			end
+		)
+
 		it("never says 2x or a rate while both jobs are taken", function()
 			for _, narrow in { true, false } do
 				local view = SecondCatGoal.view(full(), narrow, "Cozy Cafe")

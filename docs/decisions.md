@@ -841,6 +841,54 @@ Why only these two: the first draft also sped up Epic (1.12), Legendary (1.22) a
 - **Tackling lesson only somewhere safe (#3206).** Derek2: "make sure to not play tackle cutscene when not in safezone". A due lesson starts only on the safe street or in a cafe; out in a catching area it stays due.
 - **Trade (#3211).** Derek2: "trade says busy but should go through at any time and still gets stuck on asked", "trade shows 0/s in the first screen", "sort trade by highest rarity first for all sections". An ask goes through whatever either player is doing, and carrying a cat never blocks a trade; a trade still does not open over a running catch, rescue or flight, and an open one still ends if a player starts one (#2568). A refused ask clears "Asked" at once. An offered cat with no job shows what it earns working. Every tab lists the rarest first. Known trade-off (Review-Agent): a carrier can sit in the trade window out in a catching area and be tackled meanwhile; not an exploit, and "no tackles while the trade window is open" is a later option if Derek wants it.
 
+## 2026-11-11 Owner commands in live servers: /event and /shout (#3212)
+
+Derek2 2026-11-11: "I want to run it in a live game with a command from owner mode set that up so I can spawn event and for however long I want it to last like /event 10 for 10 min evfent" and "add a command to /shout "msg" across all servers so I can tell people in all servers things".
+
+- `/event 10` in a live public server starts the full Cafe Party for 10 minutes on **every server**; `/event <preset> <minutes>` keeps the presets (full, days, money, luck, showers) and `/event stop` ends an event started this way. Assumption (Gameplay-Engineer): all servers rather than only the owner's, because a party is for the players and most of them are on other servers. It works by writing a real record into the events schedule (the same store the events workflow writes), so every server runs it by the shared clock, the shower cats are claimed once game-wide and the analytics count it as a real event. Other servers pick it up within a minute at the latest (a cross-server message asks them to read the schedule at once).
+- Length is held to the live limits (5 minutes to 2 hours). It is refused while another event is running or would start inside it, so two events never overlap.
+- The full party pays the party reward (the Party Bunting piece, or the coin gift for a player who has it) as a scheduled party does; design rule 2e says rewards come back at later events.
+- In Studio or a private server `/event` stays a test in that one server and writes nothing, as before.
+- `/shout message` shows the message to every player on every server. The owner check is on the server by user id; the text goes through Roblox's text filter for a broadcast before it is sent anywhere, and is not sent if the filter fails; at most 120 characters, one shout every 20 seconds.
+- No save version step and no restart: old servers ignore the new message topic, and they read the schedule record like any other event.
+
+## 2026-11-11 Saturday update gift, with no new save field (#2997)
+
+- **What.** Each Saturday content update carries `Config.UpdateGift` (id, start time, fish, spins). Every player gets it once, paid on their first join from the start time (or within a second if they are already in), with the toast "Update gift! 🐟 15 + 1 spin". No claim button, no countdown. The first one is id 2026-11-14 at 17:00 UTC, 15 golden fish and 1 spin.
+- **Why this way.** The issue first planned a new save field, which needs a save version step, and a server running the old version drops fields it does not know. Derek2 2026-11-11: no server restarts. So the paid gift is marked in the existing `codesRedeemed` table under `gift` plus the id's digits (`gift20261114`), which every server since version 9 keeps. The Store's "Codes you've used" list hides these keys, and no real code starts with `gift`. Assumption (Gameplay-Engineer, overnight): the amounts and time from the issue stand; a later update changes only the Config line.
+
+## 2026-11-10: feedback stand right of the Thank You board, night market nudged (#3189)
+Derek2 asked for the feedback stand to the right of the Thank You board, away from the fish market, and the night market a little left to make room. The stand moves from (34, 18) to (50, -25), on the board's right as you face it, between the night cart and the leaderboard row; the night cart moves from (37, -35) to (33, -31). A straight move left would hide the board from the spawn, so the cart also steps 4 toward the lane. The #3070 fit rules (fit70.py) still pass with nothing excepted; the arcade's spot stays north of the lane.
+
+## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
+
+Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.
+
+- The wait and wins now live in a small DataStore of their own, `CatCafe_Bin` (key: the user id), read when a player joins and written at each win. The save shape and `ProfileSchema.VERSION` (47) are unchanged, so no restart and no save version step. Older servers know nothing of the bin and never touch the store.
+- Until the read answers, and for the rest of the visit if every try fails, the player's bin reads "Empty for now", so a failed read never hands out the two fixed first prizes again. A failed write only lets the bin fill early on the next server; the prize was paid either way.
+- The bar uses Design-Agent's absolute numbers, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, so the rescue changes (#3120, #3223) never make the bin harder. `BinFirstEase` still applies on top for the first three.
+
+## 2026-11-11 Cat Arcade: Circle Streak, with no restart (#3062)
+
+- **What.** A player's idea, credited on the card as Derek2 asked. One golden fish plays a game of the catch's closing circles with no stray: Perfect +2, Good +1, the first miss ends it, 100 wins. Net level 1 windows for everyone, a little harder every 10 points. Milestones every 10 points (5 fish, 8 fish, Salmon, Lucky Potion, 15 fish, Golden Crate, Caviar, 30 fish, Moon Milk, Star Treat) pay once per UTC day each, shown in the window only. The server builds and judges every circle; no arcade bot check (Derek2 2026-11-10). Live switch `arcade`, on by default.
+- **Why this way.** Derek2 2026-11-11: no server restarts. The best, today's paid milestones and the Arcade Legend title live in their own DataStore (CatCafe_Arcade), not the save, so there's no save version step. New remotes are fine: an old server's clients never see them.
+- **Assumptions (Gameplay-Engineer, overnight).** Own remotes (ArcadeStart, ArcadePress, ArcadeQuit) rather than borrowing CatchPress, so a catch and the arcade can never mix up circles. The game is played in its window, opened by the cabinet's prompt and by a new Arcade row in the Menu list (no new HUD tile). Until Model-Agent's CatCafe_Town_ArcadeCabinet is in, a plain purple placeholder cabinet stands at Layout.arcadeCabinet. The Arcade Legend title shows on the arcade card only; a chat tag would need a save field, so it waits for a restart release. The server best is per server, in memory; a global board is a follow-up.
+
+## 2026-11-11 Golden lawn pieces as rare free drops (#3222)
+
+Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the 12%'s you can get from p2w make sure to make the model's really good".
+
+- Three new Golden big-spot lawn pieces (Model-Agent's models, PR #3228): Golden Cat Fountain, Golden Cat Throne and Golden Yarn Kitten, +12% money like the other Golden pieces. They are never sold: off the Yard Sale, and the lawn tab shows "Rare find" until one is found.
+- Source (Gameplay-Engineer's assumption): every cat a player frees from a trap has a 1 in 400 chance of one they don't own yet, picked evenly. Rescues are free and nothing paid changes the roll, so this is not a paid random item and monetization-policy's odds rules don't apply. A player freeing about 20 cats a day finds one roughly once a month; all three take a long while. Tunable in `Lawn.DROP_CHANCE`.
+- It ships behind the live switch `goldenDrops`, off by default. An older server drops a lawn id it doesn't know when it loads a save, so a piece found on a new server could vanish if the player then joined an old one. Switch it on (flags workflow, `set goldenDrops true`) once no server older than the publish that adds the pieces is running, for example after the next restart publish.
+- No save version step: the pieces go into the existing `lawnOwned`.
+
+## 2026-11-11 Second cat at night: say the strays come back at sunrise (#3238, server half)
+
+- **What.** From dusk to sunrise the catching areas are shut and no stray waits, and the server already picks the player's waiting stray at the next sunrise (`Second.tick` runs only while the areas are open). So the client now says so instead of pointing at an empty alley: the "Catch a 2nd cat" goal card's line reads "Strays come back at sunrise 🌅" ("Next cat at sunrise 🌅" on the phone's narrower card), and tutorial step 3 reads "Strays return at sunrise 🌅, or buy a table in Upgrades (U)". Both follow the Clock folder's AreasOpen, so they switch back at sunrise.
+- **Why not a stray at night.** Keeping one stray out at night for a new player would break the night rule every other player sees, and nights are 45 s now (#3195). Assumption (Gameplay-Engineer, overnight): the short wait with a clear line is enough; if Research-Agent's read still shows leavers at night after the first customer, a night stray is the next step.
+- **No restart.** Client only; old servers' clients keep the old words until they close.
+
 ## 2026-11-11 New activities and the upgrade ladder, as Derek2 settled them on 2026-11-10 (Design-Agent)
 
 - **Rummage Bin (#3050):** an Alleyway activity on its own easy bar. Prizes are food, golden fish, crates and a potion; Derek2: "not money ... every 15 minutes or smth". It's ready at once, then every 3 min for the first 3 uses, then every 15 min, so it lands inside the first 5 minutes. Monetization-Agent approved it with no countdown text.

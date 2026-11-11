@@ -841,6 +841,17 @@ Why only these two: the first draft also sped up Epic (1.12), Legendary (1.22) a
 - **Tackling lesson only somewhere safe (#3206).** Derek2: "make sure to not play tackle cutscene when not in safezone". A due lesson starts only on the safe street or in a cafe; out in a catching area it stays due.
 - **Trade (#3211).** Derek2: "trade says busy but should go through at any time and still gets stuck on asked", "trade shows 0/s in the first screen", "sort trade by highest rarity first for all sections". An ask goes through whatever either player is doing, and carrying a cat never blocks a trade; a trade still does not open over a running catch, rescue or flight, and an open one still ends if a player starts one (#2568). A refused ask clears "Asked" at once. An offered cat with no job shows what it earns working. Every tab lists the rarest first. Known trade-off (Review-Agent): a carrier can sit in the trade window out in a catching area and be tackled meanwhile; not an exploit, and "no tackles while the trade window is open" is a later option if Derek wants it.
 
+## 2026-11-11 Owner commands in live servers: /event and /shout (#3212)
+
+Derek2 2026-11-11: "I want to run it in a live game with a command from owner mode set that up so I can spawn event and for however long I want it to last like /event 10 for 10 min evfent" and "add a command to /shout "msg" across all servers so I can tell people in all servers things".
+
+- `/event 10` in a live public server starts the full Cafe Party for 10 minutes on **every server**; `/event <preset> <minutes>` keeps the presets (full, days, money, luck, showers) and `/event stop` ends an event started this way. Assumption (Gameplay-Engineer): all servers rather than only the owner's, because a party is for the players and most of them are on other servers. It works by writing a real record into the events schedule (the same store the events workflow writes), so every server runs it by the shared clock, the shower cats are claimed once game-wide and the analytics count it as a real event. Other servers pick it up within a minute at the latest (a cross-server message asks them to read the schedule at once).
+- Length is held to the live limits (5 minutes to 2 hours). It is refused while another event is running or would start inside it, so two events never overlap.
+- The full party pays the party reward (the Party Bunting piece, or the coin gift for a player who has it) as a scheduled party does; design rule 2e says rewards come back at later events.
+- In Studio or a private server `/event` stays a test in that one server and writes nothing, as before.
+- `/shout message` shows the message to every player on every server. The owner check is on the server by user id; the text goes through Roblox's text filter for a broadcast before it is sent anywhere, and is not sent if the filter fails; at most 120 characters, one shout every 20 seconds.
+- No save version step and no restart: old servers ignore the new message topic, and they read the schedule record like any other event.
+
 ## 2026-11-11 Rummage Bin ships with no restart: its wait in its own store (#3050, #3104)
 
 Derek2 2026-11-11 00:33 UTC, on the arcade, Rummage Bin and Saturday gift: "shit them without restart". PR #3104 had put the bin's wait and wins in the save (version 48), which needs a restart publish.

@@ -25,7 +25,7 @@ RummageBin.AREA = "alley"
 RummageBin.TAG = "RummageBin" -- the placed model (WorldBuilder)
 RummageBin.PROMPT = "RummagePrompt"
 RummageBin.FLAG = "alleyBin" -- LiveFlags: off hides the prompt; saves keep their fields
-RummageBin.NEXT_AT_ATTRIBUTE = "BinNextAt" -- on the Player: the save's nextAt, for the prompt's words and the look
+RummageBin.NEXT_AT_ATTRIBUTE = "BinNextAt" -- on the Player: the wait's nextAt, for the prompt's words and the look
 RummageBin.NAME = "Rummage Bin"
 RummageBin.ACTION = "Rummage"
 RummageBin.EMPTY = "Empty for now 🐾" -- no countdown (Monetization-Agent 11-10)
@@ -132,27 +132,30 @@ function RummageBin.win(save: Types.RummageBinSave, now: number, roll: number): 
 	return row
 end
 
--- The bar: a Common rescue bar with the Alleyway's ease (2 hits, RescuePatience paws), and for an early rummage
--- BinFirstEase's wider zones and slower marker on top.
+-- The bar: a Common rescue bar with the Alleyway's fewer hits (2 hits, RescuePatience paws), its zone BinZoneWidth
+-- and its marker BinBarSpeed in absolute numbers (whatever the rescue bars' widths and speeds are), and for an early
+-- rummage BinFirstEase's wider zones and slower marker on top.
 function RummageBin.challenge(
 	early: boolean,
 	now: number,
 	roll: () -> number
 ): Types.RescueChallenge
 	local ease = if early then Config.BinFirstEase else nil
-	local challenge = Rescue.newChallenge(
+	local area = Config.RescueAreaEase[RummageBin.AREA]
+	-- newChallenge multiplies the rescue numbers by these scales, so they are the target over what it starts from
+	local zone = Config.BinZoneWidth * (if ease ~= nil then ease.zone else 1)
+	local speed = Config.BinBarSpeed * (if ease ~= nil then ease.speed else 1)
+	local zoneFrom = Config.RescueZoneWidth[RARITY] * (if area ~= nil then area.zone else 1)
+	local speedFrom = Config.RescueBarSpeed[RARITY] * (if area ~= nil then area.speed else 1)
+	return Rescue.newChallenge(
 		RARITY,
 		RummageBin.TRAP,
 		now,
 		roll,
-		if ease ~= nil then ease.zone else 1,
-		RummageBin.AREA
+		zone / zoneFrom,
+		RummageBin.AREA,
+		speed / speedFrom
 	)
-	local speed = challenge.speed
-	if ease ~= nil and speed ~= nil then
-		challenge.speed = speed * ease.speed
-	end
-	return challenge
 end
 
 -- A fresh attempt on that bar (Rescue.pressBar judges its presses).

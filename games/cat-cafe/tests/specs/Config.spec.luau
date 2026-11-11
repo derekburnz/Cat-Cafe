@@ -343,6 +343,8 @@ return function()
 		BinFirstRepeatSeconds = 180,
 		BinCooldownSeconds = 900,
 		BinMissRetrySeconds = 10,
+		BinZoneWidth = 0.42, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed
+		BinBarSpeed = 0.64,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908

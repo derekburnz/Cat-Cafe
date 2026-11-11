@@ -900,8 +900,8 @@ export type CampExtrasSave = {
 	lostFound: { at: number, held: number }, -- #1732 (save version 40): was { day, held }, one a UTC day
 }
 
--- #3050 (save version 48): the Rummage Bin (shared/RummageBin): the os.time() it is full again (0: ready) and the
--- wins so far.
+-- #3050: the Rummage Bin (shared/RummageBin): the os.time() it is full again (0: ready) and the wins so far. Kept in its
+-- own DataStore (BinService), not the save, so it needs no save version step.
 export type RummageBinSave = { nextAt: number, uses: number }
 -- A Rummage Bin win as RescueResult's last argument carries it: the BinTable row's id and whether it is the account's
 -- first win (shared/RummageBin.winWords).
@@ -1270,7 +1270,6 @@ export type PlayerProfile = {
 	museum: MuseumSave, -- #2651 part 4 (late-stations.md section 2, save version 46): the Relic Museum
 	invites: InviteSave, -- #2797 (save version 47): the invite reward, the inviter's side
 	referredBy: ReferredBy?, -- #2797 (save version 47): the joiner's side, set once on a fresh save
-	bin: RummageBinSave, -- #3050 (save version 48): the Rummage Bin's wait and wins
 	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
 	-- F102 (trading.md sections 4 and 5, save version 27): the last TradeLogMax trades for the Trades page, and the ids
 	-- of the last TradeIdsMax trades applied to this save, so a trade pending after a shutdown is applied only once

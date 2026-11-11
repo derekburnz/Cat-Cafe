@@ -935,13 +935,18 @@ local Config = {
 	},
 	-- #3050 (the Rummage Bin at the Alleyway camp, shared/RummageBin): one press plays a short rescue bar and a win
 	-- pulls one BinTable prize out (chances add to 1, shown on its prompt). The account's first BinFirstUses rummages
-	-- are easier (BinFirstEase on top of the Alleyway's RescueAreaEase) and BinFirstRepeatSeconds apart; after that
+	-- are easier (BinFirstEase on top of BinZoneWidth and BinBarSpeed) and BinFirstRepeatSeconds apart; after that
 	-- the bin fills every BinCooldownSeconds. A miss costs nothing and waits BinMissRetrySeconds. The first win is
 	-- always BinFirstPrizes[1] and the second BinFirstPrizes[2] (row ids). Amounts: Monetization-Agent 2026-11-10.
 	BinFirstUses = 3,
 	BinFirstRepeatSeconds = 180,
 	BinCooldownSeconds = 900,
 	BinMissRetrySeconds = 10,
+	-- Design-Agent on #3050 after #3120 and #3223: the bin's bar is set in absolute numbers and never follows the
+	-- rescue bars' RescueZoneWidth or RescueBarSpeed, so a rescue change never makes the bin harder: the old Common
+	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
+	BinZoneWidth = 0.42,
+	BinBarSpeed = 0.64,
 	BinFirstEase = { zone = 1.6, speed = 0.6 },
 	BinFirstPrizes = { "tuna", "crate" },
 	BinTable = {

@@ -2,16 +2,20 @@
 -- The Rummage Bin on the server (#3050; the rules are shared/RummageBin). Its bar runs on the rescue remotes under
 -- the spot id RummageBin.SPOT: RescueService hands that id's RescueBegin, RescuePress and RescueCancel here
 -- (RescueService.addBar), so no new remote and the same rate limits. Begin checks the `alleyBin` switch, that the
--- player stands at the bin, is in no catch, rescue or flight, that their bin is full (save.bin.nextAt) and that their
+-- player stands at the bin, is in no catch, rescue or flight, that their bin is full (its nextAt) and that their
 -- last miss is BinMissRetrySeconds old, then sends the bar as RescueChallenge. Each press is judged as a rescue's
 -- (Rescue.pressBar, the press's own time kept within half the ping). A win rolls the prize here, pays it
 -- (Payout.pay), starts the wait and ends the bar with RescueResult's last argument, the win ({ id, first }), which
 -- the bar shows as its closing words: no toast (#3080). A miss, Give up, walking away, dying or leaving costs nothing.
--- The player's BinNextAt attribute carries the save's nextAt, so each client words its own prompt ("Rummage" or
+-- Each player's wait and wins live in their own DataStore, STORE (key: the user id), not in the save, so the bin
+-- needed no save version step and no restart (Derek2 2026-11-11: "shit them without restart"). They are read when
+-- the player joins (the bin stays shut until the read answers) and written at each win.
+-- The player's BinNextAt attribute carries the wait's nextAt, so each client words its own prompt ("Rummage" or
 -- "Empty for now 🐾", never a countdown) and shows the bin's full or empty look. Logs bin_play (the prize row, the
 -- win's number) and, on an account's first win, step_time "first_bin". Nothing here is sold.
 
 local CollectionService = game:GetService("CollectionService")
+local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -38,9 +42,15 @@ local RANGE_SLACK = 4 -- studs past the prompt's reach, for a character the serv
 local LEAVE_RANGE_STUDS = 16 -- further than this from the bin ends the bar, as a rescue's
 local FLAG_SECONDS = 5
 
+local STORE = "CatCafe_Bin" .. (if RunService:IsStudio() then "_dev" else "")
+local READ_WAITS = { 2, 5, 15, 60 } -- seconds before each further try at a join's read
+local WRITE_WAITS = { 2, 5, 15 } -- and at a win's write
+
 type Run = { attempt: Rescue.Attempt }
 
 local runs: { [Player]: Run } = {}
+local bins: { [Player]: Types.RummageBinSave } = {} -- each player's wait and wins, once read
+local shutUntil = 2 ^ 31 -- BinNextAt while a player's wait is still being read: "Empty for now"
 local retryAt: { [Player]: number } = {} -- server time each player may try again after a miss
 local rng = Random.new()
 
@@ -90,8 +100,78 @@ local function alive(player: Player): boolean
 	return humanoid ~= nil and (humanoid :: Humanoid).Health > 0
 end
 
-local function publish(player: Player, profile: Types.PlayerProfile)
-	player:SetAttribute(RummageBin.NEXT_AT_ATTRIBUTE, profile.bin.nextAt)
+local function publish(player: Player)
+	local bin = bins[player]
+	player:SetAttribute(RummageBin.NEXT_AT_ATTRIBUTE, if bin ~= nil then bin.nextAt else shutUntil)
+end
+
+local function store(): DataStore?
+	if RunService:IsStudio() and not DataService.saves() then
+		return nil -- Studio with no API access: the bin starts full and forgets at the end of the test
+	end
+	return DataStoreService:GetDataStore(STORE)
+end
+
+-- Reads `player`'s wait and wins when they join, trying again a few times; nothing read keeps the bin shut for them.
+local function load(player: Player)
+	task.spawn(function()
+		local where = store()
+		if where == nil then
+			bins[player] = RummageBin.fresh()
+			publish(player)
+			return
+		end
+		local key = tostring(player.UserId)
+		for attempt = 1, #READ_WAITS + 1 do
+			local ok, raw = pcall(function()
+				return (where :: DataStore):GetAsync(key)
+			end)
+			if player.Parent ~= Players then
+				return
+			end
+			if ok then
+				bins[player] = RummageBin.sanitize(raw, os.time())
+				publish(player)
+				return
+			end
+			local wait = READ_WAITS[attempt]
+			if wait == nil then
+				break
+			end
+			task.wait(wait)
+		end
+		-- only the message's start: DataStore errors can carry ids, and logs are public
+		warn(
+			"[BinService] reading a Rummage Bin wait failed; that player's bin stays shut this visit"
+		)
+	end)
+end
+
+-- Writes `player`'s wait and wins after a win, trying again a few times. The prize is paid already; a lost write
+-- only lets the bin fill early on the player's next server.
+local function save(player: Player, bin: Types.RummageBinSave)
+	local where = store()
+	if where == nil then
+		return
+	end
+	local key = tostring(player.UserId)
+	local value = { nextAt = bin.nextAt, uses = bin.uses }
+	task.spawn(function()
+		for attempt = 1, #WRITE_WAITS + 1 do
+			local ok = pcall(function()
+				(where :: DataStore):SetAsync(key, value)
+			end)
+			if ok then
+				return
+			end
+			local wait = WRITE_WAITS[attempt]
+			if wait == nil then
+				break
+			end
+			task.wait(wait)
+		end
+		warn("[BinService] writing a Rummage Bin wait failed")
+	end)
 end
 
 local function send(player: Player, attempt: Rescue.Attempt, win: Types.RummageWin?)
@@ -121,30 +201,28 @@ local function finish(player: Player, run: Run, reason: string?)
 		Rescue.abandon(attempt)
 	end
 	local profile = DataService.get(player)
+	local bin = bins[player]
 	local present = player.Parent == Players and profile ~= nil
 	local now = os.time()
 	-- the wait cannot have started since Begin, but a win is never paid on a bin that is not full
 	local won = attempt.success
 		and profile ~= nil
+		and bin ~= nil
 		and present
-		and RummageBin.ready(profile.bin, now)
+		and RummageBin.ready(bin, now)
 	attempt.success = won
 	local win: Types.RummageWin? = nil
-	if won and profile ~= nil then
-		local first = profile.bin.uses == 0
-		local row = RummageBin.win(profile.bin, now, rng:NextNumber())
+	if won and profile ~= nil and bin ~= nil then
+		local first = bin.uses == 0
+		local row = RummageBin.win(bin, now, rng:NextNumber())
+		save(player, bin)
 		Payout.pay(player, profile, RummageBin.prize(row), "rummage_bin")
-		Telemetry.custom(
-			player,
-			"bin_play",
-			1,
-			{ row.id, tostring(math.min(profile.bin.uses, 10)) }
-		)
+		Telemetry.custom(player, "bin_play", 1, { row.id, tostring(math.min(bin.uses, 10)) })
 		if first then
 			Telemetry.stepTime(player, profile, "first_bin")
 		end
 		win = { id = row.id, first = first }
-		publish(player, profile)
+		publish(player)
 		CafeService.sync(player)
 	elseif present then
 		retryAt[player] = serverNow() + Config.BinMissRetrySeconds
@@ -203,8 +281,9 @@ local function begin(player: Player)
 		Net.toast(player, "Walk up to the Rummage Bin first", "warn")
 		return
 	end
-	if not RummageBin.ready(profile.bin, os.time()) then
-		publish(player, profile) -- the prompt already reads "Empty for now"
+	local bin = bins[player]
+	if bin == nil or not RummageBin.ready(bin, os.time()) then
+		publish(player) -- the prompt already reads "Empty for now"
 		return
 	end
 	local now = serverNow()
@@ -213,7 +292,7 @@ local function begin(player: Player)
 		Net.toast(player, Cooldown.text(retry - now), "warn")
 		return
 	end
-	local challenge = RummageBin.challenge(RummageBin.early(profile.bin), now, function()
+	local challenge = RummageBin.challenge(RummageBin.early(bin), now, function()
 		return rng:NextNumber()
 	end)
 	local run: Run = { attempt = RummageBin.attempt(challenge) }
@@ -264,8 +343,9 @@ function BinService.start()
 		cancel = cancel,
 		busy = BinService.busy,
 	})
-	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
-		publish(player, profile)
+	DataService.onLoaded:Connect(function(player: Player, _profile: Types.PlayerProfile)
+		publish(player) -- shut until the read below answers
+		load(player)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		local run = runs[player]
@@ -273,6 +353,7 @@ function BinService.start()
 			finish(player, run, nil)
 		end
 		retryAt[player] = nil
+		bins[player] = nil
 	end)
 	-- the `alleyBin` switch: off hides the prompt for everyone within FLAG_SECONDS of the flag's read
 	task.spawn(function()
@@ -297,17 +378,18 @@ end
 -- fixed first prizes come again. Returns the save.
 function BinService.debugSet(player: Player, how: string): Types.RummageBinSave?
 	assert(RunService:IsStudio(), "debugSet is Studio only")
-	local profile = DataService.get(player)
-	if profile == nil then
+	local bin = bins[player]
+	if bin == nil then
 		return nil
 	end
-	profile.bin.nextAt = 0
+	bin.nextAt = 0
 	if how == "reset" then
-		profile.bin.uses = 0
+		bin.uses = 0
 	end
 	retryAt[player] = nil
-	publish(player, profile)
-	return profile.bin
+	save(player, bin)
+	publish(player)
+	return bin
 end
 
 -- Studio-only test hook: a press on `player`'s running bin bar that `kind` "hit" or "miss" says, judged as a real

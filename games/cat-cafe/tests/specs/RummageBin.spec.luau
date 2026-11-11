@@ -17,32 +17,29 @@ return function()
 		return 0.5
 	end
 
-	describe("save (version 48)", function()
-		it("a new save's bin is full at once and has no wins", function()
-			local profile = ProfileSchema.template(T)
-			expect(profile.bin.nextAt).to.equal(0)
-			expect(profile.bin.uses).to.equal(0)
-			expect(RummageBin.ready(profile.bin, T)).to.equal(true)
-			expect(RummageBin.early(profile.bin)).to.equal(true)
+	describe("its own store (no save field, #3050 shipped with no restart)", function()
+		it("a player with nothing stored has a full bin and no wins", function()
+			local save = RummageBin.fresh()
+			expect(save.nextAt).to.equal(0)
+			expect(save.uses).to.equal(0)
+			expect(RummageBin.ready(save, T)).to.equal(true)
+			expect(RummageBin.early(save)).to.equal(true)
+			local stored = RummageBin.sanitize(nil, T)
+			expect(stored.nextAt).to.equal(0)
+			expect(stored.uses).to.equal(0)
 		end)
 
-		it("a save from before the bin gets a full bin", function()
-			local raw: any = ProfileSchema.template(T)
-			raw.version = 47
-			raw.bin = nil
-			local profile = ProfileSchema.migrate(raw, T)
-			expect(profile.bin.nextAt).to.equal(0)
-			expect(profile.bin.uses).to.equal(0)
+		it("keeps a stored wait and wins", function()
+			local save = RummageBin.sanitize({ nextAt = T + 400, uses = 7 }, T)
+			expect(save.nextAt).to.equal(T + 400)
+			expect(save.uses).to.equal(7)
+			expect(RummageBin.ready(save, T)).to.equal(false)
+			expect(RummageBin.ready(save, T + 400)).to.equal(true)
 		end)
 
-		it("keeps a saved wait and wins through a load", function()
-			local raw: any = ProfileSchema.template(T)
-			raw.bin = { nextAt = T + 400, uses = 7 }
-			local profile = ProfileSchema.migrate(raw, T)
-			expect(profile.bin.nextAt).to.equal(T + 400)
-			expect(profile.bin.uses).to.equal(7)
-			expect(RummageBin.ready(profile.bin, T)).to.equal(false)
-			expect(RummageBin.ready(profile.bin, T + 400)).to.equal(true)
+		it("is not in the player's save", function()
+			expect((ProfileSchema.template(T) :: any).bin).to.equal(nil)
+			expect(ProfileSchema.VERSION).to.equal(47)
 		end)
 
 		it(
@@ -195,21 +192,16 @@ return function()
 	end)
 
 	describe("the bar", function()
-		it("is a plain bar of 2 hits and 3 paws with the Alleyway's ease", function()
+		it("is a plain bar of 2 hits and 3 paws at the bin's own width and speed", function()
 			local challenge = RummageBin.challenge(false, 100, half)
 			expect(challenge.kind).to.equal("bar")
 			expect(challenge.hitsNeeded).to.equal(2)
 			expect(challenge.paws).to.equal(3)
-			local ease = Config.RescueAreaEase.alley
-			expect(
-				math.abs(
-					(challenge.zoneWidth :: number) - Config.RescueZoneWidth.Common * ease.zone
-				) < 1e-9
-			).to.equal(true)
-			expect(
-				math.abs((challenge.speed :: number) - Config.RescueBarSpeed.Common * ease.speed)
-					< 1e-9
-			).to.equal(true)
+			expect(challenge.zoneWidth).to.be.near(Config.BinZoneWidth, 1e-9)
+			expect(challenge.speed).to.be.near(Config.BinBarSpeed, 1e-9)
+			-- Design-Agent: 0.42 and 0.64, whatever the rescue bars are set to
+			expect(Config.BinZoneWidth).to.equal(0.42)
+			expect(Config.BinBarSpeed).to.equal(0.64)
 		end)
 
 		it("is wider and slower for an early rummage", function()

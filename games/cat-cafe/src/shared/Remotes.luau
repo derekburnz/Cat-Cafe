@@ -211,8 +211,9 @@ Remotes.ServerToClient = {
 	-- F102 trading (TradeService)
 	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
-	"TradeAskEnded", -- (toUserId: number)  #2550: the asker's request to that player was declined or ran out; they may
-	-- ask again after TradeReaskSeconds
+	"TradeAskEnded", -- (toUserId: number, now: boolean?)  #2550: the asker's request to that player was declined or ran
+	-- out; they may ask again after TradeReaskSeconds. #3211: `now` true when it never went out or could not open: the
+	-- row says Trade again at once
 	"TradeState", -- (state: Types.TradeStateView?)  the receiver's view of their open trade after every change; nil
 	-- closes the window
 	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary }, gaveDecor:

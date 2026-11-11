@@ -404,6 +404,125 @@ return function()
 			expect(CafeEvents.test("party", NOW, 10)).to.equal(nil)
 		end)
 	end)
+	describe("the owner's /event in a live server (#3212)", function()
+		it("writes a record every server reads as the full party, running now", function()
+			local record = assert(CafeEvents.ownerRecord("full", NOW + 0.4, 10))
+			expect(record.id).to.equal("owner-" .. tostring(NOW))
+			expect(record.startsAt).to.equal(NOW)
+			expect(record.endsAt).to.equal(NOW + 600)
+			local list, notes = CafeEvents.parse({ record }, NOW + 1)
+			expect(#notes).to.equal(0)
+			expect(#list).to.equal(1)
+			local event = list[1]
+			expect(event.title).to.equal(CafeEvents.OWNER_TITLE)
+			expect(event.test).to.equal(false)
+			expect(event.effects.days.lucky).to.equal(true)
+			expect(event.effects.days.golden).to.equal(true)
+			expect(event.effects.days.rainbow).to.equal(true)
+			expect(event.effects.money).to.equal(Config.EventMoneyMax)
+			expect(event.effects.luck > 0).to.equal(true)
+			local showers = assert(event.effects.showers)
+			-- 10 minutes: one at 2 minutes in and one a gap later, both before the end
+			expect(showers.count).to.equal(2)
+			expect(
+				CafeEvents.OWNER_SHOWER_FIRST
+						+ (showers.count - 1) * Config.EventShowerGapMinSeconds
+					< 600
+			).to.equal(true)
+			expect(CafeEvents.rewardKey(event)).to.equal(record.id)
+		end)
+
+		it("keeps the length inside the live caps and knows no other preset", function()
+			local short = assert(CafeEvents.ownerRecord("money", NOW, 1))
+			expect(short.endsAt - short.startsAt).to.equal(Config.EventMinSeconds)
+			local long = assert(CafeEvents.ownerRecord("full", NOW, 100000))
+			expect(long.endsAt - long.startsAt).to.equal(Config.EventMaxSeconds)
+			local showers = assert(CafeEvents.parse({ long }, NOW)[1].effects.showers)
+			expect(showers.count <= Config.EventShowerMax).to.equal(true)
+			expect(CafeEvents.ownerRecord("", NOW, 10)).to.equal(nil)
+			expect(CafeEvents.ownerRecord("stop", NOW, 10)).to.equal(nil)
+			expect(CafeEvents.ownerRecord("full", NOW, 0 / 0)).to.equal(nil)
+			for _, preset in CafeEvents.PRESETS do
+				local record = assert(CafeEvents.ownerRecord(preset, NOW, 10))
+				local list, notes = CafeEvents.parse({ record }, NOW)
+				expect(#list).to.equal(1)
+				expect(#notes).to.equal(0)
+			end
+		end)
+
+		it("adds it to the schedule, dropping records that are over", function()
+			local record = assert(CafeEvents.ownerRecord("full", NOW, 10))
+			local list, why = CafeEvents.ownerAdd(nil, record, NOW)
+			expect(why).to.equal(nil)
+			expect(#assert(list)).to.equal(1)
+			local over = raw({ id = "old", startsAt = NOW - 2 * HOUR, endsAt = NOW - HOUR })
+			local later = raw() -- an hour from now
+			list, why = CafeEvents.ownerAdd({ over, later }, record, NOW)
+			expect(why).to.equal(nil)
+			expect(#assert(list)).to.equal(2)
+			expect(assert(list)[1].id).to.equal("party-1121")
+			expect(assert(list)[2].id).to.equal(record.id)
+			expect(#CafeEvents.parse(list, NOW)).to.equal(2)
+		end)
+
+		it(
+			"refuses while another event runs or starts inside it, or the schedule is full",
+			function()
+				local record = assert(CafeEvents.ownerRecord("full", NOW, 10))
+				local running = raw({ startsAt = NOW - 60, endsAt = NOW + 600 })
+				local list, why = CafeEvents.ownerAdd({ running }, record, NOW)
+				expect(list).to.equal(nil)
+				expect(string.find(assert(why), "already running", 1, true)).to.be.ok()
+				local soon = raw({ startsAt = NOW + 300, endsAt = NOW + HOUR })
+				list, why = CafeEvents.ownerAdd({ soon }, record, NOW)
+				expect(list).to.equal(nil)
+				expect(string.find(assert(why), "starts in 5 minutes", 1, true)).to.be.ok()
+				-- a second /event while the first runs
+				list, why = CafeEvents.ownerAdd(
+					{ record },
+					assert(CafeEvents.ownerRecord("full", NOW + 30, 10)),
+					NOW + 30
+				)
+				expect(list).to.equal(nil)
+				expect(string.find(assert(why), "already running", 1, true)).to.be.ok()
+				list, why = CafeEvents.ownerAdd("party", record, NOW)
+				expect(list).to.equal(nil)
+				expect(why).to.be.ok()
+				local full = {}
+				for index = 1, Config.EventScheduleMax do
+					table.insert(
+						full,
+						raw({
+							id = "later-" .. index,
+							startsAt = NOW + index * 10 * HOUR,
+							endsAt = NOW + index * 10 * HOUR + HOUR,
+						})
+					)
+				end
+				list, why = CafeEvents.ownerAdd(full, record, NOW)
+				expect(list).to.equal(nil)
+				expect(string.find(assert(why), "full", 1, true)).to.be.ok()
+			end
+		)
+
+		it("stops only the owner's own records, running or coming", function()
+			local record = assert(CafeEvents.ownerRecord("full", NOW, 10))
+			local later = raw()
+			local list, count = CafeEvents.ownerRemove({ later, record }, NOW + 60)
+			expect(count).to.equal(1)
+			expect(#assert(list)).to.equal(1)
+			expect(assert(list)[1].id).to.equal("party-1121")
+			-- one already over is not counted: there is nothing to stop
+			list, count = CafeEvents.ownerRemove({ later, record }, NOW + 601)
+			expect(count).to.equal(0)
+			list, count = CafeEvents.ownerRemove(nil, NOW)
+			expect(count).to.equal(0)
+			list, count = CafeEvents.ownerRemove("party", NOW)
+			expect(list).to.equal(nil)
+			expect(count).to.equal(0)
+		end)
+	end)
+
 	describe("the reward (section 2e)", function()
 		local function party(): any
 			local list =

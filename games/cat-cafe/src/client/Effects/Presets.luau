@@ -4221,6 +4221,24 @@ Presets.stationBuild = {
 	clunkGap = 0.12, -- seconds at least between stationClunk beats as pieces land (Sound-Agent's clunk set)
 }
 
+-- #2687's station reveal burst (StationReveal.luau): the first time you come into an area whose station you own, a
+-- gold beam rises off the station, sparkles and confetti burst over it and rings spread at its foot. Studs and
+-- seconds.
+Presets.stationReveal = {
+	wait = 4, -- seconds to wait for the station to stream in after the reveal
+	lift = 1, -- studs over the station's top the sparkles and confetti burst
+	sparkles = 24,
+	confetti = 40,
+	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
+	beamWidth = 3,
+	beamHeight = 22,
+	beamSeconds = 1.8,
+	rings = 2,
+	ringPad = 2, -- studs the first ring spreads past the station's widest side
+	ringGap = 0.3,
+	ringSeconds = 1,
+}
+
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
 -- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
 -- near. Off with Reduce Motion.

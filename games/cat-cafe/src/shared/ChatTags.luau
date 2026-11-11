@@ -9,6 +9,7 @@
 --   choices(ownsVip, items) -> the tag ids the player may show, in ORDER
 --   shown(pick, ownsVip, items) -> the tag id to show, or nil
 --   validPick(pick) -> whether a saved pick is a known tag id or OFF
+--   textFor(tagId, text) -> the message text in the tag's colour, or nil
 
 local ChatTags = {}
 
@@ -87,6 +88,20 @@ function ChatTags.withSupporter(
 		out.supporter = true
 	end
 	return out
+end
+
+-- Derek2 11-11 ("make the title change text color in chat also"): the message text drawn in the
+-- speaker's tag colour, or nil for no tag or one we don't know. `text` is TextChatMessage.Text, which TextChatService
+-- has already escaped for rich text, so a typed "<b>" stays plain text inside the font tag.
+function ChatTags.textFor(tagId: unknown, text: string): string?
+	if type(tagId) ~= "string" then
+		return nil
+	end
+	local tag = ChatTags.TAGS[tagId]
+	if tag == nil then
+		return nil
+	end
+	return string.format('<font color="%s">%s</font>', tag.color, text)
 end
 
 -- Whether `pick` may be saved: a known tag id or OFF (whether the player may show it is checked when shown).

@@ -57,9 +57,6 @@ Remotes.ClientToServer = {
 	"BuyDealerAll", -- (night: number)  #2573: as BuyDealerFood for every food at once: the server's own
 	-- Dealer.planAll of tonight's stock, bought counts and coins (best grade first, what fits); answered with a toast
 	-- and DealerStock
-	"BuyFreshCatch", -- (itemId: string, window: number)  F94 (rewards-and-shops.md section 6): day, within
-	-- FishMarketRange of a FishMarket station, a Catalog.freshCatch row, `window` the current one, fewer bought this
-	-- window than its amount, enough golden fish; 2 a second; answered with FreshCatchStock, bought or refused
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
@@ -105,8 +102,8 @@ Remotes.ClientToServer = {
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
-	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within
-	-- CollectorRangeStuds of him; on accept the cat he asks for is still owned, resting, unlocked and not the
+	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from
+	-- anywhere (#3216, his banner opens the card); on accept the cat he asks for is still owned, resting, unlocked and not the
 	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")
 	"ClaimQuest", -- (kind: "daily" | "weekly", slot: number)  F73: slot 1 to QuestDailyCount or QuestWeeklyCount,
 	-- finished and unclaimed; pays it and, when it is the set's last, the set prize; answered with QuestResult
@@ -150,7 +147,10 @@ Remotes.ClientToServer = {
 	"InviteCard", -- (action: string)  #2797 (retention-ideas.md 5d): the invite card's report, "shown", "invite" or
 	-- "notnow"; analytics invite_card, and "shown" marks invites.cardShown so it never comes back. Pays nothing
 	"MuseumDonate", -- (uid: string)  Tier 7; a cat with an empty exhibit, owned, unlocked, not at the spa, no open
-	-- trade, another copy of its kind kept; the copy leaves the save and fills the exhibit
+	-- trade, and not the player's last cat of all (#3123: the last copy of its kind may go); the copy leaves the save
+	-- and fills the exhibit
+	"MuseumFill", -- (area: string)  #3130: Auto fill, MuseumDonate's checks for each copy of LateStations.fillPlan
+	-- (the server's own plan for that hall), all in one call
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
@@ -211,8 +211,9 @@ Remotes.ServerToClient = {
 	-- F102 trading (TradeService)
 	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
-	"TradeAskEnded", -- (toUserId: number)  #2550: the asker's request to that player was declined or ran out; they may
-	-- ask again after TradeReaskSeconds
+	"TradeAskEnded", -- (toUserId: number, now: boolean?)  #2550: the asker's request to that player was declined or ran
+	-- out; they may ask again after TradeReaskSeconds. #3211: `now` true when it never went out or could not open: the
+	-- row says Trade again at once
 	"TradeState", -- (state: Types.TradeStateView?)  the receiver's view of their open trade after every change; nil
 	-- closes the window
 	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary }, gaveDecor:
@@ -291,10 +292,6 @@ Remotes.ServerToClient = {
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 	"DealerStock", -- (stock: Types.DealerStock?)  this player's amounts and buys of each food tonight (F94: one stock
 	-- per server per night, `night` its count), nil by day; after every buy
-	"FreshCatchStock", -- (stock: Types.FreshCatchStock?)  F94: this player's Fresh Catch amounts and buys by day,
-	-- nil at night ("Back at sunrise"); at sunrise, at each new window, on join and after every BuyFreshCatch
-	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion is on the Fresh Catch shelf (no crate since #1051)
-	-- and this player has the golden fish for it; at most once a window per player, only with settings.shopAlerts on
 	-- (none until shared/Settings saves the key, review S100)
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"ShowTip", -- (id: string)  F87 (easy-start.md section 3): a server-side context tip's moment came (shared/Tips:

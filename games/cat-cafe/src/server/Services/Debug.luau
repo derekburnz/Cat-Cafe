@@ -47,7 +47,6 @@
 --   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
 --   D:Invoke("event", "full", 10)     -- a 10 minute test Cafe Event in this server (full, days, money, luck, showers;
 --                                      -- "stop" ends it); returns "<id> until <unix seconds>" (#2486)
---   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("seedCafe", nil, 5, 12, { extraSlot = true, grandCafe = true })  -- Tier 5, 12 cats, slots filled (#2050)
 --   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
 --   D:Invoke("placeCat", nil, "<uid>", "greeter_1")   -- PlaceCat as the client sends it; unplaceCat too (#2050)
@@ -93,7 +92,6 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
 local FishMarketService = require(script.Parent.FishMarketService)
-local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local LateStationService = require(script.Parent.LateStationService)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -597,19 +595,6 @@ function Debug.rally(player: (Player | number | string)?, action: string?, value
 		RallyService.debugLaps(p, profileOf(p), tonumber(value) or 0)
 	end
 	return RallyService.debugSummary(p)
-end
-
--- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and
--- the alert can come again. Returns the window and its stock, "<window>: <itemId>=<amount> ..." in shelf order.
-function Debug.freshCatch(player: (Player | number | string)?): string
-	local profile = profileOf(resolve(player))
-	profile.freshCatch = FreshCatch.fresh()
-	local window = FreshCatch.window(os.time())
-	local parts: { string } = {}
-	for _, item in FreshCatch.stock(window) do
-		table.insert(parts, string.format("%s=%d", item.itemId, item.amount))
-	end
-	return string.format("%d: %s", window, table.concat(parts, " "))
 end
 
 -- Puts `count` (default 1) of a potion in the bag, or of every potion when `potionId` is nil (F64).

@@ -8,6 +8,9 @@
 -- Haze stays light (Derek 2026-10-28 00:45: Haze 2 to 2.6 and Density 0.3 laid a grey fog over the whole screen
 -- from the high camera): a little warm haze at sunrise and the golden hours, none at midday or night.
 -- Visual only, so the numbers live here rather than in Config.
+-- #3167 (Derek2 11-10: "make the sky more vibrant", preview OK'd): a clear blue day (Color and Decay bluer, not grey),
+-- stronger pinks and oranges at sunrise, golden hour, dusk and sunset, and a deep blue night instead of a flat grey
+-- one. Only colours and a touch of Brightness changed; Haze, Density and exposure as before, so nothing new to draw.
 
 local Config = require(script.Parent.Config)
 
@@ -45,27 +48,27 @@ end
 
 DayLight.SUNRISE = {
 	ClockTime = 6.4,
-	Brightness = 0.9,
-	OutdoorAmbient = rgb(150, 125, 120),
+	Brightness = 0.95,
+	OutdoorAmbient = rgb(165, 125, 125),
 	Ambient = rgb(95, 85, 85),
 	ExposureCompensation = -0.1,
-	ColorShift_Top = rgb(255, 190, 150),
+	ColorShift_Top = rgb(255, 170, 120),
 	Density = 0.25,
-	Color = rgb(255, 195, 160),
-	Decay = rgb(140, 130, 170),
+	Color = rgb(255, 165, 120),
+	Decay = rgb(120, 105, 205),
 	Glare = 0.6,
 	Haze = 0.6,
 } :: Look
 
 DayLight.MORNING = with(DayLight.SUNRISE, {
 	ClockTime = 8.6,
-	Brightness = 1.3,
-	OutdoorAmbient = rgb(142, 134, 128),
+	Brightness = 1.35,
+	OutdoorAmbient = rgb(145, 136, 128),
 	Ambient = rgb(98, 94, 90),
 	ExposureCompensation = -0.2,
-	ColorShift_Top = rgb(255, 225, 195),
-	Color = rgb(235, 218, 205),
-	Decay = rgb(150, 165, 205),
+	ColorShift_Top = rgb(255, 228, 190),
+	Color = rgb(200, 228, 255),
+	Decay = rgb(100, 160, 240),
 	Glare = 0.3,
 	Haze = 0.3,
 })
@@ -73,51 +76,51 @@ DayLight.MORNING = with(DayLight.SUNRISE, {
 -- The brightest the day gets: Brightness 2, OutdoorAmbient 170,160,150 and exposure 0 before was too bright.
 DayLight.MIDDAY = {
 	ClockTime = 12.5,
-	Brightness = 1.5,
-	OutdoorAmbient = rgb(138, 132, 126),
+	Brightness = 1.55,
+	OutdoorAmbient = rgb(140, 136, 130),
 	Ambient = rgb(100, 96, 92),
 	ExposureCompensation = -0.2,
-	ColorShift_Top = rgb(255, 245, 232),
+	ColorShift_Top = rgb(255, 246, 228),
 	Density = 0.25,
-	Color = rgb(210, 224, 238),
-	Decay = rgb(150, 180, 215),
+	Color = rgb(170, 215, 255),
+	Decay = rgb(80, 150, 245),
 	Glare = 0,
 	Haze = 0,
 } :: Look
 
 DayLight.GOLDEN = with(DayLight.MIDDAY, {
 	ClockTime = 16.2,
-	Brightness = 1.35,
-	OutdoorAmbient = rgb(148, 132, 116),
-	ColorShift_Top = rgb(255, 210, 160),
-	Color = rgb(255, 212, 160),
-	Decay = rgb(165, 160, 190),
+	Brightness = 1.4,
+	OutdoorAmbient = rgb(155, 132, 110),
+	ColorShift_Top = rgb(255, 195, 130),
+	Color = rgb(255, 190, 110),
+	Decay = rgb(150, 130, 215),
 	Glare = 0.5,
 	Haze = 0.5,
 })
 
 DayLight.DUSK = with(DayLight.GOLDEN, {
 	ClockTime = 17.7,
-	Brightness = 0.95,
-	OutdoorAmbient = rgb(125, 105, 115),
+	Brightness = 1,
+	OutdoorAmbient = rgb(135, 100, 115),
 	Ambient = rgb(85, 78, 85),
 	ExposureCompensation = -0.1,
-	ColorShift_Top = rgb(255, 170, 140),
-	Color = rgb(245, 160, 135),
-	Decay = rgb(110, 95, 150),
+	ColorShift_Top = rgb(255, 150, 115),
+	Color = rgb(255, 130, 100),
+	Decay = rgb(115, 70, 175),
 	Glare = 0.4,
 	Haze = 0.6,
 })
 
 DayLight.SUNSET = with(DayLight.DUSK, {
 	ClockTime = 18.3,
-	Brightness = 0.75,
-	OutdoorAmbient = rgb(90, 85, 110),
+	Brightness = 0.8,
+	OutdoorAmbient = rgb(100, 82, 120),
 	Ambient = rgb(60, 58, 78),
 	ExposureCompensation = 0,
-	ColorShift_Top = rgb(200, 165, 190),
-	Color = rgb(190, 140, 150),
-	Decay = rgb(80, 80, 130),
+	ColorShift_Top = rgb(220, 150, 200),
+	Color = rgb(230, 110, 155),
+	Decay = rgb(80, 60, 165),
 	Glare = 0.2,
 	Haze = 0.3,
 })
@@ -127,14 +130,14 @@ DayLight.SUNSET = with(DayLight.DUSK, {
 -- notes: night lights too bright) still stand out inside the cafe without washing it out.
 DayLight.NIGHT = {
 	ClockTime = 24.5,
-	Brightness = 0.6,
-	OutdoorAmbient = rgb(45, 55, 85),
+	Brightness = 0.65,
+	OutdoorAmbient = rgb(52, 58, 105),
 	Ambient = rgb(24, 28, 44),
 	ExposureCompensation = 0,
-	ColorShift_Top = rgb(150, 170, 220),
+	ColorShift_Top = rgb(140, 165, 255),
 	Density = 0.4,
-	Color = rgb(110, 120, 160),
-	Decay = rgb(60, 68, 105),
+	Color = rgb(85, 95, 200),
+	Decay = rgb(40, 45, 140),
 	Glare = 0,
 	Haze = 0,
 } :: Look

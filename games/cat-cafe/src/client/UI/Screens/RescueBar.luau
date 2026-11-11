@@ -94,7 +94,10 @@ export type RescueBar = {
 	destroy: (self: RescueBar) -> (),
 }
 
-local BAR = Vector2.new(560, 44) -- design pixels at 1280 x 720
+-- #3180 (Derek2 2026-11-10: "slightly smaller bars"): 560 by 44 before, the needle 56 tall, the paw 30 and the pips
+-- 22; about an eighth smaller. The zone is a share of the bar and the marker's speed is in bar lengths, so the timing
+-- is the same. Taps anywhere still count, so nothing here is a touch target but Give up, which keeps its size.
+local BAR = Vector2.new(492, 40) -- design pixels at 1280 x 720
 local WORD = Vector2.new(160, 34) -- NICE!, MISS or Too slow! over the marker
 local WORD_SIZE = 28
 -- #2219 (crispi_255): a rescuer's miss after hits sends the bar back to the start; the flash says so, wider and a
@@ -102,9 +105,9 @@ local WORD_SIZE = 28
 local RESET_WORDS = "MISS! Back to the start"
 local RESET_WORD = Vector2.new(420, 34)
 local RESET_SIZE = 26
-local NEEDLE = Vector2.new(6, 56) -- the marker's line, a little taller than the bar
-local PAW = 30 -- the paw on top of the needle
-local PIP = 22
+local NEEDLE = Vector2.new(6, 50) -- the marker's line, a little taller than the bar
+local PAW = 28 -- the paw on top of the needle
+local PIP = 20
 local BAR_TOP = PIP + 34 -- room for the paw between the pips and the bar
 local LIFE = 6 -- the zone's draining bottom edge, the bar's one timer
 local GIVE_UP_H = 36 -- Give up's face on a mouse screen (Theme.sizes.tapMouse)

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10 18:43 UTC",
+  "generated": "2026-11-10 23:57 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -37571,17 +37571,17 @@
       "budget": 1800,
       "size_studs": {
         "x": 1.15,
-        "y": 2.15,
+        "y": 2.1,
         "z": 1.86
       },
       "size_roblox": [
         1.15,
         1.86,
-        2.15
+        2.1
       ],
       "bounds_min": [
         -0.65,
-        -1.17,
+        -1.12,
         -0.0
       ],
       "bounds_max": [
@@ -38098,7 +38098,7 @@
           "uv": "594 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=-0.07 y=-0.10"
+          "centered": "footprint center x=-0.07 y=-0.07"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Postie.png",
@@ -38125,17 +38125,17 @@
       "budget": 1800,
       "size_studs": {
         "x": 1.42,
-        "y": 1.4,
+        "y": 1.35,
         "z": 1.85
       },
       "size_roblox": [
         1.42,
         1.85,
-        1.4
+        1.35
       ],
       "bounds_min": [
         -0.61,
-        -0.8,
+        -0.75,
         0.0
       ],
       "bounds_max": [
@@ -38620,7 +38620,7 @@
           "uv": "588 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.10 y=-0.10"
+          "centered": "footprint center x=0.10 y=-0.08"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Postie_Sit.png",
@@ -38652,17 +38652,17 @@
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
-        "y": 1.79,
+        "y": 1.74,
         "z": 1.93
       },
       "size_roblox": [
         1.53,
         1.93,
-        1.79
+        1.74
       ],
       "bounds_min": [
         -0.69,
-        -0.88,
+        -0.82,
         0.0
       ],
       "bounds_max": [
@@ -39167,9 +39167,11 @@
           "uv": "906 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.02"
+          "centered": "footprint center x=0.08 y=0.04"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Postie_Work.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Postie_Work.png"
     },
     {
       "name": "CatCafe_Cat_Marshmallow",
@@ -174894,17 +174896,17 @@
       "budget": 1800,
       "size_studs": {
         "x": 1.15,
-        "y": 2.15,
+        "y": 2.1,
         "z": 1.86
       },
       "size_roblox": [
         1.15,
         1.86,
-        2.15
+        2.1
       ],
       "bounds_min": [
         -0.65,
-        -1.17,
+        -1.12,
         -0.0
       ],
       "bounds_max": [
@@ -175417,7 +175419,7 @@
           "uv": "582 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=-0.07 y=-0.10"
+          "centered": "footprint center x=-0.07 y=-0.07"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Postie_Gold.png",
@@ -175444,17 +175446,17 @@
       "budget": 1800,
       "size_studs": {
         "x": 1.42,
-        "y": 1.4,
+        "y": 1.35,
         "z": 1.85
       },
       "size_roblox": [
         1.42,
         1.85,
-        1.4
+        1.35
       ],
       "bounds_min": [
         -0.61,
-        -0.8,
+        -0.75,
         0.0
       ],
       "bounds_max": [
@@ -175935,7 +175937,7 @@
           "uv": "576 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.10 y=-0.10"
+          "centered": "footprint center x=0.10 y=-0.08"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Postie_Gold_Sit.png",
@@ -175967,17 +175969,17 @@
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
-        "y": 1.79,
+        "y": 1.74,
         "z": 1.93
       },
       "size_roblox": [
         1.53,
         1.93,
-        1.79
+        1.74
       ],
       "bounds_min": [
         -0.69,
-        -0.88,
+        -0.82,
         0.0
       ],
       "bounds_max": [
@@ -176478,9 +176480,11 @@
           "uv": "894 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.02"
+          "centered": "footprint center x=0.08 y=0.04"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Postie_Gold_Work.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Postie_Gold_Work.png"
     },
     {
       "name": "CatCafe_Cat_Marshmallow_Gold",
@@ -276117,22 +276121,22 @@
       "triangles": 3630,
       "budget": 6000,
       "size_studs": {
-        "x": 8.1,
-        "y": 12.25,
+        "x": 12.1,
+        "y": 16.25,
         "z": 8.6
       },
       "size_roblox": [
-        8.1,
+        12.1,
         8.6,
-        12.25
+        16.25
       ],
       "bounds_min": [
-        -4.05,
-        -10.05,
+        -6.05,
+        -14.05,
         0.0
       ],
       "bounds_max": [
-        4.05,
+        6.05,
         2.2,
         8.6
       ],
@@ -276252,11 +276256,11 @@
         "centre_roblox": [
           0,
           0.05,
-          -6.0
+          -8.0
         ],
-        "radius": 4.0
+        "radius": 6.0
       },
-      "studio": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; _Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, _Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. _Bulb (the sign lamp) glows at night.",
+      "studio": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named CodesCircle (a flat Neon disc 12 studs across, centre 8 studs in front of the pivot, CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; _Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, _Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. _Bulb (the sign lamp) glows at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CodesCat.model.json",
       "rbx_parts": 241,
       "files": [
@@ -276276,7 +276280,7 @@
           "uv": "1739 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.93"
+          "centered": "footprint center x=0.00 y=-5.93"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_CodesCat.png",
@@ -305874,7 +305878,14 @@
       "module": "campstations",
       "objects": [
         "CatCafe_Camp_Ruins_RelicMuseum",
-        "CatCafe_Camp_Ruins_RelicMuseum_Glass"
+        "CatCafe_Camp_Ruins_RelicMuseum_Glass",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_alley",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_park",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_neighbourhood",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_woods",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_sewer",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_desert",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_ruins"
       ],
       "triangles": 8834,
       "budget": 12000,
@@ -309307,8 +309318,8 @@
         ],
         "trap_clay_urn": [
           [
-            -60.0,
-            0.0,
+            -64.5,
+            2.42,
             102.0,
             "deep",
             -30
@@ -312486,7 +312497,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_FeedbackStand.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Town_FeedbackStand.png"
     }
   ]
 }

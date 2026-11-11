@@ -160,6 +160,9 @@ def _posts(g, x0, z0, x1, z1, step, inward):
         g.cyl((x, (WALL_H + 0.4) / 2, z), 0.3, WALL_H + 0.4, "dark_wood", segments=8)
 
 
+PYLON_X = 51.0      # the Broken Gate Camp's two pylons, either side of the camp (#3127: 34 until the museum's gallery)
+
+
 def build_camp(area):
     look = AREAS[area]
     name = "CatCafe_Camp_" + area
@@ -310,7 +313,10 @@ def _theme(s, mat, area, G, B, W, half):
         # by the way out; columns, drums, urns and rubble along the back wall. Clear of the pad, the basket, the
         # paths, the Index Board (-16, 4 in) and the camp extra's spot (20, 3.5 in).
         for sx in (1, -1):
-            s.put(rs.gate_pylon(mat, 14.0, sx), sx * 34.0, G - 14.0, 0)
+            # 51 out since #3127 (Derek2 11-10: "this big rock is blocking the view of all the cats for museum"): at
+            # 34 the +X pylon stood 3.5 in front of the Relic Museum's gallery (set x 27.4 to 44.4), hiding the
+            # exhibit rows from the pad; now both stand past the gallery's end, still either side of the camp
+            s.put(rs.gate_pylon(mat, 14.0, sx), sx * PYLON_X, G - 14.0, 0)
             s.put(rs.brazier(mat), sx * 9, cz, 0)
             s.put(rs.brazier(mat), sx * (W / 2 - 3), G - 2.5, 0)
             s.put(rs.column(mat, 11.0, sx > 0), sx * 54.0, B + 3.0, 0)

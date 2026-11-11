@@ -5,8 +5,10 @@
 -- the info brief and simple"): a round tile in the potion's colour with how many are in the bag,
 -- the name, one short line on what it does and for how long, the time left while it runs ("8:12 left"), and a Use
 -- button. A running potion with none left in the bag has no Use. Use reads "Full" when another would take the timer
--- past PotionMaxMinutes (60). A pressed Use reads "..." for a moment; the server's answer is the next ProfileSync, and
--- a refusal is the server's toast. The drink sound plays when the bag's count drops, which is the server accepting.
+-- past PotionMaxMinutes (60). #3190 (Derek2: "... delays on using potions too fast"): a pressed Use counts at once, as
+-- if the server said yes (one fewer in the bag, its minutes on the timer, PotionLogic.ahead), and presses queue and go
+-- SEND_GAP apart under the server's 2 a second, so the button never reads "..."; the server's answer is the next
+-- ProfileSync, and a refusal is the server's toast (the press stops counting after PENDING_SECONDS). The drink sound plays when the bag's count drops, which is the server accepting.
 -- #1600: beside Use, "Use x4" drinks as many as fit under PotionMaxMinutes in one press (UsePotion with a count);
 -- it shows only while two or more would fit.
 -- Timers pause while the player is away, so a rejoin shows what was left. Rows and sums: Components/PotionLogic.
@@ -69,7 +71,8 @@ local USE_W = 104
 local TAB_H = 40
 local TAB_W = 136 -- three tabs fit the small phone's window
 local FOOD_W = 104 -- the Feed button
-local PENDING_SECONDS = 1 -- a pressed Use waits this long for the server before it can be pressed again
+local PENDING_SECONDS = 3 -- a sent Use with no answer stops counting on its row after this long (#3190)
+local SEND_GAP = 0.55 -- UsePotion is 2 a second on the server (Net.luau); queued presses go this far apart
 local CAT_CARD_H = 68 -- #1773: a cat card in Feed's list
 local CAT_HEAD = 56 -- its head picture on the rarity's colour
 local CAT_FEED_W = 92
@@ -145,7 +148,12 @@ function Potions.new(callbacks: Callbacks): Potions
 	self._state = nil :: Types.PlayerState?
 	self._rows = {} :: { [string]: Row }
 	self._counts = nil :: { [string]: number }? -- the bag at the last render, to hear a drink land
-	self._pending = {} :: { [string]: number } -- potion id -> os.clock() of the press
+	-- #3190: Use presses not sent yet, in order, and the sent ones still waiting for the bag's count to drop
+	self._queue = {} :: { { id: string, n: number } }
+	self._sent = {} :: { { id: string, n: number, at: number } }
+	self._lastSent = 0
+	self._pumping = false
+	self._alive = true
 	self._fits = {} :: { [string]: number } -- #1600: potion id -> how many Use all drinks now
 
 	local panel = Panel.new({
@@ -388,12 +396,17 @@ function Potions.render(self: any, state: Types.PlayerState)
 	local counts: { [string]: number } = state.potions or {}
 	local before: { [string]: number }? = self._counts
 	if before then
+		-- every potion whose count dropped answers its presses (one sync can answer two kinds); one drink sound
+		local drank = false
 		for id, count in before do
-			if (counts[id] or 0) < count then
-				Sound.play("potionDrink")
-				self._pending[id] = nil
-				break
+			local drop = count - (counts[id] or 0)
+			if drop > 0 then
+				drank = true
+				self:_answered(id, drop)
 			end
+		end
+		if drank then
+			Sound.play("potionDrink")
 		end
 	end
 	self._counts = table.clone(counts)
@@ -992,18 +1005,7 @@ function Potions._row(self: any, potionId: string): Row
 	})
 	-- one press: Use drinks one, Use all (#1600) as many as fit; the server cuts the count to what fits again
 	local function press(count: number?)
-		local pressedAt = self._pending[potionId]
-		if pressedAt and os.clock() - pressedAt < PENDING_SECONDS then
-			return
-		end
-		self._pending[potionId] = os.clock()
-		self._callbacks.use(potionId, count)
-		self:_refresh()
-		task.delay(PENDING_SECONDS, function()
-			if self._rows[potionId] then
-				self:_refresh()
-			end
-		end)
+		self:_press(potionId, count)
 	end
 	local use = Button.new({
 		name = "Use",
@@ -1053,7 +1055,9 @@ function Potions._refresh(self: any)
 		return
 	end
 	-- only what the player has or is drinking (Derek 2026-11-03); a row goes when its last one is used and runs out
-	local rows = PotionLogic.owned(self._catalog, state, Workspace:GetServerTimeNow())
+	local now = Workspace:GetServerTimeNow()
+	local shownState = PotionLogic.ahead(self._catalog, state, self:_extra(), now) -- #3190: presses on their way
+	local rows = PotionLogic.owned(self._catalog, shownState, now)
 	local shown: { [string]: boolean } = {}
 	local any = false
 	for order, view in rows do
@@ -1076,19 +1080,17 @@ function Potions._refresh(self: any)
 		local running = view.secondsLeft > 0
 		row.left.Visible = running
 		row.left.Text = PotionLogic.clock(view.secondsLeft) .. " left"
-		local pressedAt: number? = self._pending[potion.id]
-		local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local full = view.count > 0 and not view.canUse
-		row.use:setText(if pending then "..." elseif full then "Full" else "Use")
-		row.use:setEnabled(view.canUse and not pending)
+		row.use:setText(if full then "Full" else "Use")
+		row.use:setEnabled(view.canUse)
 		-- a running potion with none left in the bag: no Use, just its time left
 		row.use.instance.Visible = view.count > 0
 		-- #1600: Use all while two or more fit, its count on the button; the words make room for it
 		self._fits[potion.id] = view.fit
 		local many = view.count > 0 and view.fit >= 2
 		row.useAll.instance.Visible = many
-		row.useAll:setText(if pending then "..." else ("Use x%d"):format(view.fit))
-		row.useAll:setEnabled(many and not pending)
+		row.useAll:setText(("Use x%d"):format(view.fit))
+		row.useAll:setEnabled(many)
 		local textRight = if many then 2 * USE_W + 28 else USE_W + 20
 		local textLeft = TILE + 24
 		row.name.Size = UDim2.new(1, -(textLeft + textRight), 0, 26)
@@ -1108,7 +1110,95 @@ function Potions._refresh(self: any)
 	self:_refreshFood()
 end
 
+-- #3190: potion id -> Use presses queued or sent within PENDING_SECONDS, not yet seen in the bag's count.
+function Potions._extra(self: any): { [string]: number }
+	local extra: { [string]: number } = {}
+	for _, each in self._queue do
+		extra[each.id] = (extra[each.id] or 0) + each.n
+	end
+	local now = os.clock()
+	for _, sent in self._sent do
+		if now - sent.at < PENDING_SECONDS then
+			extra[sent.id] = (extra[sent.id] or 0) + sent.n
+		end
+	end
+	return extra
+end
+
+-- #3190: the bag's count of `id` dropped by `drop`: that many sent presses are answered, oldest first.
+function Potions._answered(self: any, id: string, drop: number)
+	local left = drop
+	local keep: { { id: string, n: number, at: number } } = {}
+	for _, sent in self._sent do
+		if sent.id == id and left > 0 then
+			local used = math.min(left, sent.n)
+			left -= used
+			if sent.n > used then
+				table.insert(keep, { id = id, n = sent.n - used, at = sent.at })
+			end
+		elseif os.clock() - sent.at < PENDING_SECONDS then
+			table.insert(keep, sent)
+		end
+	end
+	self._sent = keep
+end
+
+-- #3190: one press of Use (count nil) or Use all (count): counts on its row at once and joins the queue. A press the
+-- row as shown no longer allows (none left, or the timer full) does nothing.
+function Potions._press(self: any, id: string, count: number?)
+	local state: Types.PlayerState? = self._state
+	if state == nil then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local shownState = PotionLogic.ahead(self._catalog, state, self:_extra(), now)
+	for _, view in PotionLogic.rows(self._catalog, shownState, now) do
+		if view.potion.id == id then
+			local n = if count then math.min(count, view.fit) else (if view.canUse then 1 else 0)
+			if n <= 0 then
+				return
+			end
+			table.insert(self._queue, { id = id, n = n })
+			self:_refresh()
+			self:_pump()
+			return
+		end
+	end
+end
+
+-- #3190: sends the queue in order, SEND_GAP apart; each sent press stops counting after PENDING_SECONDS.
+function Potions._pump(self: any)
+	if self._pumping then
+		return
+	end
+	self._pumping = true
+	task.spawn(function()
+		while self._alive and #self._queue > 0 do
+			local wait = self._lastSent + SEND_GAP - os.clock()
+			if wait > 0 then
+				task.wait(wait)
+			end
+			if not self._alive then
+				break
+			end
+			local entry = table.remove(self._queue, 1) :: { id: string, n: number }?
+			if entry then
+				self._lastSent = os.clock()
+				table.insert(self._sent, { id = entry.id, n = entry.n, at = self._lastSent })
+				self._callbacks.use(entry.id, if entry.n > 1 then entry.n else nil)
+				task.delay(PENDING_SECONDS + 0.1, function()
+					if self._alive then
+						self:_refresh()
+					end
+				end)
+			end
+		end
+		self._pumping = false
+	end)
+end
+
 function Potions.destroy(self: any)
+	self._alive = false
 	self._tick:Disconnect()
 	for _, row in self._foodRows do
 		row.feed:destroy()

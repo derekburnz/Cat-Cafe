@@ -2327,7 +2327,7 @@ Presets.notes = {
 -- inside it at `haloShare` of its strength, drawn flat (a SurfaceGui, no Neon bloom), so the middle of the circle
 -- and the ticket on it stay clear (Derek 2026-10-28 00:47: "too bright and can't see what symbol its showing").
 Presets.codes = {
-	radius = 4,
+	radius = 6, -- #3112: 4 until the circles grew
 	leaveAfter = 1,
 	glow = { 0.75, 0.5 },
 	inside = 0.25,
@@ -3149,6 +3149,9 @@ Presets.decorFx = {
 	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit `light` like
 	-- paint, with a white `glint` (Gold Leaf's sheen in white) crossing it (#2734: was 0.78 shown, 18 s, 0.6 lit and
 	-- no glint, too faint to read as Mythical).
+	-- #3221: the cafe's front doorway (plot.py DOOR: 7 wide at x 0, square to 7.5, then a round arch), left out of
+	-- the front tints; `rows` bands step up the arch
+	doorway = { half = 3.5, spring = 7.5, rows = 5 },
 	rainbow = {
 		shown = 0.5,
 		seconds = 10,
@@ -3722,7 +3725,7 @@ Presets.contextCut = {
 	far = 70,
 	rise = 0.45,
 	lookUp = 0.15,
-	skipAfter = 1,
+	skipAfter = 0, -- #3168: was 1, then 0.2
 	skipOut = 0.35,
 	bars = 0.11,
 	captionSize = 26,
@@ -4100,6 +4103,10 @@ Presets.areaFx = {
 -- station builds in. Every part drops in from above, turning, and snaps into place, bottom to top, fading in as it
 -- falls. With Reduce Motion the whole station only fades in.
 Presets.stationBuild = {
+	-- #3191 (Derek2 2026-11-10: "when landing here the first time the picnic table and stuff load in block at a time
+	-- falling from sky", and the Yard Sale the same): off, so every camp station and its growth is simply there on a
+	-- first visit; the reveal's burst, sparkle, fanfare and Unlocked card still play
+	on = false,
 	wait = 4, -- seconds to wait for the station to stream in after the reveal
 	spread = 1.8, -- seconds from the first piece starting to the last
 	piece = 0.45, -- seconds each piece takes to drop into place
@@ -4185,6 +4192,19 @@ Presets.lateStations = {
 	beamWidth = 1.2,
 	beamHeight = 14,
 	beamSeconds = 1.2,
+}
+
+-- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
+-- turn Neon `gold` (the room-complete burst's gold) and breathe to `bright` and back every `every` seconds, well
+-- under 3 Hz. `suffix` plus the area id ends the name of each plaque's Model in the museum; `rate` is the seconds
+-- between colour steps and `lookSeconds` between looks for a museum that streamed back in.
+Presets.museumPlaques = {
+	suffix = "_Plaque_",
+	gold = Presets.palette.golden,
+	bright = Color3.fromRGB(255, 226, 130),
+	every = 2.6,
+	rate = 1 / 12,
+	lookSeconds = 2,
 }
 
 -- The Oasis Spa's soaking cats and the Relic Museum's new exhibits (#2897; Effects/StationMotion, Logic.soakBob,

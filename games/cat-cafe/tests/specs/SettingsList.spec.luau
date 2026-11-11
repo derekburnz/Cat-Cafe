@@ -104,21 +104,8 @@ return function()
 			end
 		end)
 
-		it("has the Shop alerts switch exactly when the server saves its key (F94)", function()
-			local key = SettingsList.SHOP_ALERTS_KEY
-			local saves = Settings.kinds[key] ~= nil
-			expect(SettingsList.isKey(key)).to.equal(saves)
-			if saves then
-				expect(SettingsList.kind(key)).to.equal("switch")
-				-- in the Screen section (the Session recap switch, #1920, follows it once its key is saved too)
-				local screen = SettingsList.SECTIONS[2]
-				local found = false
-				for _, row in screen.rows do
-					found = found or row.key == key
-				end
-				expect(found).to.equal(true)
-				expect(SettingsList.default(key)).to.equal(true)
-			end
+		it("has no Shop alerts switch since the Fresh Catch left (#3118)", function()
+			expect(SettingsList.isKey(SettingsList.SHOP_ALERTS_KEY)).to.equal(false)
 		end)
 
 		it("starts on, and keeps the × all session while the server does not send it", function()

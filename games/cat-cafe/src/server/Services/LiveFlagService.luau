@@ -32,6 +32,14 @@ function LiveFlagService.on(key: string): boolean
 	return current[key] ~= false
 end
 
+-- #3063: each switch as a ReplicatedStorage attribute (LiveFlags.ATTRIBUTE_PREFIX .. key), for the client's own
+-- show and hide (the Market's Swift Paws row); the server always asks `on`.
+local function publish()
+	for _, key in LiveFlags.KEYS do
+		ReplicatedStorage:SetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key, LiveFlagService.on(key))
+	end
+end
+
 local function live(): boolean
 	return not RunService:IsStudio() or DataService.saves()
 end
@@ -68,9 +76,11 @@ local function read()
 		)
 	end
 	current = new
+	publish()
 end
 
 function LiveFlagService.start()
+	publish()
 	task.spawn(function()
 		while true do
 			read()
@@ -88,6 +98,7 @@ function LiveFlagService.debugSet(key: string, on: boolean?): boolean
 	else
 		overrides[key] = on
 	end
+	publish()
 	return LiveFlagService.on(key)
 end
 

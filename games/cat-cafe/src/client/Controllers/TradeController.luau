@@ -54,8 +54,8 @@ function TradeController.start()
 			call("asked", requestId, fromUserId, fromName, expiresAt)
 		end
 	)
-	Net.on("TradeAskEnded", function(toUserId: number)
-		call("askEnded", toUserId)
+	Net.on("TradeAskEnded", function(toUserId: number, now: boolean?)
+		call("askEnded", toUserId, now == true)
 	end)
 	Net.on("TradeState", function(state: Types.TradeStateView?)
 		TradeController.state = state

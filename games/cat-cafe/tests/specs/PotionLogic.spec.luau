@@ -78,6 +78,19 @@ return function()
 			expect(rows[2].secondsLeft).to.equal(0)
 		end)
 
+		it("counts Use presses still on their way at once, as the server will (#3190)", function()
+			local base = state({ tip_potion = 3 }, { tip_potion = NOW + 60 })
+			expect(PotionLogic.ahead(nil, base, {}, NOW)).to.equal(base)
+			local shown = PotionLogic.ahead(nil, base, { tip_potion = 2, lucky_potion = 1 }, NOW)
+			local rows = PotionLogic.rows(nil, shown, NOW)
+			expect(rows[1].count).to.equal(1)
+			expect(rows[1].secondsLeft).to.equal(60 + 2 * rows[1].potion.minutes * 60)
+			expect(rows[2].count).to.equal(0)
+			expect(rows[2].secondsLeft).to.equal(rows[2].potion.minutes * 60) -- not running: from now
+			expect(base.potions.tip_potion).to.equal(3) -- the real state is kept
+			expect(base.buffs.tip_potion).to.equal(NOW + 60)
+		end)
+
 		it("lets Use take a potion only with one in the bag and room under the cap", function()
 			local max = PotionLogic.MAX_MINUTES * 60
 			local rows = PotionLogic.rows(

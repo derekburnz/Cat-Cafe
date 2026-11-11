@@ -707,10 +707,14 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		return
 	end
 
-	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6; #2786: the first two areas' bars are easier
+	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6; #2786: the first two areas' bars are easier;
+	-- #3120: this account's first rescues are wider (#3180: and slower); #3135: a gold or rainbow cat's zone is a
+	-- little narrower
+	local zoneScale = StationPerks.rescueZoneScale(Economy.tier(profile))
+		* Rescue.zoneScale(profile.stats.rescues, entry.variant)
 	local challenge = Rescue.newChallenge(entry.def.rarity, entry.trap, now, function()
 		return rng:NextNumber()
-	end, StationPerks.rescueZoneScale(Economy.tier(profile)), entry.area)
+	end, zoneScale, entry.area, Rescue.speedScale(profile.stats.rescues)) -- #3180: a slower marker at first
 	local attempt = Rescue.newAttempt(challenge, entry.def.rarity)
 	entry.attempt = attempt
 	setLock(entry, player.UserId)

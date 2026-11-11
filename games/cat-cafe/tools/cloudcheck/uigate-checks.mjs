@@ -19,6 +19,18 @@ export const DEVICE_PROFILES = [
   { name: 'a06', width: 705, height: 338, touch: true, inset: 58 }, // #2771: a Galaxy A06's game view in Studio's Device Simulator (800 x 360 screen)
 ];
 
+// Tablets (#3024, Derek2 2026-11-10: "lots of tablets leave faster then phone"), run on their own with --tablets. The
+// place keeps Roblox's default landscape orientation, so each is held sideways, in points: iPad mini (1133 x 744),
+// a 4:3 iPad (1024 x 768), iPad Pro 12.9 (1366 x 1024), a 16:10 Android tablet (1280 x 800) and a Fire 7 (1024 x 600).
+// The 10th-gen iPad (1180 x 820) is 'tablet' in DEVICE_PROFILES.
+export const TABLET_PROFILES = [
+  { name: 'ipadmini', width: 1133, height: 744, touch: true, inset: 58 },
+  { name: 'ipad43', width: 1024, height: 768, touch: true, inset: 58 },
+  { name: 'ipadpro', width: 1366, height: 1024, touch: true, inset: 58 },
+  { name: 'tab1610', width: 1280, height: 800, touch: true, inset: 58 },
+  { name: 'fire7', width: 1024, height: 600, touch: true, inset: 58 },
+];
+
 export const LIMITS = {
   tapTouch: 44, // Theme.sizes.touchMin, Apple and Google's own floor
   tapMouse: 36,
@@ -307,7 +319,9 @@ export function checkScene(profile, scene) {
       ? { x1: W - 95, y1: H - 90, x2: W - 25, y2: H - 20 }
       : { x1: W - 170, y1: H - 210, x2: W - 50, y2: H - 90 };
     const zones = [
-      { name: 'the thumbstick', r: { x1: 0, y1: H - 180, x2: 200, y2: H } },
+      // #3024: on a bigger screen PlayerModule's thumbstick is 120 px with its top at H - 220 (TouchThumbstick:
+      // thumbstickSize * 1.75 + 10 up from the bottom), so a tablet's zone reaches higher than a phone's
+      { name: 'the thumbstick', r: small ? { x1: 0, y1: H - 180, x2: 200, y2: H } : { x1: 0, y1: H - 230, x2: 200, y2: H } },
       { name: 'the jump button', r: jump },
     ];
     for (const { node, rect } of presses) {

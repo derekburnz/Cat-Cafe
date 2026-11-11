@@ -8,7 +8,9 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
+	local FeedbackStand = require(Shared.FeedbackStand)
 	local Layout = require(ServerScriptService.Server.World.Layout)
+	local WalkUp = require(Shared.WalkUp)
 
 	type Point = Layout.Point
 	type Rect = Layout.Rect
@@ -442,7 +444,7 @@ return function()
 
 	describe("the Alleyway in the wild (world-and-feel section 2, F35; v4, F84)", function()
 		it(
-			"32 spawn points: 16 on the lanes, 8 nooks at the far end and 8 near points by the camp (v4)",
+			"34 spawn points: 16 on the lanes, 4 nooks at the far end, 6 in the middle and 8 near points by the camp (#3170)",
 			function()
 				local zones: { [string]: number } = {}
 				for _, point in alley.spawnPoints do
@@ -450,9 +452,10 @@ return function()
 					local zone = point.zone :: string
 					zones[zone] = (zones[zone] or 0) + 1
 				end
-				expect(#alley.spawnPoints).to.equal(32)
+				expect(#alley.spawnPoints).to.equal(34)
 				expect(zones.lane).to.equal(2 * W.PlotCount)
-				expect(zones.nook).to.equal(8)
+				expect(zones.nook).to.equal(4)
+				expect(zones.mid).to.equal(6)
 				expect(zones.near).to.equal(W.PlotCount)
 			end
 		)
@@ -495,8 +498,35 @@ return function()
 						end
 					end
 				end
-				expect(sides.w).to.equal(4)
-				expect(sides.e).to.equal(4)
+				expect(sides.w).to.equal(2)
+				expect(sides.e).to.equal(2)
+			end
+		)
+
+		it(
+			"the middle stretch has its own points, clear of the lanes' points and every rescue spot (#3170)",
+			function()
+				for i, point in alley.spawnPoints do
+					if point.zone ~= "mid" then
+						continue
+					end
+					local _, z = toLane(point.x, point.z)
+					if z < -50 or z > 15 then
+						fail("mid point %d at lane z %g is not in the middle stretch", i, z)
+					end
+					for j, other in alley.spawnPoints do
+						local apart = math.sqrt((point.x - other.x) ^ 2 + (point.z - other.z) ^ 2)
+						if j ~= i and apart < 8 then
+							fail("mid point %d is %.1f studs from point %d", i, apart, j)
+						end
+					end
+					for _, spot in alley.rescuePool or alley.rescueSpots do
+						local apart = math.sqrt((point.x - spot.x) ^ 2 + (point.z - spot.z) ^ 2)
+						if apart < 9 then
+							fail("mid point %d is %.1f studs from a rescue spot", i, apart)
+						end
+					end
+				end
 			end
 		)
 
@@ -1046,7 +1076,7 @@ return function()
 					worst, worstPoint = seconds, n
 				end
 			end
-			expect(#nookPoints).to.equal(8)
+			expect(#nookPoints).to.equal(4) -- #3170: was 8
 			if worst >= 25 then
 				fail("nook point %d is %.1f s from the camp at carry speed", worstPoint, worst)
 			end
@@ -1361,7 +1391,8 @@ return function()
 			function()
 				local codes = Layout.codesCat
 				local yaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
+				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
 				for _, lane in lanes do
 					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
 				end
@@ -1438,6 +1469,38 @@ return function()
 		)
 
 		it(
+			"keeps the feedback stand's floor ring off the lanes, where nobody walks through it (#3066)",
+			function()
+				-- the ring touches the stand's front (the model is 3.8 deep), WalkUp.FRONT_RADIUS across each way
+				local stand = Layout.feedbackStand
+				local yaw = math.rad(stand.rotY or 0)
+				local out = WalkUp.frontOffset(1.9, WalkUp.FRONT_RADIUS, FeedbackStand.RANGE)
+				local x, z = stand.x - math.sin(yaw) * out, stand.z - math.cos(yaw) * out
+				local reach = WalkUp.FRONT_RADIUS + 2 -- two studs of floor between the ring and a lane
+				expect(inside(x, z, square.floor, WalkUp.FRONT_RADIUS)).to.equal(true)
+				for _, lane in lanes do
+					expect(inside(x, z, lane, -reach)).to.equal(false)
+				end
+				-- and clear of every other station's spot, so its window is the only one that opens there
+				for _, other in
+					{
+						Layout.spinWheel,
+						Layout.fishMarket,
+						Layout.codesCat,
+						Layout.dealerCart,
+						Layout.mysteryCart,
+						Layout.leaderboards,
+						Layout.dayCart,
+						Layout.arcadeCabinet,
+					}
+				do
+					local gap = math.sqrt((x - other.x) ^ 2 + (z - other.z) ^ 2)
+					expect(gap >= 12).to.equal(true)
+				end
+			end
+		)
+
+		it(
 			"stands the Codes Cat back from the middle, between the Mystery Market and the Bellhop Cat (#3000)",
 			function()
 				local codes, cart, stand = Layout.codesCat, Layout.mysteryCart, Layout.bellhopStand
@@ -1448,14 +1511,16 @@ return function()
 				expect(codes.z < stand.z and codes.z > cart.z).to.equal(true)
 				expect(codes.x < -W.TownSquareLaneHalfWidth).to.equal(true)
 				expect(inside(codes.x, codes.z, square.floor, 4.5)).to.equal(true)
-				-- its circle (6 studs in front) keeps off the Mystery Market's ring: the box closes a stud past
-				-- the circle, and the ring is WalkUp.FRONT_RADIUS (4) round a point 7.5 in front of the cart
+				-- its circle (its edge 2 studs in front) keeps off the Mystery Market's ring: the box closes a stud
+				-- past the circle, and the ring is WalkUp.FRONT_RADIUS round a point touching the cart's 3.5 front
 				local yaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+				local ahead = 2 + Config.CodesCircleRadius
+				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
 				local cartYaw = math.rad(cart.rotY or 0)
-				local rx, rz = cart.x - 7.5 * math.sin(cartYaw), cart.z - 7.5 * math.cos(cartYaw)
+				local ring = WalkUp.frontOffset(3.5, WalkUp.FRONT_RADIUS, Config.MysteryMarketRange)
+				local rx, rz = cart.x - ring * math.sin(cartYaw), cart.z - ring * math.cos(cartYaw)
 				local gap = math.sqrt((cx - rx) ^ 2 + (cz - rz) ^ 2)
-				expect(gap >= Config.CodesCircleRadius + 1 + 4 + 2).to.equal(true)
+				expect(gap >= Config.CodesCircleRadius + 1 + WalkUp.FRONT_RADIUS + 2).to.equal(true)
 				-- and off both carts' bodies and the lane
 				for _, lane in lanes do
 					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
@@ -1483,7 +1548,9 @@ return function()
 				-- walking into the stand's card never also opens the code box
 				local codes = Layout.codesCat
 				local codesYaw = math.rad(codes.rotY or 0)
-				local cx, cz = codes.x - 6 * math.sin(codesYaw), codes.z - 6 * math.cos(codesYaw)
+				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
+				local cx, cz =
+					codes.x - ahead * math.sin(codesYaw), codes.z - ahead * math.cos(codesYaw)
 				local gap = math.sqrt((cx - stand.x) ^ 2 + (cz - stand.z) ^ 2)
 				expect(gap > Config.StarterCatRangeStuds + 1 + Config.CodesCircleRadius + 1).to.equal(
 					true

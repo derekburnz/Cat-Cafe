@@ -11,8 +11,10 @@
 -- F100 (camp-extras.md section 3): an area with a camp extra open gets a strip under "7/10 cats" with the extra's
 -- icon, name and what waits ("1 ready", "14 fish", "Next in 2 h 10 m"), and a red "!" dot when something is ready to
 -- claim (Components/CampExtrasLogic; never on the Yard Sale). The cards grow to fit it only while one shows, and the
--- strip stays clear of the night cover, so players plan their morning (setExtras). #1463: a Golden Pond owner gets a
--- Collect button on the Woods strip in place of the dot while the pond holds fish (collect from anywhere).
+-- strip stays clear of the night cover, so players plan their morning (setExtras). #3082: the strip has a button for
+-- every opened station, so nobody has to fly there: Collect while a Picnic Basket, Fish Pond or Lost and Found holds
+-- something (in place of the dot), Open for the Yard Sale, the Oasis Spa and the Relic Museum, which have a card of
+-- their own (Components/CampExtrasLogic.remoteAction). Until then only a Golden Pond owner's pond had Collect (#1463).
 -- F101 (rescue-rally.md section 4): while a Rescue Rally runs, at night every card wears a red "🏁 Rally: rescues x3"
 -- tag along the foot of its picture, over the night cover in place of its "Closed until sunrise" (the header and the
 -- button still say so), since a rescue scores three (setRally, RallyLogic).
@@ -44,8 +46,10 @@ local PAL = Theme.dark
 export type Callbacks = {
 	launch: (cannonId: string, destination: string) -> (),
 	close: () -> (),
-	-- #1463: a Golden Pond owner's Collect on the Woods strip (CollectCampExtra("pond") from anywhere)
+	-- #3082: Collect on a card's strip (CollectCampExtra from anywhere; #1463 had it for a Golden Pond owner's pond)
 	collect: ((extraId: string) -> ())?,
+	-- #3082: Open on a card's strip: the Yard Sale's, the Oasis Spa's or the Relic Museum's own card
+	open: ((stationId: string) -> ())?,
 }
 
 export type Cannon = {
@@ -79,7 +83,9 @@ local PHONE_ART_H, PHONE_CARD_H = 24, 128
 local NAME_GAP = 14 -- the card's name sits this far under the picture (8 on a phone)
 local LAUNCH_INSET = 10 -- Launch's gap to the card's bottom (6 on a phone)
 local EXTRA_H = 40 -- F100: the camp extra's strip, added to the cards while one shows
-local COLLECT_W = 84 -- #1463: the Golden Pond's Collect on the Woods strip
+-- #3082: the strip's button, as wide as its word needs, so the station's name and what waits keep their room on a
+-- phone's slim cards (#1463: the Golden Pond's Collect was 84)
+local BUTTON_W = { collect = 66, open = 52 } :: { [string]: number }
 local COLLECT_REST = 2 -- seconds Collect hides after a press, while the server answers
 local PENDING_SECONDS = 1 -- Launch greys this long after a press, so a double tap is one launch
 local DUSK_SECONDS: number = 15
@@ -458,12 +464,12 @@ function Cannon._buildCards(self: any)
 			Text = "!",
 			Parent = extraDot,
 		})
-		-- #1463: a Golden Pond owner collects the pond's fish from here, in place of the red dot
+		-- #3082: Collect (in place of the red dot) or Open for the area's station; render sets the word
 		local collect = Button.new({
 			name = "Collect",
 			text = "Collect",
 			style = "secondary",
-			size = UDim2.fromOffset(COLLECT_W, EXTRA_H - 4), -- the strip's full height: a 36 px tap with a mouse
+			size = UDim2.fromOffset(BUTTON_W.collect, EXTRA_H - 4), -- the strip's full height: a 36 px tap with a mouse
 			anchorPoint = Vector2.new(1, 0.5),
 			position = UDim2.new(1, -3, 0.5, 0),
 			textSize = Theme.sizes.textSmall,
@@ -502,6 +508,7 @@ function Cannon._buildCards(self: any)
 			extraState = extraState,
 			extraDot = extraDot,
 			collect = collect,
+			collectWord = "collect",
 			collectedAt = -math.huge,
 			launch = launch,
 			buttonState = nil :: CannonLogic.ButtonState?,
@@ -510,17 +517,30 @@ function Cannon._buildCards(self: any)
 	end
 end
 
--- #1463: Collect on the Woods strip sends CollectCampExtra("pond"); the button rests while the server answers.
+-- The strip's line for area `id`: its camp extra's, else its late station's (the Desert and the Ruins).
+function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
+	return CampExtrasLogic.pickerLine(self._extras, id, Workspace:GetServerTimeNow())
+		or LateStationsLogic.pickerLine(self._late, id)
+end
+
+-- #3082: the strip's button. Collect sends CollectCampExtra and rests while the server answers; Open brings up the
+-- station's own card in place of the picker.
 function Cannon._collect(self: any, id: string)
 	local card = self._cards[id]
-	local line = CampExtrasLogic.pickerLine(self._extras, id, Workspace:GetServerTimeNow())
+	local line: CampExtrasLogic.Line? = self:_line(id)
+	local action = CampExtrasLogic.remoteAction(line)
+	if card == nil or line == nil or action == nil then
+		return
+	end
+	if action == "open" then
+		local open: ((string) -> ())? = self._callbacks.open
+		if open ~= nil then
+			open(line.extraId)
+		end
+		return
+	end
 	local collect: ((string) -> ())? = self._callbacks.collect
-	if
-		card == nil
-		or line == nil
-		or collect == nil
-		or os.clock() - card.collectedAt < COLLECT_REST
-	then
+	if collect == nil or os.clock() - card.collectedAt < COLLECT_REST then
 		return
 	end
 	card.collectedAt = os.clock()
@@ -693,17 +713,27 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.extraState.Text = line.state
 			card.extraState.TextColor3 = if line.ready then PAL.good else PAL.subtext
 			card.extraState.FontFace = if line.ready then Theme.fonts.bodyBold else Theme.fonts.body
-			-- #1463: a Golden Pond owner gets Collect in place of the dot (it rests a moment after a press, until the
-			-- server's answer refreshes the strip)
-			local owner = Players.LocalPlayer:GetAttribute(CampExtrasLogic.GOLD_POND_ATTRIBUTE)
-				== true
-			local resting = os.clock() - card.collectedAt < COLLECT_REST
-			local collect = CampExtrasLogic.remoteCollect(line, owner)
-				and self._callbacks.collect ~= nil
-			card.collect.instance.Visible = collect and not resting
-			card.extraDot.Visible = line.ready and not (collect and not resting)
-			card.extraName.Size = UDim2.new(1, if collect then -(COLLECT_W + 42) else -66, 0, 17)
-			card.extraState.Size = UDim2.new(1, if collect then -(COLLECT_W + 42) else -66, 0, 15)
+			-- #3082: Collect in place of the dot (it rests a moment after a press, until the server's answer
+			-- refreshes the strip), or Open for a station with its own card (green words say when something waits)
+			local action = CampExtrasLogic.remoteAction(line)
+			if
+				(action == "collect" and self._callbacks.collect == nil)
+				or (action == "open" and self._callbacks.open == nil)
+			then
+				action = nil
+			end
+			local resting = action == "collect" and os.clock() - card.collectedAt < COLLECT_REST
+			local button = action ~= nil
+			local width = BUTTON_W[action or "collect"]
+			if action ~= nil and card.collectWord ~= action then
+				card.collectWord = action
+				card.collect:setText(CampExtrasLogic.REMOTE_WORDS[action])
+				card.collect.instance.Size = UDim2.fromOffset(width, EXTRA_H - 4)
+			end
+			card.collect.instance.Visible = button and not resting
+			card.extraDot.Visible = line.ready and not (button and not resting)
+			card.extraName.Size = UDim2.new(1, if button then -(width + 42) else -66, 0, 17)
+			card.extraState.Size = UDim2.new(1, if button then -(width + 42) else -66, 0, 15)
 		end
 		local enabled = buttonState == "launch" and not pending
 		if card.buttonState ~= buttonState then

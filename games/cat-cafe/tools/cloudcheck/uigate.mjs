@@ -2,7 +2,7 @@
 // UI gate (UI-Engineer, 2026-11-01; Derek picked "Skills and UI gate": "build a cloud check that fails tiny buttons,
 // small text and off-screen windows").
 //
-//   node uigate.mjs [--out dir] [--devices] [--profile phone] [--scene Quests] [--update-baseline] [--verbose]
+//   node uigate.mjs [--out dir] [--devices] [--tablets] [--profile phone] [--scene Quests] [--update-baseline] [--verbose]
 //   node uigate.mjs --shard 2/4 --save dir     (CI: build one quarter of the scenes, write them to dir, check nothing)
 //   node uigate.mjs --merge dir                (CI: read every shard back in order and check them as one full run)
 //
@@ -34,7 +34,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { Lua } from '@luau-rs/luau';
 import { buildTree, jsonToLuau } from './rojo-tree.mjs';
-import { DEVICE_PROFILES, PROFILES, checkScene, compareBaseline, writeReport } from './uigate-checks.mjs';
+import { DEVICE_PROFILES, PROFILES, TABLET_PROFILES, checkScene, compareBaseline, writeReport } from './uigate-checks.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const gameRoot = path.resolve(here, '..', '..');
@@ -145,7 +145,13 @@ const all = [];
 // --devices runs the three device sizes on their own. Each size also runs in its own node process (--emit), so
 // every size gets a fresh wasm heap: three Luau states in one process sat at the wasm's memory ceiling, and on
 // 2026-11-03 CI's phone run died with "not enough memory" after desktop and laptop.
-const profiles = args.devices ? DEVICE_PROFILES : args.profile ? [...PROFILES, ...DEVICE_PROFILES] : PROFILES;
+const profiles = args.tablets
+  ? TABLET_PROFILES
+  : args.devices
+    ? DEVICE_PROFILES
+    : args.profile
+      ? [...PROFILES, ...DEVICE_PROFILES, ...TABLET_PROFILES]
+      : PROFILES;
 const wanted = profiles.filter((profile) => !args.profile || args.profile === profile.name);
 // The sizes run side by side, one child process each (CI has 4 cores; run in turn they took about 25 minutes of the
 // job's 31, 2026-11-06). Their scenes are read back in order below, so the report and the baseline check are the same.
@@ -278,6 +284,7 @@ function parseArgs(argv) {
     if (arg === '--out') out.out = argv[++i];
     else if (arg === '--profile') out.profile = argv[++i];
     else if (arg === '--devices') out.devices = true;
+    else if (arg === '--tablets') out.tablets = true;
     else if (arg === '--scene') out.scene = argv[++i];
     else if (arg === '--update-baseline') out.updateBaseline = true;
     else if (arg === '--verbose' || arg === '-v') out.verbose = true;
@@ -287,7 +294,7 @@ function parseArgs(argv) {
     else if (arg === '--save') out.save = argv[++i]; // with --shard: write each size's scenes to this folder
     else if (arg === '--merge') out.merge = argv[++i]; // check the scenes every --save shard wrote to this folder
     else if (arg === '--help' || arg === '-h') {
-      console.log('usage: node uigate.mjs [--out dir] [--devices] [--profile desktop|laptop|phone|tablet|smallphone|console] [--scene Name] [--update-baseline] [--verbose]');
+      console.log('usage: node uigate.mjs [--out dir] [--devices] [--tablets] [--profile desktop|laptop|phone|tablet|smallphone|console|ipadmini|ipad43|ipadpro|tab1610|fire7] [--scene Name] [--update-baseline] [--verbose]');
       process.exit(0);
     } else throw new Error(`unknown argument ${arg}`);
   }

@@ -230,6 +230,49 @@ return function()
 			end
 		)
 
+		it(
+			"UPDATE1 and 500VISITS are on for everyone in any case, once each, beside release in size (#3148)",
+			function()
+				expect(Codes.normalize("UPDATE1")).to.equal("update1")
+				expect(Codes.normalize("Update1")).to.equal("update1")
+				expect(Codes.normalize(" update1 ")).to.equal("update1")
+				expect(Codes.normalize("500VISITS")).to.equal("500visits")
+				expect(Codes.normalize("500Visits")).to.equal("500visits")
+				for _, id in { "update1", "500visits" } do
+					local def = Codes.get(id)
+					assert(def ~= nil, id)
+					expect(def.id).to.equal(id)
+					expect(def.active).to.equal(true)
+					expect(def.requiresGroup).never.to.be.ok()
+					expect(def.endsAt).never.to.be.ok()
+					expect(Codes.refusal(fresh(), id, NOW, false)).to.equal(nil)
+					local used = fresh()
+					used.codesRedeemed[id] = NOW
+					expect(Codes.refusal(used, id, NOW, false)).to.equal(Codes.USED)
+					-- the used mark is a plain letters-and-digits id within CodeMaxLength, so every server's save
+					-- cleaner keeps it, old ones too (no save version step)
+					expect(string.match(id, "^%w+$")).to.be.ok()
+					expect(#id <= Config.CodeMaxLength).to.equal(true)
+					-- no more of the player's own income than the group code's 15 minutes: far short of a tier
+					expect((def.prize.coinSeconds or 0) <= 900).to.equal(true)
+					expect(def.prize.spins).never.to.be.ok()
+					expect(def.prize.lures).never.to.be.ok()
+				end
+				expect(Catalog.codes.update1.prize :: any).to.deepEqual({
+					coins = 2500,
+					coinSeconds = 900,
+					fish = 50,
+					potions = { lucky_potion = 2 },
+				})
+				expect(Catalog.codes["500visits"].prize :: any).to.deepEqual({
+					coins = 2000,
+					coinSeconds = 600,
+					fish = 40,
+					crates = { classic_crate = 1 },
+				})
+			end
+		)
+
 		it("launch waits to be switched on, and group is on but needs the group", function()
 			expect(Catalog.codes.launch.active).to.equal(false)
 			expect(Catalog.codes.launch.prize :: any).to.deepEqual({
@@ -512,10 +555,11 @@ return function()
 			end
 		)
 
-		-- The box must never open where RedeemCode would say "Walk up to the Codes Cat": the circle sits 6 studs in
-		-- front of the station's pivot (Layout and the asset), and the box stays open to CodesCircleRadius + 1.
+		-- The box must never open where RedeemCode would say "Walk up to the Codes Cat": the circle's edge sits 2 studs
+		-- in front of the station's pivot (Layout and the asset; its centre 8 out at radius 6, #3112), and the box
+		-- stays open to CodesCircleRadius + 1.
 		it("keeps the open box inside CodesCatRange of the station", function()
-			expect(6 + Config.CodesCircleRadius + 1 <= Config.CodesCatRange).to.equal(true)
+			expect(2 + 2 * Config.CodesCircleRadius + 1 <= Config.CodesCatRange).to.equal(true)
 		end)
 
 		it(

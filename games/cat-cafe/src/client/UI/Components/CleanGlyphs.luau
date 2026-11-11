@@ -44,6 +44,9 @@ CleanGlyphs.icons = {
 	desert = "Desert",
 	ruins = "Ruins",
 	town = "Town",
+	-- #3137 batch 3: the night's moon and the open padlock (drop, replay and tag have #2836 pictures, ShopIcons.glyph)
+	moon = "Moon",
+	unlock = "Unlock",
 } :: { [string]: string }
 
 -- Theme.foodIcons key -> clean symbol name

@@ -35,7 +35,8 @@ return function()
 				expect((Config.MysteryEveryMin + Config.MysteryEveryMax) / 2).to.equal(1250)
 				expect((Config.CollectorEveryMin + Config.CollectorEveryMax) / 2).to.equal(300) -- #2272: was 600 (1000 before #2107)
 				-- never two visits closer than the minimum: each min is well past its stay
-				expect(Config.RichEveryMin > Config.RichTipStaySeconds).to.equal(true)
+				-- #3360: a money bag waits RichBagSeconds, still under the shortest unboosted gap
+				expect(Config.RichEveryMin > Config.RichBagSeconds).to.equal(true)
 				expect(Config.MysteryEveryMin > Config.MysteryStaySeconds).to.equal(true)
 				expect(Config.CollectorEveryMin > Config.CollectorStaySeconds).to.equal(true)
 			end

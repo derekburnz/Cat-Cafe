@@ -155,7 +155,10 @@ return function()
 		TipPileRateSeconds = 6,
 		TipPilesMax = 6,
 		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
-		RichTipStaySeconds = 90,
+		-- #3360 (rich-money-bags.md section 6): the money bag replaces RichTipStaySeconds (90)
+		RichBagSeconds = 180,
+		RichBagsMax = 3,
+		RichCustomerSitSeconds = 20,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryEveryMin = 750, -- 1250 s on average, a fifth more often than #1135's 1500 (2026-11-05)
 		MysteryEveryMax = 1750,

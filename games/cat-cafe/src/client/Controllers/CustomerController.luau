@@ -5,8 +5,9 @@
 -- sits in it a while and walks out. Between the counter and a chair it keeps to the aisle and the walkway beside the
 -- chair's row (the chair's Aisle and Approach attributes), and leaves the same way, so it never cuts through a table. Coin text pops only over this player's own cafe. The cafe closes at night (v0.5 F44):
 -- no customers come, and at nightfall the ones inside skip the rest of their visit and walk out.
--- A rich customer (F31, data-model section 12) comes to any nearby cafe whose plot shows a rich tip
--- (RichTipAmount), sits at table 1 beside the gold coin pile on its RichTipAnchor and stays until the tip is paid.
+-- A rich customer (F31, data-model section 12; #3360) comes to any nearby cafe at each money bag drop (the plot's
+-- RichVisitAt), sits at table 1 for RichCustomerSitSeconds and leaves; each waiting bag (RichBags/<id>) shows as a
+-- gold coin pile beside the RichTipAnchor until it is paid or missed.
 -- The server decides the tip; this is only what the street sees.
 -- Six everyday looks, A to F, and the rich customer each have a seated twin `<asset>_Sit` (Model-Agent #546) whose
 -- pivot is a chair's: at the chair the twin takes the standing model's place on the chair's pivot, facing the table,
@@ -37,6 +38,7 @@ local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Mover = require(Shared:WaitForChild("Mover"))
 local PayBatch = require(Shared:WaitForChild("PayBatch"))
+local RichBags = require(Shared:WaitForChild("RichBags"))
 -- a customer's walk: a step and a sway instead of the plain hop (Effects/CustomerWalk, #1143)
 local walkStep = require(script.Parent.Parent.Effects.CustomerWalk).draw
 local UI = require(script.Parent.Parent.UI)
@@ -54,7 +56,9 @@ local activeCustomers = 0
 local variants = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" }
 local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
 local richVisits: { [Model]: boolean } = {} -- plots with a rich customer on the way or seated
-local coinPiles: { [Model]: Model } = {} -- plot -> the coin pile on its RichTipAnchor while a tip shows
+local richSeen: { [Model]: number } = {} -- #3360: each plot's RichVisitAt this client has sent a customer for
+-- #3360: plot -> bag id -> the coin pile on that money bag's spot while it waits
+local coinPiles: { [Model]: { [string]: Model } } = {}
 -- A plot's Mystery Visitor (and the seat it holds) and gift while this client shows them (F64).
 type Mystery = { visitor: Model?, seat: BasePart?, gift: Model? }
 local mysteries: { [Model]: Mystery } = {}
@@ -460,14 +464,28 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	end
 end
 
--- A rich tip shows on the plot (the server mirrors its amount and expiry for display).
-local function tipShows(plot: Model): boolean
-	local amount = plot:GetAttribute("RichTipAmount")
-	local expiresAt = plot:GetAttribute("RichTipExpiresAt")
-	return type(amount) == "number"
-		and amount > 0
-		and type(expiresAt) == "number"
-		and expiresAt > Workspace:GetServerTimeNow()
+-- #3360: the plot's waiting money bags (the server's display records, RichBags/<bagId>): each one's id and where it
+-- sits. A bag on its way out (Outcome set) or past its time is left out.
+local function waitingBags(plot: Model): { [string]: Vector3 }
+	local out: { [string]: Vector3 } = {}
+	local folder = plot:FindFirstChild(RichBags.FOLDER)
+	if folder == nil then
+		return out
+	end
+	local now = Workspace:GetServerTimeNow()
+	for _, record in folder:GetChildren() do
+		local expiresAt = record:GetAttribute("ExpiresAt")
+		local position = record:GetAttribute("Position")
+		if
+			record:GetAttribute("Outcome") == nil
+			and type(expiresAt) == "number"
+			and expiresAt > now
+			and typeof(position) == "Vector3"
+		then
+			out[record.Name] = position
+		end
+	end
+	return out
 end
 
 local function tipAnchor(plot: Model): BasePart?
@@ -497,8 +515,9 @@ local function richSeat(plot: Model): (BasePart?, BasePart?)
 	return nil, nil
 end
 
--- A few gold coins stacked on the anchor (its centre sits just over the table top), local to this client.
-local function buildCoinPile(anchor: BasePart): Model
+-- A few gold coins stacked at `at`, a money bag's spot beside the anchor (whose centre sits just over the table
+-- top), local to this client. The stand-in for the money bag's model (#3360) until the Model lane makes one.
+local function buildCoinPile(anchor: BasePart, at: Vector3): Model
 	local pile = Instance.new("Model")
 	pile.Name = "RichTipCoins"
 	local top = anchor.Position.Y - anchor.Size.Y / 2 + 0.4 -- the table top under the anchor
@@ -517,9 +536,9 @@ local function buildCoinPile(anchor: BasePart): Model
 			coin.CanTouch = false
 			coin.CastShadow = false
 			local position = Vector3.new(
-				anchor.Position.X + stack.x + rng:NextNumber(-0.04, 0.04),
+				at.X + stack.x + rng:NextNumber(-0.04, 0.04),
 				top + 0.07 + (n - 1) * 0.14,
-				anchor.Position.Z + stack.z + rng:NextNumber(-0.04, 0.04)
+				at.Z + stack.z + rng:NextNumber(-0.04, 0.04)
 			)
 			coin.CFrame = CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90)) -- the round face up
 			coin.Parent = pile
@@ -529,30 +548,57 @@ local function buildCoinPile(anchor: BasePart): Model
 	return pile
 end
 
--- Once a second: a coin pile on every nearby cafe with a rich tip showing and a rich customer on the way to it;
--- piles go when the tip is paid or the cafe is out of range.
+-- Once a second: a coin pile on every waiting money bag of every nearby cafe (#3360), gone when the bag is paid,
+-- missed or out of range, and a rich customer for each new drop (the plot's RichVisitAt), who sits
+-- RichCustomerSitSeconds for show and leaves; the bag waits on without them.
 local function updateRich()
 	local nearby: { [Model]: boolean } = {}
 	for _, plot in runningPlots() do
-		if not tipShows(plot) then
-			continue
-		end
 		nearby[plot] = true
+		local bags = waitingBags(plot)
+		local piles = coinPiles[plot]
 		local anchor = tipAnchor(plot)
-		if anchor ~= nil and not coinPiles[plot] then
-			coinPiles[plot] = buildCoinPile(anchor)
+		if anchor ~= nil then
+			for id, at in bags do
+				if piles == nil then
+					piles = {}
+					coinPiles[plot] = piles
+				end
+				if piles[id] == nil then
+					piles[id] = buildCoinPile(anchor, at)
+				end
+			end
 		end
-		if not richVisits[plot] and isDay() then -- a rich customer already seated stays for its tip at nightfall
+		if piles ~= nil then
+			for id, pile in piles do
+				if bags[id] == nil then
+					pile:Destroy()
+					piles[id] = nil
+				end
+			end
+		end
+		local visitAt = plot:GetAttribute("RichVisitAt")
+		if
+			type(visitAt) == "number"
+			and richSeen[plot] ~= visitAt
+			and not richVisits[plot]
+			and isDay()
+		then
+			richSeen[plot] = visitAt
+			-- a drop this client only now sees (it just came into range) sends nobody: the customer has gone
+			local fresh = Workspace:GetServerTimeNow() - visitAt < Config.RichCustomerSitSeconds
 			local seat, tableTop = richSeat(plot)
-			if seat ~= nil then
+			if fresh and seat ~= nil then
 				richVisits[plot] = true
 				task.spawn(function()
+					local satAt: number? = nil
 					runCustomer(plot, seat, tableTop, {
 						asset = "CatCafe_NPC_Customer_Rich",
 						rich = true,
 						staysWhile = function()
-							local amount = plot:GetAttribute("RichTipAmount")
-							return type(amount) == "number" and amount > 0
+							local since = satAt or os.clock()
+							satAt = since
+							return os.clock() - since < Config.RichCustomerSitSeconds
 						end,
 					})
 					richVisits[plot] = nil
@@ -560,10 +606,17 @@ local function updateRich()
 			end
 		end
 	end
-	for plot, pile in coinPiles do
+	for plot, piles in coinPiles do
 		if not nearby[plot] then
-			pile:Destroy()
+			for _, pile in piles do
+				pile:Destroy()
+			end
 			coinPiles[plot] = nil
+		end
+	end
+	for plot in richSeen do
+		if not nearby[plot] then
+			richSeen[plot] = nil
 		end
 	end
 end

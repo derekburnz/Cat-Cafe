@@ -41,8 +41,8 @@ local TAP_OUT = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.O
 local RING = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local LOOP_SECONDS = 1.6
 
-local function corner(radius: number): UICorner
-	return Create("UICorner", { CornerRadius = UDim.new(0, radius) }) :: UICorner
+local function corner(radius: number): Instance
+	return Create("UICorner", { CornerRadius = UDim.new(0, radius) })
 end
 
 local function bar(

@@ -928,12 +928,12 @@ Presets.emitters = {
 	waitBeacon = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.goldLight, Presets.palette.golden },
-		size = { 0.35, 0.1 },
+		size = { 0.45, 0.12 },
 		transparency = { 0, 1 },
-		lifetime = { 1.4, 2 },
-		speed = { 2, 3.5 },
-		spread = 12,
-		rate = 6,
+		lifetime = { 1.6, 2.2 },
+		speed = { 3, 5 },
+		spread = 10,
+		rate = 8,
 		drag = 0.4,
 		lightEmission = 1,
 	},
@@ -4218,18 +4218,31 @@ Presets.baitCrumbs = {
 }
 
 -- The stray waiting for your second cat (#3022; Effects/WaitingCat): `emitter` sparkles rise off it and a `ring` stud
--- gold ring pulses out at its feet every `ringEvery` seconds, from `delay` seconds after it shows for `seconds`, within
--- `within` studs, checked every `check` seconds. `attribute`, `delay` and `seconds` are shared/SecondCat's when it is in.
+-- gold ring pulses out at its feet every `ringEvery` seconds, from `delay` seconds after it shows for `seconds`, then
+-- every `calmEvery` seconds until it is caught (#3238: it used to stop at `seconds`), within `within` studs, checked
+-- every `check` seconds. `marker` is the gold paw over it, drawn through walls within `marker.within` studs (#3238:
+-- only 51 of 139 players reached the second cat's trail). `attribute`, `delay` and `seconds` are shared/SecondCat's
+-- when it is in.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
 	delay = 2,
 	seconds = 120,
-	within = 250,
+	within = 400,
 	check = 0.25,
 	emitter = "waitBeacon",
-	ring = 6,
-	ringSeconds = 0.9,
-	ringEvery = 2.5,
+	ring = 10,
+	ringSeconds = 1.1,
+	ringEvery = 1.6,
+	calmEvery = 4,
+	marker = {
+		within = 700, -- studs: from the cafe's front door to the far end of the alley
+		lift = 2.5, -- studs over the cat's head
+		studs = 3.2, -- the badge's size in the world, so it shrinks with distance
+		pixels = 26, -- and this many pixels more, so it never vanishes when far
+		bob = 0.6, -- studs up and down
+		seconds = 1.4, -- one bob
+		glyph = "🐾",
+	},
 }
 
 -- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)

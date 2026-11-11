@@ -339,6 +339,12 @@ return function()
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 14,
+		BinFirstUses = 3, -- #3050 (the Rummage Bin); BinTable is checked in RummageBin.spec
+		BinFirstRepeatSeconds = 180,
+		BinCooldownSeconds = 900,
+		BinMissRetrySeconds = 10,
+		BinZoneWidth = 0.42, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed
+		BinBarSpeed = 0.64,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -414,6 +420,15 @@ return function()
 		GrandExtraSlots = 1,
 		AutoEquipEverySeconds = 3, -- #1955 (auto-equip.md): one Auto Equip run every 3 s at most
 		AutoEquipHoldSeconds = 600, -- #1955: a cat placed by hand stays 10 minutes
+		-- #3062 (the Cat Arcade's Circle Streak, shared/Arcade; the milestones are checked in Circles.spec)
+		ArcadeCostFish = 1,
+		ArcadeMaxPoints = 100,
+		ArcadeStepEvery = 10,
+		ArcadeShrinkStep = 0.96,
+		ArcadeWindowStep = 0.97,
+		ArcadeJitterMax = 0.20,
+		ArcadeStartShrinkSeconds = 1.20,
+		ArcadeBlockLeadIn = 0.9,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -560,6 +575,11 @@ return function()
 				QuickRingTier = true, -- #3140: checked in Circles.spec
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
+				BinTable = true, -- #3050: a table, checked in RummageBin.spec
+				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
+				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
+				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
+				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

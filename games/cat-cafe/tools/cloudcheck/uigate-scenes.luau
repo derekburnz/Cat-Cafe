@@ -1065,6 +1065,25 @@ local function rescueChallenge()
 	}
 end
 
+-- #3050: the Rummage Bin's bar as an early rummage gets it: 2 hits, wide zones, a slow marker
+local function binChallenge()
+	local t = workspace:GetServerTimeNow()
+	return {
+		kind = "bar",
+		startsAt = t - 1,
+		phase = 0.3,
+		speed = 0.4,
+		zoneWidth = 0.4,
+		zones = { 0.35, 0.7 },
+		hitsNeeded = 2,
+		paws = 3,
+		endsAt = t + 20,
+		zone = 1,
+		zoneEndsAt = t + 20,
+		speedUpPerHit = 0.08,
+	}
+end
+
 -- F93 catch circles: `count` circles from `first` seconds on, one every 0.7 s, each closing over `shrink` seconds,
 -- with the header of a named cat of `rarity`
 local function startCatch(strayId, rarity, count, first, shrink)
@@ -3723,6 +3742,103 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
+	-- after a game
+	{
+		"ArcadeCard",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 37,
+				bestCircles = 30,
+				today = { 10, 20 },
+				legend = false,
+				serverBest = 61,
+				serverCircles = 45,
+				serverName = "Sam",
+			})
+			UI.arcade.open()
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			assert(
+				window and window:FindFirstChild("IdeaBy", true),
+				"uigate: no idea credit on the arcade card (#3062)"
+			)
+			assert(
+				window:FindFirstChild("Prize100", true),
+				"uigate: no milestone list on the arcade card (#3062)"
+			)
+		end,
+	},
+	{
+		"ArcadeBoard",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 0,
+				bestCircles = 0,
+				today = {},
+				legend = false,
+				serverBest = 0,
+				serverCircles = 0,
+			})
+			UI.arcade.open()
+			local at = workspace:GetServerTimeNow()
+			local circles = {}
+			for i = 1, 10 do
+				table.insert(circles, {
+					startsAt = at - 0.2 + (i - 1) * 1.9,
+					shrinkSeconds = 1.2,
+					x = 0.25 + (i % 3) * 0.25,
+					y = 0.3 + (i % 2) * 0.4,
+					kind = "single",
+				})
+			end
+			UI.arcade.block(1, 1, circles, { perfect = 0.06, good = 0.15 }, 0)
+			UI.arcade.judged(1, 1, 1, "perfect", 12, { 10 })
+		end,
+	},
+	{
+		"ArcadeOver",
+		function()
+			UI.update({ goldenFish = 12 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 52,
+				bestCircles = 40,
+				today = { 10, 20, 30, 40, 50 },
+				legend = true,
+				serverBest = 100,
+				serverCircles = 58,
+				serverName = "Sam",
+			})
+			UI.arcade.open()
+			local at = workspace:GetServerTimeNow()
+			UI.arcade.block(
+				2,
+				1,
+				{ { startsAt = at + 1, shrinkSeconds = 1.2, x = 0.5, y = 0.5, kind = "single" } },
+				{ perfect = 0.06, good = 0.15 },
+				0
+			)
+			UI.arcade.over(2, {
+				points = 52,
+				circles = 40,
+				win = false,
+				best = 52,
+				bestCircles = 40,
+				newBest = true,
+				serverBest = 100,
+				serverCircles = 58,
+				serverName = "Sam",
+				paid = { 50 },
+				today = { 10, 20, 30, 40, 50 },
+				legend = true,
+			})
+			task.wait(1.4)
+		end,
+	},
 	-- #1633: the Codes Cat's circle opens the Store on Featured; the player taps Codes on the rail
 	{ "Codes", function()
 		UI.codes.open()
@@ -4540,6 +4656,79 @@ local SCENES = {
 		UIShim.advance(5)
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		assert(tap.Visible, "uigate: the next rescue has no tap catcher (#2460)")
+	end },
+	-- #3050: the Rummage Bin's bar is the rescue bar under the bin's spot id: its own name, no rarity chip, 2 pips
+	{ "RummageBinBar", function()
+		UI.rescue.show("bin_alley", binChallenge())
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		assert(barGui and barGui.Enabled, "uigate: no bar for the Rummage Bin (#3050)")
+		local name = barGui:FindFirstChild("CatName", true) :: TextLabel?
+		assert(name and name.Text == "Rummage Bin", "uigate: the bin's bar is not named Rummage Bin (#3050)")
+		local rarity = barGui:FindFirstChild("Rarity", true) :: TextLabel?
+		assert(rarity and not rarity.Visible, "uigate: the bin's bar shows a rarity chip (#3050)")
+		local pips = barGui:FindFirstChild("Pips", true)
+		local count = 0
+		for _, pip in pips:GetChildren() do
+			if pip:IsA("Frame") then
+				count += 1
+			end
+		end
+		assert(count == 2, "uigate: the bin's bar has " .. count .. " pips, not 2 (#3050)")
+		assert(UI.rescue.isActive(), "uigate: the bin's bar does not count as a rescue on screen (#3050)")
+	end },
+	-- #3050: a win closes the bar on the prize's name (no toast, #3080): every prize's two lines fit the banner, the
+	-- first Tuna points at the bowl, and the tap catcher goes so a phone can move again
+	{ "RummageBinWin", function()
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		local function win(id: string, first: boolean): (TextLabel, TextLabel)
+			UI.rescue.show("bin_alley", binChallenge())
+			local t = workspace:GetServerTimeNow()
+			UI.rescue.update("bin_alley", 2, 3, true, true, {
+				zone = 3,
+				startsAt = t,
+				phase = 0.4,
+				speed = 0.5,
+				zoneEndsAt = t + 5,
+			}, { id = id, first = first })
+			local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel
+			local detail = barGui:FindFirstChild("Detail", true) :: TextLabel
+			assert(outcome.TextFits, "uigate: the bin's prize title does not fit: " .. outcome.Text .. " (#3050)")
+			assert(detail.TextFits, "uigate: the bin's prize line does not fit: " .. detail.Text .. " (#3050)")
+			return outcome, detail
+		end
+		for _, id in { "fish", "salmon", "potion", "crate", "golden" } do
+			local outcome = win(id, false)
+			assert(outcome.Text ~= "Rescued!" and outcome.Text ~= "Found something!", "uigate: the bin's win does not name its prize: " .. id .. " (#3050)")
+			UIShim.advance(3)
+		end
+		local outcome, detail = win("tuna", true)
+		assert(outcome.Text == "Tuna!", "uigate: the first win does not read Tuna! (#3050)")
+		assert(detail.Text:find("Put it in your bowl", 1, true), "uigate: the first Tuna does not point at the bowl (#3050)")
+		local tap = barGui:FindFirstChild("Tap")
+		assert(tap and not tap.Visible, "uigate: the tap catcher still covers the screen after a bin win (#3050)")
+		local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")
+		if toasts then
+			for _, d in toasts:GetDescendants() do
+				assert(not (d:IsA("TextLabel") and d.Visible and d.Text:find("Tuna", 1, true)), "uigate: a bin win shows a toast (#3080)")
+			end
+		end
+	end },
+	-- #3050: a miss costs nothing and the bar says so in its own words, not a stuck cat's
+	{ "RummageBinMiss", function()
+		UI.rescue.show("bin_alley", binChallenge())
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("bin_alley", 0, 0, true, false, {
+			zone = 1,
+			startsAt = t,
+			phase = 0.4,
+			speed = 0.5,
+			zoneEndsAt = t + 5,
+		})
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel
+		local detail = barGui:FindFirstChild("Detail", true) :: TextLabel
+		assert(outcome.Text == "So close!" and detail.Text == "Try again", "uigate: a bin miss reads " .. outcome.Text .. " / " .. detail.Text .. " (#3050)")
+		assert(outcome.TextFits and detail.TextFits, "uigate: the bin's miss words do not fit (#3050)")
 	end },
 	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)
 	-- and the flash says "MISS! Back to the start", whole, with every pip empty
@@ -6332,6 +6521,17 @@ local SCENES = {
 			lines = shownLines()
 			assert(#lines == 1 and lines[1].Text == "2 cats earn 2x 💰", "uigate: with a free job the goal's money line reads " .. texts(lines) .. " (#3022)")
 		end
+		-- #3238: dusk shuts the areas, and the card says when the strays come back, on a phone too
+		UI.clock.setAreasOpen(false)
+		UIShim.advance(0.1)
+		lines = shownLines()
+		local night = if touch then "Next cat at sunrise 🌅" else "Strays come back at sunrise 🌅"
+		assert(#lines == 1 and lines[1].Text == night, "uigate: at night the second cat goal reads " .. texts(lines) .. " (#3238)")
+		assert(lines[1].TextFits, "uigate: the night line does not fit its width (#3238) " .. tostring(lines[1].AbsoluteSize))
+		assert(lines[1].AbsolutePosition.Y + lines[1].AbsoluteSize.Y <= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y + 0.5, "uigate: the night line runs out of the card (#3238)")
+		assert(title.Text == expected, "uigate: the second cat goal's title changed at night (#3238)")
+		UI.clock.setAreasOpen(true)
+		UIShim.advance(0.1)
 		-- the second cat is in: the tier goal is back
 		UI.update({ secondCat = false } :: any)
 		UIShim.advance(0.1)

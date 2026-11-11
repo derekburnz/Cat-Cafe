@@ -18,6 +18,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local ActionPill = require(script.Screens.ActionPill)
+local Arcade = require(script.Screens.Arcade)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local AskCard = require(script.Screens.AskCard)
@@ -129,6 +130,11 @@ UI.events = {
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
 	-- design v0.3
+	-- #3062 (the Cat Arcade): Play on its card, a press on circle `index` of the game's block, and Close mid game:
+	-- forward as ArcadeStart, ArcadePress(run, block, index) and ArcadeQuit(run)
+	arcadePlay = Signal.new(),
+	arcadePress = Signal.new(),
+	arcadeQuit = Signal.new(),
 	catchPressed = Signal.new(), -- (strayId, index, grade?)   a press on circle `index` with this device's grade (nil after its first Miss): forward strayId and index as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
@@ -326,6 +332,7 @@ local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened fro
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
+local arcadeScreen: Arcade.Arcade? = nil -- #3062: the Cat Arcade window (the cabinet and the Menu list open it)
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
@@ -587,6 +594,7 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
+	UI.arcade.render(state)
 	UI.lateStations.render(state)
 	UI.cornerShop.render(state)
 	UI.mystery.render(state)
@@ -1267,6 +1275,29 @@ function UI.init(config: Types.InitConfig)
 		frame = marketView.frame,
 		onOpen = function()
 			marketView:render(state)
+		end,
+	})
+	arcadeScreen = Arcade.new({
+		play = function()
+			UI.events.arcadePlay:Fire()
+		end,
+		press = function(run: number, block: number, index: number)
+			UI.events.arcadePress:Fire(run, block, index)
+		end,
+		quit = function(run: number)
+			UI.events.arcadeQuit:Fire(run)
+		end,
+		close = closeModal,
+	})
+	local arcadeView = arcadeScreen :: Arcade.Arcade
+	modalInstance:register("Arcade", {
+		frame = arcadeView.frame,
+		onOpen = function()
+			arcadeView:setFish(state.goldenFish or 0)
+			arcadeView:onOpen()
+		end,
+		onClose = function()
+			arcadeView:onClose()
 		end,
 	})
 	codesScreen = Codes.new({
@@ -2741,6 +2772,74 @@ function UI.quests.result(paid: { string })
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The Cat Arcade (#3062, Screens/Arcade; the rules are shared/Arcade)
+----------------------------------------------------------------------------------------------------
+
+UI.arcade = {}
+
+-- Opens the arcade's card (the cabinet's prompt, the Menu list's Arcade row). A window already up stays open.
+function UI.arcade.open()
+	if modal and arcadeScreen and (modal:current() == nil or modal:current() == "Arcade") then
+		modal:open("Arcade")
+	end
+end
+
+-- The golden fish on the card's Play line.
+function UI.arcade.render(newState: Types.PlayerState)
+	if arcadeScreen then
+		arcadeScreen:setFish(newState.goldenFish or 0)
+	end
+end
+
+-- ArcadeState: the records and today's paid prizes.
+function UI.arcade.state(view: any)
+	if arcadeScreen and type(view) == "table" then
+		arcadeScreen:setState(view)
+	end
+end
+
+-- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
+function UI.arcade.setOn(on: boolean)
+	if arcadeScreen then
+		arcadeScreen:setOn(on)
+	end
+	if hud then
+		hud:setArcade(on)
+	end
+end
+
+-- ArcadeBlock, ArcadeJudged and ArcadeOver, straight to the window.
+function UI.arcade.block(run: number, block: number, circles: any, windows: any, points: number)
+	if arcadeScreen then
+		arcadeScreen:block(run, block, circles, windows, points)
+	end
+end
+
+function UI.arcade.judged(
+	run: number,
+	block: number,
+	index: number,
+	grade: any,
+	points: number,
+	milestones: any
+)
+	if arcadeScreen then
+		arcadeScreen:judged(run, block, index, grade, points, milestones)
+	end
+end
+
+function UI.arcade.over(run: number, result: any)
+	if arcadeScreen then
+		arcadeScreen:over(run, result)
+	end
+end
+
+-- Whether a game is running on the board (the net and other taps stay out of its way).
+function UI.arcade.playing(): boolean
+	return arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing()
+end
+
+----------------------------------------------------------------------------------------------------
 -- Codes and the Codes Cat (F65, data-model section 11d)
 ----------------------------------------------------------------------------------------------------
 
@@ -3798,6 +3897,7 @@ do
 	-- Rescue minigames (F27, data-model section 10b)
 	----------------------------------------------------------------------------------------------------
 
+	local RummageBin = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RummageBin")) -- #3050
 	local rescueTarget: string? = nil -- the trap of the attempt on screen
 	local rescueOnCircle = false -- a tree's falling cat is on the catch circles, not the bar
 
@@ -3862,7 +3962,21 @@ do
 			return
 		end
 		rescueOnCircle = false
-		bar:show(challenge, { catName = catName, rarity = rarity }, {
+		-- #3050: the Rummage Bin's bar is the same bar with its own name and closing words
+		local header: RescueBar.Header = if rescueSpotId == RummageBin.SPOT
+			then {
+				catName = RummageBin.NAME,
+				words = {
+					slow = "Too slow! Try again",
+					gaveUp = "Maybe later",
+					won = "Got it!",
+					win = "Found something!",
+					lose = "So close!",
+					loseDetail = "Try again",
+				},
+			}
+			else { catName = catName, rarity = rarity }
+		bar:show(challenge, header, {
 			press = function()
 				UI.events.rescuePressed:Fire(rescueSpotId)
 			end,
@@ -3886,7 +4000,8 @@ do
 		pawsLeft: number?,
 		done: boolean,
 		success: boolean,
-		bar: Types.RescueBar?
+		bar: Types.RescueBar?,
+		win: { id: string, first: boolean }? -- #3050: the Rummage Bin's prize, on its winning result
 	)
 		if rescueSpotId ~= rescueTarget then
 			return
@@ -3910,7 +4025,12 @@ do
 			return
 		end
 		if rescueBar then
-			rescueBar:update(hits, pawsLeft, done, success, bar)
+			local closing: RescueBar.Closing? = nil
+			if win ~= nil and type(win.id) == "string" then
+				local title, detail = RummageBin.winWords(win.id, win.first == true)
+				closing = { title = title, detail = detail }
+			end
+			rescueBar:update(hits, pawsLeft, done, success, bar, closing)
 		end
 	end
 
@@ -4140,6 +4260,11 @@ do
 		local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
 			if isActionPrompt(prompt) then
 				local show, note = giftNote(prompt)
+				if note == nil then
+					-- #3050: a prompt's own note (the Rummage Bin's chances, set by WorldBuilder)
+					local own = prompt:GetAttribute("Note")
+					note = if type(own) == "string" and own ~= "" then own else nil
+				end
 				if show and actionPills then
 					actionPills:show(prompt, inputType, note)
 				end
@@ -5203,8 +5328,14 @@ do
 
 	local function hintFor(s: any, device: TipQueue.Device): string?
 		local catalog = currentCatalog
+		-- #3238: step 3 says the strays come back at sunrise while the areas are shut
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local areasOpen: boolean? = nil
+		if clock ~= nil then
+			areasOpen = clock:GetAttribute("AreasOpen") :: boolean?
+		end
 		return TutorialHints.line(
-			TutorialHints.view(s, if catalog then catalog.spots else nil, device)
+			TutorialHints.view(s, if catalog then catalog.spots else nil, device, areasOpen)
 		)
 	end
 

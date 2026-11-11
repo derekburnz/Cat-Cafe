@@ -15,6 +15,7 @@ return function()
 		{ step = 2, resting = false },
 		{ step = 3 },
 		{ step = 3, cats = 1 },
+		{ step = 3, cats = 1, night = true }, -- #3238
 		{ step = 4, bowl = false },
 		{ step = 4, bowl = true, baited = false },
 		{ step = 4, bowl = true, baited = true },
@@ -53,6 +54,29 @@ return function()
 				"Tap Upgrades and buy a table: more tips per cat"
 			)
 		end)
+
+		it(
+			"says the strays return at sunrise on step 3 at night, on every device (#3238)",
+			function()
+				local night = { step = 3, cats = 1, night = true }
+				expect(line(night, "keyboard")).to.equal(
+					"Strays return at sunrise, or buy a table (U)"
+				)
+				expect(line(night, "touch")).to.equal("Strays return at sunrise, or tap Upgrades")
+				expect(line(night, "gamepad")).to.equal(
+					"Strays return at sunrise, or open Upgrades"
+				)
+				-- by day, or once two cats are caught, the words are as before
+				expect(line({ step = 3, cats = 1, night = false }, "touch")).to.equal(
+					"Catch another cat, or tap Upgrades for a table"
+				)
+				expect(line({ step = 3, cats = 2, night = true }, "touch")).to.equal(
+					"Tap Upgrades and buy a table: more tips per cat"
+				)
+				-- the step still asks for the second cat (the trail and ring read ask)
+				expect(TutorialHints.ask(night)).to.equal("second")
+			end
+		)
 
 		it("says how to swing the net on each device", function()
 			expect((line({ step = 0 }, "keyboard") :: string):find("Click", 1, true) ~= nil).to.equal(

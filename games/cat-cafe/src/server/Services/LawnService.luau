@@ -213,6 +213,36 @@ local function onSetLawnStyle(player: Player, rawKind: unknown, rawId: unknown)
 	rebuild(player, profile, plot)
 end
 
+-- #3222: gives `id`, a drop-only Golden lawn piece (Lawn.dropPick), to the player and puts it out on an empty big spot
+-- when the lawn is in. False when it is not one or is owned already. The caller rolled it.
+function LawnService.giveDrop(player: Player, profile: Profile, id: string): boolean
+	local piece = Catalog.getLawn(id)
+	if piece == nil or piece.drop ~= true or Lawn.owns(profile, id) then
+		return false
+	end
+	profile.lawnOwned[id] = true
+	Telemetry.custom(player, "lawn_drop", 1, { id, tostring(Economy.tier(profile)) })
+	local plot = PlotService.get(player)
+	local out = WorldBuilder.lawnLive() and Lawn.putOut(profile, id)
+	local line = if out
+		then string.format(
+			"Golden find! The cat left you a %s. It is out on your lawn (%s money)",
+			piece.name,
+			LawnService.percent(Lawn.rarityBonus(piece.rarity))
+		)
+		else string.format(
+			"Golden find! The cat left you a %s. Put it out from the Decor window's Lawn tab",
+			piece.name
+		)
+	Net.toast(player, line, "good")
+	if plot ~= nil and WorldBuilder.lawnLive() then
+		rebuild(player, profile, plot)
+	else
+		CafeService.sync(player)
+	end
+	return true
+end
+
 function LawnService.start()
 	Net.on("BuyLawn", onBuyLawn)
 	Net.on("SetLawnSpot", onSetLawnSpot)

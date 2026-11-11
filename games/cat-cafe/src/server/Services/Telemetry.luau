@@ -107,6 +107,8 @@ export type CustomEvent =
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
+	-- #3062: a Cat Arcade game's end, value its points; circles, milestones paid (comma list or "none"), win or not
+	| "arcade_run"
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
@@ -192,6 +194,9 @@ export type CustomEvent =
 	| "museum_donate"
 	| "museum_room"
 	| "museum_fill" -- #3130: an Auto fill, value the copies given; its area
+	-- #3050: a Rummage Bin win, value 1; the prize row (tuna, fish, salmon, potion, crate, golden), the win's number
+	-- on the account ("1" to "10", 10 for any later one). The first win also logs step_time "first_bin"
+	| "bin_play"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
@@ -221,6 +226,7 @@ export type CustomEvent =
 	-- F91 (front-lawn.md section 5): a lawn piece or path or fence style bought, value 1, once per id ever (moves log
 	-- nothing, review S119); its id, tier. The coins it cost are the economy sink "lawn"
 	| "lawn_placed"
+	| "lawn_drop" -- #3222: a drop-only Golden lawn piece from a freed cat (id, tier)
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
@@ -306,6 +312,7 @@ export type CustomEvent =
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
 	-- step ("m2", "m4", "m6", "like", "m15", "m20", "fav") and "paid"
 	| "playtime_gift"
+	| "update_gift" -- #2997: the Saturday update gift paid, value 1; its id
 	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
 	-- (earned this session) or "catchup" (earned before, awarded on join)
 	| "badge_awarded"

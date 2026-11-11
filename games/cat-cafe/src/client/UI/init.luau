@@ -3583,6 +3583,17 @@ do
 		end
 		local v3 = type(trustNeed) == "number" and trustNeed > 0
 		local model: Model? = if v3 then UI.catch.strayModel(strayId) else nil
+		if info == nil or info.strayId ~= strayId then
+			-- #3224 (Derek2 11-11: the card "just shows cat on top instead of what it is"): a catch that began with the
+			-- net swing has no prompt card up for this stray, and the card read "Cat" and "Common". The stray says what
+			-- it is itself (CatService's attributes on its model).
+			local stray = model or UI.catch.strayModel(strayId)
+			local named =
+				require(script.Components.CatchHeader).fromStray(strayId, stray, lookupCat)
+			if named ~= nil then
+				info = named :: any
+			end
+		end
 		if info and info.strayId == strayId then
 			local rarity: string? = info.rarity
 			local built: CatchCircles.Header = {

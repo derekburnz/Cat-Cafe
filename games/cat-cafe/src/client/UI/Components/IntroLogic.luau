@@ -41,7 +41,7 @@ IntroLogic.END = 2.0
 -- #2182 (intro-cutscene.md 2b; playtesters via Derek2 2026-11-07: "a next button or just slowing it down would
 -- help"): Next, a tap outside Skip, Space, Enter or gamepad A moves on once a shot has shown this long, so a double tap
 -- never skips two shots (shared/Intro's NEXT_AFTER, else 1.0)
-IntroLogic.NEXT_AFTER = if type(Intro.NEXT_AFTER) == "number" then Intro.NEXT_AFTER else 0.2
+IntroLogic.NEXT_AFTER = if type(Intro.NEXT_AFTER) == "number" then Intro.NEXT_AFTER else 0
 IntroLogic.NEXT_GAP = 10 -- design pixels between Next and Skip on the lower bar
 IntroLogic.READ_WIDTH = 220 -- the read bar under the caption, in design pixels
 IntroLogic.READ_HEIGHT = 4

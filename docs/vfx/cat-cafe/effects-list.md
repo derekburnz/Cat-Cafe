@@ -1055,3 +1055,11 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | Pale streaks slide down every falling sheet (a water part at least 3 studs tall and at most 0.5 thin), soft mist rises at each sheet's foot (feet within 2 studs share one) and a 3.5 stud ring spreads there every 1.4 s; only the nearest budget.waterfalls within 160 studs run; Reduce Motion drops the rings, Low performance keeps the streaks only | Models named `*_Waterfall_Water` and `*_Fountain_Water` (Animation-Engineer's CatCafe_Ruins_Set, #3257) |
+
+## Guide trail sparkles (#3022, 2026-11-11)
+
+`Effects/TrailSparkle.luau`, numbers in `Presets.trailSparkle` and the `trailSparkle` emitter.
+
+| Look | Hook |
+|---|---|
+| Every 2nd dot of the guide trail (every 4th on a phone) sends up 2 soft sparkles a second in the dot's own colour, so the path to the waiting stray reads from farther off; kept with Reduce Motion, off in Low performance | GuideTrail's `Dot` parts in the Workspace folder `CatCafeTutorialTrail` (UI's; GuideTrail.luau is untouched) |

@@ -487,6 +487,19 @@ Presets.emitters = {
 		drag = 0.8,
 		lightEmission = 0.1,
 	},
+	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
+	trailSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.35, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 1.5, 2.5 },
+		spread = 15,
+		rate = 2,
+		drag = 0.5,
+		lightEmission = 1,
+	},
 	-- Water kicked up by a step in a puddle or a pond (Effects/Splash): small drops thrown up and falling back.
 	splashDrops = {
 		texture = Presets.textures.smoke,
@@ -4253,6 +4266,24 @@ Presets.stationBuild = {
 	clunkGap = 0.12, -- seconds at least between stationClunk beats as pieces land (Sound-Agent's clunk set)
 }
 
+-- #2687's station reveal burst (StationReveal.luau): the first time you come into an area whose station you own, a
+-- gold beam rises off the station, sparkles and confetti burst over it and rings spread at its foot. Studs and
+-- seconds.
+Presets.stationReveal = {
+	wait = 4, -- seconds to wait for the station to stream in after the reveal
+	lift = 1, -- studs over the station's top the sparkles and confetti burst
+	sparkles = 24,
+	confetti = 40,
+	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
+	beamWidth = 3,
+	beamHeight = 22,
+	beamSeconds = 1.8,
+	rings = 2,
+	ringPad = 2, -- studs the first ring spreads past the station's widest side
+	ringGap = 0.3,
+	ringSeconds = 1,
+}
+
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
 -- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
 -- near. Off with Reduce Motion.
@@ -4402,6 +4433,18 @@ Presets.ruinsWater = {
 	ringSeconds = 1.2,
 	rippleEvery = 1.4,
 	colour = Presets.palette.milk,
+}
+
+-- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the
+-- Workspace folder `folder` (`everyLow` on a phone) carries the `emitter`; the choice is looked at again every
+-- `recheck` seconds.
+Presets.trailSparkle = {
+	folder = "CatCafeTutorialTrail",
+	dot = "Dot",
+	emitter = "trailSparkle",
+	every = 2,
+	everyLow = 4,
+	recheck = 3,
 }
 
 return Presets

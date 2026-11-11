@@ -848,6 +848,7 @@ local function applyState(s: Types.PlayerState)
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
 		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
+		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
@@ -1247,6 +1248,16 @@ local function wireIntents()
 	-- Collect on the rich tip marker (F31). A claim clears the plot's RichTipAmount, which the UI toasts.
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")
+	end)
+	-- #3196: the Mystic Pool's card. The server checks the cat, the payment and the waiting re-roll again.
+	UI.events.rollTrait:Connect(function(uid: string)
+		Net.fire("RollTrait", uid)
+	end)
+	UI.events.chooseTrait:Connect(function(takeNew: boolean)
+		Net.fire("ChooseTrait", takeNew == true)
+	end)
+	UI.events.collectTraitTokens:Connect(function()
+		Net.fire("CollectTraitTokens")
 	end)
 	-- #2854: the Rewards list's Cozy gift row takes the waiting bag; the server pays it and toasts
 	UI.events.takeCozy:Connect(function()

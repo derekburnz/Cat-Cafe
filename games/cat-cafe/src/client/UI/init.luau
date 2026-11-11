@@ -90,6 +90,7 @@ local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
+UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
@@ -230,6 +231,10 @@ UI.events = {
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
+	-- #3196 (the Mystic Pool's card): forward as RollTrait(uid), ChooseTrait(takeNew) and CollectTraitTokens()
+	rollTrait = Signal.new(), -- (uid)
+	chooseTrait = Signal.new(), -- (takeNew)
+	collectTraitTokens = Signal.new(), -- ()
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
 	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
@@ -597,6 +602,7 @@ local function render()
 	UI.campExtras.render(state)
 	UI.arcade.render(state)
 	UI.lateStations.render(state)
+	UI.mysticPool.render(state)
 	UI.cornerShop.render(state)
 	UI.mystery.render(state)
 	UI.trade.render(state)
@@ -1601,6 +1607,7 @@ function UI.init(config: Types.InitConfig)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
+	UI.mysticPool.start() -- the Mystic Pool's card (#3196)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
@@ -1793,6 +1800,7 @@ function UI.destroy()
 	UI.together.reset()
 	UI.campExtras.reset()
 	UI.lateStations.reset()
+	UI.mysticPool.reset()
 	UI.mystery.reset()
 	UI.giftWait.reset()
 	UI.rally.reset()
@@ -7042,6 +7050,105 @@ do
 			museum:destroy()
 		end
 		late.museum = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The Mystic Pool (#3196, #3314, trait-station.md sections 1 and 3)
+----------------------------------------------------------------------------------------------------
+
+-- The Mystic Pool's card (Screens/MysticPool): open(anywhere, uid) from the station's ring or the Cannon menu,
+-- render(state) with every state (PlayerState.traits is its numbers, false or nil while the `traits` switch is off),
+-- and its presses go out as UI.events.rollTrait / chooseTrait / collectTraitTokens. `UI.mysticPool.play` and
+-- `UI.mysticPool.far` are the controller's to set: the pool's animation for a roll (Effects/MysticPool.roll, which
+-- returns its skip) and the walk-away check. Its own block, as the module is short of locals.
+do
+	local MysticPool = require(script.Screens.MysticPool)
+	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
+	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
+	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
+	UI.mysticPool.far = nil :: (() -> boolean)?
+
+	function UI.mysticPool.start()
+		UI.mysticPool.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local card = MysticPool.new({
+			roll = function(uid: string)
+				UI.events.rollTrait:Fire(uid)
+			end,
+			choose = function(takeNew: boolean)
+				UI.events.chooseTrait:Fire(takeNew)
+			end,
+			collect = function()
+				UI.events.collectTraitTokens:Fire()
+			end,
+			close = function()
+				if modalView:current() == MysticPoolLogic.WINDOW then
+					modalView:close()
+				end
+			end,
+			play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+				local play = UI.mysticPool.play
+				if play == nil then
+					return nil
+				end
+				return play(uid, rarity, onReveal)
+			end,
+			far = function(): boolean
+				local far = UI.mysticPool.far
+				return not pool.anywhere and far ~= nil and far()
+			end,
+		})
+		pool.card = card
+		modalView:register(MysticPoolLogic.WINDOW, {
+			frame = card.frame,
+			onOpen = function()
+				card:render(state)
+				card:opened()
+			end,
+			onClose = function()
+				card:closed()
+			end,
+		})
+		card:render(state)
+	end
+
+	function UI.mysticPool.render(playerState: Types.PlayerState)
+		local card = pool.card
+		if card then
+			card:render(playerState)
+		end
+	end
+
+	-- The station's ring, or the Cannon menu (`anywhere`: no walk-away close, as #3213). `uid` picks a cat first
+	-- (the cat card's Trait row, later). False, with a toast, while the pool is shut.
+	function UI.mysticPool.open(anywhere: boolean?, uid: string?): boolean
+		local modalView = modal
+		local card = pool.card
+		if modalView == nil or card == nil then
+			return false
+		end
+		if type((state :: any).traits) ~= "table" then
+			UI.toast("The Mystic Pool is closed for now", "info")
+			return false
+		end
+		pool.anywhere = anywhere == true
+		if uid ~= nil then
+			card:pick(uid)
+		end
+		modalView:open(MysticPoolLogic.WINDOW)
+		return true
+	end
+
+	function UI.mysticPool.reset()
+		local card = pool.card
+		if card then
+			card:destroy()
+		end
+		pool.card = nil
 	end
 end
 

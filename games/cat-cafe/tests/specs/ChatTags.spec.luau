@@ -119,6 +119,16 @@ return function()
 			end
 		)
 
+		it("maps places 1 to 3 to the rank titles, and nothing else (#3333)", function()
+			expect(ChatTags.rankTag(1)).to.equal("rank_1")
+			expect(ChatTags.rankTag(3)).to.equal("rank_3")
+			expect(ChatTags.rankTag(4)).to.equal(nil)
+			expect(ChatTags.rankTag(nil)).to.equal(nil)
+			expect(ChatTags.validPick("rank_2")).to.equal(true)
+			expect(ChatTags.shown("rank_2", false, {})).to.equal(nil) -- a lost place shows nothing
+			expect(ChatTags.shown("rank_2", false, { rank_2 = true })).to.equal("rank_2")
+		end)
+
 		it("keeps every tag colour readable on the dark chat window (4.5:1 or more)", function()
 			local function lum(c: Color3): number
 				local function ch(v: number): number

@@ -396,13 +396,17 @@ function Potions.render(self: any, state: Types.PlayerState)
 	local counts: { [string]: number } = state.potions or {}
 	local before: { [string]: number }? = self._counts
 	if before then
+		-- every potion whose count dropped answers its presses (one sync can answer two kinds); one drink sound
+		local drank = false
 		for id, count in before do
 			local drop = count - (counts[id] or 0)
 			if drop > 0 then
-				Sound.play("potionDrink")
+				drank = true
 				self:_answered(id, drop)
-				break
 			end
+		end
+		if drank then
+			Sound.play("potionDrink")
 		end
 	end
 	self._counts = table.clone(counts)

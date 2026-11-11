@@ -2100,7 +2100,11 @@ function startCatch(
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
 		-- #2322: wider in the first area; #3135: a little narrower for a gold or rainbow coat
-		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant)
+		-- #2913 follow-up: a little wider for a player's first few catches by hand
+		else Circles.scaled(
+			Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
+			Circles.earlyScale(SecondCat.caught(profile.stats))
+		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	local hold = tutorial and Config.CatchHoldFirstRing and profile.stats.catsCaught == 0
 	local circles = if tutorial

@@ -580,6 +580,8 @@ return function()
 				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
+				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
+				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -741,7 +743,15 @@ return function()
 			local widest = 0
 			for _, row in pairs(Config.NetWindows) do
 				for _, rarity in pairs(Catalog.rarities) do
-					widest = math.max(widest, row.good * rarity.catchWindow)
+					-- #2913 follow-up: a new player's early catches widen it by EarlyCatchWindowScale, in the widest area
+					local area = 1
+					for _, def in Catalog.areas do
+						area = math.max(area, (def :: any).catchWindowScale or 1)
+					end
+					widest = math.max(
+						widest,
+						row.good * rarity.catchWindow * Config.EarlyCatchWindowScale * area
+					)
 				end
 			end
 			expect(Config.CircleGapMin > widest + Config.CatchLatencyCapSeconds).to.equal(true)

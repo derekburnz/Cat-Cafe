@@ -249,6 +249,12 @@ local Config = {
 		[3] = { perfect = 0.08, good = 0.18 },
 	} :: { [number]: { perfect: number, good: number } },
 	CircleJitter = 0.10,
+	-- #2913 follow-up (Nov 10 read: after the sure first catch, phones still miss more, 37 of 186 new players missed
+	-- at least once and 48 saw a cat bolt): a player's catches by hand before EarlyCatchCount (SecondCat.caught) are
+	-- judged with bands EarlyCatchWindowScale times as wide. By the player's save, not their device, which the server
+	-- never trusts; the widest band stays under CircleGapMin (Config.spec S24).
+	EarlyCatchCount = 5,
+	EarlyCatchWindowScale = 1.3,
 	-- The net swing (F93, catch-rework.md section 1): one SwingNet per NetSwingCooldown. NetSmackDelay after it
 	-- arrives, when the net lands, the server looks for the nearest free stray within NetReachStuds plus
 	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes

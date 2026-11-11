@@ -367,6 +367,7 @@ return function()
 		BumpSameTargetSeconds = 0,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 0,
+		TackleShieldSeconds = 300, -- #3342: a new join can't be tackled for its first 5 minutes
 		-- a dropped cat walks home (v0.10 F67, section 10c)
 		DropReturnWalkSpeed = 8,
 		DropHomeRadiusStuds = 2,

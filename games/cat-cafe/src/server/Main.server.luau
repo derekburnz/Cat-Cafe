@@ -12,6 +12,7 @@ local AwayNotifyService = require(script.Parent.Services.AwayNotifyService)
 local BadgeAwardService = require(script.Parent.Services.BadgeAwardService)
 local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
+local BinService = require(script.Parent.Services.BinService)
 local BugReportService = require(script.Parent.Services.BugReportService)
 local CafePassService = require(script.Parent.Services.CafePassService)
 local CafeService = require(script.Parent.Services.CafeService)
@@ -141,6 +142,7 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 LateStationService.start() -- #2651 part 4: the Oasis Spa and Relic Museum, before DataService (onLoaded)
+BinService.start() -- #3050: the Rummage Bin, after RescueService (its bar's remotes) and before DataService
 InviteService.start() -- #2797: the invite reward, before DataService (onLoaded links an invited new player)
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts

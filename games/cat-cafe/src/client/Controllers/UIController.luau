@@ -307,6 +307,20 @@ end
 
 -- How to swing the net on this device (F93): the UI's UI.net.hint() ("Tap NET next to a cat", "Press R2 next to a
 -- cat" or "Click next to a cat", UI-Engineer #677) once it has it.
+-- #2871 (console pass 2 leftover): the alley step's "then tap as each circle closes" names the input the player last
+-- used, as IntroController's deviceCaption does: "press A" on a gamepad, "click" with a mouse or keyboard, "tap" on touch.
+local function circleVerb(): string
+	local last = UserInputService:GetLastInputType().Name
+	if last:sub(1, 7) == "Gamepad" then
+		return "press A"
+	elseif
+		last == "Touch" or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+	then
+		return "tap"
+	end
+	return "click"
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -384,8 +398,9 @@ local function refreshTutorial(s: Types.PlayerState)
 		showTutorial(
 			s,
 			string.format(
-				"Go out your back door to the alley. %s, then tap as each circle closes",
-				swingHint()
+				"Go out your back door to the alley. %s, then %s as each circle closes",
+				swingHint(),
+				circleVerb()
 			),
 			tutorialStrayPoint(),
 			"Alley"
@@ -2395,42 +2410,43 @@ local function wireServerEvents()
 		}
 		Moments.RescueStart:Fire(rescueSpotId)
 	end)
-	Net.on(
-		"RescueResult",
-		function(
-			rescueSpotId: string,
-			hits: number,
-			pawsLeft: number,
-			done: boolean,
-			success: boolean,
-			bar: Types.RescueBar?
-		)
-			-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
-			-- after a hit); a UI that does not take it yet ignores it
-			local update: any = UI.rescue.update
-			update(rescueSpotId, hits, pawsLeft, done, success, bar)
-			local current = rescue
-			if current == nil or current.spotId ~= rescueSpotId then
-				return
-			end
-			if hits > current.hits then
-				Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
-			end
-			if pawsLeft < current.paws then
-				Moments.RescueMiss:Fire(pawsLeft)
-			end
-			current.hits = hits
-			current.paws = pawsLeft
-			if done then
-				rescue = nil
-				if success then
-					Moments.RescueDone:Fire(rescueSpotId, current.rarity)
-				else
-					Moments.RescueFail:Fire(rescueSpotId)
-				end
+	Net.on("RescueResult", function(
+		rescueSpotId: string,
+		hits: number,
+		pawsLeft: number,
+		done: boolean,
+		success: boolean,
+		bar: Types.RescueBar?,
+		win: Types.RummageWin? -- #3050: the Rummage Bin's prize, on its winning result
+	)
+		-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
+		-- after a hit); a UI that does not take it yet ignores it
+		local update: any = UI.rescue.update
+		update(rescueSpotId, hits, pawsLeft, done, success, bar, win)
+		if done and success and win ~= nil and type(win.id) == "string" then
+			Moments.RummageWin:Fire(win.id, win.first == true)
+		end
+		local current = rescue
+		if current == nil or current.spotId ~= rescueSpotId then
+			return
+		end
+		if hits > current.hits then
+			Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
+		end
+		if pawsLeft < current.paws then
+			Moments.RescueMiss:Fire(pawsLeft)
+		end
+		current.hits = hits
+		current.paws = pawsLeft
+		if done then
+			rescue = nil
+			if success then
+				Moments.RescueDone:Fire(rescueSpotId, current.rarity)
+			else
+				Moments.RescueFail:Fire(rescueSpotId)
 			end
 		end
-	)
+	end)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)
 		-- Strays and rescue spots share this event and the card. A late answer for a target the card has moved
 		-- on from (a stray's auto-resolve landing after the next hold began) is dropped (reviewer N21).

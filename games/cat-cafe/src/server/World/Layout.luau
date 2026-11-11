@@ -1097,7 +1097,7 @@ Layout.park = {
 	-- a tree's branch points along its -X, a bin's open lid is at its back
 	rescueSpots = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -52, 0, 30 }, 180), -- #3349: was -46, in the willow
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
@@ -1109,7 +1109,7 @@ Layout.park = {
 	-- the middle.
 	rescuePool = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -52, 0, 30 }, 180), -- #3349: was -46, in the willow
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),

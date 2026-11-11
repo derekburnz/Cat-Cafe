@@ -35,7 +35,8 @@ The server decides the result first. The animation only shows it.
 3. The cat pops back out on a splash. The trait card rises with the trait's name, its rarity colour and what it does.
 - Colours: Common grey `#9AA0A6`, Uncommon green `#4CAF50`, Rare blue `#3F8FE0`, Legendary gold `#F4C430`, Mythic purple `#B04FE0` with a rainbow shimmer.
 - **No near-miss teasing:** the pool never goes past the real colour and comes back, and never pauses on a step to fake a "nearly". This is for a young audience.
-- After the first roll, a tap skips straight to the card.
+- A tap skips straight to the card, from the very first roll (Monetization, 2026-11-11).
+- Button wording stays neutral: **Roll again**. No "so close" or "almost" text anywhere.
 - **Mythic:** a server-wide line, "<name>'s cat got a Mythic trait!", once per Mythic. It uses the same channel as the existing rare-catch announcements and shows display names only.
 
 ## 2. Traits
@@ -77,9 +78,10 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 - **Bait bowl luck:** only the best 3 working cats count, at most +36%. It always stays inside `LuckMax`.
 - **Speed:** only the best 1 working cat counts, at most +1.5 studs/s.
 - **Rich visitor rate:** only the best 2 working cats count, at most +24%. That stays below Cafe Style's 0.25, so no trait beats a paid perk (§5).
-- **Per-cat effects** (income, night income, XP) apply only to that cat.
+- **Per-cat effects** (income, night income, XP) apply only to that cat. "This cat's XP" is the cat's own level XP only; it never touches Cafe Pass XP.
 - "Working" means the cat is in a staff slot in the cafe. Traits on resting, Spa or carried cats don't count.
 - No trait touches catch difficulty, rescue bars or wild rarity odds.
+- **Trades:** a trait travels with its cat. The trade tile shows the trait's name in its rarity colour, and the lopsided-trade warning counts the trait in the cat's value.
 
 ## 3. Rolls and costs
 - **5 free starter rolls** (Derek2, 2026-11-11). Every player gets them once, the first time the Mystic Pool unlocks for them. Players who already own the Park's camp extra get them when the flag turns on. They are used before tokens and fish, can go on any cat, and never come back.
@@ -123,7 +125,7 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 - A rich tip pays 120 s of the day rate about every 480 s of open day, so each 1.0 of rate is about +25% income.
   - **Free player:** rate 1 to 1.24 is about +6% income.
   - **Cafe Style alone:** its 0.25 is about +6%. Two Mythic cats nearly match it but never pass it, and the common case (Rare, +4% each) is about a third of it.
-  - **Every pass:** 2.25 to 2.49 is about +6% income on top of roughly 24x. That's inside the 11-05 stacking re-check's margin (economy-ladder.md §6a), Monetization re-checks it against every pass with the Mythic numbers **before the `traits` flag goes on**.
+  - **Every pass:** 2.25 to 2.49 is about +6% income on top of roughly 24x. That's inside the 11-05 stacking re-check's margin (economy-ladder.md §6a), Monetization re-checks it against every pass with the Mythic numbers **before the `traits` flag goes on**: the stacking sheet with the 2.49 rich rate cap plus one Pace worst case.
 - Speed tops out at +1.5, under half of the Swift Potion's +4. Bowl luck stays under `LuckMax`. Per-cat income tops out at +40% on one cat. So no paid perk is undercut.
 
 ## 6. Save and publish

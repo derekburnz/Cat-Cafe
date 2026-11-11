@@ -935,3 +935,77 @@ Derek2 2026-11-11: "add golden decor's that are a super low drop chance like the
 - Shared caps still hold: bowl luck counts the best 3 cats and stays inside LuckMax; speed counts the best 1 cat, up to +1.5; the rich rate counts the best 2 cats, up to +24%, which stays under Cafe Style's paid 0.25.
 - The pool only steps up to the real result and never fakes a near-miss, because the audience is young.
 - Monetization should re-check the stacking with the Mythic numbers before the build ships.
+
+## 2026-11-11 Shorter nights: 45 seconds (#3195)
+
+Derek2 2026-11-10: "make the night times faster to stop being leaving during night just put an exclamation mark over night market so people dont miss it".
+
+- Night 45 seconds and day 345 (were 70 and 320), as #3195 proposed. A game day stays 390 seconds, so every sunrise, day number, restock and pity timer falls where it did; only dusk comes 25 seconds later. Old and new servers agree on the day, so no restart is needed. While old servers run, their dusk comes 25 seconds before a new server's.
+- The "!" over the Night Market is VFX-Agent's PR #3231.
+
+## 2026-11-11 Upgrades spread across the tiers, Net later (#3204), and the Pace re-band with 45 s nights
+
+Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on in tiers".
+
+- **Caps.** Tier 2 opens fewer levels: Tables 4, Espresso 3, Net 1, Bait Bowl 2, Lucky Cat 2 (were 5, 4, 2, 3, 3). Net 2 opens at Tier 3 and Net 3 at Tier 5 (were Tier 2 and Tier 3). Caps gate buying only, so a level a player already owns above a cap is kept.
+- **Net costs** 2,500, 200,000 and 60,000,000 (were 2,500, 25,000 and 800,000), so the later Net levels still cost something at the tier where they open.
+- **Tier costs.** Tier 2 13,500 (was 12,000) and Tier 5 370,000,000 (was 350,000,000) for the 45 s nights (#3195). Tier 3 520,000 (was 420,000): the nights and the Tier 2 caps had brought the middle first-hour Tier 3 to 27.7 min; 520,000 gives 30.2, and 560,000 only 1.2 min more.
+- **Pace re-band (Design-Agent).** The caps speed Tier 2 to 3 more than the Tier 3 cost can pull back, so: Tier 3 in the first hour 30 to 45 min with the fastest tenth at 20 or later (was 33 to 45 and 25); the lawn run's Tier 5 floor 4 h (was 4.25; 4 h 14 measured); the first hour's longest wait 22.5 min (was 16). The fast first-hour player's Tier 2 floor is 8 min (was 10; 8.1 measured): raising Tier 2 to 17,500 to pull it back put the 4-catch and stray-top-up Tier 2 runs past their 20 min ceiling, and the slower players are the ones we lose. Every other band is unchanged.
+- **No restart.** No save change; old servers keep the old caps and costs until they close.
+
+## 2026-11-11 Tutorial dim: no seam line, and it goes once food is in the bowl (#3285)
+- What: Derek2's playtest of the #3153 spotlight found two problems.
+  - A thin bright line ran across the screen. The four dim boxes met on half-pixel edges, which happens when a scaled HUD tile sits off the pixel grid. `TutorialArrowLogic.holes` now rounds the hole outward to whole pixels, so the boxes meet exactly.
+  - The Bowl tile's ring, its arrow and the dim stayed on through the wait for the bowl cat. The UI's state never carried the bowl's food, so the HUD and the Bait window still read the step as "put food in". UIController now sends `bait`, with false for an empty bowl because UI.update skips a nil. `TutorialHints.view` counts only a table as food. The strip's own line already used the raw state, so it said "A cat is on its way" while the ring disagreed.
+- Safe for old servers: client only, so new servers pick it up with no restart.
+
+## 2026-11-11 Legendary and up decor arrives unlocked (#3276)
+- What: Derek asked to turn off the auto-lock on decor. Legendary, Mythical and Golden crate decor and lawn pieces used to arrive locked and had to be unlocked on their card before trading. No client button sends LockDecor, so players had no way to unlock them. Now a piece is locked only when the new save list `decorLocked` has it (LockDecor still writes it), and every way of getting a piece lands it unlocked.
+- Saves: no version bump. `decorLocked` is new; a save from before has none, so every owned piece loads unlocked (assumed: a lock nobody could change wasn't a choice). `decorUnlocked` is kept as the mirror (every owned lockable piece not locked), rebuilt on load, so an older server shows the same pieces as tradable. An older server drops `decorLocked`, which only unlocks pieces again.
+- The client's state still gets `decorUnlocked`, now computed (Trade.unlockedPieces), so the Trade window needs no change and old clients work.
+
+## 2026-11-11 Analytics events wait their turn instead of being refused (Telemetry rate limit)
+- What: Since v498 the Creator Hub showed 396 "AnalyticsService: You have sent too many events" errors in 24 hours, so events such as upgrade_bought were lost. Every AnalyticsService Log call in Telemetry already goes through one `send()`. That function now asks a server-wide budget first (`src/server/Util/EventGate.luau`). An event with budget left goes out at once. An event without budget waits in a queue and goes out oldest first, checked once a second. Only when 600 events are waiting is a new one dropped; drops are counted and warned at most once a minute.
+- Budget: 80% of 120 + 20 per player each minute, refilling continuously, with at most 10 seconds of it banked. The spec checks that no minute of a flood goes over the limit.
+- Assumptions: the limit of 120 + 20 per player a minute, counted across every event kind, is our reading of Roblox's analytics docs; the 20% headroom covers any error in that reading. Events still waiting when a server shuts down are lost (at most a few seconds' worth). A player who leaves while their events are queued still has them sent.
+- Safe for old servers: server code only, with no save, remote or client change, so new servers take it and old ones keep running.
+
+## 2026-11-11 A one-tap Buy button on the tutorial strip (#2912)
+
+- **What.** While tutorial step 3 asks for a table (or step 4 for the Bait bowl) and the player's coins cover it, a green "Buy a table · $150" ("Buy the Bait bowl · $600") button stands on the tutorial strip. One press sends the same BuyUpgrade request as the Upgrades row's Buy, so the server checks it the same way. Short of coins, it isn't shown, and the Upgrades tile still glows.
+- **Why.** Nov 10 read: 105 new players caught a second cat and 93 bought the first table, 12 lost on a step that needs two presses in a menu. Every other step from the table to the bait loses under 5%.
+- **Assumed.** The button sits above the strip and doesn't change the strip's words. It's client only, so new servers pick it up with no restart.
+
+## 2026-11-11 Once-a-day session ask with thumbs, and the faces become thumbs (#3272)
+- What: Roblox does not tell a game who liked or disliked it, so Derek2 asked for the closest thing. Once a UTC day, after 5 minutes of a session, at a natural stop (as the Roblox menu closes, since nothing can show over the menu itself, or after a minute with no input), the ask card asks "Enjoying Catch a Cat Cafe?". It follows AskPacing, and it never shows mid-activity. Closing it or letting it run out sends "skipped". The new SessionFeedback remote (1 per 30 s, once a UTC day through the new save field sessionFeedbackDay) logs three custom events of three fields each:
+  - session_feedback: answer, device, session length bucket
+  - session_feedback_ctx: answer, furthest onboarding step, cats owned bucket
+  - session_feedback_where: answer, screen open, build
+- Derek2 ("change the how is it so far to be a thumb up or down or neutral face very simple"): the F87 faces now read 👍 Good, 😐 OK and 👎 Not good, on both asks and the Feedback page. The ids stay love, ok and no, so the server and the analytics read them as before.
+- Assumptions: there is no age bracket, because Roblox gives games no age and PolicyService has none. There is no reward and no free text. The session ask doesn't count as the F87 ask.
+- Saves: no version bump. An older server drops sessionFeedbackDay, which at worst asks once more that day.
+
+
+## 2026-11-11: Cannon flights move earlier and first landings stay near the pad (#3292, Gameplay-Engineer)
+- **Why:** Derek2: "fix the cannon landing the occasional changing course slightly mid air". Laptop-Tester's PC pass saw first flights land 18 to 29 studs outside the landing circle.
+- **Move earlier:** `CannonTeleportAtSeconds` goes from 2.6 to 2.2. The body is hidden in the clouds from 2.0 to 3.0, and the fall is drawn from wherever the root is, so the move now has 0.8 s instead of 0.4 s to reach every client.
+- **First flight beside a stray (#2913):** the spot 7 studs short of a waiting stray now comes no further than 15 studs (`Cannon.BESIDE_MAX_FROM_PAD`) from the pad's centre, on the same line, still facing the stray. The camp rule (#3198) still reads the plain spot by the stray, so a stray behind the Park fence still sends the flight to the pad.
+- **Client part (Animation-Engineer):** the fall comes from behind the landing's facing, not along `CannonHeading`, so a landing turned toward a stray changes course. Drawing the fall along the heading belongs in `src/client/Effects/`.
+
+
+## 2026-11-11 The experience's owner is an owner, and /shout pops an OWNER bubble (#3301)
+- **Why:** Derek2: "make the event and /shout commands work on live and make the /shout make a quick bubble with OWNER "whatever messege I put" on screen". The live log showed "/event from a non-owner: dropped", because owner checks read Config.OwnerTestUserIds only.
+- **What:** `OwnerTest.isOwnerPlayer` also counts the experience's creator, or for a group-owned experience the group's owner (rank 255). No id is added to the repo. That account gets full owner test mode (passes owned, free test grants, test events pay), so its own stats look unusual (Review-Agent's note).
+- `/shout` now goes out on its own remote, OwnerShout, as a bubble: OWNER over the quoted, filtered message, for 6 seconds. It no longer uses the rare-pull shout-out, which drops a line while another is up.
+
+## 2026-11-11 Quick taps on the Spa, Museum and Jukebox are no longer rate-limited away (#3299)
+- **Why:** the 24h live sweep showed drops. At 1 a second, filling Spa slots or donating relics with quick taps lost a tap with nothing on screen.
+- **What:** SpaPut, SpaTakeOut, SpaCollect and MuseumDonate go from 1 to 3 a second. SetJukeboxTrack and StationOpened go from 2 to 4. SpaBuySlot stays at 1. Every call is still checked in full by its service.
+
+## 2026-11-11 Intro shot 2 waits for the camp's set, not only its floor (#3303)
+- **Why:** in Studio, Derek saw shot 2 cut to bare orange ground. The floor streams in before the camp's set.
+- **What:** the camp counts as in only once the Alleyway camp's own Cat Cannon has a part streamed in, within 20 studs of the pad. Until then shot 2 holds in the clouds, as it already did when the camp was missing.
+
+## 2026-11-11 Decisions entries ride one batch PR when many PRs land together
+- **Why:** every PR appending to this file conflicts with every other one, so a batch of armed PRs blocked each other on merge after merge.
+- **What:** when several PRs are armed at once, their entries move to one docs-only PR like this one, which lands after them. A lone PR still carries its own entry.

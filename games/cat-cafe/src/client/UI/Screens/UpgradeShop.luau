@@ -193,6 +193,8 @@ function UpgradeShop.new(
 	self._cafeTab = Button.new({
 		name = "CafeTab",
 		text = "Cafe",
+		icon = Theme.icons.home, -- #3350: the HUD's My Cafe picture
+		image = ShopIcons.hud("MyCafe"),
 		style = "gold",
 		size = UDim2.fromOffset(120, TAB_HEIGHT),
 		textSize = Theme.sizes.textBody,
@@ -206,6 +208,7 @@ function UpgradeShop.new(
 	self._staffTab = Button.new({
 		name = "StaffTab",
 		text = "Staff",
+		icon = "☕", -- #3350
 		style = "ghost",
 		size = UDim2.fromOffset(120, TAB_HEIGHT),
 		textSize = Theme.sizes.textBody,

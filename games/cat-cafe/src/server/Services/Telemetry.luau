@@ -34,6 +34,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EventGate = require(script.Parent.Parent.Util.EventGate)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
@@ -51,6 +52,7 @@ local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
+local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -223,6 +225,12 @@ export type CustomEvent =
 	-- #2681: with each feedback answer, value 1: the face, the device, "<place version>:<err|ok>" (whether this
 	-- session's client logged an error before it)
 	| "feedback_env"
+	-- #3272: the once-a-day session ask (shared/SessionFeedback), one answer a UTC day, value 1 each: the answer (love,
+	-- ok, no or skipped), the device and the session length bucket; the answer, the furthest onboarding_v6 step and
+	-- the cats owned bucket; the answer, the screen open and the build ("<place version>:<err|ok>")
+	| "session_feedback"
+	| "session_feedback_ctx"
+	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
 	| "like_ask_shown"
 	-- #2694: how a slide-in faces ask ended, at most one per ask shown, value 1: answered, closed or ignored; early or
@@ -578,16 +586,46 @@ local function excluded(player: Player): boolean
 	return player:GetAttribute(OwnerTest.ATTRIBUTE) == true
 end
 
-local function send(player: Player, kind: string, fn: () -> ())
-	if excluded(player) then
-		return
-	end
+local function deliver(kind: string, fn: () -> ())
 	local ok, err = pcall(function()
 		fn()
 		return nil :: any
 	end)
 	if not ok then
 		warn(string.format("[Telemetry] %s not logged: %s", kind, tostring(err)))
+	end
+end
+
+-- Every Log call passes this budget first (EventGate): over budget, the event waits its turn instead of being refused
+-- by Roblox ("You have sent too many events").
+local gate = EventGate.new(os.clock())
+
+local function send(player: Player, kind: string, fn: () -> ())
+	if excluded(player) then
+		return
+	end
+	local item = { kind = kind, fn = fn }
+	if gate:offer(item, os.clock(), #Players:GetPlayers()) then
+		deliver(kind, fn)
+	end
+end
+
+local droppedWarnAt = -math.huge
+
+local function flushGate()
+	local now = os.clock()
+	for _, item in gate:due(now, #Players:GetPlayers()) do
+		deliver(item.kind, item.fn)
+	end
+	-- one line a minute at most, so a full queue doesn't flood the console
+	if gate.dropped > 0 and now - droppedWarnAt >= 60 then
+		droppedWarnAt = now
+		warn(
+			string.format(
+				"[Telemetry] %d events dropped: the analytics queue is full",
+				gate:takeDropped()
+			)
+		)
 	end
 end
 
@@ -1427,6 +1465,31 @@ function Telemetry.feedbackAsked(player: Player, profile: Profile)
 		tierText(profile),
 		FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
 		Onboarding.furthest(profile.telemetry),
+	})
+end
+
+-- #3272: the once-a-day session ask's answer (TipService checked it): who answered, as three events of three fields.
+function Telemetry.sessionFeedback(player: Player, profile: Profile, answer: string)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local cats = 0
+	for _ in profile.cats do
+		cats += 1
+	end
+	local length = SessionFeedback.sessionBucket(os.time() - session.joinedAt)
+	Telemetry.custom(player, "session_feedback", 1, { answer, session.device or "unknown", length })
+	Telemetry.custom(
+		player,
+		"session_feedback_ctx",
+		1,
+		{ answer, Onboarding.furthest(profile.telemetry), SessionFeedback.catsBucket(cats) }
+	)
+	Telemetry.custom(player, "session_feedback_where", 1, {
+		answer,
+		session.screen,
+		FeedbackFunnel.build(game.PlaceVersion, session.clientError),
 	})
 end
 
@@ -2279,6 +2342,12 @@ function Telemetry.start()
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)
 	PassService.purchased:Connect(onPassConfirmed)
 	MarketplaceService.PromptProductPurchaseFinished:Connect(onProductPrompt)
+	task.spawn(function()
+		while true do
+			task.wait(EventGate.FLUSH_SECONDS)
+			flushGate()
+		end
+	end)
 	task.spawn(function()
 		while true do
 			task.wait(FLUSH_SECONDS)

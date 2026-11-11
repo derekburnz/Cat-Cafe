@@ -3762,6 +3762,35 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
+	-- face and thumbs down, with its title on one card
+	{ "SessionAsk", function()
+		-- it takes the card over from the F87 faces ask, as on a slow CI run where the tips clock put that one up first
+		UI.tips.showAsk()
+		UI.tips.showSessionAsk()
+		task.wait(0.3)
+		local found = {}
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local text = (piece :: TextLabel).Text
+				if text == "Enjoying Catch a Cat Cafe?" or text:find("👍") or text:find("😐") or text:find("👎") then
+					if (piece :: GuiObject).Visible then
+						found[text] = piece
+					end
+				end
+			end
+		end
+		local title = found["Enjoying Catch a Cat Cafe?"] :: TextLabel?
+		assert(title, "uigate: the session ask has no title (#3272)")
+		assert(title.TextFits, "uigate: the session ask's title does not fit (#3272)")
+		local glyphs = 0
+		for text in found do
+			if text ~= "Enjoying Catch a Cat Cafe?" then
+				glyphs += 1
+			end
+		end
+		assert(glyphs >= 3, ("uigate: the session ask shows %d of the three thumbs and face (#3272)"):format(glyphs))
+	end },
 	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
 	-- after a game
 	{
@@ -3788,6 +3817,33 @@ local SCENES = {
 				window:FindFirstChild("Prize100", true),
 				"uigate: no milestone list on the arcade card (#3062)"
 			)
+		end,
+	},
+	-- #3296: the first game of the day is free, so Play reads "Play (free)" and is on with no golden fish
+	{
+		"ArcadeFree",
+		function()
+			UI.update({ goldenFish = 0 } :: any)
+			UI.arcade.state({
+				loaded = true,
+				best = 12,
+				bestCircles = 10,
+				today = {},
+				legend = false,
+				serverBest = 0,
+				serverCircles = 0,
+				free = true,
+			})
+			UI.arcade.open()
+			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
+			assert(window, "uigate: the arcade window didn't open (#3296)")
+			local found = false
+			for _, item in window:GetDescendants() do
+				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "FREE" then
+					found = true
+				end
+			end
+			assert(found, "uigate: Play's pill doesn't say FREE for the day's free game (#3296)")
 		end,
 	},
 	{
@@ -4805,6 +4861,21 @@ local SCENES = {
 		UI.rescue.show("gate_rescue", challenge)
 	end },
 	-- F92: the Team Rescue pop on the helper's screen, with the helper's tip
+	-- #3301 (Derek2: "a quick bubble with OWNER "whatever messege I put" on screen when i shout"): the longest shout
+	-- (OwnerTest.SHOUT_MAX, 120 characters) in the bubble
+	{ "OwnerShout", function()
+		UI.ownerShout(
+			"Double coins in every cafe for the next ten minutes, go catch some strays and say hi to everyone in town!!"
+		)
+		task.wait(0.8)
+		local found = false
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and (piece :: TextLabel).Text == "OWNER" and (piece :: TextLabel).Visible then
+				found = true
+			end
+		end
+		assert(found, "uigate: the owner shout has no OWNER title (#3301)")
+	end },
 	{ "TeamRescue", function()
 		UI.teamRescue(4242, localUserId(), 1240)
 	end },
@@ -5000,6 +5071,29 @@ local SCENES = {
 	-- #2510 (Derek2: "add a tackle button instead of the bar in the middle of screen for mobile/ipad players"): in a
 	-- catching area on touch the Tackle is a round button left of the Net button, clear of the jump button, the Net
 	-- button and the potion timers; a tap greys it with the seconds left. With a mouse it stays the bar.
+	-- #3342 (Derek2: "tackling immunity for the first 5 minutes"): while the join shield runs, a "🛡️ Safe m:ss" chip
+	-- sits just over the Tackle bar or button, clear of it, and goes once the shield is over
+	{ "TackleShield", function()
+		local me = game:GetService("Players").LocalPlayer
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local button = gui:FindFirstChild("Tackle", true) :: TextButton
+		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
+		assert(chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
+		assert(chip.Text:find("Safe 4:3") ~= nil, "uigate: the shield chip reads " .. chip.Text .. " (#3342)")
+		local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+		assert(chipBottom <= button.AbsolutePosition.Y + 0.5, "uigate: the shield chip covers the Tackle (#3342)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
+		UIShim.advance(0.3)
+		assert(not chip.Visible, "uigate: the shield chip stayed after the shield ended (#3342)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UIShim.advance(0.3)
+	end },
 	{ "TackleButton", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
 		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
@@ -7216,6 +7310,18 @@ local SCENES = {
 		press("CornerShop", "BuyAllCover.Buy")
 		connection:Disconnect()
 		assert(#sent == 1 and sent[1] == "potion:" .. window, "uigate: Buy sent " .. table.concat(sent, ","))
+		-- #3340 (Derek2: "sometimes the buy all gets stuck on ..."): with no answer, "Buying..." ends on its own
+		local function allText(): string
+			for _, piece in (all :: Instance):GetDescendants() do
+				if (piece:IsA("TextLabel") or piece:IsA("TextButton")) and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return if all:IsA("TextButton") then all.Text else ""
+		end
+		assert(allText() == "Buying...", "uigate: Buy all reads " .. allText() .. " while it waits (#2593)")
+		UIShim.advance(3.3)
+		assert(allText() == "Buy all", "uigate: an unanswered Buy all still reads " .. allText() .. " (#3340)")
 		UI.cornerShop.setStock(view()) -- the answer ends the wait
 		press("CornerShop", "baitTab") -- #3209: the bait section is on its own tab
 		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card

@@ -186,8 +186,9 @@ export function checkScene(profile, scene) {
       return {
         left: rows.every((r) => r.x >= c1 - 0.5),
         top: rows.every((r) => r.y >= c2 - 0.5),
-        right: rows.every((r) => r.x + r.w <= c3 + 0.5),
-        bottom: rows.every((r) => r.y + r.h <= c4 + 0.5),
+        // #3307: a list that scrolls on past its window cuts the row at that edge on purpose (scroll to see it)
+        right: !list.moreX && rows.every((r) => r.x + r.w <= c3 + 0.5),
+        bottom: !list.moreY && rows.every((r) => r.y + r.h <= c4 + 0.5),
       };
     }
     return { left: true, top: true, right: true, bottom: true };

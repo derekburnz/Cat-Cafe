@@ -238,6 +238,11 @@ function Scenes.setup()
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
 	UI.update(samplePlayer(now))
+	-- #3307: the tips clock reads real seconds, so on a long full run (the big tablets take about an hour) it put the
+	-- session ask or the faces ask up on its own part way through, and that ask held the tip card for the tip scenes
+	-- after it ("did not show"). Both count as done today here; their own scenes open them by hand.
+	local SessionFeedback = UIShim.require("ReplicatedStorage.Shared.SessionFeedback") :: any
+	UI.update({ feedbackAsked = true, sessionFeedbackDay = SessionFeedback.day(now) } :: any)
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 

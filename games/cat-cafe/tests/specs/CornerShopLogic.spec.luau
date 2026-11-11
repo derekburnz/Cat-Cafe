@@ -86,7 +86,7 @@ return function()
 			).to.equal("Sold out")
 			expect(
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
-			).to.equal("None")
+			).to.equal("Out of stock")
 		end)
 		it("greys a row whose family hit its limit as Back at sunrise (#1435, #1631)", function()
 			local out: any = { itemId = "x", price = 1, amount = 3, bought = 0, outToday = true }

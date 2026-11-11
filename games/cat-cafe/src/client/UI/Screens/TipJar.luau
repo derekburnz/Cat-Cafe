@@ -341,7 +341,7 @@ function TipJar._build(self: any)
 			name = "Claim",
 			text = "Claim",
 			style = "primary",
-			size = UDim2.new(1, -16, 0, 34),
+			size = UDim2.new(1, -16, 0, 36), -- 36: the gate's mouse tap height
 			anchorPoint = Vector2.new(0.5, 1),
 			position = UDim2.new(0.5, 0, 1, -6),
 			textSize = Theme.sizes.textBody + 1,

@@ -858,3 +858,13 @@ Derek2 2026-11-10: "make the night times faster to stop being leaving during nig
 
 - Night 45 seconds and day 345 (were 70 and 320), as #3195 proposed. A game day stays 390 seconds, so every sunrise, day number, restock and pity timer falls where it did; only dusk comes 25 seconds later. Old and new servers agree on the day, so no restart is needed. While old servers run, their dusk comes 25 seconds before a new server's.
 - The "!" over the Night Market is VFX-Agent's PR #3231.
+
+## 2026-11-11 Upgrades spread across the tiers, Net later (#3204), and the Pace re-band with 45 s nights
+
+Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on in tiers".
+
+- **Caps.** Tier 2 opens fewer levels: Tables 4, Espresso 3, Net 1, Bait Bowl 2, Lucky Cat 2 (were 5, 4, 2, 3, 3). Net 2 opens at Tier 3 and Net 3 at Tier 5 (were Tier 2 and Tier 3). Caps gate buying only, so a level a player already owns above a cap is kept.
+- **Net costs** 2,500, 200,000 and 60,000,000 (were 2,500, 25,000 and 800,000), so the later Net levels still cost something at the tier where they open.
+- **Tier costs.** Tier 2 13,500 (was 12,000) and Tier 5 370,000,000 (was 350,000,000) for the 45 s nights (#3195). Tier 3 520,000 (was 420,000): the nights and the Tier 2 caps had brought the middle first-hour Tier 3 to 27.7 min; 520,000 gives 30.2, and 560,000 only 1.2 min more.
+- **Pace re-band (Design-Agent).** The caps speed Tier 2 to 3 more than the Tier 3 cost can pull back, so: Tier 3 in the first hour 30 to 45 min with the fastest tenth at 20 or later (was 33 to 45 and 25); the lawn run's Tier 5 floor 4 h (was 4.25; 4 h 14 measured); the first hour's longest wait 22.5 min (was 16). The fast first-hour player's Tier 2 floor is 8 min (was 10; 8.1 measured): raising Tier 2 to 17,500 to pull it back put the 4-catch and stray-top-up Tier 2 runs past their 20 min ceiling, and the slower players are the ones we lose. Every other band is unchanged.
+- **No restart.** No save change; old servers keep the old caps and costs until they close.

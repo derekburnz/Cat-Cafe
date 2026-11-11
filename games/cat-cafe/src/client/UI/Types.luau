@@ -248,6 +248,7 @@ export type CatInstance = {
 	charm: number?, -- 0 to 100
 	stars: number?, -- 1 to 5, derived from charm
 	rating: number?, -- this cat's coins per second before spot and cafe multipliers
+	trait: { id: string }?, -- #3196: its Mystic Pool trait (shared/Traits), nil for none
 }
 
 export type PlayerState = {

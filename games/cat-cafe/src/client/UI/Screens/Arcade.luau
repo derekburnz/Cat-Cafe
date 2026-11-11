@@ -207,6 +207,7 @@ function Arcade.new(callbacks: Callbacks): Arcade
 		subtitle = "Circle Streak",
 		color = Color3.fromHex("8E6BD8"), -- arcade purple
 		icon = "🕹️",
+		image = ShopIcons.clean("Arcade"), -- #3347: the drawn joystick over the emoji
 		size = UDim2.fromScale(0.94, 0.9),
 		onClose = function()
 			callbacks.close()

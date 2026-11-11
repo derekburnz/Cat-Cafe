@@ -24,6 +24,9 @@ return function()
 			"vip",
 			"supporter",
 			"tag_grand_opener",
+			"rank_1", -- #3333
+			"rank_2",
+			"rank_3",
 		})
 		expect(rows[2].owned and rows[2].equipped).to.equal(true)
 		expect(rows[1].equipped).to.equal(false)

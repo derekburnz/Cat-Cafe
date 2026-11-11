@@ -1009,3 +1009,8 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 ## 2026-11-11 Decisions entries ride one batch PR when many PRs land together
 - **Why:** every PR appending to this file conflicts with every other one, so a batch of armed PRs blocked each other on merge after merge.
 - **What:** when several PRs are armed at once, their entries move to one docs-only PR like this one, which lands after them. A lone PR still carries its own entry.
+
+## 2026-11-11 Rich customers leave a money bag instead of being the timer (#3360, Design-Agent)
+- **Why:** Derek2: "sometimes rich people don't have their timer start at the full time make it so rich customers leave money bags that sit there for a while instead of they themselves being the timer". The tip's expiry is clamped to dusk, so a rich customer arriving in the last 90 s of the day got as little as 15 s.
+- **What:** the customer drops a money bag on table 1 and leaves after 20 s. The bag waits `RichBagSeconds` 180 from the drop with no dusk clamp, up to `RichBagsMax` 3 at once, and only the owner collects it by walking into or tapping it. An uncollected bag fades and pays nothing (the 2026-10-28 "if you miss it you miss it" rule stands). Spec: `docs/design/cat-cafe/rich-money-bags.md`.
+- **Saves:** none; bags never save, so no restart is needed.

@@ -22,6 +22,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LeaderboardService = require(script.Parent.LeaderboardService)
 local Net = require(script.Parent.Net)
 local PassService = require(script.Parent.PassService)
 local Payout = require(script.Parent.Payout)
@@ -41,10 +42,14 @@ local function season(): (number, number, number?)
 end
 
 -- The items the chat tags read: the Cafe Pass items, plus the supporter tag for a Thank You Badge buyer (#1168 row 4).
-local function tagItems(profile: Types.PlayerProfile): { [string]: boolean }
+local function tagItems(player: Player, profile: Types.PlayerProfile): { [string]: boolean }
 	local items = ChatTags.withSupporter(profile.pass.items, Products.isSupporter(profile))
 	if profile.grandOpening.done[GrandOpening.COUNT] == true then
 		items[GrandOpening.TAG] = true -- #1893: the Grand Opening's tag
+	end
+	local rank = ChatTags.rankTag(LeaderboardService.place(player)) -- #3333: held while the place is
+	if rank ~= nil then
+		items[rank] = true
 	end
 	return items
 end
@@ -52,12 +57,12 @@ end
 -- #1626: the chat tags the player may show (ChatTags.choices): VIP if they own the pass, the supporter tag, then
 -- their season tags.
 local function tagChoices(player: Player, profile: Types.PlayerProfile): { string }
-	return ChatTags.choices(PassService.owns(player, Config.VipPassId), tagItems(profile))
+	return ChatTags.choices(PassService.owns(player, Config.VipPassId), tagItems(player, profile))
 end
 
 -- Shows the player's chat tag from their saved pick and items (PassService.setTagPick).
 local function applyTag(player: Player, profile: Types.PlayerProfile)
-	PassService.setTagPick(player, profile.pass.tag, tagItems(profile))
+	PassService.setTagPick(player, profile.pass.tag, tagItems(player, profile))
 end
 
 -- Sends the Pass screen its state, with the tag picker's choices and the tag shown now.
@@ -68,7 +73,7 @@ function CafePassService.send(player: Player, profile: Types.PlayerProfile)
 	view.tagShown = ChatTags.shown(
 		profile.pass.tag,
 		PassService.owns(player, Config.VipPassId),
-		tagItems(profile)
+		tagItems(player, profile)
 	)
 	Net.fire(player, "CafePassState", view)
 end
@@ -247,6 +252,13 @@ function CafePassService.start()
 	Net.on("PassClaim", onClaim)
 	Net.on("PassClaimAll", onClaimAll)
 	Net.on("PassSetTag", onSetTag)
+	-- #3333: a top 3 place gained or lost changes the titles the player may show
+	LeaderboardService.placeChanged:Connect(function(player: Player)
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			CafePassService.refreshTag(player, profile)
+		end
+	end)
 	PassService.changed:Connect(function(player: Player)
 		local profile = DataService.get(player)
 		if profile ~= nil then

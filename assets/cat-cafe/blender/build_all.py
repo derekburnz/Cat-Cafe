@@ -483,7 +483,9 @@ STUDIO_NOTES = {
     mysticpool.NAME: "#3314 (trait-station.md section 1): the Mystic Pool, the Picnic station reworked into the trait "
                      "station. _Liquid_Glow is Neon and walk-through; Effects/MysticPool recolours it during a roll. "
                      "Sage Sorrel's hat rides his Head Model and his staff his right arm (LegF2). Attachments: "
-                     "PromptAnchor, BangAnchor, GlowAnchor, PoolDrop (the liquid's surface) and StaffTip (the orb).",
+                     "PromptAnchor, BangAnchor, GlowAnchor, PoolDrop (the liquid's surface) and StaffTip (the orb). "
+                     "_Runes_Glow (the stones' star runes) is Neon all day; _Lantern_Bulb (the moon arch's two "
+                     "lanterns) lights at night with the other _Bulb parts. The arch, kerb and stones collide.",
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "

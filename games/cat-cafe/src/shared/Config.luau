@@ -545,15 +545,16 @@ local Config = {
 	-- x0.7 (1.05, 1.4, 1.6 and 1.8 before), so the Rare's marker is now slower than the Common's; its narrower zone
 	-- still leaves it less time inside.
 	-- #3223 (Derek2 2026-11-11: "rescues are wayyy to easy making bar too big and speed to slow"): the zones were cut
-	-- in #3120 the day before; this is the speed. 0.85, 0.735, 0.98, 1.12 and 1.26 before, so 18%, 22%, 14%, 9% and
-	-- 10% faster, most on Common to Epic, and the Rare is no longer far slower than the Common. The Alleyway and Park
-	-- ease and an account's first rescues (RescueFirstSpeed) still slow it for a new player.
+	-- in #3120 the day before; this is the speed. Common 0.85 and Rare 0.735 before, so 18% and 22% faster, and the
+	-- Rare is no longer far slower than the Common. Epic and up keep their speeds until Derek has played #3120's
+	-- zones (Review-Agent: sped up as well, a phone player would free an Epic 36% of the time and a Mythical 8%).
+	-- The Alleyway and Park ease and an account's first rescues (RescueFirstSpeed) still slow it.
 	RescueBarSpeed = {
 		Common = 1.00,
 		Rare = 0.90,
-		Epic = 1.12,
-		Legendary = 1.22,
-		Mythical = 1.38, -- (1.34 would leave it more time in the zone than a Legendary)
+		Epic = 0.98,
+		Legendary = 1.12,
+		Mythical = 1.26,
 	} :: { [string]: number },
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.

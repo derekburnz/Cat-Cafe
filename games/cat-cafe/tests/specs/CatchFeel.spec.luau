@@ -322,9 +322,9 @@ return function()
 					-- too easy now"): zones 0.17, 0.135, 0.105, 0.105 and 0.125 (was 100, 100, 98, 73, 59 and 100, 100, 79,
 					-- 31, 19)
 					-- #3223 (Derek2 2026-11-11: "rescues are wayyy to easy making bar too big and speed to slow"): the marker
-					-- 18%, 22%, 14%, 9% and 10% faster (was 100, 100, 87, 62, 48 and 99, 98, 51, 23, 13)
-					rowMatches("bar 50 ms", at50, { 100, 99, 75, 51, 36 })
-					rowMatches("bar 70 ms", at70, { 97, 89, 36, 16, 8 })
+					-- 18% and 22% faster for Common and Rare (was 100, 100 and 99, 98)
+					rowMatches("bar 50 ms", at50, { 100, 99, 87, 62, 48 })
+					rowMatches("bar 70 ms", at70, { 97, 89, 51, 23, 13 })
 				end
 			)
 

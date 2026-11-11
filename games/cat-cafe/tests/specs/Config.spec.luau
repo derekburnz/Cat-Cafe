@@ -892,12 +892,12 @@ return function()
 			function()
 				local rows = {
 					-- #3120: the zones were 0.30, 0.23, 0.15, 0.12 and 0.14
-					-- #3223: the speeds were 0.85, 0.735, 0.98, 1.12 and 1.26
+					-- #3223: Common and Rare were 0.85 and 0.735
 					Common = { 1.00, 0.17 },
 					Rare = { 0.90, 0.135 }, -- #2566 made the Rare slower than the Common; #3223 keeps a little of that
-					Epic = { 1.12, 0.105 },
-					Legendary = { 1.22, 0.105 },
-					Mythical = { 1.38, 0.125 },
+					Epic = { 0.98, 0.105 },
+					Legendary = { 1.12, 0.105 },
+					Mythical = { 1.26, 0.125 },
 				}
 				-- how long the marker stays inside a zone (tolerance included) on its first pass
 				local function inZoneSeconds(row: { number }): number

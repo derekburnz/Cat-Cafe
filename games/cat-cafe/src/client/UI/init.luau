@@ -205,6 +205,7 @@ UI.events = {
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
 	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
+	sessionFeedback = Signal.new(), -- (answer)   #3272: the once-a-day session ask's face or "skipped": forward as SessionFeedback
 	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
 	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
@@ -5269,10 +5270,89 @@ do
 		UI.asks.shown()
 	end
 
+	-- #3272: the once-a-day session ask (shared/SessionFeedback) at a natural stop: as the Roblox menu closes (the card
+	-- cannot show over the menu itself) or after a minute with no input, once the session has run 5 minutes. Closed
+	-- or left to time out it is sent as "skipped"; hidden by another card, it may come again.
+	local GuiService = game:GetService("GuiService")
+	local SessionFeedback =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SessionFeedback")) :: any
+	local calm = { inputAt = os.clock(), menuClosedAt = -math.huge, sent = false }
+	UserInputService.InputBegan:Connect(function()
+		calm.inputAt = os.clock()
+	end)
+	GuiService.MenuClosed:Connect(function()
+		calm.menuClosedAt = os.clock()
+		calm.inputAt = os.clock()
+	end)
+
+	-- one answer a day: a face, or "skipped" when the card was closed or ran out
+	local function sendSession(answer: string)
+		if calm.sent then
+			return
+		end
+		calm.sent = true
+		local saved: any = state
+		saved.sessionFeedbackDay = SessionFeedback.day(os.time())
+		UI.events.sessionFeedback:Fire(answer)
+	end
+
+	local function openSessionAsk(card: AskCard.AskCard)
+		local faces: { AskCard.Choice } = {}
+		for _, face in FeedbackLogic.FACES do
+			table.insert(faces, { id = face.id, label = face.label, icon = face.glyph })
+		end
+		card:show({
+			title = SessionFeedback.TITLE,
+			choices = faces,
+			seconds = SessionFeedback.ASK_SECONDS,
+			thanks = "Thanks!",
+			answer = function(face: string?)
+				if face ~= nil then
+					sendSession(face)
+				end
+			end,
+			ended = function(how: string)
+				if how == "closed" or how == "ignored" then
+					sendSession("skipped")
+				end
+			end,
+		})
+		UI.asks.shown()
+	end
+
+	local function lookForSessionAsk(card: AskCard.AskCard): boolean
+		if calm.sent or state.sessionFeedbackDay == nil then
+			return false
+		end
+		local now = os.clock()
+		local menuClosed = now - calm.menuClosedAt <= 5
+		if
+			not SessionFeedback.due(
+				now - sessionStart,
+				now - calm.inputAt,
+				state.sessionFeedbackDay,
+				os.time(),
+				UI.tips.quiet(),
+				menuClosed
+			) or not UI.asks.paced()
+		then
+			return false
+		end
+		calm.menuClosedAt = -math.huge
+		openSessionAsk(card)
+		return true
+	end
+
 	-- From the tips clock, once a second.
 	function UI.tips.lookForAsk()
 		local card = askCard
-		if asked or card == nil or card:isShowing() then
+		if card == nil or card:isShowing() then
+			return
+		end
+		if lookForSessionAsk(card) then
+			return
+		end
+		if asked then
 			return
 		end
 		local played = os.clock() - sessionStart
@@ -5298,6 +5378,16 @@ do
 		-- #2880: one ask a session, so an unanswered early ask no longer comes back at FeedbackAskMinutes
 		if firstDue and UI.asks.paced() then
 			openAsk(card)
+		end
+	end
+
+	-- #3272: the session ask now, whatever the clock says (QA in Studio and the UI gate); its answer is sent as usual.
+	-- It takes the card over from any ask already on it (AskCard.show ends that one as "replaced"): on a slow run the
+	-- tips clock may have put the F87 faces ask up first.
+	function UI.tips.showSessionAsk()
+		local card = askCard
+		if card ~= nil then
+			openSessionAsk(card)
 		end
 	end
 
@@ -5996,11 +6086,13 @@ do
 	local Invite = require(script.Components.Invite)
 	local PalsLogic = require(script.Components.PalsLogic)
 	local TeamRescuePop = require(script.Screens.TeamRescuePop)
+	local OwnerShout = require(script.Screens.OwnerShout)
 	local TAG_SECONDS = 120 -- the pal's tag on the Cannon picker card stays this long after they arrive
 	local ASK_SECONDS = 14 -- the invite nudge stays up this long with no answer
 	local together = {
 		ids = {} :: { number },
 		pop = nil :: TeamRescuePop.TeamRescuePop?,
+		shout = nil :: OwnerShout.OwnerShout?, -- #3301 the owner's /shout bubble
 		tagToken = 0,
 		taggedPal = nil :: number?,
 	}
@@ -6022,8 +6114,17 @@ do
 	function UI.together.start(parent: Instance)
 		UI.together.reset()
 		together.pop = TeamRescuePop.new(parent)
+		together.shout = OwnerShout.new(parent)
 		if hud then
 			hud:setPals(together.ids)
+		end
+	end
+
+	-- #3301 OwnerShout(text): an owner's /shout, filtered by the server, in the OWNER bubble for everyone.
+	function UI.ownerShout(text: string)
+		local shout = together.shout
+		if shout and type(text) == "string" and text ~= "" then
+			shout:show(text)
 		end
 	end
 
@@ -6134,6 +6235,11 @@ do
 			pop:destroy()
 		end
 		together.pop = nil
+		local shout = together.shout
+		if shout then
+			shout:destroy()
+		end
+		together.shout = nil
 		together.tagToken += 1
 		together.taggedPal = nil
 	end

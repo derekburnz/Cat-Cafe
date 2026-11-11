@@ -1097,7 +1097,7 @@ Layout.park = {
 	-- a tree's branch points along its -X, a bin's open lid is at its back
 	rescueSpots = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -52, 0, 30 }, 180), -- #3349: was -46, in the willow
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
@@ -1109,7 +1109,7 @@ Layout.park = {
 	-- the middle.
 	rescuePool = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -52, 0, 30 }, 180), -- #3349: was -46, in the willow
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
@@ -2080,9 +2080,13 @@ Layout.thanksBoard = station(43, -47.8) -- #3070: out from behind the night cart
 -- #3189 (Derek2 2026-11-10: "move the feedback stand to the right of thank you for ideas its too close to fish market"):
 -- the stand leaves (34, 18) for the east side south of the lane, on the Thanks board's right as you face the board,
 -- between the night cart and the leaderboard row (9.3 off every body, 4.7 off the lamps and benches). The arcade's
--- spot north of the lane stays.
+-- spot north of the lane stayed until #3359 (below).
 Layout.feedbackStand = station(50, -25)
-Layout.arcadeCabinet = station(-34, 18)
+-- #3359 (Derek2 2026-11-11: "the arcade is too close to spin and the circle is on top of it"): at (-34, 18) the
+-- cabinet's walk-in ring lay over the cabinet and 0.4 studs into the Spin Wheel's ring. It stands 9 studs further
+-- west now, between the wheel and the Bellhop stand: its ring (touching its front, Arcade.RING_RANGE) is 3 studs off
+-- the wheel's ring and 2.9 off the lane, and the cabinet is 18 studs from both stations (Layout.spec).
+Layout.arcadeCabinet = station(-43, 18)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
@@ -2490,5 +2494,41 @@ end
 -- Player spawn in the Town Square on the street's line, looking north at the Cat Cannon (WorldBuilder turns it by
 -- rotY, and a character spawns facing the way its SpawnLocation faces).
 Layout.playerSpawn = { x = 0, y = 0.6, z = -14, rotY = 180 } :: Point
+
+-- #3348 (Derek2 2026-11-11: "remove invisibile barriers from all area builds"): whether an area set's invisible
+-- collision piece named `name` stays when the set loads. The sets mark theirs with a `_Barrier` suffix: the edge ring
+-- round the whole area (`_Walls_Barrier`, up to Config's 30 stud cap) keeps everyone in the map and out of a locked
+-- area, so it stays; every barrier inside the area (streams, canals, hedges, hall walls, city blocks) goes, and the
+-- visible art's own collision is what a player bumps into. Anything not a barrier (the `_Climb` ramps too) stays.
+function Layout.keepsBarrier(name: string): boolean
+	if string.sub(name, -8) ~= "_Barrier" then
+		return true
+	end
+	return string.find(name, "_Walls_Barrier", 1, true) ~= nil
+end
+
+-- #3348: the piece an inner barrier stood in for, "CatCafe_Ruins_Set_087_GlyphHalls" for
+-- "CatCafe_Ruins_Set_087_GlyphHalls_Barrier", or nil for a name that is kept. That piece's own body parts carry the
+-- same name; WorldBuilder makes the solid looking ones collide once the barrier is gone, so a wall stays a wall.
+function Layout.barrierPiece(name: string): string?
+	if Layout.keepsBarrier(name) then
+		return nil
+	end
+	return string.sub(name, 1, -9)
+end
+
+-- #3348: whether a body part of a piece that lost its barrier should collide: drawn, solid looking (not glowing,
+-- glass or water), and at least `minHeight` studs tall in the world, so flat trim, pool water and floor tiles stay
+-- walk-over.
+Layout.BODY_MIN_HEIGHT = 1
+function Layout.bodyCollides(transparency: number, material: string, height: number): boolean
+	if transparency >= 0.5 or height < Layout.BODY_MIN_HEIGHT then
+		return false
+	end
+	return material ~= "Neon"
+		and material ~= "Glass"
+		and material ~= "ForceField"
+		and material ~= "Water"
+end
 
 return Layout

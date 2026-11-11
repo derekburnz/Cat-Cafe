@@ -1480,6 +1480,46 @@ return function()
 		)
 
 		it(
+			"keeps the arcade's floor ring in front of the cabinet, off the Spin Wheel's ring and the lanes (#3359)",
+			function()
+				local Arcade = require(Shared.Arcade)
+				local R = WalkUp.FRONT_RADIUS
+				local function ringAt(spot: any, out: number): (number, number)
+					local yaw = math.rad(spot.rotY or 0)
+					return spot.x - math.sin(yaw) * out, spot.z - math.cos(yaw) * out
+				end
+				local arcade, wheel = Layout.arcadeCabinet, Layout.spinWheel
+				-- the cabinet is 3.1 deep; its art may be up to 4: the ring touches the front, never lies over it
+				for _, front in { 1.55, 2 } do
+					local out = WalkUp.frontOffset(front, R, Arcade.RING_RANGE)
+					expect(out).to.be.near(front + R, 1e-9)
+					local x, z = ringAt(arcade, out)
+					expect(inside(x, z, square.floor, R)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -(R + 2))).to.equal(false)
+					end
+					-- the wheel's ring sits anywhere from touching a thin wheel to its range's limit
+					for _, wheelFront in { 0, 2, 4, 10 } do
+						local wx, wz = ringAt(
+							wheel,
+							WalkUp.frontOffset(wheelFront, R, Config.SpinStationRange)
+						)
+						local gap = math.sqrt((x - wx) ^ 2 + (z - wz) ^ 2)
+						expect(gap >= 2 * R + 2).to.equal(true)
+						-- and the wheel's ring is clear of the cabinet itself
+						local body = math.sqrt((arcade.x - wx) ^ 2 + (arcade.z - wz) ^ 2)
+						expect(body >= R + 3.5).to.equal(true)
+					end
+					-- clear of the Bellhop stand's 9.2 stud dais
+					local stand = Layout.bellhopStand
+					expect(math.sqrt((x - stand.x) ^ 2 + (z - stand.z) ^ 2) >= R + 4.6 + 2).to.equal(
+						true
+					)
+				end
+			end
+		)
+
+		it(
 			"keeps the feedback stand's floor ring off the lanes, where nobody walks through it (#3066)",
 			function()
 				-- the ring touches the stand's front (the model is 3.8 deep), WalkUp.FRONT_RADIUS across each way
@@ -3199,6 +3239,49 @@ return function()
 					expect(nook.y).to.equal(spec.setLift)
 				end
 			end
+		end)
+	end)
+
+	describe("area set barriers (#3348)", function()
+		it("keeps the edge ring and drops every invisible barrier inside an area", function()
+			expect(Layout.keepsBarrier("CatCafe_Ruins_Set_068_Walls_Barrier")).to.equal(true)
+			expect(Layout.keepsBarrier("CatCafe_Sewer_SetF85_034_Walls_Barrier")).to.equal(true)
+			for _, name in
+				{
+					"CatCafe_Ruins_Set_087_GlyphHalls_Barrier",
+					"CatCafe_Sewer_SetF85_037_Pool_Barrier",
+					"CatCafe_Woods_SetF85_085_Stream_Barrier",
+					"CatCafe_Neighbourhood_SetF85_335_Blocks_Barrier",
+					"CatCafe_Park_SetF85_124_Glasshouse_Barrier",
+				}
+			do
+				expect(Layout.keepsBarrier(name)).to.equal(false)
+			end
+		end)
+
+		it("names the piece a dropped barrier stood in for, so its body can collide", function()
+			expect(Layout.barrierPiece("CatCafe_Ruins_Set_087_GlyphHalls_Barrier")).to.equal(
+				"CatCafe_Ruins_Set_087_GlyphHalls"
+			)
+			expect(Layout.barrierPiece("CatCafe_Ruins_Set_068_Walls_Barrier")).never.to.be.ok()
+			expect(Layout.barrierPiece("CatCafe_Ruins_Set_087_GlyphHalls")).never.to.be.ok()
+		end)
+
+		it(
+			"makes solid bodies collide and leaves glow, glass, water and flat trim walk-over",
+			function()
+				expect(Layout.bodyCollides(0, "SmoothPlastic", 8)).to.equal(true)
+				expect(Layout.bodyCollides(0, "SmoothPlastic", 0.4)).to.equal(false)
+				expect(Layout.bodyCollides(0, "Neon", 8)).to.equal(false)
+				expect(Layout.bodyCollides(0, "Glass", 8)).to.equal(false)
+				expect(Layout.bodyCollides(0.6, "SmoothPlastic", 8)).to.equal(false)
+			end
+		)
+
+		it("leaves everything that is not a barrier, the climb ramps too", function()
+			expect(Layout.keepsBarrier("CatCafe_Woods_SetF85_162_Treehouse_Climb")).to.equal(true)
+			expect(Layout.keepsBarrier("CatCafe_Ruins_Set")).to.equal(true)
+			expect(Layout.keepsBarrier("BarrierPost")).to.equal(true)
 		end)
 	end)
 end

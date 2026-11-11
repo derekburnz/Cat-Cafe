@@ -28,7 +28,8 @@ pageComplete|Page Complete|Fill a whole area page in your Cat Index.|CatCafe_Ico
 helpingPaw|Helping Paw|Help another player free a stuck cat.|CatCafe_Icon_Badge_HelpingPaw.png
 firstTrade|First Trade|Finish your first trade with another player.|CatCafe_Icon_Badge_FirstTrade.png
 purrfectStreak|Purrfect Streak|Land 5 PURRFECT catches in a row.|CatCafe_Icon_Badge_PurrfectStreak.png
-partyGuest|Cafe Party Guest|Catch a cat during a Cafe Event.|CatCafe_Icon_Badge_PartyGuest.png'
+partyGuest|Cafe Party Guest|Catch a cat during a Cafe Event.|CatCafe_Icon_Badge_PartyGuest.png
+metOwner|Met the Owner|Be in a server while the game'\''s owner is playing.|CatCafe_Icon_Badge_MetOwner.png'
 
 usage() {
 	echo "usage: badges.sh list | create key[,key...] (at most 5; keys: $(cut -d'|' -f1 <<<"$TABLE" | paste -sd, -))" >&2

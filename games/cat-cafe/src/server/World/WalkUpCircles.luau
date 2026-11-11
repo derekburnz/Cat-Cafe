@@ -66,7 +66,8 @@ end
 -- paw on it"): a station's icon in its ring. `art` is a flat decor model in ReplicatedStorage.Assets (Model-Agent's
 -- CatCafe_Street_<Station>_RingIcon_Decor, like the Codes Cat's ticket), laid in the middle and shrunk to fit; until
 -- it is in, `emoji` on a little cream card with a paw stamp, drawn on the ring's own surface.
-export type Icon = { emoji: string, art: string? }
+-- `image`: a drawn picture (rbxassetid) on the stand-in card in place of the emoji, which shows until it loads (#3347)
+export type Icon = { emoji: string, art: string?, image: string? }
 
 local CARD = Color3.fromRGB(255, 246, 228)
 local CARD_TILT = -8 -- degrees, a card dropped on the floor
@@ -104,6 +105,18 @@ local function card(gui: SurfaceGui, icon: Icon, color: Color3)
 		label.Parent = frame
 	end
 	glyph("Emoji", icon.emoji, 0.72, 0.5, 0.47)
+	if icon.image ~= nil then
+		local picture = Instance.new("ImageLabel")
+		picture.Name = "Picture"
+		picture.AnchorPoint = Vector2.new(0.5, 0.5)
+		picture.Position = UDim2.fromScale(0.5, 0.47)
+		picture.Size = UDim2.fromScale(0.8, 0.8)
+		picture.BackgroundTransparency = 1
+		picture.Image = icon.image
+		picture.ScaleType = Enum.ScaleType.Fit
+		picture.ZIndex = 2
+		picture.Parent = frame
+	end
 	glyph("Paw", "🐾", 0.3, 0.8, 0.8)
 	frame.Parent = gui
 end

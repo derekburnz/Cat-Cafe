@@ -2319,6 +2319,13 @@ function UIShim.snapshot()
 				end
 				if className == "ScrollingFrame" then
 					table.insert(fields, '"scroller":true')
+					-- #3307: whether its rows run past the window, so a row cut at that edge is scrolled, not clipped
+					if box.canvasW and box.windowW and box.canvasW > box.windowW + 0.5 then
+						table.insert(fields, '"moreX":true')
+					end
+					if box.canvasH and box.windowH and box.canvasH > box.windowH + 0.5 then
+						table.insert(fields, '"moreY":true')
+					end
 				end
 				local pressable = (isA(className, "GuiButton") or className == "TextBox")
 					and rawProp(child, "Active") ~= false

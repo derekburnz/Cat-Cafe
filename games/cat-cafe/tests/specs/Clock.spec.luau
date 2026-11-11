@@ -19,6 +19,20 @@ return function()
 		end)
 	end)
 
+	-- #3253 (shorter nights, Derek2): the numbers the nights and the shelf restock are built on. If one moves on
+	-- purpose, change it here too.
+	describe("cycle lengths (#3253)", function()
+		it("keep a 45 s night, a 345 s day and a 390 s cycle", function()
+			expect(night).to.equal(45)
+			expect(day).to.equal(345)
+			expect(night + day).to.equal(390)
+		end)
+
+		it("start the clock on a whole day", function()
+			expect(firstDay).to.equal(day)
+		end)
+	end)
+
 	describe("phaseAt", function()
 		it("starts in day with the whole first day left", function()
 			local phase, left = Clock.phaseAt(0)

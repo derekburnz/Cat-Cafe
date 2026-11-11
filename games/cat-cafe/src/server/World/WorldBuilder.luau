@@ -116,9 +116,14 @@ local ICON_MYSTERY: WalkUpCircles.Icon =
 	{ emoji = "❔", art = "CatCafe_Square_MysteryCart_RingIcon_Decor" }
 local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
+-- #3338 (Derek2: "add a circle to open the station infront of it"): the Cat Arcade's ring in arcade purple
+local RING_ARCADE = Color3.fromRGB(176, 110, 240)
+-- #3347: the drawn joystick (the client's Icon_Clean_Arcade), the emoji under it until it loads
+local ICON_ARCADE: WalkUpCircles.Icon =
+	{ emoji = "🕹️", image = "rbxassetid://120353026211586" }
 local ICON_FEEDBACK: WalkUpCircles.Icon =
 	{ emoji = "✉️", art = "CatCafe_Town_FeedbackStand_RingIcon_Decor" }
--- #3113: the camp stations' rings (no art yet, so each shows its emoji card) and the Index Boards'
+-- #3113: the camp stations' rings (each shows its drawn icon over the emoji card, #3347) and the Index Boards'
 local RING_EXTRA: { [string]: Color3 } = {
 	picnic = Color3.fromRGB(240, 110, 110), -- gingham red
 	yardSale = Color3.fromRGB(255, 170, 80),
@@ -128,16 +133,19 @@ local RING_EXTRA: { [string]: Color3 } = {
 	museum = Color3.fromRGB(215, 180, 110),
 }
 local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
-	picnic = { emoji = "🧺" },
-	yardSale = { emoji = "🏷️" },
-	pond = { emoji = "🎣" },
-	lostFound = { emoji = "🧦" },
-	spa = { emoji = "🛁" },
-	museum = { emoji = "🏺" },
+	picnic = { emoji = "🧺", image = "rbxassetid://92455587075019" },
+	yardSale = { emoji = "🏷️", image = "rbxassetid://132170661858712" },
+	pond = { emoji = "🎣", image = "rbxassetid://116298242454261" },
+	lostFound = { emoji = "🧦", image = "rbxassetid://106814161165186" },
+	-- #3347 (Derek2: "make the spa symbol better"): the Spa's drawn tub (the client's Icon_Clean_Spa, also its window's
+	-- badge) on the card, the emoji under it until it loads
+	spa = { emoji = "♨️", image = "rbxassetid://90117647745743" },
+	museum = { emoji = "🏺", image = "rbxassetid://106957137610323" },
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
 local RING_BOARD = Color3.fromRGB(190, 150, 240)
-local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖" }
+-- #3347: the Index Boards show the drawn open book (the client's Icon_Clean_Index), the emoji under it until it loads
+local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖", image = "rbxassetid://138454303453433" }
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
@@ -276,6 +284,35 @@ local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	model:PivotTo(cframe)
 	model.Parent = parent
 	return model
+end
+
+-- #3348: takes an area set's invisible barriers inside the area out (Layout.keepsBarrier), keeping its edge ring, and
+-- lets the visible body of each piece that had one collide instead (Layout.barrierPiece, Layout.bodyCollides): a hall
+-- wall or a fallen log is still solid, a pool's water or a stream stays walk-in. Returns how many barrier pieces went.
+local function dropInnerBarriers(set: Instance): number
+	local dropped = 0
+	local pieces: { [string]: boolean } = {}
+	for _, item in set:GetDescendants() do
+		local piece = Layout.barrierPiece(item.Name)
+		if item.Parent ~= nil and piece ~= nil and (item:IsA("BasePart") or item:IsA("Model")) then
+			pieces[piece] = true
+			item:Destroy()
+			dropped += 1
+		end
+	end
+	for _, item in set:GetDescendants() do
+		if item:IsA("BasePart") and pieces[item.Name] and not item.CanCollide then
+			local body = item :: BasePart
+			local up = body.CFrame:VectorToObjectSpace(Vector3.yAxis)
+			local height = math.abs(up.X) * body.Size.X
+				+ math.abs(up.Y) * body.Size.Y
+				+ math.abs(up.Z) * body.Size.Z
+			if Layout.bodyCollides(body.Transparency, body.Material.Name, height) then
+				body.CanCollide = true
+			end
+		end
+	end
+	return dropped
 end
 
 -- True once the front lawn's art is in ReplicatedStorage.Assets (F91): LawnService sells and places pieces and
@@ -1576,13 +1613,14 @@ local function buildArea(
 		if set ~= nil and hasSet then
 			-- Pivot at the area's centre on the floor's top, its gate side (-Z) turned toward the town. The wall
 			-- facing the town still blocks but is hidden: the set's see-through border stands there.
-			place(
+			local setModel = place(
 				set,
 				CFrame.new(cx, spec.floorY, cz)
 					* CFrame.Angles(0, math.rad(Layout.gateTurn(spec)), 0),
 				model
-			).Name =
-				"Set"
+			)
+			setModel.Name = "Set"
+			dropInnerBarriers(setModel) -- #3348: no invisible walls inside the area
 			for _, name in { "WallNearL", "WallNearR" } do
 				local near = walls:FindFirstChild(name)
 				if near ~= nil and near:IsA("BasePart") then
@@ -2326,6 +2364,9 @@ local function buildArcadeCabinet(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
+	-- #3338: the walk-in ring in front of it (Controllers/WalkUpController opens the window on stepping in)
+	-- #3359: RING_RANGE, so the ring lies in front of the cabinet, not over it
+	WalkUpCircles.front(model, RING_ARCADE, Arcade.RING_RANGE, nil, ICON_ARCADE)
 	return model
 end
 

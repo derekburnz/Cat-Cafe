@@ -87,6 +87,7 @@ import ruinsset  # noqa: E402
 import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
+import mysticpool  # noqa: E402
 import thanksboard  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
@@ -126,7 +127,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet]
+           arcadecabinet, mysticpool]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -259,6 +260,8 @@ PIVOT_NOTES = {
                         "the players; placed by Gameplay (#3062)",
     campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
                        "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
+    mysticpool.NAME: "the base centre on the camp's ground, front -Z, no turn; the Picnic station's spot "
+                     "(Layout.campExtras.park), so Gameplay swaps the asset name when the traits flag goes on",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
@@ -477,6 +480,12 @@ STUDIO_NOTES = {
                        "blinks while a find waits. Attachments PromptAnchor (counter front, 1.5 up), BangAnchor (2 over "
                        "the LOST & FOUND sign, for ReadyBang) and Drip (the pipe's mouth). Everything collides and can "
                        "be climbed.",
+    mysticpool.NAME: "#3314 (trait-station.md section 1): the Mystic Pool, the Picnic station reworked into the trait "
+                     "station. _Liquid_Glow is Neon and walk-through; Effects/MysticPool recolours it during a roll. "
+                     "Sage Sorrel's hat rides his Head Model and his staff his right arm (LegF2). Attachments: "
+                     "PromptAnchor, BangAnchor, GlowAnchor, PoolDrop (the liquid's surface) and StaffTip (the orb). "
+                     "_Runes_Glow (the stones' star runes) is Neon all day; _Lantern_Bulb (the moon arch's two "
+                     "lanterns) lights at night with the other _Bulb parts. The arch, kerb and stones collide.",
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "
@@ -808,6 +817,9 @@ def main():
             extra = {"attachments": [daycart.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == mysterymarket.NAME:            # #2565: the prompt and featured item spots; the hood rides the Head
             extra = {"attachments": mysterymarket.attachments(), "nest": mysterymarket.NEST[name]}
+        if name == mysticpool.NAME:               # #3314: prompt, bang, glow, pool and staff spots; hat and staff ride
+            extra = {"attachments": mysticpool.attachments(), "nest": mysticpool.NEST,
+                     "attributes": {"SageTurn": mysticpool.SAGE_TURN}}
         if name == gardennursery.NAME:            # #1200: the prompt and bubble spots; the sun hat rides the cat's Head
             extra = {"attachments": gardennursery.attachments(), "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Decor_DoorSign":      # #1140: the moon rides the CLOSED face's Model

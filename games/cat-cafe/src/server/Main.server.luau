@@ -74,6 +74,7 @@ local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
 local TipService = require(script.Parent.Services.TipService)
 local TradeService = require(script.Parent.Services.TradeService)
+local TraitService = require(script.Parent.Services.TraitService)
 local TravelService = require(script.Parent.Services.TravelService)
 local TutorialMoveService = require(script.Parent.Services.TutorialMoveService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
@@ -123,6 +124,7 @@ IndexRewardService.start()
 ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()
 FishMarketService.start()
+TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switch is off
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)

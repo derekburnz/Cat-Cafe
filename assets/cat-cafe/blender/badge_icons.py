@@ -1,7 +1,7 @@
 """Roblox badge pictures (#1934, docs/design/cat-cafe/release.md section 1), rendered by icons.py as
 CatCafe_Icon_Badge_<Name> (transparent, outlined, 512 px). Roblox crops badge icons to a circle, so every badge is the
 same round medal that fills that crop (icons.STORE_FIT): a gold rim, a pastel field with a thin cream ring, and one
-simple picture standing out in front of it. Every picture stays inside the medal, so all 21 frame the same way.
+simple picture standing out in front of it. Every picture stays inside the medal, so all 22 frame the same way.
 
 The order is the spec's creation order (5 badges a day from 2026-11-07):
    1 Welcome        Welcome to the Cafe: the little cafe front, mint walls, a pink and white awning, an arched door
@@ -27,6 +27,8 @@ The order is the spec's creation order (5 badges a day from 2026-11-07):
   20 PurrfectStreak five gold footprints walking up to a star, on lilac
   21 PartyGuest     Cafe Party Guest (live-events.md section 2e): a strawberry-cream cat in a pink party hat under a string of
                     bunting, with confetti, on sky blue
+  22 MetOwner       Met the Owner (#3324): Blossom (Legendary) in a little gold crown waving a raised paw, with
+                    wave marks and a twinkle, on sky blue
 
 Built in Blender axes (x right, -y toward the camera, z up), the medal's face in the XZ plane; nothing here is a game
 model.
@@ -485,10 +487,51 @@ def party_guest(mat):
     return _fin(b, "PartyGuest", mat) + cat
 
 
+def met_owner(mat):
+    """Met the Owner: Blossom in a little gold crown with a berry gem, waving her raised right paw (the viewer's
+    left), with wave marks by the paw and a twinkle."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    cat = _sitter(mat, "Blossom", at=(0.2, -0.5, -1.0), scale=0.95, yaw=-12)
+    from store_icons import _top
+    import bpy
+    bpy.context.view_layer.update()
+    pts = [ob.matrix_world @ Vector(c) for ob in cat for c in ob.bound_box]
+    x0 = min(p.x for p in pts)
+    x, yy, z = _top(cat)
+    z -= 0.2                                                                                  # down between the ears
+    cy = min(p.y for p in pts)                                                                # the cat's front
+    y = cy + 0.25
+    # the crown: a gold band with five points, gems at the tips and a berry gem in the middle
+    b.cyl((x, yy, z + 0.08), 0.36, 0.18, "gold_mid", segments=20)
+    for k in range(5):
+        a = math.radians(-90 + 72 * k)
+        px, py = x + 0.3 * math.cos(a), yy + 0.3 * math.sin(a)
+        b.cyl((px, py, z + 0.28), 0.1, 0.24, "gold_mid", segments=8, radius2=0.02)
+        b.ico((px, py, z + 0.42), 0.055, "gold_light")
+    b.ico((x, yy - 0.37, z + 0.08), 0.09, "royal_berry", scale=(1, 0.6, 1))
+    # the waving paw: a foreleg raised from the shoulder, tilted out, with a round paw and pink pads
+    sx, sz = x0 + 0.25, z - 0.65                                                             # the shoulder
+    px, pz = x0 - 0.3, z + 0.15                                                              # the paw
+    L = math.hypot(px - sx, pz - sz)
+    b.box(((sx + px) / 2, y, (sz + pz) / 2), (0.3, 0.26, L), "fur_rose",
+          rot=(math.atan2(px - sx, pz - sz), "Y"))
+    b.cyl((px, y - 0.04, pz), 0.24, 0.26, "fur_white", segments=20, rot=X)
+    b.cyl((px, y - 0.18, pz - 0.04), 0.11, 0.04, "nose_pink", segments=12, rot=X)
+    for dx, dz in ((-0.12, 0.1), (-0.04, 0.16), (0.05, 0.16), (0.13, 0.1)):
+        b.cyl((px + dx, y - 0.18, pz + dz), 0.04, 0.04, "nose_pink", segments=8, rot=X)
+    for r in (0.45, 0.65):                                                                    # wave marks
+        _arc(b, px, pz, r, 120, 200, 0.07, 0.05, y - 0.1, "offwhite", n=5)
+    _twinkle(b, 1.15, -0.45, 0.9, 0.38)
+    _twinkle(b, 0.75, -0.45, 1.35, 0.22)
+    return _fin(b, "MetOwner", mat) + cat
+
+
 # name -> builder, in the spec's creation order (release.md section 1)
 BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, "GrandOpening": grand_opening,
           "Purrfect": purrfect, "BaitCat": bait_cat, "RareFind": rare_find, "LegendaryFind": legendary_find,
           "MythicalFind": mythical_find, "BusyCafe": busy_cafe, "FamousCafe": famous_cafe, "GrandCafe": grand_cafe,
           "CatCollector": cat_collector, "CatExpert": cat_expert, "GoldenCoat": golden_coat,
           "RainbowCoat": rainbow_coat, "PageComplete": page_complete, "HelpingPaw": helping_paw,
-          "FirstTrade": first_trade, "PurrfectStreak": purrfect_streak, "PartyGuest": party_guest}
+          "FirstTrade": first_trade, "PurrfectStreak": purrfect_streak, "PartyGuest": party_guest,
+          "MetOwner": met_owner}

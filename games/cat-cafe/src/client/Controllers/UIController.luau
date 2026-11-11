@@ -874,6 +874,7 @@ local function applyState(s: Types.PlayerState)
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,
 		feedbackAsked = s.feedbackAsked,
+		sessionFeedbackDay = s.sessionFeedbackDay, -- #3272: the once-a-day session ask
 		stuckHelpShown = s.stuckHelpShown,
 		-- F88: the player's Luck and what makes it, for the HUD chip and its card (luck-and-rare-moments.md section 1)
 		luck = s.luck,
@@ -1336,6 +1337,11 @@ local function wireIntents()
 	if events.sendFeedback ~= nil then
 		events.sendFeedback:Connect(function(face: string, chip: string?)
 			Net.fire("SendFeedback", face, chip)
+		end)
+	end
+	if events.sessionFeedback ~= nil then -- #3272: the once-a-day session ask
+		events.sessionFeedback:Connect(function(answer: string)
+			Net.fire("SessionFeedback", answer)
 		end)
 	end
 	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
@@ -2017,6 +2023,10 @@ local function wireServerEvents()
 	end)
 	Net.on("Toast", function(text: string, kind: Types.ToastKind?)
 		UI.toast(text, kind)
+	end)
+	-- #3301: an owner's /shout from any server, in the OWNER bubble
+	Net.on("OwnerShout", function(text: string)
+		(UI :: any).ownerShout(text)
 	end)
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said

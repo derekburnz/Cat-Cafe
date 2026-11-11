@@ -321,6 +321,7 @@ function CatStats.view(instance: Types.CatInstance, tier: number?): Types.CatVie
 		name = instance.name,
 		method = instance.method,
 		locked = instance.locked == true,
+		trait = if instance.trait ~= nil then table.clone(instance.trait) else nil, -- #3196
 		level = level,
 		xp = math.floor(CatStats.xp(instance)),
 		xpToNext = CatStats.xpToNext(level),

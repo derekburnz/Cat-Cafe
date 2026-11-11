@@ -18,3 +18,19 @@ Grand style, which share its 🏛️ glyph.
 Uploaded with `upload-image.yml` run 42937300084 from `friend/icons-batch2`.
 | Icon_Clean_Moon | 113770680051546 (batch 3, run 42938004143) |
 | Icon_Clean_Unlock | 96025123745905 (batch 3, run 42938004143) |
+
+## Batch 4 (2026-11-11, #3347): the station ring cards
+
+The station rings that still drew emoji: Relic Museum, Picnic, Yard Sale, Pond, Lost and Found and the Cat Arcade
+(the Arcade icon is also the Arcade window's header badge). Same source (`../icons-clean-2026-11-03/source/icons.js`,
+batch 4 block) and renderer. The Index Boards reuse `Icon_Clean_Index` (138454303453433), so they need no upload.
+Derek OK'd the upload (2026-11-11 21:06, "OWNER_KEY ... for anything"); `upload-image.yml` run 43100302103, group owned.
+
+| Icon | rbxassetid |
+|---|---|
+| Icon_Clean_Museum | 106957137610323 |
+| Icon_Clean_Picnic | 92455587075019 |
+| Icon_Clean_YardSale | 132170661858712 |
+| Icon_Clean_Pond | 116298242454261 |
+| Icon_Clean_LostFound | 106814161165186 |
+| Icon_Clean_Arcade | 120353026211586 |

@@ -465,14 +465,8 @@ return function()
 			expect(reason).to.equal("Open crates at the Market")
 		end)
 
-		it("sells the Star Treat for 150 (Derek2 2026-11-07, was 80)", function()
-			local profile = fresh()
-			profile.goldenFish = 149
-			expect(select(2, Crates.buyCost(profile, row("star_treat")))).to.equal(
-				"Not enough golden fish"
-			)
-			profile.goldenFish = 150
-			expect(Crates.buyCost(profile, row("star_treat"))).to.equal(150)
+		it("no longer sells the Star Treat (#3317, Derek2 2026-11-11)", function()
+			expect(row("star_treat")).never.to.be.ok()
 		end)
 
 		it("prices each perk level and stops at the top", function()
@@ -492,6 +486,14 @@ return function()
 			expect(Crates.buyCost(profile, row("big_bowl"))).never.to.be.ok()
 			profile.fishPerks.extra_decor_spot = 1
 			expect(Crates.buyCost(profile, row("extra_decor_spot"))).to.equal(250)
+			-- #3317: Swift Paws, five levels
+			local paws = { 60, 150, 300, 500, 800 }
+			for level = 0, 4 do
+				profile.fishPerks.swift_paws = if level > 0 then level else nil
+				expect(Crates.buyCost(profile, row("swift_paws"))).to.equal(paws[level + 1])
+			end
+			profile.fishPerks.swift_paws = 5
+			expect(Crates.buyCost(profile, row("swift_paws"))).never.to.be.ok()
 		end)
 	end)
 

@@ -2080,9 +2080,13 @@ Layout.thanksBoard = station(43, -47.8) -- #3070: out from behind the night cart
 -- #3189 (Derek2 2026-11-10: "move the feedback stand to the right of thank you for ideas its too close to fish market"):
 -- the stand leaves (34, 18) for the east side south of the lane, on the Thanks board's right as you face the board,
 -- between the night cart and the leaderboard row (9.3 off every body, 4.7 off the lamps and benches). The arcade's
--- spot north of the lane stays.
+-- spot north of the lane stayed until #3359 (below).
 Layout.feedbackStand = station(50, -25)
-Layout.arcadeCabinet = station(-34, 18)
+-- #3359 (Derek2 2026-11-11: "the arcade is too close to spin and the circle is on top of it"): at (-34, 18) the
+-- cabinet's walk-in ring lay over the cabinet and 0.4 studs into the Spin Wheel's ring. It stands 9 studs further
+-- west now, between the wheel and the Bellhop stand: its ring (touching its front, Arcade.RING_RANGE) is 3 studs off
+-- the wheel's ring and 2.9 off the lane, and the cabinet is 18 studs from both stations (Layout.spec).
+Layout.arcadeCabinet = station(-43, 18)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.

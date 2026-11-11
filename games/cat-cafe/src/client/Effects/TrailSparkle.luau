@@ -15,7 +15,9 @@ local Presets = require(script.Parent.Presets)
 local TrailSparkle = {}
 
 local started = false
-local folders: { [Instance]: boolean } = {}
+-- each watched trail folder and its ChildAdded hook; a folder taken out of the Workspace is dropped, and its next
+-- show (Workspace.ChildAdded) watches it again
+local folders: { [Instance]: RBXScriptConnection } = {}
 
 -- Whether the dot at `index` (from 1, nearest the player first) carries sparkles.
 function TrailSparkle.carries(index: number, every: number, lowPerformance: boolean): boolean
@@ -56,13 +58,12 @@ local function refresh(folder: Instance)
 end
 
 local function watch(folder: Instance)
-	local known: boolean? = folders[folder]
+	local known: RBXScriptConnection? = folders[folder]
 	if known ~= nil then
 		return
 	end
-	folders[folder] = true
 	local pending = false
-	folder.ChildAdded:Connect(function()
+	folders[folder] = folder.ChildAdded:Connect(function()
 		if not pending then
 			pending = true
 			task.defer(function()
@@ -93,9 +94,12 @@ function TrailSparkle.start()
 		-- a changed Low performance setting reaches the dots within a few seconds
 		while true do
 			task.wait(Presets.trailSparkle.recheck)
-			for folder in folders do
+			for folder, hook in folders do
 				if folder.Parent ~= nil then
 					refresh(folder)
+				else
+					hook:Disconnect()
+					folders[folder] = nil
 				end
 			end
 		end

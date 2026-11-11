@@ -6981,6 +6981,34 @@ local SCENES = {
 		UI.update({ starterCatClaimed = before } :: any)
 		stand:Destroy()
 	end },
+	-- #3195: the red "!" over the Night Market's cart from nightfall until the market is opened that night
+	{ "NightMarketBang", function()
+		local cart = Instance.new("Model")
+		cart.Name = "DealerCart"
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(6, 5, 4)
+		body.Position = Vector3.new(6, 2.5, -18)
+		body.Parent = cart
+		cart.PrimaryPart = body
+		cart:SetAttribute("Open", true)
+		cart.Parent = workspace
+		cart:AddTag("DealerCart")
+		UI.dealer.setNight(true)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeNightMarketBang", true) :: BillboardGui?
+		assert(gui and gui.Enabled and gui.Adornee == body, "uigate: no ! over the Night Market at night (#3195)")
+		local line = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "🌙 Rare foods tonight!", "uigate: the Night Market bubble reads " .. line.Text .. " (#3195)")
+		UI.dealer.open()
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the Night Market's ! stays after it was opened (#3195)")
+		UI.close()
+		UI.dealer.setNight(true)
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the Night Market's ! came back the same night (#3195)")
+		UI.dealer.setNight(false)
+		UI.dealer.setNight(true)
+		assert((gui :: BillboardGui).Enabled, "uigate: the Night Market's ! did not come back the next night (#3195)")
+		Scenes._nightCart = cart
+	end },
 	{ "MarketBang", function()
 		local stall = Instance.new("Model")
 		stall.Name = "CatCafe_FishMarket"
@@ -8401,6 +8429,11 @@ function Scenes.close()
 	if Scenes._spinState ~= nil then
 		UI.update(Scenes._spinState :: any) -- #2345 and #2358's scenes
 		Scenes._spinState = nil
+	end
+	if Scenes._nightCart ~= nil then
+		Scenes._nightCart:Destroy() -- #3195's scene
+		UI.dealer.setNight(false)
+		Scenes._nightCart = nil
 	end
 	if Scenes._market ~= nil then
 		Scenes._market.stall:Destroy() -- #2214's scene

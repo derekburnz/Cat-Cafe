@@ -325,4 +325,46 @@ return function()
 			expect(at).to.equal(5000)
 		end)
 	end)
+	describe("the save's side (spec sections 3, 4 and 6)", function()
+		it(
+			"pays free rolls, then a token, then fish, in one step with the check, and refunds",
+			function()
+				local save = Traits.fresh(100)
+				for _ = 1, 5 do
+					local how, fish = Traits.pay(save, 0)
+					expect(how).to.equal("free")
+					expect(fish).to.equal(0)
+				end
+				expect(save.freeUsed).to.equal(5)
+				expect((Traits.pay(save, 9))).to.equal(nil) -- QA check 5
+				expect(save.freeUsed).to.equal(5)
+				Traits.give(save, 1)
+				expect((Traits.pay(save, 0))).to.equal("token")
+				expect(save.tokens).to.equal(0)
+				local how, fish = Traits.pay(save, 10)
+				expect(how).to.equal("fish")
+				expect(fish).to.equal(10)
+				Traits.refund(save, "token")
+				expect(save.tokens).to.equal(1)
+				Traits.refund(save, "free")
+				expect(save.freeUsed).to.equal(4)
+			end
+		)
+
+		it("banks tokens up to TOKEN_MAX and keeps the station's apart", function()
+			local save = Traits.fresh(0)
+			expect(Traits.give(save, 3)).to.equal(3)
+			save.tokens = Traits.TOKEN_MAX - 1
+			expect(Traits.give(save, 5)).to.equal(1)
+			expect(Traits.give(save, -2)).to.equal(0)
+			Traits.settle(save, true, 3 * Traits.TOKEN_EVERY_SECONDS)
+			expect(save.held).to.equal(2)
+			expect(save.tokens).to.equal(Traits.TOKEN_MAX)
+			Traits.settle(save, false, 4 * Traits.TOKEN_EVERY_SECONDS)
+			expect(save.held).to.equal(0)
+			local view = Traits.view(save)
+			expect(view.freeLeft).to.equal(5)
+			expect(view.nextAt).to.equal(5 * Traits.TOKEN_EVERY_SECONDS)
+		end)
+	end)
 end

@@ -30,6 +30,7 @@ local StarterCat = require(script.Parent.StarterCat)
 local StoreTabs = require(script.Parent.StoreTabs)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
+local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 local YardSale = require(script.Parent.YardSale)
 
@@ -156,7 +157,12 @@ local ProfileSchema = {}
 -- the exhibits (whose cats left the save) and their tip bonus.
 -- Version 47 (#2797, retention-ideas.md 5d) adds invites and referredBy, the invite reward's two sides: an older server
 -- would drop them and could pay a joiner or an inviter twice for the same friend.
-ProfileSchema.VERSION = 47
+-- Version 48 (#3196, trait-station.md section 6) adds each cat's trait and traits, the Mystic Pool's Trait Tokens, free
+-- starter rolls used, station timer and a re-roll waiting for its choice: an older server would drop a cat's trait
+-- and the tokens, and could give the free rolls again. It ships with a publish that restarts the servers (Derek's
+-- yes at the time); the `traits` flag opens the station after it. A save from before it has no traits, no tokens and
+-- every free roll still to use.
+ProfileSchema.VERSION = 48
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -325,6 +331,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		spa = LateStations.freshSpa(),
 		museum = LateStations.freshMuseum(),
 		invites = Invites.fresh(),
+		traits = Traits.fresh(now),
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
@@ -516,6 +523,8 @@ local function catFrom(
 			then sanitizeMethod(entry.method)
 			else legacyMethod(uid, entry),
 	}
+	-- #3196 (version 48): its trait; a cat from an older save has none
+	instance.trait = if fromVersion >= 48 then Traits.sanitize(entry.trait) else nil
 	-- F62: the saved lock; a save from before version 14 locks its gold, Legendary and Mythical cats
 	local locked = if fromVersion >= 14
 		then entry.locked == true
@@ -1023,6 +1032,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2797 (version 47): the invite reward; a save without them has invited nobody and was invited by nobody
 	profile.invites = Invites.sanitize(raw.invites)
 	profile.referredBy = Invites.sanitizeReferred(raw.referredBy)
+	-- #3196 (version 48): the Mystic Pool's side; an older save starts fresh (no tokens, every free roll to use). A
+	-- version 48 save's broken free-roll count reads as all used, never as five more (Traits.sanitizeSave).
+	local owned: { [string]: boolean } = {}
+	for _, cat in profile.cats do
+		owned[cat.uid] = true
+	end
+	profile.traits = if fromVersion >= 48
+		then Traits.sanitizeSave(raw.traits, now, owned)
+		else Traits.fresh(now)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)
 	-- F102 (version 27): the Trades page and the trades this save has applied

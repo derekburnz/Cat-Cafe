@@ -211,6 +211,13 @@ Remotes.ClientToServer = {
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
 	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
+	-- #3196 (trait-station.md, TraitService, shared/Traits): each refused while the `traits` switch is off or the tier
+	-- has not opened the Park's camp extra; no range check (it opens from the Cannon menu too); answered with one sync
+	"RollTrait", -- (uid: string)  the cat owned and no re-roll waiting; paid by a free starter roll, else a Trait Token,
+	-- else 10 golden fish (none held in an open trade). A cat with no trait takes the roll; one with a trait keeps it
+	-- and the roll waits (PlayerState.traits.pending) for ChooseTrait. 1 a second
+	"ChooseTrait", -- (takeNew: boolean)  the waiting re-roll goes on its cat (true) or is dropped; 1 a second
+	"CollectTraitTokens", -- ()  the station's free tokens (one each 12 h, holding 2) go to the bank; 1 a second
 }
 
 -- Server -> client.

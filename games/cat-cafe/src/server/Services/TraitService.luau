@@ -1,0 +1,181 @@
+--!strict
+-- The Mystic Pool on the server (#3196, trait-station.md; the rules are shared/Traits). Every remote is refused while
+-- the `traits` switch is off or the player's tier has not opened the Park's camp extra (the station replaces the
+-- Picnic Basket there). It opens from the walk-in circle and the Cannon menu alike, so there is no range check, as
+-- for every other station (camp-extras.md section 3).
+--   RollTrait(uid): the cat owned, no re-roll waiting, and a roll paid for (Traits.pay: a free starter roll, else a
+--     Trait Token, else 10 golden fish, checked and spent in one step before the roll). A cat with no trait takes
+--     the roll at once; a cat with one keeps it and the roll waits in the save (`pending`) for ChooseTrait.
+--   ChooseTrait(takeNew): the waiting re-roll goes on its cat (true) or is dropped (false), so a cat never gets worse.
+--   CollectTraitTokens(): the station's free tokens (one each 12 h, holding 2) go to the bank.
+-- Each answers with one sync (PlayerState.traits and the cats' traits). Logs trait_roll and trait_token. Nothing here
+-- is sold: tokens come only from play, and golden fish are earned only.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local CafeService = require(script.Parent.CafeService)
+local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
+local DataService = require(script.Parent.DataService)
+local Economy = require(ReplicatedStorage.Shared.Economy)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
+local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
+local Net = require(script.Parent.Net)
+local Telemetry = require(script.Parent.Telemetry)
+local TradeService = require(script.Parent.TradeService)
+local Traits = require(ReplicatedStorage.Shared.Traits)
+local Types = require(ReplicatedStorage.Shared.Types)
+
+type Profile = Types.PlayerProfile
+
+local TraitService = {}
+
+local rng = Random.new()
+
+-- Whether `profile`'s player can use the station now (CafeService.traitsView reads the same).
+function TraitService.open(profile: Profile): boolean
+	return LiveFlagService.on(Traits.FLAG)
+		and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+end
+
+-- Adds `count` Trait Tokens from `source` (a spin, the Daily Treat, a quest set, Lost and Found, a code) and logs
+-- trait_token; the caller syncs. Returns how many were added (0 while the switch is off).
+function TraitService.give(player: Player, profile: Profile, count: number, source: string): number
+	if not LiveFlagService.on(Traits.FLAG) then
+		return 0
+	end
+	local added = Traits.give(profile.traits, count)
+	if added > 0 then
+		Telemetry.custom(player, "trait_token", added, { source })
+	end
+	return added
+end
+
+local function refuse(player: Player, text: string)
+	Net.toast(player, text, "warn")
+	CafeService.sync(player)
+end
+
+-- Spec section 1a: a Mythic sends one server-wide line, display name only, through the rare-catch channel. Wired in
+-- the effects PR with the pool; until then (the `traits` switch is off) it only prints, with no name or id.
+local function announce(player: Player, rolled: Traits.Trait)
+	local line = Traits.announceText(player.DisplayName, rolled)
+	if line ~= nil then
+		print("[TraitService] a Mythic trait was rolled")
+	end
+end
+
+local function onRoll(player: Player, rawUid: unknown)
+	local uid = Guard.id(rawUid)
+	local profile = DataService.get(player)
+	if uid == nil or profile == nil then
+		return
+	end
+	if not TraitService.open(profile) then
+		refuse(player, "The Mystic Pool is closed for now")
+		return
+	end
+	local cat = profile.cats[uid]
+	if cat == nil then
+		refuse(player, "That cat isn't yours anymore")
+		return
+	end
+	local save = profile.traits
+	if save.pending ~= nil then
+		refuse(player, "Pick Keep old or Take new first")
+		return
+	end
+	-- checked and spent in one step, before the roll (no yield between)
+	local how, fish = Traits.pay(save, profile.goldenFish)
+	if how == nil then
+		refuse(player, string.format("You need a Trait Token or %d golden fish", Traits.COST_FISH))
+		return
+	end
+	if fish > 0 then
+		local frozen = TradeService.fishSpendBlocker(player) -- #2745: fish offered in an open trade stay put
+		if frozen ~= nil or not GoldenFish.trySpend(profile, fish) then
+			Traits.refund(save, how :: Traits.Payment)
+			refuse(player, frozen or "Not enough golden fish")
+			return
+		end
+		Telemetry.fishSink(player, profile, fish, "Shop", "trait_roll")
+	end
+	local rolled = Traits.roll(function(n: number): number
+		return rng:NextInteger(1, n)
+	end)
+	local reroll = cat.trait ~= nil
+	if reroll then
+		save.pending = { uid = uid, id = rolled.id, paid = how :: string }
+	else
+		cat.trait = rolled
+		Telemetry.custom(player, "trait_roll", Traits.rank(rolled), { rolled.id, how, "first" })
+	end
+	announce(player, rolled)
+	CafeService.sync(player)
+end
+
+local function onChoose(player: Player, rawTakeNew: unknown)
+	local takeNew = Guard.bool(rawTakeNew)
+	local profile = DataService.get(player)
+	if takeNew == nil or profile == nil then
+		return
+	end
+	local save = profile.traits
+	local pending = save.pending
+	if pending == nil then
+		CafeService.sync(player)
+		return
+	end
+	save.pending = nil
+	local cat = profile.cats[pending.uid]
+	local kept = "old"
+	if cat ~= nil and takeNew then
+		cat.trait = { id = pending.id }
+		kept = "new"
+	end
+	Telemetry.custom(
+		player,
+		"trait_roll",
+		Traits.rank({ id = pending.id }),
+		{ pending.id, pending.paid or "unknown", "reroll_" .. kept }
+	)
+	CafeService.sync(player)
+end
+
+local function onCollect(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	if not TraitService.open(profile) then
+		refuse(player, "The Mystic Pool is closed for now")
+		return
+	end
+	local save = profile.traits
+	Traits.settle(save, true, os.time())
+	local held = save.held
+	if held <= 0 then
+		CafeService.sync(player)
+		return
+	end
+	local added = Traits.give(save, held)
+	-- only what fit leaves the station (the bank's cap is far above any real count)
+	save.held = held - added
+	if added > 0 then
+		Telemetry.custom(player, "trait_token", added, { "station" })
+		Net.toast(
+			player,
+			if added == 1 then "Got 1 Trait Token" else string.format("Got %d Trait Tokens", added),
+			"good"
+		)
+	end
+	CafeService.sync(player)
+end
+
+function TraitService.start()
+	Net.on("RollTrait", onRoll)
+	Net.on("ChooseTrait", onChoose)
+	Net.on("CollectTraitTokens", onCollect)
+end
+
+return TraitService

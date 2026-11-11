@@ -41,7 +41,8 @@ function CodeEntry.used(redeemed: { [string]: number }?, codes: { [string]: any 
 	end
 	local table_: { [string]: any } = if type(codes) == "table" then codes else {}
 	for id, at in redeemed do
-		if type(id) == "string" and type(at) == "number" then
+		-- #2997: an update gift is marked here too (UpdateGift.key), but it was never a code
+		if type(id) == "string" and type(at) == "number" and string.sub(id, 1, 4) ~= "gift" then
 			local def = table_[id]
 			table.insert(out, {
 				id = id,

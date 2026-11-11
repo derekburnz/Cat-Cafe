@@ -118,10 +118,12 @@ local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
 -- #3338 (Derek2: "add a circle to open the station infront of it"): the Cat Arcade's ring in arcade purple
 local RING_ARCADE = Color3.fromRGB(176, 110, 240)
-local ICON_ARCADE: WalkUpCircles.Icon = { emoji = "🕹️" }
+-- #3347: the drawn joystick (the client's Icon_Clean_Arcade), the emoji under it until it loads
+local ICON_ARCADE: WalkUpCircles.Icon =
+	{ emoji = "🕹️", image = "rbxassetid://120353026211586" }
 local ICON_FEEDBACK: WalkUpCircles.Icon =
 	{ emoji = "✉️", art = "CatCafe_Town_FeedbackStand_RingIcon_Decor" }
--- #3113: the camp stations' rings (no art yet, so each shows its emoji card) and the Index Boards'
+-- #3113: the camp stations' rings (each shows its drawn icon over the emoji card, #3347) and the Index Boards'
 local RING_EXTRA: { [string]: Color3 } = {
 	picnic = Color3.fromRGB(240, 110, 110), -- gingham red
 	yardSale = Color3.fromRGB(255, 170, 80),
@@ -131,18 +133,19 @@ local RING_EXTRA: { [string]: Color3 } = {
 	museum = Color3.fromRGB(215, 180, 110),
 }
 local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
-	picnic = { emoji = "🧺" },
-	yardSale = { emoji = "🏷️" },
-	pond = { emoji = "🎣" },
-	lostFound = { emoji = "🧦" },
+	picnic = { emoji = "🧺", image = "rbxassetid://92455587075019" },
+	yardSale = { emoji = "🏷️", image = "rbxassetid://132170661858712" },
+	pond = { emoji = "🎣", image = "rbxassetid://116298242454261" },
+	lostFound = { emoji = "🧦", image = "rbxassetid://106814161165186" },
 	-- #3347 (Derek2: "make the spa symbol better"): the Spa's drawn tub (the client's Icon_Clean_Spa, also its window's
 	-- badge) on the card, the emoji under it until it loads
 	spa = { emoji = "♨️", image = "rbxassetid://90117647745743" },
-	museum = { emoji = "🏺" },
+	museum = { emoji = "🏺", image = "rbxassetid://106957137610323" },
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
 local RING_BOARD = Color3.fromRGB(190, 150, 240)
-local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖" }
+-- #3347: the Index Boards show the drawn open book (the client's Icon_Clean_Index), the emoji under it until it loads
+local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖", image = "rbxassetid://138454303453433" }
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too

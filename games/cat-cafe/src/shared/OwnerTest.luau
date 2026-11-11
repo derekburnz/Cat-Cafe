@@ -61,7 +61,10 @@ function OwnerTest.isOwnerPlayer(player: Player): boolean
 	if known ~= nil then
 		return known
 	end
-	local creatorType = game.CreatorType.Name
+	local creatorType = if game.CreatorType == Enum.CreatorType.Group
+		then "Group"
+		elseif game.CreatorType == Enum.CreatorType.User then "User"
+		else ""
 	local rank: number? = nil
 	if creatorType == "Group" then
 		local ok, value = pcall(function(): number

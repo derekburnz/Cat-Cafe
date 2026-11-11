@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-11 02:44 UTC",
+  "generated": "2026-11-11 02:39 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -312212,25 +312212,24 @@
         "CatCafe_Nook_Woods",
         "CatCafe_Nook_Woods_Decor",
         "CatCafe_Nook_Woods_GateL",
-        "CatCafe_Nook_Woods_GateR",
-        "CatCafe_Nook_Woods_Trap"
+        "CatCafe_Nook_Woods_GateR"
       ],
-      "triangles": 1728,
+      "triangles": 912,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
         "y": 14.88,
-        "z": 3.42
+        "z": 3.22
       },
       "size_roblox": [
         8.76,
-        3.42,
+        3.22,
         14.88
       ],
       "bounds_min": [
         -4.38,
         -11.0,
-        -0.2
+        0.0
       ],
       "bounds_max": [
         4.38,
@@ -312265,7 +312264,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Woods.model.json",
-      "rbx_parts": 78,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Woods.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Woods.glb"
@@ -312274,21 +312273,18 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "1728/3000 tris",
+          "budget": "912/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1020 faces on swatch centers",
+          "uv": "456 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.20 (want 0)",
+          "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Woods.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Woods.png"
+      }
     },
     {
       "name": "CatCafe_Nook_Sewer",
@@ -312298,10 +312294,9 @@
         "CatCafe_Nook_Sewer",
         "CatCafe_Nook_Sewer_Decor",
         "CatCafe_Nook_Sewer_GateL",
-        "CatCafe_Nook_Sewer_GateR",
-        "CatCafe_Nook_Sewer_Trap"
+        "CatCafe_Nook_Sewer_GateR"
       ],
-      "triangles": 808,
+      "triangles": 680,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
@@ -312351,7 +312346,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Sewer.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 40,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Sewer.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Sewer.glb"
@@ -312363,17 +312358,15 @@
           "centered"
         ],
         "checks": {
-          "budget": "808/3000 tris",
+          "budget": "680/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "382 faces on swatch centers",
+          "uv": "314 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Sewer.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Sewer.png"
+      }
     },
     {
       "name": "CatCafe_Nook_Desert",
@@ -312383,25 +312376,24 @@
         "CatCafe_Nook_Desert",
         "CatCafe_Nook_Desert_Decor",
         "CatCafe_Nook_Desert_GateL",
-        "CatCafe_Nook_Desert_GateR",
-        "CatCafe_Nook_Desert_Trap"
+        "CatCafe_Nook_Desert_GateR"
       ],
-      "triangles": 1944,
+      "triangles": 816,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
         "y": 14.88,
-        "z": 4.02
+        "z": 3.22
       },
       "size_roblox": [
         8.76,
-        4.02,
+        3.22,
         14.88
       ],
       "bounds_min": [
         -4.38,
         -11.0,
-        -0.8
+        0.0
       ],
       "bounds_max": [
         4.38,
@@ -312436,7 +312428,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Desert.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 48,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Desert.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Desert.glb"
@@ -312445,21 +312437,18 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "1944/3000 tris",
+          "budget": "816/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "940 faces on swatch centers",
+          "uv": "384 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.80 (want 0)",
+          "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Desert.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Desert.png"
+      }
     },
     {
       "name": "CatCafe_Nook_Ruins",
@@ -312469,25 +312458,24 @@
         "CatCafe_Nook_Ruins",
         "CatCafe_Nook_Ruins_Decor",
         "CatCafe_Nook_Ruins_GateL",
-        "CatCafe_Nook_Ruins_GateR",
-        "CatCafe_Nook_Ruins_Trap"
+        "CatCafe_Nook_Ruins_GateR"
       ],
-      "triangles": 1896,
+      "triangles": 748,
       "budget": 3000,
       "size_studs": {
         "x": 8.76,
         "y": 14.88,
-        "z": 3.37
+        "z": 3.22
       },
       "size_roblox": [
         8.76,
-        3.37,
+        3.22,
         14.88
       ],
       "bounds_min": [
         -4.38,
         -11.0,
-        -0.15
+        0.0
       ],
       "bounds_max": [
         4.38,
@@ -312522,7 +312510,7 @@
       },
       "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Ruins.model.json",
-      "rbx_parts": 67,
+      "rbx_parts": 45,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Nook_Ruins.fbx",
         "assets/cat-cafe/exports/CatCafe_Nook_Ruins.glb"
@@ -312531,21 +312519,18 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "1896/3000 tris",
+          "budget": "748/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "969 faces on swatch centers",
+          "uv": "394 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.15 (want 0)",
+          "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.56"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Nook_Ruins.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Nook_Ruins.png"
+      }
     },
     {
       "name": "CatCafe_Town_FeedbackStand",
@@ -312726,6 +312711,65 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_FeedbackStand.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Town_FeedbackStand.png"
+    },
+    {
+      "name": "CatCafe_Town_ArcadeCabinet",
+      "category": "Town",
+      "module": "arcadecabinet",
+      "objects": [
+        "CatCafe_Town_ArcadeCabinet",
+        "CatCafe_Town_ArcadeCabinet_Screen",
+        "CatCafe_Town_ArcadeCabinet_Glow"
+      ],
+      "triangles": 1682,
+      "budget": 4000,
+      "size_studs": {
+        "x": 3.7,
+        "y": 3.14,
+        "z": 7.9
+      },
+      "size_roblox": [
+        3.7,
+        7.9,
+        3.14
+      ],
+      "bounds_min": [
+        -1.85,
+        -1.83,
+        0.0
+      ],
+      "bounds_max": [
+        1.85,
+        1.31,
+        7.9
+      ],
+      "pivot": "the base centre on the Town Square's paving, the screen and the control panel (-Z) toward the players; placed by Gameplay (#3062)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#3062: the Cat Arcade cabinet (Circle Streak), 7.9 tall: a teal upright cabinet with cream sides, a red paw button, a joystick, a coin door with a gold slot and a fish, and cat ears on the marquee. _Screen is the 2.4 x 1.9 Screen part (night blue, for a SurfaceGui and the idle glow); _Glow holds the marquee's CAT ARCADE letters (Neon, for the idle pulse). Attachments PromptAnchor (in front of the panel, 1.5 up: the Play prompt), SlotAnchor (the coin slot, for the fish drop), ScreenAnchor and BangAnchor. The cabinet collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_ArcadeCabinet.model.json",
+      "rbx_parts": 123,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_ArcadeCabinet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_ArcadeCabinet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1682/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "789 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.26"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_ArcadeCabinet.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Town_ArcadeCabinet.png"
     }
   ]
 }

@@ -727,3 +727,127 @@ Why: steady small beats help in the 2–5 minute drop, and a known update day is
 Derek2 saw the chat button's blue unread bubble with an empty chat window in the live game, and the rare catch line for Mythical cats never showed. Cause: `default.project.json` had no `TextChatService` entry, so the place file Rojo builds carried no chat setting and Roblox ran it on the legacy chat (`ChatVersion` LegacyChatService). Roblox no longer draws a window for the legacy chat, so system lines written to it were counted as unread and never displayed. The same setting kept the chat tags (#1624) and TextChatCommands from working, and is why the owner test command needed its legacy workarounds (#2754, #2902).
 
 Decision: `default.project.json` and `tests.project.json` set `TextChatService.ChatVersion = TextChatService`. A script cannot change `ChatVersion` at run time, so the project file is the only place for it; `tools/cloudcheck/run-tests.mjs` fails if either file loses the setting. The legacy code paths stay as a fallback and log one warning if a place is ever built without it. Servers started before the publish keep the legacy chat until they close.
+
+## 2026-11-10 Away notification: once a day, 12 hours after leaving (#2768)
+Derek2 picked "Yes, once a day, 12 h after leaving" on the decision card. Decided:
+- **What:** a Roblox experience notification, "Your cats earned $X while you were away!", to players who turned notifications on for the game. Roblox itself limits it to ages 13 and up and one a day per player.
+- **When:** 12 hours after the player leaves, and only if they have not come back. One message per time away.
+- **True numbers only:** X is the welcome back card's own sum, counted to the moment the message is due. No urgency wording.
+- **How:** the game notes who is due (a MemoryStore sorted map); an hourly GitHub workflow sends through Open Cloud with the repo's key, so no key is in the game. Disabling the workflow stops the messages.
+
+Why: D7 is 0% (#2916), and this is the one channel that reaches a player outside the game. It only reaches players who asked for notifications.
+
+## 2026-11-10 Bug report reader: a hand run is masked too (#3103)
+
+A run of `bug-reports` started by hand printed each reporter's full name and user id, and the raw records, into a public Actions log; only the daily run was masked. Now every run in GitHub Actions is masked (name to its first letter, id to its last three digits, no raw records). Full records are for Studio (`Debug.bugReports`) or the script on a PC with `MASK=0`.
+
+Why: the repo is public, so every Actions log is, and the standing rule is that nothing private goes in it. Threads only need the text, kind, version, area, device and error lists, which stay. The error lists are scrubbed too when masked (review of PR #3108): an error line carries the instance path, and a player's scripts and character sit under their name, so `Players.<Name>` and `Workspace.<Name>` print as `***`, the reporter's name prints as `***` anywhere else, and a run of six or more digits prints as `#`. A client error is text the player's device chose and no filter has read, so masked it prints only as script and line number. The masked line still carries the report's time, which is what `idea-credits add` takes.
+
+## 2026-11-10 Rank up: fewer different cats at Tiers 3, 5, 6 and 7 (#3111)
+
+Different cats needed to rank up: Tier 3 **10** (was 11), Tier 5 **26** (was 28), Tier 6 **38** (was 42), Tier 7 **47** (was 52). Tier 4 stays at 22. Costs and the rarity needs are unchanged.
+
+Why: Derek asked to "lower the different cats requirement a little bit between 3-7". About one cat in ten comes off each tier. Tier 4 could not come down: with 21 or 20 a 4x Money owner reaches Tier 5 in a median of 1 h 47 to 1 h 53 of play in one go, under the 2 hour floor in Pace.spec (economy-ladder.md section 8 check 7), and 10, 20, 25 also put every-paid-bonus players under Monetization's 1 hour floor. With 10, 22, 26 both floors hold. Lowering Tier 4 as well would need the floor relaxed or Tier 5's cost raised, which is Derek's and the designer's call. No save change: the need is read from the table, so a player who already has enough cats can rank up at once.
+
+## 2026-11-10 The intro starts as the loading screen reaches 100, without waiting for the Alleyway (#3109)
+
+Derek2: "can you make it a quick cute cat loading screen that instantly goes up to 100 really fast then transitions to the tutorial scenes that should buy enough time to load whats needed start the cutscene right after dont even check if the alleyway catching scenes are ready it should be fine".
+
+The loading screen from #3105 is now a drawn cat's face, the game's name and a bar that a paw walks along while a count runs to 100. The count creeps (never past 90) while the save loads, then runs to 100 so the whole screen takes 1.5 s when nothing holds it up (0.35 s for the last run after a longer wait), and the first cutscene shot starts as it lands. The two waits before shot 1 are gone: up to 5 s for the Alleyway's camp to stream in and up to 2.5 s more for its ground (#2961).
+
+Why: 9% of new players left between the first tutorial step showing and their first move, and up to 7.5 s on a still picture sat in that gap. The count is a show of progress, not a measure, since Roblox gives no percent for a world streaming in.
+
+Kept: the camp is still asked for at the start and every 2 s through the camp shots, and shot 1 still holds on its fuse up to 2.5 s if the camp's ground is not there yet (Derek2 earlier the same day, #2961: "don't make intro skip those slides ... just wait up to a couple seconds for loading"). That hold is inside the moving cutscene and only happens when the camp really is missing; a camp that never comes still falls back to the clouds shot. A replay from Settings goes the same way.
+
+## 2026-11-10 First bait bowl: the cutscene plays, the cannon waits, fewer pop-ups (#3158, #3159, #3160, #3161)
+
+Derek, four asks in a row after playing the first minutes: the first bait's cutscene "doesn't even come because its interupted by foodbowl finished instantly into a cannon teleport"; "remove the coming to bowl #min pop ups its too much"; the bowl cat "finishes the catch first cat tutorial step so make that still need to happen after cannon"; "it highlights all buttons and so many pop ups when catching first food bowl cat also set food bowl to like 5 seconds so the cutscene lines up with it".
+
+What changed:
+
+- **The tutorial's last step is the first bowl cat tamed or let go**, not the food going in (`BaitService`). Until then the strip reads "A cat is on its way to your bowl", then "Your bowl cat is here! Tame it". So the move to the cannon, the full HUD, the × pulse and the wrap-up hint all come after the cutscene and the cat. Any other food at step 4 still finishes the step at once.
+- **The move to the cannon waits 4 seconds** after that step (`TutorialMoves.CANNON_DELAY`), so the new cat's card is read first, and it is dropped for a player who walked more than 30 studs in that time, carries a cat, or is mid catch or flight.
+- **The first bait's timer is 5 seconds** (`Config.FirstBaitWaitSeconds`, was 1). Its cat stands at the bowl from one second after the food (`Config.FirstBaitCatLeadSeconds = 4`, `Bait.catOutAt`), so the cutscene (about 3.6 s) plays while the timer runs down and the Tame card comes up as it ends.
+- **No pop-up as food goes into a bowl.** "Kibble is in the bowl. A cat will come by in 10 minutes." is gone for every bait; the Bait bowl window keeps the timer. The first bait's "Your bait cat is here! Head home to your bowl to meet it." shows only to a player more than 40 studs from the bowl.
+- **"Catch a 2nd cat" counts cats caught by hand** (`SecondCat.caught`: `stats.catsCaught - stats.baitsTamed`). The first bowl cat no longer ends that goal, so after the cannon the goal card still asks for a real catch. Step 3's "Catch another cat" line counts the same way.
+- **The HUD's "New!" badges**: when the tutorial's end opens the rest of the HUD at once (eight pieces) none of them pops or pings (`HudUnlocks.pops`); one or two pieces opening together still do. The "a second cat wants a job" tip does not fire on the first bowl cat; it comes with the next cat.
+
+Why this shape: the cause of the missing cutscene was the order of events, so the order changed instead of adding waits to the cutscene. All of it reads what the save already holds: no save field, no remote and no version change, so it is safe with old servers still running. A first bait set on an old server (1 second) is handled as before.
+
+Not changed here (Animation-Engineer has them): tip pop-ups in the first five minutes (#3156), the Daily Treat and goal-progress pop-ups (#3155), the × highlight (#3154). The GDD's line 'a cat will come by in 10 minutes' (first ten minutes, beat 4) describes the old pop-up; proposed to the game-designer to drop it.
+
+For Research-Agent: `tutorial_step 5` now logs when the first bowl cat is tamed or let go, a few seconds later than before and only for players who answer the card, so the step 4 to 5 rate from this publish on is not comparable with earlier days.
+
+## 2026-11-10 Harder rescues, harder gold and rainbow cats, quicker rings late on (#3120, #3135, #3140)
+
+Three catch tuning asks from Derek on the same evening, shipped together.
+
+**Rescue zone (#3120).** The share of the bar that counts, by rarity: Common **0.17** (was 0.30), Rare **0.135** (was 0.23), Epic **0.105** (was 0.15), Legendary **0.105** (was 0.12), Mythical **0.125** (was 0.14). That is 43%, 41%, 30%, 12% and 11% narrower. An account's first 3 rescues get a zone 1.7 times as wide (`RescueFirstUses`, `RescueFirstZone`), about the old Common and Rare widths. Steady Paw and the first two areas' easier bars multiply on top as before. In CatchFeel's model a steady player (50 ms) frees 100, 100, 87, 62 and 48% of Common to Mythical (was 100, 100, 98, 73, 59), a shaky one (70 ms) 99, 98, 51, 23 and 13% (was 100, 100, 79, 31, 19).
+
+Why: "make the rescue area about 10->50% smaller especially for the common->epic rescues are too easy now". The cut is biggest where he asked. Rare is 0.135 and Legendary 0.105, not the 0.14 and 0.10 first written on the issue, so that every rarer rarity still has less time in the zone than the one before (Config.spec). The first-rescues help is there because no tablet player got past a first rescue before #2786. Watch the tablet rescue cancel rate (#3024) after it ships. The Rummage Bin keeps its own wider zone when it lands (#3050, Design-Agent).
+
+**Gold and rainbow cats (#3135).** A gold cat's catch bands and rescue zone are **0.90** times as wide, a rainbow's **0.80** (`CoatDifficulty`). Not on the tutorial stray or an account's first rescues.
+
+Why: "check if mutated cats gold/rainbow increase difficulty of catch and if thats not added add it". It was not added: the coat changed nothing about the catch or the rescue.
+
+**Quicker rings (#3140).** In the Sewer, Desert and Ruins (areas of Tier 5 and later, `QuickRingTier`) a Common cat's rings close in **0.96 s** (was 1.20) and a Rare's in **0.85 s** (was 1.00). The bands are the same seconds wide, so a ring is no harder to hit. The ring count, the gap between rings and the rarer cats are unchanged.
+
+Why: "speed up commons/rare in further maps slightly like tier 5+ it becomes to boring to wait", "speed up the circles". Rare is 15% quicker, not the 20% first written on the issue, so a Rare ring stays slower than an Epic's 0.82 s.
+
+## 2026-11-10 First rescues easier, and the rescue bar smaller on screen (#3180)
+
+Derek2: "make the starting rescue's easier and slightly smaller bars".
+
+- An account's first **5** rescues (3 in #3120) have zones **1.85** times as wide (1.7) and a marker at **0.85** of its speed (`RescueFirstSpeed`, new). A first Common rescue in the Alleyway has 0.44 of the bar (0.42 before #3120, 0.24 for a veteran after it) and a marker of 0.54 bar lengths a second (0.64).
+- 1.85 and not 2.0: the widest zone there can be (a first Common in the Alleyway with Warm Paws) has to stay under half the bar.
+- The bar is drawn 492 by 40 design pixels (560 by 44). The zone is a share of the bar and the speed is in bar lengths, so the timing does not change. Taps anywhere count, so only Give up is a touch target and it keeps its size.
+
+Why: "starting rescues" is read as a new player's first rescues, not every rescue in the Alleyway and the Park, so veterans there keep the narrower zones Derek asked for in #3120. "Smaller bars" is read as the bar's size on screen.
+
+## 2026-11-10 Loading screen off behind a live switch (#3179)
+
+Derek2: "remove the loading screen honestly I think that would make people leave faster then before". The loading screen before the opening scenes (#3105, #3109) shows only when the new live switch `loadingScreen` holds true; it is off by default and with a broken store. `flags set loadingScreen true` brings it back for players who join after, with no publish, so Research can compare leave rates. Its code and art stay until #3162 decides.
+
+## 2026-11-10 A new player's waiting cat can be caught by anyone (#3181)
+
+Derek2: "certain cats atleast at the beginning of alleyway are bugged and cant be caught no matter where I put net", then "tons of bugged cats in alleyway now". Since F87 a tutorial stray was its beginner's alone, with nothing on screen saying so, and with many new players in a server most of the eight points by the arch held one. Anyone's swing lands on it now: a beginner gets the easy catch on any of them, anyone else a Common's own circles, and the beginner it waited for gets a new one at once.
+
+Why not mark or hide it instead: a mark still leaves cats a new player cannot catch in their first minute, and hiding needs every effect and sound that follows strays to know. Known trade-off: a new Common at a beginner's point per catch while they have not checked in; not capped (Review-Agent: a refill wait would hurt the beginner more than the farm matters).
+
+## 2026-11-10 Daily Treat opens by itself after the 2nd cat goal, at the cafe (#3188)
+
+Derek2: "move daily treat to after your goal catch a 2nd cat and coming back to cafe if its not already". After #3155 it waited for the tutorial alone. It now also waits until two cats are caught by hand and checked in, and until the player stands on their own plot. The Daily tile still opens it by hand.
+## 2026-11-10 Alleyway: strays spread through the whole lane (#3170)
+
+The Alleyway's back end has 4 nook spawn points (was 8), and 6 new `mid` points fill the middle stretch, which had none, between the Skip and Van blocker rows. Any rarity may now spawn on any of its points: the nooks no longer hold its Epic and up (`Catching.KEEP_ZONES` keeps only the side areas' deep half for Mythicals), and a daytime top-up takes any free point instead of the nooks first (`StrayTopUp.FAR_ZONES` is `deep` only). Before and after map: the Library's `Animation-Engineer/images/alley-spawns-3170.png`.
+
+Why: Derek2: "all the cats in alleyway are piled into the back now spread them out through the entire area even the decent ones and remove some of the spawns from the back area". Each top-up went to a back nook while one was free, and every Epic or better waited only there, so the cats gathered at the back.
+
+Pace: the walks are shorter, so the Pace model's Tier 2 comes about 1 minute sooner (new player 8.9 min, was just over 9; 4-friend non-stop catcher 5.9, was about 6.9), and Tier 5 in one go 4 h 28 (floor was 4.5 h). The Tier 2 bands in Pace.spec go down by that much (8.5 to 12 for a new player) and the Tier 5 floor to 4.25 h. Derek2 has a decision card in the Animation-Engineer thread to keep the old pace instead, which would mean raising Tier 2's cost.
+
+## 2026-11-11 Rescues: a faster marker for Common and Rare (#3223)
+
+Derek2: "rescues are wayyy to easy making bar too big and speed to slow" (a Desert rescue on publish 497: the zone a third of the bar).
+
+- The zones were already cut in #3120 (0.17, 0.135, 0.105, 0.105, 0.125); that had merged but was not yet live when he wrote.
+- The marker's speed, in bar lengths a second: Common **1.00** (0.85) and Rare **0.90** (0.735). Epic 0.98, Legendary 1.12 and Mythical 1.26 stay for now.
+- With both changes a steady player (presses within 50 ms) frees a stuck cat 100%, 99%, 87%, 62% and 48% of the time by rarity (100, 100, 98, 73, 59 on 497); a looser one (70 ms, a phone with some ping) 97%, 89%, 51%, 23% and 13% (100, 100, 79, 31, 19).
+
+Why only these two: the first draft also sped up Epic (1.12), Legendary (1.22) and Mythical (1.38). Review-Agent and Design-Agent pointed out that nobody has played #3120's zones yet, and that at 70 ms that draft left an Epic at 36%, a Legendary at 16% and a Mythical at 8% an attempt, on the cats players chase, for an audience that is mostly on phones. Common and Rare, where "way too easy" was seen, stay at 89% or better at 70 ms. The Epic and up are Derek's call once he has played the new zones. The Alleyway and Park ease (#2786) and an account's first five rescues (#3180) stay on top. This takes back most of #2566's slowdown for the Rare.
+
+## 2026-11-11 Small fixes logged here (their PRs left the log alone)
+
+- **Restart warning wraps (#3205).** Derek2: "the quick update in ... gets cut off". The early restart warnings are calm info toasts, which keep to one row; a line with "your cafe is saved" now wraps whatever its kind.
+- **Tackling lesson only somewhere safe (#3206).** Derek2: "make sure to not play tackle cutscene when not in safezone". A due lesson starts only on the safe street or in a cafe; out in a catching area it stays due.
+- **Trade (#3211).** Derek2: "trade says busy but should go through at any time and still gets stuck on asked", "trade shows 0/s in the first screen", "sort trade by highest rarity first for all sections". An ask goes through whatever either player is doing, and carrying a cat never blocks a trade; a trade still does not open over a running catch, rescue or flight, and an open one still ends if a player starts one (#2568). A refused ask clears "Asked" at once. An offered cat with no job shows what it earns working. Every tab lists the rarest first. Known trade-off (Review-Agent): a carrier can sit in the trade window out in a catching area and be tackled meanwhile; not an exploit, and "no tackles while the trade window is open" is a later option if Derek wants it.
+
+## 2026-11-11 Owner commands in live servers: /event and /shout (#3212)
+
+Derek2 2026-11-11: "I want to run it in a live game with a command from owner mode set that up so I can spawn event and for however long I want it to last like /event 10 for 10 min evfent" and "add a command to /shout "msg" across all servers so I can tell people in all servers things".
+
+- `/event 10` in a live public server starts the full Cafe Party for 10 minutes on **every server**; `/event <preset> <minutes>` keeps the presets (full, days, money, luck, showers) and `/event stop` ends an event started this way. Assumption (Gameplay-Engineer): all servers rather than only the owner's, because a party is for the players and most of them are on other servers. It works by writing a real record into the events schedule (the same store the events workflow writes), so every server runs it by the shared clock, the shower cats are claimed once game-wide and the analytics count it as a real event. Other servers pick it up within a minute at the latest (a cross-server message asks them to read the schedule at once).
+- Length is held to the live limits (5 minutes to 2 hours). It is refused while another event is running or would start inside it, so two events never overlap.
+- The full party pays the party reward (the Party Bunting piece, or the coin gift for a player who has it) as a scheduled party does; design rule 2e says rewards come back at later events.
+- In Studio or a private server `/event` stays a test in that one server and writes nothing, as before.
+- `/shout message` shows the message to every player on every server. The owner check is on the server by user id; the text goes through Roblox's text filter for a broadcast before it is sent anywhere, and is not sent if the filter fails; at most 120 characters, one shout every 20 seconds.
+- No save version step and no restart: old servers ignore the new message topic, and they read the schedule record like any other event.

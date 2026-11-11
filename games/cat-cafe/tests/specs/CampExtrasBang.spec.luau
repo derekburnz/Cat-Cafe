@@ -58,29 +58,31 @@ return function()
 		end)
 	end)
 
-	describe("CampExtrasLogic.remoteCollect (#1463)", function()
-		it(
-			"offers Collect on the pond strip only to a Golden Pond owner with fish waiting",
-			function()
-				local pond = {
-					extraId = "pond",
-					icon = "",
-					name = "Fish Pond",
-					state = "14 fish",
-					ready = true,
-				}
-				expect(CampExtrasLogic.remoteCollect(pond, true)).to.equal(true)
-				expect(CampExtrasLogic.remoteCollect(pond, false)).to.equal(false)
-				local empty = table.clone(pond)
-				empty.ready = false
-				expect(CampExtrasLogic.remoteCollect(empty, true)).to.equal(false)
-				local picnic = table.clone(pond)
-				picnic.extraId = "picnic"
-				expect(CampExtrasLogic.remoteCollect(picnic, true)).to.equal(false)
-				expect(CampExtrasLogic.remoteCollect(nil, true)).to.equal(false)
-				expect(CampExtrasLogic.GOLD_POND_ATTRIBUTE).to.equal("GoldenPondPass")
+	describe("CampExtrasLogic.remoteAction (#3082)", function()
+		local function line(extraId: string, ready: boolean): any
+			return { extraId = extraId, icon = "", name = extraId, state = "", ready = ready }
+		end
+
+		it("offers Collect to everyone while a collecting station holds something", function()
+			for _, extraId in { "picnic", "pond", "lostFound" } do
+				expect(CampExtrasLogic.remoteAction(line(extraId, true))).to.equal("collect")
+				expect(CampExtrasLogic.remoteAction(line(extraId, false))).to.equal(nil)
 			end
-		)
+		end)
+
+		it("offers Open for the stations with a card of their own, waiting or not", function()
+			for _, extraId in { "yardSale", "spa", "museum" } do
+				expect(CampExtrasLogic.remoteAction(line(extraId, true))).to.equal("open")
+				expect(CampExtrasLogic.remoteAction(line(extraId, false))).to.equal("open")
+			end
+		end)
+
+		it("offers nothing without a strip, and has a word for each button", function()
+			expect(CampExtrasLogic.remoteAction(nil)).to.equal(nil)
+			expect(CampExtrasLogic.REMOTE_WORDS.collect).to.equal("Collect")
+			expect(CampExtrasLogic.REMOTE_WORDS.open).to.equal("Open")
+			expect(CampExtrasLogic.GOLD_POND_ATTRIBUTE).to.equal("GoldenPondPass")
+		end)
 	end)
 
 	describe("CampExtrasLogic.bubble (#1614)", function()

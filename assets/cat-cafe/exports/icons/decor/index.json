@@ -275,11 +275,29 @@
     "model": "CatCafe_Lawn_GardenGnomeCat",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_garden_gnome_cat.png"
   },
+  "golden_cat_fountain": {
+    "name": "Golden Cat Fountain",
+    "kind": "lawn",
+    "model": "CatCafe_Lawn_GoldenCatFountain",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_golden_cat_fountain.png"
+  },
+  "golden_cat_throne": {
+    "name": "Golden Cat Throne",
+    "kind": "lawn",
+    "model": "CatCafe_Lawn_GoldenCatThrone",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_golden_cat_throne.png"
+  },
   "golden_paw_statue": {
     "name": "Golden Paw Statue",
     "kind": "lawn",
     "model": "CatCafe_Lawn_GoldenPawStatue",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_golden_paw_statue.png"
+  },
+  "golden_yarn_kitten": {
+    "name": "Golden Yarn Kitten",
+    "kind": "lawn",
+    "model": "CatCafe_Lawn_GoldenYarnKitten",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_golden_yarn_kitten.png"
   },
   "grey_slabs": {
     "name": "Grey Slabs",

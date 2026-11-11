@@ -9,6 +9,8 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Cannon = require(Shared:WaitForChild("Cannon"))
@@ -91,6 +93,46 @@ local function watchCharacter(character: Model)
 	character:GetAttributeChangedSignal("CarryingCatId"):Connect(remember)
 end
 
+-- #3072 (Derek2 2026-11-10: "you spawn with camera inside cannon when rejoining"): the game's camera starts looking
+-- north whichever way the character faces, and at the Town Square spawn that put it inside the Cat Cannon. This puts
+-- it behind the character, looking the way they face, for a few frames (a spawn resets the camera once more a frame
+-- or two in); the game's camera keeps that way after. Left alone while a script holds the camera (the intro, a
+-- flight).
+local AIM_FRAMES = 4
+
+local function aimBehind(character: Model, near: Vector3?)
+	task.spawn(function()
+		local root = character:WaitForChild("HumanoidRootPart", 5)
+		if root == nil or not root:IsA("BasePart") then
+			return
+		end
+		local part = root :: BasePart
+		if near ~= nil then
+			-- the server's move reaches this client a moment after the attribute may
+			local deadline = os.clock() + 2
+			while
+				(part.Position - near).Magnitude > Cannon.HOME_SPAWN_STUDS
+				and os.clock() < deadline
+			do
+				task.wait()
+			end
+		end
+		for _ = 1, AIM_FRAMES do
+			local camera = Workspace.CurrentCamera
+			if
+				player.Character ~= character
+				or camera == nil
+				or camera.CameraType ~= Enum.CameraType.Custom
+			then
+				return
+			end
+			local from, focus = Cannon.cameraBehind(part.Position, part.CFrame.LookVector)
+			camera.CFrame = CFrame.lookAt(from, focus)
+			RunService.RenderStepped:Wait()
+		end
+	end)
+end
+
 function CannonController.start()
 	UI.cannon.setEnabled(true)
 	for _, model in CollectionService:GetTagged(TAG) do
@@ -104,8 +146,27 @@ function CannonController.start()
 	end)
 	if player.Character ~= nil then
 		watchCharacter(player.Character)
+		aimBehind(player.Character, nil) -- #3072: the first character of the session, at the Town Square spawn
+	else
+		local first: RBXScriptConnection? = nil
+		first = player.CharacterAdded:Connect(function(character: Model)
+			if first ~= nil then
+				first:Disconnect()
+			end
+			aimBehind(character, nil)
+		end)
 	end
 	player.CharacterAdded:Connect(watchCharacter)
+	-- #3072: the server moved this player to their own front door at join (CannonService.homeArrival)
+	local function arrivedHome()
+		local at = player:GetAttribute(Cannon.HOME_ATTRIBUTE)
+		local character = player.Character
+		if typeof(at) == "Vector3" and character ~= nil then
+			aimBehind(character, at)
+		end
+	end
+	player:GetAttributeChangedSignal(Cannon.HOME_ATTRIBUTE):Connect(arrivedHome)
+	arrivedHome()
 
 	-- #2915: the cannon the character stands in range of (the server's own range), for "Fly to the Park"
 	UI.cannon.nearest = function(): string?

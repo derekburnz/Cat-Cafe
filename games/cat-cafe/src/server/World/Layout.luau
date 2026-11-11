@@ -10,8 +10,8 @@ local Lawn = require(ReplicatedStorage.Shared.Lawn)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 -- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1), or in a v3.2 side area
--- "near" (the gate half) or "deep" (the far half); Epic and rarer strays take only "nook" points and Mythicals only
--- "deep" ones (Catching.KEEP_ZONES; #2210: Epic and Legendary spawn anywhere in a side area).
+-- "near" (the gate half) or "deep" (the far half); Mythicals take only "deep" ones (Catching.KEEP_ZONES; #2210: Epic
+-- and Legendary spawn anywhere in a side area; #3170: any rarity anywhere in the Alleyway, which has "mid" points too).
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
 -- reach its chairs (Layout.plot.tables).
@@ -496,13 +496,19 @@ local function laneZ(z: number): number
 end
 
 -- Two lane spawn points behind every cafe's old place, in plot order (plot p's are points 2p - 1 and 2p). Then the
--- nooks, where Epic and rarer strays go, all at the far (south) end: four either side of the middle, 6 studs off the
--- south end wall (two where each old lane's dead end was, two where the passage through the block was), at least 2
--- inside the roam rect and at least 10 studs from every lane point. Then the eight `near` points just past the camp's
+-- nooks, all at the far (south) end: two either side of the middle since #3170 (four before), 6 studs off the south
+-- end wall, at least 2 inside the roam rect and at least 10 studs from every lane point; any rarity may take one
+-- since #3170 (Epic and rarer took only these before). Then the six `mid` points (#3170). Then the eight `near` points just past the camp's
 -- way in for the tutorial stray (data-model section 9, v0.13.18), 10 and then 16 studs into the Alleyway: 5 studs
 -- right (+X for a player facing south into it) then 5 left of the middle, then the same 15 studs out (F85, one way in
 -- since the block went). Plot p owns near point p, so plot 1's stray waits where the intro shows it.
-local NOOKS = { { 82, -119 }, { 68, -119 }, { SHIFT + 5, AS + 6 }, { SHIFT + 11, AS + 6 } }
+-- #3170 (Derek2: "all the cats in alleyway are piled into the back ... remove some of the spawns from the back
+-- area"): two nooks either side, not four (the old lane's dead end and the passage's middle one)
+local NOOKS = { { 82, -119 }, { SHIFT + 11, AS + 6 } }
+-- #3170 ("spread them out through the entire area"): six `mid` points in the middle stretch, which had none, between
+-- the Skip and Van blocker rows: across the middle at 10 and 26 studs either side 18 studs south of the centre, and
+-- 20 either side on the centre line. Each is 9 or more studs from every rescue spot.
+local MIDS = { { 10, -18 }, { 26, -18 }, { 20, 2 } }
 local NEAR_IN = { 10, 16 }
 local NEAR_ACROSS = { 5, 15 }
 -- An x across the whole Alleyway (0 its middle) in lane space, which has no middle: |x| SHIFT more, the same side.
@@ -528,6 +534,11 @@ local function alleySpawnPoints(): { Point }
 	for _, side in { -1, 1 } do
 		for _, xz in NOOKS do
 			table.insert(points, { x = side * xz[1], y = 0.1, z = xz[2], zone = "nook" })
+		end
+	end
+	for _, side in { -1, 1 } do
+		for _, xz in MIDS do
+			table.insert(points, { x = fromMiddle(side * xz[1]), y = 0.1, z = xz[2], zone = "mid" })
 		end
 	end
 	for _, across in NEAR_ACROSS do
@@ -1608,7 +1619,7 @@ Layout.desert = {
 	rescueSpots = {
 		setTrap(DX, DZ, DTURN, "sand_dune", { -62, 0, -160 }),
 		setTrap(DX, DZ, DTURN, "sand_dune", { 44, 0, 172 }),
-		setTrap(DX, DZ, DTURN, "clay_urn", { -60, 0, 102 }, -30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -64.5, 2.42, 102 }, -30), -- on the terrace (was sunk in it)
 		setTrap(DX, DZ, DTURN, "clay_urn", { 60, 0, 262 }, 200),
 		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 30, 0, 112 }, 20),
 	},
@@ -1616,7 +1627,7 @@ Layout.desert = {
 	rescuePool = {
 		setTrap(DX, DZ, DTURN, "sand_dune", { -62, 0, -160 }),
 		setTrap(DX, DZ, DTURN, "sand_dune", { 44, 0, 172 }),
-		setTrap(DX, DZ, DTURN, "clay_urn", { -60, 0, 102 }, -30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -64.5, 2.42, 102 }, -30), -- on the terrace (was sunk in it)
 		setTrap(DX, DZ, DTURN, "clay_urn", { 60, 0, 262 }, 200),
 		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 30, 0, 112 }, 20),
 		setTrap(DX, DZ, DTURN, "sand_dune", { 43, 0, -176 }),
@@ -1838,125 +1849,161 @@ Layout.townSquare = {
 	-- north sign arch, each turned to face the spawn. #2367 (Derek2 11-07, "only 1 is needed 2 juts adds clutter")
 	-- keeps the left one, off the Fish Market's side. WorldBuilder.setRally shows it while a Rally runs.
 	rallyBoards = {
-		{ asset = "CatCafe_Square_RallyBoard", x = -15.5, y = 0.1, z = 35, rotY = -17.55 }, -- #2707
+		-- #3070: out from behind the cannon, so the spawn sees the whole board
+		{ asset = "CatCafe_Square_RallyBoard", x = -26, y = 0.1, z = 54, rotY = -20.92 },
 	} :: { Prop },
 	-- The pity cat's sign (#1572, luck-and-rare-moments.md 1h; Model-Agent #1592: `CatCafe_Square_PitySign`, front
 	-- -Z, its Screen 5.6 x 2.8): the manifest's suggested spot across the street from the Day Cart, turned to face the
 	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.
-	pitySign = { asset = "CatCafe_Square_PitySign", x = 15, y = 0.1, z = -33, rotY = 141.71 } :: Prop, -- #2707
+	pitySign = { asset = "CatCafe_Square_PitySign", x = 19, y = 0.1, z = -53.5, rotY = 154.31 } :: Prop, -- #3070
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
-	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings
-	-- round the sides and two short ones over the lane's ends (each ends 0.25 inside its lamps' hook rings, so the
-	-- lamps need no nudge), six benches facing in (the south-west two came out for the Mystery Market corner, #2565), and the four gardens. The middle holds only the Cat Cannon
+	-- street, then the edge (Derek 10-28, Model-Agent #726; #3070's 120 x 140 square): twenty-four lamps on the
+	-- brick border, eight buntings on the north and south sides, twelve side buntings on the east and west (three
+	-- spans a quarter) and two short ones over the lane's ends (each ends 0.25 inside its lamps' hook rings, so the
+	-- lamps need no nudge), twelve benches facing in, and the gardens in the 9 stud strips either side. The middle holds only the Cat Cannon
 	-- (v4, placed by WorldBuilder) and its pad, and the quarters only the stations. The finger signpost south-west of
 	-- the cannon came out 2026-11-03 (Derek: its tier arms no longer matched the areas). A short bunting skips until
 	-- its model is in (AssetRegistry.known).
 	props = {
 		{ asset = "CatCafe_Square_Paving", x = 0, y = 0.1, z = 0 },
-		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -44 },
-		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 44, rotY = 180 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -43, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -43, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -25.75 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 43, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 43, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 25.75 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -43, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -43, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -25.75 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 43, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 43, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 25.75 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 8.5 },
-		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = -43 },
-		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = 43 },
-		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = -43 },
-		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = 43 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = -17.125, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = -34.375, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = 17.125, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = 34.375, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = -17.125, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = -34.375, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = 17.125, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = 34.375, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingShort", x = -47, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingShort", x = 47, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = -41.4, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = -34.375, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = 41.4 },
-		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = 34.375, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = -41.4, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = -34.375, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = 41.4 },
-		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = 34.375, rotY = 90 },
-		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = -19.5, rotY = -90 },
-		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = 19.5, rotY = -90 },
-		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = -19.5, rotY = 90 },
-		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = 19.5, rotY = 90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = -58.5, y = 0.1, z = -36.5, rotY = -90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = -58.5, y = 0.1, z = 36.5, rotY = -90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = 58.5, y = 0.1, z = -36.5, rotY = 90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = 58.5, y = 0.1, z = 36.5, rotY = 90 },
-		{ asset = "CatCafe_Square_GardenMid", x = -58.5, y = 0.1, z = 0, rotY = -90 },
-		{ asset = "CatCafe_Square_GardenMid", x = 58.5, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -70 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 70, rotY = 180 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -69, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -41.75, y = 0.1, z = -69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -28.667 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -48.833 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 69, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -41.75, y = 0.1, z = 69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 28.667 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 48.833 },
+		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -69, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 41.75, y = 0.1, z = -69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -28.667 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -48.833 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 69, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 41.75, y = 0.1, z = 69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 69, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 28.667 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 48.833 },
+		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 8.5 },
+		{ asset = "CatCafe_Square_Bunting", x = -33.125, y = 0.1, z = -69 },
+		{ asset = "CatCafe_Square_Bunting", x = -50.375, y = 0.1, z = -69 },
+		{ asset = "CatCafe_Square_Bunting", x = -33.125, y = 0.1, z = 69 },
+		{ asset = "CatCafe_Square_Bunting", x = -50.375, y = 0.1, z = 69 },
+		{ asset = "CatCafe_Square_Bunting", x = 33.125, y = 0.1, z = -69 },
+		{ asset = "CatCafe_Square_Bunting", x = 50.375, y = 0.1, z = -69 },
+		{ asset = "CatCafe_Square_Bunting", x = 33.125, y = 0.1, z = 69 },
+		{ asset = "CatCafe_Square_Bunting", x = 50.375, y = 0.1, z = 69 },
+		{ asset = "CatCafe_Square_BuntingShort", x = -59, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingShort", x = 59, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -18.583, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -38.75, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -58.917, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 18.583, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 38.75, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 58.917, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -18.583, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -38.75, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -58.917, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 18.583, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 38.75, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 58.917, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = -50.375, y = 0.1, z = -67.4, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = -38.75, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = -58.917, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -50.375, y = 0.1, z = 67.4 },
+		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = 38.75, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = 58.917, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = 50.375, y = 0.1, z = -67.4, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = -38.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = -58.917, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 50.375, y = 0.1, z = 67.4 },
+		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = 38.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = 58.917, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = -64, y = 0.1, z = -21.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = -64, y = 0.1, z = 21.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = 64, y = 0.1, z = -21.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = 64, y = 0.1, z = 21.5, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = -64, y = 0.1, z = -51.5, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = -64, y = 0.1, z = 51.5, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = -51.5, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = 51.5, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenMid", x = -64, y = 0.1, z = 0, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenMid", x = 64, y = 0.1, z = 0, rotY = 90 },
 	} :: { Prop },
 }
 
--- #2707 (Derek2 2026-11-09: the Mystery cart hid the Codes Cat; "expand the town square by 25-50%"): the square is
--- 44 deep either side (was 32) and every quarter station moved to Model-Agent's re-fit (handoff in
--- Model-Agent/square2707: bodies 3 apart, walk-up rings clear, and no station hides more than 25% of another from
--- the spawn or the cannon but the Thanks board behind the night cart, #1388). Sixteen edge lamps, eight side buntings,
--- eight benches and four GardenEnd beds; the cannon, its pad, the spawn, the Bellhop stand and the leaderboards stay.
+-- #2707 (Derek2 2026-11-09: the Mystery cart hid the Codes Cat; "expand the town square by 25-50%") made the square
+-- 44 deep either side (was 32). #3001 (Derek2 2026-11-10: "expand the town square make sure everything still
+-- working") makes it 120 x 110 (60 wide and 55 deep either side), and every station moves out with it to the model
+-- lane's re-fit (handoff in Animation-Engineer/square3001, checked by its fit.py: bodies 3 apart, walk-up rings 1 off
+-- any other body and 2 off any other ring, 1.5 off every lamp, bench and arch post, nothing on the street line or
+-- the lane but the Bellhop stand and the leaderboards at its ends, and no station hidden from the spawn or the cannon
+-- but the Thanks board behind the night cart, #1388). The cannon, its pad and the spawn stay.
+-- #3070 (Derek2 2026-11-10, in the Thank You board's picture: "expand the town square again ... the boards and
+-- stations stop blocking each other"): 120 x 140, 70 deep either side; the width stays 60 because the town edge
+-- holds it. Every station is fitted again (handoff in Animation-Engineer/tasks/square3070, checked by its fit70.py
+-- with the same rules and no exception left): the Thanks board comes out from behind the night cart and the Rally
+-- board from behind the cannon. Two new spots are kept for the feedback stand (#3066) and the arcade cabinet (#3062).
 -- The stations, one per quarter: the Spin Wheel (F49) and the Golden Fish Market (F53) north of the lane, the Codes
--- Cat (F65; its CodesCircle 6 studs in front, toward the fountain) and the night dealer's cart (data-model section
+-- Cat (F65; its CodesCircle 8 studs in front, toward the fountain) and the night dealer's cart (data-model section
 -- 8b, parked from dusk; the dealer stands at its +X end) south of it. #1215: the Fish Market sits back toward the
 -- north-east corner, clear of the leaderboard row by 3.2 studs and the north bench by 2.9 (Model-Agent's check).
-Layout.spinWheel = station(-28, 22)
-Layout.fishMarket = station(33.5, 28)
--- #2565 (mystery-market.md section 1): the Codes Cat moved from (-28, -16) to the south-west corner with the Day Cart
--- and Juniper's cart (Model-Agent's clearance check with the real model sizes, 2026-11-09).
-Layout.codesCat = station(-29, -16)
--- #1388: the night market parks in front of the Thank You board (below), on its line to the cannon, so the board
--- stands 8.5 studs behind the cart with about 6.5 clear between them.
-Layout.dealerCart = station(29.5, -22)
+Layout.spinWheel = station(-35, 35)
+Layout.fishMarket = station(42, 44.5)
+-- #3000 (Derek2 2026-11-10: "push the codes back between mystery market and codes cat", option A): the whole Codes
+-- stand stands back from the middle, in the gap between the Mystery Market and the Bellhop Cat (#3070: at
+-- (-45, -25.5) on the deeper square, (-45, -20) before).
+Layout.codesCat = station(-45, -25.5)
+-- #1388: the night market parked in front of the Thank You board (below), on its line to the cannon. #3070: the
+-- board stands south of the cart now, clear of it from the spawn and from the cannon.
+Layout.dealerCart = station(37, -35)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
 -- of the Codes circle, and its 9.2 stud dais leaves the lane open from the street to x -33. Its sign faces the cannon.
-Layout.bellhopStand = station(-38, 0)
+Layout.bellhopStand = station(-48, 0)
 -- #2565 (mystery-market.md section 1): Juniper's Mystery Market cart, facing the cannon, in the south-west corner
 -- between the Codes Cat and the Day Cart (Model-Agent's spot, 2026-11-09; the two south-west benches came out). For
 -- its 12 x 7 wagon with the r4 walk-in circle 1 stud in front: the Codes circle is 2.6 studs off, the Day Cart 3.2
 -- and the lane 2.5. Design's (-24, -14) put the circle 0.3 into the lane.
-Layout.mysteryCart = station(-36, -31)
+Layout.mysteryCart = station(-45, -49.6)
 
 -- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
 -- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the
 -- row runs z -11.9 to 11.9 and x 38.6 to 41.4, clear of the edge lamps at x 47.
-Layout.leaderboards = station(40, 0)
+Layout.leaderboards = station(50, 0)
 
 -- The Corner Shop (#1052, corner-shop.md section 4): beside the Golden Fish Market toward the north-east corner,
 -- facing the cannon. Model-Agent's spot for CatCafe_Street_CornerShop (10.9 x 4.3, #1215; was 15, 23): clear of the
 -- Fish Market by 1.95 studs, the north sign arch's post by 1.2, the bunting line by 0.8, the lamp by 4.4 and the
 -- street by 7.1.
 -- #1577 (day-cart.md section 3): the shop's old building, built only until the Day Cart's model arrives.
-Layout.cornerShop = station(21, 33)
+Layout.cornerShop = station(26, 52.2)
 
 -- The Day Cart (#1577, day-cart.md section 3): the Corner Shop on CatCafe_Town_DayCart, in the square's south-west
 -- quarter opposite the Golden Fish Market. Model-Agent's spot (#1592) keeps the walk lines and the cannon clear.
 -- #2565: nudged from (-17, -24) for the Mystery Market corner; 2.6 studs from the street and 4.2 from the arch post.
-Layout.dayCart = station(-17, -35)
+Layout.dayCart = station(-21, -56)
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
 -- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),
 -- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
 -- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
-Layout.thanksBoard = station(37, -28.5)
+Layout.thanksBoard = station(43, -47.8) -- #3070: out from behind the night cart
+
+-- #3070: two spots the bigger square keeps free, mirrored either side of the street north of the lane, each facing
+-- the cannon: the feedback stand's (#3066, CatCafe_Town_FeedbackStand, a mailbox that opens the feedback box) and
+-- the arcade cabinet's (#3062, a 3.7 x 3.1 cabinet). Nothing is built on them here; each feature places its own model.
+Layout.feedbackStand = station(34, 18)
+Layout.arcadeCabinet = station(-34, 18)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
@@ -2022,6 +2069,13 @@ local ALLEY_BOARD_OUT = 7 -- the Alleyway's (F85, Model-Agent): its low walls ru
 function Layout.campPoint(camp: Camp, x: number, z: number): (number, number)
 	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
 	return camp.origin.x + x * c + z * s, camp.origin.z - x * s + z * c
+end
+
+-- #3198: the world point (x, z) in `camp`'s space, campPoint's inverse.
+function Layout.campSpace(camp: Camp, x: number, z: number): (number, number)
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	local dx, dz = x - camp.origin.x, z - camp.origin.z
+	return dx * c - dz * s, dx * s + dz * c
 end
 
 local function campFor(id: string, spec: AreaSpec): Camp?

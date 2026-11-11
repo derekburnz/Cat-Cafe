@@ -1,10 +1,15 @@
 --!strict
 -- Walk-up windows on this client (#2398; shared/WalkUp for the rules). Walking up to the Cat Cannons, the Spin Wheel,
--- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart and, for its owner, the cafe's
+-- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart, in the camps the Yard Sale,
+-- the Oasis Spa, the Relic Museum and each Index Board (#3113) and, for its owner, the cafe's
 -- bait bowl on the back step (#2476) opens its window, and
--- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
--- closed by hand opens again with a press. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
+-- walking away closes it, as the Codes Cat's circle does (CodesController). #3114: a station with a ring has no click
+-- prompt any more (its prompt's reach is set to nothing here, WalkUp.promptReach), so a window closed by hand opens
+-- again by stepping out of the ring and back in; one without a ring keeps its prompt. #2910: each open, by ring or by prompt, is counted (StationOpened). Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
+-- #3066: the feedback stand's ring opens the Feedback window straight on its text box, without the cursor in it (a
+-- held W would type into it); the cursor goes in once a keyboard player has stood still there for a moment
+-- (shared/FeedbackStand.focusNow). A press of the stand's prompt puts it in at once, on a phone too (UIController).
 -- Each station's glowing floor ring (World/WalkUpCircles, WalkUp.CIRCLE) is where its window opens: stepping inside the
 -- ring opens it. A station without a ring falls back to its prompt's reach (WalkUp.RADIUS_SHARE).
 --
@@ -15,9 +20,13 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local CampExtras = require(Shared:WaitForChild("CampExtras"))
+local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
+local LateStations = require(Shared:WaitForChild("LateStations"))
 local Net = require(script.Parent.Parent.Net)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local UI = require(script.Parent.Parent.UI)
@@ -30,7 +39,17 @@ local player = Players.LocalPlayer
 local POLL_SECONDS = 0.15
 
 -- A kind of station: its tag, its prompt's name, the window (the UI's modal name) and how to open it for `model`.
-type Kind = { tag: string, prompt: string, window: string, open: (model: Instance) -> () }
+-- `only`, when given, picks which of the tag's models are this kind (#3113: one tag holds several camp stations).
+type Kind = {
+	tag: string,
+	prompt: string,
+	window: string,
+	open: (model: Instance) -> (),
+	only: ((model: Instance) -> boolean)?,
+	-- true where the ring opens the window even without a prompt to be found (an Index Board whose model brought a
+	-- prompt under another name)
+	loose: boolean?,
+}
 
 local KINDS: { Kind } = {
 	{
@@ -82,6 +101,62 @@ local KINDS: { Kind } = {
 			UI.dealer.open()
 		end,
 	},
+	{
+		tag = FeedbackStand.TAG, -- #3066: the Town Square's post box opens the Feedback window on its text box
+		prompt = FeedbackStand.PROMPT,
+		window = FeedbackStand.WINDOW,
+		open = function()
+			UI.bugReport.open(FeedbackStand.KIND, "none")
+		end,
+	},
+	-- #3113 (Derek2: "circle pads to walk into for all area stations also ... auto open menu when getting close"):
+	-- the camps' stations with a card. The Picnic Basket, Fish Pond and Lost and Found have no card: stepping into
+	-- their rings collects (CampExtrasController).
+	{
+		tag = CampExtras.TAG,
+		prompt = CampExtras.PROMPT,
+		window = "YardSale",
+		only = function(model: Instance)
+			return model:GetAttribute("ExtraId") == CampExtras.YARD_SALE
+		end,
+		open = function()
+			UI.campExtras.openYardSale(nil)
+		end,
+	},
+	{
+		tag = LateStations.TAG,
+		prompt = LateStations.PROMPT,
+		window = "OasisSpa",
+		only = function(model: Instance)
+			return model:GetAttribute("StationId") == LateStations.SPA
+		end,
+		open = function()
+			UI.lateStations.open(LateStations.SPA)
+		end,
+	},
+	{
+		tag = LateStations.TAG,
+		prompt = LateStations.PROMPT,
+		window = "RelicMuseum",
+		only = function(model: Instance)
+			return model:GetAttribute("StationId") == LateStations.MUSEUM
+		end,
+		open = function()
+			UI.lateStations.open(LateStations.MUSEUM)
+		end,
+	},
+	{
+		tag = "IndexBoard", -- each area's board opens the Index on that area's page (Screens/IndexBoards)
+		prompt = "IndexPrompt",
+		window = "Collection",
+		loose = true,
+		open = function(model: Instance)
+			local area = model:GetAttribute("Area")
+			if type(area) == "string" then
+				UI.openIndex(area)
+			end
+		end,
+	},
 }
 
 -- Strong tables, cleared when the station is destroyed: a weak-keyed table by Instance lost its entries while the
@@ -89,6 +164,24 @@ local KINDS: { Kind } = {
 -- and shut the window after a second
 local prompts: { [Instance]: ProximityPrompt? } = {}
 local keys: { [Instance]: string } = {}
+-- #3114: the reach each prompt came with, so it is given back if its station's ring goes away
+local ownReach: { [ProximityPrompt]: number } = {}
+
+-- Silences a ringed station's click prompt, or gives a ringless one its own reach back.
+local function setReach(prompt: ProximityPrompt, hasRing: boolean)
+	local own = ownReach[prompt]
+	if own == nil then
+		own = prompt.MaxActivationDistance
+		ownReach[prompt] = own
+		prompt.Destroying:Connect(function()
+			ownReach[prompt] = nil
+		end)
+	end
+	local reach = WalkUp.promptReach(hasRing, own :: number)
+	if prompt.MaxActivationDistance ~= reach then
+		prompt.MaxActivationDistance = reach
+	end
+end
 local lastKey = 0
 
 -- The station's prompt, found once and again if it streamed out.
@@ -165,6 +258,23 @@ local function flying(): boolean
 		)
 end
 
+-- Whether the character stands still (no walk asked for), for the feedback stand's cursor.
+local function standing(): boolean
+	local character = player.Character
+	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	return humanoid ~= nil and (humanoid :: Humanoid).MoveDirection.Magnitude < 0.05
+end
+
+-- Whether the player last used a keyboard or a mouse: only then does a box take the cursor by itself.
+local function onKeyboard(): boolean
+	local last = UserInputService:GetLastInputType()
+	return last == Enum.UserInputType.Keyboard
+		or last == Enum.UserInputType.MouseMovement
+		or last == Enum.UserInputType.MouseButton1
+		or last == Enum.UserInputType.MouseButton2
+		or last == Enum.UserInputType.MouseWheel
+end
+
 -- Whether the player is busy: nothing pops up over a catch, a rescue, a carry, a flight or the intro.
 local function blocked(): boolean
 	local ui: any = UI
@@ -186,6 +296,9 @@ function WalkUpController.start()
 		end
 	end)
 	local state = WalkUp.new()
+	-- #3066: looks stood still in the feedback stand's ring since it opened the window, and whether the box has had
+	-- the cursor from that
+	local stillLooks, standFocused = 0, false
 	-- a new character (a respawn) is looked at afresh, so spawning next to a station opens nothing
 	player.CharacterAdded:Connect(function()
 		table.clear(state.inside)
@@ -201,12 +314,19 @@ function WalkUpController.start()
 				model: Instance,
 				prompt: ProximityPrompt?,
 				window: string,
-				open: () -> ()
+				open: () -> (),
+				loose: boolean?
 			)
 				-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
 				-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
-				local off = prompt == nil or not prompt.Enabled
 				local hasRing, centre, ringRadius = ringOf(model)
+				-- #3114: the ring is the only way in, so the click prompt of a station that has one never shows
+				if prompt ~= nil then
+					setReach(prompt, hasRing)
+				end
+				local off = if prompt == nil
+					then not (loose == true and hasRing)
+					else not (prompt :: ProximityPrompt).Enabled
 				local position = if hasRing
 					then centre
 					elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
@@ -224,8 +344,9 @@ function WalkUpController.start()
 					off = off,
 					radius = if hasRing
 						then ringRadius
-						elseif prompt ~= nil then (prompt :: ProximityPrompt).MaxActivationDistance
-							* WalkUp.RADIUS_SHARE
+						elseif prompt ~= nil then (ownReach[prompt :: ProximityPrompt] or (
+							prompt :: ProximityPrompt
+						).MaxActivationDistance) * WalkUp.RADIUS_SHARE
 						else 0,
 				})
 			end
@@ -234,9 +355,12 @@ function WalkUpController.start()
 					if not model:IsDescendantOf(Workspace) then
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too
 					end
+					if kind.only ~= nil and not kind.only(model) then
+						continue
+					end
 					add(model, promptOf(model, kind.prompt), kind.window, function()
 						kind.open(model)
-					end)
+					end, kind.loose)
 				end
 			end
 			-- #2476 (Derek2: "make the bait bowl to open if you walk outside the backdoor near it"): the own first
@@ -264,6 +388,18 @@ function WalkUpController.start()
 				local window = windowOf[open :: string]
 				if window ~= nil then
 					Net.fire("StationOpened", window, "ring") -- #2910
+				end
+				stillLooks, standFocused = 0, false
+			end
+			-- #3066: the stand's window, opened by its ring and still up: the cursor goes in once the player stands
+			if
+				state.openedWindow == FeedbackStand.WINDOW
+				and UI.isOpen() == FeedbackStand.WINDOW
+			then
+				stillLooks = if standing() then stillLooks + 1 else 0
+				if FeedbackStand.focusNow(stillLooks, standFocused, onKeyboard()) then
+					standFocused = true
+					UI.bugReport.focus()
 				end
 			end
 		end

@@ -41,6 +41,8 @@ return function()
 		RescueTolerance = 0.03,
 		RescuePatience = 3,
 		RescueRetrySeconds = 3,
+		StarterRescueRefillSeconds = 30, -- #3049: the starter trap's refill wait
+		StarterRescueRefillsPerDay = 4, -- #3049: refills an area a day at most
 		RescueSelfRetrySeconds = 6,
 		RescueAttemptMaxSeconds = 22, -- #2566 (was 15)
 		GoldChanceRescue = 0.12,
@@ -137,11 +139,11 @@ return function()
 		CharmSpread = 0.20,
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
-		DealerRangeStuds = 12,
+		DealerRangeStuds = 16,
 		FreshCatchWindowSeconds = 390, -- F94 300; #1437: one game day, a restock at every global sunrise
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
 		CornerShopWindowSeconds = 390, -- #1437 (was 300)
-		CornerShopRange = 14,
+		CornerShopRange = 18,
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
@@ -205,7 +207,7 @@ return function()
 		InviteCardBySeconds = 900,
 		InvitePendingCheckSeconds = 60,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
-		SpinStationRange = 14,
+		SpinStationRange = 18,
 		SpinCooldownSeconds = 4,
 		SpinAllMax = 51, -- #1078 (Derek 2026-11-04): Use all spins; 51 since #1414
 		SpinBankCap = 50, -- #1414 (was 20)
@@ -214,14 +216,15 @@ return function()
 		CratePrice = 40,
 		CrateBundleCount = 5,
 		CrateBundlePrice = 180,
-		FishMarketRange = 14,
+		FishMarketRange = 18,
 		CrateOpenCooldownSeconds = 0.3,
 		DecorIndexBonus = 0.05,
 		DecorEquipBest = true,
 		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
-		FirstBaitWaitSeconds = 1, -- #1895: the account's first bait; #2946: was 45 (#2774), 120 before
+		FirstBaitWaitSeconds = 5, -- #1895: the account's first bait; #3161: was 1 (#2946), 45 (#2774), 120 before
+		FirstBaitCatLeadSeconds = 4, -- #3161: the first bait's cat stands at the bowl this long before its timer ends
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
 		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
@@ -234,8 +237,8 @@ return function()
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
 		-- codes (F65, section 11d, v0.10 circle and group codes)
-		CodesCatRange = 12,
-		CodesCircleRadius = 4,
+		CodesCatRange = 16,
+		CodesCircleRadius = 6,
 		CodeMaxLength = 20,
 		CodeWrongLimit = 5,
 		CodeLockSeconds = 60,
@@ -313,7 +316,7 @@ return function()
 		TradeMaxCrateKinds = 6, -- #2745 (trading.md section 1c): crate kinds each side may offer
 		TradeMaxCrates = 20, -- #2745: crates in all each side may offer
 		TradeMaxFish = 200, -- #2745 (section 1d): golden fish each side may offer
-		TradeFishPerDay = 400, -- #2745: golden fish one player may receive in trades a game day
+		TradeFishPerDay = 250, -- #2745: golden fish one player may receive in trades a game day (Derek2 11-10: 400 before)
 		TradeFishValue = 0.075, -- #2745: 40 fish count as one Rare (3)
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
@@ -335,7 +338,7 @@ return function()
 		PondHold = 24, -- #2237: was 36
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
-		CampExtraRangeStuds = 8,
+		CampExtraRangeStuds = 14,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -550,6 +553,13 @@ return function()
 				LateStationsOpen = true, -- #2651 part 4: on since the Spa and Museum cards are in (#2931)
 				CatchHoldFirstRing = true, -- #2920: on since the Catch screen draws the hold (#2922)
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
+				RescueFirstUses = true, -- #3120: an account's first rescues, checked in Rescue.spec
+				RescueFirstZone = true, -- #3120: their wider zone, checked in Rescue.spec
+				RescueFirstSpeed = true, -- #3180: their slower marker, checked in Rescue.spec
+				CoatDifficulty = true, -- #3135: a table, checked in Rescue.spec and Circles.spec
+				QuickRingTier = true, -- #3140: checked in Circles.spec
+				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
+				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -878,14 +888,16 @@ return function()
 		)
 
 		it(
-			"the rescue bar matches the section 10b table: rarer has less time in the zone (v0.13.15 F83, #2219, #2320, #2566)",
+			"the rescue bar matches the section 10b table: rarer has less time in the zone (v0.13.15 F83, #2219, #2320, #2566, #3223)",
 			function()
 				local rows = {
-					Common = { 0.85, 0.30 }, -- #2320
-					Rare = { 0.735, 0.23 }, -- #2320; #2566: Rare and up x0.7
-					Epic = { 0.98, 0.15 },
-					Legendary = { 1.12, 0.12 },
-					Mythical = { 1.26, 0.14 },
+					-- #3120: the zones were 0.30, 0.23, 0.15, 0.12 and 0.14
+					-- #3223: Common and Rare were 0.85 and 0.735
+					Common = { 1.00, 0.17 },
+					Rare = { 0.90, 0.135 }, -- #2566 made the Rare slower than the Common; #3223 keeps a little of that
+					Epic = { 0.98, 0.105 },
+					Legendary = { 1.12, 0.105 },
+					Mythical = { 1.26, 0.125 },
 				}
 				-- how long the marker stays inside a zone (tolerance included) on its first pass
 				local function inZoneSeconds(row: { number }): number

@@ -303,7 +303,6 @@ return function()
 
 		it("keeps each remote under the server's limit", function()
 			expect(MarketLogic.SEND_GAP.item >= 0.5).to.equal(true) -- BuyFishItem 2 a second
-			expect(MarketLogic.SEND_GAP.fresh >= 0.5).to.equal(true) -- BuyFreshCatch 2 a second
 			expect(MarketLogic.SEND_GAP.bundle >= 1).to.equal(true) -- BuyCrateBundle 1 a second
 		end)
 	end)

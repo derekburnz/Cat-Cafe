@@ -53,7 +53,7 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 - No row, silhouette or "???" slot, and no count toward any Index total, track or reward.
 - After you own one, a Secret page appears at the end of your Index with only the ones you found and no total. **(assumed)**
 - The Collector and the Relic Museum never ask for one.
-- **Odds are still shown.** Bait is bought with coins and coins can be bought with Robux, so every bait card that can give a Secret lists its real chance (`monetization-policy`). The cat is hidden; the chance is not.
+- **Bait cards stay as they are.** A bait card's Mythical line keeps its number and now means "Mythical or better": the Secret share is inside it, so the card stays true and gives nothing away. This is allowed because bait is bought with coins and coins are never in any Robux item (store-skus.md), so no Robux buys a random roll. If bait or coins ever enter a Robux item, each card must list Secret on its own line with its real chance (`monetization-policy`).
 
 ## 8. The first three **(assumed)**
 

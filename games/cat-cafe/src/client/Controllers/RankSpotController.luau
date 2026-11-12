@@ -22,6 +22,7 @@ local TICK = 0.25
 local player = Players.LocalPlayer
 local phase: RankSpot.Phase = "none"
 local freeSeconds = 0
+local shownAt = 0 -- os.clock() the walk-through last went from nothing to showing
 local putAway = false -- closed by a press on the dim this session; the save has it from the next sync
 local reported: { [string]: boolean } = {}
 
@@ -41,13 +42,20 @@ local function show(next: any)
 		return
 	end
 	local shown: boolean = rankSpot.set(next, (RankSpot.WORDS :: any)[next], function()
-		-- a press anywhere on the dim: closed, and it does not come back as a dim
-		putAway = true
-		report("closed")
-		Net.fire("TipSeen", RankSpot.SEEN, false)
+		-- a press anywhere on the dim closes it. After KEEP_SECONDS on screen it does not come back as a dim; a
+		-- sooner one (a thumb already on the stick) only hides it until the next free moment
+		if RankSpot.putsAway(os.clock() - shownAt) then
+			putAway = true
+			report("closed")
+			Net.fire("TipSeen", RankSpot.SEEN, false)
+		end
 		rankSpot.set("none")
 		phase = "none"
+		freeSeconds = 0
 	end)
+	if shown and phase == "none" then
+		shownAt = os.clock()
+	end
 	phase = if shown then next else "none"
 	if shown then
 		report("shown")

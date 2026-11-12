@@ -8,6 +8,7 @@
 -- out of the safe area or spending the coins only hides it. Behind the live switch `rankUpSpotlight` (off).
 --   FLAG, SEEN, ATTRIBUTE, FREE_SECONDS, TELEMETRY, WINDOW, WORDS
 --   due(on, tier, seen, blocker, area) -> boolean                 the server's word
+--   putsAway(shownFor) -> boolean                                 a press on the dim: for good, or only hidden
 --   phase(due, was, freeSeconds, window) -> "none" | "button" | "confirm"
 
 local RankSpot = {}
@@ -18,6 +19,7 @@ RankSpot.FLAG = "rankUpSpotlight"
 RankSpot.SEEN = "rank_spotlight" -- the tipsSeen id
 RankSpot.ATTRIBUTE = "RankSpotlight" -- on the Player, true while the walk-through may show
 RankSpot.FREE_SECONDS = 2
+RankSpot.KEEP_SECONDS = 2 -- a press on the dim sooner than this after it showed only hides it (a thumb on the stick)
 RankSpot.TELEMETRY = "rank_spot" -- TelemetryReport name; values "shown" and "closed"
 RankSpot.WINDOW = "RankUp" -- the rank up window's name in the UI's modal
 RankSpot.WORDS = table.freeze({
@@ -54,6 +56,11 @@ function RankSpot.phase(due: boolean, was: Phase, freeSeconds: number, window: s
 		return "button"
 	end
 	return "none"
+end
+
+-- Whether a press on the dim `shownFor` seconds after the walk-through showed puts it away for good.
+function RankSpot.putsAway(shownFor: number): boolean
+	return shownFor >= RankSpot.KEEP_SECONDS
 end
 
 return RankSpot

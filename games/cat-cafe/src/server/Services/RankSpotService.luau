@@ -50,8 +50,13 @@ local function watch(player: Player, on: boolean)
 			{ Telemetry.device(player) or "unknown" }
 		)
 	end
-	local area = WorldBuilder.areaAt(PlotService.world(), (root :: BasePart).Position)
-	local due = RankSpot.due(on, tier, profile.tipsSeen[RankSpot.SEEN] == true, blocker, area)
+	local seen = profile.tipsSeen[RankSpot.SEEN] == true
+	local due = false
+	if RankSpot.due(on, tier, seen, blocker, nil) then
+		-- the area last, and only when everything else holds
+		local area = WorldBuilder.areaAt(PlotService.world(), (root :: BasePart).Position)
+		due = RankSpot.due(on, tier, seen, blocker, area)
+	end
 	player:SetAttribute(RankSpot.ATTRIBUTE, if due then true else nil)
 end
 

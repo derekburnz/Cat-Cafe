@@ -48,6 +48,11 @@ return function()
 			expect(RankSpot.phase(true, "none", 2, RankSpot.WINDOW)).to.equal("confirm")
 		end)
 
+		it("puts it away for good only for a press after 2 seconds on screen", function()
+			expect(RankSpot.putsAway(0.3)).to.equal(false)
+			expect(RankSpot.putsAway(RankSpot.KEEP_SECONDS)).to.equal(true)
+		end)
+
 		it("says only what to do", function()
 			expect(RankSpot.WORDS.button).to.equal("You can rank up!")
 			expect(RankSpot.WORDS.confirm).to.equal("Press to rank up")

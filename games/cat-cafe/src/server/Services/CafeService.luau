@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
@@ -151,7 +152,7 @@ local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile)
 		* Economy.phaseMultiplier(ClockService.phase())
 		* Economy.tipMultiplier(profile, os.time())
-		* Economy.eventMoney() -- #2486: a running Cafe Event's money
+		* Economy.moneyFor(profile) -- #2486: a running Cafe Event's money; #3573: or the rest's 2x
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
@@ -237,6 +238,9 @@ local function traitsView(profile: Profile, now: number): Types.TraitsView?
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
+	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
+	-- holds for the session
+	local introAuto = Telemetry.introPlays(player, profile)
 	local plot = PlotService.get(player)
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
@@ -289,6 +293,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
 		introSeen = profile.introSeen,
+		introAuto = introAuto, -- #3666
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
 		hideCredit = profile.hideCredit == true, -- #1083: the Settings row "Show my name on the Thank You board"
@@ -2252,6 +2257,19 @@ local function onBuyLure(player: Player, _rawId: unknown)
 	Net.toast(player, "Bait food is at the Corner Shop now", "info")
 end
 
+-- The Welcome back card for pay earned while away. #3602: not after a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE),
+-- which is the same visit carried on; the few seconds of the hop are credited without a card when the player
+-- leaves (DataService's release), as any unclaimed offline pay is.
+local function offlineCard(player: Player)
+	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
+		return
+	end
+	local offline, seconds = DataService.peekPendingOffline(player)
+	if offline > 0 then
+		Net.fire(player, "OfflineEarnings", offline, seconds)
+	end
+end
+
 local function onClaimOffline(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2423,10 +2441,7 @@ local function onLoaded(player: Player, profile: Profile)
 	if refund > 0 then
 		Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
 	end
-	local offline, seconds = DataService.peekPendingOffline(player)
-	if offline > 0 then
-		Net.fire(player, "OfflineEarnings", offline, seconds)
-	end
+	offlineCard(player)
 	if not DataService.saves() then
 		Net.toast(
 			player,
@@ -2508,10 +2523,7 @@ function CafeService.start()
 		if refund > 0 then
 			Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
 		end
-		local offline, seconds = DataService.peekPendingOffline(player)
-		if offline > 0 then
-			Net.fire(player, "OfflineEarnings", offline, seconds)
-		end
+		offlineCard(player)
 	end)
 
 	-- The rate changes at dusk and dawn: settle the old phase and send the new rate at once.

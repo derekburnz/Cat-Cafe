@@ -923,7 +923,8 @@ local function tutorialTick()
 			-- #3035: at night a first-session Tier 1 player with the pass finds one Common at their own point too,
 			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
 			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
-			if night and NightPass.firstOf(profile, nightCatch) then
+			-- #3659: and so does a Tier 1 player who has not caught a cat by hand yet, in any session
+			if night and NightPass.nightCatOf(profile, nightCatch) then
 				nightHolders[player.UserId] = true
 				local point = near[plot.index]
 				if point ~= nil and occupied[point] == nil then
@@ -1867,6 +1868,15 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
 		return true
 	end
+	-- #3662 (Derek 2026-11-12: "the first cat catch where it used to stop the circle and wait for you to click/guide
+	-- you should now be for the second catch not first because first is the free one from food bowl"): the
+	-- walk-through's first cat is the bait bowl's, so the first check-in comes before the player has ever swung the
+	-- net. The easy catch now lasts until a cat caught by hand is checked in (SecondCat.caught), on any free stray.
+	-- Only on a plain stray of SecondCat.MAX_RARITY or below (SecondCat.easyFirst), so it never hands a new save a
+	-- Legendary, Mythical, Secret, gold or rainbow cat.
+	if SecondCat.easyFirst(profile.stats, stray.def.rarity, stray.variant) then
+		return true
+	end
 	-- #3181: another beginner's tutorial stray too, now that anyone may catch one
 	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 end
@@ -2177,7 +2187,8 @@ function startCatch(
 			Circles.earlyScale(SecondCat.caught(profile.stats))
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
-	local hold = tutorial and Config.CatchHoldFirstRing and profile.stats.catsCaught == 0
+	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up
+	local hold = tutorial and Config.CatchHoldFirstRing and SecondCat.caught(profile.stats) == 0
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on

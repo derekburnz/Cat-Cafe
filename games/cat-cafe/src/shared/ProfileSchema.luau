@@ -13,6 +13,7 @@ local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
+local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
 local LateStations = require(script.Parent.LateStations)
@@ -854,6 +855,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	telemetry.firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT
 	telemetry.firstHourV3Step = math.clamp(firstHourV3Step, 0, Onboarding.FIRST_HOUR_COUNT)
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
+	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
 	return telemetry
 end
 

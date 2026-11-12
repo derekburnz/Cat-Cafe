@@ -576,6 +576,38 @@ function StoreLogic.badge(
 	return if worth >= StoreLogic.BEST_VALUE * (own.robux :: number) then "Best Value" else nil
 end
 
+-- #3572: the Sale badge. The old price to strike through on this card, or nil for no badge: only a card in
+-- Config.StoreWasPrice that is not owned, on sale at exactly its half price, before Config.StoreSaleEnds. It has to
+-- be true, so any other live price (a regional one, a later change) shows no badge. No countdown, no end date shown.
+StoreLogic.SALE = "SALE"
+function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): number?
+	local entry = if type(config.StoreWasPrice) == "table"
+		then config.StoreWasPrice[row.key]
+		else nil
+	local ends = config.StoreSaleEnds
+	if
+		type(entry) ~= "table"
+		or type(ends) ~= "number"
+		or now >= ends
+		or row.owned
+		or row.closed == true
+		or price == nil
+		or not price.forSale
+		or price.robux ~= entry.now
+		or type(entry.was) ~= "number"
+		or entry.was <= entry.now
+	then
+		return nil
+	end
+	return entry.was
+end
+
+-- The Sale badge's words (rich text): SALE and the old price struck through. The button beside it has the new price.
+function StoreLogic.saleBadge(was: number): string
+	-- "was" in words, so it reads right even where the strike line does not draw
+	return ("%s  was <s>R$%s</s>"):format(StoreLogic.SALE, commas(was))
+end
+
 -- Every pass id the Config names that is made, money ladder first.
 function StoreLogic.passIds(config: any): { number }
 	local ids: { number } = {}
@@ -813,23 +845,18 @@ end
 export type Featured = { hero: Row?, picks: { Row } }
 
 StoreLogic.PICKS = 3
--- The hero, in order of preference (#1425): the Starter Bundle while it can be bought (the best first buy for a new
--- cafe), then the running season's Cafe Pass until it is bought (#1646), then the King Cat Pack. An owned King Cat Pack gives way to the Royal Cat, then the Grand Cafe Theme.
--- #1823 (store-layout-v2.md §1): the Starter Bundle until bought, then the King Cat bundle, then the Cafe Pass
-local HERO_ORDER = { "starterBundle", "kingPack", "cafePass", "royalCat", "grandTheme" }
--- The top picks, left to right: the money ladder's next rung, Long Nap and the King Cat Pack (the Royal Cat when the
--- King Cat Pack is the hero).
--- #1823 §1: the Cafe Pass first, then the best sellers (2x Money and Long Nap until the growth thread has sales data)
--- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): the King Cat Pack and the Second Bait
--- Bowl lead, then the Cafe Pass; 2x Money and Long Nap fill in once one of those is owned
-local PICK_ORDER = { "kingPack", "secondBowl", "cafePass", "money", "longNap", "royalCat" }
--- #2303 (Derek2: "remove the 3 potion bundles and add things like the +1 bowl or more popular passes"): once those
--- are owned, the next picks are passes the player keeps, ordered by what they do for play first (more cats, more
--- slots, more pay), then looks (Monetization-Agent's order). Any other pass comes next; the potion packs and the
--- other products bought each time only fill a pick once every pass is owned.
+-- #3562 (Derek: "should focus on cats bundles 2x money being cheap", "never show potion bundles unless they are only
+-- thing left"). The hero, first one that can be bought: the Starter Bundle (the cat bundle for a new cafe), the
+-- Royal Cat, the King Cat Pack, the running season's Cafe Pass, the Grand Cafe Theme. Earlier orders: #1425, #1823.
+local HERO_ORDER = { "starterBundle", "royalCat", "kingPack", "cafePass", "grandTheme" }
+-- The three picks, left to right, first three that can be bought and are not the hero: the money ladder's next rung
+-- (2x Money is the cheapest thing in the Store), the cat bundles, then what brings more cats
+-- (Second Bait Bowl, Extra Slot), VIP, Long Nap and the Cafe Pass. Earlier orders: #1823 §1, #2850.
+local PICK_ORDER =
+	{ "money", "royalCat", "kingPack", "secondBowl", "extraSlot", "vip", "longNap", "cafePass" }
+-- Then the passes the player keeps that are mostly looks (#2303, Monetization-Agent's order). Any other pass comes
+-- next, then any other product; the potion packs fill a pick only once nothing else can be bought.
 local PASS_PICKS = {
-	"extraSlot",
-	"vip",
 	"accessories",
 	"cafeStyle",
 	"signStylePack",
@@ -838,18 +865,37 @@ local PASS_PICKS = {
 	"kingCat",
 }
 
+-- #3562: the potion packs (every card of PRODUCTS), last on Featured. They keep their place on the Potions tab.
+local function potionPack(key: string): boolean
+	for _, card in PRODUCTS do
+		if card.key == key then
+			return true
+		end
+	end
+	return false
+end
+
 -- The Featured tab's cards: one hero and up to three picks, never the same row twice. Owned rows give way to ones
 -- that can still be bought, and an empty spot is filled from PASS_PICKS, then the rest of the Store's passes, then
--- its products, each in order.
-function StoreLogic.featured(rows: { Row }): Featured
+-- its other products, then the potion packs, each in order. #3562: with `prices`, a card Roblox says is off sale or
+-- has no price is passed over too, so the tab never leads with "Soon" (a price still loading does not count: the
+-- card shows "..." for a moment as before). Cards passed over only come back when nothing else fills the tab.
+function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featured
 	local byKey: { [string]: Row } = {}
 	for _, row in rows do
 		byKey[row.key] = row
 	end
+	local function buyable(row: Row): boolean
+		if row.owned or row.closed == true then
+			return false
+		end
+		local price: Price? = if prices then prices[row.passId] else nil
+		return price == nil or (price.forSale and price.robux ~= nil)
+	end
 	local hero: Row? = nil
 	for _, key in HERO_ORDER do
 		local row = byKey[key]
-		if row and not row.owned then
+		if row and buyable(row) then
 			hero = row
 			break
 		end
@@ -876,24 +922,29 @@ function StoreLogic.featured(rows: { Row }): Featured
 	end
 	for _, key in PICK_ORDER do
 		local row = byKey[key]
-		if row and not row.owned then
+		if row and buyable(row) then
 			take(row)
 		end
 	end
 	for _, key in PASS_PICKS do
 		local row = byKey[key]
-		if row and not row.owned then
+		if row and buyable(row) then
 			take(row)
 		end
 	end
 	for _, row in rows do
-		if not row.owned and not row.product then
+		if buyable(row) and not row.product then
 			take(row)
 		end
 	end
 	for _, row in rows do
-		if not row.owned then
+		if buyable(row) and not potionPack(row.key) then
 			take(row)
+		end
+	end
+	for _, row in rows do
+		if buyable(row) then
+			take(row) -- only the potion packs are left to buy
 		end
 	end
 	for _, key in PICK_ORDER do

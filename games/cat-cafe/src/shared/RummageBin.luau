@@ -14,6 +14,12 @@
 -- the next fixed prize, then the chances, before the press (RummageBin.note; monetization-policy section 2; nothing
 -- here is sold or sped up, and no timer shows: Monetization-Agent 11-10).
 -- #3458: the bar needs BinHits hits, its own number.
+-- #3608, behind the `binRoll` switch (RummageBin.ROLL_FLAG): the prize is rolled BEFORE the bar, from
+-- Config.BinRollTable, and kept in the save's `prize` (a row id) until the player wins it: a miss, a leave or a
+-- rejoin never loses or rerolls it. The fixed first prizes are kept the same way but are not rolled. The server
+-- tells the client the row and how it came (MODE_ROLL: just rolled, play the roll; MODE_FIXED: a fixed first
+-- prize, reveal it; MODE_WAITING: it was waiting, straight to the bar) with the BinRolled remote, then sends the
+-- bar after the show. With the switch off everything above is as it was.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -34,7 +40,14 @@ RummageBin.NAME = "Rummage Bin"
 RummageBin.ACTION = "Rummage"
 RummageBin.EMPTY = "Empty for now 🐾" -- no countdown (Monetization-Agent 11-10)
 RummageBin.TRAP = "rummage_bin" -- the challenge's trap type: a plain bar
+RummageBin.ROLL_FLAG = "binRoll" -- LiveFlags, off by default
+RummageBin.PRIZE_ATTRIBUTE = "BinPrize" -- on the Player: the waiting prize's row id, for the board (nil: none)
+RummageBin.MODE_ROLL = "roll"
+RummageBin.MODE_FIXED = "fixed"
+RummageBin.MODE_WAITING = "waiting"
 RummageBin.RANGE_STUDS = 10 -- the prompt's reach; the server allows a little past it
+RummageBin.PAD_HEIGHT = 8 -- studs over or under the pad that still count as standing on it (#3680)
+RummageBin.PAD_FIRST = "Step onto the circle to rummage" -- #3680: a press from off the pad, `binRoll` on
 local RARITY: Types.Rarity = "Common"
 RummageBin.RARITY = RARITY -- the bar's pace
 
@@ -47,10 +60,56 @@ export type Row = {
 	fish: number?,
 	crate: string?,
 	potion: string?,
+	tier: number?,
 }
 
+-- Config's tables as rows. Through `any`: CI's luau-lsp calls the inferred table types unrelated to Row (a row
+-- there has no `tier` field) and refuses the direct cast.
+local FIRST_PRIZES: { Row } = Config.BinFirstPrizes :: any
+local BIN_TABLE: { Row } = Config.BinTable :: any
+local ROLL_TABLE: { Row } = Config.BinRollTable :: any
+
 function RummageBin.fresh(): Types.RummageBinSave
-	return { nextAt = 0, uses = 0 }
+	return { nextAt = 0, uses = 0, prize = nil }
+end
+
+-- #3608: the rolled table's rows, in the board's order.
+function RummageBin.rollRows(): { Row }
+	return ROLL_TABLE
+end
+
+-- #3608: a row the `binRoll` bin can hold by its id: a fixed first prize or a BinRollTable row.
+function RummageBin.rollRow(id: unknown): Row?
+	if type(id) ~= "string" then
+		return nil
+	end
+	for _, rows in { FIRST_PRIZES, RummageBin.rollRows() } do
+		for _, row in rows do
+			if row.id == id then
+				return row
+			end
+		end
+	end
+	return nil
+end
+
+-- #3608: where a row stands on the board (1 on top), or nil for a fixed first prize.
+function RummageBin.rollIndex(id: string): number?
+	for index, row in RummageBin.rollRows() do
+		if row.id == id then
+			return index
+		end
+	end
+	return nil
+end
+
+-- #3608: how big a row's effects are: 1, 2 or 3 (a fixed first prize is 2: a little show, never the gold one).
+function RummageBin.tier(row: Row): number
+	local tier = row.tier
+	if tier == nil then
+		return 2
+	end
+	return math.clamp(math.floor(tier), 1, 3)
 end
 
 -- A saved value made whole at `now`: whole numbers, no wait longer than one cooldown from now (a damaged or
@@ -69,6 +128,9 @@ function RummageBin.sanitize(raw: unknown, now: number): Types.RummageBinSave
 	end
 	save.nextAt = whole(value.nextAt, now + Config.BinCooldownSeconds)
 	save.uses = whole(value.uses, 2 ^ 31)
+	-- #3608: a waiting prize only while its row still exists (a row dropped from the table rolls fresh)
+	local waiting = RummageBin.rollRow(value.prize)
+	save.prize = if waiting ~= nil then waiting.id else nil
 	return save
 end
 
@@ -82,7 +144,7 @@ function RummageBin.early(save: Types.RummageBinSave): boolean
 end
 
 local function rowById(id: string): Row?
-	for _, rows in { Config.BinFirstPrizes :: { Row }, Config.BinTable :: { Row } } do
+	for _, rows in { FIRST_PRIZES, BIN_TABLE } do
 		for _, row in rows do
 			if row.id == id then
 				return row
@@ -94,7 +156,7 @@ end
 
 -- The fixed prize the win after `uses` earlier wins brings, or nil once they are used up.
 function RummageBin.fixedFor(uses: number): Row?
-	return (Config.BinFirstPrizes :: { Row })[uses + 1]
+	return FIRST_PRIZES[uses + 1]
 end
 
 -- The row a win brings after `uses` earlier wins, for a roll in [0, 1): a fixed first prize, then BinTable's.
@@ -103,7 +165,7 @@ function RummageBin.rowFor(uses: number, roll: number): Row
 	if fixed ~= nil then
 		return fixed
 	end
-	local rows = Config.BinTable :: { Row }
+	local rows = BIN_TABLE
 	local total = 0
 	for _, row in rows do
 		total += row.chance or 0
@@ -155,6 +217,55 @@ end
 -- A win at `now`: counts it, starts the wait and returns the row it brought.
 function RummageBin.win(save: Types.RummageBinSave, now: number, roll: number): Row
 	local row = RummageBin.rowFor(save.uses, roll)
+	save.uses += 1
+	save.nextAt = now
+		+ (
+			if save.uses < Config.BinFirstUses
+				then Config.BinFirstRepeatSeconds
+				else Config.BinCooldownSeconds
+		)
+	return row
+end
+
+-- #3608: the row the next rummage is for, with how it came. A prize already waiting stays (MODE_WAITING: never
+-- rolled again); else a roll of BinRollTable for `roll` in [0, 1) (MODE_ROLL). The row's id is stored in the save.
+-- #3680 (Derek 2026-11-12: "the animation should always play no scripted starting rewards"): there is no fixed
+-- first prize here, an account's first rummage is rolled as every other is (MODE_FIXED is no longer sent), and the
+-- client plays the roll in both modes, landing on this row.
+function RummageBin.choose(save: Types.RummageBinSave, roll: number): (Row, string)
+	local waiting = RummageBin.rollRow(save.prize)
+	if waiting ~= nil then
+		return waiting, RummageBin.MODE_WAITING
+	end
+	local rows = RummageBin.rollRows()
+	local picked = rows[#rows]
+	local total = 0
+	for _, row in rows do
+		total += row.chance or 0
+		if roll < total then
+			picked = row
+			break
+		end
+	end
+	save.prize = picked.id
+	return picked, RummageBin.MODE_ROLL
+end
+
+-- #3680 ("don't start animation until they are on the circle"): true when `offset`, from the pad's centre to the
+-- player's root, is inside the pad's ring of `radius` studs (flat), `slack` studs more for the server's late view.
+function RummageBin.onPad(offset: Vector3, radius: number, slack: number?): boolean
+	return Vector3.new(offset.X, 0, offset.Z).Magnitude <= radius + (slack or 0)
+		and math.abs(offset.Y) <= RummageBin.PAD_HEIGHT
+end
+
+-- #3608: a win at `now` of the stored prize: counts it, starts the wait, clears the stored prize and returns its
+-- row; nil when nothing valid was stored (the caller falls back to RummageBin.win).
+function RummageBin.winStored(save: Types.RummageBinSave, now: number): Row?
+	local row = RummageBin.rollRow(save.prize)
+	if row == nil then
+		return nil
+	end
+	save.prize = nil
 	save.uses += 1
 	save.nextAt = now
 		+ (
@@ -261,7 +372,7 @@ end
 -- The chances for the prompt's note, in the table's order over two lines so they fit a phone:
 -- "2 Tuna 34%  ·  8 golden fish 25%  ·  Salmon 15%" then the rest.
 function RummageBin.oddsLine(): string
-	local rows = Config.BinTable :: { Row }
+	local rows = BIN_TABLE
 	local half = math.ceil(#rows / 2)
 	local lines: { string } = {}
 	for from = 1, #rows, half do
@@ -289,8 +400,8 @@ function RummageBin.note(uses: number): string
 end
 
 -- The bar's closing words for a win of row `id` (`first`: the account's first win): the title and the line under it.
-function RummageBin.winWords(id: string, first: boolean): (string, string)
-	local row = rowById(id)
+function RummageBin.winWords(id: string, first: boolean, rolled: boolean?): (string, string)
+	local row = if rolled then RummageBin.rollRow(id) else rowById(id)
 	if row == nil then
 		return "Found something!", ""
 	end

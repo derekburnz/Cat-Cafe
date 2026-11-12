@@ -3161,6 +3161,25 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, crates = { classic_crate = 1 } },
 	},
+	-- #3576 (Derek 2026-11-12: "add codes for 2000visits,10likes and update2 when it's out"): two thank-you codes, on
+	-- as soon as a server has them, and the second update's code, on by the clock at the update (Thursday 2026-11-12
+	-- 22:00 UTC; unknown before it). Prizes are Design-Agent's, beside `update1` and `500visits` in size; no end.
+	["2000visits"] = {
+		id = "2000visits",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, crates = { classic_crate = 2 } },
+	},
+	["10likes"] = {
+		id = "10likes",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	update2 = {
+		id = "update2",
+		active = true,
+		startsAt = 1794520800, -- 2026-11-12 22:00 UTC
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { big_tip_potion = 2 } },
+	},
 	group = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set
@@ -3194,8 +3213,10 @@ end
 -- equally among that rarity's pieces. Every crate shows these odds before it opens (monetization-policy).
 local CRATE_ODDS =
 	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
+-- #3665 (Derek 2026-11-12: "buff gold crates chance of legendary / mythic so its not only always epics"): 70, 24, 6
+-- (was 80, 17.5, 2.5). A plain crate's lucky twentieth keeps the old numbers in its own table (Crates.LUCKY_ODDS).
 local GOLDEN_CRATE_ODDS =
-	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
+	{ Common = 0, Rare = 0, Epic = 70, Legendary = 24, Mythical = 6 } :: { [string]: number }
 -- F101: the Rally Crate is never sold and has no golden twin (`sold` and `golden` false).
 local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boolean? } } = {
 	{ area = "alley", name = "Alley" },

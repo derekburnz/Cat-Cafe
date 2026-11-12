@@ -189,4 +189,23 @@ function TutorialArrowLogic.holes(position: Vector2, size: Vector2, screen: Vect
 	}
 end
 
+-- #3638: how far the whole screen (`fullAt`, `full`) reaches past a ScreenGui that keeps to the device's safe area
+-- (`innerAt`, `inner`) on each side, in px, never negative. All zero when either has no size yet.
+function TutorialArrowLogic.margins(
+	fullAt: Vector2,
+	full: Vector2,
+	innerAt: Vector2,
+	inner: Vector2
+): { left: number, right: number, top: number, bottom: number }
+	if full.X <= 0 or full.Y <= 0 or inner.X <= 0 or inner.Y <= 0 then
+		return { left = 0, right = 0, top = 0, bottom = 0 }
+	end
+	return {
+		left = math.max(0, math.floor(innerAt.X - fullAt.X + 0.5)),
+		right = math.max(0, math.floor((fullAt.X + full.X) - (innerAt.X + inner.X) + 0.5)),
+		top = math.max(0, math.floor(innerAt.Y - fullAt.Y + 0.5)),
+		bottom = math.max(0, math.floor((fullAt.Y + full.Y) - (innerAt.Y + inner.Y) + 0.5)),
+	}
+end
+
 return TutorialArrowLogic

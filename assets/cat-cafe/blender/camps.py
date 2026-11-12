@@ -247,7 +247,10 @@ def _theme(s, mat, area, G, B, W, half):
             if sx > 0:
                 s.put(park.build_park_bench(mat), 25, B + 2.5, 0)
             else:
-                s.put(park.build_park_bench(mat), -16, G - PAD_IN - 2, -90)
+                # 2026-11-12 (Review-QA Studio scan): the west bench stood at (-16, 14 in), 1.4 from the centre of
+                # the Index Board's walk-in ring (the board is 4 beside the way out, 7 in, its ring in front of it).
+                # It now mirrors the east bench against the back wall, between the same two flower beds.
+                s.put(park.build_park_bench(mat), -25, B + 2.5, 0)
             s.put(square.build_lamp(mat), sx * 9, cz, 0)
             for x in (x for x in (24, 44, 64) if x < W / 2 - 6):
                 # #3469: the east tree's trunk stood 7.9 from the Picnic Basket's ring centre, inside a radius 8 ring

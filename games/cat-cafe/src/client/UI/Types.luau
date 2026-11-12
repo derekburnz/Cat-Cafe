@@ -382,6 +382,8 @@ export type PartialState = {
 	secondCat: (SharedTypes.SecondCatView | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
+	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
+	traits: (SharedTypes.TraitsView | false)?,
 }
 
 export type ScreenName =

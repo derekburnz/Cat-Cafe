@@ -90,6 +90,7 @@ local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
+UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
 UI.mouseDash = {} -- #3296 the arcade's Mouse Dash window, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
@@ -236,6 +237,10 @@ UI.events = {
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
+	-- #3196 (the Mystic Pool's card): forward as RollTrait(uid), ChooseTrait(takeNew) and CollectTraitTokens()
+	rollTrait = Signal.new(), -- (uid)
+	chooseTrait = Signal.new(), -- (takeNew)
+	collectTraitTokens = Signal.new(), -- ()
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
 	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
@@ -604,6 +609,7 @@ local function render()
 	UI.arcade.render(state)
 	UI.mouseDash.render(state)
 	UI.lateStations.render(state)
+	UI.mysticPool.render(state)
 	UI.cornerShop.render(state)
 	UI.mystery.render(state)
 	UI.trade.render(state)
@@ -1008,6 +1014,8 @@ function UI.init(config: Types.InitConfig)
 			-- #3213: opened from the Cannon, the card stays open wherever the player stands (no walk-away close)
 			if stationId == "yardSale" then
 				UI.campExtras.openYardSale(nil, true)
+			elseif stationId == "mysticPool" then
+				UI.mysticPool.open(true) -- #3196
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -1608,6 +1616,7 @@ function UI.init(config: Types.InitConfig)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
+	UI.mysticPool.start() -- the Mystic Pool's card (#3196)
 	UI.mouseDash.start() -- the arcade's Mouse Dash window (#3296)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
@@ -1801,6 +1810,7 @@ function UI.destroy()
 	UI.together.reset()
 	UI.campExtras.reset()
 	UI.lateStations.reset()
+	UI.mysticPool.reset()
 	UI.mouseDash.reset()
 	UI.mystery.reset()
 	UI.giftWait.reset()
@@ -7064,6 +7074,108 @@ do
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The Mystic Pool (#3196, #3314, trait-station.md sections 1 and 3)
+----------------------------------------------------------------------------------------------------
+
+-- The Mystic Pool's card (Screens/MysticPool): open(anywhere, uid) from the station's ring or the Cannon menu,
+-- render(state) with every state (PlayerState.traits is its numbers, false or nil while the `traits` switch is off),
+-- and its presses go out as UI.events.rollTrait / chooseTrait / collectTraitTokens. `UI.mysticPool.play` and
+-- `UI.mysticPool.far` are the controller's to set: the pool's animation for a roll (Effects/MysticPool.roll, which
+-- returns its skip) and the walk-away check. Its own block, as the module is short of locals.
+do
+	local MysticPool = require(script.Screens.MysticPool)
+	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
+	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
+	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
+	UI.mysticPool.far = nil :: (() -> boolean)?
+
+	function UI.mysticPool.start()
+		UI.mysticPool.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local card = MysticPool.new({
+			roll = function(uid: string)
+				UI.events.rollTrait:Fire(uid)
+			end,
+			choose = function(takeNew: boolean)
+				UI.events.chooseTrait:Fire(takeNew)
+			end,
+			collect = function()
+				UI.events.collectTraitTokens:Fire()
+			end,
+			close = function()
+				if modalView:current() == MysticPoolLogic.WINDOW then
+					modalView:close()
+				end
+			end,
+			play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+				local play = UI.mysticPool.play
+				if play == nil then
+					return nil
+				end
+				return play(uid, rarity, onReveal)
+			end,
+			far = function(): boolean
+				local far = UI.mysticPool.far
+				return not pool.anywhere and far ~= nil and far()
+			end,
+		})
+		pool.card = card
+		modalView:register(MysticPoolLogic.WINDOW, {
+			frame = card.frame,
+			onOpen = function()
+				card:render(state)
+				card:opened()
+			end,
+			onClose = function()
+				card:closed()
+			end,
+		})
+		card:render(state)
+	end
+
+	function UI.mysticPool.render(playerState: Types.PlayerState)
+		if cannonScreen then
+			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
+		end
+		local card = pool.card
+		if card then
+			card:render(playerState)
+		end
+	end
+
+	-- The station's ring, or the Cannon menu (`anywhere`: no walk-away close, as #3213). `uid` picks a cat first
+	-- (the cat card's Trait row, later). False, with a toast, while the pool is shut.
+	function UI.mysticPool.open(anywhere: boolean?, uid: string?): boolean
+		local modalView = modal
+		local card = pool.card
+		if modalView == nil or card == nil then
+			return false
+		end
+		if type((state :: any).traits) ~= "table" then
+			UI.toast("The Mystic Pool is closed for now", "info")
+			return false
+		end
+		pool.anywhere = anywhere == true
+		if uid ~= nil then
+			card:pick(uid)
+		end
+		modalView:open(MysticPoolLogic.WINDOW)
+		return true
+	end
+
+	function UI.mysticPool.reset()
+		local card = pool.card
+		if card then
+			card:destroy()
+		end
+		pool.card = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Mouse Dash (#3296, Screens/MouseDash; the rules are shared/MouseDash)
 ----------------------------------------------------------------------------------------------------
 
@@ -8607,6 +8719,25 @@ do
 		return ReplicatedStorage:GetAttribute(name)
 	end
 
+	-- "6:00 PM": `unix` in this player's own time, for the party card (#3420)
+	function UI.cafeEvent.clock12(unix: number): string
+		local text = os.date("%I:%M %p", math.floor(unix)) :: string
+		return (string.gsub(text, "^0", ""))
+	end
+
+	-- the launch's headline features that are switched on right now, in the spec's order (#3420 section 5)
+	function UI.cafeEvent.news(): { string }
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local out: { string } = {}
+		for _, pair in { { "traits", "Mystic Pool" }, { "mouseDash", "Mouse Dash" } } do
+			if LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1])) then
+				table.insert(out, pair[2])
+			end
+		end
+		return out
+	end
+
 	-- one pass: read, follow, paint; the banner shows once per event this session
 	function UI.cafeEvent.tick()
 		local now = Workspace:GetServerTimeNow()
@@ -8614,9 +8745,23 @@ do
 		local seen, started = EventLogic.follow(events.seen, view, now)
 		events.seen = seen
 		if started and view ~= nil and toasts then
-			toasts:announce(
-				EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
-			)
+			-- #3420: the launch's Update Party starts with the party card; any other event with the toast
+			local party =
+				EventLogic.partyBanner(view, UI.cafeEvent.clock12(view.endsAt), UI.cafeEvent.news())
+			local shown = false
+			if party ~= nil then
+				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+				shown = EventBanner.show({
+					kind = "party",
+					title = party.title,
+					lines = party.lines,
+				}) == true
+			end
+			if not shown then
+				toasts:announce(
+					EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
+				)
+			end
 		end
 		local current = hud
 		if current then

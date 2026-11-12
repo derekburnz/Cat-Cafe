@@ -875,6 +875,17 @@ end
 
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)
 	local fields = values or {}
+	if studio and #fields > #FIELD_KEYS then
+		-- Roblox takes three custom fields; customFields drops the rest without a word (Review-QA on #3413)
+		warn(
+			string.format(
+				"[Telemetry] %s has %d fields, only the first %d are sent",
+				name,
+				#fields,
+				#FIELD_KEYS
+			)
+		)
+	end
 	remember(player, "custom", name, value, fields)
 	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))

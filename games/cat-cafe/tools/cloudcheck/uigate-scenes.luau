@@ -353,6 +353,23 @@ local function lateCats()
 	UI.update({ cats = cats })
 end
 
+-- #3196: the Mystic Pool's card open on `uid` (nil: no cat picked), gate_1 holding a Legendary trait. `waiting` is a
+-- re-roll waiting for its choice; `view` replaces the station's numbers.
+local function mysticPool(waiting, uid, view)
+	local cats = table.clone((UI.getState() :: any).cats)
+	cats.gate_1 = table.clone(cats.gate_1)
+	cats.gate_1.trait = { id = "goldenWhiskers" }
+	view = view or { tokens = 2, freeLeft = 0, held = 1 }
+	view.pending = waiting
+	UI.update({ cats = cats, goldenFish = 34, traits = view } :: any)
+	Scenes._poolTraits = true
+	UI.close()
+	assert(UI.mysticPool.open(true, uid), "uigate: the Mystic Pool did not open (#3196)")
+	assert(UI.isOpen() == "MysticPool", "uigate: the Mystic Pool's ring opened " .. tostring(UI.isOpen()) .. " (#3196)")
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	return modals:FindFirstChild("MysticPool", true)
+end
+
 -- #3296: Mouse Dash's card open with its switch on; `circle` whether Circle Streak is still playable beside it.
 local function mouseDashCard(circle)
 	UI.close()
@@ -2244,6 +2261,91 @@ local SCENES = {
 		local ask = confirm:FindFirstChild("Ask")
 		assert(string.find(ask.Text, "out now? It won't level up.", 1, true), "uigate: the question reads " .. ask.Text .. " (#2651)")
 	end },
+	-- #3196 (trait-station.md section 1): the Mystic Pool's card on a cat with a Legendary trait: its two effects,
+	-- Re-roll for a Trait Token, the odds line on the card, and a free token to collect. Roll sends RollTrait's event
+	-- with that cat.
+	{ "MysticPool", function()
+		local window = mysticPool(nil, "gate_1")
+		local name = window:FindFirstChild("Trait", true):FindFirstChild("Name")
+		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
+		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
+		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
+		local odds = window:FindFirstChild("OddsLine", true)
+		assert(odds.Visible and odds.Text:find("Mythic 1%", 1, true), "uigate: the odds line is not on the card: " .. odds.Text .. " (#3196)")
+		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
+		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
+		local tokens = window:FindFirstChild("Tokens", true)
+		assert(tokens.Text == "1 Trait Token ready", "uigate: the token line reads " .. tokens.Text .. " (#3196)")
+		local sent = nil
+		local connection = UI.events.rollTrait:Connect(function(uid)
+			sent = uid
+		end)
+		press("MysticPool", "Roll")
+		connection:Disconnect()
+		assert(sent == "gate_1", "uigate: Roll sent " .. tostring(sent) .. " (#3196)")
+		local resting = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
+		assert(resting.Text == "...", "uigate: Roll does not rest while the server answers (#3196)")
+		-- the server's answer wakes the card (here a refusal that took nothing but a token, for the picture)
+		UI.update({ traits = { tokens = 1, freeLeft = 0, held = 1 } } :: any)
+		assert(resting.Text == "Re-roll · 1 Trait Token", "uigate: Roll did not wake on the answer: " .. resting.Text .. " (#3196)")
+	end },
+	-- #3196: a new player's card: a cat with no trait picked from the list, and "Free roll (5 left)"
+	{ "MysticPoolFree", function()
+		local window = mysticPool(nil, nil, { tokens = 0, freeLeft = 5, held = 0, nextAt = workspace:GetServerTimeNow() + 3 * 3600 })
+		local roll = window:FindFirstChild("Roll", true)
+		press("MysticPool", "Change")
+		local picker = window:FindFirstChild("Picker", true)
+		assert(picker.Visible, "uigate: Pick a cat did not open the cat list (#3196)")
+		press("MysticPool", "Picker.List.gate_2.Pick")
+		assert(not picker.Visible, "uigate: picking a cat left the list open (#3196)")
+		local words = roll:FindFirstChildWhichIsA("TextLabel", true)
+		assert(words.Text == "Free roll (5 left)", "uigate: Roll reads " .. words.Text .. " (#3196)")
+		local name = window:FindFirstChild("Trait", true):FindFirstChild("Name")
+		assert(name.Text == "No trait yet", "uigate: a cat with no trait reads " .. name.Text .. " (#3196)")
+		local tokens = window:FindFirstChild("Tokens", true)
+		assert(tokens.Text:find("^Next free token in "), "uigate: the token line reads " .. tokens.Text .. " (#3196)")
+	end },
+	-- #3196: the cat list, each row with its trait
+	{ "MysticPoolPicker", function()
+		local window = mysticPool(nil, "gate_1")
+		press("MysticPool", "Change")
+		local list = window:FindFirstChild("Picker", true):FindFirstChild("List")
+		local rows = 0
+		for _, row in list:GetChildren() do
+			rows += if row:IsA("Frame") then 1 else 0
+		end
+		assert(rows >= 10, "uigate: the cat list has only " .. rows .. " cats (#3196)")
+		local trait = list:FindFirstChild("gate_1"):FindFirstChild("Trait")
+		assert(trait.Text:find("Golden Whiskers", 1, true), "uigate: the row reads " .. trait.Text .. " (#3196)")
+	end },
+	-- #3196: a re-roll waiting: the old trait and the new one side by side, Keep old and Take new the same size and
+	-- style, the odds line on it; Take new sends ChooseTrait's event with true
+	{ "MysticPoolChoice", function()
+		local window = mysticPool({ uid = "gate_1", id = "cosmicFortune" }, "gate_1")
+		local choice = window:FindFirstChild("Choice", true)
+		assert(choice.Visible, "uigate: a waiting re-roll does not show its choice (#3196)")
+		local old, new = choice.Old:FindFirstChild("Name"), choice.New:FindFirstChild("Name")
+		assert(old.Text == "Golden Whiskers" and new.Text == "Cosmic Fortune", "uigate: the choice reads " .. old.Text .. " / " .. new.Text .. " (#3196)")
+		assert(choice.New.Effect3.Text ~= "", "uigate: a Mythic trait does not show its three effects (#3196)")
+		assert(choice.KeepOld.AbsoluteSize == choice.TakeNew.AbsoluteSize, "uigate: Keep old and Take new differ in size (#3196)")
+		assert(choice.OddsLine.Text:find("Mythic 1%", 1, true), "uigate: the choice has no odds line (#3196)")
+		local sent = nil
+		local connection = UI.events.chooseTrait:Connect(function(takeNew)
+			sent = takeNew
+		end)
+		press("MysticPool", "Choice.TakeNew")
+		connection:Disconnect()
+		assert(sent == true, "uigate: Take new sent " .. tostring(sent) .. " (#3196)")
+	end },
+	-- #3196: Odds, one tap from Roll: every rarity with its percent and the "equally likely" line
+	{ "MysticPoolOdds", function()
+		local window = mysticPool(nil, "gate_1")
+		press("MysticPool", "Odds")
+		local list = window:FindFirstChild("OddsList", true)
+		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
+		assert(list.Mythic.Percent.Text == "1%" and list.Common.Percent.Text == "55%", "uigate: the odds list reads wrong (#3196)")
+		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
+	end },
 	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one
 	-- gold), one that can be filled with its green "!", the rest silhouettes with "You have n"
 	{ "RelicMuseum", function()
@@ -3901,11 +4003,21 @@ local SCENES = {
 			local connection = UI.events.mouseDashTap:Connect(function(run, index, hole)
 				sent = run .. ":" .. index .. ":" .. hole
 			end)
-			press("MouseDash", "Hole2")
+			UIShim.fire(UIShim.eventOf(holes[2], "MouseButton1Down")) -- a hole takes the press, not the release
 			connection:Disconnect()
 			assert(sent == "7:1:2", "uigate: a tap on hole 2 sent " .. tostring(sent) .. " (#3296)")
 			UI.mouseDash.judged(7, 1, { outcome = "catch", hole = 2, kind = "mouse", gain = 1, heart = 0 }, 24, 2, 5, {}, 0)
-			assert(not holes[2]:FindFirstChild("Animal", true).Visible, "uigate: a caught mouse is still up (#3296)")
+			local caught = holes[2]:FindFirstChild("Animal", true):FindFirstChild("Art")
+			assert(caught.ImageRectOffset.X == 256 and caught.ImageRectOffset.Y == 0, "uigate: a caught mouse does not show its bopped picture (#3296)")
+			-- a risen animal stays inside its own button, so a tap on its ears is a tap on its hole
+			for index = 1, 9 do
+				local art = holes[index]:FindFirstChild("Art")
+				local clip = art:FindFirstChild("Clip")
+				local top = clip.AbsolutePosition.Y + clip.AbsoluteSize.Y - 0.83 * art.AbsoluteSize.X
+				assert(top >= holes[index].AbsolutePosition.Y - 1, "uigate: hole " .. index .. "'s animal rises above its button (#3296)")
+				local floor = board:FindFirstChild("Backdrop")
+				assert(floor.AbsoluteSize.X >= holes[9].AbsolutePosition.X + holes[9].AbsoluteSize.X - holes[1].AbsolutePosition.X, "uigate: the cellar floor is smaller than the holes (#3296)")
+			end
 			assert(board:FindFirstChild("Score", true).Text == "24", "uigate: the score did not move on a catch (#3296)")
 		end,
 	},
@@ -3920,6 +4032,29 @@ local SCENES = {
 			local last = window:FindFirstChild("LastGame", true)
 			assert(last.Visible and last.Text == "Score 42 · New best!", "uigate: the last game's line reads " .. last.Text .. " (#3296)")
 			assert(window:FindFirstChild("Card", true).Visible, "uigate: the card did not come back after a game (#3296)")
+		end,
+	},
+	-- #3296: closing the window mid game puts the board away at once, before the server answers (Review-QA on
+	-- #3405: a late or lost MouseDashOver must not leave the board's keys bound), and the answer still fills the card
+	{
+		"MouseDashClose",
+		function()
+			local window = mouseDashCard(false)
+			UI.mouseDash.began(9, 3, workspace:GetServerTimeNow())
+			assert(UI.mouseDash.playing(), "uigate: no Mouse Dash game after it began (#3296)")
+			local quit = nil
+			local connection = UI.events.mouseDashQuit:Connect(function(run)
+				quit = run
+			end)
+			UI.close()
+			connection:Disconnect()
+			assert(quit == 9, "uigate: closing Mouse Dash mid game asked to quit run " .. tostring(quit) .. " (#3296)")
+			assert(not UI.mouseDash.playing(), "uigate: Mouse Dash still counts as playing with its window shut (#3296)")
+			assert(not window:FindFirstChild("Board", true).Visible, "uigate: the board is still up after the window closed (#3296)")
+			UI.mouseDash.over(9, { points = 12, seconds = 20, reason = "quit", win = false, best = 37, bestSeconds = 44, newBest = false, paid = { 10 }, today = { 10 }, legend = false, mouser = false })
+			UI.mouseDash.open()
+			local last = window:FindFirstChild("LastGame", true)
+			assert(last.Visible and string.find(last.Text, "12", 1, true) ~= nil, "uigate: the closed game's line reads " .. last.Text .. " (#3296)")
 		end,
 	},
 	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
@@ -5124,6 +5259,7 @@ local SCENES = {
 		clock:SetAttribute("NextLuckyDay", 8)
 		clock:SetAttribute("LuckyDay", true)
 		UI.clock.bind(clock)
+		Scenes._palsClock = true
 		UI.pals({})
 		UIShim.advance(0.2)
 		local chip = hud:FindFirstChild("Pals", true) :: GuiObject
@@ -8966,6 +9102,18 @@ function Scenes.close()
 		UI.clock.setAreasOpen(true)
 		UI.clock.clear()
 		Scenes._nightPass = nil
+	end
+	if Scenes._poolTraits then
+		-- #3196's scenes: the pool's numbers put away (false is the `traits` switch off), or the Park card keeps the
+		-- Mystic Pool line in place of the Picnic Basket for every scene after them (CannonExtras, #3436)
+		UI.update({ traits = false } :: any)
+		Scenes._poolTraits = nil
+	end
+	if Scenes._palsClock then
+		-- #3052's scene: its Lucky Day clock put away, or it stays bound for every scene after it in the shard and
+		-- the tip scenes that follow lose their free moment (#3408)
+		UI.clock.clear()
+		Scenes._palsClock = nil
 	end
 	if Scenes._tradeTier ~= nil then
 		UI.update(Scenes._tradeTier :: any) -- #2462's scene

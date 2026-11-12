@@ -380,6 +380,9 @@ Remotes.ServerToClient = {
 	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
 	"PlaytimeGift", -- (kind: PlaytimeGifts.Kind, paid: { string })  #1947: the like ("like") or favourite ("fav")
 	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
+	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish: number, spins: number, secondsLeft: number)  #3420: the
+	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
+	-- first); the client shows the banner with UpdateGift.banner's words
 	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
 	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the

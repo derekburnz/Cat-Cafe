@@ -446,4 +446,10 @@ function Arcade.startBlocker(
 	return nil
 end
 
+-- #3443: whether the cabinet and its floor ring are in the world: only while the arcade has a game to play, the
+-- `arcade` switch on and one of `circleStreak` or `mouseDash` on (ArcadeCabinetService puts them away otherwise).
+function Arcade.cabinetStands(arcade: boolean, circleStreak: boolean, mouseDash: boolean): boolean
+	return arcade and (circleStreak or mouseDash)
+end
+
 return Arcade

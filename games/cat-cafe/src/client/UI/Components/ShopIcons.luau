@@ -67,8 +67,9 @@ local IDS: { [string]: string } = {
 	Perk_GoldenEspresso = "rbxassetid://82998610743733",
 	Perk_BigBowl = "rbxassetid://102328473529046",
 	Perk_ExtraDecorSpot = "rbxassetid://80180214035870",
-	-- #3063: a stand-in (the paw cookie dish) until Swift Paws has its own perk picture
-	Perk_SwiftPaws = "rbxassetid://99959252804941",
+	-- #3330 (Derek 2026-11-12: "ok"): Swift Paws' own picture, the running cat
+	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_SwiftPaws.png); it was the paw cookie dish as a stand-in
+	Perk_SwiftPaws = "rbxassetid://79732833265075",
 	Coins = "rbxassetid://136732540501959",
 	Spin = "rbxassetid://137218266791913", -- the 8-slice wheel (#1603, Tools-Agent 11-05); was 109715715479737
 	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)

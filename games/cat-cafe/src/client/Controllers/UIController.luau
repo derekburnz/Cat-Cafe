@@ -25,6 +25,7 @@ local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local FirstFive = require(Shared:WaitForChild("FirstFive"))
@@ -34,6 +35,7 @@ local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLog
 local Jukebox = require(Shared:WaitForChild("Jukebox"))
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
+local MysticPool = require(script.Parent.Parent.Effects.MysticPool)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
@@ -41,9 +43,11 @@ local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
 local Tips = require(Shared:WaitForChild("Tips"))
+local Traits = require(Shared:WaitForChild("Traits"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UITypes = require(script.Parent.Parent.UI.Types)
+local UpdateGift = require(Shared:WaitForChild("UpdateGift"))
 
 local UIController = {}
 
@@ -131,6 +135,8 @@ end
 -- marker leads to that area's camp basket (the nearest `CampBasket`, the camp being its safe zone, F84) instead of
 -- the far cafe door. Checked again every CAMP_CHECK_SECONDS while carrying, so walking out of an area moves it back.
 local CAMP_CHECK_SECONDS = 0.5
+local POOL_SEEN_STUDS = 60 -- #3196: the Mystic Pool's roll plays at the station when the player is this near it
+local POOL_FAR_STUDS = 24 -- and its card, opened at the ring, closes once the player is this far from it
 
 local function inCatchingArea(position: Vector3): boolean
 	local world = Workspace:FindFirstChild("World")
@@ -858,6 +864,7 @@ local function applyState(s: Types.PlayerState)
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
 		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
+		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
@@ -1258,6 +1265,53 @@ local function wireIntents()
 	-- sets the bag record's Outcome, which the UI floats as "+$X".
 	UI.events.claimRichTip:Connect(function(bagId: string)
 		Net.fire("ClaimRichTip", bagId)
+	end)
+	-- #3196: the Mystic Pool's card. The server checks the cat, the payment and the waiting re-roll again.
+	-- The pool's own animation plays at the station when it is in the world and near (Effects/MysticPool.roll, with
+	-- the rolled cat's model when its art is loaded); opened from the Cannon menu far away, the card shows the
+	-- result with no animation.
+	local function poolStation(): Model?
+		local found = CollectionService:GetTagged(Traits.TAG)[1]
+		if found ~= nil and found:IsA("Model") and found:IsDescendantOf(workspace) then
+			return found :: Model
+		end
+		return nil
+	end
+	local function poolDistance(): number?
+		local station = poolStation()
+		local character = Players.LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if station == nil or root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		return (station:GetPivot().Position - root.Position).Magnitude
+	end
+	local mysticPool: any = (UI :: any).mysticPool
+	mysticPool.far = function(): boolean
+		local distance = poolDistance()
+		return distance == nil or distance > POOL_FAR_STUDS
+	end
+	mysticPool.play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+		local station = poolStation()
+		local distance = poolDistance()
+		if station == nil or distance == nil or distance > POOL_SEEN_STUDS then
+			return nil
+		end
+		local state: any = UIController.state
+		local cat = if state ~= nil and type(state.cats) == "table" then state.cats[uid] else nil
+		local asset: string? = if type(cat) == "table" and type(cat.catId) == "string"
+			then Catalog.sitModelName(Catalog.catModelName(cat.catId))
+			else nil
+		return MysticPool.roll(station, asset, rarity, onReveal)
+	end
+	UI.events.rollTrait:Connect(function(uid: string)
+		Net.fire("RollTrait", uid)
+	end)
+	UI.events.chooseTrait:Connect(function(takeNew: boolean)
+		Net.fire("ChooseTrait", takeNew == true)
+	end)
+	UI.events.collectTraitTokens:Connect(function()
+		Net.fire("CollectTraitTokens")
 	end)
 	-- #2854: the Rewards list's Cozy gift row takes the waiting bag; the server pays it and toasts
 	UI.events.takeCozy:Connect(function()
@@ -1881,7 +1935,8 @@ end
 
 -- #2766: the update Event's ask (UI/Components/EventRsvp): once a session at a quiet moment, before the Event starts,
 -- to a player past the tutorial who has not answered Roblox's Notify Me prompt; a busy card tries at the next sync.
-local eventAsk = { asked = false }
+-- #3450: only 3 to 10 minutes into the session (EventRsvp.window), counted from when this script started.
+local eventAsk = { asked = false, started = os.clock() }
 local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
@@ -1891,6 +1946,7 @@ local function offerEvent()
 		eventAsk.asked
 		or state == nil
 		or state.tutorialStep < 5
+		or not EventRsvp.window(os.clock() - eventAsk.started)
 		or not EventRsvp.due(id, startsAt, os.time())
 	then
 		return
@@ -1898,12 +1954,11 @@ local function offerEvent()
 	eventAsk.asked = true
 	local eventId, at = id :: string, startsAt :: number
 	task.spawn(function()
-		local waited = 0
 		while not quiet() do
-			if waited >= ASK_WAIT_SECONDS then
-				return
+			task.wait(1)
+			if not EventRsvp.window(os.clock() - eventAsk.started) then
+				return -- no quiet moment by minute 10: not this session
 			end
-			waited += task.wait(1)
 		end
 		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
 			return -- answered before (or Roblox cannot say), or it has started
@@ -2037,6 +2092,10 @@ local function trackInvite()
 end
 
 local function wireServerEvents()
+	-- #3450: the update Event's ask does not wait for a sync once its window opens
+	task.delay(EventRsvp.FROM_SECONDS + 1, function()
+		offerEvent()
+	end)
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		latestCarrying = s.carrying -- #3145: first, before anything that could hold this sync up
 		applyState(s)
@@ -2641,6 +2700,26 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
+	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
+	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
+	-- show as a banner falls back to the toast.
+	Net.on(
+		"UpdateGiftNotice",
+		function(kind: unknown, fish: unknown, spins: unknown, secondsLeft: unknown)
+			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft)
+			if banner == nil then
+				return
+			end
+			local shown = EventBanner.show({
+				kind = if kind == "paid" then "gift" else "giftSoon",
+				title = banner.title,
+				lines = banner.lines,
+			})
+			if not shown and kind == "paid" then
+				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+			end
+		end
+	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

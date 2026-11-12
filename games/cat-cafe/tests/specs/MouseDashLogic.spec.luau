@@ -98,15 +98,13 @@ return function()
 			expect(Logic.records({ loaded = true, best = 37, bestSeconds = 30, mouser = true })).to.equal(
 				"Best 37 · Mouser"
 			)
-			expect(
-				Logic.records({
-					loaded = true,
-					best = 100,
-					bestSeconds = 84,
-					legend = true,
-					mouser = true,
-				})
-			).to.equal("Best 100 in 84s · Arcade Legend · Mouser")
+			expect(Logic.records({
+				loaded = true,
+				best = 100,
+				bestSeconds = 84,
+				legend = true,
+				mouser = true,
+			})).to.equal("Best 100 in 84s · Arcade Legend · Mouser")
 		end)
 
 		it("words the end of a game without near-miss talk", function()
@@ -135,6 +133,36 @@ return function()
 				"Next prize: " .. rows[3].name .. " at 30"
 			)
 			expect(Logic.nextPrize(100, {})).to.equal("All of today's prizes won!")
+		end)
+	end)
+
+	describe("the picture sheet", function()
+		it("has a cell inside the 1024 px sheet for every picture, no two the same", function()
+			local seen: { [string]: string } = {}
+			local count = 0
+			for name, cell in Logic.CELLS do
+				count += 1
+				expect(cell[1] % Logic.CELL).to.equal(0)
+				expect(cell[2] % Logic.CELL).to.equal(0)
+				expect(cell[1] >= 0 and cell[1] + Logic.CELL <= 1024).to.equal(true)
+				expect(cell[2] >= 0 and cell[2] + Logic.CELL <= 1024).to.equal(true)
+				local key = cell[1] .. "," .. cell[2]
+				expect(seen[key]).to.equal(nil)
+				seen[key] = name
+			end
+			expect(count).to.equal(15)
+		end)
+
+		it("has a picture up and a picture hit for every kind that pops", function()
+			for _, kind in { "mouse", "golden", "kitten" } do
+				local art = Logic.ART[kind]
+				expect(Logic.CELLS[art.up]).to.be.ok()
+				expect(Logic.CELLS[art.hit]).to.be.ok()
+				expect(Logic.FACES[kind]).to.be.ok() -- the stand-in while the sheet loads
+			end
+			for _, name in { "Hole", "HoleFront", "PawBop", "Heart", "HeartEmpty" } do
+				expect(Logic.CELLS[name]).to.be.ok()
+			end
 		end)
 	end)
 end

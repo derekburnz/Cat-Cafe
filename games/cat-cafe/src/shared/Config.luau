@@ -998,6 +998,11 @@ local Config = {
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
 	YardSaleClaimHours = 4,
+	-- #3609 (Derek 2026-11-12, table OK'd 15:09 UTC; camp-stations.md section 3a), behind the `yardSaleRoll` switch: a
+	-- free lucky pick every YardSaleRollHours that always wins a crate (shared/YardPick). The four groups' chances add
+	-- to 1; `area` and `goldenArea` are split evenly over the player's open areas. Never sold, and nothing changes it.
+	YardSaleRollHours = 2,
+	YardSaleTable = { classic = 0.38, area = 0.50, goldenClassic = 0.08, goldenArea = 0.04 },
 	PondFishPerStep = 1,
 	PondStepSeconds = 900, -- #2237: 4 an hour, was 600
 	PondHold = 24, -- #2237: still 6 hours' worth, was 36

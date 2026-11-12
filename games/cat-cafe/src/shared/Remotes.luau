@@ -159,6 +159,9 @@ Remotes.ClientToServer = {
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
+	"YardSalePick", -- ()  #3614: the Yard Sale's free lucky pick (the `yardSaleRoll` switch), within reach of the
+	-- stall or from its card; 1 a second. The server rolls shared/YardPick's rows and banks the crate in the same
+	-- call, answered with YardSalePicked (or CampExtraResult with ok false) and CampExtrasState
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet and
 	-- in the Yard Sale's stock today (#1537, shared/YardSale), not bought by the caller today, the caller within reach
@@ -367,6 +370,8 @@ Remotes.ServerToClient = {
 	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on
 	-- join, at each step, lap, start and end, and at most every Config.RallyStateSeconds while points come in
 	"RallyPoint", -- (userId: number, amount: number)  F101: to every client for each score in the Rally, for the pops
+	"YardSalePicked", -- (index: number, crateId: string, tier: number)  #3614: the row of the player's YardPick rows
+	-- the lucky pick landed on, already banked; `tier` sets how big the landing effect is (1 or 3)
 	"CampExtraResult", -- (extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)  F100: the
 	-- answer to CollectCampExtra or BuyYardSale; paid is what it gave in Payout's words ("2 Money Potion", "+14 golden
 	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)

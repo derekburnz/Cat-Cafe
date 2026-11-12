@@ -51,6 +51,23 @@ function MenuFamily.on(): boolean
 	)
 end
 
+-- The family's picture cards (the mocks' cream cards on the violet body): the colours for a card and for what sits
+-- on it, with the same keys as PALETTE. Every text colour reads at 4.5:1 or better on `card`.
+MenuFamily.CARD = {
+	panel = Color3.fromHex("6646A8"),
+	card = Color3.fromHex("FFF4DC"),
+	cardStroke = Color3.fromHex("24163F"),
+	text = Color3.fromHex("33205F"),
+	subtext = Color3.fromHex("5A4680"),
+	line = Color3.fromHex("D9C9A6"), -- empty stars, bar tracks and chips
+	good = Color3.fromHex("1F7A3E"),
+	gold = Color3.fromHex("F2A900"),
+	caramel = Color3.fromHex("D9C7F5"),
+	red = Color3.fromHex("B3261E"),
+	warn = Color3.fromHex("8F5200"),
+	goldCard = Color3.fromHex("FFE49A"),
+} :: Palette
+
 function MenuFamily.palette(): Palette
 	return if MenuFamily.on() then MenuFamily.PALETTE else Theme.dark
 end
@@ -59,6 +76,16 @@ MenuFamily.pal = (
 	setmetatable({}, {
 		__index = function(_, key: string): any
 			return (MenuFamily.palette() :: any)[key]
+		end,
+	}) :: any
+) :: Palette
+
+-- A screen's picture cards take their colours as `local CARD = MenuFamily.card`: the cream card's while the switch
+-- is on, Theme.dark's otherwise (so the same code draws today's dark card).
+MenuFamily.card = (
+	setmetatable({}, {
+		__index = function(_, key: string): any
+			return (if MenuFamily.on() then MenuFamily.CARD else Theme.dark :: any)[key]
 		end,
 	}) :: any
 ) :: Palette

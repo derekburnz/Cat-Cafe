@@ -1145,7 +1145,7 @@ Design-Agent's pick on top of the stuck cat pointer, for the first rescue step (
 
 | Moment | What plays | Source |
 |---|---|---|
-| The save waits for its first rescue and the Alleyway's starter trap holds a cat | A warm, thin pillar of light 90 studs tall over the trap, a thin line from the camp, fading as you walk up. It holds still | ProfileSync `stuckGoal`, the `StuckCat` model with `Starter` true and `Area` alley |
+| The save waits for its first rescue and the Alleyway's starter trap holds a cat | A golden pillar of light 90 studs tall over the trap, 2 to 4 studs wide with a soft halo and nearly solid from the camp so it reads by day, fading as you walk up. It holds still | ProfileSync `stuckGoal`, the `StuckCat` model with `Starter` true and `Area` alley |
 | Within 70 studs (not inside 10, where the Rescue card shows) | A "Help! 🐾" bubble over the "!" and the gem, rocking 6 degrees each way, 0.9 s one way, like a waving paw | the same |
 | Every 5 s within 80 studs | The trap gives one small shake, the size of a rescue's first hit (`Logic.trapShake`) | the `<rescueSpotId>_Trap` model |
 | Within 60 studs | The cat meows (`strayCall`), again every 45 s, 4 times at most in a session | `Beats.hit("stuckCall", cat)` |

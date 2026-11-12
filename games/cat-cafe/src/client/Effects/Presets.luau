@@ -4959,25 +4959,31 @@ Presets.lootCard = {
 
 -- The stuck cat that calls for help (#2912, Design-Agent 2026-11-12): while this player's save waits for its first
 -- rescue (ProfileSync `stuckGoal`), the cat in the Alleyway's starter trap (its `Starter` attribute) wears a warm,
--- thin `pillar` of light that can be seen from the camp (the Secret beam's maths, shorter and warm; it holds still),
+-- `pillar` of light that can be seen from the camp (the Secret beam's maths, shorter and warm; it holds still),
 -- a `bubble` over it that rocks gently like a waving paw, its trap gives a small `wiggle` now and then, and the cat
 -- meows (`meow`, Audio's strayCall) as you come near, a few times at most. All of it goes when the rescue bar opens
 -- or someone else is on that cat. Nothing counts down and nothing says hurry. No arrow (Derek's no-arrows rule).
 -- Reduce Motion keeps the bubble and the trap still.
 Presets.stuckCall = {
 	checkEvery = 0.5,
+	-- Review-QA's Studio look (2026-11-12): at 0.4 studs, pale and 35% see-through it could not be made out by day
+	-- from the camp. It is now golden, at least `widthMin` 2 studs wide, nearly solid from afar (`far`), only half
+	-- additive (`emission`, so it holds its colour against a bright sky) and wears a soft `halo` `wide` times its
+	-- width that is `add` more see-through.
 	pillar = {
-		colour = Presets.palette.lampWarm,
+		colour = Presets.palette.golden,
+		emission = 0.5,
 		height = 90,
 		lift = 1,
-		perStud = 0.006,
-		widthMin = 0.4,
-		widthMax = 2,
-		far = 0.35,
+		perStud = 0.03,
+		widthMin = 2,
+		widthMax = 4,
+		far = 0.12,
 		near = 0.85,
 		nearWithin = 18,
 		fadeOver = 25,
 		topFade = 0.5,
+		halo = { wide = 2.6, add = 0.6 },
 	},
 	bubble = {
 		text = "Help! 🐾",

@@ -34,6 +34,7 @@ type Call = {
 	model: Model,
 	foot: Part, -- unseen, under the pillar
 	beam: Beam,
+	halo: Beam, -- the soft glow around the pillar
 	bubble: BillboardGui,
 	card: Frame,
 	rock: Tween?,
@@ -144,11 +145,18 @@ local function make(model: Model): Call?
 	beam.FaceCamera = true
 	beam.Segments = 1
 	beam.Color = ColorSequence.new(p.colour)
-	beam.LightEmission = 1
+	beam.LightEmission = p.emission
 	beam.LightInfluence = 0
 	beam.Width0 = p.widthMin
 	beam.Width1 = p.widthMin
 	beam.Parent = foot
+	local halo = beam:Clone() :: Beam
+	halo.Name = "Halo"
+	halo.LightEmission = 1
+	halo.Width0 = p.widthMin * p.halo.wide
+	halo.Width1 = p.widthMin * p.halo.wide
+	halo.Transparency = NumberSequence.new(1)
+	halo.Parent = foot
 	foot.CFrame = CFrame.new(top)
 	foot.Parent = Context.folder()
 
@@ -206,7 +214,15 @@ local function make(model: Model): Call?
 		made:Play()
 		rock = made
 	end
-	return { model = model, foot = foot, beam = beam, bubble = bubble, card = card, rock = rock }
+	return {
+		model = model,
+		foot = foot,
+		beam = beam,
+		halo = halo,
+		bubble = bubble,
+		card = card,
+		rock = rock,
+	}
 end
 
 -- Each frame while the cat calls: the pillar takes the width and fade for how far the camera is, and a wiggle in
@@ -226,6 +242,14 @@ local function step()
 	c.beam.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, foot),
 		NumberSequenceKeypoint.new(1 - p.topFade, foot),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	local glow = math.min(1, foot + p.halo.add)
+	c.halo.Width0 = width * p.halo.wide
+	c.halo.Width1 = width * p.halo.wide
+	c.halo.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, glow),
+		NumberSequenceKeypoint.new(1 - p.topFade, glow),
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	local w: Wiggle? = wiggle

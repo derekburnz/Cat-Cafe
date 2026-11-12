@@ -21,7 +21,7 @@ return function()
 			expect(Logic.stuckCallOn(nil, false, 0)).to.equal(false) -- an older server
 		end)
 
-		it("keeps the pillar a thin line from the camp and fades it as you walk up", function()
+		it("keeps the pillar easy to see from the camp and fades it as you walk up", function()
 			local p = s.pillar
 			local nearWidth, nearFade = Logic.stuckPillar(0)
 			local farWidth, farFade = Logic.stuckPillar(300)
@@ -33,6 +33,10 @@ return function()
 			local midWidth = Logic.stuckPillar(100)
 			expect(midWidth >= p.widthMin and midWidth <= p.widthMax).to.equal(true)
 			expect(p.height < Presets.secretStray.beam.height).to.equal(true) -- a Secret's stays the tall one
+			-- seen by day (Review-QA's Studio look): wide, nearly solid from afar, with a soft halo
+			expect(p.widthMin >= 2).to.equal(true)
+			expect(p.far <= 0.2).to.equal(true)
+			expect(p.halo.wide > 1 and p.far + p.halo.add < 1).to.equal(true)
 		end)
 
 		it("meows near the cat, well apart, a few times at most", function()

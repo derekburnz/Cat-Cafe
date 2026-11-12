@@ -804,7 +804,7 @@ def _spa_palm(b, x, z, lean):
     b.ball(top, 0.55, "fur_brown")
     for k in range(8):
         a = 2 * math.pi * k / 8 + 0.3
-        for i, (r, dy, pitch) in enumerate(((0.9, 0.15, 12), (2.0, -0.25, -18), (3.0, -1.0, -40))):
+        for i, (r, dy, pitch) in enumerate(((0.9, 0.15, 12), (2.03, 0.09, -18), (3.03, -0.48, -40))):
             c = (top[0] + r * math.cos(a), top[1] + dy, top[2] + r * math.sin(a))
             R = Matrix.Rotation(-a, 3, "Y") @ Matrix.Rotation(math.radians(pitch), 3, "Z")
             b.box(c, (1.2, 0.1, 0.7 - 0.15 * i), ("leaf_green", "leaf_dark")[(k + i) % 2], rot=R)

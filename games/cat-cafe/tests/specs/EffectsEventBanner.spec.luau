@@ -178,10 +178,16 @@ return function()
 				expect(EventBanner.shapeDistance(Vector3.zero, p.shapeFov, p.shapeFill) > 0).to.equal(
 					true
 				)
-				-- only whole named pieces of a Secret cat's own model are left off, never a body, head or ear
+				-- only the loose bits of a Secret cat's own named prop are left off, never a body, head or ear
 				for _, name in p.shapeLeaveOff do
-					expect(string.match(name, "^CatCafe_Cat_%a+_Prop%d?$") ~= nil).to.equal(true)
+					local prop = string.match(name, "^CatCafe_Cat_%a+_Prop%d?$") ~= nil
+					local glow = string.match(name, "^CatCafe_Cat_%a+_Glow$") ~= nil
+					expect(prop or glow).to.equal(true)
 				end
+				-- Glitch's pixels (0.12 to 0.22 studs) go, the torn bars at its head's sides (0.71 long) stay
+				expect(EventBanner.loose(0.22, 0.22, 0.22, p.shapeLoose)).to.equal(true)
+				expect(EventBanner.loose(0.12, 0.12, 0.12, p.shapeLoose)).to.equal(true)
+				expect(EventBanner.loose(0.17, 0.13, 0.71, p.shapeLoose)).to.equal(false)
 				-- a cat held back on the day stays off the row: the caller names the ones that are out
 				local first = Catalog.secretCats[1].id
 				local some = EventBanner.shapeModels({ first, "tabby", "nope" })

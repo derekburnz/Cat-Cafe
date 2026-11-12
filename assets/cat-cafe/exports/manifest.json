@@ -138366,29 +138366,33 @@
         "CatCafe_Cat_Nebula_LegF1",
         "CatCafe_Cat_Nebula_LegF2",
         "CatCafe_Cat_Nebula_LegB1",
-        "CatCafe_Cat_Nebula_LegB2"
+        "CatCafe_Cat_Nebula_LegB2",
+        "CatCafe_Cat_Nebula_Prop",
+        "CatCafe_Cat_Nebula_Glow",
+        "CatCafe_Cat_Nebula_Prop2",
+        "CatCafe_Cat_Nebula_Stars_Glow"
       ],
-      "triangles": 872,
-      "budget": 1500,
+      "triangles": 1360,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.0,
-        "y": 1.97,
-        "z": 1.86
+        "x": 1.48,
+        "y": 2.19,
+        "z": 2.22
       },
       "size_roblox": [
-        1.0,
-        1.86,
-        1.97
+        1.48,
+        2.22,
+        2.19
       ],
       "bounds_min": [
-        -0.5,
-        -0.99,
+        -0.78,
+        -1.21,
         -0.0
       ],
       "bounds_max": [
-        0.5,
+        0.7,
         0.98,
-        1.86
+        2.22
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -138857,6 +138861,42 @@
           ]
         }
       },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Nebula_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Nebula_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Nebula_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.7,
+            -0.52
+          ]
+        },
+        "Stars_Glow": {
+          "object": "CatCafe_Cat_Nebula_Stars_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.21,
+            0.12
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -138869,9 +138909,9 @@
           0.0
         ]
       },
-      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 149,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula.glb"
@@ -138879,15 +138919,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "872/1500 tris",
+          "budget": "1360/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "488 faces on swatch centers",
+          "uv": "782 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.04 y=-0.11"
         }
       }
     },
@@ -138904,29 +138946,33 @@
         "CatCafe_Cat_Nebula_Sit_EarR",
         "CatCafe_Cat_Nebula_Sit_Tail",
         "CatCafe_Cat_Nebula_Sit_LegF1",
-        "CatCafe_Cat_Nebula_Sit_LegF2"
+        "CatCafe_Cat_Nebula_Sit_LegF2",
+        "CatCafe_Cat_Nebula_Sit_Prop",
+        "CatCafe_Cat_Nebula_Sit_Glow",
+        "CatCafe_Cat_Nebula_Sit_Prop2",
+        "CatCafe_Cat_Nebula_Sit_Stars_Glow"
       ],
-      "triangles": 920,
-      "budget": 1500,
+      "triangles": 1408,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.24,
-        "y": 1.24,
-        "z": 1.85
+        "x": 1.48,
+        "y": 1.58,
+        "z": 2.14
       },
       "size_roblox": [
-        1.24,
-        1.85,
-        1.24
+        1.48,
+        2.14,
+        1.58
       ],
       "bounds_min": [
-        -0.44,
-        -0.65,
+        -0.68,
+        -0.83,
         0.0
       ],
       "bounds_max": [
         0.8,
-        0.6,
-        1.85
+        0.75,
+        2.14
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -139375,9 +139421,45 @@
           ]
         }
       },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Nebula for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Nebula_Sit_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Nebula_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Nebula_Sit_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.69,
+            -0.23
+          ]
+        },
+        "Stars_Glow": {
+          "object": "CatCafe_Cat_Nebula_Sit_Stars_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Nebula for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Sit.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 153,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Sit.glb"
@@ -139389,13 +139471,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "920/1500 tris",
+          "budget": "1408/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "512 faces on swatch centers",
+          "uv": "806 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.06 y=-0.04"
         }
       }
     },
@@ -139417,29 +139499,33 @@
         "CatCafe_Cat_Nebula_Work_LegB2",
         "CatCafe_Cat_Nebula_Work_Held_Barista",
         "CatCafe_Cat_Nebula_Work_Held_Waiter",
-        "CatCafe_Cat_Nebula_Work_Held_Entertainer"
+        "CatCafe_Cat_Nebula_Work_Held_Entertainer",
+        "CatCafe_Cat_Nebula_Work_Prop",
+        "CatCafe_Cat_Nebula_Work_Glow",
+        "CatCafe_Cat_Nebula_Work_Prop2",
+        "CatCafe_Cat_Nebula_Work_Stars_Glow"
       ],
-      "triangles": 1452,
+      "triangles": 1940,
       "budget": 2400,
       "size_studs": {
-        "x": 1.53,
-        "y": 1.62,
-        "z": 1.93
+        "x": 1.59,
+        "y": 1.83,
+        "z": 2.27
       },
       "size_roblox": [
-        1.53,
-        1.93,
-        1.62
+        1.59,
+        2.27,
+        1.83
       ],
       "bounds_min": [
-        -0.69,
-        -0.7,
+        -0.74,
+        -0.91,
         0.0
       ],
       "bounds_max": [
         0.85,
         0.91,
-        1.93
+        2.27
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -139908,9 +139994,45 @@
           ]
         }
       },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Nebula_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Nebula_Work_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Nebula_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Nebula_Work_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.78,
+            -0.26
+          ]
+        },
+        "Stars_Glow": {
+          "object": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Nebula_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Work.model.json",
-      "rbx_parts": 65,
+      "rbx_parts": 163,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Work.glb"
@@ -139922,13 +140044,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1452/2400 tris",
+          "budget": "1940/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "776 faces on swatch centers",
+          "uv": "1070 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.11"
+          "centered": "footprint center x=0.05 y=0.00"
         }
       }
     },
@@ -139947,29 +140069,33 @@
         "CatCafe_Cat_Glitch_LegF1",
         "CatCafe_Cat_Glitch_LegF2",
         "CatCafe_Cat_Glitch_LegB1",
-        "CatCafe_Cat_Glitch_LegB2"
+        "CatCafe_Cat_Glitch_LegB2",
+        "CatCafe_Cat_Glitch_Prop",
+        "CatCafe_Cat_Glitch_Glow",
+        "CatCafe_Cat_Glitch_Prop2",
+        "CatCafe_Cat_Glitch_Sprite_Glow"
       ],
-      "triangles": 1004,
-      "budget": 1500,
+      "triangles": 1280,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.66,
         "y": 1.97,
-        "z": 1.86
+        "z": 2.69
       },
       "size_roblox": [
-        1.0,
-        1.86,
+        1.66,
+        2.69,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.71,
         -0.99,
         -0.0
       ],
       "bounds_max": [
-        0.5,
+        0.96,
         0.98,
-        1.86
+        2.69
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -140438,6 +140564,42 @@
           ]
         }
       },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Glitch_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Glitch_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Glitch_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.7,
+            -0.52
+          ]
+        },
+        "Sprite_Glow": {
+          "object": "CatCafe_Cat_Glitch_Sprite_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.21,
+            0.12
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -140450,9 +140612,9 @@
           0.0
         ]
       },
-      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Sprite_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Glitch.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 85,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Glitch.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Glitch.glb"
@@ -140460,15 +140622,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1004/1500 tris",
+          "budget": "1280/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "554 faces on swatch centers",
+          "uv": "692 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=0.12 y=-0.00"
         }
       }
     },
@@ -140485,29 +140649,33 @@
         "CatCafe_Cat_Glitch_Sit_EarR",
         "CatCafe_Cat_Glitch_Sit_Tail",
         "CatCafe_Cat_Glitch_Sit_LegF1",
-        "CatCafe_Cat_Glitch_Sit_LegF2"
+        "CatCafe_Cat_Glitch_Sit_LegF2",
+        "CatCafe_Cat_Glitch_Sit_Prop",
+        "CatCafe_Cat_Glitch_Sit_Glow",
+        "CatCafe_Cat_Glitch_Sit_Prop2",
+        "CatCafe_Cat_Glitch_Sit_Sprite_Glow"
       ],
-      "triangles": 1076,
-      "budget": 1500,
+      "triangles": 1352,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.24,
-        "y": 1.24,
-        "z": 1.85
+        "x": 1.45,
+        "y": 1.44,
+        "z": 2.56
       },
       "size_roblox": [
-        1.24,
-        1.85,
-        1.24
+        1.45,
+        2.56,
+        1.44
       ],
       "bounds_min": [
-        -0.44,
+        -0.62,
         -0.65,
         0.0
       ],
       "bounds_max": [
-        0.8,
-        0.6,
-        1.85
+        0.84,
+        0.79,
+        2.56
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -140956,9 +141124,45 @@
           ]
         }
       },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Glitch for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Glitch_Sit_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Glitch_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Glitch_Sit_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.69,
+            -0.23
+          ]
+        },
+        "Sprite_Glow": {
+          "object": "CatCafe_Cat_Glitch_Sit_Sprite_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Glitch for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Sprite_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Glitch_Sit.model.json",
-      "rbx_parts": 68,
+      "rbx_parts": 91,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Glitch_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Glitch_Sit.glb"
@@ -140970,13 +141174,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1076/1500 tris",
+          "budget": "1352/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "590 faces on swatch centers",
+          "uv": "728 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.11 y=0.07"
         }
       }
     },
@@ -140998,18 +141202,22 @@
         "CatCafe_Cat_Glitch_Work_LegB2",
         "CatCafe_Cat_Glitch_Work_Held_Barista",
         "CatCafe_Cat_Glitch_Work_Held_Waiter",
-        "CatCafe_Cat_Glitch_Work_Held_Entertainer"
+        "CatCafe_Cat_Glitch_Work_Held_Entertainer",
+        "CatCafe_Cat_Glitch_Work_Prop",
+        "CatCafe_Cat_Glitch_Work_Glow",
+        "CatCafe_Cat_Glitch_Work_Prop2",
+        "CatCafe_Cat_Glitch_Work_Sprite_Glow"
       ],
-      "triangles": 1512,
+      "triangles": 1788,
       "budget": 2400,
       "size_studs": {
-        "x": 1.53,
+        "x": 1.59,
         "y": 1.62,
-        "z": 1.93
+        "z": 2.71
       },
       "size_roblox": [
-        1.53,
-        1.93,
+        1.59,
+        2.71,
         1.62
       ],
       "bounds_min": [
@@ -141018,9 +141226,9 @@
         0.0
       ],
       "bounds_max": [
-        0.85,
         0.91,
-        1.93
+        0.91,
+        2.71
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -141489,9 +141697,45 @@
           ]
         }
       },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Glitch_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Glitch_Work_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Glitch_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Glitch_Work_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.78,
+            -0.26
+          ]
+        },
+        "Sprite_Glow": {
+          "object": "CatCafe_Cat_Glitch_Work_Sprite_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Glitch_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Sprite_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Glitch_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 93,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Glitch_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Glitch_Work.glb"
@@ -141503,13 +141747,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1512/2400 tris",
+          "budget": "1788/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "806 faces on swatch centers",
+          "uv": "944 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.11"
+          "centered": "footprint center x=0.11 y=0.11"
         }
       }
     },
@@ -271511,29 +271755,33 @@
         "CatCafe_Cat_Nebula_Gold_LegF1",
         "CatCafe_Cat_Nebula_Gold_LegF2",
         "CatCafe_Cat_Nebula_Gold_LegB1",
-        "CatCafe_Cat_Nebula_Gold_LegB2"
+        "CatCafe_Cat_Nebula_Gold_LegB2",
+        "CatCafe_Cat_Nebula_Gold_Prop",
+        "CatCafe_Cat_Nebula_Gold_Glow",
+        "CatCafe_Cat_Nebula_Gold_Prop2",
+        "CatCafe_Cat_Nebula_Gold_Stars_Glow"
       ],
-      "triangles": 872,
-      "budget": 1500,
+      "triangles": 1360,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.0,
-        "y": 1.97,
-        "z": 1.86
+        "x": 1.48,
+        "y": 2.19,
+        "z": 2.22
       },
       "size_roblox": [
-        1.0,
-        1.86,
-        1.97
+        1.48,
+        2.22,
+        2.19
       ],
       "bounds_min": [
-        -0.5,
-        -0.99,
+        -0.78,
+        -1.21,
         -0.0
       ],
       "bounds_max": [
-        0.5,
+        0.7,
         0.98,
-        1.86
+        2.22
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -272002,6 +272250,42 @@
           ]
         }
       },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Nebula_Gold_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Nebula_Gold_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Nebula_Gold_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.7,
+            -0.52
+          ]
+        },
+        "Stars_Glow": {
+          "object": "CatCafe_Cat_Nebula_Gold_Stars_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.21,
+            0.12
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -272014,21 +272298,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Nebula when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Nebula when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Gold.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 149,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "872/1500 tris",
+          "budget": "1360/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "488 faces on swatch centers",
+          "uv": "782 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.04 y=-0.11"
         }
       }
     },
@@ -272045,29 +272331,33 @@
         "CatCafe_Cat_Nebula_Gold_Sit_EarR",
         "CatCafe_Cat_Nebula_Gold_Sit_Tail",
         "CatCafe_Cat_Nebula_Gold_Sit_LegF1",
-        "CatCafe_Cat_Nebula_Gold_Sit_LegF2"
+        "CatCafe_Cat_Nebula_Gold_Sit_LegF2",
+        "CatCafe_Cat_Nebula_Gold_Sit_Prop",
+        "CatCafe_Cat_Nebula_Gold_Sit_Glow",
+        "CatCafe_Cat_Nebula_Gold_Sit_Prop2",
+        "CatCafe_Cat_Nebula_Gold_Sit_Stars_Glow"
       ],
-      "triangles": 920,
-      "budget": 1500,
+      "triangles": 1408,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.24,
-        "y": 1.24,
-        "z": 1.85
+        "x": 1.48,
+        "y": 1.58,
+        "z": 2.14
       },
       "size_roblox": [
-        1.24,
-        1.85,
-        1.24
+        1.48,
+        2.14,
+        1.58
       ],
       "bounds_min": [
-        -0.44,
-        -0.65,
+        -0.68,
+        -0.83,
         0.0
       ],
       "bounds_max": [
         0.8,
-        0.6,
-        1.85
+        0.75,
+        2.14
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -272516,9 +272806,45 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Nebula_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Nebula_Gold_Sit_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Nebula_Gold_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Nebula_Gold_Sit_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.69,
+            -0.23
+          ]
+        },
+        "Stars_Glow": {
+          "object": "CatCafe_Cat_Nebula_Gold_Sit_Stars_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Nebula_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Gold_Sit.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 153,
       "gates": {
         "pass": true,
         "failed": [],
@@ -272526,13 +272852,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "920/1500 tris",
+          "budget": "1408/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "512 faces on swatch centers",
+          "uv": "806 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.06 y=-0.04"
         }
       }
     },
@@ -272554,29 +272880,33 @@
         "CatCafe_Cat_Nebula_Gold_Work_LegB2",
         "CatCafe_Cat_Nebula_Gold_Work_Held_Barista",
         "CatCafe_Cat_Nebula_Gold_Work_Held_Waiter",
-        "CatCafe_Cat_Nebula_Gold_Work_Held_Entertainer"
+        "CatCafe_Cat_Nebula_Gold_Work_Held_Entertainer",
+        "CatCafe_Cat_Nebula_Gold_Work_Prop",
+        "CatCafe_Cat_Nebula_Gold_Work_Glow",
+        "CatCafe_Cat_Nebula_Gold_Work_Prop2",
+        "CatCafe_Cat_Nebula_Gold_Work_Stars_Glow"
       ],
-      "triangles": 1452,
+      "triangles": 1940,
       "budget": 2400,
       "size_studs": {
-        "x": 1.53,
-        "y": 1.62,
-        "z": 1.93
+        "x": 1.59,
+        "y": 1.83,
+        "z": 2.27
       },
       "size_roblox": [
-        1.53,
-        1.93,
-        1.62
+        1.59,
+        2.27,
+        1.83
       ],
       "bounds_min": [
-        -0.69,
-        -0.7,
+        -0.74,
+        -0.91,
         0.0
       ],
       "bounds_max": [
         0.85,
         0.91,
-        1.93
+        2.27
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -273045,9 +273375,45 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Nebula_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Nebula_Gold_Work_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Nebula_Gold_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Nebula_Gold_Work_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.78,
+            -0.26
+          ]
+        },
+        "Stars_Glow": {
+          "object": "CatCafe_Cat_Nebula_Gold_Work_Stars_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Nebula_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Gold_Work.model.json",
-      "rbx_parts": 65,
+      "rbx_parts": 163,
       "gates": {
         "pass": true,
         "failed": [],
@@ -273055,13 +273421,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1452/2400 tris",
+          "budget": "1940/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "776 faces on swatch centers",
+          "uv": "1070 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.11"
+          "centered": "footprint center x=0.05 y=0.00"
         }
       }
     },
@@ -273080,29 +273446,33 @@
         "CatCafe_Cat_Glitch_Gold_LegF1",
         "CatCafe_Cat_Glitch_Gold_LegF2",
         "CatCafe_Cat_Glitch_Gold_LegB1",
-        "CatCafe_Cat_Glitch_Gold_LegB2"
+        "CatCafe_Cat_Glitch_Gold_LegB2",
+        "CatCafe_Cat_Glitch_Gold_Prop",
+        "CatCafe_Cat_Glitch_Gold_Glow",
+        "CatCafe_Cat_Glitch_Gold_Prop2",
+        "CatCafe_Cat_Glitch_Gold_Sprite_Glow"
       ],
-      "triangles": 1004,
-      "budget": 1500,
+      "triangles": 1280,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.66,
         "y": 1.97,
-        "z": 1.86
+        "z": 2.69
       },
       "size_roblox": [
-        1.0,
-        1.86,
+        1.66,
+        2.69,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.71,
         -0.99,
         -0.0
       ],
       "bounds_max": [
-        0.5,
+        0.96,
         0.98,
-        1.86
+        2.69
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -273571,6 +273941,42 @@
           ]
         }
       },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Glitch_Gold_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Glitch_Gold_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Glitch_Gold_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.7,
+            -0.52
+          ]
+        },
+        "Sprite_Glow": {
+          "object": "CatCafe_Cat_Glitch_Gold_Sprite_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.21,
+            0.12
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -273583,21 +273989,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Glitch when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Glitch when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Sprite_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Glitch_Gold.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 85,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1004/1500 tris",
+          "budget": "1280/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "554 faces on swatch centers",
+          "uv": "692 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=0.12 y=-0.00"
         }
       }
     },
@@ -273614,29 +274022,33 @@
         "CatCafe_Cat_Glitch_Gold_Sit_EarR",
         "CatCafe_Cat_Glitch_Gold_Sit_Tail",
         "CatCafe_Cat_Glitch_Gold_Sit_LegF1",
-        "CatCafe_Cat_Glitch_Gold_Sit_LegF2"
+        "CatCafe_Cat_Glitch_Gold_Sit_LegF2",
+        "CatCafe_Cat_Glitch_Gold_Sit_Prop",
+        "CatCafe_Cat_Glitch_Gold_Sit_Glow",
+        "CatCafe_Cat_Glitch_Gold_Sit_Prop2",
+        "CatCafe_Cat_Glitch_Gold_Sit_Sprite_Glow"
       ],
-      "triangles": 1076,
-      "budget": 1500,
+      "triangles": 1352,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.24,
-        "y": 1.24,
-        "z": 1.85
+        "x": 1.45,
+        "y": 1.44,
+        "z": 2.56
       },
       "size_roblox": [
-        1.24,
-        1.85,
-        1.24
+        1.45,
+        2.56,
+        1.44
       ],
       "bounds_min": [
-        -0.44,
+        -0.62,
         -0.65,
         0.0
       ],
       "bounds_max": [
-        0.8,
-        0.6,
-        1.85
+        0.84,
+        0.79,
+        2.56
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -274085,9 +274497,45 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Glitch_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Glitch_Gold_Sit_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Glitch_Gold_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Glitch_Gold_Sit_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.69,
+            -0.23
+          ]
+        },
+        "Sprite_Glow": {
+          "object": "CatCafe_Cat_Glitch_Gold_Sit_Sprite_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Glitch_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Sprite_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Glitch_Gold_Sit.model.json",
-      "rbx_parts": 68,
+      "rbx_parts": 91,
       "gates": {
         "pass": true,
         "failed": [],
@@ -274095,13 +274543,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1076/1500 tris",
+          "budget": "1352/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "590 faces on swatch centers",
+          "uv": "728 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.11 y=0.07"
         }
       }
     },
@@ -274123,18 +274571,22 @@
         "CatCafe_Cat_Glitch_Gold_Work_LegB2",
         "CatCafe_Cat_Glitch_Gold_Work_Held_Barista",
         "CatCafe_Cat_Glitch_Gold_Work_Held_Waiter",
-        "CatCafe_Cat_Glitch_Gold_Work_Held_Entertainer"
+        "CatCafe_Cat_Glitch_Gold_Work_Held_Entertainer",
+        "CatCafe_Cat_Glitch_Gold_Work_Prop",
+        "CatCafe_Cat_Glitch_Gold_Work_Glow",
+        "CatCafe_Cat_Glitch_Gold_Work_Prop2",
+        "CatCafe_Cat_Glitch_Gold_Work_Sprite_Glow"
       ],
-      "triangles": 1512,
+      "triangles": 1788,
       "budget": 2400,
       "size_studs": {
-        "x": 1.53,
+        "x": 1.59,
         "y": 1.62,
-        "z": 1.93
+        "z": 2.71
       },
       "size_roblox": [
-        1.53,
-        1.93,
+        1.59,
+        2.71,
         1.62
       ],
       "bounds_min": [
@@ -274143,9 +274595,9 @@
         0.0
       ],
       "bounds_max": [
-        0.85,
         0.91,
-        1.93
+        0.91,
+        2.71
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -274614,9 +275066,45 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Glitch_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon.",
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Glitch_Gold_Work_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Back",
+        "follows": "Body",
+        "objects": [
+          "CatCafe_Cat_Glitch_Gold_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Glow": {
+          "object": "CatCafe_Cat_Glitch_Gold_Work_Glow",
+          "inside": "Prop",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.78,
+            -0.26
+          ]
+        },
+        "Sprite_Glow": {
+          "object": "CatCafe_Cat_Glitch_Gold_Work_Sprite_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            0.76,
+            0.49
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Glitch_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Sprite_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Glitch_Gold_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 93,
       "gates": {
         "pass": true,
         "failed": [],
@@ -274624,13 +275112,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1512/2400 tris",
+          "budget": "1788/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "806 faces on swatch centers",
+          "uv": "944 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.11"
+          "centered": "footprint center x=0.11 y=0.11"
         }
       }
     },
@@ -315777,23 +316265,23 @@
       "triangles": 3014,
       "budget": 5000,
       "size_studs": {
-        "x": 22.79,
-        "y": 12.19,
+        "x": 22.85,
+        "y": 12.22,
         "z": 9.3
       },
       "size_roblox": [
-        22.79,
+        22.85,
         9.3,
-        12.19
+        12.22
       ],
       "bounds_min": [
-        -11.39,
+        -11.42,
         -5.0,
         0.0
       ],
       "bounds_max": [
-        11.39,
-        7.19,
+        11.42,
+        7.22,
         9.3
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Desert camp's station spot (Layout.campExtras.desert, Desert set space)",
@@ -315818,7 +316306,7 @@
           "uv": "1527 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=1.10"
+          "centered": "footprint center x=0.00 y=1.11"
         }
       }
     },

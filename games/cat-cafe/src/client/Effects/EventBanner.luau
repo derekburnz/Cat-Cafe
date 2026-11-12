@@ -223,6 +223,11 @@ function EventBanner.height(kind: Kind, lines: number): number
 	return if kind == "secrets" then words + p.shapeRow else words
 end
 
+-- Whether a part of a left-off piece is one of its loose bits: no side longer than `most` studs.
+function EventBanner.loose(x: number, y: number, z: number, most: number): boolean
+	return math.max(x, y, z) <= most
+end
+
 -- Pure: how far back the camera stands so a box of `size`, turned any way round its upright axis, fills `fill` of
 -- a square view `fov` degrees tall: its nearest face is still inside the view.
 function EventBanner.shapeDistance(size: Vector3, fov: number, fill: number): number
@@ -280,10 +285,16 @@ local function shape(parent: Instance, modelName: string, fading: { GuiObject })
 	if source ~= nil and source:IsA("Model") then
 		local copy = source:Clone() :: Model
 		local solid = 0
-		for _, name in p.shapeLeaveOff do
-			local extra = copy:FindFirstChild(name, true)
-			if extra ~= nil then
-				extra:Destroy()
+		-- the loose bits of a named piece: its parts no longer than shapeLoose on any side (the bigger ones stay)
+		for _, descendant in copy:GetDescendants() do
+			if
+				descendant:IsA("BasePart")
+				and table.find(p.shapeLeaveOff, descendant.Name) ~= nil
+			then
+				local size = (descendant :: BasePart).Size
+				if EventBanner.loose(size.X, size.Y, size.Z, p.shapeLoose) then
+					descendant:Destroy()
+				end
 			end
 		end
 		for _, descendant in copy:GetDescendants() do

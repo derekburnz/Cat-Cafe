@@ -4824,9 +4824,11 @@ Presets.eventBanner = {
 	shapeColour = Color3.fromRGB(8, 8, 10), -- the Index's black for a cat not found yet (CatPortrait)
 	shapeFov = 30,
 	shapeTurn = 20, -- degrees from face on, so both ears show and a little of the body behind the head
-	-- pieces left off a shape because they read wrong in plain black: Glitch's trail of loose pixels off one ear
-	-- joins up into a horn (Derek, 2026-11-12: "the horn looks a little off")
-	shapeLeaveOff = { "CatCafe_Cat_Glitch_Prop" },
+	-- bits left off a shape because they read wrong in plain black: Glitch's trail of loose pixels off one ear
+	-- joins up into a horn (Derek, 2026-11-12: "the horn looks a little off"). Only the parts of these pieces no
+	-- longer than `shapeLoose` studs go (the pixels are 0.12 to 0.22); the torn bars at the head's sides (0.71) stay.
+	shapeLeaveOff = { "CatCafe_Cat_Glitch_Prop", "CatCafe_Cat_Glitch_Glow" },
+	shapeLoose = 0.3,
 	shapeFill = 0.92, -- how much of its square a shape may fill
 	shapeSeen = 0.95, -- a part at least this see-through is a hitbox and stays out of the shape
 	markSize = 24, -- the "?" on each shape

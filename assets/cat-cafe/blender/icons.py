@@ -7,7 +7,8 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_GoldenFish   the one Golden Fish picture (F97): a shiny gold fish (icon_art.py), for the HUD counter,
                             prices, prize chips, toasts and the Market badge
   CatCafe_Icon_Crate_<Pool>[_Gold]   each Cafe Crate and golden crate (crates.py), three-quarter view
-  CatCafe_Icon_<Food>       the seven foods by game id: Kibble, Tuna, Sardines, Salmon, Caviar, MoonMilk, StarTreat
+  CatCafe_Icon_<Food>       the seven foods by game id: Kibble, Tuna, Sardines, Salmon, Caviar, MoonMilk, StarTreat,
+                            and the Day Cart's HoneyCream and CometTreat (#3462)
                             (icon_art.py, F97 section 3)
   CatCafe_Icon_Perk_<Perk>  the Golden Fish Market perks: GoldenEspresso (a paw in the foam), BigBowl (a "-2:00" tag),
                             ExtraDecorSpot (a dotted square, a plus and a tiny plant), SwiftPaws (a galloping
@@ -127,6 +128,8 @@ ICONS = {
     "CatCafe_Icon_Caviar": (icon_art.caviar, INK, 10, (-18.0, 32.0)),
     "CatCafe_Icon_MoonMilk": (icon_art.moon_milk, INK, 10, (-14.0, 12.0)),
     "CatCafe_Icon_StarTreat": (icon_art.star_treat, INK, 10, (-16.0, 8.0)),
+    "CatCafe_Icon_HoneyCream": (icon_art.honey_cream, INK, 10, (-14.0, 12.0)),     # #3462
+    "CatCafe_Icon_CometTreat": (icon_art.comet_treat, INK, 10, (-12.0, 8.0)),
     "CatCafe_Icon_Perk_GoldenEspresso": (icon_art.golden_espresso, GOLD_INK, 10, (-20.0, 34.0)),
     "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),

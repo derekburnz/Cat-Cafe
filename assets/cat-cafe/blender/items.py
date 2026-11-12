@@ -10,7 +10,7 @@ from common import Builder
 
 FOOD_IN_BOWL = 0.18      # kibble top in CatCafe_Item_FoodBowl, studs above its pivot
 GRIP = 0.36              # a net's grip wrap centre, studs along the pole from its end
-FOODS = ("Sardines", "Caviar", "MoonMilk", "StarTreat")     # the dealer foods that sit in a bowl
+FOODS = ("Sardines", "Caviar", "MoonMilk", "StarTreat", "HoneyCream", "CometTreat")     # the dealer and Day Cart (#3462) foods that sit in a bowl
 
 
 def _bowl(b, outer, rim, food, premium=False):
@@ -294,6 +294,34 @@ def build_star_treat(mat):
     return [b.finalize("CatCafe_Item_StarTreat", mat)]
 
 
+def build_honey_cream(mat):
+    """#3462 a swirl of whipped cream on the kibble with honey over it and a little wooden dipper."""
+    b = Builder()
+    b.cyl_base((0, 0, 0), 0.36, 0.04, "milk", segments=14, bevel=False)
+    b.sphere((0, 0, 0.1), 0.28, "milk", segments=8, rings=3, scale=(1, 1, 0.4))
+    b.sphere((0.01, 0, 0.24), 0.19, "milk", segments=8, rings=3, scale=(1, 1, 0.45))
+    b.sphere((0, 0, 0.35), 0.1, "milk", segments=6, rings=3, scale=(1, 1, 0.7))
+    for (x, y, z, w, d, turn) in ((0.0, -0.2, 0.15, 0.3, 0.07, 0), (0.19, 0.03, 0.15, 0.07, 0.28, 0),      # honey over
+                                  (-0.14, 0.12, 0.16, 0.26, 0.07, 40), (0.0, -0.1, 0.29, 0.2, 0.06, -15)):  # the swirl
+        b.box((x, y, z), (w, d, 0.04), "rarity_legend", bevel=False, rot=Matrix.Rotation(math.radians(turn), 3, "Z"))
+    tilt = Matrix.Rotation(math.radians(35), 3, "Y")
+    b.cyl((0.24, 0.0, 0.36), 0.02, 0.4, "caramel_wood", segments=6, bevel=False, rot=tilt)     # the dipper
+    b.cyl((0.14, 0.0, 0.22), 0.06, 0.1, "caramel_wood", segments=8, bevel=False, rot=tilt)
+    return [b.finalize("CatCafe_Item_HoneyCream", mat)]
+
+
+def build_comet_treat(mat):
+    """#3462 a round sky-blue biscuit with a white star on it, tipped up on the kibble, a tail of light behind."""
+    b = Builder()
+    tilt = Matrix.Rotation(math.radians(60), 3, "X")
+    b.cyl((0, 0, 0.2), 0.24, 0.1, "pastel_sky", segments=14, rot=tilt)
+    b.star((0, -0.05, 0.23), 0.14, 0.065, 0.03, "offwhite", rot=tilt)
+    for (x, sw, h) in ((-0.1, "pastel_sky", 0.24), (0.0, "offwhite", 0.32), (0.1, "sparkle", 0.2)):
+        b.box((x, 0.14, 0.36 + h / 2), (0.05, 0.04, h), sw, bevel=False, rot=Matrix.Rotation(math.radians(-25), 3, "X"))
+    b.star((0.2, 0.05, 0.5), 0.05, 0.022, 0.03, "sparkle", rot=(math.radians(90), "X"))
+    return [b.finalize("CatCafe_Item_CometTreat", mat)]
+
+
 def build_tip_pile(mat):
     """The rich customer's tip: a heap of gold coins with a few short stacks. Sits on a table."""
     b = Builder()
@@ -324,5 +352,7 @@ ASSETS = {
     "CatCafe_Item_Caviar": (build_caviar, 600),
     "CatCafe_Item_MoonMilk": (build_moon_milk, 300),
     "CatCafe_Item_StarTreat": (build_star_treat, 300),
+    "CatCafe_Item_HoneyCream": (build_honey_cream, 300),     # #3462 the Day Cart's own baits
+    "CatCafe_Item_CometTreat": (build_comet_treat, 300),
     "CatCafe_Prop_TipPile": (build_tip_pile, 600),
 }

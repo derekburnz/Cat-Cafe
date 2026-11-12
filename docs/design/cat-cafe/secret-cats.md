@@ -1,6 +1,6 @@
 # Secret cats: a hidden tier above Mythical (#3470)
 
-Proposed 2026-11-12 by Design-Agent. Owner: game-designer. Readers: Gameplay-Engineer, Model-Agent, Motion-FX-Agent, Review-QA-Agent. Not built when written.
+Proposed 2026-11-12 by Design-Agent. Owner: game-designer. Readers: Gameplay-Engineer, Model-Agent, Motion-FX-Agent, Review-QA-Agent. Built 2026-11-12 with the numbers below (#3486, #3487, #3489, effects #3480 and #3492), behind `secretCats`, which is off.
 
 Derek, 2026-11-12 03:07 UTC, from a player's "add secret tier pet": "add a secret tier of pet that is out of index can spawn on any area and its super rare like 100x rarer then mythic but its better then all current mythics in the game (also let it have a gold chance/rainbow chance)".
 
@@ -42,7 +42,7 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 
 ## 6. How it shows
 
-- **In the world:** its own look (section 8), a soft dark aura and a thin beam of light to the sky. The tag reads "SECRET" with "???" for the name until it is caught.
+- **In the world:** its own look (section 8), a soft dark aura and a thin beam of light to the sky. The rarity colour `#16161D` is for tags and cards only; the beam, sparkles and rings use a pale starlight, RGB (226, 214, 255). The beam stays up while someone is catching it. The tag reads "SECRET" with "???" for the name until it is caught.
 - **On spawn:** one banner and one chat line for the server, naming the area and not the spot: "A Secret cat is somewhere in the Park!" Bait and rescue Secrets get none. **(assumed)**
 - **On catch:** the rare catch line one step up, inside the server only. **(assumed)**
 - It stays until the next night like any wave stray. No timer shows and nothing says it will leave.

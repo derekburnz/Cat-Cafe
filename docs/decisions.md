@@ -1062,3 +1062,9 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Credits (#3472):** feedback issues carry the report key and never a player's name, and only players who ticked "Feature my name" are named. `idea-credits.md` section 8.
 - **Tackle complaint (#3468):** Derek's answer for now is a longer tackle shield, 15 minutes in place of 5 (`TackleShieldSeconds` 300 to 900, a change still to be built by Gameplay-Engineer when this was written). First dibs and the sorry gift are not built without his word.
 - **For Derek to confirm:** the Secret cat names and numbers, the bait names and odds, and the credit tick limit.
+
+## 2026-11-12: as built overnight, and what waits on a restart (Design-Agent)
+
+- **Built and live with a normal publish:** Town Square rework and radius 8 circles (#3454, #3448), Rummage Bin move, "!", 5 hits, new prizes and loot card (#3458, #3460, #3464), Oasis Spa sort (#3463), the top player join line (#3466), tackle shield at 15 minutes (#3475).
+- **Built but switched off until every server has the build (so after a restart):** the Day Cart top shelf (`cartTier6`, #3462) and Secret cats (`secretCats`, #3470). New item ids and a new rarity must not meet an old server.
+- **Name:** the +100% money potion shows as "Mega Money Potion", matching "Money Potion" and "Big Money Potion". "Mega Tip" was a working name only.

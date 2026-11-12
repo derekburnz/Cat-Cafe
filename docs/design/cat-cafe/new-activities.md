@@ -13,11 +13,12 @@ Shared rules for all three:
 Its job is to keep new players past 5 minutes (35% still playing at 5 min on the Nov 10 baseline).
 
 - **Place:** `CatCafe_Camp_Alley_RummageBin` (model in #3058, looks `_Ready` and `_Empty`).
-  - It sits within 15 studs of the Alleyway camp pad, with no other prompt within 12 studs.
+  - Since #3458 (Derek 2026-11-12: "move the rummage bin off to the side out of entrance more") it stands at camp (26, -10), turned 83.4 to face the landing pad, 5.7 studs outside the opening's edge and clear of the bench's sight line. It was at (10.5, -8), within 15 studs of the pad.
+  - When it is ready a "!" shows over it (the `ReadyBang` component), and goes when it is empty.
   - The prompt reads "Rummage" when ready and "Empty for now 🐾" otherwise. There is no countdown.
-- **Play:** the rescue bar with a 2-hit attempt and 3 paws.
-  - Its own absolute bar: `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64. It never follows the rescue tables.
-  - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x0.6).
+- **Play:** the rescue bar with a **5-hit** attempt (`BinHits`, #3458; 2 before) and 3 paws.
+  - Its own absolute bar: `BinZoneWidth` 0.22 and `BinBarSpeed` 0.80 (#3458, Derek: "require 5 hits and medium bit faster and a lot smaller area"; 0.42 and 0.64 before). It never follows the rescue tables.
+  - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x0.6, so 0.35 at 0.48) and need the 5 hits too.
   - A miss costs nothing and allows a retry after 10 s.
 - **Timing:** server side, per player, in its own DataStore `CatCafe_Bin` keyed by user id (#3104). It is **not** a profile save field, so it needs no save version step or restart.
   - Ready on the first visit, then 180 s after each of the first 3 uses, then every 900 s.
@@ -26,12 +27,15 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
 
   | Prize | Chance |
   |---|---:|
-  | Tuna | 40% |
-  | 5 golden fish | 25% |
-  | Salmon | 12% |
-  | Lucky Potion | 11% |
-  | Alley Crate | 10% |
+  | 2 Tuna | 34% |
+  | 8 golden fish | 25% |
+  | Salmon | 15% |
+  | Lucky Potion | 12% |
+  | Alley Crate | 12% |
   | Golden Alley Crate | 2% |
+
+  Since #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost"; before: Tuna 40%, 5 fish 25%, Salmon 12%, potion 11%, crate 10%, golden 2%). An account's first three wins are fixed and sit outside the table: 2 Tuna and 10 golden fish, then an Alley Crate and a Lucky Potion, then a Salmon and 10 golden fish (`BinFirstPrizes`).
+  - **Loot card (#3464, Derek 2026-11-12: "show the loot obtained from rummage also").** A win shows a card, "You found:", with one row per thing won (icon, name, amount). It stays 4 seconds or closes on a tap, and a golden crate gets the gold frame. The server sends the whole win as a list.
 
   - The 1st rummage always gives Tuna, and the 2nd always gives an Alley Crate.
   - The odds show on the card.

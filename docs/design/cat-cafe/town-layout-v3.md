@@ -242,3 +242,27 @@ Each set is rebuilt for its v3.2 floor with its gate still on its -Z side: the P
 5. Epic and rarer strays in the side areas appear only at `deep` points.
 6. With 20 players in one area, nobody spawns or stands inside another player, and strays still spread over the whole floor.
 
+
+## 9. v3.3: the Town Square spread out, and bigger circles (#3454 and #3448, 2026-11-12)
+
+Derek, 2026-11-12: "rework the town square layout for the update also moving stations around for better spacing and look", "make the stations circles infront of them bigger for stepping on and auto claiming" (he OK'd radius 8), then "push feedback stand, day cart, spin wheel a little bit back and rallyboard a little forward the rest are good". Built in #3461 and #3456. This replaces the station spots in section 3.
+
+| Station | Spot (x, z) | Before |
+|---|---|---|
+| Arcade | -44, 22 | |
+| Spin Wheel | -26, 54 | -35, 35 |
+| Rally board | -44, 53 | |
+| Golden Fish Market | 45, 52 | 42, 44.5 |
+| Day Cart | 24, 56 | |
+| Codes Cat | -44, -23 | |
+| Mystery Market | -45, -53 | -45, -49.6 |
+| Lucky cat sign | -22, -56 | |
+| Night Market cart | 44, -22 | 33, -31 |
+| Feedback stand | 28, -54 | 50, -25 |
+| Thank You board | 46, -56 | 43, -47.8 |
+| Bellhop | -48, 0 | same |
+| Leaderboards | 50, 0 | same |
+
+- Every station faces the cannon at the origin. One spot is left free at (44, 22).
+- **Circles.** The walk-up circle in front of a town station is radius 8 (`WalkUp.FRONT_RADIUS`, `Config.CodesCircleRadius`; 6 before), and every station's open range grew by 4 to match. Camp circles are at most 6.5 and never under 6 (`CAMP_RING_MAX`, `FRONT_FIT_LEAST`), and an Index Board's is 5.5.
+- **Tight spots.** Two circles never overlap: each shrinks until 1 stud shows between them, and a camp circle also slides and shrinks off anything solid in it. Where two still touch at the floor, the nearer centre wins, so stepping on opens or claims one station only. Camp decor that stood in a circle was moved out (#3469).

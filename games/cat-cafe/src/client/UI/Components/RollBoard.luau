@@ -266,14 +266,17 @@ function RollBoard._paint(_self: any, row: RowParts, lit: boolean, faded: boolea
 		picture.TextTransparency = fade
 		IconArt.setTransparency(picture, fade)
 	end
-	for _, label in { row.name, row.chance :: TextLabel? } do
-		if label ~= nil then
-			label.TextTransparency = fade
-			local stroke = label:FindFirstChildWhichIsA("UIStroke") :: UIStroke?
-			if stroke ~= nil then
-				stroke.Transparency = fade
-			end
+	local function fadeLabel(label: TextLabel)
+		label.TextTransparency = fade
+		local stroke = label:FindFirstChildWhichIsA("UIStroke") :: UIStroke?
+		if stroke ~= nil then
+			stroke.Transparency = fade
 		end
+	end
+	fadeLabel(row.name)
+	local chance: TextLabel? = row.chance
+	if chance ~= nil then
+		fadeLabel(chance)
 	end
 end
 

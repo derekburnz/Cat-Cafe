@@ -469,7 +469,9 @@ if query AverageRevenuePerPayingUser OneDay; then
 else
 	failed
 fi
-say "| Day | Playtime per player (min) | Day 7 retention | Paying users | Payer conversion | Robux per paying user |"
+# Payer conversion is an estimate: paying users over new plus returning players, which is right only when those two
+# add up to the day's players. Day 7 retention uses the same rule as pct(): a value of 1 or less is read as a fraction.
+say "| Day | Playtime per player (min) | Day 7 retention | Paying users | Payer conversion (est.) | Robux per paying user |"
 say "|---|---:|---:|---:|---:|---:|"
 for day in "${days[@]}"; do
 	conversion=$(awk -v p="${payers[$day]:-}" -v n="${newUsers[$day]:-0}" -v r="${returning[$day]:-0}" \

@@ -112,6 +112,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	MuseumFill = RateLimiter.new(1, 2), -- #3130: Auto fill, a whole hall in one call
 	InviteCard = RateLimiter.new(1, 2), -- #2797: the invite card's report, 1 per 2 s
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
+	YardSalePick = RateLimiter.new(1, 1), -- #3614: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
 	BuyCornerShopAll = RateLimiter.new(1, 2), -- #2593: a section's Buy all
 	SellExtraCommons = RateLimiter.new(1, 2), -- #1573: 1 per 2 s; sells many at once and sends a full sync

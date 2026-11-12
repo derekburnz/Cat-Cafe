@@ -690,6 +690,23 @@ return function()
 
 	-- #3222: a Golden find's toast plays the gold reveal; the update gift's plays the reward jingle.
 	describe("Audio.Logic toast jingles", function()
+		it("plays the pool's own calm chimes in its first walk-up cutscene", function()
+			local cue, step = Logic.poolIntroCue("step", 1)
+			expect(cue).to.equal("poolStep")
+			expect(step).to.equal(1)
+			cue, step = Logic.poolIntroCue("step", 5)
+			expect(cue).to.equal("poolStep")
+			expect(step).to.equal(5)
+			cue, step = Logic.poolIntroCue("step", 99)
+			expect(step).to.equal(5)
+			cue, step = Logic.poolIntroCue("rise", 0)
+			expect(cue).to.equal("poolReveal")
+			expect(step).to.equal(nil)
+			-- nothing was won, so never the Mythic sting
+			expect((Logic.poolIntroCue("mythic", 5))).to.equal(nil)
+			expect((Logic.poolIntroCue(nil, nil))).to.equal(nil)
+		end)
+
 		it("gives each update party banner a sound the game already has", function()
 			expect(Logic.bannerCue("party")).to.equal("stationReveal")
 			expect(Logic.bannerCue("giftSoon")).to.equal("uiGiftReady")

@@ -3326,4 +3326,50 @@ function Logic.poolAt(rarity: string, t: number): (number, number, boolean)
 	return i, k, t >= Logic.poolSeconds(rarity)
 end
 
+-- #3430 (Effects/MysticIntroCut): which part of the cutscene `t` seconds in falls in when nobody skips, and how
+-- far through that part (0 to 1).
+function Logic.mysticIntroPhase(t: number): (string, number)
+	local p = Presets.mysticIntro
+	local swirl = p.step * p.steps
+	if t < p.swingIn then
+		return "in", math.max(t, 0) / p.swingIn
+	elseif t < p.swingIn + swirl then
+		return "swirl", (t - p.swingIn) / swirl
+	elseif t < p.swingIn + swirl + p.rise then
+		return "rise", (t - p.swingIn - swirl) / p.rise
+	elseif t < p.swingIn + swirl + p.rise + p.swingOut then
+		return "out", (t - p.swingIn - swirl - p.rise) / p.swingOut
+	end
+	return "done", 1
+end
+
+-- #3430: the whole cutscene's seconds when nobody skips.
+function Logic.mysticIntroSeconds(): number
+	local p = Presets.mysticIntro
+	return p.swingIn + p.step * p.steps + p.rise + p.swingOut
+end
+
+-- #3430: the liquid `s` seconds into the swirl: which of the five colours it is on (1 to 5, always in order, never
+-- back) and how far that colour has blended in (0 to 1).
+function Logic.mysticIntroSwirl(s: number): (number, number)
+	local p = Presets.mysticIntro
+	local i = math.clamp(math.floor(math.max(s, 0) / p.step) + 1, 1, p.steps)
+	local into = math.max(s, 0) - (i - 1) * p.step
+	return i, math.clamp(into / p.blend, 0, 1)
+end
+
+-- #3430: how far Sorrel's staff arm is raised (0 down, 1 fully up) `s` seconds into his wave: up over `raise`, then
+-- a gentle wave between `waveLow` and 1.
+function Logic.mysticIntroWave(s: number): number
+	local p = Presets.mysticIntro
+	if s <= 0 then
+		return 0
+	end
+	if s < p.raise then
+		return Logic.smoothstep01(s / p.raise)
+	end
+	local swing = 0.5 - 0.5 * math.cos((s - p.raise) * 2 * math.pi * p.waveHz)
+	return 1 - (1 - p.waveLow) * swing
+end
+
 return Logic

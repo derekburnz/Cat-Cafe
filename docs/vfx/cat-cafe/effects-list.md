@@ -1128,6 +1128,17 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
 
+## Rummage Bin prize roll (#3608, 2026-11-12)
+
+`Effects/BinRoll.luau`, timing in `Logic.binRollSteps`, numbers in `Presets.binRoll`, sounds in `Audio/Logic.binRollCue`.
+
+| Look | Hook |
+|---|---|
+| The roll: a marker goes down the board's rows in list order, twice round and on to the prize, a tick every 0.067 s until the last lap's worth of ticks slow evenly to a 0.40 s last gap (2.0 to 2.5 s for seven rows). The slowdown is the same wherever it stops and it never lingers on any row but the last. The bin tips 4 degrees side to side while it rolls (still with Reduce Motion). A soft tick per row and the reel's stop as it lands. | `BinRoll.play(bin, count, target, tier, onTick, onDone)` returns a function that skips to the stop (a tap); the board lights the row in `onTick`. The server has already picked `target`. |
+| Landing by tier: nothing for a common prize; a blue ring and a few sparkles for a good one; a short thin gold light column (0.9 s) with a ring for the best, gone before the bar starts. | `BinRoll.landed(bin, tier)` (called by `play`) |
+| Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
+| Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
+
 ## Speed Shoes trail (#3523, 2026-11-12)
 
 `Effects/SpeedShoes.luau`, numbers in `Presets.speedShoes` and `Presets.emitters.shoeTrail`, the rule in `Logic.shoeTrailOn`. It waits for the Speed Shoes build (#3535): until a character carries the `SpeedShoes` attribute or wears the `CatCafe_Item_SpeedShoes` model it does nothing.

@@ -202,4 +202,37 @@ return function()
 			expect(covers(rects, Vector2.new(600, 300))).to.equal(true)
 		end)
 	end)
+
+	describe("TutorialArrowLogic.margins (#3638)", function()
+		it("gives the strips a phone's safe area leaves beside the HUD", function()
+			-- a 2532 x 1170 phone held sideways: 141 px kept clear on each side, 63 at the bottom
+			local m = Logic.margins(
+				Vector2.new(0, 0),
+				Vector2.new(2532, 1170),
+				Vector2.new(141, 0),
+				Vector2.new(2250, 1107)
+			)
+			expect(m.left).to.equal(141)
+			expect(m.right).to.equal(141)
+			expect(m.top).to.equal(0)
+			expect(m.bottom).to.equal(63)
+		end)
+
+		it("is nothing where the HUD fills the screen, or before either has a size", function()
+			local m = Logic.margins(Vector2.new(0, 0), SCREEN, Vector2.new(0, 0), SCREEN)
+			expect(m.left + m.right + m.top + m.bottom).to.equal(0)
+			local none =
+				Logic.margins(Vector2.new(0, 0), Vector2.new(0, 0), Vector2.new(10, 0), SCREEN)
+			expect(none.left + none.right + none.top + none.bottom).to.equal(0)
+			-- an inner layer that reaches past the screen never gives a negative strip
+			local past = Logic.margins(
+				Vector2.new(0, 0),
+				SCREEN,
+				Vector2.new(-5, -5),
+				Vector2.new(1300, 740)
+			)
+			expect(past.left).to.equal(0)
+			expect(past.right).to.equal(0)
+		end)
+	end)
 end

@@ -22,6 +22,7 @@ local SUFFIX = if RunService:IsStudio() then "_dev" else ""
 local current: LiveFlags.Flags = LiveFlags.defaults()
 local overrides: { [string]: boolean } = {} -- Studio only (Debug.flag)
 local failing = false
+local readOnce = false -- a read of the store has come back in this server
 
 -- Whether feature `key` (one of LiveFlags.KEYS) is on in this server.
 function LiveFlagService.on(key: string): boolean
@@ -42,6 +43,14 @@ end
 
 local function live(): boolean
 	return not RunService:IsStudio() or DataService.saves()
+end
+
+-- #3627: whether the switches are the store's yet. A new server answers `on` from LiveFlags.defaults() until its
+-- first read comes back (a few seconds, longer when DataStore requests queue, never if they keep failing), so a
+-- feature that is on by default and switched off live would show to the first players of every new server. What
+-- must not show by mistake asks this first. True at once where nothing is read (Studio without API access).
+function LiveFlagService.ready(): boolean
+	return readOnce or not live()
 end
 
 local function read()
@@ -69,6 +78,7 @@ local function read()
 		return
 	end
 	failing = false
+	readOnce = true
 	local new = LiveFlags.parse(raw)
 	for _, key in LiveFlags.changed(current, new) do
 		print(

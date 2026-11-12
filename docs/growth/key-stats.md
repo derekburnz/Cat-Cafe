@@ -2,6 +2,55 @@
 
 Owner: growth-analyst. Each read adds a section at the top. Source: the `analytics` workflow (Open Cloud Analytics, read only). Roblox only counts **live servers**. Studio playtests never show up, and each day appears about a day late.
 
+## 2026-11-12: Nov 11, the first big day (949 new players)
+
+Runs: Open Cloud analytics for Nov 11 (run 43190531565) and Nov 9 to 11 (run 43213882447). Nov 11 has 949 players in `onboarding_v6` and 861 in `first_hour_v2`, five times Nov 10, so these are solid numbers. Roblox had not filled sessions, day 1 retention or spend for Nov 11 at 12:15 UTC Nov 12; those come with the next read.
+
+| Stat | Nov 10 (186) | Nov 11 (949) | Change |
+|---|---:|---:|---:|
+| First catch | 80% | 80% | 0 |
+| Second cat, of players who served a customer | 76% | 89% | +13 pts |
+| First table upgrade | 50% | 64% | +14 pts |
+| Bait in the bowl | 47% | 61% | +14 pts |
+| Tier 2 | 32% | 34% | +2 pts |
+| First park catch | 25% | 27% | +2 pts |
+| Still playing at 60 s | 82% | 78% | -4 pts |
+| Still playing at 5 min | 47% | 50% | +3 pts |
+| Still playing at 10 min | 32% | 38% | +6 pts |
+| Still playing at 30 min | 12% | 18% | +6 pts |
+
+Visits 2,178 at 12:00 UTC Nov 12 (1,670 at 23:47 Nov 11), favorites 111, likes 14 to 3. By device on Nov 11: phone 451, computer 221, tablet 149, console 114.
+
+What changed in between: loading screen off (v497), cheaper early upgrades (#2996), the second cat goal (#3022), shorter nights, the tackle shield for new players.
+
+Where players are lost now:
+- **After the bait cat, before the first rescue**: 582 put bait out, 442 started a rescue (24% lost). It is the step players stall on most: 310 waited 30 s, 240 waited 60 s, 160 waited 120 s. The bait itself is quick (the cat arrives in 5 s; food in to tame or let go 10 to 16 s). Reading note: `first_bait_resolved` logs only after the rescue steps in this funnel, so its time is the rescue's, not the bait's.
+- **The intro**: 83 players (9% of loaded) leave between `loaded` and `first_move`, 27 s apart (#3162).
+- **Give up on touch screens**: rescues ending `cancelled` on Nov 9 to 11 were 24% on phones and 22% on tablets, 4% on computers and 1% on consoles (#3024, PR #3504). Phones lose 12% between rescue started and done, computers 1%.
+- **Five cats**: 404 finished the first goal, 353 reached five cats (87%); 81 players waited over 120 s on it (#3529).
+
+Leave points (`quit_state`, 534 leavers below Tier 2 with a device): after the bait cat 127 (220 s played on average), intro `tut_0_shown` 84 (45 s), after the first customer 70 (115 s), first goal done 45 (287 s). No device stands out. Night: 22% of leavers left at night (the night is 18% of the clock).
+
+Tablets no longer fall behind phones: Tier 2 is 32% to 35% on every device.
+
+Benchmarks (Creator Hub, Simulation genre, read 03:15 UTC Nov 12, small samples; money rows are kept in the private library, not here):
+
+| Item | Ours | Genre 50th | Genre 90th |
+|---|---:|---:|---:|
+| Average playtime (min, 28 days) | 17.5 | 12.2 | 30.9 |
+| Day 1 retention (56 days) | 3.8% | 6.41% | 12.85% |
+| Day 7 retention | 0% (no cohort yet) | 0.57% | 2.17% |
+| Qualified play-through | no data (0 Home impressions) | about 2.0% | about 4.7% |
+
+Other reads:
+- First five minutes (`step_ready`): a second stray is waiting at 73 s, the table is affordable at 90 s and the bowl at 105 s on average, so money is not what stops new players.
+- Store (`store_v1`): opened 414 times, a tab viewed 266, Buy pressed 9.
+- Arcade (Circle Streak, before Mouse Dash): 51 games by 27 players, 1 win.
+- In-game feedback ask: shown 268 times, a face picked 102 times (38%). Session thumbs card: 8 answers.
+- Tracking gaps: `first_hour_v3` (3 and 4 minute marks) and `arcade_v1` logged nothing on Nov 11; join source is `organic` for every player, so ad players cannot be split (#3530).
+
+Next read: Nov 13, for Nov 12 (the 22:00 UTC update: Mystic Pool, Mouse Dash, Update Party, the gift), and Nov 11 sessions and day 1 retention once filled.
+
 ## 2026-11-11: launch weekend, Nov 8 to Nov 10 (real players)
 
 Runs: Open Cloud analytics, Nov 8 to 9 (baseline, run 42831058300) and Nov 10 (run 42936503972). Ads: two 18+ campaigns from 13:50 UTC Nov 10; the older campaign paused. The Nov 8 to 9 baseline has 85 players in `onboarding_v6`; Nov 10 has 186 (step_time) and 190 in `first_hour_v2`. Over 100 players a day, so these now read as real behaviour.

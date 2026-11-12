@@ -26,6 +26,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserService = game:GetService("UserService")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -336,6 +337,9 @@ end
 local function joinNotice(player: Player)
 	if not Config.LeaderboardJoinNotice or player.Parent == nil then
 		return
+	end
+	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
+		return -- #3602: a rest's rejoin is the same visit carried on, not a join to announce
 	end
 	local rank, board =
 		Leaderboards.joinRank(lists, player.UserId, Config.LeaderboardJoinNoticeRank)

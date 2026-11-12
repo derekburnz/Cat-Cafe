@@ -573,8 +573,20 @@ function ShopIcons.catFood(foodId: string?): string?
 	return IDS.Icon_Clean_StarTreat
 end
 
+-- #3462: the Day Cart's own baits borrow the dealer's two best pictures until theirs are drawn
+local FOOD_STAND_INS: { [string]: string } =
+	{ honey_cream = "moon_milk", comet_treat = "star_treat" }
+
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
+	if type(lureId) ~= "string" then
+		return nil
+	end
+	return IDS["Icon_Clean_" .. pascal(lureId)]
+		or (
+			if FOOD_STAND_INS[lureId]
+				then IDS["Icon_Clean_" .. pascal(FOOD_STAND_INS[lureId])]
+				else nil
+		)
 end
 
 -- The clean picture for a money, golden fish or spin prize (#1242, the Tip Jar, Daily Treat, quest and Index prize

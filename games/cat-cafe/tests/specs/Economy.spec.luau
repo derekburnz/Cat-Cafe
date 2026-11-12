@@ -882,7 +882,33 @@ return function()
 				"caviar",
 				"moon_milk",
 				"star_treat",
+				"honey_cream", -- #3462: the Day Cart's own two, last
+				"comet_treat",
 			})
+		end)
+
+		it("#3462: the Day Cart's own baits cost the same at every tier", function()
+			for tier = 0, 9 do
+				expect(Economy.foodPrice("honey_cream", tier)).to.equal(1000000000)
+				expect(Economy.foodPrice("comet_treat", tier)).to.equal(3000000000)
+			end
+			for _, id in { "honey_cream", "comet_treat" } do
+				local lure = Catalog.getLure(id) :: any
+				expect(lure.source).to.equal("cart")
+				local sum = 0
+				for _, share in lure.odds do
+					sum += share
+				end
+				expect(math.abs(sum - 100) < 1e-6).to.equal(true)
+				expect(lure.odds.Common).to.equal(0)
+			end
+			-- each is a little better at the top than the dealer food beside it
+			local honey, comet =
+				Catalog.getLure("honey_cream") :: any, Catalog.getLure("comet_treat") :: any
+			expect(comet.odds.Mythical > (Catalog.getLure("star_treat") :: any).odds.Mythical).to.equal(
+				true
+			)
+			expect(comet.odds.Mythical > honey.odds.Mythical).to.equal(true)
 		end)
 	end)
 

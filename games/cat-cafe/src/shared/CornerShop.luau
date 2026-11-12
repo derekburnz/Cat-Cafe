@@ -71,8 +71,25 @@ end
 
 export type ItemAmount = { itemId: string, amount: number }
 
+-- #3462: the top shelf, the rows marked `topShelf` (the Tier 6 baits and potions). It is shut until the server opens
+-- it from the `cartTier6` switch (CornerShopService): a save drops a food or potion id an older server build does not
+-- know, so nothing new is sold while one may still run. Shut, its rows are left out of `view` and refused by
+-- `buyBlocker`. Its rows roll after every other row's, so the rest of the cart's stock is the same with or without
+-- them, and Buy all never takes them (a press there should not spend billions).
+CornerShop.TOP_SHELF_FLAG = "cartTier6"
+local topShelfOpen = false
+function CornerShop.setTopShelf(open: boolean)
+	topShelfOpen = open == true
+end
+function CornerShop.topShelfOpen(): boolean
+	return topShelfOpen
+end
+local function shut(row: Types.CornerShopRow): boolean
+	return row.topShelf == true and not topShelfOpen
+end
+
 -- #1577 (day-cart.md section 2): the rows' Catalog.cornerShop indexes, cheapest Tier 1 price first (ties keep the
--- Catalog order). Built once; the Catalog is frozen.
+-- Catalog order), the top shelf's rows after the rest (#3462). Built once; the Catalog is frozen.
 local byPrice: { number }? = nil
 function CornerShop.listOrder(): { number }
 	if byPrice == nil then
@@ -81,6 +98,11 @@ function CornerShop.listOrder(): { number }
 			table.insert(order, index)
 		end
 		table.sort(order, function(a: number, b: number): boolean
+			local topA, topB =
+				Catalog.cornerShop[a].topShelf == true, Catalog.cornerShop[b].topShelf == true
+			if topA ~= topB then
+				return topB
+			end
 			local priceA, priceB = Catalog.cornerShop[a].price, Catalog.cornerShop[b].price
 			if priceA ~= priceB then
 				return priceA < priceB
@@ -171,6 +193,9 @@ function CornerShop.view(
 	local stock: { Types.CornerShopItem } = {}
 	for _, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId) :: Types.CornerShopRow
+		if shut(row) then
+			continue -- #3462: the top shelf's rows come last in the Catalog, so the rows before them keep their places
+		end
 		-- #1435: the row is at its family's daily limit, so the window greys Buy ("Back at sunrise", #1629) instead of
 		-- letting every press come back with the toast. The limit itself is still never shown (#1190). #1712: each row
 		-- counts on its own, so buying one size never uses up another.
@@ -215,7 +240,7 @@ export type Buy = {
 -- checks the range itself.
 function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: number): string?
 	local row = Catalog.getCornerShopRow(buy.itemId)
-	if row == nil then
+	if row == nil or shut(row) then
 		return "That isn't in the Corner Shop."
 	end
 	if row.needsTier ~= nil and buy.tier < row.needsTier then
@@ -303,7 +328,8 @@ function CornerShop.planAll(
 	local rows: { Entry } = {}
 	for place, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId)
-		if row ~= nil and row.kind == kind then
+		-- #3462: never a top shelf row, open or shut
+		if row ~= nil and row.kind == kind and row.topShelf ~= true then
 			table.insert(rows, { row = row, price = CornerShop.priceOf(row, tier), place = place })
 		end
 	end

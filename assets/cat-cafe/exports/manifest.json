@@ -315896,17 +315896,17 @@
       "size_studs": {
         "x": 8.66,
         "y": 7.42,
-        "z": 7.58
+        "z": 7.48
       },
       "size_roblox": [
         8.66,
-        7.58,
+        7.48,
         7.42
       ],
       "bounds_min": [
         -4.95,
         -3.71,
-        -0.1
+        0.0
       ],
       "bounds_max": [
         3.71,
@@ -315926,7 +315926,6 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
@@ -315935,7 +315934,7 @@
           "material": "one material (CatCafe_Palette)",
           "uv": "1225 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.10 (want 0)",
+          "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.62 y=0.00"
         }
       },

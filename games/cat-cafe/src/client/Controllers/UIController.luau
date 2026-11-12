@@ -25,6 +25,7 @@ local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local FirstFive = require(Shared:WaitForChild("FirstFive"))
@@ -44,6 +45,7 @@ local Tips = require(Shared:WaitForChild("Tips"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UITypes = require(script.Parent.Parent.UI.Types)
+local UpdateGift = require(Shared:WaitForChild("UpdateGift"))
 
 local UIController = {}
 
@@ -2652,6 +2654,26 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
+	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
+	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
+	-- show as a banner falls back to the toast.
+	Net.on(
+		"UpdateGiftNotice",
+		function(kind: unknown, fish: unknown, spins: unknown, secondsLeft: unknown)
+			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft)
+			if banner == nil then
+				return
+			end
+			local shown = EventBanner.show({
+				kind = if kind == "paid" then "gift" else "giftSoon",
+				title = banner.title,
+				lines = banner.lines,
+			})
+			if not shown and kind == "paid" then
+				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+			end
+		end
+	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

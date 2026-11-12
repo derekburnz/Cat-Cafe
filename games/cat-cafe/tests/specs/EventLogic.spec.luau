@@ -138,6 +138,41 @@ return function()
 		end)
 	end)
 
+	describe("EventLogic.partyBanner (#3420)", function()
+		local party = { EventId = "update-1112", EventTitle = "Update Party" }
+
+		it("words the launch party's card with the features that are on", function()
+			expect(
+				EventLogic.partyBanner(read(party), "6:00 PM", { "Mystic Pool", "Mouse Dash" }) :: any
+			).to.deepEqual({
+				title = "Update Party!",
+				lines = {
+					"x2 cafe earnings until 6:00 PM",
+					"New: Mystic Pool and Mouse Dash",
+					"Rare cat showers all hour",
+				},
+			})
+			local one: any = EventLogic.partyBanner(read(party), "10:00 PM", { "Mouse Dash" })
+			expect(one.lines[1]).to.equal("x2 cafe earnings until 10:00 PM")
+			expect(one.lines[2]).to.equal("New: Mouse Dash")
+			local none: any = EventLogic.partyBanner(read(party), "6:00 PM", {})
+			expect(none.lines[2]).to.equal("Rich customers leave bags")
+			for _, line in one.lines do
+				expect(#line <= 36).to.equal(true)
+			end
+		end)
+
+		it("is only for that event while it pays x2: the card's badge says x2", function()
+			expect(EventLogic.partyBanner(read(), "17:00", {})).to.equal(nil)
+			expect(EventLogic.partyBanner(read(party, { money = 1.5, luck = 0.5 }), "17:00", {})).to.equal(
+				nil
+			)
+			expect(EventLogic.partyBanner(read(party, { luck = 0.5 }), "17:00", {})).to.equal(nil)
+			local dry: any = EventLogic.partyBanner(read(party, { money = 2 }), "17:00", {})
+			expect(#dry.lines).to.equal(2)
+		end)
+	end)
+
 	describe("EventLogic.banner", function()
 		it("names the two biggest effects and the local end time", function()
 			expect(EventLogic.banner(read(), "17:00")).to.equal(

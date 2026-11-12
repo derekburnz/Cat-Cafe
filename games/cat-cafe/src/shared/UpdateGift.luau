@@ -11,6 +11,11 @@
 --   due(redeemed, gift, now) -> bool  the gift is live at `now` (os.time()) and not paid to this account yet
 --   prize(gift) -> IndexPrize        what it pays
 --   words(gift) -> string            the toast: "Update gift! 🐟 15 + 1 spin"
+-- #3420 (the 2026-11-12 launch gift): the gift shows as a banner (Effects/EventBanner) in place of the toast, and a
+-- notice banner shows once in the NOTICE_SECONDS before `from`. The server sends UpdateGiftNotice(kind, fish, spins,
+-- secondsLeft) and the client builds the words here; the toast stays the fallback when no banner can show.
+--   soon(redeemed, gift, now) -> number?   seconds until an unpaid gift, while inside the notice window; else nil
+--   banner(kind, fish, spins, secondsLeft) -> Banner?   the banner's title and lines; nil for bad arguments
 
 local Types = require(script.Parent.Types)
 
@@ -33,6 +38,82 @@ function UpdateGift.due(redeemed: { [string]: number }, gift: Gift?, now: number
 		return false
 	end
 	return redeemed[UpdateGift.key(gift.id)] == nil
+end
+
+UpdateGift.NOTICE_SECONDS = 300
+UpdateGift.MAX_FISH = 1000 -- a banner never shows more than this (the client checks what it is sent)
+UpdateGift.MAX_SPINS = 10
+
+export type NoticeKind = "soon" | "paid"
+export type Banner = { title: string, lines: { string } }
+
+function UpdateGift.soon(redeemed: { [string]: number }, gift: Gift?, now: number): number?
+	if gift == nil or type(gift.id) ~= "string" or gift.id == "" then
+		return nil
+	end
+	local left = gift.from - now
+	if
+		left <= 0
+		or left > UpdateGift.NOTICE_SECONDS
+		or redeemed[UpdateGift.key(gift.id)] ~= nil
+	then
+		return nil
+	end
+	return left
+end
+
+local function whole(value: unknown, most: number): number?
+	if
+		type(value) ~= "number"
+		or value ~= value
+		or value ~= math.floor(value)
+		or value < 0
+		or value > most
+	then
+		return nil
+	end
+	return value
+end
+
+function UpdateGift.banner(
+	kind: unknown,
+	fish: unknown,
+	spins: unknown,
+	secondsLeft: unknown
+): Banner?
+	local fishCount = whole(fish, UpdateGift.MAX_FISH)
+	local spinCount = whole(spins, UpdateGift.MAX_SPINS)
+	if fishCount == nil or spinCount == nil or fishCount + spinCount == 0 then
+		return nil
+	end
+	local parts: { string } = {}
+	if fishCount > 0 then
+		table.insert(parts, tostring(fishCount) .. " golden fish")
+	end
+	if spinCount > 0 then
+		table.insert(parts, tostring(spinCount) .. (if spinCount == 1 then " spin" else " spins"))
+	end
+	local what = table.concat(parts, " + ")
+	if kind == "paid" then
+		return { title = "A gift for everyone!", lines = { "+" .. what, "Thanks for playing!" } }
+	end
+	if kind ~= "soon" then
+		return nil
+	end
+	if type(secondsLeft) ~= "number" or secondsLeft ~= secondsLeft then
+		return nil
+	end
+	if secondsLeft <= 0 or secondsLeft > UpdateGift.NOTICE_SECONDS then
+		return nil
+	end
+	local minutes = math.max(1, math.ceil(secondsLeft / 60))
+	return {
+		title = "A gift is coming!",
+		lines = {
+			what .. " for everyone",
+			string.format("in %d minute%s", minutes, if minutes == 1 then "" else "s"),
+		},
+	}
 end
 
 function UpdateGift.prize(gift: Gift): Types.IndexPrize

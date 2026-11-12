@@ -210,7 +210,11 @@ local function consider(instance: Instance)
 	end
 	watched[model] = true
 	local function read()
-		known[model] = if isSecret(model) then true else nil
+		if isSecret(model) then
+			known[model] = true
+		else
+			known[model] = nil
+		end
 	end
 	-- a copy whose CatId is set after it is parented (a carried or packed cat) is read again then
 	model:GetAttributeChangedSignal("CatId"):Connect(read)
@@ -230,7 +234,10 @@ function SecretGlow.start()
 		local warned = false
 		while true do
 			-- one odd model must not end every glow for the session: report it once and keep going
-			local ok, problem = pcall(check)
+			local ok, problem = pcall(function(): string?
+				check()
+				return nil
+			end)
 			if not ok and not warned then
 				warned = true
 				warn("[Effects] SecretGlow: " .. tostring(problem))

@@ -9,6 +9,8 @@ Derek2, 2026-11-11 14:34 UTC: "Re-work the station to be like a mystical wizard 
 
 - The Park's Picnic Basket becomes the **Mystic Pool**. It stays in the same spot with the same unlock (the Park's camp extra, Tier 2).
 - **Who runs it:** an old wizard cat, **Sage Sorrel**. Sorrel wears a starry robe and a pointed hat and holds a staff, and stands beside a round stone pool of glowing liquid. Model and sign: model lane. Animation: animation lane.
+- **Approved look (Derek, 2026-11-11 23:29 UTC, picked the built model over the earlier pink concept):** a round pool ringed with cream and grey stone blocks with small moss patches, filled with soft purple liquid, on a lilac and white checker floor. Behind it stands a cream stone arch with a gold crescent moon on top and two hanging lanterns. Sorrel is a brown cat with a white beard, a purple starry hat and a staff with a red orb, standing by the pool beside a stack of books and a candle. Purple crystals sit at the corners and an A-frame sign reads "MYSTIC POOL, TRAITS". Reference picture: the library's `Model-Agent/for-derek-2026-11-11/mystic-pool-model-3314.png`.
+- **Resting colour:** between rolls the liquid is that soft purple. A roll still starts by turning it grey (1a), and the Mythic step must read as clearly different from the resting purple: deeper and brighter, with the rainbow shimmer and star burst.
 - The walk-in circle opens the menu (WalkUp ring, #3112). It also opens from the Cannon menu with no range check, like every other station (camp-extras.md §3).
 - **Menu:**
   - Pick a cat from a searchable list with faces, the same picker as the Spa (#3136).
@@ -133,6 +135,7 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 ## 6. Save and publish
 - A trait is a new field on each saved cat, `trait = { id }` (each trait id carries its rarity and effects in Config), plus a `traitTokens` count, a `traitFreeRollsUsed` count (starts at 0) and the station's token timer on the profile.
 - Older servers would drop these when they save, so this needs a save version step and **one publish with a server restart**. That restart needs Derek's yes at the time.
+- **Done 2026-11-11:** the save version step is version 48 (#3335), live since the restart at 19:13 UTC. Nothing else here needs a restart; the `traits` flag alone opens the station.
 - Everything else (the menu, the pool animation, the circle, the token drops, the spin slice) is built first behind a LiveFlag `traits`, switched off.
 
 ## 7. Telemetry

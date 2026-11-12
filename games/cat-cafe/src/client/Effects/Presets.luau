@@ -2684,6 +2684,20 @@ Presets.goldenFind = {
 	ringSeconds = 0.9,
 }
 
+-- #3360 (rich customers' money bags, Effects/MoneyBag): the gold ring and sparkles when a bag drops on table 1 and
+-- the pop when it is collected. Studs and seconds; one beat per bag, so nothing repeats faster than a bag can drop.
+Presets.moneyBag = {
+	within = 120, -- studs from this player; further cafes are skipped
+	lift = 0.6, -- the sparkles start this far over the table top
+	dropSparkles = 8,
+	dropRing = 3,
+	collectSparkles = 16,
+	collectRing = 5,
+	ringSeconds = 0.7,
+	confetti = 14, -- in your own cafe only
+	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
+}
+
 -- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
 -- costs (Effects/ArcadeFx). Pixels and seconds.
 Presets.arcade = {
@@ -2713,6 +2727,65 @@ Presets.arcade = {
 	fish = { glyph = "🐟", colour = Presets.palette.golden, sparkles = 6, wordSize = 30 },
 	-- #3338: the shine that sweeps across the Play button while a game can start
 	shine = { every = 2.6, seconds = 0.7, width = 0.18, transparency = 0.55 },
+}
+
+-- Mouse Dash's pops (#3296, MouseDashFx), drawn with the arcade's sparkles, rings and words (Presets.arcade)
+Presets.mouseDash = {
+	bigEvery = 5, -- every 5th catch of a streak gets the bigger golden pop
+	pop = {
+		colour = Presets.palette.offwhite,
+		golden = { colour = Presets.palette.golden, sparkles = 4 },
+		kitten = { colour = Presets.palette.blush },
+	},
+	-- the window floats its own "+1" and "+3" over the hole, so the catch pops are sparkles and a ring only
+	catch = { colour = Presets.palette.mint, sparkles = 4, rings = 1 },
+	catchBig = {
+		colour = Presets.palette.golden,
+		sparkles = 8,
+		rings = 1,
+	},
+	catchGolden = {
+		colour = Presets.palette.golden,
+		sparkles = 12,
+		rings = 1,
+	},
+	-- the dust as a mouse ducks back in: round blobs off the hole's rim; `drop` is how far under the hole's middle
+	-- they start, in hole heights
+	puff = {
+		count = 6,
+		colour = Presets.palette.lampWarm,
+		size = 16,
+		reach = 34,
+		seconds = 0.45,
+		transparency = 0.25,
+		drop = 0.15,
+	},
+	wrong = {
+		kitten = { word = "mrow?", colour = Presets.palette.blush, wordSize = 24 },
+		empty = { colour = Presets.palette.sparkle, stars = 3, puffs = 3 },
+	},
+	heart = {
+		colour = Presets.palette.nosePink,
+		sparkles = 6,
+		lost = Presets.palette.furGrey,
+		puffs = 3,
+	},
+	-- the window's banner says "Faster!", so this is the ring and sparkles round the score only
+	faster = {
+		colour = Presets.palette.eyeBlue,
+		sparkles = 6,
+		rings = 1,
+	},
+	best = {
+		colour = Presets.palette.golden,
+		confetti = { Presets.palette.golden, Presets.palette.mint, Presets.palette.nosePink },
+		sparkles = 12, -- the phone's burst cap, shared out over the confetti colours
+		rings = 2,
+		ringGap = 0.15,
+		wordSize = 34, -- for the words the window hands over ("You win!")
+	},
+	-- MouseDashFx.bounce: how far each kind swells (over 1) or dips (under 1) before it settles
+	bounce = { seconds = 0.22, peaks = { pop = 1.15, squash = 0.8, pulse = 1.25 } },
 }
 
 Presets.tradeFly = {
@@ -4529,6 +4602,63 @@ Presets.mysticPool = {
 		Color3.fromHex("4CAF50"),
 		Color3.fromHex("3F8FE0"),
 	},
+}
+
+-- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for
+-- the party's start, the gift on its way and the gift paid. Pixels and seconds. The words are the caller's (#3420);
+-- `titleLength` and `lineLength` are the most characters drawn. Everything plays once per banner.
+Presets.eventBanner = {
+	displayOrder = 29,
+	queue = 3, -- banners that may wait behind the one showing
+	hold = 5, -- seconds at rest when the caller gives none; a tap on the card sends it away sooner
+	holdMin = 3,
+	holdMax = 5, -- Derek, 2026-11-12: gone by itself in 3 to 5 seconds
+	titleLength = 24,
+	lineLength = 36,
+	maxLines = 3,
+	-- the card
+	widthScale = 0.9,
+	maxWidth = 440,
+	top = 10, -- under the Roblox top bar
+	pad = 10,
+	corner = 16,
+	titleHeight = 36,
+	titleSize = 30,
+	lineHeight = 24,
+	lineSize = 20,
+	badgeSize = 56,
+	card = Presets.palette.offwhite,
+	outline = Color3.fromRGB(74, 52, 38), -- the UI's dark brown outline
+	stripTop = Presets.palette.goldLight,
+	stripBottom = Presets.palette.golden,
+	titleText = Presets.palette.milk,
+	lineText = Color3.fromRGB(74, 52, 38),
+	badge = Presets.palette.neonPink,
+	badgeText = Presets.palette.milk,
+	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
+	-- the motion
+	dropSeconds = 0.45,
+	leaveSeconds = 0.3,
+	fadeSeconds = 0.25, -- Reduce Motion: fade in and out in place
+	shineSeconds = 0.7, -- one sweep as the card lands
+	shineWidth = 0.3,
+	shineTransparency = 0.45,
+	-- the confetti as it lands (12 is the phone's burst cap)
+	confetti = 12,
+	confettiSoon = 6,
+	confettiColours = { Presets.palette.golden, Presets.palette.neonPink, Presets.palette.mint },
+	confettiSize = 12,
+	confettiSeconds = 0.7,
+	confettiReach = 46,
+	confettiStagger = 0.25,
+	-- the gift's golden fish hopping out from under the card
+	fish = 8,
+	fishSize = 34,
+	fishSeconds = 1.1,
+	fishStagger = 0.07,
+	fishUp = 40,
+	fishFall = 150,
+	fishSpread = 180,
 }
 
 return Presets

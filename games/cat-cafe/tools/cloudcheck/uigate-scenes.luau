@@ -7656,6 +7656,29 @@ local SCENES = {
 			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: no " .. id .. " row at Tier 6 (#3462)")
 		end
 	end },
+	-- #3462: the Day Cart's three Tier 6 potions, one sold out for the day
+	{ "CornerShopTier6Potions", function()
+		UI.update({ money = 30000000000, tier = 6 })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "gold_rush_potion", price = 3000000, amount = 2, bought = 0 },
+				{ itemId = "big_lucky_potion", price = 5000000000, amount = 1, bought = 0, needsTier = 6 },
+				{ itemId = "big_gold_rush_potion", price = 8000000000, amount = 2, bought = 1, needsTier = 6, outToday = true },
+				{ itemId = "mega_tip_potion", price = 20000000000, amount = 1, bought = 0, needsTier = 6 },
+			},
+		})
+		UI.cornerShop.open()
+		press("CornerShop", "potionTab")
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		for _, id in { "big_lucky_potion", "big_gold_rush_potion", "mega_tip_potion" } do
+			local row = window:FindFirstChild(id, true)
+			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: no " .. id .. " row at Tier 6 (#3462)")
+		end
+	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
 	-- with none it is gone
 	-- #2501 (Derek2: "put an exclamation mark above the free group cat station"): a "!" over the Bellhop Cat's stand

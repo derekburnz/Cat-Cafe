@@ -337,6 +337,10 @@ export type PotionDef = {
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
+	-- #3462: a lucky potion's Luck while it runs, with the Lucky Potion's doubled gold chance on bait. The Lucky
+	-- Potion itself has none here: its Luck is Config.LuckyPotionLuck. The biggest running one counts
+	-- (Potions.luck); they never add.
+	luck: number?,
 }
 
 -- One thing a Mystery Visitor's gift can hold (F64): `chance` in percent, the rows summing to 100. A "potion" row

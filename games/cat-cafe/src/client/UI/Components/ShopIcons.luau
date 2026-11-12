@@ -467,6 +467,12 @@ end
 -- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
 -- falls back to the next bottle instead of the emoji. A Small or Big size runs its regular potion's timer, so it wears
 -- that potion's bottles (corner-shop-v2.md, #1250).
+local POTION_STAND_INS: { [string]: string } = {
+	big_lucky_potion = "lucky_potion",
+	big_gold_rush_potion = "gold_rush_potion",
+	mega_tip_potion = "big_tip_potion",
+}
+
 function ShopIcons.potionAll(potionId: string?): { string }
 	local list: { string } = {}
 	if type(potionId) ~= "string" then
@@ -490,6 +496,16 @@ function ShopIcons.potionAll(potionId: string?): { string }
 		local id = IDS[prefix .. key]
 		if id then
 			table.insert(list, id)
+		end
+	end
+	-- #3462: a Tier 6 potion wears its smaller kind's bottles after its own, so it has a picture before its flask is
+	-- uploaded
+	local standIn = POTION_STAND_INS[potionId]
+	if standIn ~= nil then
+		for _, id in ShopIcons.potionAll(standIn) do
+			if not table.find(list, id) then
+				table.insert(list, id)
+			end
 		end
 	end
 	return list

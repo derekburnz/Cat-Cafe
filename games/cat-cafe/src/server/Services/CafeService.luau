@@ -211,7 +211,8 @@ local function luckView(profile: Profile, now: number): (number, { Types.LuckSou
 	for _, source in Luck.sources(profile, now, luckyDay, event) do
 		local endsAt: number? = nil
 		if source.id == "potion" then
-			endsAt = now + Potions.left(profile, Potions.LUCKY, now)
+			local _, left = Potions.luck(profile, now) -- #3462: of the potion whose Luck counts now
+			endsAt = now + left
 		elseif source.id == "lucky_day" then
 			endsAt = now + math.max(0, ClockService.phaseEndsAt() - Workspace:GetServerTimeNow())
 		elseif source.id == "event" then

@@ -108,6 +108,10 @@ function Pull.screen(rarity: string, gold: boolean, rainbow: boolean?)
 	local colour = Presets.rarity[rarity] or Presets.rarity.Common
 	local colours =
 		{ colour, colour:Lerp(Color3.new(1, 1, 1), 0.45), colour:Lerp(Color3.new(), 0.2) }
+	local glow: Color3? = Presets.rarityGlow[rarity]
+	if glow ~= nil then
+		table.insert(colours, glow) -- a Secret: its starlight among the dark pieces
+	end
 	table.insert(colours, Presets.palette.offwhite)
 	table.insert(colours, Presets.palette.sparkle)
 	if gold then
@@ -145,7 +149,7 @@ function Pull.screen(rarity: string, gold: boolean, rainbow: boolean?)
 		})
 	end
 	local sparkles: { Sparkle } = {}
-	if rarity == "Mythical" then
+	if Logic.topTier(rarity) then
 		local s = c.sparkles
 		local middle = view / 2
 		for _ = 1, if reduced then math.ceil(s.count / 2) else s.count do
@@ -212,11 +216,11 @@ end
 -- the catch pop of `rarity` and a Mythical's shockwave, on `floor` when given (a crate's sits on the counter).
 function Pull.world(at: Vector3, ground: Vector3, rarity: string, floor: Vector3?)
 	Catch.pop(at, ground, rarity)
-	if rarity ~= "Mythical" or Context.reducedMotion() then
+	if not Logic.topTier(rarity) or Context.reducedMotion() then
 		return
 	end
 	local w = Presets.bigPull.shockwave
-	local colour = Presets.rarity.Mythical
+	local colour = Logic.glowColour(rarity)
 	local centre = floor or ground
 	Particles.ring(centre + Vector3.new(0, 0.1, 0), colour, w.diameter, w.seconds)
 	task.delay(w.puffAt, function()

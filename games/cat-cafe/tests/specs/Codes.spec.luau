@@ -24,20 +24,23 @@ return function()
 		local gift = { id = "2026-11-14", from = SATURDAY, fish = 15, spins = 1 }
 
 		it(
-			"is the launch's 100 golden fish, from 22:03 UTC on Thursday 2026-11-12 (#3420)",
+			"is Saturday 2026-11-14's weekly gift, 15 golden fish and 1 spin from 17:00 UTC (#3523)",
 			function()
 				local live = assert(Config.UpdateGift)
-				expect(live.id).to.equal("2026-11-12")
+				expect(live.id).to.equal("2026-11-14")
+				expect(live.from).to.equal(SATURDAY)
 				expect(os.date("!%Y-%m-%d %H:%M %A", live.from)).to.equal(
-					"2026-11-12 22:03 Thursday"
+					"2026-11-14 17:00 Saturday"
 				)
-				expect(live.fish).to.equal(100)
-				expect(live.spins).to.equal(0)
-				expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 100")
-				expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 100 })
-				-- the weekly gift keeps its words and prize
-				expect(UpdateGift.words(gift)).to.equal("Update gift! 🐟 15 + 1 spin")
-				expect(UpdateGift.prize(gift) :: any).to.deepEqual({ fish = 15, spins = 1 })
+				expect(live.fish).to.equal(15)
+				expect(live.spins).to.equal(1)
+				expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 15 + 1 spin")
+				expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 15, spins = 1 })
+				-- the launch's gift kept its words and prize
+				local launch = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0 }
+				expect(UpdateGift.words(launch)).to.equal("Update gift! 🐟 100")
+				expect(UpdateGift.prize(launch) :: any).to.deepEqual({ fish = 100 })
+				expect(gift.id).to.equal(live.id)
 			end
 		)
 
@@ -80,14 +83,14 @@ return function()
 				)
 				expect((UpdateGift.banner("paid", 0, 2, 0) :: any).lines[1]).to.equal("+2 spins")
 				-- the launch gift's and the weekly gift's titles fit the banner's 24 characters and their lines its 36
-			for _, made in
-				{
-					UpdateGift.banner("soon", 100, 0, 300),
-					UpdateGift.banner("paid", 100, 0, 0),
-					UpdateGift.banner("soon", 15, 1, 300),
-					UpdateGift.banner("paid", 15, 1, 0),
-				} :: { any }
-			do
+				for _, made in
+					{
+						UpdateGift.banner("soon", 100, 0, 300),
+						UpdateGift.banner("paid", 100, 0, 0),
+						UpdateGift.banner("soon", 15, 1, 300),
+						UpdateGift.banner("paid", 15, 1, 0),
+					} :: { any }
+				do
 					expect(#made.title <= 24).to.equal(true)
 					for _, line in made.lines do
 						expect(#line <= 36).to.equal(true)

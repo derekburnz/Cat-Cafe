@@ -1279,6 +1279,69 @@ local function bindLawnPlot()
 	UI.richTip.bind(lawnPlot)
 end
 
+-- #3633: the rich tip's gold bubble as it floats over a money bag, drawn on the screen so the gate can see it (a
+-- BillboardGui is not drawn here): one with a single bag waiting and one with two. Each is the real screen bound to
+-- a made-up plot, its bubble and button moved into a frame of the billboard's own size.
+local function richTipBubbles()
+	local RichTip = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.RichTip")
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "RichTipGate"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.DisplayOrder = 100 -- over the HUD, so the shot shows the bubbles
+	gui.Parent = UIShim.playerGui
+	Scenes._richTipGate = { gui = gui, made = {} }
+	local now = workspace:GetServerTimeNow()
+	local frames = {}
+	for index, amounts in { { 187000 }, { 187000, 288000 } } do
+		local plot = Instance.new("Model")
+		plot.Name = "RichTipGatePlot" .. index
+		local anchor = Instance.new("Part")
+		anchor.Name = "RichTipAnchor"
+		anchor.Anchored = true
+		anchor.Parent = plot
+		local folder = Instance.new("Folder")
+		folder.Name = "RichBags"
+		folder.Parent = plot
+		for serial, amount in amounts do
+			local record = Instance.new("Configuration")
+			record.Name = "b" .. serial
+			record:SetAttribute("Amount", amount)
+			record:SetAttribute("ExpiresAt", now + 161 + serial)
+			record:SetAttribute("Position", Vector3.new(serial, 0, 0))
+			record.Parent = folder
+		end
+		plot.Parent = workspace
+		local tip = RichTip.new(gui, { collect = function() end, collected = function() end, missed = function() end })
+		tip:bind(plot)
+		table.insert(Scenes._richTipGate.made, tip)
+		table.insert(Scenes._richTipGate.made, plot)
+	end
+	UIShim.advance(0.6)
+	local boards = {}
+	for _, child in gui:GetChildren() do
+		if child:IsA("BillboardGui") then
+			table.insert(boards, child)
+		end
+	end
+	assert(#boards == 2, "uigate: the rich tip scene did not make two bubbles (#3633)")
+	for index, billboard in boards do
+		assert(billboard.Enabled, "uigate: no rich tip bubble for a waiting bag (#3633)")
+		local size = billboard.Size
+		local holder = Instance.new("Frame")
+		holder.Name = "Bubble" .. index
+		holder.BackgroundTransparency = 1
+		holder.AnchorPoint = Vector2.new(0.5, 0.5)
+		holder.Position = UDim2.new(0.5, (index - 1.5) * (size.X.Offset + 24), 0.5, 0)
+		holder.Size = UDim2.fromOffset(size.X.Offset, size.Y.Offset)
+		holder.Parent = gui
+		for _, part in billboard:GetChildren() do
+			part.Parent = holder
+		end
+		table.insert(frames, holder)
+	end
+	return frames
+end
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -3090,6 +3153,25 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: the selection stayed on the closed gift card (#2968)")
 		UIShim.setLastInput(nil)
 		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
+	end },
+	-- #3633 (Derek 2026-11-12: "make the rich tip pop up like 50-75% smaller it takes up too much screen")
+	{ "RichTipBubble", function()
+		local frames = richTipBubbles()
+		for index, holder in frames do
+			assert(
+				holder.AbsoluteSize.X * holder.AbsoluteSize.Y <= 220 * 168 * 0.45,
+				"uigate: the rich tip bubble is not at least 55% smaller than the old 220 x 168 (#3633)"
+			)
+			for _, label in holder:GetDescendants() do
+				if label:IsA("TextLabel") and label.Visible and label.Text ~= "" then
+					assert(label.TextFits, "uigate: rich tip bubble " .. index .. " cuts off " .. label.Text .. " (#3633)")
+				end
+			end
+			local more = holder:FindFirstChild("More", true) :: TextLabel
+			assert(more.Visible == (index == 2), "uigate: the waiting bags line shows with one bag or hides with two (#3633)")
+			local collect = holder:FindFirstChild("Collect", true) :: GuiObject
+			assert(collect.AbsoluteSize.Y >= 32, "uigate: the rich tip's Collect is under 32 px tall (#3633)")
+		end
 	end },
 	-- #3464: the Rummage Bin's loot card, a two-item win and a golden crate win
 	{ "LootCardTwo", function()
@@ -7370,10 +7452,12 @@ local SCENES = {
 		-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the big arrow points at the
 		-- ×, off the Hide tips tag, with the spotlight round it
 		assertArrowAt(dot.Parent :: GuiObject, "the Tutorial tile's ×")
-		assert(tutorialSpotlight(), "uigate: no spotlight round the Tutorial tile's × (#3154)")
+		-- #3638 (Derek 2026-11-12: "no need to force them to close tips and darken screen just show the x for a bit"):
+		-- the arrow, ring and tag only, the screen is not darkened, and it is over in 6 s
+		assert(tutorialSpotlight() == nil, "uigate: the screen darkens round the Tutorial tile's × (#3638)")
 		local across = (dot :: GuiObject).AbsoluteSize.X
 		assert(across >= 21 - 0.5, ("uigate: the Tutorial tile's × is %.1f px across (#2411)"):format(across))
-		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
+		UIShim.advance(5.2) -- #3638: the pulse lasts 6 s (1 s of it gone above)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2411)")
 		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
 		assert(hint() == nil, "uigate: the Hide tips tag does not go (#2411)")
@@ -9476,6 +9560,18 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if Scenes._richTipGate ~= nil then
+		-- #3633's scene: its bubbles and made-up plots
+		for _, made in Scenes._richTipGate.made do
+			if typeof(made) == "Instance" then
+				made:Destroy()
+			else
+				made:destroy()
+			end
+		end
+		Scenes._richTipGate.gui:Destroy()
+		Scenes._richTipGate = nil
+	end
 	if Scenes._rest then
 		Scenes._rest = nil
 		UI.rest.set(false) -- #3573's scene

@@ -315777,23 +315777,23 @@
       "triangles": 3014,
       "budget": 5000,
       "size_studs": {
-        "x": 22.79,
-        "y": 12.19,
+        "x": 22.85,
+        "y": 12.22,
         "z": 9.3
       },
       "size_roblox": [
-        22.79,
+        22.85,
         9.3,
-        12.19
+        12.22
       ],
       "bounds_min": [
-        -11.39,
+        -11.42,
         -5.0,
         0.0
       ],
       "bounds_max": [
-        11.39,
-        7.19,
+        11.42,
+        7.22,
         9.3
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Desert camp's station spot (Layout.campExtras.desert, Desert set space)",
@@ -315818,7 +315818,7 @@
           "uv": "1527 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=1.10"
+          "centered": "footprint center x=0.00 y=1.11"
         }
       }
     },

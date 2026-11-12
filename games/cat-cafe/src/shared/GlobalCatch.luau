@@ -1,6 +1,6 @@
 --!strict
 -- The rare-catch chat line (#2203, Dread via Derek2 2026-11-07: "a global caught rare cats message in chat"), pure.
--- Every catch shout-out (Catching.shoutOut: Legendary and up, or a gold or rainbow coat, #2205) also goes in the chat
+-- Every catch shout-out (Catching.shoutOut: Mythical and up, or a gold or rainbow coat from Legendary up) also goes in the chat
 -- of its own server, and on MessagingService topic TOPIC to every other server, where it shows as a chat line only
 -- ("🌍 Global: Sam caught a Legendary Maine Coon!"), no toast. server/Services/GlobalCatchService sends and
 -- reads it; client/Controllers/RareCatchChatController writes the line. #2429: Legendary and Mythical crate pieces

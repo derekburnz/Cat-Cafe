@@ -260,14 +260,19 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	if not owner then
 		local kind = if run.free then "free" else "paid"
 		if quit == true then
-			Telemetry.custom(player, "arcade_quit", run.circles, { kind })
+			Telemetry.custom(player, "arcade_quit", run.circles, { kind, ArcadeFunnel.GAME_CIRCLE })
 		elseif tell and profile ~= nil then
 			Telemetry.arcadeStep(player, profile, ArcadeFunnel.FINISHED, run.free)
 		end
 		if newBest then
 			for _, row in ArcadeBoard.top(present(), player.UserId) do
 				if row.me == true then
-					Telemetry.custom(player, "arcade_board_top", row.rank, { kind })
+					Telemetry.custom(
+						player,
+						"arcade_board_top",
+						row.rank,
+						{ kind, ArcadeFunnel.GAME_CIRCLE }
+					)
 					break
 				end
 			end
@@ -288,7 +293,7 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	Telemetry.custom(player, "arcade_run", run.points, {
 		tostring(run.circles),
 		if #run.paid > 0 then table.concat(run.paid, ",") else "none",
-		if win then "win" else "over",
+		if win then "win" else "over", -- Mouse Dash's arcade_run says "mouse_win" or "mouse_over" here (#3296)
 	})
 	if not tell then
 		return
@@ -440,12 +445,10 @@ local function onStart(player: Player)
 	-- #3378: a refused Start, counted by its reason
 	local function blocked(closed: boolean, loaded: boolean, running: boolean, busyNow: boolean)
 		if not owner then
-			Telemetry.custom(
-				player,
-				"arcade_blocked",
-				1,
-				{ ArcadeFunnel.blockedReason(closed, loaded, running, busyNow) }
-			)
+			Telemetry.custom(player, "arcade_blocked", 1, {
+				ArcadeFunnel.blockedReason(closed, loaded, running, busyNow),
+				ArcadeFunnel.GAME_CIRCLE,
+			})
 		end
 	end
 	-- #3296: `circleStreak` off vaults this game (Mouse Dash is the arcade's game then); a game running finishes
@@ -627,7 +630,8 @@ function ArcadeService.start()
 			task.wait(ArcadeFunnel.SEEN_EVERY)
 			local spots: { Vector3 } = {}
 			for _, model in CollectionService:GetTagged(Arcade.TAG) do
-				if model:IsA("PVInstance") then
+				-- a cabinet put away (#3443) is seen by nobody
+				if model:IsA("PVInstance") and model:IsDescendantOf(workspace) then
 					table.insert(spots, (model :: PVInstance):GetPivot().Position)
 				end
 			end

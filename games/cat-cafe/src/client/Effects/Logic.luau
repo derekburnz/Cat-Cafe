@@ -3372,4 +3372,10 @@ function Logic.mysticIntroWave(s: number): number
 	return 1 - (1 - p.waveLow) * swing
 end
 
+-- #3444 (Effects/CannonGlide): when, in seconds after the launch, the flight's camera goes back to the game's own: `over` seconds before the
+-- flyer drops back into sight, so it is long done before the feet touch (#3444).
+function Logic.cannonHandBackAt(): number
+	return Presets.cannonPose.drop - Presets.cannonCamera.over
+end
+
 return Logic

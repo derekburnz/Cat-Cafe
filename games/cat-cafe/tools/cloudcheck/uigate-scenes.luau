@@ -362,6 +362,7 @@ local function mysticPool(waiting, uid, view)
 	view = view or { tokens = 2, freeLeft = 0, held = 1 }
 	view.pending = waiting
 	UI.update({ cats = cats, goldenFish = 34, traits = view } :: any)
+	Scenes._poolTraits = true
 	UI.close()
 	assert(UI.mysticPool.open(true, uid), "uigate: the Mystic Pool did not open (#3196)")
 	assert(UI.isOpen() == "MysticPool", "uigate: the Mystic Pool's ring opened " .. tostring(UI.isOpen()) .. " (#3196)")
@@ -9101,6 +9102,12 @@ function Scenes.close()
 		UI.clock.setAreasOpen(true)
 		UI.clock.clear()
 		Scenes._nightPass = nil
+	end
+	if Scenes._poolTraits then
+		-- #3196's scenes: the pool's numbers put away (false is the `traits` switch off), or the Park card keeps the
+		-- Mystic Pool line in place of the Picnic Basket for every scene after them (CannonExtras, #3436)
+		UI.update({ traits = false } :: any)
+		Scenes._poolTraits = nil
 	end
 	if Scenes._palsClock then
 		-- #3052's scene: its Lucky Day clock put away, or it stays bound for every scene after it in the shard and

@@ -1014,6 +1014,8 @@ function UI.init(config: Types.InitConfig)
 			-- #3213: opened from the Cannon, the card stays open wherever the player stands (no walk-away close)
 			if stationId == "yardSale" then
 				UI.campExtras.openYardSale(nil, true)
+			elseif stationId == "mysticPool" then
+				UI.mysticPool.open(true) -- #3196
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -7135,6 +7137,9 @@ do
 	end
 
 	function UI.mysticPool.render(playerState: Types.PlayerState)
+		if cannonScreen then
+			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
+		end
 		local card = pool.card
 		if card then
 			card:render(playerState)

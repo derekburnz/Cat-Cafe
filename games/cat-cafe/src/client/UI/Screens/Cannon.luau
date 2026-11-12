@@ -31,6 +31,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
+local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -69,6 +70,7 @@ export type Cannon = {
 	setRing: (self: Cannon, areaId: string?) -> (), -- #2915
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
+	setTraits: (self: Cannon, traits: any) -> (), -- #3196: PlayerState.traits, for the Mystic Pool's strip
 	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
 	-- F101: the last RallyState, or nil
 	setRally: (self: Cannon, rally: Types.RallyState?) -> (),
@@ -158,6 +160,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._tick = 0
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
+	self._traits = nil :: any -- #3196: PlayerState.traits, for the Mystic Pool's strip
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._rally = nil :: Types.RallyState?
@@ -524,8 +527,14 @@ end
 
 -- The strip's line for area `id`: its camp extra's, else its late station's (the Desert and the Ruins).
 function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
-	return CampExtrasLogic.pickerLine(self._extras, id, Workspace:GetServerTimeNow())
+	return MysticPoolLogic.pickerLine(self._traits, id)
+		or CampExtrasLogic.pickerLine(self._extras, id, Workspace:GetServerTimeNow())
 		or LateStationsLogic.pickerLine(self._late, id)
+end
+
+-- #3196: PlayerState.traits (nil while the Mystic Pool is shut), for the Park card's strip.
+function Cannon.setTraits(self: any, traits: any)
+	self._traits = if type(traits) == "table" then traits else nil
 end
 
 -- #3082: the strip's button. Collect sends CollectCampExtra and rests while the server answers; Open brings up the
@@ -679,7 +688,6 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		shown[destination.id] = index
 		lockedIds[destination.id] = destination.locked == true
 	end
-	local now = Workspace:GetServerTimeNow()
 	local tall = false
 	for id, card in self._cards do
 		local order = shown[id]
@@ -704,12 +712,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			local counts = IndexRewards.counts(catalog, state, id)
 			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)
 		end
-		local line = if locked
-			then nil
-			else (CampExtrasLogic.pickerLine(self._extras, id, now) or LateStationsLogic.pickerLine(
-				self._late,
-				id
-			))
+		local line: CampExtrasLogic.Line? = if locked then nil else self:_line(id)
 		card.extra.Visible = line ~= nil
 		if line ~= nil then
 			tall = true

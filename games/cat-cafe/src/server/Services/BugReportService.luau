@@ -1,6 +1,6 @@
 --!strict
 -- In-game bug reports for the friends alpha (docs/playtests/bug-reports.md). ReportBug(text, kind?, clientErrors?,
--- featureName?) (#1083: featureName is kept only for an idea and only as true, BugReport.featureName)
+-- featureName?) (#1083, #3652: featureName is true for every idea whatever was sent, BugReport.featureName)
 -- from the Settings window is checked by shared/BugReport, held to one per REPORT_SECONDS per player, PLAYER_CAP per
 -- player and SERVER_CAP per server, and saved with what the server knows of the moment: who, which build, where,
 -- the clock, the cafe's tier, coins and cats, a carried cat, the device and the server's last error lines. Nothing
@@ -46,7 +46,7 @@ export type Record = {
 	text: string,
 	filteredText: string?, -- `text` through the broadcast filter; nil when filtering failed
 	kind: string,
-	featureName: boolean, -- #1083: an idea report ticked "Feature my name" (BugReport.featureName)
+	featureName: boolean, -- #1083, #3652: an idea report, which may be credited (BugReport.featureName)
 	clientErrors: { string },
 	serverErrors: { string },
 	userId: number,

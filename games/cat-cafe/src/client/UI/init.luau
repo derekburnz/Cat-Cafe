@@ -4272,7 +4272,7 @@ do
 			keyCode = prompt.KeyboardKeyCode,
 			gamepadKeyCode = prompt.GamepadKeyCode, -- #2874: the cap reads X on a gamepad
 			-- #3529: "New kind! 3/5 for Cozy Cafe" when the player has never owned this kind (a net catch or a rescue)
-			newKind = if pickUp then nil else UI.newKind.line(catId, rarity),
+			newKind = if pickUp then nil else (UI.newKind :: any).line(catId, rarity),
 		}
 	end
 

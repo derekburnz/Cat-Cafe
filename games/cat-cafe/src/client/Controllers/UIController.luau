@@ -659,7 +659,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			)
 		end
 		newKind.target = target
-		newKind.where = where
+		newKind.where = where :: any -- typed NewKind.Where by newKindTarget; the checker widens it here
 	else
 		UI.tutorial.hide()
 	end

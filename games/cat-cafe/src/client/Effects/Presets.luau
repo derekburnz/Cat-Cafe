@@ -4712,6 +4712,8 @@ Presets.binRoll = {
 		{ height = 0, seconds = 0, turns = 0, fly = false },
 		{ height = 1.6, seconds = 0.45, turns = 0, fly = false },
 		{ height = 9, seconds = 1.1, turns = 1.5, fly = true },
+	},
+}
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
 -- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the

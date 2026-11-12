@@ -70,6 +70,62 @@ return function()
 		end)
 	end)
 
+	describe("the join notice (#3466)", function()
+		local function row(userId: number, rank: number): Types.LeaderboardRow
+			return { rank = rank, userId = userId, name = "P" .. userId, value = 100 - rank, crown = false }
+		end
+		local LISTS = {
+			index = { row(1, 1), row(2, 2), row(3, 11) },
+			playtime = { row(2, 1), row(3, 10), row(4, 3) },
+			money = { row(4, 3), row(5, 12) },
+			money_week = { row(6, 1) },
+		}
+
+		it("names the best rank across the all-time boards", function()
+			local rank, board = Leaderboards.joinRank(LISTS, 2, 10)
+			expect(rank).to.equal(1)
+			expect(board).to.equal("playtime")
+			rank, board = Leaderboards.joinRank(LISTS, 3, 10)
+			expect(rank).to.equal(10)
+			expect(board).to.equal("playtime")
+		end)
+
+		it("takes the earlier board on a tie", function()
+			local rank, board = Leaderboards.joinRank(LISTS, 4, 10)
+			expect(rank).to.equal(3)
+			expect(board).to.equal("playtime")
+		end)
+
+		it("has none for rank 11 and down, a weekly list only, an unranked player or lists not read yet", function()
+			expect((Leaderboards.joinRank(LISTS, 5, 10))).to.equal(nil)
+			expect((Leaderboards.joinRank(LISTS, 6, 10))).to.equal(nil)
+			expect((Leaderboards.joinRank(LISTS, 99, 10))).to.equal(nil)
+			expect((Leaderboards.joinRank({}, 1, 10))).to.equal(nil)
+		end)
+
+		it("reads as one line with the display name, the rank and the board", function()
+			expect(Leaderboards.joinLine("Mochi", 3, "money")).to.equal(
+				"A top cafe owner joined: Mochi (#3 on the Money board)"
+			)
+			expect(Leaderboards.joinLine("Mochi", 1, "index")).to.equal(
+				"A top cafe owner joined: Mochi (#1 on the Index board)"
+			)
+		end)
+
+		it("is due once, then again only after the rejoin gap", function()
+			expect(Leaderboards.joinNoticeDue(nil, 50, 600)).to.equal(true)
+			expect(Leaderboards.joinNoticeDue(50, 649, 600)).to.equal(false)
+			expect(Leaderboards.joinNoticeDue(50, 650, 600)).to.equal(true)
+		end)
+
+		it("is on for the top 10, five seconds after the save loads", function()
+			expect(Config.LeaderboardJoinNotice).to.equal(true)
+			expect(Config.LeaderboardJoinNoticeRank).to.equal(10)
+			expect(Config.LeaderboardJoinNoticeDelay).to.equal(5)
+			expect(Config.LeaderboardJoinNoticeRejoinSeconds).to.equal(600)
+		end)
+	end)
+
 	describe("the values", function()
 		it("counts Index entries as cats found plus gold coats, never exclusive cats", function()
 			local p = profile()

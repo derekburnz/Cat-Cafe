@@ -776,6 +776,14 @@ local Config = {
 	LeaderboardRateMax = 10000000,
 	LeaderboardCrownRank = 10,
 	LeaderboardFaceSwapSeconds = 15,
+	-- #3466 (a player's idea): one gold system line in chat for everyone here when a player in the top
+	-- LeaderboardJoinNoticeRank of an all-time board joins, LeaderboardJoinNoticeDelay seconds after their save loads
+	-- (so their own chat window has it too), from the lists the server already holds. Not again for the same player
+	-- within LeaderboardJoinNoticeRejoinSeconds on this server. LeaderboardJoinNotice false turns it off.
+	LeaderboardJoinNotice = true,
+	LeaderboardJoinNoticeRank = 10,
+	LeaderboardJoinNoticeDelay = 5,
+	LeaderboardJoinNoticeRejoinSeconds = 600,
 
 	-- Quests and achievements (F73, quests.md section 6). Pure rules in Quests. A day starts at 00:00 UTC; a week
 	-- at Monday 00:00 UTC, QuestWeekOffsetSeconds after the epoch's Thursday. Players in the game are checked for a

@@ -176,6 +176,44 @@ function Leaderboards.crowned(lists: { [List]: { Types.LeaderboardRow } }, userI
 	return false
 end
 
+-- #3466: the join notice. A board's short name as the town boards title it.
+Leaderboards.NAMES =
+	table.freeze({ index = "Index", playtime = "Playtime", money = "Money" }) :: { [Board]: string }
+
+-- #3466: `userId`'s best rank within `maxRank` on an all-time board of `lists` (as read from the stores, so hidden
+-- players and the owner are already out), and that board; the earlier board in BOARDS on a tie. nil when they are
+-- on none, or when no list has been read yet.
+function Leaderboards.joinRank(
+	lists: { [List]: { Types.LeaderboardRow } },
+	userId: number,
+	maxRank: number
+): (number?, Board?)
+	local best: number? = nil
+	local on: Board? = nil
+	for _, board in Leaderboards.BOARDS do
+		local rank = Leaderboards.rankOf(lists[board] or {}, userId)
+		if rank ~= nil and rank >= 1 and rank <= maxRank and (best == nil or rank < best) then
+			best = rank
+			on = board
+		end
+	end
+	return best, on
+end
+
+-- #3466: the chat line. `name` is the player's display name, the one the boards and the player list show.
+function Leaderboards.joinLine(name: string, rank: number, board: Board): string
+	return ("A top cafe owner joined: %s (#%d on the %s board)"):format(
+		name,
+		rank,
+		Leaderboards.NAMES[board] or board
+	)
+end
+
+-- #3466: whether a notice is due for a player last announced at `last` (nil: never on this server).
+function Leaderboards.joinNoticeDue(last: number?, now: number, gap: number): boolean
+	return last == nil or now - last >= gap
+end
+
 -- #3333: each player's best place (1 to 3) across `boards` (each a list of ranked rows, best first), with
 -- `skip`'s players (the owner's account) left out so the next player moves up. userId -> place.
 function Leaderboards.topPlaces(

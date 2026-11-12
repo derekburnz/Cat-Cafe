@@ -66,6 +66,18 @@ function Leaderboards.readGap(first: boolean): number
 	return if first then 0 else Config.LeaderboardRefreshSeconds / (#Leaderboards.LISTS + 1)
 end
 
+-- Roblox takes one write to a key of a store every 6 seconds; a second one inside that is put in a queue with a
+-- warning in the server log ("DataStore request was added to queue", Creator Hub error read 2026-11-12). A rank up
+-- beside the timer's write did that. So a player's entry in one store is written at most once every
+-- WRITE_GAP_SECONDS: a write inside the gap is skipped and the next write carries the newer value.
+Leaderboards.WRITE_GAP_SECONDS = 7
+
+-- Whether a player's entry in a store may be written at `now` (any clock, in seconds) when it was last written, or
+-- started to be written, at `lastAt` (nil for never). A leave always may: there is no next write to carry its value.
+function Leaderboards.mayWrite(lastAt: number?, now: number, leaving: boolean): boolean
+	return leaving or lastAt == nil or now - lastAt >= Leaderboards.WRITE_GAP_SECONDS
+end
+
 -- os.time() the week holding `now` began.
 function Leaderboards.weekStartsAt(now: number): number
 	return Quests.weekEndsAt(now) - WEEK_SECONDS
@@ -77,7 +89,8 @@ function Leaderboards.indexEntries(profile: Types.PlayerProfile): number
 	for _, found in { profile.collection, profile.goldCollection, profile.rainbowCollection or {} } do
 		for catId in found do
 			local def = Catalog.getCat(catId)
-			if def ~= nil and def.exclusive ~= true then
+			-- #3470: nor a Secret cat, which is in no Index total
+			if def ~= nil and def.exclusive ~= true and def.area ~= "secret" then
 				n += 1
 			end
 		end
@@ -174,6 +187,44 @@ function Leaderboards.crowned(lists: { [List]: { Types.LeaderboardRow } }, userI
 		end
 	end
 	return false
+end
+
+-- #3466: the join notice. A board's short name as the town boards title it.
+Leaderboards.NAMES =
+	table.freeze({ index = "Index", playtime = "Playtime", money = "Money" }) :: { [Board]: string }
+
+-- #3466: `userId`'s best rank within `maxRank` on an all-time board of `lists` (as read from the stores, so hidden
+-- players and the owner are already out), and that board; the earlier board in BOARDS on a tie. nil when they are
+-- on none, or when no list has been read yet.
+function Leaderboards.joinRank(
+	lists: { [List]: { Types.LeaderboardRow } },
+	userId: number,
+	maxRank: number
+): (number?, Board?)
+	local best: number? = nil
+	local on: Board? = nil
+	for _, board in Leaderboards.BOARDS do
+		local rank = Leaderboards.rankOf(lists[board] or {}, userId)
+		if rank ~= nil and rank >= 1 and rank <= maxRank and (best == nil or rank < best) then
+			best = rank
+			on = board
+		end
+	end
+	return best, on
+end
+
+-- #3466: the chat line. `name` is the player's display name, the one the boards and the player list show.
+function Leaderboards.joinLine(name: string, rank: number, board: Board): string
+	return ("A top cafe owner joined: %s (#%d on the %s board)"):format(
+		name,
+		rank,
+		Leaderboards.NAMES[board] or board
+	)
+end
+
+-- #3466: whether a notice is due for a player last announced at `last` (nil: never on this server).
+function Leaderboards.joinNoticeDue(last: number?, now: number, gap: number): boolean
+	return last == nil or now - last >= gap
 end
 
 -- #3333: each player's best place (1 to 3) across `boards` (each a list of ranked rows, best first), with

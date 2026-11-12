@@ -31,12 +31,16 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
+local MysticPoolStationService = require(script.Parent.MysticPoolStationService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
+local YardPick = require(ReplicatedStorage.Shared.YardPick)
 local YardSale = require(ReplicatedStorage.Shared.YardSale)
 
 local CampExtraService = {}
@@ -93,12 +97,45 @@ local function pondTimes(player: Player): number
 	return CampExtras.pondTimes(player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true)
 end
 
+-- #3196 (trait-station.md section 1): while the `traits` switch is on the Mystic Pool stands in the Picnic Basket's
+-- place, so the basket reads as shut (no strip, no "!", nothing to collect) and a collect is refused. Its save
+-- is left alone, so switching back gives the basket as it was. Only while the pool really stands: with the pool's
+-- art missing the basket stays in the world and keeps working.
+local function poolStands(): boolean
+	return LiveFlagService.on(Traits.FLAG) and MysticPoolStationService.standing()
+end
+
+local function shutPicnic(state: Types.CampExtrasState)
+	if poolStands() then
+		state.picnic = { open = false, held = 0 }
+	end
+end
+
+-- #3614: the Yard Sale's lucky pick, behind its switch.
+local function pickOn(): boolean
+	return LiveFlagService.on(YardPick.FLAG)
+end
+
+-- The Yard Sale's wait in hours when it is not the free crate's (nil while the pick's switch is off).
+local function yardHours(): number?
+	return if pickOn() then YardPick.hours(true) else nil
+end
+
+-- #3614: with the pick on, the Yard Sale's view carries this player's rows: what the board shows is what is rolled.
+local function addPick(state: Types.CampExtrasState, tier: number)
+	if pickOn() and state.yardSale.open then
+		state.yardSale.pick = YardPick.rows(tier)
+	end
+end
+
 -- Settles the player's extras and sends CampExtrasState when it differs from the last one sent (or `force`).
 local function refresh(player: Player, profile: Types.PlayerProfile, force: boolean)
 	local now = os.time()
 	local tier = Economy.tier(profile)
 	CampExtras.settle(profile.campExtras, tier, now)
-	local state = CampExtras.view(profile.campExtras, tier, now, pondTimes(player))
+	local state = CampExtras.view(profile.campExtras, tier, now, pondTimes(player), yardHours())
+	shutPicnic(state)
+	addPick(state, tier)
 	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
 	local day = YardSale.dayAt(now)
 	YardSale.refresh(profile.yardDecor, day)
@@ -200,6 +237,10 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	if extraId == nil or profile == nil then
 		return
 	end
+	if extraId == Traits.STATION_EXTRA and poolStands() then
+		refuse(player, extraId, "The Picnic Basket is now the Mystic Pool")
+		return
+	end
 	local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
@@ -275,7 +316,63 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	refresh(player, profile, true)
 end
 
+-- #3614 (camp-stations.md section 3a): the free lucky pick. Rolled from this player's YardPick rows and banked in
+-- this one call, so there is nothing to lose between the roll and the crate and nothing a client can choose. Free:
+-- no coins, fish or Robux are read or taken, and nothing shortens the wait.
+local pickRandom = Random.new()
+local function onYardSalePick(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	if not pickOn() then
+		refuse(player, CampExtras.YARD_SALE, "The lucky pick is not open yet")
+		return
+	end
+	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
+	local tier = Economy.tier(profile)
+	local now = os.time()
+	CampExtras.settle(profile.campExtras, tier, now)
+	if
+		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
+		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
+		and not inReach(player, def)
+	then
+		refuse(player, CampExtras.YARD_SALE, "Walk up to the Yard Sale first")
+		return
+	end
+	local blocker = CampExtras.pickBlocker(profile.campExtras, tier, now, YardPick.hours(true))
+	if blocker ~= nil then
+		refuse(player, CampExtras.YARD_SALE, blocker)
+		refresh(player, profile, true)
+		return
+	end
+	local rows = YardPick.rows(tier)
+	local index = YardPick.pick(rows, pickRandom:NextNumber())
+	local row = rows[index]
+	local crate = Catalog.getCrate(row.crateId)
+	if crate == nil then
+		refuse(player, CampExtras.YARD_SALE, "That crate is not at the Yard Sale now")
+		return
+	end
+	profile.crates[row.crateId] = (profile.crates[row.crateId] or 0) + 1
+	local yard = profile.campExtras.yardSale
+	yard.lastClaimAt = now -- the next pick is YardSaleRollHours from now
+	yard.claims += 1
+	Telemetry.custom(player, "yard_pick", 1, { row.crateId, tostring(tier) })
+	local won: Types.IndexPrize = { crates = { [row.crateId] = 1 } }
+	Net.fire(player, "YardSalePicked", index, row.crateId, row.tier)
+	Net.fire(player, "CampExtraResult", CampExtras.YARD_SALE, true, { "1 " .. crate.name }, won)
+	CafeService.sync(player)
+	refresh(player, profile, false)
+end
+
 local function onBuyYardSale(player: Player, rawCrateId: unknown)
+	-- #3614: with the lucky pick on there is no crate to choose; a client still on the old card gets the pick
+	if pickOn() then
+		onYardSalePick(player)
+		return
+	end
 	local crateId = Guard.id(rawCrateId)
 	local profile = DataService.get(player)
 	if crateId == nil or profile == nil then
@@ -332,6 +429,9 @@ end
 function CampExtraService.start()
 	Net.on("CollectCampExtra", onCollect)
 	Net.on("BuyYardSale", onBuyYardSale)
+	Net.on("YardSalePick", function(player: Player)
+		onYardSalePick(player)
+	end)
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
 		refresh(player, profile, true)
 	end)
@@ -364,7 +464,11 @@ function CampExtraService.debugAway(
 	save.lostFound.at -= seconds
 	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
-	return CampExtras.view(save, Economy.tier(profile), os.time(), pondTimes(player))
+	local tier = Economy.tier(profile)
+	local state = CampExtras.view(save, tier, os.time(), pondTimes(player), yardHours())
+	shutPicnic(state)
+	addPick(state, tier)
+	return state
 end
 
 return CampExtraService

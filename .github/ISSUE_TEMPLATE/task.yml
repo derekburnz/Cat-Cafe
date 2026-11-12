@@ -23,6 +23,12 @@ body:
     attributes:
       label: Where it stands
       description: What is already done (PRs, files), what it waits on, and the next step.
+  - type: input
+    id: credit
+    attributes:
+      label: Credit (only when this came from a player's feedback)
+      description: "The report key only, as: feedback report <day>/<key> (best as r_<YYYYMMDD>_<time>, without the user id). Never a username, display name or user id: this repo is public (idea-credits.md section 8)."
+      placeholder: "feedback report 20261112/r_20261112_0307"
   - type: textarea
     id: files
     attributes:

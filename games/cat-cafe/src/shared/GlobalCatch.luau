@@ -1,6 +1,6 @@
 --!strict
 -- The rare-catch chat line (#2203, Dread via Derek2 2026-11-07: "a global caught rare cats message in chat"), pure.
--- Every catch shout-out (Catching.shoutOut: Legendary and up, or a gold or rainbow coat, #2205) also goes in the chat
+-- Every catch shout-out (Catching.shoutOut: Mythical and up, or a gold or rainbow coat from Legendary up) also goes in the chat
 -- of its own server, and on MessagingService topic TOPIC to every other server, where it shows as a chat line only
 -- ("🌍 Global: Sam caught a Legendary Maine Coon!"), no toast. server/Services/GlobalCatchService sends and
 -- reads it; client/Controllers/RareCatchChatController writes the line. #2429: Legendary and Mythical crate pieces
@@ -31,6 +31,7 @@ GlobalCatch.COLORS = {
 	Epic = "#C07CFF",
 	Legendary = "#FFC94D",
 	Mythical = "#FF5E7E",
+	Secret = "#E2D6FF", -- #3470: the pale starlight of its effects; its own #16161D swatch cannot be read in chat
 } :: { [string]: string }
 
 export type Message = { t: string, r: string, j: string } -- the text, the cat's rarity, the sender's JobId
@@ -44,7 +45,8 @@ end
 -- Whether a line of `rarity` may go through `gate` at `now` (any clock, in seconds); one that may is counted. A
 -- Mythical always may, and counts too.
 function GlobalCatch.take(gate: Gate, now: number, rarity: string): boolean
-	if rarity ~= "Mythical" and now - gate.last < gate.gap then
+	local top = (Catalog.rarityRank[rarity] or 0) >= Catalog.rarityRank.Mythical -- #3470: a Secret as a Mythical
+	if not top and now - gate.last < gate.gap then
 		return false
 	end
 	gate.last = now

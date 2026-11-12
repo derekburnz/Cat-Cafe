@@ -82,6 +82,31 @@ return function()
 			end
 		)
 
+		it(
+			"promises the 1 hour party and the gift around the 2026-11-12 launch only (#3420)",
+			function()
+				local at = RestartNotice.LAUNCH_AT
+				expect(os.date("!%Y-%m-%d %H:%M", at)).to.equal("2026-11-12 22:00")
+				expect(RestartNotice.text(600, at - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then a 1-hour party and a gift! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(30, at - 30)).to.equal(
+					"Quick update in 30 seconds, then a 1-hour party and a gift! Your cafe is saved."
+				)
+				expect(RestartNotice.text(0, at)).to.equal(
+					"Updating now. Join again for a 1-hour party and a gift! Your cafe is saved."
+				)
+				-- a late launch restart still says it; the day before and the day after do not
+				expect(RestartNotice.text(0, at + 1800)).to.equal(
+					"Updating now. Join again for a 1-hour party and a gift! Your cafe is saved."
+				)
+				for _, now in { at - 3601, at + 1801, at - 86400, at + 86400 } do
+					expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
+					expect(RestartNotice.text(0, now)).to.equal(RestartNotice.text(0))
+				end
+			end
+		)
+
 		it("never says the word restart, which read as a warning to leave (#2720)", function()
 			for _, seconds in { 600, 300, 120, 60, 30, 10, 0 } do
 				expect(string.find(string.lower(RestartNotice.text(seconds)), "restart", 1, true)).to.equal(

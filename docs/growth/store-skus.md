@@ -49,7 +49,7 @@ Notes for UI-Engineer:
 - **Starter Bundle:** hides itself once bought, since it's once per account. That's the only card that disappears.
 - **Potion cards:** each shows the player's current potion count, so nobody buys blind.
 - **Cafe Pass:** the card shows the season's end date as a plain date, never as a ticking countdown.
-- **Order:** ladder, Long Nap, VIP, potion packs, Starter Bundle, then the rest by price. Nothing is pre-selected and nothing auto-opens.
+- **Order (Featured tab, since #3562, 2026-11-12):** the hero card is the first one the player doesn't own of Starter Bundle, Royal Cat, King Cat Pack, Cafe Pass, Grand Cafe Theme. The three picks under it are the first three not owned of: the money ladder's next step, Royal Cat, King Cat Pack, Second Bait Bowl, Extra Slot, VIP, Long Nap, Cafe Pass, then the other passes. Potion packs (every `StoreLogic.PRODUCTS` card, the Steady Paw Pack included) show on Featured only when nothing else is left. Full text: `docs/design/cat-cafe/store-layout-v2.md` section 8. Nothing is pre-selected and nothing auto-opens.
 
 ## 2. Creator Hub list (paste-ready for the friend)
 

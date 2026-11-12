@@ -47,8 +47,8 @@ Arcade.ACTION = "Play"
 Arcade.PROMPT_RANGE = 10
 -- #3359: the reach the cabinet's floor ring is laid with (WalkUp.frontOffset). Nothing on the server measures a range
 -- for the arcade, and with PROMPT_RANGE the ring was pulled back to 2 studs from the pivot, on top of the cabinet;
--- 16 lets a radius 6 ring touch the cabinet's front (up to 8 studs out).
-Arcade.RING_RANGE = 16
+-- 16 let a radius 6 ring touch the cabinet's front; #3448: 20 for the radius 8 ring.
+Arcade.RING_RANGE = 20
 Arcade.DAY_SECONDS = 86400
 
 -- Where circles may appear on screen, as fractions of its width and height (the Catch screen's area).
@@ -444,6 +444,18 @@ function Arcade.startBlocker(
 		return string.format("You need %d golden fish 🐟 to play", Config.ArcadeCostFish)
 	end
 	return nil
+end
+
+-- #3443: whether the cabinet and its floor ring are in the world: only while the arcade has a game to play, the
+-- `arcade` switch on and one of `circleStreak` or `mouseDash` on (ArcadeCabinetService puts them away otherwise).
+-- #3627: and never before the server has read the switches (`ready` false), when all it has is their defaults.
+function Arcade.cabinetStands(
+	arcade: boolean,
+	circleStreak: boolean,
+	mouseDash: boolean,
+	ready: boolean?
+): boolean
+	return ready ~= false and arcade and (circleStreak or mouseDash)
 end
 
 return Arcade

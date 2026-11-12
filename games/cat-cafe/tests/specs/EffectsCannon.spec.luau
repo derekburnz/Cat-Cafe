@@ -9,6 +9,7 @@ return function()
 	local Effects = Client:WaitForChild("Effects")
 	local Avatar = require(Effects:WaitForChild("Avatar")) :: any
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
+	local Logic = require(Effects:WaitForChild("Logic")) :: any
 
 	local c = Presets.cannonPose
 	local g = Presets.cannonGlide
@@ -255,13 +256,22 @@ return function()
 			expect((Avatar.glide(c.gone, 0))).to.equal(nil)
 		end)
 
-		it("lands with no zoom: the player's own distance all the way down (#3328)", function()
-			local k, c = Presets.cannonCamera, Presets.cannonPose
-			expect(k.wide).to.equal(1)
-			expect(k.push).to.equal(0)
-			expect(k.bump > 0 and k.bump < 1).to.equal(true) -- well under a second
-			expect(k.bumpIn > 0 and k.bumpIn < 1).to.equal(true)
-			expect(c.touch + k.bump <= c.ends).to.equal(true)
-		end)
+		it(
+			"leaves the camera alone on landing: it is the game's own before the drop (#3444)",
+			function()
+				local k, c = Presets.cannonCamera, Presets.cannonPose
+				local back = Logic.cannonHandBackAt()
+				-- handed back while the flyer is still out of sight, well before the feet touch and the server lets go
+				expect(back <= c.drop).to.equal(true)
+				expect(back > c.gone).to.equal(true)
+				expect(c.touch - back >= 0.5).to.equal(true)
+				expect(back < c.ends).to.equal(true)
+				-- and no zoom, push or bump numbers are left to move it at the touch (#3328's are gone too)
+				expect(k.wide).to.equal(nil)
+				expect(k.push).to.equal(nil)
+				expect(k.bump).to.equal(nil)
+				expect(k.bumpIn).to.equal(nil)
+			end
+		)
 	end)
 end

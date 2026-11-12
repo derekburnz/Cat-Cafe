@@ -22,7 +22,8 @@ ToastRules.ANNOUNCE_MIN = "Legendary"
 ToastRules.ANNOUNCE_GAP = 30
 ToastRules.REPEAT_SECONDS = 10
 
-local RANK: { [string]: number } = { Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 }
+local RANK: { [string]: number } =
+	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 }
 
 function ToastRules.announce(rarity: string?, now: number, lastAt: number?, touch: boolean): boolean
 	local rank = if rarity then RANK[rarity] else nil
@@ -94,6 +95,7 @@ ToastRules.KEEP = {
 	-- only, and UI.cannon.checkedIn sends the first only while the first walk-through is not done
 	" is on its way to your cafe!$",
 	"^Your first cat! ",
+	"^Welcome back! Your cats earned ", -- #3573 AfkCafe.welcome: what a rest in the cafe paid, once on coming back
 }
 
 function ToastRules.kept(text: string): boolean

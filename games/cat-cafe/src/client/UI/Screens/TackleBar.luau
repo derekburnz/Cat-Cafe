@@ -21,7 +21,7 @@
 -- nearest of them (Components/TackleCue, TackleTry.cueTarget), until this player has landed TackleTry.CUE_HITS
 -- tackles in the session. The bar's own key cap is bigger too.
 -- #3342 (Derek2 11-11: "tackling immunity for the first 5 minutes"): while this player's join shield runs (the
--- Player's TackleShieldUntil attribute, set by ShoveService), a small "🛡️ Safe 4:32" chip sits just over the bar or
+-- Player's TackleShieldUntil attribute, set by ShoveService; 15 minutes since #3475), a small "🛡️ Safe 14:32" chip sits just over the bar or
 -- the round button, counting down. Pressing Tackle ends the shield on the server, and the chip goes with it.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
@@ -489,7 +489,11 @@ function TackleBar._placeCue(self: any, ready: boolean)
 	end
 	local _, root = character()
 	local others = if ready and self._hits < TackleTry.CUE_HITS
-		then TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer)
+		then TackleTry.carriers(
+			Players:GetPlayers(),
+			Players.LocalPlayer,
+			Workspace:GetServerTimeNow()
+		)
 		else {}
 	local index = TackleTry.cueTarget({
 		ready = ready,

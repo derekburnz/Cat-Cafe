@@ -28,7 +28,9 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventService = require(script.Parent.EventService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
+local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
@@ -109,7 +111,13 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	end
 	-- F82: the bowl's level now, its luck fixed in the roll, so a level bought later never touches this food. F88:
 	-- then the player's Luck now (statue, Lucky Potion, Lucky Day), fixed in the same roll
-	local luck = Luck.of(profile, os.time(), ClockService.luckyDay(), EventService.luck())
+	local luck = Luck.of(
+		profile,
+		os.time(),
+		ClockService.luckyDay(),
+		EventService.luck(),
+		LiveFlagService.on(LuckyCharm.FLAG) -- #3298
+	)
 	local rarity: Types.Rarity = Catching.pickRarity(
 		Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), luck),
 		rng:NextNumber()
@@ -129,7 +137,15 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 			{ "bait", rarity, tostring(Economy.tier(profile)) }
 		)
 	end
-	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
+	-- "Mythical or better", so it stays true)
+	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
+		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		else nil
+	if secret ~= nil then
+		Telemetry.custom(player, "secret_spawn", 1, { "bowl", "bait" })
+	end
+	local def = secret or Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck, rainbow luck (F99) and bait speed, fixed now (F54): a later claim never moves a
 	-- filling bowl. A Lucky Potion running now doubles the gold chance (F64), never the rainbow one.
 	local totals = IndexRewards.totals(profile)
@@ -150,7 +166,12 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		),
 		now
 	)
-	local lucky = Potions.running(profile, Potions.LUCKY, now)
+	-- #3462: the lucky potion whose Luck counts for this roll, for the event below
+	local potionLuck = Potions.luck(profile, now)
+	local lucky: string? = if potionLuck > Config.LuckyPotionLuck
+		then Potions.BIG_LUCKY
+		elseif potionLuck > 0 then Potions.LUCKY
+		else nil
 	local bait: Types.BaitState = {
 		lureId = lureId,
 		placedAt = now,
@@ -173,12 +194,7 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	Bait.setState(profile, bowl, bait)
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
-	Telemetry.custom(
-		player,
-		"bait_rolled",
-		1,
-		{ lureId, rarity, if lucky then Potions.LUCKY else "none" }
-	)
+	Telemetry.custom(player, "bait_rolled", 1, { lureId, rarity, lucky or "none" })
 	-- #3158 (Derek2 2026-11-10: "the bait bowl animation doesn't even come because its interupted by foodbowl finished
 	-- instantly into a cannon teleport"): the account's first bait holds the tutorial's last step until its cat is
 	-- tamed or let go (onResolveBait), so the move to the cannon, the full HUD and the wrap-up hint all come after the

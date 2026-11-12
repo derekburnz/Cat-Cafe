@@ -13,6 +13,11 @@
 -- The player's BinNextAt attribute carries the wait's nextAt, so each client words its own prompt ("Rummage" or
 -- "Empty for now 🐾", never a countdown) and shows the bin's full or empty look. Logs bin_play (the prize row, the
 -- win's number) and, on an account's first win, step_time "first_bin". Nothing here is sold.
+-- #3608, behind the `binRoll` switch: Begin chooses the prize first (RummageBin.choose: the one already waiting, the
+-- next fixed first prize, or a roll of BinRollTable), stores its row id in the player's bin save at once, tells the
+-- client (BinRolled) and sends the bar after the roll's or the reveal's seconds, or at the player's first press. A
+-- win pays the stored row; a miss, a leave or a rejoin keeps it. The player's BinPrize attribute carries the
+-- waiting row for the board. The pad in front of the bin sends the same Begin from the client.
 
 local CollectionService = game:GetService("CollectionService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -35,10 +40,12 @@ local RescueService = require(script.Parent.RescueService)
 local RummageBin = require(ReplicatedStorage.Shared.RummageBin)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
+local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 
 local BinService = {}
 
 local RANGE_SLACK = 4 -- studs past the prompt's reach, for a character the server sees a moment late
+local PAD_SLACK = 3 -- #3680: studs past the pad's edge, for the same reason
 local LEAVE_RANGE_STUDS = 16 -- further than this from the bin ends the bar, as a rescue's
 local FLAG_SECONDS = 5
 
@@ -46,7 +53,8 @@ local STORE = "CatCafe_Bin" .. (if RunService:IsStudio() then "_dev" else "")
 local READ_WAITS = { 2, 5, 15, 60 } -- seconds before each further try at a join's read
 local WRITE_WAITS = { 2, 5, 15 } -- and at a win's write
 
-type Run = { attempt: Rescue.Attempt }
+-- `attempt` is nil while the roll or the reveal shows, before the bar is sent (#3608)
+type Run = { attempt: Rescue.Attempt?, early: boolean }
 
 local runs: { [Player]: Run } = {}
 local bins: { [Player]: Types.RummageBinSave } = {} -- each player's wait and wins, once read
@@ -94,6 +102,28 @@ local function distance(player: Player): number?
 	return ((root :: BasePart).Position - at).Magnitude
 end
 
+-- #3680: true when the player stands on the bin's pad (its floor ring, World/WalkUpCircles), a little past its edge
+-- allowed. A bin with no ring (older art) has no pad to wait for.
+local function onPad(player: Player): boolean
+	local model = binModel()
+	local link = if model ~= nil then model:FindFirstChild(WalkUp.CIRCLE) else nil
+	local pad = if link ~= nil and link:IsA("ObjectValue") then (link :: ObjectValue).Value else nil
+	if pad == nil or not pad:IsA("BasePart") then
+		return true
+	end
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local radius = pad:GetAttribute("Radius")
+	return RummageBin.onPad(
+		(root :: BasePart).Position - (pad :: BasePart).Position,
+		if type(radius) == "number" then radius else (pad :: BasePart).Size.X / 2,
+		PAD_SLACK
+	)
+end
+
 local function alive(player: Player): boolean
 	local character = player.Character
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
@@ -103,6 +133,13 @@ end
 local function publish(player: Player)
 	local bin = bins[player]
 	player:SetAttribute(RummageBin.NEXT_AT_ATTRIBUTE, if bin ~= nil then bin.nextAt else shutUntil)
+	-- #3460: the wins so far, so the prompt's note names the next fixed prize or the chances
+	player:SetAttribute(RummageBin.USES_ATTRIBUTE, if bin ~= nil then bin.uses else nil)
+	-- #3608: the prize that waits, for the board ("Waiting for you: ...")
+	player:SetAttribute(
+		RummageBin.PRIZE_ATTRIBUTE,
+		if bin ~= nil and LiveFlagService.on(RummageBin.ROLL_FLAG) then bin.prize else nil
+	)
 end
 
 local function store(): DataStore?
@@ -155,7 +192,7 @@ local function save(player: Player, bin: Types.RummageBinSave)
 		return
 	end
 	local key = tostring(player.UserId)
-	local value = { nextAt = bin.nextAt, uses = bin.uses }
+	local value = { nextAt = bin.nextAt, uses = bin.uses, prize = bin.prize }
 	task.spawn(function()
 		for attempt = 1, #WRITE_WAITS + 1 do
 			local ok = pcall(function()
@@ -197,6 +234,14 @@ local function finish(player: Player, run: Run, reason: string?)
 	end
 	runs[player] = nil
 	local attempt = run.attempt
+	if attempt == nil then
+		-- #3608: ended during the roll or the reveal, before the bar: nothing was played, so no retry wait, and the
+		-- chosen prize stays stored
+		if reason ~= nil and player.Parent == Players then
+			Net.toast(player, reason, "warn")
+		end
+		return
+	end
 	if attempt.stage ~= "done" then
 		Rescue.abandon(attempt)
 	end
@@ -214,14 +259,21 @@ local function finish(player: Player, run: Run, reason: string?)
 	local win: Types.RummageWin? = nil
 	if won and profile ~= nil and bin ~= nil then
 		local first = bin.uses == 0
-		local row = RummageBin.win(bin, now, rng:NextNumber())
+		-- #3608: a stored prize is paid whatever the roll switch says now (the player was shown it); with nothing
+		-- stored the roll is here
+		local stored = RummageBin.winStored(bin, now)
+		local row = stored or RummageBin.win(bin, now, rng:NextNumber())
+		bin.prize = nil
 		save(player, bin)
 		Payout.pay(player, profile, RummageBin.prize(row), "rummage_bin")
 		Telemetry.custom(player, "bin_play", 1, { row.id, tostring(math.min(bin.uses, 10)) })
 		if first then
 			Telemetry.stepTime(player, profile, "first_bin")
 		end
-		win = { id = row.id, first = first }
+		-- #3464: the whole win, for the loot card
+		local made: Types.RummageWin =
+			{ id = row.id, first = first, items = RummageBin.items(row), rolled = stored ~= nil }
+		win = made
 		publish(player)
 		CafeService.sync(player)
 	elseif present then
@@ -243,7 +295,8 @@ local function watch(player: Player, run: Run)
 			if runs[player] ~= run then
 				return
 			end
-			if Rescue.expire(run.attempt, serverNow()) then
+			local attempt = run.attempt
+			if attempt ~= nil and Rescue.expire(attempt, serverNow()) then
 				finish(player, run, nil) -- out of time: the bar shows it on its own clock
 				return
 			end
@@ -258,6 +311,18 @@ local function watch(player: Player, run: Run)
 			end
 		end
 	end)
+end
+
+-- Sends the bar for a run that has none yet (after the roll or the reveal, or at once without the roll switch).
+local function startBar(player: Player, run: Run)
+	if runs[player] ~= run or run.attempt ~= nil then
+		return
+	end
+	local challenge = RummageBin.challenge(run.early, serverNow(), function()
+		return rng:NextNumber()
+	end)
+	run.attempt = RummageBin.attempt(challenge)
+	Net.fire(player, "RescueChallenge", RummageBin.SPOT, challenge)
 end
 
 local function begin(player: Player)
@@ -292,13 +357,35 @@ local function begin(player: Player)
 		Net.toast(player, Cooldown.text(retry - now), "warn")
 		return
 	end
-	local challenge = RummageBin.challenge(RummageBin.early(bin), now, function()
-		return rng:NextNumber()
-	end)
-	local run: Run = { attempt = RummageBin.attempt(challenge) }
+	-- #3680: with the roll on, a rummage starts only for a player standing on the pad, so the roll never plays for
+	-- someone still walking up
+	if LiveFlagService.on(RummageBin.ROLL_FLAG) and not onPad(player) then
+		Net.toast(player, RummageBin.PAD_FIRST, "info")
+		return
+	end
+	local run: Run = { attempt = nil, early = RummageBin.early(bin) }
 	runs[player] = run
-	Net.fire(player, "RescueChallenge", RummageBin.SPOT, challenge)
 	watch(player, run)
+	if not LiveFlagService.on(RummageBin.ROLL_FLAG) then
+		startBar(player, run)
+		return
+	end
+	-- #3608: the prize first. It is stored before anything is shown, so nothing the player does next changes it.
+	local had = bin.prize
+	local row, mode = RummageBin.choose(bin, rng:NextNumber())
+	if bin.prize ~= had then
+		save(player, bin)
+		publish(player)
+		Telemetry.custom(player, "bin_roll", 1, { row.id, mode })
+	end
+	-- #3680: the roll always plays, for a prize kept after a miss too (it lands on the kept prize)
+	local seconds: number = Config.BinRollSeconds
+	Net.fire(player, "BinRolled", row.id, mode, seconds)
+	if seconds <= 0 then
+		startBar(player, run)
+	else
+		task.delay(seconds, startBar, player, run)
+	end
 end
 
 local function press(player: Player, rawPressedAt: unknown)
@@ -307,6 +394,10 @@ local function press(player: Player, rawPressedAt: unknown)
 		return
 	end
 	local attempt = run.attempt
+	if attempt == nil then
+		startBar(player, run) -- #3608: a tap during the roll or the reveal skips to the bar
+		return
+	end
 	local arrival = serverNow()
 	local pressTime = Rescue.pressedAt(arrival, player:GetNetworkPing(), rawPressedAt)
 	local result = Rescue.pressBar(attempt, pressTime, false)
@@ -385,6 +476,7 @@ function BinService.debugSet(player: Player, how: string): Types.RummageBinSave?
 	bin.nextAt = 0
 	if how == "reset" then
 		bin.uses = 0
+		bin.prize = nil
 	end
 	retryAt[player] = nil
 	save(player, bin)
@@ -401,6 +493,10 @@ function BinService.debugPress(player: Player, kind: string): string
 		return "no bin bar running"
 	end
 	local attempt = run.attempt
+	if attempt == nil then
+		press(player, nil)
+		return "skipped the roll"
+	end
 	local centre = Rescue.currentZone(attempt)
 	if centre == nil then
 		return "no zone left"

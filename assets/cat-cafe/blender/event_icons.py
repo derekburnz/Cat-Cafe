@@ -1,7 +1,10 @@
 """Event countdown game icons (#2488, parent #2483): the live game icon dimmed, a white outline hourglass with gold
 sand and a bold Luckiest Guy label ("3 HOURS", "NOW", "NEW UPDATE!"), 512x512, readable at 150 px.
 
-    python3 -I event_icons.py <live icon png> <fonts dir with LuckiestGuy.ttf> <out dir>
+    python3 -I event_icons.py <live icon png> <fonts dir with LuckiestGuy.ttf> <out dir> [update]
+
+With `update` as the fourth word it writes the update countdown set instead (#3453): CatCafe_GameIcon_Update_<step>.png
+for 6, 5, 4, 3, 2 and 1 hours, 30 minutes and NOW!, on whatever icon is given (icon C for the 2026-11-12 update).
 
 PIL only (not Blender). The font is Google Fonts' Luckiest Guy, not in the repo. The outputs live in
 assets/cat-cafe/exports/game-icon/; the Normal icon there is a copy of the live icon to swap back to."""
@@ -59,10 +62,10 @@ def hourglass(d, cx, cy, h, sand, w):
         d.rounded_rectangle([cx - bw / 2, y - bh / 2, cx + bw / 2, y + bh / 2], radius=r, fill=WHITE)
 
 
-def make(label, layout, sand):
+def make(label, layout, sand, dim=0.55):
     base = Image.open(SRC).convert("RGB").resize((N, N), Image.LANCZOS)
-    base = ImageEnhance.Brightness(base).enhance(0.55)
-    base = ImageEnhance.Color(base).enhance(0.85).convert("RGBA")
+    base = ImageEnhance.Brightness(base).enhance(dim)
+    base = ImageEnhance.Color(base).enhance(0.85 if dim < 0.9 else 1.0).convert("RGBA")
     art = Image.new("RGBA", (N, N), (0, 0, 0, 0))
     d = ImageDraw.Draw(art)
     font = ImageFont.truetype(FONTS + "/LuckiestGuy.ttf", 10)
@@ -96,6 +99,16 @@ def make(label, layout, sand):
 VARIANTS = {"3Hours": ("3 HOURS", "text_bottom", (1.0, 0.15)),
             "Now": ("NOW", "text_top", (0.35, 0.75)),
             "NewUpdate": ("NEW UPDATE!", "text_bottom", (0.0, 1.0))}
+UPDATE = {"6Hours": ("6 HOURS", 1.0, 0.0), "5Hours": ("5 HOURS", 0.85, 0.2), "4Hours": ("4 HOURS", 0.7, 0.35),
+          "3Hours": ("3 HOURS", 0.55, 0.5), "2Hours": ("2 HOURS", 0.4, 0.65), "1Hour": ("1 HOUR", 0.25, 0.8),
+          "30Min": ("30 MIN", 0.12, 0.9)}
+if len(sys.argv) > 4 and sys.argv[4] == "update":
+    for key, (label, top, bottom) in UPDATE.items():
+        make(label, "text_bottom", (top, bottom)).save(f"{OUT}/CatCafe_GameIcon_Update_{key}.png")
+        print("wrote", key)
+    make("NOW!", "text_bottom", (0.0, 1.0), dim=0.8).save(f"{OUT}/CatCafe_GameIcon_Update_Now.png")   # brighter: it is live
+    print("wrote Now")
+    sys.exit(0)
 for key, (label, layout, sand) in VARIANTS.items():
     make(label, layout, sand).save(f"{OUT}/CatCafe_GameIcon_Event_{key}.png")
     print("wrote", key)

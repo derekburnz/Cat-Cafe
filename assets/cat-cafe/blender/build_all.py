@@ -240,6 +240,8 @@ PIVOT_NOTES = {
     mysteryitems.BACKPACK: "the middle of the pack's back (wall: the strap side at +Z, the front -Z); the _Flap's "
                            "pivot is its hinge",
     mysteryitems.LONG_NET: "the middle of its bounding box's bottom; the net faces -Z",
+    mysteryitems.SPEED_SHOES: "the middle of the display mat's underside, toes at -Z; each child Model (_Left, _Right) "
+                              "pivots at the middle of its foot's underside",
     pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                    "pitysign.SPOT, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
@@ -378,7 +380,7 @@ STUDIO_NOTES = {
                              "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
                              "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
-                               "CodesCircle (a flat Neon disc 12 studs across, centre 8 studs in front of the pivot, "
+                               "CodesCircle (a flat Neon disc 16 studs across, centre 10 studs in front of the pivot, "
                                "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
                                "_Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 "
                                "studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor "
@@ -422,6 +424,11 @@ STUDIO_NOTES = {
     mysteryitems.LONG_NET: "#2565 (mystery-market.md section 4): the Long Net's picture for Juniper's window and the "
                            "pedestal: a net with a long telescoping handle and a gold arrow out to the hoop. A "
                            "picture only; the player's own net (CatCafe_Item_Net_L*) is unchanged.",
+    mysteryitems.SPEED_SHOES: "#3538 (update-2026-11-13.md): the Speed Shoes, for Juniper's window picture and the "
+                              "pedestal (the pair on a round mat). Worn: clone the child Models _Left and _Right "
+                              "alone, scale each by the foot's width (built for a 1 x 1 stud foot), pivot it to the "
+                              "middle of the R15 LeftFoot or RightFoot's underside facing the way the foot faces, "
+                              "and weld it there, massless and CanCollide off. On R6 the same spot under each leg.",
     mysterymarket.NAME: "#2565 (mystery-market.md section 4, look A): Juniper's covered wagon in the Town Square's "
                         "south-west quarter (Layout.mysteryCart, turned to face the cannon). WorldBuilder names it "
                         "MysteryMarket, tags it MysteryMarket and hangs the MysteryPrompt on the Attachment "

@@ -125,7 +125,7 @@ async function runProfile(profile) {
     names = names.slice((shard.k - 1) * size, shard.k * size);
   }
   for (const name of names) {
-    if (args.scene && args.scene !== name) continue;
+    if (args.scene && !args.scene.split(',').includes(name)) continue; // one scene, or several in list order: A,B,C
     // a Lua closure, not a host function: a pcall under a JS callback fails in luau-rs ("invalid async callback
     // continuation"), and the card picture's living cat (Effects/Portrait) guards its first draw with one
     const open = lua.load('local open, name = ... return function() return open(name) end').call(scenes.rawGet('open'), name)[0];

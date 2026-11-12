@@ -8,7 +8,8 @@
 
 local CatFoundLogic = {}
 
-local BIG: { [string]: boolean } = { Legendary = true, Mythical = true, Golden = true }
+local BIG: { [string]: boolean } =
+	{ Legendary = true, Mythical = true, Secret = true, Golden = true }
 CatFoundLogic.BIG = BIG
 
 function CatFoundLogic.big(rarity: unknown, isNew: boolean?, extra: unknown): boolean

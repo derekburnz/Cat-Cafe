@@ -41,10 +41,12 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
@@ -71,7 +73,7 @@ export type CustomEvent =
 	"rank_up"
 	| "session_end"
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
-	-- (else since the join); fields: "1", "2", "3" or "4+" (the account's nth buy), the upgrade id, the new level
+	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
 	| "upgrade_bought"
 	| "offline_claim"
 	| "dealer_buy"
@@ -85,6 +87,16 @@ export type CustomEvent =
 	-- #2798: a Cozy Cafe bag collected, value today's bags so far; what it held ("coins", "coins+lure", "coins+fish",
 	-- "coins+lure+fish")
 	| "cozy_bag"
+	-- #3573 (shared/AfkCafe): a rest in the player's own cafe starts (value 1; field: "doubled" or "party"), ends
+	-- (value: its seconds) and what the cafe paid during it (value: coins)
+	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
+	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
+	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
+	| "afk_start"
+	| "afk_end"
+	| "afk_pay"
+	| "afk_rejoin" -- #3602: a resting player was sent back into the game ahead of the idle disconnect (value 1)
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
 	-- its seconds at the cafe)
@@ -113,6 +125,9 @@ export type CustomEvent =
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
 	-- #3062: a Cat Arcade game's end, value its points; circles, milestones paid (comma list or "none"), win or not
 	| "arcade_run"
+	-- #3296: a Mouse Dash game's end, value its points; hearts lost, seconds, free or paid, and how it ended (hearts,
+	-- win, quit)
+	| "mouse_dash_run"
 	| "arcade_quit" -- #3378: a game left early, value the circles hit; free or paid
 	| "arcade_blocked" -- #3378: Start refused, value 1; the reason (closed, loading, running, busy, no_fish)
 	| "arcade_board_top" -- #3378: a new best that stands in the leaderboard's top, value its place
@@ -173,6 +188,11 @@ export type CustomEvent =
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
+	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait or rescue), secret_caught (value the
+	-- tackles it took on the way home; catch, bait or rescue, coat) and secret_lost (value 1; area, despawn or tackle)
+	| "secret_spawn"
+	| "secret_caught"
+	| "secret_lost"
 	-- F87 (easy-start.md section 5): a new player leaving (their first UTC day of play, or tutorialStep below 5), value
 	-- the session's seconds; the furthest onboarding step, the session's bounce window, device. From the client: a
 	-- stuck nudge (tutorialStep, kind: pulse, help_shown or show_me) and where the intro was played from (tile, help)
@@ -735,6 +755,38 @@ function Telemetry.onStep(listener: (player: Player, name: string) -> ())
 	table.insert(stepListeners, listener)
 end
 
+-- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
+local function grouped(profile: Profile, fields: { string }): { string }
+	return IntroSplit.fields(profile.telemetry.introGroup, fields)
+end
+
+-- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
+-- and intro_group is logged. Checked once per player per session, so the switch going on mid session moves nobody.
+-- Called by onLoaded here and by CafeService ahead of a sync, whichever comes first.
+-- The session's answer to "does the intro play itself" is fixed here too (Review-QA on #3667): a later switch on
+-- must not start the scene mid play for a save grouped earlier.
+local introChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+function Telemetry.introJoin(player: Player, profile: Profile)
+	if introChecked[player] ~= nil then
+		return
+	end
+	local on = LiveFlagService.on(IntroSplit.FLAG)
+	local state = profile.telemetry
+	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
+	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
+	if joins then
+		state.introGroup = group
+		Telemetry.custom(player, IntroSplit.EVENT :: any, 1, { group :: string })
+	end
+end
+
+-- #3666: whether the intro plays itself for this player this session (IntroSplit.plays as the session began).
+function Telemetry.introPlays(player: Player, profile: Profile): boolean
+	Telemetry.introJoin(player, profile)
+	return introChecked[player] == true
+end
+
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -743,7 +795,7 @@ function Telemetry.onboarding(
 )
 	for _, name in Onboarding.reach(profile.telemetry, stepName) do
 		local step = Onboarding.index(name)
-		local fields = if name == stepName and values ~= nil then values else {}
+		local fields = grouped(profile, if name == stepName and values ~= nil then values else {})
 		remember(player, "onboarding", name, step, fields)
 		send(player, "onboarding " .. name, function()
 			AnalyticsService:LogFunnelStepEvent(
@@ -872,6 +924,17 @@ end
 
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)
 	local fields = values or {}
+	if studio and #fields > #FIELD_KEYS then
+		-- Roblox takes three custom fields; customFields drops the rest without a word (Review-QA on #3413)
+		warn(
+			string.format(
+				"[Telemetry] %s has %d fields, only the first %d are sent",
+				name,
+				#fields,
+				#FIELD_KEYS
+			)
+		)
+	end
 	remember(player, "custom", name, value, fields)
 	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
@@ -1032,7 +1095,8 @@ local function logFirstHour(player: Player, profile: Profile)
 	for _, step in Onboarding.firstHourDue(state.firstHourV3Step, PlayTime.seconds(player, profile)) do
 		state.firstHourV3Step = step
 		local name = Onboarding.FIRST_HOUR_STEPS[step]
-		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, {})
+		local fields = grouped(profile, {}) -- #3666
+		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, fields)
 		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()
 			AnalyticsService:LogFunnelStepEvent(
 				player,
@@ -1040,7 +1104,7 @@ local function logFirstHour(player: Player, profile: Profile)
 				tostring(player.UserId),
 				step,
 				name,
-				nil
+				customFields(fields)
 			)
 		end)
 	end
@@ -1289,8 +1353,8 @@ end
 
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
-	if def.area == "spare" then
-		return
+	if def.area == "spare" or def.area == "secret" then
+		return -- #3470: a Secret cat is on no area's Index page
 	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then
@@ -1989,6 +2053,7 @@ local function startMarkers(player: Player, session: Session)
 end
 
 local function onLoaded(player: Player, profile: Profile)
+	Telemetry.introJoin(player, profile) -- #3666: before any funnel step of this session
 	local now = os.time()
 	local firstSession = profile.stats.sessions <= 1
 	local session: Session = {
@@ -2063,6 +2128,20 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	-- #3661: this session's ping, once, after the join has settled
+	task.delay(NetPing.SAMPLE_SECONDS, function()
+		if sessions[player] ~= session or player.Parent == nil then
+			return
+		end
+		local ok, seconds = pcall(function()
+			return player:GetNetworkPing()
+		end)
+		if not ok or type(seconds) ~= "number" or seconds ~= seconds then
+			return -- no reading: logged as nothing, so a failure never reads as a slow connection
+		end
+		local ms = NetPing.ms(seconds)
+		Telemetry.custom(player, "net_ping", ms, { session.device or "unknown", NetPing.band(ms) })
+	end)
 	if profile.stats.sessions > 1 then
 		-- #2916: the welcome back card's next goals (CafeService sends the same pick)
 		Telemetry.goalsShown(player, ReturnGoals.pick(profile, os.time()), "join")

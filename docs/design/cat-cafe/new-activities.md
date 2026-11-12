@@ -1,4 +1,4 @@
-# New activities: Rummage Bin, Cat Arcade, Swift Paws, Mouse Dash, Lucky Charm
+# New activities: Rummage Bin, Cat Arcade, Swift Paws, Mouse Dash, Lucky Charm, Pet a cat
 
 Draft v1, 2026-11-11, Design-Agent (friend's project). One place for the final specs that were settled in issue comments on 2026-11-10. **The issues are the build tickets; where this file and an issue disagree, the latest issue comment wins and this file gets fixed.** Ideas 2 and 3 came from player its_cuzu098, and both ship with a credit on the newest What's new page (#3067) and an "Idea by its_cuzu098" line on their card.
 
@@ -13,11 +13,12 @@ Shared rules for all three:
 Its job is to keep new players past 5 minutes (35% still playing at 5 min on the Nov 10 baseline).
 
 - **Place:** `CatCafe_Camp_Alley_RummageBin` (model in #3058, looks `_Ready` and `_Empty`).
-  - It sits within 15 studs of the Alleyway camp pad, with no other prompt within 12 studs.
+  - Since #3458 (Derek 2026-11-12: "move the rummage bin off to the side out of entrance more") it stands at camp (26, -10), turned 83.4 to face the landing pad, 5.7 studs outside the opening's edge and clear of the bench's sight line. It was at (10.5, -8), within 15 studs of the pad.
+  - When it is ready a "!" shows over it (the `ReadyBang` component), and goes when it is empty.
   - The prompt reads "Rummage" when ready and "Empty for now 🐾" otherwise. There is no countdown.
-- **Play:** the rescue bar with a 2-hit attempt and 3 paws.
-  - Its own absolute bar: `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64. It never follows the rescue tables.
-  - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x0.6).
+- **Play:** the rescue bar with a **5-hit** attempt (`BinHits`, #3458; 2 before) and 3 paws.
+  - Its own absolute bar: `BinZoneWidth` 0.22 and `BinBarSpeed` 0.80 (#3458, Derek: "require 5 hits and medium bit faster and a lot smaller area"; 0.42 and 0.64 before). It never follows the rescue tables.
+  - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x0.6, so 0.35 at 0.48) and need the 5 hits too.
   - A miss costs nothing and allows a retry after 10 s.
 - **Timing:** server side, per player, in its own DataStore `CatCafe_Bin` keyed by user id (#3104). It is **not** a profile save field, so it needs no save version step or restart.
   - Ready on the first visit, then 180 s after each of the first 3 uses, then every 900 s.
@@ -26,15 +27,27 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
 
   | Prize | Chance |
   |---|---:|
-  | Tuna | 40% |
-  | 5 golden fish | 25% |
-  | Salmon | 12% |
-  | Lucky Potion | 11% |
-  | Alley Crate | 10% |
+  | 2 Tuna | 34% |
+  | 8 golden fish | 25% |
+  | Salmon | 15% |
+  | Lucky Potion | 12% |
+  | Alley Crate | 12% |
   | Golden Alley Crate | 2% |
 
-  - The 1st rummage always gives Tuna, and the 2nd always gives an Alley Crate.
+  Since #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost"; before: Tuna 40%, 5 fish 25%, Salmon 12%, potion 11%, crate 10%, golden 2%). An account's first three wins are fixed and sit outside the table: 2 Tuna and 10 golden fish, then an Alley Crate and a Lucky Potion, then a Salmon and 10 golden fish (`BinFirstPrizes`).
+  - **Loot card (#3464, Derek 2026-11-12: "show the loot obtained from rummage also").** A win shows a card, "You found:", with one row per thing won (icon, name, amount). It stays 4 seconds or closes on a tap, and a golden crate gets the gold frame. The server sends the whole win as a list.
+
   - The odds show on the card.
+- **Roll first, hovering list, better prizes (#3608, Derek 2026-11-12 15:01 UTC; parts #3610 to #3613; switch `binRoll`, off; built in #3625 (server roll, stored prize, table, pad), #3626 (board), #3616 (roll and effects) and #3621 (row pictures)).** Derek: "display a list hovering when nearby enough to use it above it that shows the odds and a picture of the item ... plays an animations that ticks through the options a couple times before landing on one ... then you play the minigame for that reward and make the rewards decent so more people decide to stay early. better the reward better the vfx".
+  - **Order:** the server rolls the prize first and stores it for the player, the board shows the roll landing on it, then the player plays the bar for it. A miss never loses or rerolls the prize: the same one waits, also after a rejoin.
+  - **Start:** the prompt, or a pad in front of the bin (radius 4, a 0.5 second stand so running past does nothing).
+  - **Changed by Derek, 2026-11-12 (#3680, PR #3681): "the animation should always play no scripted starting rewards and don't start animation until they are on the circle".** With `binRoll` on: there are no fixed first prizes, so an account's first rummage is rolled from the table like any other and the roll plays every time; and a rummage starts only while the player stands on the pad. The prompt still shows from a little further away; pressing it off the pad gives the toast "Step onto the circle to rummage". The first three rummages keep the easier bar and the 3 minute waits. The fixed first prizes of #3460 apply only while `binRoll` is off. Where the lines below say "prompt" or "first three fixed wins", this note wins.
+  - **Table (OK'd by Derek 15:05 and 15:09 UTC, with his buff of the Salmon row):** 2 Tuna and 3 golden fish 28%, 10 golden fish 22%, 2 Salmon and 8 golden fish 15%, Alley Crate 15%, Lucky Potion 12%, Golden Alley Crate 5%, Big Money Potion 3%. About 4.2 golden fish a rummage on average. The first three fixed wins are unchanged and are shown as "Your next prize" with no roll.
+  - **Board:** floats above the bin for players within reach, one row per prize with its picture and chance, blue edge on the medium rows and gold on the big ones. It shows "Waiting for you: [prize]" after a miss and the bin's own refill time while empty.
+  - **Roll:** about 2.5 seconds, twice through the rows, an even slowdown, a tap skips. It only shows the server's pick. It always moves in list order, never lingers on a gold row and moves off, and uses no "so close" words (Motion-FX-Agent's shared roll, PR #3616).
+  - **Tiers:** every row carries its own effect tier in the table; it is never worked out from the row's chance (Salmon at 15% is tier 1).
+  - **Effects:** small (puff and hop) for Tuna, fish and Salmon; medium (lid pop, sparkles, chime) for the crate and the Lucky Potion; big (gold beam, confetti, fanfare seen nearby) for the Golden Alley Crate and the Big Money Potion.
+  - Nothing here is sold and no row can be bought.
 - **Flag:** `alleyBin`.
 - **Judge by:** `played_5m` and `played_10m` by platform, `bin_play` and `first_bin`. Also `quit_state` with the area and the idle seconds.
 
@@ -129,8 +142,22 @@ Derek2, 2026-11-11: "no market luck because thats all decided stock per global, 
   - It feeds the same Luck total that the odds cards read (`FoodOdds.atBowl` and the crate odds), so the printed odds always include it.
 - **Earned only:** it's bought with golden fish only. It's never sold for Robux, never part of any Robux bundle, pack or pass, and can't be traded or gifted (Monetization-Agent, 11-11). Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
 - **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
-- **Flag:** `luckyCharm`.
+- **Flag:** `luckyCharm`. Built 2026-11-12 (#3503, `shared/LuckyCharm`, icon #3502) as specced, with the switch off until review, QA and a switch-on check pass.
 - **Judge by:** level 1 buys among players with 100+ fish. Lucky Potion use shouldn't drop much; if it does, use the flag.
+
+## 6. Pet a cat (#3651, a player's idea; switch `petCats`, not built yet)
+
+Derek, 2026-11-12 17:48 UTC: "add the petting cat in shop to increase how much money they make by 2x and display a heart beside their money while it lasts make it 1 hour long". Then 17:49: "make the petting 1 cat only at a time and petting a new one changes it" and "online pay only".
+
+- **How:** a "Pet" prompt on each cat in the player's own cafe. Owner only, in the cafe, distance checked, the remote rate limited with a 3 second server cooldown between pets. The cat purrs with a short heart puff.
+- **Effect:** the petted cat's own per-second pay is doubled (`Config.PetMoneyBoost = 2`) for one hour (`Config.PetSeconds = 3600`), by the clock. A heart sits beside that cat's money label while it lasts and the label shows the doubled number.
+- **One cat at a time (Derek).** Petting any cat makes it the happy cat for a full fresh hour and takes the heart off the previous cat at once. Petting the cat that already has the heart also resets it to a full hour (Design-Agent's pick: the simplest rule, and with one cat there is nothing to exploit). If the happy cat is sold, traded or leaves the cafe, the heart ends.
+- **Stacking:** money passes and money potions multiply as always. With the party slot (update parties, events, the AFK rest in afk-cafe.md) it does not multiply: a petted cat is never above `EventMoneyMax` (2) from the pet and that slot together.
+- **Online pay only (Derek).** Offline pay is unchanged and the hour keeps running while the player is away.
+- **Words:** the cat's own prompt may read "Happy for 42 m". No toast when a heart ends, no nagging, nothing sold, no pass changes it.
+- **Save:** one field on the player: the happy cat's id and the end time.
+- **Size:** one cat at 2x is a small, friendly gain: about +10% for a ten cat cafe, more when the best cat is picked.
+- **Credit:** the idea came from a player. Their name is never written in this repository; any in-game credit takes it from outside the repo.
 
 ## Related
 

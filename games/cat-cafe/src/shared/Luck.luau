@@ -4,14 +4,17 @@
 -- Potion (LuckyPotionLuck) and a Lucky Day (LuckyDayPlayerLuck, the day phase of a Lucky Day, #1572 Clock.dayKinds, of a
 -- server, shared/Clock). On a roll it multiplies the Epic, Legendary and Mythical chances; Rare keeps its chance and
 -- Common takes the difference, so the odds keep their total.
---   sources(profile, now, luckyDay, event?) -> { Source }   what adds Luck now, in a fixed order (statue, potion,
---                                                    day, event)
---   of(profile, now, luckyDay, event?) -> number     1 plus the sources, at most LuckMax
+--   sources(profile, now, luckyDay, event?, charm?) -> { Source }   what adds Luck now, in a fixed order (statue,
+--                                                    charm, potion, day, event)
+--   of(profile, now, luckyDay, event?, charm?) -> number     1 plus the sources, at most LuckMax
 -- `event` is the running Cafe Event's Luck for everyone (#2486, EventService.luck(), at most EventLuckMax).
+-- `charm` is whether the `luckyCharm` switch is on (#3298): only then do the Lucky Charm perk's levels count
+-- (shared/LuckyCharm).
 --   apply(odds, luck) -> LureOdds                    the odds a roll uses at that Luck
 --   text(luck) -> string                             "Luck x1.3", as the HUD chip shows it
 
 local Config = require(script.Parent.Config)
+local LuckyCharm = require(script.Parent.LuckyCharm)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
@@ -23,8 +26,8 @@ Luck.UPGRADE = "lucky_cat"
 Luck.DAY_WARNING = "A Lucky Day starts at sunrise!"
 Luck.DAY_BANNER = "Lucky Day! Rare cats are twice as likely until night"
 
--- A source of Luck: "statue", "potion", "lucky_day" or "event" (#2486), and what it adds.
-export type SourceId = "statue" | "potion" | "lucky_day" | "event"
+-- A source of Luck: "statue", "charm" (#3298), "potion", "lucky_day" or "event" (#2486), and what it adds.
+export type SourceId = "statue" | "charm" | "potion" | "lucky_day" | "event"
 export type Source = { id: SourceId, value: number }
 
 local function statueLevel(profile: Types.PlayerProfile): number
@@ -36,7 +39,8 @@ function Luck.sources(
 	profile: Types.PlayerProfile,
 	now: number,
 	luckyDay: boolean,
-	event: number?
+	event: number?,
+	charm: boolean?
 ): { Source }
 	local out: { Source } = {}
 	local function add(id: SourceId, value: number)
@@ -47,8 +51,13 @@ function Luck.sources(
 	if level > 0 then
 		add("statue", level * Config.LuckPerStatueLevel)
 	end
-	if Potions.running(profile, Potions.LUCKY, now) then
-		add("potion", Config.LuckyPotionLuck)
+	local charmLuck = LuckyCharm.bonus(profile, charm) -- #3298: the Market perk, only while its switch is on
+	if charmLuck > 0 then
+		add("charm", charmLuck)
+	end
+	local potion = Potions.luck(profile, now) -- #3462: the biggest running lucky potion's
+	if potion > 0 then
+		add("potion", potion)
 	end
 	if luckyDay then
 		add("lucky_day", Config.LuckyDayPlayerLuck)
@@ -68,10 +77,11 @@ function Luck.of(
 	profile: Types.PlayerProfile,
 	now: number,
 	luckyDay: boolean,
-	event: number?
+	event: number?,
+	charm: boolean?
 ): number
 	local luck = 1
-	for _, source in Luck.sources(profile, now, luckyDay, event) do
+	for _, source in Luck.sources(profile, now, luckyDay, event, charm) do
 		luck += source.value
 	end
 	return math.clamp(round(luck), 1, Config.LuckMax)

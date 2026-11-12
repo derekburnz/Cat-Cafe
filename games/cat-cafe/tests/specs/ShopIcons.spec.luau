@@ -42,6 +42,19 @@ return function()
 			expect(all[1]).to.equal(ShopIcons.potion("swift_potion"))
 			expect(all[1] ~= all[2]).to.equal(true)
 			expect(#ShopIcons.potionAll("not_a_potion")).to.equal(0)
+			-- #3462: a Day Cart top potion draws its own flask first, then its smaller kind's bottles
+			local topPotions: { [string]: string } = {
+				big_lucky_potion = "lucky_potion",
+				big_gold_rush_potion = "gold_rush_potion",
+				mega_tip_potion = "big_tip_potion",
+			}
+			for big, small in topPotions do
+				local bottles = ShopIcons.potionAll(big)
+				local own = bottles[1]
+				expect(own).to.be.ok()
+				expect(own).never.to.equal(ShopIcons.potion(small))
+				expect(table.find(bottles, ShopIcons.potion(small) :: string)).to.be.ok()
+			end
 			expect(#ShopIcons.potionAll(nil)).to.equal(0)
 		end)
 		it("has the three shop cats' pictures (#1191)", function()
@@ -98,6 +111,9 @@ return function()
 				caviar = "Caviar",
 				moon_milk = "MoonMilk",
 				star_treat = "StarTreat",
+				-- #3462: the Day Cart's own two
+				honey_cream = "HoneyCream",
+				comet_treat = "CometTreat",
 			}
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do

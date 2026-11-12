@@ -23,6 +23,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	RescueCancel = RateLimiter.new(1, 1),
 	ArcadeStart = RateLimiter.new(1, 1), -- #3062
 	ArcadeQuit = RateLimiter.new(1, 1),
+	MouseDashStart = RateLimiter.new(1, 1), -- #3296
+	MouseDashTap = RateLimiter.new(12, 1),
+	MouseDashQuit = RateLimiter.new(1, 1),
 	RollTrait = RateLimiter.new(1, 1), -- #3196
 	ChooseTrait = RateLimiter.new(1, 1),
 	CollectTraitTokens = RateLimiter.new(1, 1),
@@ -39,10 +42,15 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason
 	LaunchCannon = RateLimiter.new(1, 1), -- hometown-cannon.md section 7: 1 a second
 	BuyDealerFood = RateLimiter.new(2, 1), -- recomputes the stock and answers with DealerStock every time
-	BuyDealerAll = RateLimiter.new(1, 2), -- #2573: a whole plan at once, so slower than one buy
+	-- #2573: a whole plan at once. 2 per 2 s since #3646: a second Buy all right after a partial one (coins came
+	-- in) was dropped in silence at 1 per 2 s, and the button sat on "Buying..."
+	BuyDealerAll = RateLimiter.new(2, 2),
 	UseLure = RateLimiter.new(2, 1), -- rolls a cat and rebuilds the bowl; 2 so both bowls can fill at once (#1161)
 	ResolveBait = RateLimiter.new(2, 1), -- the card retries after 6 s at most; 2 for both bowls' cats (#1161)
-	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
+	-- #3632: one call a waiting bag (RichBagsMax 3): walking into three bags collects all three at once. At 1 a
+	-- second the second and third were dropped and each waited out the button's 3 s
+	ClaimRichTip = RateLimiter.new(3, 1),
+	AfkIdle = RateLimiter.new(4, 2), -- #3573: idle and back again
 	TakeCozy = RateLimiter.new(1, 1), -- #2854: one bag waits at a time
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
@@ -79,6 +87,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	OwnerGrant = RateLimiter.new(1, 1), -- #1770: owner test mode, 1 a second
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
+	UsePotionAll = RateLimiter.new(1, 2), -- #3326: 1 per 2 s; one call drinks the whole bag
 	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
@@ -105,8 +114,12 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	MuseumFill = RateLimiter.new(1, 2), -- #3130: Auto fill, a whole hall in one call
 	InviteCard = RateLimiter.new(1, 2), -- #2797: the invite card's report, 1 per 2 s
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
+	YardSalePick = RateLimiter.new(1, 1), -- #3614: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
-	BuyCornerShopAll = RateLimiter.new(1, 2), -- #2593: a section's Buy all
+	-- #2593: a section's Buy all. 3 per 2 s since #3646: the Day Cart has three sections on this one remote, and at
+	-- 1 per 2 s the second section's Buy all (or a second press after a partial one) was dropped in silence, so its
+	-- button sat on "Buying..." with nothing bought
+	BuyCornerShopAll = RateLimiter.new(3, 2),
 	SellExtraCommons = RateLimiter.new(1, 2), -- #1573: 1 per 2 s; sells many at once and sends a full sync
 	FeedCat = RateLimiter.new(4, 1), -- #1181: 4 a second
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync
@@ -125,6 +138,13 @@ local overLimitLog: { [number]: number } = {} -- userId -> last handler-failure 
 -- #2630: rate limit drops are counted per player and remote, and written as one summary line a minute at most.
 -- A drop is harmless (the server just ignores the extra tap), so one warning each hid the real errors in the log.
 local DROP_SUMMARY_SECONDS = 60
+-- #3478: remotes whose extra calls are expected and already spaced on the client (a Tackle key held down, a second
+-- press on the cannon while it loads). A summary line made only of these is a note (print), not a warning, so it
+-- stays out of the Creator Hub error list.
+local QUIET_DROPS: { [string]: boolean } = {
+	Tackle = true,
+	LaunchCannon = true,
+}
 local dropCounts: { [number]: { [string]: number } } = {} -- userId -> remote -> drops since the last summary
 local dropLoggedAt: { [number]: number } = {} -- userId -> when the last summary line was written
 -- #3362: a remote connected with an onDrop answer (Net.on's third argument) still answers a dropped call, so a client
@@ -162,12 +182,22 @@ local function noteDrop(player: Player, name: string)
 	end
 	dropLoggedAt[userId] = now
 	local parts = {}
+	local quiet = true
 	for remote, count in counts do
 		table.insert(parts, string.format("%s x%d", remote, count))
+		if QUIET_DROPS[remote] ~= true then
+			quiet = false
+		end
 	end
 	table.sort(parts)
 	dropCounts[userId] = nil
-	warn(string.format("[Net] rate limit drops for user %d: %s", userId, table.concat(parts, ", ")))
+	local line =
+		string.format("[Net] rate limit drops for user %d: %s", userId, table.concat(parts, ", "))
+	if quiet then
+		print(line)
+	else
+		warn(line)
+	end
 end
 
 function Net.start()

@@ -16,6 +16,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local AfkController = require(script.Parent.AfkController)
 local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
 local CarrySync = require(Shared:WaitForChild("CarrySync"))
@@ -25,6 +26,7 @@ local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local FirstFive = require(Shared:WaitForChild("FirstFive"))
@@ -34,6 +36,7 @@ local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLog
 local Jukebox = require(Shared:WaitForChild("Jukebox"))
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
+local MysticPool = require(script.Parent.Parent.Effects.MysticPool)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
@@ -41,9 +44,11 @@ local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
 local Tips = require(Shared:WaitForChild("Tips"))
+local Traits = require(Shared:WaitForChild("Traits"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UITypes = require(script.Parent.Parent.UI.Types)
+local UpdateGift = require(Shared:WaitForChild("UpdateGift"))
 
 local UIController = {}
 
@@ -131,6 +136,8 @@ end
 -- marker leads to that area's camp basket (the nearest `CampBasket`, the camp being its safe zone, F84) instead of
 -- the far cafe door. Checked again every CAMP_CHECK_SECONDS while carrying, so walking out of an area moves it back.
 local CAMP_CHECK_SECONDS = 0.5
+local POOL_SEEN_STUDS = 60 -- #3196: the Mystic Pool's roll plays at the station when the player is this near it
+local POOL_FAR_STUDS = 24 -- and its card, opened at the ring, closes once the player is this far from it
 
 local function inCatchingArea(position: Vector3): boolean
 	local world = Workspace:FindFirstChild("World")
@@ -379,13 +386,36 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+-- the first catch line's wait after a carry ends (see refreshTutorial)
+local CARRY_SETTLE = 0.6
+local tutorialCarry = { was = false, endedAt = -math.huge }
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
 		tutorialWatch.connection = nil
 	end
 	if s.carrying ~= nil then
+		tutorialCarry.was = true
 		UI.tutorial.hide()
+		return
+	end
+	-- Review-QA's fresh join runs, 2026-11-12: as the first cat is secured the server's sync that ends the carry comes
+	-- a moment before the one that moves the tutorial on, so "Follow the trail and catch the cat!" came back for
+	-- about 0.2 s. The first catch line now waits CARRY_SETTLE after a carry ends; a cat that was dropped, not
+	-- secured, gets its line back then.
+	if tutorialCarry.was then
+		tutorialCarry.was = false
+		tutorialCarry.endedAt = os.clock()
+	end
+	if s.tutorialStep < 2 and os.clock() - tutorialCarry.endedAt < CARRY_SETTLE then
+		UI.tutorial.hide()
+		task.delay(CARRY_SETTLE, function()
+			local current = state
+			if current ~= nil and current.carrying == nil then
+				refreshTutorial(current)
+			end
+		end)
 		return
 	end
 	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
@@ -423,11 +453,11 @@ local function refreshTutorial(s: Types.PlayerState)
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
 		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
 		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
-		if SecondCat.caught(s.stats) < SecondCat.CATS and areasShut() then
+		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
 			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
-		elseif SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
+		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
@@ -856,13 +886,15 @@ local function applyState(s: Types.PlayerState)
 		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
 		-- showed; false once it ends, as UI.update skips a nil and the card would stay
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
-		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
-		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
+		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
+		secondCatDone = SecondCat.done(s.stats),
+		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
 		-- empty, as UI.update skips a nil.
 		bait = if s.bait ~= nil then s.bait else false,
+		introAuto = s.introAuto, -- #3666
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
@@ -1095,6 +1127,10 @@ local function wireIntents()
 	UI.events.usePotion:Connect(function(potionId: string, count: number?)
 		Net.fire("UsePotion", potionId, count)
 	end)
+	-- #3326: the Bag's "Use all potions", after its confirm card; the server drinks every kind that fits
+	UI.events.usePotionAll:Connect(function()
+		Net.fire("UsePotionAll")
+	end)
 	-- #1463: Collect on the Woods card (Golden Pond pass, camp-extras.md section 4). The server checks the pass, the
 	-- range and the extraId. Guarded until the UI's collectCampExtra event (PR #1472) is on main.
 	local collectCampExtra = (UI.events :: any).collectCampExtra
@@ -1128,7 +1164,7 @@ local function wireIntents()
 		end)
 	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
-	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
+	-- featureName (#1083, #3653): true for an idea (every idea may be credited; the server decides), nil otherwise.
 	UI.events.reportBug:Connect(
 		function(text: string, kind: string, clientErrors: { string }, featureName: boolean?)
 			Net.fire("ReportBug", text, kind, clientErrors, featureName)
@@ -1258,6 +1294,53 @@ local function wireIntents()
 	-- sets the bag record's Outcome, which the UI floats as "+$X".
 	UI.events.claimRichTip:Connect(function(bagId: string)
 		Net.fire("ClaimRichTip", bagId)
+	end)
+	-- #3196: the Mystic Pool's card. The server checks the cat, the payment and the waiting re-roll again.
+	-- The pool's own animation plays at the station when it is in the world and near (Effects/MysticPool.roll, with
+	-- the rolled cat's model when its art is loaded); opened from the Cannon menu far away, the card shows the
+	-- result with no animation.
+	local function poolStation(): Model?
+		local found = CollectionService:GetTagged(Traits.TAG)[1]
+		if found ~= nil and found:IsA("Model") and found:IsDescendantOf(workspace) then
+			return found :: Model
+		end
+		return nil
+	end
+	local function poolDistance(): number?
+		local station = poolStation()
+		local character = Players.LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if station == nil or root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		return (station:GetPivot().Position - root.Position).Magnitude
+	end
+	local mysticPool: any = (UI :: any).mysticPool
+	mysticPool.far = function(): boolean
+		local distance = poolDistance()
+		return distance == nil or distance > POOL_FAR_STUDS
+	end
+	mysticPool.play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+		local station = poolStation()
+		local distance = poolDistance()
+		if station == nil or distance == nil or distance > POOL_SEEN_STUDS then
+			return nil
+		end
+		local state: any = UIController.state
+		local cat = if state ~= nil and type(state.cats) == "table" then state.cats[uid] else nil
+		local asset: string? = if type(cat) == "table" and type(cat.catId) == "string"
+			then Catalog.sitModelName(Catalog.catModelName(cat.catId))
+			else nil
+		return MysticPool.roll(station, asset, rarity, onReveal)
+	end
+	UI.events.rollTrait:Connect(function(uid: string)
+		Net.fire("RollTrait", uid)
+	end)
+	UI.events.chooseTrait:Connect(function(takeNew: boolean)
+		Net.fire("ChooseTrait", takeNew == true)
+	end)
+	UI.events.collectTraitTokens:Connect(function()
+		Net.fire("CollectTraitTokens")
 	end)
 	-- #2854: the Rewards list's Cozy gift row takes the waiting bag; the server pays it and toasts
 	UI.events.takeCozy:Connect(function()
@@ -1698,14 +1781,27 @@ local function bindStations()
 		table.insert(arcadePrompts, prompt)
 		prompt.Enabled = arcadeOn()
 	end)
+	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game; `circleStreak` off vaults Circle Streak
+	local function flagOn(key: string): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			key,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+		)
+	end
 	local function applyArcade()
 		local on = arcadeOn()
-		UI.arcade.setOn(on)
+		local circle = flagOn("circleStreak")
+		local dash = on and flagOn("mouseDash")
+		UI.arcade.setOn(on and circle, on and (circle or dash))
+		UI.mouseDash.setFlags(dash, on and circle)
 		for _, prompt in arcadePrompts do
-			prompt.Enabled = on
+			prompt.Enabled = on and (circle or dash)
 		end
 	end
-	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
+	for _, key in { Arcade.FLAG, "mouseDash", "circleStreak" } do
+		ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. key):Connect(applyArcade)
+	end
 	applyArcade()
 end
 
@@ -1773,6 +1869,9 @@ local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
 local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
+	end
+	if AfkController.rejoinQuiet() then
+		return false -- #3602: away since before an automatic rejoin; asks wait for the first input
 	end
 	local tips: any = (UI :: any).tips
 	if tips == nil or type(tips.quiet) ~= "function" then
@@ -1868,7 +1967,8 @@ end
 
 -- #2766: the update Event's ask (UI/Components/EventRsvp): once a session at a quiet moment, before the Event starts,
 -- to a player past the tutorial who has not answered Roblox's Notify Me prompt; a busy card tries at the next sync.
-local eventAsk = { asked = false }
+-- #3450: only 3 to 10 minutes into the session (EventRsvp.window), counted from when this script started.
+local eventAsk = { asked = false, started = os.clock() }
 local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
@@ -1878,6 +1978,7 @@ local function offerEvent()
 		eventAsk.asked
 		or state == nil
 		or state.tutorialStep < 5
+		or not EventRsvp.window(os.clock() - eventAsk.started)
 		or not EventRsvp.due(id, startsAt, os.time())
 	then
 		return
@@ -1885,12 +1986,11 @@ local function offerEvent()
 	eventAsk.asked = true
 	local eventId, at = id :: string, startsAt :: number
 	task.spawn(function()
-		local waited = 0
 		while not quiet() do
-			if waited >= ASK_WAIT_SECONDS then
-				return
+			task.wait(1)
+			if not EventRsvp.window(os.clock() - eventAsk.started) then
+				return -- no quiet moment by minute 10: not this session
 			end
-			waited += task.wait(1)
 		end
 		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
 			return -- answered before (or Roblox cannot say), or it has started
@@ -2024,6 +2124,10 @@ local function trackInvite()
 end
 
 local function wireServerEvents()
+	-- #3450: the update Event's ask does not wait for a sync once its window opens
+	task.delay(EventRsvp.FROM_SECONDS + 1, function()
+		offerEvent()
+	end)
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		latestCarrying = s.carrying -- #3145: first, before anything that could hold this sync up
 		applyState(s)
@@ -2495,6 +2599,86 @@ local function wireServerEvents()
 	UI.events.arcadeQuit:Connect(function(run: number)
 		Net.fire("ArcadeQuit", run)
 	end)
+	-- #3296: Mouse Dash. The server draws and judges everything; these only pass its answers to the window and the
+	-- sound moments (Motion-FX-Agent's, played when the build has them).
+	Net.on("MouseDashState", function(view: any)
+		UI.mouseDash.state(view)
+	end)
+	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number)
+		arcadeMoment("MouseDashStart")
+		UI.mouseDash.began(run, hearts, firstAt)
+	end)
+	Net.on("MouseDashWave", function(run: number, index: number, pops: any, hint: string?)
+		if type(pops) == "table" then
+			for _, pop in pops do
+				if type(pop) == "table" then
+					arcadeMoment("MouseDashPop", pop.kind)
+				end
+			end
+		end
+		UI.mouseDash.wave(run, index, pops, hint)
+	end)
+	local dashLevel = 0
+	Net.on(
+		"MouseDashJudged",
+		function(
+			run: number,
+			index: number,
+			tap: any,
+			points: number,
+			hearts: number,
+			streak: number,
+			milestones: any,
+			dizzyUntil: number
+		)
+			if type(tap) == "table" then
+				if tap.outcome == "catch" then
+					arcadeMoment("MouseDashCatch", points, tap.kind, streak)
+				elseif tap.outcome == "kitten" or tap.outcome == "empty" then
+					arcadeMoment("MouseDashMiss", tap.outcome)
+				end
+				if tap.heart == 1 then
+					arcadeMoment("MouseDashHeart")
+				end
+			end
+			local level = if type(points) == "number" then points // 5 else 0
+			if level > dashLevel then
+				arcadeMoment("MouseDashFaster", level)
+			end
+			dashLevel = level
+			if type(milestones) == "table" and #milestones > 0 then
+				arcadeMoment("MouseDashMilestone", milestones[#milestones])
+			end
+			UI.mouseDash.judged(run, index, tap, points, hearts, streak, milestones, dizzyUntil)
+		end
+	)
+	Net.on("MouseDashGone", function(run: number, index: number, gone: any, hearts: number)
+		if type(gone) == "table" then
+			for _, entry in gone do
+				-- a golden mouse or a kitten that ducks back is silent; only a grey mouse getting away sounds
+				if type(entry) == "table" and entry.kind == "mouse" then
+					arcadeMoment("MouseDashMiss", "escape")
+				end
+			end
+		end
+		UI.mouseDash.gone(run, index, gone, hearts)
+	end)
+	Net.on("MouseDashOver", function(run: number, result: any)
+		dashLevel = 0
+		if type(result) == "table" then
+			arcadeMoment("MouseDashEnd", result.points, result.reason, result.newBest == true)
+		end
+		UI.mouseDash.over(run, result)
+	end)
+	UI.events.mouseDashPlay:Connect(function()
+		Net.fire("MouseDashStart")
+	end)
+	UI.events.mouseDashTap:Connect(function(run: number, index: number, hole: number)
+		Net.fire("MouseDashTap", run, index, hole)
+	end)
+	UI.events.mouseDashQuit:Connect(function(run: number)
+		Net.fire("MouseDashQuit", run)
+	end)
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
 	Net.on("RoadmapStep", function(n: number)
@@ -2548,6 +2732,26 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
+	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
+	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
+	-- show as a banner falls back to the toast.
+	Net.on(
+		"UpdateGiftNotice",
+		function(kind: unknown, fish: unknown, spins: unknown, secondsLeft: unknown)
+			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft)
+			if banner == nil then
+				return
+			end
+			local shown = EventBanner.show({
+				kind = if kind == "paid" then "gift" else "giftSoon",
+				title = banner.title,
+				lines = banner.lines,
+			})
+			if not shown and kind == "paid" then
+				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+			end
+		end
+	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

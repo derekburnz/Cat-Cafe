@@ -60,6 +60,7 @@ Remotes.ClientToServer = {
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- (bagId: string?)  #3360: own plot has that unexpired money bag (none: the front one), within RichTipRangeStuds of it
+	"AfkIdle", -- (idle: boolean)  #3573: the client has had no input for Config.AfkCafeSeconds (true) or has input again (false); the server decides whether the player rests (AfkCafeService)
 	"TakeCozy", -- ()  #2854: own plot has a waiting Cozy gift bag (the Rewards list's row takes it from anywhere)
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16), the Store funnel (#1888)
@@ -100,6 +101,8 @@ Remotes.ClientToServer = {
 	"UsePotion", -- (potionId: string, count: number?)  F64: a known potion in the bag whose minutes fit under
 	-- PotionMaxMinutes with the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync.
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
+	"UsePotionAll", -- ()  #3326: the Bag's "Use all potions": every kind in the bag, as many as fit under
+	-- PotionMaxMinutes each (Potions.useAll); one toast and one ProfileSync, or a toast when nothing fits; 1 per 2 s
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from
@@ -156,6 +159,9 @@ Remotes.ClientToServer = {
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
+	"YardSalePick", -- ()  #3614: the Yard Sale's free lucky pick (the `yardSaleRoll` switch), within reach of the
+	-- stall or from its card; 1 a second. The server rolls shared/YardPick's rows and banks the crate in the same
+	-- call, answered with YardSalePicked (or CampExtraResult with ok false) and CampExtrasState
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet and
 	-- in the Yard Sale's stock today (#1537, shared/YardSale), not bought by the caller today, the caller within reach
@@ -212,6 +218,14 @@ Remotes.ClientToServer = {
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
 	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
+	"MouseDashStart", -- ()  #3296 (shared/MouseDash, MouseDashService): the `arcade` and `mouseDash` switches on, both
+	-- arcade saves read, no arcade game running, not in a catch, rescue or flight; uses the day's free run, else
+	-- spends ArcadeCostFish golden fish (no trade fish freeze). Answered with MouseDashBegan (refusals are a toast);
+	-- 1 a second
+	"MouseDashTap", -- (run: number, index: number, hole: number)  #3296: a tap on hole 1 to 9 while wave `index` is
+	-- up. No score, time or kind is sent: the server stamps the tap on arrival and judges it; 12 a second
+	"MouseDashQuit", -- (run: number)  #3296: Close mid game ends it where it stands, answered with MouseDashOver; 1 a
+	-- second
 	-- #3196 (trait-station.md, TraitService, shared/Traits): each refused while the `traits` switch is off or the tier
 	-- has not opened the Park's camp extra; no range check (it opens from the Cannon menu too); answered with one sync
 	"RollTrait", -- (uid: string)  the cat owned and no re-roll waiting; paid by a free starter roll, else a Trait Token,
@@ -289,6 +303,10 @@ Remotes.ServerToClient = {
 	-- with the trust after it (#1884). A device that called its press a Miss keeps the
 	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
 	-- final word.
+	"BinRolled", -- (rowId: string, mode: string, seconds: number)  #3608: the Rummage Bin prize the server chose for
+	-- this player before the bar (the `binRoll` switch): mode RummageBin.MODE_ROLL (just rolled: play the roll on
+	-- the board), MODE_FIXED (a fixed first prize: reveal it) or MODE_WAITING (it was waiting after a miss); the bar
+	-- (RescueChallenge) follows `seconds` later, or at once on a RescuePress for the bin's spot (a tap skips the roll)
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is
@@ -352,6 +370,8 @@ Remotes.ServerToClient = {
 	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on
 	-- join, at each step, lap, start and end, and at most every Config.RallyStateSeconds while points come in
 	"RallyPoint", -- (userId: number, amount: number)  F101: to every client for each score in the Rally, for the pops
+	"YardSalePicked", -- (index: number, crateId: string, tier: number)  #3614: the row of the player's YardPick rows
+	-- the lucky pick landed on, already banked; `tier` sets how big the landing effect is (1 or 3)
 	"CampExtraResult", -- (extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)  F100: the
 	-- answer to CollectCampExtra or BuyYardSale; paid is what it gave in Payout's words ("2 Money Potion", "+14 golden
 	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)
@@ -372,6 +392,9 @@ Remotes.ServerToClient = {
 	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
 	"PlaytimeGift", -- (kind: PlaytimeGifts.Kind, paid: { string })  #1947: the like ("like") or favourite ("fav")
 	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
+	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish: number, spins: number, secondsLeft: number)  #3420: the
+	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
+	-- first); the client shows the banner with UpdateGift.banner's words
 	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
 	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
@@ -383,6 +406,18 @@ Remotes.ServerToClient = {
 	-- it paid (shown in the window only: no toast)
 	"ArcadeOver", -- (run: number, result: Arcade.Result)  #3062: the game ended (a Miss, 100 points, Close or the
 	-- switch going off before it started)
+	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
+	-- titles, the free run and the board, once both saves are read and after every game
+	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number)  #3296: a game started; the first wave comes
+	-- at server time `firstAt`
+	"MouseDashWave", -- (run: number, index: number, pops: { { hole: number, kind: string, upAt: number, downAt: number
+	-- } }, hint: string?)  #3296: the wave that is up now, sent only as it starts; `hint` with a player's first kitten
+	"MouseDashJudged", -- (run: number, index: number, tap: MouseDash.Tap, points: number, hearts: number, streak:
+	-- number, milestones: { number }, dizzyUntil: number)  #3296: the server's answer to a tap that did something
+	-- (a catch, a kitten, an empty hole)
+	"MouseDashGone", -- (run: number, index: number, gone: { MouseDash.Gone }, hearts: number)  #3296: pops whose
+	-- window ended untapped, and the hearts left
+	"MouseDashOver", -- (run: number, result: MouseDash.Result)  #3296: the game ended (no hearts, 100 points or Close)
 }
 
 function Remotes.folder(): Folder

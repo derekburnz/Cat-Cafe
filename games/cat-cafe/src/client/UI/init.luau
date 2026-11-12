@@ -90,7 +90,10 @@ local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
+UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
+UI.mouseDash = {} -- #3296 the arcade's Mouse Dash window, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
+UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
@@ -135,6 +138,11 @@ UI.events = {
 	arcadePlay = Signal.new(),
 	arcadePress = Signal.new(),
 	arcadeQuit = Signal.new(),
+	-- #3296 (Mouse Dash): Play, a tap on a hole while wave `index` is up, and Close mid game: forward as
+	-- MouseDashStart, MouseDashTap(run, index, hole) and MouseDashQuit(run)
+	mouseDashPlay = Signal.new(),
+	mouseDashTap = Signal.new(),
+	mouseDashQuit = Signal.new(),
 	catchPressed = Signal.new(), -- (strayId, index, grade?)   a press on circle `index` with this device's grade (nil after its first Miss): forward strayId and index as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
@@ -179,6 +187,7 @@ UI.events = {
 	introReplay = Signal.new(),
 	-- F64
 	usePotion = Signal.new(), -- (potionId, count?)   Use (or #1600's Use all) in the potion bag: forward as UsePotion
+	usePotionAll = Signal.new(), -- ()   #3326: the Bag's "Use all potions", confirmed: forward as UsePotionAll
 	-- F61
 	collectTips = Signal.new(), -- ()   the till's Collect (F61); unbound since F97 pays tip piles on arrival
 	-- F73
@@ -227,9 +236,15 @@ UI.events = {
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
+	yardSalePick = Signal.new(), -- ()   #3615: Lucky pick on the Yard Sale card: forward as YardSalePick
+	yardSaleLanded = Signal.new(), -- (crateId)   #3615: the card's board landed on the picked crate
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
+	-- #3196 (the Mystic Pool's card): forward as RollTrait(uid), ChooseTrait(takeNew) and CollectTraitTokens()
+	rollTrait = Signal.new(), -- (uid)
+	chooseTrait = Signal.new(), -- (takeNew)
+	collectTraitTokens = Signal.new(), -- ()
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
 	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
@@ -363,6 +378,14 @@ local tipsHeldUntil = 0 -- os.clock() until which no tip shows (a cannon flight 
 local askCard: AskCard.AskCard? = nil -- the slide-in asks: the feedback faces (F87 section 4) and Need a hand? (2g)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+-- #3666: whether the intro plays itself for this player; the server says (the intro test), else Config. A field,
+-- as the module has no local registers to spare
+function UI._introAuto(): boolean
+	if state.introAuto ~= nil then
+		return state.introAuto
+	end
+	return Config.IntroAutoPlay
+end
 -- data-model section 8: UseLure, Tame and Let go work from anywhere (Derek 2026-10-28: "tame or let go from anywhere";
 -- the server dropped BaitResolveRangeStuds in #720), so the bait card's buttons never grey for distance
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
@@ -437,7 +460,7 @@ function applyTutorial()
 	-- #2759: a fresh save's intro is on its way (it waits for the camp to stream in): no strip, glow or arrow over the
 	-- loading view. At most UI._introWait.LIMIT seconds from the UI's start, should no intro come.
 	local waited = os.clock() - UI._introWait.startedAt
-	local introPending = Config.IntroAutoPlay
+	local introPending = UI._introAuto()
 		and not UI._introWait.begun
 		and state.introSeen == false
 		and waited < UI._introWait.LIMIT
@@ -557,7 +580,7 @@ local function render()
 		introLive = true
 		renderTutorialButton()
 		-- F87 section 2a: the intro no longer plays by itself, so a first join glows the tile that plays it
-		if state.introSeen == false and not Config.IntroAutoPlay and not introGlowed then
+		if state.introSeen == false and not UI._introAuto() and not introGlowed then
 			introGlowed = true
 			task.delay(IntroLogic.OUT_SECONDS, function()
 				if hud then
@@ -596,7 +619,9 @@ local function render()
 	end
 	UI.campExtras.render(state)
 	UI.arcade.render(state)
+	UI.mouseDash.render(state)
 	UI.lateStations.render(state)
+	UI.mysticPool.render(state)
 	UI.cornerShop.render(state)
 	UI.mystery.render(state)
 	UI.trade.render(state)
@@ -974,7 +999,10 @@ function UI.init(config: Types.InitConfig)
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then
-				UI.perks.card:showList(state.tier)
+				UI.perks.card:showList(
+					state.tier,
+					require(script.Components.PerkCardLogic).poolStands()
+				)
 			end
 		end,
 	})
@@ -1001,6 +1029,8 @@ function UI.init(config: Types.InitConfig)
 			-- #3213: opened from the Cannon, the card stays open wherever the player stands (no walk-away close)
 			if stationId == "yardSale" then
 				UI.campExtras.openYardSale(nil, true)
+			elseif stationId == "mysticPool" then
+				UI.mysticPool.open(true) -- #3196
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -1326,6 +1356,9 @@ function UI.init(config: Types.InitConfig)
 		use = function(potionId: string, count: number?)
 			UI.events.usePotion:Fire(potionId, count)
 		end,
+		useEvery = function()
+			UI.events.usePotionAll:Fire()
+		end,
 		feed = function(foodId: string, catUid: string)
 			local cat = (state.cats or {})[catUid]
 			bagFed[catUid] = if cat and type(cat.level) == "number" then cat.level else 0
@@ -1542,6 +1575,7 @@ function UI.init(config: Types.InitConfig)
 	end)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
+	UI.loot.card = require(script.Screens.LootCard).new(parent) -- #3464
 	UI.perks.card = require(script.Screens.PerkCard).new(parent) -- #2687
 	local stationReveal = (Moments :: any).StationReveal
 	if stationReveal then
@@ -1601,6 +1635,8 @@ function UI.init(config: Types.InitConfig)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
+	UI.mysticPool.start() -- the Mystic Pool's card (#3196)
+	UI.mouseDash.start() -- the arcade's Mouse Dash window (#3296)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
@@ -1615,6 +1651,7 @@ function UI.init(config: Types.InitConfig)
 	local catchUI: any = UI.catch
 	catchUI.moods = require(script.Screens.MoodIcons).new()
 	catchUI.pity = require(script.Screens.PityTags).new() -- #2099: the "Pity cat" tag over a pity stray
+	catchUI.secret = require(script.Screens.SecretTags).new() -- #3470: the "SECRET" tag over a Secret stray
 	catchUI.mark = require(script.Screens.CatchMark).new() -- #2005: the "!" over a stray being caught (NetDown)
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
@@ -1793,6 +1830,8 @@ function UI.destroy()
 	UI.together.reset()
 	UI.campExtras.reset()
 	UI.lateStations.reset()
+	UI.mysticPool.reset()
+	UI.mouseDash.reset()
 	UI.mystery.reset()
 	UI.giftWait.reset()
 	UI.rally.reset()
@@ -1937,6 +1976,10 @@ function UI.destroy()
 		catchUI.pity:destroy()
 		catchUI.pity = nil
 	end
+	if catchUI.secret then
+		catchUI.secret:destroy()
+		catchUI.secret = nil
+	end
 	if catchUI.mark then
 		catchUI.mark:destroy()
 		catchUI.mark = nil
@@ -1979,6 +2022,10 @@ function UI.destroy()
 		UI.recap.card = nil
 	end
 	UI.recap.waiting = nil
+	if UI.loot.card then
+		UI.loot.card:destroy()
+		UI.loot.card = nil
+	end
 	if UI.gift.card then
 		UI.gift.card:destroy()
 		UI.gift.card = nil
@@ -2037,6 +2084,14 @@ end
 function UI.close()
 	if modal then
 		modal:close()
+	end
+end
+
+-- #3640: the server moved this player (the tutorial's move to the cannon): a new cat's card still up closes, so
+-- the Cat Cannon window does not open over it.
+function UI.closeCatCard()
+	if popups then
+		popups:dismissCat()
 	end
 end
 
@@ -2786,7 +2841,13 @@ end
 UI.arcade = {}
 
 -- Opens the arcade's card (the cabinet's prompt, the Menu list's Arcade row). A window already up stays open.
+-- #3296: with the `mouseDash` switch on the arcade's game is Mouse Dash, so its card opens instead.
 function UI.arcade.open()
+	local dash: any = (UI :: any).mouseDash -- filled later in the file
+	if dash.isMain() then
+		dash.open()
+		return
+	end
 	if modal and arcadeScreen and (modal:current() == nil or modal:current() == "Arcade") then
 		modal:open("Arcade")
 	end
@@ -2807,12 +2868,13 @@ function UI.arcade.state(view: any)
 end
 
 -- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
-function UI.arcade.setOn(on: boolean)
+-- #3296: `row` is the Menu row alone, for when Circle Streak is vaulted (off) but Mouse Dash still opens from it.
+function UI.arcade.setOn(on: boolean, row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
 	end
 	if hud then
-		hud:setArcade(on)
+		hud:setArcade(if row ~= nil then row else on)
 	end
 end
 
@@ -2844,7 +2906,9 @@ end
 
 -- Whether a game is running on the board (the net and other taps stay out of its way).
 function UI.arcade.playing(): boolean
-	return arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing()
+	local dash: any = (UI :: any).mouseDash -- filled later in the file
+	return (arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing())
+		or dash.playing() == true
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -3599,6 +3663,25 @@ UI.catch = {}
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
+-- #3464 (Derek 2026-11-12: "show the loot obtained from rummage also"): the Rummage Bin's loot card
+-- (Screens/LootCard). It shows as the bar's win banner closes, in the banner's place, and lists the server's items.
+local LOOT_AFTER_SECONDS = 1.6 -- the rescue bar's win banner (RescueBar's RESULT_SECONDS)
+UI.loot = { card = nil :: any, token = 0 }
+function UI.loot.show(win: unknown, after: number?)
+	UI.loot.token += 1
+	local token = UI.loot.token
+	local function show()
+		if UI.loot.token == token and UI.loot.card ~= nil then
+			UI.loot.card:show(win)
+		end
+	end
+	if after ~= nil and after > 0 then
+		task.delay(after, show)
+	else
+		show()
+	end
+end
+
 UI.rescue = {}
 do
 	----------------------------------------------------------------------------------------------------
@@ -3971,9 +4054,30 @@ do
 		end
 		rescueOnCircle = false
 		-- #3050: the Rummage Bin's bar is the same bar with its own name and closing words
+		-- #3611: with the prize rolled first (`binRoll`), the bar names what is being rummaged for
+		local function binBarName(): string
+			local LiveFlags =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+			local waiting =
+				RummageBin.rollRow(Players.LocalPlayer:GetAttribute(RummageBin.PRIZE_ATTRIBUTE))
+			if
+				waiting == nil
+				or not LiveFlags.shown(
+					RummageBin.ROLL_FLAG,
+					ReplicatedStorage:GetAttribute(
+						LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG
+					)
+				)
+			then
+				return RummageBin.NAME
+			end
+			-- #3683: the prize alone ("Rummage for: Golden Alley Crate" was cut on the bar); the board over the bin
+			-- reads "Rummage for" above the same prize
+			return RummageBin.rowTitle(waiting)
+		end
 		local header: RescueBar.Header = if rescueSpotId == RummageBin.SPOT
 			then {
-				catName = RummageBin.NAME,
+				catName = binBarName(),
 				words = {
 					slow = "Too slow! Try again",
 					gaveUp = "Maybe later",
@@ -4035,8 +4139,10 @@ do
 		if rescueBar then
 			local closing: RescueBar.Closing? = nil
 			if win ~= nil and type(win.id) == "string" then
-				local title, detail = RummageBin.winWords(win.id, win.first == true)
+				local title, detail =
+					RummageBin.winWords(win.id, win.first == true, (win :: any).rolled == true)
 				closing = { title = title, detail = detail }
+				UI.loot.show(win, LOOT_AFTER_SECONDS) -- #3464: as the win banner closes
 			end
 			rescueBar:update(hits, pawsLeft, done, success, bar, closing)
 		end
@@ -5027,7 +5133,11 @@ do
 				ready = bar:ready(),
 				from = from,
 				reach = (Config :: any).TackleLungeStuds or 12,
-				others = TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer),
+				others = TackleTry.carriers(
+					Players:GetPlayers(),
+					Players.LocalPlayer,
+					Workspace:GetServerTimeNow()
+				),
 			})
 		then
 			UI.tips.show(TackleTry.TIP)
@@ -5580,6 +5690,14 @@ do
 		end
 		if not initialized or not UI.tips.quiet() then
 			task.delay(1, present, token, away)
+			return
+		end
+		local now: any = UI.getState()
+		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
+		if
+			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
+		then
+			task.delay(1, present, token, away) -- not over a tutorial card; it comes once the tutorial is done
 			return
 		end
 		local how, line = FirstVisitLogic.show(kind, away())
@@ -6658,6 +6776,25 @@ do
 			buy = function(crateId: string)
 				UI.events.buyYardSale:Fire(crateId)
 			end,
+			pick = function()
+				UI.events.yardSalePick:Fire()
+			end,
+			landed = function(crateId: string)
+				if toasts then
+					local name = crateId
+					local crates: { Types.CrateDef } = if currentCatalog ~= nil
+							and currentCatalog.crates ~= nil
+						then currentCatalog.crates
+						else {}
+					for _, crate in crates do
+						if crate.id == crateId then
+							name = crate.name
+						end
+					end
+					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
+				end
+				UI.events.yardSaleLanded:Fire(crateId)
+			end,
 			close = function()
 				if modalView:current() == "YardSale" then
 					modalView:close()
@@ -6759,6 +6896,14 @@ do
 				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
 				prize
 			)
+		end
+	end
+
+	-- #3615: YardSalePicked: the row of the player's lucky pick rows the server landed on (already banked).
+	function UI.campExtras.picked(index: number, crateId: string?)
+		local yard = camp.yard
+		if yard and type(index) == "number" then
+			yard:picked(index, crateId)
 		end
 	end
 
@@ -7042,6 +7187,280 @@ do
 			museum:destroy()
 		end
 		late.museum = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The Mystic Pool (#3196, #3314, trait-station.md sections 1 and 3)
+----------------------------------------------------------------------------------------------------
+
+-- The Mystic Pool's card (Screens/MysticPool): open(anywhere, uid) from the station's ring or the Cannon menu,
+-- render(state) with every state (PlayerState.traits is its numbers, false or nil while the `traits` switch is off),
+-- and its presses go out as UI.events.rollTrait / chooseTrait / collectTraitTokens. `UI.mysticPool.play` and
+-- `UI.mysticPool.far` are the controller's to set: the pool's animation for a roll (Effects/MysticPool.roll, which
+-- returns its skip) and the walk-away check. Its own block, as the module is short of locals.
+do
+	local MysticPool = require(script.Screens.MysticPool)
+	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
+	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
+	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
+	UI.mysticPool.far = nil :: (() -> boolean)?
+
+	function UI.mysticPool.start()
+		UI.mysticPool.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local card = MysticPool.new({
+			roll = function(uid: string)
+				UI.events.rollTrait:Fire(uid)
+			end,
+			choose = function(takeNew: boolean)
+				UI.events.chooseTrait:Fire(takeNew)
+			end,
+			collect = function()
+				UI.events.collectTraitTokens:Fire()
+			end,
+			close = function()
+				if modalView:current() == MysticPoolLogic.WINDOW then
+					modalView:close()
+				end
+			end,
+			play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+				local play = UI.mysticPool.play
+				if play == nil then
+					return nil
+				end
+				return play(uid, rarity, onReveal)
+			end,
+			far = function(): boolean
+				local far = UI.mysticPool.far
+				return not pool.anywhere and far ~= nil and far()
+			end,
+		})
+		pool.card = card
+		modalView:register(MysticPoolLogic.WINDOW, {
+			frame = card.frame,
+			onOpen = function()
+				card:render(state)
+				card:opened()
+			end,
+			onClose = function()
+				card:closed()
+			end,
+		})
+		card:render(state)
+	end
+
+	function UI.mysticPool.render(playerState: Types.PlayerState)
+		if cannonScreen then
+			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
+		end
+		local card = pool.card
+		if card then
+			card:render(playerState)
+		end
+	end
+
+	-- The station's ring, or the Cannon menu (`anywhere`: no walk-away close, as #3213). `uid` picks a cat first
+	-- (the cat card's Trait row, later). False, with a toast, while the pool is shut.
+	function UI.mysticPool.open(anywhere: boolean?, uid: string?): boolean
+		local modalView = modal
+		local card = pool.card
+		if modalView == nil or card == nil then
+			return false
+		end
+		if type((state :: any).traits) ~= "table" then
+			UI.toast("The Mystic Pool is closed for now", "info")
+			return false
+		end
+		pool.anywhere = anywhere == true
+		if uid ~= nil then
+			card:pick(uid)
+		end
+		modalView:open(MysticPoolLogic.WINDOW)
+		return true
+	end
+
+	function UI.mysticPool.reset()
+		local card = pool.card
+		if card then
+			card:destroy()
+		end
+		pool.card = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Mouse Dash (#3296, Screens/MouseDash; the rules are shared/MouseDash)
+----------------------------------------------------------------------------------------------------
+
+-- The arcade's Mouse Dash window. Controllers/UIController passes the server's events straight on (state, began,
+-- wave, judged, gone, over) and the switches (setFlags); the window's presses go out as UI.events.mouseDashPlay /
+-- mouseDashTap / mouseDashQuit. The last state and switches are kept, so a rebuilt UI shows them at once. Its own
+-- block, as the module is short of locals.
+do
+	local MouseDash = require(script.Screens.MouseDash)
+	local MouseDashLogic = require(script.Components.MouseDashLogic)
+	local dash = {
+		screen = nil :: MouseDash.MouseDash?,
+		view = nil :: any,
+		on = false, -- the `arcade` and `mouseDash` switches
+		circle = true, -- the `circleStreak` switch: Circle Streak can still be played
+	}
+
+	local function apply()
+		local screen = dash.screen
+		if screen then
+			screen:setOn(dash.on)
+			screen:setOther(dash.circle)
+		end
+	end
+
+	function UI.mouseDash.start()
+		UI.mouseDash.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local screen = MouseDash.new({
+			play = function()
+				UI.events.mouseDashPlay:Fire()
+			end,
+			tap = function(run: number, index: number, hole: number)
+				UI.events.mouseDashTap:Fire(run, index, hole)
+			end,
+			quit = function(run: number)
+				UI.events.mouseDashQuit:Fire(run)
+			end,
+			close = function()
+				if modalView:current() == MouseDashLogic.WINDOW then
+					modalView:close()
+				end
+			end,
+			-- to Circle Streak's card, while that game is not vaulted
+			other = function()
+				if dash.circle and modalView:current() == MouseDashLogic.WINDOW then
+					modalView:close()
+					modalView:open("Arcade")
+				end
+			end,
+		})
+		dash.screen = screen
+		modalView:register(MouseDashLogic.WINDOW, {
+			frame = screen.frame,
+			onOpen = function()
+				screen:setFish(state.goldenFish or 0)
+				screen:onOpen()
+			end,
+			onClose = function()
+				screen:onClose()
+			end,
+		})
+		if dash.view ~= nil then
+			screen:setState(dash.view)
+		end
+		apply()
+	end
+
+	-- Whether the cabinet and the Menu row open Mouse Dash (its switch is on).
+	function UI.mouseDash.isMain(): boolean
+		return dash.on and dash.screen ~= nil
+	end
+
+	function UI.mouseDash.open()
+		local modalView = modal
+		if
+			modalView
+			and dash.screen
+			and (modalView:current() == nil or modalView:current() == MouseDashLogic.WINDOW)
+		then
+			modalView:open(MouseDashLogic.WINDOW)
+		end
+	end
+
+	-- The switches: `on` the arcade's and Mouse Dash's both, `circle` Circle Streak's.
+	function UI.mouseDash.setFlags(on: boolean, circle: boolean)
+		dash.on = on
+		dash.circle = circle
+		apply()
+	end
+
+	function UI.mouseDash.render(playerState: Types.PlayerState)
+		local screen = dash.screen
+		if screen then
+			screen:setFish(playerState.goldenFish or 0)
+		end
+	end
+
+	function UI.mouseDash.state(view: any)
+		if type(view) ~= "table" then
+			return
+		end
+		dash.view = view
+		local screen = dash.screen
+		if screen then
+			screen:setState(view)
+		end
+	end
+
+	function UI.mouseDash.began(run: number, hearts: number, firstAt: number)
+		local screen = dash.screen
+		if screen then
+			UI.mouseDash.open() -- (a start always comes from the open card; this keeps the board in view)
+			screen:began(run, hearts, firstAt)
+		end
+	end
+
+	function UI.mouseDash.wave(run: number, index: number, pops: any, hint: string?)
+		local screen = dash.screen
+		if screen then
+			screen:wave(run, index, pops, hint)
+		end
+	end
+
+	function UI.mouseDash.judged(
+		run: number,
+		index: number,
+		tap: any,
+		points: number,
+		hearts: number,
+		streak: number,
+		milestones: any,
+		dizzyUntil: number
+	)
+		local screen = dash.screen
+		if screen then
+			screen:judged(run, index, tap, points, hearts, streak, milestones, dizzyUntil)
+		end
+	end
+
+	function UI.mouseDash.gone(run: number, index: number, gone: any, hearts: number)
+		local screen = dash.screen
+		if screen then
+			screen:gone(run, index, gone, hearts)
+		end
+	end
+
+	function UI.mouseDash.over(run: number, result: any)
+		local screen = dash.screen
+		if screen then
+			screen:over(run, result)
+		end
+	end
+
+	function UI.mouseDash.playing(): boolean
+		local screen = dash.screen
+		return screen ~= nil and screen:playing()
+	end
+
+	function UI.mouseDash.reset()
+		local screen = dash.screen
+		if screen then
+			screen:destroy()
+		end
+		dash.screen = nil
 	end
 end
 
@@ -8280,6 +8699,8 @@ UI.perks = {
 	token = 0, -- the latest unlock's, so a teardown or a second reveal drops an older wait
 	REVEAL_SECONDS = 3,
 	REDUCED_SECONDS = 0.5,
+	WINDOW_WAIT_SECONDS = 300,
+	YIELD_STEP = 0.25, -- how often a showing card looks for a window that opened after it
 }
 
 function UI.perks.unlock(perkId: string)
@@ -8295,10 +8716,52 @@ function UI.perks.unlock(perkId: string)
 		then UI.perks.REDUCED_SECONDS
 		else UI.perks.REVEAL_SECONDS
 	task.delay(seconds, function()
+		-- #3585: never on top of a window (a first Park visit that walks straight onto the Mystic Pool's ring had
+		-- both up at once); the card waits for the window to close, up to WINDOW_WAIT_SECONDS
+		local waited = 0
+		local windows = modal
+		while
+			UI.perks.token == token
+			and windows ~= nil
+			and windows:current() ~= nil
+			and waited < UI.perks.WINDOW_WAIT_SECONDS
+		do
+			waited += task.wait(0.5)
+		end
 		if UI.perks.token ~= token or UI.perks.card == nil then
 			return
 		end
-		UI.perks.card:showUnlocked(perk)
+		-- the Mystic Pool stands on the Picnic Basket's spot while `traits` is on, so the Park's card names the pool
+		local pool = require(script.Components.PerkCardLogic).poolStands()
+		local card = UI.perks.card
+		card:showUnlocked(perk, pool)
+		-- #3585, the other direction: a window that opens while the card is up (the walk onto the pool's ring a
+		-- moment after the card) takes the screen; the card steps aside and comes back when the window has closed
+		while UI.perks.token == token and UI.perks.card == card and card:isShowing() do
+			task.wait(UI.perks.YIELD_STEP)
+			if
+				windows ~= nil
+				and windows:current() ~= nil
+				and UI.perks.token == token
+				and UI.perks.card == card
+				and card:isShowing()
+				and card._mode == "unlocked"
+			then
+				card:hide()
+				local away = 0
+				while
+					UI.perks.token == token
+					and windows:current() ~= nil
+					and away < UI.perks.WINDOW_WAIT_SECONDS
+				do
+					away += task.wait(0.5)
+				end
+				if UI.perks.token ~= token or UI.perks.card ~= card then
+					return
+				end
+				card:showUnlocked(perk, pool)
+			end
+		end
 	end)
 end
 
@@ -8417,6 +8880,33 @@ do
 		return ReplicatedStorage:GetAttribute(name)
 	end
 
+	-- "6:00 PM": `unix` in this player's own time, for the party card (#3420)
+	function UI.cafeEvent.clock12(unix: number): string
+		local text = os.date("%I:%M %p", math.floor(unix)) :: string
+		return (string.gsub(text, "^0", ""))
+	end
+
+	-- the launch's headline features that are switched on right now, in the spec's order (#3420 section 5)
+	function UI.cafeEvent.news(): { string }
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local out: { string } = {}
+		for _, pair in { { "traits", "Mystic Pool" }, { "mouseDash", "Mouse Dash" } } do
+			if LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1])) then
+				table.insert(out, pair[2])
+			end
+		end
+		return out
+	end
+
+	-- #3573: the HUD's rest chip, from AfkController
+	function UI.rest.set(resting: boolean, doubled: boolean?)
+		local current = hud
+		if current then
+			(current :: any):setRest(resting, doubled)
+		end
+	end
+
 	-- one pass: read, follow, paint; the banner shows once per event this session
 	function UI.cafeEvent.tick()
 		local now = Workspace:GetServerTimeNow()
@@ -8424,9 +8914,23 @@ do
 		local seen, started = EventLogic.follow(events.seen, view, now)
 		events.seen = seen
 		if started and view ~= nil and toasts then
-			toasts:announce(
-				EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
-			)
+			-- #3420: the launch's Update Party starts with the party card; any other event with the toast
+			local party =
+				EventLogic.partyBanner(view, UI.cafeEvent.clock12(view.endsAt), UI.cafeEvent.news())
+			local shown = false
+			if party ~= nil then
+				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+				shown = EventBanner.show({
+					kind = "party",
+					title = party.title,
+					lines = party.lines,
+				}) == true
+			end
+			if not shown then
+				toasts:announce(
+					EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
+				)
+			end
 		end
 		local current = hud
 		if current then

@@ -726,6 +726,13 @@ return function()
 						expect(inside(ox, oz, gated.rect, 0)).to.equal(true)
 					end
 				end
+				-- #3628: no board's ring over its camp's carrier basket. The ring (radius 5.5) lies in front of
+				-- the board, its middle within a stud of the board's x; the basket is 3 studs across
+				for id, other in Layout.indexBoards do
+					local gated = Layout.camps[id]
+					local basketX = Layout.campSpace(gated, gated.basket.x, gated.basket.z)
+					expect(math.abs(other.x - basketX) - 0.8 - 5.5 - 1.5 > 0).to.equal(true)
+				end
 				expect(math.abs(bx - W.AlleyCenterX) > W.AlleyWayHalfWidth).to.equal(true)
 				-- one arch over the way in, as wide as it
 				local arches = alley.arches :: { Layout.Arch }
@@ -1318,12 +1325,13 @@ return function()
 		)
 
 		it(
-			"fits the Codes Cat, Juniper's cart and the Day Cart in the south-west corner, facing the cannon (#2565)",
+			"fits the Codes Cat and Juniper's cart in the south-west corner, facing the cannon (#2565, #3454)",
 			function()
+				-- #3454: the Day Cart left this corner for the north-east, beside the Golden Fish Market
+				expect(Layout.dayCart.x > 0 and Layout.dayCart.z > 0).to.equal(true)
 				local corner: { [string]: Point } = {
 					codesCat = Layout.codesCat,
 					mysteryCart = Layout.mysteryCart,
-					dayCart = Layout.dayCart,
 				}
 				for name, point in corner do
 					if not (point.x < 0 and point.z < 0) then
@@ -1341,8 +1349,10 @@ return function()
 					return math.sqrt((a.x - b.x) ^ 2 + (a.z - b.z) ^ 2)
 				end
 				expect(apart(Layout.mysteryCart, Layout.codesCat) > 12).to.equal(true)
-				expect(apart(Layout.mysteryCart, Layout.dayCart) > 12).to.equal(true)
-				expect(apart(Layout.codesCat, Layout.dayCart) > 12).to.equal(true)
+				expect(apart(Layout.fishMarket, Layout.dayCart) > 12).to.equal(true)
+				expect(apart(Layout.mysteryCart, Layout.townSquare.pitySign :: any) > 12).to.equal(
+					true
+				)
 			end
 		)
 
@@ -1359,10 +1369,13 @@ return function()
 					bellhopStand = Layout.bellhopStand,
 					mysteryCart = Layout.mysteryCart,
 					leaderboards = Layout.leaderboards,
-					cornerShop = Layout.cornerShop,
-					dayCart = Layout.dayCart,
+					dayCart = Layout.dayCart, -- #3454: the old Corner Shop building shares this spot; only one is built
 					thanksBoard = Layout.thanksBoard,
+					feedbackStand = Layout.feedbackStand,
+					arcadeCabinet = Layout.arcadeCabinet,
 				}
+				expect(Layout.cornerShop.x).to.equal(Layout.dayCart.x)
+				expect(Layout.cornerShop.z).to.equal(Layout.dayCart.z)
 				local props: { any } = { Layout.townSquare.pitySign, Layout.playerSpawn }
 				for _, prop in Layout.townSquare.rallyBoards do
 					table.insert(props, prop)
@@ -1443,15 +1456,15 @@ return function()
 		end)
 
 		it(
-			"keeps a spot each for the feedback stand and the arcade cabinet (#3070), the stand right of the Thanks board (#3189)",
+			"keeps a spot each for the feedback stand and the arcade cabinet (#3070), the stand beside the Thanks board (#3454)",
 			function()
 				local stand, arcade = Layout.feedbackStand, Layout.arcadeCabinet
-				-- #3189: facing the Thanks board from the cannon's side, the stand is on its right, south of the lane,
-				-- and well away from the Golden Fish Market
+				-- #3189 put the stand on the Thanks board's right. #3454 (Derek OK'd the picture): the board takes
+				-- the south-east corner and the stand the spot beside the street in the same quarter, a body's
+				-- width or more from the board, south of the lane and well away from the Golden Fish Market
 				local board = Layout.thanksBoard
-				local long = math.sqrt(board.x ^ 2 + board.z ^ 2)
-				local rightX, rightZ = -board.z / long, board.x / long
-				expect((stand.x - board.x) * rightX + (stand.z - board.z) * rightZ > 6).to.equal(
+				expect(stand.x > 0 and board.x > 0 and board.z < 0).to.equal(true)
+				expect(math.sqrt((stand.x - board.x) ^ 2 + (stand.z - board.z) ^ 2) > 12).to.equal(
 					true
 				)
 				expect(stand.z < 0).to.equal(true)
@@ -1505,8 +1518,9 @@ return function()
 					expect(out).to.be.near(front + R, 1e-9)
 					local x, z = ringAt(arcade, out)
 					expect(inside(x, z, square.floor, R)).to.equal(true)
+					-- #3448: off the lanes at radius 8 (2 studs off at the radius 6 it was fitted for); #3454 moves it
 					for _, lane in lanes do
-						expect(inside(x, z, lane, -(R + 2))).to.equal(false)
+						expect(inside(x, z, lane, -R)).to.equal(false)
 					end
 					-- the wheel's ring sits anywhere from touching a thin wheel to its range's limit
 					for _, wheelFront in { 0, 2, 4, 10 } do
@@ -1515,7 +1529,9 @@ return function()
 							WalkUp.frontOffset(wheelFront, R, Config.SpinStationRange)
 						)
 						local gap = math.sqrt((x - wx) ^ 2 + (z - wz) ^ 2)
-						expect(gap >= 2 * R + 2).to.equal(true)
+						-- #3448: at radius 8 the two would touch where they stand today, so World/WalkUpCircles
+						-- shrinks both by WalkUp.apart; the spots still leave room for rings of the least size
+						expect(gap >= 2 * WalkUp.FRONT_FIT_LEAST + WalkUp.RING_GAP).to.equal(true)
 						-- and the wheel's ring is clear of the cabinet itself
 						local body = math.sqrt((arcade.x - wx) ^ 2 + (arcade.z - wz) ^ 2)
 						expect(body >= R + 3.5).to.equal(true)

@@ -1,4 +1,4 @@
-# Mouse Dash (#3296): the Cat Arcade's second game, built to be able to replace Circle Streak
+# Mouse Dash (#3296): the Cat Arcade's new game, replacing Circle Streak
 
 Draft v2, 2026-11-11, Design-Agent. This replaces [new-activities.md](new-activities.md) section 4 (the paused v1: six holes, one miss ends the run, milestones to 50).
 
@@ -13,7 +13,7 @@ Why this version can carry the arcade where v1 could not:
 - **Three hearts, not one miss.** A new player gets a real go instead of a three second run. Circle Streak ends on the first miss.
 - **Four things to read, not one:** grey mice, golden mice, napping kittens you must leave alone and two mice at once.
 - **Its own look and feel:** a paw that bops, mice that squash, a cheese cellar backdrop. Circle Streak is the catch circles again.
-- **The same 0 to 100 scale, prizes and title as Circle Streak,** so it can take over with nothing lost (section 8).
+- **The same 0 to 100 scale, prizes and title as Circle Streak,** so it takes over with nothing lost (section 8).
 
 ## 2. A run
 - **Board:** nine holes in a 3 x 3 grid inside the arcade window. Every hole's tap area is at least 64 px on the smallest phone and the areas never overlap.
@@ -40,7 +40,7 @@ That is a 0.76 s window at 25 points and 0.53 s at 50. The floor is 0.40 s (v1 s
 The first three mice of a player's first ever run are slow (2.0 s windows), with a pointing hand on each, and cannot cost a heart. The first kitten a player ever sees gets a one line hint: "Let sleeping kittens nap!". No other tutorial.
 
 ## 3. Cost, prizes and records
-- **Cost:** the first run each UTC day is free. Later runs cost 1 golden fish (`GoldenFish.spend`). The button reads "Play (free)" or "Play (1 golden fish)". While both games are in the arcade each has its own free run.
+- **Cost:** the first run each UTC day is free. Later runs cost 1 golden fish (`GoldenFish.spend`). The button reads "Play (free)" or "Play (1 golden fish)". Mouse Dash keeps its own free run day (section 8).
 - **Milestones are the arcade's, shared with Circle Streak.** The ten milestones at 10 to 100 points (`Config.ArcadeMilestones`) pay once per UTC day each, whichever game reaches them first. A day still pays at most 58 golden fish and one each of the item prizes, so a second game adds no golden fish to the economy. The card shows the same list with today's ticks.
 - **Titles:** 100 points gives **Arcade Legend**, the same title and the same saved flag as Circle Streak. 50 points in Mouse Dash gives **Mouser** (once, kept): a chat title in `ChatTags` with a `TitlesLogic.HOW` line "Mouse Dash 50 points".
 - **Records:** best points, then fastest time: score = points x 1000 + (999 - seconds, held between 0 and 999). Its own all-time board, top 10 across servers plus this server's best, as Circle Streak has now. Owner accounts stay off it (#3321). Written only on a new best and at most once per 60 s. No bot check for now (Derek2: "not worried about bots yet").
@@ -57,6 +57,7 @@ The first three mice of a player's first ever run are slow (2.0 s windows), with
 - Each mouse of a pair gets **1.35 times the window**, so one thumb can reach both at the 0.40 s floor.
 - A wave with a mouse and a kitten ends when the mouse is caught or gone, and the kitten ducks back with it. A kitten alone stays its whole window.
 - The streak for the heart back breaks on an escape or a tapped kitten. An empty-hole tap does not break it.
+- A golden mouse is up for max(0.75 x the wave's window, the 0.40 s floor): the floor applies after the golden scale, so it is never shorter than a phone can manage. A golden mouse that gets away does not break the streak; only a grey mouse escaping or a tapped kitten does.
 - Ping allowance: the full round trip, at most `CatchLatencyCapSeconds` (0.15 s), because the pop also has to travel to the client. (Section 4 said half.)
 - A first run's three safe mice break nothing when missed: no heart and no streak.
 
@@ -67,6 +68,8 @@ The bar is "would you play this again right away". These are part of the build, 
 - **Read at a glance:** hearts as three paw pads top left, the score big at the top centre, best at the top right. A "Faster!" banner on each speed step. Nothing else on screen during a run.
 - **End card:** points, best (with "New best!"), today's milestones and one big "Play again" button with its cost. Only the window's X closes it.
 - **Controls:** tap or click a hole. Keyboard: Q W E, A S D, Z X C for the nine holes. Gamepad: the left stick points at a hole (resting is the centre hole) and A bops it.
+- **Keep the holes clear (Derek, 2026-11-11 23:44 UTC, on the art preview: "the top left symbol is a little too close to the possible spawn and distracting"):** nothing that draws the eye sits near a hole. Backdrop shapes (cheese wheels, wedges, rings) stay at least half a hole's width away from every hole and from anything that can pop out of one, and stay low contrast. The hearts, score and best sit in their own strip beside the board, never over it. As built (#3405): the strip is on the left of a wide board and on top of a tall one, and always at least 24 px clear of the holes.
+- **Everything is centred (Derek, 23:45 UTC: "some of the kittens/things look off centred also so make sure thats fixed for the game"):** every mouse, kitten and dust puff is centred on its hole, left to right, and each picture's pivot is the middle of its base so pictures of different widths line up. "Zzz", "+1", "+3" and stars are drawn as separate pieces so they never push a picture off centre.
 - **Reduce Motion:** no screen shake and no squash, the pops still show.
 - Checked on phone, tablet, desktop and console.
 
@@ -118,29 +121,35 @@ Shared with Circle Streak: `ArcadeMaxPoints` 100, `ArcadeCostFish` 1, `ArcadeMil
 - Mouse Dash's own record lives in a new DataStore, `CatCafe_MouseDash`: `{ best, bestSeconds, runs, freeDay, mouser, seenKitten, firstRunDone }`. Older servers never read or write it, so they cannot drop anything.
 - The day's paid milestones and the Arcade Legend flag stay where they are, in the arcade's existing save (`day`, `paid`, `legend` in `CatCafe_Arcade`). Older servers already keep those fields, so a milestone can never pay twice while old and new servers run side by side. That matters now, with no restarts.
 - Its board is a new OrderedDataStore, `CatCafe_LB_MouseDash1`.
-- Switches (LiveFlags are on or off only, and both of these start off, `OFF_BY_DEFAULT`): `mouseDash` shows the game, off until QA passes. `mouseDashMain` makes it the game the cabinet opens on.
+- Switches (LiveFlags are on or off only): `mouseDash` starts off (`OFF_BY_DEFAULT`) and turns the game on at the swap. `circleStreak` starts on and goes off at the swap (section 8). There is no `mouseDashMain`.
 - **One thing for the engineer to check:** an older server does not know the Mouser chat title. If picking it on a new server and then joining an old one would wipe the player's chosen title, hold the Mouser title back until the next restart Derek approves. Everything else ships without it.
 
-## 8. Taking over from Circle Streak
-1. **Build** behind `mouseDash`, off. Review, QA playtest, then a picture and a short clip for Derek.
-2. **Side by side.** Mouse Dash is a tab beside Circle Streak, with `mouseDashMain` off, so the cabinet still opens on Circle Streak. Milestones are already shared.
-3. **Decide** after at least 3 days of live numbers. Mouse Dash takes over if all of these hold:
-   - of players who open the arcade, at least as many start a Mouse Dash run as a Circle Streak run;
-   - its played-again rate (arcade_v1 step 6) is at least 1.25 times Circle Streak's;
-   - the median run is 10 to 15 points and quits mid run are no higher;
-   - Derek says it looks good.
-4. **Switch:** `mouseDashMain` goes on and a new switch `circleStreak` goes off, which hides its tab. No code is deleted for one release, so going back is one switch.
+## 8. The swap: Mouse Dash replaces Circle Streak, which is vaulted
+Derek, 2026-11-11 23:51 UTC, on the art preview: "Swap this in for the current arcade game and vault the other one", then "make sure the rewards/leaderboard stuff still works". This replaces the first plan here (both games side by side for a few days, then a measured switch).
 
-What carries over on the switch:
-- **Prizes:** nothing changes. The ladder was shared from the start.
-- **Arcade Legend:** everyone who has it keeps it, and Mouse Dash keeps awarding it at 100.
+**What happens**
+1. Mouse Dash is built behind `mouseDash`, off, and passes review and the QA playtest.
+2. **The swap is one step:** `mouseDash` goes on and a new switch `circleStreak` goes off. From then the cabinet, the menu row and the arcade window open Mouse Dash, and Circle Streak cannot be started. There is no side by side period and no second tab.
+3. **Vaulted means kept, not deleted.** Circle Streak's code, pictures, effects, saves and board all stay. Turning `circleStreak` back on brings it back as it was, so the swap can be undone in one step.
+
+**Rewards, leaderboard and titles through the swap (these must keep working)**
+- **Daily prizes:** the ten milestones at 10 to 100 points are the same list, on the same daily tick, in the same save. A player who was paid the 10 and 20 milestones in Circle Streak today and then plays Mouse Dash after the swap is paid from 30 on and never twice. The card shows the same list with today's ticks.
+- **Arcade Legend:** everyone who has the title keeps it, in chat and in the Bag. Mouse Dash awards it at 100 points from the swap on. It is the same saved flag.
+- **Leaderboard:** the arcade's leaderboard button, the server's best line and the "new best" moments all work in Mouse Dash from the first run, on its own board (`CatCafe_LB_MouseDash1`). The board starts empty because the two games' scores cannot be compared.
+- **Circle Streak's records are not erased:** its board is frozen and shown as a "Circle Streak Hall of Fame" page in the leaderboard panel (its top 10 and your own best).
+- **Anything else that reads the arcade board** (crowns, rank titles, the What's New line, `arcade_board_top`) reads Mouse Dash's board after the swap. The engineer lists what does and checks each one.
 - **Free daily run:** one a day, Mouse Dash's.
-- **Circle Streak's leaderboard:** frozen and kept as a "Circle Streak Hall of Fame" page in the leaderboard panel (its top 10 and your own best), so nobody's record is erased.
-- **Funnel:** arcade_v1 keeps its name and six steps, so the history runs on. Step 4 becomes "first hit in a game" (a circle or a mouse). `arcade_run`, `arcade_quit` and `arcade_blocked` carry the game ("circle" or "mouse") so Growth can split them. New: `mouse_dash_run` with points, hearts lost, seconds and free or paid.
-- **What's New and the cabinet sign** say "New game: Mouse Dash".
+- **Golden fish cost:** unchanged, 1 a run after the free one.
+
+**While there are no restarts:** servers that started before the build do not have Mouse Dash and keep offering Circle Streak until they close on their own. That is safe: both games pay from the same daily list, so nothing pays twice, and the title is the same flag. A player may get one free run in each game on such a day.
+
+**Numbers:** arcade_v1 keeps its name and six steps, so the history runs on and Growth can compare Mouse Dash with Circle Streak's days before the swap. Step 4 becomes "first hit in a game". `arcade_run`, `arcade_quit` and `arcade_blocked` carry the game ("circle" or "mouse"). New: `mouse_dash_run` with points, hearts lost, seconds and free or paid. If after 3 days fewer players start a run or play again than did with Circle Streak, Design-Agent tunes the speed first (section 6) and tells Derek.
+
+What's New and the cabinet sign say "New game: Mouse Dash".
 
 ## 9. Test plan for the build
-- A run pays milestones once per UTC day across both games: reach 10 in Circle Streak, then 10 in Mouse Dash pays nothing more.
+- **The swap keeps rewards and the leaderboard working:** on one account reach 10 in Circle Streak, do the swap, then reach 10 and 20 in Mouse Dash: 10 pays nothing more and 20 pays once. An account with Arcade Legend still has the title after the swap. A Mouse Dash best shows on the leaderboard button and the server's best line, and the Hall of Fame page shows Circle Streak's top 10 and your best.
+- After the swap Circle Streak cannot be started from the cabinet, the menu row or its remotes. Turning `circleStreak` back on brings it back with its records.
 - Three escapes end the run. Ten catches in a row refill one heart and never go above 3.
 - A missed golden mouse costs no heart. A tapped kitten costs one. A left kitten costs none.
 - Taps while dizzy do nothing. Mashing all nine holes scores worse than playing.
@@ -149,3 +158,4 @@ What carries over on the switch:
 - With `mouseDash` off there is no tab and the remotes refuse.
 - Old server and new server side by side: nothing pays twice and nothing errors.
 - Phone, tablet, desktop (mouse and keys) and gamepad all play. Reduce Motion works.
+- A screenshot with all nine holes filled (mice, golden mice and kittens) shows every one centred on its hole and no backdrop shape within half a hole's width of a hole.

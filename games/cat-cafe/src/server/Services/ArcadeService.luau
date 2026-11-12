@@ -33,6 +33,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
@@ -67,6 +68,7 @@ local pending: { [number]: Arcade.Save } = {} -- by user id: the newest save wai
 local writing: { [number]: boolean } = {}
 local leaving: { [number]: boolean } = {} -- a leaver's last save goes out with no WRITE_GAP wait (#3251 review)
 local serverBest = { points = 0, circles = 0, name = nil :: string? }
+local SIGN_CHECK_SECONDS = 15
 local nextRunId = 0
 local rng = Random.new()
 
@@ -178,15 +180,33 @@ local function sendState(player: Player)
 	Net.fire(player, "ArcadeState", stateOf(player))
 end
 
--- The cabinet's prompt carries the server's best: "Cat Arcade · Best 61 (Sam)".
+-- #3296: Mouse Dash's best in this server (MouseDashService reports each finished game), shown on the cabinet
+-- while Mouse Dash is the arcade's game.
+local mouseBest = { points = 0, seconds = 0, name = nil :: string? }
+local shownBest: string? = nil
+
+-- The cabinet's prompt carries the server's best: "Cat Arcade · Best 61 (Sam)". With Circle Streak vaulted and Mouse
+-- Dash on it is Mouse Dash's: "Cat Arcade · Mouse Dash · Best 37 (Sam)", so the sign never shows a score from a
+-- game that cannot be played.
 local function showServerBest()
 	local text = Arcade.NAME
-	if serverBest.points > 0 then
+	local mouse = LiveFlagService.on(MouseDash.FLAG)
+		and not LiveFlagService.on(MouseDash.CIRCLE_FLAG)
+	if mouse then
+		text ..= " · " .. MouseDash.NAME
+		if mouseBest.points > 0 then
+			text ..= " · Best " .. MouseDash.words(mouseBest.points, mouseBest.seconds)
+			if mouseBest.name ~= nil then
+				text ..= " (" .. mouseBest.name .. ")"
+			end
+		end
+	elseif serverBest.points > 0 then
 		text ..= " · Best " .. Arcade.words(serverBest.points, serverBest.circles)
 		if serverBest.name ~= nil then
 			text ..= " (" .. serverBest.name .. ")"
 		end
 	end
+	shownBest = text
 	for _, model in CollectionService:GetTagged(Arcade.TAG) do
 		local prompt = model:FindFirstChild(Arcade.PROMPT, true)
 		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
@@ -259,14 +279,19 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	if not owner then
 		local kind = if run.free then "free" else "paid"
 		if quit == true then
-			Telemetry.custom(player, "arcade_quit", run.circles, { kind })
+			Telemetry.custom(player, "arcade_quit", run.circles, { kind, ArcadeFunnel.GAME_CIRCLE })
 		elseif tell and profile ~= nil then
 			Telemetry.arcadeStep(player, profile, ArcadeFunnel.FINISHED, run.free)
 		end
 		if newBest then
 			for _, row in ArcadeBoard.top(present(), player.UserId) do
 				if row.me == true then
-					Telemetry.custom(player, "arcade_board_top", row.rank, { kind })
+					Telemetry.custom(
+						player,
+						"arcade_board_top",
+						row.rank,
+						{ kind, ArcadeFunnel.GAME_CIRCLE }
+					)
 					break
 				end
 			end
@@ -287,7 +312,7 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	Telemetry.custom(player, "arcade_run", run.points, {
 		tostring(run.circles),
 		if #run.paid > 0 then table.concat(run.paid, ",") else "none",
-		if win then "win" else "over",
+		if win then "win" else "over", -- Mouse Dash's arcade_run says "mouse_win" or "mouse_over" here (#3296)
 	})
 	if not tell then
 		return
@@ -310,26 +335,42 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	sendState(player)
 end
 
--- Pays the milestones a move from `before` to the run's points crossed that today has not paid yet.
-local function payMilestones(player: Player, run: Run, before: number): { number }
+-- Pays the milestones a move from `before` to `after` points crossed that today has not paid yet. `source` is the
+-- payout reason's start ("arcade" for Circle Streak, "mousedash" for Mouse Dash, #3296).
+local function claimAndPay(
+	player: Player,
+	before: number,
+	after: number,
+	source: string
+): { number }
 	local save = saves[player]
 	local profile = DataService.get(player)
 	if save == nil or profile == nil then
 		return {}
 	end
-	local due = Arcade.claim(save, before, run.points, os.time())
+	local due = Arcade.claim(save, before, after, os.time())
 	if #due == 0 then
 		return due
 	end
 	for _, at in due do
 		local milestone = Arcade.milestoneAt(at)
 		if milestone ~= nil then
-			Payout.pay(player, profile, milestone.prize, "arcade_" .. tostring(at))
-			table.insert(run.paid, at)
+			Payout.pay(player, profile, milestone.prize, source .. "_" .. tostring(at))
 		end
 	end
 	CafeService.sync(player)
 	queueSave(player.UserId, save)
+	return due
+end
+
+-- A Circle Streak game's milestones, remembered on the run for its results card.
+local function payMilestones(player: Player, run: Run, before: number): { number }
+	local due = claimAndPay(player, before, run.points, "arcade")
+	for _, at in due do
+		if Arcade.milestoneAt(at) ~= nil then
+			table.insert(run.paid, at)
+		end
+	end
 	return due
 end
 
@@ -423,15 +464,14 @@ local function onStart(player: Player)
 	-- #3378: a refused Start, counted by its reason
 	local function blocked(closed: boolean, loaded: boolean, running: boolean, busyNow: boolean)
 		if not owner then
-			Telemetry.custom(
-				player,
-				"arcade_blocked",
-				1,
-				{ ArcadeFunnel.blockedReason(closed, loaded, running, busyNow) }
-			)
+			Telemetry.custom(player, "arcade_blocked", 1, {
+				ArcadeFunnel.blockedReason(closed, loaded, running, busyNow),
+				ArcadeFunnel.GAME_CIRCLE,
+			})
 		end
 	end
-	if not LiveFlagService.on(Arcade.FLAG) then
+	-- #3296: `circleStreak` off vaults this game (Mouse Dash is the arcade's game then); a game running finishes
+	if not (LiveFlagService.on(Arcade.FLAG) and LiveFlagService.on(MouseDash.CIRCLE_FLAG)) then
 		Net.toast(player, CLOSED_TEXT, "warn")
 		blocked(true, true, false, false)
 		return
@@ -443,11 +483,13 @@ local function onStart(player: Player)
 	-- a free run spends no fish, so the trade fish freeze doesn't hold it up (#3296)
 	local busy = CatService.busyReason(player)
 		or (if free then nil else TradeService.fishSpendBlocker(player))
-	local blocker =
-		Arcade.startBlocker(profile.goldenFish, busy, runs[player] ~= nil, save ~= nil, free)
+	-- #3296: a Mouse Dash game counts as a game running
+	local other = ArcadeService.otherGame
+	local running = runs[player] ~= nil or (other ~= nil and other(player))
+	local blocker = Arcade.startBlocker(profile.goldenFish, busy, running, save ~= nil, free)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")
-		blocked(false, save ~= nil, runs[player] ~= nil, busy ~= nil)
+		blocked(false, save ~= nil, running, busy ~= nil)
 		return
 	end
 	if free and save ~= nil then
@@ -529,9 +571,60 @@ local function funnelBefore(player: Player, step: number)
 	Telemetry.arcadeStep(player, profile, step, save ~= nil and Arcade.freeToday(save, os.time()))
 end
 
--- Debug hooks for the specs and Studio checks.
+-- Debug hooks for the specs and Studio checks; MouseDashService also asks, so the two games never run at once.
 function ArcadeService.running(player: Player): boolean
 	return runs[player] ~= nil
+end
+
+-- #3296: Mouse Dash shares the arcade's day (the milestones paid today) and the Arcade Legend title, both kept in
+-- this service's save, so nothing pays twice whichever game or server gets there first. MouseDashService sets
+-- `otherGame` (whether its game is running for a player) so a Circle Streak game can't start beside one.
+ArcadeService.otherGame = nil :: ((player: Player) -> boolean)?
+
+-- Whether the player's arcade save is read (no milestone can be paid before it is).
+function ArcadeService.loaded(player: Player): boolean
+	return saves[player] ~= nil
+end
+
+-- The milestones paid today, and whether the player holds Arcade Legend.
+function ArcadeService.today(player: Player): ({ number }, boolean)
+	local save = saves[player]
+	if save == nil then
+		return {}, false
+	end
+	return table.clone(Arcade.today(save, os.time())), save.legend
+end
+
+-- Pays the milestones a move from `before` to `after` points crossed that today has not paid yet, as a Circle
+-- Streak game's (`source` names the game in the payout's reason). Returns those paid.
+function ArcadeService.claimMilestones(
+	player: Player,
+	before: number,
+	after: number,
+	source: string
+): { number }
+	return claimAndPay(player, before, after, source)
+end
+
+-- Arcade Legend for a 100 point game of either arcade game, kept for good.
+-- #3296: a finished Mouse Dash game, for the cabinet's sign (MouseDashService). Kept when it beats this server's
+-- best so far (more points, then fewer seconds).
+function ArcadeService.noteMouseDash(player: Player, points: number, seconds: number)
+	if MouseDash.beats(points, seconds, mouseBest.points, mouseBest.seconds) then
+		mouseBest.points = points
+		mouseBest.seconds = seconds
+		mouseBest.name = player.DisplayName
+		showServerBest()
+	end
+end
+
+function ArcadeService.grantLegend(player: Player)
+	local save = saves[player]
+	if save ~= nil and not save.legend then
+		save.legend = true
+		queueSave(player.UserId, save)
+		sendState(player)
+	end
 end
 
 function ArcadeService.start()
@@ -555,6 +648,17 @@ function ArcadeService.start()
 		task.defer(showServerBest)
 	end)
 	showServerBest()
+	-- #3296: the sign follows the game switches (they change with no restart), checked with the flags' own pace
+	task.spawn(function()
+		while true do
+			task.wait(SIGN_CHECK_SECONDS)
+			local was = shownBest
+			showServerBest()
+			if was ~= shownBest then
+				print("[ArcadeService] the cabinet's sign now reads: " .. tostring(shownBest))
+			end
+		end
+	end)
 	-- #3378: arcade_v1 step 2, the window opened by its ring or prompt (the client's StationOpened count)
 	Telemetry.onStationOpen(function(player: Player, window: string)
 		if window == "Arcade" then
@@ -567,7 +671,8 @@ function ArcadeService.start()
 			task.wait(ArcadeFunnel.SEEN_EVERY)
 			local spots: { Vector3 } = {}
 			for _, model in CollectionService:GetTagged(Arcade.TAG) do
-				if model:IsA("PVInstance") then
+				-- a cabinet put away (#3443) is seen by nobody
+				if model:IsA("PVInstance") and model:IsDescendantOf(workspace) then
 					table.insert(spots, (model :: PVInstance):GetPivot().Position)
 				end
 			end

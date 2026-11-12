@@ -7,6 +7,8 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local AfkCafeService = require(script.Parent.Services.AfkCafeService)
+local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local AwayNotifyService = require(script.Parent.Services.AwayNotifyService)
@@ -44,8 +46,10 @@ local LateStationService = require(script.Parent.Services.LateStationService)
 local LawnService = require(script.Parent.Services.LawnService)
 local LeaderboardService = require(script.Parent.Services.LeaderboardService)
 local LiveFlagService = require(script.Parent.Services.LiveFlagService)
+local MouseDashService = require(script.Parent.Services.MouseDashService)
 local MysteryMarketService = require(script.Parent.Services.MysteryMarketService)
 local MysteryService = require(script.Parent.Services.MysteryService)
+local MysticPoolStationService = require(script.Parent.Services.MysticPoolStationService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
 local NightService = require(script.Parent.Services.NightService)
@@ -59,6 +63,7 @@ local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
+local RareCatsTabService = require(script.Parent.Services.RareCatsTabService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
 local ResetSaveService = require(script.Parent.Services.ResetSaveService)
@@ -125,6 +130,7 @@ ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip
 SpinService.start()
 FishMarketService.start()
 TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switch is off
+MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket's place while the switch is on
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
@@ -134,6 +140,7 @@ StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes
 RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
+RareCatsTabService.start() -- #3053: the chat's Rare Cats tab, behind the rareCatsTab switch (off)
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
@@ -152,8 +159,11 @@ GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and pay
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 ArcadeService.start() -- #3062: the Cat Arcade, before DataService so its onLoaded sees every join
+MouseDashService.start() -- #3296: the arcade's Mouse Dash, before DataService for the same reason
+ArcadeCabinetService.start() -- #3443: the cabinet and its ring are in the world only while the arcade has a game on
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
+AfkCafeService.start() -- #3573: resting in your own cafe pays the cats' cafe pay double
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one

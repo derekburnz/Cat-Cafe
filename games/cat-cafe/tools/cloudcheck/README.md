@@ -47,6 +47,11 @@ could panic in the middle of a spec ("panicked at crates/luau-vm/src/gc/mark.rs:
 forced between specs (UI thread, 2026-10-27). `createState()` now calls `lua.gcStop()`, so no state ever collects.
 A state lives for one spec file, and the whole suite peaks at about 190 MB (about 175 MB with the collector on).
 
+## Spec file size limit
+`analyze.mjs --tests` fails a `*.spec.luau` file over 100,000 bytes (`SPEC_MAX_BYTES`). A larger spec makes the
+checker give up on the whole file ("Code is too complex to typecheck"): Layout.spec did at about 122,000 bytes on
+2026-11-11, after PRs that each passed alone had merged, and main went red. Split the file before it gets there.
+
 ## Differences from luau-lsp you may notice
 - `Enum.X` for enums not in `enum-keep.txt` type checks as `any`.
 - `script.Parent.Foo` outside of `require()` is typed as `Instance` (luau-lsp knows the tree), so those lines
@@ -119,6 +124,7 @@ are left out of the "gone" list.
 ```
 npm run uigate                                  # all three screens; report in <system temp>/cat-cafe-uigate
 node uigate.mjs --profile phone --scene Quests  # one screen size, one window
+node uigate.mjs --profile phone --scene HUDPalsStay,TipCard  # several, in list order (to find a scene that breaks a later one)
 node uigate.mjs --out ./ui --verbose            # report next to you, with the UI's own print output
 node uigate.mjs --update-baseline               # accept today's findings (after fixing some, to shrink the list)
 ```

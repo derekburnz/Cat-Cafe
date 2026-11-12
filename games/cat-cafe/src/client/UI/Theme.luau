@@ -231,8 +231,17 @@ Theme.rarity = {
 		text = Color3.fromHex("FFFFFF"),
 		ink = Color3.fromHex("E23D62"),
 	},
+	-- #3470: the Secret rarity. Its swatch is near black (#16161D) with a white stroke, which a pill on a dark card,
+	-- a border or rarity-coloured words cannot show, so the UI's colour is the pale starlight its effects use with
+	-- the near black as its words: it reads as a pill, a border and as text on the dark cards. On a light card (ink)
+	-- it is the near black itself.
+	Secret = {
+		color = Color3.fromHex("E2D6FF"),
+		text = Color3.fromHex("16161D"),
+		ink = Color3.fromHex("16161D"),
+	},
 }
-Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" }
 
 -- The lawn's two extra rungs (lawn-nursery.md section 1, #1200): Uncommon (mint) and Golden (shining gold) are
 -- lawn-only, so a lawn rarity is never mixed up with a cat or crate one. The others read from Theme.rarity.
@@ -417,6 +426,10 @@ Theme.potionColors = {
 	big_tip_potion = Color3.fromHex("F2B233"),
 	gold_rush_potion = Color3.fromHex("FFE08A"),
 	quick_bait_potion = Color3.fromHex("F5A3C0"),
+	-- #3462: the Day Cart's Tier 6 potions, as Model-Agent's flasks (#3483)
+	big_lucky_potion = Color3.fromHex("3FB65C"),
+	big_gold_rush_potion = Color3.fromHex("FFD24D"),
+	mega_tip_potion = Color3.fromHex("F2932B"),
 } :: { [string]: Color3 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets
@@ -428,6 +441,9 @@ Theme.foodIcons = {
 	caviar = "🐚", -- #2015: not 🦪 (Unicode 12), drawn blank
 	moon_milk = "🥛",
 	star_treat = "⭐",
+	-- #3462: the Day Cart's own baits wear the dealer's glyphs until theirs are drawn
+	honey_cream = "🥛",
+	comet_treat = "⭐",
 } :: { [string]: string }
 
 -- glyph -> the clean symbol IconArt draws for it (#1027, Components/CleanGlyphs)

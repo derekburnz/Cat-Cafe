@@ -16,7 +16,7 @@ local CatLock = {}
 CatLock.HOLD_SECONDS = 5
 
 -- data-model section 4: these arrive locked, so one quick tap never sells a player's best cat
-local LOCKED_RARITIES: { [string]: boolean } = { Legendary = true, Mythical = true }
+local LOCKED_RARITIES: { [string]: boolean } = { Legendary = true, Mythical = true, Secret = true }
 
 -- True once the server sends `locked` on any cat (a boolean, false when unlocked).
 function CatLock.live(cats: { [string]: Types.CatInstance }?): boolean

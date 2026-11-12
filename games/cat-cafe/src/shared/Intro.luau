@@ -213,7 +213,8 @@ local CAMP_PAD_Z = -13
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_IN = -7 -- as Layout.indexBoards (#3349): 7 in at a gated area, 4 at the Alleyway
 local ALLEY_BOARD_IN = -4
-local BOARD_OUT = 4
+local BOARD_OUT = 11 -- #3628: 4 until the boards moved off the carrier baskets
+local BOARD_OUT_FOR: { [string]: number } = { woods = 9 }
 local ALLEY_BOARD_OUT = 7
 
 -- Where Layout.camps puts `area`'s camp, or nil for an area without one.
@@ -262,7 +263,7 @@ function Intro.camp(area: string): Camp?
 	end
 	-- every board beside the opening, on the left of it, 7 in; the Alleyway's 4 in and further out, past its low walls (F85)
 	local board = point(
-		-(opening + if area == "alley" then ALLEY_BOARD_OUT else BOARD_OUT),
+		-(opening + if area == "alley" then ALLEY_BOARD_OUT else (BOARD_OUT_FOR[area] or BOARD_OUT)),
 		if area == "alley" then ALLEY_BOARD_IN else BOARD_IN
 	)
 	return {
@@ -611,9 +612,11 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	-- spot put them at (-35, 27.5) and (-45, -20), further out and 48 apart, so the shot looks further west along
 	-- z = 5 (28 and 25 degrees off the axis) from a little nearer the cannon; #3070's 120 x 140 square put them at
 	-- (-35, 35) and (-45, -25.5), 60 apart, so the camera stands 12 further east and 4 higher to keep the same angles
-	-- (29 and 25 degrees) and still look over the cannon
-	local stations = v(-40, 3, 5)
-	local stationsCam = v(20, 24, 5)
+	-- (29 and 25 degrees) and still look over the cannon; #3454's four corners put them at (-26, 54) and (-44, -23),
+	-- 79 apart, so the camera stands 14 further east and 4 higher and looks at the point between them (29 degrees
+	-- off the axis each)
+	local stations = v(-35, 3, 15.5)
+	local stationsCam = v(34, 28, 0)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

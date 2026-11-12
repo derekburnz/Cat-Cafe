@@ -26,6 +26,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserService = game:GetService("UserService")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -45,6 +46,8 @@ type List = Leaderboards.List
 type Row = Types.LeaderboardRow
 
 local written: { [Player]: { [string]: number } } = {} -- store name -> the value this server last wrote
+-- store name -> os.clock() when this server last began a write of the player's entry (Leaderboards.mayWrite)
+local writeBegan: { [Player]: { [string]: number } } = {}
 local lists: { [List]: { Row } } = {} -- as last read from the stores
 local shown: { [List]: { Row } } = {} -- as read, with the players here at their values now (#941)
 local listWeek = 0 -- the week the weekly lists were read for
@@ -58,6 +61,7 @@ local function withOwners(ids: { [number]: boolean }): { [number]: boolean }
 end
 local hidden: { [number]: boolean } = withOwners({})
 local crowned: { [number]: boolean } = {}
+local announced: { [number]: number } = {} -- #3466: userId -> os.clock() of their last join notice on this server
 local places: { [number]: number } = {} -- #3333: userId -> best place 1 to 3 on an all-time board
 local placeChanged = Instance.new("BindableEvent")
 -- #3333: (player) fired when a player here gains, changes or loses a top 3 place
@@ -90,19 +94,32 @@ local function valuesOf(
 end
 
 -- Writes the lists whose value changed since this server last wrote them. Yields; `values` taken by the caller so a
--- leave can write after the profile is gone.
-local function writeValues(player: Player, values: { [List]: number }, week: number)
+-- leave can write after the profile is gone. A store written less than Leaderboards.WRITE_GAP_SECONDS ago waits for
+-- the next write, unless the player is `leaving`.
+local function writeValues(
+	player: Player,
+	values: { [List]: number },
+	week: number,
+	leaving: boolean?
+)
 	if OwnerTest.isOwner(player.UserId) then
 		return -- #3321: an owner is never on the boards
 	end
 	local mine = written[player] or {}
 	written[player] = mine
+	local began = writeBegan[player] or {}
+	writeBegan[player] = began
 	for list, value in values do
 		local name = Leaderboards.storeName(list, week)
 		-- review N321: nothing on a list yet (a first join, under a minute played) is no entry, not a write of 0
 		if value <= 0 or mine[name] == value then
 			continue
 		end
+		local now = os.clock()
+		if not Leaderboards.mayWrite(began[name], now, leaving == true) then
+			continue -- written a moment ago (a rank up beside the timer): the next write carries this value
+		end
+		began[name] = now -- marked before the yield, so two calls at once cannot both write
 		local ok = pcall(function()
 			DataStoreService:GetOrderedDataStore(name):SetAsync(tostring(player.UserId), value)
 		end)
@@ -314,6 +331,40 @@ local function crown()
 	end
 end
 
+-- #3466: one gold chat line for everyone here when a top player joins, from the lists as last read (no store read
+-- on join; nothing before the first read). It rides the rare catch line's remote, whose Legendary colour is the gold.
+-- The line holds a display name only and is never printed.
+local function joinNotice(player: Player)
+	if not Config.LeaderboardJoinNotice or player.Parent == nil then
+		return
+	end
+	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
+		return -- #3602: a rest's rejoin is the same visit carried on, not a join to announce
+	end
+	local rank, board =
+		Leaderboards.joinRank(lists, player.UserId, Config.LeaderboardJoinNoticeRank)
+	if rank == nil or board == nil then
+		return
+	end
+	local now = os.clock()
+	if
+		not Leaderboards.joinNoticeDue(
+			announced[player.UserId],
+			now,
+			Config.LeaderboardJoinNoticeRejoinSeconds
+		)
+	then
+		return
+	end
+	announced[player.UserId] = now
+	Net.fireAll(
+		"RareCatchChat",
+		Leaderboards.joinLine(player.DisplayName, rank, board),
+		"Legendary",
+		false
+	)
+end
+
 -- #3333: the player's best place 1 to 3 on an all-time board as of the last refresh, or nil.
 function LeaderboardService.place(player: Player): number?
 	return places[player.UserId]
@@ -454,6 +505,7 @@ function LeaderboardService.start()
 		wearCrown(player) -- review N322: a top player joining between refreshes wears it at once
 		task.spawn(writeNow, player)
 		task.spawn(removeOwner, player)
+		task.delay(Config.LeaderboardJoinNoticeDelay, joinNotice, player) -- #3466
 	end)
 	-- On leave: the values as they stand at the end of the session, written after the profile is gone.
 	DataService.beforeRelease(function(player: Player, profile: Types.PlayerProfile)
@@ -462,11 +514,12 @@ function LeaderboardService.start()
 		end
 		local now = os.time()
 		local values = valuesOf(player, profile, now)
-		task.spawn(writeValues, player, values, Leaderboards.week(now))
+		task.spawn(writeValues, player, values, Leaderboards.week(now), true)
 	end)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		task.delay(30, function()
 			written[player] = nil -- after the leave's write had its turn
+			writeBegan[player] = nil
 		end)
 	end)
 	task.spawn(function()

@@ -5,6 +5,7 @@ picture"). Nothing here is placed in the game; icons.py renders each one to a PN
 
   golden_fish        the one Golden Fish picture: a plump shiny gold fish, a happy eye, a white glint
   kibble, tuna, sardines, salmon, caviar, moon_milk, star_treat   the seven foods, Kibble to Star Treat
+  honey_cream, comet_treat   #3462 the Day Cart's own two baits
   golden_espresso, big_bowl, extra_decor_spot                     the Golden Fish Market perks
   coins, spin_wheel  prize pictures: a stack of three gold coins, the Spin Wheel's own wheel
 
@@ -267,6 +268,52 @@ def star_treat(mat):
     return [b.finalize("CatCafe_IconArt_StarTreat", mat)]
 
 
+def honey_cream(mat):
+    """#3462 the Day Cart's Honey Cream: a round amber honey pot heaped with whipped cream, honey running down the
+    cream and the pot's lip, a wooden dipper leaning in it, and a twinkle."""
+    b = RB()
+    _sb(b, (0, 0.62, 0), 0.78, "rarity_legend", scale=(1.0, 0.8, 1.0))                  # the pot's belly
+    b.cyl((0, 0.06, 0), 0.5, 0.12, "fur_caramel", segments=20)                          # its foot
+    b.cyl((0, 1.2, 0), 0.6, 0.14, "fur_caramel", segments=20)                           # its lip
+    b.box((0, 0.62, -0.74), (0.62, 0.34, 0.06), "cream")                                # the label
+    b.box((0, 0.62, -0.78), (0.2, 0.2, 0.04), "rarity_legend", rot=rot_z(45))           # a honey drop on it
+    _sb(b, (0, 1.36, 0), 0.56, "milk", scale=(1.0, 0.5, 1.0))                           # the cream, three swirls
+    _sb(b, (0.02, 1.62, 0), 0.4, "milk", scale=(1.0, 0.5, 1.0))
+    _sb(b, (0, 1.84, 0), 0.22, "milk", scale=(1.0, 0.7, 1.0))
+    for (x, y, w, h) in ((-0.18, 1.62, 0.5, 0.07), (0.1, 1.42, 0.7, 0.08)):             # honey over the cream
+        b.box((x, y, -0.3), (w, h, 0.34), "rarity_legend", rot=rot_z(-14))
+    for (x, h) in ((-0.3, 0.34), (0.36, 0.22)):                                         # and running off the lip
+        b.box((x, 1.2 - h / 2, -0.6), (0.12, h, 0.08), "rarity_legend")
+        b.ball((x, 1.2 - h, -0.6), 0.08, "rarity_legend")
+    r = rot_z(-32)                                                                      # the dipper
+    b.b.cyl(RB.p(0.62, 1.86, 0.1), 0.05, 1.0, "caramel_wood", segments=10, bevel=False, rot=RB._rot(r))
+    for k_ in range(3):
+        b.b.cyl(RB.p(0.36 + 0.07 * k_, 1.44 + 0.11 * k_, 0.1), 0.16, 0.07, "caramel_wood", segments=12, bevel=False,
+                rot=RB._rot(r))
+    _twinkle(b, -0.95, 1.7, -0.3, 0.5)
+    _twinkle(b, 0.98, 0.5, -0.3, 0.3)
+    return [b.finalize("CatCafe_IconArt_HoneyCream", mat)]
+
+
+def comet_treat(mat):
+    """#3462 the Day Cart's Comet Treat: a round sky-blue biscuit with a white icing star, flying down to the left
+    with three tails of light and stars behind it."""
+    b = RB()
+    cx, cy = -0.3, 0.85
+    ux, uy = math.cos(math.radians(35)), math.sin(math.radians(35))
+    for (off, length, sw, w) in ((0.42, 1.5, "pastel_sky", 0.26), (0.0, 2.0, "offwhite", 0.36), (-0.42, 1.3, "sparkle", 0.24)):
+        b.box((cx + ux * length / 2 - uy * off, cy + uy * length / 2 + ux * off, 0.2), (length, w, 0.08), sw, rot=rot_z(35))
+    _sb(b, (cx, cy, 0), 0.8, "pastel_sky", scale=(1.0, 1.0, 0.55))                      # the biscuit
+    _sb(b, (cx, cy, -0.26), 0.56, "galaxy_blue", scale=(1.0, 1.0, 0.4))                 # its darker icing
+    _star_up(b, cx, cy, -0.5, 0.4, 0.18, 0.06, "offwhite")
+    for (x, y) in ((-0.3, 0.38), (0.28, 0.4), (-0.24, -0.4), (0.3, -0.36)):
+        b.box((cx + x, cy + y, -0.46), (0.07, 0.07, 0.04), "sparkle", rot=rot_z(45))
+    _star_up(b, 1.2, 0.55, -0.1, 0.17, 0.08, 0.06, "sparkle")
+    _twinkle(b, -1.1, 1.75, -0.2, 0.45)
+    _twinkle(b, 0.75, 0.2, -0.2, 0.28)
+    return [b.finalize("CatCafe_IconArt_CometTreat", mat)]
+
+
 # --- the Golden Fish Market perks ---------------------------------------------------------------------------------
 
 def _paw(b, x, y, z, s, sw):
@@ -311,6 +358,57 @@ def big_bowl(mat):
     _glyphs(b, "-2:00", (cx + 8.5 * px, cy - 2.5 * px, cz - 0.03), px, 0.03, "fur_black", (-1, 0, 0), (0, 1, 0),
             DIGITS)
     return [b.finalize("CatCafe_IconArt_BigBowl", mat)]
+
+
+def lucky_charm(mat):
+    """#3298: the Lucky Charm perk. A big four-leaf clover charm with a gold paw coin at its heart, hung from a gold
+    ring on two chain beads, so it reads as a keepsake and apart from the Lucky Potion's bottle."""
+    b = RB()
+    cy = 1.25                                                # the clover's middle
+    for k in range(4):                                       # four heart leaves: two round lobes and a body each
+        a = math.radians(45 + 90 * k)
+        ux, uy = math.cos(a), math.sin(a)
+        px, py = -uy, ux
+        b.cyl((0.5 * ux, cy + 0.5 * uy, 0.0), 0.36, 0.2 + 0.01 * k, "leaf_green", axis="Z", segments=14)
+        for sgn in (-1, 1):
+            b.cyl((0.95 * ux + sgn * 0.25 * px, cy + 0.95 * uy + sgn * 0.25 * py, 0.0), 0.34,
+                  0.24 + 0.01 * k + 0.005 * sgn, "leaf_green", axis="Z", segments=14)
+        b.box((0.8 * ux, cy + 0.8 * uy, -0.13), (0.07, 0.5, 0.04), "leaf_dark",
+              rot=Matrix.Rotation(math.pi / 2 - a, 3, "Z"))                           # the leaf's middle vein
+        b.cyl((1.0 * ux + 0.3 * px, cy + 1.0 * uy + 0.3 * py, -0.14), 0.09, 0.04, "mint", axis="Z", segments=8)
+    b.box((0.2, cy - 1.12, 0.0), (0.16, 0.5, 0.16), "leaf_dark", rot=Matrix.Rotation(math.radians(-22), 3, "Z"))
+    b.cyl((0, cy, -0.14), 0.4, 0.12, "gold_mid", axis="Z", segments=16)              # the paw coin
+    b.cyl((0, cy, -0.2), 0.33, 0.04, "gold_light", axis="Z", segments=16)
+    b.cyl((0, cy - 0.08, -0.24), 0.13, 0.04, "gold_dark", axis="Z", segments=10)     # pad
+    for dx, dy in ((-0.17, 0.07), (-0.06, 0.16), (0.06, 0.16), (0.17, 0.07)):
+        b.cyl((dx, cy + dy, -0.24), 0.05, 0.04, "gold_dark", axis="Z", segments=8)   # toes
+    for y in (cy + 1.22, cy + 1.42):                                                  # two chain beads
+        b.ball((0, y, 0.0), 0.11, "gold_mid")
+    b.b.ring(RB.p(0, cy + 1.86, 0.0), 0.36, 0.11, 0.14, "gold_mid", segments=16, bevel=False,
+             rot=(math.radians(90), "X"))                                             # the ring it hangs from
+    return [b.finalize("CatCafe_IconArt_LuckyCharm", mat)]
+
+
+def swift_paws(mat):
+    """#3330: the Swift Paws perk. A tabby at full gallop, front legs reaching and back legs kicked out, nose down a
+    touch, off the floor, with three short speed streaks and a dust puff close behind it."""
+    import cats                                             # cats.py imports nothing from here
+    spec = {k: v for k, v in cats.ROSTER["Tabby"].items() if k not in ("bag", "curl")}   # no satchel over the legs
+    objs = cats.build_cat("Tabby", mat, spec=spec, base="CatCafe_IconArt_SwiftPaws")
+    swing = {"LegF1": -64.0, "LegF2": -44.0, "LegB1": 50.0, "LegB2": 68.0, "Tail": -30.0}
+    lean = Matrix.Rotation(math.radians(8.0), 4, "X")       # the whole cat, nose down (it faces -Y in Blender)
+    for ob in objs:
+        piece = ob.name.rsplit("_", 1)[1]
+        if piece in swing:
+            ob.rotation_euler = (math.radians(swing[piece]), 0.0, 0.0)
+        ob.matrix_world = Matrix.Translation((0.0, 0.0, 0.34)) @ lean @ ob.matrix_basis
+    b = RB()
+    for (y, z, length, sw) in ((1.62, 1.0, 0.8, "offwhite"), (1.22, 1.25, 1.0, "pastel_sky"),
+                               (0.82, 1.2, 0.7, "offwhite")):
+        b.box((0.0, y, z + length / 2), (0.16, 0.16, length), sw)
+    for (y, z, r) in ((0.24, 1.3, 0.22), (0.3, 1.7, 0.16), (0.2, 2.0, 0.11)):
+        b.ball((0.0, y, z), r, "cream")
+    return objs + [b.finalize("CatCafe_IconArt_SwiftPaws_Speed", mat)]
 
 
 def extra_decor_spot(mat):

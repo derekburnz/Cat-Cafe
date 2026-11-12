@@ -120,6 +120,7 @@ export type PotionDef = {
 	effect: string?,
 	goldLuck: number?, -- F73: a Gold Rush Potion's gold luck while it runs
 	baitSpeed: number?, -- F73: a Quick Bait Potion's faster bait while it runs
+	luck: number?, -- #3462: a Big Lucky Potion's Luck while it runs
 }
 
 -- One thing a Mystery gift can hold (F64): kind "potion", "lure", "fish" or "spin", with a chance in percent.
@@ -289,6 +290,7 @@ export type PlayerState = {
 	luck: number?,
 	luckSources: { LuckSource }?,
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
+	introAuto: boolean?, -- #3666: the intro plays itself for this player; nil reads as Config.IntroAutoPlay
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
 	catFood: { [string]: number }?, -- #1181: cat food id -> how many are in the Bag (FeedCat feeds one)
 	hideCredit: boolean?, -- #1083: true while the player keeps their name off the Thank You board
@@ -349,6 +351,7 @@ export type PartialState = {
 	luck: number?,
 	luckSources: { LuckSource }?,
 	introSeen: boolean?,
+	introAuto: boolean?,
 	potions: { [string]: number }?,
 	catFood: { [string]: number }?, -- #1181: the Bag's cat food
 	hideCredit: boolean?, -- #1083: the Settings row's current value
@@ -382,6 +385,8 @@ export type PartialState = {
 	secondCat: (SharedTypes.SecondCatView | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
+	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
+	traits: (SharedTypes.TraitsView | false)?,
 }
 
 export type ScreenName =

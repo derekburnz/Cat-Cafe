@@ -284,6 +284,8 @@ Design: `docs/design/cat-cafe/rainbow-coat.md` section 2 (Design-Agent, #626). D
 | Spawn beam | A bundle of six thin beams, one in each hue, rises 50 studs from the new stray's feet for 3 s, seen from up to 400 studs | `RainbowSpawned(areaId, catId)`, the newest `Stray` with that `CatId` and `Variant` (tried for 2 s while it streams in) |
 | Big pull | Securing a rainbow cat of any rarity plays the big pull: the catch pop of its rarity where it was secured, and on your screen confetti in the six hues with white, then the bundle of beams from where you stand | `SecuredRare(userId, catId, rarity, gold, variant)` with `variant` = `"rainbow"` |
 
+Dark cats (#3470, 2026-11-12): a part's band is as bright as its own colour is against the body's (it was against the lightest part's, which left a Nebula or a Tuxedo at 70 % all over because of a few pale marks). The body is always at full brightness, darker stripes go down to 70 %, and a mark lighter than the body (stars, a white chest) is up to 50 % paler (`Logic.rainbowShade`, `Logic.rainbowLift`, `Presets.rainbow.lift`).
+
 Reduce Motion: the bands stand still, with no trail and no beams; the glow and outline stay. Budget: the nearest 10 rainbow cats on a PC, 6 on a phone and 3 in Low performance within 120 studs flow at up to 20 colour steps a second (the budget's update rate on a phone), and never more than `Config.RainbowAnimateMax`; of those the nearest 6, 3 and none get the outline (Highlights are capped at 31 on a client). Every other rainbow cat shows still bands and costs nothing a frame. Each part's own colour comes back when the coat goes (`Variant` cleared or the model leaves Workspace); only this client's copy changes. A cat that streams in more parts is read again. Seven cases are in `docs/vfx/cat-cafe/specs/EffectsRainbow.spec.luau` for QA. Studio checks once Gameplay-Engineer's F99 is in: spawn a rainbow Tabby and watch the bands flow nose to tail with the stripes showing, the beam on spawn, the trail as it walks off and while you carry it, the outline; check one in (the big pull, rainbow confetti); put twelve on screen on a phone and only the nearest six flow; turn Reduce Motion on and the bands stop.
 
 ## Big pulls (F89, 2026-11-01)
@@ -548,6 +550,9 @@ From data-model 12b and the display hooks Design-Agent added for these effects i
 | Big Tip Potion running (F73 quests) | A brighter, busier stream of gold and pale gold glints rising off the body than the Tip Potion's (`potionBigTip`, Rate 3.5) | `big_tip_potion` |
 | Gold Rush Potion running (F73) | Pale gold, gold and white glints twinkling all round the body (`potionGoldRush`, Rate 2) | `gold_rush_potion` |
 | Quick Bait Potion running (F73) | Little salmon and cream food crumbs falling from both hands (`potionQuickBait`, Rate 2 split between them) | `quick_bait_potion` |
+| Big Lucky Potion running (Day Cart, #3462) | The Lucky Potion's glints, larger and busier, with gold among the green and mint (`potionBigLucky`, Rate 3.5) | `big_lucky_potion` |
+| Big Gold Rush Potion running (#3462) | The Gold Rush Potion's gold glints, larger and drifting up as they twinkle (`potionBigGoldRush`, Rate 3.5) | `big_gold_rush_potion` |
+| Mega Money Potion running (#3462) | A wider, brighter stream of large gold glints rising off the body than the Big Tip Potion's (`potionMegaTip`, Rate 4) | `mega_tip_potion` |
 | Visitor arrives or leaves | A puff of 6 purple smoke where the hooded visitor sits, within `animRadius`; one already sitting when you arrive gets no arrival puff | a `MysteryVisitor` model appearing or going |
 | Gift appears | 6 pale sparkles off the gift's top; over your own gift a faint twinkle stays while it waits (`giftTwinkle`, Rate 1.5) | a `MysteryGift` model appearing; the twinkle when its plot's `OwnerUserId` is you |
 | Gift opened | One small camera shake (0.25 s, 0.15 studs; off with Reduce Motion or Screen shake off) and Confetti in the ribbon colours (pink, violet, pale gold, white; 40 % of the budget's), 8 sparkles and a 3 stud ring in the colour of what was inside: the potion's own colour, salmon pink for the Salmon, gold for fish, warm yellow for a spin. In that colour from the first frame, never anything better first. Only the owner sees it | your `MysteryGiftResult(kind, id, count)` (`Logic.giftColour`), at your gift or where it just was |
@@ -1071,3 +1076,66 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | A bag drops: 8 gold sparkles and a 3 stud gold ring on its spot. A bag is collected: 16 gold sparkles and a 5 stud ring, plus 14 gold confetti in your own cafe. A missed bag just goes. Cafes over 120 studs away are skipped; Reduce Motion keeps the sparkles only, Low performance halves the collect sparkles and drops the confetti | a new child of the plot's `RichBags` folder (drop) and its `Outcome` attribute turning "claimed" (collect), both set by RichTipService for display |
+
+## Mouse Dash pops (#3296, 2026-11-11)
+
+`Effects/MouseDashFx.luau`, numbers in `Presets.mouseDash`; drawn with the arcade's sparkles, rings and words on the `EffectsArcade` ScreenGui. Called by Gameplay-Engineer's `Screens/MouseDash`.
+
+| Look | Hook |
+|---|---|
+| A mouse pops up: one soft ring off its hole. The golden mouse: a gold ring and 4 sparkles. The napping kitten: a blush ring (the window draws its own "Zzz") | `MouseDashFx.pop(hole, kind)` |
+| A catch: mint sparkles and a ring; every 5th of a streak bigger and golden; the golden mouse the full gold burst. The window floats the "+1" and "+3" | `MouseDashFx.catch(hole, points, kind, streak)` |
+| A mouse ducks back in untapped: 6 warm dust blobs rise off the hole's rim and fade in 0.45 s | `MouseDashFx.escape(hole)` |
+| A wrong tap: the kitten a blush "mrow?"; an empty hole 3 dizzy stars and a little dust. No red, no shake | `MouseDashFx.wrong(hole, kind)` |
+| A heart pad: won back a pink ring, 6 sparkles and a pulse of the pad; lost a small grey puff | `MouseDashFx.heart(pad, gained)` |
+| The speed step: a blue ring and 6 sparkles round the score (the window's banner says "Faster!") | `MouseDashFx.faster(target, level)` |
+| A new best or a win: two gold rings, 12 confetti sparkles in gold, mint and pink, and the words given, if any | `MouseDashFx.best(target, words?)` |
+| A 0.22 s scale bounce on a UIScale named `FxScale` added to the object: "pop" for a rising mouse, "squash" for a caught mouse and the paw's bop, "pulse" for a refilled heart pad | `MouseDashFx.bounce(object, kind)` |
+
+Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. Low performance: half the sparkles and half the dust. Every pop plays once per call and nothing loops, so nothing flashes. The most on screen at once is 12 sparkles per pop (the phone's burst cap).
+
+## Update party banner (#3419, 2026-11-12)
+
+`Effects/EventBanner.luau`, numbers in `Presets.eventBanner`; its own `EffectsEventBanner` ScreenGui. Called by Gameplay-Engineer (the party's start in the UI's event follow, the gift from the `UpdateGiftNotice` remote); the words are Design-Agent's (#3420 section 5). Picture: Library `Motion-FX-Agent/VFX-Agent/launch-banner-3419/launch-banner-mock.png`.
+
+| Look | Hook |
+|---|---|
+| A cream card with a gold title strip and a dark outline drops in at the top middle with one small bounce (0.45 s), holds a title and up to 3 lines for 5 s, then slides away; a tap or click on the card sends it away at once. One shine sweep as it lands. It sells nothing and opens nothing | `EventBanner.show({ kind, title, lines, seconds? })` |
+| `"party"`: a pink "x2" badge and 12 confetti sparkles in gold, pink and mint from behind the card. Sound: the station fanfare | kind `"party"` |
+| `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
+| `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |
+| One banner at a time; up to 3 wait; a kind already showing or waiting is dropped. Reduce Motion: the card fades in and out in place with no shine, confetti or fish. Low performance: half the confetti and fish | `EventBanner.onShown(listener)` (Audio's sound) |
+
+## Mystic Pool first walk-up cutscene (#3430, 2026-11-12)
+
+`Effects/MysticIntroCut.luau`, numbers in `Presets.mysticIntro`. Gameplay-Engineer calls it (the walk-up, the once per account mark and what may block it are theirs) and opens the pool's menu in `onDone`.
+
+| Look | Hook |
+|---|---|
+| About 7 s, this player only: the camera eases (1 s) to a low front view of the pool and the moon arch; Sage Sorrel raises his staff and waves it while the liquid steps grey, green, blue, gold, purple with a bubble burst on each (3 s); a deep violet cat silhouette rises from the liquid in a soft sparkle over the card line "The Mystic Pool gives your cat a special trait" (2 s); the camera eases back (0.8 s). The colours always play in order; no roll, result, odds or price shows | `MysticIntroCut.play(station, onDone)`; `onDone(outcome, seconds)` with "watched" or "skipped" |
+| A tap, click, key or gamepad button skips it (0.25 s back); "Tap to skip" shows bottom right from the first frame. Controls and prompts are off only while it runs, with a 9 s cap | built in |
+| Reduce Motion: no camera move, wave or swirl; the card line alone for 2 s. Sound: the pool's step chime up the scale on each colour and its soft reveal on the rise | `MysticIntroCut.onBeat` (Audio) |
+
+## Cannon landing camera (#3444, 2026-11-12)
+
+`Effects/CannonGlide.luau` (`track`; `Logic.cannonHandBackAt`). The flight's camera follows the hop, the boom and the climb, waits under the clouds, and 0.1 s before the flyer drops back into sight puts the view behind the pad for one frame (clear of the cannon, #2779) and hands back to the game's camera. Nothing of ours moves, turns, zooms or shakes the camera as the feet land or when the server lets go; the player can turn the view on the way down. The landing's follow, zoom and push (#1081, #1131, #3328) are gone.
+
+## Loot card pop-in (#3464, 2026-11-12)
+
+`Effects/LootCardFx.luau`, numbers in `Presets.lootCard`. The UI builds the Rummage Bin's "You found:" card and calls this to move it.
+
+| Look | Hook |
+|---|---|
+| The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Rummage Bin prize roll (#3608, 2026-11-12)
+
+`Effects/BinRoll.luau`, timing in `Logic.binRollSteps`, numbers in `Presets.binRoll`, sounds in `Audio/Logic.binRollCue`.
+
+| Look | Hook |
+|---|---|
+| The roll: a marker goes down the board's rows in list order, twice round and on to the prize, a tick every 0.067 s until the last lap's worth of ticks slow evenly to a 0.40 s last gap (2.0 to 2.5 s for seven rows). The slowdown is the same wherever it stops and it never lingers on any row but the last. The bin tips 4 degrees side to side while it rolls (still with Reduce Motion). A soft tick per row and the reel's stop as it lands. | `BinRoll.play(bin, count, target, tier, onTick, onDone)` returns a function that skips to the stop (a tap); the board lights the row in `onTick`. The server has already picked `target`. |
+| Landing by tier: nothing for a common prize; a blue ring and a few sparkles for a good one; a short thin gold light column (0.9 s) with a ring for the best, gone before the bar starts. | `BinRoll.landed(bin, tier)` (called by `play`) |
+| Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
+| Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
+

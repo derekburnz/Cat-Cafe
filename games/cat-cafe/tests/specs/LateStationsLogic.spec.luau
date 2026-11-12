@@ -127,6 +127,54 @@ return function()
 			expect(list[2].uid).to.equal("a")
 		end)
 
+		it("sorts by rarity by default and by level when asked (#3463)", function()
+			local Catalog =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+			local function ofRarity(rarity: string): string
+				for _, def in Catalog.cats do
+					if def.rarity == rarity then
+						return def.id
+					end
+				end
+				error("no " .. rarity .. " cat in the catalog")
+			end
+			local common, legendary = ofRarity("Common"), ofRarity("Legendary")
+			local cats = {
+				c40 = cat("c40", common, 40, { name = "Zed" }),
+				l5 = cat("l5", legendary, 5, { name = "Bea" }),
+				l5gold = cat("l5gold", legendary, 5, { variant = "gold", name = "Cy" }),
+				l2rainbow = cat("l2rainbow", legendary, 2, { variant = "rainbow", name = "Di" }),
+				l9 = cat("l9", legendary, 9, { name = "Abe" }),
+				l9b = cat("l9b", legendary, 9, { name = "aaron" }),
+			}
+			local function order(sort: string?): string
+				local uids = {}
+				for _, entry in LateStationsLogic.spaCandidates(cats, nil, sort) do
+					table.insert(uids, entry.uid)
+				end
+				return table.concat(uids, " ")
+			end
+			-- rarity: Legendary before Common; in one rarity rainbow, gold, plain, then level, then name (any case)
+			expect(order(nil)).to.equal("l2rainbow l5gold l9b l9 l5 c40")
+			expect(order("Rarity")).to.equal(order(nil))
+			expect(order("nonsense")).to.equal(order(nil))
+			-- level: highest first, then rarity, then name; the coat does not count
+			expect(order("Level")).to.equal("c40 l9b l9 l5 l5gold l2rainbow")
+			expect(order("level")).to.equal(order("Level"))
+			-- the same cats always come out in the same order
+			expect(order("Level")).to.equal(order("Level"))
+		end)
+
+		it("reads any stored sort as Rarity unless it says Level (#3463)", function()
+			expect(LateStationsLogic.SPA_SORTS[1]).to.equal("Rarity")
+			expect(LateStationsLogic.spaSort("Level")).to.equal("Level")
+			expect(LateStationsLogic.spaSort("level")).to.equal("Level")
+			expect(LateStationsLogic.spaSort("Rarity")).to.equal("Rarity")
+			expect(LateStationsLogic.spaSort("")).to.equal("Rarity")
+			expect(LateStationsLogic.spaSort(nil)).to.equal("Rarity")
+			expect(LateStationsLogic.spaSort(7)).to.equal("Rarity")
+		end)
+
 		it("lists every cat, however many (#3136)", function()
 			local cats = {}
 			for index = 1, 400 do

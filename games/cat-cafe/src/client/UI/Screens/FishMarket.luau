@@ -66,6 +66,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 -- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
 local Crates = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Crates"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local LuckyCharm = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LuckyCharm"))
 local SwiftPaws = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SwiftPaws"))
 
 export type Callbacks = {
@@ -193,11 +194,23 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 			SwiftPaws.CREDIT
 		),
 	},
+	-- #3298 (new-activities.md section 5): overall Luck, the number the bait and crate odds cards read
+	[LuckyCharm.ID] = {
+		name = LuckyCharm.NAME,
+		icon = "🍀",
+		blurb = "+0.1 Luck on bait and crates a level, forever.",
+	},
 }
 
 -- #3063: whether a Market row shows; Swift Paws hides while its live switch (copied to ReplicatedStorage) is off
 local function rowShown(row: Types.FishShopRow): boolean
-	if row.id ~= SwiftPaws.ID then
+	if row.id == LuckyCharm.ID then
+		-- #3298: off until its switch is on
+		return LiveFlags.shown(
+			LuckyCharm.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. LuckyCharm.FLAG)
+		)
+	elseif row.id ~= SwiftPaws.ID then
 		return true
 	end
 	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG) ~= false
@@ -275,7 +288,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._state = nil :: Types.PlayerState?
 	self._decorById = {} :: { [string]: Types.DecorDef }
 	self._lureById = {} :: { [string]: Types.LureDef }
-	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its golden crate's odds
+	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its lucky twentieth's odds
 	self._crateCards = {} :: { CrateCard }
 	self._tradeCrates = {} :: { [string]: number } -- #2745: crate id -> how many are on my side of an open trade
 	self._itemRows = {} :: { ItemRow }
@@ -669,7 +682,7 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	self._oddsTitle.Text = crate.name
 	self._oddsNote.Text = if crate.golden
 		then "Epic or better every time"
-		elseif lucky then "Lucky! Your next crate opens on these golden odds"
+		elseif lucky then "Lucky! Your next crate opens on these lucky odds"
 		elseif playerLuck > 1 then MarketLogic.luckText(
 			MarketLogic.luckLeft(luck, LUCKY_EVERY)
 		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck)
@@ -1236,7 +1249,7 @@ function FishMarket.setCatalog(self: any, catalog: Types.Catalog)
 	for _, crate in crates do
 		self._crateById[crate.id] = crate
 		if crate.golden then
-			self._goldenOdds[crate.area] = crate.odds
+			self._goldenOdds[crate.area] = Crates.LUCKY_ODDS -- #3665: the lucky twentieth's own odds
 		end
 	end
 	table.clear(self._potionById)

@@ -228,6 +228,82 @@ local function ring(
 	end)
 end
 
+-- #3448: every ring laid, so two that would overlap at the bigger sizes both shrink until WalkUp.RING_GAP studs of
+-- floor show between them (WalkUp.apart). A ring is resized where it lies (its part, its Radius attribute and, for a
+-- front ring, its centre, which stays against its station's front), so whoever holds the part keeps the right one.
+type Laid = { model: Model, part: BasePart, ring: WalkUp.Ring }
+local laid: { Laid } = {}
+
+local function resize(entry: Laid, radius: number)
+	if math.abs(radius - entry.ring.radius) < 1e-4 then
+		return
+	end
+	entry.ring.radius = radius
+	local part = entry.part
+	local centre = WalkUp.ringCentre(entry.ring, radius)
+	local turn = part.CFrame - part.CFrame.Position
+	part.Size = Vector3.new(radius * 2, part.Size.Y, radius * 2)
+	local moved = Vector3.new(centre.X - part.Position.X, 0, centre.Y - part.Position.Z)
+	part.CFrame = CFrame.new(centre.X, part.Position.Y, centre.Y) * turn
+	for _, child in part:GetChildren() do
+		if child:IsA("Model") then
+			child:PivotTo(child:GetPivot() + moved) -- the icon's art stays in the middle
+		end
+	end
+	part:SetAttribute("Radius", radius)
+end
+
+-- Remembers the ring just laid for `model` and keeps it and every other ring apart. `way` is the flat direction from
+-- the pivot to the ring's centre (nil for a ring all the way round), `least` the smallest the ring may get.
+local function keepApart(
+	model: Model,
+	way: Vector3?,
+	front: number,
+	range: number,
+	shift: Vector2,
+	radius: number,
+	least: number
+)
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local part = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	if part == nil or not part:IsA("BasePart") then
+		return
+	end
+	local pivot = model:GetPivot().Position
+	local entry: Laid = {
+		model = model,
+		part = part :: BasePart,
+		ring = {
+			pivot = Vector2.new(pivot.X, pivot.Z),
+			way = if way ~= nil then Vector2.new(way.X, way.Z) else Vector2.zero,
+			front = front,
+			range = range,
+			shift = shift,
+			radius = radius,
+			least = math.min(least, radius),
+		},
+	}
+	for index = #laid, 1, -1 do
+		local other = laid[index]
+		if other.part.Parent == nil or other.model == model then
+			table.remove(laid, index) -- gone with its station, or laid again
+		else
+			local mine, theirs = WalkUp.apart(entry.ring, other.ring)
+			resize(entry, mine)
+			resize(other, theirs)
+		end
+	end
+	table.insert(laid, entry)
+end
+
+local function flatLook(model: Model): Vector3
+	local look = model:GetPivot().LookVector
+	local flat = Vector3.new(look.X, 0, look.Z)
+	return if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+end
+
 -- A ring in front of the station, touching its front, inside `range` of its pivot, with `icon` in its middle.
 function WalkUpCircles.front(
 	model: Model,
@@ -242,6 +318,7 @@ function WalkUpCircles.front(
 	local out = WalkUp.frontOffset(front, radius, range)
 	local at = (pivot * CFrame.new(0, 0, -out)).Position
 	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into, icon)
+	keepApart(model, flatLook(model), front, range, Vector2.zero, radius, WalkUp.FRONT_FIT_LEAST)
 end
 
 -- #2476: a ring touching the station on its `outward` side (a flat direction), inside `range` of its pivot, with
@@ -336,6 +413,16 @@ function WalkUpCircles.frontFit(
 		into,
 		icon
 	)
+	-- a ring already shrunk off a wall, or an Index Board's, gives no further
+	keepApart(
+		model,
+		flatLook(model),
+		math.max(0, front) + wide - fitted, -- the fitted ring keeps its centre, so its near edge stands this far out
+		math.huge,
+		shift,
+		fitted,
+		math.min(fitted, WalkUp.FRONT_FIT_LEAST)
+	)
 end
 
 -- A ring round the whole station, centred on its pivot, slid off (and if need be shrunk to clear) anything standing
@@ -345,16 +432,18 @@ function WalkUpCircles.around(
 	color: Color3,
 	range: number,
 	into: Instance?,
-	cap: number?
+	cap: number?,
+	fill: boolean? -- #3671: true makes the ring as wide as the range allows, not only AROUND_PAD clear of the station
 )
 	local _, half, bottom = footprint(model)
 	local at = model:GetPivot().Position
-	local radius = WalkUp.aroundRadius(half, range, cap)
+	local radius = WalkUp.aroundRadius(half, range, cap, fill)
 	local most = math.min(WalkUp.FIT_SHIFT_MAX, range - WalkUp.EDGE_SLACK - radius)
 	local reach = radius + WalkUp.FIT_CLEAR + math.max(0, most)
 	local blocks = blocksAround(model, Vector3.new(at.X, bottom + PROBE_UP, at.Z), reach)
 	local shift, fitted = WalkUp.fitRing(radius, blocks, most, 1, baseOf(model, at, bottom))
 	ring(model, Vector3.new(at.X + shift.X, bottom + LIFT, at.Z + shift.Y), fitted, color, into)
+	keepApart(model, nil, 0, range, shift, fitted, fitted) -- a ring round its station holds its base: it never shrinks
 end
 
 return WalkUpCircles

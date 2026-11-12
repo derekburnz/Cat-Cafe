@@ -41,6 +41,13 @@ Presets.rarity = {
 	Epic = Color3.fromRGB(192, 124, 255),
 	Legendary = Color3.fromRGB(255, 201, 77),
 	Mythical = Color3.fromRGB(255, 94, 126),
+	Secret = Color3.fromRGB(22, 22, 29), -- #3470: near black; anything that must glow uses Presets.rarityGlow
+} :: { [string]: Color3 }
+
+-- The colour a rarity's light takes (sparkles, beams, neon rings) when its swatch is too dark to glow: a Secret's
+-- starlight. Every other rarity glows in its own swatch (Logic.glowColour).
+Presets.rarityGlow = {
+	Secret = Color3.fromRGB(226, 214, 255),
 } :: { [string]: Color3 }
 
 -- Roblox's own particle textures ship with the engine, so they need no upload and no permission. Our sprites in
@@ -399,6 +406,31 @@ Presets.emitters = {
 		spread = 70,
 		rate = 0,
 		drag = 6,
+	},
+	-- A Secret stray (#3470): a slow dark haze round the cat and a few pale stars drifting up through it.
+	secretAura = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(22, 22, 29), Color3.fromRGB(52, 44, 78) },
+		size = { 1.6, 2.8 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 0.2, 0.7 },
+		spread = 180,
+		rate = 3,
+		drag = 1,
+		lightEmission = 0,
+		rotSpeed = { -20, 20 },
+	},
+	secretStars = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(226, 214, 255), Color3.fromRGB(255, 255, 255) },
+		size = { 0.35, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1, 1.6 },
+		speed = { 0.6, 1.4 },
+		spread = 50,
+		rate = 2,
+		lightEmission = 0.8,
 	},
 	smokePuff = {
 		texture = Presets.textures.smoke,
@@ -821,6 +853,55 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Day Cart's Tier 6 potions (#3462): each its smaller kind's glow, a little bigger and busier, with one more
+	-- colour so the two can be told apart side by side. Big Lucky: green, mint and gold glints with a few larger
+	-- ones; Big Gold Rush: gold glints that drift up as they twinkle; Mega Money: a wide, bright stream of gold.
+	potionBigLucky = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Presets.palette.leaf,
+			Presets.palette.mint,
+			Presets.palette.golden,
+			Presets.palette.sparkle,
+		},
+		size = { 0.55, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 3.5,
+		drag = 1,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	potionBigGoldRush = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden, Presets.palette.offwhite },
+		size = { 0.6, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 1, 1.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 3.5,
+		acceleration = Vector3.new(0, 0.6, 0),
+		drag = 1,
+		lightEmission = 0.9,
+		rotSpeed = { -90, 90 },
+	},
+	potionMegaTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.7, 0.45 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 1.2, 1.9 },
+		spread = 30,
+		rate = 4,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.8,
+		rotSpeed = { -180, 180 },
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -1061,6 +1142,7 @@ Presets.catchSparkle = {
 	Epic = 16,
 	Legendary = 22,
 	Mythical = 28,
+	Secret = 28, -- the cap; a Secret's step up is its taller beam, third ring and extra showers (catchPop.secret)
 } :: { [string]: number }
 
 -- Confetti is small parts, not particles, so it needs no texture: the palette's party colours.
@@ -1100,13 +1182,20 @@ Presets.beam = { grow = 0.25, holdShare = 0.4 } -- of its seconds: rising, then 
 -- ring under the cat as wide as `ring`, confetti from Epic up (`confetti`, a share of the budget's confetti), a beam
 -- from Legendary up and for a Mythical a second, wider ring and three slow sparkle showers from the top of the beam.
 Presets.catchPop = {
-	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11 } :: { [string]: number },
+	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11, Secret = 13 } :: { [string]: number },
 	ringSeconds = 0.5,
-	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9 } :: { [string]: number },
-	beams = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9, Secret = 1 } :: { [string]: number },
+	beams = { Legendary = true, Mythical = true, Secret = true } :: { [string]: boolean },
 	beam = { width = 1.4, height = 16, seconds = 1.3 },
 	echo = { after = 0.16, scale = 1.4, seconds = 0.7 }, -- the Mythical's second ring
 	shower = { bursts = 3, after = 0.3, every = 0.25, height = 9 },
+	-- A Secret (#3470, "the catch effect one step above Mythical"): everything a Mythical gets, with a wider and
+	-- taller beam that lasts longer, a third and widest ring `third.after` seconds in, and `bursts` showers.
+	secret = {
+		beam = { width = 1.9, height = 26, seconds = 1.7 },
+		third = { after = 0.34, scale = 1.85, seconds = 0.9 },
+		bursts = 5,
+	},
 }
 
 -- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
@@ -2091,25 +2180,18 @@ Presets.cannonGlide = {
 -- and back of the seat) looking `ahead` studs up the barrel. From the boom it chases the flyer from `chase` (right,
 -- up and back of the way it goes over the ground, so the soaring flyer shows side on), easing there over `catch`
 -- seconds (the boom's shake is Cannon.luau's, on top).
--- Under the clouds it waits. From `over` seconds before the drop it looks the way the landing pad faces at the
--- player's own pitch, following the flyer down from `wide` times the player's own distance, and closes in to it and
--- onto the player's own focus as the feet touch (cannonPose's `open`). At the touch it gives one quick, slight push in
--- (`push`, a fraction closer: 0.12 is 12%) that peaks `bumpIn` of the way through `bump` seconds and is back on the
--- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`, when the server
--- lets go, #2690); with Reduce Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
--- 2026-11-04) asked for a quick, slight zoom in and straight back. #3328 (Derek2 2026-11-11: "remove the zoom in on
--- cannon land"): `wide` 1 and `push` 0, so the camera stays at the player's own distance all the way down and at the
--- touch (was 1.8 and 0.12).
+-- Under the clouds it waits. `over` seconds before the drop it looks, for one frame, the way the landing pad faces
+-- at the player's own pitch, and the game's camera takes over from there (Logic.cannonHandBackAt). So the camera is
+-- the player's own all the way down, at the touch and after: #3444 (Derek 2026-11-12: "landing still moves your
+-- camera on landing so remove that"). Before that the flight held the camera until the server let go (#2690) and
+-- followed the flyer down, with a zoom in at the touch (#1081, #1131) that #3328 had already set to nothing; the
+-- hand-back at the end still moved the view to the player's real zoom.
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
 	chase = Vector3.new(7, 2.5, 12),
 	catch = 0.15,
 	over = 0.1,
-	wide = 1, -- #3328: no zoom in on the way down (was 1.8)
-	push = 0, -- #3328: no push at the touch (was 0.12)
-	bump = 0.25, -- touch + bump = cannonPose.ends, where the game camera takes over (was 0.5, #2690)
-	bumpIn = 0.25,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
@@ -2490,7 +2572,8 @@ Presets.marketCrate = {
 -- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
 -- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every
 -- `period` seconds and `spread` laps along the cat; a part keeps `least` to all of its band's brightness by how light
--- its own colour was, so stripes still show. Only the `pieces` named here change (not the eyes, props or outfits),
+-- its own colour was against the body's, so stripes still show, and a mark lighter than the body is up to `lift`
+-- paler. Only the `pieces` named here change (not the eyes, props or outfits),
 -- and in them a part shorter than `keepShare` of its piece's biggest part (the nose, the mouth, the blush) keeps its
 -- colour. The nearest budget.rainbowCats within `within` studs (no more than Config.RainbowAnimateMax) flow at `hz`
 -- updates a second, glow (`glow`) and drop `trail` sparkles while they move faster than `moving` studs a second; the
@@ -2509,11 +2592,14 @@ Presets.rainbow = {
 	period = 3,
 	spread = 1,
 	least = 0.7,
+	lift = 0.5, -- the most a mark lighter than the body is lifted toward white
 	keepShare = 0.2,
 	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
 	within = 120,
 	hz = 20,
+	hzLow = 12, -- on a phone or in Low performance: a 3 s lap still reads as flowing at 12 steps a second
 	pick = 0.25, -- seconds between choosing which cats flow
+	recount = 8, -- every this many picks (2 s) a cat's parts are counted again, for parts that streamed in late
 	glow = { color = Color3.new(1, 1, 1), range = 6, brightness = 0.6 },
 	outline = 0.25, -- outline transparency
 	moving = 0.6,
@@ -2727,6 +2813,65 @@ Presets.arcade = {
 	fish = { glyph = "🐟", colour = Presets.palette.golden, sparkles = 6, wordSize = 30 },
 	-- #3338: the shine that sweeps across the Play button while a game can start
 	shine = { every = 2.6, seconds = 0.7, width = 0.18, transparency = 0.55 },
+}
+
+-- Mouse Dash's pops (#3296, MouseDashFx), drawn with the arcade's sparkles, rings and words (Presets.arcade)
+Presets.mouseDash = {
+	bigEvery = 5, -- every 5th catch of a streak gets the bigger golden pop
+	pop = {
+		colour = Presets.palette.offwhite,
+		golden = { colour = Presets.palette.golden, sparkles = 4 },
+		kitten = { colour = Presets.palette.blush },
+	},
+	-- the window floats its own "+1" and "+3" over the hole, so the catch pops are sparkles and a ring only
+	catch = { colour = Presets.palette.mint, sparkles = 4, rings = 1 },
+	catchBig = {
+		colour = Presets.palette.golden,
+		sparkles = 8,
+		rings = 1,
+	},
+	catchGolden = {
+		colour = Presets.palette.golden,
+		sparkles = 12,
+		rings = 1,
+	},
+	-- the dust as a mouse ducks back in: round blobs off the hole's rim; `drop` is how far under the hole's middle
+	-- they start, in hole heights
+	puff = {
+		count = 6,
+		colour = Presets.palette.lampWarm,
+		size = 16,
+		reach = 34,
+		seconds = 0.45,
+		transparency = 0.25,
+		drop = 0.15,
+	},
+	wrong = {
+		kitten = { word = "mrow?", colour = Presets.palette.blush, wordSize = 24 },
+		empty = { colour = Presets.palette.sparkle, stars = 3, puffs = 3 },
+	},
+	heart = {
+		colour = Presets.palette.nosePink,
+		sparkles = 6,
+		lost = Presets.palette.furGrey,
+		puffs = 3,
+	},
+	-- the window's banner says "Faster!", so this is the ring and sparkles round the score only
+	faster = {
+		colour = Presets.palette.eyeBlue,
+		sparkles = 6,
+		rings = 1,
+	},
+	best = {
+		colour = Presets.palette.golden,
+		confetti = { Presets.palette.golden, Presets.palette.mint, Presets.palette.nosePink },
+		sparkles = 12, -- the phone's burst cap, shared out over the confetti colours
+		rings = 2,
+		ringGap = 0.15,
+		wordSize = 34, -- for the words the window hands over ("You win!")
+	},
+	-- MouseDashFx.bounce: how far each kind swells (over 1) or dips (under 1) before it settles
+	bounce = { seconds = 0.22, peaks = { pop = 1.15, squash = 0.8, pulse = 1.25 } },
 }
 
 Presets.tradeFly = {
@@ -3371,8 +3516,15 @@ Presets.decorFx = {
 -- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
 -- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
-	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
-	glints = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	shows = {
+		Common = true,
+		Rare = true,
+		Epic = true,
+		Legendary = true,
+		Mythical = true,
+		Secret = true,
+	} :: { [string]: boolean },
+	glints = { Legendary = true, Mythical = true, Secret = true } :: { [string]: boolean },
 	above = 0.9,
 	-- #2231 (Derek2 2026-11-07: "make the gems that show raritys glow and be more obvious"): the billboard is twice
 	-- the old one, the gem a bit under half of it (about 1.5 times the old gem) and a halo in the rarity colour fills
@@ -3392,7 +3544,14 @@ Presets.rarityMark = {
 		{ scale = 0.78, transparency = 0.66 },
 		{ scale = 0.6, transparency = 0.5 },
 	} :: { { scale: number, transparency: number } },
-	halo = { Common = 0.3, Rare = 0.5, Epic = 0.7, Legendary = 0.85, Mythical = 1 } :: { [string]: number },
+	halo = {
+		Common = 0.3,
+		Rare = 0.5,
+		Epic = 0.7,
+		Legendary = 0.85,
+		Mythical = 1,
+		Secret = 1,
+	} :: { [string]: number },
 	haloRest = 0.92, -- of the billboard, while still
 	-- Epic and up breathe their halo out to `grow` times its rest size over `seconds` (one way), faster and further the
 	-- rarer; held still with Reduce Motion or Low performance
@@ -3400,12 +3559,13 @@ Presets.rarityMark = {
 		Epic = { seconds = 1.4, grow = 1.08 },
 		Legendary = { seconds = 1.1, grow = 1.14 },
 		Mythical = { seconds = 0.8, grow = 1.2 },
+		Secret = { seconds = 0.7, grow = 1.26 },
 	} :: { [string]: { seconds: number, grow: number } },
 	bob = 0.15,
 	bobSeconds = 0.9, -- one way
 	glintSize = 0.3,
 	glintSeconds = 0.3, -- one way
-	glintEvery = { Legendary = 2.6, Mythical = 1.6 } :: { [string]: number }, -- seconds between glints
+	glintEvery = { Legendary = 2.6, Mythical = 1.6, Secret = 1.2 } :: { [string]: number }, -- seconds between glints
 	hideWithin = 0,
 	showAfter = 0,
 	maxDistance = 80,
@@ -3464,6 +3624,14 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+	-- #3462: the Day Cart's Tier 6 potions, each a bigger, busier glow of its smaller kind
+	big_lucky_potion = { emitter = "potionBigLucky", on = "Body", colour = palette.leaf },
+	big_gold_rush_potion = {
+		emitter = "potionBigGoldRush",
+		on = "Body",
+		colour = palette.goldLight,
+	},
+	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
@@ -4501,6 +4669,52 @@ Presets.trailSparkle = {
 	recheck = 3,
 }
 
+-- The Rummage Bin's prize roll and its reward effects (#3608; Effects/BinRoll). The roll goes `laps` times down
+-- the list and on to the prize, a tick every `first` seconds until the last lap's worth of ticks slow evenly toward
+-- `last` (the final gap is 6/7 of the way there; 2.0 to 2.5 s for the seven rows of the design, whose
+-- BinRollSeconds is 2.5). While it rolls the bin rattles: it tips `rattle` degrees side to side `rattleHz` times a second about its base (still with Reduce
+-- Motion). A row with no tier of its own gets one from its chance: at most `good` the middle show, at most `best`
+-- the big one. `landed` is what the bin does as the roll stops, `tiers` what it does on the win, one entry per
+-- tier: `sparkles` in a burst, a ground ring `ring` studs wide (0 for none), `confetti` as a share of the budget's
+-- confetti, a light column `beam` studs high for `beamSeconds` (0 for none) and a `shake` of the screen in studs
+-- (the big win only; off with Screen shake or Reduce Motion). The landing's column is short and thin so it is
+-- gone before the bar's first hit and never covers the bar (design section 4).
+Presets.binRoll = {
+	laps = 2,
+	first = 0.067,
+	last = 0.45,
+	rattle = 4,
+	rattleHz = 7,
+	good = 0.15,
+	best = 0.05,
+	lift = 3, -- studs over the bin's base where a burst comes out
+	emitter = "catchSparkle",
+	landed = {
+		{ sparkles = 0, ring = 0, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 6, ring = 5, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 10, ring = 6, confetti = 0, beam = 14, beamSeconds = 0.9, shake = 0 },
+	},
+	tiers = {
+		{ sparkles = 6, ring = 0, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 12, ring = 7, confetti = 0.4, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 20, ring = 10, confetti = 1, beam = 40, beamSeconds = 3, shake = 0.12 },
+	},
+	-- common, good (the board's soft blue edge) and best (gold)
+	colours = { Presets.palette.offwhite, Color3.fromRGB(143, 208, 255), Presets.palette.golden },
+	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
+	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
+	-- Yard Sale stall) just skips this.
+	reveal = 0.45, -- seconds a fixed prize's reveal takes (no roll)
+	-- the prize's hop from the bin to the player
+	hop = { seconds = 0.55, height = 3, size = 0.7, sparkles = 4 },
+	lidSuffix = "_Empty",
+	lid = {
+		{ height = 0, seconds = 0, turns = 0, fly = false },
+		{ height = 1.6, seconds = 0.45, turns = 0, fly = false },
+		{ height = 9, seconds = 1.1, turns = 1.5, fly = true },
+	},
+}
+
 -- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the
 -- rolled cat floats up over the pool in a sparkle and drops in with a splash, the liquid steps grey, green, blue, gold
 -- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to purple with a
@@ -4543,6 +4757,150 @@ Presets.mysticPool = {
 		Color3.fromHex("4CAF50"),
 		Color3.fromHex("3F8FE0"),
 	},
+}
+
+-- #3430 (the Mystic Pool's first walk-up cutscene, Effects/MysticIntroCut). Seconds and studs. The camera swings to
+-- `back` studs out along the pool's front and `up` up (`backTall`, `upTall` on a portrait screen), looking `lookUp`
+-- over the liquid, trying each of `swings` degrees round it for a clear line. Then the five colours at `step` seconds
+-- each (3 s), the silhouette's `rise` (2 s) and the swing back: about 7 s in all, inside the spec's 6 to 8.
+Presets.mysticIntro = {
+	swingIn = 1,
+	swingOut = 0.8,
+	steps = 5, -- the five rarity colours (shared/Traits.RARITIES)
+	step = 0.6, -- per colour, as the roll's own steps
+	blend = 0.25,
+	rise = 2, -- the silhouette and the card line
+	riseSeconds = 1.2, -- of those, how long it takes to come up
+	riseHeight = 2.5, -- studs over the liquid
+	riseTurn = 60, -- degrees it turns through as it comes up
+	raise = 0.4, -- Sorrel's staff going up
+	waveHz = 0.8, -- then his wave, slow
+	waveLow = 0.7, -- the wave's low point, as a share of fully raised
+	back = 13,
+	up = 2.5, -- a low view, so the moon arch stands over the pool
+	backTall = 17,
+	upTall = 4,
+	lookUp = 2.5,
+	swings = { 0, 25, -25, 50, -50 },
+	maxDistance = 40,
+	bubbles = 8,
+	sparkles = 14,
+	cat = "CatCafe_Cat_Tabby_Sit", -- the silhouette's shape
+	shade = Color3.fromRGB(58, 44, 110), -- a deep violet, never black
+	words = "The Mystic Pool gives your cat a special trait",
+	lineSize = 24,
+	lineHeight = 44,
+	lineWidth = 560,
+	lineUp = 84, -- pixels over the bottom edge, clear of the skip label
+	lineCard = Presets.palette.offwhite,
+	lineText = Color3.fromRGB(74, 52, 38),
+	still = 2, -- Reduce Motion: the card line alone
+	skipAfter = 0.2, -- a press sooner is the walk-up's own
+	skipOut = 0.25,
+	skipSize = 18,
+	skipFade = 0.4,
+	displayOrder = 10,
+	cap = 9, -- controls always come back by now
+	tvSafe = 0.05,
+}
+
+-- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for
+-- the party's start, the gift on its way and the gift paid. Pixels and seconds. The words are the caller's (#3420);
+-- `titleLength` and `lineLength` are the most characters drawn. Everything plays once per banner.
+Presets.eventBanner = {
+	displayOrder = 29,
+	queue = 3, -- banners that may wait behind the one showing
+	hold = 5, -- seconds at rest when the caller gives none; a tap on the card sends it away sooner
+	holdMin = 3,
+	holdMax = 5, -- Derek, 2026-11-12: gone by itself in 3 to 5 seconds
+	titleLength = 24,
+	lineLength = 36,
+	maxLines = 3,
+	-- the card
+	widthScale = 0.9,
+	maxWidth = 440,
+	top = 10, -- under the Roblox top bar
+	pad = 10,
+	corner = 16,
+	titleHeight = 36,
+	titleSize = 30,
+	lineHeight = 24,
+	lineSize = 20,
+	badgeSize = 56,
+	card = Presets.palette.offwhite,
+	outline = Color3.fromRGB(74, 52, 38), -- the UI's dark brown outline
+	stripTop = Presets.palette.goldLight,
+	stripBottom = Presets.palette.golden,
+	titleText = Presets.palette.milk,
+	lineText = Color3.fromRGB(74, 52, 38),
+	badge = Presets.palette.neonPink,
+	badgeText = Presets.palette.milk,
+	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
+	-- the motion
+	dropSeconds = 0.45,
+	leaveSeconds = 0.3,
+	fadeSeconds = 0.25, -- Reduce Motion: fade in and out in place
+	shineSeconds = 0.7, -- one sweep as the card lands
+	shineWidth = 0.3,
+	shineTransparency = 0.45,
+	-- the confetti as it lands (12 is the phone's burst cap)
+	confetti = 12,
+	confettiSoon = 6,
+	confettiColours = { Presets.palette.golden, Presets.palette.neonPink, Presets.palette.mint },
+	confettiSize = 12,
+	confettiSeconds = 0.7,
+	confettiReach = 46,
+	confettiStagger = 0.25,
+	-- the gift's golden fish hopping out from under the card
+	fish = 8,
+	fishSize = 34,
+	fishSeconds = 1.1,
+	fishStagger = 0.07,
+	fishUp = 40,
+	fishFall = 150,
+	fishSpread = 180,
+}
+
+-- A Secret stray in the world (#3470 section 5: "a soft dark aura and a thin beam of light to the sky that can be
+-- seen from the camp"). The aura is the secretAura haze on the cat's body, with the secretStars unless Low
+-- performance is on. The beam stands `height` studs tall over the cat and is `perStud` studs wide for each stud
+-- between you and it, between `widthMin` and `widthMax`, so it stays a thin line on screen from any distance; it is
+-- see-through by `far` from a distance and fades to `near` inside `nearWithin` studs so it never covers the catch.
+-- It holds still: no pulse, so nothing flashes. The `most` nearest Secret strays show; there is rarely even one.
+Presets.secretStray = {
+	most = 2, -- cats wearing the haze at once
+	-- The beam also shows for a Secret stray too far to be streamed in, from the server's beacons: the Folder
+	-- `beacons` in ReplicatedStorage (Catching.SECRET_BEACONS) holds a Vector3Value per live Secret stray, named by
+	-- its StrayId, with the cat's position every 2 seconds. The `beams` nearest show, and a beam with no cat model
+	-- here glides to each new position at `glide` of the way a second, snapping past `snap` studs (a new spot).
+	beacons = "SecretBeacons",
+	beams = 3,
+	glide = 3,
+	snap = 60,
+	checkEvery = 0.5,
+	beam = {
+		height = 260,
+		lift = 1.2, -- studs over the cat's pivot where the beam starts
+		perStud = 0.007,
+		widthMin = 0.45,
+		widthMax = 4,
+		far = 0.3,
+		near = 0.8,
+		nearWithin = 30,
+		fadeOver = 30, -- studs past nearWithin over which it reaches `far`
+		topFade = 0.45, -- share of the height over which the top fades to nothing
+	},
+}
+
+-- #3464 (a loot card's pop-in, Effects/LootCardFx): the card scales in from `from` over `popSeconds` with one soft
+-- overshoot, its first row lands at `firstRow` seconds and each next one `gap` later; `bounceSeconds` is the icon
+-- bounce's length (Presets.mouseDash.bounce.seconds), counted so the pop-in's end covers the last bounce.
+Presets.lootCard = {
+	from = 0.8,
+	popSeconds = 0.22,
+	firstRow = 0.12,
+	gap = 0.15,
+	bounceSeconds = 0.22,
 }
 
 return Presets

@@ -7,10 +7,12 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_GoldenFish   the one Golden Fish picture (F97): a shiny gold fish (icon_art.py), for the HUD counter,
                             prices, prize chips, toasts and the Market badge
   CatCafe_Icon_Crate_<Pool>[_Gold]   each Cafe Crate and golden crate (crates.py), three-quarter view
-  CatCafe_Icon_<Food>       the seven foods by game id: Kibble, Tuna, Sardines, Salmon, Caviar, MoonMilk, StarTreat
+  CatCafe_Icon_<Food>       the seven foods by game id: Kibble, Tuna, Sardines, Salmon, Caviar, MoonMilk, StarTreat,
+                            and the Day Cart's HoneyCream and CometTreat (#3462)
                             (icon_art.py, F97 section 3)
   CatCafe_Icon_Perk_<Perk>  the Golden Fish Market perks: GoldenEspresso (a paw in the foam), BigBowl (a "-2:00" tag),
-                            ExtraDecorSpot (a dotted square, a plus and a tiny plant) (icon_art.py)
+                            ExtraDecorSpot (a dotted square, a plus and a tiny plant), LuckyCharm (#3298, a clover charm), SwiftPaws (a galloping
+                            tabby with speed streaks, #3330) (icon_art.py)
   CatCafe_Icon_Coins, _Spin the prize pictures: a stack of three gold coins and the Spin Wheel's wheel (icon_art.py)
   CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
   CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
@@ -43,6 +45,7 @@ import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 
 import common  # noqa: E402
+import arcade_icons  # noqa: E402
 import cats  # noqa: E402
 import crates  # noqa: E402
 import icon_art  # noqa: E402
@@ -125,9 +128,13 @@ ICONS = {
     "CatCafe_Icon_Caviar": (icon_art.caviar, INK, 10, (-18.0, 32.0)),
     "CatCafe_Icon_MoonMilk": (icon_art.moon_milk, INK, 10, (-14.0, 12.0)),
     "CatCafe_Icon_StarTreat": (icon_art.star_treat, INK, 10, (-16.0, 8.0)),
+    "CatCafe_Icon_HoneyCream": (icon_art.honey_cream, INK, 10, (-14.0, 12.0)),     # #3462
+    "CatCafe_Icon_CometTreat": (icon_art.comet_treat, INK, 10, (-12.0, 8.0)),
     "CatCafe_Icon_Perk_GoldenEspresso": (icon_art.golden_espresso, GOLD_INK, 10, (-20.0, 34.0)),
     "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),
+    "CatCafe_Icon_Perk_SwiftPaws": (icon_art.swift_paws, INK, 10, (-60.0, 10.0)),   # #3330
+    "CatCafe_Icon_Perk_LuckyCharm": (icon_art.lucky_charm, INK, 10, (-14.0, 8.0)),   # #3298
     "CatCafe_Icon_Coins": (icon_art.coins, GOLD_INK, 10, (-16.0, 34.0)),
     "CatCafe_Icon_Spin": (icon_art.spin_wheel, INK, 10, (-12.0, 6.0)),
     "CatCafe_Icon_Decor": (_hud_decor, INK, 10, (-24.0, 16.0)),
@@ -154,6 +161,10 @@ ICONS = {
     "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
     # Derek2 11-09: the Cafe Pass and Style tab's uniform colours and chat tags (pass_reward_icons.py)
     **{n: (fn, INK, 10, pass_reward_icons.VIEWS[n]) for n, fn in pass_reward_icons.ICONS.items()},
+    # #3296: Mouse Dash, the Cat Arcade's second game (arcade_icons.py): mice, kitten, hole, paw, hearts, cellar
+    **{f"CatCafe_Icon_Arcade_{n}": (fn, INK, arcade_icons.WIDTHS.get(n, arcade_icons.WIDTH), arcade_icons.VIEWS[n],
+                                      arcade_icons.PADS.get(n))
+       for n, fn in arcade_icons.BUILDERS.items()},
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},
@@ -309,6 +320,9 @@ def render_icon(name, mat, samples=48):
         fl.hide_render = True
     _lights()
     _camera(objs, view, pad, fit)
+    for ob in objs:                         # arcade_icons.py: an object that only frames the camera
+        if ob.get("fit_only"):
+            ob.hide_render = True
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name + ".png")
     sc.render.filepath = path

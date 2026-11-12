@@ -18,6 +18,10 @@ Potions.STEADY = "steady_potion"
 Potions.BIG_TIP = "big_tip_potion"
 Potions.GOLD_RUSH = "gold_rush_potion"
 Potions.QUICK_BAIT = "quick_bait_potion"
+-- #3462: the Day Cart's Tier 6 potions
+Potions.BIG_LUCKY = "big_lucky_potion"
+Potions.BIG_GOLD_RUSH = "big_gold_rush_potion"
+Potions.MEGA_TIP = "mega_tip_potion"
 
 -- The timer a potion runs (corner-shop-v2.md section 4): a Small or Big size's regular potion, else its own id.
 function Potions.buffOf(potionId: string): string
@@ -80,16 +84,34 @@ for _, def in Catalog.potions do
 	Potions.MAX_GOLD_LUCK += def.goldLuck or 0
 end
 
+-- #3462: the Luck the running lucky potions give at `now` and the seconds it lasts at that value: the biggest of a
+-- running Lucky Potion's Config.LuckyPotionLuck and every running potion's own `luck` (the Big Lucky Potion's). They
+-- never add. 0 and 0 with none running.
+function Potions.luck(profile: Types.PlayerProfile, now: number): (number, number)
+	local best, left = 0, 0
+	local lucky = Potions.left(profile, Potions.LUCKY, now)
+	if lucky > 0 then
+		best, left = Config.LuckyPotionLuck, lucky
+	end
+	for _, def in Catalog.potions do
+		if def.luck ~= nil and def.luck > best then
+			local mine = Potions.left(profile, def.id, now)
+			if mine > 0 then
+				best, left = def.luck, mine
+			end
+		end
+	end
+	return best, left
+end
+
 -- Added to walk and carry speed while a Swift Potion runs.
 function Potions.speedBonus(profile: Types.PlayerProfile, now: number): number
 	return if Potions.running(profile, Potions.SWIFT, now) then Config.SwiftPotionSpeed else 0
 end
 
--- The gold chance of food set in the bowl now: doubled while a Lucky Potion runs.
+-- The gold chance of food set in the bowl now: doubled while a Lucky Potion runs, or a Big Lucky Potion (#3462).
 function Potions.baitGoldChance(profile: Types.PlayerProfile, chance: number, now: number): number
-	return if Potions.running(profile, Potions.LUCKY, now)
-		then chance * Config.LuckyPotionGoldScale
-		else chance
+	return if Potions.luck(profile, now) > 0 then chance * Config.LuckyPotionGoldScale else chance
 end
 
 -- The net level the circles use: the next one while a Steady Paw Potion runs. Circles clamps the level to the
@@ -165,6 +187,22 @@ function Potions.useMany(
 		drunk += 1
 	end
 	return drunk
+end
+
+-- #3326 (the Bag's "Use all potions"): drinks, for every potion kind in the bag in bag order, as many as fit under
+-- PotionMaxMinutes (Potions.fitCount, so a Small and a regular size of one potion share its room). Kinds already full
+-- are skipped and whatever does not fit stays in the bag. Returns potion id -> how many were drunk, and the total.
+function Potions.useAll(profile: Types.PlayerProfile, now: number): ({ [string]: number }, number)
+	local drunk: { [string]: number } = {}
+	local total = 0
+	for _, def in Catalog.potions do
+		local n = Potions.useMany(profile, def.id, Potions.fitCount(profile, def.id, now), now)
+		if n > 0 then
+			drunk[def.id] = n
+			total += n
+		end
+	end
+	return drunk, total
 end
 
 -- Counts every timer down by `elapsed` seconds of play and drops the ones that ran out (Economy.settle).

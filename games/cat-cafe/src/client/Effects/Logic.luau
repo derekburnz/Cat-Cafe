@@ -3477,6 +3477,7 @@ function Logic.binLidPop(u: number, height: number, fly: boolean): (number, numb
 		return height * (1 - (1 - t) * (1 - t)), math.clamp((t - 0.6) / 0.4, 0, 1)
 	end
 	return 4 * height * t * (1 - t), 0
+end
 
 -- #3548, #3549: the pitch (radians, negative looking down) and distance (studs) of the view handed back to the game's camera, from the ones
 -- the camera had at launch. Both are kept inside a normal play view, so a camera that was looking straight down or

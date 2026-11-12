@@ -989,7 +989,7 @@ local Config = {
 	-- pulls one BinTable prize out (chances add to 1, shown on its prompt). The account's first BinFirstUses rummages
 	-- are easier (BinFirstEase on top of BinZoneWidth and BinBarSpeed) and BinFirstRepeatSeconds apart; after that
 	-- the bin fills every BinCooldownSeconds. A miss costs nothing and waits BinMissRetrySeconds. The first win is
-	-- always BinFirstPrizes[1] and the second BinFirstPrizes[2] (row ids). Amounts: Monetization-Agent 2026-11-10.
+	-- always BinFirstPrizes[1], the second BinFirstPrizes[2] and so on (#3460: their own rows, below).
 	BinFirstUses = 3,
 	BinFirstRepeatSeconds = 180,
 	BinCooldownSeconds = 900,
@@ -997,21 +997,44 @@ local Config = {
 	-- Design-Agent on #3050 after #3120 and #3223: the bin's bar is set in absolute numbers and never follows the
 	-- rescue bars' RescueZoneWidth or RescueBarSpeed, so a rescue change never makes the bin harder: the old Common
 	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
-	BinZoneWidth = 0.42,
-	BinBarSpeed = 0.64,
+	-- #3458 (Derek 2026-11-12: "make the game require 5 hits and medium bit faster and a lot smaller area"): the
+	-- bin's own hit count (BinHits, never the rescue's), its zone 0.42 to 0.22 and its marker 0.64 to 0.80. The
+	-- first BinFirstUses rummages keep BinFirstEase (0.35 at 0.48) and need the 5 hits too.
+	BinHits = 5,
+	BinZoneWidth = 0.22,
+	BinBarSpeed = 0.80,
 	BinFirstEase = { zone = 1.6, speed = 0.6 },
-	BinFirstPrizes = { "tuna", "crate" },
+	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost
+	-- also"): an account's first three wins are these fixed prizes in order, their own rows apart from BinTable, so
+	-- they never change the rolled chances. A row may hold more than one thing; `count` is how many of its lure,
+	-- crate or potion (1 when left out).
+	BinFirstPrizes = {
+		{ id = "first_tuna", lure = "tuna", count = 2, fish = 10 },
+		{ id = "first_crate", crate = "alley_crate", potion = "lucky_potion" },
+		{ id = "first_salmon", lure = "salmon", fish = 10 },
+	} :: {
+		{
+			id: string,
+			chance: number?,
+			count: number?,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+		}
+	},
 	BinTable = {
-		{ id = "tuna", chance = 0.40, lure = "tuna" },
-		{ id = "fish", chance = 0.25, fish = 5 },
-		{ id = "salmon", chance = 0.12, lure = "salmon" },
-		{ id = "potion", chance = 0.11, potion = "lucky_potion" },
-		{ id = "crate", chance = 0.10, crate = "alley_crate" },
+		{ id = "tuna", chance = 0.34, lure = "tuna", count = 2 },
+		{ id = "fish", chance = 0.25, fish = 8 },
+		{ id = "salmon", chance = 0.15, lure = "salmon" },
+		{ id = "potion", chance = 0.12, potion = "lucky_potion" },
+		{ id = "crate", chance = 0.12, crate = "alley_crate" },
 		{ id = "golden", chance = 0.02, crate = "alley_golden_crate" },
 	} :: {
 		{
 			id: string,
-			chance: number,
+			chance: number?,
+			count: number?,
 			lure: string?,
 			fish: number?,
 			crate: string?,

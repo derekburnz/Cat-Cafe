@@ -2251,7 +2251,13 @@ Layout.campExtras = {
 -- turned to the pad so a player who lands sees its paw print. No other prompt stands within 12 studs (the cannon's
 -- front is 16 away, the basket 22, the Index Board 38 and the nearest stray spawn 18), and it keeps off the walk from
 -- the pad to the arch and the bench behind it.
-Layout.rummageBin = { area = "alley", x = 10.5, z = -8, rotY = 65 }
+-- #3458 (Derek 2026-11-12: "move the rummage bin off to the side out of entrance more"): at (10.5, -8) it stood
+-- inside the width of the camp's way out (20.3 either side of the middle), between the pad and the arch. It stands
+-- 5.7 studs outside that opening's edge now, near level with the pad at (0, -13), still on the side away from the
+-- basket and the Index Board, its front turned to the pad. Model-Agent's spot against the real parts (Design's
+-- (26, -14) put the camp bench between the pad and the bin): 4.5 off the gate wall's flower bed, 8.3 off the arch
+-- pier, 9 or more off the bench, no other prompt within 12. Derek OK'd it on the picture.
+Layout.rummageBin = { area = "alley", x = 26, z = -10, rotY = 83.4 }
 
 -- Where the Rummage Bin stands in the world: x, the floor's y, z and its turn about Y, or nil without that camp.
 function Layout.rummageBinAt(): (number?, number?, number?, number?)

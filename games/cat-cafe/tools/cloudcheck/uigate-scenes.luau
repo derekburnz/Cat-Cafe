@@ -2958,6 +2958,40 @@ local SCENES = {
 		UIShim.setLastInput(nil)
 		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
 	end },
+	-- #3464: the Rummage Bin's loot card, a two-item win and a golden crate win
+	{ "LootCardTwo", function()
+		UI.loot.show({ id = "first_tuna", first = true, items = {
+			{ kind = "lure", id = "tuna", count = 2 },
+			{ kind = "fish", count = 10 },
+		} })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no loot card for a two-item rummage win (#3464)")
+		local rows = card:FindFirstChild("Rows")
+		local one, two = rows:FindFirstChild("Row1"), rows:FindFirstChild("Row2")
+		assert(one and two and rows:FindFirstChild("Row3") == nil, "uigate: the loot card does not list exactly the two items won (#3464)")
+		assert((one:FindFirstChild("Name") :: TextLabel).Text == "Tuna", "uigate: the loot card's first row is not Tuna (#3464)")
+		assert((one:FindFirstChild("Amount") :: TextLabel).Text == "x2", "uigate: the loot card's Tuna row does not read x2 (#3464)")
+		assert((two:FindFirstChild("Amount") :: TextLabel).Text == "+10", "uigate: the loot card's golden fish row does not read +10 (#3464)")
+		-- the pop-in (Effects/LootCardFx) starts the card a little small and lands the rows in turn; once it has
+		-- played out the card is at full size with both rows up
+		UIShim.advance(1)
+		assert(one.Visible and two.Visible, "uigate: a loot card row is still hidden after the pop-in (#3464)")
+		assert(one.AbsoluteSize.Y >= 36, "uigate: a loot card row is under 36 px tall (#3464)")
+	end },
+	{ "LootCardGold", function()
+		UI.loot.show({ id = "golden", first = false, items = { { kind = "crate", id = "alley_golden_crate", count = 1 } } })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no loot card for a golden crate win (#3464)")
+		local frame = card:FindFirstChild("Frame") :: UIStroke
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		assert(frame.Color == Theme.colors.gold, "uigate: a golden crate win has no gold frame (#3464)")
+		-- a tap on the card closes it; a win with nothing to list shows nothing
+		UIShim.fire(UIShim.eventOf(card, "Activated"))
+		assert(not card.Visible, "uigate: a tap did not close the loot card (#3464)")
+		UI.loot.show({ id = "tuna", first = false })
+		assert(not card.Visible, "uigate: a win with no items showed a loot card (#3464)")
+		UI.loot.show({ id = "golden", first = false, items = { { kind = "crate", id = "alley_golden_crate", count = 1 } } })
+	end },
 	{ "GiftCardLike", function()
 		UI.recap.lastInput = os.clock() - 30 -- idle
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
@@ -5089,9 +5123,16 @@ local SCENES = {
 			assert(outcome.Text ~= "Rescued!" and outcome.Text ~= "Found something!", "uigate: the bin's win does not name its prize: " .. id .. " (#3050)")
 			UIShim.advance(3)
 		end
-		local outcome, detail = win("tuna", true)
-		assert(outcome.Text == "Tuna!", "uigate: the first win does not read Tuna! (#3050)")
+		-- #3460: the first win is the fixed first prize, 2 Tuna and 10 golden fish
+		local outcome, detail = win("first_tuna", true)
+		assert(outcome.Text == "2 Tuna and more!", "uigate: the first win reads " .. outcome.Text .. ", not 2 Tuna and more! (#3460)")
 		assert(detail.Text:find("Put it in your bowl", 1, true), "uigate: the first Tuna does not point at the bowl (#3050)")
+		for _, id in { "first_crate", "first_salmon" } do
+			UIShim.advance(3)
+			win(id, false) -- the other fixed prizes' titles fit too
+		end
+		UIShim.advance(3)
+		win("first_tuna", true)
 		local tap = barGui:FindFirstChild("Tap")
 		assert(tap and not tap.Visible, "uigate: the tap catcher still covers the screen after a bin win (#3050)")
 		local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")
@@ -9139,6 +9180,9 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if UI.loot.card then
+		UI.loot.card:hide()
+	end
 	reel(false)
 	if Scenes._packed ~= nil then
 		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene

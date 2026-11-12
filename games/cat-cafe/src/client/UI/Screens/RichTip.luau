@@ -39,8 +39,15 @@ local STAY: number = Config.RichBagSeconds
 local PENDING_SECONDS = 3 -- Collect shows "Collecting..." this long unless the tip clears first
 local OFFSET = 3.2 -- studs above the bag
 local TOUCH = 4 -- studs: this close to a bag collects it without the button (rich-money-bags.md section 4)
-local BUBBLE_ONE = 88 -- the bubble's height in px with one bag waiting
-local BUBBLE_MANY = 106 -- and with the "waiting in N bags" line
+-- #3633 (Derek 2026-11-12: "make the rich tip pop up like 50-75% smaller it takes up too much screen"): the bubble
+-- and its button took 220 x 168 px. Now 136 x 90 with one bag (about two thirds less screen): the amount, one thin
+-- timer with the clock beside it, and a shorter Collect. The "RICH TIP" heading is gone; the gold says it.
+local WIDTH = 136 -- the billboard's width in px
+local BUBBLE_WIDTH = 132
+local BUBBLE_ONE = 46 -- the bubble's height in px with one bag waiting
+local BUBBLE_MANY = 60 -- and with the "in N bags" line
+local BUTTON = Vector2.new(112, 36)
+local BUTTON_GAP = 6
 local BOB = 0.18 -- studs of gentle bobbing (off with Reduced Motion)
 
 export type Callbacks = {
@@ -92,7 +99,8 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 		LightInfluence = 0,
 		MaxDistance = 150,
 		ResetOnSpawn = false,
-		Size = UDim2.fromOffset(220, 168),
+		-- 6 px under the button for its touch pad, which reaches past its face
+		Size = UDim2.fromOffset(WIDTH, BUBBLE_MANY + BUTTON_GAP + BUTTON.Y + 6),
 		StudsOffset = Vector3.new(0, OFFSET, 0),
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Parent = parent,
@@ -103,35 +111,24 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 		Name = "Bubble",
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromScale(0.5, 0),
-		Size = UDim2.fromOffset(204, BUBBLE_ONE),
+		Size = UDim2.fromOffset(BUBBLE_WIDTH, BUBBLE_ONE),
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		Parent = billboard,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, 18) }),
+		Create("UICorner", { CornerRadius = UDim.new(0, 12) }),
 	})
 	Outline.border(bubble)
 	Outline.shade(bubble)
 	self._bubble = bubble
 
-	self._title = Create("TextLabel", {
-		Name = "Title",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.new(1, 0, 0, 16),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.colors.goldText,
-		Text = "RICH TIP",
-		Parent = bubble,
-	})
 	local amount: TextLabel = Create("TextLabel", {
 		Name = "Amount",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 22),
-		Size = UDim2.new(1, 0, 0, 36),
+		Position = UDim2.fromOffset(0, 3),
+		Size = UDim2.new(1, 0, 0, 24),
 		FontFace = Theme.fonts.display,
-		TextSize = 32,
+		TextSize = 21,
 		TextColor3 = Theme.colors.white,
 		Text = "",
 		Parent = bubble,
@@ -142,20 +139,21 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 	self._more = Create("TextLabel", {
 		Name = "More",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 58),
-		Size = UDim2.new(1, 0, 0, 16),
+		Position = UDim2.fromOffset(0, 27),
+		Size = UDim2.new(1, 0, 0, 14),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall,
+		TextSize = 12,
 		TextColor3 = Theme.colors.goldText,
 		Text = "",
 		Visible = false,
 		Parent = bubble,
 	})
 
+	-- the draining timer along the bottom, the clock at its right end
 	local track: Frame = Create("Frame", {
 		Name = "Timer",
-		Position = UDim2.new(0, 16, 1, -20),
-		Size = UDim2.new(1, -32, 0, 10),
+		Position = UDim2.new(0, 10, 1, -14),
+		Size = UDim2.new(1, -54, 0, 7),
 		BackgroundColor3 = Theme.colors.goldDark,
 		BorderSizePixel = 0,
 		Parent = bubble,
@@ -172,16 +170,28 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
+	self._title = Create("TextLabel", {
+		Name = "Clock",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -8, 1, -11),
+		Size = UDim2.fromOffset(32, 14),
+		FontFace = Theme.fonts.display,
+		TextSize = 12,
+		TextColor3 = Theme.colors.goldText,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = "",
+		Parent = bubble,
+	})
 
 	self._button = Button.new({
 		name = "Collect",
 		text = "Collect",
-		icon = "💰",
 		style = "primary",
-		size = UDim2.fromOffset(160, 46),
-		position = UDim2.new(0.5, 0, 0, 98),
+		size = UDim2.fromOffset(BUTTON.X, BUTTON.Y),
+		position = UDim2.new(0.5, 0, 0, BUBBLE_ONE + BUTTON_GAP),
 		anchorPoint = Vector2.new(0.5, 0),
-		textSize = Theme.sizes.textLarge - 2,
+		textSize = Theme.sizes.textBody,
 		parent = billboard,
 		onClick = function()
 			self:_collect()
@@ -270,15 +280,15 @@ function RichTip._collect(self: any)
 	self._callbacks.collect(bag.id)
 end
 
--- The bubble's height and the button under it, with or without the "waiting in N bags" line.
+-- The bubble's height and the button under it, with or without the "in N bags" line.
 function RichTip._layout(self: any, many: boolean)
 	if self._many == many then
 		return
 	end
 	self._many = many
 	local height = if many then BUBBLE_MANY else BUBBLE_ONE
-	self._bubble.Size = UDim2.fromOffset(204, height)
-	self._button.instance.Position = UDim2.new(0.5, 0, 0, height + 10)
+	self._bubble.Size = UDim2.fromOffset(BUBBLE_WIDTH, height)
+	self._button.instance.Position = UDim2.new(0.5, 0, 0, height + BUTTON_GAP)
 	self._more.Visible = many
 end
 
@@ -299,11 +309,11 @@ function RichTip._tick(self: any)
 	end
 	self._picked = bag
 	self._amount.Text = "💰 " .. Format.money(bag.amount)
-	self._title.Text = "RICH TIP  ·  " .. RichTipState.clock(view.left)
+	self._title.Text = RichTipState.clock(view.left)
 	self._fill.Size = UDim2.fromScale(view.fraction, 1)
 	self:_layout(#bags > 1)
 	if #bags > 1 then
-		self._more.Text = string.format("%s waiting in %d bags", Format.money(total), #bags)
+		self._more.Text = string.format("%s in %d bags", Format.money(total), #bags)
 	end
 	if self._billboard.Adornee ~= anchor then
 		self._billboard.Adornee = anchor
@@ -532,7 +542,7 @@ function RichTip.preview(self: any, position: Vector3?, amount: number?)
 	assert(part, "preview part")
 	part.Position = position
 	self._amount.Text = "💰 " .. Format.money(amount or 0)
-	self._title.Text = "RICH TIP  ·  " .. RichTipState.clock(STAY)
+	self._title.Text = RichTipState.clock(STAY)
 	self._fill.Size = UDim2.fromScale(1, 1)
 	self._button:setText("Collect")
 	self._button:setEnabled(true)

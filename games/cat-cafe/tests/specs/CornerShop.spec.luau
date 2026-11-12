@@ -16,6 +16,8 @@ return function()
 	local WINDOW = CornerShop.window(NOW)
 
 	-- The first window from `from` that stocks at least one of `itemId`.
+	CornerShop.setTopShelf(true) -- #3462: these specs read the whole cart; one below checks the shut shelf
+
 	local function windowWith(itemId: string, from: number): number?
 		for window = from, from + 5000 do
 			if CornerShop.amountOf(window, itemId) > 0 then
@@ -170,19 +172,32 @@ return function()
 				local order = CornerShop.listOrder()
 				expect(#order).to.equal(#Catalog.cornerShop)
 				local seen: { [number]: boolean } = {}
+				local lastRegular = ""
 				for place, index in order do
 					expect(seen[index]).never.to.be.ok()
 					seen[index] = true
+					local row = Catalog.cornerShop[index]
+					if row.topShelf ~= true then
+						lastRegular = row.id
+					end
 					if place > 1 then
-						local before, row =
-							Catalog.cornerShop[order[place - 1]], Catalog.cornerShop[index]
-						expect(before.price <= row.price).to.equal(true)
-						if before.price == row.price then
-							expect(order[place - 1] < index).to.equal(true)
+						local before = Catalog.cornerShop[order[place - 1]]
+						-- #3462: the top shelf's rows come after every other row, cheapest first among themselves
+						if (before.topShelf == true) ~= (row.topShelf == true) then
+							expect(row.topShelf).to.equal(true)
+						else
+							expect(before.price <= row.price).to.equal(true)
+							if before.price == row.price then
+								expect(order[place - 1] < index).to.equal(true)
+							end
 						end
 					end
 				end
-				expect(Catalog.cornerShop[order[#order]].id).to.equal("cat_feast") -- the dearest, so the rarest
+				expect(lastRegular).to.equal("cat_feast") -- the dearest, so the rarest
+				-- so the Cat Feast keeps the place it had before the top shelf: 20th, in stock 43% of days
+				expect(Catalog.cornerShop[order[20]].id).to.equal("cat_feast")
+				expect(Catalog.cornerShop[order[21]].id).to.equal("honey_cream")
+				expect(Catalog.cornerShop[order[22]].id).to.equal("comet_treat")
 			end
 		)
 
@@ -495,6 +510,53 @@ return function()
 				end
 			end
 		)
+
+		it("#3462: shows and sells nothing from the top shelf until its switch is on", function()
+			local window = assert(windowWith("honey_cream", WINDOW))
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 0)
+			local function shown(): number
+				local count = 0
+				for _, item in CornerShop.view(state, window, 7).stock do
+					local row = Catalog.getCornerShopRow(item.itemId) :: any
+					if row.topShelf == true then
+						count += 1
+					end
+				end
+				return count
+			end
+			local top = 0
+			for index, row in Catalog.cornerShop do
+				if row.topShelf == true then
+					top += 1
+					-- the last rows of the list, so a shut shelf leaves the rows before it where they were
+					expect(index > #Catalog.cornerShop - 5).to.equal(true)
+				end
+			end
+			expect(top >= 2).to.equal(true)
+			expect(CornerShop.topShelfOpen()).to.equal(true) -- this file opens it at the top
+			expect(shown()).to.equal(top)
+			local regular = CornerShop.stock(window)
+			CornerShop.setTopShelf(false)
+			expect(shown()).to.equal(0)
+			expect(#CornerShop.view(state, window, 7).stock).to.equal(#Catalog.cornerShop - top)
+			expect(CornerShop.buyBlocker(state, buy("honey_cream", window, 7, 1e12), window)).to.equal(
+				"That isn't in the Corner Shop."
+			)
+			-- the roll itself does not move with the switch
+			expect(CornerShop.stock(window) :: any).to.deepEqual(regular)
+			CornerShop.setTopShelf(true)
+			expect(CornerShop.buyBlocker(state, buy("honey_cream", window, 7, 1e12), window)).to.equal(
+				nil
+			)
+			-- Buy all never takes a top shelf row, open or shut
+			local lures = {}
+			local plan =
+				CornerShop.planAll(state, window, "bait", 7, 1e13, { catFood = {}, lures = lures })
+			for _, item in plan do
+				expect((Catalog.getCornerShopRow(item.itemId) :: any).topShelf).never.to.be.ok()
+			end
+		end)
 
 		it("#3462: sells its own two baits from Tier 6 at one price for every tier", function()
 			for _, id in { "honey_cream", "comet_treat" } do

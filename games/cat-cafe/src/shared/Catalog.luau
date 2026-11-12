@@ -4621,8 +4621,9 @@ Catalog.cornerShop = {
 		lureId = "salmon",
 		price = 0,
 	},
-	-- #3462: the cart's own baits, Tier 6 and up, at the flat price of their Catalog.lures rows (`price` here is the
-	-- same number, so the stock roll places them by it)
+	-- #3462: the cart's own baits, Tier 6 and up, at the flat price of their Catalog.lures rows. They are top shelf
+	-- rows (shared/CornerShop): nothing shows or sells until the `cartTier6` switch is on, which waits for every
+	-- server to run a build that knows their ids. Top shelf rows stay the last rows of this list.
 	{
 		id = "honey_cream",
 		name = "Honey Cream",
@@ -4632,6 +4633,7 @@ Catalog.cornerShop = {
 		lureId = "honey_cream",
 		price = 1000000000,
 		needsTier = 6,
+		topShelf = true,
 	},
 	{
 		id = "comet_treat",
@@ -4642,6 +4644,7 @@ Catalog.cornerShop = {
 		lureId = "comet_treat",
 		price = 3000000000,
 		needsTier = 6,
+		topShelf = true,
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }

@@ -1116,6 +1116,9 @@ export type CornerShopRow = {
 	lureId: string?, -- #1281: a "bait" row's bowl food
 	xp: number?,
 	needsTier: number?,
+	-- #3462: a row of the Tier 6 shelf: not shown or sold until the `cartTier6` switch is on (shared/CornerShop's top
+	-- shelf), rolled after every other row, and never part of a Buy all
+	topShelf: boolean?,
 }
 -- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each row's buys (`today`, #1712) and
 -- the cat food XP bought (`foodXpToday`).

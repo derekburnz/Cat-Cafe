@@ -53,3 +53,46 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 - **Contents, in icon order:** the King Cat, the Grand Cafe theme, the Royal Crest crown sign, one decor piece and one allowed potion set. Gameplay-Engineer picks the decor piece and potion set from items that already exist, and they stay fixed. A buyer who already owns the Grand theme pass keeps it, and the bundle's Worth line counts only the parts they don't have (section 4).
 - **Badge:** "Best Value" when the live Worth reaches 1.25 x the price, which it should for a new buyer once the King Cat sells alone at R$799, since the Grand theme is a pass of its own.
 - **The King Cat alone** in the Cats tab: R$799 (R$399 in launch week), on a new pass that Derek2 creates by hand. Its card stays hidden until `KingCatPassId` is set in Config. Until then the cat counts at R$0 in the Worth line (section 2: a part not sold alone), so the badge may be missing at first. That's honest, and it fixes itself once the pass exists.
+
+## 8. Featured order, half prices and the Sale badge (Derek, 2026-11-12; #3562, #3572)
+
+Derek: "make the featured bundles better as it shows bad packs right now never show potion bundles unless they are only thing left, should focus on cats bundles 2x money being cheap etc", then "make the prizes of anything not being bought yet half'd" and "put a sale badge on it also rework the store with model agent". This section replaces the pick order in section 1. Not built yet.
+
+**Featured order (#3562).**
+- Hero, first one not owned: Starter Bundle, Royal Cat, King Cat Pack, Cafe Pass (while a season runs), Grand Cafe Theme.
+- Three picks, first three not owned and not the hero: the money ladder's next step (2x Money first, the cheapest item and the best seller), Royal Cat, King Cat Pack, Second Bait Bowl, Extra Slot, VIP, Long Nap, Cafe Pass, then the other passes.
+- Potion packs show on Featured only when every pass and every other product is owned. They stay on the Potions tab.
+- A card that is off sale or has no price yet is skipped. No badges other than Sale, no timers, nothing pre-selected.
+
+**Half prices (#3572).** Only items that had not sold by 2026-11-12, by Growth-Agent's read. Sales counts are kept in the private Library, not here.
+
+| Robux item | Was | Now |
+|---|---|---|
+| Golden Pond | 99 | 49 |
+| Extra Slot | 149 | 75 |
+| Uniform Styles | 149 | 75 |
+| Cafe Style | 249 | 125 |
+| Royal Cat | 599 | 299 |
+| King Cat | 799 | 399 |
+| Grand Cafe Theme | 799 | 399 |
+| King Cat Pack | 999 | 499 |
+| Potion Pack XS | 10 | 5 |
+| Potion Pack S | 25 | 13 |
+| Potion Pack M | 49 | 25 |
+| Potion Pack L | 99 | 49 |
+| Steady Paw Pack | 25 | 13 |
+| Thank You Badge | 25 | 13 |
+| Cafe Pass | 299 | 149 |
+
+Potion Pack L had sold, and Derek halved it too so the bigger pack is never the worse deal. Unchanged because they are selling: 2x, 3x and 4x Money, VIP, Long Nap, Cat Accessories, Second Bait Bowl, Garden Decor Pack, Sign Style Pack and the Starter Bundle. The Jukebox Pass is off sale. Managed pricing stays on in Creator Hub (Derek).
+
+In golden fish only the Fresh Catch shelf halves (rewards-and-shops.md section 3). Crates, perks, the Backpack and the Long Net are being bought and stay. **Crates are never halved without a look at duplicate refunds:** a duplicate piece refunds 10 to 150 golden fish, about 18 a crate on average at normal odds, so a crate at 20 would nearly pay for itself.
+
+**Sale badge.**
+- On the halved items only. The card shows a "Sale" tag, the old price struck through and the new price. The button shows the new price.
+- It has to be true: the old price is the real price of 2026-11-12, kept in `Config.StoreWasPrice`. If the live price is not the half price, no badge and no old price show.
+- It shows for 30 days from the day the prices change, then comes off and the half price is simply the price. No end date is shown.
+- A static tag. No countdown, no "ends soon", no flashing.
+
+**Layout rework.** Mock OK'd by Derek: `Model-Agent/store-rework-3572/store-rework-3572.png`. Left rail Featured, Cats, Passes, Potions, Cafe Pass, Codes. Two columns on a phone, a picture on every card, a green "Yours" tick on owned cards, the money ladder as one card with its next step. Same family as the station menus (#3558). A card's line must say what the item really does (the Golden Pond collects from anywhere, it does not make more fish).
+

@@ -42,7 +42,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason
 	LaunchCannon = RateLimiter.new(1, 1), -- hometown-cannon.md section 7: 1 a second
 	BuyDealerFood = RateLimiter.new(2, 1), -- recomputes the stock and answers with DealerStock every time
-	BuyDealerAll = RateLimiter.new(1, 2), -- #2573: a whole plan at once, so slower than one buy
+	-- #2573: a whole plan at once. 2 per 2 s since #3646: a second Buy all right after a partial one (coins came
+	-- in) was dropped in silence at 1 per 2 s, and the button sat on "Buying..."
+	BuyDealerAll = RateLimiter.new(2, 2),
 	UseLure = RateLimiter.new(2, 1), -- rolls a cat and rebuilds the bowl; 2 so both bowls can fill at once (#1161)
 	ResolveBait = RateLimiter.new(2, 1), -- the card retries after 6 s at most; 2 for both bowls' cats (#1161)
 	-- #3632: one call a waiting bag (RichBagsMax 3): walking into three bags collects all three at once. At 1 a
@@ -113,7 +115,10 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	InviteCard = RateLimiter.new(1, 2), -- #2797: the invite card's report, 1 per 2 s
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
-	BuyCornerShopAll = RateLimiter.new(1, 2), -- #2593: a section's Buy all
+	-- #2593: a section's Buy all. 3 per 2 s since #3646: the Day Cart has three sections on this one remote, and at
+	-- 1 per 2 s the second section's Buy all (or a second press after a partial one) was dropped in silence, so its
+	-- button sat on "Buying..." with nothing bought
+	BuyCornerShopAll = RateLimiter.new(3, 2),
 	SellExtraCommons = RateLimiter.new(1, 2), -- #1573: 1 per 2 s; sells many at once and sends a full sync
 	FeedCat = RateLimiter.new(4, 1), -- #1181: 4 a second
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync

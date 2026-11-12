@@ -40,6 +40,7 @@ local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("C
 local SharedTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Types"))
 
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	put: (slot: number, uid: string) -> (),
@@ -111,7 +112,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -202,14 +203,14 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	for slot = 1, 3 do
 		local frame: Frame = Create("Frame", {
 			Name = "Slot" .. slot,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Position = UDim2.new((slot - 1) / 3, (slot - 1) * TILE_GAP / 3, 0, 0),
 			Size = UDim2.new(1 / 3, -TILE_GAP * 2 / 3, 1, 0),
 			Parent = row,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local portrait = CatPortrait.new({
 			parent = frame,
@@ -225,7 +226,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 			Size = UDim2.fromOffset(PICTURE, PICTURE),
 			FontFace = Theme.fonts.display,
 			TextSize = 40,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Parent = frame,
 		})
 		local name = text({
@@ -249,7 +250,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 			Position = UDim2.fromOffset(6, PICTURE + 54),
 			Size = UDim2.new(1, -12, 0, 18),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Parent = frame,
 		})
 		local action = Button.new({
@@ -302,6 +303,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		Size = UDim2.new(1, 0, 0, 20),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 	text({
@@ -329,6 +331,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "Pick a cat to relax",
 		ZIndex = 6,
+		TextColor3 = PAL.text,
 		Parent = picker,
 	})
 	text({
@@ -385,15 +388,15 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	local chipsW = #LateStationsLogic.SPA_FILTERS * (CHIP_W + 6)
 	local search: TextBox = Create("TextBox", {
 		Name = "Search",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(1, toolTop),
 		Size = UDim2.new(1, -(chipsW + 2), 0, TOOL_H),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.text,
-		PlaceholderColor3 = PAL.subtext,
+		TextColor3 = CARD.text,
+		PlaceholderColor3 = CARD.subtext,
 		PlaceholderText = "🔍 Search cats",
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
@@ -404,7 +407,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
 	})
-	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
+	Outline.border(search, Theme.sizes.stroke, CARD.cardStroke)
 	self._search = search
 	self._searchChanged = search:GetPropertyChangedSignal("Text"):Connect(function()
 		self._query = search.Text
@@ -489,6 +492,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = 9,
+		TextColor3 = PAL.text,
 		Parent = confirm,
 	})
 	self._takeOut = Button.new({
@@ -642,7 +646,7 @@ function OasisSpa._row(self: any, order: number, cat: SharedTypes.CatView): Row
 	local rarity = Theme.rarityColor(if def ~= nil then def.rarity else nil)
 	local frame: Frame = Create("Frame", {
 		Name = cat.uid,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
 		Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._buttonH + 8)),
@@ -682,7 +686,7 @@ function OasisSpa._row(self: any, order: number, cat: SharedTypes.CatView): Row
 		Position = UDim2.fromOffset(left, 28),
 		Size = UDim2.new(1, -(left + 114), 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = LateStationsLogic.spaSubtitle(cat),
 		ZIndex = 7,
@@ -871,15 +875,15 @@ function OasisSpa._paint(self: any)
 					level + row.levels
 				)
 				else string.format("Lv %d", level)
-			tile.level.TextColor3 = if row.ready then PAL.good else PAL.text
+			tile.level.TextColor3 = if row.ready then CARD.good else CARD.text
 		else
 			tile.glyph.Text = if row.kind == "empty" then "+" else Theme.icons.lock
 			tile.name.Text = string.format("Slot %d", slot)
 			tile.level.Text = if row.kind == "empty" then "Empty" else ""
-			tile.level.TextColor3 = PAL.text
+			tile.level.TextColor3 = CARD.text
 		end
 		tile.line.Text = if row.kind == "empty" then "Room for one more cat" else row.line
-		tile.line.TextColor3 = if row.ready then PAL.good else PAL.subtext
+		tile.line.TextColor3 = if row.ready then CARD.good else CARD.subtext
 		local label, style, enabled, show = "", "primary", false, true
 		if row.kind == "cat" then
 			label, style, enabled, show = "Take out", "ghost", not self._pending, not row.ready

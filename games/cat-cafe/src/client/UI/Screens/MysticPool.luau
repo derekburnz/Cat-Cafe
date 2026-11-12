@@ -35,6 +35,7 @@ local Types = require(script.Parent.Parent.Types)
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	roll: (uid: string) -> (),
@@ -101,7 +102,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -145,7 +146,7 @@ local function traitCard(
 ): TraitCard
 	local frame: Frame = Create("Frame", {
 		Name = name,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Position = position,
 		Size = size,
@@ -153,7 +154,7 @@ local function traitCard(
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local title = text({
 		Name = "Name",
@@ -207,18 +208,18 @@ end
 local function fill(card: TraitCard, trait: MysticPoolLogic.Card, head: string?, none: string?)
 	local color = Color3.fromHex(trait.color)
 	card.name.Text = trait.name
-	card.name.TextColor3 = if trait.has then color else PAL.subtext
+	card.name.TextColor3 = if trait.has then MenuFamily.onCard(color) else CARD.subtext
 	local rarity = if trait.has then trait.rarity else none or ""
 	card.rarity.Text = if head ~= nil and rarity ~= ""
 		then head .. " · " .. rarity
 		else head or rarity
-	card.rarity.TextColor3 = if trait.has then color else PAL.subtext
+	card.rarity.TextColor3 = if trait.has then MenuFamily.onCard(color) else CARD.subtext
 	for index, label in card.lines do
 		label.Text = trait.lines[index] or ""
 	end
 	local stroke = card.frame:FindFirstChildWhichIsA("UIStroke") :: UIStroke?
 	if stroke then
-		stroke.Color = if trait.has then color else PAL.cardStroke
+		stroke.Color = if trait.has then color else CARD.cardStroke
 	end
 end
 
@@ -276,13 +277,13 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	-- the picked cat: its picture, name and level
 	local tile: Frame = Create("Frame", {
 		Name = "Cat",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.fromOffset(TILE_W, TILE_H),
 		Parent = content,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._portrait = CatPortrait.new({
 		parent = tile,
@@ -299,7 +300,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Size = UDim2.fromOffset(PICTURE, PICTURE),
 		FontFace = Theme.fonts.display,
 		TextSize = 36,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Text = "+",
 		Parent = tile,
 	})
@@ -315,7 +316,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Position = UDim2.fromOffset(6, PICTURE + 28),
 		Size = UDim2.new(1, -12, 0, 16),
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Parent = tile,
 	})
 
@@ -377,6 +378,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Size = UDim2.new(1, 0, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 	oddsLines(content, lineTop + 18, 1)
@@ -388,6 +390,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Size = UDim2.new(1, -(120 + GAP), 0, buttonH),
 		TextSize = Theme.sizes.textSmall,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 	self._collect = Button.new({
@@ -417,6 +420,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "Pick a cat for a trait",
 		ZIndex = 6,
+		TextColor3 = PAL.text,
 		Parent = picker,
 	})
 	self._back = Button.new({
@@ -437,15 +441,15 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	local chipsW = #LateStationsLogic.SPA_FILTERS * (CHIP_W + 6)
 	local search: TextBox = Create("TextBox", {
 		Name = "Search",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(1, toolTop),
 		Size = UDim2.new(1, -(chipsW + 2), 0, TOOL_H),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.text,
-		PlaceholderColor3 = PAL.subtext,
+		TextColor3 = CARD.text,
+		PlaceholderColor3 = CARD.subtext,
 		PlaceholderText = "🔍 Search cats",
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
@@ -456,7 +460,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
 	})
-	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
+	Outline.border(search, Theme.sizes.stroke, CARD.cardStroke)
 	self._search = search
 	self._searchChanged = search:GetPropertyChangedSignal("Text"):Connect(function()
 		self._query = search.Text
@@ -538,6 +542,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		ZIndex = 9,
+		TextColor3 = PAL.text,
 		Parent = choice,
 	})
 	local cardH = TILE_H
@@ -593,6 +598,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "Trait odds for every roll",
 		ZIndex = 12,
+		TextColor3 = PAL.text,
 		Parent = odds,
 	})
 	self._oddsBack = Button.new({
@@ -614,7 +620,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		local top = buttonH + 8 + (index - 1) * 30
 		local line: Frame = Create("Frame", {
 			Name = row.name,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(0, top),
 			Size = UDim2.new(1, 0, 0, 26),
@@ -679,6 +685,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextSize = Theme.sizes.textLarge,
 		Text = "Sage Sorrel stirs the pool...",
 		ZIndex = 15,
+		TextColor3 = PAL.text,
 		Parent = rolling,
 	})
 	text({
@@ -843,7 +850,7 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 	local rarity = Theme.rarityColor(if def ~= nil then def.rarity else nil)
 	local frame: Frame = Create("Frame", {
 		Name = cat.uid,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
 		Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._buttonH + 8)),
@@ -887,7 +894,9 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		Position = UDim2.fromOffset(left, 28),
 		Size = UDim2.new(1, -(left + 114), 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = if trait.has then Color3.fromHex(trait.color) else PAL.subtext,
+		TextColor3 = if trait.has
+			then MenuFamily.onCard(Color3.fromHex(trait.color))
+			else CARD.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "Lv " .. tostring(tonumber(cat.level) or 1) .. job .. " · " .. trait.name,
 		ZIndex = 7,

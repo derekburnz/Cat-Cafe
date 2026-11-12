@@ -96,6 +96,12 @@ function MenuFamily.rarity(rarity: string?): Color3
 	return if MenuFamily.on() then Theme.rarityInk(rarity) else Theme.rarityLight(rarity)
 end
 
+-- A bright colour of its own (a trait's) for words on a picture card: as it is on a dark card, and darkened halfway
+-- to the ink on the cream card, where a bright yellow or pink does not read.
+function MenuFamily.onCard(color: Color3): Color3
+	return if MenuFamily.on() then color:Lerp(MenuFamily.CARD.text, 0.5) else color
+end
+
 -- A name on a picture card: the dark outline that lifts white words off a dark card, and nothing on the cream card,
 -- where the words are dark already (a dark outline round dark words blurs them).
 function MenuFamily.outline(label: GuiObject, thickness: number?)

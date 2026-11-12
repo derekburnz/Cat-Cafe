@@ -1127,3 +1127,11 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Guide trail paw prints (#3554, 2026-11-12)
+
+`Effects/PawTrail.luau`, numbers in `Presets.pawTrail`.
+
+| Look | Hook |
+|---|---|
+| Each guide trail dot is drawn as a gold paw print (a pad and four toes) 1.7 studs across, toes towards the target, left and right of the line in turn; the prints fade with their dots, so the trail's comet of light and its Reduce Motion look carry over. No arrows, no words, no timer. | The attribute `Paws = true` on GuideTrail's folder (`CatCafeTutorialTrail` in the Workspace); clearing it puts the dots back. At most 48 prints (GuideTrail's dot cap), one CanvasGroup each, on this client only. |

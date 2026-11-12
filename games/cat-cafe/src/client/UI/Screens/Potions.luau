@@ -11,6 +11,11 @@
 -- ProfileSync, and a refusal is the server's toast (the press stops counting after PENDING_SECONDS). The drink sound plays when the bag's count drops, which is the server accepting.
 -- #1600: beside Use, "Use x4" drinks as many as fit under PotionMaxMinutes in one press (UsePotion with a count);
 -- it shows only while two or more would fit.
+-- #3326 (Derek2: "add a use all potions in inventory button right below potions button in bag when that section is
+-- open"): on the Potions tab, a "Use all potions" button heads the list, right under the Potions tab button, while
+-- any potion in the bag would take (PotionLogic.allPlan). A press asks first on a small card ("Tip x4, Swift x2 ..."
+-- with Drink all and Not now), since some potions are kept for a moment and a drink can't be undone; Drink all sends
+-- one UsePotionAll and the rows count it at once, as a Use press does.
 -- Timers pause while the player is away, so a rejoin shows what was left. Rows and sums: Components/PotionLogic.
 --
 -- The Bag (corner-shop-v2.md section 3, #1181): this window is the Bag, with two tabs. Potions is the potion bag
@@ -55,6 +60,7 @@ local PAL = Theme.dark
 
 export type Callbacks = {
 	use: (potionId: string, count: number?) -> (), -- count: #1600's Use all, nil for one
+	useEvery: (() -> ())?, -- #3326: "Use all potions", confirmed (UsePotionAll)
 	feed: ((foodId: string, catUid: string) -> ())?, -- #1181: one food to one cat (FeedCat)
 	setTitle: ((pick: string) -> ())?, -- the Titles tab's Equip: a ChatTags id or "off" (PassSetTag)
 	close: () -> (),
@@ -75,6 +81,9 @@ local ROW_H = 76
 local TILE = 56
 local USE_W = 104
 local TAB_H = 40
+local ALL_W = 188 -- #3326: "Use all potions"
+local ALL_H = 42 -- over the 36 px a mouse needs (the UI gate's tap check)
+local ASK_H = 150 -- its confirm card
 local TAB_W = 104 -- four tabs fit the small phone's window (136 while there were three)
 local EQUIP_W = 104 -- the Titles tab's Equip button
 local FOOD_W = 104 -- the Feed button
@@ -282,6 +291,108 @@ function Potions.new(callbacks: Callbacks): Potions
 		}),
 		Outline.listPadding(8, 8), -- #2294: room for the cards' outlines
 	})
+	-- #3326: "Use all potions" heads the Potions list, under the Potions tab button, while any potion would take
+	self._plan = {} :: { PotionLogic.Drink }
+	self._allRow = Create("Frame", {
+		Name = "UseAllRow",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, ALL_H),
+		LayoutOrder = 0,
+		Visible = false,
+		Parent = self._list,
+	})
+	self._allButton = Button.new({
+		name = "UseAllPotions",
+		text = "Use all potions",
+		icon = Theme.icons.potion,
+		style = "teal",
+		size = UDim2.fromOffset(ALL_W, ALL_H),
+		anchorPoint = Vector2.new(0, 0.5),
+		position = UDim2.new(0, 0, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = self._allRow,
+		onClick = function()
+			self:_askAll()
+		end,
+	})
+	-- its confirm card, over the window
+	self._allAsk = Create("TextButton", {
+		Name = "UseAllConfirm",
+		AutoButtonColor = false,
+		Text = "",
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 0.35,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 20,
+		Visible = false,
+		Parent = panel.content,
+	})
+	local ask: Frame = Create("Frame", {
+		Name = "Card",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -24, 0, ASK_H),
+		ZIndex = 21,
+		Parent = self._allAsk,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(420, ASK_H) }),
+	})
+	self._allTitle = text({
+		Name = "Title",
+		Position = UDim2.fromOffset(12, 10),
+		Size = UDim2.new(1, -24, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 3,
+		Text = "Drink all of these?",
+		ZIndex = 22,
+		Parent = ask,
+	})
+	self._allLine = text({
+		Name = "Line",
+		Position = UDim2.fromOffset(12, 42),
+		Size = UDim2.new(1, -24, 0, 44),
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		ZIndex = 22,
+		Parent = ask,
+	})
+	FitText.shrink(self._allLine)
+	self._allYes = Button.new({
+		name = "DrinkAll",
+		text = "Drink all",
+		style = "primary",
+		size = UDim2.new(0.5, -18, 0, 42),
+		anchorPoint = Vector2.new(0, 1),
+		position = UDim2.new(0, 12, 1, -12),
+		textSize = Theme.sizes.textBody,
+		zIndex = 22,
+		parent = ask,
+		onClick = function()
+			self:_drinkAll()
+		end,
+	})
+	self._allNo = Button.new({
+		name = "NotNow",
+		text = "Not now",
+		style = "ghost",
+		size = UDim2.new(0.5, -18, 0, 42),
+		anchorPoint = Vector2.new(1, 1),
+		position = UDim2.new(1, -12, 1, -12),
+		textSize = Theme.sizes.textBody,
+		zIndex = 22,
+		parent = ask,
+		onClick = function()
+			self._allAsk.Visible = false
+		end,
+	})
+
 	-- with an empty bag, one line on where potions come from, under the rows
 	self._hint = text({
 		Name = "Hint",
@@ -451,6 +562,7 @@ end
 function Potions.showTab(self: any, tab: Tab)
 	self._tab = tab
 	self._feeding = nil
+	self._allAsk.Visible = false -- #3326: the confirm card belongs to the Potions tab
 	for name, button in self._tabButtons do
 		button:setStyle(if name == tab then "gold" else "ghost") -- #1771: as the Store's and the Market's tabs
 	end
@@ -1218,7 +1330,50 @@ function Potions._refresh(self: any)
 		end
 	end
 	self._hint.Visible = not any
+	-- #3326: "Use all potions" while any potion in the bag would take
+	self._plan = PotionLogic.allPlan(self._catalog, shownState, now)
+	local can = #self._plan > 0 and self._callbacks.useEvery ~= nil
+	self._allRow.Visible = can
+	if not can then
+		self._allAsk.Visible = false
+	elseif self._allAsk.Visible then
+		self._allLine.Text = (PotionLogic.allLine(self._plan))
+	end
 	self:_refreshFood()
+end
+
+-- #3326: "Use all potions" pressed: the confirm card with what one press drinks.
+function Potions._askAll(self: any)
+	if #self._plan == 0 then
+		return
+	end
+	local line, total = PotionLogic.allLine(self._plan)
+	self._allTitle.Text = if total == 1
+		then "Drink this potion?"
+		else ("Drink these %d potions?"):format(total)
+	self._allLine.Text = line
+	self._allAsk.Visible = true
+end
+
+-- #3326: Drink all on the confirm card: one UsePotionAll, and each kind counts on its row at once as sent presses do
+-- (#3190) until the bag's count drops.
+function Potions._drinkAll(self: any)
+	self._allAsk.Visible = false
+	local useEvery: (() -> ())? = (self._callbacks :: Callbacks).useEvery
+	if useEvery == nil or #self._plan == 0 then
+		return
+	end
+	local at = os.clock()
+	for _, drink in self._plan do
+		table.insert(self._sent, { id = drink.potion.id, n = drink.n, at = at })
+	end
+	useEvery()
+	self:_refresh()
+	task.delay(PENDING_SECONDS + 0.1, function()
+		if self._alive then
+			self:_refresh()
+		end
+	end)
 end
 
 -- #3190: potion id -> Use presses queued or sent within PENDING_SECONDS, not yet seen in the bag's count.
@@ -1330,6 +1485,9 @@ function Potions.destroy(self: any)
 		button:destroy()
 	end
 	self._back:destroy()
+	self._allButton:destroy()
+	self._allYes:destroy()
+	self._allNo:destroy()
 	for _, row in self._rows do
 		row.use:destroy()
 		row.useAll:destroy()

@@ -46,6 +46,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	setSetting: (key: string, value: boolean | number) -> (),
@@ -182,7 +183,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -370,14 +371,14 @@ end
 function Settings._buildCard(self: any, key: string, icon: string, order: number): Frame
 	local card: Frame = Create("Frame", {
 		Name = key,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
 		Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._cards[key] = card
 	local tile: Frame = Create("Frame", {
@@ -427,7 +428,7 @@ local function nameAndDetail(card: Frame, name: string, detail: string)
 		Position = UDim2.fromOffset(TEXT_LEFT, 42),
 		Size = UDim2.new(1, -TEXT_RIGHT, 0, 26),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -456,7 +457,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			Size = UDim2.fromOffset(60, 28),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Parent = card,
 		})
@@ -666,7 +667,7 @@ function Settings._buildTester(self: any, order: number, content: Instance, rese
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(1, -24, 0, cardH),
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Visible = false,
 		Parent = content,
@@ -800,7 +801,7 @@ function Settings._buildSlider(self: any, card: Frame, key: string, percent: Tex
 	local inset = TEXT_LEFT + KNOB / 2 -- the knob's centre at 0%
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromOffset(inset, SLIDER_Y),

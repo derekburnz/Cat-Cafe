@@ -58,6 +58,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	use: (potionId: string, count: number?) -> (), -- count: #1600's Use all, nil for one
@@ -147,7 +148,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -331,7 +332,7 @@ function Potions.new(callbacks: Callbacks): Potions
 	})
 	local ask: Frame = Create("Frame", {
 		Name = "Card",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -340,7 +341,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		Parent = self._allAsk,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		Create("UISizeConstraint", { MaxSize = Vector2.new(420, ASK_H) }),
 	})
 	self._allTitle = text({
@@ -358,7 +359,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		Position = UDim2.fromOffset(12, 42),
 		Size = UDim2.new(1, -24, 0, 44),
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = 22,
@@ -477,6 +478,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		LayoutOrder = 0,
+		TextColor3 = PAL.text,
 		Parent = self._catList,
 	})
 	self._back = Button.new({
@@ -675,13 +677,13 @@ end
 function Potions._titleRow(self: any, entry: TitlesLogic.Row)
 	local frame: Frame = Create("Frame", {
 		Name = entry.id,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ROW_H),
 		Parent = self._titleList,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local textLeft = 16
 	local name = text({
@@ -690,17 +692,19 @@ function Potions._titleRow(self: any, entry: TitlesLogic.Row)
 		Size = UDim2.new(1, -(textLeft + EQUIP_W + 24), 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 3,
-		TextColor3 = if entry.color then Color3.fromHex(entry.color) else PAL.text,
+		TextColor3 = if entry.color then Color3.fromHex(entry.color) else CARD.text,
 		Text = entry.text,
 		Parent = frame,
 	})
-	Outline.text(name, 2)
+	if entry.color or not MenuFamily.on() then
+		Outline.text(name, 2) -- a title's own bright colour keeps its outline on the cream card too
+	end
 	local how = text({
 		Name = "How",
 		Position = UDim2.fromOffset(textLeft, 40),
 		Size = UDim2.new(1, -(textLeft + EQUIP_W + 24), 0, 22),
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Parent = frame,
 	})
 	local equip = Button.new({
@@ -725,13 +729,13 @@ end
 function Potions._baitRow(self: any, entry: BagLogic.Bait)
 	local frame: Frame = Create("Frame", {
 		Name = entry.id,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ROW_H),
 		Parent = self._baitList,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local icon = ItemIcon.new({
 		parent = frame,
@@ -757,7 +761,7 @@ function Potions._baitRow(self: any, entry: BagLogic.Bait)
 		Position = UDim2.fromOffset(textLeft, 40),
 		Size = UDim2.new(1, -(textLeft + countW + 20), 0, 22),
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Text = "Goes in at your bait bowl",
 		Parent = frame,
 	})
@@ -771,20 +775,20 @@ function Potions._baitRow(self: any, entry: BagLogic.Bait)
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = frame,
 	})
-	Outline.text(count, 2)
+	MenuFamily.outline(count, 2)
 	return { frame = frame, icon = icon, count = count }
 end
 
 function Potions._foodRow(self: any, entry: BagLogic.Food)
 	local frame: Frame = Create("Frame", {
 		Name = entry.id,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ROW_H),
 		Parent = self._foodList,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
@@ -845,7 +849,7 @@ function Potions._foodRow(self: any, entry: BagLogic.Food)
 		Position = UDim2.fromOffset(textLeft, 40),
 		Size = UDim2.new(1, -(textLeft + textRight), 0, 22),
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.good,
+		TextColor3 = CARD.good,
 		Text = BagLogic.xpLine(entry.xp) .. " for one cat",
 		Parent = frame,
 	})
@@ -990,7 +994,7 @@ end
 function Potions._catCard(self: any): CatCard
 	local frame: Frame = Create("Frame", {
 		Name = "Spare",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, CAT_CARD_H),
 		Parent = self._catList,
@@ -1029,7 +1033,7 @@ function Potions._catCard(self: any): CatCard
 		Position = UDim2.fromOffset(left, 30),
 		Size = UDim2.new(1, -(left + right), 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		RichText = true,
 		Parent = frame,
 	})
@@ -1123,14 +1127,14 @@ function Potions._fillCard(self: any, card: CatCard, entry: CatEntry)
 	card.name.TextColor3 = if rainbow
 		then Theme.colors.white
 		elseif gold then Theme.colors.gold
-		else PAL.text
+		else CARD.text
 	card.name.Text = CatVariant.word(variant) .. (cat.name or cat.catId)
 	card.level.Text = ('<font color="#%s">%s</font> · %s'):format(
-		Theme.rarityLight(rarity):ToHex(),
+		MenuFamily.rarity(rarity):ToHex(),
 		rarity,
 		BagLogic.catLine(cat.level, xp)
 	)
-	card.fill.BackgroundColor3 = if open then PAL.good else Theme.colors.gold
+	card.fill.BackgroundColor3 = if open then CARD.good else Theme.colors.gold
 	card.fill.Size = UDim2.fromScale(BagLogic.xpFraction(cat.level, xp), 1)
 	card.feed:setText(if open then "Feed" else "Max")
 	card.feed:setEnabled(open)
@@ -1139,13 +1143,13 @@ end
 function Potions._row(self: any, potionId: string): Row
 	local frame: Frame = Create("Frame", {
 		Name = potionId,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ROW_H),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
@@ -1210,7 +1214,7 @@ function Potions._row(self: any, potionId: string): Row
 		Position = UDim2.fromOffset(textLeft, 40),
 		Size = UDim2.new(1, -(textLeft + textRight), 0, 22),
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Parent = frame,
 	})
 	FitText.shrink(effect) -- #2207: "Luck +50% and double gold on bait  ·  10 min" whole on a phone
@@ -1222,7 +1226,7 @@ function Potions._row(self: any, potionId: string): Row
 		Size = UDim2.fromOffset(USE_W, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.good,
+		TextColor3 = CARD.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Visible = false,
 		Parent = frame,

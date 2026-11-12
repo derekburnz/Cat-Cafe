@@ -46,6 +46,7 @@ export type Callbacks = {
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Store = {
 	frame: Frame,
@@ -120,7 +121,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -356,7 +357,7 @@ function Store._makeCard(
 	local card: Frame = Create("Frame", {
 		Name = slot,
 		LayoutOrder = order,
-		BackgroundColor3 = PAL.goldCard,
+		BackgroundColor3 = CARD.goldCard,
 		BorderSizePixel = 0,
 		Size = if hero then UDim2.new(1, 0, 0, HERO_MIN) else UDim2.new(1, 0, 1, 0),
 		Parent = parent,
@@ -407,11 +408,11 @@ function Store._makeCard(
 		TextWrapped = not hero,
 		Parent = card,
 	})
-	Outline.text(name)
+	MenuFamily.outline(name)
 	local effect = text({
 		Name = "Effect",
 		TextSize = if hero then Theme.sizes.textBody else Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = card,
@@ -431,14 +432,14 @@ function Store._makeCard(
 		Size = buttonSize,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = PAL.good,
+		TextColor3 = CARD.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "✓ Yours", -- #1823 (store-layout-v2.md §4)
 		Visible = false,
 		ZIndex = 3,
 		Parent = card,
 	})
-	Outline.text(owned)
+	MenuFamily.outline(owned)
 	-- #1823 §4: an owned card stays, greyed, so nobody buys twice and nothing hides
 	local dim: Frame = Create("Frame", {
 		Name = "Dim",
@@ -458,7 +459,7 @@ function Store._makeCard(
 		Size = UDim2.fromOffset(0, 20),
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 0,
-		BackgroundColor3 = PAL.good,
+		BackgroundColor3 = CARD.good,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Color3.new(1, 1, 1),

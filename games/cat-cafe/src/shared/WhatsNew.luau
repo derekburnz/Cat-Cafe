@@ -44,11 +44,31 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New Arcade game: Mouse Dash",
 	},
+	-- #3457 (Derek 2026-11-12: "also update whats new board with the update restart")
+	{
+		id = "update_party_1112",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Update Party: 2x money hour",
+	},
+	{
+		id = "update_gift_1112",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Gift: 100 golden fish",
+	},
 	{
 		id = "rich_money_bags",
 		date = "2026-11-12",
 		icon = "new",
 		text = "Rich customers leave bags",
+	},
+	-- #3448: take this row out if the bigger circles are not on main at the launch
+	{
+		id = "bigger_station_circles",
+		date = "2026-11-12",
+		icon = "look",
+		text = "Bigger station circles",
 	},
 	-- #2718 refresh (11-11 21:00): player-facing changes since #3259, 67 merges; no new player ideas
 	{

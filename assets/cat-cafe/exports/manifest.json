@@ -270326,6 +270326,120 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Item_StarTreat.png"
     },
     {
+      "name": "CatCafe_Item_HoneyCream",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_HoneyCream"
+      ],
+      "triangles": 236,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.72,
+        "y": 0.72,
+        "z": 0.55
+      },
+      "size_roblox": [
+        0.72,
+        0.55,
+        0.72
+      ],
+      "bounds_min": [
+        -0.35,
+        -0.36,
+        -0.01
+      ],
+      "bounds_max": [
+        0.37,
+        0.36,
+        0.53
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "food_in_bowl_roblox": [
+        0,
+        0.18,
+        0
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_HoneyCream.model.json",
+      "rbx_parts": 10,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_HoneyCream.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_HoneyCream.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "236/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "124 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.01 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Item_CometTreat",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_CometTreat"
+      ],
+      "triangles": 224,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.48,
+        "y": 0.36,
+        "z": 0.67
+      },
+      "size_roblox": [
+        0.48,
+        0.67,
+        0.36
+      ],
+      "bounds_min": [
+        -0.23,
+        -0.14,
+        0.0
+      ],
+      "bounds_max": [
+        0.25,
+        0.23,
+        0.67
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "food_in_bowl_roblox": [
+        0,
+        0.18,
+        0
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_CometTreat.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_CometTreat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_CometTreat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "224/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "136 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.01 y=0.04"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Prop_TipPile",
       "category": "Prop",
       "module": "items",

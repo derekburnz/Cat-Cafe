@@ -381,6 +381,8 @@ export type PartialState = {
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 	-- #3022: the goal card's "Catch a 2nd cat", false once it ends (UI.update skips a nil, so the card would stay)
 	secondCat: (SharedTypes.SecondCatView | false)?,
+	-- #2912: the goal card's "Free a stuck cat" while the pointer is up (UIController; false once it ends)
+	stuckGoal: boolean?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
 	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)

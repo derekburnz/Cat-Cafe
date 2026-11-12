@@ -7197,6 +7197,44 @@ local SCENES = {
 			assert(lines[1].Text == "New cats pay +$50 💰", "uigate: the second cat goal's money line came back as " .. lines[1].Text .. " (#3022)")
 		end
 	end },
+	-- #2912: after the first bait cat the goal card reads "Free a stuck cat" until the first rescue starts; at night it
+	-- says when the stuck cats come back; the tier goal returns after.
+	{ "StuckCatGoal", function()
+		local before: any = UI.getState()
+		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 5, money = 120, secondCat = false, stuckGoal = true } :: any)
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for the stuck cat (#2912)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		local expected = "Free a stuck cat 🐾"
+		assert(title.Visible and title.Text == expected, "uigate: the stuck cat goal reads " .. title.Text .. " (#2912)")
+		assert(title.TextFits, "uigate: the stuck cat goal does not fit its card (#2912)")
+		assert(not (goal:FindFirstChild("RankReady") :: GuiObject).Visible, "uigate: a Rank up! sticker on the stuck cat goal (#2912)")
+		local function night(): TextLabel?
+			for _, piece in goal:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Visible and string.find(piece.Text, "at sunrise 🌅", 1, true) then
+					return piece
+				end
+			end
+			return nil
+		end
+		assert(night() == nil, "uigate: the stuck cat goal's night line shows by day (#2912)")
+		UI.clock.setAreasOpen(false)
+		UIShim.advance(0.1)
+		local line = night()
+		assert(line ~= nil, "uigate: at night the stuck cat goal has no sunrise line (#2912)")
+		assert((line :: TextLabel).TextFits, "uigate: the stuck cat goal's night line does not fit (#2912)")
+		assert(title.Text == expected, "uigate: the stuck cat goal's title changed at night (#2912)")
+		UI.clock.setAreasOpen(true)
+		UIShim.advance(0.1)
+		UI.update({ stuckGoal = false } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text ~= expected, "uigate: the goal card still asks for a stuck cat after it (#2912)")
+		UI.update({ stuckGoal = true } :: any) -- back for the picture
+		UIShim.advance(0.1)
+		assert(title.Text == expected, "uigate: the stuck cat goal did not come back (#2912)")
+	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
 	{ "TutorialDoneX", function()
@@ -9472,7 +9510,7 @@ function Scenes.close()
 	if Scenes._secondCat then
 		local was = Scenes._secondCat -- #3022's second cat goal scene: the tier goal and the sample cafe back
 		Scenes._secondCat = nil
-		UI.update({ secondCat = false, tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
+		UI.update({ secondCat = false, stuckGoal = false, tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
 	end
 	if Scenes._goalFolded then
 		Scenes._goalFolded = nil

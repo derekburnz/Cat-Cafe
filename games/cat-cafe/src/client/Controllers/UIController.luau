@@ -42,6 +42,7 @@ local SecondCat = require(Shared:WaitForChild("SecondCat"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
+local StuckGoal = require(Shared:WaitForChild("StuckGoal"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Traits = require(Shared:WaitForChild("Traits"))
 local Types = require(Shared:WaitForChild("Types"))
@@ -385,6 +386,55 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+-- #2912 (shared/StuckGoal): the stuck cat pointer after the first bait cat. `shownAt` is when it first showed this
+-- session, `rescuing` while this player's rescue bar is up, `on` what the goal card was last told.
+local stuckGoal =
+	{ shownAt = nil :: number?, rescuing = false, on = false, target = nil :: Instance? }
+
+local function stuckGoalActive(s: Types.PlayerState): boolean
+	local shownAt = stuckGoal.shownAt
+	return StuckGoal.active(
+		s.stuckGoal,
+		if shownAt ~= nil then os.clock() - shownAt else nil,
+		stuckGoal.rescuing or s.carrying ~= nil
+	)
+end
+
+-- The stuck cat nearest the character in the Alleyway (the starter trap is the one by the camp), nil while none has
+-- streamed in.
+local function alleyStuckCat(): BasePart?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return nil
+	end
+	local best: BasePart? = nil
+	local bestDistance = math.huge
+	for _, model in CollectionService:GetTagged("StuckCat") do
+		if model:IsA("Model") and model:GetAttribute("Area") == StuckGoal.AREA then
+			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if part ~= nil then
+				local distance = (part.Position - root.Position).Magnitude
+				if distance < bestDistance then
+					best, bestDistance = part, distance
+				end
+			end
+		end
+	end
+	return best
+end
+
+-- The Town Square cannon's part, for the pointer from town.
+local function townCannon(): BasePart?
+	for _, model in CollectionService:GetTagged("CatCannon") do
+		if model:IsA("Model") and model:GetAttribute("CannonId") == "town" then
+			return (model :: Model).PrimaryPart
+				or model:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
+		end
+	end
+	return nil
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -471,6 +521,30 @@ local function refreshTutorial(s: Types.PlayerState)
 				"Bowl"
 			)
 		end
+	elseif stuckGoalActive(s) then
+		-- #2912: after the walk-through, to the Alleyway's stuck cat (the cannon first from town); nothing at night,
+		-- when the goal card says the cats come back at sunrise
+		local where = StuckGoal.where((UI.cannon :: any).area, not areasShut())
+		local target: BasePart? = nil
+		if where == "cat" then
+			target = alleyStuckCat()
+		elseif where == "cannon" then
+			target = townCannon()
+		end
+		if target == nil then
+			UI.tutorial.hide()
+		else
+			if stuckGoal.shownAt == nil then
+				stuckGoal.shownAt = os.clock()
+			end
+			showTutorial(
+				s,
+				if where == "cat" then StuckGoal.LINE else StuckGoal.TOWN_LINE,
+				target,
+				if where == "cat" then StuckGoal.LABEL else "Cannon"
+			)
+		end
+		stuckGoal.target = target
 	else
 		UI.tutorial.hide()
 	end
@@ -864,6 +938,7 @@ local function applyState(s: Types.PlayerState)
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
 		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
+		stuckGoal = stuckGoalActive(s), -- #2912: the goal card's "Free a stuck cat" while the pointer may show
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
@@ -2972,6 +3047,41 @@ function UIController.start()
 			end
 		end)
 	end)
+	-- #2912: the stuck cat pointer follows the player (town or the Alleyway), the cat streaming in and its own
+	-- TRAIL_SECONDS; looked at once a second, and only while the save waits for its first rescue
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local current = state
+			if current == nil or current.stuckGoal ~= true or current.tutorialStep < 5 then
+				continue
+			end
+			local on = stuckGoalActive(current)
+			local where = StuckGoal.where((UI.cannon :: any).area, not areasShut())
+			local target: Instance? = nil
+			if on and where == "cat" then
+				target = alleyStuckCat()
+			elseif on and where == "cannon" then
+				target = townCannon()
+			end
+			if target ~= stuckGoal.target then
+				refreshTutorial(current)
+			end
+			if on ~= stuckGoal.on then
+				stuckGoal.on = on
+				UI.update({ stuckGoal = on })
+			end
+		end
+	end)
+	Moments.RescueStart:Connect(function()
+		stuckGoal.rescuing = true
+	end)
+	local function rescueEnded()
+		stuckGoal.rescuing = false
+	end
+	Moments.RescueDone:Connect(rescueEnded)
+	Moments.RescueFail:Connect(rescueEnded)
+	Moments.RescueCancel:Connect(rescueEnded)
 	wireIntents()
 	wireServerEvents()
 	bindDealerCart()

@@ -185,6 +185,7 @@ export type HUD = {
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
+local StuckGoal = require(Shared:WaitForChild("StuckGoal")) -- #2912: the goal card's "Free a stuck cat"
 
 local MARGIN = 16
 -- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
@@ -3654,7 +3655,7 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	self:_renderTravel()
 	-- #3238: the "Catch a 2nd cat" card says when the strays come back, so it follows dusk and sunrise
 	local state = self._state
-	if state ~= nil and state.secondCat then
+	if state ~= nil and (state.secondCat or state.stuckGoal == true) then
 		self:render(state)
 	end
 end
@@ -5229,6 +5230,18 @@ end
 function HUD._secondGoal(self: any): GoalCard.Goal?
 	local second: SecondCatGoal.View? = self._second
 	if second == nil then
+		-- #2912 (shared/StuckGoal): "Free a stuck cat" while the pointer to the first rescue is up
+		local state = self._state
+		if state ~= nil and state.stuckGoal == true and state.carrying == nil then
+			return {
+				title = StuckGoal.TITLE,
+				lines = if self._areasOpen ~= false
+					then {}
+					elseif TOUCH then { StuckGoal.NIGHT_NARROW }
+					else { StuckGoal.NIGHT },
+				chip = StuckGoal.TITLE,
+			}
+		end
 		return nil
 	end
 	local lines: { string } = {}

@@ -65,6 +65,7 @@ local Signal = require(ReplicatedStorage.Shared.Signal)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
+local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
@@ -292,6 +293,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
+		stuckGoal = StuckGoal.waiting(profile), -- #2912
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
 		potions = profile.potions, -- F64

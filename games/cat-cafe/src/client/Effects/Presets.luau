@@ -41,6 +41,13 @@ Presets.rarity = {
 	Epic = Color3.fromRGB(192, 124, 255),
 	Legendary = Color3.fromRGB(255, 201, 77),
 	Mythical = Color3.fromRGB(255, 94, 126),
+	Secret = Color3.fromRGB(22, 22, 29), -- #3470: near black; anything that must glow uses Presets.rarityGlow
+} :: { [string]: Color3 }
+
+-- The colour a rarity's light takes (sparkles, beams, neon rings) when its swatch is too dark to glow: a Secret's
+-- starlight. Every other rarity glows in its own swatch (Logic.glowColour).
+Presets.rarityGlow = {
+	Secret = Color3.fromRGB(226, 214, 255),
 } :: { [string]: Color3 }
 
 -- Roblox's own particle textures ship with the engine, so they need no upload and no permission. Our sprites in
@@ -399,6 +406,31 @@ Presets.emitters = {
 		spread = 70,
 		rate = 0,
 		drag = 6,
+	},
+	-- A Secret stray (#3470): a slow dark haze round the cat and a few pale stars drifting up through it.
+	secretAura = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(22, 22, 29), Color3.fromRGB(52, 44, 78) },
+		size = { 1.6, 2.8 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 0.2, 0.7 },
+		spread = 180,
+		rate = 3,
+		drag = 1,
+		lightEmission = 0,
+		rotSpeed = { -20, 20 },
+	},
+	secretStars = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(226, 214, 255), Color3.fromRGB(255, 255, 255) },
+		size = { 0.35, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1, 1.6 },
+		speed = { 0.6, 1.4 },
+		spread = 50,
+		rate = 2,
+		lightEmission = 0.8,
 	},
 	smokePuff = {
 		texture = Presets.textures.smoke,
@@ -1061,6 +1093,7 @@ Presets.catchSparkle = {
 	Epic = 16,
 	Legendary = 22,
 	Mythical = 28,
+	Secret = 28, -- the cap; a Secret's step up is its taller beam, third ring and extra showers (catchPop.secret)
 } :: { [string]: number }
 
 -- Confetti is small parts, not particles, so it needs no texture: the palette's party colours.
@@ -1100,13 +1133,20 @@ Presets.beam = { grow = 0.25, holdShare = 0.4 } -- of its seconds: rising, then 
 -- ring under the cat as wide as `ring`, confetti from Epic up (`confetti`, a share of the budget's confetti), a beam
 -- from Legendary up and for a Mythical a second, wider ring and three slow sparkle showers from the top of the beam.
 Presets.catchPop = {
-	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11 } :: { [string]: number },
+	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11, Secret = 13 } :: { [string]: number },
 	ringSeconds = 0.5,
-	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9 } :: { [string]: number },
-	beams = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9, Secret = 1 } :: { [string]: number },
+	beams = { Legendary = true, Mythical = true, Secret = true } :: { [string]: boolean },
 	beam = { width = 1.4, height = 16, seconds = 1.3 },
 	echo = { after = 0.16, scale = 1.4, seconds = 0.7 }, -- the Mythical's second ring
 	shower = { bursts = 3, after = 0.3, every = 0.25, height = 9 },
+	-- A Secret (#3470, "the catch effect one step above Mythical"): everything a Mythical gets, with a wider and
+	-- taller beam that lasts longer, a third and widest ring `third.after` seconds in, and `bursts` showers.
+	secret = {
+		beam = { width = 1.9, height = 26, seconds = 1.7 },
+		third = { after = 0.34, scale = 1.85, seconds = 0.9 },
+		bursts = 5,
+	},
 }
 
 -- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
@@ -3423,8 +3463,15 @@ Presets.decorFx = {
 -- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
 -- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
-	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
-	glints = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	shows = {
+		Common = true,
+		Rare = true,
+		Epic = true,
+		Legendary = true,
+		Mythical = true,
+		Secret = true,
+	} :: { [string]: boolean },
+	glints = { Legendary = true, Mythical = true, Secret = true } :: { [string]: boolean },
 	above = 0.9,
 	-- #2231 (Derek2 2026-11-07: "make the gems that show raritys glow and be more obvious"): the billboard is twice
 	-- the old one, the gem a bit under half of it (about 1.5 times the old gem) and a halo in the rarity colour fills
@@ -3444,7 +3491,14 @@ Presets.rarityMark = {
 		{ scale = 0.78, transparency = 0.66 },
 		{ scale = 0.6, transparency = 0.5 },
 	} :: { { scale: number, transparency: number } },
-	halo = { Common = 0.3, Rare = 0.5, Epic = 0.7, Legendary = 0.85, Mythical = 1 } :: { [string]: number },
+	halo = {
+		Common = 0.3,
+		Rare = 0.5,
+		Epic = 0.7,
+		Legendary = 0.85,
+		Mythical = 1,
+		Secret = 1,
+	} :: { [string]: number },
 	haloRest = 0.92, -- of the billboard, while still
 	-- Epic and up breathe their halo out to `grow` times its rest size over `seconds` (one way), faster and further the
 	-- rarer; held still with Reduce Motion or Low performance
@@ -3452,12 +3506,13 @@ Presets.rarityMark = {
 		Epic = { seconds = 1.4, grow = 1.08 },
 		Legendary = { seconds = 1.1, grow = 1.14 },
 		Mythical = { seconds = 0.8, grow = 1.2 },
+		Secret = { seconds = 0.7, grow = 1.26 },
 	} :: { [string]: { seconds: number, grow: number } },
 	bob = 0.15,
 	bobSeconds = 0.9, -- one way
 	glintSize = 0.3,
 	glintSeconds = 0.3, -- one way
-	glintEvery = { Legendary = 2.6, Mythical = 1.6 } :: { [string]: number }, -- seconds between glints
+	glintEvery = { Legendary = 2.6, Mythical = 1.6, Secret = 1.2 } :: { [string]: number }, -- seconds between glints
 	hideWithin = 0,
 	showAfter = 0,
 	maxDistance = 80,
@@ -4697,6 +4752,29 @@ Presets.eventBanner = {
 	fishUp = 40,
 	fishFall = 150,
 	fishSpread = 180,
+}
+
+-- A Secret stray in the world (#3470 section 5: "a soft dark aura and a thin beam of light to the sky that can be
+-- seen from the camp"). The aura is the secretAura haze on the cat's body, with the secretStars unless Low
+-- performance is on. The beam stands `height` studs tall over the cat and is `perStud` studs wide for each stud
+-- between you and it, between `widthMin` and `widthMax`, so it stays a thin line on screen from any distance; it is
+-- see-through by `far` from a distance and fades to `near` inside `nearWithin` studs so it never covers the catch.
+-- It holds still: no pulse, so nothing flashes. The `most` nearest Secret strays show; there is rarely even one.
+Presets.secretStray = {
+	most = 2,
+	checkEvery = 0.5,
+	beam = {
+		height = 260,
+		lift = 1.2, -- studs over the cat's pivot where the beam starts
+		perStud = 0.007,
+		widthMin = 0.45,
+		widthMax = 4,
+		far = 0.3,
+		near = 0.8,
+		nearWithin = 30,
+		fadeOver = 30, -- studs past nearWithin over which it reaches `far`
+		topFade = 0.45, -- share of the height over which the top fades to nothing
+	},
 }
 
 -- #3464 (a loot card's pop-in, Effects/LootCardFx): the card scales in from `from` over `popSeconds` with one soft

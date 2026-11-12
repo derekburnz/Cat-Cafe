@@ -293,8 +293,7 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	Telemetry.custom(player, "arcade_run", run.points, {
 		tostring(run.circles),
 		if #run.paid > 0 then table.concat(run.paid, ",") else "none",
-		if win then "win" else "over",
-		ArcadeFunnel.GAME_CIRCLE, -- #3296
+		if win then "win" else "over", -- Mouse Dash's arcade_run says "mouse_win" or "mouse_over" here (#3296)
 	})
 	if not tell then
 		return

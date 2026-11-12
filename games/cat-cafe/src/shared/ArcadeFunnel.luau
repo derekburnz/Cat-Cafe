@@ -26,7 +26,9 @@ ArcadeFunnel.PLAYED_AGAIN = 6
 
 -- #3296: the arcade has two games (Circle Streak, vaulted by the `circleStreak` switch, and Mouse Dash). arcade_v1
 -- keeps its six steps across the swap; step 4 is "first hit in a game" (a circle hit, or a mouse caught), and
--- arcade_run, arcade_quit, arcade_blocked and arcade_board_top carry the game as their last field.
+-- arcade_quit, arcade_blocked and arcade_board_top carry the game as their second field. An event takes three
+-- fields at most, so arcade_run's third is "win" or "over" for Circle Streak (as before the swap) and "mouse_win"
+-- or "mouse_over" for Mouse Dash; its first is the circles hit, or Mouse Dash's seconds.
 ArcadeFunnel.GAME_CIRCLE = "circle"
 ArcadeFunnel.GAME_MOUSE = "mouse"
 ArcadeFunnel.FIRST_HIT = 4 -- the same step as FIRST_CIRCLE, under the name both games use

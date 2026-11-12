@@ -250,8 +250,7 @@ local function finish(player: Player, run: Run, reason: MouseDash.Reason, tell: 
 		Telemetry.custom(player, "mouse_dash_run", state.points, {
 			tostring(state.lost),
 			tostring(seconds),
-			kind,
-			reason,
+			kind .. "_" .. reason, -- "free_hearts", "paid_win", "free_quit": an event carries three fields at most
 		})
 		-- arcade_v1 and the arcade's own events run on through the swap, with the game as the last field (the same
 		-- places as Circle Streak's: quit, finished, a best in the board's top, the run)
@@ -277,8 +276,8 @@ local function finish(player: Player, run: Run, reason: MouseDash.Reason, tell: 
 		Telemetry.custom(player, "arcade_run", state.points, {
 			tostring(seconds),
 			if #run.paid > 0 then table.concat(run.paid, ",") else "none",
-			if win then "win" else "over",
-			ArcadeFunnel.GAME_MOUSE,
+			-- three fields at most, so the game rides the result; Circle Streak's stays "win" or "over"
+			ArcadeFunnel.GAME_MOUSE .. (if win then "_win" else "_over"),
 		})
 	end
 	if not tell then

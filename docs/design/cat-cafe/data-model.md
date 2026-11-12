@@ -474,7 +474,7 @@ v0.13.15 (Derek 12:15, harder rescues): every marker runs 0.2 bar lengths a seco
 
 - **#3120 (Derek2 2026-11-10, "make the rescue area about 10->50% smaller"):** zones cut from 0.30 / 0.23 / 0.15 / 0.12 / 0.14. **#3225 (#3223, "rescues are wayyy to easy"):** Common 0.85 -> 1.00 and Rare 0.735 -> 0.90; Epic and up unchanged.
 - **Eases on top:** the Alleyway (`RescueAreaEase` zone x1.4, speed x0.75, one fewer hit) and the Park (zone x1.2, speed x0.85). An account's first **5** rescues (`RescueFirstUses`) get zones x**1.85** (`RescueFirstZone`) and the marker at x**0.85** (`RescueFirstSpeed`), #3180. A gold or rainbow cat's zone is wider (#3135). The Oasis Spa's Warm Paws widens zones from Tier 6.
-- **The Rummage Bin (#3050)** uses its own absolute bar, `BinZoneWidth` 0.42 and `BinBarSpeed` 0.64, and never follows these.
+- **The Rummage Bin (#3050)** uses its own absolute bar, `BinZoneWidth` 0.22 and `BinBarSpeed` 0.80 with its own `BinHits` 5 (#3458; 0.42, 0.64 and 2 hits before), and never follows these.
 - **Watch:** at 70 ms of latency, Legendary frees about 16% and Mythical about 8% of attempts (Gameplay-Engineer's numbers on #3223). Tablets already cancel half their rescues (#3024), so `rescue_attempt` by platform is read after the publish.
 
 ## 10c. Carry and shove

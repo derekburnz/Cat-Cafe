@@ -116,4 +116,44 @@ return function()
 			expect(math.abs(Economy.takeEventExtra(rested) - b / 2) < 1e-6).to.equal(true)
 		end)
 	end)
+	describe("AfkCafe auto rejoin (#3602)", function()
+		it(
+			"is due once the rest has lasted Config.AutoRejoinSeconds, and again only after the retry wait",
+			function()
+				local after = Config.AutoRejoinSeconds
+				expect(AfkCafe.rejoinDue(after - 1, nil, 5000)).to.equal(false)
+				expect(AfkCafe.rejoinDue(after, nil, 5000)).to.equal(true)
+				expect(AfkCafe.rejoinDue(after + 5, 4995, 5000)).to.equal(false)
+				expect(AfkCafe.rejoinDue(after + 40, 5000 - AfkCafe.REJOIN_RETRY_SECONDS, 5000)).to.equal(
+					true
+				)
+			end
+		)
+
+		it("rejoins ahead of Roblox's 20 minute idle disconnect, with room for retries", function()
+			local idleAtRejoin = Config.AfkCafeSeconds + Config.AutoRejoinSeconds
+			expect(idleAtRejoin + 3 * AfkCafe.REJOIN_RETRY_SECONDS <= 20 * 60).to.equal(true)
+		end)
+
+		it("knows its own arrival and nothing else", function()
+			local data = AfkCafe.teleportData()
+			expect(AfkCafe.arrivedResting(data, 77, 77)).to.equal(true)
+			expect(AfkCafe.arrivedResting(data, 78, 77)).to.equal(false)
+			expect(AfkCafe.arrivedResting(data, nil, 77)).to.equal(false)
+			expect(AfkCafe.arrivedResting(nil, 77, 77)).to.equal(false)
+			expect(AfkCafe.arrivedResting("cafeRest", 77, 77)).to.equal(false)
+			expect(AfkCafe.arrivedResting({ cafeRest = "yes" }, 77, 77)).to.equal(false)
+		end)
+
+		it("takes the rest up again only in the zone, still, free and inside the window", function()
+			local still = AfkCafe.ARRIVAL_STILL_SECONDS
+			expect(AfkCafe.arrivalRests(10, still, true, false)).to.equal(true)
+			expect(AfkCafe.arrivalRests(10, still - 1, true, false)).to.equal(false)
+			expect(AfkCafe.arrivalRests(10, still, false, false)).to.equal(false)
+			expect(AfkCafe.arrivalRests(10, still, true, true)).to.equal(false)
+			expect(AfkCafe.arrivalRests(AfkCafe.ARRIVAL_SECONDS + 1, still, true, false)).to.equal(
+				false
+			)
+		end)
+	end)
 end

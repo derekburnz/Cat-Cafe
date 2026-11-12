@@ -20,6 +20,7 @@ local AfkController = {}
 local STICK_DEADZONE = 0.2
 local lastInput = os.clock()
 local idle = false
+local inputSeen = false -- any input this session (#3602)
 
 local function chip()
 	local player = Players.LocalPlayer
@@ -27,8 +28,23 @@ local function chip()
 	UI.rest.set(idle and rest ~= nil, rest == true)
 end
 
+-- #3602: the server took the rest up again after a rejoin (AfkCafe.ARRIVED_ATTRIBUTE). With no input yet this
+-- session the client counts as idle from here, so its first input is reported; with input already, it says so now.
+local function arrived()
+	if Players.LocalPlayer:GetAttribute(AfkCafe.ARRIVED_ATTRIBUTE) ~= true or idle then
+		return
+	end
+	if inputSeen then
+		Net.fire("AfkIdle", false)
+	else
+		idle = true
+		chip()
+	end
+end
+
 local function touched()
 	lastInput = os.clock()
+	inputSeen = true
 	if idle then
 		idle = false
 		Net.fire("AfkIdle", false)
@@ -51,6 +67,8 @@ function AfkController.start()
 	UserInputService.TouchStarted:Connect(touched)
 	Players.LocalPlayer.Chatted:Connect(touched)
 	Players.LocalPlayer:GetAttributeChangedSignal(AfkCafe.ATTRIBUTE):Connect(chip)
+	Players.LocalPlayer:GetAttributeChangedSignal(AfkCafe.ARRIVED_ATTRIBUTE):Connect(arrived)
+	arrived()
 	task.spawn(function()
 		while true do
 			task.wait(1)

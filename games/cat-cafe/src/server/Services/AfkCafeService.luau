@@ -6,12 +6,17 @@
 -- rate it was earned at (Economy.setResting, Economy.moneyFor). The Player's CafeRest attribute tells the HUD's chip.
 -- Ending a rest says what the cafe paid meanwhile, once. The first time each session a player past the tutorial
 -- walks into their own cafe, AfkCafe.LINE says that resting pays, once.
+-- #3602: behind the `autoRejoin` switch a rest that has lasted Config.AutoRejoinSeconds is teleported to this same
+-- place, ahead of Roblox's 20 minute idle disconnect; the arrival (marked in its join data) takes the rest up again
+-- once it stands at its cafe. Never in Studio (teleports do not run there) or in a private server (a public
+-- teleport would take the player out of it).
 -- The client is trusted only for "no input": a client that lies and says idle still has to stand still in its own
 -- cafe to rest, which is what resting is.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
 
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local CafeService = require(script.Parent.CafeService)
@@ -34,6 +39,8 @@ type Watch = {
 	stillSince: number, -- os.clock() of that
 	restSince: number?, -- os.clock() the rest started, nil while not resting
 	told: boolean, -- AfkCafe.LINE was said this session
+	arrivedAt: number?, -- #3602: os.clock() a rest's rejoin joined, until it rests again or its window ends
+	rejoinTry: number?, -- #3602: os.clock() of this rest's last rejoin teleport
 }
 
 local TUTORIAL_DONE = 5 -- the tutorial's last step (the client's TutorialHints.DONE)
@@ -51,6 +58,8 @@ local function watchOf(player: Player): Watch
 		stillSince = os.clock(),
 		restSince = nil,
 		told = false,
+		arrivedAt = nil,
+		rejoinTry = nil,
 	}
 	watches[player] = watch
 	return watch
@@ -100,10 +109,44 @@ local function start(player: Player, watch: Watch)
 	Economy.takeRestEarned(profile)
 	Economy.setResting(profile, true)
 	watch.restSince = os.clock()
+	watch.rejoinTry = nil
 	local doubled = AfkCafe.doubled(Economy.eventMoney())
 	player:SetAttribute(AfkCafe.ATTRIBUTE, doubled)
 	Telemetry.custom(player, "afk_start", 1, { if doubled then "doubled" else "party" })
 	CafeService.sync(player)
+end
+
+-- #3602: sends a resting player back into this place. The save is released as they leave (DataService), after
+-- beforeRelease has settled the rest. A failed teleport leaves them here, resting, for the next try.
+local function rejoin(player: Player)
+	if RunService:IsStudio() or game.PrivateServerId ~= "" then
+		return
+	end
+	Telemetry.custom(player, "afk_rejoin", 1)
+	task.spawn(function()
+		local options = Instance.new("TeleportOptions")
+		options:SetTeleportData(AfkCafe.teleportData() :: any)
+		local ok, problem = pcall(function()
+			TeleportService:TeleportAsync(game.PlaceId, { player }, options)
+		end)
+		if not ok then
+			warn("[AfkCafeService] rejoin teleport failed: " .. tostring(problem))
+		end
+	end)
+end
+
+-- #3602: whether this join is a rest's rejoin (its join data, which a client can forge: see shared/AfkCafe).
+local function noteArrival(player: Player)
+	local ok, data = pcall(function()
+		return player:GetJoinData()
+	end)
+	if
+		ok
+		and data ~= nil
+		and AfkCafe.arrivedResting(data.TeleportData, data.SourcePlaceId, game.PlaceId)
+	then
+		watchOf(player).arrivedAt = os.clock()
+	end
 end
 
 local function check(player: Player, now: number)
@@ -148,6 +191,21 @@ local function check(player: Player, now: number)
 		watch.told = true
 		Net.toast(player, AfkCafe.line(AfkCafe.doubled(Economy.eventMoney())), "info")
 	end
+	-- #3602: a rest's rejoin takes the rest up again without the wait, once it stands still at its cafe
+	local arrivedAt = watch.arrivedAt
+	if arrivedAt ~= nil then
+		if now - arrivedAt > AfkCafe.ARRIVAL_SECONDS then
+			watch.arrivedAt = nil
+		elseif
+			on
+			and AfkCafe.arrivalRests(now - arrivedAt, now - watch.stillSince, inZone, busy(player))
+		then
+			watch.arrivedAt = nil
+			watch.idle = true
+			watch.stillSince = now - Config.AfkCafeSeconds
+			player:SetAttribute(AfkCafe.ARRIVED_ATTRIBUTE, true)
+		end
+	end
 	local resting = on and AfkCafe.resting(watch.idle, now - watch.stillSince, inZone, busy(player))
 	if resting and watch.restSince == nil then
 		start(player, watch)
@@ -158,6 +216,15 @@ local function check(player: Player, now: number)
 		local doubled = AfkCafe.doubled(Economy.eventMoney())
 		if player:GetAttribute(AfkCafe.ATTRIBUTE) ~= doubled then
 			player:SetAttribute(AfkCafe.ATTRIBUTE, doubled)
+		end
+		local since = watch.restSince
+		if
+			since ~= nil
+			and LiveFlagService.on(AfkCafe.REJOIN_FLAG)
+			and AfkCafe.rejoinDue(now - since, watch.rejoinTry, now)
+		then
+			watch.rejoinTry = now
+			rejoin(player)
 		end
 	end
 end
@@ -180,6 +247,10 @@ function AfkCafeService.start()
 		end
 		watches[player] = nil
 	end)
+	Players.PlayerAdded:Connect(noteArrival)
+	for _, player in Players:GetPlayers() do
+		noteArrival(player)
+	end
 	Players.PlayerRemoving:Connect(function(player: Player)
 		task.defer(function()
 			watches[player] = nil

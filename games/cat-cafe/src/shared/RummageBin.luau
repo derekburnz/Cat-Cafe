@@ -189,9 +189,8 @@ function RummageBin.attempt(challenge: Types.RescueChallenge): Rescue.Attempt
 	return Rescue.newAttempt(challenge, RARITY)
 end
 
--- What a row is called: "2 Tuna", "8 golden fish", "Alley Crate", "2 Tuna and 10 golden fish", "Alley Crate and
--- Lucky Potion".
-function RummageBin.rowName(row: Row): string
+-- The things a row holds, each by name: { "2 Tuna", "10 golden fish" }, { "Alley Crate", "Lucky Potion" }.
+local function rowParts(row: Row): { string }
 	local count = math.max(1, math.floor(row.count or 1))
 	local function counted(name: string): string
 		return if count > 1 then string.format("%d %s", count, name) else name
@@ -212,10 +211,27 @@ function RummageBin.rowName(row: Row): string
 	if row.fish ~= nil then
 		table.insert(parts, string.format("%d golden fish", row.fish))
 	end
+	return parts
+end
+
+-- What a row is called: "2 Tuna", "8 golden fish", "Alley Crate", "2 Tuna and 10 golden fish", "Alley Crate and
+-- Lucky Potion".
+function RummageBin.rowName(row: Row): string
+	local parts = rowParts(row)
 	if #parts == 0 then
 		return row.id
 	end
 	return table.concat(parts, " and ")
+end
+
+-- The bar's short title for a row: its first thing, and "and more" when it holds others ("2 Tuna and more"), since
+-- the bar's title has room for one name (the note before the press and the loot card list everything).
+function RummageBin.rowTitle(row: Row): string
+	local parts = rowParts(row)
+	if #parts == 0 then
+		return row.id
+	end
+	return if #parts > 1 then parts[1] .. " and more" else parts[1]
 end
 
 local function percent(chance: number): string
@@ -258,7 +274,7 @@ function RummageBin.winWords(id: string, first: boolean): (string, string)
 	if row == nil then
 		return "Found something!", ""
 	end
-	local title = RummageBin.rowName(row) .. "!"
+	local title = RummageBin.rowTitle(row) .. "!"
 	if row.lure ~= nil then
 		local lure = Catalog.getLure(row.lure)
 		local rarity = if lure ~= nil then lure.rarity else "Rare"

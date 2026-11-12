@@ -5083,9 +5083,16 @@ local SCENES = {
 			assert(outcome.Text ~= "Rescued!" and outcome.Text ~= "Found something!", "uigate: the bin's win does not name its prize: " .. id .. " (#3050)")
 			UIShim.advance(3)
 		end
-		local outcome, detail = win("tuna", true)
-		assert(outcome.Text == "Tuna!", "uigate: the first win does not read Tuna! (#3050)")
+		-- #3460: the first win is the fixed first prize, 2 Tuna and 10 golden fish
+		local outcome, detail = win("first_tuna", true)
+		assert(outcome.Text == "2 Tuna and more!", "uigate: the first win reads " .. outcome.Text .. ", not 2 Tuna and more! (#3460)")
 		assert(detail.Text:find("Put it in your bowl", 1, true), "uigate: the first Tuna does not point at the bowl (#3050)")
+		for _, id in { "first_crate", "first_salmon" } do
+			UIShim.advance(3)
+			win(id, false) -- the other fixed prizes' titles fit too
+		end
+		UIShim.advance(3)
+		win("first_tuna", true)
 		local tap = barGui:FindFirstChild("Tap")
 		assert(tap and not tap.Visible, "uigate: the tap catcher still covers the screen after a bin win (#3050)")
 		local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")

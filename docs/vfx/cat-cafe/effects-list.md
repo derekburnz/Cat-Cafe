@@ -1139,3 +1139,10 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
 | Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
 
+## Guide trail paw prints (#3554, 2026-11-12)
+
+`Effects/PawTrail.luau`, numbers in `Presets.pawTrail`.
+
+| Look | Hook |
+|---|---|
+| Each guide trail dot is drawn as a gold paw print (a pad and four toes) 1.7 studs across, toes towards the target, left and right of the line in turn; the prints fade with their dots, so the trail's comet of light and its Reduce Motion look carry over. No arrows, no words, no timer. | The attribute `Paws = true` on GuideTrail's folder (`CatCafeTutorialTrail` in the Workspace); clearing it puts the dots back. At most 48 prints (GuideTrail's dot cap), one CanvasGroup each, on this client only. |

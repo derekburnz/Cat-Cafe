@@ -4715,6 +4715,26 @@ Presets.binRoll = {
 	},
 }
 
+-- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
+-- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the
+-- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).
+-- `turn` turns the drawing on its part, should the toes come out facing the wrong way in Studio.
+Presets.pawTrail = {
+	attribute = "Paws",
+	home = "CatCafePawTrail",
+	size = 1.7,
+	pixels = 64,
+	offset = 0.45,
+	brightness = 1.6,
+	turn = 0,
+	toes = {
+		{ 0.2, 0.36, 0.2, 0.26 },
+		{ 0.39, 0.2, 0.2, 0.28 },
+		{ 0.61, 0.2, 0.2, 0.28 },
+		{ 0.8, 0.36, 0.2, 0.26 },
+	},
+}
+
 -- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the
 -- rolled cat floats up over the pool in a sparkle and drops in with a splash, the liquid steps grey, green, blue, gold
 -- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to purple with a

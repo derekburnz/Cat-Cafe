@@ -1392,6 +1392,11 @@ local Config = {
 		LandingPadRadius = 8,
 		LandingClearStuds = 3,
 		CannonRangeStuds = 10,
+		-- #3671 (Derek 2026-11-12: "expand the town square cannon circle a bit"): the Town Square cannon's own reach;
+		-- its ring fills it (WalkUp.EDGE_SLACK inside), radius 9.5 (about 7.3 before), where the camps' stay as they
+		-- were. The spawn is 14 studs from the cannon and the nearest landing spot 11, both outside the ring, and the
+		-- landing circle's edge (10 studs out) stays half a stud clear of it
+		TownCannonRangeStuds = 11.5,
 		CampDropMarginStuds = 2,
 		CampDropOutStuds = 3,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within

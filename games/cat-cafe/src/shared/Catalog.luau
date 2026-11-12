@@ -1550,6 +1550,35 @@ Catalog.lures = {
 		odds = { Common = 0, Rare = 0, Epic = 43.25, Legendary = 44, Mythical = 12.75 }, -- #2239: was 0/0/40/45/15 (Legendary stays the likeliest)
 		asset = "CatCafe_Item_StarTreat",
 	},
+	-- #3462 (Derek 2026-11-12: "add better items to day cart like legendary bait and better potions but make it for
+	-- more money", then "move all of those items to be in the billions" and "tier 6+"): the Day Cart's own two baits,
+	-- a little better at the top end than the dealer's best, sold only there (source "cart") at a flat `cost` that
+	-- no tier scales (Economy.foodPrice). Names, odds and the swap away from the dealer's foods are Design-Agent's,
+	-- made while Derek was away. Until their own models are in they wear the Moon Milk and Star Treat models.
+	{
+		id = "honey_cream",
+		name = "Honey Cream",
+		cost = 1000000000,
+		sortOrder = 8,
+		attracts = "Epic",
+		rarity = "Legendary",
+		source = "cart",
+		description = "Thick, sweet and gone in one lick.",
+		odds = { Common = 0, Rare = 20, Epic = 40, Legendary = 32, Mythical = 8 },
+		asset = "CatCafe_Item_MoonMilk",
+	},
+	{
+		id = "comet_treat",
+		name = "Comet Treat",
+		cost = 3000000000,
+		sortOrder = 9,
+		attracts = "Legendary",
+		rarity = "Mythical",
+		source = "cart",
+		description = "Still warm from the sky.",
+		odds = { Common = 0, Rare = 0, Epic = 35, Legendary = 48, Mythical = 17 },
+		asset = "CatCafe_Item_StarTreat",
+	},
 } :: { Types.LureDef }
 
 -- Section 11b (F47): the Tip Jar's twelve playtime gifts in step order, unlocked by minutes of the current session.
@@ -4591,6 +4620,28 @@ Catalog.cornerShop = {
 		kind = "bait",
 		lureId = "salmon",
 		price = 0,
+	},
+	-- #3462: the cart's own baits, Tier 6 and up, at the flat price of their Catalog.lures rows (`price` here is the
+	-- same number, so the stock roll places them by it)
+	{
+		id = "honey_cream",
+		name = "Honey Cream",
+		family = "bait",
+		size = "big",
+		kind = "bait",
+		lureId = "honey_cream",
+		price = 1000000000,
+		needsTier = 6,
+	},
+	{
+		id = "comet_treat",
+		name = "Comet Treat",
+		family = "bait",
+		size = "mega",
+		kind = "bait",
+		lureId = "comet_treat",
+		price = 3000000000,
+		needsTier = 6,
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }

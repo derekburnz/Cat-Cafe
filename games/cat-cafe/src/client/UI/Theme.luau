@@ -428,6 +428,9 @@ Theme.foodIcons = {
 	caviar = "🐚", -- #2015: not 🦪 (Unicode 12), drawn blank
 	moon_milk = "🥛",
 	star_treat = "⭐",
+	-- #3462: the Day Cart's own baits wear the dealer's glyphs until theirs are drawn
+	honey_cream = "🥛",
+	comet_treat = "⭐",
 } :: { [string]: string }
 
 -- glyph -> the clean symbol IconArt draws for it (#1027, Components/CleanGlyphs)

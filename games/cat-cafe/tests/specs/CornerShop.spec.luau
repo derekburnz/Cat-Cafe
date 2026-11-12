@@ -66,6 +66,9 @@ return function()
 				{ "kibble", "bait", "small", (Catalog.getLure("kibble") :: any).cost },
 				{ "tuna", "bait", "regular", (Catalog.getLure("tuna") :: any).cost },
 				{ "salmon", "bait", "big", (Catalog.getLure("salmon") :: any).cost },
+				-- #3462: the cart's own two, in the billions, from Tier 6
+				{ "honey_cream", "bait", "big", 1000000000 },
+				{ "comet_treat", "bait", "mega", 3000000000 },
 			}
 			expect(#Catalog.cornerShop).to.equal(#want)
 			for index, row in Catalog.cornerShop do
@@ -76,8 +79,9 @@ return function()
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
 				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone; #3118's Money Potion
 				-- from Tier 3 and Big Money from Tier 4 (Monetization-Agent)
-				local gate = if row.kind == "bait"
-					then nil
+				local gate = if row.id == "honey_cream" or row.id == "comet_treat"
+					then 6
+					elseif row.kind == "bait" then nil
 					elseif row.id == "tip_potion" then 3
 					elseif row.id == "big_tip_potion" then 4
 					elseif row.size == "big" then 3
@@ -93,7 +97,9 @@ return function()
 				elseif row.kind == "bait" then
 					local lure = Catalog.getLure(row.lureId :: string)
 					expect(lure).to.be.ok()
-					expect((lure :: any).source).to.equal("shop") -- dealer foods stay with the dealer
+					-- dealer foods stay with the dealer; #3462: the cart's own two are sold nowhere else
+					local own = row.id == "honey_cream" or row.id == "comet_treat"
+					expect((lure :: any).source).to.equal(if own then "cart" else "shop")
 				else
 					error(row.id .. ": no shows since #1381") -- the Bubble Machine and Cafe Fireworks are gone
 				end
@@ -489,6 +495,32 @@ return function()
 				end
 			end
 		)
+
+		it("#3462: sells its own two baits from Tier 6 at one price for every tier", function()
+			for _, id in { "honey_cream", "comet_treat" } do
+				local window = assert(windowWith(id, WINDOW))
+				local state = CornerShop.fresh()
+				CornerShop.refresh(state, window, 0)
+				local row = Catalog.getCornerShopRow(id) :: any
+				local price = (Catalog.getLure(id) :: any).cost
+				expect(row.price).to.equal(price)
+				for tier = 1, 9 do
+					expect(CornerShop.priceOf(row, tier)).to.equal(price)
+				end
+				expect(CornerShop.buyBlocker(state, buy(id, window, 5, 1e12), window)).to.equal(
+					"Opens at Tier 6"
+				)
+				expect(CornerShop.buyBlocker(state, buy(id, window, 6, price - 1), window)).to.equal(
+					"Not enough coins"
+				)
+				expect(CornerShop.buyBlocker(state, buy(id, window, 6, price), window)).to.equal(
+					nil
+				)
+				expect(CornerShop.buyBlocker(state, buy(id, window, 8, price), window)).to.equal(
+					nil
+				)
+			end
+		end)
 
 		it("charges the food's price for the tier and shows it", function()
 			local window = assert(windowWith("salmon", WINDOW))

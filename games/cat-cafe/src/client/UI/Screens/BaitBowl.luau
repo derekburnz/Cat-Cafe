@@ -443,6 +443,7 @@ function BaitBowl._buildRows(self: any)
 	local topHeight = math.max(ICON + 16, buttonH + 16, detailsH + 16)
 	for index, lure in foods do
 		local dealer = lure.source == "dealer"
+		local cart = lure.source == "cart" -- #3462: sold only on the Day Cart
 		local row: Frame = Create("Frame", {
 			Name = lure.id,
 			BackgroundColor3 = PAL.card,
@@ -579,6 +580,7 @@ function BaitBowl._buildRows(self: any)
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			def = lure,
 			dealer = dealer,
+			cart = cart,
 		}
 	end
 	self._tier = -1 -- rebuild the odds and split text on the next render
@@ -764,6 +766,8 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 			row.count.Text = ("You have %d"):format(have)
 		elseif row.dealer then
 			row.count.Text = "Sold by the night dealer's cart"
+		elseif row.cart then
+			row.count.Text = "Sold on the Day Cart from Tier 6"
 		else
 			row.count.Text = "Get more at the Corner Shop"
 		end

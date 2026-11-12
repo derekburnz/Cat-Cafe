@@ -13,7 +13,8 @@ export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
 export type CatchMethod = "net" | "rescue" | "bait" | "starter" | "trade" -- "trade": F102, from another player
-export type LureSource = "shop" | "dealer"
+-- #3462: "cart" foods are sold only on the Day Cart, at a flat price
+export type LureSource = "shop" | "dealer" | "cart"
 -- How one closing circle was judged (data-model section 10).
 export type CircleGrade = "perfect" | "good" | "miss"
 -- #1884 (catch-rework.md 7c): a net catch's ring grade, which adds "left" for a paw ring nobody tapped (+1 trust; a

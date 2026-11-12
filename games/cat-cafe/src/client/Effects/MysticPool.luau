@@ -3,8 +3,8 @@
 --   1. Sage Sorrel raises his staff, and the rolled cat floats up over the pool in a sparkle and drops in with a
 --      splash.
 --   2. The liquid steps grey, green, blue, gold (one step every Presets.mysticPool.step seconds, a bubble burst on
---      each) and stops on the rolled rarity's colour. A mythic flashes on to purple with a rainbow shimmer, a star
---      burst and confetti.
+--      each) and stops on the rolled rarity's colour. A mythic flashes on to its own colour (the Mythical cat
+--      rarity's pink-red) with a rainbow shimmer, a star burst and confetti.
 --   3. The cat pops back out on a splash and `onReveal` runs (the trait card rises). The liquid then fades back to
 --      its rest colour and Sorrel lowers his staff.
 -- The steps only ever go up and stop on the real rarity (Logic.poolAt), never past it and back, and never pause to
@@ -33,7 +33,7 @@ local MysticPool = {}
 local playing: { [Model]: () -> () } = {} -- station -> its running roll's skip
 
 -- The roll's beats, for the sounds (#3389, Audio followPool): "drop" as the cat splashes in, "step" for each colour
--- step after the first (its number, 2 and up), "mythic" for the purple flash, and "reveal" once per roll as the cat
+-- step after the first (its number, 2 and up), "mythic" for the Mythic's flash, and "reveal" once per roll as the cat
 -- comes back (also on a skip and with Reduce Motion). `at` is the liquid's surface. Listeners only listen.
 export type Beat = "drop" | "step" | "mythic" | "reveal"
 local listeners: { (beat: Beat, step: number, at: Vector3) -> () } = {}
@@ -337,7 +337,7 @@ function MysticPool.roll(
 					Particles.ring(surface + Vector3.new(0, 0.2, 0), colour, 8, 0.9)
 				end
 			end
-			if steps[i] == "mythic" and k >= 1 then -- the rainbow shimmer over the purple
+			if steps[i] == "mythic" and k >= 1 then -- the rainbow shimmer over the Mythic's colour
 				local hue = (into * p.shimmerHz) % 1
 				paint(
 					colour:Lerp(

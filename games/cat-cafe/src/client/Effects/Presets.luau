@@ -4737,7 +4737,7 @@ Presets.pawTrail = {
 
 -- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the
 -- rolled cat floats up over the pool in a sparkle and drops in with a splash, the liquid steps grey, green, blue, gold
--- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to purple with a
+-- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to its pink-red with a
 -- rainbow shimmer and a star burst), then the cat pops back out and the trait card rises (the caller's onReveal).
 -- Never a near miss: the steps only go up and stop on the real rarity. A tap skips to the card at any point. The
 -- colours are shared/Traits.RARITIES' (the card's), so the pool and the card always match.
@@ -4746,11 +4746,11 @@ Presets.mysticPool = {
 	armSuffix = "_Sage_LegF2", -- the staff arm's Model; the staff rides it
 	step = 0.6, -- seconds per colour step
 	blend = 0.25, -- seconds a step's colour takes to blend in
-	flash = 0.12, -- the Mythic's fast flash from gold to purple
+	flash = 0.12, -- the Mythic's fast flash from gold to its own colour
 	hold = 0.6, -- seconds on the last colour before the cat pops out
-	mythicHold = 1.6, -- a Mythic's purple flash and shimmer, so its pool time is about 4 s
+	mythicHold = 1.6, -- a Mythic's flash and shimmer, so its pool time is about 4 s
 	shimmerHz = 0.9, -- rainbow cycles per second over a Mythic's liquid
-	shimmerMix = 0.55, -- how much rainbow over the purple (0 to 1)
+	shimmerMix = 0.55, -- how much rainbow over the Mythic's colour (0 to 1)
 	raise = 0.4, -- seconds Sorrel takes to raise his staff
 	raiseDegrees = 75, -- forward, about his shoulder
 	lower = 0.6, -- seconds to lower it again after the card
@@ -4770,9 +4770,11 @@ Presets.mysticPool = {
 	stars = 30, -- a Mythic's star burst
 	confetti = 40, -- a Mythic's confetti
 	revealSparkles = 18, -- the pop's sparkles, in the rarity's colour
+	-- the Mythic's confetti: its own colour first (shared/Traits.RARITIES' mythic, the Mythical cat rarity's
+	-- pink-red since #3712; was purple), then a rainbow
 	mythicColours = {
-		Color3.fromHex("B04FE0"),
-		Color3.fromHex("FF6B81"),
+		Color3.fromHex("FF5E7E"),
+		Color3.fromHex("FFF4E6"),
 		Color3.fromHex("F4C430"),
 		Color3.fromHex("4CAF50"),
 		Color3.fromHex("3F8FE0"),

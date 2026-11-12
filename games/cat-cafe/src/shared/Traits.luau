@@ -6,8 +6,9 @@
 -- rolls come from a passed function, so the specs are deterministic.
 --
 -- Each cat holds one trait at a time, saved as `{ id }`; the id carries its rarity and effects (LIST). A roll picks
--- the rarity first at RARITIES' odds (Common 35, Uncommon 30, Rare 20, Legendary 10, Mythic 5), then one trait of that
--- rarity evenly. Common, Uncommon and Rare hold the same six one-effect traits, stronger at each rarity; Legendary
+-- the rarity first at RARITIES' odds (Common 30, Uncommon 25, Rare 18, Epic 12, Legendary 10, Mythic 5), then one trait of that
+-- rarity evenly. Common, Uncommon, Rare and Epic hold the same six one-effect traits, stronger at each rarity, and Epic
+-- two two-effect traits of its own (Derek 2026-11-12: "add an epic tier and some traits"); Legendary
 -- holds four two-effect traits and Mythic three three-effect traits. The first trait and every re-roll cost the same:
 -- a free starter roll while any are left (FREE_ROLLS, counted up in `traitFreeRollsUsed` so a missing field never
 -- grants them again), else one Trait Token, else COST_FISH golden fish. After a re-roll the player keeps the old trait
@@ -51,7 +52,7 @@ export type Kind = "income" | "nightIncome" | "xp" | "bowlLuck" | "speed" | "ric
 export type Rarity = {
 	id: string,
 	name: string,
-	rank: number, -- 1 Common to 5 Mythic
+	rank: number, -- 1 Common to 6 Mythic (Epic is 4 since 2026-11-12; Legendary and Mythic moved up one)
 	odds: number, -- percent of rolls
 	color: string, -- hex, the pool's and the card's colour (Color3.fromHex on the client)
 }
@@ -70,19 +71,22 @@ export type Def = {
 -- Mythic's colour is the Mythical cat rarity's (Theme.rarity.Mythical) since the same day: "change mythic color to
 -- match the mythic cat rarity color"; it was the purple #B04FE0.
 Traits.RARITIES = {
-	{ id = "common", name = "Common", rank = 1, odds = 35, color = "#9AA0A6" },
-	{ id = "uncommon", name = "Uncommon", rank = 2, odds = 30, color = "#4CAF50" },
-	{ id = "rare", name = "Rare", rank = 3, odds = 20, color = "#3F8FE0" },
-	{ id = "legendary", name = "Legendary", rank = 4, odds = 10, color = "#F4C430" },
-	{ id = "mythic", name = "Mythic", rank = 5, odds = 5, color = "#FF5E7E" },
+	{ id = "common", name = "Common", rank = 1, odds = 30, color = "#9AA0A6" },
+	{ id = "uncommon", name = "Uncommon", rank = 2, odds = 25, color = "#4CAF50" },
+	{ id = "rare", name = "Rare", rank = 3, odds = 18, color = "#3F8FE0" },
+	-- Epic (Derek 2026-11-12, with the odds re-split around it): the Epic cat rarity's purple (Theme.rarity.Epic)
+	{ id = "epic", name = "Epic", rank = 4, odds = 12, color = "#C07CFF" },
+	{ id = "legendary", name = "Legendary", rank = 5, odds = 10, color = "#F4C430" },
+	{ id = "mythic", name = "Mythic", rank = 6, odds = 5, color = "#FF5E7E" },
 } :: { Rarity }
 
-local COMMON, UNCOMMON, RARE, LEGENDARY, MYTHIC =
+local COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC =
 	Traits.RARITIES[1],
 	Traits.RARITIES[2],
 	Traits.RARITIES[3],
 	Traits.RARITIES[4],
-	Traits.RARITIES[5]
+	Traits.RARITIES[5],
+	Traits.RARITIES[6]
 
 -- Spec section 2d: how each effect is counted. `cafe` effects count only the best `best` working cats, at most `cap`.
 -- `what` is the card's words; "studs" amounts are studs a second, the rest fractions (0.05 is +5%).
@@ -110,18 +114,44 @@ local function def(id: string, name: string, rarity: Rarity, effects: { Effect }
 	return { id = id, name = name, rarity = rarity, effects = effects }
 end
 
--- Spec section 2a: the six one-effect traits, at Common, Uncommon and Rare. Ids are `<trait>_<rarity>`.
+-- Spec section 2a: the six one-effect traits, at Common, Uncommon, Rare and Epic. Ids are `<trait>_<rarity>`. An
+-- Epic single sits between its Rare and the same effect inside a Legendary.
 local SINGLES: { { id: string, name: string, kind: Kind, amounts: { number } } } = {
-	{ id = "bigTipper", name = "Big Tipper", kind = "income", amounts = { 0.05, 0.08, 0.12 } },
-	{ id = "nightOwl", name = "Night Owl", kind = "nightIncome", amounts = { 0.10, 0.15, 0.22 } },
-	{ id = "fastLearner", name = "Fast Learner", kind = "xp", amounts = { 0.10, 0.15, 0.22 } },
-	{ id = "luckyBowl", name = "Lucky Bowl", kind = "bowlLuck", amounts = { 0.02, 0.03, 0.04 } },
-	{ id = "quickPaws", name = "Quick Paws", kind = "speed", amounts = { 0.3, 0.5, 0.7 } },
-	{ id = "richFriend", name = "Rich Friend", kind = "richRate", amounts = { 0.02, 0.03, 0.04 } },
+	{
+		id = "bigTipper",
+		name = "Big Tipper",
+		kind = "income",
+		amounts = { 0.05, 0.08, 0.12, 0.15 },
+	},
+	{
+		id = "nightOwl",
+		name = "Night Owl",
+		kind = "nightIncome",
+		amounts = { 0.10, 0.15, 0.22, 0.26 },
+	},
+	{
+		id = "fastLearner",
+		name = "Fast Learner",
+		kind = "xp",
+		amounts = { 0.10, 0.15, 0.22, 0.26 },
+	},
+	{
+		id = "luckyBowl",
+		name = "Lucky Bowl",
+		kind = "bowlLuck",
+		amounts = { 0.02, 0.03, 0.04, 0.05 },
+	},
+	{ id = "quickPaws", name = "Quick Paws", kind = "speed", amounts = { 0.3, 0.5, 0.7, 0.85 } },
+	{
+		id = "richFriend",
+		name = "Rich Friend",
+		kind = "richRate",
+		amounts = { 0.02, 0.03, 0.04, 0.05 },
+	},
 }
 
 local list: { Def } = {}
-for i, rarity in { COMMON, UNCOMMON, RARE } do
+for i, rarity in { COMMON, UNCOMMON, RARE, EPIC } do
 	for _, single in SINGLES do
 		table.insert(
 			list,
@@ -134,6 +164,15 @@ for i, rarity in { COMMON, UNCOMMON, RARE } do
 		)
 	end
 end
+-- Epic's own two: two effects each, both under a Legendary's.
+table.insert(
+	list,
+	def("treasureNose", "Treasure Nose", EPIC, { e("income", 0.10), e("bowlLuck", 0.04) })
+)
+table.insert(
+	list,
+	def("nightSprinter", "Night Sprinter", EPIC, { e("nightIncome", 0.18), e("speed", 0.6) })
+)
 -- Spec section 2b: Legendary, two effects.
 table.insert(
 	list,
@@ -213,7 +252,7 @@ function Traits.rarity(trait: Trait?): Rarity?
 	return if entry then entry.rarity else nil
 end
 
--- 0 for no trait, else 1 (Common) to 5 (Mythic): a trait's weight in a trade's value check.
+-- 0 for no trait, else 1 (Common) to 6 (Mythic): a trait's weight in a trade's value check.
 function Traits.rank(trait: Trait?): number
 	local rarity = Traits.rarity(trait)
 	return if rarity then rarity.rank else 0

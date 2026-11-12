@@ -174,6 +174,7 @@ function CannonController.start()
 		if typeof(at) == "Vector3" and character ~= nil then
 			aimBehind(character, at)
 		end
+		UI.closeCatCard() -- #3640: the new cat's card does not ride along
 	end)
 
 	-- #2915: the cannon the character stands in range of (the server's own range), for "Fly to the Park"

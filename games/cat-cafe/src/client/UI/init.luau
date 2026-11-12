@@ -2077,6 +2077,14 @@ function UI.close()
 	end
 end
 
+-- #3640: the server moved this player (the tutorial's move to the cannon): a new cat's card still up closes, so
+-- the Cat Cannon window does not open over it.
+function UI.closeCatCard()
+	if popups then
+		popups:dismissCat()
+	end
+end
+
 function UI.isOpen(): string?
 	if modal then
 		return modal:current()

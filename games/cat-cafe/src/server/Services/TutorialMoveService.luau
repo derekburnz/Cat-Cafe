@@ -97,7 +97,7 @@ local function onStepped(player: Player, from: number, to: number)
 		move(player, target :: TutorialMoves.Target)
 		return
 	end
-	-- #3158: the move to the cannon waits a few seconds after the step (the first bowl cat's card), and is dropped
+	-- #3158: the move to the cannon waits a beat after the step (#3640: 1 second), and is dropped
 	-- when the player has walked off by then, left, or has a cat in hand
 	local root = freeRoot(player)
 	if root == nil then

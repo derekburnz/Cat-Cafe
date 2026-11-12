@@ -240,8 +240,14 @@ def _theme(s, mat, area, G, B, W, half):
         for sx in (1, -1):
             s.put(nb.flowerbed(mat), sx * 41.5, G - 22, -90 * sx)
     elif AREAS[area].get("theme") == "Park":
+        # #3447: the east bench stood at (16, 14 in), on the Picnic Basket's walk-in ring (the station is at x 19,
+        # its ring's centre about 15 in). It now sits against the back wall between two flower beds, clear of a
+        # radius 8 ring in front of the wider Mystic Pool too.
         for sx in (1, -1):
-            s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
+            if sx > 0:
+                s.put(park.build_park_bench(mat), 25, B + 2.5, 0)
+            else:
+                s.put(park.build_park_bench(mat), -16, G - PAD_IN - 2, -90)
             s.put(square.build_lamp(mat), sx * 9, cz, 0)
             for x in (x for x in (24, 44, 64) if x < W / 2 - 6):
                 s.put(park.build_tree(mat), sx * x, B + 7, 0)
@@ -264,7 +270,7 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(woods.tent(mat, "fur_orange"), 20, G - 21, 112)
         s.put(woods.campfire(mat), 15, G - 11, 0)
         s.put(woods.log_bench(mat), 15, G - 6.5, 0)
-        s.put(woods.log_bench(mat), 20.5, G - 11, 90)
+        s.put(woods.log_bench(mat), 11.5, G - 11, 90)      # #3447: west of the fire, off the Fishing Hut's ring
         for sx in (1, -1):
             # the west one stands past the Index Board (Layout: 4 beside the way out, 4 in, turned -20), clear of it
             s.put(woods.lantern(mat), sx * (half + (2.0 if sx > 0 else 11.5)), G - 1.5, 90 - 90 * sx)
@@ -284,7 +290,7 @@ def _theme(s, mat, area, G, B, W, half):
             s.put(sw.traffic_cone(mat), sx * (half + 2), G - 2.5, 0)
         s.put(sw.barrel(mat), 24.5, G - 25.5, 0)
         s.put(sw.tyre_stack(mat), 34, G - 20, 30)
-        s.put(sw.traffic_cone(mat), 21, G - 10.5, 0)
+        s.put(sw.traffic_cone(mat), 27.5, G - 10.5, 0)     # #3447: off the Lost and Found's ring
     elif AREAS[area].get("theme") == "Desert":
         # the Oasis Camp (section 4): a palm-ringed pool east, the stone well west, striped canopies, lamps by the
         # cannon, pots and crates along the back wall. Clear of the pad, the basket, the paths, the Index Board

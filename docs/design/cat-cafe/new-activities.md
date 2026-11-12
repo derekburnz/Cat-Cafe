@@ -1,4 +1,4 @@
-# New activities: Rummage Bin, Cat Arcade, Swift Paws, Mouse Dash, Lucky Charm
+# New activities: Rummage Bin, Cat Arcade, Swift Paws, Mouse Dash, Lucky Charm, Pet a cat
 
 Draft v1, 2026-11-11, Design-Agent (friend's project). One place for the final specs that were settled in issue comments on 2026-11-10. **The issues are the build tickets; where this file and an issue disagree, the latest issue comment wins and this file gets fixed.** Ideas 2 and 3 came from player its_cuzu098, and both ship with a credit on the newest What's new page (#3067) and an "Idea by its_cuzu098" line on their card.
 
@@ -134,6 +134,20 @@ Derek2, 2026-11-11: "no market luck because thats all decided stock per global, 
 - **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
 - **Flag:** `luckyCharm`. Built 2026-11-12 (#3503, `shared/LuckyCharm`, icon #3502) as specced, with the switch off until review, QA and a switch-on check pass.
 - **Judge by:** level 1 buys among players with 100+ fish. Lucky Potion use shouldn't drop much; if it does, use the flag.
+
+## 6. Pet a cat (#3651, a player's idea; switch `petCats`, not built yet)
+
+Derek, 2026-11-12 17:48 UTC: "add the petting cat in shop to increase how much money they make by 2x and display a heart beside their money while it lasts make it 1 hour long". Then 17:49: "make the petting 1 cat only at a time and petting a new one changes it" and "online pay only".
+
+- **How:** a "Pet" prompt on each cat in the player's own cafe. Owner only, in the cafe, distance checked, the remote rate limited with a 3 second server cooldown between pets. The cat purrs with a short heart puff.
+- **Effect:** the petted cat's own per-second pay is doubled (`Config.PetMoneyBoost = 2`) for one hour (`Config.PetSeconds = 3600`), by the clock. A heart sits beside that cat's money label while it lasts and the label shows the doubled number.
+- **One cat at a time (Derek).** Petting any cat makes it the happy cat for a full fresh hour and takes the heart off the previous cat at once. Petting the cat that already has the heart also resets it to a full hour (Design-Agent's pick: the simplest rule, and with one cat there is nothing to exploit). If the happy cat is sold, traded or leaves the cafe, the heart ends.
+- **Stacking:** money passes and money potions multiply as always. With the party slot (update parties, events, the AFK rest in afk-cafe.md) it does not multiply: a petted cat is never above `EventMoneyMax` (2) from the pet and that slot together.
+- **Online pay only (Derek).** Offline pay is unchanged and the hour keeps running while the player is away.
+- **Words:** the cat's own prompt may read "Happy for 42 m". No toast when a heart ends, no nagging, nothing sold, no pass changes it.
+- **Save:** one field on the player: the happy cat's id and the end time.
+- **Size:** one cat at 2x is a small, friendly gain: about +10% for a ten cat cafe, more when the best cat is picked.
+- **Credit:** the idea came from a player. Their name is never written in this repository; any in-game credit takes it from outside the repo.
 
 ## Related
 

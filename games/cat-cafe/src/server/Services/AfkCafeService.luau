@@ -146,7 +146,10 @@ local function noteArrival(player: Player)
 		and data ~= nil
 		and AfkCafe.arrivedResting(data.TeleportData, data.SourcePlaceId, game.PlaceId)
 	then
-		watchOf(player).arrivedAt = os.clock()
+		local watch = watchOf(player)
+		watch.arrivedAt = os.clock()
+		watch.told = true -- the rest line was this visit's already
+		player:SetAttribute(AfkCafe.REJOIN_ATTRIBUTE, true)
 	end
 end
 

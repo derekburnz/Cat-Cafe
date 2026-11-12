@@ -5,6 +5,10 @@
 -- ring or its prompt. The switches are read every CHECK_SECONDS, so the machine goes and comes back in every
 -- running server with no publish and no restart. Nothing about the games, the saves, the board or the prizes
 -- changes here; ArcadeService still finds the cabinet by its tag while it is put away.
+-- #3627 (Derek 2026-11-12: "the cat arcade and its circle are still in the game"): a new server knows only the
+-- switches' defaults (arcade on) until its first read of the store comes back, so the machine and its ring stood for
+-- the first players of every new server, and for good in a server whose reads failed. They wait put away until the
+-- switches have been read (LiveFlagService.ready).
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -61,7 +65,8 @@ function ArcadeCabinetService.apply(): boolean
 	local on = Arcade.cabinetStands(
 		LiveFlagService.on(Arcade.FLAG),
 		LiveFlagService.on(MouseDash.CIRCLE_FLAG),
-		LiveFlagService.on(MouseDash.FLAG)
+		LiveFlagService.on(MouseDash.FLAG),
+		LiveFlagService.ready()
 	)
 	if shown ~= on then
 		shown = on

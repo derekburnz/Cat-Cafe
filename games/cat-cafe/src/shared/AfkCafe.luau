@@ -26,6 +26,13 @@ AfkCafe.TICK_SECONDS = 1
 -- The once a visit line (design section 5.2) and the line on coming back (5.3).
 AfkCafe.LINE =
 	"Rest here any time. Cats earn 2x while you're AFK in your cafe, and they keep earning while you're offline."
+-- During a 2x party the rest adds nothing, so the line does not say 2x (as the chip, afk-cafe.md).
+AfkCafe.PARTY_LINE =
+	"Rest here any time. Your cats keep earning while you're AFK in your cafe and while you're offline."
+
+function AfkCafe.line(doubled: boolean): string
+	return if doubled then AfkCafe.LINE else AfkCafe.PARTY_LINE
+end
 
 function AfkCafe.welcome(amount: string): string
 	return string.format("Welcome back! Your cats earned %s while you rested 💤", amount)

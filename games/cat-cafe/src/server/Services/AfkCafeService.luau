@@ -146,7 +146,7 @@ local function check(player: Player, now: number)
 		and AfkCafe.inZone(plot.cframe:PointToObjectSpace(position), nil, W.PlotWidth, W.PlotDepth)
 	then
 		watch.told = true
-		Net.toast(player, AfkCafe.LINE, "info")
+		Net.toast(player, AfkCafe.line(AfkCafe.doubled(Economy.eventMoney())), "info")
 	end
 	local resting = on and AfkCafe.resting(watch.idle, now - watch.stillSince, inZone, busy(player))
 	if resting and watch.restSince == nil then

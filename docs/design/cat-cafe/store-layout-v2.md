@@ -60,11 +60,11 @@ Derek: "make the featured bundles better as it shows bad packs right now never s
 
 **Featured order (#3562).**
 - Hero, first one not owned: Starter Bundle, Royal Cat, King Cat Pack, Cafe Pass (while a season runs), Grand Cafe Theme.
-- Three picks, first three not owned and not the hero: the money ladder's next step (2x Money first, the cheapest item and the best seller), Royal Cat, King Cat Pack, Second Bait Bowl, Extra Slot, VIP, Long Nap, Cafe Pass, then the other passes.
+- Three picks, first three not owned and not the hero: the money ladder's next step (2x Money first, the cheapest item), Royal Cat, King Cat Pack, Second Bait Bowl, Extra Slot, VIP, Long Nap, Cafe Pass, then the other passes.
 - Potion packs show on Featured only when every pass and every other product is owned. They stay on the Potions tab.
 - A card that is off sale or has no price yet is skipped. No badges other than Sale, no timers, nothing pre-selected.
 
-**Half prices (#3572).** Only items that had not sold by 2026-11-12, by Growth-Agent's read. Sales counts are kept in the private Library, not here.
+**Half prices (#3572).** The items were picked by Derek's rule from Growth-Agent's read of 2026-11-12, which is kept in the private Library, not here.
 
 | Robux item | Was | Now |
 |---|---|---|
@@ -84,9 +84,9 @@ Derek: "make the featured bundles better as it shows bad packs right now never s
 | Thank You Badge | 25 | 13 |
 | Cafe Pass | 299 | 149 |
 
-Potion Pack L had sold, and Derek halved it too so the bigger pack is never the worse deal. Unchanged because they are selling: 2x, 3x and 4x Money, VIP, Long Nap, Cat Accessories, Second Bait Bowl, Garden Decor Pack, Sign Style Pack and the Starter Bundle. The Jukebox Pass is off sale. Managed pricing stays on in Creator Hub (Derek).
+Derek halved Potion Pack L as well so the bigger pack is never the worse deal. Unchanged: 2x, 3x and 4x Money, VIP, Long Nap, Cat Accessories, Second Bait Bowl, Garden Decor Pack, Sign Style Pack and the Starter Bundle. The Jukebox Pass is off sale. Managed pricing stays on in Creator Hub (Derek).
 
-In golden fish only the Fresh Catch shelf halves (rewards-and-shops.md section 3). Crates, perks, the Backpack and the Long Net are being bought and stay. **Crates are never halved without a look at duplicate refunds:** a duplicate piece refunds 10 to 150 golden fish, about 18 a crate on average at normal odds, so a crate at 20 would nearly pay for itself.
+In golden fish only the Fresh Catch shelf halves (rewards-and-shops.md section 3). Crates, perks, the Backpack and the Long Net stay. **Crates are never halved without a look at duplicate refunds:** a duplicate piece refunds 10 to 150 golden fish, about 18 a crate on average at normal odds, so a crate at 20 would nearly pay for itself.
 
 **Sale badge.**
 - On the halved items only. The card shows a "Sale" tag, the old price struck through and the new price. The button shows the new price.

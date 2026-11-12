@@ -2003,7 +2003,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and (player:GetAttribute("RankSpotlight") == true or session.rankSpot.shown)
 		then
 			session.rankSpot[kind] = true
-			Telemetry.custom(player, event, 1, { session.device or "unknown" })
+			Telemetry.custom(
+				player,
+				(event :: any) :: CustomEvent,
+				1,
+				{ session.device or "unknown" }
+			)
 		end
 	elseif name == "catch_reach" then
 		local kind = Guard.oneOf(rawValue, { "near", "shown" })

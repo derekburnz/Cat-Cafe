@@ -8561,9 +8561,12 @@ local SCENES = {
 			end
 		else
 			assert(row.AbsolutePosition.Y >= bottom, "uigate: the Luck row is not under the counters on touch (#2393)")
-			local middle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
-			local rowMiddle = row.AbsolutePosition.X + row.AbsoluteSize.X / 2
-			assert(math.abs(rowMiddle - middle) <= 2, "uigate: the Luck row is not centred under the counters (#2393)")
+			-- #2881 (Derek2: "luck gets pushed down into middle of screen"): the row hangs under the money with left
+			-- edges level, or right of that where the menu grid is in the way; it was centred under the pair (#2393).
+			-- #3518: a 667 x 375 phone, where the counters do not fit the bar, is the size that reaches this
+			local left = row.AbsolutePosition.X - counters.AbsolutePosition.X
+			assert(left >= -1 and left <= counters.AbsoluteSize.X / 2, ("uigate: the Luck row starts %d px from the counters' left edge (#2881)"):format(left))
+			assert(row.AbsolutePosition.Y - bottom <= 30, "uigate: the Luck row sits far under the counters (#2712)")
 		end
 		press("CatCafeHUD", "Counters.Money")
 		local card = root:FindFirstChild("Boosts") :: GuiObject

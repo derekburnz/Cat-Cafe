@@ -25,6 +25,9 @@ local AfkCafe = {}
 AfkCafe.FLAG = "afkCafe"
 AfkCafe.ATTRIBUTE = "CafeRest" -- on the Player while resting, for the HUD's chip (Components/RestChip): true when the
 -- rest doubles the pay, false when a 2x party already does; nil when not resting
+AfkCafe.ZONE_ATTRIBUTE = "CafeRestZone" -- #3701: on the Player while a player past the tutorial stands in their rest
+-- zone, for the rest banner (Components/RestBanner): true when a rest here would double the pay, false when a 2x
+-- party already does; nil outside the zone
 AfkCafe.DOORSTEP_STUDS = 12
 AfkCafe.MOVE_STUDS = 1.5 -- a character further than this from where it stood has moved
 AfkCafe.TICK_SECONDS = 1

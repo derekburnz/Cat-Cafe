@@ -1990,7 +1990,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local event = if kind ~= nil then PARK_TRAIL[kind] else nil
 		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
 			session.parkTrail[kind] = true
-			Telemetry.custom(player, event, 1, { tierText(profile) })
+			Telemetry.custom(player, (event :: any) :: CustomEvent, 1, { tierText(profile) })
 		end
 	elseif name == "rank_spot" then
 		local kind = Guard.oneOf(rawValue, { "shown", "closed" })
@@ -2010,7 +2010,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local event = if kind ~= nil then CATCH_REACH[kind] else nil
 		if kind ~= nil and event ~= nil and not session.catchReach[kind] then
 			session.catchReach[kind] = true
-			Telemetry.custom(player, event, 1, { session.device or "unknown", tierText(profile) })
+			Telemetry.custom(
+				player,
+				(event :: any) :: CustomEvent,
+				1,
+				{ session.device or "unknown", tierText(profile) }
+			)
 		end
 	elseif name == "first_bait_cutscene" then
 		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)

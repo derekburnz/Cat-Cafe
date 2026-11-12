@@ -135,7 +135,7 @@ local function tick(dt: number)
 		return
 	end
 	wasDue = true
-	local phase = ParkTrailLogic.phase(UI.cannon.area)
+	local phase = (ParkTrailLogic.phase(UI.cannon.area) :: any) :: ParkTrailLogic.Phase
 	if phase ~= lastPhase then
 		if phase == "catch" then
 			report(ParkTrailLogic.ENTERED)

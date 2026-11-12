@@ -47,3 +47,12 @@ Reused: cat income uses CatCafe_Icon_Coins; Tutorial uses Icon_Hud_Tutorial.
 | CatCafe_Icon_Lawn_Path_PawPrintPath | 70732478904339 |
 | CatCafe_Icon_Lawn_Path_RedBrick | 139802156470050 |
 | CatCafe_Icon_Lawn_Path_SteppingStones | 93777775464109 |
+
+## Gift and Rummage Bin row pictures (2026-11-12)
+Group-owned, upload-image run 43317865668 from main at 22:13 UTC, moderation Reviewing at upload.
+
+| Picture | Id |
+|---|---|
+| CatCafe_Icon_Hud_Gift | 95020228483506 |
+| CatCafe_Icon_Bin_TunaFish | 126800641723638 |
+| CatCafe_Icon_Bin_SalmonFish | 92399966043098 |

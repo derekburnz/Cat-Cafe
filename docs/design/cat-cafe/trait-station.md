@@ -17,7 +17,7 @@ Derek2, 2026-11-11 14:34 UTC: "Re-work the station to be like a mystical wizard 
   - See its trait, then Roll (or Re-roll).
   - After a re-roll, the old trait and the new one show side by side, with **Keep old** and **Take new**.
   - The odds line is always on the card.
-  - The **Odds** button lists the rarity odds (Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%) and says each trait inside a rarity is equally likely. This replaces the old I/II/III odds text.
+  - The **Odds** button lists the rarity odds (Common 35%, Uncommon 30%, Rare 20%, Legendary 10%, Mythic 5%; changed on 2026-11-12 in #3712, they were 55, 28, 12, 4 and 1) and says each trait inside a rarity is equally likely. This replaces the old I/II/III odds text.
 - While a player still has starter rolls, the Roll button reads **Free roll (5 left)** and uses those first.
 - The Picnic Basket's Money Potion every 6 h goes away. In its place is **1 free Trait Token every 12 h, holding 2**, with the same "Next in ..." line.
 
@@ -92,11 +92,13 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 
 | Rarity | Chance |
 |---|---|
-| Common | 55% |
-| Uncommon | 28% |
-| Rare | 12% |
-| Legendary | 4% |
-| Mythic | 1% |
+| Common | 35% |
+| Uncommon | 30% |
+| Rare | 20% |
+| Legendary | 10% |
+| Mythic | 5% |
+
+Changed on 2026-11-12 (#3711, PR #3712; Derek, 22:21 UTC: "those are good odds"). Before that they were 55, 28, 12, 4 and 1. Mythic's colour is now #FF5E7E, the Mythical cat rarity's colour. An Epic tier between Rare and Legendary is planned for the Friday 2026-11-13 restart.
 
 - The first trait and every re-roll cost the same: **10 golden fish or 1 Trait Token**.
 - **How long it takes:**

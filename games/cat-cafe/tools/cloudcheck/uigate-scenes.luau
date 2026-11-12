@@ -2744,7 +2744,8 @@ local SCENES = {
 				assert(
 					string.match(text, "^You have %d+$")
 						or text == "Get more at the Corner Shop"
-						or text == "Sold by the night dealer's cart",
+						or text == "Sold by the night dealer's cart"
+						or text == "Sold on the Day Cart from Tier 6", -- #3462
 					("uigate: a food row says %q (#1281)"):format(text)
 				)
 			end
@@ -2793,13 +2794,13 @@ local SCENES = {
 		end
 		local shown = order()
 		assert(
-			shown == "kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			shown == "kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna",
 			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = { kibble = 3, salmon = 1 } })
 		shown = order()
 		assert(
-			shown == "salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna",
+			shown == "salmon,kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna",
 			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)
@@ -7632,6 +7633,28 @@ local SCENES = {
 		UI.cornerShop.setStock(view()) -- the answer ends the wait
 		press("CornerShop", "baitTab") -- #3209: the bait section is on its own tab
 		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card
+	end },
+	-- #3462: the Day Cart's own two baits at Tier 6, in the billions. After the Buy all scene, which leaves the cart on its Bait tab
+	{ "CornerShopTier6Bait", function()
+		UI.update({ money = 5000000000, tier = 6, lures = { honey_cream = 1 } })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "salmon", price = 80000, amount = 2, bought = 0 },
+				{ itemId = "honey_cream", price = 1000000000, amount = 2, bought = 0, needsTier = 6 },
+				{ itemId = "comet_treat", price = 3000000000, amount = 1, bought = 0, needsTier = 6 },
+			},
+		})
+		UI.cornerShop.open()
+		press("CornerShop", "baitTab")
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		for _, id in { "honey_cream", "comet_treat" } do
+			local row = window:FindFirstChild(id, true)
+			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: no " .. id .. " row at Tier 6 (#3462)")
+		end
 	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
 	-- with none it is gone

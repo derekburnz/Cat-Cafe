@@ -21,13 +21,13 @@ return function()
 	describe("FoodOrder", function()
 		it("puts the catalog's foods in the section 3 order, shop and dealer together", function()
 			expect(ids(FoodOrder.defs(Catalog.lures))).to.equal(
-				"kibble,tuna,sardines,salmon,caviar,moon_milk,star_treat"
+				"kibble,tuna,sardines,salmon,caviar,moon_milk,star_treat,honey_cream,comet_treat"
 			)
 		end)
 
 		it("turns round for the bowl and the Bag's Bait tab, rarest first (#1609)", function()
 			expect(ids(FoodOrder.defs(Catalog.lures, true))).to.equal(
-				"star_treat,moon_milk,caviar,salmon,sardines,tuna,kibble"
+				"comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna,kibble"
 			)
 		end)
 
@@ -35,10 +35,10 @@ return function()
 			local rarest = FoodOrder.defs(Catalog.lures, true)
 			-- a new player in the tutorial: Kibble alone, so it leads instead of trailing the list
 			expect(ids(FoodOrder.ownedFirst(rarest, { kibble = 3 }))).to.equal(
-				"kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna"
+				"kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna"
 			)
 			expect(ids(FoodOrder.ownedFirst(rarest, { kibble = 3, salmon = 1, tuna = 0 }))).to.equal(
-				"salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna"
+				"salmon,kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna"
 			)
 			-- an empty bag keeps the rarest first order
 			expect(ids(FoodOrder.ownedFirst(rarest, {}))).to.equal(ids(rarest))

@@ -33,6 +33,7 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local Rules = require(Shared:WaitForChild("MouseDash"))
 
 local PAL = Theme.dark
@@ -41,6 +42,7 @@ local MAX_SIZE = Vector2.new(640, 720)
 local ACTION_NAME = "CatCafeMouseDashKeys"
 local RISE_SECONDS = 0.09 -- an animal's rise out of its hole
 local PAW_SECONDS = 0.16 -- the paw's bop
+local HIT_SECONDS = 0.22 -- a caught mouse shows its bopped picture this long
 local FLOAT_SECONDS = 0.6 -- "+1" drifting up
 local BANNER_SECONDS = 1.2
 local OVER_SECONDS = 1.3 -- the board's last word before the card comes back
@@ -48,7 +50,11 @@ local GAP = Theme.sizes.gap
 local CELLAR = Color3.fromHex("2A2140") -- the board: a dim cellar in the arcade's violet, so the animals stand out
 local HOLE_COLOR = Color3.fromHex("3A2F57")
 local PIT_COLOR = Color3.fromHex("15101F")
-local HEART_FULL = "🐾"
+local HEART_FULL = "🐾" -- stand-ins, shown only until the picture sheet has loaded (IconArt does the same)
+local PAW = "🐾"
+local BACKDROP_SCALE = 1.1
+local CLIP_HEIGHT = 0.9 -- of the pictures' frame: room above the hole for a risen animal
+local RISE = 0.83 / CLIP_HEIGHT -- how far up its clip a risen animal sits (0.83 of the frame's width)
 local HEART_COLOR = Color3.fromHex("FF8FB8")
 local HEART_EMPTY = Color3.fromHex("5A4E78")
 
@@ -89,8 +95,13 @@ export type MouseDash = {
 
 type Hole = {
 	button: TextButton,
+	pit: Frame, -- the stand-in pit, hidden once the pictures have loaded
+	holeArt: ImageLabel,
+	holeFront: ImageLabel,
 	clip: Frame,
 	animal: Frame,
+	animalArt: ImageLabel,
+	pawArt: ImageLabel,
 	face: TextLabel,
 	zzz: TextLabel,
 	paw: TextLabel,
@@ -142,6 +153,29 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
+-- One 256 px cell of the picture sheet (MouseDashLogic.CELLS).
+local function setCell(label: ImageLabel, name: string)
+	local cell = MouseDashLogic.CELLS[name]
+	if cell ~= nil then
+		label.ImageRectOffset = Vector2.new(cell[1], cell[2])
+		label.ImageRectSize = Vector2.new(MouseDashLogic.CELL, MouseDashLogic.CELL)
+	end
+end
+
+local function sheet(name: string, props: { [string]: any }): ImageLabel
+	local label: ImageLabel = Create("ImageLabel", {
+		BackgroundTransparency = 1,
+		Image = MouseDashLogic.SHEET,
+		ScaleType = Enum.ScaleType.Fit,
+		Size = UDim2.fromScale(1, 1),
+	})
+	setCell(label, name)
+	for key, value in props do
+		(label :: any)[key] = value
+	end
+	return label
+end
+
 local function round(frame: GuiObject, radius: UDim?)
 	Create("UICorner", { CornerRadius = radius or UDim.new(0, Theme.sizes.radius), Parent = frame })
 end
@@ -169,6 +203,8 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 	self._connections = {} :: { RBXScriptConnection }
 	self._step = nil :: RBXScriptConnection?
 	self._overToken = 0
+	self._art = false -- the picture sheet has loaded (checked in _draw); the stand-ins show until then
+	self._quit = nil :: number? -- the run this window closed on, until its MouseDashOver comes
 	self._bannerToken = 0
 	self._tab = "Prizes"
 
@@ -341,7 +377,8 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 	self._heartsFrame =
 		Create("Frame", { Name = "Hearts", BackgroundTransparency = 1, Parent = hud })
 	self._heartPads = {} :: { TextLabel }
-	for index = 1, Rules.HOLES // 3 do
+	self._heartArt = {} :: { ImageLabel }
+	for index = 1, Config.MouseDashHearts do
 		self._heartPads[index] = text({
 			Name = "Heart" .. index,
 			Size = UDim2.fromOffset(26, 26),
@@ -352,6 +389,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			TextColor3 = HEART_COLOR,
 			Parent = self._heartsFrame,
 		})
+		self._heartArt[index] = sheet("Heart", { Name = "Art", Parent = self._heartPads[index] })
 	end
 	self._score = text({
 		Name = "Score",
@@ -374,6 +412,16 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		TextColor3 = PAL.subtext,
 		Parent = hud,
 	})
+	-- the cellar floor, a little wider than the holes so its cheese and buttons sit at the edge between the rows
+	-- (Derek: nothing distracting near where the animals come up)
+	self._backdrop = Create("ImageLabel", {
+		Name = "Backdrop",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundTransparency = 1,
+		Image = MouseDashLogic.BACKDROP,
+		ScaleType = Enum.ScaleType.Stretch,
+		Parent = board,
+	})
 	local grid: Frame =
 		Create("Frame", { Name = "Grid", BackgroundTransparency = 1, Parent = board })
 	self._grid = grid
@@ -391,26 +439,38 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			"UIStroke",
 			{ Color = PAL.gold, Thickness = 3, Enabled = false, Parent = button }
 		)
-		-- the pit, centred along the bottom
-		local pit: Frame = Create("Frame", {
-			Name = "Pit",
-			AnchorPoint = Vector2.new(0.5, 1),
-			BackgroundColor3 = PIT_COLOR,
-			BorderSizePixel = 0,
-			Position = UDim2.new(0.5, 0, 1, -6),
-			Size = UDim2.new(0.8, 0, 0.3, 0),
+		-- The pictures' frame. It sits low in the button so a risen animal's ears stay inside its own button (a tap
+		-- on them must not land on the hole above): Model-Agent's placement is the hole filling the frame, the
+		-- animal 0.95 of its width, cut off 60% of the way down and risen 0.83 of the width.
+		local art: Frame = Create("Frame", {
+			Name = "Art",
+			AnchorPoint = Vector2.new(0.5, 0),
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(0.5, 0.22),
+			Size = UDim2.fromScale(0.95, 0.95),
 			Parent = button,
 		})
+		local holeArt = sheet("Hole", { Name = "HoleArt", Parent = art })
+		-- the stand-in pit until the sheet has loaded, where the picture's hole is
+		local pit: Frame = Create("Frame", {
+			Name = "Pit",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = PIT_COLOR,
+			BorderSizePixel = 0,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(0.8, 0.3),
+			Parent = art,
+		})
 		round(pit, UDim.new(1, 0))
-		-- everything that pops up is centred in this frame, which cuts it off at the pit's middle
+		-- everything that pops up is centred in this frame, which cuts it off at the hole's front edge
 		local clip: Frame = Create("Frame", {
 			Name = "Clip",
 			AnchorPoint = Vector2.new(0.5, 1),
 			BackgroundTransparency = 1,
 			ClipsDescendants = true,
-			Position = UDim2.new(0.5, 0, 0.82, 0),
-			Size = UDim2.new(0.76, 0, 0.8, 0),
-			Parent = button,
+			Position = UDim2.fromScale(0.5, 0.6),
+			Size = UDim2.fromScale(1, CLIP_HEIGHT),
+			Parent = art,
 		})
 		local animal: Frame = Create("Frame", {
 			Name = "Animal",
@@ -418,12 +478,13 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			BackgroundColor3 = Color3.new(1, 1, 1),
 			BorderSizePixel = 0,
 			Position = UDim2.fromScale(0.5, 1),
-			Size = UDim2.fromScale(0.9, 0.9),
+			Size = UDim2.fromScale(0.95, 0.95),
 			SizeConstraint = Enum.SizeConstraint.RelativeXX,
 			Visible = false,
 			Parent = clip,
 		})
 		round(animal, UDim.new(1, 0))
+		local animalArt = sheet("Mouse", { Name = "Art", Parent = animal })
 		local face = text({
 			Name = "Face",
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -433,6 +494,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			TextWrapped = false,
 			Parent = animal,
 		})
+		local holeFront = sheet("HoleFront", { Name = "HoleFront", ZIndex = 2, Parent = art })
 		local zzz = text({
 			Name = "Zzz",
 			AnchorPoint = Vector2.new(0.5, 0),
@@ -445,6 +507,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			Visible = false,
 			Parent = button,
 		})
+		-- the paw lands on the middle of the button, where the tap is aimed
 		local paw = text({
 			Name = "Paw",
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -452,21 +515,36 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			Size = UDim2.fromScale(0.7, 0.7),
 			TextScaled = true,
 			TextWrapped = false,
-			Text = "🐾",
+			Text = PAW,
 			Visible = false,
 			ZIndex = 4,
 			Parent = button,
 		})
+		local pawArt = sheet("PawBop", {
+			Name = "Art",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1.2, 1.2),
+			ZIndex = 4,
+			Parent = paw,
+		})
 		table.insert(
 			self._connections,
-			button.Activated:Connect(function()
+			-- on the press, not the release (Activated): a 0.40 s window is too short to spend on a finger lifting.
+			-- MouseButton1Down is also a touch landing on the button.
+			button.MouseButton1Down:Connect(function()
 				self:_tap(index)
 			end)
 		)
 		self._holes[index] = {
 			button = button,
+			pit = pit,
+			holeArt = holeArt,
+			holeFront = holeFront,
 			clip = clip,
 			animal = animal,
+			animalArt = animalArt,
+			pawArt = pawArt,
 			face = face,
 			zzz = zzz,
 			paw = paw,
@@ -562,6 +640,10 @@ function MouseDash._layout(self: any)
 	local grid: Frame = self._grid
 	grid.Position = UDim2.fromOffset(layout.gridX, layout.gridY)
 	grid.Size = UDim2.fromOffset(layout.grid, layout.grid)
+	local backdrop: ImageLabel = self._backdrop
+	backdrop.Position =
+		UDim2.fromOffset(layout.gridX + layout.grid / 2, layout.gridY + layout.grid / 2)
+	backdrop.Size = UDim2.fromOffset(layout.grid * BACKDROP_SCALE, layout.grid * BACKDROP_SCALE)
 	for index, hole: Hole in self._holes do
 		local x, y = MouseDashLogic.holeAt(layout, index)
 		hole.button.Position = UDim2.fromOffset(x - layout.gridX, y - layout.gridY)
@@ -674,8 +756,13 @@ function MouseDash._renderTop(self: any)
 	self._next.Text =
 		MouseDashLogic.nextPrize(self._points, if state ~= nil then state.today else nil)
 	for index, pad: TextLabel in self._heartPads do
-		pad.TextColor3 = if index <= self._hearts then HEART_COLOR else HEART_EMPTY
-		pad.TextTransparency = if index <= self._hearts then 0 else 0.55
+		local full = index <= self._hearts
+		local picture: ImageLabel? = self._heartArt[index]
+		if picture ~= nil then
+			setCell(picture, if full then "Heart" else "HeartEmpty")
+		end
+		pad.TextColor3 = if full then HEART_COLOR else HEART_EMPTY
+		pad.TextTransparency = if self._art then 1 elseif full then 0 else 0.55
 	end
 end
 
@@ -763,10 +850,27 @@ function MouseDash._showBoard(self: any, shown: boolean)
 	end
 end
 
+-- The picture sheet is in: the stand-in tiles, pits, faces and paw prints give way to the pictures.
+function MouseDash._useArt(self: any)
+	self._art = true
+	for _, hole: Hole in self._holes do
+		hole.button.BackgroundTransparency = 1
+		hole.pit.Visible = false
+		hole.animal.BackgroundTransparency = 1
+		hole.face.Visible = false
+		hole.zzz.Visible = false -- the napping kitten's picture has its own Zzz
+		hole.paw.TextTransparency = 1
+	end
+	self:_renderTop()
+end
+
 -- Every frame: each animal rises over RISE_SECONDS and is gone when its window ends (the server's MouseDashGone
 -- says what that cost).
 function MouseDash._draw(self: any)
 	local at = now()
+	if not self._art and (self._holes[1] :: Hole).holeArt.IsLoaded then
+		self:_useArt()
+	end
 	for _, hole: Hole in self._holes do
 		if hole.kind ~= nil then
 			if at >= hole.downAt then
@@ -774,7 +878,7 @@ function MouseDash._draw(self: any)
 			else
 				local up = math.clamp((at - hole.upAt) / RISE_SECONDS, 0, 1)
 				-- centred left to right; from under the clip's edge up to sitting in it
-				hole.animal.Position = UDim2.fromScale(0.5, 1 - up * 0.92)
+				hole.animal.Position = UDim2.fromScale(0.5, 1 - up * RISE)
 			end
 		end
 	end
@@ -783,7 +887,12 @@ function MouseDash._draw(self: any)
 		self._dizzy = dizzy
 		self._grid.Rotation = 0
 		for _, hole: Hole in self._holes do
-			hole.button.BackgroundTransparency = if dizzy then 0.45 else 0
+			if self._art then
+				hole.holeArt.ImageTransparency = if dizzy then 0.5 else 0
+				hole.holeFront.ImageTransparency = if dizzy then 0.5 else 0
+			else
+				hole.button.BackgroundTransparency = if dizzy then 0.45 else 0
+			end
 		end
 	end
 end
@@ -860,9 +969,10 @@ function MouseDash.wave(self: any, run: number, index: number, pops: { any }, hi
 			hole.downAt = pop.downAt
 			hole.face.Text = look.face
 			hole.animal.BackgroundColor3 = Color3.fromHex(look.color)
+			setCell(hole.animalArt, MouseDashLogic.ART[pop.kind].up)
 			hole.animal.Position = UDim2.fromScale(0.5, 1)
 			hole.animal.Visible = true
-			hole.zzz.Visible = pop.kind == "kitten"
+			hole.zzz.Visible = pop.kind == "kitten" and not self._art
 			fx("pop", hole.button, pop.kind)
 			fx("bounce", hole.animal, "pop")
 		end
@@ -895,7 +1005,14 @@ function MouseDash.judged(
 	self._dizzyUntil = if type(dizzyUntil) == "number" then dizzyUntil else 0
 	if hole ~= nil then
 		if tap.outcome == "catch" then
-			clearHole(hole)
+			-- the bopped picture (stars round its head) for a moment, then down
+			local art = MouseDashLogic.ART[tostring(tap.kind)]
+			if hole.kind ~= nil and art ~= nil then
+				setCell(hole.animalArt, art.hit)
+				hole.downAt = math.min(hole.downAt, now() + HIT_SECONDS)
+			else
+				clearHole(hole)
+			end
 			local golden = tap.kind == "golden"
 			self:_float(
 				hole,
@@ -906,6 +1023,7 @@ function MouseDash.judged(
 		elseif tap.outcome == "kitten" then
 			hole.zzz.Visible = false
 			hole.face.Text = "🙀"
+			setCell(hole.animalArt, MouseDashLogic.ART.kitten.hit) -- awake, with its "!"
 			hole.downAt = math.min(hole.downAt, now() + 0.35)
 			fx("wrong", hole.button, "kitten")
 		elseif tap.outcome == "empty" then
@@ -969,6 +1087,13 @@ end
 
 -- MouseDashOver: the board's last word, then the card with how it went.
 function MouseDash.over(self: any, run: number, result: Rules.Result)
+	if self._quit == run and self._run == nil then
+		-- the game this window closed on (onClose): only its result is news
+		self._quit = nil
+		self._last = result
+		self:_renderCard()
+		return
+	end
 	if self._run ~= run then
 		return
 	end
@@ -1004,11 +1129,21 @@ function MouseDash.onOpen(self: any)
 	self:_renderCard()
 end
 
--- Closing mid game ends it where it stands.
+-- Closing mid game ends it where it stands. The board, its frame loop and its keys go at once, without waiting
+-- for the server's MouseDashOver (a late or lost answer must not leave W A S D swallowed with the window shut).
+-- That answer still fills the card's "last game" line when it comes (over, by _quit).
 function MouseDash.onClose(self: any)
 	local run: number? = self._run
 	if run ~= nil then
 		self._callbacks.quit(run)
+		self._quit = run
+		self._run = nil
+		self._index = 0
+		self._overToken += 1
+		self:_clearHoles()
+		self:_say("")
+		self:_showBoard(false)
+		self:_renderCard()
 	end
 end
 

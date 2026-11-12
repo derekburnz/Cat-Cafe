@@ -3901,11 +3901,21 @@ local SCENES = {
 			local connection = UI.events.mouseDashTap:Connect(function(run, index, hole)
 				sent = run .. ":" .. index .. ":" .. hole
 			end)
-			press("MouseDash", "Hole2")
+			UIShim.fire(UIShim.eventOf(holes[2], "MouseButton1Down")) -- a hole takes the press, not the release
 			connection:Disconnect()
 			assert(sent == "7:1:2", "uigate: a tap on hole 2 sent " .. tostring(sent) .. " (#3296)")
 			UI.mouseDash.judged(7, 1, { outcome = "catch", hole = 2, kind = "mouse", gain = 1, heart = 0 }, 24, 2, 5, {}, 0)
-			assert(not holes[2]:FindFirstChild("Animal", true).Visible, "uigate: a caught mouse is still up (#3296)")
+			local caught = holes[2]:FindFirstChild("Animal", true):FindFirstChild("Art")
+			assert(caught.ImageRectOffset.X == 256 and caught.ImageRectOffset.Y == 0, "uigate: a caught mouse does not show its bopped picture (#3296)")
+			-- a risen animal stays inside its own button, so a tap on its ears is a tap on its hole
+			for index = 1, 9 do
+				local art = holes[index]:FindFirstChild("Art")
+				local clip = art:FindFirstChild("Clip")
+				local top = clip.AbsolutePosition.Y + clip.AbsoluteSize.Y - 0.83 * art.AbsoluteSize.X
+				assert(top >= holes[index].AbsolutePosition.Y - 1, "uigate: hole " .. index .. "'s animal rises above its button (#3296)")
+				local floor = board:FindFirstChild("Backdrop")
+				assert(floor.AbsoluteSize.X >= holes[9].AbsolutePosition.X + holes[9].AbsoluteSize.X - holes[1].AbsolutePosition.X, "uigate: the cellar floor is smaller than the holes (#3296)")
+			end
 			assert(board:FindFirstChild("Score", true).Text == "24", "uigate: the score did not move on a catch (#3296)")
 		end,
 	},
@@ -3920,6 +3930,29 @@ local SCENES = {
 			local last = window:FindFirstChild("LastGame", true)
 			assert(last.Visible and last.Text == "Score 42 · New best!", "uigate: the last game's line reads " .. last.Text .. " (#3296)")
 			assert(window:FindFirstChild("Card", true).Visible, "uigate: the card did not come back after a game (#3296)")
+		end,
+	},
+	-- #3296: closing the window mid game puts the board away at once, before the server answers (Review-QA on
+	-- #3405: a late or lost MouseDashOver must not leave the board's keys bound), and the answer still fills the card
+	{
+		"MouseDashClose",
+		function()
+			local window = mouseDashCard(false)
+			UI.mouseDash.began(9, 3, workspace:GetServerTimeNow())
+			assert(UI.mouseDash.playing(), "uigate: no Mouse Dash game after it began (#3296)")
+			local quit = nil
+			local connection = UI.events.mouseDashQuit:Connect(function(run)
+				quit = run
+			end)
+			UI.close()
+			connection:Disconnect()
+			assert(quit == 9, "uigate: closing Mouse Dash mid game asked to quit run " .. tostring(quit) .. " (#3296)")
+			assert(not UI.mouseDash.playing(), "uigate: Mouse Dash still counts as playing with its window shut (#3296)")
+			assert(not window:FindFirstChild("Board", true).Visible, "uigate: the board is still up after the window closed (#3296)")
+			UI.mouseDash.over(9, { points = 12, seconds = 20, reason = "quit", win = false, best = 37, bestSeconds = 44, newBest = false, paid = { 10 }, today = { 10 }, legend = false, mouser = false })
+			UI.mouseDash.open()
+			local last = window:FindFirstChild("LastGame", true)
+			assert(last.Visible and string.find(last.Text, "12", 1, true) ~= nil, "uigate: the closed game's line reads " .. last.Text .. " (#3296)")
 		end,
 	},
 	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card

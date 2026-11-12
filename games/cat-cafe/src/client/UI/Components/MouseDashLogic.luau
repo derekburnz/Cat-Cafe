@@ -13,7 +13,10 @@
 --   lastLine(result)         "Score 12 · Best 37", with "New best!" and how it ended
 --   endWords(result)         the board's last word: "You win!", "Nice try!"
 --   prizeRows(today)         the arcade's ten prizes with today's ticks (shared with Circle Streak)
---   FACES                    the stand-in faces until the picture sheet is uploaded
+--   FACES                    the stand-in faces, shown only until the picture sheet has loaded
+--   SHEET, CELLS, ART        the uploaded picture sheet (assets/cat-cafe/exports/icons/CatCafe_Sheet_Arcade_MouseDash),
+--                            its 256 px cells by name, and each kind's picture up and hit
+--   BACKDROP                 the cellar floor behind the holes
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -40,6 +43,34 @@ MouseDashLogic.FACES = {
 	golden = { face = "🐭", color = "#FFD34D" },
 	kitten = { face = "😴", color = "#F6E3C5" },
 } :: { [string]: { face: string, color: string } }
+
+-- Model-Agent's sheet (#3400, uploaded 2026-11-12): 1024 px, cells of 256, every piece centred in its cell. Hole and
+-- HoleFront share a frame, so an animal drawn between them rises out of the hole.
+MouseDashLogic.SHEET = "rbxassetid://106053188764774"
+MouseDashLogic.BACKDROP = "rbxassetid://116753136904678"
+MouseDashLogic.CELL = 256
+MouseDashLogic.CELLS = {
+	Mouse = { 0, 0 },
+	MouseHit = { 256, 0 },
+	GoldMouse = { 512, 0 },
+	GoldMouseHit = { 768, 0 },
+	Kitten = { 0, 256 },
+	KittenAwake = { 256, 256 },
+	Hole = { 512, 256 },
+	HoleFront = { 768, 256 },
+	Dust = { 0, 512 },
+	Paw = { 256, 512 },
+	PawBop = { 512, 512 },
+	Heart = { 768, 512 },
+	HeartEmpty = { 0, 768 },
+	Cheese = { 256, 768 },
+	MouseDash = { 512, 768 },
+} :: { [string]: { number } }
+MouseDashLogic.ART = {
+	mouse = { up = "Mouse", hit = "MouseHit" },
+	golden = { up = "GoldMouse", hit = "GoldMouseHit" },
+	kitten = { up = "Kitten", hit = "KittenAwake" },
+} :: { [string]: { up: string, hit: string } }
 
 export type Layout = {
 	side: "left" | "top",

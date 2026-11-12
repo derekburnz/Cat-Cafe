@@ -515,10 +515,15 @@ local function onWin(rowId: string, _first: boolean)
 	end)
 end
 
--- The pad: standing inside the ring for BinPadDwellSeconds starts a rummage, once per visit to the pad, so a miss
--- or a closed bar never starts another by itself and running across it starts nothing.
+-- The pad: standing inside the ring for BinPadDwellSeconds starts a rummage, so running across it starts nothing.
+-- #3683: after a bar that ended without a win it starts the next try by itself once the wait after a miss is over,
+-- for a player still on the ring (the click prompt is silenced there, so the pad is the way to try again).
 local padSince: number? = nil
 local padUsed = false
+local padHold = 0 -- os.clock() before which the pad starts nothing (#3683: the wait after a miss)
+local padRetries = 0 -- tries the pad started by itself after a miss, this visit to the ring
+local PAD_RETRIES = 2
+local PAD_RETRY_SLACK = 0.5 -- seconds past the server's wait, so the pad's try is never refused as too soon
 
 -- The pad waits for the tutorial: a new player who stops on it at the first landing is not handed a bar in the
 -- middle of the first steps (the prompt still works for them).
@@ -565,6 +570,14 @@ local function padStep()
 			play = nil -- the bar ended without a win, or never came (the server ended the run)
 			showing = nil
 			moved = true
+			-- #3683: with the click prompt silenced the pad is the only way in, so a finished bar arms it again
+			-- once the server's wait after a miss is over; a player who stays on the ring gets the next try
+			-- at most PAD_RETRIES by itself a visit, so a player standing idle on the ring is not handed bars for ever
+			if padRetries < PAD_RETRIES then
+				padRetries += 1
+				padUsed = false
+				padHold = os.clock() + Config.BinMissRetrySeconds + PAD_RETRY_SLACK
+			end
 		end
 	end
 	if moved then
@@ -572,6 +585,18 @@ local function padStep()
 	end
 	for model, prompt in models do
 		local pad = padOf(model)
+		if prompt ~= nil then
+			-- #3683: with the roll on the pad is the way in, as at every ringed station (#3114), so the click prompt is
+			-- silenced: no pill over the bar and no press from off the pad. A player still in the tutorial keeps the
+			-- prompt, since the pad waits for the tutorial's end; so does a bin whose ring is streamed out.
+			local reach = WalkUp.promptReach(
+				on and pad ~= nil and not inTutorial(),
+				RummageBin.RANGE_STUDS -- the reach WorldBuilder gives it
+			)
+			if prompt.MaxActivationDistance ~= reach then
+				prompt.MaxActivationDistance = reach
+			end
+		end
 		if pad == nil then
 			continue
 		end
@@ -595,12 +620,13 @@ local function padStep()
 	if not inside then
 		padSince = nil
 		padUsed = false
+		padRetries = 0
 		return
 	end
 	local now = os.clock()
 	local since = padSince or now
 	padSince = since
-	if padUsed or now - since < Config.BinPadDwellSeconds then
+	if padUsed or now < padHold or now - since < Config.BinPadDwellSeconds then
 		return
 	end
 	if busy() or not ready() or inTutorial() then

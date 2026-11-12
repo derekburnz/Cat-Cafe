@@ -1942,7 +1942,9 @@ local SCENES = {
 	-- #3717: the picked cat's trait on the small detail card: its name with its rarity, then its effects; a cat with
 	-- none reads "No trait yet" only while the traits switch is on
 	{ "CatsTrait", function()
-		local cats = table.clone((UI.getState() :: any).cats)
+		local before = (UI.getState() :: any).cats
+		Scenes._traitBefore = before -- Scenes.close puts the cats back, so no later scene sees this trait
+		local cats = table.clone(before)
 		cats.gate_3 = table.clone(cats.gate_3)
 		cats.gate_3.trait = { id = "cosmicFortune" }
 		UI.update({ cats = cats } :: any)
@@ -2540,7 +2542,15 @@ local SCENES = {
 		for _, row in list:GetChildren() do
 			shown += if row:IsA("Frame") and row.Visible then 1 else 0
 		end
-		assert(shown == 1, "uigate: Has trait shows " .. shown .. " cats, not the one with a trait (#3700)")
+		local withTrait = 0
+		for _, cat in (UI.getState() :: any).cats do
+			withTrait += if cat.trait ~= nil then 1 else 0
+		end
+		assert(withTrait >= 1, "uigate: the sample cats have no trait for the Has trait filter (#3700)")
+		assert(
+			shown == withTrait,
+			("uigate: Has trait shows %d cats, %d have a trait (#3700)"):format(shown, withTrait)
+		)
 		press("MysticPool", "Picker.Tools.All")
 		press("MysticPool", "Picker.Tools.SortLevel")
 		for _ = 1, 10 do
@@ -9992,6 +10002,10 @@ function Scenes.close()
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene
 		Scenes._rankTier = nil
+	end
+	if Scenes._traitBefore then
+		UI.update({ cats = Scenes._traitBefore } :: any) -- #3717's CatsTrait: gate_3 without its trait again
+		Scenes._traitBefore = nil
 	end
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back

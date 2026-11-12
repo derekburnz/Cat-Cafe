@@ -8467,7 +8467,7 @@ local SCENES = {
 		assert(gui and gui:IsA("ScreenGui"), "uigate: no Rally banner built (#2098)")
 		assert(not gui.Enabled, "uigate: the Rally banner shows though this player has not scored (#2098)")
 	end },
-	-- F101: the Cat Cannon at night during a Rally: every card's "Rally: rescues x3" tag over its night cover
+	-- F101, #3691: the Cat Cannon at night during a Rally: the cards wear no "Rally: rescues x3" tag any more
 	{ "RallyCannonNight", function()
 		local t = workspace:GetServerTimeNow()
 		local clock = Instance.new("Folder")
@@ -8481,6 +8481,11 @@ local SCENES = {
 		UI.clock.bind(clock)
 		UI.rally.update(rallyState({ points = 12, myPoints = 0 }))
 		UI.cannon.open()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		assert(
+			modals ~= nil and modals:FindFirstChild("Rally", true) == nil,
+			"uigate: a cannon card still wears the Rally tag (#3691)"
+		)
 	end },
 	-- F101: three potions running and the Luck chip: on the phone the row beside the menu reaches the top centre,
 	-- so the banner moves down under it

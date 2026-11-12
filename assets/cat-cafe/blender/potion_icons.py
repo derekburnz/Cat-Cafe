@@ -17,6 +17,10 @@ star stopper, and the Cat Whistle a cone flask.
 Tip, BigTip and GoldRush share warm yellows in the Theme, so their badges and sizes carry the difference. The Corner
 Shop's Cat Whistle (a whistle badge) comes in three sizes, CatWhistleSmall, CatWhistle and CatWhistleBig, drawn weak,
 mid and strong; its colour is FALLBACK_COLOURS' until Theme lists it.
+The Day Cart's three top potions (#3462) are their family's bottle one size step up (BIG_K) with a gold collar and
+sparkles: BigLucky (Lucky's tall bottle, a four-leaf clover), BigGoldRush (Gold Rush's egg, three stars) and MegaTip
+(Big Tip's mug with a gold crown on its cap, the top of the Tip line). Their colours are FALLBACK_COLOURS' until Theme
+lists them.
 Built in Blender axes (x right, -y toward the camera, z up); nothing here is a game model.
 """
 
@@ -41,6 +45,10 @@ POTIONS = {
     "QuickBait": ("quick_bait_potion", "mid", "fish"),
     "BigTip": ("big_tip_potion", "strong", "coins"),
     "GoldRush": ("gold_rush_potion", "strong", "star"),
+    # the Day Cart's top potions (#3462): the family's bottle one size up
+    "BigLucky": ("big_lucky_potion", "strong", "clover4"),
+    "BigGoldRush": ("big_gold_rush_potion", "strong", "stars"),
+    "MegaTip": ("mega_tip_potion", "strong", "coins"),
     # the Corner Shop's Cat Whistle (corner-shop-v2.md section 1, #1180) in its three sizes, sized like the tiers
     "CatWhistleSmall": ("cat_whistle", "weak", "whistle"),
     "CatWhistle": ("cat_whistle", "mid", "whistle"),
@@ -49,7 +57,10 @@ POTIONS = {
 # A colour for a potion Theme.potionColors does not list yet; UI-Engineer adds the same hex there so the slot, the
 # drink pop and the picture agree (the Cat Whistle: sign_teal, the colour its in-game puff and ring already use,
 # Effects/Presets potionWhistle; darker than Steady's pale mint)
-FALLBACK_COLOURS = {"cat_whistle": "1FA58F"}
+FALLBACK_COLOURS = {"cat_whistle": "1FA58F",
+                    # #3462: a deeper shade of each family's colour, so the bigger potion reads stronger
+                    "big_lucky_potion": "3FB65C", "big_gold_rush_potion": "FFD24D", "mega_tip_potion": "F2932B"}
+BIG_K = {"BigLucky": 1.2, "BigGoldRush": 1.12, "MegaTip": 1.12}  # the whole bottle's size against its family's
 SIZE = {"weak": 0.78, "mid": 0.92, "strong": 1.05}  # the flask body's radius
 
 
@@ -102,6 +113,17 @@ def _badge(b0, kind, z, y, k=1.0):
             r = math.radians(a)
             b.cyl((0.1 * math.cos(r), f, z + 0.1 * math.sin(r)), 0.1, 0.05, "leaf_green", segments=10, rot=X)
         b.box((0.03, f, z - 0.16), (0.04, 0.05, 0.16), "leaf_dark", rot=(math.radians(-15), "Y"))
+    elif kind == "clover4":
+        for a in (45, 135, 225, 315):
+            r = math.radians(a)
+            b.cyl((0.105 * math.cos(r), f, z + 0.03 + 0.105 * math.sin(r)), 0.1, 0.05, "leaf_green", segments=10,
+                  rot=X)
+        b.cyl((0, f - 0.01, z + 0.03), 0.04, 0.05, "leaf_dark", segments=8, rot=X)
+        b.box((0.04, f, z - 0.17), (0.04, 0.05, 0.14), "leaf_dark", rot=(math.radians(-15), "Y"))
+    elif kind == "stars":
+        b.star((0, f, z - 0.03), 0.18, 0.08, 0.05, "rarity_legend", rot=X)
+        for dx, dz in ((-0.19, 0.16), (0.19, 0.16)):
+            b.star((dx, f, z + dz), 0.08, 0.035, 0.05, "rarity_legend", rot=X)
     elif kind == "bolt":
         b.box((0.04, f, z + 0.08), (0.08, 0.05, 0.22), "rarity_legend", rot=(math.radians(-25), "Y"))
         b.box((-0.04, f, z - 0.08), (0.08, 0.05, 0.22), "rarity_legend", rot=(math.radians(-25), "Y"))
@@ -145,6 +167,12 @@ class _Scaled:
     def ico(self, c, r, sw, **kw):
         self.b.ico(self._p(c), r * self.k, sw, **kw)
 
+    def sphere(self, c, r, sw, **kw):
+        self.b.sphere(self._p(c), r * self.k, sw, **kw)
+
+    def ring(self, c, radius, thickness, height, sw, **kw):
+        self.b.ring(self._p(c), radius * self.k, thickness * self.k, height * self.k, sw, **kw)
+
     def prism(self, c, pts, h, sw, **kw):
         self.b.prism(self._p(c), [(x * self.k, y * self.k) for x, y in pts], h * self.k, sw, **kw)
 
@@ -172,7 +200,7 @@ def _frame(mat, mat_name="_PotionFrame"):
 # name -> bottle shape (#1369): every potion its own silhouette, the same family as its 3D bottle in potions.py, so
 # a player can tell them apart by shape alone, not just by colour and badge
 SHAPES = {"Tip": "round", "Lucky": "tall", "Swift": "slim", "Steady": "jar", "QuickBait": "label", "BigTip": "mug",
-          "GoldRush": "egg", "CatWhistleSmall": "cone", "CatWhistle": "cone", "CatWhistleBig": "cone"}
+          "GoldRush": "egg", "BigLucky": "tall", "BigGoldRush": "egg", "MegaTip": "mug", "CatWhistleSmall": "cone", "CatWhistle": "cone", "CatWhistleBig": "cone"}
 TIER_K = {"weak": 0.86, "mid": 1.0, "strong": 1.1}  # cone sizes for the Cat Whistle's three bottles
 
 
@@ -210,7 +238,10 @@ def flask(name, mat):
     fallback = FALLBACK_COLOURS.get(pid, "BF7DFF")
     rgb = theme_colours().get(pid) or tuple(int(fallback[i:i + 2], 16) / 255 for i in (0, 2, 4))
     shape = SHAPES[name]
-    shell, liquid = Builder(), Builder()
+    shell0, liquid0 = Builder(), Builder()
+    shell, liquid = shell0, liquid0
+    if name in BIG_K:                                 # the same bottle, one size step up from the ground
+        shell, liquid = (_Scaled(b, (0.0, 0.0, 0.0), BIG_K[name]) for b in (shell0, liquid0))
     bk = 1.0                                          # the badge's size against BADGE_K
     if shape == "round":                              # Tip: a small round flask
         r = SIZE[tier]
@@ -223,6 +254,9 @@ def flask(name, mat):
         top = _straight(shell, liquid, r, 1.55, shoulder=0.3)
         _neck(shell, top - 0.05, 0.2, h=0.45)
         _glints(shell, r, 1.2, 0.4)
+        if tier == "strong":                          # Big Lucky: a gold collar and sparkles
+            shell.cyl((0, 0, top + 0.02), 0.3, 0.12, "gold_mid", segments=14)
+            _sparkles(shell, r + 0.2, 0.3, top + 0.2)
         bz, by, bk = 0.8, -r - 0.07, 0.92
     elif shape == "slim":                             # Swift: a slim tall bottle with a wing on each side
         r = 0.42
@@ -261,6 +295,14 @@ def flask(name, mat):
         shell.cyl((0, 0, top + 0.34), 0.42, 0.05, "gold_light", segments=16)
         _glints(shell, r, 1.55, 0.14, y=-r * 0.86)
         _sparkles(shell, r + 0.2, 0.3, top)
+        if name == "MegaTip":                         # a gold crown on the cap: the top of the Tip line
+            zc = top + 0.4
+            shell.cyl((0, 0, zc), 0.4, 0.12, "gold_mid", segments=16)
+            for k in range(5):
+                a = math.radians(90 + 72 * k)
+                shell.cyl((0.31 * math.cos(a), 0.31 * math.sin(a), zc + 0.2), 0.11, 0.3, "gold_light", segments=8,
+                          radius2=0.015)
+            shell.ico((0, -0.4, zc), 0.07, "neon_pink")
         bz, by = 0.85, -r - 0.06
     elif shape == "egg":                              # Gold Rush: a tall egg on a gold foot, a star for a stopper
         r = 0.72
@@ -276,6 +318,9 @@ def flask(name, mat):
             shell.box((x, -0.72, z), (0.1, 0.03, 0.1), "gold_light", rot=(math.radians(45), "Y"))
         _glints(shell, r, zc + 0.55, 0.35)
         _sparkles(shell, r + 0.2, 0.3, n)
+        if name == "BigGoldRush":                     # a little star each side of the stopper's
+            for sx in (-1, 1):
+                shell.star((sx * 0.36, 0, n + 0.3), 0.13, 0.055, 0.06, "rarity_legend", rot=X)
         bz, by = zc - 0.1, -r - 0.07
     else:                                             # the Cat Whistle: a cone flask with a wide foot, three sizes
         k = TIER_K[tier]
@@ -288,8 +333,8 @@ def flask(name, mat):
             _sparkles(shell, r, 0.2, h + 0.3)
         bz, by, bk = h * 0.33, -r * 0.7 - 0.07, 0.75 + 0.15 * (tier != "weak")
     _badge(shell, badge, bz, by, bk)
-    objs = [shell.finalize(f"CatCafe_IconArt_PotionFlask_{name}", mat),
-            liquid.finalize(f"CatCafe_IconArt_PotionFlask_{name}_Liquid", mat)]
+    objs = [shell0.finalize(f"CatCafe_IconArt_PotionFlask_{name}", mat),
+            liquid0.finalize(f"CatCafe_IconArt_PotionFlask_{name}_Liquid", mat)]
     _tint(objs[1], rgb, emit=0.25)
     return objs + [_frame(mat)]
 

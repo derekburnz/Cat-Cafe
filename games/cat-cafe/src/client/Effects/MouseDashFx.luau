@@ -242,8 +242,8 @@ function MouseDashFx.bounce(object: GuiObject, kind: ("pop" | "squash" | "pulse"
 		made.Parent = object
 		scale = made
 	end
-	local running = bouncing[scale]
-	if running ~= nil then
+	local running: RBXScriptConnection? = bouncing[scale]
+	if running then
 		running:Disconnect()
 	end
 	local began = os.clock()

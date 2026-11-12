@@ -141,6 +141,8 @@ Slot 1 to 4 dailies (coins and 2 fish) and S achievements (coins and a spin) are
 
 ### 2f. Visitors and codes (data-model 12b and 11d)
 
+- **Codes added 2026-11-12 (#3576, Derek):** `UPDATE2` 2,500 coins or 900 s of income, 60 golden fish, 2 Big Money Potions. `2000VISITS` 2,500 or 900 s, 50 golden fish, 2 Classic Crates. `10LIKES` 2,000 or 600 s, 40 golden fish, 1 Lucky Potion. Any case, no end date, a step above `update1` and `500visits`. In the description and posts a like or visit code is a thank-you for a mark already reached, never a prize offered for liking.
+
 - **Mystery Visitor gift:** a potion 60%, 10 golden fish 30% (was 10%), 1 spin 10%. The 2 Salmon (20%) goes. The full spin bank swap to 10 golden fish stays.
 - **Cat Collector:** the value 2 row becomes 10 golden fish (was 3 Tuna and 1 spin). Every other row is unchanged.
 - **Codes:** `launch` becomes 600 s of day rate (at least 1,000) and 25 golden fish (was also 2 spins and 3 Tuna). The group code becomes 1,800 s of day rate (at least 2,500), 100 golden fish and 1 Classic Crate (was also 5 spins, 2 Caviar and a Tip Potion). `playtest` stays as it is for testers and ends before the game goes public.
@@ -158,6 +160,8 @@ For a regular who plays two hours a day at Tier 3 or 4:
 (Since #1281, 11-05, the coin foods are bought at the Corner Shop's 5-minute rotation instead of the bowl; see corner-shop-v2.md section 1b. Prices and the coin sink are unchanged.) The bowl now runs on coins: a Tier 3 player who keeps it busy with Salmon spends about 5,000 coins an hour, under 1% of their income, so it never blocks anyone, but which food to buy is a choice again. The extra 25 to 30 golden fish a day go to the new Fresh Catch shelf (section 3).
 
 ## 3. The Fresh Catch shelf: potions every 5 minutes by day
+
+**Not in the game since 2026-11-10 (#3118):** the Fresh Catch shelf was removed and its potions sell for coins on the Day Cart (day-cart.md). The half prices Derek OK'd for it on 2026-11-12 (#3572) therefore change nothing; `Catalog.freshCatch` is leftover data. The rest of this section is the old design.
 
 **Since #1437 (built in #1473):** the window is one global game day, 390 s from `Config.ClockEpoch`, so the stock restocks at each sunrise, at the same moment on every server (data-model.md section 9). Read "5-minute window" below as that game-day window.
 

@@ -95,9 +95,14 @@ local function targetRefusal(
 	})
 end
 
--- #3342: starts `player`'s join shield.
+-- #3342: starts `player`'s shield, once their save is in. #3629: only what is left of the account's first
+-- TackleShieldSeconds of play, so a returning player has none and a rejoin (auto rejoin too) brings none back.
 local function startShield(player: Player)
-	local untilAt = Shove.shieldUntil(serverNow())
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local untilAt = Shove.shieldUntil(serverNow(), profile.stats.playtimeSeconds)
 	if untilAt ~= nil then
 		shieldUntil[player] = untilAt
 		player:SetAttribute("TackleShieldUntil", untilAt)
@@ -321,8 +326,8 @@ end
 function ShoveService.start()
 	Net.on("Tackle", onTackle)
 	RunService.Heartbeat:Connect(noteTrails) -- #2193
-	-- #3342: every join gets TackleShieldSeconds nobody can tackle them in
-	Players.PlayerAdded:Connect(startShield)
+	-- #3342, #3629: a new player's first TackleShieldSeconds of play, nobody can tackle them in
+	DataService.onLoaded:Connect(startShield)
 	for _, player in Players:GetPlayers() do
 		startShield(player)
 	end

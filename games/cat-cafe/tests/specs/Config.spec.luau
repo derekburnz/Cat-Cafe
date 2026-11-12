@@ -117,7 +117,7 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
-		-- F87 (easy-start.md section 6); IntroAutoPlay is true since #1575, checked below
+		-- F87 (easy-start.md section 6); IntroAutoPlay is false again since #3162, checked below
 		TutorialShrinkSeconds = 1.6,
 		TutorialWindowScale = 2,
 		TutorialRetrySeconds = 1.0,
@@ -501,9 +501,9 @@ return function()
 		)
 
 		it(
-			"IntroAutoPlay = true: the intro plays on a first join (#1575, Derek 2026-11-05; was false under F87)",
+			"IntroAutoPlay = false: no intro on a first join, the ? tile replays it (#3162; true from #1575 until then)",
 			function()
-				expect(Config.IntroAutoPlay).to.equal(true)
+				expect(Config.IntroAutoPlay).to.equal(false)
 			end
 		)
 
@@ -523,7 +523,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
-				IntroAutoPlay = true, -- true since #1575, checked below
+				IntroAutoPlay = true, -- false since #3162, checked below
 				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
@@ -616,8 +616,13 @@ return function()
 				BinFirstPrizes = true, -- #3460: fixed prize rows, checked in RummageBin.spec
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
+				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
+				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
+				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
+				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

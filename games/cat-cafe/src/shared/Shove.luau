@@ -82,15 +82,26 @@ export type PickUpCheck = {
 }
 
 -- #3342: what a tackler hears when the lunge passes through someone in their first TackleShieldSeconds.
-Shove.SHIELDED = "They just joined, so they're safe from tackles for a bit"
+Shove.SHIELDED = "They're new here, so they're safe from tackles for a bit"
 
--- #3342: the server time a player's join shield ends, joining at `joinedAt`, or nil when there is none.
-function Shove.shieldUntil(joinedAt: number): number?
+-- #3342: the server time a player's shield ends, joining at `joinedAt`, or nil when there is none.
+-- #3629 (Derek 2026-11-12: "only for the first 15 min a new player plays and not for returning players everytime
+-- they join"): the shield is the first TackleShieldSeconds of play on the account, counted across visits. `played`
+-- is the account's seconds of play before this join (stats.playtimeSeconds): a new player has all of it, one who
+-- left early has the rest, and anyone past it has none. A missing or damaged count is treated as past it.
+function Shove.shieldUntil(joinedAt: number, played: unknown): number?
 	local seconds = Config.TackleShieldSeconds
 	if type(seconds) ~= "number" or seconds <= 0 then
 		return nil
 	end
-	return joinedAt + seconds
+	if type(played) ~= "number" or played ~= played then
+		return nil
+	end
+	local left = seconds - math.max(0, played)
+	if left <= 0 then
+		return nil
+	end
+	return joinedAt + left
 end
 
 -- #3342: whether the shield ending at `untilAt` still runs at `now`.

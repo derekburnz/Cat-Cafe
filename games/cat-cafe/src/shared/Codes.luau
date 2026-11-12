@@ -74,7 +74,8 @@ function Codes.refusal(
 	inGroup: boolean?
 ): string?
 	local def = Catalog.codes[code]
-	if def == nil then
+	-- #3576: a code with a start time is unknown until then, so it can ship ahead of its day without being found
+	if def == nil or (def.startsAt ~= nil and now < def.startsAt) then
 		return Codes.UNKNOWN
 	end
 	if profile.codesRedeemed[def.id] ~= nil then

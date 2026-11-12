@@ -93,6 +93,7 @@ UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, fille
 UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
 UI.mouseDash = {} -- #3296 the arcade's Mouse Dash window, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
+UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
@@ -988,7 +989,10 @@ function UI.init(config: Types.InitConfig)
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then
-				UI.perks.card:showList(state.tier)
+				UI.perks.card:showList(
+					state.tier,
+					require(script.Components.PerkCardLogic).poolStands()
+				)
 			end
 		end,
 	})
@@ -5644,6 +5648,14 @@ do
 			task.delay(1, present, token, away)
 			return
 		end
+		local now: any = UI.getState()
+		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
+		if
+			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
+		then
+			task.delay(1, present, token, away) -- not over a tutorial card; it comes once the tutorial is done
+			return
+		end
 		local how, line = FirstVisitLogic.show(kind, away())
 		if how == "toast" then
 			UI.toast(line, "good")
@@ -8616,6 +8628,8 @@ UI.perks = {
 	token = 0, -- the latest unlock's, so a teardown or a second reveal drops an older wait
 	REVEAL_SECONDS = 3,
 	REDUCED_SECONDS = 0.5,
+	WINDOW_WAIT_SECONDS = 300,
+	YIELD_STEP = 0.25, -- how often a showing card looks for a window that opened after it
 }
 
 function UI.perks.unlock(perkId: string)
@@ -8631,10 +8645,52 @@ function UI.perks.unlock(perkId: string)
 		then UI.perks.REDUCED_SECONDS
 		else UI.perks.REVEAL_SECONDS
 	task.delay(seconds, function()
+		-- #3585: never on top of a window (a first Park visit that walks straight onto the Mystic Pool's ring had
+		-- both up at once); the card waits for the window to close, up to WINDOW_WAIT_SECONDS
+		local waited = 0
+		local windows = modal
+		while
+			UI.perks.token == token
+			and windows ~= nil
+			and windows:current() ~= nil
+			and waited < UI.perks.WINDOW_WAIT_SECONDS
+		do
+			waited += task.wait(0.5)
+		end
 		if UI.perks.token ~= token or UI.perks.card == nil then
 			return
 		end
-		UI.perks.card:showUnlocked(perk)
+		-- the Mystic Pool stands on the Picnic Basket's spot while `traits` is on, so the Park's card names the pool
+		local pool = require(script.Components.PerkCardLogic).poolStands()
+		local card = UI.perks.card
+		card:showUnlocked(perk, pool)
+		-- #3585, the other direction: a window that opens while the card is up (the walk onto the pool's ring a
+		-- moment after the card) takes the screen; the card steps aside and comes back when the window has closed
+		while UI.perks.token == token and UI.perks.card == card and card:isShowing() do
+			task.wait(UI.perks.YIELD_STEP)
+			if
+				windows ~= nil
+				and windows:current() ~= nil
+				and UI.perks.token == token
+				and UI.perks.card == card
+				and card:isShowing()
+				and card._mode == "unlocked"
+			then
+				card:hide()
+				local away = 0
+				while
+					UI.perks.token == token
+					and windows:current() ~= nil
+					and away < UI.perks.WINDOW_WAIT_SECONDS
+				do
+					away += task.wait(0.5)
+				end
+				if UI.perks.token ~= token or UI.perks.card ~= card then
+					return
+				end
+				card:showUnlocked(perk, pool)
+			end
+		end
 	end)
 end
 
@@ -8770,6 +8826,14 @@ do
 			end
 		end
 		return out
+	end
+
+	-- #3573: the HUD's rest chip, from AfkController
+	function UI.rest.set(resting: boolean, doubled: boolean?)
+		local current = hud
+		if current then
+			(current :: any):setRest(resting, doubled)
+		end
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

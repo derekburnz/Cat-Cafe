@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
@@ -162,6 +163,7 @@ MouseDashService.start() -- #3296: the arcade's Mouse Dash, before DataService f
 ArcadeCabinetService.start() -- #3443: the cabinet and its ring are in the world only while the arcade has a game on
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
+AfkCafeService.start() -- #3573: resting in your own cafe pays the cats' cafe pay double
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one

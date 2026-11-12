@@ -37,6 +37,7 @@ local Types = require(script.Parent.Parent.Types)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local Crates = require(Shared:WaitForChild("Crates"))
 local Luck = require(Shared:WaitForChild("Luck"))
 
 local LuckLogic = {}
@@ -70,6 +71,7 @@ export type DayView = {
 
 local NAMES: { [string]: string } = {
 	statue = "Lucky Cat statue",
+	charm = "Lucky Charm", -- #3298: the Golden Fish Market perk
 	potion = "Lucky Potion",
 	lucky_day = "Lucky Day",
 	event = "Cafe Event", -- #2539: a Cafe Event's luck; rows() takes the running event's title ("Cafe Party") over it
@@ -238,7 +240,7 @@ function LuckLogic.crateOdds(
 	local crates: { Types.CrateDef } = if catalog then catalog.crates or {} else {}
 	for _, other in crates do
 		if other.golden and other.area == crate.area then
-			golden = other.odds
+			golden = Crates.LUCKY_ODDS -- #3665: the lucky twentieth's own odds
 			break
 		end
 	end

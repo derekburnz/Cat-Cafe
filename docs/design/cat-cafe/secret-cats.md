@@ -40,6 +40,8 @@ The same gold and rainbow rolls and multipliers as every cat. A wild rainbow Sec
 
 The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWindow` 0.64, `trustNeed` 26, Mythical moods, double and paw rings, `fleeStuds` 72, `rescueHits` 8. Tries stay unlimited.
 
+**Roaming and the spawn call (Derek 2026-11-12, #3545).** "make sure the difficulty of catch matches the rarity also and have them be walking around much faster in the area, also announce if one spawns". The catch numbers above stay: each is one step past Mythical, and they are not pushed further because Mythical was already eased once. A wild Secret cat roams at 9 studs a second (other strays 3) over a 15 stud radius (5) with about half the normal pause, inside its area. A wild spawn is announced once to everyone in that server, banner and chat line, "A Secret cat is roaming the [area]!", area only. It is never filtered by the announcement thresholds of #3539 and also shows in the Rare Cats tab. Bait and rescue Secrets are not announced. Roaming speed is not built yet.
+
 ## 6. How it shows
 
 - **In the world:** its own look (section 8), a soft dark aura and a thin beam of light to the sky. The rarity colour `#16161D` is for tags and cards only; the beam, sparkles and rings use a pale starlight, RGB (226, 214, 255). The beam stays up while someone is catching it. The tag reads "SECRET" with "???" for the name until it is caught.
@@ -47,6 +49,8 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 - **On catch:** the rare catch line one step up, inside the server only. **(assumed)**
 - It stays until the next night like any wave stray. No timer shows and nothing says it will leave.
 - Normal tackle rules apply on the way home.
+
+**The Secret glow (Derek 2026-11-12, #3544).** "make secrets have a special glow also when you see them around cafe or world". A soft breathing starlight aura (226, 214, 255) with a few drifting star sparkles, on a wild Secret cat the whole time it is out and on an owned one in a cafe (walking, perched, carried, in the Backpack, at stations). Everyone nearby sees it. It is the same for all three cats, looks unlike the gold glow and the rainbow coat and sits on top of both. It does not show through walls and it is not a pointer. Client side, inside the phone budgets, a tint at low quality. It rides `secretCats`. Not built yet.
 
 ## 7. Out of the Index
 
@@ -64,6 +68,10 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 | Cafe Ghost | pale see-through cat with a tiny chef hat, floats a little | Greeter |
 
 Any area can spawn any of the three, picked evenly. Original designs only.
+
+**Looks reworked (Derek 2026-11-12).** Cafe Ghost is as first built. Derek asked for more that makes Nebula and Glitch unique, Model-Agent redid both (#3534) and he OK'd the new looks at 12:23 UTC. `secretCats` goes on with the Friday 2026-11-13 update ([update-2026-11-13.md](update-2026-11-13.md)).
+
+**Art outside the game (Derek 2026-11-12).** In ads, thumbnails, the event picture and any store picture, a Secret cat is shown only as a dark shape, never with its real look. The looks are for players to find.
 
 ## 9. Assumed without Derek
 

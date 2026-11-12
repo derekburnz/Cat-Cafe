@@ -19,6 +19,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Beats = require(script.Beats)
+local BinRoll = require(script.Parent.Effects.BinRoll)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
@@ -2195,6 +2196,16 @@ local function followPool()
 	end)
 end
 
+-- #3608: the Rummage Bin's roll ticks and lands on the effect's own beats, for the player rolling (flat).
+local function followBinRoll()
+	BinRoll.onBeat(function(beat)
+		local cue = Logic.binRollCue(beat)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 -- #3430: the pool's first walk-up cutscene, on the pool's own chimes (in 3D at the pool, the rise flat).
 local function followPoolIntro()
 	MysticIntroCut.onBeat(function(beat, step, at)
@@ -2226,6 +2237,7 @@ function Audio.start()
 	followBeats()
 	followPool()
 	followPoolIntro()
+	followBinRoll()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
 end

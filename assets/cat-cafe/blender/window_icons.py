@@ -11,6 +11,8 @@ renders each as CatCafe_Icon_Hud_<Name> (512 px, transparent, dark outline) like
     RankUp         a gold trophy cup with handles on a dark base, a star on the cup
     Bellhop        a gold service bell on a wooden base, its press button on top
     YardSale       an open cardboard box of odds and ends with a price tag on a string
+    Gift           a pink gift box with a yellow ribbon and bow (prizes and gifts: the Cat Arcade's PRIZES button,
+                   #3553; the trophy for its LEADERBOARD button is RankUp)
   Mystery Market perks (one picture per perk id)
     BigBackpack    the Backpack perk: the Bag tile's cat-ear backpack stuffed full, a fish and a yarn ball poking out
     LongNet        the Long Net perk: a catching net on an extra long pole, laid diagonally, with a green plus
@@ -221,6 +223,21 @@ def yard_sale(mat):
     b.box((0.85, -0.68, 0.05), (0.42, 0.04, 0.3), "rarity_legend", rot=(math.radians(-15), "Y"))   # price tag
     b.cyl((0.72, -0.71, 0.1), 0.04, 0.02, "dark_wood", segments=8, rot=X)
     return _fin(b, "YardSale", mat)
+
+
+def gift(mat):
+    b = Builder()
+    b.box((0, 0, 0.5), (1.5, 1.5, 1.0), "nose_pink")                                # the box
+    b.box((0, 0, 1.12), (1.7, 1.7, 0.3), "blush")                                   # its lid
+    b.box((0, 0, 0.5), (0.32, 1.52, 1.01), "rarity_legend")                         # ribbon, front to back
+    b.box((0, 0, 0.5), (1.52, 0.32, 1.01), "rarity_legend")                         # and side to side
+    b.box((0, 0, 1.12), (0.34, 1.72, 0.32), "rarity_legend")
+    b.box((0, 0, 1.12), (1.72, 0.34, 0.32), "rarity_legend")
+    for sx in (-1, 1):                                                               # the bow: two loops, two tails
+        b.box((sx * 0.36, 0, 1.52), (0.62, 0.3, 0.36), "rarity_legend", rot=(math.radians(-sx * 24), "Y"))
+        b.box((sx * 0.3, -0.5, 1.3), (0.2, 0.5, 0.06), "rarity_legend", rot=_rot((0, 0, sx * 22)))
+    b.box((0, 0, 1.42), (0.3, 0.34, 0.3), "eye_amber")                              # the knot
+    return _fin(b, "Gift", mat)
 
 
 # ----------------------------------------------------------------------------------- Mystery Market perks --
@@ -597,6 +614,7 @@ def set_auto_equip(mat):
 ICONS = {
     "MysteryMarket": mystery_market, "Codes": codes, "Collector": collector, "CornerShop": corner_shop,
     "LawnStall": lawn_stall, "RankUp": rank_up, "Bellhop": bellhop, "YardSale": yard_sale,
+    "Gift": gift,
     "BigBackpack": big_backpack, "LongNet": long_net,
     "Tables": tables, "Espresso": espresso, "LuckyCat": lucky_cat,
     "RoleBarista": role_barista, "RoleWaiter": role_waiter, "RoleGreeter": role_greeter,
@@ -611,6 +629,7 @@ ICONS = {
 VIEWS = {
     "MysteryMarket": (-14.0, 10.0), "Codes": (-18.0, 8.0), "Collector": (-10.0, 6.0), "CornerShop": (-26.0, 14.0),
     "LawnStall": (-18.0, 12.0), "RankUp": (-14.0, 10.0), "Bellhop": (-18.0, 22.0), "YardSale": (-24.0, 24.0),
+    "Gift": (-24.0, 22.0),
     "BigBackpack": (-24.0, 14.0), "LongNet": (-10.0, 12.0),
     "Tables": (-20.0, 22.0), "Espresso": (-24.0, 12.0), "LuckyCat": (-18.0, 8.0),
     "RoleBarista": (-14.0, 34.0), "RoleWaiter": (-22.0, 22.0), "RoleGreeter": (-10.0, 6.0),

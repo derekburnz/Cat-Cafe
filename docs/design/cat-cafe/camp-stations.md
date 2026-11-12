@@ -25,6 +25,21 @@ Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 a
 - **Odds:** the card keeps its Odds button (monetization-policy, even though it's free).
 - **Save:** `yardSale = { lastClaimAt }` replaces `{ day, bought }`. Migration: a save that took today's crate gets `lastClaimAt` = the start of that UTC day, so nobody gets a second crate right away or loses one. This needs **save version 33** (v32 shipped with Corner Shop v2), with the migration above. Say so in the PR's first line.
 
+## 3a. Yard Sale lucky pick (#3609, Derek 2026-11-12; parts #3614 and #3615; switch `yardSaleRoll`, off)
+
+Derek, 15:03 UTC: "start drafting a re-work of that station to some sort of gamble mechanic that shows and lands you a crate instead based on what you land on can give golden crates also and make it every 2 hours". He OK'd the draft at 15:09 UTC ("ok to all 3"): the table, 2 hours and the name. With the switch on, this replaces the timer and crate choice of section 3.
+
+- **Built so far:** the server pick, the 2 hour wait and `Config.YardSaleTable` (#3645), the stall with crates on its table (#3621) and the shared roll (#3616). The board at the stall is part of #3615.
+- **A free lucky pick every 2 hours** (`Config.YardSaleRollHours = 2`; `YardSaleClaimHours` stays 4 for the old free crate while the switch is off), holding 1. The player presses the pick on the Yard Sale card (card only as built in #3669: walking into the stall's ring never spends a pick, so nobody uses one by accident), a highlight ticks through the stall's board and lands on a crate, and the crate is banked.
+- **Always free.** It never costs coins, golden fish or Robux, another pick or a faster refill cannot be bought, and no pass changes its odds. There is no minigame and no stake: every pick wins a crate.
+- **Table:** Classic Crate 38%, a crate of one of the player's open areas 50% (even split), Golden Classic Crate 8%, a golden crate of one of the player's open areas 4% (even split). Only open areas, so every crate can be opened.
+- **Board:** one row per real crate for that player, with its picture and its real chance to one decimal (at Tier 3: Classic 38%, Alley 16.7%, Park 16.7%, Neighbourhood 16.6%, Golden Classic 8%, the three golden area crates 1.4%, 1.3% and 1.3%). Shown before the press.
+- **Roll and effects:** the roll shared with the Rummage Bin (new-activities.md section 1), with the same honesty rules. A normal crate lands with the small effect, a golden crate with the big one.
+- **Words:** "Yard Sale", "Lucky pick", "Free every 2 hours". Never "gamble", "bet" or "spin to win".
+- **Stall:** crates on the table, no cash tin (Model-Agent, PR #3621).
+- **Economy:** a four-visits-a-day player gets 4 crates (about 3 before) and about 1 golden crate every two days; the most possible is 12 crates and about 1.4 golden crates a day. Duplicate refunds add roughly 20 to 30 golden fish a day for such a player. If it proves too rich, lower the golden rows first (to 5% and 3%), not the refill.
+- **Save:** `yardSale.lastClaimAt` as before; the pick is rolled and banked in one server call, so no new field.
+
 ## 4. Fish Pond (Woods, Tier 4) (#1232)
 
 - **Station:** `CatCafe_Camp_Woods_FishingHut`. A small fishing hut on a plank jetty over the pond, with a rod rack, a bucket and a "Fish Pond" sign on the roof edge. It's solid, climbable and finished on every side. The fish leap and gold glints stay (`CampCollect.luau`).

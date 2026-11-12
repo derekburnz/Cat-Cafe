@@ -99,7 +99,9 @@ function LawnStall.new(callbacks: Callbacks): LawnStall
 		color = Theme.colors.good,
 		icon = GLYPH,
 		image = ShopIcons.hud("LawnStall"), -- #2836: the drawn badge (the emoji until it loads)
-		size = UDim2.new(1, 0, 0, MAX_SIZE.Y),
+		-- as tall as the screen allows, up to MAX_SIZE (as the Oasis Spa, #3500): on a small phone the fixed height
+		-- ran past the bottom of the screen (#3518)
+		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
 	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })

@@ -444,13 +444,45 @@ function Economy.takeEventExtra(profile: Types.PlayerProfile): number
 	return extra
 end
 
+-- #3573 (shared/AfkCafe): the profiles whose player is resting in their own cafe; AfkCafeService sets it, after a
+-- settle, so each window is paid at the rate it was earned at. A resting profile's cafe pay runs at
+-- Economy.moneyFor: the event's money or Config.AfkCafeMoney, whichever is larger.
+local resting: { [Types.PlayerProfile]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local restEarnedByProfile: { [Types.PlayerProfile]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+function Economy.setResting(profile: Types.PlayerProfile, on: boolean)
+	(resting :: any)[profile] = if on then true else nil -- nil drops the weak entry
+end
+
+function Economy.isResting(profile: Types.PlayerProfile): boolean
+	return resting[profile] == true
+end
+
+-- The money multiplier on this profile's cafe pay right now: the event's, or the rest's when larger.
+function Economy.moneyFor(profile: Types.PlayerProfile): number
+	if resting[profile] ~= true then
+		return eventMoney
+	end
+	return math.clamp(math.max(eventMoney, Config.AfkCafeMoney), 1, Config.EventMoneyMax)
+end
+
+-- The coins the cafe paid while the profile rested since the last call (the whole pay, not only the rest's share),
+-- for the welcome back line and afk_pay; resets to 0.
+function Economy.takeRestEarned(profile: Types.PlayerProfile): number
+	local earned = restEarnedByProfile[profile] or 0
+	restEarnedByProfile[profile] = nil
+	return earned
+end
+
 function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
 	if elapsed > 0 then
 		local base = paidSecondsFrom(profile.lastTick, elapsed, clockEpoch)
 		local paidSeconds = base + tipBonusSeconds(profile, elapsed, clockEpoch)
-		local rate = Economy.incomePerSecond(profile) * eventMoney -- #2486: x the running event's money
+		-- #2486: x the running event's money; #3573: or the rest's 2x, whichever is larger
+		local money = Economy.moneyFor(profile)
+		local rate = Economy.incomePerSecond(profile) * money
 		-- F92: the pal bonus over the whole window; the caller settled when the pal count last changed
 		local palCoins = rate * base * Economy.palBonus(profile)
 		earned = rate * paidSeconds + palCoins
@@ -459,7 +491,11 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 		end
 		profile.coins += earned
 		profile.lifetimeCoins += earned
-		Economy.noteEventExtra(profile, earned, eventMoney)
+		-- the event's own share of it (the rest's 2x is not the event's doing)
+		Economy.noteEventExtra(profile, earned * eventMoney / money, eventMoney)
+		if resting[profile] == true then
+			restEarnedByProfile[profile] = (restEarnedByProfile[profile] or 0) + earned
+		end
 		Economy.grantXp(profile, elapsed)
 		Potions.tick(profile, elapsed)
 	end

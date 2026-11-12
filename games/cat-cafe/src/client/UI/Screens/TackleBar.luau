@@ -489,7 +489,11 @@ function TackleBar._placeCue(self: any, ready: boolean)
 	end
 	local _, root = character()
 	local others = if ready and self._hits < TackleTry.CUE_HITS
-		then TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer)
+		then TackleTry.carriers(
+			Players:GetPlayers(),
+			Players.LocalPlayer,
+			Workspace:GetServerTimeNow()
+		)
 		else {}
 	local index = TackleTry.cueTarget({
 		ready = ready,

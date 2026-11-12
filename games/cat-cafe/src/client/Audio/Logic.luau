@@ -417,12 +417,24 @@ end
 -- (RescueDone), so this is the prize itself and reuses existing cues: a golden prize its reveal, a crate the reward
 -- jingle, and every other prize (tuna, fish, salmon, potion) a small gift ding. Unknown ids ding too.
 function Logic.rummageCue(rowId: any): string
-	if rowId == "golden" then
+	if rowId == "golden" or rowId == "bigmoney" then -- #3608: the Big Money Potion is a top prize too
 		return "goldReveal"
 	elseif rowId == "crate" or rowId == "first_crate" then -- #3460: the fixed second prize holds a crate too
 		return "indexReward"
 	end
 	return "giftClaim"
+end
+
+-- #3608: the Rummage Bin's prize roll (Effects/BinRoll.onBeat). A soft tick as each row lights and the reel's
+-- stop as it lands, both existing cues. The win keeps its own cue by row (Logic.rummageCue on Moments.RummageWin),
+-- so the "win" beat plays nothing here and no win is heard twice. Nil for any other beat.
+function Logic.binRollCue(beat: any): string?
+	if beat == "tick" then
+		return "uiReelTick"
+	elseif beat == "land" then
+		return "uiReelStop"
+	end
+	return nil
 end
 
 -- #3389: the Mystic Pool's roll (Effects/MysticPool.onBeat). The cat's splash, one bubbling note per colour step

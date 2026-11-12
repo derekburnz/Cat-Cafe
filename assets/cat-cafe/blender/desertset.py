@@ -891,7 +891,7 @@ def palm(mat, h=10.0, lean=0.18):
     for k in range(8):
         a = 2 * PI * k / 8 + 0.2
         ca, sa = math.cos(a), math.sin(a)
-        for i, (r, dz, pitch) in enumerate(((1.1, 0.2, 0.25), (2.6, -0.2, -0.25), (3.9, -1.0, -0.7))):
+        for i, (r, dz, pitch) in enumerate(((1.1, 0.2, 0.25), (2.5, 0.2, -0.25), (3.75, -0.45, -0.7))):
             c = (top[0] + r * ca, top[1] + r * sa, top[2] + dz)
             R = Matrix.Rotation(a, 3, "Z") @ Matrix.Rotation(-pitch, 3, "Y")
             b.box(c, (1.5, 0.9 - 0.2 * i, 0.12), ("leaf_green", "leaf_dark")[(k + i) % 2], bevel=False, rot=R)

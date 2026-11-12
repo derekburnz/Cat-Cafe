@@ -628,6 +628,8 @@ return function()
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
 				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
+				YardSaleRollHours = true, -- #3614: checked in YardPick.spec
+				YardSaleTable = true, -- #3614: a table, checked in YardPick.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

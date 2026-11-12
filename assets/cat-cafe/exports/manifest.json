@@ -318314,6 +318314,87 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Item_LongNet.png"
     },
     {
+      "name": "CatCafe_Item_SpeedShoes",
+      "category": "Item",
+      "module": "mysteryitems",
+      "objects": [
+        "CatCafe_Item_SpeedShoes",
+        "CatCafe_Item_SpeedShoes_Left",
+        "CatCafe_Item_SpeedShoes_Right"
+      ],
+      "triangles": 1944,
+      "budget": 2400,
+      "size_studs": {
+        "x": 3.5,
+        "y": 3.5,
+        "z": 1.2
+      },
+      "size_roblox": [
+        3.5,
+        1.2,
+        3.5
+      ],
+      "bounds_min": [
+        -1.75,
+        -1.95,
+        0.0
+      ],
+      "bounds_max": [
+        1.75,
+        1.55,
+        1.2
+      ],
+      "pivot": "the middle of the display mat's underside, toes at -Z; each child Model (_Left, _Right) pivots at the middle of its foot's underside",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Item_SpeedShoes_Left": [
+          0.68,
+          0.0,
+          0.06
+        ],
+        "CatCafe_Item_SpeedShoes_Right": [
+          -0.68,
+          0.0,
+          0.06
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Item_SpeedShoes_Left": [
+          -0.68,
+          0.06,
+          0.0
+        ],
+        "CatCafe_Item_SpeedShoes_Right": [
+          0.68,
+          0.06,
+          0.0
+        ]
+      },
+      "studio": "#3538 (update-2026-11-13.md): the Speed Shoes, for Juniper's window picture and the pedestal (the pair on a round mat). Worn: clone the child Models _Left and _Right alone, scale each by the foot's width (built for a 1 x 1 stud foot), pivot it to the middle of the R15 LeftFoot or RightFoot's underside facing the way the foot faces, and weld it there, massless and CanCollide off. On R6 the same spot under each leg.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_SpeedShoes.model.json",
+      "rbx_parts": 100,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_SpeedShoes.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_SpeedShoes.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1944/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "886 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.20"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Desert_Set",
       "category": "Desert",
       "module": "desertset",

@@ -132,7 +132,7 @@ local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 		return
 	end
 	local away = elsewhere == true
-	if RareCatsTab.wants(rarity) and tabOn() then
+	if RareCatsTab.wants(rarity, text) and tabOn() then
 		RareCatsTab.push(tabQueue, RareCatsTab.line(text, rarity, away)) -- #3053
 	end
 	task.spawn(function()

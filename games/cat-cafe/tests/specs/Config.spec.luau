@@ -103,7 +103,7 @@ return function()
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,
 		RemoteRateLimitPerSecond = 10,
-		AnnounceMinRarity = "Legendary", -- #2205: was Epic
+		AnnounceMinRarity = "Mythical", -- Derek 2026-11-12: was Legendary (#2205), Epic before
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,

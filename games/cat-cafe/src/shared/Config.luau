@@ -470,8 +470,11 @@ local Config = {
 	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
 	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
-	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
-	AnnounceMinRarity = "Legendary",
+	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic).
+	-- Derek 2026-11-12 ("make rainbow/gold finds also changed to only legendary + and make normals only mythic+ it
+	-- has a bit of clutter right now"): Mythical for a plain coat (was Legendary); a gold or rainbow coat from
+	-- Catching.COAT_SHOUT_FROM
+	AnnounceMinRarity = "Mythical",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 20, -- #3448: 16 until the rings grew to radius 8; #3112: 12 until the walk-up rings grew to radius 6

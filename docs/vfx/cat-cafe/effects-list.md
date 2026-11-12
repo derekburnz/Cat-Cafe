@@ -1127,3 +1127,12 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Speed Shoes trail (#3523, 2026-11-12)
+
+`Effects/SpeedShoes.luau`, numbers in `Presets.speedShoes` and `Presets.emitters.shoeTrail`, the rule in `Logic.shoeTrailOn`. It waits for the Speed Shoes build (#3535): until a character carries the `SpeedShoes` attribute or wears the `CatCafe_Item_SpeedShoes` model it does nothing.
+
+| Look | Hook |
+|---|---|
+| Small mint and cream puffs left at the heels of a player who wears the Speed Shoes, carries a cat and is on the move with feet on the ground: 8 a second, each gone in under half a second, so about 4 on screen. Nothing while standing, in the air or with no cat, because the shoes only speed up carrying. A steady thin stream, nothing blinks | character attribute `SpeedShoes == true` (server, where the shoes are put on) or a child named `CatCafe_Item_SpeedShoes`; `CarryingCatId`; the Humanoid's `MoveDirection` and `FloorMaterial` |
+| The nearest wearers within 50 studs show it, your own first, sharing the potion glow count of the budget (3 on a phone); Low performance shows none | checked 4 times a second |

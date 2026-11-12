@@ -207,6 +207,27 @@ function Catching.pickBaitCat(rarity: Types.Rarity, tier: number, roll: number):
 	return Catalog.cats[1]
 end
 
+-- #3470: the Secret cat that takes the place of a rolled `rarity`, or nil. Only a Mythical turns, Catalog.
+-- secretPerMythical of the time (`roll` in [0, 1)), and only while the `secretCats` switch is `on`; `pick` in [0, 1)
+-- chooses evenly among Catalog.secretCats. So a source's Secret chance is its Mythical chance over 100, whatever Luck
+-- did to the odds, and every other rarity keeps its chance.
+Catching.SECRET_FLAG = "secretCats"
+Catching.SECRET_NAME = "???" -- a wild Secret stray's name on its tag and catch header until it is caught
+-- the ReplicatedStorage folder of live Secret strays' spots (the server's SecretBeacons; Effects reads it)
+Catching.SECRET_BEACONS = "SecretBeacons"
+function Catching.secret(
+	rarity: Types.Rarity,
+	roll: number,
+	pick: number,
+	on: boolean
+): Types.CatDef?
+	local list = Catalog.secretCats
+	if not on or rarity ~= "Mythical" or #list == 0 or roll >= Catalog.secretPerMythical then
+		return nil
+	end
+	return list[math.clamp(math.floor(pick * #list) + 1, 1, #list)]
+end
+
 function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 	return (Catalog.rarityRank[rarity] or 0) >= (Catalog.rarityRank[minimum] or 99)
 end
@@ -231,6 +252,17 @@ function Catching.shoutOut(
 	if not worth then
 		return nil
 	end
+	if def.rarity == "Secret" then
+		-- #3470: "Sam caught a SECRET cat: Nebula!", "Sam caught a gold SECRET cat: Nebula at their bait bowl!"
+		return string.format(
+			"%s %s a %sSECRET cat: %s%s!",
+			playerName,
+			verb,
+			coat,
+			def.name,
+			where or ""
+		)
+	end
 	local phrase = coat .. def.rarity .. " " .. def.name
 	local article = if phrase:match("^[AEIOUaeiou]") then "an " else "a "
 	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
@@ -246,6 +278,10 @@ function Catching.waveShoutOut(
 	areaName: string,
 	luckyDay: boolean?
 ): string?
+	if rarity == "Secret" then
+		-- #3470: the area and never the spot or the cat: "A Secret cat is somewhere in the Park!"
+		return string.format("A Secret cat is somewhere in the %s!", areaName)
+	end
 	if rarity ~= "Mythical" then
 		return nil
 	end

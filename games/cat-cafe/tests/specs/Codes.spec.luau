@@ -23,16 +23,97 @@ return function()
 		local SATURDAY = 1794675600 -- 2026-11-14 17:00 UTC
 		local gift = { id = "2026-11-14", from = SATURDAY, fish = 15, spins = 1 }
 
-		it("is the first Saturday's 15 fish and 1 spin, from 17:00 UTC", function()
-			local live = assert(Config.UpdateGift)
-			expect(live.id).to.equal("2026-11-14")
-			expect(live.from).to.equal(SATURDAY)
-			expect(os.date("!%Y-%m-%d %H:%M %A", live.from)).to.equal("2026-11-14 17:00 Saturday")
-			expect(live.fish).to.equal(15)
-			expect(live.spins).to.equal(1)
-			expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 15 + 1 spin")
-			expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 15, spins = 1 })
-		end)
+		it(
+			"is the launch's 100 golden fish, from 22:03 UTC on Thursday 2026-11-12 (#3420)",
+			function()
+				local live = assert(Config.UpdateGift)
+				expect(live.id).to.equal("2026-11-12")
+				expect(os.date("!%Y-%m-%d %H:%M %A", live.from)).to.equal(
+					"2026-11-12 22:03 Thursday"
+				)
+				expect(live.fish).to.equal(100)
+				expect(live.spins).to.equal(0)
+				expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 100")
+				expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 100 })
+				-- the weekly gift keeps its words and prize
+				expect(UpdateGift.words(gift)).to.equal("Update gift! 🐟 15 + 1 spin")
+				expect(UpdateGift.prize(gift) :: any).to.deepEqual({ fish = 15, spins = 1 })
+			end
+		)
+
+		it(
+			"gives notice once in the 5 minutes before an unpaid gift, never after (#3420)",
+			function()
+				local profile = fresh()
+				expect(UpdateGift.soon(profile.codesRedeemed, gift, SATURDAY - 301)).to.equal(nil)
+				expect(UpdateGift.soon(profile.codesRedeemed, gift, SATURDAY - 300)).to.equal(300)
+				expect(UpdateGift.soon(profile.codesRedeemed, gift, SATURDAY - 1)).to.equal(1)
+				expect(UpdateGift.soon(profile.codesRedeemed, gift, SATURDAY)).to.equal(nil)
+				expect(UpdateGift.soon(profile.codesRedeemed, nil, SATURDAY - 60)).to.equal(nil)
+				profile.codesRedeemed[UpdateGift.key(gift.id)] = SATURDAY - 500
+				expect(UpdateGift.soon(profile.codesRedeemed, gift, SATURDAY - 60)).to.equal(nil)
+			end
+		)
+
+		it(
+			"words the two banners, and refuses anything a server would never send (#3420)",
+			function()
+				expect(UpdateGift.banner("soon", 100, 0, 180) :: any).to.deepEqual({
+					title = "A gift is coming!",
+					lines = { "100 golden fish for everyone", "in 3 minutes" },
+				})
+				expect((UpdateGift.banner("soon", 100, 0, 121) :: any).lines[2]).to.equal(
+					"in 3 minutes"
+				)
+				expect((UpdateGift.banner("soon", 100, 0, 60) :: any).lines[2]).to.equal(
+					"in 1 minute"
+				)
+				expect((UpdateGift.banner("soon", 100, 0, 0.5) :: any).lines[2]).to.equal(
+					"in 1 minute"
+				)
+				expect(UpdateGift.banner("paid", 100, 0, 0) :: any).to.deepEqual({
+					title = "A gift for everyone!",
+					lines = { "+100 golden fish", "Thanks for playing!" },
+				})
+				expect((UpdateGift.banner("soon", 15, 1, 60) :: any).lines[1]).to.equal(
+					"15 golden fish + 1 spin for everyone"
+				)
+				expect((UpdateGift.banner("paid", 0, 2, 0) :: any).lines[1]).to.equal("+2 spins")
+				-- the launch gift's and the weekly gift's titles fit the banner's 24 characters and their lines its 36
+			for _, made in
+				{
+					UpdateGift.banner("soon", 100, 0, 300),
+					UpdateGift.banner("paid", 100, 0, 0),
+					UpdateGift.banner("soon", 15, 1, 300),
+					UpdateGift.banner("paid", 15, 1, 0),
+				} :: { any }
+			do
+					expect(#made.title <= 24).to.equal(true)
+					for _, line in made.lines do
+						expect(#line <= 36).to.equal(true)
+					end
+				end
+				for _, bad in
+					{
+						{ "other", 100, 0, 60 },
+						{ "soon", 100, 0, 0 },
+						{ "soon", 100, 0, 301 },
+						{ "soon", 100, 0, "60" },
+						{ "soon", 100, 0, 0 / 0 },
+						{ "paid", 0, 0, 0 },
+						{ "paid", -1, 0, 0 },
+						{ "paid", 1001, 0, 0 },
+						{ "paid", 1.5, 0, 0 },
+						{ "paid", "100", 0, 0 },
+						{ "paid", 100, 11, 0 },
+						{ "paid", 0 / 0, 0, 0 },
+						{ nil, nil, nil, nil },
+					} :: { { any } }
+				do
+					expect(UpdateGift.banner(bad[1], bad[2], bad[3], bad[4])).to.equal(nil)
+				end
+			end
+		)
 
 		it("pays once per id, only from its start, and a new id pays again", function()
 			local profile = fresh()

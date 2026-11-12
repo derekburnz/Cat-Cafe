@@ -150,8 +150,9 @@ def _woods(b, lamps, flowers, half):
         for y in (3.0, 7.0, 11.0):                                                         # bands
             b.span((x0 - 0.22, y, -FRONT - 0.22), (x1 + 0.22, y + 0.25, BACK + 0.22), "dark_wood")
         b.ball((cx, 14.0, (BACK - FRONT) / 2), 1.7, "leaf_green", scale=(1.0, 0.5, 1.3))
-        for (dx, dz, h, r) in ((0.9, -2.3, 0.7, 0.45), (1.6, -2.15, 0.45, 0.3), (0.2, 2.35, 0.6, 0.4)):  # mushrooms,
-            mx = cx + s * dx                                                                 # clear of the alley wall
+        # mushrooms, clear of the alley wall; #3349: the first stood at dx 0.9, round the Woods camp's lantern post
+        for (dx, dz, h, r) in ((-0.25, -2.3, 0.7, 0.45), (1.6, -2.15, 0.45, 0.3), (0.2, 2.35, 0.6, 0.4)):
+            mx = cx + s * dx
             b.cyl((mx, h / 2, dz), 0.1, h, "offwhite", segments=6)
             b.cyl((mx, h + r * 0.3, dz), r, r * 0.6, "bowl_red", r2=0.05, segments=10)
             b.span((mx + r * 0.3 - 0.06, h + r * 0.45, dz - r * 0.5 - 0.02), (mx + r * 0.3 + 0.06, h + r * 0.57, dz - r * 0.5 + 0.1),
@@ -361,10 +362,12 @@ def _ruins(b, lamps, flowers, half):
             for z, d in ((-FRONT, -1), (BACK, 1)):
                 b.span((fx - 0.08, 1.3, min(z, z + d * 0.08)), (fx + 0.08, 12.2, max(z, z + d * 0.08)), "fur_pewter")
         b.span((x0 - 0.3, 12.6, -FRONT - 0.3), (x1 + 0.3, 13.2, BACK + 0.3), "fur_pewter")   # capital
-        for (dx, dz, sz) in ((1.1, -2.6, 0.7), (1.9, -3.3, 0.45), (0.3, -3.4, 0.5)):          # rubble in front
+        # rubble in front, each stone against the footing or the next stone (#3349: they stood loose, and the
+        # brazier now stands nearer)
+        for (dx, dz, sz) in ((0.9, -2.0, 0.7), (0.3, -2.4, 0.5), (-0.3, -2.1, 0.45)):
             rx = cx + s * dx
             b.box((rx, sz / 2, dz), (sz * 1.3, sz, sz), "fur_dusty", rot=rot_y(25.0 * s + dx * 30))
-        _brazier(b, lamps, s * (half + PILLAR + 1.6), -3.0)
+        _brazier(b, lamps, s * (half + PILLAR + 1.2), -3.0)       # #3349: 1.6 put its foot in the Relic Museum's base
     reach = half + PILLAR + 0.3
     b.span((-reach, 13.2, -1.1), (reach, 14.6, 1.1), "fur_dusty")                        # lintel, with a crack
     b.span((5.5, 13.2, -1.13), (5.62, 14.6, -1.1), "fur_soot")
@@ -374,7 +377,8 @@ def _ruins(b, lamps, flowers, half):
         b.ball((x, 13.2 - ln, -1.2), 0.3, "leaf_green", scale=(1.0, 1.0, 0.5))
     px = 0.45
     bw = text_width("THE RUINS", px) + 2.4
-    b.span((-bw / 2, 14.65, -0.25), (bw / 2, 17.1, 0.25), "fur_soot")                     # name tablet
+    b.span((-bw / 2, 14.75, -0.25), (bw / 2, 17.0, 0.25), "fur_soot")                     # name tablet, its ends
+                                                                                           # inside the gold bands
     for (ya, yb) in ((14.65, 14.83), (16.92, 17.1)):
         b.span((-bw / 2 - 0.06, ya, -0.3), (bw / 2 + 0.06, yb, 0.3), "fur_golden")
     _title(b, "THE RUINS", 15.88 - 2.5 * px, px, -0.25, 0.25, "fur_golden")

@@ -247,6 +247,41 @@ function Logic.catchPop(rarity: string): (number, number, boolean)
 	return ring, c.confetti[rarity] or 0, c.beams[rarity] == true
 end
 
+-- Whether `rarity` gets a Mythical's extras (the second ring, the showers, the big pull's sparkles and shockwave): a
+-- Mythical, and a Secret (#3470), which adds its own on top.
+function Logic.topTier(rarity: unknown): boolean
+	return rarity == "Mythical" or rarity == "Secret"
+end
+
+-- The colour `rarity`'s light takes: its swatch, or Presets.rarityGlow's when the swatch is too dark to glow (a
+-- Secret). An unknown rarity glows like a Common.
+function Logic.glowColour(rarity: unknown): Color3
+	if type(rarity) ~= "string" then
+		return Presets.rarity.Common
+	end
+	return Presets.rarityGlow[rarity] or Presets.rarity[rarity] or Presets.rarity.Common
+end
+
+-- A Secret stray's sky beam seen from `distance` studs (Presets.secretStray.beam): its width in studs, wider the
+-- further you are so it stays a thin line on screen, and how see-through its foot is, fading as you come close.
+function Logic.secretBeam(distance: number): (number, number)
+	local b = Presets.secretStray.beam
+	local away = math.max(distance, 0)
+	local width = math.clamp(away * b.perStud, b.widthMin, b.widthMax)
+	local share = math.clamp((away - b.nearWithin) / b.fadeOver, 0, 1)
+	return width, b.near + (b.far - b.near) * share
+end
+
+-- Where a Secret stray's beam stands `dt` seconds on, gliding from `at` to the beacon's `target` (the server's word
+-- every 2 seconds): Presets.secretStray.glide of the way a second, there at once when `target` is past `snap` studs.
+function Logic.secretGlide(at: Vector3, target: Vector3, dt: number): Vector3
+	local s = Presets.secretStray
+	if (target - at).Magnitude > s.snap then
+		return target
+	end
+	return at:Lerp(target, math.clamp(dt * s.glide, 0, 1))
+end
+
 -- How a spin prize is celebrated, from its slice's chance among `weights` (slice number to weight, as in
 -- Catalog.spinWheel): "jackpot" at or under Presets.wheel.jackpot, "good" at or under .good, else "small". An
 -- unknown slice is "small".
@@ -1898,7 +1933,7 @@ function Logic.bigPull(rarity: unknown, gold: boolean, rainbow: boolean?): boole
 	if rainbow == true and type(rarity) == "string" then
 		return true -- a rainbow cat of any rarity (F99)
 	end
-	if rarity == "Legendary" or rarity == "Mythical" then
+	if rarity == "Legendary" or rarity == "Mythical" or rarity == "Secret" then
 		return true
 	end
 	return gold and rarity == "Epic"
@@ -3324,6 +3359,58 @@ function Logic.poolAt(rarity: string, t: number): (number, number, boolean)
 	local blend = if steps[i] == "mythic" then p.flash else p.blend
 	local k = if i == 1 then 1 else math.clamp(into / blend, 0, 1)
 	return i, k, t >= Logic.poolSeconds(rarity)
+end
+
+-- #3430 (Effects/MysticIntroCut): which part of the cutscene `t` seconds in falls in when nobody skips, and how
+-- far through that part (0 to 1).
+function Logic.mysticIntroPhase(t: number): (string, number)
+	local p = Presets.mysticIntro
+	local swirl = p.step * p.steps
+	if t < p.swingIn then
+		return "in", math.max(t, 0) / p.swingIn
+	elseif t < p.swingIn + swirl then
+		return "swirl", (t - p.swingIn) / swirl
+	elseif t < p.swingIn + swirl + p.rise then
+		return "rise", (t - p.swingIn - swirl) / p.rise
+	elseif t < p.swingIn + swirl + p.rise + p.swingOut then
+		return "out", (t - p.swingIn - swirl - p.rise) / p.swingOut
+	end
+	return "done", 1
+end
+
+-- #3430: the whole cutscene's seconds when nobody skips.
+function Logic.mysticIntroSeconds(): number
+	local p = Presets.mysticIntro
+	return p.swingIn + p.step * p.steps + p.rise + p.swingOut
+end
+
+-- #3430: the liquid `s` seconds into the swirl: which of the five colours it is on (1 to 5, always in order, never
+-- back) and how far that colour has blended in (0 to 1).
+function Logic.mysticIntroSwirl(s: number): (number, number)
+	local p = Presets.mysticIntro
+	local i = math.clamp(math.floor(math.max(s, 0) / p.step) + 1, 1, p.steps)
+	local into = math.max(s, 0) - (i - 1) * p.step
+	return i, math.clamp(into / p.blend, 0, 1)
+end
+
+-- #3430: how far Sorrel's staff arm is raised (0 down, 1 fully up) `s` seconds into his wave: up over `raise`, then
+-- a gentle wave between `waveLow` and 1.
+function Logic.mysticIntroWave(s: number): number
+	local p = Presets.mysticIntro
+	if s <= 0 then
+		return 0
+	end
+	if s < p.raise then
+		return Logic.smoothstep01(s / p.raise)
+	end
+	local swing = 0.5 - 0.5 * math.cos((s - p.raise) * 2 * math.pi * p.waveHz)
+	return 1 - (1 - p.waveLow) * swing
+end
+
+-- #3444 (Effects/CannonGlide): when, in seconds after the launch, the flight's camera goes back to the game's own: `over` seconds before the
+-- flyer drops back into sight, so it is long done before the feet touch (#3444).
+function Logic.cannonHandBackAt(): number
+	return Presets.cannonPose.drop - Presets.cannonCamera.over
 end
 
 return Logic

@@ -351,6 +351,29 @@ local function headline(fx: Effects): string?
 end
 
 -- endsAt is the end time in the player's local time ("17:00")
+-- #3420: the Update Party of the 2026-11-12 launch starts with Effects/EventBanner's party card in place of the toast.
+-- Its badge reads "x2", so the card is used only while this event really pays x2 (partyBanner returns nil otherwise
+-- and the toast shows). `endsAt` is the end in the player's own time ("6:00 PM"); `news` names the headline features
+-- that are switched on, in the spec's order.
+EventLogic.UPDATE_PARTY = "update-1112"
+export type PartyBanner = { title: string, lines: { string } }
+
+function EventLogic.partyBanner(view: View, endsAt: string, news: { string }): PartyBanner?
+	if view.id ~= EventLogic.UPDATE_PARTY or view.effects.money ~= 2 then
+		return nil
+	end
+	local lines = { "x2 cafe earnings until " .. endsAt }
+	if #news > 0 then
+		table.insert(lines, "New: " .. table.concat(news, " and ", 1, math.min(#news, 2)))
+	else
+		table.insert(lines, "Rich customers leave bags")
+	end
+	if view.effects.showers ~= nil then
+		table.insert(lines, "Rare cat showers all hour")
+	end
+	return { title = view.title .. "!", lines = lines }
+end
+
 function EventLogic.banner(view: View, endsAt: string): string
 	local words = headline(view.effects)
 	if words == nil then

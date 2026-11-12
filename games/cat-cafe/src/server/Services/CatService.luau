@@ -48,6 +48,7 @@ local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
+local SecretBeacons = require(script.Parent.SecretBeacons)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
@@ -485,6 +486,19 @@ local function despawn(stray: Stray, catcher: Player?)
 		end
 	end
 	strays[stray.id] = nil
+	if stray.def.rarity == Catalog.SECRET then
+		SecretBeacons.clear(stray.id)
+		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
+		local someone: Player? = if catcher == nil then DataService.loadedPlayers()[1] else nil
+		if someone ~= nil then
+			Telemetry.custom(
+				someone,
+				"secret_lost",
+				1,
+				{ stray.area, if drop ~= nil then "tackle" else "despawn" }
+			)
+		end
+	end
 	refreshSpeedOf(stray.lockedBy) -- #2052: a cat gone mid catch (night, another server's pity claim) frees its catcher
 	if stray.pointIndex ~= nil then
 		local points = occupiedPoints[stray.area]
@@ -616,7 +630,11 @@ local function spawnStray(
 	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart") :: BasePart
 	model:SetAttribute("StrayId", id)
 	model:SetAttribute("CatId", def.id)
-	model:SetAttribute("CatName", def.name)
+	-- #3470: a Secret stray nobody has caught yet keeps its name to itself (a Dropped one was caught once)
+	model:SetAttribute(
+		"CatName",
+		if def.rarity == Catalog.SECRET and kept == nil then Catching.SECRET_NAME else def.name
+	)
 	model:SetAttribute("Rarity", def.rarity)
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
@@ -676,6 +694,11 @@ local function spawnStray(
 		alive = true,
 	}
 	strays[id] = stray
+	if def.rarity == Catalog.SECRET then
+		-- #3470: its sky beam shows from anywhere (Effects)
+		SecretBeacons.set(id, areaId, position)
+		SecretBeacons.follow(id, model)
+	end
 	if pointIndex ~= nil then
 		occupiedPoints[areaId] = occupiedPoints[areaId] or {}
 		occupiedPoints[areaId][pointIndex] = id
@@ -790,6 +813,24 @@ local function freeSpawnPoint(
 	return if pick ~= nil then pool[pick] else nil
 end
 
+-- #3470: a wild Secret stray is out. Everyone in the server gets the banner and chat line with its area's name, and
+-- it is logged as `secret_spawn` (a server event with no player of its own: under the first player here).
+local function secretSpawned(stray: Stray)
+	local areaDef = Catalog.getArea(stray.area)
+	local text = Catching.waveShoutOut(
+		stray.def.rarity,
+		stray.variant,
+		if areaDef ~= nil then areaDef.name else stray.area
+	)
+	if text ~= nil then
+		Net.fireAll("Announce", text, stray.def.rarity)
+	end
+	local someone: Player? = DataService.loadedPlayers()[1]
+	if someone ~= nil then
+		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, "wild" })
+	end
+end
+
 local function spawnAt(
 	areaId: string,
 	pointIndex: number,
@@ -797,9 +838,22 @@ local function spawnAt(
 	beginner: number?
 ): Stray
 	local area = world.areas[areaId]
-	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
+	-- stray). It takes the Mythical's point, and everyone hears the area and never the spot.
+	-- (review note on #3486: the two draws are made only for a Mythical with the switch on, so a switched off build
+	-- rolls exactly as before)
+	local secret = if beginner == nil
+			and rarity == "Mythical"
+			and LiveFlagService.on(Catching.SECRET_FLAG)
+		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		else nil
+	local def = secret or Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
-	return spawnStray(def, areaId, point.Position, pointIndex, nil, nil, nil, beginner)
+	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, nil, nil, beginner)
+	if secret ~= nil then
+		secretSpawned(stray)
+	end
+	return stray
 end
 
 -- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84).
@@ -1179,7 +1233,10 @@ local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
 			local stray = spawnAt(areaDef.id, point, rarity)
 			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
 			-- up); a tutorial or bait Mythical is not a wave's
-			local text = Catching.waveShoutOut(rarity, stray.variant, areaDef.name, luck > 1)
+			-- #3470: one that turned Secret has had its own line (secretSpawned)
+			local text = if stray.def.rarity == rarity
+				then Catching.waveShoutOut(rarity, stray.variant, areaDef.name, luck > 1)
+				else nil
 			if text ~= nil then
 				Net.fireAll("Announce", text, rarity)
 			end
@@ -2484,8 +2541,17 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			player,
 			def.rarity,
 			Catching.shoutOut(player.DisplayName, verb, def, carry.variant),
-			carry.pity == true -- #2567: a pity or shower cat's line stays in this server
+			-- #2567: a pity or shower cat's line stays in this server; #3470: a Secret's too
+			carry.pity == true or def.rarity == Catalog.SECRET
 		)
+		if def.rarity == Catalog.SECRET then
+			Telemetry.custom(
+				player,
+				"secret_caught",
+				carry.knocks,
+				{ RareMoments.how(carry.method), instance.variant }
+			)
+		end
 		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
 		EventRewardService.secured(player) -- #2486: a Cafe Event's reward for a secure in its window
 		-- F101: a check-in scores for the Rescue Rally, a rescued cat three times (the rescue's points)
@@ -2700,8 +2766,9 @@ local function nearestSpot(areaId: string, position: Vector3): Vector3?
 end
 
 -- Where a let-go cat walks to and the area that is: where it was caught, else (a carry with no homePos) a free spot
--- of its own area. Nil when there is nowhere, and the player keeps the cat (reviewer N99).
-local function homeFor(carry: Carry): (Vector3?, string?)
+-- of its own area. Nil when there is nowhere, and the player keeps the cat (reviewer N99). #3470: a Secret cat has no
+-- area of its own, so one with no homePos (a bait bowl's) goes to a free spot of the area the player stands in (`at`).
+local function homeFor(carry: Carry, at: Vector3?): (Vector3?, string?)
 	local home = carry.homePos
 	if home ~= nil then
 		local areaId = WorldBuilder.areaAt(world, home) or carry.def.area
@@ -2710,6 +2777,9 @@ local function homeFor(carry: Carry): (Vector3?, string?)
 		end
 	end
 	local areaId = carry.def.area
+	if world.areas[areaId] == nil and at ~= nil then
+		areaId = WorldBuilder.areaAt(world, at) or areaId
+	end
 	local area = world.areas[areaId]
 	if area == nil or #area.spawnPoints == 0 then
 		return nil, nil
@@ -2856,7 +2926,7 @@ local function dropRefusal(player: Player, carry: Carry): (string?, string?)
 	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
 		return "closed", DROP_CLOSED_TEXT
 	end
-	if homeFor(carry) == nil then
+	if homeFor(carry, rootPosition(player)) == nil then
 		return "no_home", DROP_NO_HOME_TEXT
 	end
 	return nil, nil
@@ -2890,7 +2960,7 @@ local function dropCarry(player: Player, died: boolean)
 		end
 		return
 	end
-	local home, areaId = homeFor(carry)
+	local home, areaId = homeFor(carry, rootPosition(player))
 	if home == nil or areaId == nil then
 		if not died then
 			refuseDrop(player, "no_home", DROP_NO_HOME_TEXT) -- #3145: was silent

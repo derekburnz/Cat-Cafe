@@ -411,7 +411,9 @@ return function()
 
 		it("gives the Mythical sting to Mythical and the old Secret only, in any case", function()
 			for rarity in Catalog.rarities do
-				local want = if string.lower(rarity) == "mythical"
+				-- #3470: Secret is a rarity again (above Mythical) and keeps the Mythical sting
+				local lower = string.lower(rarity)
+				local want = if lower == "mythical" or lower == "secret"
 					then "announceMythical"
 					else "announce"
 				expect(Logic.announceCue(rarity)).to.equal(want)
@@ -557,6 +559,102 @@ return function()
 		end)
 	end)
 	-- #3050: the Rummage Bin's prize plays an existing cue, by how big the prize is.
+	describe("Audio.Logic mystic pool cues", function()
+		it("maps each beat of the roll to its cue", function()
+			expect((Logic.poolCue("drop", 1))).to.equal("poolDrop")
+			expect((Logic.poolCue("mythic", 5))).to.equal("poolMythic")
+			expect((Logic.poolCue("reveal", 0))).to.equal("poolReveal")
+			expect((Logic.poolCue("nearly", 2))).to.equal(nil)
+			expect((Logic.poolCue(nil, nil))).to.equal(nil)
+		end)
+
+		it("raises the step's pitch with each colour and never past the scale", function()
+			local last = 0
+			for step = 2, 4 do
+				local cue, scaleStep = Logic.poolCue("step", step)
+				expect(cue).to.equal("poolStep")
+				expect(scaleStep > last).to.equal(true)
+				last = scaleStep
+			end
+			expect(select(2, Logic.poolCue("step", 99))).to.equal(5)
+			expect(select(2, Logic.poolCue("step", "x"))).to.equal(1)
+		end)
+
+		it("has a cue on the Pool sheet for every beat", function()
+			for _, name in { "poolDrop", "poolStep", "poolReveal", "poolMythic" } do
+				expect(Cues[name]).to.be.ok()
+				expect(Cues[name].sheet).to.equal("sheetPool")
+			end
+		end)
+	end)
+
+	-- #3296: Mouse Dash, the second Cat Arcade game.
+	describe("Audio.Logic mouse dash cues", function()
+		it("picks the pop by what is in the hole", function()
+			expect(Logic.mousePopCue("mouse")).to.equal("mousePop")
+			expect(Logic.mousePopCue("golden")).to.equal("mouseGoldUp")
+			expect(Logic.mousePopCue("kitten")).to.equal("mousePurr")
+			expect(Logic.mousePopCue(nil)).to.equal("mousePop")
+		end)
+
+		it("climbs the catch squeak inside each five of a streak and starts again", function()
+			for streak = 1, 5 do
+				local cue, step = Logic.mouseCatchCue("mouse", streak)
+				expect(cue).to.equal("mouseCatch")
+				expect(step).to.equal(streak)
+			end
+			expect(select(2, Logic.mouseCatchCue("mouse", 6))).to.equal(1)
+			expect(select(2, Logic.mouseCatchCue("mouse", 50))).to.equal(5)
+			expect(select(2, Logic.mouseCatchCue("mouse", 0))).to.equal(1)
+			expect(select(2, Logic.mouseCatchCue("mouse", "x"))).to.equal(1)
+			expect(select(2, Logic.mouseCatchCue(nil, 0 / 0))).to.equal(1)
+			local gold, goldStep = Logic.mouseCatchCue("golden", 7)
+			expect(gold).to.equal("mouseGoldCatch")
+			expect(goldStep).to.equal(nil)
+		end)
+
+		it("gives each way to lose a heart its own soft sound", function()
+			expect(Logic.mouseMissCue("escape")).to.equal("mouseDuck")
+			expect(Logic.mouseMissCue("kitten")).to.equal("mouseMrow")
+			expect(Logic.mouseMissCue("empty")).to.equal("mouseThud")
+			expect(Logic.mouseMissCue("golden")).to.equal(nil) -- a missed golden mouse is never rubbed in
+			expect(Logic.mouseMissCue(nil)).to.equal(nil)
+		end)
+
+		it("ends a run with the fanfare, the nice try or nothing", function()
+			expect(Logic.mouseEndCue(100, "win", false)).to.equal("mouseBest")
+			expect(Logic.mouseEndCue(42, "hearts", true)).to.equal("mouseBest")
+			expect(Logic.mouseEndCue(12, "hearts", false)).to.equal("arcadeEnd")
+			expect(Logic.mouseEndCue(0, "hearts", false)).to.equal(nil)
+			expect(Logic.mouseEndCue(30, "quit", true)).to.equal("mouseBest")
+			expect(Logic.mouseEndCue(30, "quit", false)).to.equal(nil)
+			expect(Logic.mouseEndCue(nil, nil, nil)).to.equal(nil)
+		end)
+
+		it("has a cue on the Mouse sheet for every sound, inside the sheet's length", function()
+			for _, name in
+				{
+					"mousePop",
+					"mouseCatch",
+					"mouseGoldUp",
+					"mouseGoldCatch",
+					"mouseDuck",
+					"mousePurr",
+					"mouseMrow",
+					"mouseThud",
+					"mouseHeart",
+					"mouseFaster",
+					"mouseBest",
+				}
+			do
+				expect(Cues[name]).to.be.ok()
+				expect(Cues[name].sheet).to.equal("sheetMouse")
+				expect(Cues[name].region[1] < Cues[name].region[2]).to.equal(true)
+				expect(Cues[name].region[2] <= 11.74).to.equal(true)
+			end
+		end)
+	end)
+
 	describe("Audio.Logic rummage prize cue", function()
 		it("picks a cue by prize, and dings for anything else", function()
 			expect(Logic.rummageCue("golden")).to.equal("goldReveal")
@@ -594,6 +692,31 @@ return function()
 
 	-- #3222: a Golden find's toast plays the gold reveal; the update gift's plays the reward jingle.
 	describe("Audio.Logic toast jingles", function()
+		it("plays the pool's own calm chimes in its first walk-up cutscene", function()
+			local cue, step = Logic.poolIntroCue("step", 1)
+			expect(cue).to.equal("poolStep")
+			expect(step).to.equal(1)
+			cue, step = Logic.poolIntroCue("step", 5)
+			expect(cue).to.equal("poolStep")
+			expect(step).to.equal(5)
+			cue, step = Logic.poolIntroCue("step", 99)
+			expect(step).to.equal(5)
+			cue, step = Logic.poolIntroCue("rise", 0)
+			expect(cue).to.equal("poolReveal")
+			expect(step).to.equal(nil)
+			-- nothing was won, so never the Mythic sting
+			expect((Logic.poolIntroCue("mythic", 5))).to.equal(nil)
+			expect((Logic.poolIntroCue(nil, nil))).to.equal(nil)
+		end)
+
+		it("gives each update party banner a sound the game already has", function()
+			expect(Logic.bannerCue("party")).to.equal("stationReveal")
+			expect(Logic.bannerCue("giftSoon")).to.equal("uiGiftReady")
+			expect(Logic.bannerCue("gift")).to.equal("indexReward")
+			expect(Logic.bannerCue("sale")).to.equal(nil)
+			expect(Logic.bannerCue(nil)).to.equal(nil)
+		end)
+
 		it("maps only the two jingle toasts", function()
 			expect(Logic.toastJingle("Golden find! Golden Bench")).to.equal("goldReveal")
 			expect(Logic.toastJingle("Update gift! 🐟 15 + 1 spin")).to.equal("indexReward")

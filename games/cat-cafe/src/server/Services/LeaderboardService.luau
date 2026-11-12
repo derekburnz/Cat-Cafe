@@ -58,6 +58,7 @@ local function withOwners(ids: { [number]: boolean }): { [number]: boolean }
 end
 local hidden: { [number]: boolean } = withOwners({})
 local crowned: { [number]: boolean } = {}
+local announced: { [number]: number } = {} -- #3466: userId -> os.clock() of their last join notice on this server
 local places: { [number]: number } = {} -- #3333: userId -> best place 1 to 3 on an all-time board
 local placeChanged = Instance.new("BindableEvent")
 -- #3333: (player) fired when a player here gains, changes or loses a top 3 place
@@ -314,6 +315,37 @@ local function crown()
 	end
 end
 
+-- #3466: one gold chat line for everyone here when a top player joins, from the lists as last read (no store read
+-- on join; nothing before the first read). It rides the rare catch line's remote, whose Legendary colour is the gold.
+-- The line holds a display name only and is never printed.
+local function joinNotice(player: Player)
+	if not Config.LeaderboardJoinNotice or player.Parent == nil then
+		return
+	end
+	local rank, board =
+		Leaderboards.joinRank(lists, player.UserId, Config.LeaderboardJoinNoticeRank)
+	if rank == nil or board == nil then
+		return
+	end
+	local now = os.clock()
+	if
+		not Leaderboards.joinNoticeDue(
+			announced[player.UserId],
+			now,
+			Config.LeaderboardJoinNoticeRejoinSeconds
+		)
+	then
+		return
+	end
+	announced[player.UserId] = now
+	Net.fireAll(
+		"RareCatchChat",
+		Leaderboards.joinLine(player.DisplayName, rank, board),
+		"Legendary",
+		false
+	)
+end
+
 -- #3333: the player's best place 1 to 3 on an all-time board as of the last refresh, or nil.
 function LeaderboardService.place(player: Player): number?
 	return places[player.UserId]
@@ -454,6 +486,7 @@ function LeaderboardService.start()
 		wearCrown(player) -- review N322: a top player joining between refreshes wears it at once
 		task.spawn(writeNow, player)
 		task.spawn(removeOwner, player)
+		task.delay(Config.LeaderboardJoinNoticeDelay, joinNotice, player) -- #3466
 	end)
 	-- On leave: the values as they stand at the end of the session, written after the profile is gone.
 	DataService.beforeRelease(function(player: Player, profile: Types.PlayerProfile)

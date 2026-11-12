@@ -65,25 +65,49 @@ function RestartNotice.parse(data: unknown, decode: (string) -> unknown): number
 	return seconds
 end
 
--- What players read `seconds` before the restart (#2720's calmer words): "A quick update is coming in 10 minutes. Keep
--- playing, your cafe is saved."
-function RestartNotice.text(seconds: number): string
+-- What players read `seconds` before the restart (#2720's calmer words): "A quick update is coming in 10 minutes, then
+-- a 10-minute event! Keep playing, your cafe is saved." Derek2 2026-11-11: every restart is followed by a 10-minute
+-- event (scheduled with events.yml for the moment servers come back), and the warning says so, so people stay.
+RestartNotice.EVENT_LINE = "then a 10-minute event!"
+-- #3420, #3424: the restart of the Thursday 2026-11-12 launch (22:00 UTC) is followed by the 1 hour Update Party
+-- and the 100 golden fish gift, so a warning shown from an hour before it to half an hour after says so. Outside
+-- that window, and whenever `now` (os.time()) is not given, the words are the usual ones, with no later publish.
+RestartNotice.LAUNCH_AT = 1794520800 -- 2026-11-12 22:00 UTC
+RestartNotice.LAUNCH_LINE = "then a 1-hour party and a gift!"
+local LAUNCH_BEFORE, LAUNCH_AFTER = 3600, 1800
+
+-- the promise a warning shown at `now` ends on, and what the event is called at zero
+local function promise(now: number?): (string, string)
+	if
+		now ~= nil
+		and now >= RestartNotice.LAUNCH_AT - LAUNCH_BEFORE
+		and now <= RestartNotice.LAUNCH_AT + LAUNCH_AFTER
+	then
+		return RestartNotice.LAUNCH_LINE, "a 1-hour party and a gift!"
+	end
+	return RestartNotice.EVENT_LINE, "a 10-minute event!"
+end
+
+function RestartNotice.text(seconds: number, now: number?): string
+	local line, after = promise(now)
 	if seconds <= 0 then
-		return "Updating now. Your cafe is saved. Join again in a moment."
+		return "Updating now. Join again for " .. after .. " Your cafe is saved."
 	end
 	if seconds < 60 then
 		local whole = math.ceil(seconds)
 		return string.format(
-			"Quick update in %d second%s. Your cafe is saved.",
+			"Quick update in %d second%s, %s Your cafe is saved.",
 			whole,
-			if whole == 1 then "" else "s"
+			if whole == 1 then "" else "s",
+			line
 		)
 	end
 	local minutes = math.ceil(seconds / 60)
 	return string.format(
-		"A quick update is coming in %d minute%s. Keep playing, your cafe is saved.",
+		"A quick update is coming in %d minute%s, %s Keep playing, your cafe is saved.",
 		minutes,
-		if minutes == 1 then "" else "s"
+		if minutes == 1 then "" else "s",
+		line
 	)
 end
 

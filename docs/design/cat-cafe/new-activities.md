@@ -45,11 +45,13 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
   - Costs 1 golden fish, via `GoldenFish.spend`.
   - Uses the catch circles at fixed net level 1 windows, graded on the server through the `CatchPress` path. The client never sends a score.
   - **Perfect scores +2 and Good +1.** The first Miss ends the run, and reaching 100 points wins (the score is clamped).
-- **Harder every 10 points:**
-  - shrink x0.96;
-  - windows x0.97;
+- **Harder every 5 points** (as built in #3359, Derek2 2026-11-11: "starting speed 2x, scaling up much faster, game is too easy, keep the milestones reachable"; before that it started at 1.20 s and stepped every 10 points, 10 steps):
+  - the circles start at a 0.60 s shrink (`ArcadeStartShrinkSeconds`, twice as fast as before);
+  - every 5 points (`ArcadeStepEvery`), for 20 steps (`Arcade.MAX_STEP`) so it keeps climbing to 100: shrink x0.96 and windows x0.97;
+  - a circle never shrinks faster than 0.30 s (`ArcadeShrinkFloorSeconds`), wobble included;
   - the gap tends toward `CircleGapMin`;
   - jitter goes 0.10 → 0.20 by 100.
+  - That gives a shrink of about 0.47 s at 30 points, 0.40 s at 50 and the 0.30 s floor near 100, with the Good half-width going 0.13, 0.11, 0.096 and 0.070 s. 10 to 30 stay reachable for a normal player, 50 is a real test and 80 to 100 are for the best players. The milestones and prizes don't change.
 - **Milestones:** each pays once per UTC day, and crossing a milestone pays it.
 
   | Points | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 |
@@ -78,6 +80,8 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
 - **Judge by:** level 1 buys among players with 60+ fish. Swift Potion sales shouldn't drop; if they do, use the flag.
 
 ## 4. Cat Arcade: Mouse Dash (#3296, second Arcade game; a player idea)
+
+**2026-11-11 23:30 UTC: superseded by [mouse-dash.md](mouse-dash.md).** Derek unpaused it ("build mouse dash if making it high enough quality it honestly should replace the current game"). The v2 spec there has nine holes, three hearts, golden mice, napping kittens, 100 points and the arcade's shared milestones. The text below is the v1 draft, kept for history.
 
 Derek2, 2026-11-11: "arcade game 1 free attempt daily".
 

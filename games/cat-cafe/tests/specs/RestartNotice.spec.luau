@@ -56,29 +56,54 @@ return function()
 
 	describe("what players read", function()
 		it(
-			"counts down calmly in minutes, then seconds, then now, and says the cafe is saved",
+			"counts down calmly in minutes, then seconds, then now, says the cafe is saved and promises the event",
 			function()
 				expect(RestartNotice.text(600)).to.equal(
-					"A quick update is coming in 10 minutes. Keep playing, your cafe is saved."
+					"A quick update is coming in 10 minutes, then a 10-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(120)).to.equal(
-					"A quick update is coming in 2 minutes. Keep playing, your cafe is saved."
+					"A quick update is coming in 2 minutes, then a 10-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(60)).to.equal(
-					"A quick update is coming in 1 minute. Keep playing, your cafe is saved."
+					"A quick update is coming in 1 minute, then a 10-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(150)).to.equal(
-					"A quick update is coming in 3 minutes. Keep playing, your cafe is saved."
+					"A quick update is coming in 3 minutes, then a 10-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(30)).to.equal(
-					"Quick update in 30 seconds. Your cafe is saved."
+					"Quick update in 30 seconds, then a 10-minute event! Your cafe is saved."
 				)
 				expect(RestartNotice.text(0.4)).to.equal(
-					"Quick update in 1 second. Your cafe is saved."
+					"Quick update in 1 second, then a 10-minute event! Your cafe is saved."
 				)
 				expect(RestartNotice.text(0)).to.equal(
-					"Updating now. Your cafe is saved. Join again in a moment."
+					"Updating now. Join again for a 10-minute event! Your cafe is saved."
 				)
+			end
+		)
+
+		it(
+			"promises the 1 hour party and the gift around the 2026-11-12 launch only (#3420)",
+			function()
+				local at = RestartNotice.LAUNCH_AT
+				expect(os.date("!%Y-%m-%d %H:%M", at)).to.equal("2026-11-12 22:00")
+				expect(RestartNotice.text(600, at - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then a 1-hour party and a gift! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(30, at - 30)).to.equal(
+					"Quick update in 30 seconds, then a 1-hour party and a gift! Your cafe is saved."
+				)
+				expect(RestartNotice.text(0, at)).to.equal(
+					"Updating now. Join again for a 1-hour party and a gift! Your cafe is saved."
+				)
+				-- a late launch restart still says it; the day before and the day after do not
+				expect(RestartNotice.text(0, at + 1800)).to.equal(
+					"Updating now. Join again for a 1-hour party and a gift! Your cafe is saved."
+				)
+				for _, now in { at - 3601, at + 1801, at - 86400, at + 86400 } do
+					expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
+					expect(RestartNotice.text(0, now)).to.equal(RestartNotice.text(0))
+				end
 			end
 		)
 

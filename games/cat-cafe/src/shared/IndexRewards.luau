@@ -47,6 +47,7 @@ function IndexRewards.progress(collection: { [string]: number }, areaId: string)
 		if
 			def ~= nil
 			and def.area ~= "spare"
+			and def.area ~= "secret" -- #3470: a Secret cat counts on no page, track or total
 			and def.exclusive ~= true
 			and (areaId == IndexRewards.ALL or def.area == areaId)
 		then

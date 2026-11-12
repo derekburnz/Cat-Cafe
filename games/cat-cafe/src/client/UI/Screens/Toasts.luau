@@ -248,16 +248,19 @@ end
 -- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
 -- Silent: Audio plays the shout-out sting from the Announce remote itself.
 function Toasts.announce(self: any, text: string, rarity: string?)
-	local fill = if rarity and (Theme.rarity :: any)[rarity]
-		then Theme.rarityColor(rarity)
+	-- #3470: a Secret's pill is its near black swatch under the white words, not the pale UI colour
+	local fill = if rarity == "Secret"
+		then Theme.rarity.Secret.text
+		elseif rarity and (Theme.rarity :: any)[rarity] then Theme.rarityColor(rarity)
 		else announceColor(text) or KIND_COLORS.announce
 	self:_push(text, fill, ANNOUNCE_LIFETIME)
 end
 
 -- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.
 function Toasts.rainbow(self: any, text: string, rarity: string?)
-	local fill = if rarity and (Theme.rarity :: any)[rarity]
-		then Theme.rarityColor(rarity)
+	local fill = if rarity == "Secret"
+		then Theme.rarity.Secret.text
+		elseif rarity and (Theme.rarity :: any)[rarity] then Theme.rarityColor(rarity)
 		else KIND_COLORS.announce
 	self:_push(text, fill, ANNOUNCE_LIFETIME, true)
 end

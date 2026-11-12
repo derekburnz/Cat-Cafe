@@ -8,9 +8,10 @@
 -- (100) ends it as a win, clamped (a Perfect from 99 shows 100).
 --   - Fair for everyone: every player uses the net level 1 windows of a Common (Circles.windowsFor(1, "Common")), so
 --     a net bought with coins gives no edge.
---   - Slowly harder every Config.ArcadeStepEvery (10) points: the shrink time x ArcadeShrinkStep (0.96) per step, the
---     Perfect and Good windows x ArcadeWindowStep (0.97), the gap between circles from CircleGapMax toward
---     CircleGapMin and the shrink wobble from CircleJitter up to ArcadeJitterMax. Steps stop at the 10th.
+--   - Harder every Config.ArcadeStepEvery (5 since #3359) points from a start twice a Common's pace: the shrink time x
+--     ArcadeShrinkStep (0.96) per step (never under ArcadeShrinkFloorSeconds), the Perfect and Good windows x
+--     ArcadeWindowStep (0.97), the gap between circles from CircleGapMax toward CircleGapMin and the shrink wobble
+--     from CircleJitter up to ArcadeJitterMax. Steps stop at MAX_STEP (20), which is 100 points.
 --   - The server builds the circles BLOCK at a time (block), each block at the step its first circle starts on, and
 --     judges every press as a catch's (Circles.press). The client never reports a score.
 --   - Milestones every 10 points (Config.ArcadeMilestones) pay once per UTC day each: crossing one pays it even when
@@ -35,7 +36,7 @@ Arcade.FLAG = "arcade"
 Arcade.BLOCK = 10 -- circles in each block the server builds
 Arcade.PERFECT_POINTS = 2
 Arcade.GOOD_POINTS = 1
-Arcade.MAX_STEP = 10
+Arcade.MAX_STEP = 20 -- #3359: was 10; with a step every 5 points it climbs all the way to 100
 Arcade.LEGEND_TITLE = "Arcade Legend"
 Arcade.IDEA_BY = "Idea by its_cuzu098"
 Arcade.TAG = "ArcadeCabinet"
@@ -44,6 +45,10 @@ Arcade.ASSET = "CatCafe_Town_ArcadeCabinet"
 Arcade.NAME = "Cat Arcade"
 Arcade.ACTION = "Play"
 Arcade.PROMPT_RANGE = 10
+-- #3359: the reach the cabinet's floor ring is laid with (WalkUp.frontOffset). Nothing on the server measures a range
+-- for the arcade, and with PROMPT_RANGE the ring was pulled back to 2 studs from the pivot, on top of the cabinet;
+-- 16 let a radius 6 ring touch the cabinet's front; #3448: 20 for the radius 8 ring.
+Arcade.RING_RANGE = 20
 Arcade.DAY_SECONDS = 86400
 
 -- Where circles may appear on screen, as fractions of its width and height (the Catch screen's area).
@@ -60,6 +65,7 @@ export type Save = {
 	legend: boolean, -- reached 100 once: the Arcade Legend title, kept for good
 	runs: number,
 	freeDay: number, -- #3296: the UTC day the free run was last used, 0 never
+	epoch: number, -- #3378: the board `best` is for (Arcade.BOARD_EPOCH)
 }
 
 export type Result = {
@@ -96,7 +102,13 @@ export type State = {
 export type Row = { rank: number, name: string, points: number, circles: number, me: boolean? }
 
 Arcade.TOP = 10 -- lines on the window's leaderboard
-Arcade.BOARD_STORE = "CatCafe_LB_Arcade" -- the OrderedDataStore of each player's best score, keyed by user id
+-- #3378 (Derek 2026-11-11, "reset for now"): the board started again once the 2x faster start (#3366) was live, so
+-- every score on it is made under the new rules. The board is a new store name; a save's record is reset by its
+-- `epoch` (sanitize drops a best from another epoch). The save store keeps its name, so the day's paid milestones
+-- and the free game stay in one place for old and new servers alike and nothing pays twice. An older server keeps
+-- the old board and writes saves without an epoch, so a best made there is dropped on the next new server.
+Arcade.BOARD_STORE = "CatCafe_LB_Arcade2" -- the OrderedDataStore of each player's best score, keyed by user id
+Arcade.BOARD_EPOCH = 2 -- which board a save's best belongs to (none or 1: before the reset)
 
 function Arcade.milestones(): { Milestone }
 	return Config.ArcadeMilestones :: any
@@ -127,7 +139,8 @@ function Arcade.windows(step: number): Types.NetWindows
 	return { perfect = base.perfect * scale, good = base.good * scale }
 end
 
--- A circle's shrink time at `step`, before its wobble: the Common's, quicker by ArcadeShrinkStep per step.
+-- A circle's shrink time at `step`, before its wobble: ArcadeStartShrinkSeconds (#3359: half a Common's), quicker by
+-- ArcadeShrinkStep per step.
 function Arcade.shrink(step: number): number
 	return Config.ArcadeStartShrinkSeconds
 		* Config.ArcadeShrinkStep ^ math.clamp(step, 0, Arcade.MAX_STEP)
@@ -153,7 +166,7 @@ function Arcade.block(step: number, startsAt: number, roll: () -> number): { Typ
 		local u = (roll() * 2 - 1) * jitter
 		local circle: Types.CatchCircle = {
 			startsAt = at,
-			shrinkSeconds = shrink * (1 + u),
+			shrinkSeconds = math.max(shrink * (1 + u), Config.ArcadeShrinkFloorSeconds), -- #3359
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
 			kind = "single",
@@ -190,7 +203,16 @@ function Arcade.day(now: number): number
 end
 
 function Arcade.fresh(): Save
-	return { best = 0, bestCircles = 0, day = 0, paid = {}, legend = false, runs = 0, freeDay = 0 }
+	return {
+		best = 0,
+		bestCircles = 0,
+		day = 0,
+		paid = {},
+		legend = false,
+		runs = 0,
+		freeDay = 0,
+		epoch = Arcade.BOARD_EPOCH,
+	}
 end
 
 local function whole(value: unknown, low: number, high: number): number
@@ -201,14 +223,18 @@ local function whole(value: unknown, low: number, high: number): number
 end
 
 -- A save read back from the DataStore, anything odd dropped. A day other than today's starts with nothing paid.
+-- #3378: a record from another board epoch (a save from before the reset, or one an older server rewrote) is dropped;
+-- the title, the games played, the free game and today's paid milestones stay.
 function Arcade.sanitize(raw: unknown, now: number): Save
 	local save = Arcade.fresh()
 	if type(raw) ~= "table" then
 		return save
 	end
 	local t = raw :: { [string]: unknown }
-	save.best = whole(t.best, 0, Config.ArcadeMaxPoints)
-	save.bestCircles = whole(t.bestCircles, 0, 999)
+	if t.epoch == Arcade.BOARD_EPOCH then
+		save.best = whole(t.best, 0, Config.ArcadeMaxPoints)
+		save.bestCircles = whole(t.bestCircles, 0, 999)
+	end
 	save.runs = whole(t.runs, 0, 2 ^ 31)
 	save.legend = t.legend == true
 	save.freeDay = whole(t.freeDay, 0, 2 ^ 31)
@@ -418,6 +444,12 @@ function Arcade.startBlocker(
 		return string.format("You need %d golden fish 🐟 to play", Config.ArcadeCostFish)
 	end
 	return nil
+end
+
+-- #3443: whether the cabinet and its floor ring are in the world: only while the arcade has a game to play, the
+-- `arcade` switch on and one of `circleStreak` or `mouseDash` on (ArcadeCabinetService puts them away otherwise).
+function Arcade.cabinetStands(arcade: boolean, circleStreak: boolean, mouseDash: boolean): boolean
+	return arcade and (circleStreak or mouseDash)
 end
 
 return Arcade

@@ -120,6 +120,7 @@ export type PotionDef = {
 	effect: string?,
 	goldLuck: number?, -- F73: a Gold Rush Potion's gold luck while it runs
 	baitSpeed: number?, -- F73: a Quick Bait Potion's faster bait while it runs
+	luck: number?, -- #3462: a Big Lucky Potion's Luck while it runs
 }
 
 -- One thing a Mystery gift can hold (F64): kind "potion", "lure", "fish" or "spin", with a chance in percent.
@@ -248,6 +249,7 @@ export type CatInstance = {
 	charm: number?, -- 0 to 100
 	stars: number?, -- 1 to 5, derived from charm
 	rating: number?, -- this cat's coins per second before spot and cafe multipliers
+	trait: { id: string }?, -- #3196: its Mystic Pool trait (shared/Traits), nil for none
 }
 
 export type PlayerState = {
@@ -381,6 +383,8 @@ export type PartialState = {
 	secondCat: (SharedTypes.SecondCatView | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
+	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
+	traits: (SharedTypes.TraitsView | false)?,
 }
 
 export type ScreenName =

@@ -98,6 +98,9 @@ return function()
 				caviar = "Caviar",
 				moon_milk = "MoonMilk",
 				star_treat = "StarTreat",
+				-- #3462: the Day Cart's own two borrow these until theirs are uploaded
+				honey_cream = "MoonMilk",
+				comet_treat = "StarTreat",
 			}
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do
@@ -318,6 +321,32 @@ return function()
 			end
 			expect(ShopIcons.setting("resetSave")).to.equal(nil)
 			expect(ShopIcons.setting(nil)).to.equal(nil)
+		end)
+
+		it("shares the station ring pictures with the server rings (#3396)", function()
+			local StationIcons = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("StationIcons")
+			) :: any
+			local names = {
+				arcade = "Arcade",
+				index = "Index",
+				lostFound = "LostFound",
+				museum = "Museum",
+				picnic = "Picnic",
+				pond = "Pond",
+				spa = "Spa",
+				yardSale = "YardSale",
+			}
+			local count = 0
+			for key, id in StationIcons do
+				count += 1
+				expect(names[key]).never.to.equal(nil)
+				expect(string.match(id, "^rbxassetid://%d+$")).never.to.equal(nil)
+				expect(ShopIcons.clean(names[key])).to.equal(id)
+			end
+			expect(count).to.equal(8)
 		end)
 	end)
 end

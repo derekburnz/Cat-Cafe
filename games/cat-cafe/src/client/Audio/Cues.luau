@@ -791,7 +791,7 @@ local Cues: { [string]: Cue } = {
 		duck = true,
 	}, -- F48 Index rewards
 	stationReveal = {
-		ids = { "rbxassetid://127241224294798" }, -- the indexReward file until its own upload (#2687)
+		ids = { "rbxassetid://119242621398873" }, -- CatCafe_Sfx_StationReveal (group upload run 43101011410)
 		group = "Sfx",
 		volume = 0.5,
 		minGap = 1,
@@ -1282,6 +1282,146 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 	}, -- NICE!: the pop and one marimba note
 
+	-- The Mystic Pool's roll (#3389; Effects/MysticPool.onBeat, Logic.poolCue): the Pool sheet, mono. The drop, the
+	-- steps and the Mythic play in 3D at the pool; the reveal is flat, under the trait card. Rendered by synth/synth.py.
+	sheetPool = {
+		ids = { "rbxassetid://86210298933711" },
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 6.05 s; uploaded by upload-audio run 43113223077 (group)
+	poolDrop = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 0.000, 0.900 },
+		group = "Sfx",
+		volume = 0.6,
+		pitch = { 0.97, 1.03 },
+		range = 60,
+	}, -- the cat drops into the pool
+	poolStep = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 1.400, 1.850 },
+		group = "Sfx",
+		volume = 0.55,
+		voices = 3,
+		range = 60,
+	}, -- one per colour step, a scale note higher each time
+	poolReveal = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 2.350, 3.650 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 0.5,
+	}, -- the cat comes back with its trait
+	poolMythic = {
+		ids = {},
+		sheet = "sheetPool",
+		region = { 4.150, 6.050 },
+		group = "Sfx",
+		volume = 0.65,
+		minGap = 1,
+		range = 80,
+		duck = true,
+	}, -- the purple flash of a Mythic trait
+	-- #3296 Mouse Dash, the second Cat Arcade game: eleven sounds on one sheet (synth/synth.py, parts in
+	-- sheet-parts/sfx), all flat on the player's own screen. Milestones and the start reuse the arcade's own cues.
+	sheetMouse = {
+		ids = { "rbxassetid://74952684733332" },
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 11.74 s; uploaded by upload-audio run 43121873618 (group)
+	mousePop = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 0.000, 0.220 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 0.96, 1.04 },
+		voices = 2,
+	}, -- a mouse pops out of its hole
+	mouseCatch = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 0.720, 1.120 },
+		group = "Sfx",
+		volume = 0.5,
+		voices = 3,
+	}, -- a mouse caught; a scale note higher per catch inside each 5 of a streak
+	mouseGoldUp = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 1.620, 2.220 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.2,
+	}, -- the golden mouse pops up
+	mouseGoldCatch = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 2.720, 3.570 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 0.2,
+	}, -- the golden mouse caught, +3
+	mouseDuck = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 4.070, 4.570 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.2,
+	}, -- a mouse ducks back in untapped
+	mousePurr = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 5.070, 5.670 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 0.3,
+	}, -- the napping kitten is up; a quiet file, so a higher volume
+	mouseMrow = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 6.170, 6.570 },
+		group = "Sfx",
+		volume = 0.45,
+		pitch = { 0.97, 1.05 },
+		minGap = 0.3,
+	}, -- the napping kitten tapped awake
+	mouseThud = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 7.070, 7.420 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.15,
+	}, -- a tap on an empty hole
+	mouseHeart = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 7.920, 8.720 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.5,
+	}, -- a heart won back after 10 catches in a row
+	mouseFaster = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 9.220, 9.640 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 0.3,
+	}, -- the speed step
+	mouseBest = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 10.140, 11.740 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+	}, -- a run ends on a new best, or is won
 	-- The late stations (#2651 part 4, late-stations.md; #2927) and the first catch's held ring (#2920): the Late sheet,
 	-- mono. A finished Museum room plays indexReward, the Index milestone fanfare. Rendered by synth/synth.py.
 	sheetLate = {

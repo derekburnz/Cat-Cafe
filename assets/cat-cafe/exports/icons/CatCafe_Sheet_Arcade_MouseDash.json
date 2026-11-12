@@ -1,0 +1,81 @@
+{
+  "image": "CatCafe_Sheet_Arcade_MouseDash.png",
+  "cell": 256,
+  "cells": {
+    "Mouse": {
+      "x": 0,
+      "y": 0,
+      "size": 256
+    },
+    "MouseHit": {
+      "x": 256,
+      "y": 0,
+      "size": 256
+    },
+    "GoldMouse": {
+      "x": 512,
+      "y": 0,
+      "size": 256
+    },
+    "GoldMouseHit": {
+      "x": 768,
+      "y": 0,
+      "size": 256
+    },
+    "Kitten": {
+      "x": 0,
+      "y": 256,
+      "size": 256
+    },
+    "KittenAwake": {
+      "x": 256,
+      "y": 256,
+      "size": 256
+    },
+    "Hole": {
+      "x": 512,
+      "y": 256,
+      "size": 256
+    },
+    "HoleFront": {
+      "x": 768,
+      "y": 256,
+      "size": 256
+    },
+    "Dust": {
+      "x": 0,
+      "y": 512,
+      "size": 256
+    },
+    "Paw": {
+      "x": 256,
+      "y": 512,
+      "size": 256
+    },
+    "PawBop": {
+      "x": 512,
+      "y": 512,
+      "size": 256
+    },
+    "Heart": {
+      "x": 768,
+      "y": 512,
+      "size": 256
+    },
+    "HeartEmpty": {
+      "x": 0,
+      "y": 768,
+      "size": 256
+    },
+    "Cheese": {
+      "x": 256,
+      "y": 768,
+      "size": 256
+    },
+    "MouseDash": {
+      "x": 512,
+      "y": 768,
+      "size": 256
+    }
+  }
+}

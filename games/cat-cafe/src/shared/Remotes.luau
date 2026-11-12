@@ -59,7 +59,7 @@ Remotes.ClientToServer = {
 	-- and DealerStock
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
-	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
+	"ClaimRichTip", -- (bagId: string?)  #3360: own plot has that unexpired money bag (none: the front one), within RichTipRangeStuds of it
 	"TakeCozy", -- ()  #2854: own plot has a waiting Cozy gift bag (the Rewards list's row takes it from anywhere)
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16), the Store funnel (#1888)
@@ -214,6 +214,14 @@ Remotes.ClientToServer = {
 	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
 	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
 	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
+	"MouseDashStart", -- ()  #3296 (shared/MouseDash, MouseDashService): the `arcade` and `mouseDash` switches on, both
+	-- arcade saves read, no arcade game running, not in a catch, rescue or flight; uses the day's free run, else
+	-- spends ArcadeCostFish golden fish (no trade fish freeze). Answered with MouseDashBegan (refusals are a toast);
+	-- 1 a second
+	"MouseDashTap", -- (run: number, index: number, hole: number)  #3296: a tap on hole 1 to 9 while wave `index` is
+	-- up. No score, time or kind is sent: the server stamps the tap on arrival and judges it; 12 a second
+	"MouseDashQuit", -- (run: number)  #3296: Close mid game ends it where it stands, answered with MouseDashOver; 1 a
+	-- second
 	-- #3196 (trait-station.md, TraitService, shared/Traits): each refused while the `traits` switch is off or the tier
 	-- has not opened the Park's camp extra; no range check (it opens from the Cannon menu too); answered with one sync
 	"RollTrait", -- (uid: string)  the cat owned and no re-roll waiting; paid by a free starter roll, else a Trait Token,
@@ -374,6 +382,9 @@ Remotes.ServerToClient = {
 	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
 	"PlaytimeGift", -- (kind: PlaytimeGifts.Kind, paid: { string })  #1947: the like ("like") or favourite ("fav")
 	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
+	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish: number, spins: number, secondsLeft: number)  #3420: the
+	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
+	-- first); the client shows the banner with UpdateGift.banner's words
 	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
 	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
@@ -385,6 +396,18 @@ Remotes.ServerToClient = {
 	-- it paid (shown in the window only: no toast)
 	"ArcadeOver", -- (run: number, result: Arcade.Result)  #3062: the game ended (a Miss, 100 points, Close or the
 	-- switch going off before it started)
+	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
+	-- titles, the free run and the board, once both saves are read and after every game
+	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number)  #3296: a game started; the first wave comes
+	-- at server time `firstAt`
+	"MouseDashWave", -- (run: number, index: number, pops: { { hole: number, kind: string, upAt: number, downAt: number
+	-- } }, hint: string?)  #3296: the wave that is up now, sent only as it starts; `hint` with a player's first kitten
+	"MouseDashJudged", -- (run: number, index: number, tap: MouseDash.Tap, points: number, hearts: number, streak:
+	-- number, milestones: { number }, dizzyUntil: number)  #3296: the server's answer to a tap that did something
+	-- (a catch, a kitten, an empty hole)
+	"MouseDashGone", -- (run: number, index: number, gone: { MouseDash.Gone }, hearts: number)  #3296: pops whose
+	-- window ended untapped, and the hearts left
+	"MouseDashOver", -- (run: number, result: MouseDash.Result)  #3296: the game ended (no hearts, 100 points or Close)
 }
 
 function Remotes.folder(): Folder

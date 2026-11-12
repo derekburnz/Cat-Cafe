@@ -32,6 +32,22 @@ local MysticPool = {}
 
 local playing: { [Model]: () -> () } = {} -- station -> its running roll's skip
 
+-- The roll's beats, for the sounds (#3389, Audio followPool): "drop" as the cat splashes in, "step" for each colour
+-- step after the first (its number, 2 and up), "mythic" for the purple flash, and "reveal" once per roll as the cat
+-- comes back (also on a skip and with Reduce Motion). `at` is the liquid's surface. Listeners only listen.
+export type Beat = "drop" | "step" | "mythic" | "reveal"
+local listeners: { (beat: Beat, step: number, at: Vector3) -> () } = {}
+
+function MysticPool.onBeat(listener: (beat: Beat, step: number, at: Vector3) -> ())
+	table.insert(listeners, listener)
+end
+
+local function beat(name: Beat, step: number, at: Vector3)
+	for _, listener in listeners do
+		task.spawn(listener, name, step, at)
+	end
+end
+
 -- The rarity's colour from shared/Traits (the card's), grey for an unknown id.
 function MysticPool.colourOf(rarity: string): Color3
 	for _, r in Traits.RARITIES do
@@ -102,6 +118,47 @@ local function ease(k: number): number
 	return k * k * (3 - 2 * k)
 end
 
+export type Rig = {
+	surface: Vector3, -- the middle of the liquid's surface
+	front: Vector3, -- the way the pool faces (flat or nearly)
+	rest: Color3, -- the liquid's own colour
+	tip: Attachment?, -- the staff's tip
+	paint: (colour: Color3) -> (),
+	setArm: (k: number) -> (), -- 0 the staff down, 1 raised
+}
+
+-- The pool's moving pieces for one show at `station` (the roll below and the first walk-up's cutscene,
+-- Effects/MysticIntroCut): the liquid to paint and Sorrel's staff arm to raise. Read it at the start of each show; a
+-- missing piece just does nothing.
+function MysticPool.rig(station: Model): Rig
+	local p = Presets.mysticPool
+	local liquid = partsOf(findSuffix(station, p.liquidSuffix))
+	local drop = attachment(station, "PoolDrop")
+	local arm = findSuffix(station, p.armSuffix)
+	local armRest = if arm ~= nil then arm:GetPivot() else nil
+	local turn = station:GetAttribute("SageTurn")
+	local right = station:GetPivot():VectorToWorldSpace(
+		CFrame.Angles(0, math.rad(if type(turn) == "number" then turn else 0), 0).RightVector
+	)
+	return {
+		surface = if drop ~= nil then drop.WorldPosition else station:GetPivot().Position,
+		front = station:GetPivot().LookVector,
+		rest = if #liquid > 0 then liquid[1].Color else Color3.new(1, 1, 1),
+		tip = attachment(station, "StaffTip"),
+		paint = function(colour: Color3)
+			for _, part in liquid do
+				part.Color = colour
+			end
+		end,
+		setArm = function(k: number)
+			if arm ~= nil and armRest ~= nil then
+				local spin = CFrame.fromAxisAngle(right, math.rad(p.raiseDegrees) * k)
+				arm:PivotTo(CFrame.new(armRest.Position) * spin * armRest.Rotation)
+			end
+		end,
+	}
+end
+
 function MysticPool.roll(
 	station: Model,
 	cat: (Model | string)?,
@@ -114,40 +171,27 @@ function MysticPool.roll(
 	end
 	local p = Presets.mysticPool
 	local revealed = false
+	local beatAt = station:GetPivot().Position -- the liquid's surface once it is found below
 	local function reveal()
 		if not revealed then
 			revealed = true
+			beat("reveal", 0, beatAt)
 			task.spawn(onReveal)
 		end
 	end
 
-	local liquidModel = findSuffix(station, p.liquidSuffix)
-	local liquid = partsOf(liquidModel)
-	local rest = if #liquid > 0 then liquid[1].Color else Color3.new(1, 1, 1)
+	local rig = MysticPool.rig(station)
+	local rest = rig.rest
 	local final = MysticPool.colourOf(rarity)
 	local steps = Logic.poolSteps(rarity)
-	local drop = attachment(station, "PoolDrop")
-	local surface = if drop ~= nil then drop.WorldPosition else station:GetPivot().Position
-	local tip = attachment(station, "StaffTip")
-	local arm = findSuffix(station, p.armSuffix)
-	local armRest = if arm ~= nil then arm:GetPivot() else nil
-	local turn = station:GetAttribute("SageTurn")
-	local right = station:GetPivot():VectorToWorldSpace(
-		CFrame.Angles(0, math.rad(if type(turn) == "number" then turn else 0), 0).RightVector
-	)
-
-	local function paint(colour: Color3)
-		for _, part in liquid do
-			part.Color = colour
-		end
-	end
+	local surface = rig.surface
+	beatAt = surface
+	local tip = rig.tip
+	local paint = rig.paint
 	local armK = 0
 	local function setArm(k: number)
 		armK = k
-		if arm ~= nil and armRest ~= nil then
-			local spin = CFrame.fromAxisAngle(right, math.rad(p.raiseDegrees) * k)
-			arm:PivotTo(CFrame.new(armRest.Position) * spin * armRest.Rotation)
-		end
+		rig.setArm(k)
 	end
 
 	local copy: Model? = nil
@@ -270,6 +314,7 @@ function MysticPool.roll(
 			Particles.burst("splashDrops", surface, p.splash, Presets.palette.fishBelly)
 			Particles.burst("poolBubble", surface, p.bubbles, MysticPool.colourOf(steps[1]))
 			lastStep = 1
+			beat("drop", 1, surface)
 		end
 		if t < poolEnd then
 			local into = t - splashAt
@@ -280,6 +325,7 @@ function MysticPool.roll(
 			if i > lastStep then
 				lastStep = i
 				Particles.burst("poolBubble", surface, p.bubbles, colour)
+				beat(if steps[i] == "mythic" then "mythic" else "step", i, surface)
 				if steps[i] == "mythic" then
 					Particles.burst(
 						"catchSparkle",

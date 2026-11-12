@@ -1,18 +1,20 @@
 --!strict
--- Rich tip marker (F31, data-model section 12). Now and then by day a rich customer leaves a big tip at your cafe.
--- A gold bubble floats over the plot's RichTipAnchor (the coin pile) with the amount and a draining timer, and a
--- green Collect button under it, like the cash pads and coin drops in Steal a Brainrot and Pet Simulator 99.
--- Collect works within RichTipRangeStuds (12) of the anchor; further away it reads "Walk closer". When the tip
--- clears the marker pops away. A tip pays only when collected (Derek 2026-10-28: "if you miss it you miss it",
--- data-model 12 v0.13.4): the plot's RichTipOutcome reads "claimed" or "missed" as RichTipAmount goes to 0, and
--- `collected` fires only on "claimed" so the caller can float "+$X" and toast it; on "missed" `missed` fires.
+-- Rich tip marker (F31, data-model section 12; #3360 rich-money-bags.md). Now and then by day a rich customer leaves
+-- a money bag at your cafe. A gold bubble floats over the waiting bag nearest to you with its amount and a draining
+-- timer, a line for what all the bags hold when more than one waits, and a green Collect button under it, like the
+-- cash pads and coin drops in Steal a Brainrot and Pet Simulator 99. Collect works within RichTipRangeStuds (12) of
+-- that bag; further away it reads "Walk closer". Walking right up to a bag (TOUCH studs) collects it too. A bag pays
+-- only when collected (Derek 2026-10-28: "if you miss it you miss it"): the server writes "claimed" or "missed" to the
+-- bag's record (the plot's RichBags/<bagId>, attribute Outcome) just before the record goes; `collected` fires on
+-- "claimed" so the caller can float "+$X", `missed` on "missed".
 --
---   bind(plot)  watch this plot's RichTipAmount, RichTipExpiresAt (server os.time()) and RichTipOutcome; nil stops
+--   bind(plot)  watch this plot's RichBags records (Amount, ExpiresAt as server os.time(), Position, Outcome); nil
+--                stops
 --   preview(position, amount)  #2395: the same bubble over a world point, timer full and Collect inert, for the
 --                intro's rich-tip shot; nil hides it (Gameplay-Engineer, with UI-Engineer's OK)
 --
--- Roblox terms: the plot attributes are display copies the server keeps in step with its own record; the button is
--- inside a BillboardGui, which only passes taps and clicks to its children when Active.
+-- Roblox terms: the records are display copies the server keeps in step with its own table; the button is inside a
+-- BillboardGui, which only passes taps and clicks to its children when Active.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -29,25 +31,37 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local RichBags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RichBags"))
 
--- data-model section 12: ClaimRichTip within 12 studs of the anchor; a tip stays RichTipStaySeconds (90)
+-- data-model section 12: ClaimRichTip within 12 studs of the anchor; #3360: a money bag waits RichBagSeconds (180)
 local RANGE: number = Config.RichTipRangeStuds
-local STAY: number = Config.RichTipStaySeconds
+local STAY: number = Config.RichBagSeconds
 local PENDING_SECONDS = 3 -- Collect shows "Collecting..." this long unless the tip clears first
-local OFFSET = 3.2 -- studs above the anchor
+local OFFSET = 3.2 -- studs above the bag
+local TOUCH = 4 -- studs: this close to a bag collects it without the button (rich-money-bags.md section 4)
+local BUBBLE_ONE = 88 -- the bubble's height in px with one bag waiting
+local BUBBLE_MANY = 106 -- and with the "waiting in N bags" line
 local BOB = 0.18 -- studs of gentle bobbing (off with Reduced Motion)
 
 export type Callbacks = {
-	collect: () -> (),
-	-- the tip was claimed: its amount and where the coin pile was, for a "+$X" pop and a toast
+	collect: (bagId: string) -> (),
+	-- the bag was claimed: its amount and where it sat, for a "+$X" pop and a toast
 	collected: (amount: number, position: Vector3?) -> (),
-	missed: () -> (), -- the tip left unclaimed (expiry, nightfall), so nothing was paid
+	missed: () -> (), -- a bag left unclaimed (its time ran out), so nothing was paid
 }
 
 export type RichTip = {
 	bind: (self: RichTip, plot: Instance?) -> (),
 	preview: (self: RichTip, position: Vector3?, amount: number?) -> (),
 	destroy: (self: RichTip) -> (),
+}
+
+type Waiting = {
+	id: string,
+	amount: number,
+	expiresAt: number,
+	position: Vector3,
+	distance: number?,
 }
 
 local RichTip = {}
@@ -60,8 +74,12 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 	self._anchor = nil :: BasePart?
 	self._plotConnections = {} :: { RBXScriptConnection }
 	self._loop = nil :: RBXScriptConnection?
-	self._lastAmount = 0
-	self._cleared = nil :: { amount: number, position: Vector3? }? -- a cleared tip waiting for its outcome
+	self._folder = nil :: Instance? -- the plot's RichBags folder
+	self._folderConnections = {} :: { RBXScriptConnection }
+	self._recordConnections = {} :: { [Instance]: RBXScriptConnection }
+	self._reported = {} :: { [Instance]: boolean } -- records whose outcome was told (or was there at bind)
+	self._picked = nil :: Waiting? -- the bag the bubble sits on
+	self._many = false
 	self._pendingUntil = 0
 	self._shown = false
 	self._previewPart = nil :: BasePart? -- #2395: the intro's staged point while a preview shows
@@ -74,7 +92,7 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 		LightInfluence = 0,
 		MaxDistance = 150,
 		ResetOnSpawn = false,
-		Size = UDim2.fromOffset(220, 150),
+		Size = UDim2.fromOffset(220, 168),
 		StudsOffset = Vector3.new(0, OFFSET, 0),
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Parent = parent,
@@ -85,7 +103,7 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 		Name = "Bubble",
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromScale(0.5, 0),
-		Size = UDim2.fromOffset(204, 88),
+		Size = UDim2.fromOffset(204, BUBBLE_ONE),
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		Parent = billboard,
@@ -120,6 +138,19 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 	})
 	Outline.text(amount)
 	self._amount = amount
+	-- #3360: what every waiting bag holds together, shown only with more than one
+	self._more = Create("TextLabel", {
+		Name = "More",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, 58),
+		Size = UDim2.new(1, 0, 0, 16),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.goldText,
+		Text = "",
+		Visible = false,
+		Parent = bubble,
+	})
 
 	local track: Frame = Create("Frame", {
 		Name = "Timer",
@@ -179,62 +210,113 @@ function RichTip._findAnchor(self: any): BasePart?
 	return nil
 end
 
-function RichTip._view(self: any): RichTipState.View?
-	local plot: Instance? = self._plot
-	if not plot then
-		return nil
-	end
-	return RichTipState.read(
-		(plot :: Instance):GetAttribute("RichTipAmount"),
-		(plot :: Instance):GetAttribute("RichTipExpiresAt"),
-		Workspace:GetServerTimeNow(),
-		STAY
-	)
-end
-
-local function distanceTo(part: BasePart): number?
+local function rootPosition(): Vector3?
 	local character = Players.LocalPlayer and Players.LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if root and root:IsA("BasePart") then
-		return ((root :: BasePart).Position - part.Position).Magnitude
+		return (root :: BasePart).Position
 	end
 	return nil
+end
+
+-- The plot's waiting bags: a record with no outcome yet, an amount and time left. `distance` is from the player.
+function RichTip._bags(self: any): { Waiting }
+	local out: { Waiting } = {}
+	local folder: Instance? = self._folder
+	if folder == nil or folder.Parent == nil then
+		return out
+	end
+	local now = Workspace:GetServerTimeNow()
+	local from = rootPosition()
+	for _, record in folder:GetChildren() do
+		local amount = record:GetAttribute("Amount")
+		local expiresAt = record:GetAttribute("ExpiresAt")
+		local position = record:GetAttribute("Position")
+		if
+			record:GetAttribute("Outcome") == nil
+			and type(amount) == "number"
+			and amount > 0
+			and type(expiresAt) == "number"
+			and expiresAt > now
+			and typeof(position) == "Vector3"
+		then
+			table.insert(out, {
+				id = record.Name,
+				amount = amount,
+				expiresAt = expiresAt,
+				position = position,
+				distance = if from ~= nil then (from - position).Magnitude else nil,
+			})
+		end
+	end
+	return out
 end
 
 function RichTip._collect(self: any)
 	if self._previewPart ~= nil then
 		return -- #2395: a preview pays nothing
 	end
-	local anchor = self:_findAnchor()
-	local distance = if anchor then distanceTo(anchor) else nil
-	if distance and distance > RANGE then
+	local bag: Waiting? = self._picked
+	if bag == nil then
+		return
+	end
+	local from = rootPosition()
+	if from ~= nil and (from - bag.position).Magnitude > RANGE then
 		return
 	end
 	self._pendingUntil = os.clock() + PENDING_SECONDS
 	self._button:setText("Collecting...")
 	self._button:setEnabled(false)
-	self._callbacks.collect()
+	self._callbacks.collect(bag.id)
 end
 
--- Every frame while shown: the timer, the range check on Collect and the bob.
+-- The bubble's height and the button under it, with or without the "waiting in N bags" line.
+function RichTip._layout(self: any, many: boolean)
+	if self._many == many then
+		return
+	end
+	self._many = many
+	local height = if many then BUBBLE_MANY else BUBBLE_ONE
+	self._bubble.Size = UDim2.fromOffset(204, height)
+	self._button.instance.Position = UDim2.new(0.5, 0, 0, height + 10)
+	self._more.Visible = many
+end
+
+-- Every frame while shown: which bag, its timer, the range check on Collect, the walk-in collect and the bob.
 function RichTip._tick(self: any)
-	local view = self:_view()
+	local bags: { Waiting } = self:_bags()
+	local index, total = RichTipState.pick(bags :: any)
+	local bag: Waiting? = if index ~= nil then bags[index] else nil
 	local anchor = self:_findAnchor()
-	if view == nil or anchor == nil then
-		-- the clock ran out here first; the tip leaves unpaid and the server clears the attributes next
+	local view = if bag ~= nil
+		then RichTipState.read(bag.amount, bag.expiresAt, Workspace:GetServerTimeNow(), STAY)
+		else nil
+	if bag == nil or view == nil or anchor == nil then
+		-- the clock ran out here first; the bag leaves unpaid and the server clears its record next
+		self._picked = nil
 		self:_hide()
 		return
 	end
+	self._picked = bag
+	self._amount.Text = "💰 " .. Format.money(bag.amount)
 	self._title.Text = "RICH TIP  ·  " .. RichTipState.clock(view.left)
 	self._fill.Size = UDim2.fromScale(view.fraction, 1)
+	self:_layout(#bags > 1)
+	if #bags > 1 then
+		self._more.Text = string.format("%s waiting in %d bags", Format.money(total), #bags)
+	end
 	if self._billboard.Adornee ~= anchor then
 		self._billboard.Adornee = anchor
 	end
+	self._billboard.StudsOffsetWorldSpace = bag.position - anchor.Position
 	if os.clock() >= self._pendingUntil then
-		local distance = distanceTo(anchor)
+		local distance = bag.distance
 		local near = distance == nil or distance <= RANGE
 		self._button:setText(if near then "Collect" else "Walk closer")
 		self._button:setEnabled(near)
+		if distance ~= nil and distance <= TOUCH then
+			self:_collect() -- walked into the bag
+		end
 	end
 	if not GuiService.ReducedMotionEnabled then
 		local bob = math.sin(os.clock() * 2.4) * BOB
@@ -242,9 +324,7 @@ function RichTip._tick(self: any)
 	end
 end
 
-function RichTip._show(self: any, view: RichTipState.View, anchor: BasePart)
-	self._amount.Text = "💰 " .. Format.money(view.amount)
-	self._billboard.Adornee = anchor
+function RichTip._show(self: any)
 	if self._shown then
 		return
 	end
@@ -252,10 +332,10 @@ function RichTip._show(self: any, view: RichTipState.View, anchor: BasePart)
 	self._pendingUntil = 0
 	self._billboard.Enabled = true
 	Tween.popIn(self._bubble, 0.5)
-	self:_tick()
 	self._loop = RunService.Heartbeat:Connect(function()
 		self:_tick()
 	end)
+	self:_tick()
 end
 
 function RichTip._hide(self: any)
@@ -276,51 +356,94 @@ function RichTip._hide(self: any)
 	end)
 end
 
--- Reports a cleared tip once the plot says how it ended. The server writes RichTipOutcome just before it zeroes
--- RichTipAmount; if the outcome lands second, it still reads "" here and its own change calls this again.
-function RichTip._report(self: any)
-	local cleared = self._cleared
-	local plot: Instance? = self._plot
-	if cleared == nil or plot == nil then
+-- A record's outcome landed: tell the caller once, and let Collect work again for the next bag.
+function RichTip._report(self: any, record: Instance)
+	local outcome = record:GetAttribute("Outcome")
+	if outcome == nil or self._reported[record] then
 		return
 	end
-	local outcome = (plot :: Instance):GetAttribute("RichTipOutcome")
-	if outcome == "" then
-		return
-	end
-	self._cleared = nil
+	self._reported[record] = true
+	self._pendingUntil = 0
 	if outcome == "missed" then
 		self._callbacks.missed()
-	else
-		-- "claimed", or no attribute from a server before v0.13.4, which paid at expiry too
-		self._callbacks.collected(cleared.amount, cleared.position)
+	elseif outcome == "claimed" then
+		local amount = record:GetAttribute("Amount")
+		local position = record:GetAttribute("Position")
+		self._callbacks.collected(
+			if type(amount) == "number" then amount else 0,
+			if typeof(position) == "Vector3" then position else nil
+		)
 	end
 end
 
--- An attribute changed: show, update or hide, and report a tip that cleared.
+-- A record came, went or ended: show the bubble while a bag waits, hide it with none.
 function RichTip._refresh(self: any)
-	local plot: Instance? = self._plot
-	local raw = if plot then (plot :: Instance):GetAttribute("RichTipAmount") else nil
-	local amount = if type(raw) == "number" and raw > 0 then raw else 0
-	if amount == 0 and self._lastAmount > 0 then
-		local anchor = self:_findAnchor()
-		local position = if anchor then anchor.Position else nil
-		self._cleared = { amount = self._lastAmount, position = position }
-		self:_report()
-	elseif amount > 0 then
-		self._cleared = nil -- a new tip; an older one's outcome no longer matters
-	end
-	self._lastAmount = amount
 	if self._previewPart ~= nil then
 		return -- #2395: the intro's preview keeps the bubble; preview(nil) refreshes again
 	end
-	local view = self:_view()
-	local anchor = self:_findAnchor()
-	if view and anchor then
-		self:_show(view, anchor)
+	local bags: { Waiting } = self:_bags()
+	if #bags > 0 and self:_findAnchor() ~= nil then
+		self:_show()
 	else
 		self:_hide()
 	end
+end
+
+function RichTip._watchRecord(self: any, record: Instance, old: boolean)
+	if self._recordConnections[record] ~= nil then
+		return
+	end
+	if old and record:GetAttribute("Outcome") ~= nil then
+		self._reported[record] = true -- ended before we bound: never reported
+	end
+	self._recordConnections[record] = record:GetAttributeChangedSignal("Outcome"):Connect(function()
+		self:_report(record)
+		self:_refresh()
+	end)
+end
+
+-- The plot's RichBags folder (the server makes it with the first bag): watch its records come and go.
+function RichTip._watchFolder(self: any, folder: Instance)
+	if self._folder == folder then
+		return
+	end
+	self:_unwatchFolder()
+	self._folder = folder
+	for _, record in folder:GetChildren() do
+		self:_watchRecord(record, true)
+	end
+	table.insert(
+		self._folderConnections,
+		folder.ChildAdded:Connect(function(record: Instance)
+			self:_watchRecord(record, false)
+			self:_refresh()
+		end)
+	)
+	table.insert(
+		self._folderConnections,
+		folder.ChildRemoved:Connect(function(record: Instance)
+			local connection: RBXScriptConnection? = self._recordConnections[record]
+			if connection then
+				connection:Disconnect()
+				self._recordConnections[record] = nil
+			end
+			self._reported[record] = nil
+			self:_refresh()
+		end)
+	)
+end
+
+function RichTip._unwatchFolder(self: any)
+	for _, connection in self._folderConnections do
+		connection:Disconnect()
+	end
+	table.clear(self._folderConnections)
+	for _, connection in self._recordConnections do
+		connection:Disconnect()
+	end
+	table.clear(self._recordConnections)
+	table.clear(self._reported)
+	self._folder = nil
 end
 
 function RichTip.bind(self: any, plot: Instance?)
@@ -328,45 +451,39 @@ function RichTip.bind(self: any, plot: Instance?)
 		connection:Disconnect()
 	end
 	table.clear(self._plotConnections)
+	self:_unwatchFolder()
 	self._plot = plot
 	self._anchor = nil
-	self._lastAmount = 0
-	self._cleared = nil
+	self._picked = nil
 	if plot == nil then
 		self:_hide()
 		return
 	end
 	assert(plot, "plot")
-	local function refresh()
-		self:_refresh()
-	end
 	table.insert(
 		self._plotConnections,
-		plot:GetAttributeChangedSignal("RichTipAmount"):Connect(refresh)
-	)
-	table.insert(
-		self._plotConnections,
-		plot:GetAttributeChangedSignal("RichTipExpiresAt"):Connect(refresh)
-	)
-	table.insert(
-		self._plotConnections,
-		plot:GetAttributeChangedSignal("RichTipOutcome"):Connect(function()
-			self:_report()
+		plot.ChildAdded:Connect(function(child: Instance)
+			if child.Name == RichBags.FOLDER then
+				self:_watchFolder(child)
+				self:_refresh()
+			end
 		end)
 	)
-	-- the coin pile can stream in after the attributes
+	-- the anchor can stream in after the records
 	table.insert(
 		self._plotConnections,
 		plot.DescendantAdded:Connect(function(child: Instance)
 			if child.Name == "RichTipAnchor" then
-				refresh()
+				self:_refresh()
 			end
 		end)
 	)
-	-- a tip already waiting when we bind is shown, never reported as collected
-	local raw = plot:GetAttribute("RichTipAmount")
-	self._lastAmount = if type(raw) == "number" and raw > 0 then raw else 0
-	refresh()
+	local folder = plot:FindFirstChild(RichBags.FOLDER)
+	if folder ~= nil then
+		self:_watchFolder(folder)
+	end
+	-- a bag already waiting when we bind is shown, never reported as collected
+	self:_refresh()
 end
 
 -- #2395: the intro's staged rich tip. Shows the bubble over `position` with `amount`, the timer full and Collect
@@ -419,7 +536,9 @@ function RichTip.preview(self: any, position: Vector3?, amount: number?)
 	self._fill.Size = UDim2.fromScale(1, 1)
 	self._button:setText("Collect")
 	self._button:setEnabled(true)
+	self:_layout(false)
 	self._billboard.StudsOffset = Vector3.new(0, OFFSET, 0)
+	self._billboard.StudsOffsetWorldSpace = Vector3.zero
 	self._billboard.Adornee = part
 	if not self._shown or old == nil then
 		self._shown = true

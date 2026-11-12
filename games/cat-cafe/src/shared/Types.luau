@@ -2,18 +2,22 @@
 -- Shared types. Field names follow docs/design/cat-cafe/ui-contract.md and data-model.md.
 -- Pure: no Roblox globals, so tests can require it.
 
-export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
+-- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
+-- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
+export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
 export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
 -- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
 -- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
-export type CatArea = Area | "spare" | "exclusive"
+-- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
+export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
 export type CatSource = "free" | "shop" | "pass"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
 export type CatchMethod = "net" | "rescue" | "bait" | "starter" | "trade" -- "trade": F102, from another player
-export type LureSource = "shop" | "dealer"
+-- #3462: "cart" foods are sold only on the Day Cart, at a flat price
+export type LureSource = "shop" | "dealer" | "cart"
 -- How one closing circle was judged (data-model section 10).
 export type CircleGrade = "perfect" | "good" | "miss"
 -- #1884 (catch-rework.md 7c): a net catch's ring grade, which adds "left" for a paw ring nobody tapped (+1 trust; a
@@ -336,6 +340,10 @@ export type PotionDef = {
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
+	-- #3462: a lucky potion's Luck while it runs, with the Lucky Potion's doubled gold chance on bait. The Lucky
+	-- Potion itself has none here: its Luck is Config.LuckyPotionLuck. The biggest running one counts
+	-- (Potions.luck); they never add.
+	luck: number?,
 }
 
 -- One thing a Mystery Visitor's gift can hold (F64): `chance` in percent, the rows summing to 100. A "potion" row
@@ -936,7 +944,10 @@ export type CampExtrasSave = {
 export type RummageBinSave = { nextAt: number, uses: number }
 -- A Rummage Bin win as RescueResult's last argument carries it: the BinTable row's id and whether it is the account's
 -- first win (shared/RummageBin.winWords).
-export type RummageWin = { id: string, first: boolean }
+-- #3464: `items` is the whole win, one entry per thing paid (kind "lure", "crate", "potion" or "fish"; `id` the
+-- item's id, nil for golden fish; `count` how many), for the loot card.
+export type RummageItem = { kind: string, id: string?, count: number }
+export type RummageWin = { id: string, first: boolean, items: { RummageItem }? }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
 export type YardSaleCrate = { crateId: string, price: number, bought: boolean }
@@ -1115,6 +1126,9 @@ export type CornerShopRow = {
 	lureId: string?, -- #1281: a "bait" row's bowl food
 	xp: number?,
 	needsTier: number?,
+	-- #3462: a row of the Tier 6 shelf: not shown or sold until the `cartTier6` switch is on (shared/CornerShop's top
+	-- shelf), rolled after every other row, and never part of a Buy all
+	topShelf: boolean?,
 }
 -- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each row's buys (`today`, #1712) and
 -- the cat food XP bought (`foodXpToday`).
@@ -1163,6 +1177,11 @@ export type TelemetryState = {
 	-- #2391: the furthest step logged of the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), 0 before any; a default
 	-- too, and COUNT for a player who was out of the onboarding funnel when it came (a veteran's hour is behind them)
 	firstHourStep: number,
+	-- #3308: the furthest step logged of first_hour_v3 (Onboarding.FIRST_HOUR_STEPS), 0 before any. firstHourStep keeps
+	-- first_hour_v2's numbers for a server still on v2 during a rollout, and this code writes it as v2's count, so
+	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
+	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
+	firstHourV3Step: number,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

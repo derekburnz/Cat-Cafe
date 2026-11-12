@@ -333,7 +333,12 @@ function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 		local n = 0
 		for catId in profile.collection do
 			local def = Catalog.getCat(catId)
-			if def ~= nil and def.rarity == "Mythical" and def.exclusive ~= true then
+			-- #3470: a Secret counts as a Mythical or better
+			if
+				def ~= nil
+				and (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Mythical
+				and def.exclusive ~= true
+			then
 				n += 1
 			end
 		end

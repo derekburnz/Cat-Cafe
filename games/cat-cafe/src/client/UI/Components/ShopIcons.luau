@@ -30,6 +30,9 @@
 local Catalog =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
 local DecorPictures = require(script.Parent.DecorPictures)
+local StationIcons = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("StationIcons")
+)
 
 local ShopIcons = {}
 
@@ -64,8 +67,9 @@ local IDS: { [string]: string } = {
 	Perk_GoldenEspresso = "rbxassetid://82998610743733",
 	Perk_BigBowl = "rbxassetid://102328473529046",
 	Perk_ExtraDecorSpot = "rbxassetid://80180214035870",
-	-- #3063: a stand-in (the paw cookie dish) until Swift Paws has its own perk picture
-	Perk_SwiftPaws = "rbxassetid://99959252804941",
+	-- #3330 (Derek 2026-11-12: "ok"): Swift Paws' own picture, the running cat
+	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_SwiftPaws.png); it was the paw cookie dish as a stand-in
+	Perk_SwiftPaws = "rbxassetid://79732833265075",
 	Coins = "rbxassetid://136732540501959",
 	Spin = "rbxassetid://137218266791913", -- the 8-slice wheel (#1603, Tools-Agent 11-05); was 109715715479737
 	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)
@@ -98,7 +102,7 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Feedback = "rbxassetid://86899710660019",
 	Icon_Clean_Fish = "rbxassetid://101061912700342", -- FishGold (#1253); was 111395416488950,
 	Icon_Clean_Home = "rbxassetid://72142107975309",
-	Icon_Clean_Index = "rbxassetid://138454303453433",
+	Icon_Clean_Index = StationIcons.index,
 	Icon_Clean_Menu = "rbxassetid://139128379842736",
 	Icon_Clean_Potion = "rbxassetid://78951217322160",
 	Icon_Clean_Quests = "rbxassetid://117962329343232",
@@ -175,7 +179,7 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Waiter = "rbxassetid://122492899176267",
 	Icon_Clean_Greeter = "rbxassetid://107746555479783",
 	Icon_Clean_Entertainer = "rbxassetid://79258683838050",
-	Icon_Clean_Spa = "rbxassetid://90117647745743",
+	Icon_Clean_Spa = StationIcons.spa,
 	-- #3137 batch 2 (Derek2 OK'd the night's uploads, 11-11 01:05): the seven places (upload run 42937300084,
 	-- assets/cat-cafe/ui/icons-clean-2026-11-11), drawn wherever IconArt meets their emoji (Components/CleanGlyphs)
 	Icon_Clean_Park = "rbxassetid://130402303377210",
@@ -189,12 +193,12 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Moon = "rbxassetid://113770680051546",
 	Icon_Clean_Unlock = "rbxassetid://96025123745905",
 	-- #3347 batch 4 (group upload run 43100302103): the station ring cards; Arcade is also its window badge
-	Icon_Clean_Museum = "rbxassetid://106957137610323",
-	Icon_Clean_Picnic = "rbxassetid://92455587075019",
-	Icon_Clean_YardSale = "rbxassetid://132170661858712",
-	Icon_Clean_Pond = "rbxassetid://116298242454261",
-	Icon_Clean_LostFound = "rbxassetid://106814161165186",
-	Icon_Clean_Arcade = "rbxassetid://120353026211586",
+	Icon_Clean_Museum = StationIcons.museum,
+	Icon_Clean_Picnic = StationIcons.picnic,
+	Icon_Clean_YardSale = StationIcons.yardSale,
+	Icon_Clean_Pond = StationIcons.pond,
+	Icon_Clean_LostFound = StationIcons.lostFound,
+	Icon_Clean_Arcade = StationIcons.arcade,
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://73874755116021",
 	Icon_Hud_SetMusicVolume = "rbxassetid://105488499187015",
@@ -463,6 +467,12 @@ end
 -- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
 -- falls back to the next bottle instead of the emoji. A Small or Big size runs its regular potion's timer, so it wears
 -- that potion's bottles (corner-shop-v2.md, #1250).
+local POTION_STAND_INS: { [string]: string } = {
+	big_lucky_potion = "lucky_potion",
+	big_gold_rush_potion = "gold_rush_potion",
+	mega_tip_potion = "big_tip_potion",
+}
+
 function ShopIcons.potionAll(potionId: string?): { string }
 	local list: { string } = {}
 	if type(potionId) ~= "string" then
@@ -486,6 +496,16 @@ function ShopIcons.potionAll(potionId: string?): { string }
 		local id = IDS[prefix .. key]
 		if id then
 			table.insert(list, id)
+		end
+	end
+	-- #3462: a Tier 6 potion wears its smaller kind's bottles after its own, so it has a picture before its flask is
+	-- uploaded
+	local standIn = POTION_STAND_INS[potionId]
+	if standIn ~= nil then
+		for _, id in ShopIcons.potionAll(standIn) do
+			if not table.find(list, id) then
+				table.insert(list, id)
+			end
 		end
 	end
 	return list
@@ -569,8 +589,20 @@ function ShopIcons.catFood(foodId: string?): string?
 	return IDS.Icon_Clean_StarTreat
 end
 
+-- #3462: the Day Cart's own baits borrow the dealer's two best pictures until theirs are drawn
+local FOOD_STAND_INS: { [string]: string } =
+	{ honey_cream = "moon_milk", comet_treat = "star_treat" }
+
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
+	if type(lureId) ~= "string" then
+		return nil
+	end
+	return IDS["Icon_Clean_" .. pascal(lureId)]
+		or (
+			if FOOD_STAND_INS[lureId]
+				then IDS["Icon_Clean_" .. pascal(FOOD_STAND_INS[lureId])]
+				else nil
+		)
 end
 
 -- The clean picture for a money, golden fish or spin prize (#1242, the Tip Jar, Daily Treat, quest and Index prize

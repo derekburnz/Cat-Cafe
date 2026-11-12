@@ -534,7 +534,8 @@ return function()
 			end
 			local area = newestArea()
 			local wave = rollWave(area, luckyAt(offset))
-			local rich: { amount: number, leaves: number }? = nil
+			-- #3360: the money bags waiting on table 1, up to RichBagsMax
+			local rich: { { amount: number, leaves: number } } = {}
 			local richLeft = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng())
 			local tipJarPaid: { [number]: boolean } = {}
 			local tripsStarted = 0 -- today's trips, by their place in the day's schedule
@@ -587,21 +588,25 @@ return function()
 						Economy.credit(profile, amount)
 						run.coinsFromPiles += amount
 					end
-					-- #1135: the rich customer's timer counts down by open day while no tip is open
-					if rich == nil and left > Config.DuskWarningSeconds then
-						richLeft -= step
-						if richLeft <= 0 then
-							rich = {
+					-- #1135: the rich customer's timer counts down by open day. #3360: also while bags wait, holding
+					-- at 0 while RichBagsMax wait
+					if left > Config.DuskWarningSeconds then
+						richLeft = math.max(0, richLeft - step)
+						if richLeft <= 0 and #rich < Config.RichBagsMax then
+							table.insert(rich, {
 								amount = Economy.richTipAmount(r * palBoost),
-								leaves = s + Config.RichTipStaySeconds,
-							}
+								leaves = s + Config.RichBagSeconds,
+							})
 							richLeft =
 								VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng())
 						end
 					end
 				end
-				if rich ~= nil and (not day or s >= rich.leaves) then
-					rich = nil -- gone unpaid: it left at its time or at nightfall
+				-- #3360: a bag is gone unpaid at its own time only; nightfall no longer takes it
+				for i = #rich, 1, -1 do
+					if s >= rich[i].leaves then
+						table.remove(rich, i)
+					end
 				end
 				if day and Config.DayLengthSeconds - left < step then
 					wave = rollWave(area, lucky) -- the sunrise wave
@@ -712,11 +717,11 @@ return function()
 				end
 
 				if home then
-					if rich ~= nil then
-						Economy.credit(profile, rich.amount)
-						run.coinsFromRich += rich.amount
-						rich = nil
+					for _, bag in rich do
+						Economy.credit(profile, bag.amount)
+						run.coinsFromRich += bag.amount
 					end
+					table.clear(rich)
 					local bait = profile.bait
 					if bait ~= nil and now >= bait.readyAt then
 						local lure = assert(Catalog.luresById[bait.lureId])
@@ -1084,6 +1089,7 @@ return function()
 				local list, text =
 					toTier5({ catches = 4, target = 5, limit = 8 * HOUR, money = 4, long = true })
 				-- check 7: if not, the Tier 5 cost goes up
+				print("[Pace check 7] " .. text)
 				if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 2 * HOUR then
 					error("Tier 5 in 2 hours or less with 4x Money: " .. text)
 				end

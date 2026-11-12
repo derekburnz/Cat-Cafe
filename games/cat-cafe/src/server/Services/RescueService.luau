@@ -274,7 +274,17 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 	local luck = if ClockService.luckyDay() then Config.LuckyDayWaveLuck else 1
 	local rarity: Types.Rarity =
 		Catching.pickRarity(Luck.apply(Catching.rescueOdds(areaDef.odds), luck), rng:NextNumber())
-	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on; a trap's cat gets no banner
+	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
+		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		else nil
+	if secret ~= nil then
+		local someone: Player? = DataService.loadedPlayers()[1]
+		if someone ~= nil then
+			Telemetry.custom(someone, "secret_spawn", 1, { areaDef.id, "rescue" })
+		end
+	end
+	local def = secret or Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local variant = Catching.rollCoat(
 		def,

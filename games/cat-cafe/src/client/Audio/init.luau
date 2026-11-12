@@ -22,7 +22,10 @@ local Beats = require(script.Beats)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
+local EventBanner = require(script.Parent.Effects.EventBanner)
 local Logic = require(script.Logic)
+local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
+local MysticPool = require(script.Parent.Effects.MysticPool)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
@@ -614,6 +617,8 @@ local function preload()
 end
 
 -- Moments ------------------------------------------------------------------------------------------------------
+-- #3296: how long after a Mouse Dash run's last heart is lost (its own sound plays first) the result jingle starts
+local MOUSE_END_GAP = 0.35
 -- Moment args arrive from client code but are still checked, so a missing or odd value only loses a sound.
 
 local function num(value: any): number?
@@ -992,6 +997,11 @@ local function strayCall(instance: Instance, watch: StrayWatch, part: BasePart, 
 		watch.calledAt = now
 		watch.calls += 1
 		Audio.play("strayCall", part)
+		-- #3378: counted on the server (stray_call), with whether a catch starts within 10 s
+		local report = Remotes.folder():FindFirstChild("TelemetryReport")
+		if report ~= nil and report:IsA("RemoteEvent") then
+			(report :: RemoteEvent):FireServer("stray_call", watch.calls)
+		end
 	end
 end
 
@@ -1727,6 +1737,17 @@ local function followUpdateGift()
 	end)
 end
 
+-- #3419: the update party's banners (Effects/EventBanner) play their sound as each one drops in, so a banner that
+-- waited its turn still lands with its sound.
+local function followBanners()
+	EventBanner.onShown(function(kind: any)
+		local cue = Logic.bannerCue(kind)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -1868,6 +1889,45 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play("indexReward")
 		elseif (num(streak) or 0) > 0 then
 			Audio.play("arcadeEnd")
+		end
+	end,
+	-- #3296 Mouse Dash (the second Cat Arcade game; UIController fires these like the Arcade* ones). `kind` is
+	-- "mouse", "golden" or "kitten". MouseDashStart() as a run begins, MouseDashPop(kind) as one pops up,
+	-- MouseDashCatch(points, kind, streak) for a catch, MouseDashMiss(kind) for a heart lost ("escape", "kitten" or
+	-- "empty"), MouseDashHeart() for a heart won back, MouseDashFaster(level) at each speed step,
+	-- MouseDashMilestone(points), and MouseDashEnd(points, reason, newBest) with reason "hearts", "win" or "quit".
+	MouseDashStart = function()
+		Audio.play("arcadeStart")
+	end,
+	MouseDashPop = function(kind: any)
+		Audio.play(Logic.mousePopCue(kind))
+	end,
+	MouseDashCatch = function(_points: any, kind: any, streak: any)
+		local cue, step = Logic.mouseCatchCue(kind, streak)
+		Audio.play(cue, nil, step)
+	end,
+	MouseDashMiss = function(kind: any)
+		local cue = Logic.mouseMissCue(kind)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end,
+	MouseDashHeart = function()
+		Audio.play("mouseHeart")
+	end,
+	MouseDashFaster = function()
+		Audio.play("mouseFaster")
+	end,
+	MouseDashMilestone = function()
+		Audio.play("arcadeMilestone")
+	end,
+	MouseDashEnd = function(points: any, reason: any, newBest: any)
+		local cue = Logic.mouseEndCue(points, reason, newBest)
+		if cue ~= nil then
+			-- the last heart's own sound (MouseDashMiss) plays first
+			task.delay(if reason == "hearts" then MOUSE_END_GAP else 0, function()
+				Audio.play(cue)
+			end)
 		end
 	end,
 	-- #2687: the first time this account reaches an area whose station it owns, the station builds in (Effects) and
@@ -2125,6 +2185,26 @@ local HANDLERS: { [string]: (...any) -> () } = {
 
 -- Builds the channels, preloads the short cues and starts following the server clock. Music and ambience wait for
 -- the first applySettings, so a player who turned music off never hears a note.
+-- #3389: the Mystic Pool's roll plays its sounds off the effect's own beats, so they stay in step with the liquid.
+local function followPool()
+	MysticPool.onBeat(function(beat, step, at)
+		local cue, scaleStep = Logic.poolCue(beat, step)
+		if cue ~= nil then
+			Audio.play(cue, if cue == "poolReveal" then nil else at, scaleStep)
+		end
+	end)
+end
+
+-- #3430: the pool's first walk-up cutscene, on the pool's own chimes (in 3D at the pool, the rise flat).
+local function followPoolIntro()
+	MysticIntroCut.onBeat(function(beat, step, at)
+		local cue, scaleStep = Logic.poolIntroCue(beat, step)
+		if cue ~= nil then
+			Audio.play(cue, if cue == "poolReveal" then nil else at, scaleStep)
+		end
+	end)
+end
+
 function Audio.start()
 	if started then
 		return
@@ -2136,6 +2216,7 @@ function Audio.start()
 	followTags()
 	followStrays()
 	followSplashes()
+	followBanners()
 	followGamepadFocus()
 	followHolds()
 	followHeldCats()
@@ -2143,6 +2224,8 @@ function Audio.start()
 	followPlots()
 	followShopCats()
 	followBeats()
+	followPool()
+	followPoolIntro()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
 end

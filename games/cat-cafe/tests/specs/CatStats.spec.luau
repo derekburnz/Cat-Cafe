@@ -360,7 +360,12 @@ return function()
 				for _, def in Catalog.cats do
 					expect(CatStats.rating(cat(def.id))).to.equal(def.incomePerSecond)
 					-- F96: an exclusive cat (the Bellhop Cat) earns at the newest area's rate (StarterCat.spec)
-					if Config.KeepUpRarities[def.rarity] ~= true and def.exclusive ~= true then
+					-- #3470: a Secret cat earns at the owner's best open area too (SecretCats.spec)
+					if
+						Config.KeepUpRarities[def.rarity] ~= true
+						and def.exclusive ~= true
+						and def.rarity ~= "Secret"
+					then
 						for tier = 1, 5 do
 							expect(CatStats.rating(cat(def.id), tier)).to.equal(def.incomePerSecond)
 						end

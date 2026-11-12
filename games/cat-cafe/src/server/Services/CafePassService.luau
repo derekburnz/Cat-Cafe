@@ -243,6 +243,9 @@ local function onSetTag(player: Player, rawTag: unknown)
 		CafePassService.send(player, profile)
 		return
 	end
+	if profile.pass.tag ~= pick then
+		Telemetry.custom(player, "title_set", 1, { pick }) -- #3378
+	end
 	profile.pass.tag = pick
 	applyTag(player, profile)
 	CafePassService.send(player, profile)

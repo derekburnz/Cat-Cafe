@@ -50,3 +50,7 @@ PS99 gives each area one thing besides its pets, and ours are all the same today
 - **Sewer: the Lost and Found.** A box by the Bottlecap Throne that gives one free food a day, rolled from Kibble to Caviar with the odds on the box.
 
 Sewer looks to add (old grandeur and things to spot): a tiled archway with a faded mosaic of a cat, a few columns along the main canal and lost treasures in the junk heap (an old phone, a toy robot, a snow globe) that players can spot.
+
+## 5. Parked player ideas
+
+- **Theme park area** (in-game feedback, 2026-11-11: "add new area theme park"). Parked, not scheduled. It fits as a Tier 8 area after the Ruins: rides as scenery, cats in ride-operator and mascot looks, and a ticket booth as its one thing to do. It waits on the Desert and Ruins being finished (#2834). If it is picked up, it gets a credit line under idea-credits.md section 8.

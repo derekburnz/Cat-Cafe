@@ -418,10 +418,87 @@ end
 function Logic.rummageCue(rowId: any): string
 	if rowId == "golden" then
 		return "goldReveal"
-	elseif rowId == "crate" then
+	elseif rowId == "crate" or rowId == "first_crate" then -- #3460: the fixed second prize holds a crate too
 		return "indexReward"
 	end
 	return "giftClaim"
+end
+
+-- #3389: the Mystic Pool's roll (Effects/MysticPool.onBeat). The cat's splash, one bubbling note per colour step
+-- (pitched a scale note higher each step, so it climbs with the rarity and stops there), the Mythic's own shimmer
+-- and the reveal chime. Returns the cue and the scale step to play it at; nil for an unknown beat.
+function Logic.poolCue(beat: any, step: any): (string?, number?)
+	if beat == "drop" then
+		return "poolDrop", nil
+	elseif beat == "step" then
+		return "poolStep", if type(step) == "number" then math.clamp(math.floor(step), 1, 5) else 1
+	elseif beat == "mythic" then
+		return "poolMythic", nil
+	elseif beat == "reveal" then
+		return "poolReveal", nil
+	end
+	return nil, nil
+end
+
+-- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut.onBeat) plays the pool's own chimes,
+-- calm: each colour step the step chime one note up the scale, and the silhouette's rise the soft reveal. Never the
+-- Mythic sting, since nothing was won.
+function Logic.poolIntroCue(beat: any, step: any): (string?, number?)
+	if beat == "step" then
+		return "poolStep", if type(step) == "number" then math.clamp(math.floor(step), 1, 5) else 1
+	elseif beat == "rise" then
+		return "poolReveal", nil
+	end
+	return nil, nil
+end
+
+-- #3296 Mouse Dash (the second Cat Arcade game). `kind` is what is in a hole: "mouse", "golden" or "kitten".
+-- What pops up: the mouse its pop, the golden mouse its chime, the napping kitten a soft purr.
+function Logic.mousePopCue(kind: any): string
+	if kind == "golden" then
+		return "mouseGoldUp"
+	elseif kind == "kitten" then
+		return "mousePurr"
+	end
+	return "mousePop"
+end
+
+-- #3296: a catch. The golden mouse has its own richer cue. A plain catch's squeak climbs one scale note per catch
+-- inside each group of `every` (5) of the streak and starts again, so it never runs off the scale in a long run.
+function Logic.mouseCatchCue(kind: any, streak: any, every: number?): (string, number?)
+	if kind == "golden" then
+		return "mouseGoldCatch", nil
+	end
+	local group = every or 5
+	if type(streak) ~= "number" or streak ~= streak or streak < 1 then
+		return "mouseCatch", 1
+	end
+	return "mouseCatch", (math.floor(streak) - 1) % group + 1
+end
+
+-- #3296: a heart lost. "escape" (the mouse ducked back in) the slide and puff, "kitten" (the napper tapped awake)
+-- its "mrow?", "empty" (a tap on an empty hole) the soft thud. Nil for anything else.
+function Logic.mouseMissCue(kind: any): string?
+	if kind == "escape" then
+		return "mouseDuck"
+	elseif kind == "kitten" then
+		return "mouseMrow"
+	elseif kind == "empty" then
+		return "mouseThud"
+	end
+	return nil
+end
+
+-- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
+-- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
+-- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
+function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
+	if reason == "win" or newBest == true then
+		return "mouseBest"
+	elseif reason == "hearts" and type(points) == "number" and points > 0 then
+		return "arcadeEnd"
+	end
+	return nil
 end
 
 -- Toast lines that earn their own jingle, since the server sends them as a toast only: the update gift (#2997) the
@@ -431,6 +508,20 @@ function Logic.toastJingle(text: any): string?
 		return "indexReward"
 	elseif type(text) == "string" and string.sub(text, 1, 13) == "Golden find! " then
 		return "goldReveal"
+	end
+	return nil
+end
+
+-- #3419: the sound as an update party banner (Effects/EventBanner) drops in: the station fanfare for the party's
+-- start, the soft gift chime for the gift on its way and the update gift's jingle for the gift paid. All three are
+-- cues the game already has. Nil for anything else.
+function Logic.bannerCue(kind: any): string?
+	if kind == "party" then
+		return "stationReveal"
+	elseif kind == "giftSoon" then
+		return "uiGiftReady"
+	elseif kind == "gift" then
+		return "indexReward"
 	end
 	return nil
 end

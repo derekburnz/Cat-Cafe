@@ -139,11 +139,11 @@ return function()
 		CharmSpread = 0.20,
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
-		DealerRangeStuds = 16,
+		DealerRangeStuds = 20,
 		FreshCatchWindowSeconds = 390, -- F94 300; #1437: one game day, a restock at every global sunrise
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
 		CornerShopWindowSeconds = 390, -- #1437 (was 300)
-		CornerShopRange = 18,
+		CornerShopRange = 22,
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
@@ -155,7 +155,11 @@ return function()
 		TipPileRateSeconds = 6,
 		TipPilesMax = 6,
 		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
-		RichTipStaySeconds = 90,
+		-- #3360 (rich-money-bags.md section 6): the money bag replaces RichTipStaySeconds (90)
+		RichBagSeconds = 180,
+		RichBagsMax = 3,
+		RichCustomerSitSeconds = 20,
+		RichBagFadeSeconds = 5,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryEveryMin = 750, -- 1250 s on average, a fifth more often than #1135's 1500 (2026-11-05)
 		MysteryEveryMax = 1750,
@@ -207,7 +211,7 @@ return function()
 		InviteCardBySeconds = 900,
 		InvitePendingCheckSeconds = 60,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
-		SpinStationRange = 18,
+		SpinStationRange = 22,
 		SpinCooldownSeconds = 4,
 		SpinAllMax = 51, -- #1078 (Derek 2026-11-04): Use all spins; 51 since #1414
 		SpinBankCap = 50, -- #1414 (was 20)
@@ -216,7 +220,7 @@ return function()
 		CratePrice = 40,
 		CrateBundleCount = 5,
 		CrateBundlePrice = 180,
-		FishMarketRange = 18,
+		FishMarketRange = 22,
 		CrateOpenCooldownSeconds = 0.3,
 		DecorIndexBonus = 0.05,
 		DecorEquipBest = true,
@@ -237,8 +241,8 @@ return function()
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
 		-- codes (F65, section 11d, v0.10 circle and group codes)
-		CodesCatRange = 16,
-		CodesCircleRadius = 6,
+		CodesCatRange = 20,
+		CodesCircleRadius = 8,
 		CodeMaxLength = 20,
 		CodeWrongLimit = 5,
 		CodeLockSeconds = 60,
@@ -291,6 +295,11 @@ return function()
 		LeaderboardRateMax = 10000000,
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
+		-- #3466: the top player join notice
+		LeaderboardJoinNotice = true,
+		LeaderboardJoinNoticeRank = 10,
+		LeaderboardJoinNoticeDelay = 5,
+		LeaderboardJoinNoticeRejoinSeconds = 600,
 		-- The crate reel (F103, crate-reel.md 4)
 		CrateReelTiles = 40,
 		CrateReelLandingTile = 34,
@@ -338,13 +347,14 @@ return function()
 		PondHold = 24, -- #2237: was 36
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
-		CampExtraRangeStuds = 14,
+		CampExtraRangeStuds = 18,
 		BinFirstUses = 3, -- #3050 (the Rummage Bin); BinTable is checked in RummageBin.spec
 		BinFirstRepeatSeconds = 180,
 		BinCooldownSeconds = 900,
 		BinMissRetrySeconds = 10,
-		BinZoneWidth = 0.42, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed
-		BinBarSpeed = 0.64,
+		BinZoneWidth = 0.22, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before
+		BinBarSpeed = 0.80, -- #3458: 0.64 before
+		BinHits = 5, -- #3458: the bin's own hit count
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -367,7 +377,7 @@ return function()
 		BumpSameTargetSeconds = 0,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 0,
-		TackleShieldSeconds = 300, -- #3342: a new join can't be tackled for its first 5 minutes
+		TackleShieldSeconds = 900, -- #3342, #3475: a new join can't be tackled for its first 15 minutes (5 before)
 		-- a dropped cat walks home (v0.10 F67, section 10c)
 		DropReturnWalkSpeed = 8,
 		DropHomeRadiusStuds = 2,
@@ -424,12 +434,36 @@ return function()
 		-- #3062 (the Cat Arcade's Circle Streak, shared/Arcade; the milestones are checked in Circles.spec)
 		ArcadeCostFish = 1,
 		ArcadeMaxPoints = 100,
-		ArcadeStepEvery = 10,
+		ArcadeStepEvery = 5, -- #3359: was 10
 		ArcadeShrinkStep = 0.96,
 		ArcadeWindowStep = 0.97,
 		ArcadeJitterMax = 0.20,
-		ArcadeStartShrinkSeconds = 1.20,
+		ArcadeStartShrinkSeconds = 0.60, -- #3359: was 1.20 (a Common's)
+		ArcadeShrinkFloorSeconds = 0.30, -- #3359
 		ArcadeBlockLeadIn = 0.9,
+		-- #3296 (Mouse Dash, mouse-dash.md section 6)
+		MouseDashHearts = 3,
+		MouseDashStepEvery = 5,
+		MouseDashWindowStart = 1.10,
+		MouseDashWindowStep = 0.93,
+		MouseDashWindowFloor = 0.40,
+		MouseDashGapStart = 0.50,
+		MouseDashGapStep = 0.95,
+		MouseDashGapFloor = 0.25,
+		MouseDashGoldenFrom = 10,
+		MouseDashGoldenChance = 1 / 12,
+		MouseDashGoldenPoints = 3,
+		MouseDashGoldenWindowScale = 0.75,
+		MouseDashKittenFrom = 20,
+		MouseDashKittenChance = 0.125,
+		MouseDashPairFrom = 30,
+		MouseDashPairChance = 0.20,
+		MouseDashPairKittenFrom = 40,
+		MouseDashHeartBackEvery = 10,
+		MouseDashDizzySeconds = 0.40,
+		MouseDashFirstRunMice = 3,
+		MouseDashFirstRunWindow = 2.0,
+		MouseDashMouserAt = 50,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -579,7 +613,7 @@ return function()
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 				BinTable = true, -- #3050: a table, checked in RummageBin.spec
 				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
-				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
+				BinFirstPrizes = true, -- #3460: fixed prize rows, checked in RummageBin.spec
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
@@ -607,11 +641,13 @@ return function()
 				Epic = 5,
 				Legendary = 12,
 				Mythical = 25,
+				Secret = 100, -- #3470
 			}) -- #2237
 			expect(Config.FishRepeatCatch :: any).to.deepEqual({
 				Epic = 1,
 				Legendary = 2,
 				Mythical = 5,
+				Secret = 20, -- #3470
 			})
 			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
 		end)

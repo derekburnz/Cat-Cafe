@@ -16,7 +16,7 @@
 #      (session_start carries the join source in its first field: organic, unknown or ad_<tag> from a link's
 #      launchData=ad_<tag>; robux_purchase, store_cancelled, cafe_pass_level and jukebox_pick since #1888)
 #   5. audience (#2391): players new and returning and day 1 retention by Platform, Country, AgeGroupV2 and Gender; average
-#      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
+#      session by Platform; the current onboarding funnel and first_hour (time steps, played_30s to played_60m) by
 #      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
 #   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, bait_rolled, bait_resolved (#3030),
 #      first_bait_wait and first_bait_arrived read
@@ -207,6 +207,7 @@ declare -A names=(
 # win when Onboarding.luau has them; these are the names Research-Agent proposed.
 firstHourFunnel=first_hour
 firstHourSteps=(joined played_2m played_5m played_10m played_20m played_30m played_45m played_60m)
+firstHourV2Steps=()
 onboardingFunnel=onboarding_v4
 introFunnel=onboarding_v4_intro
 onboardingSteps=()
@@ -231,6 +232,8 @@ if [ -f "$onboarding" ]; then
 	mapfile -t onboardingV4Steps < <(luaNames V4_STEPS)
 	mapfile -t list < <(luaNames FIRST_HOUR_STEPS)
 	[ "${#list[@]}" = 0 ] || firstHourSteps=("${list[@]}")
+	# #3308: first_hour_v3 put played_3m and played_4m in; v2's rows keep their labels through FIRST_HOUR_V2_STEPS
+	mapfile -t firstHourV2Steps < <(luaNames FIRST_HOUR_V2_STEPS)
 	funnelName=$(luaString FIRST_HOUR_FUNNEL)
 	firstHourFunnel=${funnelName:-$firstHourFunnel}
 	funnelName=$(luaString FUNNEL)
@@ -243,6 +246,16 @@ if [ -f "$storeFunnelFile" ]; then
 	mapfile -t storeSteps < <(sed -n '/^StoreFunnel\.STEPS = {/p' "$storeFunnelFile" | grep -o '"[a-z0-9_]*"' | tr -d '"')
 	funnelName=$(sed -n 's/^StoreFunnel\.NAME = "\([A-Za-z0-9_]*\)".*/\1/p' "$storeFunnelFile")
 	storeFunnel=${funnelName:-$storeFunnel}
+fi
+# #3378: arcade_v1 (shared/ArcadeFunnel), one run per player per UTC day; the defaults hold until that file is on main
+arcadeFunnel=arcade_v1
+arcadeSteps=(arcade_seen arcade_opened arcade_started arcade_first_circle arcade_finished arcade_played_again)
+arcadeFunnelFile=$here/../../src/shared/ArcadeFunnel.luau
+if [ -f "$arcadeFunnelFile" ]; then
+	mapfile -t list < <(sed -n '/^ArcadeFunnel\.STEPS = /,/^})/p' "$arcadeFunnelFile" | grep -o '"[a-z0-9_]*"' | tr -d '"')
+	[ "${#list[@]}" = 0 ] || arcadeSteps=("${list[@]}")
+	funnelName=$(sed -n 's/^ArcadeFunnel\.NAME = "\([A-Za-z0-9_]*\)".*/\1/p' "$arcadeFunnelFile")
+	arcadeFunnel=${funnelName:-$arcadeFunnel}
 fi
 stepName() { # funnel step label
 	local funnel=$1 step=$2 label=$3
@@ -259,12 +272,16 @@ stepName() { # funnel step label
 			list=("${onboardingSteps[@]}")
 		elif [ "${funnel,,}" = "${firstHourFunnel,,}" ]; then
 			list=("${firstHourSteps[@]}")
+		elif [ "${funnel,,}" = first_hour_v2 ]; then
+			list=("${firstHourV2Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v4 ]; then
 			list=("${onboardingV4Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v3 ]; then
 			list=("${onboardingV3Steps[@]}")
 		elif [ "${funnel,,}" = "${storeFunnel,,}" ]; then
 			list=("${storeSteps[@]}")
+		elif [ "${funnel,,}" = "${arcadeFunnel,,}" ]; then
+			list=("${arcadeSteps[@]}")
 		elif [ "${funnel,,}" = onboarding_v2 ]; then
 			list=("${onboardingV2Steps[@]}")
 		elif [[ ${funnel,,} == *onboarding* && ! ${funnel,,} =~ onboarding_v[0-9]+ ]]; then
@@ -302,7 +319,8 @@ declare -A retired=(
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* && ${funnel,,} != "${firstHourFunnel,,}" ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* ]] || unit=Players
+	[ "${funnel,,}" != "${arcadeFunnel,,}" ] || unit="Player days" # #3378: one run per player per UTC day
 	say "#### $funnel"
 	say ""
 	if ! query FunnelUserTotalCount None FunnelStep "$(only FunnelName "$funnel")"; then
@@ -413,6 +431,56 @@ for day in "${days[@]}"; do
 	say "| $day | ${newUsers[$day]:--} | ${returning[$day]:--} | ${session[$day]:--} | ${d1[$day]:--} |"
 done
 say ""
+
+# 2b. The six Creator Hub benchmark items (Derek 2026-11-12: every stats update breaks them down): average playtime,
+# day 1 and day 7 retention, payer conversion, revenue per paying user and qualified play-through. Day 1 is in the
+# table above. Read 2026-11-12 (run 43126077718): the Query API answers ForwardD7Retention, PayingUsers,
+# AverageRevenuePerPayingUser (Robux after Roblox's share) and AveragePlayTimeMinutesPerDAU; it has no
+# PayerConversionRate, QualifiedPlayThroughRate or Revenue metric, so payer conversion is worked out here as paying
+# users over the day's players, and qualified play-through and the genre 50th and 90th lines stay Creator Hub only.
+say "### Benchmark items per day"
+say ""
+declare -A playtime=() d7=() payers=() arppu=()
+if query AveragePlayTimeMinutesPerDAU OneDay; then
+	for point in $(rows); do
+		playtime[${point%%=*}]=$(awk -v v="${point#*=}" 'BEGIN { printf "%.1f", v }')
+	done
+else
+	failed
+fi
+if query ForwardD7Retention OneDay; then
+	for point in $(rows); do
+		d7[${point%%=*}]=$(awk -v v="${point#*=}" 'BEGIN { if (v <= 1) v *= 100; printf "%.1f%%", v }')
+	done
+else
+	failed
+fi
+if query PayingUsers OneDay; then
+	for point in $(rows); do
+		payers[${point%%=*}]=${point#*=}
+	done
+else
+	failed
+fi
+if query AverageRevenuePerPayingUser OneDay; then
+	for point in $(rows); do
+		arppu[${point%%=*}]=${point#*=}
+	done
+else
+	failed
+fi
+# Payer conversion is an estimate: paying users over new plus returning players, which is right only when those two
+# add up to the day's players. Day 7 retention uses the same rule as pct(): a value of 1 or less is read as a fraction.
+say "| Day | Playtime per player (min) | Day 7 retention | Paying users | Payer conversion (est.) | Robux per paying user |"
+say "|---|---:|---:|---:|---:|---:|"
+for day in "${days[@]}"; do
+	conversion=$(awk -v p="${payers[$day]:-}" -v n="${newUsers[$day]:-0}" -v r="${returning[$day]:-0}" \
+		'BEGIN { if (p != "" && n + r > 0) printf "%.2f%%", p * 100 / (n + r); else print "-" }')
+	say "| $day | ${playtime[$day]:--} | ${d7[$day]:--} | ${payers[$day]:--} | $conversion | ${arppu[$day]:--} |"
+done
+say ""
+say "_Qualified play-through and the genre 50th and 90th lines are only on Creator Hub (Overview, Acquisition)._"
+say ""
 say "A dash is a day Roblox sent nothing for: no players, or not filled yet."
 say ""
 
@@ -483,6 +551,8 @@ say "### Audience"
 say ""
 say "Players are player-days: each day's players added up over the window. Day 1 retention and session length are"
 say "the average of the days Roblox filled. Roblox sends only the top values of a breakdown."
+say "Those averages are not weighted by players: a day with one player counts as much as a day with a hundred, so"
+say "check the per-day table before acting on a split."
 say ""
 pct() { awk -v v="$1" 'BEGIN { if (v == "") { print "-"; exit } if (v <= 1) v *= 100; printf "%.0f%%", v }'; }
 # byNew dim: $result's rows as "value<TAB>new<TAB>returning", the biggest first (DailyActiveUsers by dim,IsNewUser)
@@ -566,7 +636,7 @@ if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
 else
 	platformsLogged=(Phone Computer Tablet Console)
 fi
-for funnel in "$onboardingFunnel" "$firstHourFunnel"; do
+for funnel in "$onboardingFunnel" "$firstHourFunnel" "$arcadeFunnel"; do
 	say "#### $funnel by Platform"
 	say ""
 	declare -A cell=() firstOf=() label=()
@@ -672,6 +742,35 @@ fieldEvents=(
 	"session_feedback_ctx|CustomField1,CustomField2|CustomEventCount|Session feedback answers by furthest step (#3272)"
 	"session_feedback_ctx|CustomField1,CustomField3|CustomEventCount|Session feedback answers by cats owned (#3272)"
 	"session_feedback_where|CustomField1,CustomField2|CustomEventCount|Session feedback answers by screen at the time (#3272)"
+	"arcade_run|CustomField3|CustomEventCountUser|Cat Arcade: players by result (win, over) (#3378)"
+	"arcade_run|CustomField3|CustomEventCount|Cat Arcade: games by result (#3378)"
+	"arcade_run|Platform|CustomEventCountUser|Cat Arcade: players by device (#3378)"
+	"arcade_run|Platform|CustomEventAvgValue|Cat Arcade: average points a game, by device (#3378)"
+	"arcade_run|CustomField1|CustomEventCount|Cat Arcade: games by circles hit (#3378)"
+	"arcade_run|CustomField2|CustomEventCount|Cat Arcade: games by prizes paid (#3378)"
+	"upgrade_bought|CustomField2,CustomField3|CustomEventCountUser|Players buying each upgrade level (Swift Paws 5 levels, #3332)"
+	"arcade_quit|CustomField1|CustomEventCount|Cat Arcade: games left early, free or paid (#3378)"
+	"arcade_quit|CustomField1|CustomEventAvgValue|Cat Arcade: average circles hit before leaving early (#3378)"
+	"arcade_blocked|CustomField1|CustomEventCount|Cat Arcade: Start refused, by reason (closed, loading, running, busy, no_fish) (#3378)"
+	"arcade_blocked|CustomField1|CustomEventCountUser|Cat Arcade: players refused at Start, by reason (#3378)"
+	"arcade_board_top|CustomField1|CustomEventCountUser|Cat Arcade: players with a new best in the leaderboard's top, free or paid (#3378)"
+	"arcade_board_top|CustomField1|CustomEventAvgValue|Cat Arcade: average leaderboard place of a new best (#3378)"
+	"title_set|CustomField1|CustomEventCountUser|Titles tab: players picking each title, or off (#3378)"
+	"tackle_shield|Platform|CustomEventCount|Tackle shield: server minutes with a blocked tackle, by the tackler's device (#3378)"
+	"tackle_shield|Platform|CustomEventAvgValue|Tackle shield: average blocked tackles in such a minute (#3378)"
+	"stray_call|CustomField1|CustomEventCount|Stray calls: followed by a catch start within 10 s, yes or no (#3378)"
+	"stray_call|CustomField1|CustomEventCountUser|Stray calls: players by yes or no (#3378)"
+	"stray_call|CustomField1|CustomEventAvgValue|Stray calls: average call number (1 to 4), by yes or no (#3378)"
+	"event_join|CustomField1|CustomEventCountUser|Cafe Event: players in the event, by event id (#3423)"
+	"event_join|CustomField1,CustomField3|CustomEventCountUser|Cafe Event: players by how they joined (#3423)"
+	"event_join|CustomField1,Platform|CustomEventCountUser|Cafe Event: players by device (#3423)"
+	"event_money|CustomField1|CustomEventCountUser|Cafe Event: players the money boost paid, by event id (#3423)"
+	"event_money|CustomField1|CustomEventAvgValue|Cafe Event: average extra coins per player, by event id (#3423)"
+	"event_money|CustomField1,CustomField2|CustomEventAvgValue|Cafe Event: average extra coins by tier (#3423)"
+	"event_reward|CustomField1,CustomField2|CustomEventCountUser|Cafe Event: rewards given, first or again (#3423)"
+	"update_gift|CustomField1|CustomEventCountUser|Update gift: players who got the gift, by gift id (#3423)"
+	"event_shower|CustomField1|CustomEventCount|Cafe Event: shower cats logged, by event id (#3423)"
+	"event_shower|CustomField1,CustomField3|CustomEventCount|Cafe Event: shower cats by kind and outcome, e.g. mythical_caught (#3423)"
 	"session_start|CustomField1|CustomEventCountUser|Players by join source (organic, unknown, ad_<tag>)"
 	"session_start|CustomField3|CustomEventCountUser|Players by tier at join (store_v1 per Tier 2+ base)"
 	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"

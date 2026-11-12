@@ -1063,3 +1063,62 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | Every 2nd dot of the guide trail (every 4th on a phone) sends up 2 soft sparkles a second in the dot's own colour, so the path to the waiting stray reads from farther off; kept with Reduce Motion, off in Low performance | GuideTrail's `Dot` parts in the Workspace folder `CatCafeTutorialTrail` (UI's; GuideTrail.luau is untouched) |
+
+## Rich customers' money bags (#3360, 2026-11-11)
+
+`Effects/MoneyBag.luau`, numbers in `Presets.moneyBag`.
+
+| Look | Hook |
+|---|---|
+| A bag drops: 8 gold sparkles and a 3 stud gold ring on its spot. A bag is collected: 16 gold sparkles and a 5 stud ring, plus 14 gold confetti in your own cafe. A missed bag just goes. Cafes over 120 studs away are skipped; Reduce Motion keeps the sparkles only, Low performance halves the collect sparkles and drops the confetti | a new child of the plot's `RichBags` folder (drop) and its `Outcome` attribute turning "claimed" (collect), both set by RichTipService for display |
+
+## Mouse Dash pops (#3296, 2026-11-11)
+
+`Effects/MouseDashFx.luau`, numbers in `Presets.mouseDash`; drawn with the arcade's sparkles, rings and words on the `EffectsArcade` ScreenGui. Called by Gameplay-Engineer's `Screens/MouseDash`.
+
+| Look | Hook |
+|---|---|
+| A mouse pops up: one soft ring off its hole. The golden mouse: a gold ring and 4 sparkles. The napping kitten: a blush ring (the window draws its own "Zzz") | `MouseDashFx.pop(hole, kind)` |
+| A catch: mint sparkles and a ring; every 5th of a streak bigger and golden; the golden mouse the full gold burst. The window floats the "+1" and "+3" | `MouseDashFx.catch(hole, points, kind, streak)` |
+| A mouse ducks back in untapped: 6 warm dust blobs rise off the hole's rim and fade in 0.45 s | `MouseDashFx.escape(hole)` |
+| A wrong tap: the kitten a blush "mrow?"; an empty hole 3 dizzy stars and a little dust. No red, no shake | `MouseDashFx.wrong(hole, kind)` |
+| A heart pad: won back a pink ring, 6 sparkles and a pulse of the pad; lost a small grey puff | `MouseDashFx.heart(pad, gained)` |
+| The speed step: a blue ring and 6 sparkles round the score (the window's banner says "Faster!") | `MouseDashFx.faster(target, level)` |
+| A new best or a win: two gold rings, 12 confetti sparkles in gold, mint and pink, and the words given, if any | `MouseDashFx.best(target, words?)` |
+| A 0.22 s scale bounce on a UIScale named `FxScale` added to the object: "pop" for a rising mouse, "squash" for a caught mouse and the paw's bop, "pulse" for a refilled heart pad | `MouseDashFx.bounce(object, kind)` |
+
+Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. Low performance: half the sparkles and half the dust. Every pop plays once per call and nothing loops, so nothing flashes. The most on screen at once is 12 sparkles per pop (the phone's burst cap).
+
+## Update party banner (#3419, 2026-11-12)
+
+`Effects/EventBanner.luau`, numbers in `Presets.eventBanner`; its own `EffectsEventBanner` ScreenGui. Called by Gameplay-Engineer (the party's start in the UI's event follow, the gift from the `UpdateGiftNotice` remote); the words are Design-Agent's (#3420 section 5). Picture: Library `Motion-FX-Agent/VFX-Agent/launch-banner-3419/launch-banner-mock.png`.
+
+| Look | Hook |
+|---|---|
+| A cream card with a gold title strip and a dark outline drops in at the top middle with one small bounce (0.45 s), holds a title and up to 3 lines for 5 s, then slides away; a tap or click on the card sends it away at once. One shine sweep as it lands. It sells nothing and opens nothing | `EventBanner.show({ kind, title, lines, seconds? })` |
+| `"party"`: a pink "x2" badge and 12 confetti sparkles in gold, pink and mint from behind the card. Sound: the station fanfare | kind `"party"` |
+| `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
+| `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |
+| One banner at a time; up to 3 wait; a kind already showing or waiting is dropped. Reduce Motion: the card fades in and out in place with no shine, confetti or fish. Low performance: half the confetti and fish | `EventBanner.onShown(listener)` (Audio's sound) |
+
+## Mystic Pool first walk-up cutscene (#3430, 2026-11-12)
+
+`Effects/MysticIntroCut.luau`, numbers in `Presets.mysticIntro`. Gameplay-Engineer calls it (the walk-up, the once per account mark and what may block it are theirs) and opens the pool's menu in `onDone`.
+
+| Look | Hook |
+|---|---|
+| About 7 s, this player only: the camera eases (1 s) to a low front view of the pool and the moon arch; Sage Sorrel raises his staff and waves it while the liquid steps grey, green, blue, gold, purple with a bubble burst on each (3 s); a deep violet cat silhouette rises from the liquid in a soft sparkle over the card line "The Mystic Pool gives your cat a special trait" (2 s); the camera eases back (0.8 s). The colours always play in order; no roll, result, odds or price shows | `MysticIntroCut.play(station, onDone)`; `onDone(outcome, seconds)` with "watched" or "skipped" |
+| A tap, click, key or gamepad button skips it (0.25 s back); "Tap to skip" shows bottom right from the first frame. Controls and prompts are off only while it runs, with a 9 s cap | built in |
+| Reduce Motion: no camera move, wave or swirl; the card line alone for 2 s. Sound: the pool's step chime up the scale on each colour and its soft reveal on the rise | `MysticIntroCut.onBeat` (Audio) |
+
+## Cannon landing camera (#3444, 2026-11-12)
+
+`Effects/CannonGlide.luau` (`track`; `Logic.cannonHandBackAt`). The flight's camera follows the hop, the boom and the climb, waits under the clouds, and 0.1 s before the flyer drops back into sight puts the view behind the pad for one frame (clear of the cannon, #2779) and hands back to the game's camera. Nothing of ours moves, turns, zooms or shakes the camera as the feet land or when the server lets go; the player can turn the view on the way down. The landing's follow, zoom and push (#1081, #1131, #3328) are gone.
+
+## Loot card pop-in (#3464, 2026-11-12)
+
+`Effects/LootCardFx.luau`, numbers in `Presets.lootCard`. The UI builds the Rummage Bin's "You found:" card and calls this to move it.
+
+| Look | Hook |
+|---|---|
+| The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |

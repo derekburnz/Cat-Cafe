@@ -57,6 +57,35 @@ return function()
 		end)
 	end)
 
+	describe("CatCardLogic.trait (#3196)", function()
+		local Traits =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
+
+		it("shows nothing for no trait, a broken one or an id it does not know", function()
+			for _, value in { nil, {}, { id = 7 }, { id = "no_such_trait" }, "x" } :: { any } do
+				local title, lines = CatCardLogic.trait(value)
+				expect(title).never.to.be.ok()
+				expect(#lines).to.equal(0)
+			end
+		end)
+
+		it("gives every trait a title with its rarity's colour and one line per effect", function()
+			for _, def in Traits.LIST do
+				local title, lines = CatCardLogic.trait({ id = def.id })
+				expect(title).to.be.ok()
+				local hex = def.rarity.color:gsub("^#", "")
+				expect(title:find('<font color="#' .. hex .. '">●</font> ', 1, true)).to.equal(1)
+				expect(title:find(def.rarity.name .. " " .. def.name, 1, true)).to.be.ok()
+				expect(#lines).to.equal(#def.effects)
+				for _, line in lines do
+					expect(line:sub(1, 1)).to.equal("+")
+					-- fits the card: 232 px at 13 px text is about 38 letters
+					expect(#line <= 38).to.equal(true)
+				end
+			end
+		end)
+	end)
+
 	describe("CatCardLogic.role", function()
 		it("names the role and marks the favourite one", function()
 			local text, favourite = CatCardLogic.role("barista", "barista")

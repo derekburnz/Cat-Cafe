@@ -47,8 +47,9 @@ function Luck.sources(
 	if level > 0 then
 		add("statue", level * Config.LuckPerStatueLevel)
 	end
-	if Potions.running(profile, Potions.LUCKY, now) then
-		add("potion", Config.LuckyPotionLuck)
+	local potion = Potions.luck(profile, now) -- #3462: the biggest running lucky potion's
+	if potion > 0 then
+		add("potion", potion)
 	end
 	if luckyDay then
 		add("lucky_day", Config.LuckyDayPlayerLuck)

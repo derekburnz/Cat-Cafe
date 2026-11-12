@@ -31,11 +31,14 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
+local MysticPoolStationService = require(script.Parent.MysticPoolStationService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local YardSale = require(ReplicatedStorage.Shared.YardSale)
 
@@ -93,12 +96,27 @@ local function pondTimes(player: Player): number
 	return CampExtras.pondTimes(player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true)
 end
 
+-- #3196 (trait-station.md section 1): while the `traits` switch is on the Mystic Pool stands in the Picnic Basket's
+-- place, so the basket reads as shut (no strip, no "!", nothing to collect) and a collect is refused. Its save
+-- is left alone, so switching back gives the basket as it was. Only while the pool really stands: with the pool's
+-- art missing the basket stays in the world and keeps working.
+local function poolStands(): boolean
+	return LiveFlagService.on(Traits.FLAG) and MysticPoolStationService.standing()
+end
+
+local function shutPicnic(state: Types.CampExtrasState)
+	if poolStands() then
+		state.picnic = { open = false, held = 0 }
+	end
+end
+
 -- Settles the player's extras and sends CampExtrasState when it differs from the last one sent (or `force`).
 local function refresh(player: Player, profile: Types.PlayerProfile, force: boolean)
 	local now = os.time()
 	local tier = Economy.tier(profile)
 	CampExtras.settle(profile.campExtras, tier, now)
 	local state = CampExtras.view(profile.campExtras, tier, now, pondTimes(player))
+	shutPicnic(state)
 	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
 	local day = YardSale.dayAt(now)
 	YardSale.refresh(profile.yardDecor, day)
@@ -180,6 +198,15 @@ local function giveLostCat(
 	)
 end
 
+-- #3361: the warning when the spin bank is full and Lost and Found finds of spins wait for room.
+local function spinsFullLine(left: number): string
+	return string.format(
+		"Spins full: %d %s left at the Lost and Found. Spin, then claim the rest",
+		left,
+		if left == 1 then "find" else "finds"
+	)
+end
+
 local function refuse(player: Player, extraId: string, reason: string)
 	Net.toast(player, reason, "warn")
 	Net.fire(player, "CampExtraResult", extraId, false, {})
@@ -189,6 +216,10 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	local extraId = Guard.oneOf(rawExtraId, CampExtras.COLLECT)
 	local profile = DataService.get(player)
 	if extraId == nil or profile == nil then
+		return
+	end
+	if extraId == Traits.STATION_EXTRA and poolStands() then
+		refuse(player, extraId, "The Picnic Basket is now the Mystic Pool")
 		return
 	end
 	local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
@@ -223,10 +254,14 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		function(): number
 			return random:NextNumber()
 		end,
-		pondTimes(player)
+		pondTimes(player),
+		-- #3361: a find of spins is kept here when the bank is full, instead of being paid into it and lost
+		math.max(0, Config.SpinBankCap - profile.spin.banked)
 	)
+	local left = if extraId == "lostFound" then profile.campExtras.lostFound.held else 0
 	if prize == nil then
-		refuse(player, extraId, "Nothing yet")
+		refuse(player, extraId, if left > 0 then spinsFullLine(left) else "Nothing yet")
+		refresh(player, profile, true)
 		return
 	end
 	local paid = Payout.pay(player, profile, prize, "camp_extra")
@@ -238,11 +273,28 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		{ extraId, whatOf(prize, #lostCats), tostring(tier) }
 	)
 	Net.fire(player, "CampExtraResult", extraId, true, paid, prize)
+	-- #3361: each lost cat on its own, so an error on one still brings the others, and the sync and the fresh view
+	-- always go out (a skipped view left "3 to claim" on screen after a claim had taken them)
 	for _, rarity in lostCats do
-		giveLostCat(player, profile, rarity, tier)
+		local ok, err = pcall(function()
+			giveLostCat(player, profile, rarity, tier)
+		end)
+		if not ok then
+			warn(
+				string.format(
+					"[CampExtras] lost cat (%s) failed for user %d: %s",
+					rarity,
+					player.UserId,
+					tostring(err)
+				)
+			)
+		end
+	end
+	if left > 0 then
+		Net.toast(player, spinsFullLine(left), "warn")
 	end
 	CafeService.sync(player)
-	refresh(player, profile, false)
+	refresh(player, profile, true)
 end
 
 local function onBuyYardSale(player: Player, rawCrateId: unknown)
@@ -334,7 +386,9 @@ function CampExtraService.debugAway(
 	save.lostFound.at -= seconds
 	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
-	return CampExtras.view(save, Economy.tier(profile), os.time(), pondTimes(player))
+	local state = CampExtras.view(save, Economy.tier(profile), os.time(), pondTimes(player))
+	shutPicnic(state)
+	return state
 end
 
 return CampExtraService

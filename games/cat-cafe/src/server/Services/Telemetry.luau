@@ -1,5 +1,5 @@
 --!strict
--- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v2 and catch_attempt funnels (only
+-- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v3 and catch_attempt funnels (only
 -- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
 -- the feedback_v1 funnel (#2681: the slide-in faces ask, a face, a chip),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Clock = require(ReplicatedStorage.Shared.Clock)
@@ -36,6 +37,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventGate = require(script.Parent.Parent.Util.EventGate)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
+local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -111,6 +113,19 @@ export type CustomEvent =
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
 	-- #3062: a Cat Arcade game's end, value its points; circles, milestones paid (comma list or "none"), win or not
 	| "arcade_run"
+	-- #3296: a Mouse Dash game's end, value its points; hearts lost, seconds, free or paid, and how it ended (hearts,
+	-- win, quit)
+	| "mouse_dash_run"
+	| "arcade_quit" -- #3378: a game left early, value the circles hit; free or paid
+	| "arcade_blocked" -- #3378: Start refused, value 1; the reason (closed, loading, running, busy, no_fish)
+	| "arcade_board_top" -- #3378: a new best that stands in the leaderboard's top, value its place
+	| "title_set" -- #3378: a title (chat tag) picked in the Bag's Titles tab, value 1; the title id or "off"
+	-- #3378: tackles the join shield (#3342) stopped on this server in the last minute, value the count; logged on
+	-- the last such tackler
+	| "tackle_shield"
+	-- #3378: the waiting second-cat stray called the player over (#3022), value the call's number this visit; "yes"
+	-- when a catch started within STRAY_CALL_SECONDS of it, else "no"
+	| "stray_call"
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
@@ -161,6 +176,11 @@ export type CustomEvent =
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
+	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait or rescue), secret_caught (value the
+	-- tackles it took on the way home; catch, bait or rescue, coat) and secret_lost (value 1; area, despawn or tackle)
+	| "secret_spawn"
+	| "secret_caught"
+	| "secret_lost"
 	-- F87 (easy-start.md section 5): a new player leaving (their first UTC day of play, or tutorialStep below 5), value
 	-- the session's seconds; the furthest onboarding step, the session's bounce window, device. From the client: a
 	-- stuck nudge (tutorialStep, kind: pulse, help_shown or show_me) and where the intro was played from (tile, help)
@@ -377,6 +397,7 @@ local REPORTS = {
 	"screen",
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
+	"stray_call", -- #3378: the waiting stray's call played for this player; the value is the call's number (1 to 4)
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
 	"session_recap", -- #1920: the recap card is on screen (value true)
@@ -466,6 +487,9 @@ type Session = {
 	restartWarnings: number, -- #2720: restart warnings shown this session
 	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
 	stationOpens: { [string]: { count: number, values: { string } } }, -- #2910: station opens not logged yet
+	arcade: ArcadeFunnel.State, -- #3378: how far arcade_v1 got today
+	strayCall: number?, -- #3378: the number of the stray call still waiting for its catch start
+	strayCalls: number, -- #3378: stray calls counted this session
 	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
 	introChoices: number, -- F87: intro_choice events logged this session
@@ -550,6 +574,7 @@ end
 
 -- Sending ----------------------------------------------------------------------------------------------------
 
+-- FieldText.clean: Roblox drops a field that holds , " ' or / ("Event field CustomField02 is invalid")
 local function customFields(values: { string }): { [string]: any }?
 	if #values == 0 then
 		return nil
@@ -559,7 +584,7 @@ local function customFields(values: { string }): { [string]: any }?
 		if i > #FIELD_KEYS then
 			break
 		end
-		fields[FIELD_KEYS[i]] = value
+		fields[FIELD_KEYS[i]] = FieldText.clean(value)
 	end
 	return fields
 end
@@ -855,6 +880,17 @@ end
 
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)
 	local fields = values or {}
+	if studio and #fields > #FIELD_KEYS then
+		-- Roblox takes three custom fields; customFields drops the rest without a word (Review-QA on #3413)
+		warn(
+			string.format(
+				"[Telemetry] %s has %d fields, only the first %d are sent",
+				name,
+				#fields,
+				#FIELD_KEYS
+			)
+		)
+	end
 	remember(player, "custom", name, value, fields)
 	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
@@ -938,6 +974,35 @@ local function funnelStep(
 	end)
 end
 
+-- #3378: stray_call. The client reports each call of its own waiting stray (TelemetryReport "stray_call"); a catch
+-- that starts within STRAY_CALL_SECONDS answers it "yes", otherwise it is logged "no" when the time is up.
+local STRAY_CALL_SECONDS = 10
+local STRAY_CALLS_MOST = 8 -- a session; the client calls 4 times a stray at most
+
+local function strayCalled(player: Player, number: number)
+	local session = sessions[player]
+	if session == nil or session.strayCall ~= nil or session.strayCalls >= STRAY_CALLS_MOST then
+		return
+	end
+	session.strayCalls += 1
+	session.strayCall = number
+	task.delay(STRAY_CALL_SECONDS, function()
+		if sessions[player] == session and session.strayCall == number then
+			session.strayCall = nil
+			Telemetry.custom(player, "stray_call", number, { "no" })
+		end
+	end)
+end
+
+local function strayCallAnswered(player: Player)
+	local session = sessions[player]
+	local number = if session ~= nil then session.strayCall else nil
+	if session ~= nil and number ~= nil then
+		session.strayCall = nil
+		Telemetry.custom(player, "stray_call", number, { "yes" })
+	end
+end
+
 -- catch_attempt step 1 (F93, catch-rework.md section 5): a net swing landed on a stray. `method` is net, rescue or
 -- net_dropped (a knocked-loose cat).
 function Telemetry.swingHit(
@@ -948,6 +1013,7 @@ function Telemetry.swingHit(
 ): CatchFunnel
 	local funnel = { id = HttpService:GenerateGUID(false), values = { rarity, method, area } }
 	funnelStep(player, "catch_attempt", funnel.id, 1, "swing_hit", funnel.values)
+	strayCallAnswered(player) -- #3378
 	return funnel
 end
 
@@ -979,11 +1045,11 @@ function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
 end
 
 -- #2391: the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), one run per player with the user id as its session:
--- every step the account's play time has reached since the last one logged.
+-- every step the account's play time has reached since the last one logged. #3308: first_hour_v3, in firstHourV3Step.
 local function logFirstHour(player: Player, profile: Profile)
 	local state = profile.telemetry
-	for _, step in Onboarding.firstHourDue(state.firstHourStep, PlayTime.seconds(player, profile)) do
-		state.firstHourStep = step
+	for _, step in Onboarding.firstHourDue(state.firstHourV3Step, PlayTime.seconds(player, profile)) do
+		state.firstHourV3Step = step
 		local name = Onboarding.FIRST_HOUR_STEPS[step]
 		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, {})
 		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()
@@ -1040,6 +1106,50 @@ function Telemetry.pityStep(
 		name,
 		{ kind, area, minutesBand(PlayTime.seconds(player, profile)) }
 	)
+end
+
+-- #3378: arcade_v1 (shared/ArcadeFunnel), one run per player per UTC day. `step` is one of ArcadeFunnel's; `free`
+-- says whether the game is (or, before a game, would be) the day's free one. Returns nothing; an owner in test mode
+-- logs nothing (send).
+function Telemetry.arcadeStep(player: Player, profile: Profile, step: number, free: boolean)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local day = math.floor(os.time() / 86400)
+	local due = ArcadeFunnel.due(session.arcade, day, step)
+	if #due == 0 then
+		return
+	end
+	local values = {
+		if free then "free" else "paid",
+		session.device or "unknown",
+		minutesBand(PlayTime.seconds(player, profile)),
+	}
+	local key = ArcadeFunnel.key(day, player.UserId)
+	for _, s in due do
+		funnelStep(player, ArcadeFunnel.NAME, key, s, ArcadeFunnel.STEPS[s], values)
+	end
+end
+
+-- #3378: a game started. Logs arcade_started, and arcade_played_again for a second game that day (`freeUsed`: the
+-- day's free game was already used before this one, from the arcade save).
+function Telemetry.arcadeStarted(player: Player, profile: Profile, free: boolean, freeUsed: boolean)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local again = ArcadeFunnel.started(session.arcade, math.floor(os.time() / 86400), freeUsed)
+	Telemetry.arcadeStep(player, profile, ArcadeFunnel.STARTED, free)
+	if again then
+		Telemetry.arcadeStep(player, profile, ArcadeFunnel.PLAYED_AGAIN, free)
+	end
+end
+
+-- #3378: hears every counted station open (window, as StationOpens.WINDOWS), after it is counted.
+local stationListeners: { (player: Player, window: string) -> () } = {}
+function Telemetry.onStationOpen(listener: (player: Player, window: string) -> ())
+	table.insert(stationListeners, listener)
 end
 
 function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
@@ -1198,8 +1308,8 @@ end
 
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
-	if def.area == "spare" then
-		return
+	if def.area == "spare" or def.area == "secret" then
+		return -- #3470: a Secret cat is on no area's Index page
 	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then
@@ -1638,6 +1748,11 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
 		end
+	elseif name == "stray_call" then
+		local number = Guard.int(rawValue, 1, 4) -- #3378
+		if number ~= nil then
+			strayCalled(player, number)
+		end
 	elseif name == "stuck_nudge" then
 		local kind = Guard.oneOf(rawValue, NUDGE_KINDS)
 		if kind ~= nil then
@@ -1912,6 +2027,9 @@ local function onLoaded(player: Player, profile: Profile)
 		restartWarnings = 0,
 		swings = {},
 		stationOpens = {},
+		arcade = ArcadeFunnel.fresh(),
+		strayCall = nil,
+		strayCalls = 0,
 		origin = nil,
 		nudges = {},
 		introChoices = 0,
@@ -2343,6 +2461,14 @@ function Telemetry.start()
 	Net.on("StationOpened", function(player: Player, window: unknown, how: unknown)
 		if StationOpens.valid(window, how) then
 			Telemetry.stationOpen(player, window :: string, how :: string)
+			for _, listener in stationListeners do
+				local ok, err = pcall(function()
+					listener(player, window :: string)
+				end)
+				if not ok then
+					warn("[Telemetry] a station open listener failed: " .. tostring(err))
+				end
+			end
 		end
 	end)
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)

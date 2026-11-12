@@ -12,6 +12,7 @@
 --   sections(catalog, state, tab)        the areas to scroll through, each with its cats and counts
 --   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
+--   secret(catalog, state, tab)          the Secret page (#3470): nil until a Secret cat is found, then only those
 --   first(sections)                      the area the Index opens on: the first open one with cats still to find
 --                                        (never the Exclusive page)
 -- Pure: no Theme, so the cloud spec runner can load it.
@@ -46,9 +47,13 @@ IndexBook.FALLBACK_AREA = "alley"
 IndexBook.EXCLUSIVE = "exclusive" -- the catalog's area for every exclusive cat, and the page's id
 IndexBook.EXCLUSIVE_NAME = "Exclusive"
 IndexBook.EXCLUSIVE_NOTE = "Not counted in the Index"
+-- #3470: the Secret page, shown only to a player who has found a Secret cat, and only with the ones found
+IndexBook.SECRET = IndexRewards.SECRET_AREA
+IndexBook.SECRET_NAME = "Secret"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
+local SECRET = IndexBook.SECRET
 
 local function rank(rarity: string): number
 	return table.find(IndexBook.RARITIES, rarity) or 1
@@ -122,8 +127,8 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
 		local section: Section
-		if areaId == SPARE then
-			continue
+		if areaId == SPARE or areaId == SECRET then
+			continue -- #3470: a Secret cat leaves no trace in the book
 		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
 			if tab ~= "normal" then
 				continue -- never gold or rainbow
@@ -157,8 +162,35 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 	return list
 end
 
+-- The Secret page (#3470): nil until the player has found a Secret cat on this tab, then only the found ones, so the
+-- book never says how many there are. Like the Exclusive page it counts toward nothing and has no rewards.
+function IndexBook.secret(catalog: Types.Catalog, state: Types.PlayerState, tab: Tab): Section?
+	local found = IndexBook.found(state, tab)
+	local cats: { Types.CatDef } = {}
+	for _, def in catalog.cats do
+		if def.area == SECRET and found[def.id] then
+			table.insert(cats, def) -- catalog order
+		end
+	end
+	if #cats == 0 then
+		return nil
+	end
+	return {
+		id = SECRET,
+		name = IndexBook.SECRET_NAME,
+		tier = 0,
+		locked = false,
+		exclusive = true,
+		have = #cats,
+		total = #cats,
+		cats = cats,
+	}
+end
+
 function IndexBook.count(section: Section): string
-	if section.exclusive then
+	if section.id == SECRET then
+		return ("%d found"):format(section.have) -- never a total: how many Secrets exist stays unknown
+	elseif section.exclusive then
 		return ("%d / %d"):format(section.have, section.total) -- never "Complete!": it is not part of the Index
 	elseif section.locked then
 		return "Tier " .. tostring(section.tier)

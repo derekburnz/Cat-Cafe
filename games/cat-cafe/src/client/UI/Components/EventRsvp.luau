@@ -6,6 +6,7 @@
 -- to a player past the tutorial, never to one who already answered Roblox's prompt (Going or Not going), and nothing
 -- is locked behind it. Both Roblox calls fail quietly where they are not offered.
 --   EventRsvp.due(id, startsAt, now) -> boolean   pure: an Event is set and has not started
+--   EventRsvp.window(played) -> boolean            pure: the session is 3 to 10 minutes old (#3450)
 --   EventRsvp.status(id) -> string?                "none", "going" or "not_going", nil when Roblox cannot say
 --   EventRsvp.prompt(id) -> string?                Roblox's Notify Me prompt; its answer as status says, nil on failure
 --   EventRsvp.title(startsAt, now) -> string       the ask's words
@@ -21,13 +22,21 @@ local EventRsvp = {}
 EventRsvp.REMIND = "Remind me"
 EventRsvp.LATER = "Not now"
 EventRsvp.ASK_SECONDS = 20
-EventRsvp.SOON_SECONDS = 12 * 3600 -- an Event this close is "tonight"
+EventRsvp.SOON_SECONDS = 12 * 3600 -- an Event this close is "today"
+-- #3450 (Derek 2026-11-12: "prompt them 3-10minutes into the game"): the ask comes only in this part of a session,
+-- counted in seconds since the player's game started.
+EventRsvp.FROM_SECONDS = 180
+EventRsvp.UNTIL_SECONDS = 600
 
 function EventRsvp.due(id: unknown, startsAt: unknown, now: number): boolean
 	return type(id) == "string"
 		and string.match(id :: string, "^%d+$") ~= nil
 		and type(startsAt) == "number"
 		and now < (startsAt :: number)
+end
+
+function EventRsvp.window(played: number): boolean
+	return played >= EventRsvp.FROM_SECONDS and played <= EventRsvp.UNTIL_SECONDS
 end
 
 local function named(status: unknown): string?
@@ -56,7 +65,7 @@ function EventRsvp.prompt(id: string): string?
 end
 
 function EventRsvp.title(startsAt: number, now: number): string
-	local when = if startsAt - now <= EventRsvp.SOON_SECONDS then "tonight" else "soon"
+	local when = if startsAt - now <= EventRsvp.SOON_SECONDS then "today" else "soon"
 	return ("🔔 A new update is coming %s! Want a reminder when it lands?"):format(when)
 end
 

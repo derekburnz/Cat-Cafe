@@ -879,7 +879,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | UseLure | event | lureId, bowl? (#1161: 1 or 2, nil is 1; 2 only with the pass, `secondBowl` "on") | lure_bowl owned, that bowl empty, count above 0; from anywhere since 2026-10-28 (Derek: "should be able to add food to bait bowl through F menu"), no range check | consumes, rolls and saves `bait`, sets BaitReadyAt |
 | ResolveBait | event | choice (`tame` or `letgo`), bowl? (#1161: 1 or 2, nil is 1) | that bowl's bait exists and ready; from anywhere since #720 (Derek 2026-10-28: "tame or let go from anywhere"), no range check and no `BaitResolveRangeStuds` | tame adds the cat; both empty the bowl |
 | BuyDealerFood | event | lureId, window | v0.8 (section 8b): night, 12 studs of the cart, a dealer food, `window` is the current window, `bought[lureId]` below its rolled amount, affordable; the amount recomputed from the seed (S42) | count + 1, `bought[lureId]` + 1; sends DealerStock either way |
-| ClaimRichTip | event | none | own plot has an unexpired tip, 12 studs of RichTipAnchor | adds the tip, clears it |
+| ClaimRichTip | event | bagId: string? (#3360; nil is the front bag) | own plot has that unexpired money bag, 12 studs of the bag | adds the bag's amount, removes it, shows the next bag |
 | CollectTips | event | none | v0.8 (section 12): the caller stands inside their own plot, at least one pile waits; 2 per second | pays every waiting pile, clears them |
 | AnswerCollector | event | accept | v0.8 (section 12b): a live Collector visit on the caller's plot, 12 studs of him; on accept the cat is owned, resting and unlocked; 1 per second | trade: removes the cat, pays the offer; either way ends the visit |
 | OpenMysteryGift | event | none | v0.8 (section 12b): a gift waits on the caller's plot, 12 studs of it; 1 per second | pays the rolled gift, fires MysteryGiftResult |
@@ -970,7 +970,10 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | RichCheckSeconds | 60 | new | CafeService |
 | RichChance | 0.15 | new | CafeService |
 | RichTipSeconds | 45 | new | CafeService |
-| RichTipStaySeconds | 90 | new | CafeService |
+| RichBagSeconds | 180 | #3360, replaces RichTipStaySeconds (90) | RichTipService |
+| RichBagsMax | 3 | #3360 | RichTipService |
+| RichCustomerSitSeconds | 20 | #3360 | CustomerController |
+| RichBagFadeSeconds | 5 | #3360, the bag fades over its last seconds | CustomerController |
 | DealerRangeStuds | 12 | new | DealerService |
 | DealerWindowSeconds | 600 | new | DealerService, global stock window |
 | CatNameMaxLength | 20 | new | CafeService |
@@ -1007,7 +1010,7 @@ Changed or new in v0.5 (Gavin's round 2):
 | BumpCooldownSeconds | 8 | 12 | CatService (Shove) |
 | BumpSameTargetSeconds | 20 | 60 | CatService (Shove) |
 | ShoveTargetImmuneSeconds | 4 | new (v0.5.1, S45) | CatService (Shove) |
-| TackleShieldSeconds | 300 | new (#3342, Derek2 2026-11-11: a new join can't be tackled for its first 5 minutes; their own tackle ends it) | ShoveService, TackleBar chip |
+| TackleShieldSeconds | 900 | #3475 (Derek 2026-11-12: 15 minutes instead of 5); new in #3342 (Derek2 2026-11-11: a new join can't be tackled for its first minutes; their own tackle ends it) | ShoveService, TackleBar chip |
 | DealerSlotWeights | 50 / 33 / 14 / 3, one row | per tier | DealerService |
 
 Removed in v0.5: patience, StrayWarySeconds, StrayJumpBackStuds, CustomerSpawnSecondsNight.

@@ -130,9 +130,11 @@ local TAG = "FishMarket"
 local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
--- a pressed Open waits this long for its CrateResult before it can be pressed again (#2577: was 5 s; the server drops
--- an over-limit OpenCrate with no answer, so the button came back only when the 5 s ran out)
-local PENDING_SECONDS = 2.5
+-- a pressed Open waits this long for its CrateResult before it can be pressed again (#2577: was 5 s, then 2.5 s while
+-- the server dropped an over-limit OpenCrate with no answer). #3362: every OpenCrate is answered now, a refusal at
+-- once, so this only runs out on a lagging server; 6 s lets a slow answer land first. A result after the wait still
+-- plays its reveal (result() does not check the wait).
+local PENDING_SECONDS = 6
 -- #2577: after a wait runs out with no answer, the button reads "Try again" this long
 local RETRY_SECONDS = 3
 -- #2290: a Buy waits this long after it is sent; its answer (a sync) ends the wait sooner, and a

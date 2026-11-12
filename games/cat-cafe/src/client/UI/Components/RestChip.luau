@@ -25,7 +25,7 @@ RestChip.__index = RestChip
 RestChip.NAME = "RestChip"
 RestChip.HEIGHT = 28
 local FADE = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
-local Z_ROOM = 22 -- px kept free right of the words for the z's
+local Z_ROOM = 28 -- px kept free right of the words for the z's
 
 export type RestChip = {
 	frame: CanvasGroup,
@@ -57,8 +57,8 @@ function RestChip.new(parent: Instance): RestChip
 			Name = "Z" .. i,
 			AnchorPoint = Vector2.new(0, 1),
 			BackgroundTransparency = 1,
-			Position = UDim2.new(0, 2, 1, -4),
-			Size = UDim2.fromOffset(12, 12),
+			Position = UDim2.new(0, 2, 1, -RestChipLogic.Z_FLOOR),
+			Size = UDim2.fromOffset(RestChipLogic.Z_BOX, RestChipLogic.Z_BOX),
 			FontFace = Theme.fonts.display,
 			Text = "z",
 			TextColor3 = Theme.colors.ink,
@@ -104,7 +104,7 @@ function RestChip._drift(self: any)
 		-- one still z, the others out of sight
 		for i, label in zs do
 			label.TextTransparency = if i == 1 then 0.2 else 1
-			label.Position = UDim2.new(0, 4, 1, -8)
+			label.Position = UDim2.new(0, 3, 1, -6)
 			label.TextSize = RestChipLogic.Z_SMALL + 2
 		end
 		return
@@ -112,7 +112,7 @@ function RestChip._drift(self: any)
 	local t = os.clock() - self._since
 	for i, label in zs do
 		local x, y, size, gone = RestChipLogic.z(i, t)
-		label.Position = UDim2.new(0, 2 + x, 1, -4 + y)
+		label.Position = UDim2.new(0, 2 + x, 1, -RestChipLogic.Z_FLOOR + y)
 		label.TextSize = size
 		label.TextTransparency = gone
 	end

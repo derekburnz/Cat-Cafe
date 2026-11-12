@@ -39,6 +39,13 @@ return function()
 			expect(endGone > 0.99).to.equal(true)
 		end)
 
+		it("keeps every z inside a 28 px chip", function()
+			local top = RestChipLogic.Z_FLOOR + RestChipLogic.Z_BOX + RestChipLogic.Z_RISE
+			expect(top <= 28).to.equal(true)
+			expect(RestChipLogic.Z_BIG <= RestChipLogic.Z_BOX).to.equal(true)
+			expect(RestChipLogic.Z_SMALL >= 12).to.equal(true)
+		end)
+
 		it("is slow: a new z no more than once a second", function()
 			expect(RestChipLogic.Z_SECONDS / RestChipLogic.Z_COUNT >= 1).to.equal(true)
 		end)

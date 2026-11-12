@@ -6,9 +6,11 @@ local RestChipLogic = {}
 
 RestChipLogic.Z_COUNT = 3
 RestChipLogic.Z_SECONDS = 3.6 -- one z's whole drift; three take turns, so a new one starts every 1.2 s
-RestChipLogic.Z_RISE = 16 -- px up
+RestChipLogic.Z_RISE = 10 -- px up: with Z_BOX it keeps a z inside the 28 px chip, which clips what leaves it
 RestChipLogic.Z_SIDE = 9 -- px to the right
-RestChipLogic.Z_SMALL, RestChipLogic.Z_BIG = 10, 15 -- text size at the start and the end
+RestChipLogic.Z_SMALL, RestChipLogic.Z_BIG = 12, 15 -- text size at the start and the end (12: the least that reads on a phone)
+RestChipLogic.Z_BOX = 16 -- px: a z's label, tall enough for the biggest size
+RestChipLogic.Z_FLOOR = 2 -- px the label sits above the chip's bottom edge
 
 -- The chip's words. "2x" is only shown while it is true (design section 5): during a 2x party the cat pay is not
 -- doubled again, so the chip drops the number.

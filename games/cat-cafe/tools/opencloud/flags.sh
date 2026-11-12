@@ -205,7 +205,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | menuFamily) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -216,7 +216,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit) write "$2" false ;;
+	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | menuFamily) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

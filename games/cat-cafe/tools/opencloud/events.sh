@@ -287,6 +287,10 @@ roblox)
 roblox-create)
 	[ $# -ge 6 ] && [ $# -le 8 ] || usage
 	[ -n "$2" ] && [ -n "$3" ] || refuse "title and subtitle are required"
+	# Roblox answers InvalidTitleOrDescription for a long name: Creator Hub refused 26 and 36 characters and took 24
+	# (2026-11-12, #3424). The description may be long (619 characters were accepted).
+	[ "${#2}" -le 25 ] || refuse "the title is ${#2} characters; Roblox takes about 25 at most"
+	[ "${#3}" -le 25 ] || refuse "the subtitle is ${#3} characters; Roblox takes about 25 at most"
 	data=$(event_body "$2" "$3" "$4" "$5" "$6" "${7:-}" "${8:-}")
 	data=$(jq -c --argjson place "${PLACE_ID:-119569792798199}" '. + {visibility: "public", placeId: $place}' <<<"$data")
 	echo "Creating: $data"

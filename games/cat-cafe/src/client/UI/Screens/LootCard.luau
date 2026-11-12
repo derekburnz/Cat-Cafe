@@ -11,13 +11,12 @@
 
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LootCardFx = require(script.Parent.Parent.Parent.Effects.LootCardFx)
 local LootCardLogic = require(script.Parent.Parent.Components.LootCardLogic)
-local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
-local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type LootCard = {
 	screenGui: ScreenGui,
@@ -202,23 +201,17 @@ function LootCard.show(self: any, win: unknown)
 	local holder: Frame = self._rows
 	holder.Size = UDim2.new(1, -PAD * 2, 0, tall)
 	card.Size = UDim2.fromOffset(CARD_W, PAD - 4 + TITLE_H + 2 + tall + PAD)
-	local still = Motion.reduced()
+	local frames: { GuiObject } = {}
+	local icons: { [number]: GuiObject } = {}
 	for index, row in rows do
 		local frame = self:_row(index, row)
-		if not still and index > 1 then
-			-- the rows land one after the other
-			frame.Visible = false
-			task.delay((index - 1) * LootCardLogic.ROW_GAP_SECONDS, function()
-				if self._token == token and frame.Parent ~= nil then
-					frame.Visible = true
-				end
-			end)
-		end
+		frames[index] = frame
+		icons[index] = (self._icons[index] :: ItemIcon.ItemIcon).frame
 	end
 	card.Visible = true
-	if not still then
-		Tween.popIn(card, 0.8)
-	end
+	-- the card pops in and the rows land one after the other, each icon with a small bounce (Effects/LootCardFx,
+	-- Motion-FX-Agent's; with Reduce Motion it shows everything at once)
+	LootCardFx.play(card, frames, icons)
 	task.delay(LootCardLogic.SECONDS, function()
 		if self._token == token then
 			self:hide()

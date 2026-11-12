@@ -2972,6 +2972,10 @@ local SCENES = {
 		assert((one:FindFirstChild("Name") :: TextLabel).Text == "Tuna", "uigate: the loot card's first row is not Tuna (#3464)")
 		assert((one:FindFirstChild("Amount") :: TextLabel).Text == "x2", "uigate: the loot card's Tuna row does not read x2 (#3464)")
 		assert((two:FindFirstChild("Amount") :: TextLabel).Text == "+10", "uigate: the loot card's golden fish row does not read +10 (#3464)")
+		-- the pop-in (Effects/LootCardFx) starts the card a little small and lands the rows in turn; once it has
+		-- played out the card is at full size with both rows up
+		UIShim.advance(1)
+		assert(one.Visible and two.Visible, "uigate: a loot card row is still hidden after the pop-in (#3464)")
 		assert(one.AbsoluteSize.Y >= 36, "uigate: a loot card row is under 36 px tall (#3464)")
 	end },
 	{ "LootCardGold", function()

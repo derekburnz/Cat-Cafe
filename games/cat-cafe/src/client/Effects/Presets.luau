@@ -2572,7 +2572,8 @@ Presets.marketCrate = {
 -- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
 -- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every
 -- `period` seconds and `spread` laps along the cat; a part keeps `least` to all of its band's brightness by how light
--- its own colour was, so stripes still show. Only the `pieces` named here change (not the eyes, props or outfits),
+-- its own colour was against the body's, so stripes still show, and a mark lighter than the body is up to `lift`
+-- paler. Only the `pieces` named here change (not the eyes, props or outfits),
 -- and in them a part shorter than `keepShare` of its piece's biggest part (the nose, the mouth, the blush) keeps its
 -- colour. The nearest budget.rainbowCats within `within` studs (no more than Config.RainbowAnimateMax) flow at `hz`
 -- updates a second, glow (`glow`) and drop `trail` sparkles while they move faster than `moving` studs a second; the
@@ -2591,6 +2592,7 @@ Presets.rainbow = {
 	period = 3,
 	spread = 1,
 	least = 0.7,
+	lift = 0.5, -- the most a mark lighter than the body is lifted toward white
 	keepShare = 0.2,
 	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
 	within = 120,

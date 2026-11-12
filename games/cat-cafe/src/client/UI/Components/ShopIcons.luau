@@ -70,9 +70,9 @@ local IDS: { [string]: string } = {
 	-- #3330 (Derek 2026-11-12: "ok"): Swift Paws' own picture, the running cat
 	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_SwiftPaws.png); it was the paw cookie dish as a stand-in
 	Perk_SwiftPaws = "rbxassetid://79732833265075",
-	-- #3298: the luck clover (Icon_Clean_Clover) as a stand-in until the Lucky Charm's own picture
-	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_LuckyCharm.png) is uploaded
-	Perk_LuckyCharm = "rbxassetid://106109471292317",
+	-- #3298: the Lucky Charm's own picture, the clover charm with a gold paw coin
+	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_LuckyCharm.png, upload run 43189985202); it was the luck clover
+	Perk_LuckyCharm = "rbxassetid://137010775246897",
 	Coins = "rbxassetid://136732540501959",
 	Spin = "rbxassetid://137218266791913", -- the 8-slice wheel (#1603, Tools-Agent 11-05); was 109715715479737
 	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)
@@ -127,6 +127,9 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Sardines = "rbxassetid://77462554026769",
 	Icon_Clean_MoonMilk = "rbxassetid://109614940712323",
 	Icon_Clean_StarTreat = "rbxassetid://109199304319470",
+	-- #3462: the Day Cart's own two baits (upload run 43189985202, 11-12)
+	Icon_Clean_HoneyCream = "rbxassetid://123524050779950",
+	Icon_Clean_CometTreat = "rbxassetid://80411294789891",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
 	Icon_Clean_Kibble = "rbxassetid://73553280032864", -- its own bowl of kibble (run 41851955780, 11-04)
 	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
@@ -228,6 +231,10 @@ local IDS: { [string]: string } = {
 	Icon_Flask_QuickBait = "rbxassetid://125904802830743",
 	Icon_Flask_BigTip = "rbxassetid://134020459369552",
 	Icon_Flask_GoldRush = "rbxassetid://111453568394621",
+	-- #3462: the Day Cart's three top potions (upload run 43189985202, 11-12)
+	Icon_Flask_BigLucky = "rbxassetid://134852143844550",
+	Icon_Flask_BigGoldRush = "rbxassetid://83653025631059",
+	Icon_Flask_MegaTip = "rbxassetid://116956200423881",
 	-- #1191 / #1186: the shop-only cats on their Store cards (upload run from main dee66576, 11-05)
 	Icon_ShopCat_Sprinkles = "rbxassetid://132934776901111",
 	Icon_ShopCat_DuchessMarzipan = "rbxassetid://120092810809619",
@@ -501,8 +508,8 @@ function ShopIcons.potionAll(potionId: string?): { string }
 			table.insert(list, id)
 		end
 	end
-	-- #3462: a Tier 6 potion wears its smaller kind's bottles after its own, so it has a picture before its flask is
-	-- uploaded
+	-- #3462: a Tier 6 potion wears its smaller kind's bottles after its own flask, so it still has a picture if the
+	-- flask does not load
 	local standIn = POTION_STAND_INS[potionId]
 	if standIn ~= nil then
 		for _, id in ShopIcons.potionAll(standIn) do
@@ -592,7 +599,7 @@ function ShopIcons.catFood(foodId: string?): string?
 	return IDS.Icon_Clean_StarTreat
 end
 
--- #3462: the Day Cart's own baits borrow the dealer's two best pictures until theirs are drawn
+-- #3462: the Day Cart's own baits have their own pictures now; the dealer's two best stay as the fallback key
 local FOOD_STAND_INS: { [string]: string } =
 	{ honey_cream = "moon_milk", comet_treat = "star_treat" }
 

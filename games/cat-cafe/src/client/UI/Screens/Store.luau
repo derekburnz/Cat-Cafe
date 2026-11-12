@@ -805,7 +805,7 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		button.instance.Visible = visibleTabs[id] == true
 	end
 	-- Featured
-	local featured = StoreLogic.featured(rows)
+	local featured = StoreLogic.featured(rows, prices) -- #3562: off sale cards never lead
 	local hero = self._cards.hero or self:_makeCard("hero", "hero", self._featured, 0)
 	self:_fill(hero, featured.hero)
 	for index = 1, StoreLogic.PICKS do

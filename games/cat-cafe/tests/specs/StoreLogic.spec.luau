@@ -315,25 +315,25 @@ return function()
 		end)
 
 		it(
-			"features the Starter Bundle, then the King Cat Pack, the ladder and Long Nap (#2850)",
+			"features the Starter Bundle, then 2x Money, the Royal Cat and the King Cat Pack (#3562)",
 			function()
 				local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
 				expect(featured.hero.key).to.equal("starterBundle")
 				expect(featured.hero.passId).to.equal(40)
-				expect(keys(featured.picks)).to.equal("kingPack,money,longNap")
+				expect(keys(featured.picks)).to.equal("money,royalCat,kingPack")
 			end
 		)
 
 		it(
-			"swaps the hero to the King Cat Pack once the bundle is bought, with the Royal Cat as a pick",
+			"swaps the hero to the Royal Cat once the bundle is bought, with the King Cat Pack as a pick",
 			function()
 				local bought: any = table.clone(view)
 				bought.starterBought = true
 				local rows = StoreLogic.rows(config, {}, nil, bought)
 				expect(keys(StoreLogic.tabRows(rows, "cats"))).to.equal("royalCat,kingPack")
 				local featured = StoreLogic.featured(rows)
-				expect(featured.hero.key).to.equal("kingPack")
-				expect(keys(featured.picks)).to.equal("money,longNap,royalCat")
+				expect(featured.hero.key).to.equal("royalCat")
+				expect(keys(featured.picks)).to.equal("money,kingPack,vip")
 			end
 		)
 
@@ -437,10 +437,10 @@ return function()
 				expect(card.effect).to.equal(
 					"Season 1 paid track:\nSeason cat Maple Muffin and 15 potions"
 				)
-				-- #1823 (store-layout-v2.md §1): after the Starter Bundle the King Cat bundle is the hero, and the season's
-				-- pass leads the picks (never with a restarting timer)
-				expect(StoreLogic.featured(rows).hero.key).to.equal("kingPack")
-				expect(StoreLogic.featured(rows).picks[1].key).to.equal("cafePass")
+				-- #3562: after the Starter Bundle the Royal Cat is the hero and the ladder leads the picks; the season's
+				-- pass comes after the cat bundles and the passes that bring more cats (never with a restarting timer)
+				expect(StoreLogic.featured(rows).hero.key).to.equal("royalCat")
+				expect(StoreLogic.featured(rows).picks[1].key).to.equal("money")
 				expect(StoreLogic.button(card, { robux = 299, forSale = true }).text).to.equal(
 					"R$299"
 				)
@@ -451,8 +451,8 @@ return function()
 					"Yours"
 				)
 				local after = StoreLogic.featured(StoreLogic.rows(passConfig, {}, nil, running))
-				expect(after.hero.key).to.equal("kingPack")
-				expect(after.picks[1].key).to.equal("money") -- bought: it gives its spot to one still for sale
+				expect(after.hero.key).to.equal("royalCat")
+				expect(after.picks[1].key).to.equal("money")
 				-- a closed season (0) hides it again
 				running.cafePass.season = 0
 				expect(
@@ -479,8 +479,8 @@ return function()
 					{ products = view.products, have = {} }
 				)
 				local featured = StoreLogic.featured(rows)
-				expect(featured.hero.key).to.equal("kingPack")
-				expect(keys(featured.picks)).to.equal("money,royalCat,vip")
+				expect(featured.hero.key).to.equal("royalCat")
+				expect(keys(featured.picks)).to.equal("money,kingPack,vip")
 			end
 		)
 
@@ -516,7 +516,7 @@ return function()
 			end
 
 			it(
-				"puts the King Cat Pack, the Second Bait Bowl and the Cafe Pass first (#2850)",
+				"puts the King Cat Pack, the Second Bait Bowl and the Extra Slot first once the ladder is done (#3562)",
 				function()
 					local rows = store(false)
 					rows[11] = row("kingPack", false)
@@ -524,7 +524,7 @@ return function()
 					table.insert(rows, row("starterBundle", false, true))
 					local featured = StoreLogic.featured(rows)
 					expect(featured.hero.key).to.equal("starterBundle")
-					expect(keys(featured.picks)).to.equal("kingPack,secondBowl,cafePass")
+					expect(keys(featured.picks)).to.equal("kingPack,secondBowl,extraSlot")
 				end
 			)
 
@@ -540,13 +540,63 @@ return function()
 				expect(keys(StoreLogic.featured(rows).picks)).to.equal("uniforms,potionXS,potionS")
 			end)
 
+			it(
+				"leads with the next rung and the cat bundles after the first buys (#3562)",
+				function()
+					-- the Starter Bundle and 2x Money bought: the money card is now the 3x rung, not owned
+					local rows = store(false)
+					rows[1] = row("money", false)
+					rows[9] = row("royalCat", false)
+					rows[11] = row("kingPack", false)
+					local featured = StoreLogic.featured(rows)
+					expect(featured.hero.key).to.equal("royalCat")
+					expect(keys(featured.picks)).to.equal("money,kingPack,secondBowl")
+				end
+			)
+
+			it(
+				"shows no potion pack while a pass or another product can be bought (#3562)",
+				function()
+					local rows = store(true)
+					table.insert(rows, row("thankYou", false, true)) -- a product that is not a potion pack
+					expect(keys(StoreLogic.featured(rows).picks)).to.equal(
+						"thankYou,potionXS,potionS"
+					)
+					rows[7] = row("uniforms", false)
+					expect(keys(StoreLogic.featured(rows).picks)).to.equal(
+						"uniforms,thankYou,potionXS"
+					)
+				end
+			)
+
+			it("passes over a card that is off sale or has no price (#3562)", function()
+				local rows = store(false)
+				for index, entry in rows do
+					entry.passId = index
+				end
+				rows[1] = row("money", false)
+				rows[1].passId = 1
+				rows[9] = row("royalCat", false)
+				rows[9].passId = 9
+				local prices: { [number]: any } = {
+					[1] = { forSale = false }, -- 2x Money off sale
+					[9] = { robux = 199, forSale = true },
+					[10] = { forSale = true }, -- the Second Bait Bowl has no price
+				}
+				local featured = StoreLogic.featured(rows, prices)
+				expect(featured.hero.key).to.equal("royalCat")
+				-- a price still loading (the Extra Slot, VIP) does not count as off sale
+				expect(keys(featured.picks)).to.equal("extraSlot,vip,uniforms")
+				-- with nothing else left, a passed over card may still fill the tab
+				local few = { rows[1], rows[9] }
+				expect(keys(StoreLogic.featured(few, prices).picks)).to.equal("money")
+			end)
+
 			it("still gets three picks with every pass owned: potions, then Owned", function()
 				local rows = store(true)
 				table.remove(rows, 6) -- no Steady Paw card
 				table.remove(rows, 5) -- nor the S pack
-				expect(keys(StoreLogic.featured(rows).picks)).to.equal(
-					"potionXS,secondBowl,cafePass"
-				)
+				expect(keys(StoreLogic.featured(rows).picks)).to.equal("potionXS,money,kingPack")
 			end)
 		end)
 
@@ -568,7 +618,7 @@ return function()
 				owned("kingPack"),
 			})
 			expect(featured.hero).to.be.ok()
-			expect(featured.hero.key).to.equal("kingPack")
+			expect(featured.hero.key).to.equal("royalCat")
 		end)
 
 		it("has no hero and no picks in an empty Store", function()

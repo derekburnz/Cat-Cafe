@@ -521,6 +521,8 @@ end
 local padSince: number? = nil
 local padUsed = false
 local padHold = 0 -- os.clock() before which the pad starts nothing (#3683: the wait after a miss)
+local padRetries = 0 -- tries the pad started by itself after a miss, this visit to the ring
+local PAD_RETRIES = 2
 local PAD_RETRY_SLACK = 0.5 -- seconds past the server's wait, so the pad's try is never refused as too soon
 
 -- The pad waits for the tutorial: a new player who stops on it at the first landing is not handed a bar in the
@@ -570,8 +572,12 @@ local function padStep()
 			moved = true
 			-- #3683: with the click prompt silenced the pad is the only way in, so a finished bar arms it again
 			-- once the server's wait after a miss is over; a player who stays on the ring gets the next try
-			padUsed = false
-			padHold = os.clock() + Config.BinMissRetrySeconds + PAD_RETRY_SLACK
+			-- at most PAD_RETRIES by itself a visit, so a player standing idle on the ring is not handed bars for ever
+			if padRetries < PAD_RETRIES then
+				padRetries += 1
+				padUsed = false
+				padHold = os.clock() + Config.BinMissRetrySeconds + PAD_RETRY_SLACK
+			end
 		end
 	end
 	if moved then
@@ -614,6 +620,7 @@ local function padStep()
 	if not inside then
 		padSince = nil
 		padUsed = false
+		padRetries = 0
 		return
 	end
 	local now = os.clock()

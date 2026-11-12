@@ -56,6 +56,7 @@ local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
+local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
 local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
@@ -197,6 +198,12 @@ export type CustomEvent =
 	| "first_bait_wait"
 	-- #2774: an onboarding step reached, value the account's seconds of play then; the step name
 	| "step_time"
+	-- #3530 (shared/StepGaps): the later step of a gap reached, value the seconds since its first step (0 when not
+	-- known); the gap, the bucket (under_15s, 15_60s, 60_120s, over_120s, earlier_visit or no_start)
+	| "step_gap"
+	-- #3530: beside quit_state, value the session's seconds; kinds of cat ("0" to "5"), coins as a share of Tier 2's
+	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit)
+	| "quit_have"
 	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
 	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
 	| "step_ready"
@@ -526,6 +533,7 @@ type Session = {
 	healthMem: string?, -- #3098 P2: the memory bucket the client reported, for health_check
 	healthLogged: boolean, -- #3098 P2: health_check logged this session
 	introShot: number, -- #3098 P1b: the furthest intro shot the client reported this session (0 none)
+	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -749,7 +757,28 @@ function Telemetry.onboarding(
 	stepName: Onboarding.StepName,
 	values: { string }?
 )
-	for _, name in Onboarding.reach(profile.telemetry, stepName) do
+	-- #3530: the gaps that end here, read before the step moves anything
+	local session = sessions[player]
+	local fresh = not Onboarding.reached(profile.telemetry, stepName)
+	local gaps: { { gap: StepGaps.Gap, startReached: boolean } } = {}
+	if fresh then
+		for _, gap in StepGaps.endingAt(stepName) do
+			table.insert(gaps, {
+				gap = gap,
+				startReached = Onboarding.reached(
+					profile.telemetry,
+					gap.from :: Onboarding.StepName
+				),
+			})
+		end
+	end
+	local reach = Onboarding.reachDetail(profile.telemetry, stepName)
+	-- #3530: a step put on hold is timed now, when it happened (first_bait_resolved used to wait for the rescue
+	-- steps in front of it and read as a 172 second bait wait); it is not timed again when the funnel lets it go
+	for _, name in reach.held do
+		Telemetry.stepTime(player, profile, name)
+	end
+	for _, name in reach.log do
 		local step = Onboarding.index(name)
 		local fields = if name == stepName and values ~= nil then values else {}
 		remember(player, "onboarding", name, step, fields)
@@ -764,7 +793,9 @@ function Telemetry.onboarding(
 			)
 		end)
 		-- #2774 (Derek2: "setup funnels"): when in the account's play the step came, once per step
-		Telemetry.stepTime(player, profile, name)
+		if not reach.released[name] then
+			Telemetry.stepTime(player, profile, name)
+		end
 		for _, listener in stepListeners do
 			local ok, err = pcall(function()
 				listener(player, name)
@@ -772,6 +803,17 @@ function Telemetry.onboarding(
 			if not ok then
 				warn("[Telemetry] step listener: " .. tostring(err))
 			end
+		end
+	end
+	if fresh and session ~= nil then
+		local now = os.clock()
+		for _, entry in gaps do
+			local seconds, bucket =
+				StepGaps.measure(entry.startReached, session.stepClock[entry.gap.from], now)
+			Telemetry.custom(player, "step_gap", seconds, { entry.gap.name, bucket })
+		end
+		if StepGaps.marks(stepName) then
+			session.stepClock[stepName] = now
 		end
 	end
 end
@@ -2053,6 +2095,7 @@ local function onLoaded(player: Player, profile: Profile)
 		feedbackAsks = 0,
 		feedbackEnds = 0,
 		readyLogged = {},
+		stepClock = {},
 		stallStep = profile.telemetry.onboardingStep,
 		stallSince = os.clock(),
 		stallLogged = {},
@@ -2289,6 +2332,19 @@ local function onRelease(player: Player, profile: Profile)
 			where,
 			(if carrying then "carry" else "empty") .. (if baiting then " bait" else " nobait"),
 		})
+		-- #3530: what they had: short of cats or short of money, and whether they could have ranked up
+		local tier2 = Catalog.getTier(2)
+		Telemetry.custom(
+			player,
+			"quit_have",
+			played,
+			StepGaps.quitFields(
+				Economy.rankUpCatCount(profile.collection),
+				profile.coins,
+				if tier2 ~= nil then tier2.cost else 0,
+				Economy.rankUpBlocker(profile) == nil
+			)
+		)
 		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
 		local buy = FirstFive.nextBuy(profile.telemetry)
 		-- #3098 P1b: the exact scene they left in

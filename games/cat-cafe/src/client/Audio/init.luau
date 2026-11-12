@@ -27,6 +27,7 @@ local EventBanner = require(script.Parent.Effects.EventBanner)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
+local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
@@ -2214,6 +2215,19 @@ local function followBinRoll()
 	end)
 end
 
+-- #3651: petting a cat: a soft heart chime and a short purr, both in 3D at the cat.
+local function followPetCat()
+	PetCat.onBeat(function(beat, at)
+		local cue, loop, seconds = Logic.petCatCue(beat)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+		if loop ~= nil then
+			task.delay(seconds, Audio.loop(loop, at))
+		end
+	end)
+end
+
 -- #3430: the pool's first walk-up cutscene, on the pool's own chimes (in 3D at the pool, the rise flat).
 local function followPoolIntro()
 	MysticIntroCut.onBeat(function(beat, step, at)
@@ -2247,6 +2261,7 @@ function Audio.start()
 	followPoolIntro()
 	followBinRoll()
 	followTrampoline()
+	followPetCat()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
 end

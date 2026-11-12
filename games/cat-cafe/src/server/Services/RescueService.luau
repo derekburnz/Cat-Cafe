@@ -1017,6 +1017,17 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 	end)
 end
 
+-- #2912 (StuckGoalService): where the cat in `areaId`'s starter trap is, or nil while the trap is empty or the area
+-- has none.
+function RescueService.starterCat(areaId: string): Vector3?
+	local spotId = starterSpots[areaId]
+	local entry = if spotId ~= nil then stuckCats[spotId] else nil
+	if entry == nil or not entry.alive then
+		return nil
+	end
+	return entry.spot.Position
+end
+
 -- #3050: registers a bar of another kind under its spot id (BinService, at start).
 function RescueService.addBar(spotId: string, bar: OtherBar)
 	otherBars[spotId] = bar

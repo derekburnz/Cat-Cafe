@@ -60,17 +60,20 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 	if hint ~= nil and hint ~= "" then
 		Create("TextLabel", {
 			Name = "Hint",
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 1, -EdgeShadeLogic.HINT_BOTTOM),
-			Size = UDim2.fromOffset(240, 24),
-			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, EdgeShadeLogic.HINT_AT),
+			Size = UDim2.fromOffset(0, 30),
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundColor3 = Color3.new(0, 0, 0),
+			BackgroundTransparency = EdgeShadeLogic.HINT_FILL,
 			FontFace = Theme.fonts.body,
 			TextSize = EdgeShadeLogic.HINT_SIZE,
 			TextColor3 = Color3.new(1, 1, 1),
-			TextStrokeColor3 = Color3.new(0, 0, 0),
-			TextStrokeTransparency = 0.4,
 			Text = hint,
 			Parent = gui,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }),
 		})
 	end
 	local lifted = false

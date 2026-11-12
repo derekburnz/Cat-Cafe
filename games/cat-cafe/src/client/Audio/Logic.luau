@@ -441,6 +441,18 @@ function Logic.binRollCue(beat: any): string?
 	return nil
 end
 
+-- #3651: petting a cat (Effects/PetCat.onBeat). "pet", as the hand reaches the cat: the soft heart chime (our own
+-- `mouseHeart`) and a short purr at the cat (the `purr` loop, held for `purrSeconds`). "heart", the moved heart
+-- landing, is silent since "pet" follows it at once. Returns the one-shot cue, the loop cue and the seconds the
+-- loop is held; nil and 0 for other beats.
+Logic.PET_PURR_SECONDS = 1.6
+function Logic.petCatCue(beat: any): (string?, string?, number)
+	if beat == "pet" then
+		return "mouseHeart", "purr", Logic.PET_PURR_SECONDS
+	end
+	return nil, nil, 0
+end
+
 -- #3389: the Mystic Pool's roll (Effects/MysticPool.onBeat). The cat's splash, one bubbling note per colour step
 -- (pitched a scale note higher each step, so it climbs with the rarity and stops there), the Mythic's own shimmer
 -- and the reveal chime. Returns the cue and the scale step to play it at; nil for an unknown beat.
@@ -506,13 +518,14 @@ function Logic.mouseMissCue(kind: any): string?
 	return nil
 end
 
--- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
--- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
--- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
+-- #3296: a run's end. `reason` is "hearts" (out of hearts), "time" (the run clock ran out, #3553), "win" (the top
+-- score) or "quit". A win or a new best plays the fanfare (a run closed on a new best too, since the window throws
+-- its confetti then), any other run that ran out of hearts or time with points the arcade's "nice try"; any other
+-- quit is silent.
 function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
 	if reason == "win" or newBest == true then
 		return "mouseBest"
-	elseif reason == "hearts" and type(points) == "number" and points > 0 then
+	elseif (reason == "hearts" or reason == "time") and type(points) == "number" and points > 0 then
 		return "arcadeEnd"
 	end
 	return nil

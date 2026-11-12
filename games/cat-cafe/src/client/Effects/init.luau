@@ -65,6 +65,7 @@ local Orders = require(script.Orders)
 local PalWave = require(script.PalWave)
 local PassThanks = require(script.PassThanks)
 local PawTrail = require(script.PawTrail)
+local PetCat = require(script.PetCat)
 local Pity = require(script.Pity)
 local Plots = require(script.Plots)
 local Potions = require(script.Potions)
@@ -121,6 +122,7 @@ function Effects.start()
 		PullHop.start,
 		CampExtras.start,
 		PalWave.start,
+		PetCat.start,
 		Signature.start,
 		Catch.start,
 		CatchReact.start,

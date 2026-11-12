@@ -14,6 +14,7 @@
 -- server/Services/RareCatsTabService makes the channel; client/Controllers/RareCatchChatController writes the lines.
 
 local Catalog = require(script.Parent.Catalog)
+local CoatWords = require(script.Parent.CoatWords)
 local GlobalCatch = require(script.Parent.GlobalCatch)
 
 local RareCatsTab = {}
@@ -67,7 +68,7 @@ function RareCatsTab.line(text: string, rarity: string, elsewhere: boolean): str
 	return string.format(
 		'<font color="%s">%s</font>',
 		GlobalCatch.color(rarity),
-		GlobalCatch.escape(body)
+		(CoatWords.rich(body, GlobalCatch.escape)) -- #3692
 	)
 end
 

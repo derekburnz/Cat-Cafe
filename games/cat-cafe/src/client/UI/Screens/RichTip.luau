@@ -48,6 +48,7 @@ local BUBBLE_ONE = 46 -- the bubble's height in px with one bag waiting
 local BUBBLE_MANY = 60 -- and with the "in N bags" line
 local BUTTON = Vector2.new(112, 36)
 local BUTTON_GAP = 6
+local HIT_ROOM = 12 -- under the button: its touch pad reaches 12 px past it on phones (Button's 45 px pad at 0.75 scale)
 local BOB = 0.18 -- studs of gentle bobbing (off with Reduced Motion)
 
 export type Callbacks = {
@@ -100,7 +101,7 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 		MaxDistance = 150,
 		ResetOnSpawn = false,
 		-- 6 px under the button for its touch pad, which reaches past its face
-		Size = UDim2.fromOffset(WIDTH, BUBBLE_MANY + BUTTON_GAP + BUTTON.Y + 6),
+		Size = UDim2.fromOffset(WIDTH, BUBBLE_MANY + BUTTON_GAP + BUTTON.Y + HIT_ROOM),
 		StudsOffset = Vector3.new(0, OFFSET, 0),
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Parent = parent,

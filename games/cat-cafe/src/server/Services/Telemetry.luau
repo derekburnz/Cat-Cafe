@@ -329,6 +329,10 @@ export type CustomEvent =
 	| "park_gate_trail_shown"
 	| "park_entered_first"
 	| "park_first_catch"
+	-- #3556: once a session each, value 1: first time near a free stray, and the first in-reach glow; the device,
+	-- the tier (CATCH_REACH)
+	| "stray_near_first"
+	| "catch_prompt_shown_first"
 	-- #2946: the first bait's cutscene ended, value 1, once a session; shown, skipped or none (CUT_OUTCOMES)
 	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
@@ -436,6 +440,7 @@ local REPORTS = {
 	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
 	"park_first_hint", -- #2915: the first Park landing's hint shown, PARK_HINTS
 	"park_trail", -- #3554: the walk to a first Park catch: shown, entered or caught (PARK_TRAIL)
+	"catch_reach", -- #3556: first time near a stray, first in-reach glow: near or shown (CATCH_REACH)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
@@ -455,6 +460,11 @@ local INTRO_CHOICES = 5
 -- #2915: the first Park landing's toast, and the soft ring on the nearest stray after 90 s with no Park catch; each
 -- once a session
 local PARK_HINTS = { "toast", "ring" }
+-- #3556: the client's catch_reach report to the event it logs (shared/TouchReach)
+local CATCH_REACH: { [string]: CustomEvent } = {
+	near = "stray_near_first",
+	shown = "catch_prompt_shown_first",
+}
 -- #3554: the client's park_trail report to the event it logs (UI/Components/ParkTrailLogic)
 local PARK_TRAIL: { [string]: CustomEvent } = {
 	shown = "park_gate_trail_shown",
@@ -530,6 +540,7 @@ type Session = {
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
+	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -1967,6 +1978,13 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.parkTrail[kind] = true
 			Telemetry.custom(player, event, 1, { tierText(profile) })
 		end
+	elseif name == "catch_reach" then
+		local kind = Guard.oneOf(rawValue, { "near", "shown" })
+		local event = if kind ~= nil then CATCH_REACH[kind] else nil
+		if kind ~= nil and event ~= nil and not session.catchReach[kind] then
+			session.catchReach[kind] = true
+			Telemetry.custom(player, event, 1, { session.device or "unknown", tierText(profile) })
+		end
 	elseif name == "first_bait_cutscene" then
 		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)
 		if outcome ~= nil and not session.firstBaitCut then
@@ -2158,6 +2176,7 @@ local function onLoaded(player: Player, profile: Profile)
 		tutorialClosed = false,
 		parkHints = {},
 		parkTrail = {},
+		catchReach = {},
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",

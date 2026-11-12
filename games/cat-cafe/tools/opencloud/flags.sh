@@ -44,6 +44,8 @@
 #   newKindTag    true shows the "NEW" tag over strays of kinds the player has never owned, the catch card's
 #   parkGateTrail true shows the "Visit the Park" goal and the paw trail after Tier 2, until the first Park catch
 #                 (#3554); false or no entry shows nothing
+#   touchCatchReach true shows the glow and Net button from 1.5 times the swing's reach on touch screens and walks
+#                 the last steps on a press (#3556); false or no entry keeps the reach as on a PC
 #                 "New kind!" line and the five cats pointer (#3529); client and telemetry only, after review and QA
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
@@ -58,10 +60,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag and parkGateTrail (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail and touchCatchReach (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -71,7 +73,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach" >&2
 	exit 2
 }
 
@@ -145,6 +147,7 @@ show_key() {
 	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
 	newKindTag) if [ "$raw" = true ]; then meaning="NEW tag over cat kinds not owned ON in every server"; else meaning="NEW tag off (its default)"; fi ;;
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
+	touchCatchReach) if [ "$raw" = true ]; then meaning="wider Net button reach on touch screens ON"; else meaning="wider Net button reach on touch screens off (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
@@ -190,6 +193,7 @@ show() {
 	show_key introSplit
 	show_key newKindTag
 	show_key parkGateTrail
+	show_key touchCatchReach
 }
 
 # write key json-value
@@ -209,7 +213,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -220,7 +224,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail) write "$2" false ;;
+	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

@@ -22,6 +22,7 @@ local Beats = require(script.Beats)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
+local EventBanner = require(script.Parent.Effects.EventBanner)
 local Logic = require(script.Logic)
 local MysticPool = require(script.Parent.Effects.MysticPool)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
@@ -1735,6 +1736,17 @@ local function followUpdateGift()
 	end)
 end
 
+-- #3419: the update party's banners (Effects/EventBanner) play their sound as each one drops in, so a banner that
+-- waited its turn still lands with its sound.
+local function followBanners()
+	EventBanner.onShown(function(kind: any)
+		local cue = Logic.bannerCue(kind)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -2193,6 +2205,7 @@ function Audio.start()
 	followTags()
 	followStrays()
 	followSplashes()
+	followBanners()
 	followGamepadFocus()
 	followHolds()
 	followHeldCats()

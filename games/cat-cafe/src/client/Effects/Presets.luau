@@ -4604,4 +4604,61 @@ Presets.mysticPool = {
 	},
 }
 
+-- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for
+-- the party's start, the gift on its way and the gift paid. Pixels and seconds. The words are the caller's (#3420);
+-- `titleLength` and `lineLength` are the most characters drawn. Everything plays once per banner.
+Presets.eventBanner = {
+	displayOrder = 29,
+	queue = 3, -- banners that may wait behind the one showing
+	hold = 6, -- seconds at rest when the caller gives none
+	holdMin = 3,
+	holdMax = 10,
+	titleLength = 24,
+	lineLength = 36,
+	maxLines = 3,
+	-- the card
+	widthScale = 0.9,
+	maxWidth = 440,
+	top = 10, -- under the Roblox top bar
+	pad = 10,
+	corner = 16,
+	titleHeight = 36,
+	titleSize = 30,
+	lineHeight = 24,
+	lineSize = 20,
+	badgeSize = 56,
+	card = Presets.palette.offwhite,
+	outline = Color3.fromRGB(74, 52, 38), -- the UI's dark brown outline
+	stripTop = Presets.palette.goldLight,
+	stripBottom = Presets.palette.golden,
+	titleText = Presets.palette.milk,
+	lineText = Color3.fromRGB(74, 52, 38),
+	badge = Presets.palette.neonPink,
+	badgeText = Presets.palette.milk,
+	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
+	-- the motion
+	dropSeconds = 0.45,
+	leaveSeconds = 0.3,
+	fadeSeconds = 0.25, -- Reduce Motion: fade in and out in place
+	shineSeconds = 0.7, -- one sweep as the card lands
+	shineWidth = 0.3,
+	shineTransparency = 0.45,
+	-- the confetti as it lands (12 is the phone's burst cap)
+	confetti = 12,
+	confettiSoon = 6,
+	confettiColours = { Presets.palette.golden, Presets.palette.neonPink, Presets.palette.mint },
+	confettiSize = 12,
+	confettiSeconds = 0.7,
+	confettiReach = 46,
+	confettiStagger = 0.25,
+	-- the gift's golden fish hopping out from under the card
+	fish = 8,
+	fishSize = 34,
+	fishSeconds = 1.1,
+	fishStagger = 0.07,
+	fishUp = 40,
+	fishFall = 150,
+	fishSpread = 180,
+}
+
 return Presets

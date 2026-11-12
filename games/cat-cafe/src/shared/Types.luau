@@ -1188,6 +1188,10 @@ export type TelemetryState = {
 	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
 	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
 	firstHourV3Step: number,
+	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
+	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
+	-- reads as never in the test)
+	introGroup: string?,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount
@@ -1442,6 +1446,9 @@ export type PlayerState = {
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
+	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
+	-- reads as Config.IntroAutoPlay
+	introAuto: boolean?,
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)

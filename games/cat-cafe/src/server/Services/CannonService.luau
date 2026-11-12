@@ -28,6 +28,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
@@ -320,7 +321,12 @@ local function homeArrival(player: Player, character: Model)
 	if
 		not Cannon.joinsAtHome(
 			profile.introSeen,
-			Config.IntroAutoPlay,
+			-- #3666: the intro test's scene half starts at home as everyone did while the intro played itself
+			IntroSplit.plays(
+				profile.telemetry.introGroup,
+				LiveFlagService.on(IntroSplit.FLAG),
+				Config.IntroAutoPlay
+			),
 			profile.tutorialStep,
 			Config.TutorialGuaranteedStrayStep
 		)

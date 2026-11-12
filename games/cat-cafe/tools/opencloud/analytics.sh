@@ -431,6 +431,35 @@ for day in "${days[@]}"; do
 	say "| $day | ${newUsers[$day]:--} | ${returning[$day]:--} | ${session[$day]:--} | ${d1[$day]:--} |"
 done
 say ""
+
+# 2b. The six Creator Hub benchmark items (Derek 2026-11-12: every stats update breaks them down): average playtime,
+# day 1 and day 7 retention, payer conversion, revenue per paying user and qualified play-through. Playtime and day 1
+# are in the table above. The Query API (beta) does not document the other four, so each name here is a try: a value
+# per day when Roblox answers, its refusal (which often names the valid metrics) when it does not. The genre 50th and
+# 90th lines are only on Creator Hub > Analytics > Benchmarks.
+say "### Benchmark items per day (the names Roblox answers)"
+say ""
+benchmarkMetrics=(
+	"ForwardD7Retention|Day 7 retention"
+	"PayerConversionRate|Payer conversion rate"
+	"AverageRevenuePerPayingUser|Average revenue per paying user"
+	"QualifiedPlayThroughRate|Qualified play-through rate"
+	"AveragePlayTimeMinutesPerDAU|Average playtime per daily player (min)"
+	"PayingUsers|Paying users"
+	"Revenue|Revenue (Robux)"
+)
+for line in "${benchmarkMetrics[@]}"; do
+	IFS='|' read -r metric heading <<<"$line"
+	say "#### $heading ($metric)"
+	say ""
+	if query "$metric" OneDay; then
+		points=$(rows | tr '\t' ' ')
+		say "${points:-No data points in this window.}"
+		say ""
+	else
+		failed
+	fi
+done
 say "A dash is a day Roblox sent nothing for: no players, or not filled yet."
 say ""
 

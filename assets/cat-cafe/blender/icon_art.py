@@ -313,6 +313,28 @@ def big_bowl(mat):
     return [b.finalize("CatCafe_IconArt_BigBowl", mat)]
 
 
+def swift_paws(mat):
+    """#3330: the Swift Paws perk. A tabby at full gallop, front legs reaching and back legs kicked out, nose down a
+    touch, off the floor, with three short speed streaks and a dust puff close behind it."""
+    import cats                                             # cats.py imports nothing from here
+    spec = {k: v for k, v in cats.ROSTER["Tabby"].items() if k not in ("bag", "curl")}   # no satchel over the legs
+    objs = cats.build_cat("Tabby", mat, spec=spec, base="CatCafe_IconArt_SwiftPaws")
+    swing = {"LegF1": -64.0, "LegF2": -44.0, "LegB1": 50.0, "LegB2": 68.0, "Tail": -30.0}
+    lean = Matrix.Rotation(math.radians(8.0), 4, "X")       # the whole cat, nose down (it faces -Y in Blender)
+    for ob in objs:
+        piece = ob.name.rsplit("_", 1)[1]
+        if piece in swing:
+            ob.rotation_euler = (math.radians(swing[piece]), 0.0, 0.0)
+        ob.matrix_world = Matrix.Translation((0.0, 0.0, 0.34)) @ lean @ ob.matrix_basis
+    b = RB()
+    for (y, z, length, sw) in ((1.62, 1.0, 0.8, "offwhite"), (1.22, 1.25, 1.0, "pastel_sky"),
+                               (0.82, 1.2, 0.7, "offwhite")):
+        b.box((0.0, y, z + length / 2), (0.16, 0.16, length), sw)
+    for (y, z, r) in ((0.24, 1.3, 0.22), (0.3, 1.7, 0.16), (0.2, 2.0, 0.11)):
+        b.ball((0.0, y, z), r, "cream")
+    return objs + [b.finalize("CatCafe_IconArt_SwiftPaws_Speed", mat)]
+
+
 def extra_decor_spot(mat):
     """A dotted square on the floor with a gold plus in it and a tiny potted plant in its back corner."""
     b = RB()

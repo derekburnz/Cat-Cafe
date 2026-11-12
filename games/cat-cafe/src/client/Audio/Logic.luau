@@ -437,6 +437,18 @@ function Logic.binRollCue(beat: any): string?
 	return nil
 end
 
+-- #3651: petting a cat (Effects/PetCat.onBeat). "pet", as the hand reaches the cat: the soft heart chime (our own
+-- `mouseHeart`) and a short purr at the cat (the `purr` loop, held for `purrSeconds`). "heart", the moved heart
+-- landing, is silent since "pet" follows it at once. Returns the one-shot cue, the loop cue and the seconds the
+-- loop is held; nil and 0 for other beats.
+Logic.PET_PURR_SECONDS = 1.6
+function Logic.petCatCue(beat: any): (string?, string?, number)
+	if beat == "pet" then
+		return "mouseHeart", "purr", Logic.PET_PURR_SECONDS
+	end
+	return nil, nil, 0
+end
+
 -- #3389: the Mystic Pool's roll (Effects/MysticPool.onBeat). The cat's splash, one bubbling note per colour step
 -- (pitched a scale note higher each step, so it climbs with the rarity and stops there), the Mythic's own shimmer
 -- and the reveal chime. Returns the cue and the scale step to play it at; nil for an unknown beat.

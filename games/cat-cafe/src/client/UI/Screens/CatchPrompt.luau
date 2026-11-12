@@ -494,13 +494,17 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	local blocked = self:blockedText()
 	-- only a line that says why to wait; the rest is the picture
-	local hint = if rescue
+	local hint: string = if rescue
 		then ""
 		elseif pickUp and info.returning then "It's walking home. Grab it!"
 		elseif pickUp then ""
 		elseif blocked == OWNER_TURN then "Its owner gets the first try"
 		elseif blocked == "It's running!" then "Wait till it stops"
 		else ""
+	-- #3529: a kind the player has never owned says so, unless the card has a reason to wait to give
+	if hint == "" and not pickUp and info.newKind ~= nil then
+		hint = info.newKind
+	end
 	self._hint.Text = hint
 	self._hint.Visible = hint ~= ""
 	self._card.Size = UDim2.fromOffset(CARD_W, if hint ~= "" then CARD_HINT_H else CARD_H)

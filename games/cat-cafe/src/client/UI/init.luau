@@ -96,6 +96,7 @@ UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
+UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
@@ -1653,6 +1654,7 @@ function UI.init(config: Types.InitConfig)
 	catchUI.pity = require(script.Screens.PityTags).new() -- #2099: the "Pity cat" tag over a pity stray
 	catchUI.secret = require(script.Screens.SecretTags).new() -- #3470: the "SECRET" tag over a Secret stray
 	catchUI.mark = require(script.Screens.CatchMark).new() -- #2005: the "!" over a stray being caught (NetDown)
+	UI.newKind.start() -- #3529: the "NEW" tag over strays of kinds not owned (off with its switch)
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1750,6 +1752,9 @@ end
 function UI.update(partial: Types.PartialState)
 	for key, value in partial :: { [string]: any } do
 		(state :: any)[key] = value
+	end
+	if partial.collection ~= nil then
+		UI.newKind.refresh() -- #3529: a kind just caught loses its "NEW" tag at once
 	end
 	-- F84: the first time the tier passes CannonLogic.HINT_TIER this session, hint at the area it opened. The first
 	-- update with a tier only records it, so joining at Tier 4 is no rank up.
@@ -1984,6 +1989,7 @@ function UI.destroy()
 		catchUI.mark:destroy()
 		catchUI.mark = nil
 	end
+	UI.newKind.stop()
 	if catCard then
 		catCard:destroy()
 	end
@@ -3731,6 +3737,7 @@ do
 			fleeingUntil = info.fleeingUntil,
 			retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
 			ownerTurnUntil = info.ownerTurnUntil,
+			newKind = info.newKind, -- #3529
 		}
 		if catch then
 			catch:show(activeInfo :: Types.CatchInfo)
@@ -4308,6 +4315,8 @@ do
 			actionText = if prompt.ActionText ~= "" then prompt.ActionText else nil,
 			keyCode = prompt.KeyboardKeyCode,
 			gamepadKeyCode = prompt.GamepadKeyCode, -- #2874: the cap reads X on a gamepad
+			-- #3529: "New kind! 3/5 for Cozy Cafe" when the player has never owned this kind (a net catch or a rescue)
+			newKind = if pickUp then nil else (UI.newKind :: any).line(catId, rarity),
 		}
 	end
 
@@ -7480,9 +7489,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- Controllers/RallyController calls UI.rally.update(state) on every RallyState: the banner top centre while a Rally
--- runs, the Town Square board's face, "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
--- (the Friday chip) and the Cat Cannon cards' night tag. The pops are VFX's (Effects/Rally hooks RallyPoint and finds
--- the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
+-- runs, the Town Square board's face and "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
+-- (the Friday chip). #3691 took the Cat Cannon cards' night tag away. The pops are VFX's (Effects/Rally hooks
+-- RallyPoint and finds the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
 -- once. Its own block, as the module is short of locals.
 do
 	local RallyBanner = require(script.Screens.RallyBanner)
@@ -7506,9 +7515,6 @@ do
 		local boards = rally.boards
 		if boards then
 			boards:set(current)
-		end
-		if cannonScreen then
-			cannonScreen:setRally(current)
 		end
 		if hud then
 			hud:setRallySoon(RallyLogic.soon(current, Workspace:GetServerTimeNow()))
@@ -8978,6 +8984,80 @@ do
 			boards:destroy()
 		end
 		events.boards = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- #3529 (shared/NewKind): the "NEW" tag over strays and stuck cats of kinds this player has never owned
+-- (Screens/NewKindTags), and the catch card's "New kind!" line. Behind the `newKindTag` live switch, off by default.
+----------------------------------------------------------------------------------------------------
+
+do
+	local Shared = ReplicatedStorage:WaitForChild("Shared")
+	local NewKind = require(Shared:WaitForChild("NewKind"))
+	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
+
+	function UI.newKind.on(): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			NewKind.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
+		)
+	end
+
+	-- Different kinds owned toward rank up, from the Index the client has.
+	function UI.newKind.kinds(): number
+		local Economy = require(Shared:WaitForChild("Economy")) :: any
+		return Economy.rankUpCatCount(state.collection or {})
+	end
+
+	function UI.newKind.refresh()
+		if kind.tags ~= nil then
+			kind.tags:set(UI.newKind.on(), state.collection)
+		end
+	end
+
+	function UI.newKind.start()
+		if kind.tags ~= nil then
+			return
+		end
+		kind.tags = require(script.Screens.NewKindTags).new()
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		kind.watch = ReplicatedStorage
+			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
+			:Connect(UI.newKind.refresh)
+		UI.newKind.refresh()
+	end
+
+	function UI.newKind.stop()
+		if kind.watch ~= nil then
+			kind.watch:Disconnect()
+			kind.watch = nil
+		end
+		if kind.tags ~= nil then
+			kind.tags:destroy()
+			kind.tags = nil
+		end
+	end
+
+	-- This player is on a catch or rescue bar: the tags step aside.
+	function UI.newKind.setBusy(busy: boolean)
+		if kind.tags ~= nil then
+			kind.tags:setBusy(busy)
+		end
+	end
+
+	-- The nearest tagged stray's part in wild area `area`, for the five cats trail (UIController).
+	function UI.newKind.nearest(area: string): BasePart?
+		return if kind.tags ~= nil then kind.tags:nearest(area) else nil
+	end
+
+	-- The catch card's line for a cat of this kind, nil when the switch is off or the kind is not new.
+	function UI.newKind.line(catId: unknown, rarity: unknown): string?
+		if not UI.newKind.on() or not NewKind.isNew(state.collection, catId, rarity) then
+			return nil
+		end
+		return NewKind.line(UI.newKind.kinds(), state.tier or 1)
 	end
 end
 

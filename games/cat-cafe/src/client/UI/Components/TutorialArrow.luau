@@ -40,6 +40,11 @@ type Entry = { target: GuiObject, since: number, low: boolean }
 local entries: { Entry } = {}
 local arrow: Frame? = nil
 local spot: Frame? = nil -- #3153: the spotlight's four dark boxes
+-- #3638 (Derek 2026-11-12: "the sides are missing darken"): the dim lives in the target's ScreenGui, which stops at
+-- the device's safe area, so on a phone the strips beside it (the notch and the rounded corners' side) stayed bright.
+-- This second ScreenGui has no insets and darkens only what lies outside the target's ScreenGui.
+local edges: ScreenGui? = nil
+TutorialArrow.EDGES_NAME = "CatCafeTutorialSpotEdges"
 local spotFor: GuiObject? = nil
 local spotSince = 0
 local lead = false
@@ -224,10 +229,87 @@ local function makeSpot(): Frame
 	return holder
 end
 
+local function makeEdges(): ScreenGui
+	local gui: ScreenGui = Create("ScreenGui", {
+		Name = TutorialArrow.EDGES_NAME,
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		Enabled = false,
+	})
+	for _, name in { "Left", "Right", "Top", "Bottom" } do
+		Create("Frame", {
+			Name = name,
+			BackgroundColor3 = Color3.new(0, 0, 0),
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Active = false,
+			Visible = false,
+			Parent = gui,
+		})
+	end
+	return gui
+end
+
+-- #3638: the same shade over the screen outside `into` (nothing where `into` already reaches the screen's edge).
+local function showEdges(into: ScreenGui, shade: number)
+	local gui = edges or makeEdges()
+	edges = gui
+	if gui.Parent ~= into.Parent then
+		gui.Parent = into.Parent
+	end
+	gui.DisplayOrder = into.DisplayOrder
+	gui.Enabled = true
+	local full = gui.AbsoluteSize
+	local margins = TutorialArrowLogic.margins(
+		gui.AbsolutePosition,
+		full,
+		into.AbsolutePosition,
+		into.AbsoluteSize
+	)
+	local boxes: { [string]: { position: UDim2, size: UDim2, thick: number } } = {
+		Left = {
+			position = UDim2.fromOffset(0, 0),
+			size = UDim2.new(0, margins.left, 1, 0),
+			thick = margins.left,
+		},
+		Right = {
+			position = UDim2.new(1, -margins.right, 0, 0),
+			size = UDim2.new(0, margins.right, 1, 0),
+			thick = margins.right,
+		},
+		Top = {
+			position = UDim2.fromOffset(margins.left, 0),
+			size = UDim2.new(1, -(margins.left + margins.right), 0, margins.top),
+			thick = margins.top,
+		},
+		Bottom = {
+			position = UDim2.new(0, margins.left, 1, -margins.bottom),
+			size = UDim2.new(1, -(margins.left + margins.right), 0, margins.bottom),
+			thick = margins.bottom,
+		},
+	}
+	for name, box in boxes do
+		local found = gui:FindFirstChild(name)
+		if found and found:IsA("Frame") then
+			local frame = found :: Frame
+			frame.Position = box.position
+			frame.Size = box.size
+			frame.BackgroundTransparency = shade
+			frame.Visible = box.thick > 0
+		end
+	end
+end
+
 local function hideSpot()
 	local current = spot
 	if current then
 		current.Visible = false
+	end
+	local outer = edges
+	if outer then
+		outer.Enabled = false
 	end
 	spotFor = nil
 end
@@ -267,6 +349,7 @@ local function showSpot(into: ScreenGui, target: GuiObject, screen: Vector2, now
 		end
 	end
 	holder.Visible = true
+	showEdges(into, shade)
 end
 
 local function update()
@@ -377,6 +460,12 @@ end
 function TutorialArrow.spotlight(): Frame?
 	local current = spot
 	return if current and current.Visible then current else nil
+end
+
+-- #3638: the ScreenGui that darkens the screen outside the target's ScreenGui, while it shows (the gate reads it).
+function TutorialArrow.spotEdges(): ScreenGui?
+	local current = edges
+	return if current and current.Enabled then current else nil
 end
 
 -- The arrow frame while it shows, or nil (the UI gate's scenes read it).

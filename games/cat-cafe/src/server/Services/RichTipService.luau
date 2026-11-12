@@ -170,6 +170,49 @@ local function miss(index: number, id: string, profile: Types.PlayerProfile?)
 	end
 end
 
+-- #3632: display records on the plot that no bag in the table stands behind go, as missed. The marker reads the
+-- records, so one left over (a plot's earlier owner, a table and its records come apart) shows a bag nobody can
+-- collect and a Collect button that only spins.
+local function clearOrphans(plot: WorldBuilder.Plot)
+	local folder = plot.model:FindFirstChild(RichBags.FOLDER)
+	if folder == nil then
+		return
+	end
+	local entry = held[plot.index]
+	local bags: { RichBags.Bag } = if entry ~= nil and entry.plot == plot then entry.bags else {}
+	local names: { string } = {}
+	for _, record in folder:GetChildren() do
+		if record:GetAttribute("Outcome") == nil then
+			table.insert(names, record.Name)
+		end
+	end
+	for _, name in RichBags.orphans(names, bags) do
+		local record = folder:FindFirstChild(name)
+		if record ~= nil then
+			record:SetAttribute("Outcome", "missed")
+			task.delay(NEXT_BAG_SECONDS, function()
+				record:Destroy()
+			end)
+		end
+	end
+end
+
+-- #3632: a claim the server will not pay is answered, never dropped in silence: the client's Collect reads
+-- "Collecting..." until the bag's record changes, so a silent refusal is a button that spins. The refusal clears
+-- any record with no bag behind it and is written to the log (one line a player every 10 s at most).
+local refusedAt: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+local function refuse(player: Player, plot: WorldBuilder.Plot?, why: string)
+	if plot ~= nil then
+		clearOrphans(plot)
+	end
+	local now = os.clock()
+	if (refusedAt[player] or -math.huge) + 10 < now then
+		refusedAt[player] = now
+		warn("[RichTipService] claim refused: " .. why)
+	end
+end
+
 local function onClaimRichTip(player: Player, rawBagId: unknown)
 	-- #3360: no id is the front bag (the gold marker's Collect); an id must be an id (Guard) before any lookup
 	local bagId: string? = nil
@@ -185,16 +228,22 @@ local function onClaimRichTip(player: Player, rawBagId: unknown)
 	end
 	local entry = held[plot.index]
 	if entry == nil or entry.ownerUserId ~= player.UserId or entry.plot ~= plot then
+		if entry ~= nil then
+			held[plot.index] = nil -- the plot is this player's (PlotService): an earlier owner's entry is stale
+		end
+		refuse(player, plot, if entry == nil then "no bags held" else "bags held for another owner")
 		return
 	end
 	local bag: RichBags.Bag? = if bagId ~= nil
 		then RichBags.find(entry.bags, bagId)
 		else RichBags.front(entry.bags)
 	if bag == nil then
+		refuse(player, plot, "no such bag")
 		return
 	end
 	if os.time() >= bag.expiresAt then
-		return -- missed; the expiry check clears it within a second
+		miss(plot.index, bag.id) -- its time is up: gone now, not at the next expiry check
+		return
 	end
 	-- the device checks RichTipRangeStuds from the HumanoidRootPart; 2 studs of slack for movement in flight
 	if not withinRange(player, positionOf(plot, bag), Config.RichTipRangeStuds + 2) then
@@ -235,6 +284,7 @@ local function drop(
 		-- none yet (a stale one never blocks the plot's new owner; release clears them, belt and braces)
 		entry = { ownerUserId = player.UserId, plot = plot, bags = {} }
 		held[plot.index] = entry
+		clearOrphans(plot) -- #3632: and no record of an earlier bag is left for the new owner's marker
 	end
 	local slot = RichBags.freeSlot(entry.bags)
 	if slot == nil then
@@ -332,12 +382,29 @@ function RichTipService.start()
 	-- #3360: nightfall no longer takes the bags; they wait their full time
 	task.spawn(function()
 		local last = os.clock()
+		local loopWarnedAt = -math.huge
 		while true do
 			task.wait(1)
-			checkExpiries()
+			-- #3632: one error must not end the loop: with it go every expiry and every later rich customer on
+			-- this server
 			local nowClock = os.clock()
-			tickTimers(nowClock - last)
+			local dt = nowClock - last
 			last = nowClock
+			local ok, problem = pcall(function()
+				checkExpiries()
+				return nil :: any
+			end)
+			local ok2, problem2 = pcall(function()
+				tickTimers(dt)
+				return nil :: any
+			end)
+			if not (ok and ok2) and loopWarnedAt + 60 < nowClock then
+				loopWarnedAt = nowClock
+				warn(
+					"[RichTipService] loop step failed: "
+						.. tostring(if not ok then problem else problem2)
+				)
+			end
 		end
 	end)
 end

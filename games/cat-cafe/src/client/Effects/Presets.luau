@@ -2597,7 +2597,9 @@ Presets.rainbow = {
 	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
 	within = 120,
 	hz = 20,
+	hzLow = 12, -- on a phone or in Low performance: a 3 s lap still reads as flowing at 12 steps a second
 	pick = 0.25, -- seconds between choosing which cats flow
+	recount = 8, -- every this many picks (2 s) a cat's parts are counted again, for parts that streamed in late
 	glow = { color = Color3.new(1, 1, 1), range = 6, brightness = 0.6 },
 	outline = 0.25, -- outline transparency
 	moving = 0.6,
@@ -4666,6 +4668,50 @@ Presets.trailSparkle = {
 	everyLow = 4,
 	recheck = 3,
 }
+
+-- The Rummage Bin's prize roll and its reward effects (#3608; Effects/BinRoll). The roll goes `laps` times down
+-- the list and on to the prize, a tick every `first` seconds until the last lap's worth of ticks slow evenly toward
+-- `last` (the final gap is 6/7 of the way there; 2.0 to 2.5 s for the seven rows of the design, whose
+-- BinRollSeconds is 2.5). While it rolls the bin rattles: it tips `rattle` degrees side to side `rattleHz` times a second about its base (still with Reduce
+-- Motion). A row with no tier of its own gets one from its chance: at most `good` the middle show, at most `best`
+-- the big one. `landed` is what the bin does as the roll stops, `tiers` what it does on the win, one entry per
+-- tier: `sparkles` in a burst, a ground ring `ring` studs wide (0 for none), `confetti` as a share of the budget's
+-- confetti, a light column `beam` studs high for `beamSeconds` (0 for none) and a `shake` of the screen in studs
+-- (the big win only; off with Screen shake or Reduce Motion). The landing's column is short and thin so it is
+-- gone before the bar's first hit and never covers the bar (design section 4).
+Presets.binRoll = {
+	laps = 2,
+	first = 0.067,
+	last = 0.45,
+	rattle = 4,
+	rattleHz = 7,
+	good = 0.15,
+	best = 0.05,
+	lift = 3, -- studs over the bin's base where a burst comes out
+	emitter = "catchSparkle",
+	landed = {
+		{ sparkles = 0, ring = 0, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 6, ring = 5, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 10, ring = 6, confetti = 0, beam = 14, beamSeconds = 0.9, shake = 0 },
+	},
+	tiers = {
+		{ sparkles = 6, ring = 0, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 12, ring = 7, confetti = 0.4, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 20, ring = 10, confetti = 1, beam = 40, beamSeconds = 3, shake = 0.12 },
+	},
+	-- common, good (the board's soft blue edge) and best (gold)
+	colours = { Presets.palette.offwhite, Color3.fromRGB(143, 208, 255), Presets.palette.golden },
+	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
+	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
+	-- Yard Sale stall) just skips this.
+	reveal = 0.45, -- seconds a fixed prize's reveal takes (no roll)
+	-- the prize's hop from the bin to the player
+	hop = { seconds = 0.55, height = 3, size = 0.7, sparkles = 4 },
+	lidSuffix = "_Empty",
+	lid = {
+		{ height = 0, seconds = 0, turns = 0, fly = false },
+		{ height = 1.6, seconds = 0.45, turns = 0, fly = false },
+		{ height = 9, seconds = 1.1, turns = 1.5, fly = true },
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
 -- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the

@@ -232,12 +232,14 @@ function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 	return (Catalog.rarityRank[rarity] or 0) >= (Catalog.rarityRank[minimum] or 99)
 end
 
--- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Legendary since #2205,
--- was Epic) and up, gold from Rare up and every rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam
--- rescued a Legendary Maine Coon!", "Sam caught a rainbow Common Tabby!"; `where` adds a place before the "!" (" at
--- their bait bowl"). #2902 (Derek2 2026-11-10: "legendary + or rare+ (if gold) and any rainbows"): a gold coat counts
--- only from GOLD_SHOUT_FROM up, so a gold Common is quiet; a rainbow always counts.
-Catching.GOLD_SHOUT_FROM = "Rare"
+-- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity and up with a plain
+-- coat, COAT_SHOUT_FROM and up with a gold or rainbow coat (data-model section 15, F99). "Sam caught a Mythical
+-- Moonpaw!", "Sam rescued a gold Legendary Maine Coon!"; `where` adds a place before the "!" (" at their bait bowl").
+-- Derek 2026-11-12 ("make rainbow/gold finds also changed to only legendary + and make normals only mythic+ it has a
+-- bit of clutter right now"): a plain coat from Mythical (Legendary since #2205, Epic before), a gold or rainbow
+-- coat from Legendary (#2902 had gold from Rare and every rainbow). The toast, this server's chat line, the line in
+-- the other servers and the Rare Cats tab (shared/RareCatsTab) all follow this one rule.
+Catching.COAT_SHOUT_FROM = "Legendary"
 function Catching.shoutOut(
 	playerName: string,
 	verb: string,
@@ -247,8 +249,10 @@ function Catching.shoutOut(
 ): string?
 	local coat = if variant == "gold" or variant == "rainbow" then variant .. " " else ""
 	local worth = Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity)
-		or variant == "rainbow"
-		or (variant == "gold" and Catching.rarityAtLeast(def.rarity, Catching.GOLD_SHOUT_FROM))
+		or (
+			(variant == "gold" or variant == "rainbow")
+			and Catching.rarityAtLeast(def.rarity, Catching.COAT_SHOUT_FROM)
+		)
 	if not worth then
 		return nil
 	end

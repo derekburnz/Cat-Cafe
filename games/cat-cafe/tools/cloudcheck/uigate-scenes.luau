@@ -288,6 +288,23 @@ end
 -- A scene that needs the player at `tier` whatever the scenes before it left (the Cannon picker locks an area the
 -- tier has not opened, and several earlier scenes end on Tier 1 or 2): sets it, and Scenes.close puts back the tier
 -- the scene found (#3082: CannonExtras failed in CI once main's scene order moved).
+-- #3615: camp extras with the Yard Sale's lucky pick rows for `tier` (shared/YardPick); `taken` puts the next pick
+-- 1 h 20 m off.
+local function yardPickExtras(tier: number, taken: boolean)
+	local extras = campExtras(0, taken)
+	extras.yardSale.pick = UIShim.require("ReplicatedStorage.Shared.YardPick").rows(tier)
+	extras.yardSale.held = if taken then 0 else 1
+	extras.yardSale.nextAt = if taken then workspace:GetServerTimeNow() + 80 * 60 else nil
+	return extras
+end
+
+local function yardPickCard()
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local card = modals and modals:FindFirstChild("YardSale", true)
+	assert(card and card.Visible, "uigate: the Yard Sale card is not up (#3615)")
+	return card
+end
+
 local function atTier(tier: number)
 	if Scenes._rankTier == nil then
 		Scenes._rankTier = (UI.getState() :: any).tier
@@ -1115,6 +1132,57 @@ local function rescueChallenge()
 	}
 end
 
+-- #3611: roll boards side by side on the screen, each at the size BinController's billboard gives it here
+local function binBoards(list: { { view: { [string]: any }, lit: number? } })
+	local RollBoard = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoard")
+	local RollBoardLogic =
+		UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic")
+	local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "BinBoardGate"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.DisplayOrder = 100 -- over the HUD, so the shot shows the boards
+	gui.Parent = UIShim.playerGui
+	Scenes._binBoards = gui
+	local share = math.max(0.66, Scale.billboard(1000) / 1000)
+	local gap = 8
+	local width = RollBoard.WIDTH * share
+	local total = #list * width + (#list - 1) * gap
+	local view = workspace.CurrentCamera.ViewportSize
+	assert(total <= view.X, "uigate: the roll boards do not fit this screen side by side (#3611)")
+	for index, entry in list do
+		local input: { [string]: any } = { uses = 3, nextAt = 0, now = 1000 }
+		for key, value in entry.view do
+			input[key] = value
+		end
+		local made = RollBoardLogic.bin(input)
+		local holder = Instance.new("Frame")
+		holder.Name = "Board" .. index
+		holder.BackgroundTransparency = 1
+		holder.AnchorPoint = Vector2.new(0, 0.5)
+		holder.Position = UDim2.new(0.5, -total / 2 + (index - 1) * (width + gap), 0.5, 0)
+		holder.Size = UDim2.fromOffset(width, RollBoard.height(made) * share)
+		holder.Parent = gui
+		local board = RollBoard.new(holder)
+		local scale = Instance.new("UIScale")
+		scale.Scale = share
+		scale.Parent = board.frame
+		board:set(made)
+		board:light(entry.lit)
+		assert(
+			RollBoard.height(made) * share <= view.Y,
+			"uigate: a roll board is taller than this screen (#3611)"
+		)
+		local rows = 0
+		for _, child in board.frame:GetChildren() do
+			if child:IsA("Frame") then
+				rows += 1
+			end
+		end
+		assert(rows == #made.rows, "uigate: the roll board drew " .. rows .. " rows (#3611)")
+	end
+end
+
 -- #3050: the Rummage Bin's bar as an early rummage gets it: 2 hits, wide zones, a slow marker
 local function binChallenge()
 	local t = workspace:GetServerTimeNow()
@@ -1226,6 +1294,69 @@ local function bindLawnPlot()
 		lawnPlot = plot
 	end
 	UI.richTip.bind(lawnPlot)
+end
+
+-- #3633: the rich tip's gold bubble as it floats over a money bag, drawn on the screen so the gate can see it (a
+-- BillboardGui is not drawn here): one with a single bag waiting and one with two. Each is the real screen bound to
+-- a made-up plot, its bubble and button moved into a frame of the billboard's own size.
+local function richTipBubbles()
+	local RichTip = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.RichTip")
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "RichTipGate"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.DisplayOrder = 100 -- over the HUD, so the shot shows the bubbles
+	gui.Parent = UIShim.playerGui
+	Scenes._richTipGate = { gui = gui, made = {} }
+	local now = workspace:GetServerTimeNow()
+	local frames = {}
+	for index, amounts in { { 187000 }, { 187000, 288000 } } do
+		local plot = Instance.new("Model")
+		plot.Name = "RichTipGatePlot" .. index
+		local anchor = Instance.new("Part")
+		anchor.Name = "RichTipAnchor"
+		anchor.Anchored = true
+		anchor.Parent = plot
+		local folder = Instance.new("Folder")
+		folder.Name = "RichBags"
+		folder.Parent = plot
+		for serial, amount in amounts do
+			local record = Instance.new("Configuration")
+			record.Name = "b" .. serial
+			record:SetAttribute("Amount", amount)
+			record:SetAttribute("ExpiresAt", now + 161 + serial)
+			record:SetAttribute("Position", Vector3.new(serial, 0, 0))
+			record.Parent = folder
+		end
+		plot.Parent = workspace
+		local tip = RichTip.new(gui, { collect = function() end, collected = function() end, missed = function() end })
+		tip:bind(plot)
+		table.insert(Scenes._richTipGate.made, tip)
+		table.insert(Scenes._richTipGate.made, plot)
+	end
+	UIShim.advance(0.6)
+	local boards = {}
+	for _, child in gui:GetChildren() do
+		if child:IsA("BillboardGui") then
+			table.insert(boards, child)
+		end
+	end
+	assert(#boards == 2, "uigate: the rich tip scene did not make two bubbles (#3633)")
+	for index, billboard in boards do
+		assert(billboard.Enabled, "uigate: no rich tip bubble for a waiting bag (#3633)")
+		local size = billboard.Size
+		local holder = Instance.new("Frame")
+		holder.Name = "Bubble" .. index
+		holder.BackgroundTransparency = 1
+		holder.AnchorPoint = Vector2.new(0.5, 0.5)
+		holder.Position = UDim2.new(0.5, (index - 1.5) * (size.X.Offset + 24), 0.5, 0)
+		holder.Size = UDim2.fromOffset(size.X.Offset, size.Y.Offset)
+		holder.Parent = gui
+		for _, part in billboard:GetChildren() do
+			part.Parent = holder
+		end
+		table.insert(frames, holder)
+	end
+	return frames
 end
 
 -- name, how the game opens it
@@ -1420,6 +1551,31 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "Style")
 		assertEquipBestInHeader("the Style tab")
+	end },
+	-- #3572: the Sale badge. Roblox answers the half prices of Config.StoreWasPrice for the King Cat Pack and the Royal
+	-- Cat, so their cards show "SALE" with the true old price struck through; a card at its old price shows none
+	{ "StoreSale", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		prices[Config.KingPackPassId] = { robux = Config.StoreWasPrice.kingPack.now, forSale = true }
+		prices[Config.RoyalCatPassId] = { robux = Config.StoreWasPrice.royalCat.now, forSale = true }
+		UI.store.preview(prices, {})
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		assert(window, "uigate: no Store window (#3572)")
+		local sale, plain = 0, 0
+		for _, item in window:GetDescendants() do
+			if item.Name == "Badge" and item:IsA("TextLabel") and item.Visible then
+				if string.find(item.Text, "SALE", 1, true) then
+					sale += 1
+					assert(item.RichText, "uigate: the Sale badge is not rich text, so its old price is not struck (#3572)")
+				else
+					plain += 1
+				end
+			end
+		end
+		assert(sale >= 2, "uigate: the Store shows " .. sale .. " Sale badges, expected the King Cat Pack and the Royal Cat (#3572)")
 	end },
 	-- #2147 (store-pass-looks.md 7.4): with the Cat Accessories pass owned, the accessory row has its small gold line
 	-- under the buttons, "+15% money on every working cat, whatever you pick"
@@ -3014,6 +3170,25 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: the selection stayed on the closed gift card (#2968)")
 		UIShim.setLastInput(nil)
 		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
+	end },
+	-- #3633 (Derek 2026-11-12: "make the rich tip pop up like 50-75% smaller it takes up too much screen")
+	{ "RichTipBubble", function()
+		local frames = richTipBubbles()
+		for index, holder in frames do
+			assert(
+				holder.AbsoluteSize.X * holder.AbsoluteSize.Y <= 220 * 168 * 0.45,
+				"uigate: the rich tip bubble is not at least 55% smaller than the old 220 x 168 (#3633)"
+			)
+			for _, label in holder:GetDescendants() do
+				if label:IsA("TextLabel") and label.Visible and label.Text ~= "" then
+					assert(label.TextFits, "uigate: rich tip bubble " .. index .. " cuts off " .. label.Text .. " (#3633)")
+				end
+			end
+			local more = holder:FindFirstChild("More", true) :: TextLabel
+			assert(more.Visible == (index == 2), "uigate: the waiting bags line shows with one bag or hides with two (#3633)")
+			local collect = holder:FindFirstChild("Collect", true) :: GuiObject
+			assert(collect.AbsoluteSize.Y >= 32, "uigate: the rich tip's Collect is under 32 px tall (#3633)")
+		end
 	end },
 	-- #3464: the Rummage Bin's loot card, a two-item win and a golden crate win
 	{ "LootCardTwo", function()
@@ -5273,6 +5448,23 @@ local SCENES = {
 		assert(count == 2, "uigate: the bin's bar has " .. count .. " pips, not 2 (#3050)")
 		assert(UI.rescue.isActive(), "uigate: the bin's bar does not count as a rescue on screen (#3050)")
 	end },
+	-- #3611: the roll board that hovers over the Rummage Bin, drawn on the screen at the size its billboard gives it
+	-- (BOARD_SMALLEST on a phone): the list with its chances, the list mid roll with a row lit, and the two one
+	-- prize states beside the empty bin's faded list
+	{ "BinBoardList", function()
+		binBoards({ { view = { uses = 3 } } })
+	end },
+	{ "BinBoardRoll", function()
+		binBoards({ { view = { uses = 3, playing = "crate", rolling = true }, lit = 4 } })
+	end },
+	{ "BinBoardStates", function()
+		binBoards({
+			-- #3680: no fixed first prize; the prize the bar is played for stands in its place
+			{ view = { uses = 0, playing = "crate", rolling = false, prize = "crate" } },
+			{ view = { uses = 3, prize = "golden" } },
+			{ view = { uses = 3, nextAt = 1245 } },
+		})
+	end },
 	-- #3050: a win closes the bar on the prize's name (no toast, #3080): every prize's two lines fit the banner, the
 	-- first Tuna points at the bowl, and the tap catcher goes so a phone can move again
 	{ "RummageBinWin", function()
@@ -7278,10 +7470,12 @@ local SCENES = {
 		-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the big arrow points at the
 		-- ×, off the Hide tips tag, with the spotlight round it
 		assertArrowAt(dot.Parent :: GuiObject, "the Tutorial tile's ×")
-		assert(tutorialSpotlight(), "uigate: no spotlight round the Tutorial tile's × (#3154)")
+		-- #3638 (Derek 2026-11-12: "no need to force them to close tips and darken screen just show the x for a bit"):
+		-- the arrow, ring and tag only, the screen is not darkened, and it is over in 6 s
+		assert(tutorialSpotlight() == nil, "uigate: the screen darkens round the Tutorial tile's × (#3638)")
 		local across = (dot :: GuiObject).AbsoluteSize.X
 		assert(across >= 21 - 0.5, ("uigate: the Tutorial tile's × is %.1f px across (#2411)"):format(across))
-		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
+		UIShim.advance(5.2) -- #3638: the pulse lasts 6 s (1 s of it gone above)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2411)")
 		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
 		assert(hint() == nil, "uigate: the Hide tips tag does not go (#2411)")
@@ -7695,6 +7889,77 @@ local SCENES = {
 		extras.yardSale.held = 1
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
+	end },
+	-- #3615: the Yard Sale card as the lucky pick (the `yardSaleRoll` switch): the board with one row per crate a
+	-- Tier 4 player can win, chances to one decimal, and the Lucky pick button
+	{ "YardSalePick", function()
+		local extras = yardPickExtras(4, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.3)
+		local card = yardPickCard()
+		local pick = card:FindFirstChild("Pick", true)
+		assert(pick and pick.Visible, "uigate: the lucky pick is not on the Yard Sale card (#3615)")
+		local crates = card:FindFirstChild("Crates", true)
+		assert(crates and not crates.Visible, "uigate: the free crate card shows beside the lucky pick (#3615)")
+		local rows, golden = 0, 0
+		for _, piece in pick:GetDescendants() do
+			if piece:GetAttribute("RowId") ~= nil then
+				rows += 1
+				local chance = piece:FindFirstChild("Chance")
+				assert(chance and string.match(chance.Text, "^%d+%.%d%%$"), "uigate: a lucky pick row has no chance to one decimal (#3615)")
+				if string.find(piece:GetAttribute("RowId"), "golden", 1, true) then
+					golden += 1
+				end
+			end
+		end
+		assert(rows == #extras.yardSale.pick and golden >= 1, "uigate: the lucky pick board has " .. rows .. " rows (#3615)")
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local words = string.lower(piece.Text)
+				assert(
+					not string.find(words, "gamble", 1, true) and not string.find(words, "bet ", 1, true) and not string.find(words, "spin", 1, true),
+					"uigate: a word the lucky pick must not use: " .. piece.Text
+				)
+			end
+		end
+	end },
+	-- #3615: the pick taken: rows dimmed, "Next pick in 1 h 20 m", the button off
+	{ "YardSalePickWait", function()
+		local extras = yardPickExtras(4, true)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.3)
+		local line = yardPickCard():FindFirstChild("Line", true)
+		assert(line and string.find(line.Text, "Next pick in", 1, true), "uigate: no wait on the taken lucky pick (#3615)")
+	end },
+	-- #3615: YardSalePicked(1): the light rolls down the board twice and stops on row 1, the only lit row. Tier 1's
+	-- short board and its first row, so the whole roll ends inside the 1.5 s a scene is given: a longer one ran on
+	-- into the next scene and failed there (the Tier 4 board's roll to row 3 is about 2 s)
+	{ "YardSalePickLanded", function()
+		local extras = yardPickExtras(1, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.1)
+		local landing = 1
+		UI.campExtras.picked(landing)
+		local total = 0
+		for _, step in UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic").rollSteps(#extras.yardSale.pick, landing) do
+			total += step.rest
+		end
+		assert(total < 1.2, "uigate: the lucky pick's roll takes " .. total .. " s, too long for this scene (#3615)")
+		task.wait(total + 0.15)
+		local lit = {}
+		for _, piece in yardPickCard():GetDescendants() do
+			if piece:GetAttribute("RowId") ~= nil then
+				local stroke = piece:FindFirstChildWhichIsA("UIStroke")
+				if stroke and stroke.Thickness == 3 then
+					table.insert(lit, piece.Name)
+				end
+			end
+		end
+		local want = "Row" .. landing
+		assert(#lit == 1 and lit[1] == want, "uigate: the pick's light is on " .. table.concat(lit, ",") .. ", not " .. want .. " (#3615)")
 	end },
 	-- #1200: the Garden Nursery at Tier 3: owned pieces read Owned, the rest Buy with the price, Tier 4 and 5 pieces
 	-- "Opens at Tier 4"; then its Fences tab
@@ -9354,6 +9619,18 @@ local SCENES = {
 		UI.open("Settings")
 		press("Settings", "resetSave.Open")
 	end },
+	-- #3573: the rest chip under the money while the player rests in their own cafe; in a 2x party it names no number
+	{ "RestChip", function()
+		UI.rest.set(true, true)
+		Scenes._rest = true
+		local chip = UIShim.playerGui:FindFirstChild("RestChip", true) :: GuiObject?
+		assert(chip and chip.Visible, "uigate: the rest chip does not show (#3573)")
+		local words = chip:FindFirstChild("Words", true) :: TextLabel
+		assert(words.Text == "Cozy cafe: 2x cat pay 💤", "uigate: the rest chip's words are not the design's (#3573)")
+		UI.rest.set(true, false)
+		assert(words.Text == "Cozy cafe 💤", "uigate: the rest chip names 2x in a 2x party (#3573)")
+		UI.rest.set(true, true)
+	end },
 }
 
 Scenes.names = {}
@@ -9372,6 +9649,22 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if Scenes._richTipGate ~= nil then
+		-- #3633's scene: its bubbles and made-up plots
+		for _, made in Scenes._richTipGate.made do
+			if typeof(made) == "Instance" then
+				made:Destroy()
+			else
+				made:destroy()
+			end
+		end
+		Scenes._richTipGate.gui:Destroy()
+		Scenes._richTipGate = nil
+	end
+	if Scenes._rest then
+		Scenes._rest = nil
+		UI.rest.set(false) -- #3573's scene
+	end
 	if UI.loot.card then
 		UI.loot.card:hide()
 	end
@@ -9455,6 +9748,10 @@ function Scenes.close()
 	if Scenes._tackle then
 		Scenes._tackle = nil
 		UI.shove.setEnabled(false) -- #2510's Tackle button
+	end
+	if Scenes._binBoards then
+		Scenes._binBoards:Destroy() -- #3611's boards
+		Scenes._binBoards = nil
 	end
 	if Scenes._rallyFace then
 		Scenes._rallyFace:Destroy() -- #2078's board face

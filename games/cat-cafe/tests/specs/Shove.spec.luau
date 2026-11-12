@@ -142,16 +142,33 @@ return function()
 			end
 		)
 
-		it("shields a join for TackleShieldSeconds, 15 minutes (#3342, #3475)", function()
+		it("shields a new player's first TackleShieldSeconds, 15 minutes (#3342, #3475)", function()
 			local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 			expect(Config.TackleShieldSeconds).to.equal(900)
-			local untilAt = Shove.shieldUntil(1000)
+			local untilAt = Shove.shieldUntil(1000, 0)
 			expect(untilAt).to.equal(1900)
 			expect(Shove.shielded(untilAt, 1000)).to.equal(true)
 			expect(Shove.shielded(untilAt, 1899.9)).to.equal(true)
 			expect(Shove.shielded(untilAt, 1900)).to.equal(false)
 			expect(Shove.shielded(nil, 1000)).to.equal(false)
 		end)
+
+		it(
+			"counts the 15 minutes across visits and gives a returning player none (#3629)",
+			function()
+				-- left after 5 minutes: 10 are left on the next join
+				expect(Shove.shieldUntil(5000, 300)).to.equal(5600)
+				expect(Shove.shieldUntil(5000, 899)).to.equal(5001)
+				-- used up, or long past it
+				expect(Shove.shieldUntil(5000, 900)).to.equal(nil)
+				expect(Shove.shieldUntil(5000, 36000)).to.equal(nil)
+				-- no count, or a damaged one: no shield
+				expect(Shove.shieldUntil(5000, nil)).to.equal(nil)
+				expect(Shove.shieldUntil(5000, "0")).to.equal(nil)
+				expect(Shove.shieldUntil(5000, 0 / 0)).to.equal(nil)
+				expect(Shove.shieldUntil(5000, -50)).to.equal(5900)
+			end
+		)
 
 		it("passes through a player with a trade open (#2568, trading from anywhere)", function()
 			expect(Shove.targetRefusal(target({ targetTrading = true }))).to.equal(

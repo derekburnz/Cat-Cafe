@@ -726,6 +726,13 @@ return function()
 						expect(inside(ox, oz, gated.rect, 0)).to.equal(true)
 					end
 				end
+				-- #3628: no board's ring over its camp's carrier basket. The ring (radius 5.5) lies in front of
+				-- the board, its middle within a stud of the board's x; the basket is 3 studs across
+				for id, other in Layout.indexBoards do
+					local gated = Layout.camps[id]
+					local basketX = Layout.campSpace(gated, gated.basket.x, gated.basket.z)
+					expect(math.abs(other.x - basketX) - 0.8 - 5.5 - 1.5 > 0).to.equal(true)
+				end
 				expect(math.abs(bx - W.AlleyCenterX) > W.AlleyWayHalfWidth).to.equal(true)
 				-- one arch over the way in, as wide as it
 				local arches = alley.arches :: { Layout.Arch }

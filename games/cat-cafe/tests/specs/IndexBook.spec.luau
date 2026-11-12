@@ -91,7 +91,9 @@ return function()
 		it("leaves no trace until a Secret cat is found", function()
 			expect(ids(IndexBook.sections(WITH, state({}), "normal"))).to.equal("alley,park")
 			expect(IndexBook.secret(WITH, state({}), "normal")).to.equal(nil)
-			expect(IndexBook.secret(WITH, state({ collection = { tabby = 1 } }), "normal")).to.equal(nil)
+			expect(IndexBook.secret(WITH, state({ collection = { tabby = 1 } }), "normal")).to.equal(
+				nil
+			)
 		end)
 
 		it("lists only the found ones and never a total", function()
@@ -101,7 +103,8 @@ return function()
 			expect(page.exclusive).to.equal(true)
 			expect(ids(page.cats)).to.equal("glitch")
 			expect(IndexBook.count(page)).to.equal("1 found")
-			local both = IndexBook.secret(WITH, state({ catsOwned = { nebula = 1, glitch = 1 } }), "normal")
+			local both =
+				IndexBook.secret(WITH, state({ catsOwned = { nebula = 1, glitch = 1 } }), "normal")
 			expect(ids(both.cats)).to.equal("nebula,glitch")
 			expect(IndexBook.count(both)).to.equal("2 found")
 		end)

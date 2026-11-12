@@ -11,6 +11,13 @@
 -- the bin while it is full for this player and its switch is on: for this player only (it lives in their PlayerGui),
 -- seen within BANG_RANGE studs, bobbing unless Reduce Motion is on. No countdown and nothing outside the Alleyway.
 -- #3460: the note under the prompt names this player's next fixed prize, then the chances (RummageBin.note).
+-- #3608, behind the `binRoll` switch: the server chooses the prize before the bar and says so with BinRolled (the
+-- row's id and a mode). A fresh roll plays Effects/BinRoll's roll over the board's rows and a fixed first prize its
+-- reveal; a tap, click or key skips either (a RescuePress, which makes the server send the bar at once). The win
+-- plays the tier's effect and the prize's hop to the player. The pad in front of the bin (the model's floor ring)
+-- starts a rummage for a player who has stood on it Config.BinPadDwellSeconds, once per visit to the pad, with the
+-- prompt's own remote; the ring shows only while the switch is on. BinController.onRoll and .onPrize let the board
+-- (UI) follow along.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -22,14 +29,25 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Create = require(script.Parent.Parent.UI.Components.Create)
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
+local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Outline = require(script.Parent.Parent.UI.Components.Outline)
 local RummageBin = require(Shared:WaitForChild("RummageBin"))
 local Scale = require(script.Parent.Parent.UI.Scale)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local UI = require(script.Parent.Parent.UI)
+local UserInputService = game:GetService("UserInputService")
+local WalkUp = require(Shared:WaitForChild("WalkUp"))
 
 local BinController = {}
+
+-- #3608: what the board hears. `onPrize(rowId, mode)` when the server names the prize (nil, nil when the rummage is
+-- over), `onRoll(index)` for each row the roll's highlight passes and lands on.
+BinController.onPrize = nil :: ((rowId: string?, mode: string?) -> ())?
+BinController.onRoll = nil :: ((index: number) -> ())?
+
+local PAD_SECONDS = 0.1
 
 local LABEL_SECONDS = 1
 local BANG_RANGE = 40 -- studs from the camera, as the camp stations' "!" (CampExtrasLogic.BANG_RANGE)
@@ -203,6 +221,203 @@ local function onTriggered()
 	Net.fire("RescueBegin", RummageBin.SPOT)
 end
 
+local function rollOn(): boolean
+	return LiveFlags.shown(
+		RummageBin.ROLL_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG)
+	)
+end
+
+-- The bin's floor ring (World/WalkUpCircles): the part, or nil while it is streamed out.
+local function padOf(model: Model): BasePart?
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local ring = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	return if ring ~= nil and ring:IsA("BasePart") then ring :: BasePart else nil
+end
+
+-- Motion-FX's roll and prize effects (Effects/BinRoll, #3612), when that module is in the build.
+local function binFx(): any
+	local controllers: Instance? = script.Parent
+	local client: Instance? = if controllers ~= nil then controllers.Parent else nil
+	local effects: Instance? = if client ~= nil then client:FindFirstChild("Effects") else nil
+	local module: Instance? = if effects ~= nil then effects:FindFirstChild("BinRoll") else nil
+	if module == nil or not (module :: Instance):IsA("ModuleScript") then
+		return nil
+	end
+	local ok, fx = pcall(require :: any, module)
+	return if ok then fx else nil
+end
+
+local function firstBin(): Model?
+	for model in models do
+		return model
+	end
+	return nil
+end
+
+-- The show before the bar: the roll or the reveal, until the bar comes or the player skips.
+local showing: { skip: (() -> ())? }? = nil
+
+local function endShow()
+	local show = showing
+	showing = nil
+	if show ~= nil and show.skip ~= nil then
+		show.skip()
+	end
+end
+
+local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
+	if type(rowId) ~= "string" or type(mode) ~= "string" then
+		return
+	end
+	local row = RummageBin.rollRow(rowId)
+	if row == nil then
+		return
+	end
+	endShow()
+	if BinController.onPrize ~= nil then
+		BinController.onPrize(rowId, mode)
+	end
+	if mode == RummageBin.MODE_WAITING or type(seconds) ~= "number" or seconds <= 0 then
+		return
+	end
+	local show: { skip: (() -> ())? } = { skip = nil }
+	showing = show
+	local model, fx = firstBin(), binFx()
+	local index = RummageBin.rollIndex(rowId)
+	local function landed()
+		if showing == show then
+			show.skip = nil
+		end
+		if index ~= nil and BinController.onRoll ~= nil then
+			BinController.onRoll(index)
+		end
+	end
+	if fx ~= nil and model ~= nil then
+		local ok, skip = pcall(function(): any
+			if mode == RummageBin.MODE_ROLL and index ~= nil then
+				return fx.play(
+					model,
+					#RummageBin.rollRows(),
+					index,
+					RummageBin.tier(row),
+					function(at: number)
+						if BinController.onRoll ~= nil then
+							BinController.onRoll(at)
+						end
+					end,
+					landed
+				)
+			end
+			return fx.reveal(model, RummageBin.tier(row), landed)
+		end)
+		if ok and type(skip) == "function" then
+			show.skip = skip
+			return
+		end
+	end
+	landed() -- no effects module: the board just shows the row
+end
+
+-- A tap, click or key during the show skips it: the effect jumps to its end and the server sends the bar now.
+local function onInput(input: InputObject, processed: boolean)
+	if showing == nil or processed then
+		return
+	end
+	local kind = input.UserInputType
+	if
+		kind ~= Enum.UserInputType.Touch
+		and kind ~= Enum.UserInputType.MouseButton1
+		and kind ~= Enum.UserInputType.Keyboard
+		and kind ~= Enum.UserInputType.Gamepad1
+	then
+		return
+	end
+	if kind == Enum.UserInputType.Gamepad1 and input.KeyCode ~= Enum.KeyCode.ButtonA then
+		return
+	end
+	endShow()
+	Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
+end
+
+local function onWin(rowId: string, _first: boolean)
+	endShow()
+	if BinController.onPrize ~= nil then
+		BinController.onPrize(nil, nil)
+	end
+	if not rollOn() then
+		return
+	end
+	local row, model, fx = RummageBin.rollRow(rowId), firstBin(), binFx()
+	if row == nil or model == nil or fx == nil then
+		return
+	end
+	local tier = RummageBin.tier(row)
+	setLook(model, false) -- the empty look first, so the lid that hops is the one that shows
+	pcall(function()
+		fx.win(model, tier)
+		fx.hop(model, function(): Vector3?
+			local character = Players.LocalPlayer.Character
+			local root = if character ~= nil
+				then character:FindFirstChild("HumanoidRootPart")
+				else nil
+			return if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
+		end, tier)
+	end)
+end
+
+-- The pad: standing inside the ring for BinPadDwellSeconds starts a rummage, once per visit to the pad, so a miss
+-- or a closed bar never starts another by itself and running across it starts nothing.
+local padSince: number? = nil
+local padUsed = false
+
+local function padStep()
+	local on = rollOn()
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	local inside = false
+	for model, prompt in models do
+		local pad = padOf(model)
+		if pad == nil then
+			continue
+		end
+		local gui = pad:FindFirstChildWhichIsA("SurfaceGui") :: SurfaceGui?
+		local shown = on and prompt ~= nil and prompt.Enabled
+		if gui ~= nil and gui.Enabled ~= shown then
+			gui.Enabled = shown
+		end
+		if shown and root ~= nil and root:IsA("BasePart") then
+			local offset = (root :: BasePart).Position - pad.Position
+			local radius = pad:GetAttribute("Radius")
+			local reach = if type(radius) == "number" then radius else pad.Size.X / 2
+			if
+				Vector3.new(offset.X, 0, offset.Z).Magnitude <= reach
+				and math.abs(offset.Y) <= 8
+			then
+				inside = true
+			end
+		end
+	end
+	if not inside then
+		padSince = nil
+		padUsed = false
+		return
+	end
+	local now = os.clock()
+	local since = padSince or now
+	padSince = since
+	if padUsed or now - since < Config.BinPadDwellSeconds then
+		return
+	end
+	if busy() or not ready() then
+		return -- keeps waiting on the pad: a bin that fills while the player stands there starts
+	end
+	padUsed = true
+	Net.fire("RescueBegin", RummageBin.SPOT)
+end
+
 -- Picks up a placed bin's prompt (again after its model streams back in).
 local function track(instance: Instance)
 	if not instance:IsA("Model") or not instance:IsDescendantOf(Workspace) then
@@ -247,6 +462,16 @@ function BinController.start()
 		while true do
 			task.wait(LABEL_SECONDS)
 			label()
+		end
+	end)
+	-- #3608
+	Net.on("BinRolled", onRolled)
+	Moments.RummageWin:Connect(onWin)
+	UserInputService.InputBegan:Connect(onInput)
+	task.spawn(function()
+		while true do
+			task.wait(PAD_SECONDS)
+			padStep()
 		end
 	end)
 end

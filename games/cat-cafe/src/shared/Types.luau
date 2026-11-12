@@ -942,13 +942,16 @@ export type CampExtrasSave = {
 
 -- #3050: the Rummage Bin (shared/RummageBin): the os.time() it is full again (0: ready) and the wins so far. Kept in its
 -- own DataStore (BinService), not the save, so it needs no save version step.
-export type RummageBinSave = { nextAt: number, uses: number }
+-- #3610: `prize` is the row id rolled and waiting for the player (the `binRoll` switch): the next win pays it, and a
+-- miss, a leave or a rejoin keeps it. nil when none waits.
+export type RummageBinSave = { nextAt: number, uses: number, prize: string? }
 -- A Rummage Bin win as RescueResult's last argument carries it: the BinTable row's id and whether it is the account's
 -- first win (shared/RummageBin.winWords).
 -- #3464: `items` is the whole win, one entry per thing paid (kind "lure", "crate", "potion" or "fish"; `id` the
 -- item's id, nil for golden fish; `count` how many), for the loot card.
 export type RummageItem = { kind: string, id: string?, count: number }
-export type RummageWin = { id: string, first: boolean, items: { RummageItem }? }
+-- #3608: `rolled` true when the row is the `binRoll` bin's (a BinRollTable row or a fixed first prize).
+export type RummageWin = { id: string, first: boolean, items: { RummageItem }?, rolled: boolean? }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
 export type YardSaleCrate = { crateId: string, price: number, bought: boolean }

@@ -1956,6 +1956,7 @@ end
 -- and `_Empty` (lid shut): neither collides (the bin under them does) and the empty one starts hidden. Without the
 -- art a plain block stands in. Atomic, as the camp extras.
 local BIN_ART = "CatCafe_Camp_Alley_RummageBin"
+local BIN_RING = Color3.fromRGB(120, 230, 255) -- the cyan of the bin's sparkle (Model-Agent, #3613)
 
 local function buildRummageBin(parent: Instance)
 	local x, y, z, turn = Layout.rummageBinAt()
@@ -2021,6 +2022,9 @@ local function buildRummageBin(parent: Instance)
 	-- the chances, under the pill before the press (monetization-policy section 2)
 	prompt:SetAttribute("Note", RummageBin.oddsLine())
 	prompt.Parent = anchor
+	-- #3608: the pad in front of the bin, a ring as the stations have. Standing on it BinPadDwellSeconds starts a
+	-- rummage (BinController sends the prompt's own remote); each client shows it only while `binRoll` is on.
+	WalkUpCircles.frontFit(model, BIN_RING, parent, nil, Config.BinPadRadius)
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at

@@ -713,6 +713,7 @@ export type TradeTile = {
 	charm: number?,
 	rateForMe: number,
 	earnsNow: number?, -- #3211: the viewer's own cat: what it earns this second (0 with no job); the totals use it
+	trait: TraitData?, -- #3710: the cat's Mystic Pool trait, which moves with it (shared/Trade)
 }
 -- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
 -- adds while placed (0.05 is +5%).

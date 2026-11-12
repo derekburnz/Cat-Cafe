@@ -540,7 +540,7 @@ local function tradeState(fields)
 		end
 		return Catalog.cats[1].id
 	end
-	local function mine(uid, rate)
+	local function mine(uid, rate, trait)
 		local cat = samplePlayer(workspace:GetServerTimeNow()).cats[uid]
 		local def = Catalog.getCat(cat.catId)
 		return {
@@ -550,6 +550,7 @@ local function tradeState(fields)
 			variant = if cat.variant == "gold" then "gold" else nil,
 			level = cat.level,
 			rateForMe = rate,
+			trait = trait,
 		}
 	end
 	local state = {
@@ -561,7 +562,12 @@ local function tradeState(fields)
 			name = "Tester",
 			ready = false,
 			confirmed = false,
-			cats = { mine("gate_1", 12), mine("gate_3", 110), mine("gate_5", 62) },
+			-- #3710: a Legendary trait on my first cat and a Rare one on Sam's second
+			cats = {
+				mine("gate_1", 12, { id = "goldenWhiskers" }),
+				mine("gate_3", 110),
+				mine("gate_5", 62),
+			},
 		},
 		them = {
 			userId = 4242,
@@ -577,6 +583,7 @@ local function tradeState(fields)
 					variant = "rainbow",
 					level = 7,
 					rateForMe = 1250,
+					trait = { id = "bigTipper_rare" },
 				},
 			},
 		},
@@ -9324,6 +9331,15 @@ local SCENES = {
 	-- locked gate_2 and the offered ones dimmed
 	{ "TradeOffer", function()
 		UI.trade.state(tradeState())
+		-- #3710: each side's cat with a trait wears its name; the other tiles show no band
+		local shown = {}
+		for _, item in UIShim.playerGui:GetDescendants() do
+			if item.Name == "Trait" and item:IsA("TextLabel") and item.Visible then
+				shown[item.Text] = true
+			end
+		end
+		assert(shown["Golden Whiskers"], "uigate: my cat's trait is not on its trade tile (#3710)")
+		assert(shown["Big Tipper"], "uigate: Sam's cat's trait is not on its trade tile (#3710)")
 	end },
 	-- F102: Sam just added a cat: "Changed!" over Sam's side, the new tile flashing, both Ready cleared
 	{ "TradeChanged", function()
@@ -9344,6 +9360,22 @@ local SCENES = {
 		local state = tradeState({ phase = "confirm", lopsided = true })
 		state.me.ready = true
 		UI.trade.state(state)
+		-- #3710: the trait line under the rarity of each cat that has one
+		local lines = 0
+		for _, item in UIShim.playerGui:GetDescendants() do
+			local parent = item.Parent
+			if
+				item.Name == "Trait"
+				and item:IsA("TextLabel")
+				and item.Visible
+				and parent ~= nil
+				and parent.Name:match("^Card%d")
+				and (item.Text == "Golden Whiskers" or item.Text == "Big Tipper")
+			then
+				lines += 1
+			end
+		end
+		assert(lines == 2, "uigate: the confirm cards show " .. lines .. " trait lines, not 2 (#3710)")
 	end },
 	-- F102: a gift: "Nothing" in red under You get and "You get nothing back"
 	{ "TradeGift", function()

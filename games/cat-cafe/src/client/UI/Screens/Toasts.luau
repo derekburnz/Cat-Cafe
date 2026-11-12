@@ -27,6 +27,8 @@
 -- it one rich line that shrinks, then wraps onto a second row, so a name is never cut. A tap runs card.onTap.
 
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CoatWords =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("CoatWords"))
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -577,6 +579,15 @@ function Toasts._push(
 		lifetime = RewardList.lifetime(#rewards, math.max(lifetime, PRIZE_LIFETIME))
 	else
 		Toasts._wrap(toast, message, if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX)
+		-- #3692: a shout-out that names a Rainbow or Gold cat draws that one word in its colours (shared/CoatWords).
+		-- Set after _wrap has read the plain words to measure; the letters are as wide either way.
+		if prize == nil and (fill ~= KIND_COLORS.good and fill ~= KIND_COLORS.warn) then
+			local rich, found = CoatWords.rich(text, CoatWords.escape)
+			if found then
+				message.RichText = true
+				message.Text = rich
+			end
+		end
 	end
 	local textOutline = Outline.text(message)
 	textOutline.Transparency = 1

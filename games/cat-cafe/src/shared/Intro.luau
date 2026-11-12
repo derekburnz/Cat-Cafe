@@ -213,8 +213,8 @@ local CAMP_PAD_Z = -13
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_IN = -7 -- as Layout.indexBoards (#3349): 7 in at a gated area, 4 at the Alleyway
 local ALLEY_BOARD_IN = -4
-local BOARD_OUT = 12 -- #3628: 4 until the boards moved off the carrier baskets
-local BOARD_OUT_FOR: { [string]: number } = { woods = 7.2 }
+local BOARD_OUT = 11 -- #3628: 4 until the boards moved off the carrier baskets
+local BOARD_OUT_FOR: { [string]: number } = { woods = 9 }
 local ALLEY_BOARD_OUT = 7
 
 -- Where Layout.camps puts `area`'s camp, or nil for an area without one.

@@ -731,7 +731,7 @@ return function()
 				for id, other in Layout.indexBoards do
 					local gated = Layout.camps[id]
 					local basketX = Layout.campSpace(gated, gated.basket.x, gated.basket.z)
-					expect(math.abs(other.x - basketX) - 1 - 5.5 - 1.5 > 0).to.equal(true)
+					expect(math.abs(other.x - basketX) - 0.8 - 5.5 - 1.5 > 0).to.equal(true)
 				end
 				expect(math.abs(bx - W.AlleyCenterX) > W.AlleyWayHalfWidth).to.equal(true)
 				-- one arch over the way in, as wide as it

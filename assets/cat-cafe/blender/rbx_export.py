@@ -258,12 +258,18 @@ def _material(obname, swatch):
 # (never the head, so the face and eyes stay solid); its gold twins stay opaque, so only the plain models are listed
 SHIMMER = {"CatCafe_Cat_Mirage", "CatCafe_Cat_Mirage_Sit", "CatCafe_Cat_Mirage_Work"}
 SHIMMER_PIECES = ("_Body", "_Tail", "_LegF1", "_LegF2", "_LegB1", "_LegB2")
+# #3470 (secret-cats.md section 8): the Cafe Ghost is see-through, Transparency 0.5 on everything but its eyes, its work props and
+# its chef hat, so the face still reads; its gold twins stay opaque like the Mirage Cat's
+GHOST = {"CatCafe_Cat_CafeGhost", "CatCafe_Cat_CafeGhost_Sit", "CatCafe_Cat_CafeGhost_Work"}
+GHOST_SOLID = ("_Eye1", "_Eye2", "_Prop", "_Waiter", "_Barista", "_Entertainer")   # and what it carries at work
 
 
 def _props(p, asset, uid):
     material, transparency = _material(p["name"], p["swatch"])
     if asset in SHIMMER and p["name"].endswith(SHIMMER_PIECES):
         transparency = 0.15
+    if asset in GHOST and not p["name"].endswith(GHOST_SOLID):
+        transparency = 0.5
     material = SWATCH_MATERIALS.get(asset, {}).get(p["swatch"], material)
     see_through = material == "Glass" or p["swatch"] == "glass" or p["name"].endswith("_Glass")
     climb = p["name"].endswith(CLIMB_OBJECTS)

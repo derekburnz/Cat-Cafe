@@ -8545,9 +8545,11 @@ local SCENES = {
 			-- #2447: in the top bar the Luck row sits right of the counters, level with them (#3307: the middle is in
 			-- the bar; on a big tablet the counters are taller than it)
 			local gap = row.AbsolutePosition.X - (counters.AbsolutePosition.X + counters.AbsoluteSize.X)
-			if row.AbsolutePosition.Y >= bottom then
+			local narrow = (workspace.CurrentCamera :: Camera).ViewportSize.X < 760
+			if narrow and row.AbsolutePosition.Y >= bottom then
 				-- #3518: the third case (#2712, #2881), a phone too narrow for the pair (705 x 338): the counters stay in
-				-- the bar and the row hangs under them, its left edge level with theirs or right of it, clear of the menu
+				-- the bar and the row hangs under them, its left edge level with theirs or right of it, clear of the menu.
+				-- Only under 760 px wide: an 844 x 390 phone keeps the pair in the bar, and the asserts below hold it there
 				assert(row.AbsolutePosition.X >= counters.AbsolutePosition.X - 1, "uigate: the Luck row under the counters starts left of them (#2881)")
 				assert(row.AbsolutePosition.X + row.AbsoluteSize.X <= root.AbsolutePosition.X + root.AbsoluteSize.X, "uigate: the Luck row under the counters runs off the screen (#2881)")
 				assert(row.AbsolutePosition.Y - bottom <= 30, "uigate: the Luck row sits far under the counters (#2712)")

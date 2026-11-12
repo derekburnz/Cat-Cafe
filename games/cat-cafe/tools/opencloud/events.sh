@@ -263,7 +263,7 @@ event_body() {
 		+ (if $start != "" then {startTime: $start} else {} end)
 		+ (if $end != "" then {endTime: $end} else {} end)
 		+ (if $cat != "" then {categories: [{category: $cat, rank: 0}]} else {} end)
-		+ (if $img != "" then {thumbnails: [{mediaId: $img, rank: 0}]} else {} end)'
+		+ (if $img != "" then {thumbnails: [{mediaId: ($img | tonumber), rank: 1}]} else {} end)'
 }
 
 event_fail() {
@@ -288,7 +288,7 @@ roblox-create)
 	[ $# -ge 6 ] && [ $# -le 8 ] || usage
 	[ -n "$2" ] && [ -n "$3" ] || refuse "title and subtitle are required"
 	data=$(event_body "$2" "$3" "$4" "$5" "$6" "${7:-}" "${8:-}")
-	data=$(jq -c --argjson place "${PLACE_ID:-119569792798199}" '. + {visibility: "Public", placeId: ($place | tostring)}' <<<"$data")
+	data=$(jq -c --argjson place "${PLACE_ID:-119569792798199}" '. + {visibility: "public", placeId: $place}' <<<"$data")
 	echo "Creating: $data"
 	call POST "https://apis.roblox.com/virtual-events/v3/universes/$UNIVERSE_ID/game-events" \
 		-H 'Content-Type: application/json' --data "$data"

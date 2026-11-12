@@ -353,6 +353,30 @@ local function lateCats()
 	UI.update({ cats = cats })
 end
 
+-- #3296: Mouse Dash's card open with its switch on; `circle` whether Circle Streak is still playable beside it.
+local function mouseDashCard(circle)
+	UI.close()
+	UI.update({ goldenFish = 12 } :: any)
+	UI.mouseDash.setFlags(true, circle)
+	UI.mouseDash.state({
+		loaded = true,
+		best = 37,
+		bestSeconds = 30,
+		today = { 10, 20 },
+		legend = false,
+		mouser = true,
+		free = true,
+		firstRun = false,
+		top = {
+			{ rank = 1, name = "Sam", points = 61, seconds = 55 },
+			{ rank = 2, name = "You", points = 37, seconds = 30, me = true },
+		},
+	})
+	UI.arcade.open()
+	assert(UI.isOpen() == "MouseDash", "uigate: with mouseDash on the cabinet opened " .. tostring(UI.isOpen()) .. " (#3296)")
+	return UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("MouseDash", true)
+end
+
 local function lateWindow(name)
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 	local window = modals and modals:FindFirstChild(name, true)
@@ -3792,6 +3816,112 @@ local SCENES = {
 		end
 		assert(glyphs >= 3, ("uigate: the session ask shows %d of the three thumbs and face (#3272)"):format(glyphs))
 	end },
+	-- #3296: Mouse Dash. With its switch on the cabinet opens its card: the best and titles, today's prizes (the
+	-- arcade's, shared), "Play (free)" and no way to Circle Streak once that game is vaulted
+	{
+		"MouseDashCard",
+		function()
+			local window = mouseDashCard(false)
+			local play = window:FindFirstChild("Play", true):FindFirstChildWhichIsA("TextLabel", true)
+			assert(play.Text == "Play (free)", "uigate: Mouse Dash's Play reads " .. play.Text .. " (#3296)")
+			local records = window:FindFirstChild("Records", true)
+			assert(records.Text == "Best 37 · Mouser", "uigate: Mouse Dash's records read " .. records.Text .. " (#3296)")
+			local list = window:FindFirstChild("List", true)
+			assert(list.Text:find("Star Treat", 1, true), "uigate: Mouse Dash's card lacks the arcade's prizes (#3296)")
+			assert(window:FindFirstChild("IdeaBy", true), "uigate: no idea credit on Mouse Dash's card (#3296)")
+			local other = window:FindFirstChild("CircleStreak", true)
+			assert(other and not other.Visible, "uigate: a vaulted Circle Streak still has its button (#3296)")
+			local sent = false
+			local connection = UI.events.mouseDashPlay:Connect(function()
+				sent = true
+			end)
+			press("MouseDash", "Play")
+			connection:Disconnect()
+			assert(sent, "uigate: Play on Mouse Dash's card sent nothing (#3296)")
+		end,
+	},
+	-- #3296: while both switches are on (testing) the card has a button to Circle Streak, which opens its card
+	{
+		"MouseDashBoth",
+		function()
+			local window = mouseDashCard(true)
+			local other = window:FindFirstChild("CircleStreak", true)
+			assert(other and other.Visible, "uigate: no button to Circle Streak while both games are on (#3296)")
+			press("MouseDash", "CircleStreak")
+			assert(UI.isOpen() == "Arcade", "uigate: the Circle Streak button opened " .. tostring(UI.isOpen()) .. " (#3296)")
+			UI.close()
+			mouseDashCard(true)
+		end,
+	},
+	-- #3296: a game on the board: nine holes that never overlap, 64 px or more each, the hearts and score strip clear
+	-- of every hole, and each animal centred in its hole. A tap sends the run, the wave and the hole.
+	{
+		"MouseDashBoard",
+		function()
+			local window = mouseDashCard(false)
+			local nowAt = workspace:GetServerTimeNow()
+			UI.mouseDash.began(7, 3, nowAt)
+			UI.mouseDash.wave(7, 1, {
+				{ hole = 2, kind = "mouse", upAt = nowAt, downAt = nowAt + 600 },
+				{ hole = 6, kind = "kitten", upAt = nowAt, downAt = nowAt + 600 },
+				{ hole = 7, kind = "golden", upAt = nowAt, downAt = nowAt + 600 },
+			}, nil)
+			UI.mouseDash.judged(7, 1, { outcome = "empty", hole = 9, gain = 0, heart = 0 }, 23, 2, 4, {}, 0)
+			local board = window:FindFirstChild("Board", true)
+			assert(board and board.Visible, "uigate: Mouse Dash's board did not come up (#3296)")
+			assert(board:FindFirstChild("Score", true).Text == "23", "uigate: the score is not the server's (#3296)")
+			local hud = board:FindFirstChild("Hud")
+			local holes = {}
+			for index = 1, 9 do
+				local hole = board:FindFirstChild("Hole" .. index, true)
+				assert(hole and hole:IsA("GuiButton"), "uigate: no hole " .. index .. " (#3296)")
+				holes[index] = hole
+				local size, at = hole.AbsoluteSize, hole.AbsolutePosition
+				assert(size.X >= 64 and size.Y >= 64, "uigate: hole " .. index .. " is " .. size.X .. " px on a board of " .. tostring(board.AbsoluteSize) .. " in a window of " .. tostring(window.AbsoluteSize) .. " (#3296)")
+				-- clear of the hearts and score strip (Derek: the corner symbol was too close to the spawn)
+				local hx, hy = hud.AbsolutePosition.X, hud.AbsolutePosition.Y
+				local clearX = at.X >= hx + hud.AbsoluteSize.X + 15 or at.X + size.X <= hx - 15
+				local clearY = at.Y >= hy + hud.AbsoluteSize.Y + 15 or at.Y + size.Y <= hy - 15
+				assert(clearX or clearY, "uigate: hole " .. index .. " is under the hearts and score strip (#3296)")
+				-- each animal's frame is centred on its hole, left to right (Derek: "look off centred")
+				local animal = hole:FindFirstChild("Animal", true)
+				local middle = animal.AbsolutePosition.X + animal.AbsoluteSize.X / 2
+				assert(math.abs(middle - (at.X + size.X / 2)) <= 1, "uigate: hole " .. index .. "'s animal is off centre (#3296)")
+			end
+			for a = 1, 9 do
+				for b = a + 1, 9 do
+					local pa, pb, size = holes[a].AbsolutePosition, holes[b].AbsolutePosition, holes[a].AbsoluteSize
+					assert(math.abs(pa.X - pb.X) >= size.X or math.abs(pa.Y - pb.Y) >= size.Y, "uigate: holes " .. a .. " and " .. b .. " overlap (#3296)")
+				end
+			end
+			assert(holes[2]:FindFirstChild("Animal", true).Visible, "uigate: the mouse in hole 2 is not up (#3296)")
+			assert(holes[6]:FindFirstChild("Zzz", true).Visible, "uigate: the kitten in hole 6 has no Zzz (#3296)")
+			assert(not holes[1]:FindFirstChild("Animal", true).Visible, "uigate: an empty hole shows an animal (#3296)")
+			local sent = nil
+			local connection = UI.events.mouseDashTap:Connect(function(run, index, hole)
+				sent = run .. ":" .. index .. ":" .. hole
+			end)
+			press("MouseDash", "Hole2")
+			connection:Disconnect()
+			assert(sent == "7:1:2", "uigate: a tap on hole 2 sent " .. tostring(sent) .. " (#3296)")
+			UI.mouseDash.judged(7, 1, { outcome = "catch", hole = 2, kind = "mouse", gain = 1, heart = 0 }, 24, 2, 5, {}, 0)
+			assert(not holes[2]:FindFirstChild("Animal", true).Visible, "uigate: a caught mouse is still up (#3296)")
+			assert(board:FindFirstChild("Score", true).Text == "24", "uigate: the score did not move on a catch (#3296)")
+		end,
+	},
+	-- #3296: the end of a game: the card again with the game's line, and the arcade's prizes ticked
+	{
+		"MouseDashOver",
+		function()
+			local window = mouseDashCard(false)
+			UI.mouseDash.began(8, 3, workspace:GetServerTimeNow())
+			UI.mouseDash.over(8, { points = 42, seconds = 51, reason = "quit", win = false, best = 42, bestSeconds = 51, newBest = true, paid = { 30, 40 }, today = { 10, 20, 30, 40 }, legend = false, mouser = true })
+			task.wait(0.1)
+			local last = window:FindFirstChild("LastGame", true)
+			assert(last.Visible and last.Text == "Score 42 · New best!", "uigate: the last game's line reads " .. last.Text .. " (#3296)")
+			assert(window:FindFirstChild("Card", true).Visible, "uigate: the card did not come back after a game (#3296)")
+		end,
+	},
 	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
 	-- after a game
 	{

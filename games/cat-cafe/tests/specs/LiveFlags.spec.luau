@@ -84,7 +84,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5 and Mouse Dash's two alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5 and mouseDash alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -97,14 +97,15 @@ return function()
 							or key == "traits"
 							or key == "swiftPaws5"
 							or key == "mouseDash"
-							or key == "mouseDashMain"
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(8)
+				expect(count).to.equal(7)
 				-- #3296: no Mouse Dash until QA passes and it is switched on
 				expect(LiveFlags.defaults().mouseDash).to.equal(false)
-				expect(LiveFlags.defaults().mouseDashMain).to.equal(false)
+				-- Circle Streak stays until it is vaulted by an explicit false
+				expect(LiveFlags.defaults().circleStreak).to.equal(true)
+				expect(LiveFlags.parse({ circleStreak = false }).circleStreak).to.equal(false)
 				expect(LiveFlags.parse({ mouseDash = true }).mouseDash).to.equal(true)
 				-- #3222: no Golden drop until it is switched on, even with a broken store
 				expect(LiveFlags.defaults().goldenDrops).to.equal(false)

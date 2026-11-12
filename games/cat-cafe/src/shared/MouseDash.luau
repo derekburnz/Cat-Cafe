@@ -36,8 +36,8 @@ local Types = require(script.Parent.Types)
 
 local MouseDash = {}
 
-MouseDash.FLAG = "mouseDash" -- shows the game; off until QA passes
-MouseDash.MAIN_FLAG = "mouseDashMain" -- makes it the game the cabinet opens on
+MouseDash.FLAG = "mouseDash" -- on: the arcade's game; off until QA passes
+MouseDash.CIRCLE_FLAG = "circleStreak" -- false vaults Circle Streak (Derek 2026-11-11)
 MouseDash.HOLES = 9 -- a 3 x 3 grid, numbered row by row from the top left
 MouseDash.MAX_STEP = 20 -- a step every MouseDashStepEvery points, to ArcadeMaxPoints
 MouseDash.STORE = "CatCafe_MouseDash"

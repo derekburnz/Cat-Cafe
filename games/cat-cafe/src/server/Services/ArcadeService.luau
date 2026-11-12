@@ -33,6 +33,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
@@ -447,7 +448,8 @@ local function onStart(player: Player)
 			)
 		end
 	end
-	if not LiveFlagService.on(Arcade.FLAG) then
+	-- #3296: `circleStreak` off vaults this game (Mouse Dash is the arcade's game then); a game running finishes
+	if not (LiveFlagService.on(Arcade.FLAG) and LiveFlagService.on(MouseDash.CIRCLE_FLAG)) then
 		Net.toast(player, CLOSED_TEXT, "warn")
 		blocked(true, true, false, false)
 		return

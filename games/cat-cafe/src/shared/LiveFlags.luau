@@ -33,9 +33,12 @@
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
 --   older server keeps a saved level only up to 2.
 -- - `mouseDash` (#3296): the Cat Arcade's second game, Mouse Dash (shared/MouseDash). It starts OFF (OFF_BY_DEFAULT)
---   until QA passes: off hides its tab and refuses a start; a game already running finishes and pays.
--- - `mouseDashMain` (#3296): true makes Mouse Dash the game the cabinet opens on. It starts OFF (OFF_BY_DEFAULT),
---   read by the client alone.
+--   until QA passes: off refuses a start; a game already running finishes and pays. On, it is the game the
+--   cabinet and the Menu row open (Derek 2026-11-11: "Swap this in for the current arcade game and vault the other
+--   one").
+-- - `circleStreak` (#3296): false vaults Circle Streak: no start from the cabinet, the Menu row or the remote. Its
+--   code, save and board stay, so switching it back on brings the game back. The swap is `mouseDash` on and this
+--   off; while both are on (testing) the Mouse Dash card has a button to Circle Streak.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -62,7 +65,7 @@ LiveFlags.KEYS = {
 	"traits",
 	"swiftPaws5",
 	"mouseDash",
-	"mouseDashMain",
+	"circleStreak",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -73,7 +76,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	traits = true,
 	swiftPaws5 = true,
 	mouseDash = true,
-	mouseDashMain = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

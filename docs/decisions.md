@@ -1040,3 +1040,9 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Prizes:** it shares the arcade's ten daily milestones with Circle Streak, each paid once a day whichever game reaches it, so a second game adds no golden fish. 100 points gives the same Arcade Legend title; 50 gives a new Mouser title.
 - **Saves:** its record is a new DataStore and the shared milestones stay in the arcade's existing save, so there is no profile change and no restart.
 - **Taking over:** side by side first, then Mouse Dash becomes the main game if its start rate matches Circle Streak's, its played-again rate is at least 1.25 times, the median run is 10 to 15 points and Derek says it looks good. Circle Streak's board is kept as a Hall of Fame page.
+
+## 2026-11-11 Mouse Dash swaps in for Circle Streak outright; Circle Streak is vaulted (#3296, Design-Agent)
+- **Why:** Derek, 23:51 UTC, on the Mouse Dash art: "Swap this in for the current arcade game and vault the other one", then "make sure the rewards/leaderboard stuff still works". This replaces the side by side plan in the entry above.
+- **What:** once Mouse Dash passes review and QA, `mouseDash` goes on and a new switch `circleStreak` goes off in one step. Circle Streak's code, saves and board are kept, so it can come back with one switch.
+- **Kept working through the swap:** the ten daily milestones (same list, same daily tick, never paid twice), the Arcade Legend title (holders keep it, Mouse Dash awards it at 100) and the leaderboard (Mouse Dash's own board from the first run; Circle Streak's board frozen as a Hall of Fame page).
+- **Also from Derek's look at the art:** backdrop shapes stay clear of the holes and every mouse and kitten is centred on its hole (`mouse-dash.md` section 5).

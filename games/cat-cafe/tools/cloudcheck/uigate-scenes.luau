@@ -3780,6 +3780,8 @@ local SCENES = {
 	{ "MysteryMarket", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		-- #3535: the Speed Shoes are on the shelf (their switch on), so the featured card is there in their week too
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_speedShoes", true)
 		UI.update({ goldenFish = 350, mystery = {}, mysterySeen = false, mysteryOpen = true } :: any)
 		local seen = 0
 		local counting = UI.events.mysterySeen:Connect(function()
@@ -3792,6 +3794,14 @@ local SCENES = {
 		local window = modals and modals:FindFirstChild("MysteryMarket", true)
 		assert(window and window:FindFirstChild("Featured", true), "uigate: no featured card (#2574)")
 		assert(window:FindFirstChild("Teaser", true), "uigate: no next week teaser (#2574)")
+		local shoes = false
+		for _, piece in window:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == "Speed Shoes" then
+				shoes = true
+				assert(piece.TextFits, "uigate: the Speed Shoes' name does not fit its card (#3535)")
+			end
+		end
+		assert(shoes, "uigate: the Speed Shoes are not on Juniper's shelf with their switch on (#3535)")
 		UI.update({ mysterySeen = true } :: any)
 	end },
 	-- #2574: the featured item owned and buys not open yet ("Soon")

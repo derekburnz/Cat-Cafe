@@ -24,6 +24,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryMarket = require(ReplicatedStorage.Shared.MysteryMarket)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -94,6 +95,11 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 		refuse("Juniper's cart opens soon")
 		return
 	end
+	-- #3535: an item behind a live switch is not sold while the switch is off (the window hides it)
+	if item.flag ~= nil and not LiveFlagService.on(item.flag) then
+		refuse("Juniper's cart opens soon")
+		return
+	end
 	if not nearCart(player) then
 		refuse("Walk to Juniper's cart first")
 		return
@@ -120,6 +126,7 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 	if item.id == "backpack" then
 		CatService.wearBackpack(player) -- #2719: on their back at once
 	end
+	CatService.refreshSpeed(player) -- #3535: the Speed Shoes count on the carry in hand
 	Telemetry.fishSink(player, profile, price, "Shop", "mystery_" .. item.id)
 	Telemetry.custom(player, "mystery_buy", fishBefore, {
 		item.id,

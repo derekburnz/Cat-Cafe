@@ -12,6 +12,7 @@
 -- out from its own clock and refuses a sale that ended while the window was open. Golden fish only, nothing random and
 -- nothing for Robux (section 2d). Words and rules in Components/MysteryLogic.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -25,6 +26,24 @@ local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
+
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local SharedCatalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
+
+-- #3535: the live switches the shelf's items wait on (the Speed Shoes'), as this client sees them now
+local function shelfFlags(): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	for _, item in SharedCatalog.mysteryItems do
+		local key = item.flag
+		if key ~= nil then
+			out[key] = LiveFlags.shown(
+				key,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			)
+		end
+	end
+	return out
+end
 
 local PAL = Theme.dark -- the dark window palette (#1028)
 local TEAL = Color3.fromHex("2F7F86") -- Juniper's wagon (section 4c, look A)
@@ -70,6 +89,7 @@ local GAP = Theme.sizes.gap
 local EMOJI: { [string]: string } = {
 	backpack = "🎒",
 	long_net = "🥅",
+	speed_shoes = "👟", -- #3535
 }
 -- #2836 (Derek2: "make sure all our buttons/icons are high quality"): each item's drawn picture (ShopIcons.hud), over
 -- its emoji once it loads; an item with no picture yet keeps the emoji
@@ -444,7 +464,7 @@ local function paintButton(
 end
 
 function MysteryMarketScreen._paint(self: any)
-	local view = MysteryLogic.view(self._state, Workspace:GetServerTimeNow())
+	local view = MysteryLogic.view(self._state, Workspace:GetServerTimeNow(), shelfFlags())
 	local busy = self._pending ~= nil
 	local featured = view.featured
 	self._featured.Visible = featured ~= nil
@@ -510,7 +530,7 @@ function MysteryMarketScreen._press(self: any, itemId: string?)
 	if itemId == nil or self._pending ~= nil then
 		return
 	end
-	local view = MysteryLogic.view(self._state, Workspace:GetServerTimeNow())
+	local view = MysteryLogic.view(self._state, Workspace:GetServerTimeNow(), shelfFlags())
 	local rows = table.clone(view.others)
 	if view.featured ~= nil then
 		table.insert(rows, view.featured)

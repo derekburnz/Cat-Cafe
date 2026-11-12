@@ -50,6 +50,7 @@ local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SecretBeacons = require(script.Parent.SecretBeacons)
 local Shove = require(ReplicatedStorage.Shared.Shove)
+local SpeedShoes = require(ReplicatedStorage.Shared.SpeedShoes)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
 local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
@@ -364,6 +365,19 @@ local holdsCatch: (Player) -> boolean
 -- add it, never the catch rush or a Startled slow.
 local function pawsBonus(player: Player): number
 	return SwiftPaws.bonus(DataService.get(player), LiveFlagService.on(SwiftPaws.FLAG))
+end
+
+-- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,
+-- the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
+-- Never on the catch rush or a Startled slow.
+local function carrySpeed(player: Player): number
+	local paws = pawsBonus(player)
+	return SpeedShoes.carry(
+		Config.CarryWalkSpeed + paws,
+		Config.NormalWalkSpeed + paws,
+		DataService.get(player),
+		LiveFlagService.on(SpeedShoes.FLAG)
+	)
 end
 
 local function setSpeed(player: Player, humanoid: Humanoid, base: number)
@@ -1374,7 +1388,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	model.Parent = character
 	carry.model = model
 	if humanoid ~= nil then
-		setSpeed(player, humanoid, Config.CarryWalkSpeed + pawsBonus(player))
+		setSpeed(player, humanoid, carrySpeed(player))
 	end
 	showCarry(player, carry)
 end
@@ -1408,7 +1422,7 @@ local function getaway(player: Player, carry: Carry)
 			then current:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			else nil
 		if carrying[player] == carry and nowHumanoid ~= nil then
-			setSpeed(player, nowHumanoid, Config.CarryWalkSpeed + pawsBonus(player))
+			setSpeed(player, nowHumanoid, carrySpeed(player))
 		end
 	end)
 	local facing = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
@@ -3506,7 +3520,7 @@ function CatService.refreshSpeed(player: Player)
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed
-		else Config.CarryWalkSpeed + pawsBonus(player) -- #3063: Swift Paws, never on the rush
+		else carrySpeed(player) -- #3063, #3535: Swift Paws and the Speed Shoes, never on the rush
 	-- Startled slows a carry too (a forfeit miss), never speeds one up (review N247)
 	if startled ~= nil and startled > serverNow() then
 		base = math.min(base, Config.StartledWalkSpeed)

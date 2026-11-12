@@ -1100,3 +1100,13 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
 | `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |
 | One banner at a time; up to 3 wait; a kind already showing or waiting is dropped. Reduce Motion: the card fades in and out in place with no shine, confetti or fish. Low performance: half the confetti and fish | `EventBanner.onShown(listener)` (Audio's sound) |
+
+## Mystic Pool first walk-up cutscene (#3430, 2026-11-12)
+
+`Effects/MysticIntroCut.luau`, numbers in `Presets.mysticIntro`. Gameplay-Engineer calls it (the walk-up, the once per account mark and what may block it are theirs) and opens the pool's menu in `onDone`.
+
+| Look | Hook |
+|---|---|
+| About 7 s, this player only: the camera eases (1 s) to a low front view of the pool and the moon arch; Sage Sorrel raises his staff and waves it while the liquid steps grey, green, blue, gold, purple with a bubble burst on each (3 s); a deep violet cat silhouette rises from the liquid in a soft sparkle over the card line "The Mystic Pool gives your cat a special trait" (2 s); the camera eases back (0.8 s). The colours always play in order; no roll, result, odds or price shows | `MysticIntroCut.play(station, onDone)`; `onDone(outcome, seconds)` with "watched" or "skipped" |
+| A tap, click, key or gamepad button skips it (0.25 s back); "Tap to skip" shows bottom right from the first frame. Controls and prompts are off only while it runs, with a 9 s cap | built in |
+| Reduce Motion: no camera move, wave or swirl; the card line alone for 2 s. Sound: the pool's step chime up the scale on each colour and its soft reveal on the rise | `MysticIntroCut.onBeat` (Audio) |

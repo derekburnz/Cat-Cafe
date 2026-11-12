@@ -12,14 +12,15 @@ BugReport.ErrorBytes = 200
 BugReport.Kinds = { "bug", "stuck", "idea" }
 BugReport.StoreName = "BugReports_v1"
 
--- #1083 (idea-credits.md section 2): the Idea chip's tick and the line under it, one copy for the window and specs.
-BugReport.FeatureLabel = "Feature my name if you use my idea"
-BugReport.FeatureHint = "Only your display name goes on the Thank You board in town."
+-- #1083 (idea-credits.md section 2), #3652: the line under the Idea chip's box, one copy for the window and specs.
+-- The "Feature my name" tick is gone (Derek 2026-11-12): an idea we build is always credited, and the line says so
+-- before the idea is sent. A credited player can still keep their name off the board in Settings.
+BugReport.FeatureHint = "If we build your idea, your display name goes on the Thank You board."
 
--- Whether a report asks to be credited: only an idea, and only when the client sent exactly true (anything else,
--- or a bug or stuck report claiming it, is false).
-function BugReport.featureName(kind: string, raw: unknown): boolean
-	return kind == "idea" and raw == true
+-- Whether a report may be credited: every idea, never a bug or stuck report. `_raw` is the old tick's value, which
+-- older clients still send; it is ignored.
+function BugReport.featureName(kind: string, _raw: unknown): boolean
+	return kind == "idea"
 end
 
 -- The toasts the server answers with.

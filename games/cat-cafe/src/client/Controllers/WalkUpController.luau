@@ -30,6 +30,7 @@ local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local LateStations = require(Shared:WaitForChild("LateStations"))
 local Net = require(script.Parent.Parent.Net)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
+local Traits = require(Shared:WaitForChild("Traits"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 local WalkUp = require(Shared:WaitForChild("WalkUp"))
@@ -108,6 +109,14 @@ local KINDS: { Kind } = {
 		window = "Arcade",
 		open = function()
 			UI.arcade.open()
+		end,
+	},
+	{
+		tag = Traits.TAG, -- #3196: the Mystic Pool, in the Park camp while the `traits` switch is on
+		prompt = Traits.PROMPT,
+		window = "MysticPool",
+		open = function()
+			UI.mysticPool.open()
 		end,
 	},
 	{

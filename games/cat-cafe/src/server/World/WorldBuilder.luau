@@ -22,6 +22,7 @@ local RummageBin = require(ReplicatedStorage.Shared.RummageBin)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local StationIcons = require(ReplicatedStorage.Shared.StationIcons)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 local WalkUpCircles = require(script.Parent.WalkUpCircles)
@@ -1829,6 +1830,46 @@ end
 -- (CampExtras.PROMPT, Custom: the UI's action pill) sits at the model's PromptAnchor with CampExtraRangeStuds of
 -- reach; each client writes its own lines on it (Controllers/CampExtrasController) and CampExtraService checks the
 -- range again from the same anchor. Without the art a plain crate-sized block stands in. Atomic, as the Index Boards.
+-- #3196 (trait-station.md section 1): the Mystic Pool, on the Picnic Basket's spot. Both are built, and
+-- MysticPoolStationService keeps one of them (with its ring) in the world: the pool while the `traits` switch is on,
+-- the basket while it is off, so the switch needs no publish and no restart. Tagged Traits.TAG, with a one-press
+-- prompt (Traits.PROMPT) and a ring in front where its card opens (WalkUpController). TraitService has no range
+-- check, as for every station. Without the art nothing is built and the basket stays.
+local MYSTIC_RING = Color3.fromRGB(170, 120, 235)
+local function buildMysticPool(parent: Instance, at: CFrame, area: string)
+	if not AssetRegistry.has(Traits.STATION_MODEL) then
+		return
+	end
+	local model = place(Traits.STATION_MODEL, at, parent)
+	model.Name = "MysticPool"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	model:SetAttribute("Area", area)
+	CollectionService:AddTag(model, Traits.TAG)
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	if anchor == nil or not anchor:IsA("Attachment") then
+		local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if host == nil then
+			model:Destroy()
+			return
+		end
+		local float = Instance.new("Attachment")
+		float.Name = "PromptAnchor"
+		float.Parent = host
+		float.WorldPosition = (at * CFrame.new(0, 1.5, -2)).Position
+		anchor = float
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = Traits.PROMPT
+	prompt.ObjectText = Traits.NAME
+	prompt.ActionText = "Open"
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = Config.CampExtraRangeStuds
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.Parent = anchor
+	WalkUpCircles.frontFit(model, MYSTIC_RING, parent, { emoji = "🔮" })
+end
+
 local function buildCampExtras(parent: Instance)
 	for _, def in Catalog.campExtras do
 		local x, y, z, turn = Layout.campExtraAt(def.area)
@@ -1888,6 +1929,23 @@ local function buildCampExtras(parent: Instance)
 			parent,
 			ICON_EXTRA[def.id]
 		)
+		if def.id == Traits.STATION_EXTRA then
+			-- the basket and its ring step out while the pool's ring is fitted, so the two never push each
+			-- other's rings aside (they are never in the world together)
+			local link = model:FindFirstChild(WalkUp.CIRCLE)
+			local disc: Instance? = if link ~= nil and link:IsA("ObjectValue")
+				then (link :: ObjectValue).Value
+				else nil
+			model.Parent = nil
+			if disc ~= nil then
+				disc.Parent = nil
+			end
+			buildMysticPool(parent, at, def.area)
+			model.Parent = parent
+			if disc ~= nil then
+				disc.Parent = parent
+			end
+		end
 	end
 end
 

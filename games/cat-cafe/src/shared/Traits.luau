@@ -32,6 +32,11 @@ Traits.FLAG = "traits"
 Traits.NAME = "Mystic Pool"
 Traits.KEEPER = "Sage Sorrel"
 Traits.STATION_EXTRA = "picnic" -- the camp extra whose spot and unlock the Mystic Pool takes (CampExtras)
+-- The station in the world (WorldBuilder builds it on the Picnic Basket's spot; MysticPoolStationService shows it
+-- in the basket's place while the switch is on): its model, its CollectionService tag and its prompt's name.
+Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
+Traits.TAG = "MysticPool"
+Traits.PROMPT = "MysticPoolPrompt"
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
 Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")
 Traits.COST_TOKENS = 1

@@ -44,6 +44,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	-- the food's row, the food and the window the screen showed, so a Buy that lands after a restock is refused (S42)
@@ -88,7 +89,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -101,7 +102,7 @@ end
 
 -- a rarity's odds colour as hex, for FoodOdds.rich
 local function rarityHex(rarity: string): string
-	return Theme.rarityLight(rarity):ToHex() -- light odds on the dark cards (#1028)
+	return MenuFamily.rarity(rarity):ToHex() -- light odds on the dark cards (#1028)
 end
 
 -- words that go in the rich text Details next to the coloured odds
@@ -147,7 +148,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	-- Restock strip: the moon, "Fresh stock in 4:12" and a line on what to do
 	local strip: Frame = Create("Frame", {
 		Name = "Restock",
-		BackgroundColor3 = Theme.colors.cocoaDeep,
+		BackgroundColor3 = if MenuFamily.on() then PAL.card else Theme.colors.cocoaDeep,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, -10, 0, STRIP_HEIGHT),
 		Parent = panel.content,
@@ -279,7 +280,7 @@ function Dealer._buildRows(self: any)
 		local def = group.def
 		local row: Frame = Create("Frame", {
 			Name = group.lureId,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
@@ -359,7 +360,7 @@ function Dealer._buildRows(self: any)
 			AutomaticSize = Enum.AutomaticSize.X,
 			Size = UDim2.fromOffset(0, 20),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			LayoutOrder = 2,
 			Parent = stockLine,
 		})
@@ -395,7 +396,7 @@ function Dealer._buildRows(self: any)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
@@ -478,7 +479,7 @@ function Dealer._buildConfirm(self: any, parent: Instance)
 	})
 	local card: Frame = Create("Frame", {
 		Name = "Card",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -526,10 +527,10 @@ function Dealer._buildConfirm(self: any, parent: Instance)
 		Text = "Buy all?",
 	})
 	Outline.text(title, 2)
-	local list = line("List", 2, { TextColor3 = PAL.text })
+	local list = line("List", 2, { TextColor3 = CARD.text })
 	local sums = line("Sums", 3, { FontFace = Theme.fonts.display, TextColor3 = Theme.colors.gold })
 	local partial =
-		line("Partial", 4, { TextSize = Theme.sizes.textSmall, TextColor3 = PAL.subtext })
+		line("Partial", 4, { TextSize = Theme.sizes.textSmall, TextColor3 = CARD.subtext })
 	local height = Scale.tapHeight(ALL_BUTTON.Y, Theme.sizes.buttonDepth)
 	local buttons: Frame = Create("Frame", {
 		Name = "Buttons",
@@ -741,7 +742,7 @@ function Dealer._renderAll(self: any)
 			elseif left > 0 then ("x%d Stock"):format(left)
 			else "Sold out"
 		row.stock.TextColor3 = if none
-			then PAL.subtext
+			then CARD.subtext
 			elseif left > 0 then Theme.colors.good
 			else Theme.colors.red
 		local have = state.lures[group.lureId] or 0

@@ -28,6 +28,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028 pilot), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CREAM = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
@@ -62,7 +63,7 @@ local PHONE_CARD_H, PHONE_STRIP_H = 116, 32
 local GAP = Theme.sizes.gap + 4
 local ICON = 44
 local STRIP_HEIGHT = 40
-local BEST_FILL = PAL.goldCard
+local BEST_FILL = CREAM.goldCard
 local PENDING_SECONDS = 2
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 
@@ -74,7 +75,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CREAM.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -118,13 +119,13 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 
 	local strip: Frame = Create("Frame", {
 		Name = "Strip",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CREAM.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, STRIP_HEIGHT),
 		Parent = panel.content,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CREAM.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._line = text({
 		Name = "Next",
@@ -193,7 +194,7 @@ function DailyTreat._build(self: any)
 		})
 		local frame: Frame = Create("Frame", {
 			Name = "Card",
-			BackgroundColor3 = if best then BEST_FILL else PAL.card,
+			BackgroundColor3 = if best then BEST_FILL else CREAM.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, CARD.Y),
 			Parent = cell,
@@ -201,7 +202,7 @@ function DailyTreat._build(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		})
 		local stroke: UIStroke = Create("UIStroke", {
-			Color = PAL.cardStroke,
+			Color = CREAM.cardStroke,
 			Thickness = Theme.sizes.stroke,
 			Parent = frame,
 		})
@@ -211,7 +212,7 @@ function DailyTreat._build(self: any)
 			Size = UDim2.new(1, -12, 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			TextColor3 = if best then PAL.gold else PAL.text,
+			TextColor3 = if best then CREAM.gold else CREAM.text,
 			Text = if best then ("Day %d  ·  Best day"):format(day) else ("Day %d"):format(day),
 			Parent = frame,
 		})
@@ -219,7 +220,7 @@ function DailyTreat._build(self: any)
 			parent = frame,
 			tile = ICON,
 			textSize = Theme.sizes.textBody,
-			textColor = PAL.text,
+			textColor = CREAM.text,
 			name = "Prize",
 			position = UDim2.new(0.5, 0, 0, 28),
 			anchorPoint = Vector2.new(0.5, 0),
@@ -232,9 +233,9 @@ function DailyTreat._build(self: any)
 			Position = UDim2.new(0.5, 0, 1, -8),
 			Size = UDim2.new(1, -16, 0, 26),
 			BackgroundTransparency = 0,
-			BackgroundColor3 = PAL.line,
+			BackgroundColor3 = CREAM.line,
 			FontFace = Theme.fonts.display,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			Visible = false,
 			Parent = frame,
 		})
@@ -348,11 +349,11 @@ function DailyTreat._refresh(self: any)
 		card.claim:setText(if pending then "..." else "Claim")
 		card.status.Visible = stamped or cell.state == "next"
 		card.status.Text = if stamped then "✓ Stamped" else "Tomorrow"
-		card.status.TextColor3 = if stamped then PAL.good else PAL.subtext
+		card.status.TextColor3 = if stamped then CREAM.good else CREAM.subtext
 		card.stroke.Color = if ready
 			then Theme.colors.good
 			elseif card.best then Theme.colors.goldDark
-			else PAL.cardStroke
+			else CREAM.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready or card.best then 1 else 0)
 		card.frame.BackgroundTransparency = if stamped then 0.35 else 0
 	end
@@ -367,7 +368,7 @@ function DailyTreat._refresh(self: any)
 	else
 		self._line.Text = "Next treat in " .. wait
 	end
-	self._line.TextColor3 = if readyDay ~= nil then PAL.good else PAL.text
+	self._line.TextColor3 = if readyDay ~= nil then CREAM.good else CREAM.text
 end
 
 function DailyTreat.destroy(self: any)

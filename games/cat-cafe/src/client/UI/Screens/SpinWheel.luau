@@ -51,6 +51,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
@@ -167,7 +168,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -396,7 +397,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	-- edge, as the scroller clips: buttons' outlines and lips once reached past its right and bottom edges.
 	local side: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "Side",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Position = UDim2.new(WHEEL_SHARE, Theme.sizes.gap, 0, 0),
 		Size = UDim2.new(1 - WHEEL_SHARE, -Theme.sizes.gap, 1, 0),
@@ -414,7 +415,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 		}),
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		Create("UIPadding", {
 			PaddingTop = UDim.new(0, SIDE_PAD),
 			PaddingBottom = UDim.new(0, SIDE_PAD + Theme.sizes.buttonDepth),
@@ -433,7 +434,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		TextTruncate = Enum.TextTruncate.None,
 		Parent = side,
 	})
-	Outline.text(self._spinsLabel, 2)
+	MenuFamily.outline(self._spinsLabel, 2)
 	self._button = Button.new({
 		name = "Spin",
 		text = "Spin!",
@@ -507,6 +508,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Size = UDim2.new(1, -(BACK_WIDTH + 16), 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
+		TextColor3 = PAL.text, -- on the window's body, not on a card
 		Text = "Spin odds",
 		Parent = odds,
 	})
@@ -654,7 +656,7 @@ function SpinWheel._pressAll(self: any)
 		return
 	end
 	self._allPending = os.clock()
-	self:_say("", PAL.text)
+	self:_say("", CARD.text)
 	spinAll()
 	self:_refresh()
 end
@@ -675,7 +677,7 @@ function SpinWheel.allResult(
 	end
 	self._pressedAt = nil
 	self:_light(nil)
-	self:_say("", PAL.text)
+	self:_say("", CARD.text)
 	self._chain = {
 		rolls = rolls,
 		next = 1,
@@ -766,7 +768,7 @@ function SpinWheel._showAllCard(self: any, count: number, prize: Types.IndexPriz
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 		local card: Frame = Create("Frame", {
 			Name = "Card",
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
@@ -785,7 +787,7 @@ function SpinWheel._showAllCard(self: any, count: number, prize: Types.IndexPriz
 			ZIndex = 22,
 			Parent = card,
 		})
-		Outline.text(title, 2)
+		MenuFamily.outline(title, 2)
 		local holder: Frame = Create("Frame", {
 			Name = "Prizes",
 			BackgroundTransparency = 1,
@@ -838,16 +840,16 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 	local index = SpinLogic.indexOf(self._rows, slice)
 	if slice <= 0 or index == nil then
 		if slice > 0 then
-			self:_say("You won a prize!", PAL.good) -- a slice this catalog does not know
+			self:_say("You won a prize!", CARD.good) -- a slice this catalog does not know
 		else
-			self:_say(SpinLogic.refusal(self._spin, now), PAL.warn)
+			self:_say(SpinLogic.refusal(self._spin, now), CARD.warn)
 			-- the wheel's own soft tok-tok; uiError "sounds too similar to a device disconnecting" (Derek 10-28)
 			Sound.play("uiSpinBusy")
 		end
 		self:_refresh()
 		return
 	end
-	self:_say("", PAL.text)
+	self:_say("", CARD.text)
 	local calm = GuiService.ReducedMotionEnabled
 	self:_turnTo(
 		index,
@@ -1056,7 +1058,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	local line: Frame = Create("Frame", {
 		Name = "Slice" .. row.slice,
 		LayoutOrder = order,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ODDS_ROW),
 		Parent = self._oddsList,
@@ -1065,12 +1067,12 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	})
 	local jackpot = row.jackpot == true
 	if jackpot then
-		line.BackgroundColor3 = PAL.goldCard -- #1500: the two jackpots in gold, so the rare chase stands out
+		line.BackgroundColor3 = CARD.goldCard -- #1500: the two jackpots in gold, so the rare chase stands out
 	end
 	local stroke = Outline.border(
 		line,
 		Theme.sizes.stroke,
-		if jackpot then Theme.colors.gold else PAL.cardStroke
+		if jackpot then Theme.colors.gold else CARD.cardStroke
 	)
 	local icon = ItemIcon.new({
 		parent = line,
@@ -1090,7 +1092,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	})
 	local track: Frame = Create("Frame", {
 		Name = "Bar",
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(left, 38),
 		Size = UDim2.new(1, -(left + ODDS_CHANCE), 0, 12),
@@ -1119,7 +1121,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 		Text = SpinLogic.chance(self._rows, row),
 		Parent = line,
 	})
-	Outline.text(chance, 1)
+	MenuFamily.outline(chance, 1)
 	local tile: Tile =
 		{ holder = line, stroke = stroke, icon = icon, row = row, crate = nil, prize = prize }
 	self:_paint(tile)
@@ -1347,7 +1349,7 @@ function SpinWheel._press(self: any)
 		return
 	end
 	self._pressedAt = os.clock()
-	self:_say("", PAL.text)
+	self:_say("", CARD.text)
 	self._callbacks.spin()
 	self:_refresh()
 end
@@ -1368,7 +1370,7 @@ function SpinWheel._refresh(self: any)
 	local spin: Types.SpinState? = self._spin
 	if self._pressedAt and os.clock() - self._pressedAt >= PENDING_SECONDS then
 		self._pressedAt = nil
-		self:_say("The wheel did not answer. Try again!", PAL.warn)
+		self:_say("The wheel did not answer. Try again!", CARD.warn)
 	end
 	if not self.frame.Visible then
 		return

@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local AwayNotifyService = require(script.Parent.Services.AwayNotifyService)
@@ -156,6 +157,7 @@ SessionRecapService.start() -- #1920: the session recap after about 40 minutes o
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 ArcadeService.start() -- #3062: the Cat Arcade, before DataService so its onLoaded sees every join
 MouseDashService.start() -- #3296: the arcade's Mouse Dash, before DataService for the same reason
+ArcadeCabinetService.start() -- #3443: the cabinet and its ring are in the world only while the arcade has a game on
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)

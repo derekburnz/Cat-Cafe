@@ -2797,8 +2797,9 @@ UI.arcade = {}
 -- Opens the arcade's card (the cabinet's prompt, the Menu list's Arcade row). A window already up stays open.
 -- #3296: with the `mouseDash` switch on the arcade's game is Mouse Dash, so its card opens instead.
 function UI.arcade.open()
-	if UI.mouseDash.isMain() then
-		UI.mouseDash.open()
+	local dash: any = (UI :: any).mouseDash -- filled later in the file
+	if dash.isMain() then
+		dash.open()
 		return
 	end
 	if modal and arcadeScreen and (modal:current() == nil or modal:current() == "Arcade") then
@@ -2859,8 +2860,9 @@ end
 
 -- Whether a game is running on the board (the net and other taps stay out of its way).
 function UI.arcade.playing(): boolean
+	local dash: any = (UI :: any).mouseDash -- filled later in the file
 	return (arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing())
-		or UI.mouseDash.playing()
+		or dash.playing() == true
 end
 
 ----------------------------------------------------------------------------------------------------

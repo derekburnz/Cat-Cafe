@@ -67,12 +67,14 @@ export type Def = {
 
 -- Spec section 1a: the pool's colours and section 3's odds, in roll order. Odds since 2026-11-12 (Derek on the live
 -- game: "up the rates of rarer traits by a lot"); before: 55, 28, 12, 4, 1. oddsText and the Odds list read these.
+-- Mythic's colour is the Mythical cat rarity's (Theme.rarity.Mythical) since the same day: "change mythic color to
+-- match the mythic cat rarity color"; it was the purple #B04FE0.
 Traits.RARITIES = {
 	{ id = "common", name = "Common", rank = 1, odds = 35, color = "#9AA0A6" },
 	{ id = "uncommon", name = "Uncommon", rank = 2, odds = 30, color = "#4CAF50" },
 	{ id = "rare", name = "Rare", rank = 3, odds = 20, color = "#3F8FE0" },
 	{ id = "legendary", name = "Legendary", rank = 4, odds = 10, color = "#F4C430" },
-	{ id = "mythic", name = "Mythic", rank = 5, odds = 5, color = "#B04FE0" },
+	{ id = "mythic", name = "Mythic", rank = 5, odds = 5, color = "#FF5E7E" },
 } :: { Rarity }
 
 local COMMON, UNCOMMON, RARE, LEGENDARY, MYTHIC =

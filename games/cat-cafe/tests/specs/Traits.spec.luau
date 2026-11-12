@@ -36,7 +36,7 @@ return function()
 				{ "Uncommon", 30, "#4CAF50" },
 				{ "Rare", 20, "#3F8FE0" },
 				{ "Legendary", 10, "#F4C430" },
-				{ "Mythic", 5, "#B04FE0" },
+				{ "Mythic", 5, "#FF5E7E" },
 			})
 		end)
 

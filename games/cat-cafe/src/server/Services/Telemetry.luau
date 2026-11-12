@@ -761,19 +761,28 @@ end
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
 -- and intro_group is logged. Checked once per player per session, so the switch going on mid session moves nobody.
 -- Called by onLoaded here and by CafeService ahead of a sync, whichever comes first.
+-- The session's answer to "does the intro play itself" is fixed here too (Review-QA on #3667): a later switch on
+-- must not start the scene mid play for a save grouped earlier.
 local introChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 function Telemetry.introJoin(player: Player, profile: Profile)
-	if introChecked[player] then
+	if introChecked[player] ~= nil then
 		return
 	end
-	introChecked[player] = true
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	if IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup) then
-		local group = IntroSplit.group(player.UserId)
+	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
+	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
+	if joins then
 		state.introGroup = group
-		Telemetry.custom(player, IntroSplit.EVENT :: any, 1, { group })
+		Telemetry.custom(player, IntroSplit.EVENT :: any, 1, { group :: string })
 	end
+end
+
+-- #3666: whether the intro plays itself for this player this session (IntroSplit.plays as the session began).
+function Telemetry.introPlays(player: Player, profile: Profile): boolean
+	Telemetry.introJoin(player, profile)
+	return introChecked[player] == true
 end
 
 function Telemetry.onboarding(

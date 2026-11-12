@@ -55,18 +55,19 @@ return function()
 			expect(#view.rows[2].images).to.equal(1)
 		end)
 
-		it("shows only the fixed first prize, with no chance, while one waits", function()
-			local view = RollBoardLogic.bin(input({ uses = 0 }))
-			expect(view.line).to.equal(RollBoardLogic.BIN_NEXT)
-			expect(#view.rows).to.equal(1)
-			expect(view.rows[1].id).to.equal(Config.BinFirstPrizes[1].id)
-			expect(view.rows[1].chance).to.equal(nil)
-			expect(view.foot).to.equal(
-				string.format("After your first %d: prizes are rolled", Config.BinFirstUses)
-			)
+		it("shows a new account the list with its chances: no fixed first prize (#3680)", function()
+			for uses = 0, Config.BinFirstUses do
+				local view = RollBoardLogic.bin(input({ uses = uses }))
+				expect(view.line).to.equal(RollBoardLogic.BIN_LIST)
+				expect(#view.rows).to.equal(#Config.BinRollTable)
+				expect(view.rows[1].chance).to.equal(
+					RollBoardLogic.percent(Config.BinRollTable[1].chance)
+				)
+				expect(view.foot).to.equal(nil)
+			end
 		end)
 
-		it("shows the prize kept after a miss ahead of the list and of a fixed prize", function()
+		it("shows the prize kept after a miss ahead of the list, new account or not", function()
 			for _, uses in { 0, Config.BinFirstUses } do
 				local view = RollBoardLogic.bin(input({ uses = uses, prize = "golden" }))
 				expect(view.line).to.equal(RollBoardLogic.BIN_WAITING)

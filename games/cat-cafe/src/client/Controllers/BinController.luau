@@ -400,7 +400,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	local index = RummageBin.rollIndex(rowId)
 	local playing = {
 		row = rowId,
-		rolling = mode == RummageBin.MODE_ROLL and index ~= nil and showFor > 0,
+		rolling = index ~= nil and showFor > 0, -- #3680: every rummage plays the roll, a kept prize's too
 		lit = nil :: number?,
 		untilAt = os.clock() + showFor + BOARD_BAR_GRACE,
 		barSeen = false,
@@ -410,7 +410,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	if BinController.onPrize ~= nil then
 		BinController.onPrize(rowId, mode)
 	end
-	if mode == RummageBin.MODE_WAITING or showFor <= 0 then
+	if showFor <= 0 then
 		return
 	end
 	local show: { skip: (() -> ())? } = { skip = nil }
@@ -435,7 +435,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	end
 	if fx ~= nil and model ~= nil then
 		local ok, skip = pcall(function(): any
-			if mode == RummageBin.MODE_ROLL and index ~= nil then
+			if index ~= nil then
 				return fx.play(
 					model,
 					#RummageBin.rollRows(),

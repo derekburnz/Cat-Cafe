@@ -5459,7 +5459,8 @@ local SCENES = {
 	end },
 	{ "BinBoardStates", function()
 		binBoards({
-			{ view = { uses = 0 } },
+			-- #3680: no fixed first prize; the prize the bar is played for stands in its place
+			{ view = { uses = 0, playing = "crate", rolling = false, prize = "crate" } },
 			{ view = { uses = 3, prize = "golden" } },
 			{ view = { uses = 3, nextAt = 1245 } },
 		})

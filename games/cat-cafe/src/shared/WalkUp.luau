@@ -6,7 +6,8 @@
 --   LEAVE_EXTRA                       studs past a station's radius before it counts as left, so an edge never flickers
 --   RADIUS_SHARE                      the share of a prompt's MaxActivationDistance that opens its window
 --   inside(was, distance, radius)     whether the character counts as at the station now
---   step(state, stations, blocked, current)  one look: the station to open (or nil) and whether to close the window
+--   step(state, stations, blocked, current, at?)  one look: the station to open (or nil) and whether to close the
+--                                     window; with `at`, only after DWELL_SECONDS in the ring (#3448)
 --   CIRCLE, FRONT_RADIUS, AROUND_PAD  the glowing floor ring that marks where a window opens (Derek2 2026-11-08: "adding
 --                                     the circle infront of the stations designed for each station"; the cannon's goes
 --                                     all the way around it)
@@ -29,7 +30,9 @@ WalkUp.RADIUS_SHARE = 0.75
 -- The ring's part inside a station's model (World/WalkUpCircles): a flat part `radius` studs across each way from
 -- its centre, with its radius in the Radius attribute. The window opens on stepping inside it.
 WalkUp.CIRCLE = "WalkUpCircle"
-WalkUp.FRONT_RADIUS = 6 -- as the Codes Cat's circle (Config.CodesCircleRadius); #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6
+-- As the Codes Cat's circle (Config.CodesCircleRadius). #3112 (Derek2: "make the circles infront of the stations
+-- bigger"): 4 to 6. #3448 (Derek 2026-11-12: "bigger for stepping on and auto claiming"): 6 to 8.
+WalkUp.FRONT_RADIUS = 8
 -- #2449: a station's icon in its ring (World/WalkUpCircles): the stand-in card this share of the ring's width (its
 -- corners stay inside the rim even tilted), the art at most this share across
 WalkUp.ICON_SHARE = 0.42
@@ -38,7 +41,7 @@ WalkUp.AROUND_PAD = 2.5 -- studs of floor between a station's widest point and a
 WalkUp.EDGE_SLACK = 2 -- the ring's far edge stays this far inside the server's range for the window
 -- A camp cannon's ring at most this wide, so it stays on the camp's paving (Laptop-Tester on #2427: 7.3 ran under the
 -- camp walls and over the ground beyond)
-WalkUp.CAMP_RING_MAX = 5.5
+WalkUp.CAMP_RING_MAX = 6.5 -- #3448: 5.5 to 6.5; fitRing still slides and shrinks it off the camp's low wall
 
 -- Studs from a station's pivot to its front ring's centre, along its front: the ring just touches the station's front
 -- (`front` studs out from the pivot), pulled in until its far edge is EDGE_SLACK inside `range`, the server's reach
@@ -63,8 +66,8 @@ WalkUp.FIT_CLEAR = 0.02
 -- is FRONT_RADIUS like the town's, slid or shrunk off what stands in it (World/WalkUpCircles.frontFit), never under
 -- FRONT_FIT_LEAST. An Index Board's is BOARD_RADIUS: it stands beside the way out, where a town-sized ring would lie
 -- across the path from the landing pad to the opening and open the Index on everyone walking out.
-WalkUp.FRONT_FIT_LEAST = 4.5
-WalkUp.BOARD_RADIUS = 4.5
+WalkUp.FRONT_FIT_LEAST = 6 -- #3448: 4.5 to 6
+WalkUp.BOARD_RADIUS = 5.5 -- #3448: 4.5 to 5.5 only, for the same reason
 
 -- #2433 (Laptop-Tester on #2432: each camp's cannon ring ran up to 1.1 studs under the camp's low side wall): a ring of
 -- `radius` round a station, with `blocks` the flat points (from the station's pivot) where something stands on its
@@ -178,11 +181,21 @@ export type Station = {
 
 -- What the controller keeps between looks: whether the character was at each station (nil before the first look at
 -- it), and the station whose window a walk-up opened (nil after it closed it, or when nothing was opened).
-export type State = { inside: { [string]: boolean }, opened: string?, openedWindow: string? }
+-- `since` (#3448) is when the character stepped into each station it has not been asked about yet (the look's `at`).
+export type State = {
+	inside: { [string]: boolean },
+	opened: string?,
+	openedWindow: string?,
+	since: { [string]: number },
+}
 
 function WalkUp.new(): State
-	return { inside = {}, opened = nil, openedWindow = nil }
+	return { inside = {}, opened = nil, openedWindow = nil, since = {} }
 end
+
+-- #3448: the bigger rings are crossed more often, so a window opens only once the character has stayed in the ring
+-- this long. Walking straight through opens nothing.
+WalkUp.DWELL_SECONDS = 0.3
 
 function WalkUp.inside(was: boolean, distance: number?, radius: number): boolean
 	if distance == nil or distance ~= distance then
@@ -199,11 +212,16 @@ end
 -- the window a walk-up opened (only when that window is still the one showing). Only stepping in opens a window, so
 -- one closed by hand, or blocked on the way in, waits until the player walks away and back; and only from a look that
 -- saw the player outside, so spawning, landing or a cart arriving next to the player opens nothing. Mutates `state`.
+-- #3448: `at` is this look's time in seconds (os.clock()). With it, a step in opens its window only after
+-- DWELL_SECONDS inside the ring; the station is asked once per step in, so one that could not open then (blocked, or
+-- another window up) still waits for the player to walk away and back. Without `at` a step in opens at once. Where
+-- the character stands in two rings whose wait is over, the nearer centre wins and only that window opens.
 function WalkUp.step(
 	state: State,
 	stations: { Station },
 	blocked: boolean,
-	current: string?
+	current: string?,
+	at: number?
 ): (string?, boolean)
 	local entered: Station? = nil
 	local seen: { [string]: boolean } = {}
@@ -212,21 +230,29 @@ function WalkUp.step(
 		local was = state.inside[station.key]
 		local now = WalkUp.inside(was == true, station.distance, station.radius)
 		state.inside[station.key] = now
-		if
-			now
-			and was == false
-			and station.off ~= true
-			and (
-				entered == nil
-				or (station.distance :: number) < ((entered :: Station).distance :: number)
-			)
-		then
-			entered = station
+		if not now then
+			state.since[station.key] = nil
+		elseif was == false and station.off ~= true then
+			state.since[station.key] = at or 0
+		end
+		local since = state.since[station.key]
+		if now and since ~= nil and (at == nil or at - since >= WalkUp.DWELL_SECONDS) then
+			state.since[station.key] = nil -- asked once per step in
+			if
+				station.off ~= true
+				and (
+					entered == nil
+					or (station.distance :: number) < ((entered :: Station).distance :: number)
+				)
+			then
+				entered = station
+			end
 		end
 	end
 	for key in state.inside do
 		if not seen[key] then
 			state.inside[key] = nil -- a station gone (the night market leaves at sunrise) counts as left
+			state.since[key] = nil
 		end
 	end
 	local close = false

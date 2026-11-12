@@ -382,7 +382,7 @@ function WalkUpController.start()
 			end
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()
-				local key, shut = WalkUp.step(state, stations, blocked(), current)
+				local key, shut = WalkUp.step(state, stations, blocked(), current, os.clock())
 				return key, shut
 			end)
 			if not ok then

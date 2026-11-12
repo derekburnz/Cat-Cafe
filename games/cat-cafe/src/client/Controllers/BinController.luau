@@ -18,6 +18,10 @@
 -- starts a rummage for a player who has stood on it Config.BinPadDwellSeconds, once per visit to the pad, with the
 -- prompt's own remote; the ring shows only while the switch is on. BinController.onRoll and .onPrize let the board
 -- (UI) follow along.
+-- #3611: the board. While `binRoll` is on, a roll board (UI/Components/RollBoard, what it says is RollBoardLogic.bin)
+-- hovers over the bin for a player within BOARD_RANGE studs of it: every prize with its picture and chance, or the
+-- one prize that waits, or "Fills in m:ss" over the faded list. It takes the place of the chances note under the
+-- prompt and of the "!" while it shows, follows the roll row by row and names the prize while the bar is up.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -33,6 +37,8 @@ local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Outline = require(script.Parent.Parent.UI.Components.Outline)
+local RollBoard = require(script.Parent.Parent.UI.Components.RollBoard)
+local RollBoardLogic = require(script.Parent.Parent.UI.Components.RollBoardLogic)
 local RummageBin = require(Shared:WaitForChild("RummageBin"))
 local Scale = require(script.Parent.Parent.UI.Scale)
 local Theme = require(script.Parent.Parent.UI.Theme)
@@ -54,6 +60,12 @@ local BANG_RANGE = 40 -- studs from the camera, as the camp stations' "!" (CampE
 local BANG_LIFT = 2 -- studs over the top of the bin
 local BOB_STUDS = 1
 local BOB_SECONDS = 2
+
+local BOARD_RANGE = 14 -- studs from the bin, flat: a little past the prompt's reach
+local BOARD_LIFT = 1.5 -- studs over the top of the bin
+local BOARD_MARGIN = 6 -- px round the card inside its billboard, for the card's edge
+local BOARD_SMALLEST = 0.66 -- of its design size, on a phone held sideways
+local BOARD_BAR_GRACE = 3 -- seconds after the show for the bar to come before the board lets go of the prize
 
 local models: { [Model]: ProximityPrompt? } = {} -- each placed bin on this client and its prompt
 
@@ -178,11 +190,112 @@ local function setBang(model: Model, on: boolean)
 	end
 end
 
+-- #3611: the board over a bin, in this player's PlayerGui.
+type Board = { gui: BillboardGui, board: RollBoard.RollBoard, scale: UIScale }
+local boards: { [Model]: Board } = {}
+local near: { [Model]: boolean } = {}
+-- the prize a roll, a reveal or the bar is up for, and the row the roll is on
+local play: { row: string, rolling: boolean, lit: number?, untilAt: number, barSeen: boolean }? =
+	nil
+local rollOn: () -> boolean
+
+local function dropBoard(model: Model)
+	local found = boards[model]
+	if found ~= nil then
+		boards[model] = nil
+		found.board:destroy()
+		found.gui:Destroy()
+	end
+	near[model] = nil
+end
+
+local function boardFor(model: Model): Board?
+	local found = boards[model]
+	if found ~= nil then
+		return found
+	end
+	local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	if part == nil or playerGui == nil then
+		return nil
+	end
+	local box, size = model:GetBoundingBox()
+	local top = box.Position.Y + size.Y / 2
+	local gui: BillboardGui = Create("BillboardGui", {
+		Name = "CatCafeBinBoard",
+		Size = UDim2.fromOffset(RollBoard.WIDTH, RollBoard.ROW),
+		SizeOffset = Vector2.new(0, 0.5), -- its bottom edge sits on the point over the bin
+		StudsOffsetWorldSpace = Vector3.new(0, top - part.Position.Y + BOARD_LIFT, 0),
+		LightInfluence = 0,
+		AlwaysOnTop = true,
+		ClipsDescendants = false,
+		MaxDistance = 80,
+		ResetOnSpawn = false,
+		Enabled = false,
+		Adornee = part,
+		Parent = playerGui,
+	})
+	local board = RollBoard.new(gui)
+	board.frame.Position = UDim2.new(0.5, 0, 1, -BOARD_MARGIN)
+	local scale: UIScale = Create("UIScale", { Parent = board.frame })
+	local made: Board = { gui = gui, board = board, scale = scale }
+	boards[model] = made
+	return made
+end
+
+local function boardView(): RollBoardLogic.View
+	local player = Players.LocalPlayer
+	local uses = player:GetAttribute(RummageBin.USES_ATTRIBUTE)
+	local prize = player:GetAttribute(RummageBin.PRIZE_ATTRIBUTE)
+	local nextAt = player:GetAttribute(RummageBin.NEXT_AT_ATTRIBUTE)
+	local playing = play
+	return RollBoardLogic.bin({
+		uses = if type(uses) == "number" then uses else Config.BinFirstUses,
+		prize = if type(prize) == "string" then prize else nil,
+		nextAt = if type(nextAt) == "number" then nextAt else 0,
+		now = Workspace:GetServerTimeNow(),
+		playing = if playing ~= nil then playing.row else nil,
+		rolling = playing ~= nil and playing.rolling,
+	})
+end
+
+-- Shows each bin's board to a player standing near it, with what it says now; hides it otherwise.
+local function boardRefresh()
+	local on = rollOn()
+	local view: RollBoardLogic.View? = nil
+	for model, prompt in models do
+		local shown = on and prompt ~= nil and prompt.Enabled and near[model] == true
+		local found = if shown then boardFor(model) else boards[model]
+		if found == nil then
+			continue
+		end
+		if shown then
+			local now = view or boardView()
+			view = now
+			found.board:set(now)
+			local playing = play
+			found.board:light(if playing ~= nil and playing.rolling then playing.lit else nil)
+			local share = math.max(BOARD_SMALLEST, Scale.billboard(1000) / 1000)
+			found.scale.Scale = share
+			found.gui.Size = UDim2.fromOffset(
+				math.ceil(RollBoard.WIDTH * share) + BOARD_MARGIN * 2,
+				math.ceil(RollBoard.height(now) * share) + BOARD_MARGIN * 2
+			)
+		end
+		if found.gui.Enabled ~= shown then
+			found.gui.Enabled = shown
+		end
+	end
+end
+
 local function label()
 	local full = ready()
 	local action = if full then RummageBin.ACTION else RummageBin.EMPTY
 	local uses = Players.LocalPlayer:GetAttribute(RummageBin.USES_ATTRIBUTE)
-	local note = RummageBin.note(if type(uses) == "number" then uses else Config.BinFirstUses)
+	-- #3611: with the roll on, the board over the bin says it all, so the pill has no note
+	local note = if rollOn()
+		then ""
+		else RummageBin.note(if type(uses) == "number" then uses else Config.BinFirstUses)
 	for model, prompt in models do
 		if prompt ~= nil then
 			if prompt.ActionText ~= action then
@@ -195,8 +308,14 @@ local function label()
 		end
 		setLook(model, full)
 		-- the "!" only while the bin can be rummaged: full, and its prompt on (the alleyBin switch)
-		setBang(model, full and prompt ~= nil and prompt.Enabled)
+		-- and not under the board, which hangs in the same place
+		local board = boards[model]
+		setBang(
+			model,
+			full and prompt ~= nil and prompt.Enabled and not (board ~= nil and board.gui.Enabled)
+		)
 	end
+	boardRefresh()
 end
 
 local function busy(): boolean
@@ -221,7 +340,7 @@ local function onTriggered()
 	Net.fire("RescueBegin", RummageBin.SPOT)
 end
 
-local function rollOn(): boolean
+function rollOn(): boolean
 	return LiveFlags.shown(
 		RummageBin.ROLL_FLAG,
 		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG)
@@ -277,22 +396,41 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 		return
 	end
 	endShow()
+	local showFor = if type(seconds) == "number" then math.max(0, seconds) else 0
+	local index = RummageBin.rollIndex(rowId)
+	local playing = {
+		row = rowId,
+		rolling = mode == RummageBin.MODE_ROLL and index ~= nil and showFor > 0,
+		lit = nil :: number?,
+		untilAt = os.clock() + showFor + BOARD_BAR_GRACE,
+		barSeen = false,
+	}
+	play = playing
+	boardRefresh()
 	if BinController.onPrize ~= nil then
 		BinController.onPrize(rowId, mode)
 	end
-	if mode == RummageBin.MODE_WAITING or type(seconds) ~= "number" or seconds <= 0 then
+	if mode == RummageBin.MODE_WAITING or showFor <= 0 then
 		return
 	end
 	local show: { skip: (() -> ())? } = { skip = nil }
 	showing = show
 	local model, fx = firstBin(), binFx()
-	local index = RummageBin.rollIndex(rowId)
+	local function rollTo(at: number)
+		if play == playing then
+			playing.lit = at
+			boardRefresh()
+		end
+		if BinController.onRoll ~= nil then
+			BinController.onRoll(at)
+		end
+	end
 	local function landed()
 		if showing == show then
 			show.skip = nil
 		end
-		if index ~= nil and BinController.onRoll ~= nil then
-			BinController.onRoll(index)
+		if index ~= nil then
+			rollTo(index)
 		end
 	end
 	if fx ~= nil and model ~= nil then
@@ -303,11 +441,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 					#RummageBin.rollRows(),
 					index,
 					RummageBin.tier(row),
-					function(at: number)
-						if BinController.onRoll ~= nil then
-							BinController.onRoll(at)
-						end
-					end,
+					rollTo,
 					landed
 				)
 			end
@@ -321,7 +455,14 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	landed() -- no effects module: the board just shows the row
 end
 
--- A tap, click or key during the show skips it: the effect jumps to its end and the server sends the bar now.
+local SKIP_KEYS: { [Enum.KeyCode]: boolean } = {
+	[Enum.KeyCode.Space] = true,
+	[Enum.KeyCode.E] = true,
+	[Enum.KeyCode.Return] = true,
+	[Enum.KeyCode.KeypadEnter] = true,
+}
+
+-- A tap, click, Space, E, Enter or the gamepad's A during the show skips it: the effect jumps to its end and the server sends the bar now.
 local function onInput(input: InputObject, processed: boolean)
 	if showing == nil or processed then
 		return
@@ -338,12 +479,18 @@ local function onInput(input: InputObject, processed: boolean)
 	if kind == Enum.UserInputType.Gamepad1 and input.KeyCode ~= Enum.KeyCode.ButtonA then
 		return
 	end
+	-- on a keyboard only the keys that mean "go on": walking (W, A, S, D, Shift) leaves the roll playing
+	if kind == Enum.UserInputType.Keyboard and not SKIP_KEYS[input.KeyCode] then
+		return
+	end
 	endShow()
 	Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
 end
 
 local function onWin(rowId: string, _first: boolean)
 	endShow()
+	play = nil
+	boardRefresh()
 	if BinController.onPrize ~= nil then
 		BinController.onPrize(nil, nil)
 	end
@@ -373,11 +520,56 @@ end
 local padSince: number? = nil
 local padUsed = false
 
+-- The pad waits for the tutorial: a new player who stops on it at the first landing is not handed a bar in the
+-- middle of the first steps (the prompt still works for them).
+local TUTORIAL_DONE = 5
+local function inTutorial(): boolean
+	local controller: any = require(script.Parent.UIController)
+	local state: any = controller.state
+	return state == nil
+		or type(state.tutorialStep) ~= "number"
+		or state.tutorialStep < TUTORIAL_DONE
+end
+
 local function padStep()
 	local on = rollOn()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	local inside = false
+	-- #3611: who stands near which bin, and the prize the board holds while the show and the bar last
+	local moved = false
+	for model in models do
+		local at = model:GetPivot().Position
+		local offset = if root ~= nil and root:IsA("BasePart")
+			then (root :: BasePart).Position - at
+			else nil
+		local close = offset ~= nil
+			and Vector3.new(offset.X, 0, offset.Z).Magnitude <= BOARD_RANGE
+			and math.abs(offset.Y) <= BOARD_RANGE
+		if near[model] ~= close then
+			near[model] = close
+			moved = true
+		end
+	end
+	local playing = play
+	if playing ~= nil then
+		local barUp = (UI :: any).rescue.isActive()
+		if barUp then
+			if not playing.barSeen then
+				playing.barSeen = true
+				playing.rolling = false
+				showing = nil -- the bar is here: the show is over and a tap is the bar's
+				moved = true
+			end
+		elseif playing.barSeen or os.clock() > playing.untilAt then
+			play = nil -- the bar ended without a win, or never came (the server ended the run)
+			showing = nil
+			moved = true
+		end
+	end
+	if moved then
+		label()
+	end
 	for model, prompt in models do
 		local pad = padOf(model)
 		if pad == nil then
@@ -411,7 +603,7 @@ local function padStep()
 	if padUsed or now - since < Config.BinPadDwellSeconds then
 		return
 	end
-	if busy() or not ready() then
+	if busy() or not ready() or inTutorial() then
 		return -- keeps waiting on the pad: a bin that fills while the player stands there starts
 	end
 	padUsed = true
@@ -446,6 +638,7 @@ local function track(instance: Instance)
 		if not model:IsDescendantOf(Workspace) then
 			models[model] = nil
 			dropBang(model)
+			dropBoard(model)
 		end
 	end)
 	label()
@@ -458,6 +651,7 @@ function BinController.start()
 	CollectionService:GetInstanceAddedSignal(RummageBin.TAG):Connect(track)
 	Players.LocalPlayer:GetAttributeChangedSignal(RummageBin.NEXT_AT_ATTRIBUTE):Connect(label)
 	Players.LocalPlayer:GetAttributeChangedSignal(RummageBin.USES_ATTRIBUTE):Connect(label)
+	Players.LocalPlayer:GetAttributeChangedSignal(RummageBin.PRIZE_ATTRIBUTE):Connect(label)
 	task.spawn(function()
 		while true do
 			task.wait(LABEL_SECONDS)

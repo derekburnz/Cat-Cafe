@@ -235,10 +235,9 @@ local function finish(player: Player, run: Run, reason: string?)
 	local win: Types.RummageWin? = nil
 	if won and profile ~= nil and bin ~= nil then
 		local first = bin.uses == 0
-		-- #3608: the stored prize while the roll switch is on; with it off (or nothing stored) the roll is here
-		local stored = if LiveFlagService.on(RummageBin.ROLL_FLAG)
-			then RummageBin.winStored(bin, now)
-			else nil
+		-- #3608: a stored prize is paid whatever the roll switch says now (the player was shown it); with nothing
+		-- stored the roll is here
+		local stored = RummageBin.winStored(bin, now)
 		local row = stored or RummageBin.win(bin, now, rng:NextNumber())
 		bin.prize = nil
 		save(player, bin)

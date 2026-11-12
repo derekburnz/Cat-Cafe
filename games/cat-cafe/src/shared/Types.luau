@@ -964,6 +964,8 @@ export type CampExtraView = {
 	held: number,
 	nextAt: number?,
 	stock: { YardSaleCrate }?,
+	-- #3614: the lucky pick's rows for this player while the `yardSaleRoll` switch is on (shared/YardPick.rows)
+	pick: { { crateId: string, chance: number, golden: boolean, tier: number } }?,
 	decor: { YardDecorRow }?, -- #1537: the Yard Sale's lawn rows today (shared/YardSale)
 	decorAt: number?, -- #1537: when the Yard Sale's next lawn stock arrives (server time), the next sunrise
 }

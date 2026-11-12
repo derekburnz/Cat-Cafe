@@ -200,13 +200,21 @@ local function consider(instance: Instance)
 	if watched[model] then
 		return
 	end
-	if model:GetAttribute("CatId") == nil then
-		return -- every cat model carries CatId before it is parented
+	-- only cat models: each carries CatId, or at least Variant or Gold, when it is added (as Effects/Rainbow reads)
+	if
+		model:GetAttribute("CatId") == nil
+		and model:GetAttribute("Variant") == nil
+		and model:GetAttribute("Gold") == nil
+	then
+		return
 	end
 	watched[model] = true
-	if isSecret(model) then
-		known[model] = true
+	local function read()
+		known[model] = if isSecret(model) then true else nil
 	end
+	-- a copy whose CatId is set after it is parented (a carried or packed cat) is read again then
+	model:GetAttributeChangedSignal("CatId"):Connect(read)
+	read()
 end
 
 function SecretGlow.start()

@@ -132,12 +132,9 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	end
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
 	-- "Mythical or better", so it stays true)
-	local secret = Catching.secret(
-		rarity,
-		rng:NextNumber(),
-		rng:NextNumber(),
-		LiveFlagService.on(Catching.SECRET_FLAG)
-	)
+	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
+		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		else nil
 	if secret ~= nil then
 		Telemetry.custom(player, "secret_spawn", 1, { "bowl", "bait" })
 	end

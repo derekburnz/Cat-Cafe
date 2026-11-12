@@ -840,13 +840,12 @@ local function spawnAt(
 	local area = world.areas[areaId]
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
 	-- stray). It takes the Mythical's point, and everyone hears the area and never the spot.
+	-- (review note on #3486: the two draws are made only for a Mythical with the switch on, so a switched off build
+	-- rolls exactly as before)
 	local secret = if beginner == nil
-		then Catching.secret(
-			rarity,
-			rng:NextNumber(),
-			rng:NextNumber(),
-			LiveFlagService.on(Catching.SECRET_FLAG)
-		)
+			and rarity == "Mythical"
+			and LiveFlagService.on(Catching.SECRET_FLAG)
+		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
 		else nil
 	local def = secret or Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
@@ -2767,8 +2766,9 @@ local function nearestSpot(areaId: string, position: Vector3): Vector3?
 end
 
 -- Where a let-go cat walks to and the area that is: where it was caught, else (a carry with no homePos) a free spot
--- of its own area. Nil when there is nowhere, and the player keeps the cat (reviewer N99).
-local function homeFor(carry: Carry): (Vector3?, string?)
+-- of its own area. Nil when there is nowhere, and the player keeps the cat (reviewer N99). #3470: a Secret cat has no
+-- area of its own, so one with no homePos (a bait bowl's) goes to a free spot of the area the player stands in (`at`).
+local function homeFor(carry: Carry, at: Vector3?): (Vector3?, string?)
 	local home = carry.homePos
 	if home ~= nil then
 		local areaId = WorldBuilder.areaAt(world, home) or carry.def.area
@@ -2777,6 +2777,9 @@ local function homeFor(carry: Carry): (Vector3?, string?)
 		end
 	end
 	local areaId = carry.def.area
+	if world.areas[areaId] == nil and at ~= nil then
+		areaId = WorldBuilder.areaAt(world, at) or areaId
+	end
 	local area = world.areas[areaId]
 	if area == nil or #area.spawnPoints == 0 then
 		return nil, nil
@@ -2923,7 +2926,7 @@ local function dropRefusal(player: Player, carry: Carry): (string?, string?)
 	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
 		return "closed", DROP_CLOSED_TEXT
 	end
-	if homeFor(carry) == nil then
+	if homeFor(carry, rootPosition(player)) == nil then
 		return "no_home", DROP_NO_HOME_TEXT
 	end
 	return nil, nil
@@ -2957,7 +2960,7 @@ local function dropCarry(player: Player, died: boolean)
 		end
 		return
 	end
-	local home, areaId = homeFor(carry)
+	local home, areaId = homeFor(carry, rootPosition(player))
 	if home == nil or areaId == nil then
 		if not died then
 			refuseDrop(player, "no_home", DROP_NO_HOME_TEXT) -- #3145: was silent

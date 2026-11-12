@@ -2065,7 +2065,7 @@ def comet_trail(ctx):
         G.ico(tuple(tip - d * f + a * th * 0.4), th * r, col)
 
 
-def sun_hat(ctx):
+def sandy_sun_hat(ctx):
     """#2739 Sandy (Common, Desert): a woven straw sun hat with a teal band."""
     P = ctx.pen("head")
     P.cyl((0, 0, 0.02), 0.6, 0.04, "treat_tan", segments=16)                                       # brim
@@ -2338,7 +2338,7 @@ PROPS = {
     "Glyph": ("Face", glyph_kohl), "Torch": ("Back", torch_sling), "Gargoyle": ("Back", gargoyle_wings),
     "Mosaic": ("Head", mosaic_band), "Golem": ("Back", golem_stones), "JadeGuardian": ("Head", jade_crown),
     # #2739 theme extras, batch 1 (Derek2 2026-11-09): Commons that were plain, now each with one prop
-    "Tuxedo": ("Face", monocle), "Sandy": ("Head", sun_hat), "Dune": ("Head", sand_goggles),
+    "Tuxedo": ("Face", monocle), "Sandy": ("Head", sandy_sun_hat), "Dune": ("Head", sand_goggles),
     "Dusty": ("Neck", neckerchief), "Sunny": ("Face", sun_shades), "Pebble": ("Head", pebble_stack),
     "Ivy": ("Neck", ivy_garland),
     # #2739 batch 2

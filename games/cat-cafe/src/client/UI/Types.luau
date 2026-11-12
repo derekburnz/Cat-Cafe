@@ -447,6 +447,7 @@ export type CatchInfo = {
 	-- v0.10 F67: the stray's Returning attribute, a dropped cat walking back to where it was caught; the card says
 	-- so, since at home it needs the circles again
 	returning: boolean?,
+	newKind: string?, -- #3529: the "New kind! 3/5 for Cozy Cafe" line when the player has never owned this kind
 }
 
 -- Net circles (F26, data-model section 10), from shared Types. Times are server time

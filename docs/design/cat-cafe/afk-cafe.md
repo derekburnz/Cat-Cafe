@@ -17,7 +17,8 @@ In the zone with no input (move, jump, camera, tap, key, button, chat) for `Conf
 ## 4. The 2x
 
 - It doubles the pay the player's own cats earn in the cafe (the per second cafe income).
-- It does not touch tips and serving, golden fish, the Fish Pond, crates, quests, the Rescue Rally, Cafe Pass progress, playtime gifts, Trait Tokens or luck.
+- It works the same as an event money boost: it multiplies the whole cafe settle, including the extra paid seconds a timed tip potion adds (build answer on #3573, 2026-11-12).
+- It does not touch the till's collected tips and rich tips, serving, golden fish, the Fish Pond, crates, quests, the Rescue Rally, Cafe Pass progress, playtime gifts, Trait Tokens or luck.
 - It sits in the party's money boost slot and never goes above `EventMoneyMax` (2). During a 2x party it adds nothing. Money passes and money potions multiply as always.
 - Offline pay is unchanged: half for up to 8 hours, full for up to 16 with Long Nap. The AFK 2x never applies offline.
 - Playing must still pay more than resting. Growth-Agent checks after a week; if resting wins at any tier the 2x comes down.

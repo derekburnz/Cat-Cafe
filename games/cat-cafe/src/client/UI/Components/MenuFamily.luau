@@ -56,17 +56,17 @@ end
 -- on it, with the same keys as PALETTE. Every text colour reads at 4.5:1 or better on `card`.
 MenuFamily.CARD = {
 	panel = Color3.fromHex("6646A8"),
-	card = Color3.fromHex("FFF4DC"),
-	cardStroke = Color3.fromHex("24163F"),
-	text = Color3.fromHex("33205F"),
-	subtext = Color3.fromHex("5A4680"),
+	card = Color3.fromHex("FFF6E8"), -- Model-Agent's kit: cream card
+	cardStroke = Color3.fromHex("2C1642"), -- the kit's ink
+	text = Color3.fromHex("2C1642"),
+	subtext = Color3.fromHex("6A4E7E"), -- the kit's soft purple words, a shade darker to read at 4.5:1
 	line = Color3.fromHex("D9C9A6"), -- empty stars, bar tracks and chips
 	good = Color3.fromHex("1F7A3E"),
 	gold = Color3.fromHex("8F5A00"), -- gold words on cream (the bright gold does not read there)
 	caramel = Color3.fromHex("D9C7F5"),
 	red = Color3.fromHex("B3261E"),
 	warn = Color3.fromHex("8F5200"),
-	goldCard = Color3.fromHex("FFE49A"),
+	goldCard = Color3.fromHex("FFE296"), -- the kit's picture tile
 } :: Palette
 
 function MenuFamily.palette(): Palette

@@ -14,11 +14,10 @@
 -- The cloud cutscene (Derek 2026-10-28 13:56: "make the cloud cutscene a little better"): while the clouds cover the
 -- launching player's screen, their own character flies through them (Avatar.glide, Presets.cannonGlide), a copy of
 -- it posed in a ViewportFrame that VFX-Agent's cloud tunnel lays between its clouds (`CannonGlide.mount`).
--- The launching player's camera (section 7): it follows the hop, chases the flyer out of the barrel, waits under the
--- clouds, follows it down onto the pad from further out than the player's own view, closes to that view, gives one
--- quick, slight push in at the touch and straight back, then hands back to the game's camera at the end of the flight,
--- when the server lets go (Presets.cannonCamera; #2690). Everyone else keeps their own
--- camera.
+-- The launching player's camera (section 7): it follows the hop, chases the flyer out of the barrel and waits under
+-- the clouds. Just before the flyer drops back into sight it puts the view behind the pad for one frame and hands
+-- back to the game's camera, so nothing of ours moves the camera on landing (Presets.cannonCamera; #3444). Everyone
+-- else keeps their own camera.
 -- Listening only: nothing here fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
@@ -29,6 +28,7 @@ local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
 local Context = require(script.Parent.Context)
+local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
 
 local CannonGlide = {}
@@ -326,11 +326,10 @@ type View = {
 	pitch: number, -- radians, negative looking down
 	body: Vector3, -- the body's middle when last seen
 	last: CFrame,
-	flat: Vector3?, -- #2779: the flat way the landing camera looks, picked once as the drop starts (clearOfCannons)
 }
 local view: View? = nil
--- The CannonLaunchAt whose camera went back to the game's at cannonPose's `ends`, when the server lets go (#2690),
--- while the landing pose still blends out, so the player can turn the view as soon as they can walk.
+-- The CannonLaunchAt whose camera went back to the game's: just before the drop (Logic.cannonHandBackAt, #3444), so the
+-- landing itself never moves the camera and the player can turn the view all the way down.
 local handedBack: number? = nil
 
 -- While this player is in flight and until the server lets go of the landed character (its root anchored until
@@ -462,9 +461,6 @@ local function track()
 	holdArrows(launchAt ~= nil or not grounded(me))
 	local c, k = Presets.cannonPose, Presets.cannonCamera
 	local seconds = if launchAt ~= nil then Workspace:GetServerTimeNow() - launchAt else 0
-	if launchAt ~= nil and seconds >= c.ends then
-		handedBack = launchAt
-	end
 	if camera == nil or me == nil or f == nil or launchAt == nil or launchAt == handedBack then
 		if view ~= nil and camera ~= nil then
 			camera.CameraType = Enum.CameraType.Custom -- the game's camera again, from where this left it
@@ -515,45 +511,24 @@ local function track()
 			else Vector3.new(barrel.X, 0, barrel.Z).Unit
 		local chase = CFrame.lookAt(v.body, v.body + heading):PointToWorldSpace(k.chase)
 		target = launch:Lerp(CFrame.lookAt(chase, v.body), smooth((seconds - c.boom) / k.catch))
-	elseif seconds < c.drop - k.over then
+	elseif seconds < Logic.cannonHandBackAt() then
 		target = v.last -- under the clouds
 	else
-		-- behind the flyer as it comes down onto the pad, as the player had the camera but `wide` times as far, closing
-		-- in to the player's own distance by the touch
-		local fall = smooth((seconds - c.drop) / (c.touch - c.drop))
+		-- #3444 (Derek 2026-11-12: "landing still moves your camera on landing so remove that"): from just before the
+		-- drop the camera is the game's own again. One frame here puts it behind the pad, the way the pad faces (turned
+		-- clear of any cannon, #2779) at the player's own pitch and the distance it had at launch, and hands it back;
+		-- the game's camera keeps that way and settles on the player's own zoom while the flyer is still out of sight.
+		-- Nothing of ours touches the camera as the feet land or when the server lets go, so nothing moves then.
 		local rest = root.Position + v.focus
-		local coming = if body ~= nil
-			then v.body
-			else root:PointToWorldSpace(Vector3.new(0, c.height, c.back)) -- where it comes back into sight
-		local focus = if seconds < c.touch
-			then coming:Lerp(rest, smooth((seconds - (c.touch - c.open)) / c.open))
-			else rest
-		if v.flat == nil then
-			local flat = Vector3.new(root.LookVector.X, 0, root.LookVector.Z)
-			flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zAxis
-			v.flat = CannonGlide.clearOfCannons(
-				rest,
-				flat,
-				v.pitch,
-				v.distance * k.wide,
-				cannonBoxes(rest)
-			)
-		end
-		local flat = v.flat :: Vector3
+		local flat = Vector3.new(root.LookVector.X, 0, root.LookVector.Z)
+		flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zAxis
+		flat = CannonGlide.clearOfCannons(rest, flat, v.pitch, v.distance, cannonBoxes(rest))
 		local look = flat * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
-		-- `wide` times the player's distance down to the player's own by the touch, then one quick, slight push in
-		-- (`push` closer) that is back on the player's own distance within `bump` seconds, and the game's camera
-		-- after (#1131). Reduce Motion: no bump.
-		local scale = if seconds < c.touch then 1 + (k.wide - 1) * (1 - fall) else 1
-		if seconds >= c.touch and not Context.reducedMotion() then
-			local t = math.clamp((seconds - c.touch) / k.bump, 0, 1)
-			local pulse = if t < k.bumpIn
-				then smooth(t / k.bumpIn)
-				else 1 - smooth((t - k.bumpIn) / (1 - k.bumpIn))
-			scale = 1 - k.push * pulse
-		end
-		local distance = v.distance * scale
-		target = CFrame.lookAt(focus - look * distance, focus)
+		camera.CFrame = CFrame.lookAt(rest - look * v.distance, rest)
+		camera.CameraType = Enum.CameraType.Custom
+		handedBack = launchAt
+		view = nil
+		return
 	end
 	v.last = target
 	camera.CFrame = target

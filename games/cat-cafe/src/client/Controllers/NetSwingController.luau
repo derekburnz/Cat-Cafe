@@ -47,6 +47,7 @@ local inIntro = false
 local inReach: Model? = nil
 local swingReach: Model? = nil -- the stray a swing lands on right now; inReach may be a further one on touch (#3556)
 local walkId = 0 -- #3556: the walk to a stray going on, by number
+local walking = false
 local reported: { [string]: boolean } = {}
 
 local function touchReachOn(): boolean
@@ -179,10 +180,26 @@ local function findInReach(): (Model?, Model?)
 	return nil, nil
 end
 
+-- #3556: ends the walk going on and stops the character where it stands.
+local function stopWalk()
+	walkId += 1
+	if not walking then
+		return
+	end
+	walking = false
+	local root = rootPart()
+	local character = player.Character
+	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	if humanoid ~= nil and root ~= nil then
+		humanoid:MoveTo(root.Position)
+	end
+end
+
 -- #3556: walks to `model` and swings once a swing would land on it. A new press, a swing that cannot go or
 -- TouchReach.WALK_SECONDS ends it.
 local function walkTo(model: Model)
-	walkId += 1
+	stopWalk()
+	walking = true
 	local id = walkId
 	local started = os.clock()
 	task.spawn(function()
@@ -203,20 +220,13 @@ local function walkTo(model: Model)
 			task.wait(REACH_TICK)
 		end
 		if walkId == id then
-			local root = rootPart()
-			local character = player.Character
-			local humanoid = if character ~= nil
-				then character:FindFirstChildOfClass("Humanoid")
-				else nil
-			if humanoid ~= nil and root ~= nil then
-				humanoid:MoveTo(root.Position) -- stop where the character stands
-			end
+			stopWalk()
 		end
 	end)
 end
 
 local function press()
-	walkId += 1 -- a press ends a walk going on
+	stopWalk() -- a press ends a walk going on, where the character stands
 	local far = if swingReach == nil then inReach else nil
 	if far ~= nil and touchReachOn() and os.clock() >= nextSwingAt and canSwing() then
 		walkTo(far)

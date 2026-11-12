@@ -45,8 +45,10 @@ return function()
 					expect(string.find(rainbow, color, 1, true) ~= nil).to.equal(true)
 				end
 				expect(CoatWords.paint("Gold", "gold")).to.equal(
-					'<font color="#FFC94D">Gold</font>'
+					'<b><font color="#FFC94D">Gold</font></b>'
 				)
+				expect(string.sub(rainbow, 1, 3)).to.equal("<b>")
+				expect(string.sub(rainbow, -4)).to.equal("</b>")
 			end
 		)
 
@@ -54,7 +56,9 @@ return function()
 			local text = "<b>Sam</b> & 'Co' caught a Gold Mythical Moonpaw!"
 			local rich, found = CoatWords.rich(text, CoatWords.escape)
 			expect(found).to.equal(true)
-			expect(string.find(rich, "<b>", 1, true)).to.equal(nil)
+			-- the name's own tag is escaped; the only bold is the coat word's
+			expect(string.find(rich, "<b>Sam", 1, true)).to.equal(nil)
+			expect(select(2, string.gsub(rich, "<b>", ""))).to.equal(1)
 			expect(
 				string.find(rich, "&lt;b&gt;Sam&lt;/b&gt; &amp; &apos;Co&apos; caught a ", 1, true)
 			).to.equal(1)

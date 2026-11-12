@@ -150,7 +150,12 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		),
 		now
 	)
-	local lucky = Potions.running(profile, Potions.LUCKY, now)
+	-- #3462: the lucky potion whose Luck counts for this roll, for the event below
+	local potionLuck = Potions.luck(profile, now)
+	local lucky: string? = if potionLuck > Config.LuckyPotionLuck
+		then Potions.BIG_LUCKY
+		elseif potionLuck > 0 then Potions.LUCKY
+		else nil
 	local bait: Types.BaitState = {
 		lureId = lureId,
 		placedAt = now,
@@ -173,12 +178,7 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	Bait.setState(profile, bowl, bait)
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
-	Telemetry.custom(
-		player,
-		"bait_rolled",
-		1,
-		{ lureId, rarity, if lucky then Potions.LUCKY else "none" }
-	)
+	Telemetry.custom(player, "bait_rolled", 1, { lureId, rarity, lucky or "none" })
 	-- #3158 (Derek2 2026-11-10: "the bait bowl animation doesn't even come because its interupted by foodbowl finished
 	-- instantly into a cannon teleport"): the account's first bait holds the tutorial's last step until its cat is
 	-- tamed or let go (onResolveBait), so the move to the cannon, the full HUD and the wrap-up hint all come after the

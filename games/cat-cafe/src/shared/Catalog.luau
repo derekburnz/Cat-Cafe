@@ -1759,6 +1759,36 @@ Catalog.potions = {
 		buff = "quick_bait_potion",
 		shopOnly = true,
 	},
+	-- #3462 (Derek 2026-11-12: "add better items to day cart like legendary bait and better potions but make it for
+	-- more money", "move all of those items to be in the billions", "tier 6+"): the Day Cart's three Tier 6 potions,
+	-- each a stronger kind with its own 30 minute timer, sold only there (`shopOnly`). Design-Agent's list.
+	--   Big Lucky: its Luck takes the place of a running Lucky Potion's, never on top (Potions.luck)
+	--   Big Gold Rush: adds to a running Gold Rush Potion's gold luck, as every `goldLuck` does
+	--   Mega Money: with the other money potions still at most Config.TimedTipsMax, so on its own it fills the cap
+	{
+		id = "big_lucky_potion",
+		name = "Big Lucky Potion",
+		minutes = 30,
+		effect = "+75% Luck, 2x bait gold",
+		luck = 0.75,
+		shopOnly = true,
+	},
+	{
+		id = "big_gold_rush_potion",
+		name = "Big Gold Rush Potion",
+		minutes = 30,
+		effect = "+50% gold luck",
+		goldLuck = 0.5,
+		shopOnly = true,
+	},
+	{
+		id = "mega_tip_potion",
+		name = "Mega Money Potion",
+		minutes = 30,
+		effect = "+100% money",
+		tips = 1,
+		shopOnly = true,
+	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
 for _, def in Catalog.potions do
@@ -4620,6 +4650,41 @@ Catalog.cornerShop = {
 		kind = "bait",
 		lureId = "salmon",
 		price = 0,
+	},
+	-- #3462: the three Tier 6 potions, in the billions, one of each a game day (Config.CornerDailyLimits). Top shelf
+	-- rows like the two baits below, so they sit with them at the end of this list
+	{
+		id = "big_lucky_potion",
+		name = "Big Lucky Potion",
+		family = "big_lucky",
+		size = "regular",
+		kind = "potion",
+		potionId = "big_lucky_potion",
+		price = 5000000000,
+		needsTier = 6,
+		topShelf = true,
+	},
+	{
+		id = "big_gold_rush_potion",
+		name = "Big Gold Rush Potion",
+		family = "big_gold_rush",
+		size = "regular",
+		kind = "potion",
+		potionId = "big_gold_rush_potion",
+		price = 8000000000,
+		needsTier = 6,
+		topShelf = true,
+	},
+	{
+		id = "mega_tip_potion",
+		name = "Mega Money Potion",
+		family = "mega_money",
+		size = "regular",
+		kind = "potion",
+		potionId = "mega_tip_potion",
+		price = 20000000000,
+		needsTier = 6,
+		topShelf = true,
 	},
 	-- #3462: the cart's own baits, Tier 6 and up, at the flat price of their Catalog.lures rows. They are top shelf
 	-- rows (shared/CornerShop): nothing shows or sells until the `cartTier6` switch is on, which waits for every

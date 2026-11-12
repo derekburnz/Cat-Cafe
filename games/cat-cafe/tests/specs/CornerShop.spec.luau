@@ -68,7 +68,10 @@ return function()
 				{ "kibble", "bait", "small", (Catalog.getLure("kibble") :: any).cost },
 				{ "tuna", "bait", "regular", (Catalog.getLure("tuna") :: any).cost },
 				{ "salmon", "bait", "big", (Catalog.getLure("salmon") :: any).cost },
-				-- #3462: the cart's own two, in the billions, from Tier 6
+				-- #3462: the top shelf, last: the three Tier 6 potions and the cart's own two baits, in the billions
+				{ "big_lucky_potion", "big_lucky", "regular", 5000000000 },
+				{ "big_gold_rush_potion", "big_gold_rush", "regular", 8000000000 },
+				{ "mega_tip_potion", "mega_money", "regular", 20000000000 },
 				{ "honey_cream", "bait", "big", 1000000000 },
 				{ "comet_treat", "bait", "mega", 3000000000 },
 			}
@@ -81,7 +84,11 @@ return function()
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
 				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone; #3118's Money Potion
 				-- from Tier 3 and Big Money from Tier 4 (Monetization-Agent)
-				local gate = if row.id == "honey_cream" or row.id == "comet_treat"
+				local gate = if row.id == "honey_cream"
+						or row.id == "comet_treat"
+						or row.family == "big_lucky"
+						or row.family == "big_gold_rush"
+						or row.family == "mega_money"
 					then 6
 					elseif row.kind == "bait" then nil
 					elseif row.id == "tip_potion" then 3
@@ -134,6 +141,10 @@ return function()
 			expect(Config.CornerDailyLimits.quick_bait).to.equal(2)
 			expect(Config.CornerDailyLimits.whistle).to.equal(4)
 			expect(Config.CornerDailyLimits.swift).never.to.be.ok()
+			-- #3462: one of each Tier 6 potion a game day
+			expect(Config.CornerDailyLimits.big_lucky).to.equal(1)
+			expect(Config.CornerDailyLimits.big_gold_rush).to.equal(1)
+			expect(Config.CornerDailyLimits.mega_money).to.equal(1)
 			expect((Config :: any).CornerFoodXpPerDay).never.to.be.ok() -- #1255: no daily cat food cap
 		end)
 	end)
@@ -153,18 +164,22 @@ return function()
 		end)
 
 		-- #2891: 16 rows since the Cat Whistle's three went (14 of 19 before); the same chances give 12.4
-		it("stocks about 14 of the 20 rows a day on average (#1740; #3118 added 4)", function()
-			local total, windows = 0, 2000
-			for window = WINDOW, WINDOW + windows - 1 do
-				for _, item in CornerShop.stock(window) do
-					if item.amount > 0 then
-						total += 1
+		it(
+			"stocks about 16 of the 25 rows a day on average (#1740; #3118 added 4, #3462 five)",
+			function()
+				local total, windows = 0, 2000
+				for window = WINDOW, WINDOW + windows - 1 do
+					for _, item in CornerShop.stock(window) do
+						if item.amount > 0 then
+							total += 1
+						end
 					end
 				end
+				local average = total / windows
+				-- #3462: 25 rows, the chances sum to 16 (was 20 rows and 14.3)
+				expect(average > 15.3 and average < 16.7).to.equal(true)
 			end
-			local average = total / windows
-			expect(average > 13.3 and average < 15.2).to.equal(true)
-		end)
+		)
 
 		it(
 			"lists every row once, cheapest Tier 1 price first, ties in Catalog order (#1577)",
@@ -198,6 +213,9 @@ return function()
 				expect(Catalog.cornerShop[order[20]].id).to.equal("cat_feast")
 				expect(Catalog.cornerShop[order[21]].id).to.equal("honey_cream")
 				expect(Catalog.cornerShop[order[22]].id).to.equal("comet_treat")
+				expect(Catalog.cornerShop[order[23]].id).to.equal("big_lucky_potion")
+				expect(Catalog.cornerShop[order[24]].id).to.equal("big_gold_rush_potion")
+				expect(Catalog.cornerShop[order[25]].id).to.equal("mega_tip_potion")
 			end
 		)
 
@@ -510,6 +528,33 @@ return function()
 				end
 			end
 		)
+
+		it("#3462: sells the three Tier 6 potions from Tier 6 at their fixed prices", function()
+			local want: { [string]: number } = {
+				big_lucky_potion = 5000000000,
+				big_gold_rush_potion = 8000000000,
+				mega_tip_potion = 20000000000,
+			}
+			for id, price in want do
+				local window = assert(windowWith(id, WINDOW))
+				local state = CornerShop.fresh()
+				CornerShop.refresh(state, window, 0)
+				local row = Catalog.getCornerShopRow(id) :: any
+				expect(row.potionId).to.equal(id)
+				for tier = 1, 9 do
+					expect(CornerShop.priceOf(row, tier)).to.equal(price)
+				end
+				expect(CornerShop.buyBlocker(state, buy(id, window, 5, 1e12), window)).to.equal(
+					"Opens at Tier 6"
+				)
+				expect(CornerShop.buyBlocker(state, buy(id, window, 6, price - 1), window)).to.equal(
+					"Not enough coins"
+				)
+				expect(CornerShop.buyBlocker(state, buy(id, window, 6, price), window)).to.equal(
+					nil
+				)
+			end
+		end)
 
 		it("#3462: shows and sells nothing from the top shelf until its switch is on", function()
 			local window = assert(windowWith("honey_cream", WINDOW))

@@ -478,9 +478,10 @@ function Logic.mouseMissCue(kind: any): string?
 end
 
 -- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
--- plays the fanfare, any other run that ran out of hearts with points the arcade's "nice try"; a quit is silent.
+-- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
+-- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
 function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
-	if reason == "win" or (newBest == true and reason == "hearts") then
+	if reason == "win" or newBest == true then
 		return "mouseBest"
 	elseif reason == "hearts" and type(points) == "number" and points > 0 then
 		return "arcadeEnd"

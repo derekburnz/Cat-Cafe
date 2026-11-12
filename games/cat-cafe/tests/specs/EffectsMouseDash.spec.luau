@@ -19,7 +19,10 @@ return function()
 			expect(MouseDashFx.catchKind(nil, nil)).to.equal("small")
 			expect(MouseDashFx.catchKind("mouse", 0 / 0)).to.equal("small")
 			expect(MouseDashFx.catchKind("golden", 3)).to.equal("golden")
-			expect(Presets.mouseDash.catchGolden.word).to.equal("+3")
+			-- the window draws "+1", "+3" and "Faster!" itself, so the pops carry no words of their own
+			expect(Presets.mouseDash.catch.word).to.equal(nil)
+			expect(Presets.mouseDash.catchGolden.word).to.equal(nil)
+			expect(Presets.mouseDash.faster.word).to.equal(nil)
 		end)
 
 		it(

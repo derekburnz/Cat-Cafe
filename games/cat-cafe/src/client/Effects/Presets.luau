@@ -2735,22 +2735,19 @@ Presets.mouseDash = {
 	pop = {
 		colour = Presets.palette.offwhite,
 		golden = { colour = Presets.palette.golden, sparkles = 4 },
-		kitten = { word = "Zzz", colour = Presets.palette.blush, wordSize = 22 },
+		kitten = { colour = Presets.palette.blush },
 	},
-	catch = { word = "+1", colour = Presets.palette.mint, sparkles = 4, rings = 1, wordSize = 26 },
+	-- the window floats its own "+1" and "+3" over the hole, so the catch pops are sparkles and a ring only
+	catch = { colour = Presets.palette.mint, sparkles = 4, rings = 1 },
 	catchBig = {
-		word = "+1",
 		colour = Presets.palette.golden,
 		sparkles = 8,
 		rings = 1,
-		wordSize = 30,
 	},
 	catchGolden = {
-		word = "+3",
 		colour = Presets.palette.golden,
 		sparkles = 12,
 		rings = 1,
-		wordSize = 34,
 	},
 	-- the dust as a mouse ducks back in: round blobs off the hole's rim; `drop` is how far under the hole's middle
 	-- they start, in hole heights
@@ -2773,21 +2770,19 @@ Presets.mouseDash = {
 		lost = Presets.palette.furGrey,
 		puffs = 3,
 	},
+	-- the window's banner says "Faster!", so this is the ring and sparkles round the score only
 	faster = {
-		word = "Faster!",
 		colour = Presets.palette.eyeBlue,
 		sparkles = 6,
 		rings = 1,
-		wordSize = 28,
 	},
 	best = {
-		word = "New best!",
 		colour = Presets.palette.golden,
 		confetti = { Presets.palette.golden, Presets.palette.mint, Presets.palette.nosePink },
 		sparkles = 12, -- the phone's burst cap, shared out over the confetti colours
 		rings = 2,
 		ringGap = 0.15,
-		wordSize = 34,
+		wordSize = 34, -- for the words the window hands over ("You win!")
 	},
 	-- MouseDashFx.bounce: how far each kind swells (over 1) or dips (under 1) before it settles
 	bounce = { seconds = 0.22, peaks = { pop = 1.15, squash = 0.8, pulse = 1.25 } },

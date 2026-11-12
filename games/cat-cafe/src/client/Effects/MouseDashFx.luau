@@ -4,19 +4,22 @@
 -- heart pad, the score), drawn on the arcade's effects ScreenGui; none sends anything to the server or shows a toast.
 -- `kind` is what is in the hole: "mouse", "golden" (the golden mouse) or "kitten" (the napping kitten, the decoy).
 --   MouseDashFx.pop(hole, kind)                   it pops up: a soft ring; the golden mouse a gold ring and a few
---                                                 sparkles; the kitten a "Zzz" that drifts up
---   MouseDashFx.catch(hole, points, kind, streak) a catch: mint sparkles, a ring and "+1", bigger and golden on every
---                                                 5th of a streak; the golden mouse the full gold burst and "+3"
+--                                                 sparkles; the kitten a blush ring
+--   MouseDashFx.catch(hole, points, kind, streak) a catch: mint sparkles and a ring, bigger and golden on every 5th of
+--                                                 a streak; the golden mouse the full gold burst
 --   MouseDashFx.escape(hole)                      the mouse ducks back in untapped: a dust puff over the hole
 --   MouseDashFx.wrong(hole, kind)                 a wrong tap: "kitten" a blush "mrow?"; "empty" three dizzy stars
 --                                                 and a little dust
---   MouseDashFx.heart(pad, gained)                a heart pad: won back a pink ring and sparkles, lost a grey puff
---   MouseDashFx.faster(target, level)             the speed step: a blue ring, sparkles and "Faster!"
---   MouseDashFx.best(target)                      a new best or a win: two gold rings, confetti in three colours and
---                                                 "New best!" (MouseDashFx.best(target, "You win!") for the win)
+--   MouseDashFx.heart(pad, gained)                a heart pad: won back a pink ring, sparkles and a pulse of the pad;
+--                                                 lost a grey puff
+--   MouseDashFx.faster(target, level)             the speed step: a blue ring and sparkles
+--   MouseDashFx.best(target, words?)              a new best or a win: two gold rings and confetti in three colours,
+--                                                 with `words` rising over them when given
 --   MouseDashFx.bounce(object, kind)              the one that touches the window: a quick scale bounce on a UIScale
 --                                                 named "FxScale" it adds to `object`: "pop" (a mouse rising),
 --                                                 "squash" (a caught mouse, the paw's bop) or "pulse" (a heart pad)
+-- The window (Screens/MouseDash) draws its own "+1" and "+3", its "Zzz", its "Faster!" banner and its end words, so
+-- these pops draw none of those; a second copy on top would read as a smear.
 -- Milestones and the run's golden fish are ArcadeFx.milestone and ArcadeFx.goldenFish.
 -- Reduce Motion: no rings, no bounce, half the sparkles, the dust fades where it is. Low performance: half the
 -- sparkles and half the dust. A target that isn't on screen plays nothing. Each plays once per call and nothing
@@ -127,7 +130,7 @@ function MouseDashFx.pop(hole: GuiObject, kind: Kind?)
 	end
 	local p = Presets.mouseDash.pop
 	if kind == "kitten" then
-		ArcadeFx.word(gui, hole, p.kitten.word, p.kitten.colour, p.kitten.wordSize)
+		ArcadeFx.burst(gui, hole, { colour = p.kitten.colour, sparkles = 0, rings = 1 })
 	elseif kind == "golden" then
 		ArcadeFx.burst(
 			gui,
@@ -155,7 +158,6 @@ function MouseDashFx.catch(hole: GuiObject, _points: number?, kind: Kind?, strea
 		hole,
 		{ colour = spec.colour, sparkles = spec.sparkles, rings = spec.rings }
 	)
-	ArcadeFx.word(gui, hole, spec.word, spec.colour, spec.wordSize)
 end
 
 function MouseDashFx.escape(hole: GuiObject)
@@ -189,6 +191,7 @@ function MouseDashFx.heart(pad: GuiObject, gained: boolean?)
 	local h = Presets.mouseDash.heart
 	if gained == true then
 		ArcadeFx.burst(gui, pad, { colour = h.colour, sparkles = h.sparkles, rings = 1 })
+		MouseDashFx.bounce(pad, "pulse")
 	else
 		puff(gui, pad, h.puffs, h.lost)
 	end
@@ -201,7 +204,6 @@ function MouseDashFx.faster(target: GuiObject, _level: number?)
 	end
 	local f = Presets.mouseDash.faster
 	ArcadeFx.burst(gui, target, { colour = f.colour, sparkles = f.sparkles, rings = f.rings })
-	ArcadeFx.word(gui, target, f.word, f.colour, f.wordSize)
 end
 
 function MouseDashFx.best(target: GuiObject, words: string?)
@@ -221,7 +223,9 @@ function MouseDashFx.best(target: GuiObject, words: string?)
 			ringGap = b.ringGap,
 		})
 	end
-	ArcadeFx.word(gui, target, words or b.word, b.colour, b.wordSize)
+	if words ~= nil and words ~= "" then
+		ArcadeFx.word(gui, target, words, b.colour, b.wordSize)
+	end
 end
 
 local bouncing: { [UIScale]: RBXScriptConnection } = {}

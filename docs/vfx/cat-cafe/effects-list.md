@@ -1078,13 +1078,13 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 
 | Look | Hook |
 |---|---|
-| A mouse pops up: one soft ring off its hole. The golden mouse: a gold ring and 4 sparkles. The napping kitten: a blush "Zzz" drifts up | `MouseDashFx.pop(hole, kind)` |
-| A catch: mint sparkles, a ring and "+1"; every 5th of a streak bigger and golden; the golden mouse the full gold burst and "+3" | `MouseDashFx.catch(hole, points, kind, streak)` |
+| A mouse pops up: one soft ring off its hole. The golden mouse: a gold ring and 4 sparkles. The napping kitten: a blush ring (the window draws its own "Zzz") | `MouseDashFx.pop(hole, kind)` |
+| A catch: mint sparkles and a ring; every 5th of a streak bigger and golden; the golden mouse the full gold burst. The window floats the "+1" and "+3" | `MouseDashFx.catch(hole, points, kind, streak)` |
 | A mouse ducks back in untapped: 6 warm dust blobs rise off the hole's rim and fade in 0.45 s | `MouseDashFx.escape(hole)` |
 | A wrong tap: the kitten a blush "mrow?"; an empty hole 3 dizzy stars and a little dust. No red, no shake | `MouseDashFx.wrong(hole, kind)` |
-| A heart pad: won back a pink ring and 6 sparkles; lost a small grey puff | `MouseDashFx.heart(pad, gained)` |
-| The speed step: a blue ring, 6 sparkles and "Faster!" | `MouseDashFx.faster(target, level)` |
-| A new best or a win: two gold rings, 12 confetti sparkles in gold, mint and pink, and "New best!" (or the words given) | `MouseDashFx.best(target, words?)` |
+| A heart pad: won back a pink ring, 6 sparkles and a pulse of the pad; lost a small grey puff | `MouseDashFx.heart(pad, gained)` |
+| The speed step: a blue ring and 6 sparkles round the score (the window's banner says "Faster!") | `MouseDashFx.faster(target, level)` |
+| A new best or a win: two gold rings, 12 confetti sparkles in gold, mint and pink, and the words given, if any | `MouseDashFx.best(target, words?)` |
 | A 0.22 s scale bounce on a UIScale named `FxScale` added to the object: "pop" for a rising mouse, "squash" for a caught mouse and the paw's bop, "pulse" for a refilled heart pad | `MouseDashFx.bounce(object, kind)` |
 
 Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. Low performance: half the sparkles and half the dust. Every pop plays once per call and nothing loops, so nothing flashes. The most on screen at once is 12 sparkles per pop (the phone's burst cap).

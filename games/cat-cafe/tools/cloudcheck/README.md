@@ -119,6 +119,7 @@ are left out of the "gone" list.
 ```
 npm run uigate                                  # all three screens; report in <system temp>/cat-cafe-uigate
 node uigate.mjs --profile phone --scene Quests  # one screen size, one window
+node uigate.mjs --profile phone --scene HUDPalsStay,TipCard  # several, in list order (to find a scene that breaks a later one)
 node uigate.mjs --out ./ui --verbose            # report next to you, with the UI's own print output
 node uigate.mjs --update-baseline               # accept today's findings (after fixing some, to shrink the list)
 ```

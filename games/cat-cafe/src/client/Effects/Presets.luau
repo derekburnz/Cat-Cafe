@@ -2729,6 +2729,65 @@ Presets.arcade = {
 	shine = { every = 2.6, seconds = 0.7, width = 0.18, transparency = 0.55 },
 }
 
+-- Mouse Dash's pops (#3296, MouseDashFx), drawn with the arcade's sparkles, rings and words (Presets.arcade)
+Presets.mouseDash = {
+	bigEvery = 5, -- every 5th catch of a streak gets the bigger golden pop
+	pop = {
+		colour = Presets.palette.offwhite,
+		golden = { colour = Presets.palette.golden, sparkles = 4 },
+		kitten = { colour = Presets.palette.blush },
+	},
+	-- the window floats its own "+1" and "+3" over the hole, so the catch pops are sparkles and a ring only
+	catch = { colour = Presets.palette.mint, sparkles = 4, rings = 1 },
+	catchBig = {
+		colour = Presets.palette.golden,
+		sparkles = 8,
+		rings = 1,
+	},
+	catchGolden = {
+		colour = Presets.palette.golden,
+		sparkles = 12,
+		rings = 1,
+	},
+	-- the dust as a mouse ducks back in: round blobs off the hole's rim; `drop` is how far under the hole's middle
+	-- they start, in hole heights
+	puff = {
+		count = 6,
+		colour = Presets.palette.lampWarm,
+		size = 16,
+		reach = 34,
+		seconds = 0.45,
+		transparency = 0.25,
+		drop = 0.15,
+	},
+	wrong = {
+		kitten = { word = "mrow?", colour = Presets.palette.blush, wordSize = 24 },
+		empty = { colour = Presets.palette.sparkle, stars = 3, puffs = 3 },
+	},
+	heart = {
+		colour = Presets.palette.nosePink,
+		sparkles = 6,
+		lost = Presets.palette.furGrey,
+		puffs = 3,
+	},
+	-- the window's banner says "Faster!", so this is the ring and sparkles round the score only
+	faster = {
+		colour = Presets.palette.eyeBlue,
+		sparkles = 6,
+		rings = 1,
+	},
+	best = {
+		colour = Presets.palette.golden,
+		confetti = { Presets.palette.golden, Presets.palette.mint, Presets.palette.nosePink },
+		sparkles = 12, -- the phone's burst cap, shared out over the confetti colours
+		rings = 2,
+		ringGap = 0.15,
+		wordSize = 34, -- for the words the window hands over ("You win!")
+	},
+	-- MouseDashFx.bounce: how far each kind swells (over 1) or dips (under 1) before it settles
+	bounce = { seconds = 0.22, peaks = { pop = 1.15, squash = 0.8, pulse = 1.25 } },
+}
+
 Presets.tradeFly = {
 	displayOrder = 21, -- over the trade window (a modal, 20), under the bait card (35) and toasts (30)
 	seconds = 0.75,

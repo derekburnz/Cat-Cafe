@@ -91,6 +91,7 @@ UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
 UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
+UI.mouseDash = {} -- #3296 the arcade's Mouse Dash window, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
@@ -136,6 +137,11 @@ UI.events = {
 	arcadePlay = Signal.new(),
 	arcadePress = Signal.new(),
 	arcadeQuit = Signal.new(),
+	-- #3296 (Mouse Dash): Play, a tap on a hole while wave `index` is up, and Close mid game: forward as
+	-- MouseDashStart, MouseDashTap(run, index, hole) and MouseDashQuit(run)
+	mouseDashPlay = Signal.new(),
+	mouseDashTap = Signal.new(),
+	mouseDashQuit = Signal.new(),
 	catchPressed = Signal.new(), -- (strayId, index, grade?)   a press on circle `index` with this device's grade (nil after its first Miss): forward strayId and index as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
@@ -601,6 +607,7 @@ local function render()
 	end
 	UI.campExtras.render(state)
 	UI.arcade.render(state)
+	UI.mouseDash.render(state)
 	UI.lateStations.render(state)
 	UI.mysticPool.render(state)
 	UI.cornerShop.render(state)
@@ -1608,6 +1615,7 @@ function UI.init(config: Types.InitConfig)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
 	UI.mysticPool.start() -- the Mystic Pool's card (#3196)
+	UI.mouseDash.start() -- the arcade's Mouse Dash window (#3296)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
@@ -1801,6 +1809,7 @@ function UI.destroy()
 	UI.campExtras.reset()
 	UI.lateStations.reset()
 	UI.mysticPool.reset()
+	UI.mouseDash.reset()
 	UI.mystery.reset()
 	UI.giftWait.reset()
 	UI.rally.reset()
@@ -2794,7 +2803,13 @@ end
 UI.arcade = {}
 
 -- Opens the arcade's card (the cabinet's prompt, the Menu list's Arcade row). A window already up stays open.
+-- #3296: with the `mouseDash` switch on the arcade's game is Mouse Dash, so its card opens instead.
 function UI.arcade.open()
+	local dash: any = (UI :: any).mouseDash -- filled later in the file
+	if dash.isMain() then
+		dash.open()
+		return
+	end
 	if modal and arcadeScreen and (modal:current() == nil or modal:current() == "Arcade") then
 		modal:open("Arcade")
 	end
@@ -2815,12 +2830,13 @@ function UI.arcade.state(view: any)
 end
 
 -- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
-function UI.arcade.setOn(on: boolean)
+-- #3296: `row` is the Menu row alone, for when Circle Streak is vaulted (off) but Mouse Dash still opens from it.
+function UI.arcade.setOn(on: boolean, row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
 	end
 	if hud then
-		hud:setArcade(on)
+		hud:setArcade(if row ~= nil then row else on)
 	end
 end
 
@@ -2852,7 +2868,9 @@ end
 
 -- Whether a game is running on the board (the net and other taps stay out of its way).
 function UI.arcade.playing(): boolean
-	return arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing()
+	local dash: any = (UI :: any).mouseDash -- filled later in the file
+	return (arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing())
+		or dash.playing() == true
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -7149,6 +7167,178 @@ do
 			card:destroy()
 		end
 		pool.card = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Mouse Dash (#3296, Screens/MouseDash; the rules are shared/MouseDash)
+----------------------------------------------------------------------------------------------------
+
+-- The arcade's Mouse Dash window. Controllers/UIController passes the server's events straight on (state, began,
+-- wave, judged, gone, over) and the switches (setFlags); the window's presses go out as UI.events.mouseDashPlay /
+-- mouseDashTap / mouseDashQuit. The last state and switches are kept, so a rebuilt UI shows them at once. Its own
+-- block, as the module is short of locals.
+do
+	local MouseDash = require(script.Screens.MouseDash)
+	local MouseDashLogic = require(script.Components.MouseDashLogic)
+	local dash = {
+		screen = nil :: MouseDash.MouseDash?,
+		view = nil :: any,
+		on = false, -- the `arcade` and `mouseDash` switches
+		circle = true, -- the `circleStreak` switch: Circle Streak can still be played
+	}
+
+	local function apply()
+		local screen = dash.screen
+		if screen then
+			screen:setOn(dash.on)
+			screen:setOther(dash.circle)
+		end
+	end
+
+	function UI.mouseDash.start()
+		UI.mouseDash.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local screen = MouseDash.new({
+			play = function()
+				UI.events.mouseDashPlay:Fire()
+			end,
+			tap = function(run: number, index: number, hole: number)
+				UI.events.mouseDashTap:Fire(run, index, hole)
+			end,
+			quit = function(run: number)
+				UI.events.mouseDashQuit:Fire(run)
+			end,
+			close = function()
+				if modalView:current() == MouseDashLogic.WINDOW then
+					modalView:close()
+				end
+			end,
+			-- to Circle Streak's card, while that game is not vaulted
+			other = function()
+				if dash.circle and modalView:current() == MouseDashLogic.WINDOW then
+					modalView:close()
+					modalView:open("Arcade")
+				end
+			end,
+		})
+		dash.screen = screen
+		modalView:register(MouseDashLogic.WINDOW, {
+			frame = screen.frame,
+			onOpen = function()
+				screen:setFish(state.goldenFish or 0)
+				screen:onOpen()
+			end,
+			onClose = function()
+				screen:onClose()
+			end,
+		})
+		if dash.view ~= nil then
+			screen:setState(dash.view)
+		end
+		apply()
+	end
+
+	-- Whether the cabinet and the Menu row open Mouse Dash (its switch is on).
+	function UI.mouseDash.isMain(): boolean
+		return dash.on and dash.screen ~= nil
+	end
+
+	function UI.mouseDash.open()
+		local modalView = modal
+		if
+			modalView
+			and dash.screen
+			and (modalView:current() == nil or modalView:current() == MouseDashLogic.WINDOW)
+		then
+			modalView:open(MouseDashLogic.WINDOW)
+		end
+	end
+
+	-- The switches: `on` the arcade's and Mouse Dash's both, `circle` Circle Streak's.
+	function UI.mouseDash.setFlags(on: boolean, circle: boolean)
+		dash.on = on
+		dash.circle = circle
+		apply()
+	end
+
+	function UI.mouseDash.render(playerState: Types.PlayerState)
+		local screen = dash.screen
+		if screen then
+			screen:setFish(playerState.goldenFish or 0)
+		end
+	end
+
+	function UI.mouseDash.state(view: any)
+		if type(view) ~= "table" then
+			return
+		end
+		dash.view = view
+		local screen = dash.screen
+		if screen then
+			screen:setState(view)
+		end
+	end
+
+	function UI.mouseDash.began(run: number, hearts: number, firstAt: number)
+		local screen = dash.screen
+		if screen then
+			UI.mouseDash.open() -- (a start always comes from the open card; this keeps the board in view)
+			screen:began(run, hearts, firstAt)
+		end
+	end
+
+	function UI.mouseDash.wave(run: number, index: number, pops: any, hint: string?)
+		local screen = dash.screen
+		if screen then
+			screen:wave(run, index, pops, hint)
+		end
+	end
+
+	function UI.mouseDash.judged(
+		run: number,
+		index: number,
+		tap: any,
+		points: number,
+		hearts: number,
+		streak: number,
+		milestones: any,
+		dizzyUntil: number
+	)
+		local screen = dash.screen
+		if screen then
+			screen:judged(run, index, tap, points, hearts, streak, milestones, dizzyUntil)
+		end
+	end
+
+	function UI.mouseDash.gone(run: number, index: number, gone: any, hearts: number)
+		local screen = dash.screen
+		if screen then
+			screen:gone(run, index, gone, hearts)
+		end
+	end
+
+	function UI.mouseDash.over(run: number, result: any)
+		local screen = dash.screen
+		if screen then
+			screen:over(run, result)
+		end
+	end
+
+	function UI.mouseDash.playing(): boolean
+		local screen = dash.screen
+		return screen ~= nil and screen:playing()
+	end
+
+	function UI.mouseDash.reset()
+		local screen = dash.screen
+		if screen then
+			screen:destroy()
+		end
+		dash.screen = nil
 	end
 end
 

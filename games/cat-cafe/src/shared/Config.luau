@@ -1057,6 +1057,33 @@ local Config = {
 		{ at = 90, prize = { lures = { moon_milk = 1 } }, name = "Moon Milk" },
 		{ at = 100, prize = { lures = { star_treat = 1 } }, name = "Star Treat" },
 	} :: { { at: number, prize: { [string]: any }, name: string } },
+	-- #3296 (Mouse Dash, shared/MouseDash, mouse-dash.md section 6): the arcade's second game. Three hearts; every
+	-- MouseDashStepEvery points the mouse's window is x MouseDashWindowStep (never under the floor: a phone's tap
+	-- plus the trip to the server needs 0.40 s) and the gap before the next x MouseDashGapStep. Golden mice from
+	-- 10 points, napping kittens from 20, two at once from 30 (one of them may be a kitten from 40). It shares
+	-- ArcadeMaxPoints, ArcadeCostFish and ArcadeMilestones with Circle Streak.
+	MouseDashHearts = 3,
+	MouseDashStepEvery = 5,
+	MouseDashWindowStart = 1.10,
+	MouseDashWindowStep = 0.93,
+	MouseDashWindowFloor = 0.40,
+	MouseDashGapStart = 0.50,
+	MouseDashGapStep = 0.95,
+	MouseDashGapFloor = 0.25,
+	MouseDashGoldenFrom = 10,
+	MouseDashGoldenChance = 1 / 12,
+	MouseDashGoldenPoints = 3,
+	MouseDashGoldenWindowScale = 0.75,
+	MouseDashKittenFrom = 20,
+	MouseDashKittenChance = 0.125,
+	MouseDashPairFrom = 30,
+	MouseDashPairChance = 0.20,
+	MouseDashPairKittenFrom = 40,
+	MouseDashHeartBackEvery = 10, -- catches in a row for a heart back
+	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole
+	MouseDashFirstRunMice = 3, -- a first ever run opens with this many slow mice that cannot cost a heart
+	MouseDashFirstRunWindow = 2.0,
+	MouseDashMouserAt = 50, -- points for the Mouser title
 	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
 	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off. The first: Saturday
 	-- 2026-11-14 17:00 UTC.

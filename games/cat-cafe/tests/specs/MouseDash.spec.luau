@@ -138,6 +138,15 @@ return function()
 			expect(wave.pops[1].downAt - 10).to.be.near(MouseDash.window(2) * 0.75, 1e-6)
 		end)
 
+		it("never gives a golden mouse less than the floor", function()
+			local run = runAt(90)
+			run.lastKitten = true -- no kitten this wave
+			-- no pair, then the golden roll passes
+			local wave = MouseDash.wave(run, 10, rolls({ 0.99, 0 }))
+			expect(wave.pops[1].kind).to.equal("golden")
+			expect(wave.pops[1].downAt - 10).to.be.near(Config.MouseDashWindowFloor, 1e-6)
+		end)
+
 		it("opens a first run with three slow mice that cannot cost a heart", function()
 			local run = MouseDash.begin(0, true)
 			for index = 1, Config.MouseDashFirstRunMice do

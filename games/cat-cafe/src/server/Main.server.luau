@@ -44,6 +44,7 @@ local LateStationService = require(script.Parent.Services.LateStationService)
 local LawnService = require(script.Parent.Services.LawnService)
 local LeaderboardService = require(script.Parent.Services.LeaderboardService)
 local LiveFlagService = require(script.Parent.Services.LiveFlagService)
+local MouseDashService = require(script.Parent.Services.MouseDashService)
 local MysteryMarketService = require(script.Parent.Services.MysteryMarketService)
 local MysteryService = require(script.Parent.Services.MysteryService)
 local NameService = require(script.Parent.Services.NameService)
@@ -152,6 +153,7 @@ GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and pay
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 ArcadeService.start() -- #3062: the Cat Arcade, before DataService so its onLoaded sees every join
+MouseDashService.start() -- #3296: the arcade's Mouse Dash, before DataService for the same reason
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)

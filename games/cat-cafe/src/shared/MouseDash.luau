@@ -228,8 +228,10 @@ function MouseDash.wave(run: Run, at: number, roll: () -> number): Wave
 		end
 		return "mouse"
 	end
+	-- a golden mouse's shorter window never goes under the floor a phone needs (Review-QA on #3401)
 	local function seconds(kind: Kind, scale: number): number
-		return window * scale * (if kind == "golden" then Config.MouseDashGoldenWindowScale else 1)
+		local own = window * (if kind == "golden" then Config.MouseDashGoldenWindowScale else 1)
+		return math.max(own, Config.MouseDashWindowFloor) * scale
 	end
 	if safe then
 		run.safeLeft -= 1

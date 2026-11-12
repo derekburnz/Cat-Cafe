@@ -664,6 +664,13 @@ return function()
 			expect(Logic.binRollCue("land")).to.equal("uiReelStop")
 			expect(Logic.binRollCue("win")).to.equal(nil)
 			expect(Logic.binRollCue(nil)).to.equal(nil)
+			-- #3651: petting a cat is a heart chime and a purr; the moved heart's landing is silent
+			local chime, purr, held = Logic.petCatCue("pet")
+			expect(held > 0 and held <= 2).to.equal(true)
+			expect(chime).to.equal("mouseHeart")
+			expect(purr).to.equal("purr")
+			expect((Logic.petCatCue("heart"))).to.equal(nil)
+			expect((Logic.petCatCue(nil))).to.equal(nil)
 			expect(Logic.rummageCue("crate")).to.equal("indexReward")
 			for _, id in { "tuna", "fish", "salmon", "potion", "nope" } do
 				expect(Logic.rummageCue(id)).to.equal("giftClaim")

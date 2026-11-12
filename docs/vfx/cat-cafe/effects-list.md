@@ -1139,3 +1139,12 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
 | Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
 
+## Petting a cat (#3651)
+
+`Effects/PetCat.luau`, timing in `Logic.petAt` and `Logic.petHeart`, the arm in `Avatar.petArm`, numbers in `Presets.petCat`, sounds in `Audio/Logic.petCatCue`. Plays on `Moments.CatPetted(userId, cat, from)` or the `CatPetted` remote.
+
+| Effect | How |
+|---|---|
+| The player's free left arm reaches down to the cat (0.2 s), strokes twice (0.4 s each) and comes back (0.25 s). The right arm keeps the net; a carried cat keeps both arms. Off with Reduce Motion. | `PetCat.layer(userId, rig)` in Tackle's frame, like the pal wave |
+| As the hand arrives the cat perks up (ears, nose and tail, the catch's "perk") and 5 pink hearts float up 2.4 studs over its head, fan out and fade in 1.1 s. The hearts are the ♥ glyph on billboards, so no texture or upload; the count follows the phone burst scale. A soft heart chime and a 1.6 s purr play at the cat. | `PetCat.pet(userId, cat, from)` |
+| When the heart moves from another cat: one grey heart fades off the old cat and a pink heart arcs to the new one in 0.6 s, then the puff plays. With Reduce Motion the puff plays at once. | same call with `from` |

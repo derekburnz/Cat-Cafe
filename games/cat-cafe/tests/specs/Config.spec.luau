@@ -103,7 +103,7 @@ return function()
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,
 		RemoteRateLimitPerSecond = 10,
-		AnnounceMinRarity = "Legendary", -- #2205: was Epic
+		AnnounceMinRarity = "Mythical", -- Derek 2026-11-12: was Legendary (#2205), Epic before
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
@@ -117,7 +117,7 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
-		-- F87 (easy-start.md section 6); IntroAutoPlay is true since #1575, checked below
+		-- F87 (easy-start.md section 6); IntroAutoPlay is false again since #3162, checked below
 		TutorialShrinkSeconds = 1.6,
 		TutorialWindowScale = 2,
 		TutorialRetrySeconds = 1.0,
@@ -501,9 +501,9 @@ return function()
 		)
 
 		it(
-			"IntroAutoPlay = true: the intro plays on a first join (#1575, Derek 2026-11-05; was false under F87)",
+			"IntroAutoPlay = false: no intro on a first join, the ? tile replays it (#3162; true from #1575 until then)",
 			function()
-				expect(Config.IntroAutoPlay).to.equal(true)
+				expect(Config.IntroAutoPlay).to.equal(false)
 			end
 		)
 
@@ -523,7 +523,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
-				IntroAutoPlay = true, -- true since #1575, checked below
+				IntroAutoPlay = true, -- false since #3162, checked below
 				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)

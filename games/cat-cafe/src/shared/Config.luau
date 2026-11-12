@@ -470,8 +470,11 @@ local Config = {
 	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
 	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
-	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
-	AnnounceMinRarity = "Legendary",
+	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic).
+	-- Derek 2026-11-12 ("make rainbow/gold finds also changed to only legendary + and make normals only mythic+ it
+	-- has a bit of clutter right now"): Mythical for a plain coat (was Legendary); a gold or rainbow coat from
+	-- Catching.COAT_SHOUT_FROM
+	AnnounceMinRarity = "Mythical",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 20, -- #3448: 16 until the rings grew to radius 8; #3112: 12 until the walk-up rings grew to radius 6
@@ -641,9 +644,10 @@ local Config = {
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
 	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
 	-- nobody can tackle them either.
-	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
-	-- and a replay from the ? tile
-	IntroAutoPlay = true,
+	-- #1575 (Derek, 2026-11-05) had the intro play on a first join. #3162 (2026-11-12): off again on the numbers
+	-- (loaded to first move took 27 s and lost 9% of new players): a new player gets control at once, the ? tile
+	-- glows and replays the intro. Back to true restores the first join play.
+	IntroAutoPlay = false,
 	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
 	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
 	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set

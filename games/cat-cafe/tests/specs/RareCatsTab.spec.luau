@@ -15,16 +15,47 @@ return function()
 			expect(RareCatsTab.wants("Nonsense")).to.equal(false)
 		end)
 
-		it("marks a line from another server and one from this server, in the rarity's colour", function()
-			local away = RareCatsTab.line("Sam caught a Mythical Midnight Sky!", "Mythical", true)
-			local here = RareCatsTab.line("Sam caught a Mythical Midnight Sky!", "Mythical", false)
-			expect(away).to.equal(
-				'<font color="' .. GlobalCatch.color("Mythical") .. '">🌍 Sam caught a Mythical Midnight Sky!</font>'
-			)
-			expect(here).to.equal(
-				'<font color="' .. GlobalCatch.color("Mythical") .. '">⭐ Sam caught a Mythical Midnight Sky!</font>'
-			)
-		end)
+		it(
+			"takes a gold or rainbow Legendary cat's line, and no other Legendary line (Derek 2026-11-12)",
+			function()
+				expect(RareCatsTab.wants("Legendary", "Sam caught a gold Legendary Sunny!")).to.equal(
+					true
+				)
+				expect(RareCatsTab.wants("Legendary", "Sam rescued a rainbow Legendary Sunny!")).to.equal(
+					true
+				)
+				expect(RareCatsTab.wants("Legendary", "Sam caught a Legendary Sunny!")).to.equal(
+					false
+				)
+				expect(RareCatsTab.wants("Legendary", "Sam found a Legendary Golden Fountain!")).to.equal(
+					false
+				)
+				expect(RareCatsTab.wants("Epic", "Sam caught a gold Epic Moonpaw!")).to.equal(false)
+				expect(RareCatsTab.wants("Mythical", "Sam caught a gold Mythical Moonpaw!")).to.equal(
+					true
+				)
+			end
+		)
+
+		it(
+			"marks a line from another server and one from this server, in the rarity's colour",
+			function()
+				local away =
+					RareCatsTab.line("Sam caught a Mythical Midnight Sky!", "Mythical", true)
+				local here =
+					RareCatsTab.line("Sam caught a Mythical Midnight Sky!", "Mythical", false)
+				expect(away).to.equal(
+					'<font color="'
+						.. GlobalCatch.color("Mythical")
+						.. '">🌍 Sam caught a Mythical Midnight Sky!</font>'
+				)
+				expect(here).to.equal(
+					'<font color="'
+						.. GlobalCatch.color("Mythical")
+						.. '">⭐ Sam caught a Mythical Midnight Sky!</font>'
+				)
+			end
+		)
 
 		it("escapes what rich text would read", function()
 			local line = RareCatsTab.line('<b>x</b> & "y"', "Mythical", false)
@@ -45,16 +76,19 @@ return function()
 			expect(RareCatsTab.pop(queue, 1000)).never.to.be.ok()
 		end)
 
-		it("keeps at most KEEP waiting and drops the oldest, so nothing shows minutes late", function()
-			local queue = RareCatsTab.queue()
-			for i = 1, RareCatsTab.KEEP + 5 do
-				RareCatsTab.push(queue, tostring(i))
+		it(
+			"keeps at most KEEP waiting and drops the oldest, so nothing shows minutes late",
+			function()
+				local queue = RareCatsTab.queue()
+				for i = 1, RareCatsTab.KEEP + 5 do
+					RareCatsTab.push(queue, tostring(i))
+				end
+				expect(#queue.waiting).to.equal(RareCatsTab.KEEP)
+				expect(RareCatsTab.pop(queue, 0)).to.equal("6")
+				-- the longest any line waits: KEEP lines at one every GAP_SECONDS
+				expect(RareCatsTab.KEEP * RareCatsTab.GAP_SECONDS <= 90).to.equal(true)
 			end
-			expect(#queue.waiting).to.equal(RareCatsTab.KEEP)
-			expect(RareCatsTab.pop(queue, 0)).to.equal("6")
-			-- the longest any line waits: KEEP lines at one every GAP_SECONDS
-			expect(RareCatsTab.KEEP * RareCatsTab.GAP_SECONDS <= 90).to.equal(true)
-		end)
+		)
 
 		it("waits behind a switch that starts off", function()
 			expect(table.find(LiveFlags.KEYS, RareCatsTab.FLAG) ~= nil).to.equal(true)

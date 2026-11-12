@@ -38,6 +38,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Cannon = require(Shared:WaitForChild("Cannon"))
 local CannonFx = require(script.Parent.Parent.Effects.Cannon)
 local CatDress = require(Shared:WaitForChild("CatDress"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
@@ -2082,6 +2083,13 @@ local function unpark()
 	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 	if humanoid ~= nil then
 		camera.CameraSubject = humanoid
+	end
+	-- #3162: CannonController's aim behind the character is skipped while this view holds the camera, so a join with
+	-- no intro would start looking north, into the Cat Cannon. Aim it here as the view lets go.
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if root ~= nil and root:IsA("BasePart") then
+		local from, focus = Cannon.cameraBehind(root.Position, root.CFrame.LookVector)
+		camera.CFrame = CFrame.lookAt(from, focus)
 	end
 end
 

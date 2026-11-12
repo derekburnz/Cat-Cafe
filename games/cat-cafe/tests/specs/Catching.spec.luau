@@ -512,13 +512,19 @@ return function()
 	end)
 
 	describe("rarityAtLeast and percentText", function()
-		it("Legendary and rarer trigger announcements, Epic and Rare do not (#2205)", function()
-			expect(Catching.rarityAtLeast("Epic", Config.AnnounceMinRarity)).to.equal(false)
-			expect(Catching.rarityAtLeast("Legendary", Config.AnnounceMinRarity)).to.equal(true)
-			expect(Catching.rarityAtLeast("Mythical", Config.AnnounceMinRarity)).to.equal(true)
-			expect(Catching.rarityAtLeast("Rare", Config.AnnounceMinRarity)).to.equal(false)
-			expect(Catching.rarityAtLeast("Common", "Bogus")).to.equal(false)
-		end)
+		it(
+			"Mythical and rarer trigger announcements, Legendary and below do not (Derek 2026-11-12)",
+			function()
+				expect(Catching.rarityAtLeast("Epic", Config.AnnounceMinRarity)).to.equal(false)
+				expect(Catching.rarityAtLeast("Legendary", Config.AnnounceMinRarity)).to.equal(
+					false
+				)
+				expect(Catching.rarityAtLeast("Secret", Config.AnnounceMinRarity)).to.equal(true)
+				expect(Catching.rarityAtLeast("Mythical", Config.AnnounceMinRarity)).to.equal(true)
+				expect(Catching.rarityAtLeast("Rare", Config.AnnounceMinRarity)).to.equal(false)
+				expect(Catching.rarityAtLeast("Common", "Bogus")).to.equal(false)
+			end
+		)
 
 		it("percentText rounds to a whole percent", function()
 			expect(Catching.percentText(0.45)).to.equal("45%")
@@ -534,16 +540,22 @@ return function()
 			return { id = "test", name = name, rarity = rarity }
 		end
 
-		it("announces Legendary and rarer, with the right article", function()
+		it("announces a plain Mythical and rarer, with the right article", function()
 			expect(Catching.shoutOut("Dee", "caught", cat("Mythical", "Moonpaw"), "base")).to.equal(
 				"Dee caught a Mythical Moonpaw!"
 			)
-			expect(Catching.shoutOut("Dee", "rescued", cat("Legendary", "Sunny"), nil)).to.equal(
-				"Dee rescued a Legendary Sunny!"
+			expect(Catching.shoutOut("Dee", "rescued", cat("Mythical", "Sunny"), nil)).to.equal(
+				"Dee rescued a Mythical Sunny!"
 			)
 		end)
 
-		it("stays quiet for a plain Common, Rare or Epic (#2205: Epic was announced)", function()
+		it("stays quiet for a plain Common, Rare, Epic or Legendary (Derek 2026-11-12)", function()
+			expect(Catching.shoutOut("Dee", "rescued", cat("Legendary", "Sunny"), nil)).to.equal(
+				nil
+			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Legendary", "Sunny"), "base")).to.equal(
+				nil
+			)
 			expect(Catching.shoutOut("Dee", "caught", cat("Epic", "Moonpaw"), "base")).to.equal(nil)
 			expect(
 				Catching.shoutOut(
@@ -558,19 +570,25 @@ return function()
 			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), nil)).to.equal(nil)
 		end)
 
-		it("announces a gold cat from Rare up and every rainbow (#2902)", function()
+		it("announces a gold or rainbow cat from Legendary up only (Derek 2026-11-12)", function()
+			expect(Catching.COAT_SHOUT_FROM).to.equal("Legendary")
 			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "gold")).to.equal(nil)
-			expect(Catching.shoutOut("Dee", "caught", cat("Rare", "Pip"), "gold")).to.equal(
-				"Dee caught a gold Rare Pip!"
-			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Rare", "Pip"), "gold")).to.equal(nil)
 			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "rainbow")).to.equal(
-				"Dee caught a rainbow Common Tabby!"
+				nil
 			)
-			expect(Catching.shoutOut("Dee", "caught", cat("Epic", "Moonpaw"), "gold")).to.equal(
-				"Dee caught a gold Epic Moonpaw!"
-			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Epic", "Moonpaw"), "gold")).to.equal(nil)
 			expect(Catching.shoutOut("Dee", "caught", cat("Epic", "Moonpaw"), "rainbow")).to.equal(
-				"Dee caught a rainbow Epic Moonpaw!"
+				nil
+			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Legendary", "Sunny"), "gold")).to.equal(
+				"Dee caught a gold Legendary Sunny!"
+			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Legendary", "Sunny"), "rainbow")).to.equal(
+				"Dee caught a rainbow Legendary Sunny!"
+			)
+			expect(Catching.shoutOut("Dee", "caught", cat("Mythical", "Moonpaw"), "gold")).to.equal(
+				"Dee caught a gold Mythical Moonpaw!"
 			)
 		end)
 
@@ -578,11 +596,11 @@ return function()
 			local text = Catching.shoutOut(
 				"Dee",
 				"tamed",
-				cat("Legendary", "Moonpaw"),
+				cat("Mythical", "Moonpaw"),
 				"base",
 				" at their bait bowl"
 			)
-			expect(text).to.equal("Dee tamed a Legendary Moonpaw at their bait bowl!")
+			expect(text).to.equal("Dee tamed a Mythical Moonpaw at their bait bowl!")
 		end)
 	end)
 	describe("spreadPick: a wave is scattered, not clumped (Derek 2026-10-27 22:38)", function()

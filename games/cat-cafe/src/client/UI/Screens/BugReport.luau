@@ -94,6 +94,8 @@ local FEATURE_TEXT = "Feature my name if you use my idea"
 local FEATURE_NOTE = "Only your display name goes on the Thank You board in town."
 local TOP_EDGE = 30 -- compact: room above the window for the panel's ears and badge
 local BOTTOM_EDGE = 8 -- compact: room between the window and the keyboard
+local BOX_MIN = 56 -- #3518: the box's least height in design pixels before the prompt line gives up its room
+local BOX_TAP = 46 -- and in screen pixels, a little over the 44 px touch floor
 local COMPACT_MIN = 150 -- compact: the window never gets shorter, keyboard or not
 -- F87 faces page
 local FACES_TITLE = "How is Catch a Cat Cafe so far?"
@@ -131,6 +133,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 	self._token = 0 -- one per Send, so a late timeout cannot touch a newer one
 	self._open = false
 	self._compact = false
+	self._slim = false
 	self._fitToken = 0 -- one per keyboard change, so only the last one moves the window back
 	self._noAnswer = false
 	self._chips = {} :: { [string]: Button.Button }
@@ -305,6 +308,15 @@ function BugReport.new(callbacks: Callbacks): BugReport
 	if callbacks.feedback then
 		self:_buildFaces(content)
 	end
+	-- #3518: the window's height is only known once it is on screen, and changes when the screen turns
+	table.insert(
+		self._connections,
+		content:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			if self._alive then
+				self:_layout(self._compact)
+			end
+		end)
+	)
 	self:_layout(false)
 	self:_refresh()
 	return self :: BugReport
@@ -478,7 +490,7 @@ function BugReport._showPage(self: any, page: "faces" | "chips" | "report")
 	for _, chip: Button.Button in self._chips do
 		chip.instance.Visible = report
 	end
-	self._prompt.Visible = report and not self._compact
+	self._prompt.Visible = report and not self._compact and not self._slim
 	self._note.Visible = report and not self._compact
 	self._counter.Visible = report and not self._compact
 	local idea = report and not self._compact and self._kind == "idea"
@@ -524,11 +536,30 @@ function BugReport._layout(self: any, compact: boolean)
 	local showTick = not compact and self._kind == "idea" and self._page == "report"
 	self._tick.instance.Visible = showTick
 	self._tickNote.Visible = showTick
-	self._prompt.Visible = not compact
+	-- #3518: on a small phone held sideways (705 x 338) the Idea chip's tick rows left the box 35.5 px tall, under the
+	-- 44 px a finger needs. When the box would be under BOX_MIN the prompt line over the chips goes (the box's grey
+	-- example line says the same) and the box takes its room
+	local slim = false
+	local content = self._box.Parent
+	if not compact and content and content:IsA("GuiObject") and content.AbsoluteSize.Y > 0 then
+		local scale = Scale.get()
+		local room = content.AbsoluteSize.Y / scale
+		local padding = content:FindFirstChildWhichIsA("UIPadding")
+		if padding then
+			room -= padding.PaddingTop.Offset + padding.PaddingBottom.Offset
+		end
+		local used = PROMPT_HEIGHT + GAP + CHIP.Y + GAP + GAP + FOOT_HEIGHT + GAP + BUTTON_HEIGHT
+		if self._kind == "idea" then
+			used += TICK_HEIGHT + TICK_NOTE + GAP
+		end
+		slim = room - used < math.max(BOX_MIN, BOX_TAP / scale)
+	end
+	self._slim = slim
+	self._prompt.Visible = not compact and not slim and self._page == "report"
 	self._note.Visible = not compact
 	self._counter.Visible = not compact
 	local chipWidth = if compact then CHIP_COMPACT else CHIP.X
-	local chipTop = if compact then 0 else PROMPT_HEIGHT + GAP
+	local chipTop = if compact or slim then 0 else PROMPT_HEIGHT + GAP
 	for index, kind in BugReportLogic.KINDS do
 		local chip: Button.Button = self._chips[kind.id]
 		chip.instance.Position = UDim2.fromOffset((index - 1) * (chipWidth + GAP), chipTop)

@@ -220,11 +220,9 @@ return function()
 
 	describe("shout-outs (section 2)", function()
 		it(
-			"shouts out every rainbow cat, a Common too, and names the stray's area on its spawn",
+			"keeps a rainbow Common's catch quiet (Derek 2026-11-12) and names the stray's area on its spawn",
 			function()
-				expect(Catching.shoutOut("Sam", "caught", common, "rainbow")).to.equal(
-					string.format("Sam caught a rainbow Common %s!", common.name)
-				)
+				expect(Catching.shoutOut("Sam", "caught", common, "rainbow")).to.equal(nil)
 				expect(Catching.rainbowSpawnText(common, "Woods")).to.equal(
 					string.format("A Rainbow %s is out in the Woods!", common.name)
 				)

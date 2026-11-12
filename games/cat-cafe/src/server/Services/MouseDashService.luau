@@ -314,7 +314,7 @@ local function step(player: Player, run: Run)
 		if #gone > 0 then
 			Net.fire(player, "MouseDashGone", run.id, index, gone, state.hearts)
 		end
-		local over = MouseDash.over(state)
+		local over: MouseDash.Reason? = MouseDash.over(state)
 		if over ~= nil then
 			finish(player, run, over, true)
 			return
@@ -422,7 +422,7 @@ local function onTap(player: Player, rawRun: unknown, rawIndex: unknown, rawHole
 		paid,
 		state.dizzyUntil
 	)
-	local over = MouseDash.over(state)
+	local over: MouseDash.Reason? = MouseDash.over(state)
 	if over ~= nil then
 		finish(player, run, over, true)
 	elseif tap.waveOver then

@@ -221,13 +221,14 @@ function Logic.sliderGain(value: any): number
 	return clamped * clamped
 end
 
--- The catch jingle for a rarity (sound list section 3); Common has none. Secret is the v0.2 name for Mythical.
+-- The catch jingle for a rarity (sound list section 3); Common has none. A Secret (#3470, the tier above Mythical)
+-- has its own: the Mythical fanfare played lower and slower (Cues jingleSecret).
 local JINGLES: { [string]: string } = {
 	rare = "jingleRare",
 	epic = "jingleEpic",
 	legendary = "jingleLegendary",
 	mythical = "jingleMythical",
-	secret = "jingleMythical",
+	secret = "jingleSecret",
 }
 
 function Logic.jingleFor(rarity: string?): string?
@@ -377,8 +378,8 @@ function Logic.travelCue(destination: any, inWild: boolean, hopping: boolean): s
 	return "travelPoof"
 end
 
--- Whether a stray twinkles as a player comes near (rareNear): Mythical only. Derek 2026-10-28: the sound around
--- rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
+-- Whether a stray twinkles as a player comes near (rareNear, a Secret its own secretNear): Mythical and up only.
+-- Derek 2026-10-28: the sound around rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
 function Logic.shimmers(rarity: any): boolean
 	local step = if type(rarity) == "string" then Logic.rarityStep(rarity) else nil
 	return step ~= nil and step >= 5
@@ -544,13 +545,16 @@ function Logic.strayCallDue(
 	return lastAt == nil or now - lastAt >= gap
 end
 
--- F99: a rainbow stray (its Variant "rainbow") twinkles with its own rainbowNear, a Mythical with rareNear, and
--- every other stray stays quiet.
+-- F99: a rainbow stray (its Variant "rainbow") twinkles with its own rainbowNear, a Secret (#3470) with the deep
+-- secretNear, a Mythical with rareNear, and every other stray stays quiet.
 function Logic.strayNoticeCue(rarity: any, variant: any): string?
 	if variant == "rainbow" then
 		return "rainbowNear"
 	end
-	return if Logic.shimmers(rarity) then "rareNear" else nil
+	if not Logic.shimmers(rarity) then
+		return nil
+	end
+	return if string.lower(rarity) == "secret" then "secretNear" else "rareNear"
 end
 
 -- F89 and F99: the sting on your own big pull (SecuredRare). A rainbow cat always gets its own; otherwise the
@@ -567,7 +571,15 @@ function Logic.pullSting(rarity: any, variant: any): string?
 end
 
 local STING_RANK: { [string]: number } =
-	{ jingleRare = 1, jingleEpic = 2, jingleLegendary = 3, jingleMythical = 4, jingleRainbow = 5 }
+	-- a rainbow's own sting stays on top: a rainbow cat of any rarity plays it (Logic.pullSting)
+	{
+		jingleRare = 1,
+		jingleEpic = 2,
+		jingleLegendary = 3,
+		jingleMythical = 4,
+		jingleSecret = 5,
+		jingleRainbow = 6,
+	}
 
 -- Two stings within `quiet` seconds (a tame's BaitTame and its SecuredRare land together): the same one or a
 -- smaller one is skipped, a bigger one replaces the first (a rainbow's own sting over the rarity's).

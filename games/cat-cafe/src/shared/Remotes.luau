@@ -100,6 +100,8 @@ Remotes.ClientToServer = {
 	"UsePotion", -- (potionId: string, count: number?)  F64: a known potion in the bag whose minutes fit under
 	-- PotionMaxMinutes with the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync.
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
+	"UsePotionAll", -- ()  #3326: the Bag's "Use all potions": every kind in the bag, as many as fit under
+	-- PotionMaxMinutes each (Potions.useAll); one toast and one ProfileSync, or a toast when nothing fits; 1 per 2 s
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from

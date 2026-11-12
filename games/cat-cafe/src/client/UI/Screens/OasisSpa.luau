@@ -176,7 +176,9 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		color = Theme.colors.sky,
 		icon = LateStationsLogic.ICONS.spa,
 		image = ShopIcons.clean("Spa"), -- #3137: the drawn tub over the ♨️
-		size = UDim2.new(1, 0, 0, MAX_SIZE.Y + extra * 2),
+		-- as tall as the screen allows, up to MAX_SIZE (as the Relic Museum, #3123): on a small phone the fixed height
+		-- ran past the bottom of the screen; the cat list scrolls in what is left
+		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
 	Create("UISizeConstraint", {

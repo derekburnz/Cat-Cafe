@@ -82,6 +82,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	OwnerGrant = RateLimiter.new(1, 1), -- #1770: owner test mode, 1 a second
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
+	UsePotionAll = RateLimiter.new(1, 2), -- #3326: 1 per 2 s; one call drinks the whole bag
 	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second

@@ -4894,6 +4894,32 @@ local SCENES = {
 		assert(not now:find("|%.%.%.|") and not now:find("^%.%.%.|"), "uigate: Use reads ... after a fast press (#3190)")
 		assert(now:find("x1", 1, true), "uigate: two fast Uses did not count at once, the bag shows " .. now)
 	end },
+	-- #3326 (Derek2: "add a use all potions in inventory button right below potions button in bag"): the button heads
+	-- the Potions list while a potion would take, and a press asks first on a card naming what it drinks
+	{ "PotionsUseAll", function()
+		-- PotionsFastUse runs just before this scene and leaves a Use press waiting for the server (#3190), which would
+		-- count against this bag. An empty bag is the server answering it; then the scene's own bag goes in
+		UI.update({ potions = {}, buffs = {} })
+		UI.update({ potions = { tip_potion = 3, swift_potion = 2 }, buffs = {} })
+		UI.open("Potions")
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local row = window:FindFirstChild("UseAllRow", true) :: GuiObject
+		assert(row and row.Visible, "uigate: no Use all potions button on the Potions tab (#3326)")
+		press("Potions", "UseAllPotions")
+		local ask = window:FindFirstChild("UseAllConfirm", true) :: GuiObject
+		assert(ask and ask.Visible, "uigate: Use all potions did not ask first (#3326)")
+		local line = (ask:FindFirstChild("Line", true) :: TextLabel).Text
+		assert(line == "Money x3, Swift x2", "uigate: the confirm card reads " .. line)
+	end },
+	{ "PotionsUseAllHidden", function()
+		UI.update({ potions = { tip_potion = 3 }, buffs = {} })
+		UI.open("Potions")
+		press("Potions", "BaitTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local row = window:FindFirstChild("UseAllRow", true) :: GuiObject
+		assert(not row:FindFirstAncestorWhichIsA("ScrollingFrame").Visible, "uigate: Use all potions shows off the Potions tab")
+	end },
 	{ "BagBait", function()
 		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
 		UI.open("Potions")
@@ -5186,6 +5212,40 @@ local SCENES = {
 		UIShim.advance(5)
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		assert(tap.Visible, "uigate: the next rescue has no tap catcher (#2460)")
+	end },
+	-- #3024: on a touch screen Give up takes two taps: the first only asks, for 3 seconds, and the attempt goes on; a
+	-- second tap gives up. A mouse click gives up at once. The Rummage Bin shares the bar, so it does the same.
+	{ "RescueGiveUpTwice", function()
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		for _, spot in { "gate_rescue", "bin_alley" } do
+			UI.rescue.show(spot, if spot == "bin_alley" then binChallenge() else rescueChallenge())
+			local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+			local giveUp = barGui and barGui:FindFirstChild("GiveUp", true)
+			assert(giveUp, "uigate: the bar has no Give up (#3024)")
+			local label = giveUp:FindFirstChild("Label", true) :: TextLabel
+			assert(label and string.sub(label.Text, 1, 7) == "Give up", "uigate: Give up reads " .. tostring(label and label.Text) .. " (#3024)")
+			if touch then
+				press("CatCafeRescueBar", "GiveUp")
+				assert(label.Text == "Tap again to give up", "uigate: the first tap on Give up reads " .. label.Text .. " (#3024)")
+				assert(label.TextFits, "uigate: Tap again to give up does not fit its button (#3024)")
+				UIShim.advance(1)
+				assert(UI.rescue.isActive(), "uigate: one tap on Give up ended the attempt on touch (#3024)")
+				-- left alone, it goes back to Give up and the attempt is still on
+				UIShim.advance(3)
+				assert(string.sub(label.Text, 1, 7) == "Give up", "uigate: Give up still asks after 3 seconds (#3024)")
+				assert(UI.rescue.isActive(), "uigate: the ask running out ended the attempt (#3024)")
+				press("CatCafeRescueBar", "GiveUp")
+				assert(label.Text == "Tap again to give up", "uigate: Give up does not ask again (#3024)")
+			end
+			press("CatCafeRescueBar", "GiveUp")
+			UIShim.advance(1)
+			assert(not UI.rescue.isActive(), "uigate: Give up did not end the attempt (#3024)")
+		end
+		-- the picture: the ask showing on touch, the plain button on a mouse screen
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		if touch then
+			press("CatCafeRescueBar", "GiveUp")
+		end
 	end },
 	-- #3050: the Rummage Bin's bar is the rescue bar under the bin's spot id: its own name, no rarity chip, 2 pips
 	{ "RummageBinBar", function()

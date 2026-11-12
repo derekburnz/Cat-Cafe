@@ -244,6 +244,15 @@ return function()
 	end)
 
 	describe("the reads (#2400)", function()
+		it("writes one entry of a store at most once every WRITE_GAP_SECONDS, but always on a leave", function()
+			expect(Leaderboards.WRITE_GAP_SECONDS > 6).to.equal(true) -- Roblox's 6 s between writes to one key
+			expect(Leaderboards.mayWrite(nil, 100, false)).to.equal(true)
+			expect(Leaderboards.mayWrite(100, 100, false)).to.equal(false)
+			expect(Leaderboards.mayWrite(100, 106.9, false)).to.equal(false)
+			expect(Leaderboards.mayWrite(100, 107, false)).to.equal(true)
+			expect(Leaderboards.mayWrite(100, 101, true)).to.equal(true)
+		end)
+
 		it(
 			"read every list at once on a server's first refresh, then spread across the period",
 			function()

@@ -853,6 +853,55 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Day Cart's Tier 6 potions (#3462): each its smaller kind's glow, a little bigger and busier, with one more
+	-- colour so the two can be told apart side by side. Big Lucky: green, mint and gold glints with a few larger
+	-- ones; Big Gold Rush: gold glints that drift up as they twinkle; Mega Money: a wide, bright stream of gold.
+	potionBigLucky = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Presets.palette.leaf,
+			Presets.palette.mint,
+			Presets.palette.golden,
+			Presets.palette.sparkle,
+		},
+		size = { 0.55, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 3.5,
+		drag = 1,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	potionBigGoldRush = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden, Presets.palette.offwhite },
+		size = { 0.6, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 1, 1.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 3.5,
+		acceleration = Vector3.new(0, 0.6, 0),
+		drag = 1,
+		lightEmission = 0.9,
+		rotSpeed = { -90, 90 },
+	},
+	potionMegaTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.7, 0.45 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 1.2, 1.9 },
+		spread = 30,
+		rate = 4,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.8,
+		rotSpeed = { -180, 180 },
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -3571,10 +3620,14 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
-	-- #3462: the Day Cart's Tier 6 potions glow as their smaller kinds until they have glows of their own
-	big_lucky_potion = { emitter = "potionLucky", on = "Body", colour = palette.leaf },
-	big_gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
-	mega_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
+	-- #3462: the Day Cart's Tier 6 potions, each a bigger, busier glow of its smaller kind
+	big_lucky_potion = { emitter = "potionBigLucky", on = "Body", colour = palette.leaf },
+	big_gold_rush_potion = {
+		emitter = "potionBigGoldRush",
+		on = "Body",
+		colour = palette.goldLight,
+	},
+	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }

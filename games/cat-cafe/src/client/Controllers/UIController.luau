@@ -1163,7 +1163,7 @@ local function wireIntents()
 		end)
 	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
-	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
+	-- featureName (#1083, #3653): true for an idea (every idea may be credited; the server decides), nil otherwise.
 	UI.events.reportBug:Connect(
 		function(text: string, kind: string, clientErrors: { string }, featureName: boolean?)
 			Net.fire("ReportBug", text, kind, clientErrors, featureName)

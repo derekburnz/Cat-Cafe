@@ -5807,13 +5807,52 @@ local SCENES = {
 		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
 		assert(chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
 		assert(chip.Text:find("Safe 4:3") ~= nil, "uigate: the shield chip reads " .. chip.Text .. " (#3342)")
+		-- over the round button on touch, beside the bar's right end with a mouse (#3744)
 		local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-		assert(chipBottom <= button.AbsolutePosition.Y + 0.5, "uigate: the shield chip covers the Tackle (#3342)")
+		local over = chipBottom <= button.AbsolutePosition.Y + 0.5
+		local beside = chip.AbsolutePosition.X >= button.AbsolutePosition.X + button.AbsoluteSize.X - 0.5
+		assert(over or beside, "uigate: the shield chip covers the Tackle (#3342)")
 		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
 		UIShim.advance(0.3)
 		assert(not chip.Visible, "uigate: the shield chip stayed after the shield ended (#3342)")
 		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
 		UIShim.advance(0.3)
+	end },
+	-- #3744 (Studio 11-12: "D... Safe 8:18 ..."): a cat in the bag in a catching area while the join shield runs, so
+	-- the Drop pill, the Tackle and the Safe chip all show: the chip touches neither the pill nor the Tackle
+	{ "PackDropShield", function()
+		local player = UIShim.player
+		local character = player.Character
+		if character == nil then
+			character = Instance.new("Model")
+			character.Name = "Tester"
+			character.Parent = workspace;
+			(player :: any).Character = character
+			UIShim.fire(UIShim.eventOf(player, "CharacterAdded"), character)
+		end
+		Scenes._packed = character
+		character:SetAttribute("PackedCatId", Catalog.cats[1].id)
+		player:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 498)
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.5)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local pill = hud:FindFirstChild("PackDrop", true) :: GuiObject
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
+		local tackle = gui:FindFirstChild("Tackle", true) :: GuiObject
+		assert(pill and pill.Visible, "uigate: no Drop pill with a cat in the bag (#3744)")
+		assert(chip and chip.Visible, "uigate: no Safe chip while the join shield runs (#3744)")
+		assert(tackle and tackle.Visible, "uigate: no Tackle in the Alley with a cat in the bag (#3744)")
+		local function apart(a: GuiObject, b: GuiObject): boolean
+			local a0, a1 = a.AbsolutePosition, a.AbsolutePosition + a.AbsoluteSize
+			local b0, b1 = b.AbsolutePosition, b.AbsolutePosition + b.AbsoluteSize
+			return a1.X <= b0.X + 0.5 or b1.X <= a0.X + 0.5 or a1.Y <= b0.Y + 0.5 or b1.Y <= a0.Y + 0.5
+		end
+		assert(apart(chip, pill), "uigate: the Safe chip lies over the Drop pill (#3744)")
+		assert(apart(chip, tackle), "uigate: the Safe chip lies over the Tackle (#3744)")
 	end },
 	{ "TackleButton", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")

@@ -52,6 +52,12 @@ local function touched()
 	end
 end
 
+-- #3602: true from a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE) until this session's first input: the player is
+-- away, so the UI holds every ask (UIController's quiet) until they are back.
+function AfkController.rejoinQuiet(): boolean
+	return not inputSeen and Players.LocalPlayer:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true
+end
+
 function AfkController.start()
 	UserInputService.InputBegan:Connect(touched)
 	UserInputService.InputChanged:Connect(function(input: InputObject)

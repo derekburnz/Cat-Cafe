@@ -2100,7 +2100,10 @@ local function onLoaded(player: Player, profile: Profile)
 		local ok, seconds = pcall(function()
 			return player:GetNetworkPing()
 		end)
-		local ms = NetPing.ms(if ok then seconds else nil)
+		if not ok or type(seconds) ~= "number" or seconds ~= seconds then
+			return -- no reading: logged as nothing, so a failure never reads as a slow connection
+		end
+		local ms = NetPing.ms(seconds)
 		Telemetry.custom(player, "net_ping", ms, { session.device or "unknown", NetPing.band(ms) })
 	end)
 	if profile.stats.sessions > 1 then

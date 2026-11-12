@@ -5192,6 +5192,16 @@ do
 		return not tipBusy and TipQueue.free(tipMoment())
 	end
 
+	-- #3701: nothing is over the screen (a catch, a rescue, the intro, a window) and the UI is not hidden: the cafe
+	-- rest banner may show. Looser than quiet: a toast or the dusk warning does not hold it.
+	function UI.tips.calm(): boolean
+		local moment = tipMoment()
+		if moment.catching or moment.rescuing or moment.intro then
+			return false
+		end
+		return not (moment.window or moment.hidden)
+	end
+
 	ticks.tips = function(dt: number)
 		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
 		local ask = askCard
@@ -8956,6 +8966,27 @@ do
 		if current then
 			(current :: any):setRest(resting, doubled)
 		end
+	end
+
+	-- #3701: the cafe rest banner (Components/RestBanner), from AfkController: its state (nil hides it), whether a
+	-- rest doubles the pay right now and, while it counts, the seconds left. Made the first time it is needed and
+	-- kept at the head of the toasts' stack. It replaces the rest chip above.
+	local restBanner: any = nil
+	function UI.rest.banner(state: string?, doubled: boolean?, remaining: number?)
+		if restBanner == nil then
+			local stack = toasts
+			if state == nil or stack == nil then
+				return
+			end
+			restBanner = require(script.Components.RestBanner).new()
+			stack:pin(restBanner.frame)
+		end
+		restBanner:set(state, doubled, remaining)
+	end
+
+	function UI.rest.calm(): boolean
+		local tips: any = UI.tips
+		return tips.calm()
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

@@ -89,6 +89,12 @@ function MysticPoolStationService.apply(): boolean
 	return on
 end
 
+-- Whether the pool is the station standing right now. False while the switch is off, and also when the pool was
+-- never built (no art), so the basket keeps working then (CampExtraService asks this).
+function MysticPoolStationService.standing(): boolean
+	return shown == true
+end
+
 function MysticPoolStationService.start()
 	task.spawn(function()
 		while true do

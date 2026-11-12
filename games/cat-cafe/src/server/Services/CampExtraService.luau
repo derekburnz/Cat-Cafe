@@ -32,6 +32,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local MysticPoolStationService = require(script.Parent.MysticPoolStationService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Potions = require(ReplicatedStorage.Shared.Potions)
@@ -97,9 +98,10 @@ end
 
 -- #3196 (trait-station.md section 1): while the `traits` switch is on the Mystic Pool stands in the Picnic Basket's
 -- place, so the basket reads as shut (no strip, no "!", nothing to collect) and a collect is refused. Its save
--- is left alone, so switching back gives the basket as it was.
+-- is left alone, so switching back gives the basket as it was. Only while the pool really stands: with the pool's
+-- art missing the basket stays in the world and keeps working.
 local function poolStands(): boolean
-	return LiveFlagService.on(Traits.FLAG)
+	return LiveFlagService.on(Traits.FLAG) and MysticPoolStationService.standing()
 end
 
 local function shutPicnic(state: Types.CampExtrasState)

@@ -1868,7 +1868,7 @@ Catalog.potions = {
 		id = "mega_tip_potion",
 		name = "Mega Money Potion",
 		minutes = 30,
-		effect = "+100% money",
+		effect = "+100% money, the most potions can add",
 		tips = 1,
 		shopOnly = true,
 	},

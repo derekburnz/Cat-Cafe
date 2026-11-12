@@ -62,6 +62,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CREAM = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 -- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
@@ -233,7 +234,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CREAM.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -246,7 +247,7 @@ end
 
 local function card(props: { [string]: any }): Frame
 	local merged: { [string]: any } = {
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CREAM.card,
 		BorderSizePixel = 0,
 	}
 	for key, value in props do
@@ -255,7 +256,7 @@ local function card(props: { [string]: any }): Frame
 	local frame: Frame = Create("Frame", merged)
 	Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius), Parent = frame })
 	Create("UIStroke", {
-		Color = PAL.cardStroke,
+		Color = CREAM.cardStroke,
 		Thickness = Theme.sizes.stroke,
 		Parent = frame,
 	})
@@ -417,7 +418,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		Size = UDim2.new(1, -50, 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = PAL.gold,
+		TextColor3 = CREAM.gold,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "0",
 		Parent = balance,
@@ -457,7 +458,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		Name = "Empty",
 		Size = UDim2.fromOffset(CARD.X * 2, 40),
 		TextWrapped = true,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		Text = "The crates arrive with the next update.",
 		Visible = false,
 		Parent = self._crateList,
@@ -552,7 +553,7 @@ function FishMarket._buildOdds(self: any, body: Frame)
 		Size = UDim2.new(1, -24, 0, 20),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		ZIndex = 22,
 		Parent = sheet,
 	})
@@ -603,11 +604,11 @@ function FishMarket._oddsLine(
 	percent: number
 )
 	local height = if sub then 40 else 28
-	local ink = if name == rarity then Theme.rarityLight(rarity) else PAL.text
+	local ink = if name == rarity then MenuFamily.rarity(rarity) else CREAM.text
 	local line: Frame = Create("Frame", {
 		Name = "Line" .. order,
 		LayoutOrder = order,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CREAM.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, height),
 		ZIndex = 22,
@@ -642,7 +643,7 @@ function FishMarket._oddsLine(
 			Position = UDim2.fromOffset(30, 21),
 			Size = UDim2.new(1, -110, 0, 16),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = sub,
 			ZIndex = 23,
@@ -688,7 +689,7 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 			MarketLogic.luckLeft(luck, LUCKY_EVERY)
 		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck)
 		else MarketLogic.luckText(MarketLogic.luckLeft(luck, LUCKY_EVERY))
-	self._oddsNote.TextColor3 = if lucky then PAL.gold else PAL.subtext
+	self._oddsNote.TextColor3 = if lucky then CREAM.gold else CREAM.subtext
 	local order = 0
 	for _, row in MarketLogic.rarityRows(odds) do
 		order += 1
@@ -807,7 +808,7 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		Size = UDim2.new(1, -20, 0, 20),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		ZIndex = 33,
 		Parent = sheet,
 	})
@@ -939,7 +940,7 @@ function FishMarket._playReveal(
 		then ("You had this one: +%s golden fish back"):format(Format.short(refund))
 		elseif offerUse then "New! Use it now, or later in Decor."
 		else "New! Find it in Decor."
-	reveal.status.TextColor3 = if duplicate then PAL.gold else PAL.good
+	reveal.status.TextColor3 = if duplicate then CREAM.gold else CREAM.good
 	if not afterReel then
 		self:_bigPull(decorId, piece.rarity, offerUse)
 	end
@@ -1137,7 +1138,7 @@ function FishMarket._buildSummary(self: any, body: Frame)
 		Size = UDim2.new(1, -20, 0, 22),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.good,
+		TextColor3 = CREAM.good,
 		ZIndex = 42,
 		Parent = sheet,
 	})
@@ -1147,7 +1148,7 @@ function FishMarket._buildSummary(self: any, body: Frame)
 		Size = UDim2.new(1, -20, 0, 22),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.gold,
+		TextColor3 = CREAM.gold,
 		ZIndex = 42,
 		Parent = sheet,
 	})
@@ -1157,7 +1158,7 @@ function FishMarket._buildSummary(self: any, body: Frame)
 		Size = UDim2.new(1, -20, 0, 36),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = 42,
@@ -1210,7 +1211,7 @@ function FishMarket._showSummary(self: any, opened: { Crates.Opened })
 			summary.fresh
 		)
 		else "No new pieces this time"
-	view.fresh.TextColor3 = if summary.fresh > 0 then PAL.good else PAL.subtext
+	view.fresh.TextColor3 = if summary.fresh > 0 then CREAM.good else CREAM.subtext
 	view.duplicates.Visible = summary.duplicates > 0
 	view.duplicates.Text = ("%d you had: +%s golden fish back"):format(
 		summary.duplicates,
@@ -1355,7 +1356,7 @@ function FishMarket._build(self: any)
 			Size = UDim2.new(1, -12, 0, 18),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			Parent = frame,
 		})
 		local luck = text({
@@ -1365,7 +1366,7 @@ function FishMarket._build(self: any)
 			TextSize = Theme.sizes.textTiny + 1,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			Parent = frame,
 		})
 		local odds = Button.new({
@@ -1495,7 +1496,7 @@ function FishMarket._build(self: any)
 			Position = UDim2.fromOffset(ROW_HEIGHT, 30),
 			Size = UDim2.new(1, -(ROW_HEIGHT + 170), 0, 36),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Top,
 			TextWrapped = true,
@@ -1510,7 +1511,7 @@ function FishMarket._build(self: any)
 			Size = UDim2.fromOffset(150, 18),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny + 1,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			Parent = frame,
 		})
 		local buy = Button.new({
@@ -1911,7 +1912,7 @@ function FishMarket._refresh(self: any)
 		entry.luck.Text = if crate.golden
 			then "Epic or better every time"
 			else MarketLogic.luckText(left)
-		entry.luck.TextColor3 = if crate.golden or left <= 1 then PAL.gold else PAL.subtext
+		entry.luck.TextColor3 = if crate.golden or left <= 1 then CREAM.gold else CREAM.subtext
 		-- #2402: Open all beside a half-width Odds from OPEN_ALL_FROM banked; "..." while any open is waiting
 		local canAll = self._callbacks.openAllCrates ~= nil
 			and count >= Crates.OPEN_ALL_FROM

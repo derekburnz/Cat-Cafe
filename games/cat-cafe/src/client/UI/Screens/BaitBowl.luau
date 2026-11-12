@@ -53,6 +53,7 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
@@ -112,7 +113,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -125,7 +126,8 @@ end
 
 -- a rarity's odds colour as hex, for FoodOdds.rich
 local function rarityHex(rarity: string): string
-	return Theme.rarityLight(rarity):ToHex() -- light odds on the dark cards (#1028)
+	-- light odds on the dark cards (#1028); the rarity's ink on the family look's cream cards (#3558)
+	return MenuFamily.rarity(rarity):ToHex()
 end
 
 -- Text that goes into a RichText label as it reads (the Details text sits under the coloured odds).
@@ -201,7 +203,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	-- Status card: the bowl, what is in it and the countdown
 	local status: Frame = Create("Frame", {
 		Name = "Status",
-		BackgroundColor3 = Theme.colors.cocoaDeep,
+		BackgroundColor3 = if MenuFamily.on() then PAL.card else Theme.colors.cocoaDeep,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, -10, 0, STATUS_HEIGHT),
 		Parent = panel.content,
@@ -258,7 +260,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	-- countdown bar along the bottom of the status card while a cat is on its way
 	self._track = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = Theme.colors.cocoa,
+		BackgroundColor3 = if MenuFamily.on() then PAL.line else Theme.colors.cocoa,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 90, 1, -10),
@@ -340,7 +342,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	-- #1161, #1767: under the locked bowl 2's card, what the pass gives in three short lines
 	local oddsCard: Frame = Create("Frame", {
 		Name = "SecondOdds",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
@@ -450,7 +452,7 @@ function BaitBowl._buildRows(self: any)
 		local cart = lure.source == "cart" -- #3462: sold only on the Day Cart
 		local row: Frame = Create("Frame", {
 			Name = lure.id,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
@@ -511,7 +513,7 @@ function BaitBowl._buildRows(self: any)
 			Size = UDim2.fromOffset(90, 24), -- "Legendary" at full width, beside a name of any length
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.rarityLight(grade),
+			TextColor3 = MenuFamily.rarity(grade),
 			TextTruncate = Enum.TextTruncate.None,
 			Text = grade,
 			LayoutOrder = 2,
@@ -522,7 +524,7 @@ function BaitBowl._buildRows(self: any)
 			Position = UDim2.new(0, TEXT_LEFT, 0.5, 2),
 			Size = UDim2.new(1, TEXT_WIDTH, 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Parent = top,
 		})
 		-- Use on the right and Details beside it (#1612); the odds live under Details
@@ -557,7 +559,7 @@ function BaitBowl._buildRows(self: any)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
@@ -800,9 +802,12 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 end
 
 -- #1767: the locked bowl 2's three lines; the odds are bowl 1's, so they get one line, not a table per food.
-local PERK_MARK = '<font color="#7CFC6A">+</font> '
 
 function BaitBowl._renderPerks(self: any, luck: number)
+	-- the plus in the card's good green (dark on the family look's cream card)
+	local PERK_MARK = ('<font color="#%s">+</font> '):format(
+		(if MenuFamily.on() then CARD.good else Color3.fromHex("7CFC6A")):ToHex()
+	)
 	local perks: { TextLabel } = self._perks
 	perks[1].Text = PERK_MARK .. "A second bowl by your door"
 	perks[2].Text = PERK_MARK .. "Two baits at once: two cats on the way"

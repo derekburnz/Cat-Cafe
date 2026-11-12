@@ -14,6 +14,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
@@ -61,7 +62,7 @@ MenuFamily.CARD = {
 	subtext = Color3.fromHex("5A4680"),
 	line = Color3.fromHex("D9C9A6"), -- empty stars, bar tracks and chips
 	good = Color3.fromHex("1F7A3E"),
-	gold = Color3.fromHex("F2A900"),
+	gold = Color3.fromHex("8F5A00"), -- gold words on cream (the bright gold does not read there)
 	caramel = Color3.fromHex("D9C7F5"),
 	red = Color3.fromHex("B3261E"),
 	warn = Color3.fromHex("8F5200"),
@@ -89,5 +90,18 @@ MenuFamily.card = (
 		end,
 	}) :: any
 ) :: Palette
+
+-- A rarity as words on a picture card: its ink on the family's cream card, its light colour on today's dark card.
+function MenuFamily.rarity(rarity: string?): Color3
+	return if MenuFamily.on() then Theme.rarityInk(rarity) else Theme.rarityLight(rarity)
+end
+
+-- A name on a picture card: the dark outline that lifts white words off a dark card, and nothing on the cream card,
+-- where the words are dark already (a dark outline round dark words blurs them).
+function MenuFamily.outline(label: GuiObject, thickness: number?)
+	if not MenuFamily.on() then
+		Outline.text(label, thickness)
+	end
+end
 
 return MenuFamily

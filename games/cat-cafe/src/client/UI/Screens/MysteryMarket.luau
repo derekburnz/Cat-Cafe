@@ -28,6 +28,7 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 local PAL = MenuFamily.pal -- the dark window palette (#1028)
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 local TEAL = Color3.fromHex("2F7F86") -- Juniper's wagon (section 4c, look A)
 
 export type Callbacks = {
@@ -92,7 +93,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -178,7 +179,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 	-- this week's featured item
 	local featured: Frame = Create("Frame", {
 		Name = "Featured",
-		BackgroundColor3 = PAL.goldCard,
+		BackgroundColor3 = CARD.goldCard,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, FEATURED_H),
 		LayoutOrder = 1,
@@ -198,6 +199,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		TextSize = Theme.sizes.textSmall,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "SALE",
+		TextColor3 = Theme.colors.white,
 		Rotation = -8,
 		ZIndex = 3,
 		Parent = featured,
@@ -212,17 +214,17 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -(left + 12), 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.white,
+		TextColor3 = if MenuFamily.on() then CARD.text else Theme.colors.white,
 		Parent = featured,
 	})
-	Outline.text(self._featuredName, 2)
+	MenuFamily.outline(self._featuredName, 2)
 	self._featuredText = text({
 		Name = "Text",
 		Position = UDim2.fromOffset(left, 40),
 		Size = UDim2.new(1, -(left + 12), 0, 34),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -234,7 +236,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -(left + right), 0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
-		TextColor3 = Theme.colors.gold,
+		TextColor3 = if MenuFamily.on() then CARD.gold else Theme.colors.gold,
 		RichText = true,
 		Parent = featured,
 	})
@@ -244,7 +246,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -(left + right), 0, 20),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		Parent = featured,
 	})
 	self._featuredBuy = Button.new({
@@ -270,20 +272,20 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -(left + right), 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.gold,
+		TextColor3 = CARD.gold,
 		Parent = featured,
 	})
 
 	-- next week's sale, kept a mystery
 	local teaser: Frame = Create("Frame", {
 		Name = "Teaser",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, TEASER_H),
 		LayoutOrder = 2,
 		Parent = body,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-	Outline.border(teaser, Theme.sizes.stroke, PAL.cardStroke)
+	Outline.border(teaser, Theme.sizes.stroke, CARD.cardStroke)
 	local mark = picture(teaser, 36, "?", UDim2.new(0, 10, 0.5, 0), Vector2.new(0, 0.5))
 	mark.FontFace = Theme.fonts.display
 	mark.TextColor3 = Theme.colors.gold
@@ -302,7 +304,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -66, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Parent = teaser,
 	})
 
@@ -311,6 +313,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, 0, 0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.text,
 		Text = "Always on the shelf",
 		LayoutOrder = 3,
 		Parent = body,
@@ -358,7 +361,7 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 		local id = row.id
 		local frame: Frame = Create("Frame", {
 			Name = id,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, ROW_H),
 			LayoutOrder = order,
@@ -389,7 +392,7 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			Size = UDim2.new(1, -(left + right), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Text = row.text,
 			Parent = frame,
 		})
@@ -399,7 +402,7 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			Size = UDim2.new(1, -(left + right), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.gold,
+			TextColor3 = CARD.gold,
 			Parent = frame,
 		})
 		local buy = Button.new({
@@ -464,7 +467,7 @@ function MysteryMarketScreen._paint(self: any)
 			else tostring(featured.price)
 		self._ends.Text = view.ends or ""
 		self._featuredNote.Text = featured.note or ""
-		self._featuredNote.TextColor3 = if featured.owned then PAL.good else PAL.gold
+		self._featuredNote.TextColor3 = if featured.owned then CARD.good else CARD.gold
 		local label, enabled =
 			paintButton(self._featuredBuy, featured, self._pending == featured.id, busy)
 		if label ~= self._featuredLabel then
@@ -499,7 +502,7 @@ function MysteryMarketScreen._paint(self: any)
 			line.buy:setEnabled(enabled)
 		end
 		line.note.Text = row.note or ""
-		line.note.TextColor3 = if row.owned then PAL.good else PAL.gold
+		line.note.TextColor3 = if row.owned then CARD.good else CARD.gold
 		local faded = if row.owned then 0.4 else 0
 		line.name.TextTransparency = faded
 		line.text.TextTransparency = faded

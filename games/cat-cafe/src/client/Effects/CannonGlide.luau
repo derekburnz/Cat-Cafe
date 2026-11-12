@@ -27,7 +27,6 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
-local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
 

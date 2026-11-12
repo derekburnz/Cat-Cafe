@@ -86,6 +86,20 @@ return function()
 			expect(lowest > -40).to.equal(true)
 		end)
 
+		it("leaves at once when tapped, after landing if it was still on its way in", function()
+			local p = Presets.eventBanner
+			local enter = p.dropSeconds
+			-- tapped 2 seconds into its rest: the hold becomes those 2 seconds, so it is leaving from now
+			local hold = EventBanner.holdAfterTap(enter + 2, 5, enter)
+			expect(hold).to.equal(2)
+			expect(EventBanner.lift(enter + 2, hold, 200)).to.equal(0)
+			expect(EventBanner.lift(enter + 2 + p.leaveSeconds / 2, hold, 200) > 0).to.equal(true)
+			-- tapped on its way in: it lands, then leaves with no hold
+			expect(EventBanner.holdAfterTap(enter / 2, 5, enter)).to.equal(0)
+			-- a tap once it is already leaving changes nothing
+			expect(EventBanner.holdAfterTap(enter + 9, 5, enter)).to.equal(5)
+		end)
+
 		it("fades in place with Reduce Motion, with no confetti and no fish", function()
 			local p = Presets.eventBanner
 			expect(EventBanner.fade(0, 6)).to.equal(1)
@@ -118,7 +132,8 @@ return function()
 				expect(confetti).to.equal(math.ceil(p.confetti / 2))
 				expect(fish).to.equal(math.ceil(p.fish / 2))
 				-- a calm banner: it holds long enough to read and the shine is one sweep, not a flash
-				expect(p.hold >= 5).to.equal(true)
+				expect(p.hold >= 3 and p.hold <= 5).to.equal(true)
+				expect(p.holdMax <= 5).to.equal(true)
 				expect(p.shineSeconds >= 0.5).to.equal(true)
 			end
 		)

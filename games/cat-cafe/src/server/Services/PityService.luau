@@ -464,11 +464,13 @@ end
 local function logShower(player: Player?, s: Shower, outcome: string)
 	local subject = player or someone()
 	if subject ~= nil then
+		-- three fields only (Telemetry.custom drops a fourth, which lost the outcome until 2026-11-12): the event,
+		-- the area, and the kind with the outcome ("mythical_caught")
 		Telemetry.custom(
 			subject,
 			"event_shower",
 			s.pick.n,
-			{ s.eventId, s.pick.areaId, s.pick.kind, outcome }
+			{ s.eventId, s.pick.areaId, s.pick.kind .. "_" .. outcome }
 		)
 	end
 end

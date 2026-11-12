@@ -9,7 +9,8 @@
 -- The caller owns the words (Design-Agent's, #3420 section 5); this only trims them to fit. Banners wait their turn:
 -- one shows at a time, up to Presets.eventBanner.queue more wait, and a kind that is already showing or waiting is
 -- dropped, so a rejoin or a double fire never stacks two of the same.
--- The card takes no taps (the HUD under it still works), sells nothing and has no button. Reduce Motion: it fades in
+-- A tap or click on the card sends it away at once (Derek, 2026-11-12); left alone it goes after 5 seconds. Only the
+-- card itself takes the tap, so the HUD round it still works. It sells nothing and opens nothing. Reduce Motion: it fades in
 -- and out where it rests, with no shine, confetti or fish. Low performance: half the confetti and half the fish.
 -- Everything plays once per banner and nothing loops, so nothing flashes. Client only; it never tells the server
 -- anything. Numbers in Presets.eventBanner.
@@ -138,6 +139,12 @@ function EventBanner.fade(t: number, hold: number): number
 	return math.min(leaving / p.fadeSeconds, 1)
 end
 
+-- Pure: the hold that makes a banner start to leave now: it was tapped `t` seconds in, takes `enter` seconds to
+-- arrive and would have held for `hold`. A tap while it is still arriving lets it land, then it leaves at once.
+function EventBanner.holdAfterTap(t: number, hold: number, enter: number): number
+	return math.clamp(t - enter, 0, hold)
+end
+
 -- Pure: how many confetti sparkles and how many hopping fish a banner of `kind` gets on this device.
 function EventBanner.counts(
 	kind: Kind,
@@ -201,7 +208,6 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	card.BorderSizePixel = 0
 	card.Size = UDim2.new(p.widthScale, 0, 0, height)
 	card.Position = UDim2.new(0.5, 0, 0, GuiService:GetGuiInset().Y + p.top)
-	card.Active = false
 	card.ZIndex = 2 -- over the confetti and the fish, which come out from behind it
 	round(card, UDim.new(0, p.corner))
 	local widest = Instance.new("UISizeConstraint")
@@ -295,6 +301,16 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 		shine.Parent = card
 		band = gradient
 	end
+	-- the whole card is one unseen button: a tap sends the banner away (run listens to it)
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.BackgroundTransparency = 1
+	tap.Text = ""
+	tap.AutoButtonColor = false
+	tap.Selectable = false -- a gamepad's selection never lands on it; it leaves by itself
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = 5
+	tap.Parent = card
 	card.Parent = gui
 	return card, band
 end
@@ -414,9 +430,17 @@ local function run(plan: Plan)
 		task.spawn(listener, plan.kind)
 	end
 	local began = os.clock()
-	local whole = if still
-		then p.fadeSeconds * 2 + plan.seconds
-		else p.dropSeconds + plan.seconds + p.leaveSeconds
+	local enter = if still then p.fadeSeconds else p.dropSeconds
+	local hold = plan.seconds
+	local whole = enter + hold + (if still then p.fadeSeconds else p.leaveSeconds)
+	local tap = card:FindFirstChild("Tap")
+	if tap ~= nil and tap:IsA("GuiButton") then
+		tap.Activated:Once(function()
+			local shorter = EventBanner.holdAfterTap(os.clock() - began, hold, enter)
+			whole -= hold - shorter
+			hold = shorter
+		end)
+	end
 	local loop: RBXScriptConnection? = nil
 	loop = RunService.RenderStepped:Connect(function()
 		local t = os.clock() - began
@@ -430,10 +454,10 @@ local function run(plan: Plan)
 			return
 		end
 		if still then
-			card.GroupTransparency = EventBanner.fade(t, plan.seconds)
+			card.GroupTransparency = EventBanner.fade(t, hold)
 			return
 		end
-		card.Position = rest - UDim2.fromOffset(0, EventBanner.lift(t, plan.seconds, travel))
+		card.Position = rest - UDim2.fromOffset(0, EventBanner.lift(t, hold, travel))
 		if band ~= nil then
 			local k = (t - p.dropSeconds) / p.shineSeconds
 			band.Offset = Vector2.new(-1 + 2 * math.clamp(k, 0, 1), 0)

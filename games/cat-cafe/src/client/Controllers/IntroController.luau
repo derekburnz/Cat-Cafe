@@ -2302,7 +2302,7 @@ function IntroController.start()
 	end
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		if
-			Config.IntroAutoPlay
+			(if s.introAuto ~= nil then s.introAuto else Config.IntroAutoPlay) -- #3666
 			and not firstStarted
 			and s.introSeen == false
 			and s.plotIndex ~= 0

@@ -6,7 +6,8 @@
 -- window. Pure, so the cloud specs check it.
 --   kind(raw) -> string?             "rich", "mystery" or "collector" from the attribute, else nil
 --   away(distance) -> boolean        farther than AWAY_STUDS from the cafe; nil (no character yet) is not away
---   holds(step, away) -> boolean     the call waits: the tutorial is under way and the player is away
+--   holds(step, away, hint) -> boolean  the call waits: the player is away and the tutorial is under way or its
+--                                    last cannon line (`hint`) is still up
 --   show(kind, away) -> (how?, text) "card" or "toast" and the line; nil for the Collector at the cafe, whom the
 --                                    server already toasts ("The Cat Collector is at your cafe! ...")
 
@@ -40,8 +41,13 @@ end
 -- TUTORIAL_DONE) and the player is away from the cafe, the call waits; at the cafe its toast still shows.
 FirstVisitLogic.TUTORIAL_DONE = 5
 
-function FirstVisitLogic.holds(step: unknown, away: boolean): boolean
-	return away and type(step) == "number" and step < FirstVisitLogic.TUTORIAL_DONE
+-- Review-QA's retest: the save is already at TUTORIAL_DONE while the walk-through's last line, "Hop in the cannon to
+-- catch more cats!", still shows (until the next flight), so `hint` (that line is up) holds the call as well.
+function FirstVisitLogic.holds(step: unknown, away: boolean, hint: boolean?): boolean
+	if not away then
+		return false
+	end
+	return hint == true or (type(step) == "number" and step < FirstVisitLogic.TUTORIAL_DONE)
 end
 
 function FirstVisitLogic.show(kind: string, away: boolean): (string?, string)

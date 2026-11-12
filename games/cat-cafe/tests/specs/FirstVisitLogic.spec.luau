@@ -40,6 +40,11 @@ return function()
 				expect(FirstVisitLogic.holds(4, false)).to.equal(false)
 				expect(FirstVisitLogic.holds(5, true)).to.equal(false)
 				expect(FirstVisitLogic.holds(nil, true)).to.equal(false)
+				-- the walk-through's last cannon line is still up at step 5: the call waits for it too
+				expect(FirstVisitLogic.holds(5, true, true)).to.equal(true)
+				expect(FirstVisitLogic.holds(5, true, false)).to.equal(false)
+				expect(FirstVisitLogic.holds(5, false, true)).to.equal(false)
+				expect(FirstVisitLogic.holds(nil, true, true)).to.equal(true)
 			end
 		)
 	end)

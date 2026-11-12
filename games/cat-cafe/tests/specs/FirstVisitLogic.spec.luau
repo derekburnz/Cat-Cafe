@@ -34,6 +34,12 @@ return function()
 				expect((FirstVisitLogic.show("collector", true))).to.equal("card")
 				expect((FirstVisitLogic.show("collector", false))).to.equal(nil)
 				expect((FirstVisitLogic.show("nope", true))).to.equal(nil)
+				-- the call waits while the tutorial is under way and the player is away from the cafe
+				expect(FirstVisitLogic.holds(4, true)).to.equal(true)
+				expect(FirstVisitLogic.holds(0, true)).to.equal(true)
+				expect(FirstVisitLogic.holds(4, false)).to.equal(false)
+				expect(FirstVisitLogic.holds(5, true)).to.equal(false)
+				expect(FirstVisitLogic.holds(nil, true)).to.equal(false)
 			end
 		)
 	end)

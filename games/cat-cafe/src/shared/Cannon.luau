@@ -228,6 +228,20 @@ end
 Cannon.HOME_WAIT_SECONDS = 20
 Cannon.HOME_SPAWN_STUDS = 10
 Cannon.HOME_ATTRIBUTE = "HomeArrival"
+-- Review-QA's fresh join runs, 2026-11-12 (Derek: "the cannon step of tutorial steps pulls you super far out so you
+-- cant see"): the tutorial's own move to the cannon turned the character and left the camera where it was, in front
+-- of the character and squeezed against the cannon. Every move the server makes of a standing player (the tutorial's
+-- moves, a trip home or to the cannon) now sets MOVED_ATTRIBUTE to where it put them and counts MOVED_SEQ up, and
+-- the client puts its camera behind the character there (CannonController), as it does for the join's HOME_ATTRIBUTE.
+Cannon.MOVED_ATTRIBUTE = "MovedTo"
+Cannon.MOVED_SEQ = "MovedSeq"
+
+-- The server's note of a move: `player` now stands at `landing`.
+function Cannon.noteMove(player: Player, landing: CFrame)
+	player:SetAttribute(Cannon.MOVED_ATTRIBUTE, landing.Position)
+	local seq = player:GetAttribute(Cannon.MOVED_SEQ)
+	player:SetAttribute(Cannon.MOVED_SEQ, (if type(seq) == "number" then seq else 0) + 1)
+end
 Cannon.HOME_CAMERA = table.freeze({ back = 14, up = 7, look = 2 })
 
 -- Whether a join starts at home. A player whose intro is still to play stays at the Town Square, where the intro

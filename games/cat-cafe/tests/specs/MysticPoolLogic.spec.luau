@@ -246,11 +246,12 @@ return function()
 	end)
 
 	describe("MysticPoolLogic.pickerLine (the Cannon menu's strip, #3196)", function()
-		it("shows on the Park's card only while the pool is open", function()
+		it("shows on no area's card now the pool stands in the Town Square (#3715)", function()
 			local view = { tokens = 1, freeLeft = 0, held = 0 }
-			expect(MysticPoolLogic.pickerLine(nil, "park")).to.equal(nil)
+			expect(MysticPoolLogic.pickerLine(nil, "town")).to.equal(nil)
 			expect(MysticPoolLogic.pickerLine(view, "woods")).to.equal(nil)
-			expect(MysticPoolLogic.pickerLine(view, "park") :: any).to.deepEqual({
+			expect(MysticPoolLogic.pickerLine(view, "park")).to.equal(nil)
+			expect(MysticPoolLogic.pickerLine(view, "town") :: any).to.deepEqual({
 				extraId = "mysticPool",
 				icon = MysticPoolLogic.ICON,
 				name = "Mystic Pool",
@@ -261,20 +262,20 @@ return function()
 
 		it("says what waits: free tokens at the station first, then starter rolls", function()
 			local tokens: any =
-				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 2 }, "park")
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 2 }, "town")
 			expect(tokens.state).to.equal("2 free tokens")
 			expect(tokens.ready).to.equal(true)
 			local one: any =
-				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 1 }, "park")
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 1 }, "town")
 			expect(one.state).to.equal("1 free token")
 			local rolls: any =
-				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 0 }, "park")
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 0 }, "town")
 			expect(rolls.state).to.equal("5 free rolls")
 			expect(rolls.ready).to.equal(false)
 			local last: any =
-				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 1, held = 0 }, "park")
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 1, held = 0 }, "town")
 			expect(last.state).to.equal("1 free roll")
-			local bare: any = MysticPoolLogic.pickerLine({}, "park")
+			local bare: any = MysticPoolLogic.pickerLine({}, "town")
 			expect(bare.state).to.equal("Give a cat a trait")
 		end)
 	end)

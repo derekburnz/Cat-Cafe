@@ -1831,9 +1831,9 @@ end
 -- (CampExtras.PROMPT, Custom: the UI's action pill) sits at the model's PromptAnchor with CampExtraRangeStuds of
 -- reach; each client writes its own lines on it (Controllers/CampExtrasController) and CampExtraService checks the
 -- range again from the same anchor. Without the art a plain crate-sized block stands in. Atomic, as the Index Boards.
--- #3196 (trait-station.md section 1): the Mystic Pool, on the Picnic Basket's spot. Both are built, and
--- MysticPoolStationService keeps one of them (with its ring) in the world: the pool while the `traits` switch is on,
--- the basket while it is off, so the switch needs no publish and no restart. Tagged Traits.TAG, with a one-press
+-- #3196 (trait-station.md section 1): the Mystic Pool. Since #3715 it stands in the Town Square (Layout.mysticPool)
+-- and the Picnic Basket keeps its own spot in the Park. MysticPoolStationService keeps the pool (with its ring) in
+-- the world only while the `traits` switch is on, so the switch needs no publish and no restart. Tagged Traits.TAG, with a one-press
 -- prompt (Traits.PROMPT) and a ring in front where its card opens (WalkUpController). TraitService has no range
 -- check, as for every station. Without the art nothing is built and the basket stays.
 local MYSTIC_RING = Color3.fromRGB(170, 120, 235)
@@ -1930,23 +1930,6 @@ local function buildCampExtras(parent: Instance)
 			parent,
 			ICON_EXTRA[def.id]
 		)
-		if def.id == Traits.STATION_EXTRA then
-			-- the basket and its ring step out while the pool's ring is fitted, so the two never push each
-			-- other's rings aside (they are never in the world together)
-			local link = model:FindFirstChild(WalkUp.CIRCLE)
-			local disc: Instance? = if link ~= nil and link:IsA("ObjectValue")
-				then (link :: ObjectValue).Value
-				else nil
-			model.Parent = nil
-			if disc ~= nil then
-				disc.Parent = nil
-			end
-			buildMysticPool(parent, at, def.area)
-			model.Parent = parent
-			if disc ~= nil then
-				disc.Parent = parent
-			end
-		end
 	end
 end
 
@@ -3029,6 +3012,15 @@ function WorldBuilder.build(): World
 	buildFishMarket(root)
 	buildMysteryCart(root) -- #2565
 	buildCodesCat(root)
+	do
+		-- #3715: the Mystic Pool at spawn
+		local spot = Layout.mysticPool
+		buildMysticPool(
+			root,
+			CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, math.rad(spot.rotY or 0), 0),
+			"town"
+		)
+	end
 	buildBellhopStand(root)
 	buildLeaderboards(root)
 	buildCornerShop(root) -- #1052, once its art is in

@@ -231,8 +231,7 @@ end
 -- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
 -- off or the tier has not opened the station (TraitService.open reads the same)
 local function traitsView(profile: Profile, now: number): Types.TraitsView?
-	local open = LiveFlagService.on(Traits.FLAG)
-		and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+	local open = LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
 	Traits.settle(profile.traits, open, now)
 	return if open then Traits.view(profile.traits) else nil
 end

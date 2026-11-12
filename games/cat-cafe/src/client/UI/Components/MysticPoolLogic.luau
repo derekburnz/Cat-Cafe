@@ -170,7 +170,8 @@ end
 -- #3196: the Mystic Pool's strip on the Park's card in the Cat Cannon's menu (Screens/Cannon), in the shape of a
 -- camp extra's line: its Open button brings the card up from anywhere. nil while the pool is shut. Free tokens
 -- waiting at the station read in green, as a station with something to collect does.
-MysticPoolLogic.AREA = "park"
+-- #3715: the pool stands in the Town Square now, where the cannon is, so no area's card carries its strip
+MysticPoolLogic.AREA = "town"
 MysticPoolLogic.STATION = "mysticPool"
 MysticPoolLogic.ICON = "🔮"
 

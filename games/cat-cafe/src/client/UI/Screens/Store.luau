@@ -21,6 +21,9 @@
 -- Roblox says it was bought.
 
 local Button = require(script.Parent.Parent.Components.Button)
+local Config = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+) :: any
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -644,8 +647,14 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.button.instance.Visible = not row.owned
 	entry.owned.Visible = row.owned
 	entry.dim.Visible = row.owned
-	local badge = StoreLogic.badge(row, self._prices, self._ownedIds)
+	-- one badge at most: #3572's Sale (red, with the true old price struck through) before Best Value
+	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
+	local badge = if was
+		then StoreLogic.saleBadge(was)
+		else StoreLogic.badge(row, self._prices, self._ownedIds)
 	entry.badge.Visible = badge ~= nil
+	entry.badge.RichText = was ~= nil
+	entry.badge.BackgroundColor3 = if was then Theme.colors.redDark else PAL.good
 	entry.badge.Text = badge or ""
 end
 

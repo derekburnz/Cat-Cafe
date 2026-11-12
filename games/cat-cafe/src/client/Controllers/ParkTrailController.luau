@@ -135,7 +135,8 @@ local function tick(dt: number)
 		return
 	end
 	wasDue = true
-	local phase = (ParkTrailLogic.phase(UI.cannon.area) :: any) :: ParkTrailLogic.Phase
+	-- typed any: the CI type check widens a Phase to string after the comparisons below
+	local phase: any = ParkTrailLogic.phase(UI.cannon.area)
 	if phase ~= lastPhase then
 		if phase == "catch" then
 			report(ParkTrailLogic.ENTERED)

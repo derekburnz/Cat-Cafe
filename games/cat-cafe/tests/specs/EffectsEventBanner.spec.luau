@@ -200,5 +200,35 @@ return function()
 				expect(fish).to.equal(0)
 			end
 		)
+		it(
+			"announces a Secret spawn with the area only, a few sparkles and no row of cats",
+			function()
+				local p = Presets.eventBanner
+				local plan = EventBanner.plan({
+					kind = "secretSpawn",
+					title = "A Secret cat!",
+					lines = { "A Secret cat is roaming the Park!" },
+				})
+				expect(plan.kind).to.equal("secretSpawn")
+				expect(plan.lines[1]).to.equal("A Secret cat is roaming the Park!")
+				-- the longest area name still fits a line
+				expect(#"A Secret cat is roaming the Desert!" <= p.lineLength).to.equal(true)
+				-- no row of the cats' shapes: the card is as tall as any other, and its badge is drawn from plain shapes
+				expect(EventBanner.height("secretSpawn", 1)).to.equal(
+					EventBanner.height("party", 1)
+				)
+				local confetti, fish = EventBanner.counts("secretSpawn", false, false)
+				expect(confetti).to.equal(p.confettiSoon)
+				expect(fish).to.equal(0)
+				confetti = EventBanner.counts("secretSpawn", false, true)
+				expect(confetti).to.equal(0)
+				-- it never stacks: a second spawn while one shows or waits is dropped
+				expect(EventBanner.accepts("secretSpawn", {}, "secretSpawn", p.queue)).to.equal(
+					false
+				)
+				-- the "?" reads on the black head and the head reads on the starlight disc
+				expect(p.spawnBadge).to.equal(Color3.fromRGB(226, 214, 255))
+			end
+		)
 	end)
 end

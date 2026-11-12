@@ -9,6 +9,9 @@
 --               models from ReplicatedStorage.Assets drawn all black (Derek, 2026-11-12: "in banner ... blacked
 --               out"), so a redesigned model changes its shape here by itself and no coat, glow or sparkle shows.
 --               `cats = { "nebula", "cafe_ghost" }` draws only those, for a day one of them is held back.
+--   "secretSpawn"  a Secret cat has just appeared in an area (#3545): the night strip and, for a badge, a plain
+--               black cat head with a "?" on a starlight disc. It is the same head every time and is drawn from
+--               plain shapes, never from a model, so it gives away none of the three cats.
 --   EventBanner.show({ kind = "party", title = "Update Party!", lines = { "x2 cafe earnings until 6:00 PM" } })
 --   EventBanner.onShown(function(kind) ... end)   called as a banner starts to drop in (Audio plays its sound there)
 -- The caller owns the words (Design-Agent's, #3420 section 5); this only trims them to fit. Banners wait their turn:
@@ -33,7 +36,7 @@ local ScreenFx = require(script.Parent.ScreenFx)
 
 local EventBanner = {}
 
-export type Kind = "party" | "giftSoon" | "gift" | "secrets"
+export type Kind = "party" | "giftSoon" | "gift" | "secrets" | "secretSpawn"
 -- `cats`: the "secrets" card's cat ids when the caller names them; nil draws every Secret cat
 export type Plan = {
 	kind: Kind,
@@ -45,6 +48,9 @@ export type Plan = {
 
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
 local GUI_NAME = "EffectsEventBanner"
+
+local KINDS: { [any]: boolean } =
+	{ party = true, giftSoon = true, gift = true, secrets = true, secretSpawn = true }
 
 local rng = Random.new()
 local waiting: { Plan } = {}
@@ -75,7 +81,7 @@ function EventBanner.plan(spec: any): Plan?
 		return nil
 	end
 	local kind = spec.kind
-	if kind ~= "party" and kind ~= "giftSoon" and kind ~= "gift" and kind ~= "secrets" then
+	if not KINDS[kind] then
 		return nil
 	end
 	if type(spec.title) ~= "string" then
@@ -186,7 +192,7 @@ function EventBanner.counts(
 		return 0, 0
 	end
 	local p = Presets.eventBanner
-	local confetti = if kind == "giftSoon" or kind == "secrets" then p.confettiSoon else p.confetti
+	local confetti = if kind == "party" or kind == "gift" then p.confetti else p.confettiSoon
 	local fish = if kind == "gift" then p.fish else 0
 	if lowPerformance then
 		return math.ceil(confetti / 2), math.ceil(fish / 2)
@@ -392,7 +398,8 @@ end
 -- The card for `plan`, parented to `gui` at its resting place; its shine band comes back with it.
 local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	local p = Presets.eventBanner
-	local secret = plan.kind == "secrets"
+	local spawn = plan.kind == "secretSpawn"
+	local secret = plan.kind == "secrets" or spawn
 	local height = EventBanner.height(plan.kind, #plan.lines)
 	local card = Instance.new("CanvasGroup")
 	card.Name = "Card"
@@ -426,11 +433,11 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	strip.Parent = card
 
 	-- the round badge on the left: "x2" for the party, "?" for the Secret cats, the golden fish for a gift
-	local words = height - (if secret then p.shapeRow else 0)
+	local words = height - (if plan.kind == "secrets" then p.shapeRow else 0)
 	local badge = Instance.new("Frame")
 	badge.Name = "Badge"
 	badge.AnchorPoint = Vector2.new(0, 0.5)
-	badge.BackgroundColor3 = if secret then p.secretBadge else p.badge
+	badge.BackgroundColor3 = if spawn then p.spawnBadge elseif secret then p.secretBadge else p.badge
 	badge.BorderSizePixel = 0
 	badge.Position = UDim2.fromOffset(p.pad, words / 2)
 	badge.Size = UDim2.fromOffset(p.badgeSize, p.badgeSize)
@@ -440,7 +447,34 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	rim.Color = p.outline
 	rim.Thickness = 3
 	rim.Parent = badge
-	if plan.kind == "party" or secret then
+	if spawn then
+		-- a plain black cat head: a rounded block with two ears, and a "?" on it
+		local head = Instance.new("Frame")
+		head.Name = "Head"
+		head.AnchorPoint = Vector2.new(0.5, 1)
+		head.BackgroundColor3 = p.shapeColour
+		head.BorderSizePixel = 0
+		head.Position = UDim2.fromScale(0.5, 0.86)
+		head.Size = UDim2.fromScale(0.62, 0.5)
+		round(head, UDim.new(0.28, 0))
+		head.Parent = badge
+		for _, x in { 0.3, 0.7 } do
+			local ear = Instance.new("Frame")
+			ear.Name = "Ear"
+			ear.AnchorPoint = Vector2.new(0.5, 0.5)
+			ear.BackgroundColor3 = p.shapeColour
+			ear.BorderSizePixel = 0
+			ear.Position = UDim2.fromScale(x, 0.4)
+			ear.Rotation = 45
+			ear.Size = UDim2.fromScale(0.2, 0.2)
+			ear.Parent = badge
+		end
+		local mark = label(badge, "Mark", "?", 22, p.markColour)
+		mark.Size = UDim2.fromScale(0.5, 0.44)
+		mark.Position = UDim2.fromScale(0.25, 0.39)
+		mark.TextXAlignment = Enum.TextXAlignment.Center
+		mark.ZIndex = 2
+	elseif plan.kind == "party" or secret then
 		local times = label(badge, "Times", if secret then "?" else "x2", 30, p.badgeText)
 		times.Size = UDim2.fromScale(0.7, 0.7)
 		times.Position = UDim2.fromScale(0.15, 0.15)
@@ -693,7 +727,9 @@ local function run(plan: Plan)
 					gui,
 					card,
 					sparkles,
-					if plan.kind == "secrets" then p.secretColours else p.confettiColours
+					if plan.kind == "secrets" or plan.kind == "secretSpawn"
+						then p.secretColours
+						else p.confettiColours
 				)
 			end
 			if fish > 0 then

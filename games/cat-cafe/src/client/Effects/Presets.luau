@@ -4815,6 +4815,7 @@ Presets.eventBanner = {
 	nightTop = Color3.fromRGB(64, 50, 132),
 	nightBottom = Color3.fromRGB(30, 22, 72),
 	secretBadge = Presets.palette.aurora,
+	spawnBadge = Color3.fromRGB(226, 214, 255), -- the "secretSpawn" banner's disc: the Secret starlight (#3545)
 	secretColours = { Presets.palette.aurora, Presets.palette.milk },
 	shapeMost = 3, -- cats in the row
 	shapeRow = 74, -- the row's height under the last line

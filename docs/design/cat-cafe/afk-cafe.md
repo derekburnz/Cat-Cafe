@@ -1,6 +1,6 @@
 # AFK in your cafe
 
-Asked by Derek on 2026-11-12 13:06 UTC: "no afk kicking inside cafe/right outside it (the area when you teleport) and have a little gentle text saying something like 2x rewards while afk in cafe and cats earn offline ... so we can have people afk the game more (publish this when its ready no restart)". Owner: game-designer. Build: #3573, behind the switch `afkCafe`. Not built yet.
+Asked by Derek on 2026-11-12 13:06 UTC: "no afk kicking inside cafe/right outside it (the area when you teleport) and have a little gentle text saying something like 2x rewards while afk in cafe and cats earn offline ... so we can have people afk the game more (publish this when its ready no restart)". Owner: game-designer. Build: #3573, behind the switch `afkCafe`. Built in #3587 (server and pay) and #3578 (chip); the party wording of the once a visit line is in #3598.
 
 ## 1. In one paragraph
 
@@ -19,6 +19,8 @@ In the zone with no input (move, jump, camera, tap, key, button, chat) for `Conf
 - It doubles the pay the player's own cats earn in the cafe (the per second cafe income).
 - It works the same as an event money boost: it multiplies the whole cafe settle, including the extra paid seconds a timed tip potion adds (build answer on #3573, 2026-11-12).
 - It does not touch the till's collected tips and rich tips, serving, golden fish, the Fish Pond, crates, quests, the Rescue Rally, Cafe Pass progress, playtime gifts, Trait Tokens or luck.
+- While a player rests, each cat's own per-second label stays at base pay; only the cafe total doubles, as with an event boost.
+- A rest carries on through nightfall and sunrise. Only the player's own input or leaving the zone ends it.
 - It sits in the party's money boost slot and never goes above `EventMoneyMax` (2). During a 2x party it adds nothing. Money passes and money potions multiply as always.
 - Offline pay is unchanged: half for up to 8 hours, full for up to 16 with Long Nap. The AFK 2x never applies offline.
 - Playing must still pay more than resting. Growth-Agent checks after a week; if resting wins at any tier the 2x comes down.

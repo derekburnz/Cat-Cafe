@@ -186,11 +186,16 @@ function CannonController.start()
 		end
 		local at = (root :: BasePart).Position
 		local best: string? = nil
-		local bestDistance = Config.World.CannonRangeStuds + Cannon.RANGE_SLACK
+		local bestDistance = math.huge
 		for model in prompts do
 			local id = model:GetAttribute("CannonId")
 			local distance = (model:GetPivot().Position - at).Magnitude
-			if type(id) == "string" and distance <= bestDistance then
+			-- #3671: each cannon's own range
+			if
+				type(id) == "string"
+				and distance <= Cannon.range(id) + Cannon.RANGE_SLACK
+				and distance <= bestDistance
+			then
 				best, bestDistance = id, distance
 			end
 		end

@@ -432,11 +432,12 @@ function WalkUpCircles.around(
 	color: Color3,
 	range: number,
 	into: Instance?,
-	cap: number?
+	cap: number?,
+	fill: boolean? -- #3671: true makes the ring as wide as the range allows, not only AROUND_PAD clear of the station
 )
 	local _, half, bottom = footprint(model)
 	local at = model:GetPivot().Position
-	local radius = WalkUp.aroundRadius(half, range, cap)
+	local radius = WalkUp.aroundRadius(half, range, cap, fill)
 	local most = math.min(WalkUp.FIT_SHIFT_MAX, range - WalkUp.EDGE_SLACK - radius)
 	local reach = radius + WalkUp.FIT_CLEAR + math.max(0, most)
 	local blocks = blocksAround(model, Vector3.new(at.X, bottom + PROBE_UP, at.Z), reach)

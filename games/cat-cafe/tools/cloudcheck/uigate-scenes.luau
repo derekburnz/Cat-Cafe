@@ -5157,6 +5157,7 @@ local SCENES = {
 		clock:SetAttribute("NextLuckyDay", 8)
 		clock:SetAttribute("LuckyDay", true)
 		UI.clock.bind(clock)
+		Scenes._palsClock = true
 		UI.pals({})
 		UIShim.advance(0.2)
 		local chip = hud:FindFirstChild("Pals", true) :: GuiObject
@@ -8999,6 +9000,12 @@ function Scenes.close()
 		UI.clock.setAreasOpen(true)
 		UI.clock.clear()
 		Scenes._nightPass = nil
+	end
+	if Scenes._palsClock then
+		-- #3052's scene: its Lucky Day clock put away, or it stays bound for every scene after it in the shard and
+		-- the tip scenes that follow lose their free moment (#3408)
+		UI.clock.clear()
+		Scenes._palsClock = nil
 	end
 	if Scenes._tradeTier ~= nil then
 		UI.update(Scenes._tradeTier :: any) -- #2462's scene

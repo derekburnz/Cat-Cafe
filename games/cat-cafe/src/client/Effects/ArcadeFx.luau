@@ -25,7 +25,7 @@ local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
 
 export type Grade = "perfect" | "good" | "miss"
 
-type Burst = { colour: Color3, sparkles: number, rings: number, ringGap: number? }
+export type Burst = { colour: Color3, sparkles: number, rings: number, ringGap: number? }
 
 -- `count` spots round the middle of `target` (pixels in `gui`), a little inside its edge.
 local function spots(gui: ScreenGui, target: GuiObject, count: number): { Vector2 }
@@ -39,8 +39,9 @@ local function spots(gui: ScreenGui, target: GuiObject, count: number): { Vector
 	return out
 end
 
+-- (Also used by MouseDashFx, #3296, like word and ready below.)
 -- Sparkles and rings round `target`, fewer with Reduce Motion or Low performance, no rings with Reduce Motion.
-local function burst(gui: ScreenGui, target: GuiObject, b: Burst)
+function ArcadeFx.burst(gui: ScreenGui, target: GuiObject, b: Burst)
 	local s = Presets.arcade
 	local still = Context.reducedMotion()
 	local count = b.sparkles
@@ -75,7 +76,13 @@ local function burst(gui: ScreenGui, target: GuiObject, b: Burst)
 end
 
 -- Outlined words in `colour` over the middle of `target` that rise (still with Reduce Motion) and fade.
-local function word(gui: ScreenGui, target: GuiObject, text: string, colour: Color3, size: number)
+function ArcadeFx.word(
+	gui: ScreenGui,
+	target: GuiObject,
+	text: string,
+	colour: Color3,
+	size: number
+)
 	local s = Presets.arcade
 	local from = ScreenFx.centre(gui, target)
 	local label = Instance.new("TextLabel")
@@ -113,7 +120,7 @@ local function word(gui: ScreenGui, target: GuiObject, text: string, colour: Col
 	end)
 end
 
-local function ready(target: GuiObject): ScreenGui?
+function ArcadeFx.ready(target: GuiObject): ScreenGui?
 	if not ScreenFx.shown(target) then
 		return nil
 	end
@@ -127,36 +134,40 @@ function ArcadeFx.hit(target: GuiObject, grade: Grade)
 	if spec == nil then
 		return
 	end
-	local gui = ready(target)
+	local gui = ArcadeFx.ready(target)
 	if gui == nil then
 		return
 	end
-	burst(gui, target, { colour = spec.colour, sparkles = spec.sparkles, rings = spec.rings })
-	word(gui, target, spec.word, spec.colour, Presets.arcade.wordSize)
+	ArcadeFx.burst(
+		gui,
+		target,
+		{ colour = spec.colour, sparkles = spec.sparkles, rings = spec.rings }
+	)
+	ArcadeFx.word(gui, target, spec.word, spec.colour, Presets.arcade.wordSize)
 end
 
 function ArcadeFx.milestone(target: GuiObject, points: number)
-	local gui = ready(target)
+	local gui = ArcadeFx.ready(target)
 	if gui == nil then
 		return
 	end
 	local m = Presets.arcade.milestone
-	burst(
+	ArcadeFx.burst(
 		gui,
 		target,
 		{ colour = m.colour, sparkles = m.sparkles, rings = m.rings, ringGap = m.ringGap }
 	)
-	word(gui, target, tostring(math.floor(points)) .. "!", m.colour, m.wordSize)
+	ArcadeFx.word(gui, target, tostring(math.floor(points)) .. "!", m.colour, m.wordSize)
 end
 
 function ArcadeFx.goldenFish(target: GuiObject)
-	local gui = ready(target)
+	local gui = ArcadeFx.ready(target)
 	if gui == nil then
 		return
 	end
 	local f = Presets.arcade.fish
-	burst(gui, target, { colour = f.colour, sparkles = f.sparkles, rings = 0 })
-	word(gui, target, f.glyph, f.colour, f.wordSize)
+	ArcadeFx.burst(gui, target, { colour = f.colour, sparkles = f.sparkles, rings = 0 })
+	ArcadeFx.word(gui, target, f.glyph, f.colour, f.wordSize)
 end
 
 -- #3338: the Play button's shine. `face` gets a "Shine" frame of its size with its corner, white through a band of a

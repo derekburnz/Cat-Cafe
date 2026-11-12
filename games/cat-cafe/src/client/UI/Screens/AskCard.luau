@@ -88,7 +88,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		ResetOnSpawn = false,
 		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 11, -- over the HUD (10), under the windows
+		DisplayOrder = 16, -- over the HUD (10) and the Tackle bar (14), which covered its buttons at 11; under the windows (20)
 		Parent = parent,
 	})
 	self.screenGui = screenGui

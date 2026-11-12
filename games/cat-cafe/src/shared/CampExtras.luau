@@ -200,12 +200,13 @@ end
 
 -- When the next Yard Sale crate is ready (server time): YardSaleClaimHours after the last take, whichever crate it
 -- was (the crate can change with a rank up, and the take is one per wait, not one per crate id; #1051 review).
-function CampExtras.yardReadyAt(save: Types.CampExtrasSave): number
-	return save.yardSale.lastClaimAt + Config.YardSaleClaimHours * 3600
+-- #3614: `hours` is the wait when it is not YardSaleClaimHours (the lucky pick's, while its switch is on).
+function CampExtras.yardReadyAt(save: Types.CampExtrasSave, hours: number?): number
+	return save.yardSale.lastClaimAt + (hours or Config.YardSaleClaimHours) * 3600
 end
 
-local function yardTaken(save: Types.CampExtrasSave, now: number): boolean
-	return now < CampExtras.yardReadyAt(save)
+local function yardTaken(save: Types.CampExtrasSave, now: number, hours: number?): boolean
+	return now < CampExtras.yardReadyAt(save, hours)
 end
 
 local function shut(): Types.CampExtraView
@@ -217,7 +218,8 @@ function CampExtras.view(
 	save: Types.CampExtrasSave,
 	tier: number,
 	now: number,
-	pondTimes: number?
+	pondTimes: number?,
+	yardHours: number?
 ): Types.CampExtrasState
 	local today = CampExtras.day(now)
 	local picnic = shut()
@@ -248,7 +250,7 @@ function CampExtras.view(
 	local yardSale = shut()
 	if CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		local stock: { Types.YardSaleCrate } = {}
-		local taken = yardTaken(save, now)
+		local taken = yardTaken(save, now, yardHours)
 		for _, crateId in CampExtras.yardStock(tier, save.yardSale.claims) do
 			table.insert(stock, { crateId = crateId, price = 0, bought = taken })
 			if not taken then
@@ -256,7 +258,7 @@ function CampExtras.view(
 			end
 		end
 		yardSale.open = true
-		yardSale.nextAt = if taken then CampExtras.yardReadyAt(save) else nil
+		yardSale.nextAt = if taken then CampExtras.yardReadyAt(save, yardHours) else nil
 		yardSale.stock = stock
 	end
 	return { day = today, picnic = picnic, yardSale = yardSale, pond = pond, lostFound = lostFound }
@@ -480,6 +482,27 @@ function CampExtras.buyBlocker(
 	return nil
 end
 
+-- #3614: why a lucky pick would be refused for a settled save, or nil: the Yard Sale shut at this tier, or the last
+-- take less than `hours` ago. Free, so nothing else is checked. The server checks the player's range itself.
+function CampExtras.pickBlocker(
+	save: Types.CampExtrasSave,
+	tier: number,
+	now: number,
+	hours: number
+): string?
+	if not CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
+		return string.format(
+			"The Yard Sale opens at Tier %d",
+			CampExtras.tierOf(CampExtras.YARD_SALE) or 0
+		)
+	end
+	if yardTaken(save, now, hours) then
+		return "Lucky pick taken. A new one in "
+			.. CampExtras.waitText(CampExtras.yardReadyAt(save, hours) - now)
+	end
+	return nil
+end
+
 -- The first crate still for sale today in a Yard Sale view, or nil.
 function CampExtras.nextYardCrate(view: Types.CampExtraView): Types.YardSaleCrate?
 	local stock: { Types.YardSaleCrate } = view.stock or {}
@@ -500,6 +523,10 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 		return nil, nil
 	end
 	if extraId == CampExtras.YARD_SALE then
+		-- #3615: a lucky pick is pressed on the card, where its board rolls; walking up never spends it
+		if view.pick ~= nil then
+			return nil, nil
+		end
 		local crate = CampExtras.nextYardCrate(view)
 		if crate ~= nil and crate.price == 0 then
 			return "yard", crate.crateId

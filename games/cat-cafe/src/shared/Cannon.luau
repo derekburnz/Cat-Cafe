@@ -25,6 +25,13 @@ Cannon.BESIDE_STRAY_STUDS = 7
 Cannon.BESIDE_MAX_FROM_PAD = 15
 Cannon.BESIDE_STRAY_RISE = 4 -- studs: a stray this much higher or lower than the pad (a tree top) is skipped
 
+-- #3671: the reach of the cannon `cannonId`'s prompt, ring and server check: the Town Square's is its own.
+function Cannon.range(cannonId: string?): number
+	return if cannonId == Cannon.TOWN
+		then Config.World.TownCannonRangeStuds
+		else Config.World.CannonRangeStuds
+end
+
 -- The refusal for a player a tackle knocked down within TackledDownSeconds, or nil. LaunchCannon uses it, and so do
 -- the HUD's Home and Cannon buttons (TravelService), so a downed player cannot hop out of a chase (review N281,
 -- hometown-cannon.md section 5). `sinceTackled` is nil when no tackle ever hit the player.
@@ -77,7 +84,7 @@ function Cannon.launchRefusal(check: LaunchCheck): string?
 	end
 	if
 		check.distance == nil
-		or check.distance > Config.World.CannonRangeStuds + Cannon.RANGE_SLACK
+		or check.distance > Cannon.range(check.cannonId) + Cannon.RANGE_SLACK
 	then
 		return "Get closer to the cannon"
 	end
@@ -228,6 +235,20 @@ end
 Cannon.HOME_WAIT_SECONDS = 20
 Cannon.HOME_SPAWN_STUDS = 10
 Cannon.HOME_ATTRIBUTE = "HomeArrival"
+-- Review-QA's fresh join runs, 2026-11-12 (Derek: "the cannon step of tutorial steps pulls you super far out so you
+-- cant see"): the tutorial's own move to the cannon turned the character and left the camera where it was, in front
+-- of the character and squeezed against the cannon. Every move the server makes of a standing player (the tutorial's
+-- moves, a trip home or to the cannon) now sets MOVED_ATTRIBUTE to where it put them and counts MOVED_SEQ up, and
+-- the client puts its camera behind the character there (CannonController), as it does for the join's HOME_ATTRIBUTE.
+Cannon.MOVED_ATTRIBUTE = "MovedTo"
+Cannon.MOVED_SEQ = "MovedSeq"
+
+-- The server's note of a move: `player` now stands at `landing`.
+function Cannon.noteMove(player: Player, landing: CFrame)
+	player:SetAttribute(Cannon.MOVED_ATTRIBUTE, landing.Position)
+	local seq = player:GetAttribute(Cannon.MOVED_SEQ)
+	player:SetAttribute(Cannon.MOVED_SEQ, (if type(seq) == "number" then seq else 0) + 1)
+end
 Cannon.HOME_CAMERA = table.freeze({ back = 14, up = 7, look = 2 })
 
 -- Whether a join starts at home. A player whose intro is still to play stays at the Town Square, where the intro

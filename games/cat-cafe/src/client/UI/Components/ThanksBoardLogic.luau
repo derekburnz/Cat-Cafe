@@ -11,8 +11,7 @@ local ThanksBoardLogic = {}
 
 ThanksBoardLogic.PER_PAGE = 6
 ThanksBoardLogic.ANON = "a player" -- IdeaCredits.ANON: the server's name for a hidden or unknown player
-ThanksBoardLogic.EMPTY =
-	'Send an idea with 💡 Feedback and tick "Feature my name": if we build it, your name goes here.'
+ThanksBoardLogic.EMPTY = "Send an idea with 💡 Feedback: if we build it, your name goes here."
 
 export type Row = {
 	idea: string,

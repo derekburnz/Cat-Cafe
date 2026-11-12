@@ -4195,6 +4195,34 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3657: a thumbs down on the slide-in ask brings the reasons up on the same card, in two rows with Skip; the
+	-- face is sent once, with the reason tapped
+	{ "FeedbackAskReasons", function()
+		local sent = {}
+		local connection = UI.events.sendFeedback:Connect(function(face, chip)
+			table.insert(sent, tostring(face) .. ":" .. tostring(chip))
+		end)
+		UI.tips.showAsk()
+		task.wait(0.4)
+		press("CatCafeAsk", "Choice_no")
+		task.wait(0.2)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "What is the main reason?", "uigate: after a thumbs down the ask reads " .. title.Text .. " (#3657)")
+		assert(title.TextFits, "uigate: the reasons title does not fit (#3657)")
+		assert(#sent == 0, "uigate: the face was sent before a reason could be picked (#3657)")
+		local second = ask:FindFirstChild("Choices2", true)
+		assert(second.Visible, "uigate: the reasons ask has no second row (#3657)")
+		for _, name in { "Choice_too_hard", "Choice_confusing", "Choice_boring", "Choice_laggy", "Choice_skip" } do
+			local piece = ask:FindFirstChild(name, true)
+			assert(piece, "uigate: the reasons ask lacks " .. name .. " (#3657)")
+			local label = piece:FindFirstChildWhichIsA("TextLabel", true)
+			assert(label == nil or label.TextFits, "uigate: " .. name .. "'s words do not fit (#3657)")
+		end
+		press("CatCafeAsk", "Choice_boring")
+		connection:Disconnect()
+		assert(#sent == 1 and sent[1] == "no:boring", "uigate: the reasons ask sent " .. table.concat(sent, " ") .. " (#3657)")
+	end },
 	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
 	-- face and thumbs down, with its title on one card
 	{ "SessionAsk", function()

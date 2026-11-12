@@ -74,6 +74,7 @@ local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local RuinsWater = require(script.RuinsWater)
+local SecretGlow = require(script.SecretGlow)
 local SecretStray = require(script.SecretStray)
 local ShopCats = require(script.ShopCats)
 local Shove = require(script.Shove)
@@ -139,6 +140,7 @@ function Effects.start()
 		Levels.start,
 		Rarity.start,
 		SecretStray.start,
+		SecretGlow.start,
 		Splash.start,
 		Rescue.start,
 		Intro.start,

@@ -1127,3 +1127,15 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Secret cats' own glow (#3544, 2026-11-12)
+
+Derek, 2026-11-12: "make secrets have a special glow also when you see them around cafe or world". `Effects/SecretGlow.luau`, numbers in `Presets.secretGlow` and `Presets.emitters.secretHalo`, the fade and the breathing in `Logic.secretGlowFade` and `Logic.secretGlowLevel`. It rides `secretCats`: with no Secret cat model about it does nothing. Sketch: Library `Motion-FX-Agent/for-derek-2026-11-12/secret-cat-glow-sketch-3544.png`.
+
+| Look | Hook |
+|---|---|
+| A soft halo in the Secret colour (226, 214, 255) round every Secret cat near you, a stray in an area or an owned one in a cafe (walking, perched, at a station, carried, in a Backpack). Big, slow, see-through puffs locked to the cat and drawn behind it, so its own colours, gold and rainbow coats still read. The same on all three cats | any model whose `CatId` is a Secret cat in the Catalog |
+| A pale violet PointLight (9 studs, no shadows) that breathes between 55% and 100% once every 4 s; Reduce Motion holds it at 80% | `Logic.secretGlowLevel` |
+| A few small stars drifting up from owned Secret cats (a stray has its own from `SecretStray`) | `secretStars` |
+| Not a pointer: particles and a light, so walls hide it; no Highlight, no arrow, nothing on top | |
+| Budget: the nearest 4 within 90 studs, whole inside 45 and fading to nothing at 90; about 8 particles and one light a cat, 32 particles and 4 lights at most. Low performance: the nearest 2, halo only at the budget's rate, no light and no stars, never nothing. Frame cost: not measured in game yet (needs Studio); by count it is under one potion glow a cat | checked twice a second |

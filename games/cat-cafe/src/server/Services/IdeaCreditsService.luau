@@ -1,7 +1,7 @@
 --!strict
 -- The Thank You board's credits on the server (#1083, idea-credits.md; the rules are shared/IdeaCredits). The lead's
 -- idea-credits.yml writes each credit into the IdeaCredits_v1 DataStore (never the game, and never for a report
--- without the "Feature my name" tick). This reads them at server start and every REFRESH_SECONDS, looks each player's
+-- that is not an idea). This reads them at server start and every REFRESH_SECONDS, looks each player's
 -- display name up (UserService, never the username) and sends ThanksBoard(rows, hasCredit) to everyone; a joiner gets
 -- the last build. SetHideCredit(hide) saves profile.hideCredit and mirrors it to a hide/<userId> key, because the
 -- board is built for players who are not in this server too, and rebuilds the rows from what it has at once. Names

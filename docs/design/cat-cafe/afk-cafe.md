@@ -28,7 +28,17 @@ In the zone with no input (move, jump, camera, tap, key, button, chat) for `Conf
 
 ## 5. The kick
 
-Roblox itself disconnects a player after 20 minutes with no input, and a game cannot switch that off. The only way round it is to rejoin the player automatically, which sidesteps a Roblox rule. Derek said no to that on 2026-11-12 13:10 UTC. So the kick stays, we add none of our own, and the words never say or suggest a player will not be kicked.
+Roblox itself disconnects a player after 20 minutes with no input, and a game cannot switch that off. The only way round it is to rejoin the player automatically, which sidesteps a Roblox rule. Derek said no to that on 2026-11-12 13:10 UTC, then reversed it at 14:36 UTC: "add auto rejoin" and "make sure they auto rejoin at their cafe back in the auto rejoin 2x money area".
+
+**Auto rejoin (#3602, PRs #3603 and #3607, switch `autoRejoin`, off by default).**
+- Only a player who is resting in their own cafe or on its doorstep is sent back into the game, shortly before Roblox's idle disconnect (`Config.AutoRejoinSeconds`). Nobody who is playing is moved.
+- They land at their own cafe inside the rest zone and the rest and its 2x carry on without the 2 minute wait.
+- The rejoin is quiet: no Welcome back card, no top 10 join line, the rest line is not said again, and every ask (invite, Interested prompt, tips) waits for the player's first input.
+- Pay is never doubled up: the seconds of the hop are paid once at the offline rate. Boosts, potions and timers run by the clock and carry on. Gifts counted by account play time or once per account do not restart.
+- The Tip Jar's twelve session gifts restart on a rejoin, as on any leave. It cannot be farmed, since a claim needs input and input ends the rest. Carrying them over is a follow-up if players ask.
+- Not in Studio and not in private servers. It has to be proven once in the live game, since teleports do not run in Studio.
+- Roblox has no written rule on this that we found (checked 2026-11-12). Each rejoin counts as a new visit and a new session, so visits rise and average session length falls for resting players; Growth-Agent reads the numbers with that in mind once the switch is on.
+- The words still never say or suggest that a player will not be kicked.
 
 ## 6. The words
 

@@ -92,4 +92,19 @@ return function()
 			expect(TackleTry.cueTarget(cue({ hits = TackleTry.CUE_HITS }))).to.equal(nil)
 		end)
 	end)
+
+	describe("TackleTry.shielded (#3677)", function()
+		it("is true only while the carrier's new player shield still runs", function()
+			expect(TackleTry.shielded(1900, 1000)).to.equal(true)
+			expect(TackleTry.shielded(1900, 1899.9)).to.equal(true)
+			expect(TackleTry.shielded(1900, 1900)).to.equal(false) -- over: the cue is back at once
+			expect(TackleTry.shielded(1900, 2500)).to.equal(false)
+		end)
+
+		it("is false with no shield or a value that is not a time", function()
+			expect(TackleTry.shielded(nil, 1000)).to.equal(false) -- never had one, or their own tackle ended it
+			expect(TackleTry.shielded("1900", 1000)).to.equal(false)
+			expect(TackleTry.shielded(0 / 0, 1000)).to.equal(false)
+		end)
+	end)
 end

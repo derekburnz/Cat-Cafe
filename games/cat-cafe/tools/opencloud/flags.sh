@@ -35,6 +35,12 @@
 #                 cafe or on its doorstep (#3573)
 #   autoRejoin    true sends a player resting in their cafe, 18 minutes without input, back into the game before
 #                 Roblox's idle disconnect, landing at their cafe (#3602); needs afkCafe on
+#   binRoll       true makes the Rummage Bin roll its prize before the bar and keep it until it is won, with the
+#                 board, the roll and the pad (#3608)
+#   yardSaleRoll  true turns the Yard Sale's free crate into a free lucky pick every 2 hours that lands on a
+#                 crate, golden crates included (#3609); only once its board is in the game
+#   introSplit    true plays the intro scene by itself for half of new players, by account number, and tags
+#                 their funnel steps intro_on or intro_off (#3666); false or no entry is no test
 #   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
 #                 open at the change keeps its look until it is opened again
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
@@ -50,10 +56,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|menuFamily true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|menuFamily
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|menuFamily true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|menuFamily
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin and menuFamily (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit and menuFamily (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -63,7 +69,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|menuFamily true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|menuFamily" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|menuFamily true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|menuFamily" >&2
 	exit 2
 }
 
@@ -131,6 +137,9 @@ show_key() {
 	luckyCharm) if [ "$raw" = true ]; then meaning="Lucky Charm perk ON in every server"; else meaning="Lucky Charm perk off (its default)"; fi ;;
 	rareCatsTab) if [ "$raw" = true ]; then meaning="Rare Cats chat tab ON in every server"; else meaning="Rare Cats chat tab off (its default)"; fi ;;
 	autoRejoin) if [ "$raw" = true ]; then meaning="Auto rejoin for resting players ON in every server"; else meaning="Auto rejoin off (its default)"; fi ;;
+	binRoll) if [ "$raw" = true ]; then meaning="Rummage Bin prize roll ON in every server"; else meaning="Rummage Bin prize roll off (its default)"; fi ;;
+	yardSaleRoll) if [ "$raw" = true ]; then meaning="Yard Sale lucky pick ON in every server"; else meaning="Yard Sale lucky pick off (its default)"; fi ;;
+	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
 	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
 	menuFamily) if [ "$raw" = true ]; then meaning="Station menu family look ON in every server"; else meaning="Station menu family look off (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
@@ -173,6 +182,9 @@ show() {
 	show_key rareCatsTab
 	show_key afkCafe
 	show_key autoRejoin
+	show_key binRoll
+	show_key yardSaleRoll
+	show_key introSplit
 	show_key menuFamily
 }
 
@@ -193,7 +205,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | menuFamily) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -204,7 +216,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | menuFamily) write "$2" false ;;
+	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

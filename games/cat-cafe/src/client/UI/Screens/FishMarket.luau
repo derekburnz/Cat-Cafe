@@ -290,7 +290,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._state = nil :: Types.PlayerState?
 	self._decorById = {} :: { [string]: Types.DecorDef }
 	self._lureById = {} :: { [string]: Types.LureDef }
-	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its golden crate's odds
+	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its lucky twentieth's odds
 	self._crateCards = {} :: { CrateCard }
 	self._tradeCrates = {} :: { [string]: number } -- #2745: crate id -> how many are on my side of an open trade
 	self._itemRows = {} :: { ItemRow }
@@ -684,7 +684,7 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	self._oddsTitle.Text = crate.name
 	self._oddsNote.Text = if crate.golden
 		then "Epic or better every time"
-		elseif lucky then "Lucky! Your next crate opens on these golden odds"
+		elseif lucky then "Lucky! Your next crate opens on these lucky odds"
 		elseif playerLuck > 1 then MarketLogic.luckText(
 			MarketLogic.luckLeft(luck, LUCKY_EVERY)
 		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck)
@@ -1251,7 +1251,7 @@ function FishMarket.setCatalog(self: any, catalog: Types.Catalog)
 	for _, crate in crates do
 		self._crateById[crate.id] = crate
 		if crate.golden then
-			self._goldenOdds[crate.area] = crate.odds
+			self._goldenOdds[crate.area] = Crates.LUCKY_ODDS -- #3665: the lucky twentieth's own odds
 		end
 	end
 	table.clear(self._potionById)

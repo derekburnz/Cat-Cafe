@@ -1,7 +1,7 @@
 --!strict
 -- Cafe Crates (F53, golden-fish.md section 4), pure, so the Market window and the server agree. A crate rolls a
 -- rarity from its odds and then one of that rarity's pieces, each equally likely. The lucky twentieth: after
--- CrateLuckyEvery - 1 opens of one pool with nothing Epic or better, the next opens on the golden odds. A piece the
+-- CrateLuckyEvery - 1 opens of one pool with nothing Epic or better, the next opens on Crates.LUCKY_ODDS (Epic or better). A piece the
 -- player owns already pays CrateDuplicateRefund golden fish instead. The cafe has one wallpaper, one floor, one
 -- paint, one door set and one cat flap in use (the last two since F80); furniture and decorations in use are capped
 -- by decor spots (DecorSpots by tier plus the Extra Decor Spot perk). A Decor Index page with all twelve pieces adds
@@ -16,14 +16,16 @@ local Crates = {}
 
 local EPIC_RANK = Catalog.rarityRank.Epic
 
--- The odds a golden crate and a lucky twentieth use (every golden crate has the same).
-local GOLDEN_ODDS: { [string]: number } = {}
-for _, def in Catalog.crates do
-	if def.golden then
-		GOLDEN_ODDS = def.odds
-		break
-	end
-end
+-- The odds a plain crate's lucky twentieth opens on: Epic or better. #3665: its own table since the golden crates'
+-- odds were raised (Catalog), so the twentieth stays as it was.
+local LUCKY_ODDS: { [string]: number } = {
+	Common = 0,
+	Rare = 0,
+	Epic = 80,
+	Legendary = 17.5,
+	Mythical = 2.5,
+}
+Crates.LUCKY_ODDS = table.freeze(LUCKY_ODDS)
 
 -- Wallpaper, floor, paint, door set and cat flap: one of each in use at a time.
 function Crates.isStyle(kind: Types.DecorKind?): boolean
@@ -125,7 +127,7 @@ function Crates.oddsFor(
 	playerLuck: number?
 ): { [string]: number }
 	if Crates.isLucky(crate, luck) then
-		return GOLDEN_ODDS
+		return Crates.LUCKY_ODDS
 	end
 	if crate.golden or playerLuck == nil or playerLuck <= 1 then
 		return crate.odds

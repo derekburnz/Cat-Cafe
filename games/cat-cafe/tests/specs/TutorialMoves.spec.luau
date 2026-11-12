@@ -32,11 +32,12 @@ return function()
 		end)
 
 		it(
-			"waits a few seconds before the move to the cannon, none before the bowl's (#3158)",
+			"waits a beat before the move to the cannon, none before the bowl's (#3158, #3640)",
 			function()
 				expect(TutorialMoves.delay("bowl")).to.equal(0)
 				expect(TutorialMoves.delay("cannon")).to.equal(TutorialMoves.CANNON_DELAY)
-				expect(TutorialMoves.CANNON_DELAY >= 2).to.equal(true)
+				expect(TutorialMoves.CANNON_DELAY > 0).to.equal(true)
+				expect(TutorialMoves.CANNON_DELAY <= 2).to.equal(true)
 			end
 		)
 

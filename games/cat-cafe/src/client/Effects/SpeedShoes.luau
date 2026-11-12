@@ -125,7 +125,10 @@ function SpeedShoes.start()
 		local warned = false
 		while true do
 			-- one odd character must not end every trail for the session: report it once and keep going
-			local ok, problem = pcall(pick)
+			local ok, problem = pcall(function(): string?
+				pick()
+				return nil
+			end)
 			if not ok and not warned then
 				warned = true
 				warn("[Effects] SpeedShoes: " .. tostring(problem))

@@ -2952,6 +2952,36 @@ local SCENES = {
 		UIShim.setLastInput(nil)
 		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
 	end },
+	-- #3464: the Rummage Bin's loot card, a two-item win and a golden crate win
+	{ "LootCardTwo", function()
+		UI.loot.show({ id = "first_tuna", first = true, items = {
+			{ kind = "lure", id = "tuna", count = 2 },
+			{ kind = "fish", count = 10 },
+		} })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no loot card for a two-item rummage win (#3464)")
+		local rows = card:FindFirstChild("Rows")
+		local one, two = rows:FindFirstChild("Row1"), rows:FindFirstChild("Row2")
+		assert(one and two and rows:FindFirstChild("Row3") == nil, "uigate: the loot card does not list exactly the two items won (#3464)")
+		assert((one:FindFirstChild("Name") :: TextLabel).Text == "Tuna", "uigate: the loot card's first row is not Tuna (#3464)")
+		assert((one:FindFirstChild("Amount") :: TextLabel).Text == "x2", "uigate: the loot card's Tuna row does not read x2 (#3464)")
+		assert((two:FindFirstChild("Amount") :: TextLabel).Text == "+10", "uigate: the loot card's golden fish row does not read +10 (#3464)")
+		assert(one.AbsoluteSize.Y >= 36, "uigate: a loot card row is under 36 px tall (#3464)")
+	end },
+	{ "LootCardGold", function()
+		UI.loot.show({ id = "golden", first = false, items = { { kind = "crate", id = "alley_golden_crate", count = 1 } } })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no loot card for a golden crate win (#3464)")
+		local frame = card:FindFirstChild("Frame") :: UIStroke
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		assert(frame.Color == Theme.colors.gold, "uigate: a golden crate win has no gold frame (#3464)")
+		-- a tap on the card closes it; a win with nothing to list shows nothing
+		UIShim.fire(UIShim.eventOf(card, "Activated"))
+		assert(not card.Visible, "uigate: a tap did not close the loot card (#3464)")
+		UI.loot.show({ id = "tuna", first = false })
+		assert(not card.Visible, "uigate: a win with no items showed a loot card (#3464)")
+		UI.loot.show({ id = "golden", first = false, items = { { kind = "crate", id = "alley_golden_crate", count = 1 } } })
+	end },
 	{ "GiftCardLike", function()
 		UI.recap.lastInput = os.clock() - 30 -- idle
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
@@ -9088,6 +9118,9 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if UI.loot.card then
+		UI.loot.card:hide()
+	end
 	reel(false)
 	if Scenes._packed ~= nil then
 		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene

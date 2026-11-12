@@ -223,7 +223,9 @@ local function finish(player: Player, run: Run, reason: string?)
 		if first then
 			Telemetry.stepTime(player, profile, "first_bin")
 		end
-		win = { id = row.id, first = first }
+		-- #3464: the whole win, for the loot card
+		local made: Types.RummageWin = { id = row.id, first = first, items = RummageBin.items(row) }
+		win = made
 		publish(player)
 		CafeService.sync(player)
 	elseif present then

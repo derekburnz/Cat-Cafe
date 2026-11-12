@@ -132,6 +132,26 @@ function RummageBin.prize(row: Row): Types.IndexPrize
 	return prize
 end
 
+-- #3464: everything a row pays, in the order the loot card lists it, from the same prize the server pays.
+function RummageBin.items(row: Row): { Types.RummageItem }
+	local prize = RummageBin.prize(row)
+	local items: { Types.RummageItem } = {}
+	local function each(kind: string, held: { [string]: number }?)
+		if held ~= nil then
+			for id, count in held do
+				table.insert(items, { kind = kind, id = id, count = count })
+			end
+		end
+	end
+	each("lure", prize.lures)
+	each("crate", prize.crates)
+	each("potion", prize.potions)
+	if prize.fish ~= nil and prize.fish > 0 then
+		table.insert(items, { kind = "fish", id = nil, count = prize.fish })
+	end
+	return items
+end
+
 -- A win at `now`: counts it, starts the wait and returns the row it brought.
 function RummageBin.win(save: Types.RummageBinSave, now: number, roll: number): Row
 	local row = RummageBin.rowFor(save.uses, roll)

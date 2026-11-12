@@ -936,7 +936,10 @@ export type CampExtrasSave = {
 export type RummageBinSave = { nextAt: number, uses: number }
 -- A Rummage Bin win as RescueResult's last argument carries it: the BinTable row's id and whether it is the account's
 -- first win (shared/RummageBin.winWords).
-export type RummageWin = { id: string, first: boolean }
+-- #3464: `items` is the whole win, one entry per thing paid (kind "lure", "crate", "potion" or "fish"; `id` the
+-- item's id, nil for golden fish; `count` how many), for the loot card.
+export type RummageItem = { kind: string, id: string?, count: number }
+export type RummageWin = { id: string, first: boolean, items: { RummageItem }? }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
 export type YardSaleCrate = { crateId: string, price: number, bought: boolean }

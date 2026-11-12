@@ -1557,6 +1557,7 @@ function UI.init(config: Types.InitConfig)
 	end)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
+	UI.loot.card = require(script.Screens.LootCard).new(parent) -- #3464
 	UI.perks.card = require(script.Screens.PerkCard).new(parent) -- #2687
 	local stationReveal = (Moments :: any).StationReveal
 	if stationReveal then
@@ -1998,6 +1999,10 @@ function UI.destroy()
 		UI.recap.card = nil
 	end
 	UI.recap.waiting = nil
+	if UI.loot.card then
+		UI.loot.card:destroy()
+		UI.loot.card = nil
+	end
 	if UI.gift.card then
 		UI.gift.card:destroy()
 		UI.gift.card = nil
@@ -3627,6 +3632,25 @@ UI.catch = {}
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
+-- #3464 (Derek 2026-11-12: "show the loot obtained from rummage also"): the Rummage Bin's loot card
+-- (Screens/LootCard). It shows as the bar's win banner closes, in the banner's place, and lists the server's items.
+local LOOT_AFTER_SECONDS = 1.6 -- the rescue bar's win banner (RescueBar's RESULT_SECONDS)
+UI.loot = { card = nil :: any, token = 0 }
+function UI.loot.show(win: unknown, after: number?)
+	UI.loot.token += 1
+	local token = UI.loot.token
+	local function show()
+		if UI.loot.token == token and UI.loot.card ~= nil then
+			UI.loot.card:show(win)
+		end
+	end
+	if after ~= nil and after > 0 then
+		task.delay(after, show)
+	else
+		show()
+	end
+end
+
 UI.rescue = {}
 do
 	----------------------------------------------------------------------------------------------------
@@ -4065,6 +4089,7 @@ do
 			if win ~= nil and type(win.id) == "string" then
 				local title, detail = RummageBin.winWords(win.id, win.first == true)
 				closing = { title = title, detail = detail }
+				UI.loot.show(win, LOOT_AFTER_SECONDS) -- #3464: as the win banner closes
 			end
 			rescueBar:update(hits, pawsLeft, done, success, bar, closing)
 		end

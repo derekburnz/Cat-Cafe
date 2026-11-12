@@ -30,6 +30,26 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #3420, #3424: the Thursday 2026-11-12 launch (22:00 UTC). Merge this only with the launch publish, and only
+	-- the rows whose feature is switched on at the launch.
+	{
+		id = "mystic_pool_traits",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Mystic Pool: cat traits",
+	},
+	{
+		id = "mouse_dash",
+		date = "2026-11-12",
+		icon = "new",
+		text = "New Arcade game: Mouse Dash",
+	},
+	{
+		id = "rich_money_bags",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Rich customers leave bags",
+	},
 	-- #2718 refresh (11-11 21:00): player-facing changes since #3259, 67 merges; no new player ideas
 	{
 		id = "swift_paws_five",

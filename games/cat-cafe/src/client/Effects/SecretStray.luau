@@ -148,7 +148,10 @@ local function check()
 	end
 	for model in wanted do
 		if entries[model] == nil then
-			entries[model] = make(model)
+			local made = make(model)
+			if made ~= nil then
+				entries[model] = made
+			end
 		end
 	end
 	local running = loop

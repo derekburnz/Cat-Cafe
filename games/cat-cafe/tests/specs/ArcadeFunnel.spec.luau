@@ -24,6 +24,13 @@ return function()
 			expect(Arcade.cabinetStands(false, true, true)).to.equal(false) -- the arcade switched off
 			expect(Arcade.cabinetStands(false, false, false)).to.equal(false)
 		end)
+
+		it("stays put away until the server has read the switches (#3627)", function()
+			expect(Arcade.cabinetStands(true, true, false, false)).to.equal(false)
+			expect(Arcade.cabinetStands(true, false, true, false)).to.equal(false)
+			expect(Arcade.cabinetStands(true, true, false, true)).to.equal(true)
+			expect(Arcade.cabinetStands(false, true, true, true)).to.equal(false)
+		end)
 	end)
 
 	describe("ArcadeFunnel.due", function()

@@ -65,6 +65,8 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 
 Any area can spawn any of the three, picked evenly. Original designs only.
 
+**Looks under rework (Derek 2026-11-12).** Cafe Ghost is fine as built. Nebula and Glitch need more that makes each one unique, so Model-Agent is redoing them and `secretCats` stays off until the new looks are in. Direction, not final: Nebula reads as a window into space (colours that swirl inside the coat, a small ringed planet in orbit, a comet tail, star eyes); Glitch reads as broken on purpose (parts sitting slightly out of place, floating cubes, an afterimage, one flat square ear or paw, teal and magenta). If the switch goes on before both are redone, the Secret pick has to skip any cat marked as held, so Cafe Ghost can go live alone. That skip is not built yet (#3470).
+
 **Art outside the game (Derek 2026-11-12).** In ads, thumbnails, the event picture and any store picture, a Secret cat is shown only as a dark shape, never with its real look. The looks are for players to find.
 
 ## 9. Assumed without Derek

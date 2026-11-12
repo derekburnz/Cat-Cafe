@@ -1083,3 +1083,4 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Golden fish trading and the Golden Pond (#2745):** "go w recommend". Pond fish stay tradable, the 250 a day receive cap stays, and an account can't offer fish for 24 hours after buying the pass. `trading.md` section 1.
 - **Secret cats in art (#3470):** only as a dark shape in ads and store pictures. `secret-cats.md` section 8.
 - **Next fixes filed from the Nov 11 read:** #3529 (a NEW tag on kinds the player does not own, and a pointer, for the five different cats step) and #3530 (telemetry gaps).
+- **Secret cat looks (#3470):** Derek, 12:14 UTC: Cafe Ghost is fine, Nebula and Glitch need something more that makes them unique. Model-Agent redoes both and `secretCats` stays off until they are in. `secret-cats.md` section 8.

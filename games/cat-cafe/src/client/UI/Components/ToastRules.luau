@@ -95,6 +95,7 @@ ToastRules.KEEP = {
 	-- only, and UI.cannon.checkedIn sends the first only while the first walk-through is not done
 	" is on its way to your cafe!$",
 	"^Your first cat! ",
+	"^Welcome back! Your cats earned ", -- #3573 AfkCafe.welcome: what a rest in the cafe paid, once on coming back
 }
 
 function ToastRules.kept(text: string): boolean

@@ -4175,15 +4175,18 @@ do
 		return value
 	end
 
+	local PET_PROMPT = "PetPrompt"
 	local function isCatPrompt(prompt: ProximityPrompt): boolean
+		-- #3651: a working cat's Pet prompt (shared/Pet's PROMPT) sits in a cat model and is no stray
 		return prompt.Style == Enum.ProximityPromptStyle.Custom
+			and prompt.Name ~= PET_PROMPT
 			and promptAttribute(prompt, "CatId") ~= nil
 	end
 
 	-- Every other custom prompt (bait bowl, dealer cart, manhole, Bump) gets an action pill
 	local function isActionPrompt(prompt: ProximityPrompt): boolean
 		return prompt.Style == Enum.ProximityPromptStyle.Custom
-			and promptAttribute(prompt, "CatId") == nil
+			and (prompt.Name == PET_PROMPT or promptAttribute(prompt, "CatId") == nil)
 	end
 
 	-- The plot a prompt sits in (its nearest ancestor tagged Plot), or nil

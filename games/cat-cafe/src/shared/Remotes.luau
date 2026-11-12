@@ -233,6 +233,9 @@ Remotes.ClientToServer = {
 	-- and the roll waits (PlayerState.traits.pending) for ChooseTrait. 1 a second
 	"ChooseTrait", -- (takeNew: boolean)  the waiting re-roll goes on its cat (true) or is dropped; 1 a second
 	"CollectTraitTokens", -- ()  the station's free tokens (one each 12 h, holding 2) go to the bank; 1 a second
+	"PetCat", -- (catUid: string)  #3651 (shared/Pet, switch `petCats`): pet one of the player's own working cats from
+	-- within Config.PetRangeStuds of it; it is the happy cat for Config.PetSeconds. 2 a second and one pet each
+	-- Config.PetCooldownSeconds; answered with CatPetted to everyone, nothing when refused
 }
 
 -- Server -> client.
@@ -418,6 +421,9 @@ Remotes.ServerToClient = {
 	"MouseDashGone", -- (run: number, index: number, gone: { MouseDash.Gone }, hearts: number)  #3296: pops whose
 	-- window ended untapped, and the hearts left
 	"MouseDashOver", -- (run: number, result: MouseDash.Result)  #3296: the game ended (no hearts, 100 points or Close)
+	"CatPetted", -- (userId: number, cat: Model, from: Model?)  #3651: that player petted `cat` in their cafe; `from` is
+	-- the cat the heart left, if another. To everyone, for the moment (Moments.CatPetted); a model not streamed in
+	-- arrives nil and the client drops it
 }
 
 function Remotes.folder(): Folder

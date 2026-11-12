@@ -24,6 +24,7 @@ local Moments = require(script.Parent.Moments)
 local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
+local PetController = require(script.Parent.Controllers.PetController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
@@ -52,6 +53,7 @@ GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on 
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
+PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
 AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat

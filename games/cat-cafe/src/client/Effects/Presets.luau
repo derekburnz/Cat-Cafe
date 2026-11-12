@@ -2597,7 +2597,9 @@ Presets.rainbow = {
 	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
 	within = 120,
 	hz = 20,
+	hzLow = 12, -- on a phone or in Low performance: a 3 s lap still reads as flowing at 12 steps a second
 	pick = 0.25, -- seconds between choosing which cats flow
+	recount = 8, -- every this many picks (2 s) a cat's parts are counted again, for parts that streamed in late
 	glow = { color = Color3.new(1, 1, 1), range = 6, brightness = 0.6 },
 	outline = 0.25, -- outline transparency
 	moving = 0.6,

@@ -84,7 +84,8 @@ end
 
 local function dip(mat: BasePart)
 	local t = Presets.trampoline
-	if Context.reducedMotion() or dipping[mat] ~= nil then
+	local busy: CFrame? = dipping[mat]
+	if Context.reducedMotion() or busy then
 		return
 	end
 	local home = mat.CFrame

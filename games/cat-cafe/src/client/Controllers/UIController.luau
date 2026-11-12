@@ -894,6 +894,7 @@ local function applyState(s: Types.PlayerState)
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
 		-- empty, as UI.update skips a nil.
 		bait = if s.bait ~= nil then s.bait else false,
+		introAuto = s.introAuto, -- #3666
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
@@ -1163,7 +1164,7 @@ local function wireIntents()
 		end)
 	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
-	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
+	-- featureName (#1083, #3653): true for an idea (every idea may be credited; the server decides), nil otherwise.
 	UI.events.reportBug:Connect(
 		function(text: string, kind: string, clientErrors: { string }, featureName: boolean?)
 			Net.fire("ReportBug", text, kind, clientErrors, featureName)

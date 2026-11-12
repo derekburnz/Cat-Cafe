@@ -212,12 +212,19 @@ return function()
 			local decorId, lucky = Crates.roll(golden, 0, 0, 0)
 			expect((Catalog.getDecor(decorId) :: any).rarity).to.equal("Epic")
 			expect(lucky).to.equal(false)
-			expect((Catalog.getDecor((Crates.roll(golden, 0, 0.8, 0))) :: any).rarity).to.equal(
+			-- #3665: 70, 24, 6
+			expect((Catalog.getDecor((Crates.roll(golden, 0, 0.69, 0))) :: any).rarity).to.equal(
+				"Epic"
+			)
+			expect((Catalog.getDecor((Crates.roll(golden, 0, 0.7, 0))) :: any).rarity).to.equal(
 				"Legendary"
 			)
-			expect((Catalog.getDecor((Crates.roll(golden, 0, 0.975, 0))) :: any).rarity).to.equal(
+			expect((Catalog.getDecor((Crates.roll(golden, 0, 0.94, 0))) :: any).rarity).to.equal(
 				"Mythical"
 			)
+			expect(golden.odds.Epic).to.equal(70)
+			expect(golden.odds.Legendary).to.equal(24)
+			expect(golden.odds.Mythical).to.equal(6)
 		end)
 
 		it("opens the twentieth crate on golden odds after 19 without Epic or better", function()
@@ -227,7 +234,17 @@ return function()
 			local decorId, lucky = Crates.roll(alley, 19, 0, 0)
 			expect(lucky).to.equal(true)
 			expect((Catalog.getDecor(decorId) :: any).rarity).to.equal("Epic")
-			expect(Crates.oddsFor(alley, 19)).to.equal(golden.odds)
+			-- #3665: the twentieth keeps 80, 17.5, 2.5 in its own table, apart from the golden crates' odds
+			expect(Crates.oddsFor(alley, 19)).to.equal(Crates.LUCKY_ODDS)
+			expect(Crates.LUCKY_ODDS.Epic).to.equal(80)
+			expect(Crates.LUCKY_ODDS.Legendary).to.equal(17.5)
+			expect(Crates.LUCKY_ODDS.Mythical).to.equal(2.5)
+			expect((Catalog.getDecor((Crates.roll(alley, 19, 0.79, 0))) :: any).rarity).to.equal(
+				"Epic"
+			)
+			expect((Catalog.getDecor((Crates.roll(alley, 19, 0.8, 0))) :: any).rarity).to.equal(
+				"Legendary"
+			)
 			expect(Crates.oddsFor(alley, 18)).to.equal(alley.odds)
 		end)
 

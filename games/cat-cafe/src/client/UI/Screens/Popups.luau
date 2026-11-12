@@ -62,6 +62,7 @@ export type Popups = {
 	dropOffline: (self: Popups) -> boolean,
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
+	dismissCat: (self: Popups) -> (),
 	setHeld: (self: Popups, held: boolean) -> (),
 	isShowing: (self: Popups) -> boolean,
 	destroy: (self: Popups) -> (),
@@ -643,6 +644,13 @@ function Popups.dismiss(self: any)
 		end
 		self:_next()
 	end)
+end
+
+-- #3640: closes the new cat's card when it is the one up (the tutorial's move to the cannon does not wait for it).
+function Popups.dismissCat(self: any)
+	if self._busy and self._current == self._catCard then
+		self:dismiss()
+	end
 end
 
 function Popups.showCatFound(

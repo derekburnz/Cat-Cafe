@@ -8,6 +8,12 @@
 --                                            query. Working cats first (Pet Simulator lists equipped pets
 --                                            first), then rarer, then the higher rating, then breed and uid so
 --                                            the grid never reshuffles between syncs.
+--   list(..., sort)                       -> #3647 (Derek 2026-11-12: "sort by rarity and level in cats menu"): the
+--                                            same cats in another order. "Best" (or nil) is the order above;
+--                                            "Rarity" is rarest first whether working or not, then the higher
+--                                            rating; "Level" is the highest level first, then rarer, then the
+--                                            higher rating. Breed and uid settle ties in each.
+--   nextSort(sort)                        -> the order after `sort` as the Sort button steps round them
 -- Pure, no Theme, so the cloud spec runner can load it; the caller passes the rarity rank.
 
 local Types = require(script.Parent.Parent.Types)
@@ -15,6 +21,15 @@ local Types = require(script.Parent.Parent.Types)
 local CatRoomList = {}
 
 export type Filter = "All" | "Working" | "Resting"
+export type Sort = "Best" | "Rarity" | "Level"
+
+local SORTS: { Sort } = { "Best", "Rarity", "Level" }
+CatRoomList.SORTS = table.freeze(SORTS)
+
+function CatRoomList.nextSort(sort: Sort): Sort
+	local at = table.find(CatRoomList.SORTS, sort) or 0
+	return CatRoomList.SORTS[at % #CatRoomList.SORTS + 1]
+end
 
 export type Counts = {
 	all: number,
@@ -65,7 +80,8 @@ function CatRoomList.list(
 	defs: { [string]: Types.CatDef },
 	rank: (rarity: string) -> number,
 	filter: Filter,
-	query: string
+	query: string,
+	sort: Sort?
 ): { Types.CatInstance }
 	local shown: { Types.CatInstance } = {}
 	for _, instance in cats do
@@ -93,10 +109,21 @@ function CatRoomList.list(
 		local def = defs[instance.catId]
 		return if def then rank(def.rarity) else 0
 	end
+	local function levelOf(instance: Types.CatInstance): number
+		return instance.level or 1
+	end
+	local order: Sort = sort or "Best"
 	table.sort(shown, function(a: Types.CatInstance, b: Types.CatInstance): boolean
-		local workingA, workingB = a.spotId ~= nil, b.spotId ~= nil
-		if workingA ~= workingB then
-			return workingA
+		if order == "Best" then
+			local workingA, workingB = a.spotId ~= nil, b.spotId ~= nil
+			if workingA ~= workingB then
+				return workingA
+			end
+		elseif order == "Level" then
+			local levelA, levelB = levelOf(a), levelOf(b)
+			if levelA ~= levelB then
+				return levelA > levelB
+			end
 		end
 		local rarityA, rarityB = rarityOf(a), rarityOf(b)
 		if rarityA ~= rarityB then

@@ -194,6 +194,25 @@ return function()
 			expect(SecondCat.fits("Nonsense", "base")).to.equal(false)
 		end)
 
+		it("guides the first catch by hand on a plain Common or Rare only (#3662)", function()
+			local none: any = { catsCaught = 0, baitsTamed = 0 }
+			local bowl: any = { catsCaught = 1, baitsTamed = 1 } -- the bowl's cat is not a catch by hand
+			expect(SecondCat.easyFirst(none, "Common", "base")).to.equal(true)
+			expect(SecondCat.easyFirst(bowl, "Rare", "base")).to.equal(true)
+			expect(SecondCat.easyFirst(bowl, "Epic", "base")).to.equal(false)
+			expect(SecondCat.easyFirst(bowl, "Legendary", "base")).to.equal(false)
+			expect(SecondCat.easyFirst(bowl, "Secret", "base")).to.equal(false)
+			expect(SecondCat.easyFirst(bowl, "Common", "gold")).to.equal(false)
+		end)
+
+		it("stops guiding once a cat has been caught by hand (#3662)", function()
+			local one: any = { catsCaught = 2, baitsTamed = 1 }
+			expect(SecondCat.easyFirst(one, "Common", "base")).to.equal(false)
+			expect(SecondCat.easyFirst({ catsCaught = 1, baitsTamed = 0 } :: any, "Common", "base")).to.equal(
+				false
+			)
+		end)
+
 		it(
 			"keeps a near home and pulls a far one in, so a wander stays within LEASH_STUDS",
 			function()

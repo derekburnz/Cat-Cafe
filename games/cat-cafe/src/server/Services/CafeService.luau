@@ -238,6 +238,9 @@ local function traitsView(profile: Profile, now: number): Types.TraitsView?
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
+	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
+	-- holds for the session
+	local introAuto = Telemetry.introPlays(player, profile)
 	local plot = PlotService.get(player)
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
@@ -290,6 +293,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
 		introSeen = profile.introSeen,
+		introAuto = introAuto, -- #3666
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
 		hideCredit = profile.hideCredit == true, -- #1083: the Settings row "Show my name on the Thank You board"

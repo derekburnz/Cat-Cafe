@@ -1095,7 +1095,7 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 
 | Look | Hook |
 |---|---|
-| A cream card with a gold title strip and a dark outline drops in at the top middle with one small bounce (0.45 s), holds a title and up to 3 lines for 6 s, then slides away. One shine sweep as it lands. It takes no taps and has no button | `EventBanner.show({ kind, title, lines, seconds? })` |
+| A cream card with a gold title strip and a dark outline drops in at the top middle with one small bounce (0.45 s), holds a title and up to 3 lines for 5 s, then slides away; a tap or click on the card sends it away at once. One shine sweep as it lands. It sells nothing and opens nothing | `EventBanner.show({ kind, title, lines, seconds? })` |
 | `"party"`: a pink "x2" badge and 12 confetti sparkles in gold, pink and mint from behind the card. Sound: the station fanfare | kind `"party"` |
 | `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
 | `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |

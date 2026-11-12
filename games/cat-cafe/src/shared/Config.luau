@@ -641,9 +641,10 @@ local Config = {
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
 	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
 	-- nobody can tackle them either.
-	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
-	-- and a replay from the ? tile
-	IntroAutoPlay = true,
+	-- #1575 (Derek, 2026-11-05) had the intro play on a first join. #3162 (2026-11-12): off again on the numbers
+	-- (loaded to first move took 27 s and lost 9% of new players): a new player gets control at once, the ? tile
+	-- glows and replays the intro. Back to true restores the first join play.
+	IntroAutoPlay = false,
 	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
 	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
 	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set

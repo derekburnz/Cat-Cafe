@@ -1858,7 +1858,9 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	-- you should now be for the second catch not first because first is the free one from food bowl"): the
 	-- walk-through's first cat is the bait bowl's, so the first check-in comes before the player has ever swung the
 	-- net. The easy catch now lasts until a cat caught by hand is checked in (SecondCat.caught), on any free stray.
-	if SecondCat.caught(profile.stats) == 0 then
+	-- Only on a plain stray of SecondCat.MAX_RARITY or below (SecondCat.easyFirst), so it never hands a new save a
+	-- Legendary, Mythical, Secret, gold or rainbow cat.
+	if SecondCat.easyFirst(profile.stats, stray.def.rarity, stray.variant) then
 		return true
 	end
 	-- #3181: another beginner's tutorial stray too, now that anyone may catch one

@@ -671,7 +671,8 @@ function ArcadeService.start()
 			task.wait(ArcadeFunnel.SEEN_EVERY)
 			local spots: { Vector3 } = {}
 			for _, model in CollectionService:GetTagged(Arcade.TAG) do
-				if model:IsA("PVInstance") then
+				-- a cabinet put away (#3443) is seen by nobody
+				if model:IsA("PVInstance") and model:IsDescendantOf(workspace) then
 					table.insert(spots, (model :: PVInstance):GetPivot().Position)
 				end
 			end

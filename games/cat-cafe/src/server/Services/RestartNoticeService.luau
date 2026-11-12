@@ -42,7 +42,7 @@ local function warnAll(seconds: number)
 	if not RestartNotice.shows(seconds) then
 		return
 	end
-	local text = RestartNotice.text(seconds)
+	local text = RestartNotice.text(seconds, os.time())
 	local kind: Types.ToastKind = RestartNotice.kind(seconds)
 	for _, player in Players:GetPlayers() do
 		Net.toast(player, text, kind)
@@ -63,7 +63,7 @@ function RestartNoticeService.start()
 		local at = restartAt
 		local left = if at ~= nil then at - os.clock() else 0
 		if left > 0 then
-			Net.toast(player, RestartNotice.text(left), RestartNotice.kind(left))
+			Net.toast(player, RestartNotice.text(left, os.time()), RestartNotice.kind(left))
 			Telemetry.restartWarned(player, left)
 		end
 	end)

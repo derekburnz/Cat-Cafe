@@ -26,6 +26,7 @@ local PlaytimeGiftService = {}
 local CHECK_SECONDS = 1
 
 local lastPaidAt: { [Player]: number } = {} -- os.clock() of this session's last gift
+local noticed: { [Player]: string } = {} -- #3420: the gift id whose "a gift is coming" banner this player was sent
 
 -- #2997: the Saturday update gift (shared/UpdateGift), once per account per id, on the first second the player is
 -- loaded while it is live; marked in codesRedeemed before paying, so it never pays twice.
@@ -33,18 +34,27 @@ local lastPaidAt: { [Player]: number } = {} -- os.clock() of this session's last
 local function updateGift(player: Player): boolean
 	local profile = DataService.get(player)
 	local gift = Config.UpdateGift
-	if
-		profile == nil
-		or gift == nil
-		or not UpdateGift.due(profile.codesRedeemed, gift, os.time())
-	then
+	if profile == nil or gift == nil then
 		return false
 	end
-	profile.codesRedeemed[UpdateGift.key(gift.id)] = os.time()
+	local now = os.time()
+	-- #3420: in the minutes before it, one "a gift is coming" banner per player per gift (on join, or at the first
+	-- tick for players already in). It promises only what the gift pays, and nothing is lost by leaving.
+	local left = UpdateGift.soon(profile.codesRedeemed, gift, now)
+	if left ~= nil and noticed[player] ~= gift.id then
+		noticed[player] = gift.id
+		Net.fire(player, "UpdateGiftNotice", "soon", gift.fish, gift.spins, left)
+		return false
+	end
+	if not UpdateGift.due(profile.codesRedeemed, gift, now) then
+		return false
+	end
+	profile.codesRedeemed[UpdateGift.key(gift.id)] = now
 	Payout.pay(player, profile, UpdateGift.prize(gift), "update_gift")
 	Telemetry.custom(player, "update_gift", 1, { gift.id })
 	CafeService.sync(player)
-	Net.toast(player, UpdateGift.words(gift), "good")
+	-- the banner in place of the toast (#3420); the client falls back to the toast's words when no banner can show
+	Net.fire(player, "UpdateGiftNotice", "paid", gift.fish, gift.spins, 0)
 	return true
 end
 
@@ -87,6 +97,7 @@ end
 function PlaytimeGiftService.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastPaidAt[player] = nil
+		noticed[player] = nil
 	end)
 	task.spawn(function()
 		while true do

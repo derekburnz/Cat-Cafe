@@ -51,6 +51,8 @@
 -- - `rareCatsTab` (#3053): the chat's own "Rare Cats" tab with every Mythical or better line from every server
 --   (shared/RareCatsTab). It starts OFF (OFF_BY_DEFAULT): off, no channel is made and the chat has no tab bar. Derek
 --   said on 2026-11-10 he did not want a tab of our own, so it goes on only after he has seen the pictures.
+-- - `afkCafe` (#3573): resting in your own cafe pays the cats' cafe pay double (shared/AfkCafe). It starts OFF
+--   (OFF_BY_DEFAULT); off, nobody rests, a rest under way ends at the next check and the lines do not show.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -82,6 +84,7 @@ LiveFlags.KEYS = {
 	"secretCats",
 	"luckyCharm",
 	"rareCatsTab",
+	"afkCafe",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -96,6 +99,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	secretCats = true,
 	luckyCharm = true,
 	rareCatsTab = true,
+	afkCafe = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

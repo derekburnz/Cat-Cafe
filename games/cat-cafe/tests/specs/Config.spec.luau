@@ -618,6 +618,8 @@ return function()
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
+				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

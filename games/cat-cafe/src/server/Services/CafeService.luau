@@ -151,7 +151,7 @@ local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile)
 		* Economy.phaseMultiplier(ClockService.phase())
 		* Economy.tipMultiplier(profile, os.time())
-		* Economy.eventMoney() -- #2486: a running Cafe Event's money
+		* Economy.moneyFor(profile) -- #2486: a running Cafe Event's money; #3573: or the rest's 2x
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is

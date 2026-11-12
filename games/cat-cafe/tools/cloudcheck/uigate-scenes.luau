@@ -9354,6 +9354,18 @@ local SCENES = {
 		UI.open("Settings")
 		press("Settings", "resetSave.Open")
 	end },
+	-- #3573: the rest chip under the money while the player rests in their own cafe; in a 2x party it names no number
+	{ "RestChip", function()
+		UI.rest.set(true, true)
+		Scenes._rest = true
+		local chip = UIShim.playerGui:FindFirstChild("RestChip", true) :: GuiObject?
+		assert(chip and chip.Visible, "uigate: the rest chip does not show (#3573)")
+		local words = chip:FindFirstChild("Words", true) :: TextLabel
+		assert(words.Text == "Cozy cafe: 2x cat pay 💤", "uigate: the rest chip's words are not the design's (#3573)")
+		UI.rest.set(true, false)
+		assert(words.Text == "Cozy cafe 💤", "uigate: the rest chip names 2x in a 2x party (#3573)")
+		UI.rest.set(true, true)
+	end },
 }
 
 Scenes.names = {}
@@ -9372,6 +9384,10 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if Scenes._rest then
+		Scenes._rest = nil
+		UI.rest.set(false) -- #3573's scene
+	end
 	if UI.loot.card then
 		UI.loot.card:hide()
 	end

@@ -135,6 +135,7 @@ export type HUD = {
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setParkGoal: (self: HUD, title: string?) -> (), -- #3554: the goal card's line on the way to a first Park catch
+	goalButton: (self: HUD) -> GuiObject?, -- #3555: the goal card while it is on screen, for the rank up walk-through
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
 	pressTravel: (self: HUD, destination: string) -> boolean,
@@ -3709,6 +3710,15 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	if state ~= nil and (state.secondCat or state.stuckGoal == true) then
 		self:render(state)
 	end
+end
+
+-- #3555: the goal card, the button that opens the rank up window, while it is on screen.
+function HUD.goalButton(self: any): GuiObject?
+	local frame: GuiObject = self._goal.frame
+	if frame.Visible and self.screenGui.Enabled then
+		return frame
+	end
+	return nil
 end
 
 -- #3554: the goal card's line on the way to a first Park catch (nil: the tier goal again).

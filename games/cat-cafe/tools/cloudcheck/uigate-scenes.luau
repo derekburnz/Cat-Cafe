@@ -7368,6 +7368,43 @@ local SCENES = {
 		UI.parkTrail.set(nil, "Visit the Park 🐾") -- the picture
 		UIShim.advance(0.1)
 	end },
+	-- #3555: the first rank up's walk-through: the goal card lit with "You can rank up!", then the rank up window's
+	-- button with "Press to rank up", and a press on the dim tells the caller. Nothing is left once it is closed.
+	{ "RankSpotlight", function()
+		local SpotlightGuide = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.SpotlightGuide")
+		local rankSpot: any = UI.rankSpot
+		local function caption(): TextLabel?
+			return UIShim.playerGui:FindFirstChild(SpotlightGuide.CAPTION, true) :: TextLabel?
+		end
+		local free, window = rankSpot.moment()
+		assert(free and window == nil, "uigate: the walk-through's moment is not free on a plain HUD (#3555)")
+		assert(rankSpot.set("button", "You can rank up!", nil), "uigate: no goal card to light (#3555)")
+		UIShim.advance(0.2)
+		local words = caption()
+		assert(words ~= nil and words.Visible, "uigate: no words by the lit goal card (#3555)")
+		assert(words.Text == "You can rank up!" and words.TextFits, "uigate: the goal card's words do not fit (#3555)")
+		rankSpot.set("none")
+		UIShim.advance(0.1)
+		assert(caption() == nil, "uigate: the walk-through's words stayed after it closed (#3555)")
+		UI.open("RankUp")
+		UIShim.advance(0.5)
+		local _, open = rankSpot.moment()
+		assert(open == "RankUp", "uigate: the moment does not name the rank up window (#3555)")
+		assert(rankSpot.set("confirm", "Press to rank up", nil), "uigate: no rank up button to light (#3555)")
+		UIShim.advance(0.2)
+		words = caption()
+		assert(words ~= nil and words.Visible, "uigate: no words by the lit rank up button (#3555)")
+		assert(words.Text == "Press to rank up" and words.TextFits, "uigate: the button's words do not fit (#3555)")
+		local screen = (words:FindFirstAncestorOfClass("ScreenGui") :: ScreenGui).AbsoluteSize
+		assert(
+			words.AbsolutePosition.X >= 0
+				and words.AbsolutePosition.Y >= 0
+				and words.AbsolutePosition.X + words.AbsoluteSize.X <= screen.X
+				and words.AbsolutePosition.Y + words.AbsoluteSize.Y <= screen.Y,
+			"uigate: the walk-through's words run off the screen (#3555)"
+		)
+		Scenes._rankSpot = true
+	end },
 	{ "SecondCatGoal", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
 		local touch = Scale.isTouch()
@@ -9777,6 +9814,10 @@ function Scenes.close()
 		end
 		Scenes._richTipGate.gui:Destroy()
 		Scenes._richTipGate = nil
+	end
+	if Scenes._rankSpot then
+		Scenes._rankSpot = nil
+		(UI.rankSpot :: any).set("none") -- #3555's scene
 	end
 	if Scenes._rest then
 		Scenes._rest = nil

@@ -988,7 +988,10 @@ function UI.init(config: Types.InitConfig)
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then
-				UI.perks.card:showList(state.tier)
+				UI.perks.card:showList(
+					state.tier,
+					require(script.Components.PerkCardLogic).poolStands()
+				)
 			end
 		end,
 	})
@@ -8648,12 +8651,7 @@ function UI.perks.unlock(perkId: string)
 			return
 		end
 		-- the Mystic Pool stands on the Picnic Basket's spot while `traits` is on, so the Park's card names the pool
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-		local pool = LiveFlags.shown(
-			"traits",
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "traits")
-		) == true
+		local pool = require(script.Components.PerkCardLogic).poolStands()
 		UI.perks.card:showUnlocked(perk, pool)
 	end)
 end

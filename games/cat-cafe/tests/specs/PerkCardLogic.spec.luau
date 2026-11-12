@@ -55,6 +55,21 @@ return function()
 			expect(rows[1].title).to.equal("Picnic Basket perk")
 		end)
 
+		it("names the pool in Your perks and in the rank up teaser too", function()
+			expect(PerkCardLogic.list(2)[1].title).to.equal("Fresh Bait · Picnic Basket")
+			local rows = PerkCardLogic.list(2, true)
+			expect(rows[1].title).to.equal("Fresh Bait · Mystic Pool")
+			expect(rows[1].icon).to.equal(PerkCardLogic.POOL_ICON)
+			expect(rows[2].title).to.equal("Yard Sale perk")
+			expect(PerkCardLogic.list(1, true)[1].title).to.equal("Mystic Pool perk")
+			local function has(text: string?, part: string): boolean
+				return text ~= nil and string.find(text, part, 1, true) ~= nil
+			end
+			expect(has(PerkCardLogic.teaser(1, true), "Mystic Pool")).to.equal(true)
+			expect(has(PerkCardLogic.teaser(1), "Picnic Basket")).to.equal(true)
+			expect(has(PerkCardLogic.teaser(2, true), "Yard Sale")).to.equal(true)
+		end)
+
 		it("lists each owned perk then the next one locked", function()
 			local rows = PerkCardLogic.list(4)
 			expect(#rows).to.equal(4)

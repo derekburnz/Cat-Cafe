@@ -26,7 +26,7 @@ local PAL = Theme.dark
 export type PerkCard = {
 	screenGui: ScreenGui,
 	showUnlocked: (self: PerkCard, perk: PerkCardLogic.Perk, pool: boolean?) -> (),
-	showList: (self: PerkCard, tier: number?) -> (),
+	showList: (self: PerkCard, tier: number?, pool: boolean?) -> (),
 	hide: (self: PerkCard) -> (),
 	isShowing: (self: PerkCard) -> boolean,
 	destroy: (self: PerkCard) -> (),
@@ -310,11 +310,11 @@ function PerkCard.showUnlocked(self: any, perk: PerkCardLogic.Perk, pool: boolea
 	Sound.play("giftClaim")
 end
 
-function PerkCard.showList(self: any, tier: number?)
+function PerkCard.showList(self: any, tier: number?, pool: boolean?)
 	self._mode = "list"
 	self:_clearRows()
 	self._title.Text = "⭐ " .. PerkCardLogic.LIST_TITLE
-	local rows = PerkCardLogic.list(tier)
+	local rows = PerkCardLogic.list(tier, pool)
 	for index, row in rows do
 		local frame: Frame = self:_row(index, row)
 		table.insert(self._rows, frame)

@@ -1325,6 +1325,103 @@ local Cues: { [string]: Cue } = {
 		range = 80,
 		duck = true,
 	}, -- the purple flash of a Mythic trait
+	-- #3296 Mouse Dash, the second Cat Arcade game: eleven sounds on one sheet (synth/synth.py, parts in
+	-- sheet-parts/sfx), all flat on the player's own screen. Milestones and the start reuse the arcade's own cues.
+	sheetMouse = {
+		ids = { "rbxassetid://74952684733332" },
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 11.74 s; uploaded by upload-audio run 43121873618 (group)
+	mousePop = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 0.000, 0.220 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 0.96, 1.04 },
+		voices = 2,
+	}, -- a mouse pops out of its hole
+	mouseCatch = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 0.720, 1.120 },
+		group = "Sfx",
+		volume = 0.5,
+		voices = 3,
+	}, -- a mouse caught; a scale note higher per catch inside each 5 of a streak
+	mouseGoldUp = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 1.620, 2.220 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.2,
+	}, -- the golden mouse pops up
+	mouseGoldCatch = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 2.720, 3.570 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 0.2,
+	}, -- the golden mouse caught, +3
+	mouseDuck = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 4.070, 4.570 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.2,
+	}, -- a mouse ducks back in untapped
+	mousePurr = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 5.070, 5.670 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 0.3,
+	}, -- the napping kitten is up; a quiet file, so a higher volume
+	mouseMrow = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 6.170, 6.570 },
+		group = "Sfx",
+		volume = 0.45,
+		pitch = { 0.97, 1.05 },
+		minGap = 0.3,
+	}, -- the napping kitten tapped awake
+	mouseThud = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 7.070, 7.420 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.15,
+	}, -- a tap on an empty hole
+	mouseHeart = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 7.920, 8.720 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.5,
+	}, -- a heart won back after 10 catches in a row
+	mouseFaster = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 9.220, 9.640 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 0.3,
+	}, -- the speed step
+	mouseBest = {
+		ids = {},
+		sheet = "sheetMouse",
+		region = { 10.140, 11.740 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+	}, -- a run ends on a new best, or is won
 	-- The late stations (#2651 part 4, late-stations.md; #2927) and the first catch's held ring (#2920): the Late sheet,
 	-- mono. A finished Museum room plays indexReward, the Index milestone fanfare. Rendered by synth/synth.py.
 	sheetLate = {

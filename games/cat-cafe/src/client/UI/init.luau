@@ -6768,8 +6768,11 @@ do
 			landed = function(crateId: string)
 				if toasts then
 					local name = crateId
-					local crates = if currentCatalog ~= nil then currentCatalog.crates else nil
-					for _, crate in crates or {} do
+					local crates: { Types.CrateDef } = if currentCatalog ~= nil
+							and currentCatalog.crates ~= nil
+						then currentCatalog.crates
+						else {}
+					for _, crate in crates do
 						if crate.id == crateId then
 							name = crate.name
 						end

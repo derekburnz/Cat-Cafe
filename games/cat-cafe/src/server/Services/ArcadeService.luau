@@ -260,14 +260,19 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	if not owner then
 		local kind = if run.free then "free" else "paid"
 		if quit == true then
-			Telemetry.custom(player, "arcade_quit", run.circles, { kind })
+			Telemetry.custom(player, "arcade_quit", run.circles, { kind, ArcadeFunnel.GAME_CIRCLE })
 		elseif tell and profile ~= nil then
 			Telemetry.arcadeStep(player, profile, ArcadeFunnel.FINISHED, run.free)
 		end
 		if newBest then
 			for _, row in ArcadeBoard.top(present(), player.UserId) do
 				if row.me == true then
-					Telemetry.custom(player, "arcade_board_top", row.rank, { kind })
+					Telemetry.custom(
+						player,
+						"arcade_board_top",
+						row.rank,
+						{ kind, ArcadeFunnel.GAME_CIRCLE }
+					)
 					break
 				end
 			end
@@ -289,6 +294,7 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 		tostring(run.circles),
 		if #run.paid > 0 then table.concat(run.paid, ",") else "none",
 		if win then "win" else "over",
+		ArcadeFunnel.GAME_CIRCLE, -- #3296
 	})
 	if not tell then
 		return
@@ -444,7 +450,10 @@ local function onStart(player: Player)
 				player,
 				"arcade_blocked",
 				1,
-				{ ArcadeFunnel.blockedReason(closed, loaded, running, busyNow) }
+				{
+					ArcadeFunnel.blockedReason(closed, loaded, running, busyNow),
+					ArcadeFunnel.GAME_CIRCLE,
+				}
 			)
 		end
 	end

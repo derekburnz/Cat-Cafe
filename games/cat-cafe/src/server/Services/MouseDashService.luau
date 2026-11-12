@@ -28,6 +28,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
+local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local ArcadeService = require(script.Parent.ArcadeService)
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
@@ -63,6 +64,7 @@ type Run = {
 	free: boolean,
 	tick: number, -- the timer in force; a newer one retires the old
 	hinted: boolean,
+	hit: boolean, -- a mouse was caught this run (arcade_v1's step 4)
 }
 
 local runs: { [Player]: Run } = {}
@@ -244,11 +246,39 @@ local function finish(player: Player, run: Run, reason: MouseDash.Reason, tell: 
 		ArcadeService.grantLegend(player)
 	end
 	if not OwnerTest.isOwner(player.UserId) then
+		local kind = if run.free then "free" else "paid"
 		Telemetry.custom(player, "mouse_dash_run", state.points, {
 			tostring(state.lost),
 			tostring(seconds),
-			if run.free then "free" else "paid",
+			kind,
 			reason,
+		})
+		-- arcade_v1 and the arcade's own events run on through the swap, with the game as the last field (the same
+		-- places as Circle Streak's: quit, finished, a best in the board's top, the run)
+		local profile = DataService.get(player)
+		if reason == "quit" then
+			Telemetry.custom(player, "arcade_quit", state.points, { kind, ArcadeFunnel.GAME_MOUSE })
+		elseif tell and profile ~= nil then
+			Telemetry.arcadeStep(player, profile, ArcadeFunnel.FINISHED, run.free)
+		end
+		if newBest then
+			for _, row in MouseDashBoard.top(present(), player.UserId) do
+				if row.me == true then
+					Telemetry.custom(
+						player,
+						"arcade_board_top",
+						row.rank,
+						{ kind, ArcadeFunnel.GAME_MOUSE }
+					)
+					break
+				end
+			end
+		end
+		Telemetry.custom(player, "arcade_run", state.points, {
+			tostring(seconds),
+			if #run.paid > 0 then table.concat(run.paid, ",") else "none",
+			if win then "win" else "over",
+			ArcadeFunnel.GAME_MOUSE,
 		})
 	end
 	if not tell then
@@ -341,8 +371,19 @@ local function onStart(player: Player)
 	if profile == nil then
 		return
 	end
+	local owner = OwnerTest.isOwner(player.UserId)
+	-- a refused Start, counted by its reason as Circle Streak's is (#3378)
+	local function blocked(closed: boolean, loaded: boolean, running: boolean, busyNow: boolean)
+		if not owner then
+			Telemetry.custom(player, "arcade_blocked", 1, {
+				ArcadeFunnel.blockedReason(closed, loaded, running, busyNow),
+				ArcadeFunnel.GAME_MOUSE,
+			})
+		end
+	end
 	if not (LiveFlagService.on(Arcade.FLAG) and LiveFlagService.on(MouseDash.FLAG)) then
 		Net.toast(player, CLOSED_TEXT, "warn")
+		blocked(true, true, false, false)
 		return
 	end
 	if not alive(player) then
@@ -351,6 +392,8 @@ local function onStart(player: Player)
 	local save = saves[player]
 	local loaded = save ~= nil and ArcadeService.loaded(player)
 	local free = save ~= nil and MouseDash.freeToday(save, os.time())
+	-- the day's free run was used before this one, so this is a second game today
+	local freeUsed = save ~= nil and not free
 	-- a free run spends no fish, so the trade fish freeze doesn't hold it up
 	local busy = CatService.busyReason(player)
 		or (if free then nil else TradeService.fishSpendBlocker(player))
@@ -358,6 +401,7 @@ local function onStart(player: Player)
 	local blocker = Arcade.startBlocker(profile.goldenFish, busy, running, loaded, free)
 	if blocker ~= nil or save == nil then
 		Net.toast(player, blocker or CLOSED_TEXT, "warn")
+		blocked(false, loaded, running, busy ~= nil)
 		return
 	end
 	if free then
@@ -368,6 +412,7 @@ local function onStart(player: Player)
 	else
 		if not GoldenFish.trySpend(profile, Config.ArcadeCostFish) then
 			Net.toast(player, Arcade.startBlocker(0, nil, false, true) or CLOSED_TEXT, "warn")
+			blocked(false, true, false, false)
 			return
 		end
 		Telemetry.fishSink(player, profile, Config.ArcadeCostFish, "Gameplay", "mouse_dash")
@@ -382,8 +427,12 @@ local function onStart(player: Player)
 		free = free,
 		tick = 0,
 		hinted = false,
+		hit = false,
 	}
 	runs[player] = run
+	if not owner then
+		Telemetry.arcadeStarted(player, profile, free, freeUsed)
+	end
 	Net.fire(player, "MouseDashBegan", run.id, run.state.hearts, run.state.nextAt)
 	sendState(player)
 	schedule(player, run)
@@ -408,6 +457,13 @@ local function onTap(player: Player, rawRun: unknown, rawIndex: unknown, rawHole
 		return
 	end
 	local paid: { number } = {}
+	if tap.outcome == "catch" and not run.hit then
+		run.hit = true
+		local profile = DataService.get(player)
+		if profile ~= nil and not OwnerTest.isOwner(player.UserId) then
+			Telemetry.arcadeStep(player, profile, ArcadeFunnel.FIRST_HIT, run.free)
+		end
+	end
 	if state.points > before then
 		paid = ArcadeService.claimMilestones(player, before, state.points, "mousedash")
 		for _, at in paid do

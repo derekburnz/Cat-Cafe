@@ -236,7 +236,7 @@ function MouseDash.wave(run: Run, at: number, roll: () -> number): Wave
 		add("mouse", Config.MouseDashFirstRunWindow)
 	elseif points >= Config.MouseDashPairFrom and roll() < Config.MouseDashPairChance then
 		local scale = MouseDash.PAIR_WINDOW_SCALE
-		local first = mouseKind()
+		local first: Kind = mouseKind()
 		add(first, seconds(first, scale))
 		-- the second may be a kitten from MouseDashPairKittenFrom; a pair always has a mouse to catch
 		local second: Kind = "mouse"

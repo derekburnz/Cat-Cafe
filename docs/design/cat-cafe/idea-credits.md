@@ -118,3 +118,24 @@ Derek, 2026-11-12: "grab the usernames of all these feedback givers and if we us
 - **At ship time** whoever merges the feature runs `idea-credits.yml` with the report key, our text for the idea and the version, then puts the credit id on the What's New row (section 7).
 - **The tick still decides.** Only a report with "Feature my name if you use my idea" ticked is named. The rest read "Idea from a player". Naming unticked reports would break what the Feedback window told the player. This limit is Design-Agent's recommendation while Derek was away, for him to confirm.
 - **Review check:** a feedback feature's PR has its credit line and no player name anywhere.
+
+## 9. The tick is removed: ideas we build are always credited (#3653, 2026-11-12)
+
+Derek, 2026-11-12 17:49 UTC: "remove the feature my name tick option and we will just always do that on ideas".
+
+This section replaces the tick in sections 1, 2, 4 and 6 and the "The tick still decides" line in section 8. Everything else in those sections stands.
+
+- **No tick.** The Idea chip no longer shows the "Feature my name if you use my idea" row or its grey hint.
+- **Always named.** When the team builds a player's idea, the player's Roblox display name goes on the Thank You board and on the feature's What's New row. This holds for idea reports sent after the tick is removed.
+- **Older reports keep what they were told.** A report sent while the tick was there is named only if its tick was on (`featureName = true`). One sent with the tick off stays "A player's idea", because the window told that player they would not be named. Recommended pick under Derek's global OK; he can change it.
+- **One plain line in place of the tick,** on the Idea chip only: "If we build your idea, your display name goes on the Thank You board. You can hide it in Settings." The window keeps telling the player what happens with their name, so nobody is surprised by it.
+- **The Settings row stays.** A player can still take their name off the board at any time, and then the board and the What's New row read "A player's idea". This matters more now that there is no tick, since it is the one way to say no.
+- **Still only the display name.** Never the player's words, username, avatar or anything else.
+- **The repo rule does not change.** No username, display name or user id is written in the repo, an issue, a PR, a commit or a log. Issues carry the report key and the workflow prints only the credit id.
+- **Build:** the tick row comes out of `Screens/BugReport.luau` and the line above goes in; `ReportBug` ignores its fourth argument and marks each new idea report as sent under the new line; `idea-credits.yml` credits any report with that mark and keeps its tick check only for reports from before the change; the `merge-and-publish` skill drops its "refused without the tick" sentence when the workflow changes.
+
+### 9a. QA checks
+
+1. The Idea chip shows the new line and no tick. Bug and Stuck are unchanged.
+2. An idea report sent after the change can be credited by the workflow, and the log shows only the credit id. A report from before the change with the tick off is still refused.
+3. A player with "hide my name" on in Settings shows as "A player's idea" on the board and on What's New.

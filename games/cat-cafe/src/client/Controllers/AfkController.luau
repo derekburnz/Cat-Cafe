@@ -14,8 +14,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local AfkCafe = require(Shared:WaitForChild("AfkCafe"))
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(script.Parent.Parent.Net)
-local UI = require(script.Parent.Parent.UI)
 local RestBannerLogic = require(script.Parent.Parent.UI.Components.RestBannerLogic)
+local UI = require(script.Parent.Parent.UI)
 
 local AfkController = {}
 

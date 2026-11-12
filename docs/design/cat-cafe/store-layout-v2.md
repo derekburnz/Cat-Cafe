@@ -56,7 +56,7 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 
 ## 8. Featured order, half prices and the Sale badge (Derek, 2026-11-12; #3562, #3572)
 
-Derek: "make the featured bundles better as it shows bad packs right now never show potion bundles unless they are only thing left, should focus on cats bundles 2x money being cheap etc", then "make the prizes of anything not being bought yet half'd" and "put a sale badge on it also rework the store with model agent". This section replaces the pick order in section 1. The Featured order is built in #3593 (code only); the half prices, the Sale badge and the layout rework are not built yet.
+Derek: "make the featured bundles better as it shows bad packs right now never show potion bundles unless they are only thing left, should focus on cats bundles 2x money being cheap etc", then "make the prizes of anything not being bought yet half'd" and "put a sale badge on it also rework the store with model agent". This section replaces the pick order in section 1. The Featured order is built in #3593 (code only); the Sale badge is built in #3594 and shows nothing until the prices change; the price change itself (announced on #3572 before it runs) and the layout rework are not done yet.
 
 **Featured order (#3562).**
 - Hero, first one not owned: Starter Bundle, Royal Cat, King Cat Pack, Cafe Pass (while a season runs), Grand Cafe Theme.
@@ -86,13 +86,14 @@ Derek: "make the featured bundles better as it shows bad packs right now never s
 
 Derek halved Potion Pack L as well so the bigger pack is never the worse deal. Unchanged: 2x, 3x and 4x Money, VIP, Long Nap, Cat Accessories, Second Bait Bowl, Garden Decor Pack, Sign Style Pack and the Starter Bundle. The Jukebox Pass is off sale. Managed pricing stays on in Creator Hub (Derek).
 
-In golden fish only the Fresh Catch shelf halves (rewards-and-shops.md section 3). Crates, perks, the Backpack and the Long Net stay. **Crates are never halved without a look at duplicate refunds:** a duplicate piece refunds 10 to 150 golden fish, about 18 a crate on average at normal odds, so a crate at 20 would nearly pay for itself.
+No golden fish price changes. Derek's pick was to halve only the Fresh Catch potions, but that shelf left the game on 2026-11-10 (#3118) and its potions sell for coins on the Day Cart, so there is nothing to halve (Gameplay-Engineer's finding on #3572). Crates, perks, the Backpack and the Long Net stay. **Crates are never halved without a look at duplicate refunds:** a duplicate piece refunds 10 to 150 golden fish, about 18 a crate on average at normal odds, so a crate at 20 would nearly pay for itself.
 
 **Sale badge.**
 - On the halved items only. The card shows a "Sale" tag, the old price struck through and the new price. The button shows the new price.
 - It has to be true: the old price is the real price of 2026-11-12, kept in `Config.StoreWasPrice`. If the live price is not the half price, no badge and no old price show.
 - It shows for 30 days from the day the prices change, then comes off and the half price is simply the price. No end date is shown.
 - A static tag. No countdown, no "ends soon", no flashing.
+- As built (#3594): `Config.StoreWasPrice` holds the 15 items and `Config.StoreSaleEnds` is 2026-12-13 00:00 UTC. The tag reads "SALE" in the card's one badge spot, ahead of Best Value. It needs no switch: it shows only while Roblox's live price is exactly the half price, so a player whose regional price differs sees the plain price and no tag. The Golden Pond is in the table but has no Store card yet.
 
 **Layout rework.** Mock OK'd by Derek: `Model-Agent/store-rework-3572/store-rework-3572.png`. Left rail Featured, Cats, Passes, Potions, Cafe Pass, Codes. Two columns on a phone, a picture on every card, a green "Yours" tick on owned cards, the money ladder as one card with its next step. Same family as the station menus (#3558). A card's line must say what the item really does (the Golden Pond collects from anywhere, it does not make more fish).
 

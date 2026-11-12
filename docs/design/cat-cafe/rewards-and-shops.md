@@ -161,7 +161,7 @@ For a regular who plays two hours a day at Tier 3 or 4:
 
 ## 3. The Fresh Catch shelf: potions every 5 minutes by day
 
-**Half price since Derek's word of 2026-11-12 (#3572), not built yet:** the shelf's prices halve: Swift 3 (was 6), Money 5 (10), Steady Paw 6 (12), Quick Bait 8 (15), Big Money 13 (25), Lucky 13 (25), Gold Rush 15 (30). Sale badge as in store-layout-v2.md section 8. The prices further down this section are the old ones.
+**Not in the game since 2026-11-10 (#3118):** the Fresh Catch shelf was removed and its potions sell for coins on the Day Cart (day-cart.md). The half prices Derek OK'd for it on 2026-11-12 (#3572) therefore change nothing; `Catalog.freshCatch` is leftover data. The rest of this section is the old design.
 
 **Since #1437 (built in #1473):** the window is one global game day, 390 s from `Config.ClockEpoch`, so the stock restocks at each sunrise, at the same moment on every server (data-model.md section 9). Read "5-minute window" below as that game-day window.
 

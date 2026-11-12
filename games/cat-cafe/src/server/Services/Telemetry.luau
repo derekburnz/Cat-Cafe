@@ -45,6 +45,7 @@ local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
@@ -88,6 +89,7 @@ export type CustomEvent =
 	-- #3573 (shared/AfkCafe): a rest in the player's own cafe starts (value 1; field: "doubled" or "party"), ends
 	-- (value: its seconds) and what the cafe paid during it (value: coins)
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
+	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
 	| "afk_start"
 	| "afk_end"
@@ -2090,6 +2092,22 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	-- #3661: this session's ping, once, after the join has settled
+	task.delay(NetPing.SAMPLE_SECONDS, function()
+		if sessions[player] ~= session or player.Parent == nil then
+			return
+		end
+		local ok, seconds = pcall(function()
+			return player:GetNetworkPing()
+		end)
+		local ms = NetPing.ms(if ok then seconds else nil)
+		Telemetry.custom(
+			player,
+			NetPing.EVENT,
+			ms,
+			{ session.device or "unknown", NetPing.band(ms) }
+		)
+	end)
 	if profile.stats.sessions > 1 then
 		-- #2916: the welcome back card's next goals (CafeService sends the same pick)
 		Telemetry.goalsShown(player, ReturnGoals.pick(profile, os.time()), "join")

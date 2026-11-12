@@ -1115,6 +1115,57 @@ local function rescueChallenge()
 	}
 end
 
+-- #3611: roll boards side by side on the screen, each at the size BinController's billboard gives it here
+local function binBoards(list: { { view: { [string]: any }, lit: number? } })
+	local RollBoard = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoard")
+	local RollBoardLogic =
+		UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic")
+	local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "BinBoardGate"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.DisplayOrder = 100 -- over the HUD, so the shot shows the boards
+	gui.Parent = UIShim.playerGui
+	Scenes._binBoards = gui
+	local share = math.max(0.66, Scale.billboard(1000) / 1000)
+	local gap = 8
+	local width = RollBoard.WIDTH * share
+	local total = #list * width + (#list - 1) * gap
+	local view = workspace.CurrentCamera.ViewportSize
+	assert(total <= view.X, "uigate: the roll boards do not fit this screen side by side (#3611)")
+	for index, entry in list do
+		local input: { [string]: any } = { uses = 3, nextAt = 0, now = 1000 }
+		for key, value in entry.view do
+			input[key] = value
+		end
+		local made = RollBoardLogic.bin(input)
+		local holder = Instance.new("Frame")
+		holder.Name = "Board" .. index
+		holder.BackgroundTransparency = 1
+		holder.AnchorPoint = Vector2.new(0, 0.5)
+		holder.Position = UDim2.new(0.5, -total / 2 + (index - 1) * (width + gap), 0.5, 0)
+		holder.Size = UDim2.fromOffset(width, RollBoard.height(made) * share)
+		holder.Parent = gui
+		local board = RollBoard.new(holder)
+		local scale = Instance.new("UIScale")
+		scale.Scale = share
+		scale.Parent = board.frame
+		board:set(made)
+		board:light(entry.lit)
+		assert(
+			RollBoard.height(made) * share <= view.Y,
+			"uigate: a roll board is taller than this screen (#3611)"
+		)
+		local rows = 0
+		for _, child in board.frame:GetChildren() do
+			if child:IsA("Frame") then
+				rows += 1
+			end
+		end
+		assert(rows == #made.rows, "uigate: the roll board drew " .. rows .. " rows (#3611)")
+	end
+end
+
 -- #3050: the Rummage Bin's bar as an early rummage gets it: 2 hits, wide zones, a slow marker
 local function binChallenge()
 	local t = workspace:GetServerTimeNow()
@@ -5380,6 +5431,22 @@ local SCENES = {
 		assert(count == 2, "uigate: the bin's bar has " .. count .. " pips, not 2 (#3050)")
 		assert(UI.rescue.isActive(), "uigate: the bin's bar does not count as a rescue on screen (#3050)")
 	end },
+	-- #3611: the roll board that hovers over the Rummage Bin, drawn on the screen at the size its billboard gives it
+	-- (BOARD_SMALLEST on a phone): the list with its chances, the list mid roll with a row lit, and the two one
+	-- prize states beside the empty bin's faded list
+	{ "BinBoardList", function()
+		binBoards({ { view = { uses = 3 } } })
+	end },
+	{ "BinBoardRoll", function()
+		binBoards({ { view = { uses = 3, playing = "crate", rolling = true }, lit = 4 } })
+	end },
+	{ "BinBoardStates", function()
+		binBoards({
+			{ view = { uses = 0 } },
+			{ view = { uses = 3, prize = "golden" } },
+			{ view = { uses = 3, nextAt = 1245 } },
+		})
+	end },
 	-- #3050: a win closes the bar on the prize's name (no toast, #3080): every prize's two lines fit the banner, the
 	-- first Tuna points at the bowl, and the tap catcher goes so a phone can move again
 	{ "RummageBinWin", function()
@@ -9592,6 +9659,10 @@ function Scenes.close()
 	if Scenes._tackle then
 		Scenes._tackle = nil
 		UI.shove.setEnabled(false) -- #2510's Tackle button
+	end
+	if Scenes._binBoards then
+		Scenes._binBoards:Destroy() -- #3611's boards
+		Scenes._binBoards = nil
 	end
 	if Scenes._rallyFace then
 		Scenes._rallyFace:Destroy() -- #2078's board face

@@ -2025,6 +2025,13 @@ local function buildRummageBin(parent: Instance)
 	-- #3608: the pad in front of the bin, a ring as the stations have. Standing on it BinPadDwellSeconds starts a
 	-- rummage (BinController sends the prompt's own remote); each client shows it only while `binRoll` is on.
 	WalkUpCircles.frontFit(model, BIN_RING, parent, nil, Config.BinPadRadius)
+	-- built dark, so it never shows for a moment as the camp streams in with the switch off
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local pad = if link ~= nil and link:IsA("ObjectValue") then (link :: ObjectValue).Value else nil
+	local glow = if pad ~= nil then pad:FindFirstChildWhichIsA("SurfaceGui") :: SurfaceGui? else nil
+	if glow ~= nil then
+		glow.Enabled = false
+	end
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at

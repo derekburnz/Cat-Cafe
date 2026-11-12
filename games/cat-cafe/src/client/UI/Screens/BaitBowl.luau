@@ -54,6 +54,9 @@ local Types = require(script.Parent.Parent.Types)
 local PAL = Theme.dark
 
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+
+local CART_FLAG = "cartTier6" -- shared/CornerShop.TOP_SHELF_FLAG
 
 export type Callbacks = {
 	useLure: (lureId: string, bowl: number) -> (), -- #1161: into bowl 1 or 2
@@ -758,9 +761,15 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 			end
 		end
 	end
+	-- #3462: the Day Cart's own foods stay off the list until its Tier 6 shelf is open (the `cartTier6` switch)
+	local cartOpen = LiveFlags.shown(
+		CART_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CART_FLAG)
+	)
 	for lureId, row in self._rows do
-		row.frame.Visible = not locked -- the locked tab shows what bowl 2 gives in place of the foods
 		local have = state.lures[lureId] or 0
+		-- the locked tab shows what bowl 2 gives in place of the foods
+		row.frame.Visible = not locked and FoodOrder.listed(row.def, have, cartOpen)
 		-- #1281: where to get more, in calm grey, with none left: the night dealer's cart or the Corner Shop
 		if have > 0 then
 			row.count.Text = ("You have %d"):format(have)

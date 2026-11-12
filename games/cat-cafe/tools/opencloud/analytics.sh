@@ -770,7 +770,7 @@ fieldEvents=(
 	"event_reward|CustomField1,CustomField2|CustomEventCountUser|Cafe Event: rewards given, first or again (#3423)"
 	"update_gift|CustomField1|CustomEventCountUser|Update gift: players who got the gift, by gift id (#3423)"
 	"event_shower|CustomField1|CustomEventCount|Cafe Event: shower cats logged, by event id (#3423)"
-	"event_shower|CustomField1,CustomField3|CustomEventCount|Cafe Event: shower cats by kind (#3423)"
+	"event_shower|CustomField1,CustomField3|CustomEventCount|Cafe Event: shower cats by kind and outcome, e.g. mythical_caught (#3423)"
 	"session_start|CustomField1|CustomEventCountUser|Players by join source (organic, unknown, ad_<tag>)"
 	"session_start|CustomField3|CustomEventCountUser|Players by tier at join (store_v1 per Tier 2+ base)"
 	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"

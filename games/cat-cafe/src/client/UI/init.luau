@@ -5129,7 +5129,11 @@ do
 				ready = bar:ready(),
 				from = from,
 				reach = (Config :: any).TackleLungeStuds or 12,
-				others = TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer),
+				others = TackleTry.carriers(
+					Players:GetPlayers(),
+					Players.LocalPlayer,
+					Workspace:GetServerTimeNow()
+				),
 			})
 		then
 			UI.tips.show(TackleTry.TIP)

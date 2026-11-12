@@ -65,6 +65,8 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 
 Any area can spawn any of the three, picked evenly. Original designs only.
 
+**Art outside the game (Derek 2026-11-12).** In ads, thumbnails, the event picture and any store picture, a Secret cat is shown only as a dark shape, never with its real look. The looks are for players to find.
+
 ## 9. Assumed without Derek
 
 1. Three cats to start, with these names.

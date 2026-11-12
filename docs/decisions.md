@@ -1074,5 +1074,12 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Data:** 949 new players on Nov 11 (funnel onboarding_v6, read by Growth-Agent), our biggest day.
 - **Opening cutscene (#3162):** it stops playing by itself (`IntroAutoPlay` false) and stays on the "?" tile. Loaded to first move takes 27 s and loses 9% of players who loaded; the steps after it hold (first move to first catch 90%). This reverses the 2026-11-05 choice (#1575) on the numbers. Turn it back on if first catch falls.
 - **Second cat (#3022):** 88.8% of players who serve a first customer catch a second cat (75.5% the day before, target 90%). No change; read again on 2026-11-18.
-- **2 to 5 minutes (#2912):** the loss fell from 28% to 22%. The first bait cat arrives in 5 s as set. The loss is after it: 24% never start a stuck cat rescue and leave about 80 s after the bait. Fix: a goal card and paw trail to the guaranteed stuck cat as soon as the bait cat is tamed or let go (#3515), with the trap calling out and a warm light pillar over it. No arrow, no timer, no money tease (a rescue pays no more than a catch).
+- **2 to 5 minutes (#2912):** the loss fell from 28% to 22%. The first bait cat arrives in 5 s as set. The loss is after it: 24% never start a stuck cat rescue and leave about 80 s after the bait. Fix: a goal card and paw trail to the guaranteed stuck cat as soon as the bait cat is tamed or let go (#3515, built: goal card, marker and trail, once a session for 120 s). Still to build, Motion-FX-Agent after the launch: the trap calling out and a warm light pillar over it. No arrow, no timer, no money tease (a rescue pays no more than a catch).
 - **Global chat view (#3053):** a game can't write to Roblox's Global tab. Pick: our own read-only "Rare Cats" tab behind `rareCatsTab`, off until Derek has seen it, because he said on 2026-11-10 he did not want a tab of our own.
+
+## 2026-11-12: Derek's answers at 12:12 UTC (Design-Agent's items)
+
+- **Saturday 2026-11-14 update contents (#3523):** yes to the proposed list.
+- **Golden fish trading and the Golden Pond (#2745):** "go w recommend". Pond fish stay tradable, the 250 a day receive cap stays, and an account can't offer fish for 24 hours after buying the pass. `trading.md` section 1.
+- **Secret cats in art (#3470):** only as a dark shape in ads and store pictures. `secret-cats.md` section 8.
+- **Next fixes filed from the Nov 11 read:** #3529 (a NEW tag on kinds the player does not own, and a pointer, for the five different cats step) and #3530 (telemetry gaps).

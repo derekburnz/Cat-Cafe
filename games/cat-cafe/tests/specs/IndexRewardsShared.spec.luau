@@ -598,6 +598,7 @@ return function()
 				if
 					collection[def.id] ~= nil
 					and def.area ~= "spare"
+					and def.area ~= "secret" -- #3470: a Secret cat counts nowhere
 					and def.exclusive ~= true -- F96: the Bellhop Cat is no Index page's
 					and (areaId == "all" or track == "rainbow" or def.area == areaId)
 				then

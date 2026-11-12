@@ -635,11 +635,13 @@ return function()
 				Epic = 5,
 				Legendary = 12,
 				Mythical = 25,
+				Secret = 100, -- #3470
 			}) -- #2237
 			expect(Config.FishRepeatCatch :: any).to.deepEqual({
 				Epic = 1,
 				Legendary = 2,
 				Mythical = 5,
+				Secret = 20, -- #3470
 			})
 			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
 		end)

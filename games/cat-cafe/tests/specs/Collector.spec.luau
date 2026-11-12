@@ -58,6 +58,7 @@ return function()
 				Epic = 8,
 				Legendary = 20,
 				Mythical = 50,
+				Secret = 200, -- #3470: for a trade's value check; the Collector never asks for one
 			})
 			expect(Config.CollectorGoldMultiplier).to.equal(3)
 			expect(Config.CollectorRollMin).to.equal(0.8)

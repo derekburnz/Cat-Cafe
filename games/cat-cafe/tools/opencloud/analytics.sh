@@ -433,33 +433,52 @@ done
 say ""
 
 # 2b. The six Creator Hub benchmark items (Derek 2026-11-12: every stats update breaks them down): average playtime,
-# day 1 and day 7 retention, payer conversion, revenue per paying user and qualified play-through. Playtime and day 1
-# are in the table above. The Query API (beta) does not document the other four, so each name here is a try: a value
-# per day when Roblox answers, its refusal (which often names the valid metrics) when it does not. The genre 50th and
-# 90th lines are only on Creator Hub > Analytics > Benchmarks.
-say "### Benchmark items per day (the names Roblox answers)"
+# day 1 and day 7 retention, payer conversion, revenue per paying user and qualified play-through. Day 1 is in the
+# table above. Read 2026-11-12 (run 43126077718): the Query API answers ForwardD7Retention, PayingUsers,
+# AverageRevenuePerPayingUser (Robux after Roblox's share) and AveragePlayTimeMinutesPerDAU; it has no
+# PayerConversionRate, QualifiedPlayThroughRate or Revenue metric, so payer conversion is worked out here as paying
+# users over the day's players, and qualified play-through and the genre 50th and 90th lines stay Creator Hub only.
+say "### Benchmark items per day"
 say ""
-benchmarkMetrics=(
-	"ForwardD7Retention|Day 7 retention"
-	"PayerConversionRate|Payer conversion rate"
-	"AverageRevenuePerPayingUser|Average revenue per paying user"
-	"QualifiedPlayThroughRate|Qualified play-through rate"
-	"AveragePlayTimeMinutesPerDAU|Average playtime per daily player (min)"
-	"PayingUsers|Paying users"
-	"Revenue|Revenue (Robux)"
-)
-for line in "${benchmarkMetrics[@]}"; do
-	IFS='|' read -r metric heading <<<"$line"
-	say "#### $heading ($metric)"
-	say ""
-	if query "$metric" OneDay; then
-		points=$(rows | tr '\t' ' ')
-		say "${points:-No data points in this window.}"
-		say ""
-	else
-		failed
-	fi
+declare -A playtime=() d7=() payers=() arppu=()
+if query AveragePlayTimeMinutesPerDAU OneDay; then
+	for point in $(rows); do
+		playtime[${point%%=*}]=$(awk -v v="${point#*=}" 'BEGIN { printf "%.1f", v }')
+	done
+else
+	failed
+fi
+if query ForwardD7Retention OneDay; then
+	for point in $(rows); do
+		d7[${point%%=*}]=$(awk -v v="${point#*=}" 'BEGIN { if (v <= 1) v *= 100; printf "%.1f%%", v }')
+	done
+else
+	failed
+fi
+if query PayingUsers OneDay; then
+	for point in $(rows); do
+		payers[${point%%=*}]=${point#*=}
+	done
+else
+	failed
+fi
+if query AverageRevenuePerPayingUser OneDay; then
+	for point in $(rows); do
+		arppu[${point%%=*}]=${point#*=}
+	done
+else
+	failed
+fi
+say "| Day | Playtime per player (min) | Day 7 retention | Paying users | Payer conversion | Robux per paying user |"
+say "|---|---:|---:|---:|---:|---:|"
+for day in "${days[@]}"; do
+	conversion=$(awk -v p="${payers[$day]:-}" -v n="${newUsers[$day]:-0}" -v r="${returning[$day]:-0}" \
+		'BEGIN { if (p != "" && n + r > 0) printf "%.2f%%", p * 100 / (n + r); else print "-" }')
+	say "| $day | ${playtime[$day]:--} | ${d7[$day]:--} | ${payers[$day]:--} | $conversion | ${arppu[$day]:--} |"
 done
+say ""
+say "_Qualified play-through and the genre 50th and 90th lines are only on Creator Hub (Overview, Acquisition)._"
+say ""
 say "A dash is a day Roblox sent nothing for: no players, or not filled yet."
 say ""
 
@@ -530,6 +549,8 @@ say "### Audience"
 say ""
 say "Players are player-days: each day's players added up over the window. Day 1 retention and session length are"
 say "the average of the days Roblox filled. Roblox sends only the top values of a breakdown."
+say "Those averages are not weighted by players: a day with one player counts as much as a day with a hundred, so"
+say "check the per-day table before acting on a split."
 say ""
 pct() { awk -v v="$1" 'BEGIN { if (v == "") { print "-"; exit } if (v <= 1) v *= 100; printf "%.0f%%", v }'; }
 # byNew dim: $result's rows as "value<TAB>new<TAB>returning", the biggest first (DailyActiveUsers by dim,IsNewUser)

@@ -167,6 +167,45 @@ function MysticPoolLogic.haveLine(view: View?, fish: number): string
 	return table.concat(parts, " · ")
 end
 
+-- #3196: the Mystic Pool's strip on the Park's card in the Cat Cannon's menu (Screens/Cannon), in the shape of a
+-- camp extra's line: its Open button brings the card up from anywhere. nil while the pool is shut. Free tokens
+-- waiting at the station read in green, as a station with something to collect does.
+MysticPoolLogic.AREA = "park"
+MysticPoolLogic.STATION = "mysticPool"
+MysticPoolLogic.ICON = "🔮"
+
+function MysticPoolLogic.pickerLine(
+	view: View?,
+	areaId: string
+): {
+	extraId: string,
+	icon: string,
+	name: string,
+	state: string,
+	ready: boolean,
+}?
+	if view == nil or areaId ~= MysticPoolLogic.AREA then
+		return nil
+	end
+	local held = view.held or 0
+	local free = view.freeLeft or 0
+	local words = if held > 0
+		then string.format("%d free token%s", held, if held == 1 then "" else "s")
+		elseif free > 0 then string.format(
+			"%d free roll%s",
+			free,
+			if free == 1 then "" else "s"
+		)
+		else "Give a cat a trait"
+	return {
+		extraId = MysticPoolLogic.STATION,
+		icon = MysticPoolLogic.ICON,
+		name = Traits.NAME,
+		state = words,
+		ready = held > 0,
+	}
+end
+
 -- The station's free tokens: the line, and whether Collect has something to take. `now` is the server's time.
 function MysticPoolLogic.tokens(view: View?, now: number): (string, boolean)
 	if view == nil then

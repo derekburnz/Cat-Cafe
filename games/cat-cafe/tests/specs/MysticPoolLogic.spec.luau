@@ -250,4 +250,34 @@ return function()
 			expect(MysticPoolLogic.rarityId("no_such_trait")).to.equal(Traits.RARITIES[1].id)
 		end)
 	end)
+
+	describe("MysticPoolLogic.pickerLine (the Cannon menu's strip, #3196)", function()
+		it("shows on the Park's card only while the pool is open", function()
+			local view = { tokens = 1, freeLeft = 0, held = 0 }
+			expect(MysticPoolLogic.pickerLine(nil, "park")).to.equal(nil)
+			expect(MysticPoolLogic.pickerLine(view, "woods")).to.equal(nil)
+			expect(MysticPoolLogic.pickerLine(view, "park") :: any).to.deepEqual({
+				extraId = "mysticPool",
+				icon = MysticPoolLogic.ICON,
+				name = "Mystic Pool",
+				state = "Give a cat a trait",
+				ready = false,
+			})
+		end)
+
+		it("says what waits: free tokens at the station first, then starter rolls", function()
+			local tokens: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 2 }, "park")
+			expect(tokens.state).to.equal("2 free tokens")
+			expect(tokens.ready).to.equal(true)
+			local one: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 1 }, "park")
+			expect(one.state).to.equal("1 free token")
+			local rolls: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 0 }, "park")
+			expect(rolls.state).to.equal("5 free rolls")
+			expect(rolls.ready).to.equal(false)
+			local last: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 1, held = 0 }, "park")
+			expect(last.state).to.equal("1 free roll")
+			local bare: any = MysticPoolLogic.pickerLine({}, "park")
+			expect(bare.state).to.equal("Give a cat a trait")
+		end)
+	end)
 end

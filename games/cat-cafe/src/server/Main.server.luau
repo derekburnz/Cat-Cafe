@@ -47,6 +47,7 @@ local LiveFlagService = require(script.Parent.Services.LiveFlagService)
 local MouseDashService = require(script.Parent.Services.MouseDashService)
 local MysteryMarketService = require(script.Parent.Services.MysteryMarketService)
 local MysteryService = require(script.Parent.Services.MysteryService)
+local MysticPoolStationService = require(script.Parent.Services.MysticPoolStationService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
 local NightService = require(script.Parent.Services.NightService)
@@ -126,6 +127,7 @@ ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip
 SpinService.start()
 FishMarketService.start()
 TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switch is off
+MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket's place while the switch is on
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)

@@ -33,24 +33,21 @@ Leave points (`quit_state`, 534 leavers below Tier 2 with a device): after the b
 
 Tablets no longer fall behind phones: Tier 2 is 32% to 35% on every device.
 
-Benchmarks (Creator Hub, Simulation genre, read 03:15 UTC Nov 12, small samples):
+Benchmarks (Creator Hub, Simulation genre, read 03:15 UTC Nov 12, small samples; money rows are kept in the private library, not here):
 
 | Item | Ours | Genre 50th | Genre 90th |
 |---|---:|---:|---:|
 | Average playtime (min, 28 days) | 17.5 | 12.2 | 30.9 |
 | Day 1 retention (56 days) | 3.8% | 6.41% | 12.85% |
 | Day 7 retention | 0% (no cohort yet) | 0.57% | 2.17% |
-| Payer conversion (28 days) | 0.54% | 0.51% | 2.12% |
-| Robux per paying user (28 days) | 36.5 | 69.0 | 310.3 |
 | Qualified play-through | no data (0 Home impressions) | about 2.0% | about 4.7% |
 
 Other reads:
 - First five minutes (`step_ready`): a second stray is waiting at 73 s, the table is affordable at 90 s and the bowl at 105 s on average, so money is not what stops new players.
-- Store (`store_v1`): opened 414 times, a tab viewed 266, Buy pressed 9, completed 4.
+- Store (`store_v1`): opened 414 times, a tab viewed 266, Buy pressed 9.
 - Arcade (Circle Streak, before Mouse Dash): 51 games by 27 players, 1 win.
 - In-game feedback ask: shown 268 times, a face picked 102 times (38%). Session thumbs card: 8 answers.
 - Tracking gaps: `first_hour_v3` (3 and 4 minute marks) and `arcade_v1` logged nothing on Nov 11; join source is `organic` for every player, so ad players cannot be split (#3530).
-- Ads (Ads Manager, 01:42 UTC Nov 12): cost per play ran from $0.10 to $0.57 while click rate barely moved (1.1% to 1.8%). Ads that show what the game is cost about $0.10 a play; rarity and big number ads $0.27 to $0.57.
 
 Next read: Nov 13, for Nov 12 (the 22:00 UTC update: Mystic Pool, Mouse Dash, Update Party, the gift), and Nov 11 sessions and day 1 retention once filled.
 

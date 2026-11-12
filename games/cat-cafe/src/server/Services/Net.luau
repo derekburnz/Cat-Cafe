@@ -128,6 +128,13 @@ local overLimitLog: { [number]: number } = {} -- userId -> last handler-failure 
 -- #2630: rate limit drops are counted per player and remote, and written as one summary line a minute at most.
 -- A drop is harmless (the server just ignores the extra tap), so one warning each hid the real errors in the log.
 local DROP_SUMMARY_SECONDS = 60
+-- #3478: remotes whose extra calls are expected and already spaced on the client (a Tackle key held down, a second
+-- press on the cannon while it loads). A summary line made only of these is a note (print), not a warning, so it
+-- stays out of the Creator Hub error list.
+local QUIET_DROPS: { [string]: boolean } = {
+	Tackle = true,
+	LaunchCannon = true,
+}
 local dropCounts: { [number]: { [string]: number } } = {} -- userId -> remote -> drops since the last summary
 local dropLoggedAt: { [number]: number } = {} -- userId -> when the last summary line was written
 -- #3362: a remote connected with an onDrop answer (Net.on's third argument) still answers a dropped call, so a client
@@ -165,12 +172,22 @@ local function noteDrop(player: Player, name: string)
 	end
 	dropLoggedAt[userId] = now
 	local parts = {}
+	local quiet = true
 	for remote, count in counts do
 		table.insert(parts, string.format("%s x%d", remote, count))
+		if QUIET_DROPS[remote] ~= true then
+			quiet = false
+		end
 	end
 	table.sort(parts)
 	dropCounts[userId] = nil
-	warn(string.format("[Net] rate limit drops for user %d: %s", userId, table.concat(parts, ", ")))
+	local line =
+		string.format("[Net] rate limit drops for user %d: %s", userId, table.concat(parts, ", "))
+	if quiet then
+		print(line)
+	else
+		warn(line)
+	end
 end
 
 function Net.start()

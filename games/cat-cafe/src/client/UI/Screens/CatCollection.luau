@@ -786,6 +786,16 @@ function CatCollection._buildIndex(self: any)
 		order += 1
 		self:_buildSection(area.id, area.name, order, true)
 	end
+	-- #3470: the Secret page comes last and stays hidden until the player has found a Secret cat (_renderBook)
+	for _, def in catalog.cats do
+		if def.area == IndexBook.SECRET then
+			local page =
+				self:_buildSection(IndexBook.SECRET, IndexBook.SECRET_NAME, order + 1, true)
+			page.title.TextColor3 = Theme.rarityColor(def.rarity)
+			page.frame.Visible = false
+			break
+		end
+	end
 
 	for index, def in catalog.cats do
 		self._catById[def.id] = def
@@ -965,6 +975,23 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
 		end
 	end
+	-- #3470: the Secret page only for a player who has found one, with nothing to claim and no total
+	local secretArea = IndexBook.secret(catalog, state, kind)
+	local secretPage = self._sections[IndexBook.SECRET]
+	if secretArea and secretPage then
+		shown[IndexBook.SECRET] = true
+		self:_paintHeader(
+			secretPage,
+			secretArea.have,
+			secretArea.total,
+			IndexBook.count(secretArea),
+			{ state = "none", ready = 0 },
+			false,
+			IndexBook.SECRET,
+			state
+		)
+		secretPage.hint.Text = IndexBook.EXCLUSIVE_NOTE
+	end
 	-- the line over the areas: the All Cats track on the Cats tab, its gold track as Gold cats on the Gold tab (#1772)
 	-- and the Rainbow track on the Rainbow tab
 	local lineId: string? = if tab == "Index" or gold
@@ -1000,10 +1027,16 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 	local toLoad = {}
 	for catId, cell in self._cells do
 		local def: Types.CatDef = cell.def
+		local isFound = found[catId] == true
+		if def.area == IndexBook.SECRET then
+			cell.frame.Visible = isFound -- #3470: a Secret cat not yet found has no tile at all
+			if not isFound then
+				continue
+			end
+		end
 		if cell.loaded ~= gold then
 			table.insert(toLoad, cell)
 		end
-		local isFound = found[catId] == true
 		local color = Theme.rarityColor(def.rarity)
 		cell.frame.BackgroundColor3 = if isFound
 			then color
@@ -1154,6 +1187,8 @@ function CatCollection._showDetail(self: any)
 			meta,
 			if def.source == "free" then "free at its stand in town" else "from the shop"
 		)
+	elseif def.area == IndexBook.SECRET then
+		table.insert(meta, "turns up anywhere") -- #3470: a Secret cat has no home area
 	else
 		table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
 	end

@@ -187,7 +187,8 @@ local function check()
 			if child:IsA("Vector3Value") then
 				local value = child :: Vector3Value
 				beacons[value.Name] = value
-				if models[value.Name] == nil then
+				local here: Model? = models[value.Name]
+				if here == nil then
 					table.insert(spots, { key = value.Name, distance = away(value.Value) })
 				end
 			end

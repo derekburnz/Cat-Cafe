@@ -71,7 +71,7 @@ export type CustomEvent =
 	"rank_up"
 	| "session_end"
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
-	-- (else since the join); fields: "1", "2", "3" or "4+" (the account's nth buy), the upgrade id, the new level
+	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
 	| "upgrade_bought"
 	| "offline_claim"
 	| "dealer_buy"

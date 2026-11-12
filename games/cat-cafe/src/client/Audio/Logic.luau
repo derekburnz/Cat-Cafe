@@ -440,6 +440,18 @@ function Logic.poolCue(beat: any, step: any): (string?, number?)
 	return nil, nil
 end
 
+-- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut.onBeat) plays the pool's own chimes,
+-- calm: each colour step the step chime one note up the scale, and the silhouette's rise the soft reveal. Never the
+-- Mythic sting, since nothing was won.
+function Logic.poolIntroCue(beat: any, step: any): (string?, number?)
+	if beat == "step" then
+		return "poolStep", if type(step) == "number" then math.clamp(math.floor(step), 1, 5) else 1
+	elseif beat == "rise" then
+		return "poolReveal", nil
+	end
+	return nil, nil
+end
+
 -- #3296 Mouse Dash (the second Cat Arcade game). `kind` is what is in a hole: "mouse", "golden" or "kitten".
 -- What pops up: the mouse its pop, the golden mouse its chime, the napping kitten a soft purr.
 function Logic.mousePopCue(kind: any): string
@@ -496,6 +508,20 @@ function Logic.toastJingle(text: any): string?
 		return "indexReward"
 	elseif type(text) == "string" and string.sub(text, 1, 13) == "Golden find! " then
 		return "goldReveal"
+	end
+	return nil
+end
+
+-- #3419: the sound as an update party banner (Effects/EventBanner) drops in: the station fanfare for the party's
+-- start, the soft gift chime for the gift on its way and the update gift's jingle for the gift paid. All three are
+-- cues the game already has. Nil for anything else.
+function Logic.bannerCue(kind: any): string?
+	if kind == "party" then
+		return "stationReveal"
+	elseif kind == "giftSoon" then
+		return "uiGiftReady"
+	elseif kind == "gift" then
+		return "indexReward"
 	end
 	return nil
 end

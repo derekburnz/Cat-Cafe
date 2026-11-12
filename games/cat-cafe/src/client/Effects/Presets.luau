@@ -4604,4 +4604,106 @@ Presets.mysticPool = {
 	},
 }
 
+-- #3430 (the Mystic Pool's first walk-up cutscene, Effects/MysticIntroCut). Seconds and studs. The camera swings to
+-- `back` studs out along the pool's front and `up` up (`backTall`, `upTall` on a portrait screen), looking `lookUp`
+-- over the liquid, trying each of `swings` degrees round it for a clear line. Then the five colours at `step` seconds
+-- each (3 s), the silhouette's `rise` (2 s) and the swing back: about 7 s in all, inside the spec's 6 to 8.
+Presets.mysticIntro = {
+	swingIn = 1,
+	swingOut = 0.8,
+	steps = 5, -- the five rarity colours (shared/Traits.RARITIES)
+	step = 0.6, -- per colour, as the roll's own steps
+	blend = 0.25,
+	rise = 2, -- the silhouette and the card line
+	riseSeconds = 1.2, -- of those, how long it takes to come up
+	riseHeight = 2.5, -- studs over the liquid
+	riseTurn = 60, -- degrees it turns through as it comes up
+	raise = 0.4, -- Sorrel's staff going up
+	waveHz = 0.8, -- then his wave, slow
+	waveLow = 0.7, -- the wave's low point, as a share of fully raised
+	back = 13,
+	up = 2.5, -- a low view, so the moon arch stands over the pool
+	backTall = 17,
+	upTall = 4,
+	lookUp = 2.5,
+	swings = { 0, 25, -25, 50, -50 },
+	maxDistance = 40,
+	bubbles = 8,
+	sparkles = 14,
+	cat = "CatCafe_Cat_Tabby_Sit", -- the silhouette's shape
+	shade = Color3.fromRGB(58, 44, 110), -- a deep violet, never black
+	words = "The Mystic Pool gives your cat a special trait",
+	lineSize = 24,
+	lineHeight = 44,
+	lineWidth = 560,
+	lineUp = 84, -- pixels over the bottom edge, clear of the skip label
+	lineCard = Presets.palette.offwhite,
+	lineText = Color3.fromRGB(74, 52, 38),
+	still = 2, -- Reduce Motion: the card line alone
+	skipAfter = 0.2, -- a press sooner is the walk-up's own
+	skipOut = 0.25,
+	skipSize = 18,
+	skipFade = 0.4,
+	displayOrder = 10,
+	cap = 9, -- controls always come back by now
+	tvSafe = 0.05,
+}
+
+-- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for
+-- the party's start, the gift on its way and the gift paid. Pixels and seconds. The words are the caller's (#3420);
+-- `titleLength` and `lineLength` are the most characters drawn. Everything plays once per banner.
+Presets.eventBanner = {
+	displayOrder = 29,
+	queue = 3, -- banners that may wait behind the one showing
+	hold = 5, -- seconds at rest when the caller gives none; a tap on the card sends it away sooner
+	holdMin = 3,
+	holdMax = 5, -- Derek, 2026-11-12: gone by itself in 3 to 5 seconds
+	titleLength = 24,
+	lineLength = 36,
+	maxLines = 3,
+	-- the card
+	widthScale = 0.9,
+	maxWidth = 440,
+	top = 10, -- under the Roblox top bar
+	pad = 10,
+	corner = 16,
+	titleHeight = 36,
+	titleSize = 30,
+	lineHeight = 24,
+	lineSize = 20,
+	badgeSize = 56,
+	card = Presets.palette.offwhite,
+	outline = Color3.fromRGB(74, 52, 38), -- the UI's dark brown outline
+	stripTop = Presets.palette.goldLight,
+	stripBottom = Presets.palette.golden,
+	titleText = Presets.palette.milk,
+	lineText = Color3.fromRGB(74, 52, 38),
+	badge = Presets.palette.neonPink,
+	badgeText = Presets.palette.milk,
+	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
+	-- the motion
+	dropSeconds = 0.45,
+	leaveSeconds = 0.3,
+	fadeSeconds = 0.25, -- Reduce Motion: fade in and out in place
+	shineSeconds = 0.7, -- one sweep as the card lands
+	shineWidth = 0.3,
+	shineTransparency = 0.45,
+	-- the confetti as it lands (12 is the phone's burst cap)
+	confetti = 12,
+	confettiSoon = 6,
+	confettiColours = { Presets.palette.golden, Presets.palette.neonPink, Presets.palette.mint },
+	confettiSize = 12,
+	confettiSeconds = 0.7,
+	confettiReach = 46,
+	confettiStagger = 0.25,
+	-- the gift's golden fish hopping out from under the card
+	fish = 8,
+	fishSize = 34,
+	fishSeconds = 1.1,
+	fishStagger = 0.07,
+	fishUp = 40,
+	fishFall = 150,
+	fishSpread = 180,
+}
+
 return Presets

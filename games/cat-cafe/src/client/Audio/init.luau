@@ -22,7 +22,9 @@ local Beats = require(script.Beats)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
+local EventBanner = require(script.Parent.Effects.EventBanner)
 local Logic = require(script.Logic)
+local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
@@ -1735,6 +1737,17 @@ local function followUpdateGift()
 	end)
 end
 
+-- #3419: the update party's banners (Effects/EventBanner) play their sound as each one drops in, so a banner that
+-- waited its turn still lands with its sound.
+local function followBanners()
+	EventBanner.onShown(function(kind: any)
+		local cue = Logic.bannerCue(kind)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 local function followServerState()
 	if followingState then
 		return
@@ -2182,6 +2195,16 @@ local function followPool()
 	end)
 end
 
+-- #3430: the pool's first walk-up cutscene, on the pool's own chimes (in 3D at the pool, the rise flat).
+local function followPoolIntro()
+	MysticIntroCut.onBeat(function(beat, step, at)
+		local cue, scaleStep = Logic.poolIntroCue(beat, step)
+		if cue ~= nil then
+			Audio.play(cue, if cue == "poolReveal" then nil else at, scaleStep)
+		end
+	end)
+end
+
 function Audio.start()
 	if started then
 		return
@@ -2193,6 +2216,7 @@ function Audio.start()
 	followTags()
 	followStrays()
 	followSplashes()
+	followBanners()
 	followGamepadFocus()
 	followHolds()
 	followHeldCats()
@@ -2201,6 +2225,7 @@ function Audio.start()
 	followShopCats()
 	followBeats()
 	followPool()
+	followPoolIntro()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
 end

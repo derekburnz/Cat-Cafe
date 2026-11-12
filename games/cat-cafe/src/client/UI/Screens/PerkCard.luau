@@ -15,13 +15,14 @@ local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type PerkCard = {
 	screenGui: ScreenGui,

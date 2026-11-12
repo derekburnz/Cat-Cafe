@@ -24,6 +24,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -33,7 +34,7 @@ local Types = require(script.Parent.Parent.Types)
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Callbacks = {
 	roll: (uid: string) -> (),

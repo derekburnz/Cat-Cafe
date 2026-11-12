@@ -20,6 +20,7 @@ local BuyAllCard = require(script.Parent.Parent.Components.BuyAllCard)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -32,7 +33,7 @@ local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
 -- the dark window palette (#1028)
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Callbacks = {
 	buy: (itemId: string, window: number, shownPrice: number, catUid: string?) -> (),

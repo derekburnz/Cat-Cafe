@@ -11,6 +11,7 @@
 
 local CatPortrait = require(script.Parent.CatPortrait)
 local Create = require(script.Parent.Create)
+local MenuFamily = require(script.Parent.MenuFamily)
 local Outline = require(script.Parent.Outline)
 local Rainbow = require(script.Parent.Rainbow)
 local Theme = require(script.Parent.Parent.Theme)
@@ -18,7 +19,7 @@ local Tween = require(script.Parent.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Props = {
 	parent: Instance,

@@ -31,6 +31,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -44,7 +45,7 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 -- #3347 (Derek2: "make the spa symbol better and not some simple symbols"): a station's drawn picture on its picker
 -- line, in place of its emoji (which shows until the picture loads)
 local LINE_IMAGES: { [string]: string? } = { spa = ShopIcons.clean("Spa") }

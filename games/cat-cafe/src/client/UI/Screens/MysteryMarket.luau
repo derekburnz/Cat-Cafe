@@ -17,6 +17,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysteryLogic = require(script.Parent.Parent.Components.MysteryLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -26,7 +27,7 @@ local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
-local PAL = Theme.dark -- the dark window palette (#1028)
+local PAL = MenuFamily.pal -- the dark window palette (#1028)
 local TEAL = Color3.fromHex("2F7F86") -- Juniper's wagon (section 4c, look A)
 
 export type Callbacks = {

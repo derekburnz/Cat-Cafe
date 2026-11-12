@@ -435,6 +435,29 @@ return function()
 		ArcadeStartShrinkSeconds = 0.60, -- #3359: was 1.20 (a Common's)
 		ArcadeShrinkFloorSeconds = 0.30, -- #3359
 		ArcadeBlockLeadIn = 0.9,
+		-- #3296 (Mouse Dash, mouse-dash.md section 6)
+		MouseDashHearts = 3,
+		MouseDashStepEvery = 5,
+		MouseDashWindowStart = 1.10,
+		MouseDashWindowStep = 0.93,
+		MouseDashWindowFloor = 0.40,
+		MouseDashGapStart = 0.50,
+		MouseDashGapStep = 0.95,
+		MouseDashGapFloor = 0.25,
+		MouseDashGoldenFrom = 10,
+		MouseDashGoldenChance = 1 / 12,
+		MouseDashGoldenPoints = 3,
+		MouseDashGoldenWindowScale = 0.75,
+		MouseDashKittenFrom = 20,
+		MouseDashKittenChance = 0.125,
+		MouseDashPairFrom = 30,
+		MouseDashPairChance = 0.20,
+		MouseDashPairKittenFrom = 40,
+		MouseDashHeartBackEvery = 10,
+		MouseDashDizzySeconds = 0.40,
+		MouseDashFirstRunMice = 3,
+		MouseDashFirstRunWindow = 2.0,
+		MouseDashMouserAt = 50,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }

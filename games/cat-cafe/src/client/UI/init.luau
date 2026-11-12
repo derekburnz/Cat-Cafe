@@ -8621,6 +8621,7 @@ UI.perks = {
 	token = 0, -- the latest unlock's, so a teardown or a second reveal drops an older wait
 	REVEAL_SECONDS = 3,
 	REDUCED_SECONDS = 0.5,
+	WINDOW_WAIT_SECONDS = 300,
 }
 
 function UI.perks.unlock(perkId: string)
@@ -8636,6 +8637,18 @@ function UI.perks.unlock(perkId: string)
 		then UI.perks.REDUCED_SECONDS
 		else UI.perks.REVEAL_SECONDS
 	task.delay(seconds, function()
+		-- #3585: never on top of a window (a first Park visit that walks straight onto the Mystic Pool's ring had
+		-- both up at once); the card waits for the window to close, up to WINDOW_WAIT_SECONDS
+		local waited = 0
+		local windows = modal
+		while
+			UI.perks.token == token
+			and windows ~= nil
+			and windows:current() ~= nil
+			and waited < UI.perks.WINDOW_WAIT_SECONDS
+		do
+			waited += task.wait(0.5)
+		end
 		if UI.perks.token ~= token or UI.perks.card == nil then
 			return
 		end

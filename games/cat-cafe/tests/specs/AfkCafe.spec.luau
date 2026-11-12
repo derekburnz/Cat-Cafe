@@ -61,7 +61,11 @@ return function()
 		end)
 
 		it("words that promise nothing about staying connected", function()
-			for _, line in { AfkCafe.LINE, AfkCafe.welcome("$1.2K") } do
+			-- in a 2x party the once a visit line does not say 2x
+			expect(AfkCafe.line(true)).to.equal(AfkCafe.LINE)
+			expect(AfkCafe.line(false)).to.equal(AfkCafe.PARTY_LINE)
+			expect(string.find(AfkCafe.PARTY_LINE, "2x", 1, true)).never.to.be.ok()
+			for _, line in { AfkCafe.LINE, AfkCafe.PARTY_LINE, AfkCafe.welcome("$1.2K") } do
 				local lower = string.lower(line)
 				expect(string.find(lower, "kick", 1, true)).never.to.be.ok()
 				expect(string.find(lower, "disconnect", 1, true)).never.to.be.ok()

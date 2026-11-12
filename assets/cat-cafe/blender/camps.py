@@ -250,7 +250,8 @@ def _theme(s, mat, area, G, B, W, half):
                 s.put(park.build_park_bench(mat), -16, G - PAD_IN - 2, -90)
             s.put(square.build_lamp(mat), sx * 9, cz, 0)
             for x in (x for x in (24, 44, 64) if x < W / 2 - 6):
-                s.put(park.build_tree(mat), sx * x, B + 7, 0)
+                # #3469: the east tree's trunk stood 7.9 from the Picnic Basket's ring centre, inside a radius 8 ring
+                s.put(park.build_tree(mat), sx * (30 if (sx > 0 and x == 24) else x), B + 7, 0)
             for x in (18, 32, 52):
                 s.put(nb.flowerbed(mat), sx * x, B + 2.5, 180)
             s.put(nb.flowerbed(mat), sx * (half + 14), G - 3, 0)
@@ -267,10 +268,12 @@ def _theme(s, mat, area, G, B, W, half):
                 s.put(park.build_tree(mat), sx * x, B + 8, 0)
             s.put(nb.hedge(mat, 6.0), sx * (W / 2 - 4), G - 10, 90)
     elif AREAS[area].get("theme") == "Woods":
-        s.put(woods.tent(mat, "fur_orange"), 20, G - 21, 112)
-        s.put(woods.campfire(mat), 15, G - 11, 0)
-        s.put(woods.log_bench(mat), 15, G - 6.5, 0)
-        s.put(woods.log_bench(mat), 11.5, G - 11, 90)      # #3447: west of the fire, off the Fishing Hut's ring
+        # #3469: the Fishing Hut's ring is radius 8 (centre about x 21.5, 15.6 in). The tent stood in its middle and
+        # the fire on its rim; the tent now stands east of it and the fire with its two logs 2.5 nearer the pad.
+        s.put(woods.tent(mat, "fur_orange"), 35, G - 15, 100)
+        s.put(woods.campfire(mat), 12.5, G - 10, 0)
+        s.put(woods.log_bench(mat), 12.5, G - 5.5, 0)
+        s.put(woods.log_bench(mat), 9, G - 10, 90)
         for sx in (1, -1):
             # the west one stands past the Index Board (Layout: 4 beside the way out, 4 in, turned -20), clear of it
             s.put(woods.lantern(mat), sx * (half + (2.0 if sx > 0 else 11.5)), G - 1.5, 90 - 90 * sx)
@@ -290,7 +293,7 @@ def _theme(s, mat, area, G, B, W, half):
             s.put(sw.traffic_cone(mat), sx * (half + 2), G - 2.5, 0)
         s.put(sw.barrel(mat), 24.5, G - 25.5, 0)
         s.put(sw.tyre_stack(mat), 34, G - 20, 30)
-        s.put(sw.traffic_cone(mat), 27.5, G - 10.5, 0)     # #3447: off the Lost and Found's ring
+        s.put(sw.traffic_cone(mat), 29.5, G - 10.5, 0)     # #3447, #3469: off the Lost and Found's radius 8 ring
     elif AREAS[area].get("theme") == "Desert":
         # the Oasis Camp (section 4): a palm-ringed pool east, the stone well west, striped canopies, lamps by the
         # cannon, pots and crates along the back wall. Clear of the pad, the basket, the paths, the Index Board
@@ -303,7 +306,8 @@ def _theme(s, mat, area, G, B, W, half):
             s.put(ds.palm(mat, h), x, z, rot)
         s.put(ds.well(mat), -40, G - 15, 0)
         s.put(ds.canopy(mat, 7.0, 5.5), -26, B + 6.5, 0)
-        s.put(ds.canopy(mat, 7.0, 5.5), 26, B + 6.5, 0)
+        # #3469: the east canopy stood at (26, 6.5 off the back wall), in the middle of the Oasis Spa's radius 8 ring
+        s.put(ds.canopy(mat, 7.0, 5.5), 13.5, B + 4.2, 0)
         for sx in (1, -1):
             s.put(ds.lamp(mat), sx * 9, cz, 0)
             s.put(ds.lamp(mat), sx * (W / 2 - 3), G - 2.5, 0)
@@ -330,7 +334,7 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(rs.fallen_lintel(mat), -48.0, G - 24.0, 8)
         s.put(rs.drums(mat), 46.0, G - 22.0, -15)
         s.put(rs.gargoyle(mat), -24.0, G - 25.5, 0)
-        s.put(rs.gargoyle(mat), 24.0, G - 25.5, 0)
+        s.put(rs.gargoyle(mat), 33.0, G - 25.5, 0)          # #3469: off the Relic Museum's radius 8 ring (was 24)
         for (x, z, k) in ((-62.0, G - 10.0, 1.0), (60.0, G - 9.0, 1.2), (-30.0, B + 2.0, 0.9), (38.0, B + 2.5, 1.1)):
             s.put(rs.rubble(mat, k), x, z, (x * 7) % 360)
 

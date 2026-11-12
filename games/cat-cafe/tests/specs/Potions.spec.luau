@@ -43,6 +43,10 @@ return function()
 					"steady_potion_big",
 					"quick_bait_potion_small",
 					"quick_bait_potion_big",
+					-- #3462: the Day Cart's Tier 6 potions
+					"big_lucky_potion",
+					"big_gold_rush_potion",
+					"mega_tip_potion",
 				})
 				expect(minutes).to.deepEqual({
 					tip_potion = 10,
@@ -58,6 +62,9 @@ return function()
 					big_tip_potion = 30,
 					gold_rush_potion = 30,
 					quick_bait_potion = 30,
+					big_lucky_potion = 30,
+					big_gold_rush_potion = 30,
+					mega_tip_potion = 30,
 				})
 				expect(Catalog.getPotion("nope")).never.to.be.ok()
 			end
@@ -226,12 +233,65 @@ return function()
 				p.buffs.quick_bait_potion = 60
 				expect(Potions.goldLuck(p, 1000)).to.be.near(0.25)
 				expect(Potions.baitSpeed(p, 1000)).to.be.near(0.25)
-				expect(Potions.MAX_GOLD_LUCK).to.be.near(0.25)
+				expect(Potions.MAX_GOLD_LUCK).to.be.near(0.75) -- #3462: with the Big Gold Rush Potion's 0.5
 				-- they run out like the rest
 				expect(Potions.goldLuck(p, 1061)).to.equal(0)
 				expect(Potions.tipMultiplier(p, 1061)).to.equal(1)
 			end
 		)
+
+		it("#3462: the Day Cart's Tier 6 potions are stronger kinds on their own timers", function()
+			local Luck = require(Shared.Luck)
+			for _, id in { "big_lucky_potion", "big_gold_rush_potion", "mega_tip_potion" } do
+				local def = Catalog.getPotion(id) :: any
+				expect(def.shopOnly).to.equal(true) -- never a Mystery gift
+				expect(def.buff).never.to.be.ok() -- its own timer
+				expect(def.quest).never.to.be.ok()
+				expect(Potions.buffOf(id)).to.equal(id)
+			end
+			-- Mega Money fills the money potions' cap by itself; the others add nothing on top
+			local p = fresh(1000)
+			p.buffs.mega_tip_potion = 60
+			expect(Potions.tipMultiplier(p, 1000)).to.be.near(2)
+			p.buffs.tip_potion = 60
+			p.buffs.big_tip_potion = 60
+			expect(Potions.tipMultiplier(p, 1000)).to.be.near(1 + Config.TimedTipsMax)
+			expect(Potions.tipMultiplier(p, 1061)).to.equal(1)
+			-- Big Gold Rush adds to Gold Rush
+			p = fresh(1000)
+			p.buffs.big_gold_rush_potion = 60
+			expect(Potions.goldLuck(p, 1000)).to.be.near(0.5)
+			p.buffs.gold_rush_potion = 30
+			expect(Potions.goldLuck(p, 1000)).to.be.near(0.75)
+			expect(Potions.goldLuck(p, 1040)).to.be.near(0.5)
+			-- Big Lucky's Luck takes the place of the Lucky Potion's, and both double the bait's gold chance
+			p = fresh(1000)
+			expect(select(1, Potions.luck(p, 1000))).to.equal(0)
+			expect(Potions.baitGoldChance(p, 0.01, 1000)).to.equal(0.01)
+			p.buffs.lucky_potion = 600
+			local value, left = Potions.luck(p, 1000)
+			expect(value).to.equal(Config.LuckyPotionLuck)
+			expect(left).to.equal(600)
+			expect(Luck.of(p, 1000, false)).to.be.near(1 + Config.LuckyPotionLuck)
+			p.buffs.big_lucky_potion = 60
+			value, left = Potions.luck(p, 1000)
+			expect(value).to.equal(0.75)
+			expect(left).to.equal(60)
+			expect(Luck.of(p, 1000, false)).to.be.near(1.75)
+			expect(Potions.baitGoldChance(p, 0.01, 1000)).to.be.near(
+				0.01 * Config.LuckyPotionGoldScale
+			)
+			-- the Big one runs out first: the Lucky Potion's Luck is back for the rest of its time
+			value, left = Potions.luck(p, 1061)
+			expect(value).to.equal(Config.LuckyPotionLuck)
+			expect(left).to.equal(539)
+			p.buffs.lucky_potion = nil
+			expect(Luck.of(p, 1000, false)).to.be.near(1.75)
+			expect(Potions.baitGoldChance(p, 0.01, 1000)).to.be.near(
+				0.01 * Config.LuckyPotionGoldScale
+			)
+			expect(Luck.of(p, 1061, false)).to.equal(1)
+		end)
 
 		it(
 			"puts Gold Rush luck on top of the Index's cap, and Quick Bait inside BaitSpeedMax",
@@ -239,7 +299,7 @@ return function()
 				local IndexRewards = require(Shared.IndexRewards)
 				expect(IndexRewards.goldChance(0.1, 9)).to.be.near(0.1 * (1 + Config.GoldLuckMax))
 				expect(IndexRewards.rollChance(0.1, 9)).to.be.near(
-					0.1 * (1 + Config.GoldLuckMax + 0.25)
+					0.1 * (1 + Config.GoldLuckMax + 0.75) -- #3462: Gold Rush 0.25 and Big Gold Rush 0.5
 				)
 				expect(IndexRewards.rollChance(0.1, 0.5)).to.be.near(0.15)
 				expect(IndexRewards.rollChance(0.1, -1)).to.equal(0.1)

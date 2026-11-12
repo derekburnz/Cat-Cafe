@@ -13,7 +13,8 @@ export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
 export type CatchMethod = "net" | "rescue" | "bait" | "starter" | "trade" -- "trade": F102, from another player
-export type LureSource = "shop" | "dealer"
+-- #3462: "cart" foods are sold only on the Day Cart, at a flat price
+export type LureSource = "shop" | "dealer" | "cart"
 -- How one closing circle was judged (data-model section 10).
 export type CircleGrade = "perfect" | "good" | "miss"
 -- #1884 (catch-rework.md 7c): a net catch's ring grade, which adds "left" for a paw ring nobody tapped (+1 trust; a
@@ -336,6 +337,10 @@ export type PotionDef = {
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
+	-- #3462: a lucky potion's Luck while it runs, with the Lucky Potion's doubled gold chance on bait. The Lucky
+	-- Potion itself has none here: its Luck is Config.LuckyPotionLuck. The biggest running one counts
+	-- (Potions.luck); they never add.
+	luck: number?,
 }
 
 -- One thing a Mystery Visitor's gift can hold (F64): `chance` in percent, the rows summing to 100. A "potion" row
@@ -1118,6 +1123,9 @@ export type CornerShopRow = {
 	lureId: string?, -- #1281: a "bait" row's bowl food
 	xp: number?,
 	needsTier: number?,
+	-- #3462: a row of the Tier 6 shelf: not shown or sold until the `cartTier6` switch is on (shared/CornerShop's top
+	-- shelf), rolled after every other row, and never part of a Buy all
+	topShelf: boolean?,
 }
 -- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each row's buys (`today`, #1712) and
 -- the cat food XP bought (`foodXpToday`).

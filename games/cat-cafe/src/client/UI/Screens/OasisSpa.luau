@@ -81,6 +81,8 @@ local ROW_H = 52
 local FACE = 44
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- a finger-sized search box and chips (the UI gate's tap check)
 local CHIP_W = 78
+local SORT_W = 70 -- #3463: each half of the Sort toggle
+local SORT_LABEL_W = 40
 local FIRST_ROWS = 12 -- built at once when the list opens: more than a screenful
 local ROWS_PER_FRAME = 20 -- then this many a frame
 local FACES_PER_PASS = 15
@@ -146,6 +148,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	self._callbacks = callbacks
 	self._spa = nil :: SharedTypes.SpaView?
 	self._cats = {} :: { [string]: SharedTypes.CatView }
+	self._sort = LateStationsLogic.SPA_SORTS[1] -- #3463: Rarity first
 	self._fish = 0
 	self._pending = false
 	self._pendingToken = 0
@@ -311,21 +314,60 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	-- the cat list behind Add a cat
 	local picker = sheet("Picker", content)
 	self._picker = picker
+	-- #3463: the Sort toggle shares the title's row, left of Back, so the list keeps its height on a phone
+	local backW = 96
+	local sortsW = #LateStationsLogic.SPA_SORTS * (SORT_W + 6)
 	text({
 		Name = "Title",
-		Size = UDim2.new(1, -110, 0, 32),
+		Size = UDim2.new(1, -(backW + 8 + sortsW + SORT_LABEL_W + 8), 0, buttonH),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "Pick a cat to relax",
 		ZIndex = 6,
 		Parent = picker,
 	})
+	text({
+		Name = "SortLabel",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -(backW + 8 + sortsW), 0, 0),
+		Size = UDim2.fromOffset(SORT_LABEL_W, buttonH),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = "Sort ",
+		ZIndex = 6,
+		Parent = picker,
+	})
+	self._sorts = {} :: { [string]: Button.Button }
+	for index, sort in LateStationsLogic.SPA_SORTS do
+		self._sorts[sort] = Button.new({
+			name = "Sort" .. sort,
+			text = sort,
+			style = if sort == self._sort then "gold" else "ghost",
+			size = UDim2.fromOffset(SORT_W, buttonH),
+			anchorPoint = Vector2.new(1, 0),
+			position = UDim2.new(
+				1,
+				-(backW + 8 + (#LateStationsLogic.SPA_SORTS - index) * (SORT_W + 6)),
+				0,
+				0
+			),
+			textSize = Theme.sizes.textSmall,
+			parent = picker,
+			zIndex = 6,
+			sound = "uiTab",
+			onClick = function()
+				self:_setSort(sort)
+			end,
+		})
+	end
 	self._back = Button.new({
 		name = "Back",
 		text = "Back",
 		style = "ghost",
-		size = UDim2.fromOffset(96, buttonH),
+		size = UDim2.fromOffset(backW, buttonH),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, 0, 0, 0),
 		textSize = Theme.sizes.textSmall,
@@ -575,6 +617,23 @@ function OasisSpa._setFilter(self: any, filter: string, quiet: boolean?)
 	end
 end
 
+-- #3463: the list's order, "Rarity" or "Level". The rows are built again in the new order from the top of the list.
+-- The choice lasts while the player stays (it is not saved), so a new visit opens on Rarity.
+function OasisSpa._setSort(self: any, sort: string)
+	local wanted = LateStationsLogic.spaSort(sort)
+	for name, button: Button.Button in self._sorts do
+		button:setStyle(if name == wanted then "gold" else "ghost")
+	end
+	if wanted == self._sort then
+		return
+	end
+	self._sort = wanted
+	if self._pickSlot ~= nil then
+		self:_buildRows();
+		(self._list :: ScrollingFrame).CanvasPosition = Vector2.zero
+	end
+end
+
 function OasisSpa._row(self: any, order: number, cat: SharedTypes.CatView): Row
 	local def = Catalog.getCat(cat.catId)
 	local rarity = Theme.rarityColor(if def ~= nil then def.rarity else nil)
@@ -655,7 +714,7 @@ end
 function OasisSpa._buildRows(self: any)
 	self:_clearRows()
 	local token = self._buildToken
-	local cats = LateStationsLogic.spaCandidates(self._cats, self._spa)
+	local cats = LateStationsLogic.spaCandidates(self._cats, self._spa, self._sort)
 	self._rowsKey = LateStationsLogic.spaKey(cats)
 	self._candidates = #cats
 	local function build(from: number, to: number)
@@ -772,7 +831,8 @@ function OasisSpa._syncRows(self: any)
 	if self._pickSlot == nil then
 		return
 	end
-	local key = LateStationsLogic.spaKey(LateStationsLogic.spaCandidates(self._cats, self._spa))
+	local key =
+		LateStationsLogic.spaKey(LateStationsLogic.spaCandidates(self._cats, self._spa, self._sort))
 	if key ~= self._rowsKey then
 		self:_buildRows()
 	end
@@ -918,6 +978,9 @@ function OasisSpa.destroy(self: any)
 	self._scrolled:Disconnect()
 	for _, chip: Button.Button in self._chips do
 		chip:destroy()
+	end
+	for _, button: Button.Button in self._sorts do
+		button:destroy()
 	end
 	for _, tile: Tile in self._tiles do
 		tile.portrait:destroy()

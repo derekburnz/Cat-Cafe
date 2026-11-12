@@ -22,7 +22,7 @@ FeedbackStand.WINDOW = "BugReport"
 FeedbackStand.KIND = "idea"
 FeedbackStand.NAME = "Feedback"
 FeedbackStand.ACTION = "Write to us"
-FeedbackStand.RANGE = 16 -- #3112: 12 before the radius 6 ring
+FeedbackStand.RANGE = 20 -- #3112: 12 before the radius 6 ring; #3448: 16 before the radius 8 ring
 FeedbackStand.PROMPT_RANGE = 12 -- #3112: 8 before the radius 6 ring; the pill shows across the whole ring
 FeedbackStand.STILL_LOOKS = 3
 

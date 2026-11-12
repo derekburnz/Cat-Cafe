@@ -241,6 +241,7 @@ local function finish(player: Player, run: Run, reason: MouseDash.Reason, tell: 
 			MouseDashBoard.note(player, save.best, save.bestSeconds)
 		end
 	end
+	ArcadeService.noteMouseDash(player, state.points, seconds)
 	local win = state.points >= Config.ArcadeMaxPoints
 	if win then
 		ArcadeService.grantLegend(player)

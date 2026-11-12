@@ -417,6 +417,10 @@ Theme.potionColors = {
 	big_tip_potion = Color3.fromHex("F2B233"),
 	gold_rush_potion = Color3.fromHex("FFE08A"),
 	quick_bait_potion = Color3.fromHex("F5A3C0"),
+	-- #3462: the Day Cart's Tier 6 potions, as Model-Agent's flasks (#3483)
+	big_lucky_potion = Color3.fromHex("3FB65C"),
+	big_gold_rush_potion = Color3.fromHex("FFD24D"),
+	mega_tip_potion = Color3.fromHex("F2932B"),
 } :: { [string]: Color3 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets
@@ -428,6 +432,9 @@ Theme.foodIcons = {
 	caviar = "🐚", -- #2015: not 🦪 (Unicode 12), drawn blank
 	moon_milk = "🥛",
 	star_treat = "⭐",
+	-- #3462: the Day Cart's own baits wear the dealer's glyphs until theirs are drawn
+	honey_cream = "🥛",
+	comet_treat = "⭐",
 } :: { [string]: string }
 
 -- glyph -> the clean symbol IconArt draws for it (#1027, Components/CleanGlyphs)

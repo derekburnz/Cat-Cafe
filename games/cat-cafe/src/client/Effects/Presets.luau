@@ -3516,6 +3516,10 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+	-- #3462: the Day Cart's Tier 6 potions glow as their smaller kinds until they have glows of their own
+	big_lucky_potion = { emitter = "potionLucky", on = "Body", colour = palette.leaf },
+	big_gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
+	mega_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
@@ -4697,6 +4701,17 @@ Presets.eventBanner = {
 	fishUp = 40,
 	fishFall = 150,
 	fishSpread = 180,
+}
+
+-- #3464 (a loot card's pop-in, Effects/LootCardFx): the card scales in from `from` over `popSeconds` with one soft
+-- overshoot, its first row lands at `firstRow` seconds and each next one `gap` later; `bounceSeconds` is the icon
+-- bounce's length (Presets.mouseDash.bounce.seconds), counted so the pop-in's end covers the last bounce.
+Presets.lootCard = {
+	from = 0.8,
+	popSeconds = 0.22,
+	firstRow = 0.12,
+	gap = 0.15,
+	bounceSeconds = 0.22,
 }
 
 return Presets

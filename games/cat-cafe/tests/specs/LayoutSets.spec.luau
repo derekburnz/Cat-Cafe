@@ -668,7 +668,9 @@ return function()
 					local board = Layout.indexBoards[def.area]
 					expect(board.x < 0).to.equal(true)
 					local bx, bz = Layout.campPoint(camp, board.x, board.z)
-					expect(apart(x, z, bx, bz) > 2 * Config.CampExtraRangeStuds).to.equal(true)
+					-- 28 studs: twice the reach the spots were fitted with (14). #3448 took the reach to 18 with the
+					-- bigger rings; the rings themselves are kept apart by WalkUp.apart
+					expect(apart(x, z, bx, bz) > 28).to.equal(true)
 					-- clear of the landing pad's spots, the cannon and its front, and the carrier basket
 					local pad = Layout.landingPads[def.area].centre
 					expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)

@@ -474,7 +474,7 @@ local Config = {
 	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
-	DealerRangeStuds = 16, -- #3112: 12 until the walk-up rings grew to radius 6
+	DealerRangeStuds = 20, -- #3448: 16 until the rings grew to radius 8; #3112: 12 until the walk-up rings grew to radius 6
 	-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items"): no long dry spells. After this
 	-- many nights in a row on one server with none of the food, the next night stocks at least 1 (shared/Dealer).
 	DealerDryNights = { star_treat = 4, moon_milk = 3 } :: { [string]: number },
@@ -500,7 +500,7 @@ local Config = {
 	-- CornerDailyLimits of a family, counted for each row on its own (#1712; a family not listed has none). Cat
 	-- food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
-	CornerShopRange = 18, -- #3112: 14 until the walk-up rings grew to radius 6
+	CornerShopRange = 22, -- #3448: 18 until the rings grew to radius 8; #3112: 14 until the walk-up rings grew to radius 6
 	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
 	-- retired). Each global game day rolls YardDecorRows rows, each a different piece or style: first a rarity by
 	-- these weights (in percent), then a piece of it; a rarity with none left moves the roll one rarity down.
@@ -541,6 +541,10 @@ local Config = {
 		money = 3,
 		big_money = 2,
 		gold_rush = 2,
+		-- #3462: the Tier 6 potions, one of each a game day
+		big_lucky = 1,
+		big_gold_rush = 1,
+		mega_money = 1,
 	} :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
@@ -796,7 +800,7 @@ local Config = {
 	BedtimeTimeoutSeconds = 15, -- a cat still on its way after this is placed on its spot or station
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
-	SpinStationRange = 18, -- #3112: 14 before the radius 6 rings; SpinWheel from this close to a station tagged SpinWheel
+	SpinStationRange = 22, -- #3448: 18 until the rings grew to radius 8; #3112: 14 before the radius 6 rings; SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
 	SpinAllMax = 51, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
 	SpinBankCap = 50, -- banked spins stop here (#1414: 20 to 50, so two Tip Jar sessions a day keep every spin)
@@ -824,7 +828,7 @@ local Config = {
 	CrateDuplicateRefund = { Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 } :: {
 		[string]: number,
 	},
-	FishMarketRange = 18, -- #3112: 14 before the radius 6 rings; OpenCrate and BuyFishItem from this close to a FishMarket station
+	FishMarketRange = 22, -- #3448: 18 until the rings grew to radius 8; #3112: 14 before the radius 6 rings; OpenCrate and BuyFishItem from this close to a FishMarket station
 	-- #2565 (mystery-market.md section 2): Juniper's Mystery Market. Every item is on the shelf all the time; one a week
 	-- is on sale at MysterySaleShare of its price. The week starts at MysteryEpoch, Saturday 2026-11-07 00:00 UTC, so
 	-- the launch week's sale is the Backpack (Catalog.mysteryItems' first row). MysteryOpen false refuses BuyMystery
@@ -834,7 +838,7 @@ local Config = {
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
 	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
-	MysteryMarketRange = 18, -- #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
+	MysteryMarketRange = 22, -- #3448: 18 until the rings grew to radius 8; #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
 	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
@@ -1022,7 +1026,7 @@ local Config = {
 	SpaSlotPrices = { 0, 100, 250 },
 	MuseumRoomTipBonus = 0.05, -- #2908 (Derek2 2026-11-10: "up the tips bonus to be 5% per room filled"; was 0.02)
 	LateStationsOpen = true, -- on since the Spa and Museum cards are in (#2931)
-	CampExtraRangeStuds = 14, -- #3113: 8 until the camp stations got radius 6 rings; from the PromptAnchor at the front
+	CampExtraRangeStuds = 18, -- #3448: 14 until the rings grew to radius 8; #3113: 8 until the camp stations got radius 6 rings; from the PromptAnchor at the front
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
 	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is
@@ -1047,8 +1051,8 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 16, -- #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
-	CodesCircleRadius = 6, -- #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	CodesCatRange = 20, -- #3448: 16 until the rings grew to radius 8; #3112: 12 before the radius 6 circle; the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
+	CodesCircleRadius = 8, -- #3448: 6 until the rings grew to radius 8; #3112 (Derek2: "make the circles infront of the stations bigger"): 4 to 6; the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	-- #3062 (Circle Streak, shared/Arcade): one run costs ArcadeCostFish golden fish; Perfect +2, Good +1, to
 	-- ArcadeMaxPoints. Every ArcadeStepEvery points the circles shrink ArcadeShrinkStep quicker and the windows narrow
 	-- by ArcadeWindowStep, the wobble rising toward ArcadeJitterMax. ArcadeStartShrinkSeconds is a Common stray's
@@ -1150,7 +1154,8 @@ local Config = {
 	ShoveTargetImmuneSeconds = 0, -- after a hit lands, nobody can hit that player again for this long (S45)
 	-- #3342 (Derek2 2026-11-11: "tackling immunity for the first 5 minutes"): nobody can tackle a player for this long
 	-- after they join a server, each session. Their own tackle press (one the server takes) ends it early.
-	TackleShieldSeconds = 300,
+	-- #3475 (Derek 2026-11-12: "make the tackle immunity up to 15 mins instead of 5"): 300 to 900.
+	TackleShieldSeconds = 900,
 	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
 	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
 	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.

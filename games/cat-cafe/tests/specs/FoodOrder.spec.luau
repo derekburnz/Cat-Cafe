@@ -31,6 +31,20 @@ return function()
 			)
 		end)
 
+		it("#3462: leaves a Day Cart food off the list while the cart's shelf is shut", function()
+			local honey = Catalog.getLure("honey_cream")
+			expect(FoodOrder.listed(honey, 0, false)).to.equal(false)
+			expect(FoodOrder.listed(honey, nil, false)).to.equal(false)
+			expect(FoodOrder.listed(honey, 2, false)).to.equal(true) -- one in the bag still shows
+			expect(FoodOrder.listed(honey, 0, true)).to.equal(true)
+			for _, lure in Catalog.lures do
+				if lure.source ~= "cart" then
+					expect(FoodOrder.listed(lure, 0, false)).to.equal(true)
+				end
+			end
+			expect(FoodOrder.listed(nil, 0, false)).to.equal(true)
+		end)
+
 		it("puts the foods the player has first in the bowl, rarest at the top (#2323)", function()
 			local rarest = FoodOrder.defs(Catalog.lures, true)
 			-- a new player in the tutorial: Kibble alone, so it leads instead of trailing the list

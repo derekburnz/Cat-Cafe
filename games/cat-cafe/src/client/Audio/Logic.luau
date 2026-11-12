@@ -514,13 +514,14 @@ function Logic.mouseMissCue(kind: any): string?
 	return nil
 end
 
--- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
--- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
--- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
+-- #3296: a run's end. `reason` is "hearts" (out of hearts), "time" (the run clock ran out, #3553), "win" (the top
+-- score) or "quit". A win or a new best plays the fanfare (a run closed on a new best too, since the window throws
+-- its confetti then), any other run that ran out of hearts or time with points the arcade's "nice try"; any other
+-- quit is silent.
 function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
 	if reason == "win" or newBest == true then
 		return "mouseBest"
-	elseif reason == "hearts" and type(points) == "number" and points > 0 then
+	elseif (reason == "hearts" or reason == "time") and type(points) == "number" and points > 0 then
 		return "arcadeEnd"
 	end
 	return nil

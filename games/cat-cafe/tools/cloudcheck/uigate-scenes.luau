@@ -4556,10 +4556,43 @@ local SCENES = {
 		local result = store:FindFirstChild("Result", true) :: GuiObject
 		assert(result and result.AbsolutePosition.Y >= hint.AbsolutePosition.Y + hint.AbsoluteSize.Y, "uigate: the codes hint lies on the answer card (#3131)")
 	end },
+	-- #3686: a code redeemed while the Codes page stays open joins the used list at once, inside the page
+	{ "CodesUsedFills", function()
+		UI.update({ codesRedeemed = {} } :: any)
+		UI.codes.open()
+		press("Store", "codes")
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local used = store and store:FindFirstChild("Used", true) :: GuiObject?
+		assert(used and used:FindFirstChild("playtest") == nil, "uigate: a used code before any was redeemed (#3686)")
+		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+		UI.update({ codesRedeemed = { playtest = 1793900000 } } :: any)
+		task.wait()
+		local row = used:FindFirstChild("playtest") :: GuiObject?
+		assert(row, "uigate: the used list did not fill while the page was open (#3686)")
+		local page = used:FindFirstAncestorWhichIsA("ScrollingFrame") :: ScrollingFrame?
+		if page then
+			local bottom = row.AbsolutePosition.Y + row.AbsoluteSize.Y
+			local reach = page.AbsolutePosition.Y + page.AbsoluteCanvasSize.Y
+			assert(bottom <= reach + 1, "uigate: the new used code lies past the page's scroll end (#3686)")
+		end
+		local empty = used:FindFirstChild("Empty") :: GuiObject?
+		assert(empty and not empty.Visible, "uigate: the used list still says nothing was used (#3686)")
+	end },
 	-- #1714: a refusal is one calm line in place; nothing used yet says so
 	{ "CodesRefused", function()
 		UI.codes.open()
 		press("Store", "codes")
+		-- #3686: the refused code stays on show, and tapping back into the box clears it for the next one
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local box = store and store:FindFirstChildWhichIsA("TextBox", true)
+		assert(box, "uigate: no code box in the Store's Codes page")
+		box.Text = "WRONGCODE"
+		UI.codes.result(false, "That code doesn't exist", nil)
+		assert(box.Text == "WRONGCODE", "uigate: a refused code left the box before the player came back to it (#3686)")
+		UIShim.fire(UIShim.eventOf(box, "Focused")) -- the player taps back into the box
+		task.wait()
+		assert(box.Text == "", "uigate: a refused code stays in the box when the player taps it again (#3686)")
+		box.Text = "WRONGCODE"
 		UI.codes.result(false, "That code doesn't exist", nil)
 	end },
 	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened

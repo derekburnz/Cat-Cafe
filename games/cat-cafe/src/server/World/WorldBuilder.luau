@@ -1409,12 +1409,38 @@ local function paintCampWords(
 	local base = CFrame.new(camp.origin.x, 0, camp.origin.z)
 		* CFrame.Angles(0, math.rad(camp.turn), 0)
 	local obstacles: { SafeWords.Box } = {}
+	-- the walk-up rings near the words (Derek 2026-11-12: "move the safezone text", painted inside the Mystic Pool's
+	-- ring): kept apart from what stands on the floor, so the words can fall back to ignoring them
+	local rings: { SafeWords.Box } = {}
 	local function add(root: Instance)
 		for _, descendant in root:GetDescendants() do
 			if not descendant:IsA("BasePart") or SAFE_SKIP[descendant.Name] then
 				continue
 			end
 			local piece = descendant :: BasePart
+			if piece.Name == WalkUp.CIRCLE then
+				-- a ring is unseen and flat (its SurfaceGui draws it), so the checks below would pass it by
+				local radius = piece:GetAttribute("Radius")
+				if type(radius) == "number" then
+					local where = piece.Position
+					local at = base:PointToObjectSpace(Vector3.new(where.X, floorY, where.Z))
+					if
+						math.abs(where.Y - floorY) < 3
+						and at.Z + radius > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
+						and at.Z - radius < 0
+						and at.X + radius > -camp.halfAcross - 1
+						and at.X - radius < camp.halfAcross + 1
+					then
+						table.insert(rings, {
+							x1 = at.X - radius,
+							z1 = at.Z - radius,
+							x2 = at.X + radius,
+							z2 = at.Z + radius,
+						})
+					end
+				end
+				continue
+			end
 			-- a night fence is built hidden (hideForDay) and keeps its real look in an attribute
 			local seen = piece:GetAttribute("NightTransparency")
 			local transparency = if type(seen) == "number" then seen else piece.Transparency
@@ -1468,7 +1494,10 @@ local function paintCampWords(
 	for _, extra in extras do
 		add(extra)
 	end
-	local spot = SafeWords.fit(obstacles, camp.halfAcross)
+	-- clear of the rings too where there is room; where there is none, where they went before the rings counted
+	local all = table.clone(obstacles)
+	table.move(rings, 1, #rings, #all + 1, all)
+	local spot = SafeWords.fit(all, camp.halfAcross) or SafeWords.fit(obstacles, camp.halfAcross)
 	if spot == nil then
 		return
 	end
@@ -1868,7 +1897,7 @@ local function buildMysticPool(parent: Instance, at: CFrame, area: string)
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.Parent = anchor
-	WalkUpCircles.frontFit(model, MYSTIC_RING, parent, { emoji = "🔮" })
+	WalkUpCircles.frontFit(model, MYSTIC_RING, parent, { emoji = "🔮" }, WalkUp.POOL_RADIUS)
 end
 
 local function buildCampExtras(parent: Instance)

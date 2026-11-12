@@ -9708,17 +9708,35 @@ local SCENES = {
 		UI.open("Settings")
 		press("Settings", "resetSave.Open")
 	end },
-	-- #3573: the rest chip under the money while the player rests in their own cafe; in a 2x party it names no number
-	{ "RestChip", function()
-		UI.rest.set(true, true)
+	-- #3701: the cafe rest banner at the head of the toasts' stack, in its three states; in a 2x party no line
+	-- names 2x. Its words are never cut off: every line stays inside the pill.
+	{ "RestBannerWelcome", function()
+		UI.rest.banner("welcome", true, 0)
 		Scenes._rest = true
-		local chip = UIShim.playerGui:FindFirstChild("RestChip", true) :: GuiObject?
-		assert(chip and chip.Visible, "uigate: the rest chip does not show (#3573)")
-		local words = chip:FindFirstChild("Words", true) :: TextLabel
-		assert(words.Text == "Cozy cafe: 2x cat pay 💤", "uigate: the rest chip's words are not the design's (#3573)")
-		UI.rest.set(true, false)
-		assert(words.Text == "Cozy cafe 💤", "uigate: the rest chip names 2x in a 2x party (#3573)")
-		UI.rest.set(true, true)
+		local banner = UIShim.playerGui:FindFirstChild("RestBanner", true) :: GuiObject?
+		assert(banner and banner.Visible, "uigate: the rest banner does not show (#3701)")
+		local big = banner:FindFirstChild("Big", true) :: TextLabel
+		assert(big.Text == "Stand still for 2x money", "uigate: the rest banner's welcome is not the design's (#3701)")
+		UI.rest.banner("welcome", false, 0)
+		assert(not string.find(big.Text, "2x", 1, true), "uigate: the rest banner names 2x in a 2x party (#3701)")
+		UI.rest.banner("welcome", true, 0)
+	end },
+	{ "RestBannerCounting", function()
+		UI.rest.banner("counting", true, 80)
+		Scenes._rest = true
+		local banner = UIShim.playerGui:FindFirstChild("RestBanner", true) :: GuiObject
+		local big = banner:FindFirstChild("Big", true) :: TextLabel
+		assert(big.Text == "2x money in 1:20", "uigate: the rest banner's count is not the design's (#3701)")
+	end },
+	{ "RestBannerResting", function()
+		UI.rest.banner("resting", true, 0)
+		Scenes._rest = true
+		local banner = UIShim.playerGui:FindFirstChild("RestBanner", true) :: GuiObject
+		local big = banner:FindFirstChild("Big", true) :: TextLabel
+		assert(big.Text == "2x money ON", "uigate: the rest banner's resting line is not the design's (#3701)")
+		UI.rest.banner("resting", false, 0)
+		assert(not string.find(big.Text, "2x", 1, true), "uigate: the resting banner names 2x in a 2x party (#3701)")
+		UI.rest.banner("resting", true, 0)
 	end },
 }
 
@@ -9752,7 +9770,7 @@ function Scenes.close()
 	end
 	if Scenes._rest then
 		Scenes._rest = nil
-		UI.rest.set(false) -- #3573's scene
+		UI.rest.banner(nil) -- #3701's scenes
 	end
 	if UI.loot.card then
 		UI.loot.card:hide()

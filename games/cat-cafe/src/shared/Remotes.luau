@@ -119,7 +119,7 @@ Remotes.ClientToServer = {
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?, featureName: boolean?)  featureName (#1083)
 	-- is kept only for an idea and only as true;  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
-	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its
+	"TipSeen", -- (id: string, skipped: boolean?, seconds: number? #3430 for "mystic_intro" only)  F87 (easy-start.md section 6): a shared/Tips id or one of its
 	-- asks, 1 a second. A tip goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut was skipped);
 	-- F96: an ask this session sent (notify_ask, favorite_ask, like_ask) goes in tipsSeen and logs ask_shown (the
 	-- notification ask's first showing only sets notifyAskAt; skipped true: Roblox would not prompt), feedback_ask

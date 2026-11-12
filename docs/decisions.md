@@ -1060,5 +1060,5 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Day Cart top shelf (#3462):** five rows in the billions at Tier 6, as he asked. The two baits are the cart's own (Honey Cream 1B, Comet Treat 3B), not the dealer's Caviar and Moon Milk, because the dealer sells those for a few million. `day-cart.md` section 5.
 - **Secret cats (#3470):** Secret chance is Mythical / 100 everywhere, income 300 as a keep-up rarity, three cats, hidden from the Index until owned, behind `secretCats` (off until a restart). `secret-cats.md`.
 - **Credits (#3472):** feedback issues carry the report key and never a player's name, and only players who ticked "Feature my name" are named. `idea-credits.md` section 8.
-- **Tackle complaint (#3468):** Derek's answer for now is the tackle shield at 15 minutes. First dibs and the sorry gift are not built without his word.
+- **Tackle complaint (#3468):** Derek's answer for now is a longer tackle shield, 15 minutes in place of 5 (`TackleShieldSeconds` 300 to 900, a change still to be built by Gameplay-Engineer when this was written). First dibs and the sorry gift are not built without his word.
 - **For Derek to confirm:** the Secret cat names and numbers, the bait names and odds, and the credit tick limit.

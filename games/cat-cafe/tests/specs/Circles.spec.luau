@@ -1454,16 +1454,13 @@ return function()
 		local EPOCH = Arcade.BOARD_EPOCH -- #3378: a best counts only with the board's epoch
 
 		it("reads a save back safely, and yesterday's milestones are open again", function()
-			local junk = Arcade.sanitize(
-				{
-					best = 250,
-					bestCircles = -3,
-					paid = { 10, 15, "x", 10 },
-					day = 20400,
-					epoch = EPOCH,
-				},
-				NOW
-			)
+			local junk = Arcade.sanitize({
+				best = 250,
+				bestCircles = -3,
+				paid = { 10, 15, "x", 10 },
+				day = 20400,
+				epoch = EPOCH,
+			}, NOW)
 			expect(junk.best).to.equal(100)
 			expect(junk.bestCircles).to.equal(0)
 			expect(junk.paid :: any).to.deepEqual({ 10 })

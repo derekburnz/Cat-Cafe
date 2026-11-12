@@ -3512,4 +3512,49 @@ function Logic.binLidPop(u: number, height: number, fly: boolean): (number, numb
 	return 4 * height * t * (1 - t), 0
 end
 
+-- Petting a cat (#3651, Effects/PetCat) `seconds` after the reach starts: how much of the petting arm shows (0 to
+-- 1, eased up over `raise` and down over `lower`) and where the hand is in its stroke (-1 to 1, a sine through
+-- `strokes` strokes of `every` seconds, 0 while the arm goes down to the cat or comes back). Both 0 outside it.
+function Logic.petAt(
+	seconds: number,
+	raise: number,
+	strokes: number,
+	every: number,
+	lower: number
+): (number, number)
+	local stroking = strokes * every
+	local function smooth(k: number): number
+		k = math.clamp(k, 0, 1)
+		return k * k * (3 - 2 * k)
+	end
+	if seconds <= 0 or seconds >= raise + stroking + lower then
+		return 0, 0
+	elseif seconds < raise then
+		return smooth(seconds / raise), 0
+	elseif seconds < raise + stroking then
+		return 1, math.sin(2 * math.pi * (seconds - raise) / every)
+	end
+	return smooth(1 - (seconds - raise - stroking) / lower), 0
+end
+
+-- One heart of the petting puff at `u` (0 to 1 through its life): its offset from the puff's start (floating up
+-- `rise` studs, easing out, the hearts fanned evenly across `fan` studs and the later ones a little behind), its
+-- size (popping from 0.5 to 1 over the first fifth) and how faded it is (0 until 60%, then to 1).
+function Logic.petHeart(
+	index: number,
+	count: number,
+	u: number,
+	rise: number,
+	fan: number
+): (Vector3, number, number)
+	local t = math.clamp(u, 0, 1)
+	local side = if count > 1 then (index - 1) / (count - 1) - 0.5 else 0
+	local late = if count > 1 then 0.15 * ((index * 2) % count) / count else 0
+	local k = math.clamp((t - late) / (1 - late), 0, 1)
+	local up = rise * (1 - (1 - k) * (1 - k))
+	local scale = 0.5 + 0.5 * math.clamp(k / 0.2, 0, 1)
+	local fade = if k <= 0 then 1 else math.clamp((t - 0.6) / 0.4, 0, 1)
+	return Vector3.new(side * fan * k, up, 0), scale, fade
+end
+
 return Logic

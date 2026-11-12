@@ -1151,3 +1151,21 @@ Design-Agent's pick on top of the stuck cat pointer, for the first rescue step (
 | Within 60 studs | The cat meows (`strayCall`), again every 45 s, 4 times at most in a session | `Beats.hit("stuckCall", cat)` |
 
 All of it goes at once when your rescue bar opens, while someone else is on that cat, at night (the trap is empty then) and for good once your first rescue has started. No arrow, no countdown, no "hurry". Reduce Motion: the bubble and the trap keep still; the pillar already does. Cost: one Beam, one BillboardGui and one part, for one player state.
+
+## Petting a cat (#3651)
+
+`Effects/PetCat.luau`, timing in `Logic.petAt` and `Logic.petHeart`, the arm in `Avatar.petArm`, numbers in `Presets.petCat`, sounds in `Audio/Logic.petCatCue`. Plays on `Moments.CatPetted(userId, cat, from)` or the `CatPetted` remote.
+
+| Effect | How |
+|---|---|
+| The player's free left arm reaches down to the cat (0.2 s), strokes twice (0.4 s each) and comes back (0.25 s). The right arm keeps the net; a carried cat keeps both arms. Off with Reduce Motion. | `PetCat.layer(userId, rig)` in Tackle's frame, like the pal wave |
+| As the hand arrives the cat perks up (ears, nose and tail, the catch's "perk") and 5 pink hearts float up 2.4 studs over its head, fan out and fade in 1.1 s. The hearts are the ♥ glyph on billboards, so no texture or upload; the count follows the phone burst scale. A soft heart chime and a 1.6 s purr play at the cat. | `PetCat.pet(userId, cat, from)` |
+| When the heart moves from another cat: one grey heart fades off the old cat and a pink heart arcs to the new one in 0.6 s, then the puff plays. With Reduce Motion the puff plays at once. | same call with `from` |
+
+## Guide trail paw prints (#3554, 2026-11-12)
+
+`Effects/PawTrail.luau`, numbers in `Presets.pawTrail`.
+
+| Look | Hook |
+|---|---|
+| Each guide trail dot is drawn as a gold paw print (a pad and four toes) 1.7 studs across, toes towards the target, left and right of the line in turn; the prints fade with their dots, so the trail's comet of light and its Reduce Motion look carry over. No arrows, no words, no timer. | The attribute `Paws = true` on GuideTrail's folder (`CatCafeTutorialTrail` in the Workspace); clearing it puts the dots back. At most 48 prints (GuideTrail's dot cap), one CanvasGroup each, on this client only. |

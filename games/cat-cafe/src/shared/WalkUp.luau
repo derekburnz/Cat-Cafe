@@ -55,8 +55,11 @@ end
 
 -- The radius of a ring round a station whose widest point is `half` studs from its pivot: AROUND_PAD clear of it,
 -- at most EDGE_SLACK inside `range` and at most `cap` when given.
-function WalkUp.aroundRadius(half: number, range: number, cap: number?): number
+function WalkUp.aroundRadius(half: number, range: number, cap: number?, fill: boolean?): number
 	local most = math.min(range - WalkUp.EDGE_SLACK, cap or math.huge)
+	if fill then
+		return math.max(1, most) -- #3671: as wide as the range and the cap allow
+	end
 	return math.max(1, math.min(math.max(0, half) + WalkUp.AROUND_PAD, most))
 end
 

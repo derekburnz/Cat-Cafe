@@ -80,14 +80,14 @@ return function()
 				)
 				expect((UpdateGift.banner("paid", 0, 2, 0) :: any).lines[1]).to.equal("+2 spins")
 				-- the launch gift's and the weekly gift's titles fit the banner's 24 characters and their lines its 36
-			for _, made in
-				{
-					UpdateGift.banner("soon", 100, 0, 300),
-					UpdateGift.banner("paid", 100, 0, 0),
-					UpdateGift.banner("soon", 15, 1, 300),
-					UpdateGift.banner("paid", 15, 1, 0),
-				} :: { any }
-			do
+				for _, made in
+					{
+						UpdateGift.banner("soon", 100, 0, 300),
+						UpdateGift.banner("paid", 100, 0, 0),
+						UpdateGift.banner("soon", 15, 1, 300),
+						UpdateGift.banner("paid", 15, 1, 0),
+					} :: { any }
+				do
 					expect(#made.title <= 24).to.equal(true)
 					for _, line in made.lines do
 						expect(#line <= 36).to.equal(true)
@@ -405,6 +405,58 @@ return function()
 					coinSeconds = 600,
 					fish = 40,
 					crates = { classic_crate = 1 },
+				})
+			end
+		)
+
+		it(
+			"2000VISITS and 10LIKES are on at once, UPDATE2 only from the update's hour (#3576)",
+			function()
+				expect(Codes.normalize("2000VISITS")).to.equal("2000visits")
+				expect(Codes.normalize("10Likes")).to.equal("10likes")
+				expect(Codes.normalize("UPDATE2")).to.equal("update2")
+				for _, id in { "2000visits", "10likes", "update2" } do
+					local def = Codes.get(id)
+					assert(def ~= nil, id)
+					expect(def.id).to.equal(id)
+					expect(def.active).to.equal(true)
+					expect(def.requiresGroup).never.to.be.ok()
+					expect(def.endsAt).never.to.be.ok()
+					expect(string.match(id, "^%w+$")).to.be.ok()
+					expect(#id <= Config.CodeMaxLength).to.equal(true)
+					expect((def.prize.coinSeconds or 0) <= 900).to.equal(true)
+					expect(def.prize.spins).never.to.be.ok()
+					expect(def.prize.lures).never.to.be.ok()
+				end
+				local at = Catalog.codes.update2.startsAt :: number
+				expect(os.date("!%Y-%m-%d %H:%M", at)).to.equal("2026-11-12 22:00")
+				expect(Catalog.codes["2000visits"].startsAt).never.to.be.ok()
+				expect(Catalog.codes["10likes"].startsAt).never.to.be.ok()
+				-- before its hour UPDATE2 reads as a code that does not exist, used or not; from it, it pays once
+				expect(Codes.refusal(fresh(), "update2", at - 1, false)).to.equal(Codes.UNKNOWN)
+				expect(Codes.refusal(fresh(), "update2", at, false)).to.equal(nil)
+				local used = fresh()
+				used.codesRedeemed.update2 = at
+				expect(Codes.refusal(used, "update2", at + 1, false)).to.equal(Codes.USED)
+				expect(Codes.refusal(fresh(), "2000visits", at - 86400, false)).to.equal(nil)
+				expect(Codes.refusal(fresh(), "10likes", at - 86400, false)).to.equal(nil)
+				expect(Catalog.codes.update2.prize :: any).to.deepEqual({
+					coins = 2500,
+					coinSeconds = 900,
+					fish = 60,
+					potions = { big_tip_potion = 2 },
+				})
+				expect(Catalog.codes["2000visits"].prize :: any).to.deepEqual({
+					coins = 2500,
+					coinSeconds = 900,
+					fish = 50,
+					crates = { classic_crate = 2 },
+				})
+				expect(Catalog.codes["10likes"].prize :: any).to.deepEqual({
+					coins = 2000,
+					coinSeconds = 600,
+					fish = 40,
+					potions = { lucky_potion = 1 },
 				})
 			end
 		)

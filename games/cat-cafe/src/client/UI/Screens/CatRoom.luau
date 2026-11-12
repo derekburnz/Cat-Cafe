@@ -84,8 +84,9 @@ local SQUARE = Scale.tapHeight(Theme.sizes.touchMin)
 local CREW_LABEL = 16
 local CREW_H = CREW_LABEL + 4 + SQUARE + 8
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
-local SEARCH_W = 180
+local SEARCH_W = 116 -- 180 before #3647: the Sort button took the room
 local CHIP_W = 96
+local SORT_W = 96 -- #3647: the Sort button, after the filters
 local ACTION_W = 124
 local DETAIL_W = 236
 local DETAIL_ART = 64
@@ -197,6 +198,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._roles = {} :: { any } -- crew strip groups, one per role in catalog order
 	self._filter = "All" :: CatRoomList.Filter
 	self._query = ""
+	self._sort = "Best" :: CatRoomList.Sort -- #3647: kept for the session, a fresh open does not reset it
 	self._selected = nil :: string? -- the picked cat's uid
 	self._placing = false -- Assign pressed: the next "+" tap puts the picked cat there
 	self._confirmSell = false
@@ -334,6 +336,22 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			end,
 		})
 	end
+
+	-- #3647 (Derek 2026-11-12): one button steps the order round Best, Rarity and Level
+	self._sortButton = Button.new({
+		name = "Sort",
+		text = "Sort: Best",
+		style = "ghost",
+		size = UDim2.fromOffset(SORT_W, TOOL_H),
+		position = UDim2.fromOffset(SEARCH_W + GAP + #FILTERS * (CHIP_W + GAP), 0),
+		textSize = Theme.sizes.textSmall,
+		parent = toolbar,
+		sound = "uiTab",
+		onClick = function()
+			self._sort = CatRoomList.nextSort(self._sort)
+			self:_refresh()
+		end,
+	})
 
 	-- Equip best: the server fills the open slots with the highest-rated cats (cat stats thread)
 	self._equipBest = Button.new({
@@ -1270,6 +1288,8 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		chip:setText(("%s %d"):format(filter, countOf[filter] or 0))
 		chip:setStyle(if filter == self._filter then "gold" else "ghost")
 	end
+	self._sortButton:setText("Sort: " .. self._sort)
+	self._sortButton:setStyle(if self._sort == "Best" then "ghost" else "gold")
 	self._equipBest:setEnabled(counts.all > 0)
 	-- #2697: while the tutorial asks for a job, Equip Best rings (one press puts the new cat to work)
 	local catalog: Types.Catalog? = self._catalog
@@ -1293,7 +1313,8 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	self:_paintAuto()
 
 	-- grid
-	local shown = CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query)
+	local shown =
+		CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query, self._sort)
 	local order: { [string]: number } = {}
 	for index, instance in shown do
 		order[instance.uid] = index
@@ -1875,6 +1896,7 @@ function CatRoom.destroy(self: any)
 			square.portrait:destroy()
 		end
 	end
+	self._sortButton:destroy()
 	for _, chip in self._chips do
 		chip:destroy()
 	end

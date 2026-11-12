@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
@@ -41,6 +42,7 @@ local Leaderstats = require(script.Parent.Leaderstats)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
+local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
@@ -151,7 +153,7 @@ local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile)
 		* Economy.phaseMultiplier(ClockService.phase())
 		* Economy.tipMultiplier(profile, os.time())
-		* Economy.eventMoney() -- #2486: a running Cafe Event's money
+		* Economy.moneyFor(profile) -- #2486: a running Cafe Event's money; #3573: or the rest's 2x
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
@@ -208,8 +210,9 @@ end
 local function luckView(profile: Profile, now: number): (number, { Types.LuckSource })
 	local luckyDay = ClockService.luckyDay()
 	local event = EventService.luck() -- #2486: the running Cafe Event's Luck
+	local charm = LiveFlagService.on(LuckyCharm.FLAG) -- #3298
 	local sources: { Types.LuckSource } = {}
-	for _, source in Luck.sources(profile, now, luckyDay, event) do
+	for _, source in Luck.sources(profile, now, luckyDay, event, charm) do
 		local endsAt: number? = nil
 		if source.id == "potion" then
 			local _, left = Potions.luck(profile, now) -- #3462: of the potion whose Luck counts now
@@ -223,7 +226,7 @@ local function luckView(profile: Profile, now: number): (number, { Types.LuckSou
 			{ id = source.id :: string, value = source.value, endsAt = endsAt }
 		table.insert(sources, row)
 	end
-	return Luck.of(profile, now, luckyDay, event), sources
+	return Luck.of(profile, now, luckyDay, event, charm), sources
 end
 
 -- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
@@ -236,6 +239,9 @@ local function traitsView(profile: Profile, now: number): Types.TraitsView?
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
+	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
+	-- holds for the session
+	local introAuto = Telemetry.introPlays(player, profile)
 	local plot = PlotService.get(player)
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
@@ -289,6 +295,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		secondCat = SecondCat.view(profile), -- #3022
 		stuckGoal = StuckGoal.waiting(profile), -- #2912
 		introSeen = profile.introSeen,
+		introAuto = introAuto, -- #3666
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
 		hideCredit = profile.hideCredit == true, -- #1083: the Settings row "Show my name on the Thank You board"
@@ -2252,6 +2259,19 @@ local function onBuyLure(player: Player, _rawId: unknown)
 	Net.toast(player, "Bait food is at the Corner Shop now", "info")
 end
 
+-- The Welcome back card for pay earned while away. #3602: not after a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE),
+-- which is the same visit carried on; the few seconds of the hop are credited without a card when the player
+-- leaves (DataService's release), as any unclaimed offline pay is.
+local function offlineCard(player: Player)
+	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
+		return
+	end
+	local offline, seconds = DataService.peekPendingOffline(player)
+	if offline > 0 then
+		Net.fire(player, "OfflineEarnings", offline, seconds)
+	end
+end
+
 local function onClaimOffline(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2423,10 +2443,7 @@ local function onLoaded(player: Player, profile: Profile)
 	if refund > 0 then
 		Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
 	end
-	local offline, seconds = DataService.peekPendingOffline(player)
-	if offline > 0 then
-		Net.fire(player, "OfflineEarnings", offline, seconds)
-	end
+	offlineCard(player)
 	if not DataService.saves() then
 		Net.toast(
 			player,
@@ -2508,10 +2525,7 @@ function CafeService.start()
 		if refund > 0 then
 			Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
 		end
-		local offline, seconds = DataService.peekPendingOffline(player)
-		if offline > 0 then
-			Net.fire(player, "OfflineEarnings", offline, seconds)
-		end
+		offlineCard(player)
 	end)
 
 	-- The rate changes at dusk and dawn: settle the old phase and send the new rate at once.

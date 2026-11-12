@@ -89,6 +89,19 @@ return function()
 			expect(#RichBags.expired(bags, 1100 + Config.RichBagSeconds)).to.equal(2)
 		end)
 
+		it(
+			"names the records with no bag behind them, which nobody could collect (#3632)",
+			function()
+				local bags = { bag(1, 1, 1000), bag(3, 2, 1010) }
+				local orphans = RichBags.orphans({ "b1", "b2", "b3", "b9" }, bags)
+				expect(#orphans).to.equal(2)
+				expect(orphans[1]).to.equal("b2")
+				expect(orphans[2]).to.equal("b9")
+				expect(#RichBags.orphans({ "b1", "b3" }, bags)).to.equal(0)
+				expect(#RichBags.orphans({ "b1" }, {})).to.equal(1)
+			end
+		)
+
 		it("makes ids ClaimRichTip's guard accepts", function()
 			expect(RichBags.idOf(12)).to.equal("b12")
 			expect(string.match(RichBags.idOf(12), "^[%l%d_%-]+$") ~= nil).to.equal(true)

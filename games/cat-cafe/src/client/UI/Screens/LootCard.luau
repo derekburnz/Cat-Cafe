@@ -47,7 +47,9 @@ function LootCard.new(parent: Instance): LootCard
 		ResetOnSpawn = false,
 		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 11, -- over the HUD (10), under the windows
+		-- with the rescue bar whose win banner it follows (25). At 11 it lay under the Tackle bar (14) and its Safe
+		-- chip, which stand in the same place and hid every row (Review-QA in Studio, 2026-11-12)
+		DisplayOrder = 25,
 		Parent = parent,
 	})
 	self.screenGui = screenGui

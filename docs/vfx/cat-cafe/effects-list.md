@@ -284,6 +284,8 @@ Design: `docs/design/cat-cafe/rainbow-coat.md` section 2 (Design-Agent, #626). D
 | Spawn beam | A bundle of six thin beams, one in each hue, rises 50 studs from the new stray's feet for 3 s, seen from up to 400 studs | `RainbowSpawned(areaId, catId)`, the newest `Stray` with that `CatId` and `Variant` (tried for 2 s while it streams in) |
 | Big pull | Securing a rainbow cat of any rarity plays the big pull: the catch pop of its rarity where it was secured, and on your screen confetti in the six hues with white, then the bundle of beams from where you stand | `SecuredRare(userId, catId, rarity, gold, variant)` with `variant` = `"rainbow"` |
 
+Dark cats (#3470, 2026-11-12): a part's band is as bright as its own colour is against the body's (it was against the lightest part's, which left a Nebula or a Tuxedo at 70 % all over because of a few pale marks). The body is always at full brightness, darker stripes go down to 70 %, and a mark lighter than the body (stars, a white chest) is up to 50 % paler (`Logic.rainbowShade`, `Logic.rainbowLift`, `Presets.rainbow.lift`).
+
 Reduce Motion: the bands stand still, with no trail and no beams; the glow and outline stay. Budget: the nearest 10 rainbow cats on a PC, 6 on a phone and 3 in Low performance within 120 studs flow at up to 20 colour steps a second (the budget's update rate on a phone), and never more than `Config.RainbowAnimateMax`; of those the nearest 6, 3 and none get the outline (Highlights are capped at 31 on a client). Every other rainbow cat shows still bands and costs nothing a frame. Each part's own colour comes back when the coat goes (`Variant` cleared or the model leaves Workspace); only this client's copy changes. A cat that streams in more parts is read again. Seven cases are in `docs/vfx/cat-cafe/specs/EffectsRainbow.spec.luau` for QA. Studio checks once Gameplay-Engineer's F99 is in: spawn a rainbow Tabby and watch the bands flow nose to tail with the stripes showing, the beam on spawn, the trail as it walks off and while you carry it, the outline; check one in (the big pull, rainbow confetti); put twelve on screen on a phone and only the nearest six flow; turn Reduce Motion on and the bands stop.
 
 ## Big pulls (F89, 2026-11-01)
@@ -1125,3 +1127,15 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Rummage Bin prize roll (#3608, 2026-11-12)
+
+`Effects/BinRoll.luau`, timing in `Logic.binRollSteps`, numbers in `Presets.binRoll`, sounds in `Audio/Logic.binRollCue`.
+
+| Look | Hook |
+|---|---|
+| The roll: a marker goes down the board's rows in list order, twice round and on to the prize, a tick every 0.067 s until the last lap's worth of ticks slow evenly to a 0.40 s last gap (2.0 to 2.5 s for seven rows). The slowdown is the same wherever it stops and it never lingers on any row but the last. The bin tips 4 degrees side to side while it rolls (still with Reduce Motion). A soft tick per row and the reel's stop as it lands. | `BinRoll.play(bin, count, target, tier, onTick, onDone)` returns a function that skips to the stop (a tap); the board lights the row in `onTick`. The server has already picked `target`. |
+| Landing by tier: nothing for a common prize; a blue ring and a few sparkles for a good one; a short thin gold light column (0.9 s) with a ring for the best, gone before the bar starts. | `BinRoll.landed(bin, tier)` (called by `play`) |
+| Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
+| Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
+

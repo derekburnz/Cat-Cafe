@@ -6,7 +6,7 @@
 -- rolls come from a passed function, so the specs are deterministic.
 --
 -- Each cat holds one trait at a time, saved as `{ id }`; the id carries its rarity and effects (LIST). A roll picks
--- the rarity first at RARITIES' odds (Common 55, Uncommon 28, Rare 12, Legendary 4, Mythic 1), then one trait of that
+-- the rarity first at RARITIES' odds (Common 35, Uncommon 30, Rare 20, Legendary 10, Mythic 5), then one trait of that
 -- rarity evenly. Common, Uncommon and Rare hold the same six one-effect traits, stronger at each rarity; Legendary
 -- holds four two-effect traits and Mythic three three-effect traits. The first trait and every re-roll cost the same:
 -- a free starter roll while any are left (FREE_ROLLS, counted up in `traitFreeRollsUsed` so a missing field never
@@ -65,13 +65,14 @@ export type Def = {
 	effects: { Effect },
 }
 
--- Spec section 1a: the pool's colours and section 3's odds, in roll order.
+-- Spec section 1a: the pool's colours and section 3's odds, in roll order. Odds since 2026-11-12 (Derek on the live
+-- game: "up the rates of rarer traits by a lot"); before: 55, 28, 12, 4, 1. oddsText and the Odds list read these.
 Traits.RARITIES = {
-	{ id = "common", name = "Common", rank = 1, odds = 55, color = "#9AA0A6" },
-	{ id = "uncommon", name = "Uncommon", rank = 2, odds = 28, color = "#4CAF50" },
-	{ id = "rare", name = "Rare", rank = 3, odds = 12, color = "#3F8FE0" },
-	{ id = "legendary", name = "Legendary", rank = 4, odds = 4, color = "#F4C430" },
-	{ id = "mythic", name = "Mythic", rank = 5, odds = 1, color = "#B04FE0" },
+	{ id = "common", name = "Common", rank = 1, odds = 35, color = "#9AA0A6" },
+	{ id = "uncommon", name = "Uncommon", rank = 2, odds = 30, color = "#4CAF50" },
+	{ id = "rare", name = "Rare", rank = 3, odds = 20, color = "#3F8FE0" },
+	{ id = "legendary", name = "Legendary", rank = 4, odds = 10, color = "#F4C430" },
+	{ id = "mythic", name = "Mythic", rank = 5, odds = 5, color = "#B04FE0" },
 } :: { Rarity }
 
 local COMMON, UNCOMMON, RARE, LEGENDARY, MYTHIC =

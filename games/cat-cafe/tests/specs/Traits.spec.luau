@@ -22,7 +22,7 @@ return function()
 	end
 
 	describe("the rarities and traits (spec sections 2 and 3)", function()
-		it("has five rarities at 55 / 28 / 12 / 4 / 1 with the pool's colours", function()
+		it("has five rarities at 35 / 30 / 20 / 10 / 5 with the pool's colours", function()
 			local seen: { any } = {}
 			local total = 0
 			for i, rarity in Traits.RARITIES do
@@ -32,11 +32,11 @@ return function()
 			end
 			expect(total).to.equal(100)
 			expect(seen :: any).to.deepEqual({
-				{ "Common", 55, "#9AA0A6" },
-				{ "Uncommon", 28, "#4CAF50" },
-				{ "Rare", 12, "#3F8FE0" },
-				{ "Legendary", 4, "#F4C430" },
-				{ "Mythic", 1, "#B04FE0" },
+				{ "Common", 35, "#9AA0A6" },
+				{ "Uncommon", 30, "#4CAF50" },
+				{ "Rare", 20, "#3F8FE0" },
+				{ "Legendary", 10, "#F4C430" },
+				{ "Mythic", 5, "#B04FE0" },
 			})
 		end)
 
@@ -144,14 +144,14 @@ return function()
 	describe("the roll (spec sections 2 and 3)", function()
 		it("picks the rarity first, then a trait of it evenly", function()
 			expect(Traits.roll(answers({ 1, 1 })) :: any).to.deepEqual(t("bigTipper_common"))
-			expect(Traits.roll(answers({ 55, 6 })) :: any).to.deepEqual(t("richFriend_common"))
-			expect(Traits.roll(answers({ 56, 2 })) :: any).to.deepEqual(t("nightOwl_uncommon"))
-			expect(Traits.roll(answers({ 83, 3 })) :: any).to.deepEqual(t("fastLearner_uncommon"))
-			expect(Traits.roll(answers({ 84, 5 })) :: any).to.deepEqual(t("quickPaws_rare"))
-			expect(Traits.roll(answers({ 95, 4 })) :: any).to.deepEqual(t("luckyBowl_rare"))
-			expect(Traits.roll(answers({ 96, 1 })) :: any).to.deepEqual(t("goldenWhiskers"))
-			expect(Traits.roll(answers({ 99, 4 })) :: any).to.deepEqual(t("lightningTail"))
-			expect(Traits.roll(answers({ 100, 3 })) :: any).to.deepEqual(t("starSage"))
+			expect(Traits.roll(answers({ 35, 6 })) :: any).to.deepEqual(t("richFriend_common"))
+			expect(Traits.roll(answers({ 36, 2 })) :: any).to.deepEqual(t("nightOwl_uncommon"))
+			expect(Traits.roll(answers({ 65, 3 })) :: any).to.deepEqual(t("fastLearner_uncommon"))
+			expect(Traits.roll(answers({ 66, 5 })) :: any).to.deepEqual(t("quickPaws_rare"))
+			expect(Traits.roll(answers({ 85, 4 })) :: any).to.deepEqual(t("luckyBowl_rare"))
+			expect(Traits.roll(answers({ 86, 1 })) :: any).to.deepEqual(t("goldenWhiskers"))
+			expect(Traits.roll(answers({ 95, 4 })) :: any).to.deepEqual(t("lightningTail"))
+			expect(Traits.roll(answers({ 96, 3 })) :: any).to.deepEqual(t("starSage"))
 			-- out-of-range answers are clamped, never a missing trait
 			expect(Traits.roll(answers({ 999, 99 })) :: any).to.deepEqual(t("starSage"))
 			expect(Traits.roll(answers({ -5, 0 })) :: any).to.deepEqual(t("bigTipper_common"))
@@ -169,19 +169,19 @@ return function()
 				ranks[Traits.rank(trait)] += 1
 				ids[trait.id] = (ids[trait.id] or 0) + 1
 			end
-			expect(math.abs(ranks[1] / N - 0.55) < 0.02).to.equal(true)
-			expect(math.abs(ranks[2] / N - 0.28) < 0.02).to.equal(true)
-			expect(math.abs(ranks[3] / N - 0.12) < 0.01).to.equal(true)
-			expect(math.abs(ranks[4] / N - 0.04) < 0.006).to.equal(true)
-			expect(math.abs(ranks[5] / N - 0.01) < 0.003).to.equal(true)
+			expect(math.abs(ranks[1] / N - 0.35) < 0.02).to.equal(true)
+			expect(math.abs(ranks[2] / N - 0.30) < 0.02).to.equal(true)
+			expect(math.abs(ranks[3] / N - 0.20) < 0.015).to.equal(true)
+			expect(math.abs(ranks[4] / N - 0.10) < 0.01).to.equal(true)
+			expect(math.abs(ranks[5] / N - 0.05) < 0.008).to.equal(true)
 			for _, def in Traits.ofRarity("common") do
-				expect(math.abs((ids[def.id] or 0) / N - 0.55 / 6) < 0.01).to.equal(true)
+				expect(math.abs((ids[def.id] or 0) / N - 0.35 / 6) < 0.01).to.equal(true)
 			end
 		end)
 
 		it("prints the odds on the card", function()
 			expect(Traits.oddsText()).to.equal(
-				"Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%. Each trait inside a rarity is equally likely."
+				"Common 35%, Uncommon 30%, Rare 20%, Legendary 10%, Mythic 5%. Each trait inside a rarity is equally likely."
 			)
 		end)
 

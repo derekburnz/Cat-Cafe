@@ -16,7 +16,7 @@ The headline three, in this order everywhere they are listed:
 
 Also new since the last update, one line each where a list has room: Swift Paws has 5 speed levels, a free Arcade game every day, the Cat Arcade leaderboard, Rank #1, #2 and #3 chat titles and the Titles tab in the Bag, shorter nights.
 
-**If a headline feature is not ready:** the go or no-go is at 20:00 UTC (two hours before). A feature that has not passed review and QA by then stays switched off, and its name comes out of the banner, the event page and the group post. The launch still happens at 22:00 UTC with what is ready. Nothing is switched on without its pass, launch or not. Gates still open as of this draft: the `circleStreak` switch (#3405) is not merged, and `traits` needs its Pace gate and QA pass.
+**If a headline feature is not ready:** the go or no-go is at 20:00 UTC (two hours before). A feature that has not passed review and QA by then stays switched off, and its name comes out of the banner, the event page and the group post. The launch still happens at 22:00 UTC with what is ready. Nothing is switched on without its pass, launch or not. Gates still open as of this draft: Mouse Dash needs its QA pass (the `circleStreak` switch merged in #3405), and `traits` needs its Pace gate and QA pass.
 
 ## 2. The order of steps
 All times UTC on 2026-11-12. This is the one restart Derek approved; the rule of no other restarts stands.

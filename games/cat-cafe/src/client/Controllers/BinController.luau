@@ -321,7 +321,14 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	landed() -- no effects module: the board just shows the row
 end
 
--- A tap, click or key during the show skips it: the effect jumps to its end and the server sends the bar now.
+local SKIP_KEYS: { [Enum.KeyCode]: boolean } = {
+	[Enum.KeyCode.Space] = true,
+	[Enum.KeyCode.E] = true,
+	[Enum.KeyCode.Return] = true,
+	[Enum.KeyCode.KeypadEnter] = true,
+}
+
+-- A tap, click, Space, E, Enter or the gamepad's A during the show skips it: the effect jumps to its end and the server sends the bar now.
 local function onInput(input: InputObject, processed: boolean)
 	if showing == nil or processed then
 		return
@@ -336,6 +343,10 @@ local function onInput(input: InputObject, processed: boolean)
 		return
 	end
 	if kind == Enum.UserInputType.Gamepad1 and input.KeyCode ~= Enum.KeyCode.ButtonA then
+		return
+	end
+	-- on a keyboard only the keys that mean "go on": walking (W, A, S, D, Shift) leaves the roll playing
+	if kind == Enum.UserInputType.Keyboard and not SKIP_KEYS[input.KeyCode] then
 		return
 	end
 	endShow()
@@ -372,6 +383,17 @@ end
 -- or a closed bar never starts another by itself and running across it starts nothing.
 local padSince: number? = nil
 local padUsed = false
+
+-- The pad waits for the tutorial: a new player who stops on it at the first landing is not handed a bar in the
+-- middle of the first steps (the prompt still works for them).
+local TUTORIAL_DONE = 5
+local function inTutorial(): boolean
+	local controller: any = require(script.Parent.UIController)
+	local state: any = controller.state
+	return state == nil
+		or type(state.tutorialStep) ~= "number"
+		or state.tutorialStep < TUTORIAL_DONE
+end
 
 local function padStep()
 	local on = rollOn()
@@ -411,7 +433,7 @@ local function padStep()
 	if padUsed or now - since < Config.BinPadDwellSeconds then
 		return
 	end
-	if busy() or not ready() then
+	if busy() or not ready() or inTutorial() then
 		return -- keeps waiting on the pad: a bin that fills while the player stands there starts
 	end
 	padUsed = true

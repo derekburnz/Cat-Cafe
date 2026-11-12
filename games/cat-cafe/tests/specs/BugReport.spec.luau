@@ -66,7 +66,7 @@ return function()
 				expect(BugReport.featureName("bug", true)).to.equal(false) -- an exploit's Bug report
 				expect(BugReport.featureName("stuck", true)).to.equal(false)
 				expect(BugReport.FeatureHint).to.equal(
-					"If we build your idea, your display name goes on the Thank You board."
+					"If we build your idea, your display name goes on the Thank You board. You can hide it in Settings."
 				)
 			end
 		)

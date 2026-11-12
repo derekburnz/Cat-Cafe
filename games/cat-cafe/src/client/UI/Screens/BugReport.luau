@@ -88,9 +88,11 @@ local COUNTER_WIDTH = 80
 local BUTTON_HEIGHT = 48
 local BUTTON_COMPACT = 100
 local GAP = Theme.sizes.gap
-local TICK_NOTE = 16 -- #1083: the Idea chip's grey line under the box
+local TICK_NOTE = 30 -- #1083: the Idea chip's grey words under the box, two lines on a phone
 -- #3652: the tick is gone; an idea we build is always credited and this line says so before it is sent
-local FEATURE_NOTE = "If we build your idea, your display name goes on the Thank You board."
+-- (shared/BugReport.FeatureHint has the same words for the specs)
+local FEATURE_NOTE =
+	"If we build your idea, your display name goes on the Thank You board. You can hide it in Settings."
 local TOP_EDGE = 30 -- compact: room above the window for the panel's ears and badge
 local BOTTOM_EDGE = 8 -- compact: room between the window and the keyboard
 local BOX_MIN = 56 -- #3518: the box's least height in design pixels before the prompt line gives up its room
@@ -234,13 +236,16 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		Parent = content,
 	})
 
-	-- #1083 (idea-credits.md section 2), #3652: only on the Idea chip
+	-- #1083 (idea-credits.md sections 2 and 9), #3653: only on the Idea chip
 	self._tickNote = text({
 		Name = "FeatureNote",
-		Size = UDim2.new(1, 0, 0, TICK_NOTE),
+		Size = UDim2.new(1, -8, 0, TICK_NOTE),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
 		Text = FEATURE_NOTE,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = content,
 	})
 

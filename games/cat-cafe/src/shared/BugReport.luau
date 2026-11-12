@@ -12,10 +12,11 @@ BugReport.ErrorBytes = 200
 BugReport.Kinds = { "bug", "stuck", "idea" }
 BugReport.StoreName = "BugReports_v1"
 
--- #1083 (idea-credits.md section 2), #3652: the line under the Idea chip's box, one copy for the window and specs.
+-- #1083 (idea-credits.md section 2), #3652: the line under the Idea chip's box, the same words as the window's FEATURE_NOTE (Screens/BugReport).
 -- The "Feature my name" tick is gone (Derek 2026-11-12): an idea we build is always credited, and the line says so
 -- before the idea is sent. A credited player can still keep their name off the board in Settings.
-BugReport.FeatureHint = "If we build your idea, your display name goes on the Thank You board."
+BugReport.FeatureHint =
+	"If we build your idea, your display name goes on the Thank You board. You can hide it in Settings."
 
 -- Whether a report may be credited: every idea, never a bug or stuck report. `_raw` is the old tick's value, which
 -- older clients still send; it is ignored.

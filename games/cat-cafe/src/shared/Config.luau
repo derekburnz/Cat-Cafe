@@ -570,6 +570,7 @@ local Config = {
 		Epic = 0.98,
 		Legendary = 1.12,
 		Mythical = 1.26,
+		Secret = 1.40, -- #3470 (assumed with Derek away): a step past the Mythical's, as its 8 hits are
 	} :: { [string]: number },
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
@@ -583,6 +584,7 @@ local Config = {
 		Epic = 0.105,
 		Legendary = 0.105,
 		Mythical = 0.125,
+		Secret = 0.115, -- #3470 (assumed)
 	} :: { [string]: number },
 	-- #3120: an account's first RescueFirstUses rescues (stats.rescues below it) have zones RescueFirstZone times as
 	-- wide, about the widths before the cut (Common 0.29, Rare 0.23), so a new player's first rescues are no harder.
@@ -713,7 +715,15 @@ local Config = {
 	CollectorEveryMax = 400, -- #2272: was 840
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
-	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },
+	-- #3470: a Secret is worth four Mythicals in a trade's value check (as its income); the Collector never asks for one
+	CollectorValue = {
+		Common = 1,
+		Rare = 3,
+		Epic = 8,
+		Legendary = 20,
+		Mythical = 50,
+		Secret = 200,
+	} :: { [string]: number },
 	-- #1144: how much more often he asks for each askable catId by its rarity (Collector.pickCat), so a player's few
 	-- rarer resting cats come up often for the bigger offers, not one time in many among their commons
 	CollectorAskWeight = { Common = 1, Rare = 3, Epic = 5, Legendary = 6, Mythical = 6 } :: { [string]: number },
@@ -805,9 +815,17 @@ local Config = {
 	-- Robux. Pure rules in GoldenFish.
 	-- a cat new to the Index, any way it was found; its first gold pays twice this
 	-- #2237 (Derek2 2026-11-07: "decrease the amount of gold fish received"): every free source about 60%, the Index half
-	FishFirstCatch = { Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 } :: { [string]: number }, -- was 1/3/8/20/40
+	-- #3470 (assumed with Derek away): a Secret pays four times a Mythical here and in FishRepeatCatch
+	FishFirstCatch = {
+		Common = 1,
+		Rare = 2,
+		Epic = 5,
+		Legendary = 12,
+		Mythical = 25,
+		Secret = 100,
+	} :: { [string]: number }, -- was 1/3/8/20/40
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
-	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5 } :: { [string]: number }, -- #2237: was 1/3/8
+	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 } :: { [string]: number }, -- #2237: was 1/3/8
 	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
 	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds

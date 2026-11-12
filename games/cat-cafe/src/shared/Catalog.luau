@@ -92,12 +92,46 @@ Catalog.rarities = {
 		firstCatchReward = 30000,
 		color = "#FF5E7E",
 	},
+	-- #3470 (Derek 2026-11-12, from a player's idea: "a secret tier of pet that is out of index can spawn on any area
+	-- and its super rare like 100x rarer then mythic but its better then all current mythics"): four times a
+	-- Mythical's income, at the owner's best open area (CatStats.areaMultiplier), and a harder catch in the same
+	-- game. Design-Agent's numbers on #3470.
+	Secret = {
+		incomePerSecond = 300,
+		circles = 8,
+		shrinkSeconds = 0.50,
+		catchWindow = 0.64,
+		trustNeed = 26,
+		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- as Mythical
+		doubleRings = true,
+		pawRings = true,
+		fleeStuds = 72,
+		rescueHits = 8,
+		sellValue = 60000,
+		firstCatchReward = 150000,
+		color = "#16161D", -- tags and cards only (white stroke); effects use a pale starlight (Effects/Presets)
+	},
 } :: { [string]: Types.RarityDef }
 
+-- The five rarities an odds table rolls (areas, foods, crates, decor), commonest first. #3470: Secret is not in it
+-- on purpose, so every odds loop stays as it was; it has a rank (6) for "this rarity or better" checks and sorts.
 local rarityOrder: { Types.Rarity } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 Catalog.rarityOrder = rarityOrder
-Catalog.rarityRank =
-	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 } :: { [string]: number }
+Catalog.rarityRank = {
+	Common = 1,
+	Rare = 2,
+	Epic = 3,
+	Legendary = 4,
+	Mythical = 5,
+	Secret = 6,
+} :: { [string]: number }
+-- #3470: every cat rarity, commonest first (rarityOrder and Secret)
+Catalog.catRarityOrder =
+	{ "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" } :: { Types.Rarity }
+Catalog.SECRET = "Secret" :: Types.Rarity
+-- #3470: the share of rolled Mythicals that turn Secret (wild strays, bait and rescues), so a source's Secret chance
+-- is its Mythical chance over 100 and no other rarity moves. Only while the `secretCats` switch is on.
+Catalog.secretPerMythical = 0.01
 
 -- Data-model v0.13.7 (Derek 2026-10-28 01:50: "just make the base money generation more from further areas"): a
 -- cat earns its rarity's income times its area's multiplier. Catalog.areas carries the same numbers. F95 (the money
@@ -151,6 +185,14 @@ local function exclusive(def: Types.CatDef, source: Types.CatSource): Types.CatD
 	def.area = "exclusive"
 	def.exclusive = true
 	def.source = source
+	return def
+end
+
+-- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
+-- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
+-- an owner's best open area multiplies it (CatStats.areaMultiplier).
+local function secret(def: Types.CatDef): Types.CatDef
+	def.area = "secret"
 	return def
 end
 
@@ -1063,7 +1105,48 @@ Catalog.cats = {
 		),
 		"pass"
 	),
+	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
+	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
+	-- the area away.
+	secret(cat(
+		"nebula",
+		"Nebula",
+		"Secret",
+		"alley",
+		"entertainer",
+		"solid", -- a deep space coat with slow drifting stars and a faint purple glow
+		{ 38, 26, 84 },
+		"Came down with the night sky and stayed for the milk."
+	)),
+	secret(cat(
+		"glitch",
+		"Glitch",
+		"Secret",
+		"alley",
+		"barista",
+		"patches", -- teal and magenta, shimmering in little squares
+		{ 40, 200, 190 },
+		"Nobody is sure it is meant to be here."
+	)),
+	secret(cat(
+		"cafe_ghost",
+		"Cafe Ghost",
+		"Secret",
+		"alley",
+		"greeter",
+		"solid", -- pale and see-through, with a tiny chef hat
+		{ 232, 238, 248 },
+		"Has worked here longer than the cafe has."
+	)),
 } :: { Types.CatDef }
+
+-- #3470: the Secret cats, in catalog order
+Catalog.secretCats = {} :: { Types.CatDef }
+for _, def in Catalog.cats do
+	if def.rarity == "Secret" then
+		table.insert(Catalog.secretCats, def)
+	end
+end
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
 function Catalog.catModelName(catId: string): string

@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
@@ -2252,6 +2253,19 @@ local function onBuyLure(player: Player, _rawId: unknown)
 	Net.toast(player, "Bait food is at the Corner Shop now", "info")
 end
 
+-- The Welcome back card for pay earned while away. #3602: not after a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE),
+-- which is the same visit carried on; the few seconds of the hop are credited without a card when the player
+-- leaves (DataService's release), as any unclaimed offline pay is.
+local function offlineCard(player: Player)
+	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
+		return
+	end
+	local offline, seconds = DataService.peekPendingOffline(player)
+	if offline > 0 then
+		Net.fire(player, "OfflineEarnings", offline, seconds)
+	end
+end
+
 local function onClaimOffline(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2423,10 +2437,7 @@ local function onLoaded(player: Player, profile: Profile)
 	if refund > 0 then
 		Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
 	end
-	local offline, seconds = DataService.peekPendingOffline(player)
-	if offline > 0 then
-		Net.fire(player, "OfflineEarnings", offline, seconds)
-	end
+	offlineCard(player)
 	if not DataService.saves() then
 		Net.toast(
 			player,
@@ -2508,10 +2519,7 @@ function CafeService.start()
 		if refund > 0 then
 			Net.toast(player, "Cat Whistles were retired: +$" .. ShortNumber.format(refund), "info") -- #2891
 		end
-		local offline, seconds = DataService.peekPendingOffline(player)
-		if offline > 0 then
-			Net.fire(player, "OfflineEarnings", offline, seconds)
-		end
+		offlineCard(player)
 	end)
 
 	-- The rate changes at dusk and dawn: settle the old phase and send the new rate at once.

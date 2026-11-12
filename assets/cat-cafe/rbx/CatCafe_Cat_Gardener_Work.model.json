@@ -2138,7 +2138,7 @@
           "position": [
            -0.3028,
            1.729,
-           -0.3089
+           -0.3254
           ],
           "orientation": [
            [
@@ -2162,7 +2162,7 @@
         "Size": [
          0.1094,
          0.1083,
-         0.0285
+         0.0615
         ],
         "Color": [
          0.8784,
@@ -2485,7 +2485,7 @@
          "CFrame": {
           "position": [
            0.0,
-           1.6927,
+           1.7856,
            -0.2565
           ],
           "orientation": [
@@ -2508,9 +2508,9 @@
          }
         },
         "Size": [
-         0.0413,
-         1.2391,
-         1.2391
+         0.1962,
+         0.537,
+         0.537
         ],
         "Color": [
          0.8902,
@@ -2528,7 +2528,7 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -0.7237,
+           -0.8166,
            0.0,
            0.1615
           ],
@@ -2564,1672 +2564,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.4466,
-           1.7278,
-           -0.1677
-          ],
-          "orientation": [
-           [
-            0.9808,
-            0.0,
-            0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.1951,
-            0.0,
-            0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3786,
-           1.7278,
-           -0.0035
-          ],
-          "orientation": [
-           [
-            0.8315,
-            0.0,
-            0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.5556,
-            0.0,
-            0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.253,
-           1.7278,
-           0.1221
-          ],
-          "orientation": [
-           [
-            0.5556,
-            0.0,
-            0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.8315,
-            0.0,
-            0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0888,
-           1.7278,
-           0.1901
-          ],
-          "orientation": [
-           [
-            0.1951,
-            0.0,
-            0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.9808,
-            0.0,
-            0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0888,
-           1.7278,
-           0.1901
-          ],
-          "orientation": [
-           [
-            -0.1951,
-            0.0,
-            0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.9808,
-            0.0,
-            -0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.253,
-           1.7278,
-           0.1221
-          ],
-          "orientation": [
-           [
-            -0.5556,
-            0.0,
-            0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.8315,
-            0.0,
-            -0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.3786,
-           1.7278,
-           -0.0035
-          ],
-          "orientation": [
-           [
-            -0.8315,
-            0.0,
-            0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.5556,
-            0.0,
-            -0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.4466,
-           1.7278,
-           -0.1677
-          ],
-          "orientation": [
-           [
-            -0.9808,
-            0.0,
-            0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.1951,
-            0.0,
-            -0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.4466,
-           1.7278,
-           -0.3453
-          ],
-          "orientation": [
-           [
-            -0.9808,
-            0.0,
-            -0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.1951,
-            0.0,
-            -0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.3786,
-           1.7278,
-           -0.5095
-          ],
-          "orientation": [
-           [
-            -0.8315,
-            0.0,
-            -0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.5556,
-            0.0,
-            -0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.253,
-           1.7278,
-           -0.6351
-          ],
-          "orientation": [
-           [
-            -0.5556,
-            0.0,
-            -0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.8315,
-            0.0,
-            -0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0888,
-           1.7278,
-           -0.7031
-          ],
-          "orientation": [
-           [
-            -0.1951,
-            0.0,
-            -0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.9808,
-            0.0,
-            -0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0888,
-           1.7278,
-           -0.7031
-          ],
-          "orientation": [
-           [
-            0.1951,
-            0.0,
-            -0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.9808,
-            0.0,
-            0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.253,
-           1.7278,
-           -0.6351
-          ],
-          "orientation": [
-           [
-            0.5556,
-            0.0,
-            -0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.8315,
-            0.0,
-            0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3786,
-           1.7278,
-           -0.5095
-          ],
-          "orientation": [
-           [
-            0.8315,
-            0.0,
-            -0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.5556,
-            0.0,
-            0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4466,
-           1.7278,
-           -0.3453
-          ],
-          "orientation": [
-           [
-            0.9808,
-            0.0,
-            -0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.1951,
-            0.0,
-            0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.1958
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.5479,
-           1.7278,
-           -0.1475
-          ],
-          "orientation": [
-           [
-            0.9808,
-            0.0,
-            0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.1951,
-            0.0,
-            0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4645,
-           1.7278,
-           0.0539
-          ],
-          "orientation": [
-           [
-            0.8315,
-            0.0,
-            0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.5556,
-            0.0,
-            0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3104,
-           1.7278,
-           0.208
-          ],
-          "orientation": [
-           [
-            0.5556,
-            0.0,
-            0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.8315,
-            0.0,
-            0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.109,
-           1.7278,
-           0.2914
-          ],
-          "orientation": [
-           [
-            0.1951,
-            0.0,
-            0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.9808,
-            0.0,
-            0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.109,
-           1.7278,
-           0.2914
-          ],
-          "orientation": [
-           [
-            -0.1951,
-            0.0,
-            0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.9808,
-            0.0,
-            -0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.3104,
-           1.7278,
-           0.208
-          ],
-          "orientation": [
-           [
-            -0.5556,
-            0.0,
-            0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.8315,
-            0.0,
-            -0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.4645,
-           1.7278,
-           0.0539
-          ],
-          "orientation": [
-           [
-            -0.8315,
-            0.0,
-            0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.5556,
-            0.0,
-            -0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.5479,
-           1.7278,
-           -0.1475
-          ],
-          "orientation": [
-           [
-            -0.9808,
-            0.0,
-            0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -0.1951,
-            0.0,
-            -0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.5479,
-           1.7278,
-           -0.3655
-          ],
-          "orientation": [
-           [
-            -0.9808,
-            0.0,
-            -0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.1951,
-            0.0,
-            -0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.4645,
-           1.7278,
-           -0.5669
-          ],
-          "orientation": [
-           [
-            -0.8315,
-            0.0,
-            -0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.5556,
-            0.0,
-            -0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.3104,
-           1.7278,
-           -0.721
-          ],
-          "orientation": [
-           [
-            -0.5556,
-            0.0,
-            -0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.8315,
-            0.0,
-            -0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.109,
-           1.7278,
-           -0.8044
-          ],
-          "orientation": [
-           [
-            -0.1951,
-            0.0,
-            -0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.9808,
-            0.0,
-            -0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.109,
-           1.7278,
-           -0.8044
-          ],
-          "orientation": [
-           [
-            0.1951,
-            0.0,
-            -0.9808
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.9808,
-            0.0,
-            0.1951
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3104,
-           1.7278,
-           -0.721
-          ],
-          "orientation": [
-           [
-            0.5556,
-            0.0,
-            -0.8315
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.8315,
-            0.0,
-            0.5556
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4645,
-           1.7278,
-           -0.5669
-          ],
-          "orientation": [
-           [
-            0.8315,
-            0.0,
-            -0.5556
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.5556,
-            0.0,
-            0.8315
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.5479,
-           1.7278,
-           -0.3655
-          ],
-          "orientation": [
-           [
-            0.9808,
-            0.0,
-            -0.1951
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.1951,
-            0.0,
-            0.9808
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0186,
-         0.0311,
-         0.2393
-        ],
-        "Color": [
-         0.6902,
-         0.4824,
-         0.3098
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gardener_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
            0.0,
-           1.7701,
+           1.672,
            -0.2565
           ],
           "orientation": [
@@ -4252,9 +2588,9 @@
          }
         },
         "Size": [
-         0.1136,
-         0.5989,
-         0.5989
+         0.0361,
+         1.0533,
+         1.0533
         ],
         "Color": [
          0.8902,
@@ -4281,8 +2617,693 @@
         "CFrame": {
          "CFrame": {
           "position": [
+           -0.4239,
+           1.703,
+           -0.1429
+          ],
+          "orientation": [
+           [
+            0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2588,
+            0.0,
+            0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3103,
+           1.703,
+           0.0538
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.7071,
+            0.0,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1136,
+           1.703,
+           0.1674
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9659,
+            0.0,
+            0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1136,
+           1.703,
+           0.1674
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9659,
+            0.0,
+            -0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3103,
+           1.703,
+           0.0538
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4239,
+           1.703,
+           -0.1429
+          ],
+          "orientation": [
+           [
+            -0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2588,
+            0.0,
+            -0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4239,
+           1.703,
+           -0.3701
+          ],
+          "orientation": [
+           [
+            -0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2588,
+            0.0,
+            -0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3103,
+           1.703,
+           -0.5668
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1136,
+           1.703,
+           -0.6804
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9659,
+            0.0,
+            -0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1136,
+           1.703,
+           -0.6804
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9659,
+            0.0,
+            0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3103,
+           1.703,
+           -0.5668
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7071,
+            0.0,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4239,
+           1.703,
+           -0.3701
+          ],
+          "orientation": [
+           [
+            0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2588,
+            0.0,
+            0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.031,
+         0.0341,
+         0.254
+        ],
+        "Color": [
+         0.7882,
+         0.6353,
+         0.451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
            0.0,
-           1.8837,
+           1.8785,
+           -0.2565
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.5163,
+         0.1962,
+         0.5163
+        ],
+        "Color": [
+         0.8902,
+         0.7176,
+         0.4784
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "children": [
+        {
+         "name": "Mesh",
+         "className": "SpecialMesh",
+         "properties": {
+          "MeshType": "Sphere"
+         }
+        }
+       ],
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.734,
            -0.2565
           ],
           "orientation": [
@@ -4305,14 +3326,14 @@
          }
         },
         "Size": [
-         0.1136,
-         0.5576,
-         0.5576
+         0.0671,
+         0.5752,
+         0.5752
         ],
         "Color": [
-         0.8902,
-         0.7176,
-         0.4784
+         0.3725,
+         0.7216,
+         0.3529
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4334,38 +3355,38 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.0,
-           1.7546,
-           -0.2565
+           -0.1688,
+           1.7443,
+           -0.4976
           ],
           "orientation": [
            [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
+            -0.5736,
+            -0.8192,
             0.0
            ],
            [
             0.0,
             0.0,
             1.0
+           ],
+           [
+            -0.8192,
+            0.5736,
+            0.0
            ]
           ]
          }
         },
         "Size": [
-         0.0723,
-         0.6196,
-         0.6196
+         0.031,
+         0.0826,
+         0.0826
         ],
         "Color": [
-         0.1216,
-         0.6471,
-         0.5608
+         1.0,
+         0.7882,
+         0.302
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4375,6 +3396,318 @@
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2352,
+           1.7443,
+           -0.4574
+          ],
+          "orientation": [
+           [
+            0.8192,
+            0.0,
+            0.5736
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.5736,
+            0.0,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.062,
+         0.0361,
+         0.0207
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2035,
+           1.8114,
+           -0.4796
+          ],
+          "orientation": [
+           [
+            0.4096,
+            0.7094,
+            0.5736
+           ],
+           [
+            -0.866,
+            0.5,
+            0.0
+           ],
+           [
+            -0.2868,
+            -0.4967,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.062,
+         0.0361,
+         0.0207
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.14,
+           1.8114,
+           -0.524
+          ],
+          "orientation": [
+           [
+            -0.4096,
+            0.7094,
+            0.5736
+           ],
+           [
+            -0.866,
+            -0.5,
+            0.0
+           ],
+           [
+            0.2868,
+            -0.4967,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.062,
+         0.0361,
+         0.0207
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1083,
+           1.7443,
+           -0.5462
+          ],
+          "orientation": [
+           [
+            -0.8192,
+            0.0,
+            0.5736
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.5736,
+            0.0,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.062,
+         0.0361,
+         0.0207
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.14,
+           1.6772,
+           -0.524
+          ],
+          "orientation": [
+           [
+            -0.4096,
+            -0.7094,
+            0.5736
+           ],
+           [
+            0.866,
+            -0.5,
+            0.0
+           ],
+           [
+            0.2868,
+            0.4967,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.062,
+         0.0361,
+         0.0207
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gardener_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2035,
+           1.6772,
+           -0.4796
+          ],
+          "orientation": [
+           [
+            0.4096,
+            -0.7094,
+            0.5736
+           ],
+           [
+            0.866,
+            0.5,
+            0.0
+           ],
+           [
+            -0.2868,
+            0.4967,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.062,
+         0.0361,
+         0.0207
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
        },
        "attributes": {
         "Follows": "Head"

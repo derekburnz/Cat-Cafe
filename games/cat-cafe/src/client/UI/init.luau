@@ -4100,7 +4100,8 @@ do
 		if rescueBar then
 			local closing: RescueBar.Closing? = nil
 			if win ~= nil and type(win.id) == "string" then
-				local title, detail = RummageBin.winWords(win.id, win.first == true)
+				local title, detail =
+					RummageBin.winWords(win.id, win.first == true, (win :: any).rolled == true)
 				closing = { title = title, detail = detail }
 				UI.loot.show(win, LOOT_AFTER_SECONDS) -- #3464: as the win banner closes
 			end

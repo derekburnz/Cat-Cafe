@@ -300,6 +300,10 @@ Remotes.ServerToClient = {
 	-- with the trust after it (#1884). A device that called its press a Miss keeps the
 	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
 	-- final word.
+	"BinRolled", -- (rowId: string, mode: string, seconds: number)  #3608: the Rummage Bin prize the server chose for
+	-- this player before the bar (the `binRoll` switch): mode RummageBin.MODE_ROLL (just rolled: play the roll on
+	-- the board), MODE_FIXED (a fixed first prize: reveal it) or MODE_WAITING (it was waiting after a miss); the bar
+	-- (RescueChallenge) follows `seconds` later, or at once on a RescuePress for the bin's spot (a tap skips the roll)
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is

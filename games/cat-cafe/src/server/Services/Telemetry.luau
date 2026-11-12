@@ -87,6 +87,7 @@ export type CustomEvent =
 	| "cozy_bag"
 	-- #3573 (shared/AfkCafe): a rest in the player's own cafe starts (value 1; field: "doubled" or "party"), ends
 	-- (value: its seconds) and what the cafe paid during it (value: coins)
+	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "afk_start"
 	| "afk_end"
 	| "afk_pay"

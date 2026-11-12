@@ -1059,6 +1059,37 @@ local Config = {
 			potion: string?,
 		}
 	},
+	-- #3608 (Derek 2026-11-12: "ticks through the options a couple times before landing on one ... then you play the
+	-- minigame for that reward and make the rewards decent"; table OK'd 15:09 UTC with 2 Salmon and 8 golden fish):
+	-- behind the `binRoll` switch the prize is rolled from BinRollTable BEFORE the bar and kept for the player until
+	-- they win it (shared/RummageBin). Rows are in the board's order, most common on top; chances add to 1; `tier`
+	-- (1 to 3) sets how big the effects are. Nothing here is sold. The pad in front of the bin starts a rummage for
+	-- a player who has stood on it BinPadDwellSeconds; the roll shows for BinRollSeconds (a tap skips it) and a
+	-- fixed first prize, which is not rolled, for BinRevealSeconds.
+	BinRollTable = {
+		{ id = "tuna", chance = 0.28, lure = "tuna", count = 2, fish = 3, tier = 1 },
+		{ id = "fish", chance = 0.22, fish = 10, tier = 1 },
+		{ id = "salmon", chance = 0.15, lure = "salmon", count = 2, fish = 8, tier = 1 },
+		{ id = "crate", chance = 0.15, crate = "alley_crate", tier = 2 },
+		{ id = "potion", chance = 0.12, potion = "lucky_potion", tier = 2 },
+		{ id = "golden", chance = 0.05, crate = "alley_golden_crate", tier = 3 },
+		{ id = "bigmoney", chance = 0.03, potion = "big_tip_potion", tier = 3 },
+	} :: {
+		{
+			id: string,
+			chance: number?,
+			count: number?,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+			tier: number?,
+		}
+	},
+	BinPadRadius = 4,
+	BinPadDwellSeconds = 0.5,
+	BinRollSeconds = 2.5,
+	BinRevealSeconds = 1,
 	BinTable = {
 		{ id = "tuna", chance = 0.34, lure = "tuna", count = 2 },
 		{ id = "fish", chance = 0.25, fish = 8 },

@@ -355,6 +355,10 @@ return function()
 		BinZoneWidth = 0.22, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before
 		BinBarSpeed = 0.80, -- #3458: 0.64 before
 		BinHits = 5, -- #3458: the bin's own hit count
+		BinPadRadius = 4, -- #3608: the pad in front of the bin
+		BinPadDwellSeconds = 0.5,
+		BinRollSeconds = 2.5, -- #3608: the roll before the bar
+		BinRevealSeconds = 1,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -612,6 +616,7 @@ return function()
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 				BinTable = true, -- #3050: a table, checked in RummageBin.spec
+				BinRollTable = true, -- #3608: a table, checked in RummageBin.spec
 				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
 				BinFirstPrizes = true, -- #3460: fixed prize rows, checked in RummageBin.spec
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec

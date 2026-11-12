@@ -178,6 +178,23 @@ return function()
 				expect(EventBanner.shapeDistance(Vector3.zero, p.shapeFov, p.shapeFill) > 0).to.equal(
 					true
 				)
+				-- only whole named pieces of a Secret cat's own model are left off, never a body, head or ear
+				for _, name in p.shapeLeaveOff do
+					expect(string.match(name, "^CatCafe_Cat_%a+_Prop%d?$") ~= nil).to.equal(true)
+				end
+				-- a cat held back on the day stays off the row: the caller names the ones that are out
+				local first = Catalog.secretCats[1].id
+				local some = EventBanner.shapeModels({ first, "tabby", "nope" })
+				expect(#some).to.equal(1)
+				expect(some[1]).to.equal(Catalog.catModelName(first))
+				expect(#EventBanner.shapeModels({})).to.equal(0)
+				local named = EventBanner.plan({
+					kind = "secrets",
+					title = "Secret cats are out!",
+					cats = { first, 5, "glitch" },
+				})
+				expect(#named.cats).to.equal(2)
+				expect(plan.cats).to.equal(nil)
 				local confetti, fish = EventBanner.counts("secrets", false, false)
 				expect(confetti).to.equal(p.confettiSoon)
 				expect(fish).to.equal(0)

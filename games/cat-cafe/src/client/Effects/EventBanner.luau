@@ -8,6 +8,7 @@
 --               cats as black shapes in a row under the words, each with a "?" on it. The shapes are the cats' own
 --               models from ReplicatedStorage.Assets drawn all black (Derek, 2026-11-12: "in banner ... blacked
 --               out"), so a redesigned model changes its shape here by itself and no coat, glow or sparkle shows.
+--               `cats = { "nebula", "cafe_ghost" }` draws only those, for a day one of them is held back.
 --   EventBanner.show({ kind = "party", title = "Update Party!", lines = { "x2 cafe earnings until 6:00 PM" } })
 --   EventBanner.onShown(function(kind) ... end)   called as a banner starts to drop in (Audio plays its sound there)
 -- The caller owns the words (Design-Agent's, #3420 section 5); this only trims them to fit. Banners wait their turn:
@@ -33,7 +34,14 @@ local ScreenFx = require(script.Parent.ScreenFx)
 local EventBanner = {}
 
 export type Kind = "party" | "giftSoon" | "gift" | "secrets"
-export type Plan = { kind: Kind, title: string, lines: { string }, seconds: number }
+-- `cats`: the "secrets" card's cat ids when the caller names them; nil draws every Secret cat
+export type Plan = {
+	kind: Kind,
+	title: string,
+	lines: { string },
+	seconds: number,
+	cats: { string }?,
+}
 
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
 local GUI_NAME = "EffectsEventBanner"
@@ -95,7 +103,23 @@ function EventBanner.plan(spec: any): Plan?
 	if type(spec.seconds) == "number" and spec.seconds == spec.seconds then
 		seconds = math.clamp(spec.seconds, p.holdMin, p.holdMax)
 	end
-	return { kind = kind :: Kind, title = title, lines = lines, seconds = seconds }
+	local cats: { string }? = nil
+	if type(spec.cats) == "table" then
+		local named: { string } = {}
+		for _, id in ipairs(spec.cats) do
+			if type(id) == "string" then
+				table.insert(named, id)
+			end
+		end
+		cats = named
+	end
+	return {
+		kind = kind :: Kind,
+		title = title,
+		lines = lines,
+		seconds = seconds,
+		cats = cats,
+	}
 end
 
 -- Pure: whether a banner of `kind` may join the line: not while the same kind shows or waits, and not past `most`
@@ -171,14 +195,17 @@ function EventBanner.counts(
 end
 
 -- Pure: the models drawn as black shapes on the "secrets" banner: the Secret cats in catalog order, at most the
--- preset's `shapeMost`.
-function EventBanner.shapeModels(): { string }
+-- preset's `shapeMost`. With `only` (cat ids) just those of them, so the row matches the cats that are really out
+-- when one is held back; an id that is not a Secret cat draws nothing.
+function EventBanner.shapeModels(only: { string }?): { string }
 	local names: { string } = {}
 	for _, def in Catalog.secretCats do
 		if #names >= Presets.eventBanner.shapeMost then
 			break
 		end
-		table.insert(names, Catalog.catModelName(def.id))
+		if only == nil or table.find(only, def.id) ~= nil then
+			table.insert(names, Catalog.catModelName(def.id))
+		end
 	end
 	return names
 end
@@ -247,6 +274,12 @@ local function shape(parent: Instance, modelName: string, fading: { GuiObject })
 	if source ~= nil and source:IsA("Model") then
 		local copy = source:Clone() :: Model
 		local solid = 0
+		for _, name in p.shapeLeaveOff do
+			local extra = copy:FindFirstChild(name, true)
+			if extra ~= nil then
+				extra:Destroy()
+			end
+		end
 		for _, descendant in copy:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				local part = descendant :: BasePart
@@ -318,7 +351,12 @@ end
 
 -- The "secrets" card's row of black shapes. It lies over the card as its own frame, not inside it: the card is a
 -- CanvasGroup, which may not draw a ViewportFrame. `run` moves it with the card and fades what `fading` holds.
-local function shapes(gui: ScreenGui, card: GuiObject, fading: { GuiObject }): Frame
+local function shapes(
+	gui: ScreenGui,
+	card: GuiObject,
+	fading: { GuiObject },
+	only: { string }?
+): Frame
 	local p = Presets.eventBanner
 	local over = Instance.new("Frame")
 	over.Name = "Shapes"
@@ -343,7 +381,7 @@ local function shapes(gui: ScreenGui, card: GuiObject, fading: { GuiObject }): F
 	list.Padding = UDim.new(0, p.shapeGap)
 	list.SortOrder = Enum.SortOrder.LayoutOrder
 	list.Parent = row
-	for i, modelName in EventBanner.shapeModels() do
+	for i, modelName in EventBanner.shapeModels(only) do
 		shape(row, modelName, fading).LayoutOrder = i
 	end
 	row.Parent = over
@@ -576,7 +614,9 @@ local function run(plan: Plan)
 	local still = Context.reducedMotion()
 	local card, band = build(gui, plan)
 	local fading: { GuiObject } = {}
-	local over: Frame? = if plan.kind == "secrets" then shapes(gui, card, fading) else nil
+	local over: Frame? = if plan.kind == "secrets"
+		then shapes(gui, card, fading, plan.cats)
+		else nil
 	-- the shapes fade with the card (Reduce Motion); `seen` is 1 hidden, 0 solid
 	local function fadeShapes(seen: number)
 		for _, object in fading do

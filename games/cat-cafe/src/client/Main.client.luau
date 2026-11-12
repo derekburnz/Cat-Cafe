@@ -20,6 +20,7 @@ local Effects = require(script.Parent.Effects)
 local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
 local LateStationsController = require(script.Parent.Controllers.LateStationsController)
+local MemoryWatchController = require(script.Parent.Controllers.MemoryWatchController)
 local Moments = require(script.Parent.Moments)
 local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
@@ -41,6 +42,7 @@ UIController.start()
 WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
+MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to

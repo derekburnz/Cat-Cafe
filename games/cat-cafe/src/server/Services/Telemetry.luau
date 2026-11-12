@@ -45,6 +45,7 @@ local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NewKind = require(ReplicatedStorage.Shared.NewKind)
@@ -228,6 +229,11 @@ export type CustomEvent =
 	| "quit_snapshot"
 	-- #3098 P2: once a session about 150 s in, value the client's fps; ping bucket, memory bucket, device
 	| "health_check"
+	-- #3743 (shared/MemoryWatch): the client's total memory at 5, 15, 30 and 60 minutes into a session, value the
+	-- MB; device, the mark ("m5"), growth since the session's first mark (MemoryWatch.growthBucket)
+	| "client_memory"
+	-- #3743: at the 5 and 30 minute marks, the MB under one of Roblox's memory groups; the group, the mark, device
+	| "client_memory_tag"
 	-- #3098 P2: a join within an hour of the last leave, value the minutes away; furthest step, minutes bucket,
 	-- session number bucket
 	| "quick_return"
@@ -434,6 +440,8 @@ local REPORTS = {
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
+	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
+	"mem_tag", -- #3743: the memory under one group at a mark (MemoryWatch.encode), once a mark and group a session
 	"intro_shot", -- #3098 P1b: an intro shot started, 1 to FirstFive.INTRO_SHOTS (quit_scene; the first logs first_scene)
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
@@ -546,6 +554,8 @@ type Session = {
 	snapScreen: string,
 	healthMem: string?, -- #3098 P2: the memory bucket the client reported, for health_check
 	healthLogged: boolean, -- #3098 P2: health_check logged this session
+	memLogged: { [number]: boolean }, -- #3743: mem_total marks and mem_tag indexes logged this session
+	memFirst: number?, -- #3743: the MB at the session's first logged mark
 	introShot: number, -- #3098 P1b: the furthest intro shot the client reported this session (0 none)
 	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
 }
@@ -1892,6 +1902,49 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				})
 			end
 		end
+	elseif name == "mem_total" then
+		-- #3743: once a mark a session, and not before the mark's minute (less a minute for the two clocks)
+		local mark, mb = MemoryWatch.decode(rawValue)
+		local minutes = if mark ~= nil then MemoryWatch.MARKS[mark] else nil
+		if
+			mark ~= nil
+			and mb ~= nil
+			and minutes ~= nil
+			and not session.memLogged[mark]
+			and os.time() - session.joinedAt >= minutes * 60 - 60
+		then
+			session.memLogged[mark] = true
+			Telemetry.custom(player, "client_memory", mb, {
+				session.device or "unknown",
+				"m" .. tostring(minutes),
+				MemoryWatch.growthBucket(session.memFirst, mb),
+			})
+			if session.memFirst == nil then
+				session.memFirst = mb
+			end
+		end
+	elseif name == "mem_tag" then
+		local index, mb = MemoryWatch.decode(rawValue)
+		local mark: number?, tag: number? = nil, nil
+		if index ~= nil then
+			mark, tag = MemoryWatch.tagOf(index)
+		end
+		-- only beside a total this session already logged for that mark
+		if
+			index ~= nil
+			and mb ~= nil
+			and mark ~= nil
+			and tag ~= nil
+			and session.memLogged[mark]
+			and not session.memLogged[1000 + index]
+		then
+			session.memLogged[1000 + index] = true
+			Telemetry.custom(player, "client_memory_tag", mb, {
+				MemoryWatch.TAGS[tag],
+				"m" .. tostring(MemoryWatch.MARKS[mark]),
+				session.device or "unknown",
+			})
+		end
 	elseif name == "health_mem" then
 		-- #3098 P2: kept for the health_check that follows; below Tier 2 only, like the other first-five events
 		if
@@ -2164,6 +2217,8 @@ local function onLoaded(player: Player, profile: Profile)
 		snapScreen = "none",
 		healthMem = nil,
 		healthLogged = false,
+		memLogged = {},
+		memFirst = nil,
 		introShot = 0,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)

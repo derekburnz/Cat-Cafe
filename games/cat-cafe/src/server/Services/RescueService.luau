@@ -218,6 +218,8 @@ local function spawnStuck(
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
 	model:SetAttribute("HelpedBy", 0) -- F92
+	-- #2912: the cat in the area's starter trap, the one the stuck cat pointer leads to (Effects/StuckCall)
+	model:SetAttribute("Starter", starterSpots[areaId] == spotId)
 	CollectionService:AddTag(model, "StuckCat")
 
 	-- #2335 (Derek2: "make rescue a one click thing instead of hold"): one press of E or one tap of the card's RESCUE

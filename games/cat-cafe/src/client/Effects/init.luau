@@ -85,6 +85,7 @@ local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
 local StationReveal = require(script.StationReveal)
 local StrayCall = require(script.StrayCall)
+local StuckCall = require(script.StuckCall)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
@@ -141,6 +142,7 @@ function Effects.start()
 		SecretStray.start,
 		Splash.start,
 		Rescue.start,
+		StuckCall.start,
 		Intro.start,
 		IntroCut.start,
 		function()

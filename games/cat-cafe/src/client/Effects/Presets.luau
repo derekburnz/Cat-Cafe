@@ -4853,4 +4853,40 @@ Presets.lootCard = {
 	bounceSeconds = 0.22,
 }
 
+-- The stuck cat that calls for help (#2912, Design-Agent 2026-11-12): while this player's save waits for its first
+-- rescue (ProfileSync `stuckGoal`), the cat in the Alleyway's starter trap (its `Starter` attribute) wears a warm,
+-- thin `pillar` of light that can be seen from the camp (the Secret beam's maths, shorter and warm; it holds still),
+-- a `bubble` over it that rocks gently like a waving paw, its trap gives a small `wiggle` now and then, and the cat
+-- meows (`meow`, Audio's strayCall) as you come near, a few times at most. All of it goes when the rescue bar opens
+-- or someone else is on that cat. Nothing counts down and nothing says hurry. No arrow (Derek's no-arrows rule).
+-- Reduce Motion keeps the bubble and the trap still.
+Presets.stuckCall = {
+	checkEvery = 0.5,
+	pillar = {
+		colour = Presets.palette.lampWarm,
+		height = 90,
+		lift = 1,
+		perStud = 0.006,
+		widthMin = 0.4,
+		widthMax = 2,
+		far = 0.35,
+		near = 0.85,
+		nearWithin = 18,
+		fadeOver = 25,
+		topFade = 0.5,
+	},
+	bubble = {
+		text = "Help! 🐾",
+		above = 4.4, -- studs over the cat's top, clear of the "!" and its gem
+		width = 4.6,
+		height = 1.5,
+		within = 70,
+		hideWithin = 10, -- the Rescue card shows from here
+		rock = 6, -- degrees each way
+		rockSeconds = 0.9, -- one way
+	},
+	wiggle = { every = 5, within = 80, hits = 1, needed = 3 }, -- a trapShake as small as a rescue's first hit
+	meow = { near = 60, gap = 45, most = 4 },
+}
+
 return Presets

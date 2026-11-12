@@ -1125,3 +1125,16 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## The stuck cat that calls for help (#2912, 2026-11-12)
+
+Design-Agent's pick on top of the stuck cat pointer, for the first rescue step (140 of 582 new players never started one). `Effects/StuckCall.luau`, numbers in `Presets.stuckCall`.
+
+| Moment | What plays | Source |
+|---|---|---|
+| The save waits for its first rescue and the Alleyway's starter trap holds a cat | A warm, thin pillar of light 90 studs tall over the trap, a thin line from the camp, fading as you walk up. It holds still | ProfileSync `stuckGoal`, the `StuckCat` model with `Starter` true and `Area` alley |
+| Within 70 studs (not inside 10, where the Rescue card shows) | A "Help! 🐾" bubble over the "!" and the gem, rocking 6 degrees each way, 0.9 s one way, like a waving paw | the same |
+| Every 5 s within 80 studs | The trap gives one small shake, the size of a rescue's first hit (`Logic.trapShake`) | the `<rescueSpotId>_Trap` model |
+| Within 60 studs | The cat meows (`strayCall`), again every 45 s, 4 times at most in a session | `Beats.hit("stuckCall", cat)` |
+
+All of it goes at once when your rescue bar opens, while someone else is on that cat, at night (the trap is empty then) and for good once your first rescue has started. No arrow, no countdown, no "hurry". Reduce Motion: the bubble and the trap keep still; the pillar already does. Cost: one Beam, one BillboardGui and one part, for one player state.

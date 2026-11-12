@@ -3213,8 +3213,10 @@ end
 -- equally among that rarity's pieces. Every crate shows these odds before it opens (monetization-policy).
 local CRATE_ODDS =
 	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
+-- #3665 (Derek 2026-11-12: "buff gold crates chance of legendary / mythic so its not only always epics"): 70, 24, 6
+-- (was 80, 17.5, 2.5). A plain crate's lucky twentieth keeps the old numbers in its own table (Crates.LUCKY_ODDS).
 local GOLDEN_CRATE_ODDS =
-	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
+	{ Common = 0, Rare = 0, Epic = 70, Legendary = 24, Mythical = 6 } :: { [string]: number }
 -- F101: the Rally Crate is never sold and has no golden twin (`sold` and `golden` false).
 local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boolean? } } = {
 	{ area = "alley", name = "Alley" },

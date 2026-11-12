@@ -218,6 +218,7 @@ storeFunnel=store
 storeSteps=()
 onboardingV1Steps=()
 onboardingV4Steps=()
+onboardingV6Steps=()
 if [ -f "$onboarding" ]; then
 	luaNames() { sed -n "/^Onboarding\.$1 = {/,/^}/p" "$onboarding" | grep -o '"[a-z0-9_]*"' | tr -d '"'; }
 	luaString() { sed -n "s/^Onboarding\.$1 = \"\([A-Za-z0-9_]*\)\".*/\1/p" "$onboarding"; }
@@ -230,6 +231,8 @@ if [ -f "$onboarding" ]; then
 	mapfile -t onboardingV1Steps < <(luaNames V1_STEPS)
 	# once FUNNEL moves on (onboarding_v5), v4 keeps its labels only through V4_STEPS; without it, numbers only
 	mapfile -t onboardingV4Steps < <(luaNames V4_STEPS)
+	# #3695: onboarding_v7 dropped returned_next_day; v6's rows keep their labels through V6_STEPS
+	mapfile -t onboardingV6Steps < <(luaNames V6_STEPS)
 	mapfile -t list < <(luaNames FIRST_HOUR_STEPS)
 	[ "${#list[@]}" = 0 ] || firstHourSteps=("${list[@]}")
 	# #3308: first_hour_v3 put played_3m and played_4m in; v2's rows keep their labels through FIRST_HOUR_V2_STEPS
@@ -274,6 +277,8 @@ stepName() { # funnel step label
 			list=("${firstHourSteps[@]}")
 		elif [ "${funnel,,}" = first_hour_v2 ]; then
 			list=("${firstHourV2Steps[@]}")
+		elif [ "${funnel,,}" = onboarding_v6 ]; then
+			list=("${onboardingV6Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v4 ]; then
 			list=("${onboardingV4Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v3 ]; then

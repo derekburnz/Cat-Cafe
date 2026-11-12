@@ -36,6 +36,12 @@
 -- the older ones. The intro funnel keeps its name (onboarding_v4_intro). `first_hour_v2` adds `played_30s` and
 -- `played_60s` in front of `played_2m`; a save that logged any of `first_hour` leaves `first_hour_v2`, so both
 -- funnels count only players who started on them.
+--
+-- Version 7 (#3695, Derek 2026-11-12: "fix this funnel to remove returned next day"): `onboarding_v7` is v6 without
+-- `returned_next_day`. A return on a later day is not a first session step, and as step 36 it read as nearly everyone
+-- leaving after the first Park catch. It is a custom event of the same name now (Telemetry). V6_STEPS keeps v6's
+-- order for the report; a v6 save past its first catch leaves the funnel like the older ones, and keeps its intro and
+-- first_hour_v3 steps (neither funnel changed).
 
 local Types = require(script.Parent.Types)
 
@@ -45,9 +51,9 @@ local Onboarding = {}
 local GRAND_OPENING_COUNT = 8
 Onboarding.GRAND_OPENING_COUNT = GRAND_OPENING_COUNT
 
-Onboarding.VERSION = 6
-Onboarding.FUNNEL = "onboarding_v6"
-Onboarding.INTRO_FUNNEL = "onboarding_v4_intro" -- unchanged in v5 and v6 (see above)
+Onboarding.VERSION = 7
+Onboarding.FUNNEL = "onboarding_v7"
+Onboarding.INTRO_FUNNEL = "onboarding_v4_intro" -- unchanged in v5, v6 and v7 (see above)
 
 export type StepName =
 	-- loading and the first catch
@@ -89,7 +95,6 @@ export type StepName =
 	| "rank_up_ready"
 	| "tier_2"
 	| "first_park_catch"
-	| "returned_next_day"
 	| "first_offline_claim"
 	| "tier_3"
 	| "grand_opening_done" -- v5 (#2391): all eight Grand Opening milestones (the last is Tier 3)
@@ -157,7 +162,6 @@ Onboarding.STEPS = {
 	"rank_up_ready",
 	"tier_2",
 	"first_park_catch",
-	"returned_next_day",
 	"first_offline_claim",
 	"tier_3",
 	"grand_opening_done", -- v5: the eighth milestone (Tier 3) paid
@@ -174,6 +178,59 @@ Onboarding.STEPS = {
 } :: { StepName }
 
 Onboarding.COUNT = #Onboarding.STEPS
+
+-- v6's 49 steps in v6's order (fromOld, and the report's labels for onboarding_v6, #3695).
+Onboarding.V6_STEPS = {
+	"joined",
+	"loaded",
+	"tut_0_shown",
+	"first_move",
+	"first_cannon",
+	"entered_alley",
+	"tut_1_shown",
+	"first_stray_in_view",
+	"near_stray",
+	"catch_card_opened",
+	"catch_started",
+	"first_circle_hit",
+	"first_catch",
+	"carrying_first_cat",
+	"first_checkin",
+	"next_goal_shown", -- v6 (#2636): the next instruction on screen after the first check-in (a client step)
+	"first_role_assigned",
+	"tut_3_shown",
+	"first_customer_served",
+	"second_cat",
+	"first_window_opened",
+	"first_table",
+	"first_tip_collected",
+	"tut_4_shown",
+	"bowl_bought",
+	"first_bait",
+	"first_rescue_started",
+	"first_rescue_done",
+	"first_bait_resolved",
+	"first_goal_done", -- v5: the first Grand Opening milestone paid
+	"five_cats",
+	"rank_up_card_seen",
+	"rank_up_ready",
+	"tier_2",
+	"first_park_catch",
+	"returned_next_day",
+	"first_offline_claim",
+	"tier_3",
+	"grand_opening_done", -- v5: the eighth milestone (Tier 3) paid
+	"starter_cat",
+	"first_store_open", -- the Store opened (a client step)
+	"first_pass_xp", -- the first Cafe Pass XP (a quest's prize)
+	"first_pass_claim", -- a Cafe Pass reward claimed
+	"first_camp_collect", -- a camp station collected (CampExtras.COLLECT)
+	"first_equip_best", -- the Equip best button pressed
+	"pass_level_5", -- Cafe Pass level 5
+	"tier_4",
+	"first_robux_purchase", -- the account's first pass or product bought (robux_purchase tells it apart in time)
+	"first_wow_cat", -- #1897 (first-hour.md 2): the guaranteed Rare-or-better bait cat arrived, field rarity
+} :: { string }
 
 -- v5's 50 steps in v5's order (fromOld, and the report's labels for onboarding_v5, #2636).
 Onboarding.V5_STEPS = {
@@ -436,11 +493,12 @@ function Onboarding.furthest(state: Types.TelemetryState): string
 	return Onboarding.STEPS[state.onboardingStep] or "none"
 end
 
--- The v6 step for a state saved by funnel `funnel` (1 to 5, nil before F87) at `step`: COUNT (out of the funnel)
--- once that funnel had logged its first catch, else 0 (a new player, who starts v6 from joined).
+-- The v7 step for a state saved by funnel `funnel` (1 to 6, nil before F87) at `step`: COUNT (out of the funnel)
+-- once that funnel had logged its first catch, else 0 (a new player, who starts v7 from joined).
 function Onboarding.fromOld(funnel: number?, step: number): number
-	local list = if funnel == 5
-		then Onboarding.V5_STEPS
+	local list = if funnel == 6
+		then Onboarding.V6_STEPS
+		elseif funnel == 5 then Onboarding.V5_STEPS
 		elseif funnel == 4 then Onboarding.V4_STEPS
 		elseif funnel == 3 then Onboarding.V3_STEPS
 		elseif funnel == 2 then Onboarding.V2_STEPS

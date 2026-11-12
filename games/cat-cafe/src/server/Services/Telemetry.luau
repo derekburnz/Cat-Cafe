@@ -1,5 +1,5 @@
 --!strict
--- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v3 and catch_attempt funnels (only
+-- Analytics (feature F16, growth analytics-plan.md): the onboarding_v7, first_hour_v3 and catch_attempt funnels (only
 -- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
 -- the feedback_v1 funnel (#2681: the slide-in faces ask, a face, a chip),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
@@ -271,6 +271,8 @@ export type CustomEvent =
 	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
 	| "like_ask_shown"
+	-- #3695: a join on a later UTC day than the last session ended, value 1; tier (was an onboarding step up to v6)
+	| "returned_next_day"
 	-- #2694: how a slide-in faces ask ended, at most one per ask shown, value 1: answered, closed or ignored; early or
 	-- late (the client's report); minutes played bucket
 	| "feedback_ask_end"
@@ -1720,7 +1722,7 @@ end
 
 -- Join and leave --------------------------------------------------------------------------------------------------
 
--- joined goes out as the profile loads (#1273: loaded carries the device now), then returned_next_day and the
+-- joined goes out as the profile loads (#1273: loaded carries the device now), then returned_next_day (an event) and the
 -- steps the save already shows, so a save is never stuck behind a step it passed silently (QA S72).
 local function logJoined(player: Player)
 	local session = sessions[player]
@@ -1732,7 +1734,8 @@ local function logJoined(player: Player)
 	Telemetry.onboarding(player, profile, "joined", { session.source })
 	logFirstHour(player, profile)
 	if session.returnedNextDay then
-		Telemetry.onboarding(player, profile, "returned_next_day")
+		-- #3695: a custom event, no longer a funnel step (a later day is not part of the first session)
+		Telemetry.custom(player, "returned_next_day", 1, { tierText(profile) })
 	end
 	local parkCats = 0
 	for catId in profile.collection do

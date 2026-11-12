@@ -13,7 +13,7 @@ return function()
 		return {
 			onboardingStep = 0,
 			achieved = {},
-			funnel = 6,
+			funnel = 7,
 			firstDay = 0,
 			introStep = 0,
 			firstHourStep = 10,
@@ -34,22 +34,37 @@ return function()
 
 	describe("steps", function()
 		it(
-			"are the 49 of funnel v6, logged as onboarding_v6 (and the intro's 13 still as onboarding_v4_intro)",
+			"are the 48 of funnel v7, logged as onboarding_v7 (and the intro's 13 still as onboarding_v4_intro)",
 			function()
-				expect(Onboarding.VERSION).to.equal(6)
-				expect(Onboarding.FUNNEL).to.equal("onboarding_v6")
+				expect(Onboarding.VERSION).to.equal(7)
+				expect(Onboarding.FUNNEL).to.equal("onboarding_v7")
 				expect(Onboarding.INTRO_FUNNEL).to.equal("onboarding_v4_intro")
-				expect(Onboarding.COUNT).to.equal(49) -- #2636: v5's 50, less the two lesson steps, plus next_goal_shown
+				expect(Onboarding.COUNT).to.equal(48) -- #3695: v6's 49 less returned_next_day
+				-- v7 is v6 in the same order without returned_next_day, which is no step any more
+				expect(#Onboarding.V6_STEPS).to.equal(49)
+				local at = 0
+				for _, name in Onboarding.V6_STEPS do
+					if name == "returned_next_day" then
+						expect(Onboarding.index(name)).to.equal(0)
+					else
+						at += 1
+						expect(Onboarding.STEPS[at]).to.equal(name)
+					end
+				end
+				expect(Onboarding.index("first_offline_claim")).to.equal(
+					Onboarding.index("first_park_catch") + 1
+				)
 				expect(#Onboarding.V5_STEPS).to.equal(50)
 				expect(#Onboarding.V4_STEPS).to.equal(46)
 				-- v6 is v5 in the same order without the lesson's two steps and with next_goal_shown let in
 				local kept = 0
 				for _, name in Onboarding.V5_STEPS do
 					if name ~= "tackle_lesson_shown" and name ~= "tackle_lesson_done" then
-						expect(Onboarding.index(name) > kept).to.equal(true)
-						kept = Onboarding.index(name)
+						local at6 = table.find(Onboarding.V6_STEPS, name) or 0
+						expect(at6 > kept).to.equal(true)
+						kept = at6
 					else
-						expect(Onboarding.index(name)).to.equal(0)
+						expect(table.find(Onboarding.V6_STEPS, name)).to.equal(nil)
 					end
 				end
 				expect(Onboarding.index("next_goal_shown")).to.equal(
@@ -62,8 +77,9 @@ return function()
 				-- v5 is v4 in the same order with four steps let in: every v4 name is still a step, in v4's order
 				local last = 0
 				for _, name in Onboarding.V4_STEPS do
-					expect(Onboarding.index(name) > last).to.equal(true)
-					last = Onboarding.index(name)
+					local at5 = table.find(Onboarding.V5_STEPS, name) or 0
+					expect(at5 > last).to.equal(true)
+					last = at5
 				end
 				expect(Onboarding.GRAND_OPENING_COUNT).to.equal(require(Shared.GrandOpening).COUNT)
 				expect(Onboarding.INTRO_COUNT).to.equal(13)
@@ -109,7 +125,6 @@ return function()
 				"rank_up_ready",
 				"tier_2",
 				"first_park_catch",
-				"returned_next_day",
 				"first_offline_claim",
 				"tier_3",
 				"grand_opening_done",
@@ -360,7 +375,7 @@ return function()
 		end)
 	end)
 
-	describe("fromOld (funnels v1 to v5)", function()
+	describe("fromOld (funnels v1 to v6)", function()
 		it(
 			"takes a save past its first catch out of the funnel, and starts any other at joined",
 			function()
@@ -379,6 +394,9 @@ return function()
 				expect(Onboarding.fromOld(5, 13)).to.equal(Onboarding.COUNT) -- v5 step 13 is first_catch
 				expect(Onboarding.fromOld(5, 50)).to.equal(Onboarding.COUNT)
 				expect(Onboarding.fromOld(5, 12)).to.equal(0)
+				expect(Onboarding.fromOld(6, 13)).to.equal(Onboarding.COUNT) -- v6 step 13 is first_catch
+				expect(Onboarding.fromOld(6, 49)).to.equal(Onboarding.COUNT)
+				expect(Onboarding.fromOld(6, 12)).to.equal(0)
 			end
 		)
 	end)

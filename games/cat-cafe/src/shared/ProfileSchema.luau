@@ -825,15 +825,18 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		step = Onboarding.fromOld(old, step)
 		-- a player out of the funnel is out of the intro one too; #2391: v5 keeps v4's intro funnel, so a v4 save keeps
 		-- its intro step
-		if old ~= 4 and old ~= 5 then
+		-- #3695: v7 keeps the intro funnel too, and first_hour_v3 as it was, so a v6 save keeps both steps
+		if old ~= 4 and old ~= 5 and old ~= 6 then
 			introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
 		end
 		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too. #2636: v6 sends
 		-- first_hour_v2, whose steps moved, so a v5 save that logged any of first_hour leaves it as well.
-		local loggedFirstHour = old == 5 and firstHourStep >= 1
-		firstHourStep = if step >= Onboarding.COUNT or loggedFirstHour
-			then Onboarding.FIRST_HOUR_COUNT
-			else 0
+		if old ~= 6 then
+			local loggedFirstHour = old == 5 and firstHourStep >= 1
+			firstHourStep = if step >= Onboarding.COUNT or loggedFirstHour
+				then Onboarding.FIRST_HOUR_COUNT
+				else 0
+		end
 	end
 	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
 	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do
@@ -848,7 +851,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- is then written as v2's count, so a server still on v2 logs no v2 step for this player.
 	local v3Step = value.firstHourV3Step
 	local firstHourV3Step = if type(v3Step) == "number"
-			and value.funnel == Onboarding.VERSION
+			and (value.funnel == Onboarding.VERSION or value.funnel == 6)
 		then math.max(0, asInt(v3Step, 0))
 		elseif firstHourStep >= 1 then Onboarding.FIRST_HOUR_COUNT
 		else 0

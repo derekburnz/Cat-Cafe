@@ -40,6 +40,9 @@ local QUEUED: { [string]: number } = {
 	FeedCat = 0.28, -- 4 a second
 	InviteCard = 2.1, -- 1 every 2 s
 }
+-- #3478: at most this many calls wait per remote; a tap past that is dropped, as the server would have dropped it
+-- before, so a burst of taps never keeps playing out long after the player stopped.
+local QUEUE_MOST = 8
 local lastFired: { [string]: number } = {}
 local waiting: { [string]: { { n: number, [number]: any } } } = {}
 
@@ -65,7 +68,9 @@ function Net.fire(name: string, ...: any)
 	if wait ~= nil then
 		local queue = waiting[name]
 		if queue ~= nil then
-			table.insert(queue, table.pack(...))
+			if #queue < QUEUE_MOST then
+				table.insert(queue, table.pack(...))
+			end
 			return
 		end
 		local since = now - (lastFired[name] or -math.huge)

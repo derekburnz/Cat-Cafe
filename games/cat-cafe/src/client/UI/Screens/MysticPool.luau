@@ -44,6 +44,9 @@ export type Callbacks = {
 	-- returns its skip. nil (or a nil skip) shows the card at once
 	play: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?,
 	far: (() -> boolean)?, -- true once the player has walked away from the pool: the card closes
+	-- #3702: while the pool's animation plays the card goes away and the screen's edges are shaded; `onTap` is a
+	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card
+	shade: ((onTap: () -> ()) -> () -> ())?,
 }
 
 export type MysticPool = {
@@ -233,6 +236,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
 	self._rolling = nil :: { uid: string, hadTrait: boolean }? -- a Roll waiting for its answer
 	self._skip = nil :: (() -> ())? -- the running animation's skip
+	self._lift = nil :: (() -> ())? -- #3702: ends the running reveal's shade and brings the card back
 	self._playToken = 0
 	self._open = false
 	self._tick = 0
@@ -758,7 +762,10 @@ function MysticPool._rollPress(self: any)
 	end)
 end
 
--- The roll's answer has come: the pool plays it (a tap skips), then the card shows it.
+-- The roll's answer has come: the pool plays it (a tap skips), then the card shows it. #3702: while it plays the
+-- card is tucked away behind a soft shade at the screen's edges (callbacks.shade), so the pool is in full view, and
+-- it pops back with the result when the animation ends or is skipped. Without the callback the card stays up
+-- under its "stirs the pool" sheet, as before.
 function MysticPool._reveal(self: any, uid: string, traitId: string)
 	local play = (self._callbacks :: Callbacks).play
 	if play == nil or not self._open then
@@ -767,35 +774,54 @@ function MysticPool._reveal(self: any, uid: string, traitId: string)
 	self._playToken += 1
 	local token = self._playToken
 	local done = false
+	local lift: (() -> ())? = nil
 	local function finish()
 		if done then
 			return
 		end
 		done = true
+		local back: (() -> ())? = lift
+		lift = nil
+		if back then
+			(back :: () -> ())()
+		end
 		if self._playToken == token then
 			self._skip = nil
+			self._lift = nil
 			self._rollingSheet.Visible = false
 		end
 	end
-	self._rollingSheet.Visible = true
 	local skip = play(uid, MysticPoolLogic.rarityId(traitId), finish)
 	if done or skip == nil then
 		finish()
 		return
 	end
-	self._skip = function()
+	local function skipNow()
 		skip()
 		finish()
+	end
+	self._skip = skipNow
+	local shade = (self._callbacks :: Callbacks).shade
+	if shade ~= nil then
+		lift = shade(skipNow)
+		self._lift = finish
+	else
+		self._rollingSheet.Visible = true
 	end
 end
 
 function MysticPool._stopPlay(self: any)
 	self._playToken += 1
 	local skip: (() -> ())? = self._skip
+	local lift: (() -> ())? = self._lift
 	self._skip = nil
+	self._lift = nil
 	self._rollingSheet.Visible = false
 	if skip then
 		skip()
+	end
+	if lift then
+		lift() -- the shade never outlives the card (closed, destroyed)
 	end
 end
 

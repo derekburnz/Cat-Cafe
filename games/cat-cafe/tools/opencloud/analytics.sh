@@ -702,6 +702,8 @@ done
 # event's value, in seconds for these). CustomEventName is a filter only, as in section 4.
 #   quit_state          value seconds played; fields furthest step, where, "carry|empty bait|nobait" (Tier < 2 leavers)
 #   step_time           value account seconds of play at the step; field the onboarding step name
+#   step_gap            value seconds between two steps; fields the gap, the bucket (#3530, shared/StepGaps)
+#   quit_have           value seconds played; fields kinds of cat, coin share of Tier 2, ready or not_ready (#3530)
 #   cat_caught_area     value 1; fields area id, rarity
 #   bait_rolled         value 1; fields food, rarity rolled, Lucky Potion or none (food into a bowl; #3030)
 #   bait_resolved       value 1; fields food, rarity, choice (tame or letgo)
@@ -716,6 +718,11 @@ fieldEvents=(
 	"quit_state|Platform,CustomField1|CustomEventCountUser|Leavers by device and furthest step"
 	"step_time|CustomField1|CustomEventAvgValue|Average seconds of play when each step came"
 	"step_time|CustomField1|CustomEventCountUser|Players per step (step_time)"
+	"step_gap|CustomField1,CustomField2|CustomEventCountUser|Players per gap between two steps, by time bucket (#3530)"
+	"step_gap|CustomField1|CustomEventAvgValue|Average seconds per gap (earlier_visit and no_start rows count as 0)"
+	"quit_have|CustomField1|CustomEventCountUser|Leavers before Tier 2 by kinds of cat owned (#3530)"
+	"quit_have|CustomField2|CustomEventCountUser|Leavers before Tier 2 by coins as a share of Tier 2's cost"
+	"quit_have|CustomField3|CustomEventCountUser|Leavers before Tier 2: ready to rank up or not (rank_up_ready_quit)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"

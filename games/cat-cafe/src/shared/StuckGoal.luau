@@ -6,7 +6,8 @@
 --   the tutorial's marker and trail lead to the Alleyway's starter trap, the one nearest the camp, which keeps a cat
 --     every day (#2794, #3049); in town they lead to the Cat Cannon first,
 --   two step_time events say how far the player got (STEPS).
--- The pointer goes TRAIL_SECONDS after it first showed in a session. It reads only what the save already holds, so
+-- The pointer goes TRAIL_SECONDS after it first showed in a session, counted again once from the arrival in the
+-- Alleyway (the client's clock, UIController). It reads only what the save already holds, so
 -- it needs no save field: a player who has not rescued by Tier 2 never sees it again.
 -- Pure.
 

@@ -161,16 +161,13 @@ return function()
 			"gives jackpots 24 degree wedges and the other slices the rest, as the world wheel",
 			function()
 				local rows: { any } = table.clone(ROWS)
-				table.insert(
-					rows,
-					{
-						slice = 7,
-						kind = "crate",
-						crate = "highest_golden",
-						weight = 1,
-						jackpot = true,
-					}
-				)
+				table.insert(rows, {
+					slice = 7,
+					kind = "crate",
+					crate = "highest_golden",
+					weight = 1,
+					jackpot = true,
+				})
 				table.insert(
 					rows,
 					{ slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true }

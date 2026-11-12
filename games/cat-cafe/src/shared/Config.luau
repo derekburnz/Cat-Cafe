@@ -819,7 +819,9 @@ local Config = {
 	LeaderboardRefreshSeconds = 120,
 	LeaderboardSize = 50,
 	LeaderboardBoardRows = 10,
-	LeaderboardRateMax = 10000000,
+	-- #3688: the money boards' safety net against a bad number. It was 10,000,000, which top cafes passed, so they
+	-- all read $10M a second; now far above anything a cafe can reach, and still a whole number the store holds exactly
+	LeaderboardRateMax = 1000000000000000,
 	LeaderboardCrownRank = 10,
 	LeaderboardFaceSwapSeconds = 15,
 	-- #3466 (a player's idea): one gold system line in chat for everyone here when a player in the top
@@ -1040,11 +1042,13 @@ local Config = {
 	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
 	-- #3458 (Derek 2026-11-12: "make the game require 5 hits and medium bit faster and a lot smaller area"): the
 	-- bin's own hit count (BinHits, never the rescue's), its zone 0.42 to 0.22 and its marker 0.64 to 0.80. The
-	-- first BinFirstUses rummages keep BinFirstEase (0.35 at 0.48) and need the 5 hits too.
+	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
+	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
+	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
 	BinHits = 5,
 	BinZoneWidth = 0.22,
 	BinBarSpeed = 0.80,
-	BinFirstEase = { zone = 1.6, speed = 0.6 },
+	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost
 	-- also"): an account's first three wins are these fixed prizes in order, their own rows apart from BinTable, so
 	-- they never change the rolled chances. A row may hold more than one thing; `count` is how many of its lure,

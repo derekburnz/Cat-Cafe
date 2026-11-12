@@ -44,7 +44,7 @@ Every player in the server when a step is reached gets its prize, as long as the
 
 - **The banner** in the HUD's reserved event spot (top centre, under the travel row): "Rescue Rally" with the bar, three step icons, the lap number and the time left in the weekend. Each point anyone scores pops a small "+1" into the bar; your own points pop a paw from your side. At each step a short cheer plays and the prize toast follows (F94, at most two pictures).
 - **The Town Square** gets bunting in the Rally colours and a big Rally board by the cannon showing the bar, so players in town see it too.
-- **The cannon picker** shows "Rally: rescues x3" on every card at night, when the stuck cats are out.
+- **The cannon picker** showed "Rally: rescues x3" on every card at night until #3691 (Derek, 2026-11-12: remove it; the Rally banner and the board stay).
 - **Reduce Motion:** the "+1" pops and the bunting's flutter stop; the bar still fills.
 
 ## 5. Contracts

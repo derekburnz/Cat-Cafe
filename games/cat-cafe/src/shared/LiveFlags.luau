@@ -65,6 +65,9 @@
 -- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
 --   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
 --   intro plays itself.
+-- - `newKindTag` (#3529): the "NEW" tag over strays of kinds the player has never owned, the catch card's "New kind!"
+--   line and the five cats pointer (shared/NewKind). It starts OFF (OFF_BY_DEFAULT) until review and QA pass. Read by
+--   the client (the tag, the line, the pointer) and by Telemetry (the pointer's two step_time events).
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -101,6 +104,7 @@ LiveFlags.KEYS = {
 	"binRoll",
 	"yardSaleRoll",
 	"introSplit",
+	"newKindTag",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -120,6 +124,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	binRoll = true,
 	yardSaleRoll = true,
 	introSplit = true,
+	newKindTag = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

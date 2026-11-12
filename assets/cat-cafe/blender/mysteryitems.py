@@ -29,10 +29,11 @@ import math
 from mathutils import Vector
 
 from common import RB
-from plot import rot_z
+from plot import rot_x, rot_z
 
 BACKPACK = "CatCafe_Item_Backpack"
 LONG_NET = "CatCafe_Item_LongNet"
+SPEED_SHOES = "CatCafe_Item_SpeedShoes"
 
 # #2849 (Derek2 2026-11-09: "make the model for backpack cooler") gave it cat ears, a buckled front and a cat tail;
 # #2888 (Derek2 23:23 and 23:29: "a little more cutesy", "change the blue color of bag and make it slightly diff")
@@ -216,7 +217,94 @@ def build_long_net(mat):
     return [b.finalize(LONG_NET, mat)]
 
 
+# --------------------------------------------------------------- speed shoes --
+
+# #3538 (Derek 2026-11-12: "speed shoes that give increased speed while carrying cat", "draft a good detailed model"):
+# a pair of chunky teal trainers with a thick cream sole, a butter speed band, a cream toe bumper, laces, a mint tongue
+# and collar, a paw print and two speed dashes on the outer side and a small cream wing at the outer heel. Each shoe
+# is a child Model (_Left, _Right) pivoted at the middle of the foot's underside, built round a 1 x 1 stud foot
+# (x and z -0.5 to 0.5, the toe at -Z), so the sole sits level with the foot's bottom and never goes into the ground.
+# The inner side is thin and bare so the two shoes sit side by side on a blocky R15 rig.
+SHOE_BODY, SHOE_SOLE, SHOE_BAND, SHOE_TRIM, SHOE_OUT = "sign_teal", "offwhite", "pastel_butter", "mint", "fur_slate"
+SHOE_IN, SHOE_OUTER = -0.51, 0.6                # the inner and outer walls, the outer side being +u
+SHOE_TOE, SHOE_HEEL = -0.98, 0.58               # the upper's front and back
+SHOE_TOP = 0.84                                 # the ankle opening
+TOE_TOP = 0.5                                   # the toe box's top
+SHOE_X = 0.68                                   # each shoe's pivot off the display mat's middle
+MAT_H = 0.06
+
+
+def _shoe(b, s):
+    """One shoe in its own frame (the pivot at the origin); s is the outer side's sign (-1 the left shoe)."""
+    mid = (SHOE_IN + SHOE_OUTER) / 2
+    half = (SHOE_OUTER - SHOE_IN) / 2
+
+    def span(u0, u1, y0, y1, z0, z1, sw):
+        b.span((s * u0, y0, z0), (s * u1, y1, z1), sw)
+
+    # the sole: a dark tread, the thick cream midsole with a round toe, and the butter speed band round it
+    span(SHOE_IN, SHOE_OUTER + 0.04, 0.0, 0.05, SHOE_TOE, SHOE_HEEL + 0.06, SHOE_OUT)
+    span(SHOE_IN, SHOE_OUTER + 0.04, 0.05, 0.22, SHOE_TOE, SHOE_HEEL + 0.06, SHOE_SOLE)
+    b.cyl((s * (mid + 0.02), 0.025, SHOE_TOE), half + 0.02, 0.05, SHOE_OUT, segments=16)
+    b.cyl((s * (mid + 0.02), 0.135, SHOE_TOE), half + 0.02, 0.17, SHOE_SOLE, segments=16)
+    span(SHOE_IN - 0.006, SHOE_OUTER + 0.05, 0.11, 0.16, SHOE_TOE + 0.02, SHOE_HEEL + 0.07, SHOE_BAND)
+    for z in (-0.6, -0.2, 0.2):                                                    # tread notches on the outer side
+        span(SHOE_OUTER + 0.03, SHOE_OUTER + 0.055, 0.0, 0.08, z, z + 0.12, SHOE_OUT)
+    # the upper: a round teal toe box with a cream rubber bumper, a slope up to the ankle, the high ankle part
+    span(SHOE_IN, SHOE_OUTER - 0.02, 0.22, TOE_TOP, SHOE_TOE, -0.2, SHOE_BODY)
+    b.cyl((s * (mid - 0.01), (0.22 + TOE_TOP - 0.03) / 2, SHOE_TOE), half - 0.01, TOE_TOP - 0.25, SHOE_BODY, segments=16)
+    b.cyl((s * (mid + 0.005), 0.29, SHOE_TOE - 0.03), half + 0.005, 0.14, SHOE_SOLE, segments=16)
+    rise = SHOE_TOP - TOE_TOP
+    b.wedge((s * (mid - 0.01), TOE_TOP + rise / 2, -0.46), (2 * half - 0.12, rise, 0.52), SHOE_BODY)
+    span(SHOE_IN, SHOE_OUTER - 0.02, 0.22, SHOE_TOP, -0.2, SHOE_HEEL, SHOE_BODY)
+    # the tongue and laces
+    slope = math.degrees(math.atan2(rise, 0.52))
+    b.box((s * (mid - 0.01), SHOE_TOP + 0.06, -0.27), (0.56, 0.44, 0.1), SHOE_TRIM, rot=rot_x(-14))
+    b.box((s * (mid - 0.01), SHOE_TOP + 0.2, -0.335), (0.3, 0.1, 0.05), SHOE_BAND, rot=rot_x(-14))   # its butter tag
+    for z in (-0.66, -0.55, -0.44, -0.33):
+        y = TOE_TOP + (z + 0.72) * rise / 0.52 + 0.015
+        b.box((s * (mid - 0.01), y, z), (0.72, 0.045, 0.06), SHOE_SOLE, rot=rot_x(slope))
+        for e in (-0.36, 0.36):                                                    # eyelets
+            b.box((s * (mid - 0.01 + e), y, z), (0.07, 0.06, 0.08), SHOE_BAND, rot=rot_x(slope))
+    for e in (-0.13, 0.13):                                                        # the bow
+        b.ball((s * (mid - 0.01 + e), SHOE_TOP - 0.02, -0.3), 0.085, SHOE_SOLE, scale=(1.3, 0.8, 0.8))
+    b.ball((s * (mid - 0.01), SHOE_TOP - 0.02, -0.31), 0.06, SHOE_SOLE)
+    # the padded collar, the heel counter and the pull tab
+    span(0.42, SHOE_OUTER, SHOE_TOP, SHOE_TOP + 0.1, -0.2, 0.44, SHOE_TRIM)
+    span(SHOE_IN, -0.4, SHOE_TOP, SHOE_TOP + 0.1, -0.2, 0.44, SHOE_TRIM)
+    span(SHOE_IN, SHOE_OUTER, SHOE_TOP, SHOE_TOP + 0.1, 0.44, SHOE_HEEL + 0.02, SHOE_TRIM)
+    span(-0.36, 0.42, 0.22, 0.5, SHOE_HEEL, SHOE_HEEL + 0.04, SHOE_TRIM)
+    span(-0.09, 0.15, 0.5, SHOE_TOP + 0.3, SHOE_HEEL, SHOE_HEEL + 0.06, SHOE_BAND)
+    span(-0.09, 0.15, SHOE_TOP + 0.24, SHOE_TOP + 0.3, SHOE_HEEL - 0.1, SHOE_HEEL, SHOE_BAND)
+    # the outer side: a cream paw print, two butter speed dashes and the wing
+    xo = s * (SHOE_OUTER - 0.012)
+    b.cyl((xo, 0.42, -0.02), 0.12, 0.035, SHOE_SOLE, axis="X", segments=12)
+    for (y, z) in ((0.57, -0.17), (0.63, -0.02), (0.57, 0.13)):
+        b.cyl((xo, y, z), 0.058, 0.035, SHOE_SOLE, axis="X", segments=10)
+    for z in (-0.5, -0.66):
+        b.box((xo, 0.35, z), (0.035, 0.19, 0.06), SHOE_BAND, rot=rot_x(-28))
+    for i, (a, ln) in enumerate(((10, 0.66), (34, 0.56), (58, 0.44))):             # three feathers, back and up
+        root = Vector((s * (SHOE_OUTER + 0.03 + 0.014 * i), 0.56, 0.3))
+        d = Vector((0, math.sin(math.radians(a)), math.cos(math.radians(a))))
+        b.box(tuple(root + d * (ln / 2 + 0.04)), (0.06, 0.14, ln), SHOE_SOLE, rot=rot_x(-a))
+        b.box(tuple(root + d * (ln + 0.06)), (0.07, 0.15, 0.1), SHOE_BAND, rot=rot_x(-a))
+    b.ball((s * (SHOE_OUTER + 0.05), 0.56, 0.3), 0.11, SHOE_BAND)
+
+
+def build_speed_shoes(mat):
+    m, left, right = RB(), RB(), RB()
+    # the display mat the pair stands on in the shop picture (the worn shoes are the two child Models alone)
+    m.cyl((0.0, MAT_H / 2, -0.2), 1.75, MAT_H, "velvet_lilac", segments=20)
+    m.cyl((0.0, MAT_H / 2 + 0.005, -0.2), 1.6, MAT_H, "pastel_lilac", segments=20)
+    _shoe(left, -1)
+    _shoe(right, 1)
+    return [m.finalize(SPEED_SHOES, mat),
+            left.finalize(SPEED_SHOES + "_Left", mat, location=(-SHOE_X, MAT_H + 0.005, 0.0)),
+            right.finalize(SPEED_SHOES + "_Right", mat, location=(SHOE_X, MAT_H + 0.005, 0.0))]
+
+
 ASSETS = {
     BACKPACK: (build_backpack, 1500),
     LONG_NET: (build_long_net, 2000),
+    SPEED_SHOES: (build_speed_shoes, 2400),
 }

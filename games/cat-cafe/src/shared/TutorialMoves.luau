@@ -17,7 +17,10 @@ TutorialMoves.BOWL_STEP = 4
 TutorialMoves.CANNON_STEP = 5
 TutorialMoves.BOWL_STUDS = 4 -- stand this far out from the bowl (BaitService's prompt reaches it)
 TutorialMoves.CANNON_STUDS = 7 -- and this far from the cannon, inside Config.World.CannonRangeStuds (10)
-TutorialMoves.CANNON_DELAY = 4 -- seconds between the step and the move to the cannon
+-- 6 since 2026-11-12 (4 before): the new cat's card closes itself after 5 seconds (Popups CAT_AUTO_CLOSE), so at 4 the
+-- move landed in the cannon's ring with the card still up and the Cat Cannon window opened over it (Review-QA's
+-- fresh join runs). The move now comes once the card is gone.
+TutorialMoves.CANNON_DELAY = 6 -- seconds between the step and the move to the cannon
 TutorialMoves.LEFT_STUDS = 30 -- walked this far in that time: no move
 -- The tags the client's step pointers (#2697 part 1) find the targets by: the bowl part in each plot (the owner's
 -- plot is the Plot-tagged ancestor with OwnerUserId), and the cannons (CannonId "town" for the Town Square's).

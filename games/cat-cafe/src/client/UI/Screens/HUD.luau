@@ -75,6 +75,7 @@ local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
+local RestChip = require(script.Parent.Parent.Components.RestChip)
 local Roadmap = require(script.Parent.Roadmap)
 local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
 local Scale = require(script.Parent.Parent.Scale)
@@ -3590,6 +3591,49 @@ function HUD.setRallySoon(self: any, line: string?)
 	self:_layoutRight()
 end
 
+-- #3573: the rest chip ("Cozy cafe: 2x cat pay 💤", Components/RestChip) while the player rests in their own cafe;
+-- `doubled` false in a 2x party, where it names no number. It sits just under the money (under the money badge
+-- when that shows), placed each time it comes up, and is made the first time it is needed.
+function HUD.setRest(self: any, resting: boolean, doubled: boolean?)
+	local made: RestChip.RestChip? = self._rest
+	if made == nil and (not resting or self._gone) then
+		return
+	end
+	local chip: RestChip.RestChip = made or RestChip.new(self._root)
+	self._rest = chip
+	if resting then
+		local root: GuiObject = self._root
+		local counters: GuiObject = self._counters
+		local scale = Scale.get()
+		local origin = root.AbsolutePosition
+		local at = counters.AbsolutePosition
+		local size = counters.AbsoluteSize
+		if scale > 0 and at.Y - origin.Y < root.AbsoluteSize.Y / 2 then
+			-- the money at the top (touch): under it, and under the money badge and the Luck row when they show
+			local foot = at.Y + size.Y
+			for _, piece in { self._moneyBadge, self._buffs.frame } :: { GuiObject } do
+				local top = piece.AbsolutePosition.Y
+				if
+					piece.Visible
+					and piece.AbsoluteSize.Y > 0
+					and top - origin.Y < root.AbsoluteSize.Y / 2
+				then
+					foot = math.max(foot, top + piece.AbsoluteSize.Y)
+				end
+			end
+			chip.frame.Position =
+				UDim2.fromOffset((at.X - origin.X) / scale, (foot - origin.Y) / scale + 4)
+		elseif scale > 0 then
+			-- the money at the foot of the screen (keyboard, gamepad): beside it, level with its middle
+			chip.frame.Position = UDim2.fromOffset(
+				(at.X + size.X - origin.X) / scale + 12,
+				(at.Y + size.Y / 2 - origin.Y) / scale - RestChip.HEIGHT / 2
+			)
+		end
+	end
+	chip:set(resting, doubled)
+end
+
 -- #2487: the Cafe Event chip's lines (EventLogic.chip), nil to hide it; kind "running" paints it gold.
 function HUD.setEvent(self: any, lines: { string }?, kind: string?)
 	local text = if lines ~= nil and #lines > 0 then table.concat(lines, "\n") else nil
@@ -5256,6 +5300,10 @@ function HUD.destroy(self: any)
 	local shine: Tween? = self._storeShine
 	if shine then
 		shine:Cancel()
+	end
+	if self._rest then
+		self._rest:destroy() -- #3573
+		self._rest = nil
 	end
 	self._carryPortrait:destroy()
 	self.catchingChanged:DisconnectAll()

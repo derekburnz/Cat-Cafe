@@ -134,9 +134,12 @@ function TutorialHints.view(
 	local cats: number? = nil
 	local stats = state.stats
 	if type(stats) == "table" and type(stats.catsCaught) == "number" then
-		-- #3160: caught by hand; a cat tamed at the bait bowl is not one (shared/SecondCat.caught)
+		-- #3160, #3551 (as shared/SecondCat.progress and done): every cat caught by hand counts and so does the
+		-- first bowl cat, but it takes one caught by hand to reach 2
 		local tamed = if type(stats.baitsTamed) == "number" then stats.baitsTamed else 0
-		cats = math.max(0, stats.catsCaught - tamed)
+		local hand = math.max(0, stats.catsCaught - tamed)
+		local counted = hand + (if tamed >= 1 then 1 else 0)
+		cats = if hand >= 1 then counted else math.min(counted, 1)
 	end
 	return {
 		step = state.tutorialStep or TutorialHints.DONE,

@@ -22,6 +22,7 @@
 -- while it can launch: "Fly to the Park" on the rank-up card opens the picker with the Park's ringed.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -42,6 +43,10 @@ local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+
+-- shared/RummageBin.NEXT_AT_ATTRIBUTE on the player, and the `alleyBin` switch's attribute (on by default)
+local BIN_NEXT_AT = "BinNextAt"
+local BIN_FLAG = "LiveFlag_alleyBin"
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
@@ -527,9 +532,18 @@ end
 
 -- The strip's line for area `id`: its camp extra's, else its late station's (the Desert and the Ruins).
 function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
-	return MysticPoolLogic.pickerLine(self._traits, id)
-		or CampExtrasLogic.pickerLine(self._extras, id, Workspace:GetServerTimeNow())
+	local now = Workspace:GetServerTimeNow()
+	local station: CampExtrasLogic.Line? = MysticPoolLogic.pickerLine(self._traits, id)
+		or CampExtrasLogic.pickerLine(self._extras, id, now)
 		or LateStationsLogic.pickerLine(self._late, id)
+	-- the Rummage Bin on its area's card (Derek 2026-11-12): the player's BinNextAt and the `alleyBin` switch
+	local bin = CampExtrasLogic.binLine(
+		id,
+		Players.LocalPlayer:GetAttribute(BIN_NEXT_AT),
+		now,
+		ReplicatedStorage:GetAttribute(BIN_FLAG) ~= false
+	)
+	return CampExtrasLogic.withBin(station, bin)
 end
 
 -- #3196: PlayerState.traits (nil while the Mystic Pool is shut), for the Park card's strip.

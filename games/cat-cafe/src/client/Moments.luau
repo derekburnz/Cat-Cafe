@@ -150,6 +150,19 @@ local Moments = {
 	ArcadeStart = Signal.new() :: Signal.Signal<()>,
 	ArcadeMilestone = Signal.new() :: Signal.Signal<number>,
 	ArcadeEnd = Signal.new() :: Signal.Signal<number, boolean>,
+	-- #3296 Mouse Dash (the second Cat Arcade game), fired by UIController's Mouse Dash window for the sounds
+	-- (Audio's handlers of the same names). They were missing here at the 2026-11-12 launch, so UIController found
+	-- no signal to fire and the game was silent. A run begins; one pops up (kind "mouse", "golden" or "kitten");
+	-- a catch (points, kind, streak); a heart lost ("escape", "kitten" or "empty"); a heart won back; a speed step
+	-- (level); every milestone (points); the run ends (points, reason "hearts", "win" or "quit", newBest).
+	MouseDashStart = Signal.new() :: Signal.Signal<()>,
+	MouseDashPop = Signal.new() :: Signal.Signal<string>,
+	MouseDashCatch = Signal.new() :: Signal.Signal<number, string, number>,
+	MouseDashMiss = Signal.new() :: Signal.Signal<string>,
+	MouseDashHeart = Signal.new() :: Signal.Signal<()>,
+	MouseDashFaster = Signal.new() :: Signal.Signal<number>,
+	MouseDashMilestone = Signal.new() :: Signal.Signal<number>,
+	MouseDashEnd = Signal.new() :: Signal.Signal<number, string, boolean>,
 }
 
 return Moments

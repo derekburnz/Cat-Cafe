@@ -2434,7 +2434,7 @@ local SCENES = {
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
 		local odds = window:FindFirstChild("OddsLine", true)
-		assert(odds.Visible and odds.Text:find("Mythic 1%", 1, true), "uigate: the odds line is not on the card: " .. odds.Text .. " (#3196)")
+		assert(odds.Visible and odds.Text:find("Mythic 5%", 1, true), "uigate: the odds line is not on the card: " .. odds.Text .. " (#3196)")
 		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)
@@ -2491,7 +2491,7 @@ local SCENES = {
 		assert(old.Text == "Golden Whiskers" and new.Text == "Cosmic Fortune", "uigate: the choice reads " .. old.Text .. " / " .. new.Text .. " (#3196)")
 		assert(choice.New.Effect3.Text ~= "", "uigate: a Mythic trait does not show its three effects (#3196)")
 		assert(choice.KeepOld.AbsoluteSize == choice.TakeNew.AbsoluteSize, "uigate: Keep old and Take new differ in size (#3196)")
-		assert(choice.OddsLine.Text:find("Mythic 1%", 1, true), "uigate: the choice has no odds line (#3196)")
+		assert(choice.OddsLine.Text:find("Mythic 5%", 1, true), "uigate: the choice has no odds line (#3196)")
 		local sent = nil
 		local connection = UI.events.chooseTrait:Connect(function(takeNew)
 			sent = takeNew
@@ -2506,7 +2506,7 @@ local SCENES = {
 		press("MysticPool", "Odds")
 		local list = window:FindFirstChild("OddsList", true)
 		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
-		assert(list.Mythic.Percent.Text == "1%" and list.Common.Percent.Text == "55%", "uigate: the odds list reads wrong (#3196)")
+		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "35%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
 	end },
 	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one

@@ -7202,6 +7202,7 @@ end
 do
 	local MysticPool = require(script.Screens.MysticPool)
 	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
+	local EdgeShade = require(script.Components.EdgeShade)
 	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
 	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
 	UI.mysticPool.far = nil :: (() -> boolean)?
@@ -7237,6 +7238,16 @@ do
 			far = function(): boolean
 				local far = UI.mysticPool.far
 				return not pool.anywhere and far ~= nil and far()
+			end,
+			-- #3702: the card steps aside for the pool's animation, behind a soft shade at the screen's edges
+			shade = function(onTap: () -> ()): () -> ()
+				modalView:tuck(MysticPoolLogic.WINDOW, true)
+				local lift =
+					EdgeShade.show(modalView.screenGui.Parent :: Instance, "Tap to skip", onTap)
+				return function()
+					lift()
+					modalView:tuck(MysticPoolLogic.WINDOW, false)
+				end
 			end,
 		})
 		pool.card = card

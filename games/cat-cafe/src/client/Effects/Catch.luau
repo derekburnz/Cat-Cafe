@@ -99,26 +99,30 @@ local function hiss(model: Model, lag: number?)
 	end
 end
 
--- The beam from Legendary up, and a Mythical's second ring and slow showers of sparkles from the top of the beam.
+-- The beam from Legendary up, and a Mythical's second ring and slow showers of sparkles from the top of the beam. A
+-- Secret (#3470) gets all of it a step bigger: a wider, taller beam, a third ring and more showers.
 local function beam(ground: Vector3, rarity: string, colour: Color3)
 	local c = Presets.catchPop
 	local _, _, beams = Logic.catchPop(rarity)
 	if not beams then
 		return
 	end
-	Particles.beam(ground, colour, c.beam.width, c.beam.height, c.beam.seconds)
-	if rarity ~= "Mythical" then
+	local secret = rarity == "Secret"
+	local shape = if secret then c.secret.beam else c.beam
+	Particles.beam(ground, colour, shape.width, shape.height, shape.seconds)
+	if not Logic.topTier(rarity) then
 		return
 	end
+	local ring = c.ring[rarity] or c.ring.Mythical
 	task.delay(c.echo.after, function()
-		Particles.ring(
-			ground,
-			Presets.palette.sparkle,
-			c.ring.Mythical * c.echo.scale,
-			c.echo.seconds
-		)
+		Particles.ring(ground, Presets.palette.sparkle, ring * c.echo.scale, c.echo.seconds)
 	end)
-	for i = 1, c.shower.bursts do
+	if secret then
+		task.delay(c.secret.third.after, function()
+			Particles.ring(ground, colour, ring * c.secret.third.scale, c.secret.third.seconds)
+		end)
+	end
+	for i = 1, if secret then c.secret.bursts else c.shower.bursts do
 		task.delay(c.shower.after + (i - 1) * c.shower.every, function()
 			local at = ground
 				+ Vector3.new(rng:NextNumber(-1.5, 1.5), c.shower.height, rng:NextNumber(-1.5, 1.5))
@@ -136,11 +140,11 @@ local function purrfect(at: Vector3, ground: Vector3, rarity: string)
 	Particles.burst("catchSparkle", at, Presets.bursts.purrfect, Presets.palette.golden)
 	Particles.ring(at - Vector3.new(0, 1, 0), Presets.palette.golden)
 	Particles.confetti(at, math.ceil(Context.budget.confetti * 0.6), Presets.purrfectColors)
-	beam(ground, rarity, Presets.rarity[rarity] or Presets.rarity.Common)
+	beam(ground, rarity, Logic.glowColour(rarity))
 end
 
 local function caught(at: Vector3, ground: Vector3, rarity: string)
-	local colour = Presets.rarity[rarity] or Presets.rarity.Common
+	local colour = Logic.glowColour(rarity)
 	local ring, confetti = Logic.catchPop(rarity)
 	Particles.burst("catchSparkle", at, Presets.catchSparkle[rarity] or 8, colour)
 	Particles.ring(ground, colour, ring, Presets.catchPop.ringSeconds)

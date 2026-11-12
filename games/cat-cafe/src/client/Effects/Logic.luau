@@ -247,6 +247,31 @@ function Logic.catchPop(rarity: string): (number, number, boolean)
 	return ring, c.confetti[rarity] or 0, c.beams[rarity] == true
 end
 
+-- Whether `rarity` gets a Mythical's extras (the second ring, the showers, the big pull's sparkles and shockwave): a
+-- Mythical, and a Secret (#3470), which adds its own on top.
+function Logic.topTier(rarity: unknown): boolean
+	return rarity == "Mythical" or rarity == "Secret"
+end
+
+-- The colour `rarity`'s light takes: its swatch, or Presets.rarityGlow's when the swatch is too dark to glow (a
+-- Secret). An unknown rarity glows like a Common.
+function Logic.glowColour(rarity: unknown): Color3
+	if type(rarity) ~= "string" then
+		return Presets.rarity.Common
+	end
+	return Presets.rarityGlow[rarity] or Presets.rarity[rarity] or Presets.rarity.Common
+end
+
+-- A Secret stray's sky beam seen from `distance` studs (Presets.secretStray.beam): its width in studs, wider the
+-- further you are so it stays a thin line on screen, and how see-through its foot is, fading as you come close.
+function Logic.secretBeam(distance: number): (number, number)
+	local b = Presets.secretStray.beam
+	local away = math.max(distance, 0)
+	local width = math.clamp(away * b.perStud, b.widthMin, b.widthMax)
+	local share = math.clamp((away - b.nearWithin) / b.fadeOver, 0, 1)
+	return width, b.near + (b.far - b.near) * share
+end
+
 -- How a spin prize is celebrated, from its slice's chance among `weights` (slice number to weight, as in
 -- Catalog.spinWheel): "jackpot" at or under Presets.wheel.jackpot, "good" at or under .good, else "small". An
 -- unknown slice is "small".
@@ -1898,7 +1923,7 @@ function Logic.bigPull(rarity: unknown, gold: boolean, rainbow: boolean?): boole
 	if rainbow == true and type(rarity) == "string" then
 		return true -- a rainbow cat of any rarity (F99)
 	end
-	if rarity == "Legendary" or rarity == "Mythical" then
+	if rarity == "Legendary" or rarity == "Mythical" or rarity == "Secret" then
 		return true
 	end
 	return gold and rarity == "Epic"

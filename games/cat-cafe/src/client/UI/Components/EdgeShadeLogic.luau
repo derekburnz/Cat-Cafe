@@ -10,8 +10,12 @@ EdgeShadeLogic.FADE = 0.3 -- seconds in and out; slow enough that nothing flashe
 EdgeShadeLogic.EDGE_TRANSPARENCY = 0.45 -- at the very edge of the screen
 EdgeShadeLogic.MID_TRANSPARENCY = 0.82 -- halfway into the strip
 EdgeShadeLogic.DISPLAY_ORDER = 21 -- just over the modal layer (20), under toasts
-EdgeShadeLogic.HINT_SIZE = 16
-EdgeShadeLogic.HINT_BOTTOM = 28 -- pixels up from the bottom edge
+-- The hint ("Tap to skip") is a small dark pill, so it reads over anything, and sits HINT_AT of the way down the
+-- screen: under the animation in the middle and above the HUD's bottom row of tiles, where it was drawn over
+-- their labels at first (Review-QA's Studio look at #3708).
+EdgeShadeLogic.HINT_SIZE = 18
+EdgeShadeLogic.HINT_AT = 0.74
+EdgeShadeLogic.HINT_FILL = 0.35 -- the pill's transparency
 
 export type Edge = { name: string, anchor: Vector2, size: Vector2, rotation: number }
 

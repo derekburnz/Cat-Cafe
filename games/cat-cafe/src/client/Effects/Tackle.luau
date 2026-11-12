@@ -43,6 +43,7 @@ local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
 local NetHold = require(script.Parent.NetHold)
 local PalWave = require(script.Parent.PalWave)
+local PetCat = require(script.Parent.PetCat)
 local Presets = require(script.Parent.Presets)
 
 local Tackle = {}
@@ -352,6 +353,12 @@ local function step(dt: number)
 		waving *= 1 - carrying
 		if wave ~= nil and waving > 0 then
 			table.insert(layers, { frames = wave, weight = waving })
+		end
+		-- petting a cafe cat (#3651) with the same free arm
+		local pet, petting = PetCat.layer(userId :: number, entry.rig)
+		petting *= 1 - carrying
+		if pet ~= nil and petting > 0 then
+			table.insert(layers, { frames = pet, weight = petting })
 		end
 		local tackleAt = number(character, "TackleAt")
 		if mine and localPress ~= nil then

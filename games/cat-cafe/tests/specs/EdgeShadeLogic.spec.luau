@@ -34,5 +34,11 @@ return function()
 			expect(EdgeShadeLogic.FADE >= 0.25).to.equal(true)
 			expect(EdgeShadeLogic.DISPLAY_ORDER > 20).to.equal(true)
 		end)
+
+		it("keeps the hint readable and clear of the HUD's bottom row and of the middle", function()
+			expect(EdgeShadeLogic.HINT_SIZE >= 16).to.equal(true)
+			expect(EdgeShadeLogic.HINT_AT > 0.6).to.equal(true)
+			expect(EdgeShadeLogic.HINT_AT < 0.8).to.equal(true)
+		end)
 	end)
 end

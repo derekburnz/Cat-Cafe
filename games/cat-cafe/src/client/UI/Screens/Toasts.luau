@@ -69,6 +69,7 @@ export type Toasts = {
 	setHeld: (self: Toasts, held: boolean) -> (),
 	setFocus: (self: Toasts, on: boolean) -> (), -- #2724: mid-catch toasts wait
 	isHeld: (self: Toasts) -> boolean,
+	pin: (self: Toasts, piece: GuiObject) -> (), -- #3701: the rest banner, kept at the head of the stack
 	lastShown: (self: Toasts) -> number?,
 	destroy: (self: Toasts) -> (),
 }
@@ -853,6 +854,14 @@ function Toasts.setFocus(self: any, on: boolean)
 	for _, line in waiting do
 		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize, line.oneLine)
 	end
+end
+
+-- #3701: a piece that is not a toast (the cafe rest banner) at the head of the stack, so it sits top centre, clear of
+-- the HUD, and the toasts line up under it. Its own Visible decides whether it takes room.
+function Toasts.pin(self: any, piece: GuiObject)
+	piece.LayoutOrder = 0
+	piece.Parent = self._stack
+	self:_place()
 end
 
 function Toasts.isHeld(self: any): boolean

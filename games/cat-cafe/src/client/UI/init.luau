@@ -5158,6 +5158,16 @@ do
 		return not tipBusy and TipQueue.free(tipMoment())
 	end
 
+	-- #3701: nothing is over the screen (a catch, a rescue, the intro, a window) and the UI is not hidden: the cafe
+	-- rest banner may show. Looser than quiet: a toast or the dusk warning does not hold it.
+	function UI.tips.calm(): boolean
+		local moment = tipMoment()
+		if moment.catching or moment.rescuing or moment.intro then
+			return false
+		end
+		return not (moment.window or moment.hidden)
+	end
+
 	ticks.tips = function(dt: number)
 		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
 		local ask = askCard
@@ -7489,9 +7499,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- Controllers/RallyController calls UI.rally.update(state) on every RallyState: the banner top centre while a Rally
--- runs, the Town Square board's face, "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
--- (the Friday chip) and the Cat Cannon cards' night tag. The pops are VFX's (Effects/Rally hooks RallyPoint and finds
--- the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
+-- runs, the Town Square board's face and "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
+-- (the Friday chip). #3691 took the Cat Cannon cards' night tag away. The pops are VFX's (Effects/Rally hooks
+-- RallyPoint and finds the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
 -- once. Its own block, as the module is short of locals.
 do
 	local RallyBanner = require(script.Screens.RallyBanner)
@@ -7515,9 +7525,6 @@ do
 		local boards = rally.boards
 		if boards then
 			boards:set(current)
-		end
-		if cannonScreen then
-			cannonScreen:setRally(current)
 		end
 		if hud then
 			hud:setRallySoon(RallyLogic.soon(current, Workspace:GetServerTimeNow()))
@@ -8925,6 +8932,27 @@ do
 		if current then
 			(current :: any):setRest(resting, doubled)
 		end
+	end
+
+	-- #3701: the cafe rest banner (Components/RestBanner), from AfkController: its state (nil hides it), whether a
+	-- rest doubles the pay right now and, while it counts, the seconds left. Made the first time it is needed and
+	-- kept at the head of the toasts' stack. It replaces the rest chip above.
+	local restBanner: any = nil
+	function UI.rest.banner(state: string?, doubled: boolean?, remaining: number?)
+		if restBanner == nil then
+			local stack = toasts
+			if state == nil or stack == nil then
+				return
+			end
+			restBanner = require(script.Components.RestBanner).new()
+			stack:pin(restBanner.frame)
+		end
+		restBanner:set(state, doubled, remaining)
+	end
+
+	function UI.rest.calm(): boolean
+		local tips: any = UI.tips
+		return tips.calm()
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

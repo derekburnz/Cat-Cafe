@@ -1093,3 +1093,9 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Codes (#3576):** `UPDATE2`, `2000VISITS` and `10LIKES` with prizes a step above `update1` and `500visits`. `rewards-and-shops.md` section 2f.
 - 2026-11-12 (correction to the Store entry above, #3572): no golden fish price is halved. The Fresh Catch shelf left the game on 2026-11-10 (#3118), so Derek's pick to halve only its potions has nothing to act on. Design-Agent's spec missed that; Gameplay-Engineer found it. The 15 Robux prices and the Sale badge (#3594) stand.
 - 2026-11-12 (AFK cafe, #3573, built in #3587 and #3578): two small calls by Design-Agent. While a player rests, each cat's own per-second label stays at base pay and only the cafe total doubles, the same as an event boost. A rest carries on through nightfall and sunrise; only the player's input or leaving the zone ends it.
+
+## 2026-11-12: the "Feature my name" tick is removed (#3653, Sync-Agent for Design-Agent's doc)
+
+- Derek, 17:49 UTC: "remove the feature my name tick option and we will just always do that on ideas". A player whose idea gets built is always named on the Thank You board and its What's New row, by display name only. This replaces the 2026-11-04 tick and the "only players who ticked are named" line of #3472.
+- Kept on purpose: the Settings row that hides a player's name, and one plain line on the Idea chip that says the display name goes on the board and can be hidden. The audience is young, so the window still says what happens with a name and there is still a way to say no.
+- Unchanged: no player name or id in the repo, issues, PRs, commits or logs. `idea-credits.md` section 9.

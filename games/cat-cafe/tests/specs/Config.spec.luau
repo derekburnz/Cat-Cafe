@@ -295,6 +295,10 @@ return function()
 		LeaderboardRateMax = 10000000,
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
+		-- #3466: the top player join notice
+		LeaderboardJoinNoticeRank = 10,
+		LeaderboardJoinNoticeDelay = 5,
+		LeaderboardJoinNoticeRejoinSeconds = 600,
 		-- The crate reel (F103, crate-reel.md 4)
 		CrateReelTiles = 40,
 		CrateReelLandingTile = 34,

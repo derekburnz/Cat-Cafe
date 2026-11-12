@@ -85,6 +85,12 @@ export type CustomEvent =
 	-- #2798: a Cozy Cafe bag collected, value today's bags so far; what it held ("coins", "coins+lure", "coins+fish",
 	-- "coins+lure+fish")
 	| "cozy_bag"
+	-- #3573 (shared/AfkCafe): a rest in the player's own cafe starts (value 1; field: "doubled" or "party"), ends
+	-- (value: its seconds) and what the cafe paid during it (value: coins)
+	| "afk_start"
+	| "afk_end"
+	| "afk_pay"
+	| "afk_rejoin" -- #3602: a resting player was sent back into the game ahead of the idle disconnect (value 1)
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
 	-- its seconds at the cafe)

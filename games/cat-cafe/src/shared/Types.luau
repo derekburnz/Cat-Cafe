@@ -391,6 +391,7 @@ export type CodeDef = {
 	id: string,
 	prize: IndexPrize,
 	active: boolean,
+	startsAt: number?, -- os.time(): before it the code reads as one that does not exist (#3576)
 	endsAt: number?, -- os.time()
 	requiresGroup: boolean?,
 }

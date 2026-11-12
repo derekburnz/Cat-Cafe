@@ -380,9 +380,41 @@ local Config = {
 	-- the event's cosmetic gets EventRepeatGiftIncomeMinutes of income instead. The workflow keeps big events
 	-- EventBigMinGapSeconds apart. At most EventScheduleMax records are read.
 	EventPollSeconds = 60,
+	-- #3572 (Derek 2026-11-12: "make the prizes of anything not being bought yet half'd", "put a sale badge on it"): the
+	-- Store's Sale badge, by Store card key. `was` is the real Robux price the item had on 2026-11-12 and `now` the
+	-- half price Derek OK'd. Roblox only tells the game today's price, so the card shows the badge and the struck old
+	-- price only while Roblox's price is exactly `now` (a player whose regional price differs sees the plain price),
+	-- and only before StoreSaleEnds (os.time: 2026-12-13 00:00 UTC, 30 days on; never shown to players, no countdown).
+	-- After that the half price is simply the price. Every key is a Store card (StoreLogic.spec checks); the Golden
+	-- Pond pass (99 to 49) is sold at the camp pond, not on a Store card, so it is not here.
+	StoreWasPrice = {
+		extraSlot = { was = 149, now = 75 },
+		uniforms = { was = 149, now = 75 },
+		cafeStyle = { was = 249, now = 125 },
+		royalCat = { was = 599, now = 299 },
+		kingCat = { was = 799, now = 399 },
+		grandTheme = { was = 799, now = 399 },
+		kingPack = { was = 999, now = 499 },
+		potionXS = { was = 10, now = 5 },
+		potionS = { was = 25, now = 13 },
+		potionM = { was = 49, now = 25 },
+		potionL = { was = 99, now = 49 },
+		steadyPaw = { was = 25, now = 13 },
+		thankYou = { was = 25, now = 13 },
+		cafePass = { was = 299, now = 149 },
+	} :: { [string]: { was: number, now: number } },
+	StoreSaleEnds = 1797120000,
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,
+	-- #3573: resting in your own cafe (shared/AfkCafe). No input and no movement for AfkCafeSeconds in the cafe or on
+	-- its doorstep doubles the cats' cafe pay, in the event money slot above (so never more than EventMoneyMax).
+	AfkCafeSeconds = 120,
+	AfkCafeMoney = 2,
+	-- #3602: a resting player who has had no input this long is sent back into the game (shared/AfkCafe, switch
+	-- `autoRejoin`). Roblox disconnects at 20 minutes without input, so this leaves two minutes for the teleport
+	-- and its retries.
+	AutoRejoinSeconds = 18 * 60,
 	EventLuckMax = 1.0,
 	EventShowerMax = 12,
 	EventShowerGapMinSeconds = 300,
@@ -644,9 +676,10 @@ local Config = {
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
 	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
 	-- nobody can tackle them either.
-	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
-	-- and a replay from the ? tile
-	IntroAutoPlay = true,
+	-- #1575 (Derek, 2026-11-05) had the intro play on a first join. #3162 (2026-11-12): off again on the numbers
+	-- (loaded to first move took 27 s and lost 9% of new players): a new player gets control at once, the ? tile
+	-- glows and replays the intro. Back to true restores the first join play.
+	IntroAutoPlay = false,
 	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
 	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
 	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set

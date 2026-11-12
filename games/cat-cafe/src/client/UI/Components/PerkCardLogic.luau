@@ -61,23 +61,47 @@ function PerkCardLogic.icon(id: string): string
 	return PerkCardLogic.ICON[id] or PerkCardLogic.FALLBACK_ICON
 end
 
-function PerkCardLogic.unlocked(perk: Perk): Unlocked
+-- #3585: while the `traits` switch is on the Mystic Pool stands on the Picnic Basket's spot and the basket is put
+-- away, so with `pool` true the Park's card shows the pool, the station a player can find there. The perk is the same.
+PerkCardLogic.POOL_PERK = "fresh_bait"
+PerkCardLogic.POOL_ICON = "🔮"
+PerkCardLogic.POOL_STATION = "Mystic Pool" -- Traits.NAME
+
+-- Whether the pool stands there now: the `traits` live switch, as this client sees it (the one impure reader here).
+function PerkCardLogic.poolStands(): boolean
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	return LiveFlags.shown(
+		"traits",
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "traits")
+	) == true
+end
+
+function PerkCardLogic.unlocked(perk: Perk, pool: boolean?): Unlocked
+	local swapped = pool == true and perk.id == PerkCardLogic.POOL_PERK
 	return {
-		icon = PerkCardLogic.icon(perk.id),
+		icon = if swapped then PerkCardLogic.POOL_ICON else PerkCardLogic.icon(perk.id),
 		title = PerkCardLogic.UNLOCKED_TITLE,
-		station = perk.station,
+		station = if swapped then PerkCardLogic.POOL_STATION else perk.station,
 		perk = "New perk: " .. perk.name,
 		text = perk.text,
 	}
 end
 
-function PerkCardLogic.list(tier: number?): { Row }
+-- `pool` as for `unlocked`: the Park's rows name the Mystic Pool while it stands on the basket's spot.
+function PerkCardLogic.list(tier: number?, pool: boolean?): { Row }
+	local function station(perk: Perk): string
+		return if pool == true and perk.id == PerkCardLogic.POOL_PERK
+			then PerkCardLogic.POOL_STATION
+			else perk.station
+	end
 	local rows: { Row } = {}
 	for _, perk in StationPerks.owned(tier) :: { Perk } do
+		local swapped = pool == true and perk.id == PerkCardLogic.POOL_PERK
 		table.insert(rows, {
 			id = perk.id,
-			icon = PerkCardLogic.icon(perk.id),
-			title = perk.name .. " · " .. perk.station,
+			icon = if swapped then PerkCardLogic.POOL_ICON else PerkCardLogic.icon(perk.id),
+			title = perk.name .. " · " .. station(perk),
 			text = perk.text,
 			owned = true,
 		})
@@ -87,7 +111,7 @@ function PerkCardLogic.list(tier: number?): { Row }
 		table.insert(rows, {
 			id = nextPerk.id,
 			icon = PerkCardLogic.LOCK,
-			title = nextPerk.station .. " perk",
+			title = station(nextPerk) .. " perk",
 			text = ("Opens at Tier %d"):format(nextPerk.tier),
 			owned = false,
 		})
@@ -96,15 +120,16 @@ function PerkCardLogic.list(tier: number?): { Row }
 end
 
 -- The rank up window's teaser for what the next tier's station brings, or nil when it brings none.
-function PerkCardLogic.teaser(tier: number?): string?
+function PerkCardLogic.teaser(tier: number?, pool: boolean?): string?
 	local perk: Perk? = StationPerks.at((tier or 1) + 1)
 	if perk == nil then
 		return nil
 	end
+	local swapped = pool == true and perk.id == PerkCardLogic.POOL_PERK
 	-- short enough for one line in the tall window; "Your perks" and the Unlocked card carry the perk's own line
 	return ("%s New station: %s (%s perk)"):format(
-		PerkCardLogic.icon(perk.id),
-		perk.station,
+		if swapped then PerkCardLogic.POOL_ICON else PerkCardLogic.icon(perk.id),
+		if swapped then PerkCardLogic.POOL_STATION else perk.station,
 		perk.name
 	)
 end

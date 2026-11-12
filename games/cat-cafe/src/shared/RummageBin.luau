@@ -61,13 +61,19 @@ export type Row = {
 	tier: number?,
 }
 
+-- Config's tables as rows. Through `any`: CI's luau-lsp calls the inferred table types unrelated to Row (a row
+-- there has no `tier` field) and refuses the direct cast.
+local FIRST_PRIZES: { Row } = Config.BinFirstPrizes :: any
+local BIN_TABLE: { Row } = Config.BinTable :: any
+local ROLL_TABLE: { Row } = Config.BinRollTable :: any
+
 function RummageBin.fresh(): Types.RummageBinSave
 	return { nextAt = 0, uses = 0, prize = nil }
 end
 
 -- #3608: the rolled table's rows, in the board's order.
 function RummageBin.rollRows(): { Row }
-	return Config.BinRollTable :: { Row }
+	return ROLL_TABLE
 end
 
 -- #3608: a row the `binRoll` bin can hold by its id: a fixed first prize or a BinRollTable row.
@@ -75,7 +81,7 @@ function RummageBin.rollRow(id: unknown): Row?
 	if type(id) ~= "string" then
 		return nil
 	end
-	for _, rows in { Config.BinFirstPrizes :: { Row }, RummageBin.rollRows() } do
+	for _, rows in { FIRST_PRIZES, RummageBin.rollRows() } do
 		for _, row in rows do
 			if row.id == id then
 				return row
@@ -136,7 +142,7 @@ function RummageBin.early(save: Types.RummageBinSave): boolean
 end
 
 local function rowById(id: string): Row?
-	for _, rows in { Config.BinFirstPrizes :: { Row }, Config.BinTable :: { Row } } do
+	for _, rows in { FIRST_PRIZES, BIN_TABLE } do
 		for _, row in rows do
 			if row.id == id then
 				return row
@@ -148,7 +154,7 @@ end
 
 -- The fixed prize the win after `uses` earlier wins brings, or nil once they are used up.
 function RummageBin.fixedFor(uses: number): Row?
-	return (Config.BinFirstPrizes :: { Row })[uses + 1]
+	return FIRST_PRIZES[uses + 1]
 end
 
 -- The row a win brings after `uses` earlier wins, for a roll in [0, 1): a fixed first prize, then BinTable's.
@@ -157,7 +163,7 @@ function RummageBin.rowFor(uses: number, roll: number): Row
 	if fixed ~= nil then
 		return fixed
 	end
-	local rows = Config.BinTable :: { Row }
+	local rows = BIN_TABLE
 	local total = 0
 	for _, row in rows do
 		total += row.chance or 0
@@ -360,7 +366,7 @@ end
 -- The chances for the prompt's note, in the table's order over two lines so they fit a phone:
 -- "2 Tuna 34%  ·  8 golden fish 25%  ·  Salmon 15%" then the rest.
 function RummageBin.oddsLine(): string
-	local rows = Config.BinTable :: { Row }
+	local rows = BIN_TABLE
 	local half = math.ceil(#rows / 2)
 	local lines: { string } = {}
 	for from = 1, #rows, half do

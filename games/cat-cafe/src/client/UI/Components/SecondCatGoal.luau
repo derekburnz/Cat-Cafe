@@ -10,7 +10,8 @@
 -- is the new-cat bonus (Design-Agent 2026-11-10). Only when a job really is free, and the rate with a second cat
 -- working is the server's, do the words become "2 cats earn 2x 💰" (at DOUBLE or more, else "earn more") and
 -- "Now +$1.5/s" / "with 2 cats +$2.5/s".
--- While a cat is carried the card reads "Bring your cat home 🏠" (CARRY). It used to go back to the tier goal, the
+-- While a cat is carried the card reads "Bring your cat to the camp 🐾" (CARRY, the
+-- carry banner's own place: Components/CannonLogic.CARRY_SUB). It used to go back to the tier goal, the
 -- carry banner saying what to do with the cat, but the card then read "Different cats 1/5" for the walk home and
 -- flipped back to "Catch a 2nd cat" at check in, which looked like the goal had changed twice (Review-QA's clean
 -- run, 2026-11-12, for Derek's "fix everything with the cannon and tutorial steps").
@@ -30,7 +31,7 @@ export type View = {
 	chip: string, -- the folded card's line
 }
 
-SecondCatGoal.CARRY = "Bring your cat home 🏠" -- the card's line while a cat is carried
+SecondCatGoal.CARRY = "Bring your cat to the camp 🐾" -- the card's line while a cat is carried
 SecondCatGoal.NEED = 2 -- cats caught that end it (shared/SecondCat.CATS)
 SecondCatGoal.DOUBLE = 1.9 -- the rate with a second cat over the rate now from which the card may say "2x"
 SecondCatGoal.PREVIEW_SECONDS = 6 -- how long `lines` show (shared/SecondCat.PREVIEW_SECONDS)

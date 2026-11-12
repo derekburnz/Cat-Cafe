@@ -176,4 +176,78 @@ return function()
 			end
 		end)
 	end)
+
+	describe("MysticPoolLogic picker and roll helpers", function()
+		local cats = {
+			a = { uid = "a", catId = "x", level = 3, rating = 1 },
+			b = { uid = "b", catId = "x", level = 9, rating = 1 },
+			c = { uid = "c", catId = "x", level = 2, rating = 1, spotId = "s1" },
+			d = { uid = "d", catId = "x", level = 9, rating = 4 },
+			junk = 7,
+		} :: any
+
+		it("lists working cats first, then level, rate and uid", function()
+			local list = MysticPoolLogic.cats(cats)
+			local order = {}
+			for _, cat in list do
+				table.insert(order, cat.uid)
+			end
+			expect(table.concat(order, ",")).to.equal("c,d,b,a")
+			expect(#MysticPoolLogic.cats(nil)).to.equal(0)
+		end)
+
+		it("changes the list's key when a cat gets a trait", function()
+			local before = MysticPoolLogic.key(MysticPoolLogic.cats(cats))
+			expect(MysticPoolLogic.key(MysticPoolLogic.cats(cats))).to.equal(before)
+			cats.a.trait = { id = first.id }
+			expect(MysticPoolLogic.key(MysticPoolLogic.cats(cats))).never.to.equal(before)
+			cats.a.trait = nil
+		end)
+
+		it(
+			"changes the stamp on a payment, a trait, a waiting re-roll or a collected token",
+			function()
+				local view = { tokens = 1, freeLeft = 0, held = 1 } :: any
+				local base = MysticPoolLogic.stamp(view, 20, nil)
+				expect(MysticPoolLogic.stamp(view, 20, nil)).to.equal(base)
+				expect(MysticPoolLogic.stamp(view, 10, nil)).never.to.equal(base)
+				expect(MysticPoolLogic.stamp(view, 20, { id = first.id })).never.to.equal(base)
+				expect(MysticPoolLogic.stamp({ tokens = 2, freeLeft = 0, held = 0 }, 20, nil)).never.to.equal(
+					base
+				)
+				expect(
+					MysticPoolLogic.stamp(
+						{
+							tokens = 1,
+							freeLeft = 0,
+							held = 1,
+							pending = { uid = "a", id = last.id },
+						},
+						20,
+						nil
+					)
+				).never.to.equal(base)
+				expect(MysticPoolLogic.stamp(nil, 20, nil)).to.equal("shut")
+			end
+		)
+
+		it("finds what a roll gave: a first trait, or the waiting re-roll for that cat", function()
+			local view = { tokens = 0, freeLeft = 0, held = 0 } :: any
+			expect(MysticPoolLogic.rolled(view, "a", false, nil)).never.to.be.ok()
+			expect(MysticPoolLogic.rolled(view, "a", false, { id = first.id })).to.equal(first.id)
+			-- a cat that had a trait only shows a result through the waiting re-roll
+			expect(MysticPoolLogic.rolled(view, "a", true, { id = first.id })).never.to.be.ok()
+			view.pending = { uid = "a", id = last.id }
+			expect(MysticPoolLogic.rolled(view, "a", true, { id = first.id })).to.equal(last.id)
+			expect(MysticPoolLogic.rolled(view, "b", true, { id = first.id })).never.to.be.ok()
+			view.pending = { uid = "a", id = "no_such_trait" }
+			expect(MysticPoolLogic.rolled(view, "a", true, nil)).never.to.be.ok()
+		end)
+
+		it("names a trait's rarity for the pool's colour", function()
+			expect(MysticPoolLogic.rarityId(first.id)).to.equal(first.rarity.id)
+			expect(MysticPoolLogic.rarityId(last.id)).to.equal(last.rarity.id)
+			expect(MysticPoolLogic.rarityId("no_such_trait")).to.equal(Traits.RARITIES[1].id)
+		end)
+	end)
 end

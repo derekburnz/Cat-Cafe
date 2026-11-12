@@ -12,7 +12,15 @@
 --   tokens(view, now)           the station's free tokens: "1 Trait Token ready" with Collect, or "Next free token in
 --                               3h 12m"
 --   odds()                      the Odds list: one row per rarity with its colour and percent, and the line under it
---   ODDS_LINE                   the odds line every card shows (Traits.oddsText)
+--   ODDS_LINE, ODDS_LINES       the odds line every card shows (Traits.oddsText), whole and as two short lines
+--   cats(cats)                  the picker's list: working cats first (only their traits count), then the highest
+--                               level, best rate and uid
+--   key(list)                   changes when the list's rows would (a level, a name, a trait, a job)
+--   stamp(view, fish, trait)    changes when the server has answered a press (a payment, a trait, a waiting re-roll,
+--                               a collected token), so the buttons wake
+--   rolled(view, uid, hadTrait, trait)  the trait id a roll on `uid` gave, once the state shows it: the waiting
+--                               re-roll, or a first trait
+--   rarityId(traitId)           "rare", for the pool's colour (Effects/MysticPool.roll)
 -- Button words stay neutral ("Roll again" is never "so close"), for a young audience (spec section 1a).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -29,6 +37,15 @@ MysticPoolLogic.KEEP_OLD = "Keep old"
 MysticPoolLogic.TAKE_NEW = "Take new"
 MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
 MysticPoolLogic.ODDS_LINE = Traits.oddsText() :: string
+-- The same words as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
+MysticPoolLogic.ODDS_LINES = (function(): { string }
+	local line: string = Traits.oddsText()
+	local cut = string.find(line, ". ", 1, true)
+	if cut == nil then
+		return { line, "" }
+	end
+	return { string.sub(line, 1, cut - 1), string.sub(line, cut + 2) }
+end)()
 
 export type Card = {
 	has: boolean,
@@ -172,6 +189,93 @@ function MysticPoolLogic.odds(): { OddsRow }
 		table.insert(rows, { name = rarity.name, color = rarity.color, percent = rarity.odds })
 	end
 	return rows
+end
+
+-- The picker's cats. `cats` is PlayerState.cats (uid -> cat).
+function MysticPoolLogic.cats(cats: { [string]: any }?): { any }
+	local out: { any } = {}
+	if cats == nil then
+		return out
+	end
+	for _, cat in cats do
+		if type(cat) == "table" and type(cat.uid) == "string" then
+			table.insert(out, cat)
+		end
+	end
+	table.sort(out, function(a: any, b: any): boolean
+		local aWorks, bWorks = a.spotId ~= nil, b.spotId ~= nil
+		if aWorks ~= bWorks then
+			return aWorks
+		end
+		local aLevel, bLevel = whole(a.level), whole(b.level)
+		if aLevel ~= bLevel then
+			return aLevel > bLevel
+		end
+		local aRate: number = if type(a.rating) == "number" then a.rating else 0
+		local bRate: number = if type(b.rating) == "number" then b.rating else 0
+		if aRate ~= bRate then
+			return aRate > bRate
+		end
+		return a.uid < b.uid
+	end)
+	return out
+end
+
+local function traitId(trait: any): string
+	return if type(trait) == "table" and type(trait.id) == "string" then trait.id else ""
+end
+
+function MysticPoolLogic.key(list: { any }): string
+	local parts = table.create(#list)
+	for index, cat in list do
+		local job: string = if cat.spotId ~= nil then "w" else "r"
+		parts[index] = string.format(
+			"%s:%d:%s:%s:%s:%s",
+			tostring(cat.uid),
+			whole(cat.level),
+			tostring(cat.variant),
+			job,
+			tostring(cat.name),
+			traitId(cat.trait)
+		)
+	end
+	return table.concat(parts, "|")
+end
+
+function MysticPoolLogic.stamp(view: View?, fish: number, trait: any): string
+	if view == nil then
+		return "shut"
+	end
+	local waiting = view.pending
+	local waitingKey: string = if type(waiting) == "table"
+		then tostring(waiting.uid) .. "=" .. tostring(waiting.id)
+		else ""
+	return string.format(
+		"%d:%d:%d:%d:%s:%s",
+		whole(view.tokens),
+		whole(view.freeLeft),
+		whole(view.held),
+		whole(fish),
+		waitingKey,
+		traitId(trait)
+	)
+end
+
+function MysticPoolLogic.rolled(view: View?, uid: string, hadTrait: boolean, trait: any): string?
+	local waiting = if view ~= nil then view.pending else nil
+	if type(waiting) == "table" and waiting.uid == uid and type(waiting.id) == "string" then
+		return if Traits.get(waiting.id) ~= nil then waiting.id else nil
+	end
+	local id = traitId(trait)
+	if not hadTrait and id ~= "" and Traits.get(id) ~= nil then
+		return id
+	end
+	return nil
+end
+
+function MysticPoolLogic.rarityId(id: string): string
+	local def: any = Traits.get(id)
+	return if def ~= nil then def.rarity.id else Traits.RARITIES[1].id
 end
 
 return MysticPoolLogic

@@ -8759,13 +8759,17 @@ do
 		return (string.gsub(text, "^0", ""))
 	end
 
-	-- the launch's headline features that are switched on right now, in the spec's order (#3420 section 5)
-	function UI.cafeEvent.news(): { string }
+	-- the headline features of party `id` that are switched on right now, in the spec's order (#3420 section 5,
+	-- #3535). A switch this build does not know (its feature has not merged) counts as off.
+	function UI.cafeEvent.news(id: string): { string }
 		local LiveFlags =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		local out: { string } = {}
-		for _, pair in { { "traits", "Mystic Pool" }, { "mouseDash", "Mouse Dash" } } do
-			if LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1])) then
+		for _, pair in EventLogic.PARTY_NEWS[id] or {} do
+			if
+				table.find(LiveFlags.KEYS, pair[1]) ~= nil
+				and LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1]))
+			then
 				table.insert(out, pair[2])
 			end
 		end
@@ -8779,9 +8783,12 @@ do
 		local seen, started = EventLogic.follow(events.seen, view, now)
 		events.seen = seen
 		if started and view ~= nil and toasts then
-			-- #3420: the launch's Update Party starts with the party card; any other event with the toast
-			local party =
-				EventLogic.partyBanner(view, UI.cafeEvent.clock12(view.endsAt), UI.cafeEvent.news())
+			-- #3420: an Update Party starts with the party card; any other event with the toast
+			local party = EventLogic.partyBanner(
+				view,
+				UI.cafeEvent.clock12(view.endsAt),
+				UI.cafeEvent.news(view.id)
+			)
 			local shown = false
 			if party ~= nil then
 				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
@@ -8790,6 +8797,24 @@ do
 					title = party.title,
 					lines = party.lines,
 				}) == true
+				-- #3535: Friday's party is followed by the Secret cats card (queued behind the party card)
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local Catalog =
+					require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+				local secrets = EventLogic.secretsBanner(
+					view,
+					LiveFlags.shown("secretCats", get(LiveFlags.ATTRIBUTE_PREFIX .. "secretCats")),
+					#Catalog.secretCats
+				)
+				if secrets ~= nil then
+					EventBanner.show({
+						kind = "secrets",
+						title = secrets.title,
+						lines = secrets.lines,
+					})
+				end
 			end
 			if not shown then
 				toasts:announce(

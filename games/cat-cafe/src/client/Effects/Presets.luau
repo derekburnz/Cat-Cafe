@@ -4704,6 +4704,9 @@ Presets.binRoll = {
 	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
 	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
 	-- Yard Sale stall) just skips this.
+	reveal = 0.45, -- seconds a fixed prize's reveal takes (no roll)
+	-- the prize's hop from the bin to the player
+	hop = { seconds = 0.55, height = 3, size = 0.7, sparkles = 4 },
 	lidSuffix = "_Empty",
 	lid = {
 		{ height = 0, seconds = 0, turns = 0, fly = false },

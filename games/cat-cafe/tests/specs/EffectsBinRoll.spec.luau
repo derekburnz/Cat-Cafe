@@ -90,6 +90,9 @@ return function()
 		it("hops the lid for a good prize and flies it off for the best", function()
 			local p = Presets.binRoll
 			expect(p.lid[1].seconds).to.equal(0)
+			-- a fixed prize's reveal and the prize's hop are both short
+			expect(p.reveal > 0 and p.reveal <= 0.6).to.equal(true)
+			expect(p.hop.seconds > 0 and p.hop.seconds <= 0.8).to.equal(true)
 			local up, faded = Logic.binLidPop(0.5, p.lid[2].height, p.lid[2].fly)
 			expect(up).to.equal(p.lid[2].height)
 			expect(faded).to.equal(0)

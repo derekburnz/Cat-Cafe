@@ -17,6 +17,8 @@
 --   BinRoll.play(bin, count, target, tier, onTick, onDone)   one whole roll in one call: rattle, a call per row
 --                                    lit, the landing, and a returned function that skips to the stop (a tap)
 --   BinRoll.win(bin, tier)           the reward show plus its sound beat
+--   BinRoll.reveal(bin, tier, onDone)   a fixed prize's short reveal with no roll ("Your prize!"); returns a skip
+--   BinRoll.hop(bin, to, tier)       the prize hops from the bin to the player as a small bright ball
 --   BinRoll.onBeat(listener)         "tick", "land" and "win" beats for the sounds (Audio follows them)
 -- The roll always ends on the prize the server already picked and never lingers on another row. Reduce Motion
 -- drops the rattle, the shake and most confetti. On this client only; listening only.
@@ -144,19 +146,34 @@ function BinRoll.landed(bin: Instance, tier: number)
 end
 
 -- The lid's hop or fly on a win. A copy of the bin's closed lid does the moving, on this client only, while the
--- real one is hidden with LocalTransparencyModifier (BinController owns its Transparency); the real lid shows
--- again as the copy lands or fades out.
+-- bin's own looks (the closed lid, and the open one with the prizes if the bin has not flipped to empty yet) are
+-- hidden with LocalTransparencyModifier (BinController owns their Transparency); they show again as the copy lands
+-- or fades out. A second win on the same bin ends the first move before it starts its own.
+local popping: { [Instance]: () -> () } = {}
+
 local function popLid(bin: Instance, tier: number)
 	local p = Presets.binRoll
 	local move = p.lid[math.clamp(math.floor(tier), 1, #p.lid)]
 	if move.seconds <= 0 or Context.reducedMotion() then
 		return
 	end
+	local before = popping[bin]
+	if before ~= nil then
+		before()
+	end
 	local lid: Model? = nil
+	local hidden: { BasePart } = {}
 	for _, child in bin:GetChildren() do
-		if child:IsA("Model") and child.Name:sub(-#p.lidSuffix) == p.lidSuffix then
+		if not child:IsA("Model") then
+			continue
+		end
+		if lid == nil and child.Name:sub(-#p.lidSuffix) == p.lidSuffix then
 			lid = child :: Model
-			break
+		end
+		for _, piece in child:GetDescendants() do
+			if piece:IsA("BasePart") then
+				table.insert(hidden, piece :: BasePart)
+			end
 		end
 	end
 	if lid == nil then
@@ -176,27 +193,31 @@ local function popLid(bin: Instance, tier: number)
 			table.insert(pieces, part)
 		end
 	end
-	local hidden: { BasePart } = {}
-	for _, piece in real:GetDescendants() do
-		if piece:IsA("BasePart") then
-			(piece :: BasePart).LocalTransparencyModifier = 1
-			table.insert(hidden, piece :: BasePart)
-		end
+	for _, part in hidden do
+		part.LocalTransparencyModifier = 1
 	end
 	local rest = real:GetPivot()
 	copy.Parent = Context.folder()
 	local started = os.clock()
 	local step: RBXScriptConnection? = nil
+	local function finish()
+		if step == nil then
+			return
+		end
+		step:Disconnect()
+		step = nil
+		copy:Destroy()
+		for _, part in hidden do
+			part.LocalTransparencyModifier = 0
+		end
+		if popping[bin] == finish then
+			popping[bin] = nil
+		end
+	end
 	step = RunService.Heartbeat:Connect(function()
 		local u = (os.clock() - started) / move.seconds
 		if u >= 1 or copy.Parent == nil then
-			if step ~= nil then
-				step:Disconnect()
-			end
-			copy:Destroy()
-			for _, part in hidden do
-				part.LocalTransparencyModifier = 0
-			end
+			finish()
 			return
 		end
 		local up, faded = Logic.binLidPop(u, move.height, move.fly)
@@ -209,6 +230,7 @@ local function popLid(bin: Instance, tier: number)
 			end
 		end
 	end)
+	popping[bin] = finish
 end
 
 function BinRoll.reward(bin: Instance, tier: number)
@@ -280,6 +302,70 @@ function BinRoll.play(
 		finish()
 	end)
 	return finish
+end
+
+-- A fixed prize (a first rummage) has no roll: the bin gives one short rattle, then the landing plays, its row is
+-- lit by `onDone()`. Returns a function that skips to the reveal at once.
+function BinRoll.reveal(bin: Instance, tier: number, onDone: (() -> ())?): () -> ()
+	local seconds = Presets.binRoll.reveal
+	local finished = false
+	local stopRattle = BinRoll.rattle(bin, seconds)
+	local function finish()
+		if finished then
+			return
+		end
+		finished = true
+		stopRattle()
+		BinRoll.landed(bin, tier)
+		beat("land", tier, bin)
+		if onDone ~= nil then
+			onDone()
+		end
+	end
+	task.delay(seconds, finish)
+	return finish
+end
+
+-- The prize hops out of the bin to the player: a small bright ball in the tier's colour arcs from the top of the
+-- bin to `to()` (asked every frame, so it follows a moving player; nil ends it) and ends in a few sparkles there.
+-- With Reduce Motion only the sparkles at the player play.
+function BinRoll.hop(bin: Instance, to: () -> Vector3?, tier: number)
+	local p = Presets.binRoll
+	local found = base(bin)
+	local first = to()
+	if found == nil or first == nil then
+		return
+	end
+	local colour = p.colours[math.clamp(math.floor(tier), 1, #p.colours)]
+	if Context.reducedMotion() then
+		Particles.burst(p.emitter, first, p.hop.sparkles, colour)
+		return
+	end
+	local from: Vector3 = found + Vector3.new(0, p.lift, 0)
+	local ball = Context.effectPart("BinPrizeHop", Vector3.one * p.hop.size, colour)
+	ball.Shape = Enum.PartType.Ball
+	ball.Material = Enum.Material.Neon
+	ball.Position = from
+	ball.Parent = Context.folder()
+	local started = os.clock()
+	local last: Vector3 = first
+	local step: RBXScriptConnection? = nil
+	step = RunService.Heartbeat:Connect(function()
+		local alpha = (os.clock() - started) / p.hop.seconds
+		local target = to()
+		if target ~= nil then
+			last = target
+		end
+		if alpha >= 1 or target == nil or ball.Parent == nil then
+			if step ~= nil then
+				step:Disconnect()
+			end
+			ball:Destroy()
+			Particles.burst(p.emitter, last, p.hop.sparkles, colour)
+			return
+		end
+		ball.Position = Logic.hopArc(from, last, p.hop.height, alpha)
+	end)
 end
 
 -- The win: the reward show at the bin and its "win" beat.

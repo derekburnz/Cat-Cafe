@@ -36,3 +36,22 @@ The Corner Shop (corner-shop-v2.md) is already that shop: coins only, useful ite
 3. Buying 3 of a row in server A leaves the row at "3 left" for another player, and "Sold out" for the buyer even after hopping servers.
 4. No cosmetics, cats, decor, fish or crates appear, and the cart takes coins only.
 5. The cart stands clear of the walk lines and the cannon, and the old Corner Shop prompt is gone.
+
+## 5. The top shelf (#3462, 2026-11-12)
+
+Derek, 2026-11-12: "add better items to day cart like legendary bait and better potions but make it for more money", then "move all of those items to be in the billions" and "and tier 6+". Not built yet when this was written; the as-built numbers replace this table if they differ.
+
+| Item | What it does | Price | Gate |
+|---|---|---|---|
+| Honey Cream (Legendary bait, cart only) | odds: Rare 20, Epic 40, Legendary 32, Mythical 8 | 1B | Tier 6 |
+| Comet Treat (Mythical bait, cart only) | odds: Epic 35, Legendary 48, Mythical 17 | 3B | Tier 6 |
+| Big Lucky Potion | +75% Luck, 30 min | 5B | Tier 6 |
+| Big Gold Rush Potion | +50% gold luck, 30 min | 8B | Tier 6 |
+| Mega Tip Potion | +100% money, 30 min | 20B | Tier 6 |
+
+- **Coins only, flat prices.** No tier scaling on these rows. Sized against the Tier 7 rank up (54B): the cheapest is about 2% of it and Mega Tip about 37%.
+- **The two baits are the cart's own** (`source = "cart"`), not the night dealer's Caviar and Moon Milk. The dealer sells those for a few million, so the same item at a billion would read as a mistake. The cart baits are about a third better at the top end than Moon Milk and Star Treat. The names, odds and the swap were Design-Agent's call while Derek was away, for him to confirm.
+- **Star Treat stays dealer only.**
+- **Stock.** The rows join the section 2 roll with no special case, so they sit at the dear end and are in stock about a quarter of days.
+- **Stacking.** A bigger potion and a smaller one of the same kind do not add up: the stronger one runs. Tip, Big Tip and Mega Tip are one kind.
+- **Rules kept.** Nothing random in what is bought, bait cards show their odds, no timers and no "last chance" wording.

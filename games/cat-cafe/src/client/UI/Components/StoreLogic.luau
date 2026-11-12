@@ -576,6 +576,37 @@ function StoreLogic.badge(
 	return if worth >= StoreLogic.BEST_VALUE * (own.robux :: number) then "Best Value" else nil
 end
 
+-- #3572: the Sale badge. The old price to strike through on this card, or nil for no badge: only a card in
+-- Config.StoreWasPrice that is not owned, on sale at exactly its half price, before Config.StoreSaleEnds. It has to
+-- be true, so any other live price (a regional one, a later change) shows no badge. No countdown, no end date shown.
+StoreLogic.SALE = "SALE"
+function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): number?
+	local entry = if type(config.StoreWasPrice) == "table"
+		then config.StoreWasPrice[row.key]
+		else nil
+	local ends = config.StoreSaleEnds
+	if
+		type(entry) ~= "table"
+		or type(ends) ~= "number"
+		or now >= ends
+		or row.owned
+		or row.closed == true
+		or price == nil
+		or not price.forSale
+		or price.robux ~= entry.now
+		or type(entry.was) ~= "number"
+		or entry.was <= entry.now
+	then
+		return nil
+	end
+	return entry.was
+end
+
+-- The Sale badge's words (rich text): SALE and the old price struck through. The button beside it has the new price.
+function StoreLogic.saleBadge(was: number): string
+	return ("%s  <s>R$%s</s>"):format(StoreLogic.SALE, commas(was))
+end
+
 -- Every pass id the Config names that is made, money ladder first.
 function StoreLogic.passIds(config: any): { number }
 	local ids: { number } = {}
@@ -818,7 +849,7 @@ StoreLogic.PICKS = 3
 -- Royal Cat, the King Cat Pack, the running season's Cafe Pass, the Grand Cafe Theme. Earlier orders: #1425, #1823.
 local HERO_ORDER = { "starterBundle", "royalCat", "kingPack", "cafePass", "grandTheme" }
 -- The three picks, left to right, first three that can be bought and are not the hero: the money ladder's next rung
--- (2x Money is the cheapest thing in the Store and its best seller), the cat bundles, then what brings more cats
+-- (2x Money is the cheapest thing in the Store), the cat bundles, then what brings more cats
 -- (Second Bait Bowl, Extra Slot), VIP, Long Nap and the Cafe Pass. Earlier orders: #1823 §1, #2850.
 local PICK_ORDER =
 	{ "money", "royalCat", "kingPack", "secondBowl", "extraSlot", "vip", "longNap", "cafePass" }

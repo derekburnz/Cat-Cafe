@@ -753,6 +753,83 @@ return function()
 			expect(StoreLogic.worthLine(pack, prices(799, 452))).to.equal("Worth R$1,250")
 			expect(StoreLogic.worth(pack, prices(799, nil))).to.equal(nil)
 		end)
+		describe("the Sale badge (#3572)", function()
+			local Config = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+			) :: any
+			local function card(key: string, owned: boolean?): any
+				return {
+					key = key,
+					passId = 1,
+					owned = owned == true,
+					name = key,
+					icon = "",
+					effect = "",
+					tab = "passes",
+				}
+			end
+			local before = Config.StoreSaleEnds - 1
+
+			it("shows the true old price only at exactly the half price", function()
+				local half = { robux = 499, forSale = true }
+				expect(StoreLogic.saleWas(card("kingPack"), half, Config, before)).to.equal(999)
+				expect(StoreLogic.saleBadge(999)).to.equal("SALE  <s>R$999</s>")
+				-- the old price, a regional price or a later change: no badge
+				for _, robux in { 999, 498, 500, 250 } do
+					local price = { robux = robux, forSale = true }
+					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(
+						nil
+					)
+				end
+				expect(StoreLogic.saleWas(card("kingPack"), nil, Config, before)).to.equal(nil)
+				expect(
+					StoreLogic.saleWas(
+						card("kingPack"),
+						{ robux = 499, forSale = false },
+						Config,
+						before
+					)
+				).to.equal(nil)
+				expect(StoreLogic.saleWas(card("kingPack", true), half, Config, before)).to.equal(
+					nil
+				)
+			end)
+
+			it("comes off after 30 days and never shows on an item that was selling", function()
+				local half = { robux = 499, forSale = true }
+				expect(StoreLogic.saleWas(card("kingPack"), half, Config, Config.StoreSaleEnds)).to.equal(
+					nil
+				)
+				for _, key in
+					{
+						"money",
+						"vip",
+						"longNap",
+						"accessories",
+						"secondBowl",
+						"gardenDecor",
+						"signStylePack",
+						"starterBundle",
+					}
+				do
+					expect(Config.StoreWasPrice[key]).to.equal(nil)
+				end
+				expect(
+					StoreLogic.saleWas(card("vip"), { robux = 13, forSale = true }, Config, before)
+				).to.equal(nil)
+			end)
+
+			it("lists Derek's fifteen items, each at half within half a Robux", function()
+				local count = 0
+				for _, entry in Config.StoreWasPrice do
+					count += 1
+					expect(math.abs(entry.was / 2 - entry.now) <= 0.5).to.equal(true)
+				end
+				expect(count).to.equal(15)
+				expect(Config.StoreSaleEnds).to.equal(1797120000) -- 2026-12-13 00:00 UTC
+			end)
+		end)
+
 		it("gives Best Value only at 1.25 x the price or more", function()
 			expect(StoreLogic.badge(pack, prices(799, 452))).to.equal("Best Value")
 			expect(StoreLogic.badge(pack, prices(799, 400))).to.equal(nil) -- 1195 < 1248.75

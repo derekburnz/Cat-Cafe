@@ -5,12 +5,17 @@
 -- distance and fades as you walk up so it never covers the catch. The beam holds still: nothing pulses or flashes.
 -- Low performance drops the stars; Reduce Motion changes nothing, since nothing here moves quickly.
 --
--- Source: the Stray tag CatService puts on each stray model and its `Rarity` attribute. Until the server knows the
--- Secret rarity (LiveFlag `secretCats`) no stray carries it and nothing here runs. The beam shows only for a cat
--- this client has (a stray outside the streaming range has no model here), for the `most` nearest. Listening only.
--- Numbers in Presets.secretStray and the secretAura and secretStars emitters.
+-- Sources. The haze: the Stray tag CatService puts on each stray model and its `Rarity` attribute, for a cat this
+-- client has. The beam: the server's beacons, so it shows for a Secret stray too far away to be streamed in: the
+-- Folder `SecretBeacons` in ReplicatedStorage (Catching.SECRET_BEACONS, made when the first Secret stray spawns)
+-- holds one Vector3Value per live Secret stray, named by its StrayId, its Value the cat's position every 2 seconds.
+-- The beam glides between those positions, and stands on the cat itself while its model is here. A Secret stray
+-- with a model and no beacon (an older server) still gets its beam. Until the server knows the Secret rarity
+-- (LiveFlag `secretCats`) there is no beacon and no such stray, and nothing here runs. Listening only. Numbers in
+-- Presets.secretStray and the secretAura and secretStars emitters.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -21,14 +26,21 @@ local Presets = require(script.Parent.Presets)
 
 local SecretStray = {}
 
-type Entry = {
+type Aura = {
 	body: BasePart, -- what the haze rides; a cat streamed out and back in gets a new one
 	emitters: { ParticleEmitter },
-	foot: Part, -- unseen, under the beam; moved to the cat each frame
-	beam: Beam,
 }
 
-local entries: { [Model]: Entry } = {}
+type Light = {
+	foot: Part, -- unseen, under the beam; moved to the spot each frame
+	beam: Beam,
+	at: Vector3, -- where the beam stands now
+	model: Model?, -- the cat, while this client has it
+	beacon: Vector3Value?, -- the server's word on where it is
+}
+
+local auras: { [Model]: Aura } = {}
+local lights: { [string]: Light } = {}
 local loop: RBXScriptConnection? = nil
 local started = false
 
@@ -46,24 +58,37 @@ local function isSecret(instance: Instance): boolean
 		and instance:GetAttribute("Rarity") == "Secret"
 end
 
-local function remove(model: Model)
-	local entry: Entry? = entries[model]
-	if entry == nil then
-		return
-	end
-	entries[model] = nil
-	for _, emitter in entry.emitters do
-		emitter:Destroy()
-	end
-	entry.foot:Destroy()
+-- The key a stray's beam goes by: its StrayId, which is also its beacon's name.
+local function keyOf(model: Model): string
+	local id = model:GetAttribute("StrayId")
+	return if type(id) == "string" and id ~= "" then id else model:GetFullName()
 end
 
-local function make(model: Model): Entry?
+local function removeAura(model: Model)
+	local aura: Aura? = auras[model]
+	if aura == nil then
+		return
+	end
+	auras[model] = nil
+	for _, emitter in aura.emitters do
+		emitter:Destroy()
+	end
+end
+
+local function removeLight(key: string)
+	local light: Light? = lights[key]
+	if light == nil then
+		return
+	end
+	lights[key] = nil
+	light.foot:Destroy()
+end
+
+local function makeAura(model: Model): Aura?
 	local body = bodyOf(model)
 	if body == nil then
 		return nil -- not streamed in yet
 	end
-	local b = Presets.secretStray.beam
 	local emitters: { ParticleEmitter } = {}
 	local haze = Particles.attach("secretAura", body)
 	if haze ~= nil then
@@ -75,8 +100,13 @@ local function make(model: Model): Entry?
 			table.insert(emitters, stars)
 		end
 	end
-	local light = Logic.glowColour("Secret")
-	local foot = Context.effectPart("SecretBeam", Vector3.new(0.2, 0.2, 0.2), light)
+	return { body = body, emitters = emitters }
+end
+
+local function makeLight(at: Vector3): Light
+	local b = Presets.secretStray.beam
+	local colour = Logic.glowColour("Secret")
+	local foot = Context.effectPart("SecretBeam", Vector3.new(0.2, 0.2, 0.2), colour)
 	foot.Transparency = 1
 	local from = Instance.new("Attachment")
 	from.Name = "From"
@@ -92,32 +122,37 @@ local function make(model: Model): Entry?
 	beam.Attachment1 = to
 	beam.FaceCamera = true
 	beam.Segments = 1
-	beam.Color = ColorSequence.new(light)
+	beam.Color = ColorSequence.new(colour)
 	beam.LightEmission = 1
 	beam.LightInfluence = 0
 	beam.Width0 = b.widthMin
 	beam.Width1 = b.widthMin
 	beam.Parent = foot
-	foot.CFrame = CFrame.new(model:GetPivot().Position)
+	foot.CFrame = CFrame.new(at)
 	foot.Parent = Context.folder()
-	return { body = body, emitters = emitters, foot = foot, beam = beam }
+	return { foot = foot, beam = beam, at = at }
 end
 
--- Each frame while a Secret stray shows: the beam follows the cat and takes the width and fade for how far you are.
-local function step()
+-- Each frame while a beam shows: it stands on the cat, or glides to the beacon's last word, and takes the width and
+-- fade for how far you are.
+local function step(dt: number)
 	local b = Presets.secretStray.beam
 	local camera = Workspace.CurrentCamera
-	for model, entry in entries do
-		if model.Parent == nil then
-			continue -- the next check drops it
+	for _, light in lights do
+		local model = light.model
+		local beacon = light.beacon
+		if model ~= nil and model.Parent ~= nil then
+			light.at = model:GetPivot().Position
+		elseif beacon ~= nil then
+			light.at = Logic.secretGlide(light.at, beacon.Value, dt)
 		end
-		local at = model:GetPivot().Position
-		entry.foot.CFrame = CFrame.new(at)
+		local at = light.at
+		light.foot.CFrame = CFrame.new(at)
 		local distance = if camera ~= nil then (camera.CFrame.Position - at).Magnitude else 0
 		local width, foot = Logic.secretBeam(distance)
-		entry.beam.Width0 = width
-		entry.beam.Width1 = width
-		entry.beam.Transparency = NumberSequence.new({
+		light.beam.Width0 = width
+		light.beam.Width1 = width
+		light.beam.Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, foot),
 			NumberSequenceKeypoint.new(1 - b.topFade, foot),
 			NumberSequenceKeypoint.new(1, 1),
@@ -126,36 +161,92 @@ local function step()
 end
 
 local function check()
+	local s = Presets.secretStray
 	local focus = Context.focus()
-	local candidates: { Logic.Candidate<Model> } = {}
+	local function away(position: Vector3): number
+		return if focus ~= nil then (position - focus).Magnitude else 0
+	end
+	-- every Secret stray this client knows of, by key: its model, its beacon or both
+	local models: { [string]: Model } = {}
+	local beacons: { [string]: Vector3Value } = {}
+	local near: { Logic.Candidate<Model> } = {}
+	local spots: { Logic.Candidate<string> } = {}
 	for _, instance in CollectionService:GetTagged("Stray") do
 		if isSecret(instance) then
 			local model = instance :: Model
-			local distance = if focus ~= nil
-				then (model:GetPivot().Position - focus).Magnitude
-				else 0
-			table.insert(candidates, { key = model, distance = distance })
+			local key = keyOf(model)
+			local distance = away(model:GetPivot().Position)
+			models[key] = model
+			table.insert(near, { key = model, distance = distance })
+			table.insert(spots, { key = key, distance = distance })
 		end
 	end
-	local wanted: { [Model]: boolean } = {}
-	for _, model in Logic.nearestFirst(candidates, {}, math.huge, Presets.secretStray.most) do
-		wanted[model] = true
-	end
-	for model, entry in entries do
-		if not wanted[model] or not entry.body:IsDescendantOf(model) then
-			remove(model)
-		end
-	end
-	for model in wanted do
-		if entries[model] == nil then
-			local made = make(model)
-			if made ~= nil then
-				entries[model] = made
+	local folder = ReplicatedStorage:FindFirstChild(s.beacons)
+	if folder ~= nil then
+		for _, child in folder:GetChildren() do
+			if child:IsA("Vector3Value") then
+				local value = child :: Vector3Value
+				beacons[value.Name] = value
+				local here: Model? = models[value.Name]
+				if here == nil then
+					table.insert(spots, { key = value.Name, distance = away(value.Value) })
+				end
 			end
 		end
 	end
+
+	local wantedAura: { [Model]: boolean } = {}
+	for _, model in Logic.nearestFirst(near, {}, math.huge, s.most) do
+		wantedAura[model] = true
+	end
+	for model, aura in auras do
+		if not wantedAura[model] or not aura.body:IsDescendantOf(model) then
+			removeAura(model)
+		end
+	end
+	for model in wantedAura do
+		if auras[model] == nil then
+			local made = makeAura(model)
+			if made ~= nil then
+				auras[model] = made
+			end
+		end
+	end
+
+	local wantedLight: { [string]: boolean } = {}
+	for _, key in Logic.nearestFirst(spots, {}, math.huge, s.beams) do
+		wantedLight[key] = true
+	end
+	for key in lights do
+		if not wantedLight[key] then
+			removeLight(key)
+		end
+	end
+	for key in wantedLight do
+		local model: Model? = models[key]
+		local beacon: Vector3Value? = beacons[key]
+		local light: Light? = lights[key]
+		if light == nil then
+			local at: Vector3? = nil
+			if model ~= nil then
+				at = model:GetPivot().Position
+			elseif beacon ~= nil then
+				at = beacon.Value
+			end
+			if at ~= nil then
+				local made = makeLight(at)
+				lights[key] = made
+				light = made
+			end
+		end
+		if light ~= nil then
+			light.model = model
+			light.beacon = beacon
+		end
+	end
+
 	local running = loop
-	if next(entries) ~= nil then
+	if next(lights) ~= nil then
 		if running == nil then
 			loop = RunService.RenderStepped:Connect(step)
 		end
@@ -172,7 +263,7 @@ function SecretStray.start()
 	started = true
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(function(instance: Instance)
 		if instance:IsA("Model") then
-			remove(instance :: Model) -- caught or gone: at once
+			removeAura(instance :: Model) -- caught or gone: at once
 		end
 	end)
 	task.spawn(function()

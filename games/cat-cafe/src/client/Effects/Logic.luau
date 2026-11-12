@@ -272,6 +272,16 @@ function Logic.secretBeam(distance: number): (number, number)
 	return width, b.near + (b.far - b.near) * share
 end
 
+-- Where a Secret stray's beam stands `dt` seconds on, gliding from `at` to the beacon's `target` (the server's word
+-- every 2 seconds): Presets.secretStray.glide of the way a second, there at once when `target` is past `snap` studs.
+function Logic.secretGlide(at: Vector3, target: Vector3, dt: number): Vector3
+	local s = Presets.secretStray
+	if (target - at).Magnitude > s.snap then
+		return target
+	end
+	return at:Lerp(target, math.clamp(dt * s.glide, 0, 1))
+end
+
 -- How a spin prize is celebrated, from its slice's chance among `weights` (slice number to weight, as in
 -- Catalog.spinWheel): "jackpot" at or under Presets.wheel.jackpot, "good" at or under .good, else "small". An
 -- unknown slice is "small".

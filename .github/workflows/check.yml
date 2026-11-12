@@ -22,9 +22,13 @@ on:
 
 # A new push to a PR cancels that PR's older run, so only the latest head is checked (and nobody gets mail about
 # a run nobody needs). Runs on main and dispatched runs each get their own group and are never cancelled.
+# Turning auto-merge on cancels nothing: it used to cancel the run already checking the same head and start it
+# again (50 of 60 cancelled runs on 2026-11-11). Its run now waits for that one, then finds the tree already
+# passed (the "Already passed?" steps) and ends in about a minute, or checks in full when main moved in between
+# or the first run failed.
 concurrency:
   group: check-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event.action != 'auto_merge_enabled' }}
 
 jobs:
   gate:
@@ -33,6 +37,8 @@ jobs:
     timeout-minutes: 10
     outputs:
       main: ${{ steps.main.outputs.main }}
+      tree: ${{ steps.main.outputs.tree }}
+      passed: ${{ steps.passed.outputs.cache-hit }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -43,10 +49,22 @@ jobs:
         id: main
         run: bash .github/scripts/merge-main.sh "${{ inputs.main }}"
 
+      # The tree (the PR merged with main) is the whole input of every check here, so a tree that passed before
+      # passes again. The mark is only written by the last job of a run where gate and cloudcheck both passed,
+      # so it can never hide a red run. It is kept per PR by GitHub's cache rules.
+      - name: Already passed? (this same tree was checked green before)
+        id: passed
+        uses: actions/cache/restore@v4
+        with:
+          path: .check-passed
+          key: check-passed-${{ steps.main.outputs.tree }}
+          lookup-only: true
+
       # Both the installer and `rokit install` look releases up through the GitHub API. Unauthenticated, that is 60
       # calls an hour per runner IP, which a burst of runs used up on 2026-10-27 (HTTP 403 in this step); with the
       # job's own token the limit is per repo and far higher. GITHUB_PAT is the name the installer reads.
       - name: Install Rokit
+        if: steps.passed.outputs.cache-hit != 'true'
         env:
           GITHUB_PAT: ${{ github.token }}
         run: |
@@ -55,9 +73,11 @@ jobs:
           "$HOME/.rokit/bin/rokit" authenticate github --token "$GITHUB_PAT" --skip-verify
 
       - name: Install the pinned toolchain (rokit.toml)
+        if: steps.passed.outputs.cache-hit != 'true'
         run: rokit install --no-trust-check
 
       - name: Run the check gate
+        if: steps.passed.outputs.cache-hit != 'true'
         working-directory: games/cat-cafe
         run: bash ./check.sh
 
@@ -86,18 +106,30 @@ jobs:
         working-directory: .
         run: bash .github/scripts/merge-main.sh "${{ inputs.main }}"
 
+      - name: Already passed? (see the gate job)
+        id: passed
+        uses: actions/cache/restore@v4
+        with:
+          path: .check-passed
+          key: check-passed-${{ steps.main.outputs.tree }}
+          lookup-only: true
+
       - uses: actions/setup-node@v5
+        if: steps.passed.outputs.cache-hit != 'true'
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
 
       - run: npm ci
+        if: steps.passed.outputs.cache-hit != 'true'
 
       - name: Strict type check
+        if: steps.passed.outputs.cache-hit != 'true'
         run: node analyze.mjs --tests
 
       - name: Unit tests (spec batches side by side)
+        if: steps.passed.outputs.cache-hit != 'true'
         run: node run-tests.mjs
 
   uigate:
@@ -122,20 +154,32 @@ jobs:
         working-directory: .
         run: bash .github/scripts/merge-main.sh "${{ inputs.main }}"
 
+      - name: Already passed? (see the gate job)
+        id: passed
+        uses: actions/cache/restore@v4
+        with:
+          path: .check-passed
+          key: check-passed-${{ steps.main.outputs.tree }}
+          lookup-only: true
+
       - uses: actions/setup-node@v5
+        if: steps.passed.outputs.cache-hit != 'true'
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
 
       - run: npm ci
+        if: steps.passed.outputs.cache-hit != 'true'
 
       - name: Build this shard's scenes at every size (checked in cloudcheck)
+        if: steps.passed.outputs.cache-hit != 'true'
         run: |
           node uigate.mjs --shard ${{ matrix.shard }}/4 --save "$RUNNER_TEMP/uigate-shard"
           echo "${{ steps.main.outputs.main }}" > "$RUNNER_TEMP/uigate-shard/main-${{ matrix.shard }}.txt"
 
       - uses: actions/upload-artifact@v4
+        if: steps.passed.outputs.cache-hit != 'true'
         with:
           name: uigate-shard-${{ matrix.shard }}
           path: ${{ runner.temp }}/uigate-shard
@@ -174,21 +218,33 @@ jobs:
         working-directory: .
         run: bash .github/scripts/merge-main.sh "${{ needs.units.outputs.main }}"
 
+      - name: Already passed? (see the gate job)
+        id: passed
+        uses: actions/cache/restore@v4
+        with:
+          path: .check-passed
+          key: check-passed-${{ steps.main.outputs.tree }}
+          lookup-only: true
+
       - uses: actions/setup-node@v5
+        if: steps.passed.outputs.cache-hit != 'true'
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
 
       - run: npm ci
+        if: steps.passed.outputs.cache-hit != 'true'
 
       - uses: actions/download-artifact@v4
+        if: steps.passed.outputs.cache-hit != 'true'
         with:
           pattern: uigate-shard-*
           merge-multiple: true
           path: ${{ runner.temp }}/uigate-shards
 
       - name: UI gate (every shard checked as one run)
+        if: steps.passed.outputs.cache-hit != 'true'
         env:
           MAIN: ${{ steps.main.outputs.main }}
         run: |
@@ -200,6 +256,21 @@ jobs:
             fi
           done
           node uigate.mjs --merge "$dir"
+
+  # Marks the tree as passed, for the "Already passed?" steps. Only after gate and cloudcheck both passed in this
+  # run (needs without an `if` means every need succeeded), and only once per tree.
+  passed:
+    name: Mark this tree as passed
+    needs: [gate, cloudcheck]
+    if: ${{ needs.gate.outputs.passed != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "${{ needs.gate.outputs.tree }} passed in run ${{ github.run_id }}" > .check-passed
+      - uses: actions/cache/save@v4
+        with:
+          path: .check-passed
+          key: check-passed-${{ needs.gate.outputs.tree }}
 
   automerge:
     # Starts only when gate and cloudcheck passed in this run, which is what the script relies on: it merges on this

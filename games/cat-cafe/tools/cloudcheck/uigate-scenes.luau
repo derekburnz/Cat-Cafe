@@ -4863,6 +4863,9 @@ local SCENES = {
 	-- #3326 (Derek2: "add a use all potions in inventory button right below potions button in bag"): the button heads
 	-- the Potions list while a potion would take, and a press asks first on a card naming what it drinks
 	{ "PotionsUseAll", function()
+		-- PotionsFastUse runs just before this scene and leaves a Use press waiting for the server (#3190), which would
+		-- count against this bag. An empty bag is the server answering it; then the scene's own bag goes in
+		UI.update({ potions = {}, buffs = {} })
 		UI.update({ potions = { tip_potion = 3, swift_potion = 2 }, buffs = {} })
 		UI.open("Potions")
 		UIShim.advance(0.2)

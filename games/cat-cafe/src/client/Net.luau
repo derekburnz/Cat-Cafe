@@ -24,11 +24,21 @@ local SPACED: { [string]: number } = {
 	UnequipAll = 2.2, -- 1 every 2 s
 	EquipBestDecor = 2.2, -- 1 every 2 s
 	OpenAllCrates = 2.2, -- 1 every 2 s
+	-- #3478 (the Creator Hub error list of 2026-11-12: BuyCornerShopAll 20, RankUp 7 drops in a day)
+	BuyCornerShopAll = 2.2, -- 1 every 2 s
+	RankUp = 2.2, -- 1 every 2 s
 }
 -- #2630: remotes where every call matters (two tips answered in the same second): a call inside the gap waits its
 -- turn instead of being dropped, one a gap, in order.
 local QUEUED: { [string]: number } = {
 	TipSeen = 1.1, -- 1 a second
+	-- #3478 (ClaimAchievement 19, InviteCard 16, FeedCat 6, ClaimQuest 6 drops in a day): quick taps down a list of
+	-- claims or cats, and the invite card's "shown" then its answer, where a dropped call is a tap that did nothing.
+	-- Each gap is the server limiter's refill time for one call plus a little for the trip.
+	ClaimQuest = 0.55, -- 2 a second
+	ClaimAchievement = 0.55, -- 2 a second
+	FeedCat = 0.28, -- 4 a second
+	InviteCard = 2.1, -- 1 every 2 s
 }
 local lastFired: { [string]: number } = {}
 local waiting: { [string]: { { n: number, [number]: any } } } = {}

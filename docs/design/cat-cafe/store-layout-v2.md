@@ -6,8 +6,8 @@ Status: specced 2026-11-06, decided overnight under Derek2's go-ahead ("go with 
 
 One hero card on top, then a row of three small cards (a 3 x 1 row on desktop and tablet, and a scroll row on phone).
 
-- **Hero card** (full width, about 40% of the panel's height). It shows the bundle that fits the player: the Starter Bundle until it is bought, then the King Cat bundle. When both are owned, it shows the Cafe Pass. The left half is the main item's picture (the cat's portrait or the theme's preview), with the title in FredokaOne under it. The right half holds the contents row, the Worth line and the price button (section 2).
-- **Small cards, in order:** the Cafe Pass (with "Season ends in X days", taken from the real season end in cafe-pass.md, never restarted), then the two best sellers from the last 7 days of sales. The growth thread fills that list. Until it has data, use 2x Money and Long Nap.
+- **Hero card** (full width, about 40% of the panel's height). It shows the bundle that fits the player: the Starter Bundle until it is bought, then the King Cat bundle. When both are owned, it shows the Cafe Pass. (Replaced on 2026-11-12 by the order in section 8: after the Starter Bundle the hero is the Royal Cat.) The left half is the main item's picture (the cat's portrait or the theme's preview), with the title in FredokaOne under it. The right half holds the contents row, the Worth line and the price button (section 2).
+- **Small cards, in order:** the Cafe Pass (with "Season ends in X days", taken from the real season end in cafe-pass.md, never restarted), then the two best sellers from the last 7 days of sales. The growth thread fills that list. Until it has data, use 2x Money and Long Nap. (Replaced on 2026-11-12 by the three picks in section 8.)
 - Nothing slides or rotates by itself, and there's no auto-play carousel.
 
 ## 2. The bundle card
@@ -40,7 +40,7 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 
 ## 6. QA checks
 
-1. A new account sees the Starter Bundle as the hero card. After buying it, the hero becomes the King Cat bundle without a rejoin.
+1. A new account sees the Starter Bundle as the hero card. After buying it, the hero becomes the Royal Cat without a rejoin (section 8; it was the King Cat bundle before 2026-11-12).
 2. The Worth line equals the sum of the live part prices, rounded down to R$5, and is hidden when a price fetch fails.
 3. No card has more than one badge, and "Best Value" appears only when the Worth line is at least 1.25 times the price.
 4. An owned pass shows "Yours" and greyed out, with no buy prompt. Owning one part of a bundle lowers its Worth line.
@@ -56,12 +56,12 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 
 ## 8. Featured order, half prices and the Sale badge (Derek, 2026-11-12; #3562, #3572)
 
-Derek: "make the featured bundles better as it shows bad packs right now never show potion bundles unless they are only thing left, should focus on cats bundles 2x money being cheap etc", then "make the prizes of anything not being bought yet half'd" and "put a sale badge on it also rework the store with model agent". This section replaces the pick order in section 1. Not built yet.
+Derek: "make the featured bundles better as it shows bad packs right now never show potion bundles unless they are only thing left, should focus on cats bundles 2x money being cheap etc", then "make the prizes of anything not being bought yet half'd" and "put a sale badge on it also rework the store with model agent". This section replaces the pick order in section 1. The Featured order is built in #3593 (code only); the half prices, the Sale badge and the layout rework are not built yet.
 
 **Featured order (#3562).**
 - Hero, first one not owned: Starter Bundle, Royal Cat, King Cat Pack, Cafe Pass (while a season runs), Grand Cafe Theme.
 - Three picks, first three not owned and not the hero: the money ladder's next step (2x Money first, the cheapest item), Royal Cat, King Cat Pack, Second Bait Bowl, Extra Slot, VIP, Long Nap, Cafe Pass, then the other passes.
-- Potion packs show on Featured only when every pass and every other product is owned. They stay on the Potions tab.
+- Potion packs show on Featured only when every pass and every other product is owned. They stay on the Potions tab. As built, "potion packs" means every card of `StoreLogic.PRODUCTS`, so the Steady Paw Pack is treated the same as Potion Pack XS, S, M and L.
 - A card that is off sale or has no price yet is skipped. No badges other than Sale, no timers, nothing pre-selected.
 
 **Half prices (#3572).** The items were picked by Derek's rule from Growth-Agent's read of 2026-11-12, which is kept in the private Library, not here.

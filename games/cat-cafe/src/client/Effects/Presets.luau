@@ -4777,4 +4777,15 @@ Presets.secretStray = {
 	},
 }
 
+-- #3464 (a loot card's pop-in, Effects/LootCardFx): the card scales in from `from` over `popSeconds` with one soft
+-- overshoot, its first row lands at `firstRow` seconds and each next one `gap` later; `bounceSeconds` is the icon
+-- bounce's length (Presets.mouseDash.bounce.seconds), counted so the pop-in's end covers the last bounce.
+Presets.lootCard = {
+	from = 0.8,
+	popSeconds = 0.22,
+	firstRow = 0.12,
+	gap = 0.15,
+	bounceSeconds = 0.22,
+}
+
 return Presets

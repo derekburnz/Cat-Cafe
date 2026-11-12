@@ -149,9 +149,21 @@ function WorldTags.new(rates: boolean?): WorldTags
 	task.spawn(function()
 		while not self._destroyed do
 			task.wait(TagHeight.CHECK_SECONDS)
+			local camera = Workspace.CurrentCamera
+			local eye = if camera ~= nil then camera.CFrame.Position else nil
 			for cat, billboard: BillboardGui in self._labels do
 				local current: number? = self._heights[cat]
 				if current == nil or not billboard.Enabled then
+					continue
+				end
+				-- a tag past RATE_DISTANCE is not drawn, so its cat is not measured (Review-QA's cost note)
+				local hung = billboard.Parent
+				if
+					eye ~= nil
+					and hung ~= nil
+					and hung:IsA("BasePart")
+					and not TagHeight.near((hung.Position - eye).Magnitude, RATE_DISTANCE)
+				then
 					continue
 				end
 				local part, measured = anchorOf(cat)

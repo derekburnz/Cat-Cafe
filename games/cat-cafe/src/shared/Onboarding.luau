@@ -426,6 +426,18 @@ function Onboarding.introIndex(stepName: string): number
 end
 
 -- Whether `stepName` is logged or held already, so a caller can skip work to find out whether it happened.
+-- #3660: the steps a new save has met before it starts: with `tables` of 1 or more, first_table and the tutorial's
+-- table step (tut_3_shown), which such a save never sees. Both are logged in their places as the funnel reaches them
+-- (it needs every step in order), so the steps after them are not held back.
+function Onboarding.startAchieved(tables: number): { [string]: boolean }
+	local achieved: { [string]: boolean } = {}
+	if tables >= 1 then
+		achieved[tostring(indexOf.tut_3_shown)] = true
+		achieved[tostring(indexOf.first_table)] = true
+	end
+	return achieved
+end
+
 function Onboarding.reached(state: Types.TelemetryState, stepName: StepName): boolean
 	local step = indexOf[stepName]
 	return step ~= nil and (step <= state.onboardingStep or state.achieved[tostring(step)] == true)

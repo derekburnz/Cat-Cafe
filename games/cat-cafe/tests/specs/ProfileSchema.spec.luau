@@ -7,6 +7,7 @@ return function()
 	local CatStats = require(Shared.CatStats)
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
+	local Onboarding = require(Shared.Onboarding)
 	local Economy = require(Shared.Economy)
 	local EquipBest = require(Shared.EquipBest)
 	local ProfileSchema = require(Shared.ProfileSchema)
@@ -156,7 +157,7 @@ return function()
 			expect(profile.lastSeen).to.equal(1000)
 			expect(profile.rateAtLogout).to.equal(0)
 			expect(profile.upgradeLevels :: any).to.deepEqual({
-				tables = 0,
+				tables = Config.StartTables, -- #3660: one table is open from the start
 				espresso = 1,
 				net = 0,
 				lure_bowl = 0,
@@ -200,7 +201,10 @@ return function()
 			expect(starter.xp).to.equal(0)
 			expect(starter.name).never.to.be.ok()
 			expect(profile.collection :: any).to.deepEqual({ tabby = 1000 })
-			expect(Economy.incomePerSecond(profile)).to.be.near(1.5, 1e-9)
+			expect(Economy.incomePerSecond(profile)).to.be.near(
+				1.5 * (1 + Config.TableBonus * Config.StartTables),
+				1e-9
+			) -- #3660: the starting table's share
 		end)
 
 		it("has the new v0.3 fields and none of the removed ones", function()
@@ -236,7 +240,7 @@ return function()
 			function()
 				expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({
 					onboardingStep = 0,
-					achieved = {},
+					achieved = Onboarding.startAchieved(Config.StartTables), -- #3660: starts with a table
 					funnel = 6,
 					firstDay = 0,
 					introStep = 0,

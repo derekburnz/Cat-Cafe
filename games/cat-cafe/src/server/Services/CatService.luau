@@ -909,7 +909,8 @@ local function tutorialTick()
 			-- #3035: at night a first-session Tier 1 player with the pass finds one Common at their own point too,
 			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
 			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
-			if night and NightPass.firstOf(profile, nightCatch) then
+			-- #3659: and so does a Tier 1 player who has not caught a cat by hand yet, in any session
+			if night and NightPass.nightCatOf(profile, nightCatch) then
 				nightHolders[player.UserId] = true
 				local point = near[plot.index]
 				if point ~= nil and occupied[point] == nil then

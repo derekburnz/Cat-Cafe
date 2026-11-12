@@ -17,6 +17,7 @@ Check in this order and stop early only for blockers:
 6. Policy: paid random items, PolicyService checks, text filtering (monetization-policy).
 7. Style: --!strict, naming, folder layout, StyLua clean.
 8. API hygiene: run every unfamiliar or suspicious call in the diff through the `roblox_docs` MCP deprecation check (or roblox-dev-skill's legacy-migration.md). Flag deprecated APIs as should-fix.
+9. Player privacy and credits: no player username, display name or user id anywhere in the diff, the PR text or a log line (the repo is public). A PR that finishes an issue with a `Credit: feedback report <day>/<key>` line names that line, and its What's New row carries a `creditId` or nothing (idea-credits.md section 8).
 
 Report to docs/reviews/<YYYY-MM-DD>-<topic>.md and in your reply, as a list sorted by severity:
 - **blocker / should-fix / nit**, `file:line`, what goes wrong for a player or exploiter, suggested fix (a sentence or a short snippet).

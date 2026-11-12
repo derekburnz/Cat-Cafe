@@ -8765,7 +8765,8 @@ do
 		local LiveFlags =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		local out: { string } = {}
-		for _, pair in EventLogic.PARTY_NEWS[id] or {} do
+		local pairsOf: { { string } } = EventLogic.PARTY_NEWS[id] or {}
+		for _, pair in pairsOf do
 			if
 				table.find(LiveFlags.KEYS, pair[1]) ~= nil
 				and LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1]))

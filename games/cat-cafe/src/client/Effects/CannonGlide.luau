@@ -15,9 +15,9 @@
 -- launching player's screen, their own character flies through them (Avatar.glide, Presets.cannonGlide), a copy of
 -- it posed in a ViewportFrame that VFX-Agent's cloud tunnel lays between its clouds (`CannonGlide.mount`).
 -- The launching player's camera (section 7): it follows the hop, chases the flyer out of the barrel and waits under
--- the clouds. Just before the flyer drops back into sight it puts the view behind the pad for one frame and hands
--- back to the game's camera, so nothing of ours moves the camera on landing (Presets.cannonCamera; #3444). Everyone
--- else keeps their own camera.
+-- the clouds. Just before the flyer drops back into sight it goes to one still view behind the pad and holds it
+-- through the landing, then hands back to the game's camera when the server lets go, so nothing moves at the touch
+-- (Presets.cannonCamera; #3444, #3548, #3549). Everyone else keeps their own camera.
 -- Listening only: nothing here fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
@@ -327,8 +327,8 @@ type View = {
 	last: CFrame,
 }
 local view: View? = nil
--- The CannonLaunchAt whose camera went back to the game's: just before the drop (Logic.cannonHandBackAt, #3444), so the
--- landing itself never moves the camera and the player can turn the view all the way down.
+-- The CannonLaunchAt whose camera went back to the game's at cannonPose's `ends`, when the server lets go (#2690).
+-- From just before the drop (Logic.cannonHandBackAt) until then it is one still view behind the pad (#3444, #3548).
 local handedBack: number? = nil
 
 -- While this player is in flight and until the server lets go of the landed character (its root anchored until
@@ -460,6 +460,9 @@ local function track()
 	holdArrows(launchAt ~= nil or not grounded(me))
 	local c, k = Presets.cannonPose, Presets.cannonCamera
 	local seconds = if launchAt ~= nil then Workspace:GetServerTimeNow() - launchAt else 0
+	if launchAt ~= nil and seconds >= c.ends then
+		handedBack = launchAt -- the server lets go here: the game's camera again (#2690)
+	end
 	if camera == nil or me == nil or f == nil or launchAt == nil or launchAt == handedBack then
 		if view ~= nil and camera ~= nil then
 			camera.CameraType = Enum.CameraType.Custom -- the game's camera again, from where this left it
@@ -513,21 +516,20 @@ local function track()
 	elseif seconds < Logic.cannonHandBackAt() then
 		target = v.last -- under the clouds
 	else
-		-- #3444 (Derek 2026-11-12: "landing still moves your camera on landing so remove that"): from just before the
-		-- drop the camera is the game's own again. One frame here puts it behind the pad, the way the pad faces (turned
-		-- clear of any cannon, #2779) at the player's own pitch and the distance it had at launch, and hands it back;
-		-- the game's camera keeps that way and settles on the player's own zoom while the flyer is still out of sight.
-		-- Nothing of ours touches the camera as the feet land or when the server lets go, so nothing moves then.
-		local rest = root.Position + v.focus
+		-- The landing view: behind the pad, the way the pad faces (turned clear of any cannon, #2779), at the player's
+		-- own pitch and the distance the camera had at launch. It is one still view from just before the drop until
+		-- the server lets go, so nothing moves at the touch (#3444, Derek 2026-11-12: "landing still moves your camera
+		-- on landing so remove that"), and the camera is ours until then (#3548, #3549: handing it to the game's camera
+		-- before the drop, while the character was still held, left players high overhead and facing down). The
+		-- pitch and distance are kept inside a normal play view (Logic.cannonLanding), whatever the camera was doing
+		-- at launch.
+		local pitch, distance = Logic.cannonLanding(v.pitch, v.distance)
+		local rest = root.Position + Logic.cannonLandingFocus(v.focus)
 		local flat = Vector3.new(root.LookVector.X, 0, root.LookVector.Z)
 		flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zAxis
-		flat = CannonGlide.clearOfCannons(rest, flat, v.pitch, v.distance, cannonBoxes(rest))
-		local look = flat * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
-		camera.CFrame = CFrame.lookAt(rest - look * v.distance, rest)
-		camera.CameraType = Enum.CameraType.Custom
-		handedBack = launchAt
-		view = nil
-		return
+		flat = CannonGlide.clearOfCannons(rest, flat, pitch, distance, cannonBoxes(rest))
+		local look = flat * math.cos(pitch) + Vector3.yAxis * math.sin(pitch)
+		target = CFrame.lookAt(rest - look * distance, rest)
 	end
 	v.last = target
 	camera.CFrame = target

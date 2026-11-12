@@ -257,16 +257,34 @@ return function()
 		end)
 
 		it(
-			"leaves the camera alone on landing: it is the game's own before the drop (#3444)",
+			"holds one still view through the landing, set before the drop (#3444, #3548)",
 			function()
 				local k, c = Presets.cannonCamera, Presets.cannonPose
 				local back = Logic.cannonHandBackAt()
-				-- handed back while the flyer is still out of sight, well before the feet touch and the server lets go
+				-- the landing view is set while the flyer is still out of sight, well before the feet touch
 				expect(back <= c.drop).to.equal(true)
 				expect(back > c.gone).to.equal(true)
 				expect(c.touch - back >= 0.5).to.equal(true)
 				expect(back < c.ends).to.equal(true)
 				-- and no zoom, push or bump numbers are left to move it at the touch (#3328's are gone too)
+				-- the view stays a normal play view whatever the camera did at launch (#3548 far overhead, #3549 down)
+				local pitch, distance = Logic.cannonLanding(math.rad(-89), 400)
+				expect(math.abs(pitch - math.rad(k.pitchLow)) < 1e-6).to.equal(true)
+				expect(distance).to.equal(k.distanceMax)
+				pitch, distance = Logic.cannonLanding(math.rad(-20), 12)
+				expect(math.abs(pitch - math.rad(-20)) < 1e-6).to.equal(true)
+				expect(distance).to.equal(12)
+				pitch, distance = Logic.cannonLanding(0 / 0, 0 / 0)
+				expect(math.abs(pitch - math.rad(k.pitchRest)) < 1e-6).to.equal(true)
+				expect(distance).to.equal(k.distanceRest)
+				expect(k.pitchLow >= -60 and k.pitchHigh <= 20).to.equal(true)
+				expect(k.distanceMax <= 60).to.equal(true) -- Config.CameraMaxZoomStuds
+				expect(
+					Logic.cannonLandingFocus(Vector3.new(0, 300, 0)).Magnitude <= k.focusMax + 1e-6
+				).to.equal(true)
+				expect(Logic.cannonLandingFocus(Vector3.new(0, 1.5, 0))).to.equal(
+					Vector3.new(0, 1.5, 0)
+				)
 				expect(k.wide).to.equal(nil)
 				expect(k.push).to.equal(nil)
 				expect(k.bump).to.equal(nil)

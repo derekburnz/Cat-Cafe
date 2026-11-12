@@ -2180,18 +2180,27 @@ Presets.cannonGlide = {
 -- and back of the seat) looking `ahead` studs up the barrel. From the boom it chases the flyer from `chase` (right,
 -- up and back of the way it goes over the ground, so the soaring flyer shows side on), easing there over `catch`
 -- seconds (the boom's shake is Cannon.luau's, on top).
--- Under the clouds it waits. `over` seconds before the drop it looks, for one frame, the way the landing pad faces
--- at the player's own pitch, and the game's camera takes over from there (Logic.cannonHandBackAt). So the camera is
--- the player's own all the way down, at the touch and after: #3444 (Derek 2026-11-12: "landing still moves your
--- camera on landing so remove that"). Before that the flight held the camera until the server let go (#2690) and
--- followed the flyer down, with a zoom in at the touch (#1081, #1131) that #3328 had already set to nothing; the
--- hand-back at the end still moved the view to the player's real zoom.
+-- Under the clouds it waits. `over` seconds before the drop it goes to one still view behind the landing pad, the
+-- way the pad faces at the player's own pitch and distance (Logic.cannonHandBackAt), and holds it until the server
+-- lets go, when the game's camera takes over: nothing moves at the touch (#3444, Derek 2026-11-12: "landing still
+-- moves your camera on landing so remove that"). For a few hours on 2026-11-12 the game's camera took over before
+-- the drop instead, while the character was still held, and players ended high overhead and facing down (#3548,
+-- #3549), so the camera stays ours through the landing again. The view's pitch stays between `pitchLow` and
+-- `pitchHigh` degrees (`pitchRest` when unknown), its distance between `distanceMin` and `distanceMax` studs
+-- (`distanceRest` when unknown) and its focus within `focusMax` studs of the player (Logic.cannonLanding).
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
 	chase = Vector3.new(7, 2.5, 12),
 	catch = 0.15,
 	over = 0.1,
+	pitchLow = -50,
+	pitchHigh = 10,
+	pitchRest = -15,
+	distanceMin = 6,
+	distanceMax = 60, -- Config.CameraMaxZoomStuds: as far as a player can zoom out
+	distanceRest = 14,
+	focusMax = 4,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue

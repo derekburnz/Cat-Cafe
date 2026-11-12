@@ -18,13 +18,14 @@ local EPIC_RANK = Catalog.rarityRank.Epic
 
 -- The odds a plain crate's lucky twentieth opens on: Epic or better. #3665: its own table since the golden crates'
 -- odds were raised (Catalog), so the twentieth stays as it was.
-Crates.LUCKY_ODDS = table.freeze({
+local LUCKY_ODDS: { [string]: number } = {
 	Common = 0,
 	Rare = 0,
 	Epic = 80,
 	Legendary = 17.5,
 	Mythical = 2.5,
-}) :: { [string]: number }
+}
+Crates.LUCKY_ODDS = table.freeze(LUCKY_ODDS)
 
 -- Wallpaper, floor, paint, door set and cat flap: one of each in use at a time.
 function Crates.isStyle(kind: Types.DecorKind?): boolean

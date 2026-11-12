@@ -98,6 +98,9 @@ return function()
 				caviar = "Caviar",
 				moon_milk = "MoonMilk",
 				star_treat = "StarTreat",
+				-- #3462: the Day Cart's own two borrow these until theirs are uploaded
+				honey_cream = "MoonMilk",
+				comet_treat = "StarTreat",
 			}
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do

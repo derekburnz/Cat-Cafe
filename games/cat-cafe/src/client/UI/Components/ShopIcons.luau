@@ -467,6 +467,12 @@ end
 -- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
 -- falls back to the next bottle instead of the emoji. A Small or Big size runs its regular potion's timer, so it wears
 -- that potion's bottles (corner-shop-v2.md, #1250).
+local POTION_STAND_INS: { [string]: string } = {
+	big_lucky_potion = "lucky_potion",
+	big_gold_rush_potion = "gold_rush_potion",
+	mega_tip_potion = "big_tip_potion",
+}
+
 function ShopIcons.potionAll(potionId: string?): { string }
 	local list: { string } = {}
 	if type(potionId) ~= "string" then
@@ -490,6 +496,16 @@ function ShopIcons.potionAll(potionId: string?): { string }
 		local id = IDS[prefix .. key]
 		if id then
 			table.insert(list, id)
+		end
+	end
+	-- #3462: a Tier 6 potion wears its smaller kind's bottles after its own, so it has a picture before its flask is
+	-- uploaded
+	local standIn = POTION_STAND_INS[potionId]
+	if standIn ~= nil then
+		for _, id in ShopIcons.potionAll(standIn) do
+			if not table.find(list, id) then
+				table.insert(list, id)
+			end
 		end
 	end
 	return list
@@ -573,8 +589,20 @@ function ShopIcons.catFood(foodId: string?): string?
 	return IDS.Icon_Clean_StarTreat
 end
 
+-- #3462: the Day Cart's own baits borrow the dealer's two best pictures until theirs are drawn
+local FOOD_STAND_INS: { [string]: string } =
+	{ honey_cream = "moon_milk", comet_treat = "star_treat" }
+
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
+	if type(lureId) ~= "string" then
+		return nil
+	end
+	return IDS["Icon_Clean_" .. pascal(lureId)]
+		or (
+			if FOOD_STAND_INS[lureId]
+				then IDS["Icon_Clean_" .. pascal(FOOD_STAND_INS[lureId])]
+				else nil
+		)
 end
 
 -- The clean picture for a money, golden fish or spin prize (#1242, the Tip Jar, Daily Treat, quest and Index prize

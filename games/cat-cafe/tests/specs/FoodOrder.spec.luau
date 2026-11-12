@@ -21,24 +21,38 @@ return function()
 	describe("FoodOrder", function()
 		it("puts the catalog's foods in the section 3 order, shop and dealer together", function()
 			expect(ids(FoodOrder.defs(Catalog.lures))).to.equal(
-				"kibble,tuna,sardines,salmon,caviar,moon_milk,star_treat"
+				"kibble,tuna,sardines,salmon,caviar,moon_milk,star_treat,honey_cream,comet_treat"
 			)
 		end)
 
 		it("turns round for the bowl and the Bag's Bait tab, rarest first (#1609)", function()
 			expect(ids(FoodOrder.defs(Catalog.lures, true))).to.equal(
-				"star_treat,moon_milk,caviar,salmon,sardines,tuna,kibble"
+				"comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna,kibble"
 			)
+		end)
+
+		it("#3462: leaves a Day Cart food off the list while the cart's shelf is shut", function()
+			local honey = Catalog.getLure("honey_cream")
+			expect(FoodOrder.listed(honey, 0, false)).to.equal(false)
+			expect(FoodOrder.listed(honey, nil, false)).to.equal(false)
+			expect(FoodOrder.listed(honey, 2, false)).to.equal(true) -- one in the bag still shows
+			expect(FoodOrder.listed(honey, 0, true)).to.equal(true)
+			for _, lure in Catalog.lures do
+				if lure.source ~= "cart" then
+					expect(FoodOrder.listed(lure, 0, false)).to.equal(true)
+				end
+			end
+			expect(FoodOrder.listed(nil, 0, false)).to.equal(true)
 		end)
 
 		it("puts the foods the player has first in the bowl, rarest at the top (#2323)", function()
 			local rarest = FoodOrder.defs(Catalog.lures, true)
 			-- a new player in the tutorial: Kibble alone, so it leads instead of trailing the list
 			expect(ids(FoodOrder.ownedFirst(rarest, { kibble = 3 }))).to.equal(
-				"kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna"
+				"kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna"
 			)
 			expect(ids(FoodOrder.ownedFirst(rarest, { kibble = 3, salmon = 1, tuna = 0 }))).to.equal(
-				"salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna"
+				"salmon,kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna"
 			)
 			-- an empty bag keeps the rarest first order
 			expect(ids(FoodOrder.ownedFirst(rarest, {}))).to.equal(ids(rarest))

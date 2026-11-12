@@ -182,6 +182,9 @@ function Economy.foodPrice(lureId: string, tier: number): number
 	if def == nil then
 		return 0
 	end
+	if def.source == "cart" then
+		return def.cost -- #3462: the Day Cart's own baits cost the same at every tier
+	end
 	local factors = Config.FoodTierPriceFactor
 	return def.cost * factors[math.clamp(math.floor(tier), 1, #factors)]
 end

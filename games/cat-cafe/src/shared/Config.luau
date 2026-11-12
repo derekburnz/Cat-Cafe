@@ -541,6 +541,10 @@ local Config = {
 		money = 3,
 		big_money = 2,
 		gold_rush = 2,
+		-- #3462: the Tier 6 potions, one of each a game day
+		big_lucky = 1,
+		big_gold_rush = 1,
+		mega_money = 1,
 	} :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,

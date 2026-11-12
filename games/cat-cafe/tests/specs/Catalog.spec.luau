@@ -1052,7 +1052,7 @@ return function()
 			}
 
 		it("has the three shop foods and four dealer foods with the table odds", function()
-			expect(#Catalog.lures).to.equal(7)
+			expect(#Catalog.lures).to.equal(9) -- and the Day Cart's own two (#3462, Economy.spec and CornerShop.spec)
 			for id, row in pairs(expected) do
 				local def = Catalog.getLure(id)
 				expect(def).to.be.ok()
@@ -1077,6 +1077,8 @@ return function()
 				caviar = "Epic",
 				moon_milk = "Legendary",
 				star_treat = "Mythical",
+				honey_cream = "Legendary", -- #3462
+				comet_treat = "Mythical",
 			}
 			for _, def in ipairs(Catalog.lures) do
 				expect(def.rarity).to.equal(grades[def.id])

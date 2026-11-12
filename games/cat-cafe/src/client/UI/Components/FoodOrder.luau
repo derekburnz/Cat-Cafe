@@ -131,4 +131,14 @@ function FoodOrder.best(foods: { Types.LureDef }, have: { [string]: number }): T
 	return nil
 end
 
+-- #3462: whether the bowl lists `lure` for a player holding `have` of it. A Day Cart food (`source` "cart") is not
+-- listed while the cart's Tier 6 shelf is shut (`cartOpen` false, the `cartTier6` switch), unless the player has
+-- some: nothing sells it yet, so there is nothing to point at. Every other food is always listed.
+function FoodOrder.listed(lure: Types.LureDef?, have: number?, cartOpen: boolean): boolean
+	if lure == nil or (lure :: any).source ~= "cart" or cartOpen then
+		return true
+	end
+	return type(have) == "number" and have > 0
+end
+
 return FoodOrder

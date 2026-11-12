@@ -321,7 +321,8 @@ function PotionLogic.boosts(catalog: Types.Catalog?, state: Types.PlayerState, n
 			else nil
 		boosts.goldLuck += math.max(0, luck or 0)
 		boosts.baitSpeed += math.max(0, speed or 0)
-		if id == LUCKY then
+		-- #3462: any lucky potion doubles it (the Big Lucky Potion carries `luck`), as the server's baitGoldChance
+		if id == LUCKY or (def and type(def.luck) == "number" and def.luck > 0) then
 			boosts.goldScale = LUCKY_SCALE
 		end
 	end

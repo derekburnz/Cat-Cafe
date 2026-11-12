@@ -383,6 +383,10 @@ local Config = {
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,
+	-- #3573: resting in your own cafe (shared/AfkCafe). No input and no movement for AfkCafeSeconds in the cafe or on
+	-- its doorstep doubles the cats' cafe pay, in the event money slot above (so never more than EventMoneyMax).
+	AfkCafeSeconds = 120,
+	AfkCafeMoney = 2,
 	EventLuckMax = 1.0,
 	EventShowerMax = 12,
 	EventShowerGapMinSeconds = 300,

@@ -93,6 +93,7 @@ UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, fille
 UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
 UI.mouseDash = {} -- #3296 the arcade's Mouse Dash window, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
+UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
@@ -8770,6 +8771,14 @@ do
 			end
 		end
 		return out
+	end
+
+	-- #3573: the HUD's rest chip, from AfkController
+	function UI.rest.set(resting: boolean, doubled: boolean?)
+		local current = hud
+		if current then
+			(current :: any):setRest(resting, doubled)
+		end
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

@@ -6,6 +6,7 @@
 -- window. Pure, so the cloud specs check it.
 --   kind(raw) -> string?             "rich", "mystery" or "collector" from the attribute, else nil
 --   away(distance) -> boolean        farther than AWAY_STUDS from the cafe; nil (no character yet) is not away
+--   holds(step, away) -> boolean     the call waits: the tutorial is under way and the player is away
 --   show(kind, away) -> (how?, text) "card" or "toast" and the line; nil for the Collector at the cafe, whom the
 --                                    server already toasts ("The Cat Collector is at your cafe! ...")
 
@@ -32,6 +33,15 @@ end
 
 function FirstVisitLogic.away(distance: number?): boolean
 	return distance ~= nil and distance == distance and distance > FirstVisitLogic.AWAY_STUDS
+end
+
+-- Review-QA's fresh join runs, 2026-11-12: the card ("Go to my cafe / Later") sat over the tutorial's "Hop in the
+-- cannon to catch more cats!", two opposite pulls for a new player. While the tutorial is under way (`step` below
+-- TUTORIAL_DONE) and the player is away from the cafe, the call waits; at the cafe its toast still shows.
+FirstVisitLogic.TUTORIAL_DONE = 5
+
+function FirstVisitLogic.holds(step: unknown, away: boolean): boolean
+	return away and type(step) == "number" and step < FirstVisitLogic.TUTORIAL_DONE
 end
 
 function FirstVisitLogic.show(kind: string, away: boolean): (string?, string)

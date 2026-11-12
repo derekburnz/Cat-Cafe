@@ -5644,6 +5644,11 @@ do
 			task.delay(1, present, token, away)
 			return
 		end
+		local now: any = UI.getState()
+		if FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away()) then
+			task.delay(1, present, token, away) -- not over a tutorial card; it comes once the tutorial is done
+			return
+		end
 		local how, line = FirstVisitLogic.show(kind, away())
 		if how == "toast" then
 			UI.toast(line, "good")

@@ -167,6 +167,14 @@ function CannonController.start()
 	end
 	player:GetAttributeChangedSignal(Cannon.HOME_ATTRIBUTE):Connect(arrivedHome)
 	arrivedHome()
+	-- the server moved this player (a tutorial move, a trip home or to the cannon): the camera goes behind them there
+	player:GetAttributeChangedSignal(Cannon.MOVED_SEQ):Connect(function()
+		local at = player:GetAttribute(Cannon.MOVED_ATTRIBUTE)
+		local character = player.Character
+		if typeof(at) == "Vector3" and character ~= nil then
+			aimBehind(character, at)
+		end
+	end)
 
 	-- #2915: the cannon the character stands in range of (the server's own range), for "Fly to the Park"
 	UI.cannon.nearest = function(): string?

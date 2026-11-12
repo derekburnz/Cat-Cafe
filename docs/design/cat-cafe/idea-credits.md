@@ -108,3 +108,13 @@ return table.freeze({
 2. A row with a `creditId` shows "💡 Idea from" and the display name, or "💡 A player's idea" when that player hid their name.
 3. The spec test fails on a 29-character text, an unknown icon or a date out of order.
 4. From 8 studs away on a phone, the update text is readable.
+
+## 8. Crediting is a standing step (#3472, 2026-11-12)
+
+Derek, 2026-11-12: "grab the usernames of all these feedback givers and if we use their idea credit them on the thank you for ideas board and whats new board".
+
+- **Every feature that comes from a player's feedback is credited** on the Thank You board and on its What's New row when it ships.
+- **The issue carries the report key, never a name.** An issue from feedback has the line `Credit: feedback report <day>/<key>`. No username, display name or user id is written in an issue, PR, commit or log. Section 4 already says why: the repo is public.
+- **At ship time** whoever merges the feature runs `idea-credits.yml` with the report key, our text for the idea and the version, then puts the credit id on the What's New row (section 7).
+- **The tick still decides.** Only a report with "Feature my name if you use my idea" ticked is named. The rest read "Idea from a player". Naming unticked reports would break what the Feedback window told the player. This limit is Design-Agent's recommendation while Derek was away, for him to confirm.
+- **Review check:** a feedback feature's PR has its credit line and no player name anywhere.

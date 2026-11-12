@@ -28,6 +28,7 @@ The #2687 unlock perks for these areas (Warm Paws, Curator) come from the tier a
 - **Put a cat in.** At the spa's card, pick any owned cat below `CatMaxLevel`. Working, resting, locked and unlocked cats are all allowed.
   - **A working cat** leaves its role, and the server runs that player's Equip Best for cats so the slot refills from the cat room.
   - **While soaking** the cat earns nothing and no XP. It shows "At the spa" in the cat room, and it can't be assigned, sold, traded, given to the Collector or donated to the Museum. Each of those refusals reads "This cat is at the spa".
+  - **Sort (#3463, Derek 2026-11-12: "give option sort oasis spa by rarity or level but default rarity"; not built when written).** A two-choice Sort toggle sits over the cat list: Rarity (default, highest first, then rainbow, gold, plain, then level) and Level (highest first, then rarity). The choice is remembered only if that needs no save version change.
 - **Timer.** `SpaSeconds` 3600, real time from when the cat went in. It counts offline too, like every camp extra. When done, the cat waits in its slot for collection. It never auto-returns, so it can't land mid-trade or mid-assign.
 - **Collect.** Collect at the card. Each finished cat gains +1 level, capped at `CatMaxLevel`, and keeps its XP toward the next level. It goes back to the cat room, then Equip Best runs, so a better cat steps back into its role.
   - One press collects every finished slot.

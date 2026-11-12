@@ -1010,7 +1010,7 @@ Changed or new in v0.5 (Gavin's round 2):
 | BumpCooldownSeconds | 8 | 12 | CatService (Shove) |
 | BumpSameTargetSeconds | 20 | 60 | CatService (Shove) |
 | ShoveTargetImmuneSeconds | 4 | new (v0.5.1, S45) | CatService (Shove) |
-| TackleShieldSeconds | 300 | new (#3342, Derek2 2026-11-11: a new join can't be tackled for its first 5 minutes; their own tackle ends it) | ShoveService, TackleBar chip |
+| TackleShieldSeconds | 900 | #3475 (Derek 2026-11-12: 15 minutes instead of 5); new in #3342 (Derek2 2026-11-11: a new join can't be tackled for its first minutes; their own tackle ends it) | ShoveService, TackleBar chip |
 | DealerSlotWeights | 50 / 33 / 14 / 3, one row | per tier | DealerService |
 
 Removed in v0.5: patience, StrayWarySeconds, StrayJumpBackStuds, CustomerSpawnSecondsNight.

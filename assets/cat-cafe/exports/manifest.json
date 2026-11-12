@@ -315950,7 +315950,7 @@
         "CatCafe_Camp_Neighbourhood_YardSaleStall",
         "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing"
       ],
-      "triangles": 2128,
+      "triangles": 2348,
       "budget": 4000,
       "size_studs": {
         "x": 8.64,
@@ -315990,7 +315990,7 @@
       },
       "studio": "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the YARD SALE sign's arm, for ReadyBang) and GlowAnchor (under the awning). _Sign_Swing (#1800) is the hanging board and its chains, pivoted at the ring under the arm; Effects/Motion swings it about its pivot's Z, so leave it where it was modelled. Everything collides and can be climbed.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_YardSaleStall.model.json",
-      "rbx_parts": 213,
+      "rbx_parts": 232,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.glb"
@@ -316002,10 +316002,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2128/4000 tris",
+          "budget": "2348/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1086 faces on swatch centers",
+          "uv": "1186 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-1.17 y=-0.15"

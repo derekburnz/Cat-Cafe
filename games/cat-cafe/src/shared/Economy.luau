@@ -451,7 +451,7 @@ local resting: { [Types.PlayerProfile]: boolean } = setmetatable({}, { __mode = 
 local restEarnedByProfile: { [Types.PlayerProfile]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 function Economy.setResting(profile: Types.PlayerProfile, on: boolean)
-	resting[profile] = if on then true else nil
+	(resting :: any)[profile] = if on then true else nil -- nil drops the weak entry
 end
 
 function Economy.isResting(profile: Types.PlayerProfile): boolean

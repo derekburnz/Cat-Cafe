@@ -4761,7 +4761,15 @@ Presets.eventBanner = {
 -- see-through by `far` from a distance and fades to `near` inside `nearWithin` studs so it never covers the catch.
 -- It holds still: no pulse, so nothing flashes. The `most` nearest Secret strays show; there is rarely even one.
 Presets.secretStray = {
-	most = 2,
+	most = 2, -- cats wearing the haze at once
+	-- The beam also shows for a Secret stray too far to be streamed in, from the server's beacons: the Folder
+	-- `beacons` in ReplicatedStorage (Catching.SECRET_BEACONS) holds a Vector3Value per live Secret stray, named by
+	-- its StrayId, with the cat's position every 2 seconds. The `beams` nearest show, and a beam with no cat model
+	-- here glides to each new position at `glide` of the way a second, snapping past `snap` studs (a new spot).
+	beacons = "SecretBeacons",
+	beams = 3,
+	glide = 3,
+	snap = 60,
 	checkEvery = 0.5,
 	beam = {
 		height = 260,

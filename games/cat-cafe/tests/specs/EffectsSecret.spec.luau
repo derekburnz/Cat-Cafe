@@ -77,6 +77,27 @@ return function()
 			expect(Logic.secretBeam(-5)).to.equal(b.widthMin)
 		end)
 
+		it("glides a far beam to the beacon's new position and snaps to a new spot", function()
+			local s = Presets.secretStray
+			local from = Vector3.new(0, 0, 0)
+			local target = Vector3.new(10, 0, 0)
+			local stepped = Logic.secretGlide(from, target, 0.1)
+			expect(stepped.X > 0 and stepped.X < 10).to.equal(true)
+			expect(Logic.secretGlide(from, target, 0).X).to.equal(0)
+			-- a long frame never overshoots
+			expect(Logic.secretGlide(from, target, 5).X).to.equal(10)
+			-- it closes most of a 2 second walk before the next word comes
+			local at = from
+			for _ = 1, 120 do
+				at = Logic.secretGlide(at, target, 1 / 60)
+			end
+			expect(at.X > 9.9).to.equal(true)
+			local far = Vector3.new(s.snap + 1, 0, 0)
+			expect(Logic.secretGlide(from, far, 1 / 60)).to.equal(far)
+			expect(s.beacons).to.equal("SecretBeacons")
+			expect(s.beams >= s.most).to.equal(true)
+		end)
+
 		it("keeps the stray's haze inside the steady emitter budget", function()
 			expect(Presets.emitters.secretAura.rate <= 4).to.equal(true)
 			expect(Presets.emitters.secretStars.rate <= 4).to.equal(true)

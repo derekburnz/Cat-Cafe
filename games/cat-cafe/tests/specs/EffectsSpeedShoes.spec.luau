@@ -45,7 +45,8 @@ return function()
 			expect(p.radius <= Presets.potionFx.radius).to.equal(true)
 			expect(p.moving > 0 and p.moving < 1).to.equal(true)
 			expect(p.model).to.equal("CatCafe_Item_SpeedShoes")
-			-- Low performance shows no trails, as it shows no potion glows
+			-- Low performance shows no trails only because its potionGlows budget is 0 (the trail shares that count):
+			-- if that budget is ever raised, give the trail its own switch
 			expect(Presets.budget.low.potionGlows >= 1).to.equal(true)
 			expect(Presets.budget.lowPerformance.potionGlows).to.equal(0)
 		end)

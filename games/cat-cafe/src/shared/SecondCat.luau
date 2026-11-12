@@ -174,6 +174,12 @@ function SecondCat.fits(rarity: string, variant: string): boolean
 	return rank ~= nil and top ~= nil and rank <= top and variant == "base"
 end
 
+-- #3662: whether a free stray's catch is the easy guided one for this save: no cat caught by hand yet, and the stray
+-- fits (plain, MAX_RARITY or below), so the guided first catch is never a rare prize.
+function SecondCat.easyFirst(stats: Types.Stats, rarity: string, variant: string): boolean
+	return SecondCat.caught(stats) == 0 and SecondCat.fits(rarity, variant)
+end
+
 -- Whether a stray at `at` is near enough the landing at `pad` to be the one that waits.
 function SecondCat.inSearch(at: Vector3, pad: Vector3): boolean
 	return flat(at - pad).Magnitude <= SecondCat.SEARCH_STUDS

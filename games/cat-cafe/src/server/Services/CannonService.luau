@@ -320,7 +320,8 @@ local function homeArrival(player: Player, character: Model)
 	if
 		not Cannon.joinsAtHome(
 			profile.introSeen,
-			Config.IntroAutoPlay,
+			-- #3666: the intro test's scene half starts at home as everyone did while the intro played itself
+			Telemetry.introPlays(player, profile),
 			profile.tutorialStep,
 			Config.TutorialGuaranteedStrayStep
 		)

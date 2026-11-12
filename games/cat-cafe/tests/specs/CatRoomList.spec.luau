@@ -39,6 +39,50 @@ return function()
 		end)
 	end)
 
+	describe("CatRoomList.list sort (#3647)", function()
+		local leveled = {
+			a = { uid = "a", catId = "tabby", level = 9 },
+			b = { uid = "b", catId = "tuxedo", level = 3 },
+			c = { uid = "c", catId = "void" }, -- no level reads as 1
+			d = { uid = "d", catId = "tabby", spotId = "barista_1", level = 3 },
+			e = { uid = "e", catId = "tabby", rating = 3, level = 9 },
+		}
+
+		it("Best and no sort are the old order: working first", function()
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", "", "Best"))).to.equal(
+				"d,c,b,e,a"
+			)
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", ""))).to.equal("d,c,b,e,a")
+		end)
+
+		it("Rarity is rarest first whether working or not, then the higher rating", function()
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", "", "Rarity"))).to.equal(
+				"c,b,e,a,d"
+			)
+		end)
+
+		it("Level is the highest level first, then rarer, then the higher rating", function()
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", "", "Level"))).to.equal(
+				"e,a,b,d,c"
+			)
+		end)
+
+		it("a sort keeps the filter and the search", function()
+			expect(uids(CatRoomList.list(leveled, defs, rank, "Resting", "", "Level"))).to.equal(
+				"e,a,b,c"
+			)
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", "tab", "Level"))).to.equal(
+				"e,a,d"
+			)
+		end)
+
+		it("the Sort button steps round the three orders", function()
+			expect(CatRoomList.nextSort("Best")).to.equal("Rarity")
+			expect(CatRoomList.nextSort("Rarity")).to.equal("Level")
+			expect(CatRoomList.nextSort("Level")).to.equal("Best")
+		end)
+	end)
+
 	describe("CatRoomList.list", function()
 		it("puts working cats first, then rarer, then the higher rating, then the uid", function()
 			expect(uids(CatRoomList.list(cats, defs, rank, "All", ""))).to.equal("d,c,b,e,a")

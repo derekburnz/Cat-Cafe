@@ -41,6 +41,7 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -88,6 +89,7 @@ export type CustomEvent =
 	-- #3573 (shared/AfkCafe): a rest in the player's own cafe starts (value 1; field: "doubled" or "party"), ends
 	-- (value: its seconds) and what the cafe paid during it (value: coins)
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
+	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
 	| "afk_start"
 	| "afk_end"
@@ -751,6 +753,38 @@ function Telemetry.onStep(listener: (player: Player, name: string) -> ())
 	table.insert(stepListeners, listener)
 end
 
+-- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
+local function grouped(profile: Profile, fields: { string }): { string }
+	return IntroSplit.fields(profile.telemetry.introGroup, fields)
+end
+
+-- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
+-- and intro_group is logged. Checked once per player per session, so the switch going on mid session moves nobody.
+-- Called by onLoaded here and by CafeService ahead of a sync, whichever comes first.
+-- The session's answer to "does the intro play itself" is fixed here too (Review-QA on #3667): a later switch on
+-- must not start the scene mid play for a save grouped earlier.
+local introChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+function Telemetry.introJoin(player: Player, profile: Profile)
+	if introChecked[player] ~= nil then
+		return
+	end
+	local on = LiveFlagService.on(IntroSplit.FLAG)
+	local state = profile.telemetry
+	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
+	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
+	if joins then
+		state.introGroup = group
+		Telemetry.custom(player, IntroSplit.EVENT :: any, 1, { group :: string })
+	end
+end
+
+-- #3666: whether the intro plays itself for this player this session (IntroSplit.plays as the session began).
+function Telemetry.introPlays(player: Player, profile: Profile): boolean
+	Telemetry.introJoin(player, profile)
+	return introChecked[player] == true
+end
+
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -759,7 +793,7 @@ function Telemetry.onboarding(
 )
 	for _, name in Onboarding.reach(profile.telemetry, stepName) do
 		local step = Onboarding.index(name)
-		local fields = if name == stepName and values ~= nil then values else {}
+		local fields = grouped(profile, if name == stepName and values ~= nil then values else {})
 		remember(player, "onboarding", name, step, fields)
 		send(player, "onboarding " .. name, function()
 			AnalyticsService:LogFunnelStepEvent(
@@ -1059,7 +1093,8 @@ local function logFirstHour(player: Player, profile: Profile)
 	for _, step in Onboarding.firstHourDue(state.firstHourV3Step, PlayTime.seconds(player, profile)) do
 		state.firstHourV3Step = step
 		local name = Onboarding.FIRST_HOUR_STEPS[step]
-		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, {})
+		local fields = grouped(profile, {}) -- #3666
+		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, fields)
 		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()
 			AnalyticsService:LogFunnelStepEvent(
 				player,
@@ -1067,7 +1102,7 @@ local function logFirstHour(player: Player, profile: Profile)
 				tostring(player.UserId),
 				step,
 				name,
-				nil
+				customFields(fields)
 			)
 		end)
 	end
@@ -2016,6 +2051,7 @@ local function startMarkers(player: Player, session: Session)
 end
 
 local function onLoaded(player: Player, profile: Profile)
+	Telemetry.introJoin(player, profile) -- #3666: before any funnel step of this session
 	local now = os.time()
 	local firstSession = profile.stats.sessions <= 1
 	local session: Session = {

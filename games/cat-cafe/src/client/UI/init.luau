@@ -378,6 +378,14 @@ local tipsHeldUntil = 0 -- os.clock() until which no tip shows (a cannon flight 
 local askCard: AskCard.AskCard? = nil -- the slide-in asks: the feedback faces (F87 section 4) and Need a hand? (2g)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+-- #3666: whether the intro plays itself for this player; the server says (the intro test), else Config. A field,
+-- as the module has no local registers to spare
+function UI._introAuto(): boolean
+	if state.introAuto ~= nil then
+		return state.introAuto
+	end
+	return Config.IntroAutoPlay
+end
 -- data-model section 8: UseLure, Tame and Let go work from anywhere (Derek 2026-10-28: "tame or let go from anywhere";
 -- the server dropped BaitResolveRangeStuds in #720), so the bait card's buttons never grey for distance
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
@@ -452,7 +460,7 @@ function applyTutorial()
 	-- #2759: a fresh save's intro is on its way (it waits for the camp to stream in): no strip, glow or arrow over the
 	-- loading view. At most UI._introWait.LIMIT seconds from the UI's start, should no intro come.
 	local waited = os.clock() - UI._introWait.startedAt
-	local introPending = Config.IntroAutoPlay
+	local introPending = UI._introAuto()
 		and not UI._introWait.begun
 		and state.introSeen == false
 		and waited < UI._introWait.LIMIT
@@ -572,7 +580,7 @@ local function render()
 		introLive = true
 		renderTutorialButton()
 		-- F87 section 2a: the intro no longer plays by itself, so a first join glows the tile that plays it
-		if state.introSeen == false and not Config.IntroAutoPlay and not introGlowed then
+		if state.introSeen == false and not UI._introAuto() and not introGlowed then
 			introGlowed = true
 			task.delay(IntroLogic.OUT_SECONDS, function()
 				if hud then

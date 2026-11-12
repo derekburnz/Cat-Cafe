@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local AssetRegistry = require(script.Parent.AssetRegistry)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
+local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
@@ -2798,7 +2799,7 @@ local function buildCannon(id: string, parent: Instance): Model
 	prompt.ActionText = "Hop in"
 	prompt.ObjectText = "Cat Cannon"
 	prompt.HoldDuration = 0 -- #2326: one press opens it
-	prompt.MaxActivationDistance = W.CannonRangeStuds
+	prompt.MaxActivationDistance = Cannon.range(id) -- #3671: the Town Square's is wider
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	local anchorPoint = model:FindFirstChild("PromptAnchor", true)
@@ -2816,7 +2817,8 @@ local function buildCannon(id: string, parent: Instance): Model
 	end
 	-- all the way round; a camp's no wider than its paving
 	local cap = if id == "town" then nil else WalkUp.CAMP_RING_MAX
-	WalkUpCircles.around(model, RING_CANNON, W.CannonRangeStuds, parent, cap)
+	-- #3671: the Town Square's ring fills its range, so it is a bit bigger than the cannon's footprint asks for
+	WalkUpCircles.around(model, RING_CANNON, Cannon.range(id), parent, cap, id == "town")
 	return model
 end
 

@@ -292,7 +292,7 @@ return function()
 		LeaderboardRefreshSeconds = 120,
 		LeaderboardSize = 50,
 		LeaderboardBoardRows = 10,
-		LeaderboardRateMax = 10000000,
+		LeaderboardRateMax = 1000000000000000, -- #3688
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
 		-- #3466: the top player join notice

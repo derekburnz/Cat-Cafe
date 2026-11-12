@@ -52,6 +52,7 @@ return function()
 			local profile: any = ProfileSchema.template(1700000000)
 			profile.tutorialStep = 3
 			profile.stats.sessions = 1
+			profile.stats.catsCaught = 1 -- one caught by hand: past the walk-through's trip out (#3659)
 			expect(Economy.tier(profile)).to.equal(1)
 			expect(NightPass.of(profile, true)).to.equal(true)
 			expect(NightPass.firstOf(profile, true)).to.equal(true)
@@ -61,6 +62,36 @@ return function()
 			profile.tutorialStep = 0 -- a beginner again: the #2692 pass, not the first-session one
 			expect(NightPass.of(profile, false)).to.equal(true)
 			expect(NightPass.firstOf(profile, false)).to.equal(false)
+		end)
+
+		it(
+			"keeps a Tier 1 save that has checked in a cat but never caught one by hand, switch or not (#3659)",
+			function()
+				expect(NightPass.learner(2, 1, 0)).to.equal(true)
+				expect(NightPass.learner(5, 1, 0)).to.equal(true) -- stood at the cannon by the last step
+				expect(NightPass.learner(5, 1, 1)).to.equal(false) -- caught one by hand
+				expect(NightPass.learner(5, 2, 0)).to.equal(false) -- ranked up
+				expect(NightPass.learner(1, 1, 0)).to.equal(false) -- a beginner holds #2692's pass instead
+				expect(NightPass.holds(5, 1, 9, false, 0)).to.equal(true) -- any session, the switch off
+				expect(NightPass.holds(5, 1, 9, false, 1)).to.equal(false)
+				expect(NightPass.holds(5, 1, 9, false)).to.equal(false) -- not asked: as before
+			end
+		)
+
+		it("reads a save's bowl cats apart from cats caught by hand (#3659)", function()
+			local profile: any = ProfileSchema.template(1700000000)
+			profile.tutorialStep = 5
+			profile.stats.sessions = 3
+			profile.stats.catsCaught = 1
+			profile.stats.baitsTamed = 1 -- the one cat is the bait bowl's
+			expect(NightPass.learnerOf(profile)).to.equal(true)
+			expect(NightPass.of(profile, false)).to.equal(true)
+			expect(NightPass.nightCatOf(profile, false)).to.equal(true)
+			expect(NightPass.firstOf(profile, false)).to.equal(false)
+			profile.stats.catsCaught = 2 -- the second was caught by hand and checked in
+			expect(NightPass.learnerOf(profile)).to.equal(false)
+			expect(NightPass.of(profile, false)).to.equal(false)
+			expect(NightPass.nightCatOf(profile, false)).to.equal(false)
 		end)
 
 		it("names the switch and the two analytics markers", function()

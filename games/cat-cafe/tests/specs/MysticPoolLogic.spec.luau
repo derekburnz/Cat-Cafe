@@ -215,18 +215,12 @@ return function()
 				expect(MysticPoolLogic.stamp({ tokens = 2, freeLeft = 0, held = 0 }, 20, nil)).never.to.equal(
 					base
 				)
-				expect(
-					MysticPoolLogic.stamp(
-						{
-							tokens = 1,
-							freeLeft = 0,
-							held = 1,
-							pending = { uid = "a", id = last.id },
-						},
-						20,
-						nil
-					)
-				).never.to.equal(base)
+				expect(MysticPoolLogic.stamp({
+					tokens = 1,
+					freeLeft = 0,
+					held = 1,
+					pending = { uid = "a", id = last.id },
+				}, 20, nil)).never.to.equal(base)
 				expect(MysticPoolLogic.stamp(nil, 20, nil)).to.equal("shut")
 			end
 		)
@@ -266,15 +260,19 @@ return function()
 		end)
 
 		it("says what waits: free tokens at the station first, then starter rolls", function()
-			local tokens: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 2 }, "park")
+			local tokens: any =
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 2 }, "park")
 			expect(tokens.state).to.equal("2 free tokens")
 			expect(tokens.ready).to.equal(true)
-			local one: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 1 }, "park")
+			local one: any =
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 1 }, "park")
 			expect(one.state).to.equal("1 free token")
-			local rolls: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 0 }, "park")
+			local rolls: any =
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 5, held = 0 }, "park")
 			expect(rolls.state).to.equal("5 free rolls")
 			expect(rolls.ready).to.equal(false)
-			local last: any = MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 1, held = 0 }, "park")
+			local last: any =
+				MysticPoolLogic.pickerLine({ tokens = 0, freeLeft = 1, held = 0 }, "park")
 			expect(last.state).to.equal("1 free roll")
 			local bare: any = MysticPoolLogic.pickerLine({}, "park")
 			expect(bare.state).to.equal("Give a cat a trait")

@@ -523,6 +523,10 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 		return nil, nil
 	end
 	if extraId == CampExtras.YARD_SALE then
+		-- #3615: a lucky pick is pressed on the card, where its board rolls; walking up never spends it
+		if view.pick ~= nil then
+			return nil, nil
+		end
 		local crate = CampExtras.nextYardCrate(view)
 		if crate ~= nil and crate.price == 0 then
 			return "yard", crate.crateId

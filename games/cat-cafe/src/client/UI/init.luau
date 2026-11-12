@@ -236,6 +236,8 @@ UI.events = {
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
+	yardSalePick = Signal.new(), -- ()   #3615: Lucky pick on the Yard Sale card: forward as YardSalePick
+	yardSaleLanded = Signal.new(), -- (crateId)   #3615: the card's board landed on the picked crate
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
@@ -6768,6 +6770,25 @@ do
 			buy = function(crateId: string)
 				UI.events.buyYardSale:Fire(crateId)
 			end,
+			pick = function()
+				UI.events.yardSalePick:Fire()
+			end,
+			landed = function(crateId: string)
+				if toasts then
+					local name = crateId
+					local crates: { Types.CrateDef } = if currentCatalog ~= nil
+							and currentCatalog.crates ~= nil
+						then currentCatalog.crates
+						else {}
+					for _, crate in crates do
+						if crate.id == crateId then
+							name = crate.name
+						end
+					end
+					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
+				end
+				UI.events.yardSaleLanded:Fire(crateId)
+			end,
 			close = function()
 				if modalView:current() == "YardSale" then
 					modalView:close()
@@ -6869,6 +6890,14 @@ do
 				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
 				prize
 			)
+		end
+	end
+
+	-- #3615: YardSalePicked: the row of the player's lucky pick rows the server landed on (already banked).
+	function UI.campExtras.picked(index: number, crateId: string?)
+		local yard = camp.yard
+		if yard and type(index) == "number" then
+			yard:picked(index, crateId)
 		end
 	end
 

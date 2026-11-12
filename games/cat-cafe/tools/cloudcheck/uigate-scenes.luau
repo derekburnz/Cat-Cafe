@@ -288,6 +288,23 @@ end
 -- A scene that needs the player at `tier` whatever the scenes before it left (the Cannon picker locks an area the
 -- tier has not opened, and several earlier scenes end on Tier 1 or 2): sets it, and Scenes.close puts back the tier
 -- the scene found (#3082: CannonExtras failed in CI once main's scene order moved).
+-- #3615: camp extras with the Yard Sale's lucky pick rows for `tier` (shared/YardPick); `taken` puts the next pick
+-- 1 h 20 m off.
+local function yardPickExtras(tier: number, taken: boolean)
+	local extras = campExtras(0, taken)
+	extras.yardSale.pick = UIShim.require("ReplicatedStorage.Shared.YardPick").rows(tier)
+	extras.yardSale.held = if taken then 0 else 1
+	extras.yardSale.nextAt = if taken then workspace:GetServerTimeNow() + 80 * 60 else nil
+	return extras
+end
+
+local function yardPickCard()
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local card = modals and modals:FindFirstChild("YardSale", true)
+	assert(card and card.Visible, "uigate: the Yard Sale card is not up (#3615)")
+	return card
+end
+
 local function atTier(tier: number)
 	if Scenes._rankTier == nil then
 		Scenes._rankTier = (UI.getState() :: any).tier
@@ -7871,6 +7888,72 @@ local SCENES = {
 		extras.yardSale.held = 1
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
+	end },
+	-- #3615: the Yard Sale card as the lucky pick (the `yardSaleRoll` switch): the board with one row per crate a
+	-- Tier 4 player can win, chances to one decimal, and the Lucky pick button
+	{ "YardSalePick", function()
+		local extras = yardPickExtras(4, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.3)
+		local card = yardPickCard()
+		local pick = card:FindFirstChild("Pick", true)
+		assert(pick and pick.Visible, "uigate: the lucky pick is not on the Yard Sale card (#3615)")
+		local crates = card:FindFirstChild("Crates", true)
+		assert(crates and not crates.Visible, "uigate: the free crate card shows beside the lucky pick (#3615)")
+		local rows, golden = 0, 0
+		for _, piece in pick:GetDescendants() do
+			if piece:GetAttribute("RowId") ~= nil then
+				rows += 1
+				local chance = piece:FindFirstChild("Chance")
+				assert(chance and string.match(chance.Text, "^%d+%.%d%%$"), "uigate: a lucky pick row has no chance to one decimal (#3615)")
+				if string.find(piece:GetAttribute("RowId"), "golden", 1, true) then
+					golden += 1
+				end
+			end
+		end
+		assert(rows == #extras.yardSale.pick and golden >= 1, "uigate: the lucky pick board has " .. rows .. " rows (#3615)")
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local words = string.lower(piece.Text)
+				assert(
+					not string.find(words, "gamble", 1, true) and not string.find(words, "bet ", 1, true) and not string.find(words, "spin", 1, true),
+					"uigate: a word the lucky pick must not use: " .. piece.Text
+				)
+			end
+		end
+	end },
+	-- #3615: the pick taken: rows dimmed, "Next pick in 1 h 20 m", the button off
+	{ "YardSalePickWait", function()
+		local extras = yardPickExtras(4, true)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.3)
+		local line = yardPickCard():FindFirstChild("Line", true)
+		assert(line and string.find(line.Text, "Next pick in", 1, true), "uigate: no wait on the taken lucky pick (#3615)")
+	end },
+	-- #3615: YardSalePicked(3): the light rolls down the board and stops on row 3, the only lit row
+	{ "YardSalePickLanded", function()
+		local extras = yardPickExtras(4, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.3)
+		UI.campExtras.picked(3)
+		local total = 0
+		for _, step in UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic").rollSteps(#extras.yardSale.pick, 3) do
+			total += step.rest
+		end
+		task.wait(total + 0.5)
+		local lit = {}
+		for _, piece in yardPickCard():GetDescendants() do
+			if piece:GetAttribute("RowId") ~= nil then
+				local stroke = piece:FindFirstChildWhichIsA("UIStroke")
+				if stroke and stroke.Thickness == 3 then
+					table.insert(lit, piece.Name)
+				end
+			end
+		end
+		assert(#lit == 1 and lit[1] == "Row3", "uigate: the pick's light is on " .. table.concat(lit, ",") .. ", not Row3 (#3615)")
 	end },
 	-- #1200: the Garden Nursery at Tier 3: owned pieces read Owned, the rest Buy with the price, Tier 4 and 5 pieces
 	-- "Opens at Tier 4"; then its Fences tab

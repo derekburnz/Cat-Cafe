@@ -51,6 +51,20 @@
 -- - `rareCatsTab` (#3053): the chat's own "Rare Cats" tab with every Mythical or better line from every server
 --   (shared/RareCatsTab). It starts OFF (OFF_BY_DEFAULT): off, no channel is made and the chat has no tab bar. Derek
 --   said on 2026-11-10 he did not want a tab of our own, so it goes on only after he has seen the pictures.
+-- - `afkCafe` (#3573): resting in your own cafe pays the cats' cafe pay double (shared/AfkCafe). It starts OFF
+--   (OFF_BY_DEFAULT); off, nobody rests, a rest under way ends at the next check and the lines do not show.
+-- - `autoRejoin` (#3602): a player resting in their cafe with no input for Config.AutoRejoinSeconds is teleported back into
+--   the game before Roblox's 20 minute idle disconnect (shared/AfkCafe). It starts OFF (OFF_BY_DEFAULT) and does
+--   nothing while `afkCafe` is off.
+-- - `binRoll` (#3608): the Rummage Bin rolls its prize before the bar, from Config.BinRollTable, and keeps it for the
+--   player until they win it (shared/RummageBin); the board, the roll and the pad come with it. It starts OFF
+--   (OFF_BY_DEFAULT); off, the bin is as it was.
+-- - `yardSaleRoll` (#3609): the Yard Sale's free crate becomes a free lucky pick every Config.YardSaleRollHours that
+--   lands on a crate, golden crates included (shared/YardPick). It starts OFF (OFF_BY_DEFAULT); off, the Yard Sale
+--   is as it was.
+-- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
+--   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
+--   intro plays itself.
 -- - `newKindTag` (#3529): the "NEW" tag over strays of kinds the player has never owned, the catch card's "New kind!"
 --   line and the five cats pointer (shared/NewKind). It starts OFF (OFF_BY_DEFAULT) until review and QA pass. Read by
 --   the client (the tag, the line, the pointer) and by Telemetry (the pointer's two step_time events).
@@ -85,6 +99,11 @@ LiveFlags.KEYS = {
 	"secretCats",
 	"luckyCharm",
 	"rareCatsTab",
+	"afkCafe",
+	"autoRejoin",
+	"binRoll",
+	"yardSaleRoll",
+	"introSplit",
 	"newKindTag",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -100,6 +119,11 @@ LiveFlags.OFF_BY_DEFAULT = {
 	secretCats = true,
 	luckyCharm = true,
 	rareCatsTab = true,
+	afkCafe = true,
+	autoRejoin = true,
+	binRoll = true,
+	yardSaleRoll = true,
+	introSplit = true,
 	newKindTag = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

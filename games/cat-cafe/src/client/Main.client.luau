@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
+local AfkController = require(script.Parent.Controllers.AfkController)
 local Audio = require(script.Parent.Audio)
 local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
@@ -51,6 +52,7 @@ GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on 
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
+AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines

@@ -41,10 +41,12 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NewKind = require(ReplicatedStorage.Shared.NewKind)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
@@ -86,6 +88,16 @@ export type CustomEvent =
 	-- #2798: a Cozy Cafe bag collected, value today's bags so far; what it held ("coins", "coins+lure", "coins+fish",
 	-- "coins+lure+fish")
 	| "cozy_bag"
+	-- #3573 (shared/AfkCafe): a rest in the player's own cafe starts (value 1; field: "doubled" or "party"), ends
+	-- (value: its seconds) and what the cafe paid during it (value: coins)
+	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
+	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
+	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
+	| "afk_start"
+	| "afk_end"
+	| "afk_pay"
+	| "afk_rejoin" -- #3602: a resting player was sent back into the game ahead of the idle disconnect (value 1)
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
 	-- its seconds at the cafe)
@@ -745,6 +757,38 @@ function Telemetry.onStep(listener: (player: Player, name: string) -> ())
 	table.insert(stepListeners, listener)
 end
 
+-- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
+local function grouped(profile: Profile, fields: { string }): { string }
+	return IntroSplit.fields(profile.telemetry.introGroup, fields)
+end
+
+-- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
+-- and intro_group is logged. Checked once per player per session, so the switch going on mid session moves nobody.
+-- Called by onLoaded here and by CafeService ahead of a sync, whichever comes first.
+-- The session's answer to "does the intro play itself" is fixed here too (Review-QA on #3667): a later switch on
+-- must not start the scene mid play for a save grouped earlier.
+local introChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+function Telemetry.introJoin(player: Player, profile: Profile)
+	if introChecked[player] ~= nil then
+		return
+	end
+	local on = LiveFlagService.on(IntroSplit.FLAG)
+	local state = profile.telemetry
+	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
+	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
+	if joins then
+		state.introGroup = group
+		Telemetry.custom(player, IntroSplit.EVENT :: any, 1, { group :: string })
+	end
+end
+
+-- #3666: whether the intro plays itself for this player this session (IntroSplit.plays as the session began).
+function Telemetry.introPlays(player: Player, profile: Profile): boolean
+	Telemetry.introJoin(player, profile)
+	return introChecked[player] == true
+end
+
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -753,7 +797,7 @@ function Telemetry.onboarding(
 )
 	for _, name in Onboarding.reach(profile.telemetry, stepName) do
 		local step = Onboarding.index(name)
-		local fields = if name == stepName and values ~= nil then values else {}
+		local fields = grouped(profile, if name == stepName and values ~= nil then values else {})
 		remember(player, "onboarding", name, step, fields)
 		send(player, "onboarding " .. name, function()
 			AnalyticsService:LogFunnelStepEvent(
@@ -1053,7 +1097,8 @@ local function logFirstHour(player: Player, profile: Profile)
 	for _, step in Onboarding.firstHourDue(state.firstHourV3Step, PlayTime.seconds(player, profile)) do
 		state.firstHourV3Step = step
 		local name = Onboarding.FIRST_HOUR_STEPS[step]
-		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, {})
+		local fields = grouped(profile, {}) -- #3666
+		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, fields)
 		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()
 			AnalyticsService:LogFunnelStepEvent(
 				player,
@@ -1061,7 +1106,7 @@ local function logFirstHour(player: Player, profile: Profile)
 				tostring(player.UserId),
 				step,
 				name,
-				nil
+				customFields(fields)
 			)
 		end)
 	end
@@ -2021,6 +2066,7 @@ local function startMarkers(player: Player, session: Session)
 end
 
 local function onLoaded(player: Player, profile: Profile)
+	Telemetry.introJoin(player, profile) -- #3666: before any funnel step of this session
 	local now = os.time()
 	local firstSession = profile.stats.sessions <= 1
 	local session: Session = {
@@ -2095,6 +2141,20 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	-- #3661: this session's ping, once, after the join has settled
+	task.delay(NetPing.SAMPLE_SECONDS, function()
+		if sessions[player] ~= session or player.Parent == nil then
+			return
+		end
+		local ok, seconds = pcall(function()
+			return player:GetNetworkPing()
+		end)
+		if not ok or type(seconds) ~= "number" or seconds ~= seconds then
+			return -- no reading: logged as nothing, so a failure never reads as a slow connection
+		end
+		local ms = NetPing.ms(seconds)
+		Telemetry.custom(player, "net_ping", ms, { session.device or "unknown", NetPing.band(ms) })
+	end)
 	if profile.stats.sessions > 1 then
 		-- #2916: the welcome back card's next goals (CafeService sends the same pick)
 		Telemetry.goalsShown(player, ReturnGoals.pick(profile, os.time()), "join")

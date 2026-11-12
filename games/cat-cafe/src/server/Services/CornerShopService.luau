@@ -241,7 +241,13 @@ end
 
 function CornerShopService.start()
 	Net.on("BuyCornerShop", onBuy)
-	Net.on("BuyCornerShopAll", onBuyAll) -- #2593
+	-- #2593. #3646: a Buy all dropped by the rate limit is answered with the stock, which ends the client's wait
+	Net.on("BuyCornerShopAll", onBuyAll, function(player: Player)
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			send(player, profile)
+		end
+	end)
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
 		send(player, profile)
 	end)

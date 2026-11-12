@@ -9,9 +9,9 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2 over the
                                       sign), GlowAnchor (under the parasol, for VFX's ready glow, #1328), Steam.
   CatCafe_Camp_Neighbourhood_YardSaleStall (#1154, section 3) a folding table with a gingham cloth under a little
-                                      pastel blue and white striped awning on four posts; on it cardboard boxes, the
-                                      middle one holding the free zone crate with a FREE tag, a lamp, books, a teapot
-                                      and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board hanging
+                                      pastel blue and white striped awning on four posts; on it the crates the lucky pick
+                                      lands on (#3615: a Classic crate, a golden one on a riser with a FREE card, the
+                                      Neighbourhood parcel) and a lamp; boxes stacked on the rug; a hand-painted YARD SALE board hanging
                                       on two chains from an arm on a post, the child Model _Sign_Swing pivoted at its
                                       ring, which Effects/Motion swings (#1800). Attachments: PromptAnchor (the table's
                                       front, 1.5 up), BangAnchor (2 over the arm), GlowAnchor (under the awning).
@@ -260,6 +260,38 @@ def _cardboard_box(b, x, y, z, w, h, d, open_flaps=True):
         b.box((x + w / 2 - 0.1, y + h + 0.15, z), (0.3, 0.04, d * 0.7), "cardboard", rot=_rz(40))
 
 
+def _mini_crate(b, x, y, z, kind):
+    """A small crate on the table (#3615), 0.96 wide, 0.76 deep and about 0.75 tall, front -Z: "classic" (cream
+    boards in a mint frame, a blush ribbon and bow), "gold" (the same in the metal golds) or "parcel" (the
+    Neighbourhood Crate: cardboard, a white string and bow, a label)."""
+    w, d, h = 0.48, 0.38, 0.62
+    if kind == "parcel":
+        body, rim, lid, tie = "cardboard", "cardboard", "treat_tan", "offwhite"
+    elif kind == "gold":
+        body, rim, lid, tie = "gold_light", "gold_mid", "gold_light", "blush"
+    else:
+        body, rim, lid, tie = "cream", "mint", "cream", "blush"
+    b.span((x - w + 0.03, y, z - d + 0.03), (x + w - 0.03, y + h, z + d - 0.03), body)
+    if kind != "parcel":
+        for sx in (-1, 1):
+            for sz in (-1, 1):                                                                  # corner posts
+                b.span((x + min(sx * w, sx * (w - 0.08)), y, z + min(sz * d, sz * (d - 0.08))),
+                       (x + max(sx * w, sx * (w - 0.08)), y + h, z + max(sz * d, sz * (d - 0.08))), rim)
+    b.span((x - w - 0.02, y + h, z - d - 0.02), (x + w + 0.02, y + h + 0.06, z + d + 0.02), rim)   # lid
+    b.span((x - w + 0.04, y + h + 0.06, z - d + 0.04), (x + w - 0.04, y + h + 0.1, z + d - 0.04), lid)
+    t = 0.03 if kind == "parcel" else 0.08                                                      # ribbon or string
+    b.span((x - t, y, z - d - 0.035), (x + t, y + h + 0.115, z + d + 0.035), tie)
+    b.span((x - w - 0.035, y, z - t), (x + w + 0.035, y + h + 0.117, z + t), tie)
+    for sx in (-1, 1):                                                                          # the bow
+        b.box((x + sx * 0.12, y + h + 0.19, z), (0.2, 0.12, 0.07), tie, rot=_rz(sx * 28))
+    b.span((x - 0.05, y + h + 0.11, z - 0.05), (x + 0.05, y + h + 0.2, z + 0.05), tie)
+    if kind == "parcel":
+        b.span((x - 0.4, y + 0.2, z - d - 0.045), (x - 0.12, y + 0.42, z - d + 0.03), "offwhite")   # the label
+    else:
+        b.span((x - 0.4, y + 0.16, z - d - 0.045), (x - 0.18, y + 0.38, z - d + 0.03), "offwhite")  # the tag
+        b.span((x - 0.34, y + 0.22, z - d - 0.055), (x - 0.24, y + 0.32, z - d - 0.045), "blush")
+
+
 def _rz(deg):
     from plot import rot_z
     return rot_z(deg)
@@ -283,26 +315,19 @@ def _yard_table(b):
         cx = x0 + 0.35 + k * (x1 - x0 - 0.7) / 10
         b.span((cx - 0.09, h - 0.45, z0 - 0.07), (cx + 0.09, h + 0.1, z0 - 0.05), "offwhite")
     top = h + 0.13
-    # the boxes: the middle one holds the free zone crate, with a FREE tag on its front
-    _cardboard_box(b, -1.5, top, 0.0, 0.9, 0.6, 0.7)
-    b.span((-1.85, top + 0.6, -0.2), (-1.15, top + 0.7, 0.2), "fur_pewter")                    # odds and ends
-    _cardboard_box(b, 0.2, top, 0.0, 1.0, 0.6, 0.75)
-    b.span((-0.18, top + 0.6, -0.27), (0.58, top + 0.98, 0.27), "rarity_rare")                 # the crate in it
-    for dx in (-0.12, 0.32):
-        b.span((0.2 + dx - 0.04, top + 0.6, -0.285), (0.2 + dx + 0.04, top + 0.99, 0.285), "dark_wood")   # bands
-    b.span((-0.18, top + 0.1, -0.41), (0.58, top + 0.48, -0.375), "offwhite")                  # FREE tag
-    _label_front(b, "FREE", 0.2, top + 0.17, -0.405, 0.045, 0.02, "bowl_red")
-    # a lamp, books, a teapot and a cash tin
-    b.cyl((1.75, top + 0.04, 0.35), 0.18, 0.08, "brass", segments=10)
-    b.span((1.72, top + 0.08, 0.32), (1.78, top + 0.6, 0.38), "brass")
-    b.cyl((1.75, top + 0.75, 0.35), 0.3, 0.35, "pastel_butter", segments=10)
-    for k, sw in enumerate(("shirt_blue", "bowl_red", "mint")):
-        b.span((-2.35 + 0.03 * k, top + 0.12 * k, 0.15), (-1.95 - 0.02 * k, top + 0.12 * (k + 1), 0.6), sw)
-    b.ball((1.5, top + 0.18, -0.3), 0.2, "pastel_lilac", scale=(1, 0.85, 1))                    # teapot
-    b.span((1.67, top + 0.2, -0.33), (1.83, top + 0.26, -0.27), "pastel_lilac")
-    b.span((1.25, top + 0.12, -0.32), (1.33, top + 0.3, -0.28), "pastel_lilac")
-    b.span((1.45, top + 0.33, -0.35), (1.55, top + 0.4, -0.25), "offwhite")
-    b.span((0.95, top, 0.25), (1.3, top + 0.18, 0.55), "metal")                                 # cash tin
+    # the crates the lucky pick can land on (#3615): a Classic crate, a golden one on a riser in the middle and the
+    # Neighbourhood parcel, each a small copy of its crates.py design; a FREE card stands in front of the riser
+    _mini_crate(b, -1.55, top, 0.05, "classic")
+    b.span((-0.55, top, -0.4), (0.55, top + 0.22, 0.5), "caramel_wood")                         # the riser
+    b.span((-0.6, top + 0.22, -0.45), (0.6, top + 0.27, 0.55), "blush")
+    _mini_crate(b, 0.0, top + 0.27, 0.05, "gold")
+    b.span((-0.38, top, -0.62), (0.38, top + 0.38, -0.585), "offwhite")                        # FREE card
+    _label_front(b, "FREE", 0.0, top + 0.07, -0.615, 0.045, 0.02, "bowl_red")
+    _mini_crate(b, 1.5, top, 0.05, "parcel")
+    # a lamp at the +X end
+    b.cyl((2.2, top + 0.04, 0.4), 0.16, 0.08, "brass", segments=10)
+    b.span((2.17, top + 0.08, 0.37), (2.23, top + 0.6, 0.43), "brass")
+    b.cyl((2.2, top + 0.75, 0.4), 0.26, 0.35, "pastel_butter", segments=10)
     # a stack of boxes on the rug at the -X end, under the awning
     _cardboard_box(b, x0 - 0.05, 0.06, 1.0, 0.8, 0.55, 0.6, open_flaps=False)
     _cardboard_box(b, x0 - 0.05, 0.63, 1.0, 0.7, 0.45, 0.55, open_flaps=False)
@@ -804,7 +829,7 @@ def _spa_palm(b, x, z, lean):
     b.ball(top, 0.55, "fur_brown")
     for k in range(8):
         a = 2 * math.pi * k / 8 + 0.3
-        for i, (r, dy, pitch) in enumerate(((0.9, 0.15, 12), (2.0, -0.25, -18), (3.0, -1.0, -40))):
+        for i, (r, dy, pitch) in enumerate(((0.9, 0.15, 12), (2.03, 0.09, -18), (3.03, -0.48, -40))):
             c = (top[0] + r * math.cos(a), top[1] + dy, top[2] + r * math.sin(a))
             R = Matrix.Rotation(-a, 3, "Y") @ Matrix.Rotation(math.radians(pitch), 3, "Z")
             b.box(c, (1.2, 0.1, 0.7 - 0.15 * i), ("leaf_green", "leaf_dark")[(k + i) % 2], rot=R)

@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local AssetRegistry = require(script.Parent.AssetRegistry)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
+local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
@@ -1956,6 +1957,7 @@ end
 -- and `_Empty` (lid shut): neither collides (the bin under them does) and the empty one starts hidden. Without the
 -- art a plain block stands in. Atomic, as the camp extras.
 local BIN_ART = "CatCafe_Camp_Alley_RummageBin"
+local BIN_RING = Color3.fromRGB(120, 230, 255) -- the cyan of the bin's sparkle (Model-Agent, #3613)
 
 local function buildRummageBin(parent: Instance)
 	local x, y, z, turn = Layout.rummageBinAt()
@@ -2021,6 +2023,16 @@ local function buildRummageBin(parent: Instance)
 	-- the chances, under the pill before the press (monetization-policy section 2)
 	prompt:SetAttribute("Note", RummageBin.oddsLine())
 	prompt.Parent = anchor
+	-- #3608: the pad in front of the bin, a ring as the stations have. Standing on it BinPadDwellSeconds starts a
+	-- rummage (BinController sends the prompt's own remote); each client shows it only while `binRoll` is on.
+	WalkUpCircles.frontFit(model, BIN_RING, parent, nil, Config.BinPadRadius)
+	-- built dark, so it never shows for a moment as the camp streams in with the switch off
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local pad = if link ~= nil and link:IsA("ObjectValue") then (link :: ObjectValue).Value else nil
+	local glow = if pad ~= nil then pad:FindFirstChildWhichIsA("SurfaceGui") :: SurfaceGui? else nil
+	if glow ~= nil then
+		glow.Enabled = false
+	end
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at
@@ -2787,7 +2799,7 @@ local function buildCannon(id: string, parent: Instance): Model
 	prompt.ActionText = "Hop in"
 	prompt.ObjectText = "Cat Cannon"
 	prompt.HoldDuration = 0 -- #2326: one press opens it
-	prompt.MaxActivationDistance = W.CannonRangeStuds
+	prompt.MaxActivationDistance = Cannon.range(id) -- #3671: the Town Square's is wider
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	local anchorPoint = model:FindFirstChild("PromptAnchor", true)
@@ -2805,7 +2817,8 @@ local function buildCannon(id: string, parent: Instance): Model
 	end
 	-- all the way round; a camp's no wider than its paving
 	local cap = if id == "town" then nil else WalkUp.CAMP_RING_MAX
-	WalkUpCircles.around(model, RING_CANNON, W.CannonRangeStuds, parent, cap)
+	-- #3671: the Town Square's ring fills its range, so it is a bit bigger than the cannon's footprint asks for
+	WalkUpCircles.around(model, RING_CANNON, Cannon.range(id), parent, cap, id == "town")
 	return model
 end
 

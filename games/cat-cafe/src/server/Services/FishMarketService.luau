@@ -30,6 +30,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
+local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local Net = require(script.Parent.Net)
 local RareMomentService = require(script.Parent.RareMomentService)
 local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
@@ -56,6 +57,7 @@ local PERK_NAMES: { [string]: string } = {
 	big_bowl = "Big Bowl",
 	extra_decor_spot = "Extra Decor Spot",
 	swift_paws = "Swift Paws", -- #3063
+	[LuckyCharm.ID] = LuckyCharm.NAME, -- #3298
 }
 
 -- Saves a count, leaving a 0 out of the map (crates and crateLuck keep only what is there).
@@ -97,7 +99,13 @@ local function open(
 	-- roll first (pure), then pay, so an error in the roll never takes the crate or the fish (review N168)
 	local luck = profile.crateLuck[crate.area] or 0
 	-- F88: the player's Luck now multiplies a plain open's Epic and rarer chances (not the twentieth or golden ones)
-	local playerLuck = Luck.of(profile, os.time(), ClockService.luckyDay(), EventService.luck())
+	local playerLuck = Luck.of(
+		profile,
+		os.time(),
+		ClockService.luckyDay(),
+		EventService.luck(),
+		LiveFlagService.on(LuckyCharm.FLAG) -- #3298
+	)
 	local decorId, lucky =
 		Crates.roll(crate, luck, random:NextNumber(), random:NextNumber(), playerLuck)
 	local def = Catalog.getDecor(decorId) :: Types.DecorDef
@@ -409,6 +417,11 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 		Net.toast(player, "Swift Paws is resting for now", "warn")
 		return
 	end
+	if itemId == LuckyCharm.ID and not LiveFlagService.on(LuckyCharm.FLAG) then
+		-- #3298: the live switch is off, so the row is hidden; nothing is spent
+		Net.toast(player, "The Lucky Charm is not here yet", "warn")
+		return
+	end
 	if not nearMarket(player) then
 		Net.toast(player, "Walk to the Golden Fish Market first", "warn")
 		return
@@ -454,6 +467,11 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 					"Swift Paws level %d: +%s speed, yours forever",
 					level,
 					tostring(SwiftPaws.speedAt(level))
+				)
+				elseif itemId == LuckyCharm.ID then string.format(
+					"Lucky Charm level %d: +%s Luck, yours forever",
+					level,
+					tostring(LuckyCharm.luckAt(level))
 				)
 				else string.format(
 					"%s level %d, yours forever",

@@ -70,6 +70,7 @@ export type DayView = {
 
 local NAMES: { [string]: string } = {
 	statue = "Lucky Cat statue",
+	charm = "Lucky Charm", -- #3298: the Golden Fish Market perk
 	potion = "Lucky Potion",
 	lucky_day = "Lucky Day",
 	event = "Cafe Event", -- #2539: a Cafe Event's luck; rows() takes the running event's title ("Cafe Party") over it

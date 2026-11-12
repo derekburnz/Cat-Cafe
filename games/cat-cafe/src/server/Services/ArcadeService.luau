@@ -446,15 +446,10 @@ local function onStart(player: Player)
 	-- #3378: a refused Start, counted by its reason
 	local function blocked(closed: boolean, loaded: boolean, running: boolean, busyNow: boolean)
 		if not owner then
-			Telemetry.custom(
-				player,
-				"arcade_blocked",
-				1,
-				{
-					ArcadeFunnel.blockedReason(closed, loaded, running, busyNow),
-					ArcadeFunnel.GAME_CIRCLE,
-				}
-			)
+			Telemetry.custom(player, "arcade_blocked", 1, {
+				ArcadeFunnel.blockedReason(closed, loaded, running, busyNow),
+				ArcadeFunnel.GAME_CIRCLE,
+			})
 		end
 	end
 	-- #3296: `circleStreak` off vaults this game (Mouse Dash is the arcade's game then); a game running finishes

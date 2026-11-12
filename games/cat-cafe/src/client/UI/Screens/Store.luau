@@ -21,6 +21,9 @@
 -- Roblox says it was bought.
 
 local Button = require(script.Parent.Parent.Components.Button)
+local Config = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+) :: any
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -47,6 +50,7 @@ export type Callbacks = {
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
+local SALE_ROOM = 24 -- #3572: a tile's Sale badge line above its button (the badge is 20 px tall)
 
 export type Store = {
 	frame: Frame,
@@ -570,7 +574,15 @@ function Store._place(self: any, entry: any)
 		entry.perk.Position = UDim2.fromOffset(CARD_PAD, top)
 		local lift = if entry.perk.Visible then PERK_H + 4 else 0 -- #2147: the chip leads the words
 		entry.effect.Position = UDim2.fromOffset(CARD_PAD, top + lift)
-		entry.effect.Size = UDim2.new(1, -2 * CARD_PAD, 1, -(top + lift + 6 + action + CARD_PAD))
+		-- #3572: a tile's Sale badge sits on a line of its own just above the button (the old price over the new),
+		-- so it never covers the name; the words give it the room
+		local saleRoom = if entry.saleLow then SALE_ROOM else 0
+		entry.effect.Size =
+			UDim2.new(1, -2 * CARD_PAD, 1, -(top + lift + 6 + saleRoom + action + CARD_PAD))
+		entry.badge.AnchorPoint = if entry.saleLow then Vector2.new(0, 1) else Vector2.new(1, 0)
+		entry.badge.Position = if entry.saleLow
+			then UDim2.new(0, CARD_PAD, 1, -(CARD_PAD + action + 6))
+			else UDim2.new(1, -6, 0, 6)
 	end
 end
 
@@ -646,9 +658,20 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.button.instance.Visible = not row.owned
 	entry.owned.Visible = row.owned
 	entry.dim.Visible = row.owned
-	local badge = StoreLogic.badge(row, self._prices, self._ownedIds)
+	-- one badge at most: #3572's Sale (red, with the true old price struck through) before Best Value
+	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
+	local badge = if was
+		then StoreLogic.saleBadge(was)
+		else StoreLogic.badge(row, self._prices, self._ownedIds)
 	entry.badge.Visible = badge ~= nil
+	entry.badge.RichText = was ~= nil
+	entry.badge.BackgroundColor3 = if was then Theme.colors.redDark else PAL.good
 	entry.badge.Text = badge or ""
+	local low = was ~= nil and entry.look ~= "hero"
+	if (entry.saleLow == true) ~= low then
+		entry.saleLow = low
+		self:_place(entry)
+	end
 end
 
 -- Sizes the hero, the picks and the grid's cells to the page (design px; the window's UIScale shrinks it all).
@@ -807,7 +830,7 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		button.instance.Visible = visibleTabs[id] == true
 	end
 	-- Featured
-	local featured = StoreLogic.featured(rows)
+	local featured = StoreLogic.featured(rows, prices) -- #3562: off sale cards never lead
 	local hero = self._cards.hero or self:_makeCard("hero", "hero", self._featured, 0)
 	self:_fill(hero, featured.hero)
 	for index = 1, StoreLogic.PICKS do

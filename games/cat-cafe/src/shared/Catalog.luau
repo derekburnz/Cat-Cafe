@@ -3161,6 +3161,25 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, crates = { classic_crate = 1 } },
 	},
+	-- #3576 (Derek 2026-11-12: "add codes for 2000visits,10likes and update2 when it's out"): two thank-you codes, on
+	-- as soon as a server has them, and the second update's code, on by the clock at the update (Thursday 2026-11-12
+	-- 22:00 UTC; unknown before it). Prizes are Design-Agent's, beside `update1` and `500visits` in size; no end.
+	["2000visits"] = {
+		id = "2000visits",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, crates = { classic_crate = 2 } },
+	},
+	["10likes"] = {
+		id = "10likes",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	update2 = {
+		id = "update2",
+		active = true,
+		startsAt = 1794520800, -- 2026-11-12 22:00 UTC
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { big_tip_potion = 2 } },
+	},
 	group = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set

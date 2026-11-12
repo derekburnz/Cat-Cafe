@@ -303,8 +303,7 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 	self._entries[cat] = entry
 	local at = rootPosition()
 	local distance = if at ~= nil then (part.Position - at).Magnitude else NewKind.RANGE
-	billboard.Enabled =
-		NewKind.shows(self._on, self._busy, cat:GetAttribute("LockedBy"), distance)
+	billboard.Enabled = NewKind.shows(self._on, self._busy, cat:GetAttribute("LockedBy"), distance)
 	return entry
 end
 

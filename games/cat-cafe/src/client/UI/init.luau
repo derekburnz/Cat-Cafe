@@ -3715,6 +3715,7 @@ do
 			fleeingUntil = info.fleeingUntil,
 			retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
 			ownerTurnUntil = info.ownerTurnUntil,
+			newKind = info.newKind, -- #3529
 		}
 		if catch then
 			catch:show(activeInfo :: Types.CatchInfo)

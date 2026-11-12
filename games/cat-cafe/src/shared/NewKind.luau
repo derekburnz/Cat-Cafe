@@ -71,10 +71,10 @@ function NewKind.line(kinds: number, tier: number): string
 	)
 end
 
--- The goal card's title with `kinds` different cats owned.
-function NewKind.title(kinds: number): string
+-- The goal card's title with `kinds` different cats owned; `narrow` on the phone's narrower card.
+function NewKind.title(kinds: number, narrow: boolean?): string
 	return string.format(
-		"Catch new kinds of cat 🐾 %d/%d",
+		if narrow then "New kinds of cat 🐾 %d/%d" else "Catch new kinds of cat 🐾 %d/%d",
 		math.clamp(math.floor(kinds), 0, NewKind.KINDS),
 		NewKind.KINDS
 	)
@@ -91,7 +91,12 @@ export type Where = "none" | "stray" | "cannon" | "next"
 -- What the trail leads to for a player in wild area `area` (nil in town). Nothing at night. In town: the cannon.
 -- In an area: the nearest NEW stray there (`hasNew`), else the camp's cannon with NEXT_AREA when another area is
 -- open to them (`otherOpen`), else nothing until the next wave.
-function NewKind.where(area: string?, areasOpen: boolean, hasNew: boolean, otherOpen: boolean): Where
+function NewKind.where(
+	area: string?,
+	areasOpen: boolean,
+	hasNew: boolean,
+	otherOpen: boolean
+): Where
 	if not areasOpen then
 		return "none"
 	elseif area == nil then

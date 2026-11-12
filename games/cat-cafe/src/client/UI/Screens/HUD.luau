@@ -184,6 +184,7 @@ export type HUD = {
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
 local StuckGoal = require(Shared:WaitForChild("StuckGoal")) -- #2912: the goal card's "Free a stuck cat"
 
@@ -5241,6 +5242,12 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 					else { StuckGoal.NIGHT },
 				chip = StuckGoal.TITLE,
 			}
+		end
+		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
+		local newKind = if state ~= nil then state.newKindGoal else nil
+		if state ~= nil and type(newKind) == "number" and state.carrying == nil then
+			local title = NewKind.title(newKind, TOUCH)
+			return { title = title, lines = {}, chip = title }
 		end
 		return nil
 	end

@@ -45,6 +45,7 @@ local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local NewKind = require(ReplicatedStorage.Shared.NewKind)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
@@ -397,6 +398,7 @@ local REPORTS = {
 	"screen",
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
+	"new_kind_trail", -- #3529: the five cats trail showed or was followed (shared/NewKind.REPORTS)
 	"stray_call", -- #3378: the waiting stray's call played for this player; the value is the call's number (1 to 4)
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
@@ -1747,6 +1749,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if from ~= nil and session.introChoices < INTRO_CHOICES then
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
+		end
+	elseif name == "new_kind_trail" then
+		-- #3529: once a session each, as step_time, and only with the switch on
+		local step = if type(rawValue) == "string" then NewKind.REPORTS[rawValue] else nil
+		if
+			step ~= nil
+			and LiveFlagService.on(NewKind.FLAG)
+			and not session.nudges["new_kind:" .. step]
+		then
+			session.nudges["new_kind:" .. step] = true
+			Telemetry.stepTime(player, profile, step)
 		end
 	elseif name == "stray_call" then
 		local number = Guard.int(rawValue, 1, 4) -- #3378

@@ -7269,6 +7269,52 @@ local SCENES = {
 		UIShim.advance(0.1)
 		assert(title.Text == expected, "uigate: the stuck cat goal did not come back (#2912)")
 	end },
+	-- #3529: while five different cats is the goal the card reads "Catch new kinds of cat 3/5", and the catch card
+	-- says "New kind! 3/5 for Cozy Cafe" for a kind the player has never owned
+	{ "NewKindGoal", function()
+		local before: any = UI.getState()
+		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 5, money = 120, secondCat = false, stuckGoal = false, newKindGoal = 3 } :: any)
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		local expected = "Catch new kinds of cat 🐾 3/5"
+		if title.Text == "New kinds of cat 🐾 3/5" then
+			expected = title.Text -- the phone's narrower card
+		end
+		assert(title.Visible and title.Text == expected, "uigate: the new kinds goal reads " .. title.Text .. " (#3529)")
+		assert(title.TextFits, "uigate: the new kinds goal does not fit its card (#3529)")
+		-- the stuck cat goal wins while both are set
+		UI.update({ stuckGoal = true } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text == "Free a stuck cat 🐾", "uigate: the new kinds goal beat the stuck cat goal (#3529)")
+		UI.update({ stuckGoal = false } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text == expected, "uigate: the new kinds goal did not come back (#3529)")
+		UI.update({ newKindGoal = false } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text ~= expected, "uigate: the goal card still asks for new kinds after it (#3529)")
+		UI.update({ newKindGoal = 3 } :: any) -- back for the picture
+		UIShim.advance(0.1)
+		-- the catch card's line
+		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", newKind = "New kind! 3/5 for Cozy Cafe" } :: any)
+		UIShim.advance(0.3)
+		local prompt = UIShim.playerGui:FindFirstChild("Hint", true) :: TextLabel
+		local hint: TextLabel? = nil
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Name == "Hint" and piece.Text == "New kind! 3/5 for Cozy Cafe" then
+				hint = piece
+			end
+		end
+		assert(prompt ~= nil and hint ~= nil, "uigate: the catch card has no New kind line (#3529)")
+		assert((hint :: TextLabel).Visible and (hint :: TextLabel).TextFits, "uigate: the New kind line is hidden or does not fit (#3529)")
+		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare" } :: any)
+		UIShim.advance(0.1)
+		assert(not (hint :: TextLabel).Visible, "uigate: a repeat kind still shows the New kind line (#3529)")
+		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", newKind = "New kind! 3/5 for Cozy Cafe" } :: any)
+		UIShim.advance(0.3)
+	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
 	{ "TutorialDoneX", function()

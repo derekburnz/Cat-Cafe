@@ -16,6 +16,8 @@ return function()
 	local WINDOW = CornerShop.window(NOW)
 
 	-- The first window from `from` that stocks at least one of `itemId`.
+	CornerShop.setTopShelf(true) -- #3462: these specs read the whole cart; one below checks the shut shelf
+
 	local function windowWith(itemId: string, from: number): number?
 		for window = from, from + 5000 do
 			if CornerShop.amountOf(window, itemId) > 0 then
@@ -58,10 +60,6 @@ return function()
 				{ "lucky_potion", "lucky", "regular", 1500000 },
 				{ "big_tip_potion", "big_money", "regular", 150000000 },
 				{ "gold_rush_potion", "gold_rush", "regular", 3000000 },
-				-- #3462: the Tier 6 potions, in the billions
-				{ "big_lucky_potion", "big_lucky", "regular", 5000000000 },
-				{ "big_gold_rush_potion", "big_gold_rush", "regular", 8000000000 },
-				{ "mega_tip_potion", "mega_money", "regular", 20000000000 },
 				{ "small_cat_snack", "food", "small", 4000 },
 				{ "cat_snack", "food", "regular", 300000 },
 				{ "big_cat_snack", "food", "big", 40000000 },
@@ -70,7 +68,10 @@ return function()
 				{ "kibble", "bait", "small", (Catalog.getLure("kibble") :: any).cost },
 				{ "tuna", "bait", "regular", (Catalog.getLure("tuna") :: any).cost },
 				{ "salmon", "bait", "big", (Catalog.getLure("salmon") :: any).cost },
-				-- #3462: the cart's own two, in the billions, from Tier 6
+				-- #3462: the top shelf, last: the three Tier 6 potions and the cart's own two baits, in the billions
+				{ "big_lucky_potion", "big_lucky", "regular", 5000000000 },
+				{ "big_gold_rush_potion", "big_gold_rush", "regular", 8000000000 },
+				{ "mega_tip_potion", "mega_money", "regular", 20000000000 },
 				{ "honey_cream", "bait", "big", 1000000000 },
 				{ "comet_treat", "bait", "mega", 3000000000 },
 			}
@@ -186,20 +187,35 @@ return function()
 				local order = CornerShop.listOrder()
 				expect(#order).to.equal(#Catalog.cornerShop)
 				local seen: { [number]: boolean } = {}
+				local lastRegular = ""
 				for place, index in order do
 					expect(seen[index]).never.to.be.ok()
 					seen[index] = true
+					local row = Catalog.cornerShop[index]
+					if row.topShelf ~= true then
+						lastRegular = row.id
+					end
 					if place > 1 then
-						local before, row =
-							Catalog.cornerShop[order[place - 1]], Catalog.cornerShop[index]
-						expect(before.price <= row.price).to.equal(true)
-						if before.price == row.price then
-							expect(order[place - 1] < index).to.equal(true)
+						local before = Catalog.cornerShop[order[place - 1]]
+						-- #3462: the top shelf's rows come after every other row, cheapest first among themselves
+						if (before.topShelf == true) ~= (row.topShelf == true) then
+							expect(row.topShelf).to.equal(true)
+						else
+							expect(before.price <= row.price).to.equal(true)
+							if before.price == row.price then
+								expect(order[place - 1] < index).to.equal(true)
+							end
 						end
 					end
 				end
-				-- the dearest, so the rarest (#3462: was the Cat Feast)
-				expect(Catalog.cornerShop[order[#order]].id).to.equal("mega_tip_potion")
+				expect(lastRegular).to.equal("cat_feast") -- the dearest, so the rarest
+				-- so the Cat Feast keeps the place it had before the top shelf: 20th, in stock 43% of days
+				expect(Catalog.cornerShop[order[20]].id).to.equal("cat_feast")
+				expect(Catalog.cornerShop[order[21]].id).to.equal("honey_cream")
+				expect(Catalog.cornerShop[order[22]].id).to.equal("comet_treat")
+				expect(Catalog.cornerShop[order[23]].id).to.equal("big_lucky_potion")
+				expect(Catalog.cornerShop[order[24]].id).to.equal("big_gold_rush_potion")
+				expect(Catalog.cornerShop[order[25]].id).to.equal("mega_tip_potion")
 			end
 		)
 
@@ -537,6 +553,53 @@ return function()
 				expect(CornerShop.buyBlocker(state, buy(id, window, 6, price), window)).to.equal(
 					nil
 				)
+			end
+		end)
+
+		it("#3462: shows and sells nothing from the top shelf until its switch is on", function()
+			local window = assert(windowWith("honey_cream", WINDOW))
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 0)
+			local function shown(): number
+				local count = 0
+				for _, item in CornerShop.view(state, window, 7).stock do
+					local row = Catalog.getCornerShopRow(item.itemId) :: any
+					if row.topShelf == true then
+						count += 1
+					end
+				end
+				return count
+			end
+			local top = 0
+			for index, row in Catalog.cornerShop do
+				if row.topShelf == true then
+					top += 1
+					-- the last rows of the list, so a shut shelf leaves the rows before it where they were
+					expect(index > #Catalog.cornerShop - 5).to.equal(true)
+				end
+			end
+			expect(top >= 2).to.equal(true)
+			expect(CornerShop.topShelfOpen()).to.equal(true) -- this file opens it at the top
+			expect(shown()).to.equal(top)
+			local regular = CornerShop.stock(window)
+			CornerShop.setTopShelf(false)
+			expect(shown()).to.equal(0)
+			expect(#CornerShop.view(state, window, 7).stock).to.equal(#Catalog.cornerShop - top)
+			expect(CornerShop.buyBlocker(state, buy("honey_cream", window, 7, 1e12), window)).to.equal(
+				"That isn't in the Corner Shop."
+			)
+			-- the roll itself does not move with the switch
+			expect(CornerShop.stock(window) :: any).to.deepEqual(regular)
+			CornerShop.setTopShelf(true)
+			expect(CornerShop.buyBlocker(state, buy("honey_cream", window, 7, 1e12), window)).to.equal(
+				nil
+			)
+			-- Buy all never takes a top shelf row, open or shut
+			local lures = {}
+			local plan =
+				CornerShop.planAll(state, window, "bait", 7, 1e13, { catFood = {}, lures = lures })
+			for _, item in plan do
+				expect((Catalog.getCornerShopRow(item.itemId) :: any).topShelf).never.to.be.ok()
 			end
 		end)
 

@@ -4579,37 +4579,6 @@ Catalog.cornerShop = {
 		potionId = "gold_rush_potion",
 		price = 3000000,
 	},
-	-- #3462: the three Tier 6 potions, in the billions, one of each a game day (Config.CornerDailyLimits)
-	{
-		id = "big_lucky_potion",
-		name = "Big Lucky Potion",
-		family = "big_lucky",
-		size = "regular",
-		kind = "potion",
-		potionId = "big_lucky_potion",
-		price = 5000000000,
-		needsTier = 6,
-	},
-	{
-		id = "big_gold_rush_potion",
-		name = "Big Gold Rush Potion",
-		family = "big_gold_rush",
-		size = "regular",
-		kind = "potion",
-		potionId = "big_gold_rush_potion",
-		price = 8000000000,
-		needsTier = 6,
-	},
-	{
-		id = "mega_tip_potion",
-		name = "Mega Money Potion",
-		family = "mega_money",
-		size = "regular",
-		kind = "potion",
-		potionId = "mega_tip_potion",
-		price = 20000000000,
-		needsTier = 6,
-	},
 	{
 		id = "small_cat_snack",
 		name = "Small Snack",
@@ -4682,8 +4651,44 @@ Catalog.cornerShop = {
 		lureId = "salmon",
 		price = 0,
 	},
-	-- #3462: the cart's own baits, Tier 6 and up, at the flat price of their Catalog.lures rows (`price` here is the
-	-- same number, so the stock roll places them by it)
+	-- #3462: the three Tier 6 potions, in the billions, one of each a game day (Config.CornerDailyLimits). Top shelf
+	-- rows like the two baits below, so they sit with them at the end of this list
+	{
+		id = "big_lucky_potion",
+		name = "Big Lucky Potion",
+		family = "big_lucky",
+		size = "regular",
+		kind = "potion",
+		potionId = "big_lucky_potion",
+		price = 5000000000,
+		needsTier = 6,
+		topShelf = true,
+	},
+	{
+		id = "big_gold_rush_potion",
+		name = "Big Gold Rush Potion",
+		family = "big_gold_rush",
+		size = "regular",
+		kind = "potion",
+		potionId = "big_gold_rush_potion",
+		price = 8000000000,
+		needsTier = 6,
+		topShelf = true,
+	},
+	{
+		id = "mega_tip_potion",
+		name = "Mega Money Potion",
+		family = "mega_money",
+		size = "regular",
+		kind = "potion",
+		potionId = "mega_tip_potion",
+		price = 20000000000,
+		needsTier = 6,
+		topShelf = true,
+	},
+	-- #3462: the cart's own baits, Tier 6 and up, at the flat price of their Catalog.lures rows. They are top shelf
+	-- rows (shared/CornerShop): nothing shows or sells until the `cartTier6` switch is on, which waits for every
+	-- server to run a build that knows their ids. Top shelf rows stay the last rows of this list.
 	{
 		id = "honey_cream",
 		name = "Honey Cream",
@@ -4693,6 +4698,7 @@ Catalog.cornerShop = {
 		lureId = "honey_cream",
 		price = 1000000000,
 		needsTier = 6,
+		topShelf = true,
 	},
 	{
 		id = "comet_treat",
@@ -4703,6 +4709,7 @@ Catalog.cornerShop = {
 		lureId = "comet_treat",
 		price = 3000000000,
 		needsTier = 6,
+		topShelf = true,
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }

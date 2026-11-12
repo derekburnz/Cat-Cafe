@@ -16,6 +16,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local AfkController = require(script.Parent.AfkController)
 local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
 local CarrySync = require(Shared:WaitForChild("CarrySync"))
@@ -1844,6 +1845,9 @@ local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
 local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
+	end
+	if AfkController.rejoinQuiet() then
+		return false -- #3602: away since before an automatic rejoin; asks wait for the first input
 	end
 	local tips: any = (UI :: any).tips
 	if tips == nil or type(tips.quiet) ~= "function" then

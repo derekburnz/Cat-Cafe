@@ -172,4 +172,108 @@ function RollBoardLogic.bin(input: BinInput): View
 	return { title = title, line = RollBoardLogic.BIN_LIST, rows = list(true), dim = false }
 end
 
+-- #3615: the Yard Sale's lucky pick. One row per crate this player can win (the server's own YardPick rows, sent in
+-- CampExtrasState, so the chances shown are the chances rolled), chance to one decimal, golden crates with the gold
+-- edge. The line says the pick is free and how often, or how long until the next one (rows dimmed).
+export type YardRow = { crateId: string, chance: number, golden: boolean, tier: number }
+export type YardInput = {
+	rows: { YardRow },
+	nextAt: number?, -- the next pick's time (server time); nil while one waits
+	now: number,
+	rolling: boolean?,
+}
+
+RollBoardLogic.YARD_TITLE = "LUCKY PICK"
+RollBoardLogic.YARD_ROLLING = "Picking..."
+
+-- "38.0%": one decimal, as the Yard Sale's board shows it.
+function RollBoardLogic.percent1(chance: number): string
+	return string.format("%.1f%%", math.floor(chance * 1000 + 0.5) / 10)
+end
+
+function RollBoardLogic.yardLine(): string
+	local hours: number = Config.YardSaleRollHours
+	return if hours == 1 then "Free every hour" else string.format("Free every %d hours", hours)
+end
+
+function RollBoardLogic.yardRow(row: YardRow): RowView
+	local crate = Catalog.getCrate(row.crateId)
+	local images: { string } = {}
+	local image = ShopIcons.crate(row.crateId)
+	if image ~= nil then
+		table.insert(images, image)
+	end
+	return {
+		id = row.crateId,
+		name = if crate ~= nil then crate.name else row.crateId,
+		chance = RollBoardLogic.percent1(row.chance),
+		images = images,
+		glyph = "📦",
+		tier = if row.golden then 3 else 1,
+	}
+end
+
+function RollBoardLogic.yard(input: YardInput): View
+	local rows: { RowView } = {}
+	for _, row in input.rows do
+		table.insert(rows, RollBoardLogic.yardRow(row))
+	end
+	local title = RollBoardLogic.YARD_TITLE
+	if input.rolling then
+		return { title = title, line = RollBoardLogic.YARD_ROLLING, rows = rows, dim = false }
+	end
+	local nextAt = input.nextAt
+	if nextAt ~= nil and input.now < nextAt then
+		return {
+			title = title,
+			line = "Next pick in " .. RollBoardLogic.wait(nextAt - input.now),
+			rows = rows,
+			dim = true,
+		}
+	end
+	return { title = title, line = RollBoardLogic.yardLine(), rows = rows, dim = false }
+end
+
+-- "1 h 20 m", "5 m": the wait in whole minutes, never under 1 m.
+function RollBoardLogic.wait(seconds: number): string
+	local minutes = math.max(1, math.ceil(seconds / 60))
+	if minutes >= 60 then
+		local hours, rest = minutes // 60, minutes % 60
+		return if rest > 0
+			then string.format("%d h %d m", hours, rest)
+			else string.format("%d h", hours)
+	end
+	return string.format("%d m", minutes)
+end
+
+-- #3615: where `crateId` stands in a lucky pick's rows, or nil.
+function RollBoardLogic.rowOf(rows: { any }, crateId: string): number?
+	for index, row in rows do
+		if row.crateId == crateId then
+			return index
+		end
+	end
+	return nil
+end
+
+-- The rows the pick's light passes, in order, with the seconds it rests on each: twice down the list from the top,
+-- then on to `landing`, slowing evenly. It always moves one row at a time in list order and stops on the row the
+-- server chose; it never slows near a golden row or steps back, so there is no near miss.
+function RollBoardLogic.rollSteps(
+	count: number,
+	landing: number
+): { { index: number, rest: number } }
+	local steps: { { index: number, rest: number } } = {}
+	if count <= 0 then
+		return steps
+	end
+	local target = math.clamp(landing, 1, count)
+	local total = count * 2 + target
+	for step = 1, total do
+		local share = if total > 1 then (step - 1) / (total - 1) else 1
+		table.insert(steps, { index = (step - 1) % count + 1, rest = 0.05 + 0.2 * share * share })
+	end
+	return steps
+end
+
 return RollBoardLogic

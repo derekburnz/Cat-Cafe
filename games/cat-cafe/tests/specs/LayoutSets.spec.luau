@@ -682,7 +682,7 @@ return function()
 		)
 
 		it(
-			"stands the Rummage Bin in the Alleyway camp by the pad, 12 studs from every other prompt (#3050)",
+			"stands the Rummage Bin in the Alleyway camp beside the way out, 12 studs from every other prompt (#3050, #3458)",
 			function()
 				local RummageBin = require(game:GetService("ReplicatedStorage").Shared.RummageBin)
 				local function far(ax: number, az: number, bx: number, bz: number): number
@@ -699,14 +699,16 @@ return function()
 					fail("the bin at (%g, %g) is not inside the Alleyway camp", x, z)
 				end
 				expect(Layout.campAt(x, z)).to.equal("alley")
-				-- in plain view of the landing pad: within 15 studs, but past its landing spots
+				-- in plain view of the landing pad: level with it and within 28 studs (#3458: 15 before the bin moved
+				-- out of the entrance), but past its landing spots
 				local pad = Layout.landingPads.alley.centre
 				local toPad = far(x, z, pad.x, pad.z)
-				expect(toPad <= 15).to.equal(true)
+				expect(toPad <= 28).to.equal(true)
 				expect(toPad > W.LandingPadRadius + 3).to.equal(true)
-				-- off the walk from the pad out through the arch
+				-- #3458: outside the width of the camp's way out, so it is off every walk from the pad to the arch,
+				-- on the side away from the basket and the Index Board
 				local lx = Layout.campLocal(camp, x, z)
-				expect(math.abs(lx) > 6).to.equal(true)
+				expect(lx > camp.openingHalfWidth + 4).to.equal(true)
 				-- its front (-Z) faces the pad: the pad lies within 15 degrees of where the bin looks
 				local look = Vector3.new(-math.sin(math.rad(turn)), 0, -math.cos(math.rad(turn)))
 				local toward = Vector3.new(pad.x - x, 0, pad.z - z).Unit

@@ -1071,3 +1071,20 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | Look | Hook |
 |---|---|
 | A bag drops: 8 gold sparkles and a 3 stud gold ring on its spot. A bag is collected: 16 gold sparkles and a 5 stud ring, plus 14 gold confetti in your own cafe. A missed bag just goes. Cafes over 120 studs away are skipped; Reduce Motion keeps the sparkles only, Low performance halves the collect sparkles and drops the confetti | a new child of the plot's `RichBags` folder (drop) and its `Outcome` attribute turning "claimed" (collect), both set by RichTipService for display |
+
+## Mouse Dash pops (#3296, 2026-11-11)
+
+`Effects/MouseDashFx.luau`, numbers in `Presets.mouseDash`; drawn with the arcade's sparkles, rings and words on the `EffectsArcade` ScreenGui. Called by Gameplay-Engineer's `Screens/MouseDash`.
+
+| Look | Hook |
+|---|---|
+| A mouse pops up: one soft ring off its hole. The golden mouse: a gold ring and 4 sparkles. The napping kitten: a blush "Zzz" drifts up | `MouseDashFx.pop(hole, kind)` |
+| A catch: mint sparkles, a ring and "+1"; every 5th of a streak bigger and golden; the golden mouse the full gold burst and "+3" | `MouseDashFx.catch(hole, points, kind, streak)` |
+| A mouse ducks back in untapped: 6 warm dust blobs rise off the hole's rim and fade in 0.45 s | `MouseDashFx.escape(hole)` |
+| A wrong tap: the kitten a blush "mrow?"; an empty hole 3 dizzy stars and a little dust. No red, no shake | `MouseDashFx.wrong(hole, kind)` |
+| A heart pad: won back a pink ring and 6 sparkles; lost a small grey puff | `MouseDashFx.heart(pad, gained)` |
+| The speed step: a blue ring, 6 sparkles and "Faster!" | `MouseDashFx.faster(target, level)` |
+| A new best or a win: two gold rings, 12 confetti sparkles in gold, mint and pink, and "New best!" (or the words given) | `MouseDashFx.best(target, words?)` |
+| A 0.22 s scale bounce on a UIScale named `FxScale` added to the object: "pop" for a rising mouse, "squash" for a caught mouse and the paw's bop, "pulse" for a refilled heart pad | `MouseDashFx.bounce(object, kind)` |
+
+Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. Low performance: half the sparkles and half the dust. Every pop plays once per call and nothing loops, so nothing flashes. The most on screen at once is 12 sparkles per pop (the phone's burst cap).

@@ -24,8 +24,7 @@ local SPACED: { [string]: number } = {
 	UnequipAll = 2.2, -- 1 every 2 s
 	EquipBestDecor = 2.2, -- 1 every 2 s
 	OpenAllCrates = 2.2, -- 1 every 2 s
-	-- #3478 (the Creator Hub error list of 2026-11-12: BuyCornerShopAll 20, RankUp 7 drops in a day)
-	BuyCornerShopAll = 2.2, -- 1 every 2 s
+	-- #3478 (the Creator Hub error list of 2026-11-12: RankUp 7 drops in a day)
 	RankUp = 2.2, -- 1 every 2 s
 }
 -- #2630: remotes where every call matters (two tips answered in the same second): a call inside the gap waits its
@@ -39,10 +38,17 @@ local QUEUED: { [string]: number } = {
 	ClaimAchievement = 0.55, -- 2 a second
 	FeedCat = 0.28, -- 4 a second
 	InviteCard = 2.1, -- 1 every 2 s
+	-- #3646: the Day Cart's three sections share this remote and the server takes 3 per 2 s. Spaced at 2.2 s here
+	-- (#3478), a second section's Buy all inside that time was dropped on the device, so the server never answered
+	-- and the button sat on "Buying..." with nothing bought and no word. It now waits its turn and is sent.
+	BuyCornerShopAll = 0.75, -- 3 every 2 s
 }
 -- #3478: at most this many calls wait per remote; a tap past that is dropped, as the server would have dropped it
 -- before, so a burst of taps never keeps playing out long after the player stopped.
 local QUEUE_MOST = 8
+-- for the spec: which remotes are dropped inside their gap and which wait their turn
+Net.SPACED = SPACED
+Net.QUEUED = QUEUED
 local lastFired: { [string]: number } = {}
 local waiting: { [string]: { { n: number, [number]: any } } } = {}
 

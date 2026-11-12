@@ -296,6 +296,7 @@ return function()
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
 		-- #3466: the top player join notice
+		LeaderboardJoinNotice = true,
 		LeaderboardJoinNoticeRank = 10,
 		LeaderboardJoinNoticeDelay = 5,
 		LeaderboardJoinNoticeRejoinSeconds = 600,

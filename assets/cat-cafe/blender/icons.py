@@ -11,7 +11,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
                             and the Day Cart's HoneyCream and CometTreat (#3462)
                             (icon_art.py, F97 section 3)
   CatCafe_Icon_Perk_<Perk>  the Golden Fish Market perks: GoldenEspresso (a paw in the foam), BigBowl (a "-2:00" tag),
-                            ExtraDecorSpot (a dotted square, a plus and a tiny plant), SwiftPaws (a galloping
+                            ExtraDecorSpot (a dotted square, a plus and a tiny plant), LuckyCharm (#3298, a clover charm), SwiftPaws (a galloping
                             tabby with speed streaks, #3330) (icon_art.py)
   CatCafe_Icon_Coins, _Spin the prize pictures: a stack of three gold coins and the Spin Wheel's wheel (icon_art.py)
   CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
@@ -134,6 +134,7 @@ ICONS = {
     "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),
     "CatCafe_Icon_Perk_SwiftPaws": (icon_art.swift_paws, INK, 10, (-60.0, 10.0)),   # #3330
+    "CatCafe_Icon_Perk_LuckyCharm": (icon_art.lucky_charm, INK, 10, (-14.0, 8.0)),   # #3298
     "CatCafe_Icon_Coins": (icon_art.coins, GOLD_INK, 10, (-16.0, 34.0)),
     "CatCafe_Icon_Spin": (icon_art.spin_wheel, INK, 10, (-12.0, 6.0)),
     "CatCafe_Icon_Decor": (_hud_decor, INK, 10, (-24.0, 16.0)),

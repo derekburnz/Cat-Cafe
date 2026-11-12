@@ -5,6 +5,7 @@ Art for the Friday 2026-11-13 22:00 UTC update (design #3523). Derek OK'd the ic
 | File | Use |
 |---|---|
 | `CatCafe_Event_Draft_Friday.png` | 16:9 picture for the Roblox event card and group post |
+| `CatCafe_Event_Draft_Friday_Menus.png` | the same 16:9 picture with the new station menus added (Derek 2026-11-12: the menus ship in this update); waits on his OK before it replaces the card picture |
 | `CatCafe_Icon_Draft_Friday.png`, `CatCafe_Icon_Draft_Friday_1024.png` | game icon for the update, 512 and 1024 |
 | `CatCafe_Banner_Draft_Friday.png` | in-game update banner |
 

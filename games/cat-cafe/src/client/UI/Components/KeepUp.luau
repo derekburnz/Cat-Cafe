@@ -19,7 +19,8 @@ local KeepUp = {}
 KeepUp.TAG = "Keeps up"
 
 function KeepUp.keepsUp(def: Types.CatDef?, tier: number?): boolean
-	if def == nil or tier == nil or def.exclusive == true then
+	-- #3470: a Secret earns at the newest area like an exclusive cat, not a step behind, so it has no tag either
+	if def == nil or tier == nil or def.exclusive == true or def.rarity == "Secret" then
 		return false
 	end
 	return CatStats.areaMultiplier(def, tier) > CatStats.areaMultiplier(def) + 1e-9

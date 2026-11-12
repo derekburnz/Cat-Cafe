@@ -77,7 +77,8 @@ function Leaderboards.indexEntries(profile: Types.PlayerProfile): number
 	for _, found in { profile.collection, profile.goldCollection, profile.rainbowCollection or {} } do
 		for catId in found do
 			local def = Catalog.getCat(catId)
-			if def ~= nil and def.exclusive ~= true then
+			-- #3470: nor a Secret cat, which is in no Index total
+			if def ~= nil and def.exclusive ~= true and def.area ~= "secret" then
 				n += 1
 			end
 		end

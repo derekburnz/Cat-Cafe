@@ -411,7 +411,9 @@ return function()
 
 		it("gives the Mythical sting to Mythical and the old Secret only, in any case", function()
 			for rarity in Catalog.rarities do
-				local want = if string.lower(rarity) == "mythical"
+				-- #3470: Secret is a rarity again (above Mythical) and keeps the Mythical sting
+				local lower = string.lower(rarity)
+				local want = if lower == "mythical" or lower == "secret"
 					then "announceMythical"
 					else "announce"
 				expect(Logic.announceCue(rarity)).to.equal(want)

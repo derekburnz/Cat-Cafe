@@ -49,6 +49,7 @@ IndexBook.EXCLUSIVE_NOTE = "Not counted in the Index"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
+local SECRET = IndexRewards.SECRET_AREA
 
 local function rank(rarity: string): number
 	return table.find(IndexBook.RARITIES, rarity) or 1
@@ -122,8 +123,8 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
 		local section: Section
-		if areaId == SPARE then
-			continue
+		if areaId == SPARE or areaId == SECRET then
+			continue -- #3470: a Secret cat leaves no trace in the book
 		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
 			if tab ~= "normal" then
 				continue -- never gold or rainbow

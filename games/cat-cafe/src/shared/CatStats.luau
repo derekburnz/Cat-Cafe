@@ -190,7 +190,8 @@ function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 		return own
 	end
 	local opened: number
-	if def.exclusive == true then
+	local newest = def.exclusive == true or def.rarity == "Secret" -- #3470: a Secret earns at the owner's best area
+	if newest then
 		opened = math.floor(tier)
 	elseif Config.KeepUpRarities[def.rarity] == true then
 		opened = math.max(math.floor(tier) - Config.KeepUpStepsBehind, 1)
@@ -200,7 +201,7 @@ function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 	local best = own
 	for _, area in Catalog.areas do
 		if
-			(if def.exclusive == true then area.tier <= opened else area.tier == opened)
+			(if newest then area.tier <= opened else area.tier == opened)
 			and area.incomeMultiplier > best
 		then
 			best = area.incomeMultiplier

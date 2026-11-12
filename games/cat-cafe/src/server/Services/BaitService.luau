@@ -28,6 +28,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventService = require(script.Parent.EventService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
@@ -129,7 +130,18 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 			{ "bait", rarity, tostring(Economy.tier(profile)) }
 		)
 	end
-	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
+	-- "Mythical or better", so it stays true)
+	local secret = Catching.secret(
+		rarity,
+		rng:NextNumber(),
+		rng:NextNumber(),
+		LiveFlagService.on(Catching.SECRET_FLAG)
+	)
+	if secret ~= nil then
+		Telemetry.custom(player, "secret_spawn", 1, { "bowl", "bait" })
+	end
+	local def = secret or Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck, rainbow luck (F99) and bait speed, fixed now (F54): a later claim never moves a
 	-- filling bowl. A Lucky Potion running now doubles the gold chance (F64), never the rainbow one.
 	local totals = IndexRewards.totals(profile)

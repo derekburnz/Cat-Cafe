@@ -24,7 +24,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 local RANGE: number = Config.CollectorRangeStuds or 12
 local CONFIRM_RARITIES: { [string]: boolean } =
-	{ Rare = true, Epic = true, Legendary = true, Mythical = true }
+	{ Rare = true, Epic = true, Legendary = true, Mythical = true, Secret = true }
 
 local CollectorLogic = {}
 

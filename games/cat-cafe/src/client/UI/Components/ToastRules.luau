@@ -22,7 +22,8 @@ ToastRules.ANNOUNCE_MIN = "Legendary"
 ToastRules.ANNOUNCE_GAP = 30
 ToastRules.REPEAT_SECONDS = 10
 
-local RANK: { [string]: number } = { Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 }
+local RANK: { [string]: number } =
+	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 }
 
 function ToastRules.announce(rarity: string?, now: number, lastAt: number?, touch: boolean): boolean
 	local rank = if rarity then RANK[rarity] else nil

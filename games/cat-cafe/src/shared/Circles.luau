@@ -206,7 +206,7 @@ end
 -- CatchPress index.
 function Circles.maxCircles(): number
 	local most = 1
-	for _, rarity in Catalog.rarityOrder do
+	for _, rarity in Catalog.catRarityOrder do -- #3470: the Secret's eight circles too
 		most = math.max(most, 2 * Circles.ringCap(rarity :: Types.Rarity))
 	end
 	return most

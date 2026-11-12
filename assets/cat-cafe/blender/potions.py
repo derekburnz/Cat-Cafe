@@ -150,6 +150,60 @@ def gold_rush(b):
     b.box((0.22, 0.78, -0.22), (0.05, 0.14, 0.05), "milk", rot=_zrot(-25))                  # glint
 
 
+def big_lucky(b):
+    """Big Lucky Potion (#3462): Lucky's tall green bottle one size up, a gold collar and a bigger clover."""
+    r = 0.36
+    top = _bottle(b, r, 0.05, 0.9, "eye_green", label=(0.24, 0.74, "cream"), shoulder=0.18, seg=16)
+    b.cyl((0, top + 0.01, 0), 0.19, 0.08, "gold_mid", segments=12)                         # collar
+    _top(b, top + 0.02, 0.13, 0.26, 0.16, lip="gold_mid")
+    zf = -(r + 0.035)
+    for dx, dy in ((0.08, 0.08), (-0.08, 0.08), (0.08, -0.08), (-0.08, -0.08)):
+        _disc(b, dx, 0.52 + dy, -(r - 0.03), zf, 0.09, "leaf_green", seg=10)
+    _disc(b, 0, 0.52, -r, zf - 0.008, 0.036, "leaf_dark", seg=8)
+    b.box((-0.05, 0.34, -(r + 0.015)), (0.035, 0.14, 0.03), "leaf_dark", rot=_zrot(-25))   # stem
+    _glint(b, r, 0.82, 0.1)
+
+
+def big_gold_rush(b):
+    """Big Gold Rush Potion (#3462): Gold Rush's egg one size up, with a little star each side of its star stopper."""
+    r = 0.43
+    _sphere(b, (0, 0.57, 0), r, "pastel_butter", scale=(1, 1.22, 1), seg=14, rings=9)
+    b.cyl((0, 0.05, 0), 0.26, 0.1, "gold_mid", segments=12)
+    b.cyl((0, 1.11, 0), 0.12, 0.16, "glass", segments=10)
+    b.cyl((0, 1.2, 0), 0.17, 0.07, "gold_mid", segments=10)
+    b.cyl((0, 1.31, 0), 0.065, 0.17, "gold_mid", segments=8)
+    b.b.star(RB.p(0, 1.47, 0), 0.22, 0.1, 0.07, "gold_light", rot=(math.radians(90), "X"))
+    for sx in (-1, 1):
+        b.b.star(RB.p(sx * 0.3, 1.3, 0), 0.11, 0.05, 0.06, "gold_light", rot=(math.radians(90), "X"))
+    for x, y, s in ((0.14, 0.7, 0.08), (-0.16, 0.48, 0.07), (0.07, 0.34, 0.06), (-0.06, 0.82, 0.06),
+                    (0.2, 0.5, 0.05)):
+        zf = -math.sqrt(max(0.0, r ** 2 - x ** 2 - ((y - 0.57) / 1.22) ** 2))          # on the egg's front
+        b.box((x, y, zf - 0.005), (s, s, 0.04), "gold_light", rot=_zrot(45))
+    b.box((0.25, 0.88, -0.25), (0.05, 0.15, 0.05), "milk", rot=_zrot(-25))                  # glint
+
+
+def mega_tip(b):
+    """Mega Tip Potion (#3462): Big Tip's amber jug one size up with a gold crown on its cap, the top of the Tip
+    line."""
+    r = 0.47
+    top = _bottle(b, r, 0.05, 0.96, "eye_amber", label=(0.24, 0.8, "cream"), shoulder=0.2, seg=14)
+    b.cyl((0, top + 0.05, 0), 0.22, 0.14, "glass", segments=12)                            # neck
+    b.cyl((0, top + 0.16, 0), 0.28, 0.12, "gold_mid", segments=12)                         # screw cap
+    cy = top + 0.26                                                                        # the crown's band
+    b.cyl((0, cy, 0), 0.22, 0.08, "gold_mid", segments=10)
+    for k in range(5):
+        a = math.radians(90 + 72 * k)
+        b.cyl((0.17 * math.cos(a), cy + 0.12, 0.17 * math.sin(a)), 0.06, 0.18, "gold_light", r2=0.01, segments=4)
+    b.box((0, cy, -0.225), (0.06, 0.06, 0.03), "neon_pink", rot=_zrot(45))                 # the crown's gem
+    b.b.ring(RB.p(-(r + 0.1), 0.62, 0), 0.29, 0.1, 0.13, "eye_amber", segments=10, bevel=False,
+             rot=(math.radians(90), "X"))                                                   # handle, picture right
+    zf = -(r + 0.012)
+    for k, dx in enumerate((0.02, -0.03, 0.01, -0.01)):                                     # four coins, edge on
+        b.box((dx, 0.34 + 0.07 * k, zf - 0.015), (0.3, 0.06, 0.03), "gold_mid")
+    _coin(b, 0.0, 0.69, zf - 0.03, 0.1)
+    b.box((0.22, 0.93, -0.41), (0.05, 0.12, 0.05), "milk", rot=_zrot(-30))                 # glint
+
+
 def quick_bait(b):
     """Quick Bait Potion: a pink bottle whose cream label has a clock over a blue fish."""
     top = _bottle(b, 0.3, 0.04, 0.7, "fur_strawberry", label=(0.16, 0.62, "cream"), shoulder=0.14, seg=16)
@@ -167,7 +221,7 @@ def quick_bait(b):
 
 
 POTIONS = {"Tip": tip, "Lucky": lucky, "Swift": swift, "Steady": steady, "BigTip": big_tip, "GoldRush": gold_rush,
-           "QuickBait": quick_bait}
+           "QuickBait": quick_bait, "BigLucky": big_lucky, "BigGoldRush": big_gold_rush, "MegaTip": mega_tip}
 
 
 def build_potion(kind, mat):
@@ -176,5 +230,5 @@ def build_potion(kind, mat):
     return [b.finalize(f"CatCafe_Prop_Potion_{kind}", mat)]
 
 
-ASSETS = {f"CatCafe_Prop_Potion_{k}": ((lambda m, k=k: build_potion(k, m)), 750 if k == "BigTip" else 700)
+ASSETS = {f"CatCafe_Prop_Potion_{k}": ((lambda m, k=k: build_potion(k, m)), 750 if k in ("BigTip", "MegaTip") else 700)
           for k in POTIONS}

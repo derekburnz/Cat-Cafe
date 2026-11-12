@@ -103,6 +103,8 @@ end
 local function publish(player: Player)
 	local bin = bins[player]
 	player:SetAttribute(RummageBin.NEXT_AT_ATTRIBUTE, if bin ~= nil then bin.nextAt else shutUntil)
+	-- #3460: the wins so far, so the prompt's note names the next fixed prize or the chances
+	player:SetAttribute(RummageBin.USES_ATTRIBUTE, if bin ~= nil then bin.uses else nil)
 end
 
 local function store(): DataStore?
@@ -221,7 +223,9 @@ local function finish(player: Player, run: Run, reason: string?)
 		if first then
 			Telemetry.stepTime(player, profile, "first_bin")
 		end
-		win = { id = row.id, first = first }
+		-- #3464: the whole win, for the loot card
+		local made: Types.RummageWin = { id = row.id, first = first, items = RummageBin.items(row) }
+		win = made
 		publish(player)
 		CafeService.sync(player)
 	elseif present then

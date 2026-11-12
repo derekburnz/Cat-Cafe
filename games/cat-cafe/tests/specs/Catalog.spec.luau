@@ -54,13 +54,14 @@ return function()
 			assertUniqueSnakeCaseIds(Catalog.spots)
 		end)
 
-		it("rarity order and rank agree, and Mythical replaces Secret", function()
+		it("rarity order and rank agree, with Secret above them and in no odds order", function()
 			expect(Catalog.rarityOrder).to.deepEqual(RARITIES)
 			for rank, rarity in ipairs(RARITIES) do
 				expect(Catalog.rarityRank[rarity]).to.equal(rank)
 			end
-			expect(Catalog.rarities.Secret).never.to.be.ok()
-			expect(Catalog.rarityRank.Secret).never.to.be.ok()
+			-- #3470: Secret is a rarity again, a sixth one above Mythical that no odds table lists (SecretCats.spec)
+			expect(Catalog.rarities.Secret).to.be.ok()
+			expect(Catalog.rarityRank.Secret).to.equal(#RARITIES + 1)
 		end)
 
 		it("model names derive from ids, and catsByModelName reverses it", function()
@@ -374,9 +375,9 @@ return function()
 		}
 
 		it(
-			"has exactly 85 cats: the 20 slice, 30 later, the 20 of Tier 6 and 7 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles and Maple Muffin",
+			"has exactly 88 cats: the 20 slice, 30 later, the 20 of Tier 6 and 7 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 3 Secret cats",
 			function()
-				expect(#Catalog.cats).to.equal(85)
+				expect(#Catalog.cats).to.equal(88)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -388,6 +389,7 @@ return function()
 							or def.id == "king_croissant"
 							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
 							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
+							or def.rarity == "Secret" -- #3470: Nebula, Glitch and Cafe Ghost
 					).to.equal(true)
 				end
 				for id in pairs(slice) do
@@ -475,7 +477,8 @@ return function()
 					counts[area] = {}
 				end
 				for _, def in ipairs(Catalog.cats) do
-					if def.area == "spare" or def.area == "exclusive" then -- F96: the Bellhop Cat lives in no area
+					-- F96: the Bellhop Cat lives in no area; #3470: nor does a Secret cat
+					if def.area == "spare" or def.area == "exclusive" or def.area == "secret" then
 						continue
 					end
 					local area = counts[def.area]
@@ -505,6 +508,8 @@ return function()
 					expect(ROLE_SET[def.favoriteRole]).to.equal(true)
 					if def.exclusive == true then
 						expect(def.area).to.equal("exclusive") -- F96: never spawns, earns at the newest area
+					elseif def.rarity == "Secret" then
+						expect(def.area).to.equal("secret") -- #3470: turns up in any area
 					else
 						expect(
 							areaSet[if def.area == "spare"
@@ -1052,7 +1057,7 @@ return function()
 			}
 
 		it("has the three shop foods and four dealer foods with the table odds", function()
-			expect(#Catalog.lures).to.equal(7)
+			expect(#Catalog.lures).to.equal(9) -- and the Day Cart's own two (#3462, Economy.spec and CornerShop.spec)
 			for id, row in pairs(expected) do
 				local def = Catalog.getLure(id)
 				expect(def).to.be.ok()
@@ -1077,6 +1082,8 @@ return function()
 				caviar = "Epic",
 				moon_milk = "Legendary",
 				star_treat = "Mythical",
+				honey_cream = "Legendary", -- #3462
+				comet_treat = "Mythical",
 			}
 			for _, def in ipairs(Catalog.lures) do
 				expect(def.rarity).to.equal(grades[def.id])

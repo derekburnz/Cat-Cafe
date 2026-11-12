@@ -7,6 +7,7 @@
 --                                      an empty slot, the next slot to buy or a slot after it
 --   spaReady(spa, cats, now)           the levels waiting for Collect, summed over the finished slots
 --   spaCandidates(cats, spa)           the cats that can go in: below the top level and not soaking, best first
+--   SPA_SORTS, spaSort(value)           the Spa list's two orders (#3463), Rarity first, and the one a value means
 --   SPA_FILTERS, spaMatch(cat, query, filter)  the Spa list's search (#3136): the words typed are found in the cat's
 --                                      own name or its breed, any case, and "Resting" / "Working" keep the cats
 --                                      off or on a cafe spot
@@ -42,6 +43,14 @@ LateStationsLogic.AREAS = { spa = "desert", museum = "ruins" } :: { [string]: st
 -- and loads faces only near the visible rows, so a big collection costs little
 LateStationsLogic.CANDIDATES_MAX = math.huge
 LateStationsLogic.SPA_FILTERS = { "All", "Resting", "Working" }
+-- #3463 (Derek 2026-11-12: "sort oasis spa by rarity or level but default rarity"): the list's two orders, the
+-- default first.
+LateStationsLogic.SPA_SORTS = { "Rarity", "Level" }
+
+-- The sort a stored or pressed value means: "Level" for that word in any case, anything else "Rarity".
+function LateStationsLogic.spaSort(value: unknown): string
+	return if type(value) == "string" and string.lower(value) == "level" then "Level" else "Rarity"
+end
 
 export type Line = {
 	extraId: string,
@@ -224,11 +233,23 @@ function LateStationsLogic.collectText(levels: number): string
 	return if levels > 0 then "Collect +" .. plural(levels, "level") else "Collect"
 end
 
+local COAT_RANK: { [string]: number } = { rainbow = 2, gold = 1 }
+
+local function rarityRank(cat: SharedTypes.CatView): number
+	local def = Catalog.getCat(cat.catId)
+	return if def ~= nil then Catalog.rarityRank[def.rarity] or 0 else 0
+end
+
 -- The cats that can go in (late-stations.md section 1: any owned cat below the top level, working or resting, locked
--- or not), not one already soaking. Highest level first, then the best rate, at most CANDIDATES_MAX.
+-- or not), not one already soaking, at most CANDIDATES_MAX. In `sort` order (#3463, LateStationsLogic.spaSort):
+--   "Rarity" (the default)  highest rarity first; in one rarity rainbow, then gold, then plain, then highest level,
+--                           then name
+--   "Level"                 highest level first, then highest rarity, then name
+-- The uid settles what is left, so the order never flickers between two builds.
 function LateStationsLogic.spaCandidates(
 	cats: { [string]: SharedTypes.CatView }?,
-	spa: SharedTypes.SpaView?
+	spa: SharedTypes.SpaView?,
+	sort: string?
 ): { SharedTypes.CatView }
 	local out: { SharedTypes.CatView } = {}
 	if cats == nil then
@@ -240,12 +261,36 @@ function LateStationsLogic.spaCandidates(
 			table.insert(out, cat)
 		end
 	end
+	local byLevel = LateStationsLogic.spaSort(sort) == "Level"
+	local ranks: { [string]: number } = {}
+	local names: { [string]: string } = {}
+	for _, cat in out do
+		ranks[cat.uid] = rarityRank(cat)
+		names[cat.uid] = string.lower(LateStationsLogic.spaTitle(cat))
+	end
 	table.sort(out, function(a: SharedTypes.CatView, b: SharedTypes.CatView): boolean
-		if a.level ~= b.level then
-			return a.level > b.level
+		local rankA, rankB = ranks[a.uid], ranks[b.uid]
+		if byLevel then
+			if a.level ~= b.level then
+				return a.level > b.level
+			end
+			if rankA ~= rankB then
+				return rankA > rankB
+			end
+		else
+			if rankA ~= rankB then
+				return rankA > rankB
+			end
+			local coatA, coatB = COAT_RANK[a.variant] or 0, COAT_RANK[b.variant] or 0
+			if coatA ~= coatB then
+				return coatA > coatB
+			end
+			if a.level ~= b.level then
+				return a.level > b.level
+			end
 		end
-		if (a.rating or 0) ~= (b.rating or 0) then
-			return (a.rating or 0) > (b.rating or 0)
+		if names[a.uid] ~= names[b.uid] then
+			return names[a.uid] < names[b.uid]
 		end
 		return a.uid < b.uid
 	end)

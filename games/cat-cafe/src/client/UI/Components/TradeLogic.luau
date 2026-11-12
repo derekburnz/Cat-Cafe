@@ -172,7 +172,8 @@ TradeLogic.MAX_FISH = (Config.TradeMaxFish or 200) :: number -- #2745 (section 1
 
 local MIN_TIER: number = Config.TradeMinTier or 3
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
-local RANK: { [string]: number } = { Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 }
+local RANK: { [string]: number } =
+	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 }
 local COAT: { [string]: number } = { gold = 1, rainbow = 2 }
 local STATUS_ORDER: { [PickStatus]: number } = { ok = 1, offered = 1, locked = 2, exclusive = 3 }
 

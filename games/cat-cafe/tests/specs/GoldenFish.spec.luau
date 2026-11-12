@@ -200,8 +200,9 @@ return function()
 	-- drifts from the design fails here and the designer decides which one is right.
 	describe("GoldenFish edges (QA)", function()
 		local FIRST: { [string]: number } =
-			{ Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 }
-		local REPEAT: { [string]: number } = { Epic = 1, Legendary = 2, Mythical = 5 }
+			{ Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25, Secret = 100 } -- #3470
+		local REPEAT: { [string]: number } =
+			{ Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 }
 		local seed = 20261027
 		local function roll(n: number): number
 			seed = (seed * 1103515245 + 12345) % 2147483648
@@ -223,7 +224,7 @@ return function()
 				for _, rarity in Catalog.rarityOrder do
 					table.insert(rarities, rarity)
 				end
-				for _, odd in { "Secret", "", "common", "Gold" } do
+				for _, odd in { "Secret", "Mythic", "", "common", "Gold" } do
 					table.insert(rarities, odd)
 				end
 				local methods: { any } =

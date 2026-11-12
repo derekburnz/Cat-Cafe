@@ -96,6 +96,9 @@ local function samplePlayer(now)
 		end
 	end
 	for index, def in Catalog.cats do
+		if def.area == "secret" then
+			continue -- #3470: the sample player has found no Secret cat
+		end
 		if index % 2 == 1 then
 			collection[def.id] = now - index * 600
 		end
@@ -2645,6 +2648,56 @@ local SCENES = {
 			model:Destroy()
 		end
 	end },
+	-- #3470 section 5: a black "SECRET" pill with a white edge over each Secret stray and the name under it, "???"
+	-- until the kind has been caught once; none over a Mythical; hidden in a net, back on a bolt
+	{ "SecretTags", function()
+		local function stray(id: string, rarity: string, name: string?, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = "Stray_" .. id
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -12)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("StrayId", id)
+			model:SetAttribute("Rarity", rarity)
+			model:SetAttribute("CatName", name)
+			model.Parent = workspace
+			model:AddTag("Stray")
+			return model
+		end
+		local unknown = stray("secret_1", "Secret", "???", -4)
+		local known = stray("secret_2", "Secret", "Nebula", 0)
+		local plain = stray("secret_3", "Mythical", "Sunbeam", 4)
+		-- the shim's tag signals never fire, so start the tags again to pick the three up
+		UI.catch.secret:destroy()
+		UI.catch.secret = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.SecretTags").new()
+		local function tagOf(model: Model): BillboardGui?
+			return (model.PrimaryPart :: BasePart):FindFirstChild("CatCafeSecretTag") :: BillboardGui?
+		end
+		local a, b = tagOf(unknown), tagOf(known)
+		assert(a and b, "uigate: no SECRET tag over a Secret stray (#3470)")
+		assert(tagOf(plain) == nil, "uigate: a SECRET tag over a Mythical stray (#3470)")
+		local tagA, tagB = (a :: any).Tag, (b :: any).Tag
+		assert(tagA.Label.Text == "SECRET" and tagB.Label.Text == "SECRET", "uigate: the tag reads SECRET (#3470)")
+		assert((a :: any).CatName.Text == "???", "uigate: an uncaught Secret is named ??? (#3470)")
+		assert((b :: any).CatName.Text == "Nebula", "uigate: a known Secret shows its name (#3470)")
+		assert((a :: BillboardGui).Enabled and (b :: BillboardGui).Enabled, "uigate: the SECRET tags are up (#3470)")
+		assert((a :: BillboardGui).AlwaysOnTop and (a :: BillboardGui).MaxDistance == 150, "uigate: seen over walls within 150 studs (#3470)")
+		assert(tagA:FindFirstChildOfClass("UIStroke").Color == Color3.new(1, 1, 1), "uigate: the pill has a white edge (#3470)")
+		unknown:SetAttribute("LockedBy", 1)
+		assert(not (a :: BillboardGui).Enabled, "uigate: the tag should hide while a net holds the cat (#3470)")
+		unknown:SetAttribute("LockedBy", 0)
+		assert((a :: BillboardGui).Enabled, "uigate: the tag should come back when the cat bolts (#3470)")
+		unknown:SetAttribute("CatName", "Glitch")
+		assert((a :: any).CatName.Text == "Glitch", "uigate: the name follows the CatName attribute (#3470)")
+		plain:SetAttribute("Rarity", "Secret")
+		assert(tagOf(plain), "uigate: Rarity set later should bring the tag (#3470)")
+		for _, model in { unknown, known, plain } do
+			model:Destroy()
+		end
+	end },
 	-- #2005 section 1 (Derek2: "with an exclamation mark to show its being caught"): a gold ! over a stray while its
 	-- NetDown is set, just above the catcher's trust bar; another stray without it has none, and it goes with NetDown
 	{ "CatchMark", function()
@@ -2744,12 +2797,18 @@ local SCENES = {
 				assert(
 					string.match(text, "^You have %d+$")
 						or text == "Get more at the Corner Shop"
-						or text == "Sold by the night dealer's cart",
+						or text == "Sold by the night dealer's cart"
+						or text == "Sold on the Day Cart from Tier 6", -- #3462
 					("uigate: a food row says %q (#1281)"):format(text)
 				)
 			end
 		end
 		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
+		-- #3462: the Day Cart's own foods are off the list while its Tier 6 shelf is shut (the cartTier6 switch)
+		for _, id in { "honey_cream", "comet_treat" } do
+			local row = window:FindFirstChild(id, true)
+			assert(row and row:IsA("GuiObject") and not row.Visible, "uigate: " .. id .. " is listed with the cart's shelf shut (#3462)")
+		end
 	end },
 	-- #1612 / #1609: compact food rows, rarest first, no "Attracts" chip and no odds on the row; Details on the Star
 	-- Treat opens its odds with the gold line and the split under them
@@ -2793,13 +2852,13 @@ local SCENES = {
 		end
 		local shown = order()
 		assert(
-			shown == "kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			shown == "kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna",
 			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = { kibble = 3, salmon = 1 } })
 		shown = order()
 		assert(
-			shown == "salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna",
+			shown == "salmon,kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna",
 			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)
@@ -2951,6 +3010,40 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: the selection stayed on the closed gift card (#2968)")
 		UIShim.setLastInput(nil)
 		UIShim.fire(UIShim.eventOf(inputs, "LastInputTypeChanged"), inputs:GetLastInputType())
+	end },
+	-- #3464: the Rummage Bin's loot card, a two-item win and a golden crate win
+	{ "LootCardTwo", function()
+		UI.loot.show({ id = "first_tuna", first = true, items = {
+			{ kind = "lure", id = "tuna", count = 2 },
+			{ kind = "fish", count = 10 },
+		} })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no loot card for a two-item rummage win (#3464)")
+		local rows = card:FindFirstChild("Rows")
+		local one, two = rows:FindFirstChild("Row1"), rows:FindFirstChild("Row2")
+		assert(one and two and rows:FindFirstChild("Row3") == nil, "uigate: the loot card does not list exactly the two items won (#3464)")
+		assert((one:FindFirstChild("Name") :: TextLabel).Text == "Tuna", "uigate: the loot card's first row is not Tuna (#3464)")
+		assert((one:FindFirstChild("Amount") :: TextLabel).Text == "x2", "uigate: the loot card's Tuna row does not read x2 (#3464)")
+		assert((two:FindFirstChild("Amount") :: TextLabel).Text == "+10", "uigate: the loot card's golden fish row does not read +10 (#3464)")
+		-- the pop-in (Effects/LootCardFx) starts the card a little small and lands the rows in turn; once it has
+		-- played out the card is at full size with both rows up
+		UIShim.advance(1)
+		assert(one.Visible and two.Visible, "uigate: a loot card row is still hidden after the pop-in (#3464)")
+		assert(one.AbsoluteSize.Y >= 36, "uigate: a loot card row is under 36 px tall (#3464)")
+	end },
+	{ "LootCardGold", function()
+		UI.loot.show({ id = "golden", first = false, items = { { kind = "crate", id = "alley_golden_crate", count = 1 } } })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no loot card for a golden crate win (#3464)")
+		local frame = card:FindFirstChild("Frame") :: UIStroke
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		assert(frame.Color == Theme.colors.gold, "uigate: a golden crate win has no gold frame (#3464)")
+		-- a tap on the card closes it; a win with nothing to list shows nothing
+		UIShim.fire(UIShim.eventOf(card, "Activated"))
+		assert(not card.Visible, "uigate: a tap did not close the loot card (#3464)")
+		UI.loot.show({ id = "tuna", first = false })
+		assert(not card.Visible, "uigate: a win with no items showed a loot card (#3464)")
+		UI.loot.show({ id = "golden", first = false, items = { { kind = "crate", id = "alley_golden_crate", count = 1 } } })
 	end },
 	{ "GiftCardLike", function()
 		UI.recap.lastInput = os.clock() - 30 -- idle
@@ -4294,6 +4387,27 @@ local SCENES = {
 	{ "IndexExclusive", function()
 		UI.openIndex("exclusive")
 	end },
+	-- #3470: no Secret page for a player who has found none; with one found the page comes last with only that cat,
+	-- "1 found" and no total, no Rewards button, and the two not found have no tile
+	{ "IndexSecret", function()
+		UI.open("Collection")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local page = window and window:FindFirstChild("secret", true)
+		assert(page, "uigate: the Secret page was never built (#3470)")
+		assert(not page.Visible, "uigate: the Secret page shows before any Secret cat is found (#3470) " .. page:GetFullName())
+		local collection = table.clone(samplePlayer(os.time()).collection)
+		collection.nebula = 1
+		UI.update({ collection = collection })
+		UI.openIndex("secret")
+		assert(page.Visible, "uigate: no Secret page once a Secret cat is found (#3470)")
+		local header = page:FindFirstChild("Header")
+		assert(header.Count.Text == "1 found", "uigate: the Secret page reads " .. tostring(header.Count.Text) .. " (#3470)")
+		assert(not header.Rewards.Visible, "uigate: the Secret page has a Rewards button (#3470)")
+		local cats = page:FindFirstChild("Cats")
+		assert(cats.nebula.Visible, "uigate: the found Secret cat has no tile (#3470)")
+		assert(not cats.glitch.Visible and not cats.cafe_ghost.Visible, "uigate: a Secret cat not found has a tile (#3470)")
+	end },
 	-- an exclusive cat in the cat room reads "Can't sell"
 	{ "CatsBellhop", function()
 		local player = samplePlayer(os.time())
@@ -5083,9 +5197,16 @@ local SCENES = {
 			assert(outcome.Text ~= "Rescued!" and outcome.Text ~= "Found something!", "uigate: the bin's win does not name its prize: " .. id .. " (#3050)")
 			UIShim.advance(3)
 		end
-		local outcome, detail = win("tuna", true)
-		assert(outcome.Text == "Tuna!", "uigate: the first win does not read Tuna! (#3050)")
+		-- #3460: the first win is the fixed first prize, 2 Tuna and 10 golden fish
+		local outcome, detail = win("first_tuna", true)
+		assert(outcome.Text == "2 Tuna and more!", "uigate: the first win reads " .. outcome.Text .. ", not 2 Tuna and more! (#3460)")
 		assert(detail.Text:find("Put it in your bowl", 1, true), "uigate: the first Tuna does not point at the bowl (#3050)")
+		for _, id in { "first_crate", "first_salmon" } do
+			UIShim.advance(3)
+			win(id, false) -- the other fixed prizes' titles fit too
+		end
+		UIShim.advance(3)
+		win("first_tuna", true)
 		local tap = barGui:FindFirstChild("Tap")
 		assert(tap and not tap.Visible, "uigate: the tap catcher still covers the screen after a bin win (#3050)")
 		local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")
@@ -7633,6 +7754,51 @@ local SCENES = {
 		press("CornerShop", "baitTab") -- #3209: the bait section is on its own tab
 		press("CornerShop", "Section_bait.BuyAll") -- the shot: the bait section's card
 	end },
+	-- #3462: the Day Cart's own two baits at Tier 6, in the billions. After the Buy all scene, which leaves the cart on its Bait tab
+	{ "CornerShopTier6Bait", function()
+		UI.update({ money = 5000000000, tier = 6, lures = { honey_cream = 1 } })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "salmon", price = 80000, amount = 2, bought = 0 },
+				{ itemId = "honey_cream", price = 1000000000, amount = 2, bought = 0, needsTier = 6 },
+				{ itemId = "comet_treat", price = 3000000000, amount = 1, bought = 0, needsTier = 6 },
+			},
+		})
+		UI.cornerShop.open()
+		press("CornerShop", "baitTab")
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		for _, id in { "honey_cream", "comet_treat" } do
+			local row = window:FindFirstChild(id, true)
+			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: no " .. id .. " row at Tier 6 (#3462)")
+		end
+	end },
+	-- #3462: the Day Cart's three Tier 6 potions, one sold out for the day
+	{ "CornerShopTier6Potions", function()
+		UI.update({ money = 30000000000, tier = 6 })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "gold_rush_potion", price = 3000000, amount = 2, bought = 0 },
+				{ itemId = "big_lucky_potion", price = 5000000000, amount = 1, bought = 0, needsTier = 6 },
+				{ itemId = "big_gold_rush_potion", price = 8000000000, amount = 2, bought = 1, needsTier = 6, outToday = true },
+				{ itemId = "mega_tip_potion", price = 20000000000, amount = 1, bought = 0, needsTier = 6 },
+			},
+		})
+		UI.cornerShop.open()
+		press("CornerShop", "potionTab")
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		for _, id in { "big_lucky_potion", "big_gold_rush_potion", "mega_tip_potion" } do
+			local row = window:FindFirstChild(id, true)
+			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: no " .. id .. " row at Tier 6 (#3462)")
+		end
+	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
 	-- with none it is gone
 	-- #2501 (Derek2: "put an exclamation mark above the free group cat station"): a "!" over the Bellhop Cat's stand
@@ -9088,6 +9254,9 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if UI.loot.card then
+		UI.loot.card:hide()
+	end
 	reel(false)
 	if Scenes._packed ~= nil then
 		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene

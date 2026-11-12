@@ -2244,6 +2244,7 @@ def desert_flower(ctx):
 
 
 PROPS = {
+    "CafeGhost": ("Head", chef_hat),   # #3470
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
     "Siamese": ("Face", round_glasses), "Bengal": ("Head", safari_hat), "Ragdoll": ("Head", nightcap),

@@ -418,7 +418,7 @@ end
 function Logic.rummageCue(rowId: any): string
 	if rowId == "golden" then
 		return "goldReveal"
-	elseif rowId == "crate" then
+	elseif rowId == "crate" or rowId == "first_crate" then -- #3460: the fixed second prize holds a crate too
 		return "indexReward"
 	end
 	return "giftClaim"

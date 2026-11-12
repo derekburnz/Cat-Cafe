@@ -71,7 +71,7 @@ export type CustomEvent =
 	"rank_up"
 	| "session_end"
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
-	-- (else since the join); fields: "1", "2", "3" or "4+" (the account's nth buy), the upgrade id, the new level
+	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
 	| "upgrade_bought"
 	| "offline_claim"
 	| "dealer_buy"
@@ -176,6 +176,11 @@ export type CustomEvent =
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
+	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait or rescue), secret_caught (value the
+	-- tackles it took on the way home; catch, bait or rescue, coat) and secret_lost (value 1; area, despawn or tackle)
+	| "secret_spawn"
+	| "secret_caught"
+	| "secret_lost"
 	-- F87 (easy-start.md section 5): a new player leaving (their first UTC day of play, or tutorialStep below 5), value
 	-- the session's seconds; the furthest onboarding step, the session's bounce window, device. From the client: a
 	-- stuck nudge (tutorialStep, kind: pulse, help_shown or show_me) and where the intro was played from (tile, help)
@@ -1303,8 +1308,8 @@ end
 
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
-	if def.area == "spare" then
-		return
+	if def.area == "spare" or def.area == "secret" then
+		return -- #3470: a Secret cat is on no area's Index page
 	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then

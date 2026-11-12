@@ -115,6 +115,7 @@ local IndexRewards = {}
 IndexRewards.ALL_AREA = "all" -- the All Cats page: every area's cats together (F54)
 IndexRewards.SPARE_AREA = "spare" -- cats out of every area for now (F78); they count on no track
 IndexRewards.EXCLUSIVE_AREA = "exclusive" -- given or sold cats (F95, F96): no page counts them
+IndexRewards.SECRET_AREA = "secret" -- #3470: Secret cats, on no page and in no count
 IndexRewards.RAINBOW_AREA = "rainbow" -- the Rainbow page: rainbow cats of every area (F99, shared IndexRewards.RAINBOW)
 local PERKS: { Perk } = { "bonus", "goldLuck", "rainbowLuck", "baitSpeed" } -- the order they show in
 IndexRewards.PERKS = PERKS
@@ -158,6 +159,7 @@ end
 local function outOfBook(def: Types.CatDef, area: string): boolean
 	return area == IndexRewards.SPARE_AREA
 		or area == IndexRewards.EXCLUSIVE_AREA
+		or area == IndexRewards.SECRET_AREA
 		or (def :: any).exclusive == true
 end
 

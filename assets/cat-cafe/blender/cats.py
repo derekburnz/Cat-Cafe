@@ -270,6 +270,18 @@ ROSTER = {
     "JadeGuardian": dict(rarity="Mythical", fur="fur_emerald", second="leaf_dark", third="paw_woods", eyes="gold_light",
                          pattern="gradient", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.15,
                          body_scale=(1.05, 1.0, 1.05), ruff="fur_golden", tip="fur_golden"),
+    # #3470 (secret-cats.md section 8): the first three Secret cats, the tier above Mythical. They can be gold and
+    # rainbow like any cat. Nebula: a deep space coat with violet and pink clouds, stars and glowing mint eyes
+    "Nebula": dict(rarity="Secret", fur="night_sky", second="aurora_violet", third="neon_pink", eyes="mint",
+                   pattern="patches", muzzle=None, glow_eyes=True, sparkle=True, tip="neon_pink", nose="nose_dark",
+                   mark=("heart", "sparkle"), eye_k=1.08),
+    # Glitch: teal with magenta and dark squares, odd glowing eyes and mismatched toes
+    "Glitch": dict(rarity="Secret", fur="sign_teal", second="neon_pink", third="night_sky", eyes="neon_pink",
+                   eyes2="sparkle", pattern="solid", muzzle=None, glow_eyes=True, tiles=True, tip="neon_pink",
+                   toes=("neon_pink", "night_sky", "night_sky", "neon_pink"), nose="nose_dark"),
+    # Cafe Ghost: a pale see-through cat (rbx_export.GHOST: Transparency 0.5) in a tiny chef hat (props.py)
+    "CafeGhost": dict(rarity="Secret", fur="fur_white", second="fur_white", eyes="pastel_sky", pattern="solid",
+                      muzzle=None, glow_eyes=True, lids=True, curl=True, short_legs=True),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
@@ -548,7 +560,7 @@ def _head(spec, c, h):
     if spec.get("moon"):                                # crescent on the forehead
         b.box((0.02, fy - 0.015, fz + 0.24), (0.16, 0.04, 0.06), "sparkle", bevel=False)
         b.box((-0.05, fy - 0.012, fz + 0.19), (0.06, 0.04, 0.08), "sparkle", bevel=False)     # a hair behind the top bar
-    if spec.get("sparkle") and spec["rarity"] == "Mythical":   # star specks on the face too
+    if spec.get("sparkle") and spec["rarity"] in ("Mythical", "Secret"):   # star specks on the face too
         for (x, z) in ((0.36 * w, fz + 0.2), (-0.37 * w, fz - 0.17)):
             b.box((x, fy - 0.015, z), (0.06, 0.04, 0.06), "sparkle", bevel=False)      # proud of the blush
     if spec.get("sprinkles"):                           # a few sprinkles on the cheeks and brow
@@ -750,7 +762,7 @@ def _coat_extras(b, spec, c, centre, size, sides=True, front=True, top=True):
             specks += [(-hx - 0.03, y0 + 0.1, z0 + 0.08), (hx + 0.03, y0 - 0.08, z0 - 0.08), (hx + 0.03, y0 + 0.26, z0 + 0.12)]
         if top:
             specks += [(0.16, y0 + 0.22, tz + 0.03), (-0.18, y0 - 0.16, tz + 0.03)]
-        if spec["rarity"] == "Mythical":                # a denser star field on the heroes
+        if spec["rarity"] in ("Mythical", "Secret"):                # a denser star field on the heroes
             if sides:
                 specks += [(-hx - 0.03, y0 - 0.2, z0 + 0.13), (hx + 0.03, y0 + 0.1, z0 + 0.17)]
             if top:

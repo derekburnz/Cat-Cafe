@@ -68,6 +68,7 @@ local pending: { [number]: Arcade.Save } = {} -- by user id: the newest save wai
 local writing: { [number]: boolean } = {}
 local leaving: { [number]: boolean } = {} -- a leaver's last save goes out with no WRITE_GAP wait (#3251 review)
 local serverBest = { points = 0, circles = 0, name = nil :: string? }
+local SIGN_CHECK_SECONDS = 15
 local nextRunId = 0
 local rng = Random.new()
 
@@ -179,15 +180,33 @@ local function sendState(player: Player)
 	Net.fire(player, "ArcadeState", stateOf(player))
 end
 
--- The cabinet's prompt carries the server's best: "Cat Arcade · Best 61 (Sam)".
+-- #3296: Mouse Dash's best in this server (MouseDashService reports each finished game), shown on the cabinet
+-- while Mouse Dash is the arcade's game.
+local mouseBest = { points = 0, seconds = 0, name = nil :: string? }
+local shownBest: string? = nil
+
+-- The cabinet's prompt carries the server's best: "Cat Arcade · Best 61 (Sam)". With Circle Streak vaulted and Mouse
+-- Dash on it is Mouse Dash's: "Cat Arcade · Mouse Dash · Best 37 (Sam)", so the sign never shows a score from a
+-- game that cannot be played.
 local function showServerBest()
 	local text = Arcade.NAME
-	if serverBest.points > 0 then
+	local mouse = LiveFlagService.on(MouseDash.FLAG)
+		and not LiveFlagService.on(MouseDash.CIRCLE_FLAG)
+	if mouse then
+		text ..= " · " .. MouseDash.NAME
+		if mouseBest.points > 0 then
+			text ..= " · Best " .. MouseDash.words(mouseBest.points, mouseBest.seconds)
+			if mouseBest.name ~= nil then
+				text ..= " (" .. mouseBest.name .. ")"
+			end
+		end
+	elseif serverBest.points > 0 then
 		text ..= " · Best " .. Arcade.words(serverBest.points, serverBest.circles)
 		if serverBest.name ~= nil then
 			text ..= " (" .. serverBest.name .. ")"
 		end
 	end
+	shownBest = text
 	for _, model in CollectionService:GetTagged(Arcade.TAG) do
 		local prompt = model:FindFirstChild(Arcade.PROMPT, true)
 		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
@@ -588,6 +607,17 @@ function ArcadeService.claimMilestones(
 end
 
 -- Arcade Legend for a 100 point game of either arcade game, kept for good.
+-- #3296: a finished Mouse Dash game, for the cabinet's sign (MouseDashService). Kept when it beats this server's
+-- best so far (more points, then fewer seconds).
+function ArcadeService.noteMouseDash(player: Player, points: number, seconds: number)
+	if MouseDash.beats(points, seconds, mouseBest.points, mouseBest.seconds) then
+		mouseBest.points = points
+		mouseBest.seconds = seconds
+		mouseBest.name = player.DisplayName
+		showServerBest()
+	end
+end
+
 function ArcadeService.grantLegend(player: Player)
 	local save = saves[player]
 	if save ~= nil and not save.legend then
@@ -618,6 +648,17 @@ function ArcadeService.start()
 		task.defer(showServerBest)
 	end)
 	showServerBest()
+	-- #3296: the sign follows the game switches (they change with no restart), checked with the flags' own pace
+	task.spawn(function()
+		while true do
+			task.wait(SIGN_CHECK_SECONDS)
+			local was = shownBest
+			showServerBest()
+			if was ~= shownBest then
+				print("[ArcadeService] the cabinet's sign now reads: " .. tostring(shownBest))
+			end
+		end
+	end)
 	-- #3378: arcade_v1 step 2, the window opened by its ring or prompt (the client's StationOpened count)
 	Telemetry.onStationOpen(function(player: Player, window: string)
 		if window == "Arcade" then

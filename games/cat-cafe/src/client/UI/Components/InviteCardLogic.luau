@@ -17,7 +17,8 @@ InviteCardLogic.NOT_NOW = "Not now"
 InviteCardLogic.SECONDS = 20
 InviteCardLogic.GOOD_STEP = 4 -- the Grand Opening's step 4, Tier 2
 
-local GOOD: { [string]: boolean } = { Rare = true, Epic = true, Legendary = true, Mythical = true }
+local GOOD: { [string]: boolean } =
+	{ Rare = true, Epic = true, Legendary = true, Mythical = true, Secret = true }
 
 function InviteCardLogic.goodRarity(rarity: unknown): boolean
 	return type(rarity) == "string" and GOOD[rarity] == true

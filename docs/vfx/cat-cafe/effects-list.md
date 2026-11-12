@@ -1114,3 +1114,11 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 ## Cannon landing camera (#3444, 2026-11-12)
 
 `Effects/CannonGlide.luau` (`track`; `Logic.cannonHandBackAt`). The flight's camera follows the hop, the boom and the climb, waits under the clouds, and 0.1 s before the flyer drops back into sight puts the view behind the pad for one frame (clear of the cannon, #2779) and hands back to the game's camera. Nothing of ours moves, turns, zooms or shakes the camera as the feet land or when the server lets go; the player can turn the view on the way down. The landing's follow, zoom and push (#1081, #1131, #3328) are gone.
+
+## Loot card pop-in (#3464, 2026-11-12)
+
+`Effects/LootCardFx.luau`, numbers in `Presets.lootCard`. The UI builds the Rummage Bin's "You found:" card and calls this to move it.
+
+| Look | Hook |
+|---|---|
+| The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |

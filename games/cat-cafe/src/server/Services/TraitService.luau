@@ -14,7 +14,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
-local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)

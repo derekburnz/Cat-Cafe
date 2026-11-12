@@ -29,6 +29,8 @@
 #   secretCats    true lets Secret cats roll (#3470); only once every server runs a build that has them
 #   luckyCharm    true shows and sells the Fish Market's Lucky Charm perk and counts its Luck (#3298); only once
 #                 every server runs a build that has it (an older one drops the saved perk level)
+#   rareCatsTab   true gives the chat its own "Rare Cats" tab with every Mythical or better line (#3053); only
+#                 after Derek has seen the pictures (he asked for no tab of our own on 2026-11-10)
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -42,10 +44,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats and luckyCharm (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm and rareCatsTab (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -55,7 +57,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab" >&2
 	exit 2
 }
 
@@ -121,6 +123,7 @@ show_key() {
 	cartTier6) if [ "$raw" = true ]; then meaning="Day Cart Tier 6 shelf ON in every server (its own baits and potions)"; else meaning="Day Cart Tier 6 shelf off (its default)"; fi ;;
 	secretCats) if [ "$raw" = true ]; then meaning="Secret cats ON in every server"; else meaning="Secret cats off (its default)"; fi ;;
 	luckyCharm) if [ "$raw" = true ]; then meaning="Lucky Charm perk ON in every server"; else meaning="Lucky Charm perk off (its default)"; fi ;;
+	rareCatsTab) if [ "$raw" = true ]; then meaning="Rare Cats chat tab ON in every server"; else meaning="Rare Cats chat tab off (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
@@ -158,6 +161,7 @@ show() {
 	show_key cartTier6
 	show_key secretCats
 	show_key luckyCharm
+	show_key rareCatsTab
 }
 
 # write key json-value
@@ -177,7 +181,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -188,7 +192,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm) write "$2" false ;;
+	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

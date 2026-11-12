@@ -161,10 +161,14 @@ function Modal.open(self: any, name: string)
 	local fresh = self._current == nil
 	if self._current then
 		local previous: Screen = self._screens[self._current]
+		-- #3702: a tucked window is no longer tucked once another opens, so its onClose (which may ask to bring it
+		-- back) cannot show it again under the new one
+		self._tucked = nil
 		previous.frame.Visible = false
 		if previous.onClose then
 			previous.onClose()
 		end
+		previous.frame.Visible = false
 	end
 	-- a window still shrinking away goes now, so it never stays up under this one
 	local closing: GuiObject? = self._closing

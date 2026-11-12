@@ -2101,12 +2101,7 @@ local function onLoaded(player: Player, profile: Profile)
 			return player:GetNetworkPing()
 		end)
 		local ms = NetPing.ms(if ok then seconds else nil)
-		Telemetry.custom(
-			player,
-			NetPing.EVENT,
-			ms,
-			{ session.device or "unknown", NetPing.band(ms) }
-		)
+		Telemetry.custom(player, "net_ping", ms, { session.device or "unknown", NetPing.band(ms) })
 	end)
 	if profile.stats.sessions > 1 then
 		-- #2916: the welcome back card's next goals (CafeService sends the same pick)

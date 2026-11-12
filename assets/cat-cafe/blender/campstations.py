@@ -416,8 +416,9 @@ def _pond(b, water, gold):
         if abs(a - 1.5 * math.pi) < 0.3:                                                         # the jetty's gap
             continue
         r = 0.55 + 0.07 * ((k * 7) % 3)
-        b.ball(((PA + 0.15) * math.cos(a), 0.12, PZ + (PC + 0.15) * math.sin(a)), r, stones[k % 4],
-               scale=(1.0, 0.62, 0.9))
+        hy = (0.12 + 0.62 * r) / 2                                    # same top as before, underside on the ground:
+        b.ball(((PA + 0.15) * math.cos(a), hy, PZ + (PC + 0.15) * math.sin(a)), r, stones[k % 4],   # a stone below
+               scale=(1.0, hy / r, 0.9))                              # the ground sank the walk-up ring under the floor
     pad = "gold_mid" if gold else "leaf_green"
     for (lx, lz, r, flower) in ((-2.1, -0.4, 0.4, True), (-1.4, -1.2, 0.3, False), (2.2, -0.6, 0.36, False),
                                 (1.4, -1.4, 0.3, True)):

@@ -264,7 +264,7 @@ return function()
 			expect(Logic.jingleFor("Common")).to.equal(nil)
 			expect(Logic.jingleFor("Rare")).to.equal("jingleRare")
 			expect(Logic.jingleFor("Mythical")).to.equal("jingleMythical")
-			expect(Logic.jingleFor("Secret")).to.equal("jingleMythical")
+			expect(Logic.jingleFor("Secret")).to.equal("jingleSecret") -- #3470
 			expect(Logic.jingleFor(nil)).to.equal(nil)
 		end)
 
@@ -971,6 +971,12 @@ return function()
 				expect(Logic.stingAction("jingleLegendary", 10, "jingleRainbow", 12, 4)).to.equal(
 					"replace"
 				)
+				expect(Logic.stingAction("jingleMythical", 10, "jingleSecret", 12, 4)).to.equal(
+					"replace"
+				)
+				expect(Logic.stingAction("jingleSecret", 10, "jingleMythical", 12, 4)).to.equal(
+					"skip"
+				)
 				expect(Logic.stingAction("jingleRainbow", 10, "jingleMythical", 12, 4)).to.equal(
 					"skip"
 				)
@@ -991,6 +997,8 @@ return function()
 				expect(Logic.pullSting("Epic", nil)).to.equal("jingleEpic")
 				expect(Logic.pullSting("Legendary", "gold")).to.equal("jingleLegendary")
 				expect(Logic.pullSting("Mythical", nil)).to.equal("jingleMythical")
+				expect(Logic.pullSting("Secret", nil)).to.equal("jingleSecret")
+				expect(Logic.pullSting("Secret", "rainbow")).to.equal("jingleRainbow")
 				expect(Logic.pullSting("Rare", nil)).to.equal(nil)
 				expect(Logic.pullSting("Common", nil)).to.equal(nil)
 				expect(Logic.pullSting(nil, nil)).to.equal(nil)
@@ -1003,6 +1011,8 @@ return function()
 				expect(Logic.strayNoticeCue("Common", "rainbow")).to.equal("rainbowNear")
 				expect(Logic.strayNoticeCue("Mythical", "rainbow")).to.equal("rainbowNear")
 				expect(Logic.strayNoticeCue("Mythical", nil)).to.equal("rareNear")
+				expect(Logic.strayNoticeCue("Secret", nil)).to.equal("secretNear")
+				expect(Logic.strayNoticeCue("Secret", "rainbow")).to.equal("rainbowNear")
 				expect(Logic.strayNoticeCue("Legendary", "gold")).to.equal(nil)
 				expect(Logic.strayNoticeCue(nil, nil)).to.equal(nil)
 			end

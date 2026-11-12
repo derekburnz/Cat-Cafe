@@ -19,6 +19,8 @@ export type AreaTitle = {
 }
 
 local HOLD = 2 -- seconds on screen before the fade
+local TITLE_SIZE = 72
+local TITLE_MIN = 36 -- a line never shrinks under this to fit a small phone (#3518)
 local PICTURE = 72 -- the banner picture's side, the title's height less a little
 local PICTURE_GAP = 10
 local REPEAT_GAP = 4 -- the same area again within this many seconds is ignored (a walk and a travel both report it)
@@ -89,7 +91,7 @@ function AreaTitle.new(parent: Instance): AreaTitle
 		AutomaticSize = Enum.AutomaticSize.X, -- as wide as its words, so the picture sits right beside them
 		Size = UDim2.fromOffset(0, 80),
 		FontFace = Theme.fonts.display,
-		TextSize = 72,
+		TextSize = TITLE_SIZE,
 		TextColor3 = Theme.colors.white,
 		TextTransparency = 1,
 		Text = "",
@@ -170,6 +172,16 @@ function AreaTitle._show(
 	self._picture.ImageTransparency = 0.99 -- drawn, so Roblox fetches it while the banner fades in (IconArt's WAITING)
 	self._picture.Visible = hasPicture
 	self._holder.Visible = true
+	-- #3518: a long line ("The Night Market is open!") ran 13.7 px past a small phone's edge (705 x 338). The words
+	-- shrink until the line and its picture fit the holder, which is the screen's width less a margin
+	self._title.TextSize = TITLE_SIZE
+	local scale: number = self._uiScale.Scale
+	local beside = if hasPicture then (PICTURE + PICTURE_GAP) * scale else 0
+	local room = self._holder.AbsoluteSize.X - beside
+	local words = self._title.TextBounds.X
+	if room > 0 and words > room then
+		self._title.TextSize = math.max(TITLE_MIN, math.floor(TITLE_SIZE * room / words))
+	end
 	self._holder.Position = UDim2.new(0.5, 0, 0.3, -24)
 	Tween.to(self._holder, IN, { Position = UDim2.fromScale(0.5, 0.3) })
 	fade(self, true, IN)

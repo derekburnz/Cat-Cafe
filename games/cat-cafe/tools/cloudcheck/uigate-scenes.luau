@@ -1239,7 +1239,11 @@ local SCENES = {
 			local modal = UIShim.playerGui:FindFirstChild("CatCafeModals") :: ScreenGui
 			local list = modal:FindFirstChild("List", true) :: ScrollingFrame
 			local rows = list.AbsoluteSize.Y / (104 * Scale.get())
-			assert(rows >= 2.5, ("uigate: the Upgrades list shows %.1f rows on a short screen (#2339)"):format(rows))
+			-- #3518: an iPhone SE is 500 design px tall and gets its two and a half rows; a smaller phone still (a
+			-- Galaxy A06's 705 x 338 game view, 451 design px) has the window at the screen's full height with 2.2
+			local camera = workspace.CurrentCamera :: Camera
+			local least = if camera.ViewportSize.Y / Scale.get() >= 500 then 2.5 else 2
+			assert(rows >= least, ("uigate: the Upgrades list shows %.1f rows on a short screen (#2339)"):format(rows))
 		end
 	end },
 	{ "Decor", function()
@@ -4106,7 +4110,10 @@ local SCENES = {
 				assert(hole and hole:IsA("GuiButton"), "uigate: no hole " .. index .. " (#3296)")
 				holes[index] = hole
 				local size, at = hole.AbsoluteSize, hole.AbsolutePosition
-				assert(size.X >= 64 and size.Y >= 64, "uigate: hole " .. index .. " is " .. size.X .. " px on a board of " .. tostring(board.AbsoluteSize) .. " in a window of " .. tostring(window.AbsoluteSize) .. " (#3296)")
+				-- #3518: 64 px, or 52 on a phone under 360 px tall (a Galaxy A06 draws them 56), still over the 44 px a
+				-- finger needs
+				local least = if (workspace.CurrentCamera :: Camera).ViewportSize.Y < 360 then 52 else 64
+				assert(size.X >= least and size.Y >= least, "uigate: hole " .. index .. " is " .. size.X .. " px on a board of " .. tostring(board.AbsoluteSize) .. " in a window of " .. tostring(window.AbsoluteSize) .. " (#3296)")
 				-- clear of the hearts and score strip (Derek: the corner symbol was too close to the spawn)
 				local hx, hy = hud.AbsolutePosition.X, hud.AbsolutePosition.Y
 				local clearX = at.X >= hx + hud.AbsoluteSize.X + 15 or at.X + size.X <= hx - 15
@@ -6001,7 +6008,9 @@ local SCENES = {
 		end
 		local count, first = shown()
 		assert(count == 10 and first == 1, ("uigate: a 30 ring catch shows %d pips from %d (#2332)"):format(count, first))
-		assert(strip.AbsoluteSize.X < 300, "uigate: the 30 ring strip is " .. strip.AbsoluteSize.X .. " px wide (#2332)")
+		-- #2871: 300 design px; a 1080p TV draws the UI at 1.5 times, so the same strip is 327.6 px there
+		local stripScale = math.max(1, UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get())
+		assert(strip.AbsoluteSize.X < 300 * stripScale, "uigate: the 30 ring strip is " .. strip.AbsoluteSize.X .. " px wide (#2332)")
 		-- the eleventh ring judged: the strip slides on by two
 		UI.catch.judged("gate_stray", 11, "good")
 		count, first = shown()
@@ -6712,7 +6721,9 @@ local SCENES = {
 		local dot = gui:FindFirstChild("Dot2", true) :: Frame
 		local root = gui:FindFirstChild("Root") :: Frame -- the whole screen (the shim measures under Roblox's top bar)
 		local y = dot.AbsolutePosition.Y - root.AbsolutePosition.Y
-		assert(y >= 0 and y + dot.AbsoluteSize.Y <= 48, ("uigate: the shot dot sits %d px from the top, not near it (#2702)"):format(y))
+		-- #2871: 48 design px; a 1080p TV draws the UI at 1.5 times
+		local dotScale = math.max(1, UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get())
+		assert(y >= 0 and y + dot.AbsoluteSize.Y <= 48 * dotScale, ("uigate: the shot dot sits %d px from the top, not near it (#2702)"):format(y))
 		UIShim.advance(0.2) -- mid ring, for the picture
 	end },
 	{ "IntroNext", function()
@@ -8534,15 +8545,28 @@ local SCENES = {
 			-- #2447: in the top bar the Luck row sits right of the counters, level with them (#3307: the middle is in
 			-- the bar; on a big tablet the counters are taller than it)
 			local gap = row.AbsolutePosition.X - (counters.AbsolutePosition.X + counters.AbsoluteSize.X)
-			assert(gap >= 0 and gap <= 30, ("uigate: the Luck row sits %d px after the counters in the top bar (#2447)"):format(gap))
-			local rowMid = row.AbsolutePosition.Y + row.AbsoluteSize.Y / 2
-			local countersMid = counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2
-			assert(math.abs(rowMid - countersMid) <= 2, "uigate: the Luck row is not level with the counters (#2447)")
+			local narrow = (workspace.CurrentCamera :: Camera).ViewportSize.X < 760
+			if narrow and row.AbsolutePosition.Y >= bottom then
+				-- #3518: the third case (#2712, #2881), a phone too narrow for the pair (705 x 338): the counters stay in
+				-- the bar and the row hangs under them, its left edge level with theirs or right of it, clear of the menu.
+				-- Only under 760 px wide: an 844 x 390 phone keeps the pair in the bar, and the asserts below hold it there
+				assert(row.AbsolutePosition.X >= counters.AbsolutePosition.X - 1, "uigate: the Luck row under the counters starts left of them (#2881)")
+				assert(row.AbsolutePosition.X + row.AbsoluteSize.X <= root.AbsolutePosition.X + root.AbsoluteSize.X, "uigate: the Luck row under the counters runs off the screen (#2881)")
+				assert(row.AbsolutePosition.Y - bottom <= 30, "uigate: the Luck row sits far under the counters (#2712)")
+			else
+				assert(gap >= 0 and gap <= 30, ("uigate: the Luck row sits %d px after the counters in the top bar (#2447)"):format(gap))
+				local rowMid = row.AbsolutePosition.Y + row.AbsoluteSize.Y / 2
+				local countersMid = counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2
+				assert(math.abs(rowMid - countersMid) <= 2, "uigate: the Luck row is not level with the counters (#2447)")
+			end
 		else
 			assert(row.AbsolutePosition.Y >= bottom, "uigate: the Luck row is not under the counters on touch (#2393)")
-			local middle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
-			local rowMiddle = row.AbsolutePosition.X + row.AbsoluteSize.X / 2
-			assert(math.abs(rowMiddle - middle) <= 2, "uigate: the Luck row is not centred under the counters (#2393)")
+			-- #2881 (Derek2: "luck gets pushed down into middle of screen"): the row hangs under the money with left
+			-- edges level, or right of that where the menu grid is in the way; it was centred under the pair (#2393).
+			-- #3518: a 667 x 375 phone, where the counters do not fit the bar, is the size that reaches this
+			local left = row.AbsolutePosition.X - counters.AbsolutePosition.X
+			assert(left >= -1 and left <= counters.AbsoluteSize.X / 2, ("uigate: the Luck row starts %d px from the counters' left edge (#2881)"):format(left))
+			assert(row.AbsolutePosition.Y - bottom <= 30, "uigate: the Luck row sits far under the counters (#2712)")
 		end
 		press("CatCafeHUD", "Counters.Money")
 		local card = root:FindFirstChild("Boosts") :: GuiObject

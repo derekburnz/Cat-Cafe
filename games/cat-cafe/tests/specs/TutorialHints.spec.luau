@@ -234,14 +234,25 @@ return function()
 			expect(TutorialHints.line(view)).to.equal("Your bowl cat is here! Tame it")
 		end)
 
-		it("does not count a tamed bowl cat as a cat caught for step 3 (#3160)", function()
-			local tamed = state({
-				tutorialStep = 3,
-				cats = { starter = {}, a = {}, b = {} },
-				stats = { catsCaught = 2, baitsTamed = 1 },
-			})
-			expect(TutorialHints.ask(TutorialHints.view(tamed, spots))).to.equal("second")
-		end)
+		it(
+			"counts the first bowl cat as one for step 3, never as the second (#3160, #3551)",
+			function()
+				-- bowl cats alone, however many: still a cat to catch by hand
+				local bowls = state({
+					tutorialStep = 3,
+					cats = { starter = {}, a = {}, b = {} },
+					stats = { catsCaught = 2, baitsTamed = 2 },
+				})
+				expect(TutorialHints.ask(TutorialHints.view(bowls, spots))).to.equal("second")
+				-- the bowl's cat and one caught by hand: two cats
+				local both = state({
+					tutorialStep = 3,
+					cats = { starter = {}, a = {}, b = {} },
+					stats = { catsCaught = 2, baitsTamed = 1 },
+				})
+				expect(TutorialHints.ask(TutorialHints.view(both, spots))).to.equal("table")
+			end
+		)
 
 		it(
 			"offers the step's upgrade for one press only while the coins cover it (#2912)",

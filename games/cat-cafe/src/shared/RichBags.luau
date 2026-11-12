@@ -107,6 +107,18 @@ function RichBags.expired(bags: { Bag }, now: number): { string }
 	return out
 end
 
+-- #3632: the display records with no bag behind them, by name. A record like that can never be collected (the
+-- server holds no such bag), so RichTipService clears each one it finds instead of leaving a bubble that only spins.
+function RichBags.orphans(names: { string }, bags: { Bag }): { string }
+	local out: { string } = {}
+	for _, name in names do
+		if RichBags.find(bags, name) == nil then
+			table.insert(out, name)
+		end
+	end
+	return out
+end
+
 function RichBags.total(bags: { Bag }): number
 	local sum = 0
 	for _, bag in bags do

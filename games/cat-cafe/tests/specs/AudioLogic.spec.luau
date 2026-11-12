@@ -658,6 +658,12 @@ return function()
 	describe("Audio.Logic rummage prize cue", function()
 		it("picks a cue by prize, and dings for anything else", function()
 			expect(Logic.rummageCue("golden")).to.equal("goldReveal")
+			expect(Logic.rummageCue("bigmoney")).to.equal("goldReveal")
+			-- #3608: the roll's ticks and stop; the win stays with the row's own cue
+			expect(Logic.binRollCue("tick")).to.equal("uiReelTick")
+			expect(Logic.binRollCue("land")).to.equal("uiReelStop")
+			expect(Logic.binRollCue("win")).to.equal(nil)
+			expect(Logic.binRollCue(nil)).to.equal(nil)
 			expect(Logic.rummageCue("crate")).to.equal("indexReward")
 			for _, id in { "tuna", "fish", "salmon", "potion", "nope" } do
 				expect(Logic.rummageCue(id)).to.equal("giftClaim")

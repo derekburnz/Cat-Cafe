@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
+local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
@@ -80,6 +81,7 @@ local function move(player: Player, target: TutorialMoves.Target)
 	local landing = targetFor(player, target)
 	if landing ~= nil then
 		character:PivotTo(landing)
+		Cannon.noteMove(player, landing) -- the client's camera goes behind the character there
 	end
 end
 

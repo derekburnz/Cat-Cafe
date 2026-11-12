@@ -611,9 +611,11 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	-- spot put them at (-35, 27.5) and (-45, -20), further out and 48 apart, so the shot looks further west along
 	-- z = 5 (28 and 25 degrees off the axis) from a little nearer the cannon; #3070's 120 x 140 square put them at
 	-- (-35, 35) and (-45, -25.5), 60 apart, so the camera stands 12 further east and 4 higher to keep the same angles
-	-- (29 and 25 degrees) and still look over the cannon
-	local stations = v(-40, 3, 5)
-	local stationsCam = v(20, 24, 5)
+	-- (29 and 25 degrees) and still look over the cannon; #3454's four corners put them at (-26, 54) and (-44, -23),
+	-- 79 apart, so the camera stands 14 further east and 4 higher and looks at the point between them (29 degrees
+	-- off the axis each)
+	local stations = v(-35, 3, 15.5)
+	local stationsCam = v(34, 28, 0)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

@@ -31,6 +31,9 @@ AfkCafe.TICK_SECONDS = 1
 AfkCafe.REJOIN_FLAG = "autoRejoin"
 AfkCafe.ARRIVED_ATTRIBUTE = "CafeRestArrived" -- on the Player once the server has taken up the rest again after a
 -- rejoin, so the client knows it counts as idle and reports its first input
+AfkCafe.REJOIN_ATTRIBUTE = "RestRejoin" -- on the Player from the moment a rest's rejoin joins: this join is the same
+-- visit carried on, so nothing that greets a join shows (the Welcome back card, the top 10 chat line, the rest
+-- line), and the client holds its asks until the player's first input (AfkController.rejoinQuiet)
 AfkCafe.ARRIVAL_SECONDS = 90 -- how long after joining an arrival may take the rest up again
 AfkCafe.ARRIVAL_STILL_SECONDS = 3 -- standing in the zone this long first (the landing has settled)
 AfkCafe.REJOIN_RETRY_SECONDS = 30 -- a teleport that failed is tried again after this

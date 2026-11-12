@@ -4926,7 +4926,7 @@ Presets.lootCard = {
 -- The Neighborhood's trampoline (#3690; Effects/Trampoline). A model whose name ends in `suffix` is one; its mat is
 -- the part at most `matThin` studs thin and at least `matWide` wide. A landing from above (the feet no more than
 -- `under` studs below the mat's top, within the mat's radius plus `edge`) throws the character `height` studs up,
--- at most once every `gap` seconds. A jump off the mat reaches 7.2 studs, so `height` adds under 2 studs of reach.
+-- at most once every `gap` seconds; the landing is looked for `ray` studs under the feet. A jump off the mat reaches 7.2 studs, so `height` adds under 2 studs of reach.
 -- The mat dips `dip` studs over `down` seconds and springs back over `up`.
 Presets.trampoline = {
 	suffix = "_Trampoline",
@@ -4936,6 +4936,7 @@ Presets.trampoline = {
 	gap = 0.25,
 	under = 0.6,
 	edge = 0.5,
+	ray = 1.5,
 	dip = 0.3,
 	down = 0.08,
 	up = 0.35,

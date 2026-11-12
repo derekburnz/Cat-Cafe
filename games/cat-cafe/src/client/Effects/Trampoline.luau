@@ -11,8 +11,13 @@
 -- tackle with it), while sitting, or while the character is held by something else (the cannon, a cutscene).
 -- Numbers in Presets.trampoline.
 --
--- Roblox terms: Humanoid.Touched fires when any part of the character touches another part. AssemblyLinearVelocity
--- is the speed of a whole welded body; setting it on the character's root part moves the character.
+-- The mat is built with CanTouch off, so Touched never fires on it (Review-QA's Studio try). A landing is found from
+-- the Humanoid instead: when its state turns to Landed (or Running, for a step up onto the mat from a prop), one
+-- short ray straight down from the root part finds what the character stands on.
+--
+-- Roblox terms: a Humanoid's state says what the character is doing (Freefall, Landed, Running). A raycast asks the
+-- world what a line hits first. AssemblyLinearVelocity is the speed of a whole welded body; setting it on the
+-- character's root part moves the character.
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -104,13 +109,27 @@ local function dip(mat: BasePart)
 	down:Play()
 end
 
-local function touched(character: Model, humanoid: Humanoid, hit: BasePart)
-	local model = hit.Parent
-	if model == nil or not Trampoline.named(model.Name) or not Trampoline.isMat(hit.Size) then
-		return
-	end
+local function landed(character: Model, humanoid: Humanoid)
 	local root = humanoid.RootPart
 	if root == nil then
+		return
+	end
+	local reach = if humanoid.RigType == Enum.HumanoidRigType.R6 then 2 else humanoid.HipHeight
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { character }
+	local result = Workspace:Raycast(
+		root.Position,
+		Vector3.new(0, -(root.Size.Y / 2 + reach + Presets.trampoline.ray), 0),
+		params
+	)
+	local found = if result ~= nil then result.Instance else nil
+	if found == nil or not found:IsA("BasePart") then
+		return
+	end
+	local hit = found :: BasePart
+	local model = hit.Parent
+	if model == nil or not Trampoline.named(model.Name) or not Trampoline.isMat(hit.Size) then
 		return
 	end
 	local home = dipping[hit] or hit.CFrame
@@ -155,9 +174,13 @@ local function follow(character: Model)
 		return
 	end
 	local humanoid = found :: Humanoid
-	humanoid.Touched:Connect(function(hit: BasePart)
-		touched(character, humanoid, hit)
-	end)
+	humanoid.StateChanged:Connect(
+		function(_old: Enum.HumanoidStateType, new: Enum.HumanoidStateType)
+			if new == Enum.HumanoidStateType.Landed or new == Enum.HumanoidStateType.Running then
+				landed(character, humanoid)
+			end
+		end
+	)
 end
 
 function Trampoline.start()

@@ -1153,6 +1153,6 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 
 | Effect | How |
 |---|---|
-| Landing on the mat of a `..._Trampoline` model throws the character about 9 studs up (a jump off the mat reaches 7.2), again on every landing. Not while carrying a cat, sitting or held by the cannon or a cutscene. | `Humanoid.Touched` on the local character, `Trampoline.bounces` decides, the root part's upward speed is set. |
+| Landing on the mat of a `..._Trampoline` model throws the character about 9 studs up (a jump off the mat reaches 7.2), again on every landing. Not while carrying a cat, sitting or held by the cannon or a cutscene. | The local Humanoid turning to Landed or Running, then one ray down (the mat has CanTouch off); `Trampoline.bounces` decides, the root part's upward speed is set. |
 | The mat dips 0.3 studs in 0.08 s and springs back in 0.35 s with one overshoot. Skipped with Reduce Motion. | Two tweens on the mat's CFrame, on this client. |
 | A springy sound at the mat. | `Trampoline.onBounce`, Audio plays `netBounce` until a boing of its own exists. |

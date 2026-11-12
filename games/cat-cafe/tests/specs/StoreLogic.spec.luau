@@ -773,7 +773,7 @@ return function()
 			it("shows the true old price only at exactly the half price", function()
 				local half = { robux = 499, forSale = true }
 				expect(StoreLogic.saleWas(card("kingPack"), half, Config, before)).to.equal(999)
-				expect(StoreLogic.saleBadge(999)).to.equal("SALE  <s>R$999</s>")
+				expect(StoreLogic.saleBadge(999)).to.equal("SALE  was <s>R$999</s>")
 				-- the old price, a regional price or a later change: no badge
 				for _, robux in { 999, 498, 500, 250 } do
 					local price = { robux = robux, forSale = true }

@@ -604,7 +604,8 @@ end
 
 -- The Sale badge's words (rich text): SALE and the old price struck through. The button beside it has the new price.
 function StoreLogic.saleBadge(was: number): string
-	return ("%s  <s>R$%s</s>"):format(StoreLogic.SALE, commas(was))
+	-- "was" in words, so it reads right even where the strike line does not draw
+	return ("%s  was <s>R$%s</s>"):format(StoreLogic.SALE, commas(was))
 end
 
 -- Every pass id the Config names that is made, money ladder first.

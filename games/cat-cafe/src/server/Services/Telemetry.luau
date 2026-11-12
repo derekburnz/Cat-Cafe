@@ -1976,7 +1976,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local event = if kind ~= nil then PARK_TRAIL[kind] else nil
 		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
 			session.parkTrail[kind] = true
-			Telemetry.custom(player, event, 1, { tierText(profile) })
+			Telemetry.custom(player, (event :: any) :: CustomEvent, 1, { tierText(profile) })
 		end
 	elseif name == "catch_reach" then
 		local kind = Guard.oneOf(rawValue, { "near", "shown" })

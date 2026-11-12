@@ -99,7 +99,8 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 		LightInfluence = 0,
 		MaxDistance = 150,
 		ResetOnSpawn = false,
-		Size = UDim2.fromOffset(WIDTH, BUBBLE_MANY + BUTTON_GAP + BUTTON.Y),
+		-- 6 px under the button for its touch pad, which reaches past its face
+		Size = UDim2.fromOffset(WIDTH, BUBBLE_MANY + BUTTON_GAP + BUTTON.Y + 6),
 		StudsOffset = Vector3.new(0, OFFSET, 0),
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Parent = parent,

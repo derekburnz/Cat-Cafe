@@ -32,7 +32,8 @@ local function report(kind: string)
 	end
 end
 
-local function show(next: RankSpot.Phase)
+-- (`next` is typed any: the CI type check widens a Phase to string after a comparison)
+local function show(next: any)
 	local rankSpot = UI.rankSpot :: any
 	if next == "none" then
 		rankSpot.set("none")
@@ -62,7 +63,7 @@ local function tick(dt: number)
 	local free: boolean, window: string? = (moment :: () -> (boolean, string?))()
 	freeSeconds = if free then freeSeconds + dt else 0
 	local due = not putAway and player:GetAttribute(RankSpot.ATTRIBUTE) == true
-	local next = RankSpot.phase(due, phase, freeSeconds, window)
+	local next: any = RankSpot.phase(due, phase, freeSeconds, window)
 	if next ~= phase then
 		show(next)
 	end

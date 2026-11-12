@@ -39,6 +39,8 @@ local YARD_SALE_HOLD = 1 -- seconds held to buy at the Yard Sale while it buys a
 
 local AUTO_SECONDS = 0.25 -- #2498: how often the walk-up claim looks
 local AUTO_WAIT = 3 -- seconds a sent claim holds back the next one for that extra while no answer comes
+local PICK_RESULT_SECONDS = 5 -- #3615: a pick's CampExtraResult follows YardSalePicked at once; this is ample
+local pickRolling: number? = nil -- os.clock() of a YardSalePicked whose CampExtraResult has not come yet
 local pending: { [string]: number } = {} -- #2498: os.clock() of each extra's claim still unanswered
 
 local prompts: { [ProximityPrompt]: string } = {} -- each extra's prompt on this client and its extra id
@@ -275,12 +277,23 @@ function CampExtrasController.start()
 			Net.fire("YardSalePick")
 		end)
 	end
-	Net.on("YardSalePicked", function(index: number)
+	-- The pick's CampExtraResult comes right behind it: its toast and the stall's moment wait for the board to land
+	-- (Review-QA on #3669), so the roll is not given away. The card's landing fires yardSaleLanded.
+	Net.on("YardSalePicked", function(index: number, crateId: string?)
 		local picked = hook("picked")
 		if picked ~= nil then
-			picked(index)
+			pickRolling = os.clock()
+			picked(index, crateId)
 		end
 	end)
+	if uiEvents.yardSaleLanded ~= nil then
+		uiEvents.yardSaleLanded:Connect(function()
+			local position = anchorPosition(CampExtras.YARD_SALE)
+			if position ~= nil then
+				Moments.CampExtraCollect:Fire(CampExtras.YARD_SALE, position)
+			end
+		end)
+	end
 	Net.on("CampExtrasState", function(state: Types.CampExtrasState)
 		CampExtrasController.state = state
 		table.clear(pending) -- #2498: the new view says what still waits
@@ -301,6 +314,15 @@ function CampExtrasController.start()
 				if refused ~= nil then
 					refused(extraId)
 				end
+				return
+			end
+			-- #3615: a lucky pick's result: the card's landing shows the prize and the moment
+			if
+				extraId == CampExtras.YARD_SALE
+				and pickRolling ~= nil
+				and os.clock() - pickRolling < PICK_RESULT_SECONDS
+			then
+				pickRolling = nil
 				return
 			end
 			local position = anchorPosition(extraId)

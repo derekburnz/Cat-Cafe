@@ -147,6 +147,15 @@ return function()
 		end)
 	end)
 
+	describe("RollBoardLogic.rowOf (#3615)", function()
+		it("finds the crate the server named, whatever its place in the rows", function()
+			local rows = { { crateId = "a" }, { crateId = "b" }, { crateId = "c" } }
+			expect(RollBoardLogic.rowOf(rows, "c")).to.equal(3)
+			expect(RollBoardLogic.rowOf(rows, "a")).to.equal(1)
+			expect(RollBoardLogic.rowOf(rows, "z")).to.equal(nil)
+		end)
+	end)
+
 	describe("RollBoardLogic.rollSteps (#3615)", function()
 		it("moves one row at a time in list order and stops on the landing row", function()
 			for landing = 1, 5 do

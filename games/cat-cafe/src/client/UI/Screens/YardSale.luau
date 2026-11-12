@@ -46,7 +46,7 @@ export type YardSale = {
 	-- BuyYardSale refused: the "..." lifts and the crate's button wobbles (the server's toast says why)
 	refused: (self: YardSale) -> (),
 	-- #3615: YardSalePicked: the row the pick landed on; the light rolls down the board to it
-	picked: (self: YardSale, index: number) -> (),
+	picked: (self: YardSale, index: number, crateId: string?) -> (),
 	destroy: (self: YardSale) -> (),
 }
 
@@ -503,13 +503,22 @@ function YardSale._showRow(self: any, index: number)
 	scroll.CanvasPosition = Vector2.new(0, math.max(0, y))
 end
 
-function YardSale.picked(self: any, index: number)
+function YardSale.picked(self: any, index: number, crateId: string?)
 	self._pending = nil
 	self._pendingToken += 1
 	local view: Types.CampExtraView? = self._view
 	local rows = if view ~= nil then view.pick else nil
+	-- the server names the crate: the rows here may have changed since the press (a rank up opens an area)
+	if rows ~= nil and type(crateId) == "string" then
+		index = RollBoardLogic.rowOf(rows, crateId) or index
+	end
 	if rows == nil or not self._picking or index < 1 or index > #rows then
 		self:_paint()
+		-- no board to roll: the prize is still told
+		local known: Callbacks = self._callbacks
+		if type(crateId) == "string" and known.landed ~= nil then
+			known.landed(crateId)
+		end
 		return
 	end
 	self._rollToken += 1

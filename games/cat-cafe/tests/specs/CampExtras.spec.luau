@@ -488,6 +488,10 @@ return function()
 			expect((CampExtras.autoClaim(CampExtras.YARD_SALE, taken))).to.equal(nil)
 			local unknown = { open = true, held = 1 }
 			expect((CampExtras.autoClaim("mystery", unknown :: any))).to.equal(nil)
+			-- #3615: a lucky pick is pressed on the card, never spent by walking up
+			local pick = table.clone(view) :: any
+			pick.pick = { { crateId = "classic_crate", chance = 100 } }
+			expect((CampExtras.autoClaim(CampExtras.YARD_SALE, pick))).to.equal(nil)
 		end)
 	end)
 

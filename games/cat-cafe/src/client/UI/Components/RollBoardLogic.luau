@@ -246,6 +246,16 @@ function RollBoardLogic.wait(seconds: number): string
 	return string.format("%d m", minutes)
 end
 
+-- #3615: where `crateId` stands in a lucky pick's rows, or nil.
+function RollBoardLogic.rowOf(rows: { any }, crateId: string): number?
+	for index, row in rows do
+		if row.crateId == crateId then
+			return index
+		end
+	end
+	return nil
+end
+
 -- The rows the pick's light passes, in order, with the seconds it rests on each: twice down the list from the top,
 -- then on to `landing`, slowing evenly. It always moves one row at a time in list order and stops on the row the
 -- server chose; it never slows near a golden row or steps back, so there is no near miss.

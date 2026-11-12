@@ -8,8 +8,14 @@
 --     rich tips, the Tip Jar, golden fish and offline pay are untouched (they never read it).
 --   The client reports only that it has had no input (AfkIdle); the server decides: the zone, a character that has
 --     not moved, nothing carried, no trade (AfkCafeService).
---   Roblox's own disconnect after 20 minutes without input stays as it is (Derek 2026-11-12: no automatic rejoin),
---     so no words here say or suggest a player will not be disconnected.
+--   #3602 (Derek 2026-11-12: "add auto rejoin", "make sure they auto rejoin at their cafe back in the auto rejoin 2x
+--     money area"): Roblox disconnects a player after 20 minutes without input. Behind the `autoRejoin` switch
+--     (off by default), a resting player with no input for Config.AutoRejoinSeconds is teleported to this same place by the
+--     server (AfkCafeService), which starts a new session before that disconnect. They arrive with TeleportData
+--     { cafeRest = true }, land at their own front door as every returning player does (CannonService.homeArrival,
+--     inside the doorstep zone) and rest again once they have stood there ARRIVAL_STILL_SECONDS, without the
+--     AfkCafeSeconds wait. A client can forge that data (a client may teleport itself with any data), which gains it
+--     only the skipped wait: it must still stand still in its own cafe.
 -- Pure.
 
 local Config = require(script.Parent.Config)
@@ -22,6 +28,12 @@ AfkCafe.ATTRIBUTE = "CafeRest" -- on the Player while resting, for the HUD's chi
 AfkCafe.DOORSTEP_STUDS = 12
 AfkCafe.MOVE_STUDS = 1.5 -- a character further than this from where it stood has moved
 AfkCafe.TICK_SECONDS = 1
+AfkCafe.REJOIN_FLAG = "autoRejoin"
+AfkCafe.ARRIVED_ATTRIBUTE = "CafeRestArrived" -- on the Player once the server has taken up the rest again after a
+-- rejoin, so the client knows it counts as idle and reports its first input
+AfkCafe.ARRIVAL_SECONDS = 90 -- how long after joining an arrival may take the rest up again
+AfkCafe.ARRIVAL_STILL_SECONDS = 3 -- standing in the zone this long first (the landing has settled)
+AfkCafe.REJOIN_RETRY_SECONDS = 30 -- a teleport that failed is tried again after this
 
 -- The once a visit line (design section 5.2) and the line on coming back (5.3).
 AfkCafe.LINE =
@@ -75,6 +87,48 @@ end
 -- Whether the rest really doubles the pay right now (false in a 2x party): the chip names "2x" only while it is true.
 function AfkCafe.doubled(eventMoney: number): boolean
 	return AfkCafe.money(eventMoney, true) > eventMoney
+end
+
+-- #3602: whether a resting player is due a rejoin now: no input for `idleSeconds` (Roblox's disconnect counts from
+-- the last input, not from the rest's start, and a rest may stop and start again with no input between), last
+-- tried at `lastTry` (os.clock, nil when never).
+function AfkCafe.rejoinDue(idleSeconds: number, lastTry: number?, now: number): boolean
+	if idleSeconds < Config.AutoRejoinSeconds then
+		return false
+	end
+	return lastTry == nil or now - lastTry >= AfkCafe.REJOIN_RETRY_SECONDS
+end
+
+-- #3602: what the rejoin teleport carries.
+function AfkCafe.teleportData(): { [string]: boolean }
+	return { cafeRest = true }
+end
+
+-- #3602: whether a join is a rest's rejoin: it came from this same place carrying teleportData's mark.
+-- `teleportData` and `sourcePlaceId` are Player:GetJoinData()'s, of any shape.
+function AfkCafe.arrivedResting(
+	teleportData: unknown,
+	sourcePlaceId: unknown,
+	placeId: number
+): boolean
+	if sourcePlaceId ~= placeId or type(teleportData) ~= "table" then
+		return false
+	end
+	return (teleportData :: any).cafeRest == true
+end
+
+-- #3602: whether an arrival takes the rest up again at this check: inside its window, in the zone, not busy and
+-- still since landing.
+function AfkCafe.arrivalRests(
+	sinceJoin: number,
+	stillSeconds: number,
+	inZone: boolean,
+	busy: boolean
+): boolean
+	return sinceJoin <= AfkCafe.ARRIVAL_SECONDS
+		and inZone
+		and not busy
+		and stillSeconds >= AfkCafe.ARRIVAL_STILL_SECONDS
 end
 
 return AfkCafe

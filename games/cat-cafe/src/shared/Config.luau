@@ -411,6 +411,10 @@ local Config = {
 	-- its doorstep doubles the cats' cafe pay, in the event money slot above (so never more than EventMoneyMax).
 	AfkCafeSeconds = 120,
 	AfkCafeMoney = 2,
+	-- #3602: a resting player who has had no input this long is sent back into the game (shared/AfkCafe, switch
+	-- `autoRejoin`). Roblox disconnects at 20 minutes without input, so this leaves two minutes for the teleport
+	-- and its retries.
+	AutoRejoinSeconds = 18 * 60,
 	EventLuckMax = 1.0,
 	EventShowerMax = 12,
 	EventShowerGapMinSeconds = 300,

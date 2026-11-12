@@ -31,7 +31,13 @@ WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one co
 
 WhatsNew.rows = table.freeze({
 	-- #2718 refresh (11-12 09:10): player-facing changes since #3369, 148 merges, that are on without a switch. The
-	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) waits for its idea credit id.
+	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) has no named credit (#3472).
+	{
+		id = "top_ten_hello",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Top 10 players get a hello",
+	},
 	{
 		id = "spa_sort_toggle",
 		date = "2026-11-12",

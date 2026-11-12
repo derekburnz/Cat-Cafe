@@ -16,6 +16,10 @@ on:
         description: "Place version to run against (publish prints it); empty = the latest published version"
         required: false
         default: ""
+      ids:
+        description: "AssetCheck.luau only: asset ids to check, split by spaces or commas"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -53,4 +57,5 @@ jobs:
           ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
           SCRIPT: ${{ inputs.script }}
           VERSION: ${{ inputs.version }}
+          LUAU_IDS: ${{ inputs.ids }}
         run: bash tools/opencloud/run-luau.sh "tools/opencloud/$SCRIPT" "${VERSION:-latest}"

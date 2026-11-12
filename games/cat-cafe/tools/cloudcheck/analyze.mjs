@@ -83,6 +83,13 @@ for (const node of [...support, ...scripts]) {
   analysis.setModule(node.moduleName, rewritten, kind);
 }
 
+// A spec file that grows too large makes the checker give up on the whole file ("Code is too complex to
+// typecheck", one error per test). Layout.spec passed at 121,587 bytes and failed at 122,008 on 2026-11-11, after
+// three PRs that each passed alone had merged, so main and every open PR went red at once. The limit sits well
+// under that, so the PR that crosses it fails by itself, with room for PRs that merge side by side.
+const SPEC_MAX_BYTES = 100_000;
+const SPEC_RE = /\.spec\.luau$/;
+
 // 4. Check everything and report.
 const results = analysis.checkModules(scripts.map((n) => n.moduleName));
 let errors = 0;
@@ -117,6 +124,11 @@ for (const node of scripts) {
     lines.push(`  ${severity.toUpperCase().padEnd(7)} ${where}  ${d.message.replace(/\s*\n\s*/g, ' ')}${d.kind === 'lint' ? ` [lint ${d.code}]` : ''}`);
   }
   if (timeouts.has(node.moduleName)) lines.push(`  TIMEOUT ${node.rel}: checker gave up`);
+  const size = SPEC_RE.test(node.rel) ? fs.statSync(node.path).size : 0;
+  if (size > SPEC_MAX_BYTES) {
+    errors++;
+    lines.push(`  ERROR   ${node.rel}  spec file is ${size} bytes, over the ${SPEC_MAX_BYTES} byte limit: move some of its describe blocks to a new spec file (see SPEC_MAX_BYTES in analyze.mjs)`);
+  }
   if (lines.length) {
     console.log(node.rel);
     for (const l of lines) console.log(l);

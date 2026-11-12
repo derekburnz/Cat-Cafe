@@ -1935,7 +1935,8 @@ end
 
 -- #2766: the update Event's ask (UI/Components/EventRsvp): once a session at a quiet moment, before the Event starts,
 -- to a player past the tutorial who has not answered Roblox's Notify Me prompt; a busy card tries at the next sync.
-local eventAsk = { asked = false }
+-- #3450: only 3 to 10 minutes into the session (EventRsvp.window), counted from when this script started.
+local eventAsk = { asked = false, started = os.clock() }
 local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
@@ -1945,6 +1946,7 @@ local function offerEvent()
 		eventAsk.asked
 		or state == nil
 		or state.tutorialStep < 5
+		or not EventRsvp.window(os.clock() - eventAsk.started)
 		or not EventRsvp.due(id, startsAt, os.time())
 	then
 		return
@@ -1952,12 +1954,11 @@ local function offerEvent()
 	eventAsk.asked = true
 	local eventId, at = id :: string, startsAt :: number
 	task.spawn(function()
-		local waited = 0
 		while not quiet() do
-			if waited >= ASK_WAIT_SECONDS then
-				return
+			task.wait(1)
+			if not EventRsvp.window(os.clock() - eventAsk.started) then
+				return -- no quiet moment by minute 10: not this session
 			end
-			waited += task.wait(1)
 		end
 		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
 			return -- answered before (or Roblox cannot say), or it has started
@@ -2091,6 +2092,10 @@ local function trackInvite()
 end
 
 local function wireServerEvents()
+	-- #3450: the update Event's ask does not wait for a sync once its window opens
+	task.delay(EventRsvp.FROM_SECONDS + 1, function()
+		offerEvent()
+	end)
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		latestCarrying = s.carrying -- #3145: first, before anything that could hold this sync up
 		applyState(s)

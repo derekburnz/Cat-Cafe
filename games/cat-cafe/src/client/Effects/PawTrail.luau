@@ -134,7 +134,7 @@ local function draw(folder: Instance)
 			prints[dot] = paw
 		end
 		local here = dot.Position
-		local nextDot = dots[index + 1]
+		local nextDot: BasePart? = dots[index + 1]
 		local toward = if nextDot ~= nil
 			then nextDot.Position
 			elseif last ~= nil then here + (here - last)

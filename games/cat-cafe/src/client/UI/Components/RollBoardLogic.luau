@@ -4,8 +4,8 @@
 -- lucky pick (#3614) uses the same view and the same component (Components/RollBoard).
 -- A view is a title, one line under it, the rows and, sometimes, a foot line:
 --   the list      every prize with its chance ("What is inside? One prize each dig.")
---   one prize     the fixed first prize that waits ("Your next prize"), the prize kept after a miss ("Waiting for
---                 you"), or the prize the bar is being played for ("Rummage for"): no chances, nothing is random
+--   one prize     the prize kept after a miss ("Waiting for you"), or the prize the bar is being played for
+--                 ("Rummage for"): no chances, nothing is random. #3680: no fixed first prize is shown any more
 --   empty         the list dimmed with "Fills in m:ss"
 -- Pure, so the cloud test runner checks it.
 
@@ -47,7 +47,6 @@ export type BinInput = {
 RollBoardLogic.BIN_TITLE = "RUMMAGE BIN"
 RollBoardLogic.BIN_LIST = "What is inside? One prize each dig."
 RollBoardLogic.BIN_ROLLING = "Rolling..."
-RollBoardLogic.BIN_NEXT = "Your next prize"
 RollBoardLogic.BIN_WAITING = "Waiting for you"
 RollBoardLogic.BIN_PLAYING = "Rummage for"
 
@@ -159,16 +158,7 @@ function RollBoardLogic.bin(input: BinInput): View
 			dim = false,
 		}
 	end
-	local fixed = RummageBin.fixedFor(input.uses)
-	if fixed ~= nil then
-		return {
-			title = title,
-			line = RollBoardLogic.BIN_NEXT,
-			rows = { RollBoardLogic.binRow(fixed, false) },
-			dim = false,
-			foot = string.format("After your first %d: prizes are rolled", Config.BinFirstUses),
-		}
-	end
+	-- #3680: no fixed first prize any more: a new account's first rummage is rolled, so it sees the list too
 	return { title = title, line = RollBoardLogic.BIN_LIST, rows = list(true), dim = false }
 end
 

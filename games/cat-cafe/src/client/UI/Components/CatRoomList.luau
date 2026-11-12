@@ -23,7 +23,8 @@ local CatRoomList = {}
 export type Filter = "All" | "Working" | "Resting"
 export type Sort = "Best" | "Rarity" | "Level"
 
-CatRoomList.SORTS = table.freeze({ "Best", "Rarity", "Level" }) :: { Sort }
+local SORTS: { Sort } = { "Best", "Rarity", "Level" }
+CatRoomList.SORTS = table.freeze(SORTS)
 
 function CatRoomList.nextSort(sort: Sort): Sort
 	local at = table.find(CatRoomList.SORTS, sort) or 0

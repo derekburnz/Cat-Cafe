@@ -345,6 +345,9 @@ local function onStart(player: Player)
 		Net.toast(player, CLOSED_TEXT, "warn")
 		return
 	end
+	if not alive(player) then
+		return -- (Review-QA on #3403) no run for a player who is down: the timer would end it at once
+	end
 	local save = saves[player]
 	local loaded = save ~= nil and ArcadeService.loaded(player)
 	local free = save ~= nil and MouseDash.freeToday(save, os.time())
@@ -358,7 +361,8 @@ local function onStart(player: Player)
 		return
 	end
 	if free then
-		-- the free day is written at once so another server can't give it again
+		-- the free day is queued at once so another server can't give it again. The write may wait out WRITE_GAP
+		-- (7 s), so a hop inside that gap could give one more free run: worth one golden fish at most
 		MouseDash.useFree(save, os.time())
 		queueSave(player.UserId, save)
 	else

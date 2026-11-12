@@ -40,6 +40,9 @@ function AfkController.start()
 	UserInputService.InputBegan:Connect(touched)
 	UserInputService.InputChanged:Connect(function(input: InputObject)
 		local kind = input.UserInputType
+		if kind == Enum.UserInputType.Accelerometer or kind == Enum.UserInputType.Gyro then
+			return -- a phone lying on a table still reports tilt; that is not the player
+		end
 		if kind == Enum.UserInputType.Gamepad1 and input.Position.Magnitude < STICK_DEADZONE then
 			return -- a resting stick's drift is not input
 		end

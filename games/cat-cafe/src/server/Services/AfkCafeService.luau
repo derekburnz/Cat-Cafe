@@ -108,6 +108,12 @@ end
 
 local function check(player: Player, now: number)
 	local watch = watchOf(player)
+	if not LiveFlagService.on(AfkCafe.FLAG) and watch.restSince == nil then
+		-- switch off and nobody resting: nothing to measure (the stillness clock starts when it comes on)
+		watch.at = nil
+		watch.stillSince = now
+		return
+	end
 	local plot = PlotService.get(player)
 	local profile = DataService.get(player)
 	local root = rootOf(player)

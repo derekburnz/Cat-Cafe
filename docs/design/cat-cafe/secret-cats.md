@@ -48,6 +48,8 @@ The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWind
 - It stays until the next night like any wave stray. No timer shows and nothing says it will leave.
 - Normal tackle rules apply on the way home.
 
+**The Secret glow (Derek 2026-11-12, #3544).** "make secrets have a special glow also when you see them around cafe or world". A soft breathing starlight aura (226, 214, 255) with a few drifting star sparkles, on a wild Secret cat the whole time it is out and on an owned one in a cafe (walking, perched, carried, in the Backpack, at stations). Everyone nearby sees it. It is the same for all three cats, looks unlike the gold glow and the rainbow coat and sits on top of both. It does not show through walls and it is not a pointer. Client side, inside the phone budgets, a tint at low quality. It rides `secretCats`. Not built yet.
+
 ## 7. Out of the Index
 
 - No row, silhouette or "???" slot, and no count toward any Index total, track or reward.

@@ -269,6 +269,18 @@ function CampExtrasController.start()
 			Net.fire("BuyYardSale", crateId)
 		end)
 	end
+	-- #3615: the Yard Sale's lucky pick, from its card; the answer rolls the card's board to the row
+	if uiEvents.yardSalePick ~= nil then
+		uiEvents.yardSalePick:Connect(function()
+			Net.fire("YardSalePick")
+		end)
+	end
+	Net.on("YardSalePicked", function(index: number)
+		local picked = hook("picked")
+		if picked ~= nil then
+			picked(index)
+		end
+	end)
 	Net.on("CampExtrasState", function(state: Types.CampExtrasState)
 		CampExtrasController.state = state
 		table.clear(pending) -- #2498: the new view says what still waits

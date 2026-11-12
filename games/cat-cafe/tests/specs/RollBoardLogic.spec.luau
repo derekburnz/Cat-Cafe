@@ -103,4 +103,67 @@ return function()
 			end
 		)
 	end)
+
+	describe("RollBoardLogic.yard (#3615)", function()
+		local rows = {
+			{ crateId = "classic_crate", chance = 0.38, golden = false, tier = 1 },
+			{ crateId = "park_crate", chance = 0.125, golden = false, tier = 1 },
+			{ crateId = "classic_golden_crate", chance = 0.08, golden = true, tier = 3 },
+		}
+
+		it(
+			"shows every crate with its chance to one decimal and golden rows as the best",
+			function()
+				local view = RollBoardLogic.yard({ rows = rows, nextAt = nil, now = 100 })
+				expect(view.title).to.equal(RollBoardLogic.YARD_TITLE)
+				expect(view.line).to.equal(RollBoardLogic.yardLine())
+				expect(view.dim).to.equal(false)
+				expect(#view.rows).to.equal(3)
+				expect(view.rows[1].chance).to.equal("38.0%")
+				expect(view.rows[2].chance).to.equal("12.5%")
+				expect(view.rows[3].chance).to.equal("8.0%")
+				expect(view.rows[1].tier).to.equal(1)
+				expect(view.rows[3].tier).to.equal(3)
+			end
+		)
+
+		it("says the pick is free and how often", function()
+			expect(RollBoardLogic.yardLine()).to.equal(
+				string.format("Free every %d hours", Config.YardSaleRollHours)
+			)
+		end)
+
+		it("dims the rows and counts down while the next pick waits", function()
+			local view = RollBoardLogic.yard({ rows = rows, nextAt = 100 + 80 * 60, now = 100 })
+			expect(view.dim).to.equal(true)
+			expect(view.line).to.equal("Next pick in 1 h 20 m")
+		end)
+
+		it("keeps the rows at full strength while the light rolls, wait or not", function()
+			local view =
+				RollBoardLogic.yard({ rows = rows, nextAt = 9999, now = 100, rolling = true })
+			expect(view.dim).to.equal(false)
+			expect(view.line).to.equal(RollBoardLogic.YARD_ROLLING)
+		end)
+	end)
+
+	describe("RollBoardLogic.rollSteps (#3615)", function()
+		it("moves one row at a time in list order and stops on the landing row", function()
+			for landing = 1, 5 do
+				local steps = RollBoardLogic.rollSteps(5, landing)
+				expect(#steps).to.equal(10 + landing)
+				expect(steps[#steps].index).to.equal(landing)
+				for at = 2, #steps do
+					expect(steps[at].index).to.equal(steps[at - 1].index % 5 + 1)
+					-- it only ever slows: no pause that could look like a near miss
+					expect(steps[at].rest >= steps[at - 1].rest).to.equal(true)
+				end
+			end
+		end)
+
+		it("takes the same time whatever the row's prize, and has no steps for no rows", function()
+			expect(#RollBoardLogic.rollSteps(0, 1)).to.equal(0)
+			expect(RollBoardLogic.rollSteps(4, 9)[12].index).to.equal(4)
+		end)
+	end)
 end

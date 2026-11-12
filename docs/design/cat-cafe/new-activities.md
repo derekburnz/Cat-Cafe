@@ -132,7 +132,7 @@ Derek2, 2026-11-11: "no market luck because thats all decided stock per global, 
   - It feeds the same Luck total that the odds cards read (`FoodOdds.atBowl` and the crate odds), so the printed odds always include it.
 - **Earned only:** it's bought with golden fish only. It's never sold for Robux, never part of any Robux bundle, pack or pass, and can't be traded or gifted (Monetization-Agent, 11-11). Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
 - **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
-- **Flag:** `luckyCharm`.
+- **Flag:** `luckyCharm`. Built 2026-11-12 (#3503, `shared/LuckyCharm`, icon #3502) as specced, with the switch off until review, QA and a switch-on check pass.
 - **Judge by:** level 1 buys among players with 100+ fish. Lucky Potion use shouldn't drop much; if it does, use the flag.
 
 ## Related

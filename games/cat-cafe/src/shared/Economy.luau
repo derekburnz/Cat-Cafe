@@ -527,7 +527,7 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 		-- money cap with the slot (Pet.gain); after the event's share is noted, as it is not the event's doing
 		local petCoins = Economy.petRate(profile, profile.lastTick)
 			* Pet.gain(money)
-			* paidSeconds
+			* base -- the paid seconds without the tip bonus: tips are unchanged
 			* Pet.seconds(profile.pet, profile.lastTick, elapsed)
 			/ elapsed
 		if petCoins > 0 then

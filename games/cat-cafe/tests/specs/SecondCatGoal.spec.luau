@@ -19,13 +19,32 @@ return function()
 	end
 
 	describe("SecondCatGoal.view", function()
-		it("is nothing without the server's secondCat, or while a cat is carried", function()
+		it("is nothing without the server's secondCat", function()
 			expect(SecondCatGoal.view({}, true, "Cozy Cafe")).to.equal(nil)
 			expect(SecondCatGoal.view(nil, true, "Cozy Cafe")).to.equal(nil)
-			expect(SecondCatGoal.view(full({ carrying = "tuxedo" }), true, "Cozy Cafe")).to.equal(
-				nil
-			)
+			expect(SecondCatGoal.view({ carrying = "tuxedo" }, true, "Cozy Cafe")).to.equal(nil)
 		end)
+
+		it(
+			"keeps the card while a cat is carried, sending it home (no flip to the tier goal)",
+			function()
+				for _, narrow in { true, false } do
+					for _, open in { true, false } do
+						local view: any = SecondCatGoal.view(
+							full({ carrying = "tuxedo" }),
+							narrow,
+							"Cozy Cafe",
+							open
+						)
+						expect(view).to.deepEqual({
+							title = "Bring your cat home 🏠",
+							lines = {},
+							chip = "Bring your cat home 🏠",
+						})
+					end
+				end
+			end
+		)
 
 		it("is the goal with its count, and no hook line on a narrow card", function()
 			local view = SecondCatGoal.view(full(), true, "Cozy Cafe")
@@ -78,9 +97,6 @@ return function()
 					"New cats pay +$50 💰"
 				)
 				expect(SecondCatGoal.view(full(), true, "Cozy Cafe", true).hook).to.equal(nil)
-				expect(SecondCatGoal.view(full({ carrying = "tuxedo" }), false, "Cozy Cafe", false)).to.equal(
-					nil
-				)
 			end
 		)
 

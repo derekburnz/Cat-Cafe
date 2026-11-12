@@ -2645,6 +2645,56 @@ local SCENES = {
 			model:Destroy()
 		end
 	end },
+	-- #3470 section 5: a black "SECRET" pill with a white edge over each Secret stray and the name under it, "???"
+	-- until the kind has been caught once; none over a Mythical; hidden in a net, back on a bolt
+	{ "SecretTags", function()
+		local function stray(id: string, rarity: string, name: string?, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = "Stray_" .. id
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -12)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("StrayId", id)
+			model:SetAttribute("Rarity", rarity)
+			model:SetAttribute("CatName", name)
+			model.Parent = workspace
+			model:AddTag("Stray")
+			return model
+		end
+		local unknown = stray("secret_1", "Secret", "???", -4)
+		local known = stray("secret_2", "Secret", "Nebula", 0)
+		local plain = stray("secret_3", "Mythical", "Sunbeam", 4)
+		-- the shim's tag signals never fire, so start the tags again to pick the three up
+		UI.catch.secret:destroy()
+		UI.catch.secret = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.SecretTags").new()
+		local function tagOf(model: Model): BillboardGui?
+			return (model.PrimaryPart :: BasePart):FindFirstChild("CatCafeSecretTag") :: BillboardGui?
+		end
+		local a, b = tagOf(unknown), tagOf(known)
+		assert(a and b, "uigate: no SECRET tag over a Secret stray (#3470)")
+		assert(tagOf(plain) == nil, "uigate: a SECRET tag over a Mythical stray (#3470)")
+		local tagA, tagB = (a :: any).Tag, (b :: any).Tag
+		assert(tagA.Label.Text == "SECRET" and tagB.Label.Text == "SECRET", "uigate: the tag reads SECRET (#3470)")
+		assert((a :: any).CatName.Text == "???", "uigate: an uncaught Secret is named ??? (#3470)")
+		assert((b :: any).CatName.Text == "Nebula", "uigate: a known Secret shows its name (#3470)")
+		assert((a :: BillboardGui).Enabled and (b :: BillboardGui).Enabled, "uigate: the SECRET tags are up (#3470)")
+		assert((a :: BillboardGui).AlwaysOnTop and (a :: BillboardGui).MaxDistance == 150, "uigate: seen over walls within 150 studs (#3470)")
+		assert(tagA:FindFirstChildOfClass("UIStroke").Color == Color3.new(1, 1, 1), "uigate: the pill has a white edge (#3470)")
+		unknown:SetAttribute("LockedBy", 1)
+		assert(not (a :: BillboardGui).Enabled, "uigate: the tag should hide while a net holds the cat (#3470)")
+		unknown:SetAttribute("LockedBy", 0)
+		assert((a :: BillboardGui).Enabled, "uigate: the tag should come back when the cat bolts (#3470)")
+		unknown:SetAttribute("CatName", "Glitch")
+		assert((a :: any).CatName.Text == "Glitch", "uigate: the name follows the CatName attribute (#3470)")
+		plain:SetAttribute("Rarity", "Secret")
+		assert(tagOf(plain), "uigate: Rarity set later should bring the tag (#3470)")
+		for _, model in { unknown, known, plain } do
+			model:Destroy()
+		end
+	end },
 	-- #2005 section 1 (Derek2: "with an exclamation mark to show its being caught"): a gold ! over a stray while its
 	-- NetDown is set, just above the catcher's trust bar; another stray without it has none, and it goes with NetDown
 	{ "CatchMark", function()

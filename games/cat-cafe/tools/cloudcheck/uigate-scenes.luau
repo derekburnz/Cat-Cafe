@@ -1421,6 +1421,31 @@ local SCENES = {
 		press("Decor", "Style")
 		assertEquipBestInHeader("the Style tab")
 	end },
+	-- #3572: the Sale badge. Roblox answers the half prices of Config.StoreWasPrice for the King Cat Pack and the Royal
+	-- Cat, so their cards show "SALE" with the true old price struck through; a card at its old price shows none
+	{ "StoreSale", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		prices[Config.KingPackPassId] = { robux = Config.StoreWasPrice.kingPack.now, forSale = true }
+		prices[Config.RoyalCatPassId] = { robux = Config.StoreWasPrice.royalCat.now, forSale = true }
+		UI.store.preview(prices, {})
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		assert(window, "uigate: no Store window (#3572)")
+		local sale, plain = 0, 0
+		for _, item in window:GetDescendants() do
+			if item.Name == "Badge" and item:IsA("TextLabel") and item.Visible then
+				if string.find(item.Text, "SALE", 1, true) then
+					sale += 1
+					assert(item.RichText, "uigate: the Sale badge is not rich text, so its old price is not struck (#3572)")
+				else
+					plain += 1
+				end
+			end
+		end
+		assert(sale >= 2, "uigate: the Store shows " .. sale .. " Sale badges, expected the King Cat Pack and the Royal Cat (#3572)")
+	end },
 	-- #2147 (store-pass-looks.md 7.4): with the Cat Accessories pass owned, the accessory row has its small gold line
 	-- under the buttons, "+15% money on every working cat, whatever you pick"
 	{ "DecorStyleOutfitNote", function()

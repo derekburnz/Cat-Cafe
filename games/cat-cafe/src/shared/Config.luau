@@ -385,7 +385,8 @@ local Config = {
 	-- half price Derek OK'd. Roblox only tells the game today's price, so the card shows the badge and the struck old
 	-- price only while Roblox's price is exactly `now` (a player whose regional price differs sees the plain price),
 	-- and only before StoreSaleEnds (os.time: 2026-12-13 00:00 UTC, 30 days on; never shown to players, no countdown).
-	-- After that the half price is simply the price. Items that were selling are not here and get no badge.
+	-- After that the half price is simply the price. Every key is a Store card (StoreLogic.spec checks); the Golden
+	-- Pond pass (99 to 49) is sold at the camp pond, not on a Store card, so it is not here.
 	StoreWasPrice = {
 		extraSlot = { was = 149, now = 75 },
 		uniforms = { was = 149, now = 75 },
@@ -394,7 +395,6 @@ local Config = {
 		kingCat = { was = 799, now = 399 },
 		grandTheme = { was = 799, now = 399 },
 		kingPack = { was = 999, now = 499 },
-		goldenPond = { was = 99, now = 49 },
 		potionXS = { was = 10, now = 5 },
 		potionS = { was = 25, now = 13 },
 		potionM = { was = 49, now = 25 },

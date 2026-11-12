@@ -819,15 +819,33 @@ return function()
 				).to.equal(nil)
 			end)
 
-			it("lists Derek's fifteen items, each at half within half a Robux", function()
-				local count = 0
-				for _, entry in Config.StoreWasPrice do
-					count += 1
-					expect(math.abs(entry.was / 2 - entry.now) <= 0.5).to.equal(true)
+			it(
+				"lists the Store cards of Derek's fifteen items, each at half within half a Robux",
+				function()
+					local count = 0
+					for _, entry in Config.StoreWasPrice do
+						count += 1
+						expect(math.abs(entry.was / 2 - entry.now) <= 0.5).to.equal(true)
+					end
+					expect(count).to.equal(14) -- the fifteenth, the Golden Pond pass, has no Store card
+					-- every key is a card the Store can show
+					local cards: { [string]: boolean } = {
+						[StoreLogic.STARTER.key] = true,
+						[StoreLogic.CAFE_PASS.key] = true,
+						[StoreLogic.THANK_YOU.key] = true,
+					}
+					for _, pass in StoreLogic.PASSES do
+						cards[pass.key] = true
+					end
+					for _, product in StoreLogic.PRODUCTS do
+						cards[product.key] = true
+					end
+					for key in Config.StoreWasPrice do
+						expect(cards[key]).to.equal(true)
+					end
+					expect(Config.StoreSaleEnds).to.equal(1797120000) -- 2026-12-13 00:00 UTC
 				end
-				expect(count).to.equal(15)
-				expect(Config.StoreSaleEnds).to.equal(1797120000) -- 2026-12-13 00:00 UTC
-			end)
+			)
 		end)
 
 		it("gives Best Value only at 1.25 x the price or more", function()

@@ -507,15 +507,16 @@ local function newKindTarget(s: Types.PlayerState): (NewKind.Where, BasePart?)
 			open += 1
 		end
 	end
-	local where = NewKind.where(area, not areasShut(), stray ~= nil, open > 1)
+	local where: NewKind.Where = NewKind.where(area, not areasShut(), stray ~= nil, open > 1)
+	local target: BasePart? = nil
 	if where == "stray" then
-		return where, stray
+		target = stray
 	elseif where == "cannon" then
-		return where, cannonPart("town")
+		target = cannonPart("town")
 	elseif where == "next" and area ~= nil then
-		return where, cannonPart(area)
+		target = cannonPart(area)
 	end
-	return where, nil
+	return where, target
 end
 
 local function reportNewKind(kind: string)

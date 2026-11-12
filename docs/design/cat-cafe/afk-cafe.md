@@ -31,7 +31,7 @@ Roblox itself disconnects a player after 20 minutes with no input, and a game ca
 ## 6. The words
 
 1. Chip by the money while the 2x is on: "Cozy cafe: 2x cat pay 💤". Gone the moment the player moves. During a 2x party it reads "Cozy cafe 💤".
-2. Once a visit, the first time into the cafe, not in the first session's tutorial, fading in about 6 seconds: "Rest here any time. Cats earn 2x while you're AFK in your cafe, and they keep earning while you're offline."
+2. Once a visit, the first time into the cafe, not in the first session's tutorial, fading in about 6 seconds: "Rest here any time. Cats earn 2x while you're AFK in your cafe, and they keep earning while you're offline." During a 2x party the number is dropped, as on the chip: "Rest here any time. Your cats keep earning while you're AFK in your cafe and while you're offline."
 3. Back from AFK: "Welcome back! Your cats earned [amount] while you rested 💤".
 
 Gentle. No timer, no arrows, nothing that says to stay or that anything is lost by leaving, nothing sold beside it. Look: a small cream chip with the dark outline in the HUD's quiet zone and a slow "z" drift (Motion-FX-Agent).

@@ -4438,7 +4438,7 @@ Catalog.rallySteps = {
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
 -- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a
--- level, Swift Paws a little walk speed a level (#3063).
+-- level, Swift Paws a little walk speed a level (#3063), Lucky Charm +0.1 Luck a level (#3298).
 Catalog.fishShop = {} :: { Types.FishShopRow }
 local function shopRow(row: Types.FishShopRow)
 	table.insert(Catalog.fishShop, row)
@@ -4455,6 +4455,9 @@ shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150, 300, 500, 800 }, 
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })
+-- #3298 (new-activities.md section 5): Lucky Charm, +0.1 overall Luck a level (shared/LuckyCharm), 850 fish in all.
+-- Hidden and not sold until the `luckyCharm` switch is on.
+shopRow({ id = "lucky_charm", kind = "perk", costs = { 100, 250, 500 }, maxLevel = 3 })
 
 Catalog.fishShopById = {} :: { [string]: Types.FishShopRow }
 for _, row in Catalog.fishShop do

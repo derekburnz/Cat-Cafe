@@ -119,6 +119,14 @@ local PRESS_GAP = 0.12 -- a second press this soon is a bounce, not a try (the s
 local RESULT_SECONDS = 1.6
 local FAIL_SECONDS = 1.2
 local GIVE_UP_SECONDS = 0.5
+-- #3024 (Review-QA-Agent's read of the tablet numbers: half of tablet rescue attempts end "cancelled", which only
+-- Give up sends, and the button sits just under the right end of the bar a finger is tapping): on a touch screen
+-- Give up takes two taps. The first changes it to GIVE_UP_ASK for GIVE_UP_ASK_SECONDS and does nothing else; a
+-- second tap in that time gives up. A mouse click and a gamepad's B stay one press.
+local GIVE_UP_ASK = "Tap again to give up"
+local GIVE_UP_ASK_SECONDS = 3
+local GIVE_UP_W = 120
+local GIVE_UP_ASK_W = 200 -- wide enough for GIVE_UP_ASK; the button grows to the left, off its right edge
 local NO_RESULT_TIMEOUT = 3 -- hide if the server has not ended the attempt this long after its deadline
 local ACTION_NAME = "CatCafeRescuePress"
 local GIVE_UP_ACTION = "CatCafeRescueGiveUp" -- #2968: B gives up on a gamepad (Select does nothing while the HUD hides)
@@ -423,15 +431,19 @@ function RescueBar.new(parent: Instance): RescueBar
 		name = "GiveUp",
 		text = "Give up",
 		style = "ghost",
-		size = UDim2.fromOffset(120, giveUpH),
+		size = UDim2.fromOffset(GIVE_UP_W, giveUpH),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, 0, 0, BAR_TOP + BAR.Y + GIVE_UP_GAP),
 		textSize = Theme.sizes.textSmall,
 		parent = group,
 		onClick = function()
-			self:_giveUp()
+			self:_giveUpTap()
 		end,
 	})
+	self._giveUpH = giveUpH
+	self._touch = false -- whether Give up asks twice (set by show)
+	self._askToken = 0
+	self._asking = false
 
 	-- Result banner: Rescued! or Still stuck
 	local banner: Frame = Create("Frame", {
@@ -585,6 +597,8 @@ function RescueBar.show(
 	self._word.Visible = false
 	self._bar.Position = self._barBase
 	self._cancel:setEnabled(true)
+	self._touch = touch
+	self:_giveUpRest()
 
 	ContextActionService:BindActionAtPriority(
 		ACTION_NAME,
@@ -611,11 +625,10 @@ function RescueBar.show(
 		Enum.KeyCode.ButtonB
 	)
 	-- #2968: the button says so on a gamepad
-	self._cancel:setText(
-		if UserInputService:GetLastInputType().Name:sub(1, 7) == "Gamepad"
-			then "Give up (B)"
-			else "Give up"
-	)
+	self._giveUpText = if UserInputService:GetLastInputType().Name:sub(1, 7) == "Gamepad"
+		then "Give up (B)"
+		else "Give up"
+	self._cancel:setText(self._giveUpText)
 
 	self._tap.Visible = true
 	self.screenGui.Enabled = true
@@ -771,11 +784,42 @@ function RescueBar._onGiveUp(self: any, position: Vector3): boolean
 	return false
 end
 
+-- Give up back to its resting words and width, with no second tap pending.
+function RescueBar._giveUpRest(self: any)
+	self._askToken += 1
+	self._asking = false
+	self._cancel:setText(self._giveUpText or "Give up")
+	self._cancel.instance.Size = UDim2.fromOffset(GIVE_UP_W, self._giveUpH)
+end
+
+-- A tap or click on Give up. On a touch screen the first only asks (#3024); anything else gives up at once.
+function RescueBar._giveUpTap(self: any)
+	if not self._active or self._done then
+		return
+	end
+	if not self._touch or self._asking then
+		self:_giveUp()
+		return
+	end
+	self._asking = true
+	self._askToken += 1
+	local token = self._askToken
+	self._cancel:setText(GIVE_UP_ASK)
+	self._cancel.instance.Size = UDim2.fromOffset(GIVE_UP_ASK_W, self._giveUpH)
+	task.delay(GIVE_UP_ASK_SECONDS, function()
+		if self._askToken == token and self._asking and not self._done then
+			self:_giveUpRest()
+		end
+	end)
+end
+
 function RescueBar._giveUp(self: any)
 	if not self._active or self._done then
 		return
 	end
 	self._done = true
+	self._askToken += 1
+	self._asking = false
 	self._cancel:setEnabled(false)
 	self._hint.Text = (self._words :: Words).gaveUp or "You let it be for now."
 	local callbacks: Callbacks? = self._callbacks
@@ -921,6 +965,8 @@ function RescueBar.hide(self: any)
 	self._done = false
 	self._challenge = nil
 	self._callbacks = nil
+	self._askToken += 1
+	self._asking = false
 	local loop: RBXScriptConnection? = self._loop
 	if loop then
 		loop:Disconnect()

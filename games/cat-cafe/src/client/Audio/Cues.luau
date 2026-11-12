@@ -231,6 +231,19 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		duck = true,
 	},
+	-- #3470: a Secret catch. No file of its own yet: the Mythical fanfare three semitones lower, so it lands
+	-- deeper and a little slower (about 4.8 s).
+	jingleSecret = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 5.500, 9.500 },
+		group = "Music",
+		volume = 0.75,
+		pitch = { 0.84, 0.84 },
+		minGap = 1,
+		duck = true,
+		range = 8,
+	},
 	jingleRainbow = {
 		ids = {},
 		sheet = "sheetMoments",
@@ -710,6 +723,14 @@ local Cues: { [string]: Cue } = {
 		minGap = 3,
 		range = 40,
 	}, -- once as you come near a Mythical stray (was the shimmerRare loop, retired 2026-10-28)
+	secretNear = {
+		ids = { "rbxassetid://134220486232962" },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 0.74, 0.76 },
+		minGap = 3,
+		range = 50,
+	}, -- #3470: the same, for a Secret stray: rareNear's twinkle a fourth lower, heard from a little further
 	goldReveal = {
 		ids = { "rbxassetid://134771896552643" },
 		group = "Sfx",

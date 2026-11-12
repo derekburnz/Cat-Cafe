@@ -189,6 +189,22 @@ function Potions.useMany(
 	return drunk
 end
 
+-- #3326 (the Bag's "Use all potions"): drinks, for every potion kind in the bag in bag order, as many as fit under
+-- PotionMaxMinutes (Potions.fitCount, so a Small and a regular size of one potion share its room). Kinds already full
+-- are skipped and whatever does not fit stays in the bag. Returns potion id -> how many were drunk, and the total.
+function Potions.useAll(profile: Types.PlayerProfile, now: number): ({ [string]: number }, number)
+	local drunk: { [string]: number } = {}
+	local total = 0
+	for _, def in Catalog.potions do
+		local n = Potions.useMany(profile, def.id, Potions.fitCount(profile, def.id, now), now)
+		if n > 0 then
+			drunk[def.id] = n
+			total += n
+		end
+	end
+	return drunk, total
+end
+
 -- Counts every timer down by `elapsed` seconds of play and drops the ones that ran out (Economy.settle).
 function Potions.tick(profile: Types.PlayerProfile, elapsed: number)
 	local buffs = (profile :: any).buffs

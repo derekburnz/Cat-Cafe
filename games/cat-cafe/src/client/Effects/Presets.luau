@@ -853,6 +853,55 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Day Cart's Tier 6 potions (#3462): each its smaller kind's glow, a little bigger and busier, with one more
+	-- colour so the two can be told apart side by side. Big Lucky: green, mint and gold glints with a few larger
+	-- ones; Big Gold Rush: gold glints that drift up as they twinkle; Mega Money: a wide, bright stream of gold.
+	potionBigLucky = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Presets.palette.leaf,
+			Presets.palette.mint,
+			Presets.palette.golden,
+			Presets.palette.sparkle,
+		},
+		size = { 0.55, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 3.5,
+		drag = 1,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	potionBigGoldRush = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden, Presets.palette.offwhite },
+		size = { 0.6, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 1, 1.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 3.5,
+		acceleration = Vector3.new(0, 0.6, 0),
+		drag = 1,
+		lightEmission = 0.9,
+		rotSpeed = { -90, 90 },
+	},
+	potionMegaTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.7, 0.45 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 1.2, 1.9 },
+		spread = 30,
+		rate = 4,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.8,
+		rotSpeed = { -180, 180 },
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -2523,7 +2572,8 @@ Presets.marketCrate = {
 -- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
 -- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every
 -- `period` seconds and `spread` laps along the cat; a part keeps `least` to all of its band's brightness by how light
--- its own colour was, so stripes still show. Only the `pieces` named here change (not the eyes, props or outfits),
+-- its own colour was against the body's, so stripes still show, and a mark lighter than the body is up to `lift`
+-- paler. Only the `pieces` named here change (not the eyes, props or outfits),
 -- and in them a part shorter than `keepShare` of its piece's biggest part (the nose, the mouth, the blush) keeps its
 -- colour. The nearest budget.rainbowCats within `within` studs (no more than Config.RainbowAnimateMax) flow at `hz`
 -- updates a second, glow (`glow`) and drop `trail` sparkles while they move faster than `moving` studs a second; the
@@ -2542,6 +2592,7 @@ Presets.rainbow = {
 	period = 3,
 	spread = 1,
 	least = 0.7,
+	lift = 0.5, -- the most a mark lighter than the body is lifted toward white
 	keepShare = 0.2,
 	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
 	within = 120,
@@ -3571,10 +3622,14 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
-	-- #3462: the Day Cart's Tier 6 potions glow as their smaller kinds until they have glows of their own
-	big_lucky_potion = { emitter = "potionLucky", on = "Body", colour = palette.leaf },
-	big_gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
-	mega_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
+	-- #3462: the Day Cart's Tier 6 potions, each a bigger, busier glow of its smaller kind
+	big_lucky_potion = { emitter = "potionBigLucky", on = "Body", colour = palette.leaf },
+	big_gold_rush_potion = {
+		emitter = "potionBigGoldRush",
+		on = "Body",
+		colour = palette.goldLight,
+	},
+	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }

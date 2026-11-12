@@ -147,7 +147,8 @@ return function()
 					expect(#circles <= Circles.maxCircles()).to.equal(true)
 					local windows = Circles.windowsFor(3, rarity, area.id, "base")
 					expect(windows.good > 0).to.equal(true)
-					local challenge = Rescue.newChallenge(rarity, "cage", 100, roll, nil, area.id, nil)
+					local challenge =
+						Rescue.newChallenge(rarity, "cage", 100, roll, nil, area.id, nil)
 					expect((challenge.speed or 0) > 0).to.equal(true)
 					expect(#(challenge.zones or {}) >= 1).to.equal(true)
 				end
@@ -219,6 +220,105 @@ return function()
 				expect(IndexRewards.progress(collection, area.id)).to.equal(0)
 			end
 			expect(IndexRewards.progress(collection, "secret")).to.equal(0)
+		end)
+	end)
+
+	-- #3497: the proof before the `secretCats` switch goes on. A build that does not know a cat id drops that cat on
+	-- load, and Secret cats came without a save version bump, so every build that may run must know all three ids.
+	describe("a save holding Secret cats", function()
+		local ProfileSchema = require(Shared.ProfileSchema)
+		local NOW = 1_800_000_000
+		local SHIPPED = { "cafe_ghost", "glitch", "nebula" } -- #3486, sorted
+
+		local function secretIds(): { string }
+			local ids: { string } = {}
+			for _, def in Catalog.cats do
+				if def.rarity == "Secret" then
+					table.insert(ids, def.id)
+				end
+			end
+			table.sort(ids)
+			return ids
+		end
+
+		it("keeps each one through a load and a second load, in every coat", function()
+			local raw: any = ProfileSchema.template(NOW - 3600)
+			local held: { [string]: { catId: string, variant: string } } = {}
+			for _, catId in secretIds() do
+				for _, variant in { "base", "gold", "rainbow" } do
+					local uid = catId .. "_" .. variant
+					raw.cats[uid] = {
+						uid = uid,
+						catId = catId,
+						variant = variant,
+						caughtAt = NOW - 60,
+						level = 3,
+						xp = 5,
+						charm = 77,
+					}
+					held[uid] = { catId = catId, variant = variant }
+				end
+			end
+			local once: any = ProfileSchema.migrate(raw, NOW)
+			local twice: any = ProfileSchema.migrate(once, NOW + 60)
+			for _, profile in { once, twice } do
+				for uid, want in held do
+					local cat = profile.cats[uid]
+					expect(cat).to.be.ok()
+					expect(cat.catId).to.equal(want.catId)
+					expect(cat.variant).to.equal(want.variant)
+					expect(cat.level).to.equal(3)
+					expect(cat.charm).to.equal(77)
+				end
+			end
+		end)
+
+		it("keeps one in a role, one soaking at the spa and its Index stamps", function()
+			local ids = secretIds()
+			local raw: any = ProfileSchema.template(NOW - 3600)
+			for index, catId in ids do
+				raw.cats["s" .. index] = {
+					uid = "s" .. index,
+					catId = catId,
+					variant = "base",
+					caughtAt = NOW - 60,
+					spotId = if index == 1 then "waiter_1" else nil,
+					level = 1,
+					xp = 0,
+					charm = 50,
+				}
+				raw.collection[catId] = NOW - 60
+			end
+			raw.spa = { slots = 1, soaking = { ["1"] = { uid = "s2", at = NOW - 30 } } }
+			local profile: any = ProfileSchema.migrate(raw, NOW)
+			expect(profile.cats.s1.spotId).to.equal("waiter_1")
+			expect(profile.spa.soaking["1"].uid).to.equal("s2")
+			for index, catId in ids do
+				expect(profile.cats["s" .. index].catId).to.equal(catId)
+				expect(profile.collection[catId]).to.be.ok()
+				expect((Catalog.getCat(catId) :: any).rarity).to.equal("Secret")
+			end
+		end)
+
+		it(
+			"needs no switch: the load never reads secretCats, and a traded one is made whole",
+			function()
+				-- ProfileSchema is pure and takes no flags, so a build with the switch off (LiveFlags.OFF_BY_DEFAULT)
+				-- loads these saves exactly as above
+				expect(LiveFlags.OFF_BY_DEFAULT.secretCats).to.equal(true)
+				for _, catId in secretIds() do
+					local cat: any =
+						ProfileSchema.cleanCat({ uid = "t", catId = catId, variant = "gold" }, NOW)
+					expect(cat).to.be.ok()
+					expect(cat.catId).to.equal(catId)
+					expect(cat.variant).to.equal("gold")
+				end
+			end
+		)
+
+		it("keeps the same three ids the first Secret build shipped", function()
+			-- a renamed or removed id would drop saved cats: change this list only with a migration
+			expect(secretIds() :: any).to.deepEqual(SHIPPED)
 		end)
 	end)
 

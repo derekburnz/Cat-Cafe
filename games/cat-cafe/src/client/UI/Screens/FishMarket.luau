@@ -66,6 +66,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 -- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
 local Crates = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Crates"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local LuckyCharm = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LuckyCharm"))
 local SwiftPaws = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SwiftPaws"))
 
 export type Callbacks = {
@@ -193,11 +194,23 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 			SwiftPaws.CREDIT
 		),
 	},
+	-- #3298 (new-activities.md section 5): overall Luck, the number the bait and crate odds cards read
+	[LuckyCharm.ID] = {
+		name = LuckyCharm.NAME,
+		icon = "🍀",
+		blurb = "+0.1 Luck on bait and crates a level, forever.",
+	},
 }
 
 -- #3063: whether a Market row shows; Swift Paws hides while its live switch (copied to ReplicatedStorage) is off
 local function rowShown(row: Types.FishShopRow): boolean
-	if row.id ~= SwiftPaws.ID then
+	if row.id == LuckyCharm.ID then
+		-- #3298: off until its switch is on
+		return LiveFlags.shown(
+			LuckyCharm.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. LuckyCharm.FLAG)
+		)
+	elseif row.id ~= SwiftPaws.ID then
 		return true
 	end
 	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG) ~= false

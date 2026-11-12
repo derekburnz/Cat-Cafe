@@ -77,6 +77,56 @@ WhatsNew.rows = table.freeze({
 		icon = "look",
 		text = "Bigger station circles",
 	},
+	-- #2718 refresh (11-12 09:10): player-facing changes since #3369, 148 merges, that are on without a switch. The
+	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) has no named credit (#3472).
+	{
+		id = "top_ten_hello",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Top 10 players get a hello",
+	},
+	{
+		id = "spa_sort_toggle",
+		date = "2026-11-12",
+		icon = "look",
+		text = "Spa: sort cats by rarity",
+	},
+	{
+		id = "rummage_loot_card",
+		date = "2026-11-12",
+		icon = "look",
+		text = "Rummage Bin shows your loot",
+	},
+	{
+		id = "town_square_tidy",
+		date = "2026-11-12",
+		icon = "look",
+		text = "Tidier Town Square",
+	},
+	{
+		id = "camp_circles_clear",
+		date = "2026-11-12",
+		icon = "look",
+		text = "Clear paths to camp stations",
+	},
+	{
+		id = "new_player_shield_15",
+		date = "2026-11-12",
+		icon = "new",
+		text = "New player shield: 15 min",
+	},
+	{
+		id = "cannon_landing_steady",
+		date = "2026-11-12",
+		icon = "fix",
+		text = "Steadier cannon landing",
+	},
+	{
+		id = "button_taps_kept",
+		date = "2026-11-12",
+		icon = "fix",
+		text = "Fewer missed button taps",
+	},
 	-- #2718 refresh (11-11 21:00): player-facing changes since #3259, 67 merges; no new player ideas
 	{
 		id = "swift_paws_five",

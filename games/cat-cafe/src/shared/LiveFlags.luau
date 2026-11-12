@@ -45,6 +45,9 @@
 -- - `secretCats` (#3470): Secret cats, the rarity above Mythical. It starts OFF (OFF_BY_DEFAULT): off, nothing rolls
 --   Secret anywhere. Switch it on only once no server older than the publish that added them is running, since an
 --   older server's save check drops a cat id it does not know.
+-- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
+--   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
+--   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -74,6 +77,7 @@ LiveFlags.KEYS = {
 	"circleStreak",
 	"cartTier6",
 	"secretCats",
+	"luckyCharm",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -86,6 +90,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	mouseDash = true,
 	cartTier6 = true,
 	secretCats = true,
+	luckyCharm = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

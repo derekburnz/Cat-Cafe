@@ -167,6 +167,43 @@ return function()
 	end)
 
 	describe("PotionLogic.owned", function()
+		it(
+			"plans Use all potions as the server's Potions.useAll, sizes sharing a timer (#3326)",
+			function()
+				local catalog: any = {
+					potions = {
+						{ id = "tip_potion", name = "Tip Potion", minutes = 10, effect = "" },
+						{ id = "swift_potion", name = "Swift Potion", minutes = 10, effect = "" },
+						{
+							id = "swift_potion_small",
+							name = "Small Swift Potion",
+							minutes = 3,
+							effect = "",
+							buff = "swift_potion",
+						},
+						{ id = "lucky_potion", name = "Lucky Potion", minutes = 10, effect = "" },
+					},
+				}
+				local max = PotionLogic.MAX_MINUTES * 60
+				local s = state(
+					{ tip_potion = 3, swift_potion = 2, swift_potion_small = 4, lucky_potion = 1 },
+					{ lucky_potion = NOW + max, swift_potion = NOW + max - 600 - 2 * 180 }
+				)
+				local plan = PotionLogic.allPlan(catalog, s, NOW)
+				local line, total = PotionLogic.allLine(plan)
+				expect(line).to.equal("Tip x3, Swift x1, Small Swift x2")
+				expect(total).to.equal(6)
+				expect(
+					#PotionLogic.allPlan(
+						catalog,
+						state({ lucky_potion = 2 }, { lucky_potion = NOW + max }),
+						NOW
+					)
+				).to.equal(0)
+				expect(#PotionLogic.allPlan(catalog, state({}, {}), NOW)).to.equal(0)
+			end
+		)
+
 		it("keeps the potions in the bag and the running ones, in bag order", function()
 			local owned = PotionLogic.owned(
 				nil,

@@ -1088,3 +1088,15 @@ The Tier 6 and 7 stations (late-stations.md sections 1 and 2). `Effects/LateStat
 | A 0.22 s scale bounce on a UIScale named `FxScale` added to the object: "pop" for a rising mouse, "squash" for a caught mouse and the paw's bop, "pulse" for a refilled heart pad | `MouseDashFx.bounce(object, kind)` |
 
 Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. Low performance: half the sparkles and half the dust. Every pop plays once per call and nothing loops, so nothing flashes. The most on screen at once is 12 sparkles per pop (the phone's burst cap).
+
+## Update party banner (#3419, 2026-11-12)
+
+`Effects/EventBanner.luau`, numbers in `Presets.eventBanner`; its own `EffectsEventBanner` ScreenGui. Called by Gameplay-Engineer (the party's start in the UI's event follow, the gift from the `UpdateGiftNotice` remote); the words are Design-Agent's (#3420 section 5). Picture: Library `Motion-FX-Agent/VFX-Agent/launch-banner-3419/launch-banner-mock.png`.
+
+| Look | Hook |
+|---|---|
+| A cream card with a gold title strip and a dark outline drops in at the top middle with one small bounce (0.45 s), holds a title and up to 3 lines for 6 s, then slides away. One shine sweep as it lands. It takes no taps and has no button | `EventBanner.show({ kind, title, lines, seconds? })` |
+| `"party"`: a pink "x2" badge and 12 confetti sparkles in gold, pink and mint from behind the card. Sound: the station fanfare | kind `"party"` |
+| `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
+| `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |
+| One banner at a time; up to 3 wait; a kind already showing or waiting is dropped. Reduce Motion: the card fades in and out in place with no shine, confetti or fish. Low performance: half the confetti and fish | `EventBanner.onShown(listener)` (Audio's sound) |

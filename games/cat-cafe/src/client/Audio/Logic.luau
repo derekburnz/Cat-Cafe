@@ -500,6 +500,20 @@ function Logic.toastJingle(text: any): string?
 	return nil
 end
 
+-- #3419: the sound as an update party banner (Effects/EventBanner) drops in: the station fanfare for the party's
+-- start, the soft gift chime for the gift on its way and the update gift's jingle for the gift paid. All three are
+-- cues the game already has. Nil for anything else.
+function Logic.bannerCue(kind: any): string?
+	if kind == "party" then
+		return "stationReveal"
+	elseif kind == "giftSoon" then
+		return "uiGiftReady"
+	elseif kind == "gift" then
+		return "indexReward"
+	end
+	return nil
+end
+
 -- #3022: whether the stray waiting for your second catch (its WaitsFor is your user id) calls out now. It calls once as
 -- you come within `near` studs, then every `gap` seconds while you stay that near, at most `most` times in all, so
 -- it helps a lost new player without nagging. `lastAt` is when it last called (nil for never), `calls` how often.

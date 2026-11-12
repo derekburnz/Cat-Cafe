@@ -20,7 +20,9 @@ local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 
 local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Net = require(script.Parent.Parent.Net)
+local RareCatsTab = require(ReplicatedStorage.Shared.RareCatsTab)
 
 local RareCatchChatController = {}
 
@@ -28,6 +30,54 @@ local LEGACY_TRIES = 10 -- one a second while the legacy chat loads
 local CHANNEL_WAIT = 10 -- seconds a line waits for RBXGeneral just after join
 
 local general: TextChannel? = nil
+
+-- #3053 (shared/RareCatsTab): the "Rare Cats" tab. While the `rareCatsTab` switch is on and the server has made the
+-- channel, the chat's channel tabs are on and every Mythical or better line also goes in that channel, at most one
+-- every RareCatsTab.GAP_SECONDS. Off, this touches nothing: the tab bar is only ever turned off again if this
+-- script turned it on.
+local TAB_CHECK_SECONDS = 1
+local tabQueue = RareCatsTab.queue()
+local tabsTurnedOn = false
+
+local function tabOn(): boolean
+	return LiveFlags.shown(
+		RareCatsTab.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RareCatsTab.FLAG)
+	)
+end
+
+local function tabChannel(): TextChannel?
+	local channels = TextChatService:FindFirstChild("TextChannels")
+	local found = if channels ~= nil then channels:FindFirstChild(RareCatsTab.NAME) else nil
+	if found ~= nil and found:IsA("TextChannel") then
+		return found :: TextChannel
+	end
+	return nil
+end
+
+-- One tick of the tab: the tab bar follows the switch and the channel, and one waiting line is written.
+local function tabStep()
+	local current = if tabOn() then tabChannel() else nil
+	local tabs =
+		TextChatService:FindFirstChildOfClass("ChannelTabsConfiguration") :: ChannelTabsConfiguration?
+	if tabs ~= nil then
+		if current ~= nil and not tabs.Enabled then
+			tabs.Enabled = true
+			tabsTurnedOn = true
+		elseif current == nil and tabsTurnedOn then
+			tabs.Enabled = false
+			tabsTurnedOn = false
+		end
+	end
+	if current == nil then
+		table.clear(tabQueue.waiting) -- nothing is kept for a tab that is not there
+		return
+	end
+	local line = RareCatsTab.pop(tabQueue, os.clock())
+	if line ~= nil then
+		current:DisplaySystemMessage(line)
+	end
+end
 
 -- RBXGeneral: the channels appear a moment after join, so the first line waits up to CHANNEL_WAIT seconds.
 local function channel(): TextChannel?
@@ -82,6 +132,9 @@ local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 		return
 	end
 	local away = elsewhere == true
+	if RareCatsTab.wants(rarity) and tabOn() then
+		RareCatsTab.push(tabQueue, RareCatsTab.line(text, rarity, away)) -- #3053
+	end
 	task.spawn(function()
 		if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
 			showNew(text, rarity, away)
@@ -98,6 +151,22 @@ function RareCatchChatController.start()
 		)
 	end
 	Net.on("RareCatchChat", show)
+	if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		task.spawn(function()
+			local warned = false
+			while true do
+				local ok, err = pcall(function(): string?
+					tabStep()
+					return nil
+				end)
+				if not ok and not warned then
+					warned = true
+					warn("[RareCatchChat] Rare Cats tab: " .. tostring(err))
+				end
+				task.wait(TAB_CHECK_SECONDS)
+			end
+		end)
+	end
 end
 
 return RareCatchChatController

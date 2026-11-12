@@ -62,6 +62,7 @@ local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
+local RareCatsTabService = require(script.Parent.Services.RareCatsTabService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
 local ResetSaveService = require(script.Parent.Services.ResetSaveService)
@@ -138,6 +139,7 @@ StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes
 RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
+RareCatsTabService.start() -- #3053: the chat's Rare Cats tab, behind the rareCatsTab switch (off)
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)

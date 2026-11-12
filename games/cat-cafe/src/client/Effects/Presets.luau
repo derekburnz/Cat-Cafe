@@ -2180,14 +2180,13 @@ Presets.cannonGlide = {
 -- and back of the seat) looking `ahead` studs up the barrel. From the boom it chases the flyer from `chase` (right,
 -- up and back of the way it goes over the ground, so the soaring flyer shows side on), easing there over `catch`
 -- seconds (the boom's shake is Cannon.luau's, on top).
--- Under the clouds it waits. `over` seconds before the drop it goes to one still view behind the landing pad, the
--- way the pad faces at the player's own pitch and distance (Logic.cannonHandBackAt), and holds it until the server
--- lets go, when the game's camera takes over: nothing moves at the touch (#3444, Derek 2026-11-12: "landing still
--- moves your camera on landing so remove that"). For a few hours on 2026-11-12 the game's camera took over before
--- the drop instead, while the character was still held, and players ended high overhead and facing down (#3548,
--- #3549), so the camera stays ours through the landing again. The view's pitch stays between `pitchLow` and
--- `pitchHigh` degrees (`pitchRest` when unknown), its distance between `distanceMin` and `distanceMax` studs
--- (`distanceRest` when unknown) and its focus within `focusMax` studs of the player (Logic.cannonLanding).
+-- Under the clouds it waits. `over` seconds before the drop it looks, for one frame, the way the landing pad faces
+-- at the player's own pitch, and the game's camera takes over from there (Logic.cannonHandBackAt). So the camera is
+-- the player's own all the way down, at the touch and after: #3444 (Derek 2026-11-12: "landing still moves your
+-- camera on landing so remove that"). That one frame's pitch stays between `pitchLow` and `pitchHigh` degrees
+-- (`pitchRest` when unknown), its distance between `distanceMin` and `distanceMax` studs (`distanceRest` when
+-- unknown) and its focus within `focusMax` studs of the player (Logic.cannonLanding; #3548, #3549), so a camera that
+-- was straight down or far out when the flight began is never handed back that way.
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,

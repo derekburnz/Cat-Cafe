@@ -257,17 +257,17 @@ return function()
 		end)
 
 		it(
-			"holds one still view through the landing, set before the drop (#3444, #3548)",
+			"leaves the camera alone on landing: it is the game's own before the drop (#3444)",
 			function()
 				local k, c = Presets.cannonCamera, Presets.cannonPose
 				local back = Logic.cannonHandBackAt()
-				-- the landing view is set while the flyer is still out of sight, well before the feet touch
+				-- handed back while the flyer is still out of sight, well before the feet touch and the server lets go
 				expect(back <= c.drop).to.equal(true)
 				expect(back > c.gone).to.equal(true)
 				expect(c.touch - back >= 0.5).to.equal(true)
 				expect(back < c.ends).to.equal(true)
 				-- and no zoom, push or bump numbers are left to move it at the touch (#3328's are gone too)
-				-- the view stays a normal play view whatever the camera did at launch (#3548 far overhead, #3549 down)
+				-- the view handed back is a normal play view whatever the camera did at launch (#3548 far overhead, #3549 down)
 				local pitch, distance = Logic.cannonLanding(math.rad(-89), 400)
 				expect(math.abs(pitch - math.rad(k.pitchLow)) < 1e-6).to.equal(true)
 				expect(distance).to.equal(k.distanceMax)

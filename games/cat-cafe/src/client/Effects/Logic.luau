@@ -3418,13 +3418,13 @@ function Logic.mysticIntroWave(s: number): number
 	return 1 - (1 - p.waveLow) * swing
 end
 
--- #3444 (Effects/CannonGlide): when, in seconds after the launch, the flight's camera goes to its still landing view
--- behind the pad: `over` seconds before the flyer drops back into sight, so it is set long before the feet touch.
+-- #3444 (Effects/CannonGlide): when, in seconds after the launch, the flight's camera goes back to the game's own:
+-- `over` seconds before the flyer drops back into sight, so it is long done before the feet touch.
 function Logic.cannonHandBackAt(): number
 	return Presets.cannonPose.drop - Presets.cannonCamera.over
 end
 
--- #3548, #3549: the pitch (radians, negative looking down) and distance (studs) of the landing view, from the ones
+-- #3548, #3549: the pitch (radians, negative looking down) and distance (studs) of the view handed back to the game's camera, from the ones
 -- the camera had at launch. Both are kept inside a normal play view, so a camera that was looking straight down or
 -- was far out at launch (a cutscene, a zoom, a bad first frame) never becomes a far overhead landing.
 function Logic.cannonLanding(pitch: number, distance: number): (number, number)

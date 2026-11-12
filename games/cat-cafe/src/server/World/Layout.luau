@@ -2160,7 +2160,14 @@ local CD = W.CampDepth
 local CAMP_PAD = { x = 0, z = -13 }
 local CAMP_CANNON = { x = 0, z = -26.5 }
 local CAMP_BASKET = { x = -11, z = -13 }
-local BOARD_OUT = 4 -- an Index Board stands this far beside the way out
+-- An Index Board stands this far beside the way out. #3628 (Derek 2026-11-12: "the cat drop off box is on the circle
+-- step on area for the index sign", "move the index not the box"): at 4 the board's ring (WalkUp.BOARD_RADIUS, in
+-- front of the board) lay over the carrier basket in all six gated camps, the basket 2.7 to 4.5 studs from the
+-- ring's middle. 7 studs further along the wall the ring's edge is about 2.5 studs off the basket (worldscan).
+-- The Woods' board moves 5 only: a fern bed stands where the others go (the board's far end reaches 2 studs over
+-- the low ferns), and there the ring's edge is about 2 off the basket.
+local BOARD_OUT = 11
+local BOARD_OUT_FOR: { [string]: number } = { woods = 9 }
 local ALLEY_BOARD_OUT = 7 -- the Alleyway's (F85, Model-Agent): its low walls run on from the opening
 local BOARD_IN = 7 -- and this far in from the gate line (#3349: 4 stood in the gate's dressing)
 local ALLEY_BOARD_IN = 4 -- the Alleyway has an arch, no gate dressing
@@ -2228,7 +2235,7 @@ for id, spec in Layout.areas do
 		-- 7 in, because at 4 it stood in the gate's own dressing (the Ruins board's top ran into the gate pier and
 		-- vines, the brazier stood in its screen); Model-Agent's overlap check has all six at least 0.5 clear at 7.
 		local alleyway = spec.rects ~= nil
-		local out = if alleyway then ALLEY_BOARD_OUT else BOARD_OUT
+		local out = if alleyway then ALLEY_BOARD_OUT else (BOARD_OUT_FOR[id] or BOARD_OUT)
 		local back = if alleyway then ALLEY_BOARD_IN else BOARD_IN
 		Layout.indexBoards[id] =
 			{ x = -(camp.openingHalfWidth + out), y = 0, z = -back, rotY = -20 }

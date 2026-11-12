@@ -376,7 +376,7 @@ local HIDE_DROP = math.max(0, HIDE_HIT - 46) / 2
 local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 -- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
 -- #2411: twice as long, with a "Hide tips" tag beside the tile
-local HIDE_PULSE_SECONDS = 12 -- #3154: was 6
+local HIDE_PULSE_SECONDS = 6 -- #3638 (Derek: "just show the x for a bit"); 12 for a while (#3154)
 local HIDE_AFTER = 6 -- #3154: seconds after the tutorial's end before the × pulses
 local HIDE_HINT_H = 24
 local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
@@ -2830,10 +2830,12 @@ function HUD.pulseHide(self: any)
 	else
 		scale.Scale = HIDE_GROW
 	end
-	-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the step's big gold arrow and
-	-- spotlight point at the × too, and the ring is thicker
+	-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the step's big gold arrow
+	-- points at the × too, and the ring is thicker. #3638 (Derek 2026-11-12: "no need to force them to close tips and
+	-- darken screen just show the x for a bit"): as a `low` target, so the screen is not darkened round it and a real
+	-- tutorial step keeps the arrow
 	local hideButton: TextButton = self._hideButton
-	TutorialArrow.add(hideButton)
+	TutorialArrow.add(hideButton, true)
 	Sound.play("uiHint")
 	-- #2411: a gold "Hide tips ×" tag beside the tile, pointing at the × while it pulses
 	local hint: TextLabel = label({

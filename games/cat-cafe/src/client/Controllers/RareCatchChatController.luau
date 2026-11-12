@@ -15,6 +15,7 @@
 -- StarterGui:SetCore("ChatMakeSystemMessage"), retried for LEGACY_TRIES seconds while that chat loads) stays for a
 -- place file built without the setting, and says so once in the log.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
@@ -53,6 +54,25 @@ local function tabChannel(): TextChannel?
 		return found :: TextChannel
 	end
 	return nil
+end
+
+-- #3673: whether this player has the tab: the switch on, the channel there and this player a reader of it (a player
+-- with chat off, or one the server could not add, has no tab and keeps every line in the normal chat).
+local function hasTab(): boolean
+	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService or not tabOn() then
+		return false
+	end
+	local current = tabChannel()
+	if current == nil then
+		return false
+	end
+	local userId = Players.LocalPlayer.UserId
+	for _, child in current:GetChildren() do
+		if child:IsA("TextSource") and child.UserId == userId then
+			return true
+		end
+	end
+	return false
 end
 
 -- One tick of the tab: the tab bar follows the switch and the channel, and one waiting line is written.
@@ -132,8 +152,13 @@ local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 		return
 	end
 	local away = elsewhere == true
-	if RareCatsTab.wants(rarity, text) and tabOn() then
+	-- #3673: with the tab, every line goes in it and another server's line stays out of the Here tab
+	local toTab, toHere = RareCatsTab.route(hasTab(), away)
+	if toTab then
 		RareCatsTab.push(tabQueue, RareCatsTab.line(text, rarity, away)) -- #3053
+	end
+	if not toHere then
+		return
 	end
 	task.spawn(function()
 		if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then

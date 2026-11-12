@@ -56,6 +56,15 @@
 -- - `autoRejoin` (#3602): a player resting in their cafe with no input for Config.AutoRejoinSeconds is teleported back into
 --   the game before Roblox's 20 minute idle disconnect (shared/AfkCafe). It starts OFF (OFF_BY_DEFAULT) and does
 --   nothing while `afkCafe` is off.
+-- - `binRoll` (#3608): the Rummage Bin rolls its prize before the bar, from Config.BinRollTable, and keeps it for the
+--   player until they win it (shared/RummageBin); the board, the roll and the pad come with it. It starts OFF
+--   (OFF_BY_DEFAULT); off, the bin is as it was.
+-- - `yardSaleRoll` (#3609): the Yard Sale's free crate becomes a free lucky pick every Config.YardSaleRollHours that
+--   lands on a crate, golden crates included (shared/YardPick). It starts OFF (OFF_BY_DEFAULT); off, the Yard Sale
+--   is as it was.
+-- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
+--   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
+--   intro plays itself.
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
@@ -92,6 +101,9 @@ LiveFlags.KEYS = {
 	"rareCatsTab",
 	"afkCafe",
 	"autoRejoin",
+	"binRoll",
+	"yardSaleRoll",
+	"introSplit",
 	"menuFamily",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -109,6 +121,9 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rareCatsTab = true,
 	afkCafe = true,
 	autoRejoin = true,
+	binRoll = true,
+	yardSaleRoll = true,
+	introSplit = true,
 	menuFamily = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

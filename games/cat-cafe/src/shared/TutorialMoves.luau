@@ -6,7 +6,7 @@
 -- with no save field. Pure; TutorialMoveService does the move, never mid catch, carrying or in flight.
 -- #3158 (Derek2 2026-11-10: "the bait bowl animation doesn't even come because its interupted by foodbowl finished
 -- instantly into a cannon teleport"): step 5 now comes when the first bowl cat is tamed or let go (BaitService), and
--- the move to the cannon waits CANNON_DELAY seconds after it, so the new cat's card is read first; a player who has
+-- the move to the cannon waits CANNON_DELAY seconds after it (a beat since #3640); a player who has
 -- walked more than LEFT_STUDS from where they stood by then has moved on by themselves and is left alone.
 
 local TutorialMoves = {}
@@ -17,10 +17,11 @@ TutorialMoves.BOWL_STEP = 4
 TutorialMoves.CANNON_STEP = 5
 TutorialMoves.BOWL_STUDS = 4 -- stand this far out from the bowl (BaitService's prompt reaches it)
 TutorialMoves.CANNON_STUDS = 7 -- and this far from the cannon, inside Config.World.CannonRangeStuds (10)
--- 6 since 2026-11-12 (4 before): the new cat's card closes itself after 5 seconds (Popups CAT_AUTO_CLOSE), so at 4 the
--- move landed in the cannon's ring with the card still up and the Cat Cannon window opened over it (Review-QA's
--- fresh join runs). The move now comes once the card is gone.
-TutorialMoves.CANNON_DELAY = 6 -- seconds between the step and the move to the cannon
+-- 2 since #3640 (Derek 2026-11-12: "the cannon teleport after claiming the cat from food bowl is a bit delayed"; 6 and
+-- 4 before, so the new cat's card, which closes itself after 5 seconds, was gone before the Cat Cannon window could
+-- open over it). The client now closes that card as the move lands (UI.closeCatCard), so the move only waits long
+-- enough to read which cat it is (Review-QA measured 0.7 to 1.1 seconds of card at a 1 second wait).
+TutorialMoves.CANNON_DELAY = 2 -- seconds between the step and the move to the cannon
 TutorialMoves.LEFT_STUDS = 30 -- walked this far in that time: no move
 -- The tags the client's step pointers (#2697 part 1) find the targets by: the bowl part in each plot (the owner's
 -- plot is the Plot-tagged ancestor with OwnerUserId), and the cannons (CannonId "town" for the Town Square's).

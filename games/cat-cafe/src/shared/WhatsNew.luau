@@ -63,6 +63,13 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "Rich customers leave bags",
 	},
+	-- #3462: on at the launch (the `cartTier6` switch goes on right after the restart); take this row out if it does not
+	{
+		id = "day_cart_top_shelf",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Day Cart: Tier 6 top shelf",
+	},
 	-- #3448: take this row out if the bigger circles are not on main at the launch
 	{
 		id = "bigger_station_circles",

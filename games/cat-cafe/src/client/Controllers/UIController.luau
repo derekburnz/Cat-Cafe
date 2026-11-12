@@ -16,6 +16,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local AfkController = require(script.Parent.AfkController)
 local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
 local CarrySync = require(Shared:WaitForChild("CarrySync"))
@@ -385,13 +386,36 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+-- the first catch line's wait after a carry ends (see refreshTutorial)
+local CARRY_SETTLE = 0.6
+local tutorialCarry = { was = false, endedAt = -math.huge }
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
 		tutorialWatch.connection = nil
 	end
 	if s.carrying ~= nil then
+		tutorialCarry.was = true
 		UI.tutorial.hide()
+		return
+	end
+	-- Review-QA's fresh join runs, 2026-11-12: as the first cat is secured the server's sync that ends the carry comes
+	-- a moment before the one that moves the tutorial on, so "Follow the trail and catch the cat!" came back for
+	-- about 0.2 s. The first catch line now waits CARRY_SETTLE after a carry ends; a cat that was dropped, not
+	-- secured, gets its line back then.
+	if tutorialCarry.was then
+		tutorialCarry.was = false
+		tutorialCarry.endedAt = os.clock()
+	end
+	if s.tutorialStep < 2 and os.clock() - tutorialCarry.endedAt < CARRY_SETTLE then
+		UI.tutorial.hide()
+		task.delay(CARRY_SETTLE, function()
+			local current = state
+			if current ~= nil and current.carrying == nil then
+				refreshTutorial(current)
+			end
+		end)
 		return
 	end
 	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
@@ -429,11 +453,11 @@ local function refreshTutorial(s: Types.PlayerState)
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
 		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
 		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
-		if SecondCat.caught(s.stats) < SecondCat.CATS and areasShut() then
+		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
 			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
-		elseif SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
+		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
@@ -862,14 +886,15 @@ local function applyState(s: Types.PlayerState)
 		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
 		-- showed; false once it ends, as UI.update skips a nil and the card would stay
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
-		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
-		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
+		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
+		secondCatDone = SecondCat.done(s.stats),
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
 		-- empty, as UI.update skips a nil.
 		bait = if s.bait ~= nil then s.bait else false,
+		introAuto = s.introAuto, -- #3666
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
@@ -1139,7 +1164,7 @@ local function wireIntents()
 		end)
 	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
-	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
+	-- featureName (#1083, #3653): true for an idea (every idea may be credited; the server decides), nil otherwise.
 	UI.events.reportBug:Connect(
 		function(text: string, kind: string, clientErrors: { string }, featureName: boolean?)
 			Net.fire("ReportBug", text, kind, clientErrors, featureName)
@@ -1844,6 +1869,9 @@ local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
 local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
+	end
+	if AfkController.rejoinQuiet() then
+		return false -- #3602: away since before an automatic rejoin; asks wait for the first input
 	end
 	local tips: any = (UI :: any).tips
 	if tips == nil or type(tips.quiet) ~= "function" then

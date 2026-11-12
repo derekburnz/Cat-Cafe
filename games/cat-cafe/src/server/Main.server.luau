@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
@@ -62,6 +63,7 @@ local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
+local RareCatsTabService = require(script.Parent.Services.RareCatsTabService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
 local ResetSaveService = require(script.Parent.Services.ResetSaveService)
@@ -138,6 +140,7 @@ StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes
 RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
+RareCatsTabService.start() -- #3053: the chat's Rare Cats tab, behind the rareCatsTab switch (off)
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
@@ -160,6 +163,7 @@ MouseDashService.start() -- #3296: the arcade's Mouse Dash, before DataService f
 ArcadeCabinetService.start() -- #3443: the cabinet and its ring are in the world only while the arcade has a game on
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
+AfkCafeService.start() -- #3573: resting in your own cafe pays the cats' cafe pay double
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one

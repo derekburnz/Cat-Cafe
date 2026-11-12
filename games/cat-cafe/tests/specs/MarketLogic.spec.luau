@@ -192,7 +192,7 @@ return function()
 		local Crates = require(Shared:WaitForChild("Crates")) :: any
 		local ProfileSchema = require(Shared:WaitForChild("ProfileSchema")) :: any
 		local every = Config.CrateLuckyEvery
-		local golden = assert(Catalog.getCrate("alley_golden_crate")).odds
+		local golden = Crates.LUCKY_ODDS -- #3665: the lucky twentieth's own odds, as the Market passes them
 		local function rarityOf(id: string): string?
 			local def = Catalog.getDecor(id)
 			return if def then def.rarity else nil

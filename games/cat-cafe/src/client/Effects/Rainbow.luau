@@ -292,6 +292,7 @@ local function consider(instance: Instance)
 end
 
 -- Every `pick` seconds: the nearest rainbow cats flow, glow and trail; the nearest of those get the outline.
+local picks = 0
 local function pick()
 	local r = Presets.rainbow
 	local budget = Context.budget
@@ -300,12 +301,15 @@ local function pick()
 		then math.min(budget.rainbowCats, cap)
 		else budget.rainbowCats
 	local candidates: { Logic.Candidate<Cat> } = {}
+	picks += 1
+	local recounting = picks % r.recount == 0
 	for model, cat in cats do
 		if not model:IsDescendantOf(Workspace) then
 			drop(cat)
 			continue
 		end
-		if countParts(model) ~= cat.parts then
+		-- counting walks the whole model, so it runs on one pick in `recount`, not on every one (the frame rate job)
+		if recounting and countParts(model) ~= cat.parts then
 			-- more of it streamed in (or out): read it again, keeping its glow and trail
 			local again = bind(model)
 			again.flowing, again.since, again.holder, again.trail =
@@ -355,7 +359,8 @@ end
 
 local function step()
 	local now = os.clock()
-	if now - lastStep < 1 / math.min(Presets.rainbow.hz, Context.budget.animHz) then
+	local hz = if Context.tier == "low" then Presets.rainbow.hzLow else Presets.rainbow.hz
+	if now - lastStep < 1 / math.min(hz, Context.budget.animHz) then
 		return
 	end
 	lastStep = now

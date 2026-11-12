@@ -7462,6 +7462,90 @@ local SCENES = {
 			assert(lines[1].Text == "New cats pay +$50 💰", "uigate: the second cat goal's money line came back as " .. lines[1].Text .. " (#3022)")
 		end
 	end },
+	-- #2912: after the first bait cat the goal card reads "Free a stuck cat" until the first rescue starts; at night it
+	-- says when the stuck cats come back; the tier goal returns after.
+	{ "StuckCatGoal", function()
+		local before: any = UI.getState()
+		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 5, money = 120, secondCat = false, stuckGoal = true } :: any)
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for the stuck cat (#2912)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		local expected = "Free a stuck cat 🐾"
+		assert(title.Visible and title.Text == expected, "uigate: the stuck cat goal reads " .. title.Text .. " (#2912)")
+		assert(title.TextFits, "uigate: the stuck cat goal does not fit its card (#2912)")
+		assert(not (goal:FindFirstChild("RankReady") :: GuiObject).Visible, "uigate: a Rank up! sticker on the stuck cat goal (#2912)")
+		local function night(): TextLabel?
+			for _, piece in goal:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Visible and string.find(piece.Text, "at sunrise 🌅", 1, true) then
+					return piece
+				end
+			end
+			return nil
+		end
+		assert(night() == nil, "uigate: the stuck cat goal's night line shows by day (#2912)")
+		UI.clock.setAreasOpen(false)
+		UIShim.advance(0.1)
+		local line = night()
+		assert(line ~= nil, "uigate: at night the stuck cat goal has no sunrise line (#2912)")
+		assert((line :: TextLabel).TextFits, "uigate: the stuck cat goal's night line does not fit (#2912)")
+		assert(title.Text == expected, "uigate: the stuck cat goal's title changed at night (#2912)")
+		UI.clock.setAreasOpen(true)
+		UIShim.advance(0.1)
+		UI.update({ stuckGoal = false } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text ~= expected, "uigate: the goal card still asks for a stuck cat after it (#2912)")
+		UI.update({ stuckGoal = true } :: any) -- back for the picture
+		UIShim.advance(0.1)
+		assert(title.Text == expected, "uigate: the stuck cat goal did not come back (#2912)")
+	end },
+	-- #3529: while five different cats is the goal the card reads "Catch new kinds of cat 3/5", and the catch card
+	-- says "New kind! 3/5 for Cozy Cafe" for a kind the player has never owned
+	{ "NewKindGoal", function()
+		local before: any = UI.getState()
+		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 5, money = 120, secondCat = false, stuckGoal = false, newKindGoal = 3 } :: any)
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		local expected = "Catch new kinds of cat 🐾 3/5"
+		if title.Text == "New kinds of cat 🐾 3/5" then
+			expected = title.Text -- the phone's narrower card
+		end
+		assert(title.Visible and title.Text == expected, "uigate: the new kinds goal reads " .. title.Text .. " (#3529)")
+		assert(title.TextFits, "uigate: the new kinds goal does not fit its card (#3529)")
+		-- the stuck cat goal wins while both are set
+		UI.update({ stuckGoal = true } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text == "Free a stuck cat 🐾", "uigate: the new kinds goal beat the stuck cat goal (#3529)")
+		UI.update({ stuckGoal = false } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text == expected, "uigate: the new kinds goal did not come back (#3529)")
+		UI.update({ newKindGoal = false } :: any)
+		UIShim.advance(0.1)
+		assert(title.Text ~= expected, "uigate: the goal card still asks for new kinds after it (#3529)")
+		UI.update({ newKindGoal = 3 } :: any) -- back for the picture
+		UIShim.advance(0.1)
+		-- the catch card's line
+		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", newKind = "New kind! 3/5 for Cozy Cafe" } :: any)
+		UIShim.advance(0.3)
+		local prompt = UIShim.playerGui:FindFirstChild("Hint", true) :: TextLabel
+		local hint: TextLabel? = nil
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Name == "Hint" and piece.Text == "New kind! 3/5 for Cozy Cafe" then
+				hint = piece
+			end
+		end
+		assert(prompt ~= nil and hint ~= nil, "uigate: the catch card has no New kind line (#3529)")
+		assert((hint :: TextLabel).Visible and (hint :: TextLabel).TextFits, "uigate: the New kind line is hidden or does not fit (#3529)")
+		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare" } :: any)
+		UIShim.advance(0.1)
+		assert(not (hint :: TextLabel).Visible, "uigate: a repeat kind still shows the New kind line (#3529)")
+		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", newKind = "New kind! 3/5 for Cozy Cafe" } :: any)
+		UIShim.advance(0.3)
+	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
 	{ "TutorialDoneX", function()
@@ -8495,7 +8579,7 @@ local SCENES = {
 		assert(gui and gui:IsA("ScreenGui"), "uigate: no Rally banner built (#2098)")
 		assert(not gui.Enabled, "uigate: the Rally banner shows though this player has not scored (#2098)")
 	end },
-	-- F101: the Cat Cannon at night during a Rally: every card's "Rally: rescues x3" tag over its night cover
+	-- F101, #3691: the Cat Cannon at night during a Rally: the cards keep their night cover and wear no Rally tag
 	{ "RallyCannonNight", function()
 		local t = workspace:GetServerTimeNow()
 		local clock = Instance.new("Folder")
@@ -8509,6 +8593,11 @@ local SCENES = {
 		UI.clock.bind(clock)
 		UI.rally.update(rallyState({ points = 12, myPoints = 0 }))
 		UI.cannon.open()
+		for _, item in UIShim.playerGui:GetDescendants() do
+			if item:IsA("TextLabel") and string.find(item.Text, "Rally: rescues", 1, true) then
+				error("uigate: a Cat Cannon card still wears the Rally tag (#3691): " .. item:GetFullName())
+			end
+		end
 	end },
 	-- F101: three potions running and the Luck chip: on the phone the row beside the menu reaches the top centre,
 	-- so the banner moves down under it
@@ -9855,7 +9944,7 @@ function Scenes.close()
 	if Scenes._secondCat then
 		local was = Scenes._secondCat -- #3022's second cat goal scene: the tier goal and the sample cafe back
 		Scenes._secondCat = nil
-		UI.update({ secondCat = false, tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
+		UI.update({ secondCat = false, stuckGoal = false, tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
 	end
 	if Scenes._goalFolded then
 		Scenes._goalFolded = nil

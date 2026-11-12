@@ -65,6 +65,9 @@
 -- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
 --   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
 --   intro plays itself.
+-- - `newKindTag` (#3529): the "NEW" tag over strays of kinds the player has never owned, the catch card's "New kind!"
+--   line and the five cats pointer (shared/NewKind). It starts OFF (OFF_BY_DEFAULT) until review and QA pass. Read by
+--   the client (the tag, the line, the pointer) and by Telemetry (the pointer's two step_time events).
 -- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
 --   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
 --   off, nothing shows.
@@ -104,6 +107,7 @@ LiveFlags.KEYS = {
 	"binRoll",
 	"yardSaleRoll",
 	"introSplit",
+	"newKindTag",
 	"parkGateTrail",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -124,6 +128,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	binRoll = true,
 	yardSaleRoll = true,
 	introSplit = true,
+	newKindTag = true,
 	parkGateTrail = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

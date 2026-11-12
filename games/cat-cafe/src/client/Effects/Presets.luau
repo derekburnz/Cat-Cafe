@@ -4715,6 +4715,38 @@ Presets.binRoll = {
 	},
 }
 
+-- Petting a cat in your cafe (#3651; Effects/PetCat). The left arm goes down to the cat over `raise` seconds,
+-- reached `sh` degrees forward and `sp` out with the elbow bent `el`, strokes `strokes` times (one every `every`
+-- seconds, the hand moving `swing` degrees either way) and comes back over `lower`: 1.25 s in all. R6 reaches the
+-- whole arm `sh6`. As the hand arrives the cat perks up (the catch's "perk") and `hearts` hearts (the ♥ glyph on
+-- billboards, no texture; scaled by the budget's burstScale) float up `heartRise` studs from `up` studs over it (its
+-- BubbleAnchor when it has one) in `colour` over `heartSeconds`, fanning `heartFan` studs apart, with a short purr
+-- and a heart chime (Audio/Logic.petCatCue). When the heart moves from another cat, one grey heart fades off the
+-- old cat and a pink heart `move.size` studs tall arcs `move.height` studs high to the new one in `move.seconds`.
+-- Played for cafes within `range` studs.
+Presets.petCat = {
+	raise = 0.2,
+	strokes = 2,
+	every = 0.4,
+	lower = 0.25,
+	sh = 50,
+	sp = 8,
+	el = 20,
+	swing = 10,
+	sh6 = 60,
+	up = 2.2,
+	hearts = 5,
+	heartSize = 0.9, -- studs
+	heartSeconds = 1.1,
+	heartRise = 2.4, -- studs a heart floats up
+	heartFan = 1.6, -- studs between the outermost hearts at the top
+	colour = Presets.palette.nosePink,
+	lost = Presets.palette.furGrey,
+	edge = Color3.fromRGB(94, 70, 52), -- palette 2, the UI's outline colour
+	move = { seconds = 0.6, height = 3, size = 0.9 },
+	range = 120,
+}
+
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
 -- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the
 -- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).

@@ -433,21 +433,34 @@ return function()
 			end
 		end)
 
-		it("gives the first three wins their fixed prizes with no roll", function()
+		it("rolls a new account's first wins from the table too: no fixed prize (#3680)", function()
 			local save = RummageBin.fresh()
-			for index = 1, Config.BinFirstUses do
+			local rows = RummageBin.rollRows()
+			for index = 1, Config.BinFirstUses + 1 do
 				local row, mode = RummageBin.choose(save, 0.999)
-				expect(mode).to.equal(RummageBin.MODE_FIXED)
-				expect(row.id).to.equal((Config.BinFirstPrizes :: any)[index].id)
-				expect(RummageBin.rollIndex(row.id)).to.equal(nil)
+				expect(mode).to.equal(RummageBin.MODE_ROLL)
+				expect(row.id).to.equal(rows[#rows].id) -- the roll decides, the rarest row at 0.999
+				expect(RummageBin.rollIndex(row.id)).to.equal(#rows)
 				local won = RummageBin.winStored(save, T)
 				expect(won).to.equal(row)
 				expect(save.prize).to.equal(nil)
 				expect(save.uses).to.equal(index)
 			end
-			local _, mode = RummageBin.choose(save, 0)
-			expect(mode).to.equal(RummageBin.MODE_ROLL)
+			expect(RummageBin.choose(RummageBin.fresh(), 0).id).to.equal(rows[1].id)
 		end)
+
+		it(
+			"counts a player as on the pad inside its ring, with the server's slack, not over or under it (#3680)",
+			function()
+				expect(RummageBin.onPad(Vector3.new(3, 2, 2), 4)).to.equal(true)
+				expect(RummageBin.onPad(Vector3.new(4.5, 2, 0), 4)).to.equal(false)
+				expect(RummageBin.onPad(Vector3.new(4.5, 2, 0), 4, 3)).to.equal(true)
+				expect(RummageBin.onPad(Vector3.new(8, 2, 0), 4, 3)).to.equal(false)
+				expect(RummageBin.onPad(Vector3.new(0, RummageBin.PAD_HEIGHT + 1, 0), 4, 3)).to.equal(
+					false
+				)
+			end
+		)
 
 		it("never rerolls a prize that waits: a miss, a retry and a rejoin keep it", function()
 			local save = RummageBin.fresh()

@@ -49,6 +49,24 @@ return function()
 			end
 		end)
 
+		it("gives the Tier 6 potions a bigger, busier glow", function()
+			local pairsOf: { [string]: string } = {
+				big_lucky_potion = "lucky_potion",
+				big_gold_rush_potion = "gold_rush_potion",
+				mega_tip_potion = "big_tip_potion",
+			}
+			for big, small in pairsOf do
+				local bigSpec, smallSpec = Presets.potions[big], Presets.potions[small]
+				expect(bigSpec.emitter ~= smallSpec.emitter).to.equal(true)
+				expect(bigSpec.on).to.equal(smallSpec.on)
+				local a, b = Presets.emitters[bigSpec.emitter], Presets.emitters[smallSpec.emitter]
+				expect(a.rate > b.rate).to.equal(true)
+				expect(a.size[1] > b.size[1]).to.equal(true)
+				-- still a handful of live particles each: the rate times the longest life
+				expect(a.rate * a.lifetime[2] <= 8).to.equal(true)
+			end
+		end)
+
 		it("keeps the glows inside the budget, none in Low performance", function()
 			local low, high, saver =
 				Presets.budget.low, Presets.budget.high, Presets.budget.lowPerformance

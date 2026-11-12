@@ -7489,9 +7489,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- Controllers/RallyController calls UI.rally.update(state) on every RallyState: the banner top centre while a Rally
--- runs, the Town Square board's face, "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
--- (the Friday chip) and the Cat Cannon cards' night tag. The pops are VFX's (Effects/Rally hooks RallyPoint and finds
--- the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
+-- runs, the Town Square board's face and "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
+-- (the Friday chip). #3691 took the Cat Cannon cards' night tag away. The pops are VFX's (Effects/Rally hooks
+-- RallyPoint and finds the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
 -- once. Its own block, as the module is short of locals.
 do
 	local RallyBanner = require(script.Screens.RallyBanner)
@@ -7515,9 +7515,6 @@ do
 		local boards = rally.boards
 		if boards then
 			boards:set(current)
-		end
-		if cannonScreen then
-			cannonScreen:setRally(current)
 		end
 		if hud then
 			hud:setRallySoon(RallyLogic.soon(current, Workspace:GetServerTimeNow()))

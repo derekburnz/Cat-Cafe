@@ -7932,18 +7932,22 @@ local SCENES = {
 		local line = yardPickCard():FindFirstChild("Line", true)
 		assert(line and string.find(line.Text, "Next pick in", 1, true), "uigate: no wait on the taken lucky pick (#3615)")
 	end },
-	-- #3615: YardSalePicked(3): the light rolls down the board and stops on row 3, the only lit row
+	-- #3615: YardSalePicked(1): the light rolls down the board twice and stops on row 1, the only lit row. Tier 1's
+	-- short board and its first row, so the whole roll ends inside the 1.5 s a scene is given: a longer one ran on
+	-- into the next scene and failed there (the Tier 4 board's roll to row 3 is about 2 s)
 	{ "YardSalePickLanded", function()
-		local extras = yardPickExtras(4, false)
+		local extras = yardPickExtras(1, false)
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
-		task.wait(0.3)
-		UI.campExtras.picked(3)
+		task.wait(0.1)
+		local landing = 1
+		UI.campExtras.picked(landing)
 		local total = 0
-		for _, step in UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic").rollSteps(#extras.yardSale.pick, 3) do
+		for _, step in UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic").rollSteps(#extras.yardSale.pick, landing) do
 			total += step.rest
 		end
-		task.wait(total + 0.5)
+		assert(total < 1.2, "uigate: the lucky pick's roll takes " .. total .. " s, too long for this scene (#3615)")
+		task.wait(total + 0.15)
 		local lit = {}
 		for _, piece in yardPickCard():GetDescendants() do
 			if piece:GetAttribute("RowId") ~= nil then
@@ -7953,7 +7957,8 @@ local SCENES = {
 				end
 			end
 		end
-		assert(#lit == 1 and lit[1] == "Row3", "uigate: the pick's light is on " .. table.concat(lit, ",") .. ", not Row3 (#3615)")
+		local want = "Row" .. landing
+		assert(#lit == 1 and lit[1] == want, "uigate: the pick's light is on " .. table.concat(lit, ",") .. ", not " .. want .. " (#3615)")
 	end },
 	-- #1200: the Garden Nursery at Tier 3: owned pieces read Owned, the rest Buy with the price, Tier 4 and 5 pieces
 	-- "Opens at Tier 4"; then its Fences tab

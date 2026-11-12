@@ -486,19 +486,23 @@ function YardSale._paintPick(self: any): boolean
 	return true
 end
 
--- Keeps the lit row inside the scrolling box.
+-- Keeps the lit row inside the scrolling box, measured on screen (the board is drawn smaller on a phone), with EDGE
+-- px of room for the lit row's edge, which the box's clip would cut at the very top or bottom.
 function YardSale._showRow(self: any, index: number)
 	local scroll: ScrollingFrame = self._pickScroll
-	local step = RollBoard.ROW + 4
-	local top = RollBoard.height({ title = "", line = "", rows = {}, dim = false })
-		- 8
-		+ (index - 1) * step
-	local room = scroll.AbsoluteWindowSize.Y
+	local row = self._board.frame:FindFirstChild("Row" .. index)
+	if row == nil or not row:IsA("GuiObject") then
+		return
+	end
+	local EDGE = 4
 	local y = scroll.CanvasPosition.Y
-	if top < y then
-		y = top
-	elseif top + step > y + room then
-		y = top + step - room
+	local top = (row :: GuiObject).AbsolutePosition.Y - scroll.AbsolutePosition.Y + y
+	local bottom = top + (row :: GuiObject).AbsoluteSize.Y
+	local room = scroll.AbsoluteWindowSize.Y
+	if top - EDGE < y then
+		y = top - EDGE
+	elseif bottom + EDGE > y + room then
+		y = bottom + EDGE - room
 	end
 	scroll.CanvasPosition = Vector2.new(0, math.max(0, y))
 end

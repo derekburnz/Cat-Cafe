@@ -8647,7 +8647,14 @@ function UI.perks.unlock(perkId: string)
 		if UI.perks.token ~= token or UI.perks.card == nil then
 			return
 		end
-		UI.perks.card:showUnlocked(perk)
+		-- the Mystic Pool stands on the Picnic Basket's spot while `traits` is on, so the Park's card names the pool
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local pool = LiveFlags.shown(
+			"traits",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "traits")
+		) == true
+		UI.perks.card:showUnlocked(perk, pool)
 	end)
 end
 

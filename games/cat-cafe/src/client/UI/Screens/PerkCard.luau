@@ -25,7 +25,7 @@ local PAL = Theme.dark
 
 export type PerkCard = {
 	screenGui: ScreenGui,
-	showUnlocked: (self: PerkCard, perk: PerkCardLogic.Perk) -> (),
+	showUnlocked: (self: PerkCard, perk: PerkCardLogic.Perk, pool: boolean?) -> (),
 	showList: (self: PerkCard, tier: number?) -> (),
 	hide: (self: PerkCard) -> (),
 	isShowing: (self: PerkCard) -> boolean,
@@ -294,8 +294,8 @@ function PerkCard._clearRows(self: any)
 	table.clear(self._rows)
 end
 
-function PerkCard.showUnlocked(self: any, perk: PerkCardLogic.Perk)
-	local view = PerkCardLogic.unlocked(perk)
+function PerkCard.showUnlocked(self: any, perk: PerkCardLogic.Perk, pool: boolean?)
+	local view = PerkCardLogic.unlocked(perk, pool)
 	self._mode = "unlocked"
 	self:_clearRows()
 	self._title.Text = "🎉 " .. view.title

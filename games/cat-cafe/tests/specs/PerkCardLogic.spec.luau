@@ -26,6 +26,24 @@ return function()
 			expect(view.text).to.equal(StationPerks.get("haggler").text)
 			expect(view.icon).to.equal(PerkCardLogic.ICON.haggler)
 		end)
+
+		it(
+			"names the Mystic Pool for the Park's perk while the pool stands on the basket's spot (#3585)",
+			function()
+				local perk = StationPerks.get("fresh_bait")
+				expect(PerkCardLogic.unlocked(perk).station).to.equal("Picnic Basket")
+				expect(PerkCardLogic.unlocked(perk, false).station).to.equal("Picnic Basket")
+				local view = PerkCardLogic.unlocked(perk, true)
+				expect(view.station).to.equal("Mystic Pool")
+				expect(view.icon).to.equal(PerkCardLogic.POOL_ICON)
+				expect(view.perk).to.equal("New perk: Fresh Bait")
+				expect(view.text).to.equal(perk.text)
+				-- every other station keeps its own name
+				expect(PerkCardLogic.unlocked(StationPerks.get("haggler"), true).station).to.equal(
+					"Yard Sale"
+				)
+			end
+		)
 	end)
 
 	describe("PerkCardLogic.list", function()

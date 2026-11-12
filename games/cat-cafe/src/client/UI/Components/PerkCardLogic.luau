@@ -61,11 +61,18 @@ function PerkCardLogic.icon(id: string): string
 	return PerkCardLogic.ICON[id] or PerkCardLogic.FALLBACK_ICON
 end
 
-function PerkCardLogic.unlocked(perk: Perk): Unlocked
+-- #3585: while the `traits` switch is on the Mystic Pool stands on the Picnic Basket's spot and the basket is put
+-- away, so with `pool` true the Park's card shows the pool, the station a player can find there. The perk is the same.
+PerkCardLogic.POOL_PERK = "fresh_bait"
+PerkCardLogic.POOL_ICON = "🔮"
+PerkCardLogic.POOL_STATION = "Mystic Pool" -- Traits.NAME
+
+function PerkCardLogic.unlocked(perk: Perk, pool: boolean?): Unlocked
+	local swapped = pool == true and perk.id == PerkCardLogic.POOL_PERK
 	return {
-		icon = PerkCardLogic.icon(perk.id),
+		icon = if swapped then PerkCardLogic.POOL_ICON else PerkCardLogic.icon(perk.id),
 		title = PerkCardLogic.UNLOCKED_TITLE,
-		station = perk.station,
+		station = if swapped then PerkCardLogic.POOL_STATION else perk.station,
 		perk = "New perk: " .. perk.name,
 		text = perk.text,
 	}

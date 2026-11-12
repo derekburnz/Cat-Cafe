@@ -9,7 +9,7 @@ glowing circle lies on the street, and walking into it opens the code box (desig
                                      ears, Tail, LegF1, LegF2), so the effects code can blink it and flick its ears
   CatCafe_Street_CodesCat_Cat_Prop   the cap, inside the Head Model
   CatCafe_Street_CodesCat_Bulb       the lamp over the sign, lit at night
-  CatCafe_Street_CodesCat_CodesCircle  the walk-in circle: one flat Neon disc, 8 studs across and 0.85 see-through,
+  CatCafe_Street_CodesCat_CodesCircle  the walk-in circle: one flat Neon disc, 16 studs across and 0.85 see-through,
                                      exported as the part CodesCircle; CanCollide off
   CatCafe_Street_CodesCat_Glow       the circle's rim, Neon day and night
   CatCafe_Street_CodesCat_Ticket_Decor  the code ticket in the middle with a paw stamp, plain (not Neon) so the
@@ -33,7 +33,7 @@ DESK_W, DESK_H, DESK_FRONT, DESK_BACK = 4.8, 2.6, -1.2, 0.0
 SEAT_Y, CAT_Z, CAT_SCALE = 1.9, 0.9, 1.5         # the stool top, the cat's pivot (Roblox z) and its size
 WALL_Z = 1.75                                      # the pigeonhole wall's front face
 PROMPT_ROBLOX = (0.0, 3.0, DESK_FRONT - 0.2)       # PromptAnchor, Roblox studs from the pivot
-CIRCLE_R = 6.0                                     # the walk-in circle's radius (CodesCircle is 12 across; 8 until #3112)
+CIRCLE_R = 8.0                                     # the walk-in circle's radius (CodesCircle is 16 across; #3454, 6 from #3112)
 CIRCLE_Z = DESK_FRONT - 0.8 - CIRCLE_R             # its centre, its edge 0.8 studs in front of the desk
 
 # A flame point (white with ginger points): not a collectable coat, so nobody takes it for a cat to catch.
@@ -149,21 +149,22 @@ def _circle(pad, glow, ticket):
     pad.cyl((0, 0.05, CIRCLE_Z), CIRCLE_R, 0.1, "pastel_butter", segments=24)
     glow.b.ring(RB.p(0, 0.07, CIRCLE_Z), CIRCLE_R + 0.05, 0.3, 0.14, "pastel_butter", segments=24, bevel=False)
     y0, y1 = 0.09, 0.17
-    hw, hd, notch, end = 2.7, 1.55, 0.45, 0.6        # half width, half depth, the side notches, the end strips
+    k = CIRCLE_R / 6.0                               # the ticket keeps its share of the circle (drawn at radius 6)
+    hw, hd, notch, end = 2.7 * k, 1.55 * k, 0.45 * k, 0.6 * k   # half width, half depth, the side notches, the end strips
     ticket.span((-hw + end, y0, CIRCLE_Z - hd), (hw - end, y1, CIRCLE_Z + hd), "shirt_red")
     for sx in (-1, 1):
         xa, xb = sorted((sx * (hw - end), sx * hw))
         for sz in (-1, 1):
             za, zb = sorted((CIRCLE_Z + sz * notch, CIRCLE_Z + sz * hd))
             ticket.span((xa, y0, za), (xb, y1, zb), "shirt_red")
-    tx = 1.25                                                                                # the tear line
+    tx = 1.25 * k                                                                            # the tear line
     for dz in (-1.1, -0.55, 0.0, 0.55, 1.1):
-        ticket.span((tx - 0.09, y1 - 0.01, CIRCLE_Z + dz - 0.17), (tx + 0.09, y1 + 0.02, CIRCLE_Z + dz + 0.17),
-                    "offwhite")
-    px, pz = -0.55, CIRCLE_Z - 0.15                                     # the paw stamp, toes toward the desk
-    ticket.cyl((px, y1 + 0.01, pz - 0.25), 0.55, 0.04, "offwhite", segments=14)
+        ticket.span((tx - 0.09 * k, y1 - 0.01, CIRCLE_Z + (dz - 0.17) * k),
+                    (tx + 0.09 * k, y1 + 0.02, CIRCLE_Z + (dz + 0.17) * k), "offwhite")
+    px, pz = -0.55 * k, CIRCLE_Z - 0.15 * k                             # the paw stamp, toes toward the desk
+    ticket.cyl((px, y1 + 0.01, pz - 0.25 * k), 0.55 * k, 0.04, "offwhite", segments=14)
     for (dx, dz) in ((-0.62, 0.38), (-0.22, 0.72), (0.22, 0.72), (0.62, 0.38)):
-        ticket.cyl((px + dx, y1 + 0.01, pz + dz), 0.22, 0.04, "offwhite", segments=10)
+        ticket.cyl((px + dx * k, y1 + 0.01, pz + dz * k), 0.22 * k, 0.04, "offwhite", segments=10)
 
 
 def build_codes_cat(mat):

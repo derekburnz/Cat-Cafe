@@ -17,11 +17,11 @@ TutorialMoves.BOWL_STEP = 4
 TutorialMoves.CANNON_STEP = 5
 TutorialMoves.BOWL_STUDS = 4 -- stand this far out from the bowl (BaitService's prompt reaches it)
 TutorialMoves.CANNON_STUDS = 7 -- and this far from the cannon, inside Config.World.CannonRangeStuds (10)
--- 1 since #3640 (Derek 2026-11-12: "the cannon teleport after claiming the cat from food bowl is a bit delayed"; 6 and
+-- 2 since #3640 (Derek 2026-11-12: "the cannon teleport after claiming the cat from food bowl is a bit delayed"; 6 and
 -- 4 before, so the new cat's card, which closes itself after 5 seconds, was gone before the Cat Cannon window could
--- open over it). The client now closes that card as the move lands (UI.closeCatCard), so the move only waits a beat
--- for the claim to show.
-TutorialMoves.CANNON_DELAY = 1 -- seconds between the step and the move to the cannon
+-- open over it). The client now closes that card as the move lands (UI.closeCatCard), so the move only waits long
+-- enough to read which cat it is (Review-QA measured 0.7 to 1.1 seconds of card at a 1 second wait).
+TutorialMoves.CANNON_DELAY = 2 -- seconds between the step and the move to the cannon
 TutorialMoves.LEFT_STUDS = 30 -- walked this far in that time: no move
 -- The tags the client's step pointers (#2697 part 1) find the targets by: the bowl part in each plot (the owner's
 -- plot is the Plot-tagged ancestor with OwnerUserId), and the cannons (CannonId "town" for the Town Square's).

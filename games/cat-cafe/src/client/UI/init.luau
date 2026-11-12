@@ -1633,6 +1633,7 @@ function UI.init(config: Types.InitConfig)
 	local catchUI: any = UI.catch
 	catchUI.moods = require(script.Screens.MoodIcons).new()
 	catchUI.pity = require(script.Screens.PityTags).new() -- #2099: the "Pity cat" tag over a pity stray
+	catchUI.secret = require(script.Screens.SecretTags).new() -- #3470: the "SECRET" tag over a Secret stray
 	catchUI.mark = require(script.Screens.CatchMark).new() -- #2005: the "!" over a stray being caught (NetDown)
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
@@ -1956,6 +1957,10 @@ function UI.destroy()
 	if catchUI.pity then
 		catchUI.pity:destroy()
 		catchUI.pity = nil
+	end
+	if catchUI.secret then
+		catchUI.secret:destroy()
+		catchUI.secret = nil
 	end
 	if catchUI.mark then
 		catchUI.mark:destroy()

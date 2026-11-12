@@ -1422,11 +1422,10 @@ local function paintCampWords(
 				-- a ring is unseen and flat (its SurfaceGui draws it), so the checks below would pass it by
 				local radius = piece:GetAttribute("Radius")
 				if type(radius) == "number" then
-					local at = base:PointToObjectSpace(
-						Vector3.new(piece.Position.X, floorY, piece.Position.Z)
-					)
+					local where = piece.Position
+					local at = base:PointToObjectSpace(Vector3.new(where.X, floorY, where.Z))
 					if
-						math.abs(piece.Position.Y - floorY) < 3
+						math.abs(where.Y - floorY) < 3
 						and at.Z + radius > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
 						and at.Z - radius < 0
 						and at.X + radius > -camp.halfAcross - 1

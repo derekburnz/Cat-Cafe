@@ -572,6 +572,18 @@ local function padStep()
 	end
 	for model, prompt in models do
 		local pad = padOf(model)
+		if prompt ~= nil then
+			-- #3683: with the roll on the pad is the way in, as at every ringed station (#3114), so the click prompt is
+			-- silenced: no pill over the bar and no press from off the pad. A player still in the tutorial keeps the
+			-- prompt, since the pad waits for the tutorial's end; so does a bin whose ring is streamed out.
+			local reach = WalkUp.promptReach(
+				on and pad ~= nil and not inTutorial(),
+				RummageBin.RANGE_STUDS -- the reach WorldBuilder gives it
+			)
+			if prompt.MaxActivationDistance ~= reach then
+				prompt.MaxActivationDistance = reach
+			end
+		end
 		if pad == nil then
 			continue
 		end

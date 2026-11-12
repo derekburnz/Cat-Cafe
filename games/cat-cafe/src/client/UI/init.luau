@@ -4071,7 +4071,9 @@ do
 			then
 				return RummageBin.NAME
 			end
-			return "Rummage for: " .. RummageBin.rowTitle(waiting)
+			-- #3683: the prize alone ("Rummage for: Golden Alley Crate" was cut on the bar); the board over the bin
+			-- reads "Rummage for" above the same prize
+			return RummageBin.rowTitle(waiting)
 		end
 		local header: RescueBar.Header = if rescueSpotId == RummageBin.SPOT
 			then {

@@ -127,6 +127,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._extras = "" -- the gold and charm line the Details were written with
 	self._accumulator = 0
 	self._allUntil = 0 -- #2573: os.clock() when Buy all's wait for DealerStock ends
+	self._alive = true -- #3646: false once destroyed, for the Buy all's own repaint
 	self._plan = nil :: DealerRows.BuyAll?
 
 	local panel = Panel.new({
@@ -612,6 +613,13 @@ function Dealer._confirmBuyAll(self: any)
 	self._allUntil = os.clock() + ALL_PENDING_SECONDS
 	send(if stock then stock.window else nil)
 	self:_renderAll()
+	-- #3646: an unanswered Buy all leaves "Buying..." after ALL_PENDING_SECONDS on its own, as the Day Cart's does
+	-- (#3340), not only at the next render
+	task.delay(ALL_PENDING_SECONDS + 0.1, function()
+		if self._alive then
+			self:_renderAll()
+		end
+	end)
 end
 
 -- Why buying is closed for every row right now, or nil when it is open.
@@ -802,6 +810,7 @@ function Dealer._renderStrip(self: any)
 end
 
 function Dealer.destroy(self: any)
+	self._alive = false
 	self._tick:Disconnect()
 	self:_clearRows()
 	self._panel:destroy()

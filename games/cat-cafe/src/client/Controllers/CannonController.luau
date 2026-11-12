@@ -15,7 +15,6 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Cannon = require(Shared:WaitForChild("Cannon"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
-local Config = require(Shared:WaitForChild("Config"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local UI = require(script.Parent.Parent.UI)
@@ -174,6 +173,7 @@ function CannonController.start()
 		if typeof(at) == "Vector3" and character ~= nil then
 			aimBehind(character, at)
 		end
+		UI.closeCatCard() -- #3640: the new cat's card does not ride along
 	end)
 
 	-- #2915: the cannon the character stands in range of (the server's own range), for "Fly to the Park"
@@ -185,11 +185,16 @@ function CannonController.start()
 		end
 		local at = (root :: BasePart).Position
 		local best: string? = nil
-		local bestDistance = Config.World.CannonRangeStuds + Cannon.RANGE_SLACK
+		local bestDistance = math.huge
 		for model in prompts do
 			local id = model:GetAttribute("CannonId")
 			local distance = (model:GetPivot().Position - at).Magnitude
-			if type(id) == "string" and distance <= bestDistance then
+			-- #3671: each cannon's own range
+			if
+				type(id) == "string"
+				and distance <= Cannon.range(id) + Cannon.RANGE_SLACK
+				and distance <= bestDistance
+			then
 				best, bestDistance = id, distance
 			end
 		end

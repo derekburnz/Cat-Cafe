@@ -558,7 +558,7 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		table.insert(self._rows, row)
 	end
 	self._opensLabel.Visible = true
-	local teaser = PerkCardLogic.teaser(progress.tier)
+	local teaser = PerkCardLogic.teaser(progress.tier, PerkCardLogic.poolStands())
 	self._teaser.Text = teaser or ""
 	self._teaser.Visible = teaser ~= nil
 	self._opens.Text = table.concat(progress.opens, "\n")

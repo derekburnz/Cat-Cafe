@@ -452,11 +452,11 @@ local function refreshTutorial(s: Types.PlayerState)
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
 		-- a stray caught by someone else or run off picks the next one. #3022: one cat caught (stats.catsCaught): the
 		-- cafe's own count was 2 after the first catch, with the starter Tabby, so this never showed
-		if SecondCat.caught(s.stats) < SecondCat.CATS and areasShut() then
+		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
 			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
-		elseif SecondCat.caught(s.stats) < SecondCat.CATS then -- #3160: by hand; a tamed bowl cat is not one
+		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
@@ -885,8 +885,8 @@ local function applyState(s: Types.PlayerState)
 		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
 		-- showed; false once it ends, as UI.update skips a nil and the card would stay
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
-		-- #3188: two cats caught by hand and checked in, so the Daily Treat may open by itself
-		secondCatDone = SecondCat.caught(s.stats) >= SecondCat.CATS,
+		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
+		secondCatDone = SecondCat.done(s.stats),
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's

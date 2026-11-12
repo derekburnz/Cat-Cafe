@@ -169,6 +169,8 @@ type Run = {
 	wheel: { model: Model, base: CFrame }?,
 	done: { [string]: boolean }, -- the timed beats inside a shot that have happened
 	campHeld: number, -- #2961: seconds shot 1 has held before its fuse for the camp's ground to stream in
+	cafeWaitFrom: number?, -- #3550: os.clock() when a cut to the cafe's shots first found the cafe not streamed in
+	cafeIn: boolean, -- #3550: the cafe has streamed in, or its wait is used up
 	controls: any?, -- the PlayerModule's controls, disabled for the run
 	promptsWere: boolean,
 	cameraType: Enum.CameraType,
@@ -752,6 +754,30 @@ local function streamCamp()
 	streamAround(ground.middle)
 end
 
+-- #3550 (Derek 2026-11-12: "sometimes th tutorial just doesnt load at all"; his picture: shot 5 over water and a
+-- bare hill, the cats' tags hanging in the air): shots 5 and 6 film the player's own cafe, which on a full server
+-- can stand some 200 studs from the spawn, outside what this client has streamed in. It was only asked for one shot
+-- ahead, so Next pressed through the camp shots got there first. The cafe is in when a ray down at its waiter spot
+-- finds a part of the player's own plot (its floor or roof).
+local CAFE_WAIT = 2.5 -- seconds the cut to shot 5 or 6 holds for it at most, as Intro.CAMP_WAIT
+
+local function streamCafe(plot: Intro.Plot)
+	streamAround(Intro.waiterPoint(plot))
+	streamAround(Intro.doorPoint(plot))
+end
+
+local function cafeReady(plot: Intro.Plot): boolean
+	local own = UIController.ownPlot()
+	if own == nil then
+		return false
+	end
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = { own }
+	params.FilterType = Enum.RaycastFilterType.Include
+	local at = Intro.waiterPoint(plot)
+	return Workspace:Raycast(at + Vector3.new(0, 30, 0), Vector3.new(0, -60, 0), params) ~= nil
+end
+
 -- The Spin Wheel station's turning part (a Model named Wheel or ..._Wheel, the Effects Wheel's own lookup).
 local function findWheel(): Model?
 	for _, station in CollectionService:GetTagged("SpinWheel") do
@@ -1061,6 +1087,22 @@ local function enterShot(r: Run, position: number)
 	(UI.intro :: any).setShot(shot.index, deviceCaption(shot.caption), nil, shot.hold)
 	Moments.IntroShot:Fire(shot.index)
 	Net.fire("TelemetryReport", "intro_shot", shot.index) -- #3098: quit_scene's shot and first_scene (analytics only)
+end
+
+-- #3550: whether the cut to `following` (the next shot) holds this frame: it films the cafe, the cafe has not
+-- streamed in and the wait is not used up. The shot showing stays on its last frame meanwhile.
+local function holdsForCafe(r: Run, following: Intro.Shot?): boolean
+	if r.cafeIn or following == nil or not (following.job or following.rich) then
+		return false
+	end
+	local now = os.clock()
+	local from = r.cafeWaitFrom or now
+	r.cafeWaitFrom = from
+	if cafeReady(r.plot) or now - from >= CAFE_WAIT then
+		r.cafeIn = true
+		return false
+	end
+	return true
 end
 
 -- #2759 (Derek2 11-09: on a phone emulation the catch steps were "just a yellow screen"): a slow phone can miss
@@ -1491,6 +1533,12 @@ local function step()
 			finish(true)
 			return
 		end
+		if holdsForCafe(r, r.shots[r.shot + 1]) then
+			-- #3550: this shot's last frame stays until the cafe is in (CAFE_WAIT at most)
+			r.shotStarted = os.clock() - shot.hold
+			t = shot.hold
+			break
+		end
 		r.shotStarted += shot.hold
 		enterShot(r, r.shot + 1)
 		shot = r.shots[r.shot]
@@ -1547,6 +1595,11 @@ local function nextShot()
 	stage(r, shot, shot.seconds)
 	if r.shot >= #r.shots then
 		finish(true)
+		return
+	end
+	if holdsForCafe(r, r.shots[r.shot + 1]) then
+		-- #3550: Next to a cafe shot that has not streamed in: this shot is over, and step() cuts as soon as it is in
+		r.shotStarted = os.clock() - shot.hold
 		return
 	end
 	r.shotStarted = os.clock()
@@ -2116,6 +2169,7 @@ function IntroController.play(replay: boolean)
 	-- middle too, where its big ground and set parts stand (#2961)
 	streamCamp()
 	streamAround(camp.pad)
+	streamCafe(Intro.plot(state.plotIndex)) -- #3550: the cafe of shots 5 and 6, from the start
 	-- #3109 (Derek2 11-10: "start the cutscene right after dont even check if the alleyway catching scenes are
 	-- ready it should be fine"): no wait for the camp before shot 1 any more (it was up to STREAM_WAIT 5 s, then
 	-- CAMP_WAIT 2.5 s, on a still picture). The loading screen's quick run to 100 is the only pause, and the camp
@@ -2171,6 +2225,8 @@ function IntroController.play(replay: boolean)
 		wheel = nil,
 		done = {},
 		campHeld = 0,
+		cafeWaitFrom = nil,
+		cafeIn = false,
 		controls = controls(),
 		promptsWere = ProximityPromptService.Enabled,
 		cameraType = cameraWas, -- from before the park; finish() turns Scriptable into Custom
@@ -2185,6 +2241,9 @@ function IntroController.play(replay: boolean)
 	task.spawn(function()
 		while run == r and not r.ended and not r.done.sceneOver do
 			streamCamp()
+			if not r.cafeIn then
+				streamCafe(r.plot) -- #3550
+			end
 			task.wait(CAMP_ASK_EVERY)
 		end
 	end)

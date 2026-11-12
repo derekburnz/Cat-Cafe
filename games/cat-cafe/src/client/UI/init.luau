@@ -988,7 +988,10 @@ function UI.init(config: Types.InitConfig)
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then
-				UI.perks.card:showList(state.tier)
+				UI.perks.card:showList(
+					state.tier,
+					require(script.Components.PerkCardLogic).poolStands()
+				)
 			end
 		end,
 	})
@@ -5644,6 +5647,14 @@ do
 			task.delay(1, present, token, away)
 			return
 		end
+		local now: any = UI.getState()
+		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
+		if
+			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
+		then
+			task.delay(1, present, token, away) -- not over a tutorial card; it comes once the tutorial is done
+			return
+		end
 		local how, line = FirstVisitLogic.show(kind, away())
 		if how == "toast" then
 			UI.toast(line, "good")
@@ -8616,6 +8627,7 @@ UI.perks = {
 	token = 0, -- the latest unlock's, so a teardown or a second reveal drops an older wait
 	REVEAL_SECONDS = 3,
 	REDUCED_SECONDS = 0.5,
+	WINDOW_WAIT_SECONDS = 300,
 }
 
 function UI.perks.unlock(perkId: string)
@@ -8631,10 +8643,24 @@ function UI.perks.unlock(perkId: string)
 		then UI.perks.REDUCED_SECONDS
 		else UI.perks.REVEAL_SECONDS
 	task.delay(seconds, function()
+		-- #3585: never on top of a window (a first Park visit that walks straight onto the Mystic Pool's ring had
+		-- both up at once); the card waits for the window to close, up to WINDOW_WAIT_SECONDS
+		local waited = 0
+		local windows = modal
+		while
+			UI.perks.token == token
+			and windows ~= nil
+			and windows:current() ~= nil
+			and waited < UI.perks.WINDOW_WAIT_SECONDS
+		do
+			waited += task.wait(0.5)
+		end
 		if UI.perks.token ~= token or UI.perks.card == nil then
 			return
 		end
-		UI.perks.card:showUnlocked(perk)
+		-- the Mystic Pool stands on the Picnic Basket's spot while `traits` is on, so the Park's card names the pool
+		local pool = require(script.Components.PerkCardLogic).poolStands()
+		UI.perks.card:showUnlocked(perk, pool)
 	end)
 end
 

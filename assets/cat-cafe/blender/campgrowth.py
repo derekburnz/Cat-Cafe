@@ -69,7 +69,8 @@ def stall_canopy(mat, name, cloth, stripe, post, w=6.5, d=5.0):
     for sx in (-1, 1):                                                     # side valances
         for k in range(3):
             z = -d / 2 + (k + 0.5) * d / 3
-            b.span((sx * (w / 2 + 0.13), H - 0.3, z - d / 6 + 0.06), (sx * (w / 2 + 0.2), H + 0.3, z + d / 6 - 0.06),
+            up = 0.5 * z / d                                               # follow the cloth's slope and touch its edge
+            b.span((sx * (w / 2), H - 0.1 + up, z - d / 6 + 0.06), (sx * (w / 2 + 0.07), H + 0.5 + up, z + d / 6 - 0.06),
                    (cloth, stripe)[k % 2])
     # the stall table along the back
     tz = d / 2 - 1.1

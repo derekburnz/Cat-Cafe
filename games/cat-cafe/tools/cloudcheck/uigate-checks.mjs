@@ -191,7 +191,22 @@ export function checkScene(profile, scene) {
         bottom: !list.moreY && rows.every((r) => r.y + r.h <= c4 + 0.5),
       };
     }
-    return { left: true, top: true, right: true, bottom: true };
+    // #3307: no list, but a strip that slides behind its window (the crate reel) runs on past the window's edge, so
+    // the tile at that edge is cut on purpose as it rolls by
+    const out = { left: true, top: true, right: true, bottom: true };
+    if (node.clip) {
+      const [c1, c2, c3, c4] = node.clip;
+      for (let i = parts.length - 1; i > 0; i--) {
+        const strip = byPath.get(parts.slice(0, i).join('/'));
+        if (!strip || !strip.clip || strip.clip.some((edge, k) => Math.abs(edge - node.clip[k]) > 0.5)) continue;
+        // by more than the tile itself: a box a pixel or two too big for its window is still a finding
+        if (c1 - strip.x > node.w) out.left = false;
+        if (c2 - strip.y > node.h) out.top = false;
+        if (strip.x + strip.w - c3 > node.w) out.right = false;
+        if (strip.y + strip.h - c4 > node.h) out.bottom = false;
+      }
+    }
+    return out;
   };
   const shown = [];
   for (const node of scene.nodes) {

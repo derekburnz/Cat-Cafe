@@ -37,7 +37,6 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
   Since #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost"; before: Tuna 40%, 5 fish 25%, Salmon 12%, potion 11%, crate 10%, golden 2%). An account's first three wins are fixed and sit outside the table: 2 Tuna and 10 golden fish, then an Alley Crate and a Lucky Potion, then a Salmon and 10 golden fish (`BinFirstPrizes`).
   - **Loot card (#3464, Derek 2026-11-12: "show the loot obtained from rummage also").** A win shows a card, "You found:", with one row per thing won (icon, name, amount). It stays 4 seconds or closes on a tap, and a golden crate gets the gold frame. The server sends the whole win as a list.
 
-  - The 1st rummage always gives Tuna, and the 2nd always gives an Alley Crate.
   - The odds show on the card.
 - **Flag:** `alleyBin`.
 - **Judge by:** `played_5m` and `played_10m` by platform, `bin_play` and `first_bin`. Also `quit_state` with the area and the idle seconds.
@@ -133,7 +132,7 @@ Derek2, 2026-11-11: "no market luck because thats all decided stock per global, 
   - It feeds the same Luck total that the odds cards read (`FoodOdds.atBowl` and the crate odds), so the printed odds always include it.
 - **Earned only:** it's bought with golden fish only. It's never sold for Robux, never part of any Robux bundle, pack or pass, and can't be traded or gifted (Monetization-Agent, 11-11). Golden fish are earned only, so this never becomes paying for better odds (`monetization-policy`; Monetization-Agent to confirm).
 - **Card line:** "Lucky Charm: +0.1 Luck on bait and crates, forever".
-- **Flag:** `luckyCharm`.
+- **Flag:** `luckyCharm`. Built 2026-11-12 (#3503, `shared/LuckyCharm`, icon #3502) as specced, with the switch off until review, QA and a switch-on check pass.
 - **Judge by:** level 1 buys among players with 100+ fish. Lucky Potion use shouldn't drop much; if it does, use the flag.
 
 ## Related

@@ -3916,10 +3916,44 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ goldenFish = before } :: any)
 	end },
+	-- #3298: the Lucky Charm row is hidden until its switch is on; on, it shows with its level, price and what it adds
+	{ "MarketLuckyCharm", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		UI.update({ fishPerks = { lucky_charm = 1 } } :: any) -- the next scene clears it
+		UI.market.open()
+		press("FishMarket", "TreatsTab")
+		local window = UIShim.playerGui:FindFirstChild("FishMarket", true)
+		local row = window and window:FindFirstChild("lucky_charm", true) :: GuiObject?
+		assert(row and not row.Visible, "uigate: the Lucky Charm row shows with its switch off (#3298)")
+		ReplicatedStorage:SetAttribute("LiveFlag_luckyCharm", true)
+		UI.update({ fishPerks = { lucky_charm = 1 } } :: any)
+		assert(row.Visible, "uigate: the Lucky Charm row is hidden with its switch on (#3298)")
+		local found: { [string]: boolean } = {}
+		for _, piece in row:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				if string.find(piece.Text, "Lucky Charm", 1, true) then found.name = true end
+				if string.find(piece.Text, "+0.1 Luck", 1, true) then found.blurb = true end
+				if string.find(piece.Text, "Level 1 / 3", 1, true) then found.level = true end
+				if string.find(piece.Text, "250", 1, true) then found.price = true end
+			end
+		end
+		assert(found.name and found.blurb and found.level and found.price, "uigate: the Lucky Charm row misses its name, line, level or price (#3298)")
+		local list = row:FindFirstAncestorWhichIsA("ScrollingFrame")
+		if list then
+			list.CanvasPosition = Vector2.new(0, 100000) -- the picture: the last row, scrolled into view
+		end
+	end },
 	-- #2577 (Derek2: "the buttons for buying crates sometimes get stuck on ... for a while"): only the pressed crate reads
 	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 6 s (#3362: 2.5 before)
 	-- as "Try again" (with a toast), when the queued press goes
 	{ "MarketCrateWait", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_luckyCharm", nil) -- #3298: back to its default
+		UI.update({ fishPerks = {} } :: any)
+		local charmRow = UIShim.playerGui:FindFirstChild("lucky_charm", true)
+		local charmList = charmRow and charmRow:FindFirstAncestorWhichIsA("ScrollingFrame")
+		if charmList then
+			charmList.CanvasPosition = Vector2.zero
+		end
 		local before = UI.getState()
 		local crates, fish = before.crates, (before :: any).goldenFish
 		UI.update({ crates = { park_crate = 2, alley_crate = 1 }, goldenFish = 100000 } :: any)

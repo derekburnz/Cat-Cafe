@@ -41,6 +41,7 @@ local Leaderstats = require(script.Parent.Leaderstats)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
+local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
@@ -208,8 +209,9 @@ end
 local function luckView(profile: Profile, now: number): (number, { Types.LuckSource })
 	local luckyDay = ClockService.luckyDay()
 	local event = EventService.luck() -- #2486: the running Cafe Event's Luck
+	local charm = LiveFlagService.on(LuckyCharm.FLAG) -- #3298
 	local sources: { Types.LuckSource } = {}
-	for _, source in Luck.sources(profile, now, luckyDay, event) do
+	for _, source in Luck.sources(profile, now, luckyDay, event, charm) do
 		local endsAt: number? = nil
 		if source.id == "potion" then
 			local _, left = Potions.luck(profile, now) -- #3462: of the potion whose Luck counts now
@@ -223,7 +225,7 @@ local function luckView(profile: Profile, now: number): (number, { Types.LuckSou
 			{ id = source.id :: string, value = source.value, endsAt = endsAt }
 		table.insert(sources, row)
 	end
-	return Luck.of(profile, now, luckyDay, event), sources
+	return Luck.of(profile, now, luckyDay, event, charm), sources
 end
 
 -- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is

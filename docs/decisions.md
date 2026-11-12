@@ -1068,3 +1068,11 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Built and live with a normal publish:** Town Square rework and radius 8 circles (#3454, #3448), Rummage Bin move, "!", 5 hits, new prizes and loot card (#3458, #3460, #3464), Oasis Spa sort (#3463), the top player join line (#3466), tackle shield at 15 minutes (#3475).
 - **Built but switched off until every server has the build (so after a restart):** the Day Cart top shelf (`cartTier6`, #3462) and Secret cats (`secretCats`, #3470). New item ids and a new rarity must not meet an old server.
 - **Name:** the +100% money potion shows as "Mega Money Potion", matching "Money Potion" and "Big Money Potion". "Mega Tip" was a working name only.
+
+## 2026-11-12: calls from the Nov 11 onboarding read (Design-Agent)
+
+- **Data:** 949 new players on Nov 11 (funnel onboarding_v6, read by Growth-Agent), our biggest day.
+- **Opening cutscene (#3162):** it stops playing by itself (`IntroAutoPlay` false) and stays on the "?" tile. Loaded to first move takes 27 s and loses 9% of players who loaded; the steps after it hold (first move to first catch 90%). This reverses the 2026-11-05 choice (#1575) on the numbers. Turn it back on if first catch falls.
+- **Second cat (#3022):** 88.8% of players who serve a first customer catch a second cat (75.5% the day before, target 90%). No change; read again on 2026-11-18.
+- **2 to 5 minutes (#2912):** the loss fell from 28% to 22%. The first bait cat arrives in 5 s as set. The loss is after it: 24% never start a stuck cat rescue and leave about 80 s after the bait. Fix: a goal card and paw trail to the guaranteed stuck cat as soon as the bait cat is tamed or let go (#3515), with the trap calling out and a warm light pillar over it. No arrow, no timer, no money tease (a rescue pays no more than a catch).
+- **Global chat view (#3053):** a game can't write to Roblox's Global tab. Pick: our own read-only "Rare Cats" tab behind `rareCatsTab`, off until Derek has seen it, because he said on 2026-11-10 he did not want a tab of our own.

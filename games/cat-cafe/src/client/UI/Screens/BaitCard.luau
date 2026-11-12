@@ -42,6 +42,45 @@ export type BaitCard = {
 
 local CARD = Vector2.new(360, 448)
 local ART_Y = 150
+-- #3518: on a short screen (a phone held sideways, Scale.isShort) the card was taller than the room under Roblox's
+-- top bar, so Tame and Let go ran past the bottom of a 705 x 338 phone. There it is this shorter card: a smaller
+-- picture and the lines closer together, with the buttons the same size.
+type Layout = {
+	card: number,
+	art: number,
+	disc: number,
+	portrait: number,
+	sticker: number,
+	name: number,
+	stars: number,
+	meta: number,
+	hint: number,
+	foot: number,
+}
+local TALL: Layout = {
+	card = CARD.Y,
+	art = ART_Y,
+	disc = 120,
+	portrait = 170,
+	sticker = 54,
+	name = 226,
+	stars = 264,
+	meta = 294,
+	hint = 320,
+	foot = 16,
+}
+local SHORT: Layout = {
+	card = 360,
+	art = 98,
+	disc = 84,
+	portrait = 118,
+	sticker = 38,
+	name = 144,
+	stars = 178,
+	meta = 204,
+	hint = 226,
+	foot = 12,
+}
 local CONFIRM_SECONDS = 3 -- Let go's second tap must come within this
 local PENDING_SECONDS = 6 -- the buttons come back if the server has not answered by then
 
@@ -112,13 +151,14 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	})
 	self._uiScale = Scale.bind(root)
 
+	local at: Layout = if Scale.isShort() then SHORT else TALL
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		BackgroundColor3 = Theme.modal.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(CARD.X, CARD.Y),
+		Size = UDim2.fromOffset(CARD.X, at.card),
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 6) }),
@@ -176,8 +216,8 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		BackgroundColor3 = Theme.colors.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(0.5, 0, 0, ART_Y),
-		Size = UDim2.fromOffset(120, 120),
+		Position = UDim2.new(0.5, 0, 0, at.art),
+		Size = UDim2.fromOffset(at.disc, at.disc),
 		ZIndex = 2,
 		Parent = card,
 	}, {
@@ -188,14 +228,14 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	self._portrait = CatPortrait.new({
 		parent = card,
 		anchorPoint = Vector2.new(0.5, 0.5),
-		position = UDim2.new(0.5, 0, 0, ART_Y),
-		size = UDim2.fromOffset(170, 170),
+		position = UDim2.new(0.5, 0, 0, at.art),
+		size = UDim2.fromOffset(at.portrait, at.portrait),
 		zIndex = 3,
 	})
 	self._shiny = text({
 		Name = "Shiny",
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(0.5, 74, 0, ART_Y - 54),
+		Position = UDim2.new(0.5, 74, 0, at.art - at.sticker),
 		Size = UDim2.fromOffset(92, 30),
 		Rotation = 12,
 		BackgroundColor3 = Theme.colors.gold,
@@ -217,7 +257,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	self._rainbow = text({
 		Name = "Rainbow",
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(0.5, 66, 0, ART_Y - 54),
+		Position = UDim2.new(0.5, 66, 0, at.art - at.sticker),
 		Size = UDim2.fromOffset(124, 30),
 		Rotation = 12,
 		BackgroundTransparency = 0,
@@ -238,7 +278,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 
 	self._name = text({
 		Name = "Name",
-		Position = UDim2.fromOffset(16, 226),
+		Position = UDim2.fromOffset(16, at.name),
 		Size = UDim2.new(1, -32, 0, 36),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTitle + 4,
@@ -251,7 +291,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	Outline.text(self._name, Theme.sizes.textOutline + 0.5)
 	self._stars = text({
 		Name = "Stars",
-		Position = UDim2.fromOffset(16, 264),
+		Position = UDim2.fromOffset(16, at.stars),
 		Size = UDim2.new(1, -32, 0, 28),
 		FontFace = Theme.fonts.display,
 		TextSize = 24,
@@ -262,7 +302,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	Outline.text(self._stars, 2)
 	self._meta = text({
 		Name = "Meta",
-		Position = UDim2.fromOffset(16, 294),
+		Position = UDim2.fromOffset(16, at.meta),
 		Size = UDim2.new(1, -32, 0, 22),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
@@ -271,7 +311,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	})
 	self._hint = text({
 		Name = "Hint",
-		Position = UDim2.fromOffset(16, 320),
+		Position = UDim2.fromOffset(16, at.hint),
 		Size = UDim2.new(1, -32, 0, 40),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
@@ -285,7 +325,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		style = "primary",
 		size = UDim2.fromOffset(150, Theme.sizes.touchMin + 8),
 		anchorPoint = Vector2.new(1, 1),
-		position = UDim2.new(0.5, -6, 1, -16),
+		position = UDim2.new(0.5, -6, 1, -at.foot),
 		textSize = Theme.sizes.textLarge - 2,
 		parent = card,
 		onClick = function()
@@ -298,7 +338,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		style = "secondary",
 		size = UDim2.fromOffset(150, Theme.sizes.touchMin + 8),
 		anchorPoint = Vector2.new(0, 1),
-		position = UDim2.new(0.5, 6, 1, -16),
+		position = UDim2.new(0.5, 6, 1, -at.foot),
 		textSize = Theme.sizes.textBody,
 		parent = card,
 		onClick = function()

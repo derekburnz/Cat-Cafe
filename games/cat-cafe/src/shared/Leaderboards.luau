@@ -66,6 +66,18 @@ function Leaderboards.readGap(first: boolean): number
 	return if first then 0 else Config.LeaderboardRefreshSeconds / (#Leaderboards.LISTS + 1)
 end
 
+-- Roblox takes one write to a key of a store every 6 seconds; a second one inside that is put in a queue with a
+-- warning in the server log ("DataStore request was added to queue", Creator Hub error read 2026-11-12). A rank up
+-- beside the timer's write did that. So a player's entry in one store is written at most once every
+-- WRITE_GAP_SECONDS: a write inside the gap is skipped and the next write carries the newer value.
+Leaderboards.WRITE_GAP_SECONDS = 7
+
+-- Whether a player's entry in a store may be written at `now` (any clock, in seconds) when it was last written, or
+-- started to be written, at `lastAt` (nil for never). A leave always may: there is no next write to carry its value.
+function Leaderboards.mayWrite(lastAt: number?, now: number, leaving: boolean): boolean
+	return leaving or lastAt == nil or now - lastAt >= Leaderboards.WRITE_GAP_SECONDS
+end
+
 -- os.time() the week holding `now` began.
 function Leaderboards.weekStartsAt(now: number): number
 	return Quests.weekEndsAt(now) - WEEK_SECONDS

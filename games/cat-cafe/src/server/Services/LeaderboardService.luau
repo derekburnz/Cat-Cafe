@@ -45,6 +45,8 @@ type List = Leaderboards.List
 type Row = Types.LeaderboardRow
 
 local written: { [Player]: { [string]: number } } = {} -- store name -> the value this server last wrote
+-- store name -> os.clock() when this server last began a write of the player's entry (Leaderboards.mayWrite)
+local writeBegan: { [Player]: { [string]: number } } = {}
 local lists: { [List]: { Row } } = {} -- as last read from the stores
 local shown: { [List]: { Row } } = {} -- as read, with the players here at their values now (#941)
 local listWeek = 0 -- the week the weekly lists were read for
@@ -91,19 +93,32 @@ local function valuesOf(
 end
 
 -- Writes the lists whose value changed since this server last wrote them. Yields; `values` taken by the caller so a
--- leave can write after the profile is gone.
-local function writeValues(player: Player, values: { [List]: number }, week: number)
+-- leave can write after the profile is gone. A store written less than Leaderboards.WRITE_GAP_SECONDS ago waits for
+-- the next write, unless the player is `leaving`.
+local function writeValues(
+	player: Player,
+	values: { [List]: number },
+	week: number,
+	leaving: boolean?
+)
 	if OwnerTest.isOwner(player.UserId) then
 		return -- #3321: an owner is never on the boards
 	end
 	local mine = written[player] or {}
 	written[player] = mine
+	local began = writeBegan[player] or {}
+	writeBegan[player] = began
 	for list, value in values do
 		local name = Leaderboards.storeName(list, week)
 		-- review N321: nothing on a list yet (a first join, under a minute played) is no entry, not a write of 0
 		if value <= 0 or mine[name] == value then
 			continue
 		end
+		local now = os.clock()
+		if not Leaderboards.mayWrite(began[name], now, leaving == true) then
+			continue -- written a moment ago (a rank up beside the timer): the next write carries this value
+		end
+		began[name] = now -- marked before the yield, so two calls at once cannot both write
 		local ok = pcall(function()
 			DataStoreService:GetOrderedDataStore(name):SetAsync(tostring(player.UserId), value)
 		end)
@@ -495,11 +510,12 @@ function LeaderboardService.start()
 		end
 		local now = os.time()
 		local values = valuesOf(player, profile, now)
-		task.spawn(writeValues, player, values, Leaderboards.week(now))
+		task.spawn(writeValues, player, values, Leaderboards.week(now), true)
 	end)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		task.delay(30, function()
 			written[player] = nil -- after the leave's write had its turn
+			writeBegan[player] = nil
 		end)
 	end)
 	task.spawn(function()

@@ -247,7 +247,6 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._facesQueued = false
 	local buttonH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
 	self._buttonH = buttonH
-	local extra = buttonH - 40
 	-- the card is kept short (the smallest phone has about 320 px under Roblox's top bar): the cat and its trait,
 	-- one row of buttons, three lines of words and the token row
 	local contentH = TILE_H + GAP + (buttonH + 4) + 4 + WORDS_H + 4 + buttonH

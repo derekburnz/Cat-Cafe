@@ -819,7 +819,9 @@ local Config = {
 	LeaderboardRefreshSeconds = 120,
 	LeaderboardSize = 50,
 	LeaderboardBoardRows = 10,
-	LeaderboardRateMax = 10000000,
+	-- #3688: the money boards' safety net against a bad number. It was 10,000,000, which top cafes passed, so they
+	-- all read $10M a second; now far above anything a cafe can reach, and still a whole number the store holds exactly
+	LeaderboardRateMax = 1000000000000000,
 	LeaderboardCrownRank = 10,
 	LeaderboardFaceSwapSeconds = 15,
 	-- #3466 (a player's idea): one gold system line in chat for everyone here when a player in the top

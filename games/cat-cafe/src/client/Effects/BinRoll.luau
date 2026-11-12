@@ -12,7 +12,8 @@
 --   BinRoll.landed(bin, tier)        as the roll stops: nothing for a common prize, a blue ring and sparkles for a
 --                                    good one, a short gold light column for the best (gone before the bar starts)
 --   BinRoll.reward(bin, tier)        the win's show at the bin: sparkles, then a ground ring and confetti for a
---                                    good prize, then a gold light column and a small shake for the best one
+--                                    good prize (its lid hops), then a gold light column and a small shake for the
+--                                    best one (its lid flies up and fades)
 --   BinRoll.play(bin, count, target, tier, onTick, onDone)   one whole roll in one call: rattle, a call per row
 --                                    lit, the landing, and a returned function that skips to the stop (a tap)
 --   BinRoll.win(bin, tier)           the reward show plus its sound beat
@@ -142,8 +143,77 @@ function BinRoll.landed(bin: Instance, tier: number)
 	play(bin, tier, Presets.binRoll.landed)
 end
 
+-- The lid's hop or fly on a win. A copy of the bin's closed lid does the moving, on this client only, while the
+-- real one is hidden with LocalTransparencyModifier (BinController owns its Transparency); the real lid shows
+-- again as the copy lands or fades out.
+local function popLid(bin: Instance, tier: number)
+	local p = Presets.binRoll
+	local move = p.lid[math.clamp(math.floor(tier), 1, #p.lid)]
+	if move.seconds <= 0 or Context.reducedMotion() then
+		return
+	end
+	local lid: Model? = nil
+	for _, child in bin:GetChildren() do
+		if child:IsA("Model") and child.Name:sub(-#p.lidSuffix) == p.lidSuffix then
+			lid = child :: Model
+			break
+		end
+	end
+	if lid == nil then
+		return
+	end
+	local real: Model = lid
+	local copy = real:Clone()
+	local pieces: { BasePart } = {}
+	for _, piece in copy:GetDescendants() do
+		if piece:IsA("BasePart") then
+			local part = piece :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+			part.Transparency = 0
+			table.insert(pieces, part)
+		end
+	end
+	local hidden: { BasePart } = {}
+	for _, piece in real:GetDescendants() do
+		if piece:IsA("BasePart") then
+			(piece :: BasePart).LocalTransparencyModifier = 1
+			table.insert(hidden, piece :: BasePart)
+		end
+	end
+	local rest = real:GetPivot()
+	copy.Parent = Context.folder()
+	local started = os.clock()
+	local step: RBXScriptConnection? = nil
+	step = RunService.Heartbeat:Connect(function()
+		local u = (os.clock() - started) / move.seconds
+		if u >= 1 or copy.Parent == nil then
+			if step ~= nil then
+				step:Disconnect()
+			end
+			copy:Destroy()
+			for _, part in hidden do
+				part.LocalTransparencyModifier = 0
+			end
+			return
+		end
+		local up, faded = Logic.binLidPop(u, move.height, move.fly)
+		copy:PivotTo(
+			rest * CFrame.new(0, up, 0) * CFrame.Angles(0, move.turns * 2 * math.pi * u, 0)
+		)
+		if faded > 0 then
+			for _, part in pieces do
+				part.Transparency = faded
+			end
+		end
+	end)
+end
+
 function BinRoll.reward(bin: Instance, tier: number)
 	play(bin, tier, Presets.binRoll.tiers)
+	popLid(bin, tier)
 end
 
 -- Sounds follow the roll's own beats, so they stay in step with it (Audio hooks this): "tick" as each row lights,

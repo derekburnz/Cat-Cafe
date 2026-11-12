@@ -3468,4 +3468,15 @@ function Logic.binRewardTier(chance: number?, good: number, best: number): numbe
 	return 1
 end
 
+-- The bin's lid on a good or best prize: how high over its seat it is (studs) and how faded (0 to 1) at `u` (0 to
+-- 1 through the move). A hop goes up `height` and lands back on the bin; a fly goes up `height`, easing out, and
+-- fades away over the last 40%.
+function Logic.binLidPop(u: number, height: number, fly: boolean): (number, number)
+	local t = math.clamp(u, 0, 1)
+	if fly then
+		return height * (1 - (1 - t) * (1 - t)), math.clamp((t - 0.6) / 0.4, 0, 1)
+	end
+	return 4 * height * t * (1 - t), 0
+end
+
 return Logic

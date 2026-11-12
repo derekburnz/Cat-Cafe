@@ -48,7 +48,7 @@ return function()
 				gapsFromEnd = fromEnd
 				-- about the design's 2.5 seconds
 				expect(steps[#steps].at >= 2).to.equal(true)
-				expect(steps[#steps].at <= 3).to.equal(true)
+				expect(steps[#steps].at <= 2.5).to.equal(true)
 			end
 			-- no flashing: never more than about 15 ticks a second
 			expect(p.first >= 1 / 15).to.equal(true)
@@ -86,6 +86,21 @@ return function()
 				expect(show.beamSeconds <= 1).to.equal(true)
 			end
 			expect(p.landed[1].sparkles + p.landed[1].ring + p.landed[1].beam).to.equal(0)
+		end)
+		it("hops the lid for a good prize and flies it off for the best", function()
+			local p = Presets.binRoll
+			expect(p.lid[1].seconds).to.equal(0)
+			local up, faded = Logic.binLidPop(0.5, p.lid[2].height, p.lid[2].fly)
+			expect(up).to.equal(p.lid[2].height)
+			expect(faded).to.equal(0)
+			-- the hop lands back on the bin
+			expect((Logic.binLidPop(1, p.lid[2].height, false))).to.equal(0)
+			expect((Logic.binLidPop(0, p.lid[2].height, false))).to.equal(0)
+			-- the fly ends up high and gone
+			local high, gone = Logic.binLidPop(1, p.lid[3].height, p.lid[3].fly)
+			expect(high).to.equal(p.lid[3].height)
+			expect(gone).to.equal(1)
+			expect(select(2, Logic.binLidPop(0.5, p.lid[3].height, true))).to.equal(0)
 		end)
 	end)
 end

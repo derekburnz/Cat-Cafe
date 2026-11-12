@@ -4670,9 +4670,9 @@ Presets.trailSparkle = {
 }
 
 -- The Rummage Bin's prize roll and its reward effects (#3608; Effects/BinRoll). The roll goes `laps` times down
--- the list and on to the prize, a tick every `first` seconds until the last lap's worth of ticks slow evenly to
--- `last` (2.1 to 2.5 s for the seven rows of the design, whose BinRollSeconds is 2.5). While it rolls the bin
--- rattles: it tips `rattle` degrees side to side `rattleHz` times a second about its base (still with Reduce
+-- the list and on to the prize, a tick every `first` seconds until the last lap's worth of ticks slow evenly toward
+-- `last` (the final gap is 6/7 of the way there; 2.0 to 2.5 s for the seven rows of the design, whose
+-- BinRollSeconds is 2.5). While it rolls the bin rattles: it tips `rattle` degrees side to side `rattleHz` times a second about its base (still with Reduce
 -- Motion). A row with no tier of its own gets one from its chance: at most `good` the middle show, at most `best`
 -- the big one. `landed` is what the bin does as the roll stops, `tiers` what it does on the win, one entry per
 -- tier: `sparkles` in a burst, a ground ring `ring` studs wide (0 for none), `confetti` as a share of the budget's
@@ -4681,7 +4681,7 @@ Presets.trailSparkle = {
 -- gone before the bar's first hit and never covers the bar (design section 4).
 Presets.binRoll = {
 	laps = 2,
-	first = 0.07,
+	first = 0.067,
 	last = 0.45,
 	rattle = 4,
 	rattleHz = 7,
@@ -4701,6 +4701,15 @@ Presets.binRoll = {
 	},
 	-- common, good (the board's soft blue edge) and best (gold)
 	colours = { Presets.palette.offwhite, Color3.fromRGB(143, 208, 255), Presets.palette.golden },
+	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
+	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
+	-- Yard Sale stall) just skips this.
+	lidSuffix = "_Empty",
+	lid = {
+		{ height = 0, seconds = 0, turns = 0, fly = false },
+		{ height = 1.6, seconds = 0.45, turns = 0, fly = false },
+		{ height = 9, seconds = 1.1, turns = 1.5, fly = true },
+	},
 }
 
 -- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the

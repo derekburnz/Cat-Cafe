@@ -286,7 +286,9 @@ local function playStill(onDone: (outcome: Outcome, seconds: number) -> ())
 			finish("skipped")
 		end
 	end)
-	task.delay(p.still, finish, "watched")
+	task.delay(p.still, function()
+		finish("watched")
+	end)
 end
 
 -- Plays the cutscene at `station` (the pool's Model); see the top of this file.
@@ -375,7 +377,8 @@ function MysticIntroCut.play(
 		setControls(module, true)
 		ProximityPromptService.Enabled = promptsWere
 		running = false
-		task.spawn(onDone, if skipped then "skipped" else "watched", os.clock() - began)
+		local outcome: Outcome = if skipped then "skipped" else "watched"
+		task.spawn(onDone, outcome, os.clock() - began)
 	end
 
 	local function swingBack(now: number, weight: number)
@@ -413,7 +416,7 @@ function MysticIntroCut.play(
 			cam == nil
 			or character == nil
 			or character.Parent == nil
-			or station.Parent == nil
+			or not station:IsDescendantOf(game)
 			or t >= p.cap
 		then
 			finish()

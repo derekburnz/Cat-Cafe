@@ -1207,7 +1207,10 @@ local Config = {
 	MouseDashPairChance = 0.20,
 	MouseDashPairKittenFrom = 40,
 	MouseDashHeartBackEvery = 10, -- catches in a row for a heart back
-	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole
+	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole (which costs a heart since 2026-11-12)
+	-- Derek 2026-11-12, on the live game: "make a timer for how long left in the minigame". A run has this long from
+	-- its first mouse; a perfect 100 point win takes up to about 110 s, so the clock ends only a slow run.
+	MouseDashRunSeconds = 180,
 	MouseDashFirstRunMice = 3, -- a first ever run opens with this many slow mice that cannot cost a heart
 	MouseDashFirstRunWindow = 2.0,
 	MouseDashMouserAt = 50, -- points for the Mouser title

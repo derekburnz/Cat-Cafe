@@ -53,7 +53,7 @@ MouseDash.PAIR_WINDOW_SCALE = 1.35
 MouseDash.LEAD_IN = 0.9 -- the breath between Play and the first mouse
 
 export type Kind = "mouse" | "golden" | "kitten"
-export type Reason = "hearts" | "win" | "quit"
+export type Reason = "hearts" | "win" | "quit" | "time"
 
 export type Pop = {
 	hole: number, -- 1 to HOLES
@@ -83,11 +83,15 @@ export type Run = {
 	lastKitten: boolean, -- the last wave had a kitten
 	safeLeft: number, -- a first run's opening mice still to come
 	startedAt: number,
+	-- when the run's clock runs out (Derek 2026-11-12: "make a timer for how long left in the minigame"):
+	-- MouseDashRunSeconds after the first mouse can come
+	endsAt: number,
 	sawKitten: boolean,
 }
 
 -- What a tap did. "catch": a mouse or golden mouse, `gain` points. "kitten": a napping kitten tapped, a heart lost.
--- "empty": nothing in that hole, the paw is dizzy. "dizzy": tapped while dizzy, nothing. "ignored": the wave is over,
+-- "empty": nothing in that hole, a heart lost (Derek 2026-11-12: "make them always cost lives") and the paw is dizzy,
+-- so one slip never costs two. "dizzy": tapped while dizzy, nothing. "ignored": the wave is over,
 -- the pop is already done, or the tap makes no sense.
 export type Tap = {
 	outcome: "catch" | "kitten" | "empty" | "dizzy" | "ignored",
@@ -179,17 +183,21 @@ function MouseDash.begin(now: number, firstRun: boolean): Run
 		lastKitten = false,
 		safeLeft = if firstRun then Config.MouseDashFirstRunMice else 0,
 		startedAt = now,
+		endsAt = now + MouseDash.LEAD_IN + Config.MouseDashRunSeconds,
 		sawKitten = false,
 	}
 end
 
--- Why the run is over, or nil while it goes on.
-function MouseDash.over(run: Run): Reason?
+-- Why the run is over, or nil while it goes on. With `now`, the run's clock counts too ("time").
+function MouseDash.over(run: Run, now: number?): Reason?
 	if run.points >= Config.ArcadeMaxPoints then
 		return "win"
 	end
 	if run.hearts <= 0 then
 		return "hearts"
+	end
+	if now ~= nil and now >= run.endsAt then
+		return "time"
 	end
 	return nil
 end
@@ -313,7 +321,7 @@ function MouseDash.tap(run: Run, index: number, hole: number, now: number, slack
 		{ outcome = "ignored", hole = hole, kind = nil, gain = 0, heart = 0, waveOver = false }
 	local wave = run.wave
 	if
-		MouseDash.over(run) ~= nil
+		MouseDash.over(run, now) ~= nil
 		or wave == nil
 		or wave.index ~= index
 		or hole ~= math.floor(hole)
@@ -334,6 +342,8 @@ function MouseDash.tap(run: Run, index: number, hole: number, now: number, slack
 	end
 	if found == nil then
 		tap.outcome = "empty"
+		tap.heart = -1
+		loseHeart(run)
 		run.dizzyUntil = now + Config.MouseDashDizzySeconds
 		return tap
 	end
@@ -405,15 +415,15 @@ end
 function MouseDash.wakeAt(run: Run, slack: number): number
 	local wave = run.wave
 	if wave == nil then
-		return run.nextAt
+		return math.min(run.nextAt, run.endsAt)
 	end
-	local at = math.huge
+	local at = run.endsAt
 	for _, pop in wave.pops do
 		if not pop.done then
 			at = math.min(at, pop.downAt + math.max(slack, 0))
 		end
 	end
-	return if at == math.huge then run.nextAt else at
+	return at
 end
 
 -- The whole seconds a run took, for its record (0 to 999).

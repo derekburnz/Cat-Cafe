@@ -4234,8 +4234,35 @@ local SCENES = {
 			assert(play.Text == "Play (free)", "uigate: Mouse Dash's Play reads " .. play.Text .. " (#3296)")
 			local records = window:FindFirstChild("Records", true)
 			assert(records.Text == "Best 37 · Mouser", "uigate: Mouse Dash's records read " .. records.Text .. " (#3296)")
-			local list = window:FindFirstChild("List", true)
-			assert(list.Text:find("Star Treat", 1, true), "uigate: Mouse Dash's card lacks the arcade's prizes (#3296)")
+			-- #3553: the lit sign, the free play, the next prize with its picture, and no prize list until Prizes is pressed
+			local sign = window:FindFirstChild("Sign", true)
+			assert(sign and sign:FindFirstChild("Title").Text == "MOUSE DASH", "uigate: no lit sign on Mouse Dash's card (#3553)")
+			assert(window:FindFirstChild("Free", true).Text == "1 free play today", "uigate: the free play reads " .. window:FindFirstChild("Free", true).Text .. " (#3553)")
+			local nextCard = window:FindFirstChild("NextCard", true)
+			assert(nextCard.Words.Text == "Salmon at 30 points", "uigate: the menu's next prize reads " .. nextCard.Words.Text .. " (#3553)")
+			assert(nextCard.Picture.Image.Image ~= "", "uigate: the menu's next prize has no picture (#3553)")
+			local prizes = window:FindFirstChild("PrizeList", true)
+			assert(prizes and not prizes.Visible, "uigate: the prize list shows before Prizes is pressed (#3553)")
+			press("MouseDash", "Prizes")
+			assert(prizes.Visible, "uigate: Prizes did not open the prize list (#3553)")
+			local last = prizes:FindFirstChild("Prize100")
+			assert(last and last.PrizeName.Text == "Star Treat", "uigate: Mouse Dash's card lacks the arcade's prizes (#3296)")
+			for _, at in { 10, 20, 30, 100 } do
+				local row = prizes:FindFirstChild("Prize" .. at)
+				assert(row.Picture.Image.Image ~= "", "uigate: prize " .. at .. " has no picture (#3553)")
+				assert(row.Picture.AbsoluteSize.Y >= 30, "uigate: prize " .. at .. "'s picture is " .. row.Picture.AbsoluteSize.Y .. " px (#3553)")
+			end
+			assert(prizes.Prize10.Mark.Text:find("Earned", 1, true) and prizes.Prize30.Mark.Text == "NEXT", "uigate: the prize list does not mark earned and next (#3553)")
+			assert(not prizes.Prize40.Mark.Visible, "uigate: a prize still to come is marked (#3553)")
+			-- the leaderboard in the station menus' row look (Derek 2026-11-12), the player's own row edged
+			press("MouseDash", "Leaderboard")
+			assert(not prizes.Visible, "uigate: the prize list stays up under the leaderboard (#3553)")
+			local top = window:FindFirstChild("TopList", true)
+			assert(top and top.Visible and top.Top1.PlayerName.Text == "Sam" and top.Top1.Badge.Rank.Text == "1", "uigate: the leaderboard's first row is wrong")
+			assert(top.Top2.Visible and top.Top2:FindFirstChildWhichIsA("UIStroke").Enabled, "uigate: the player's own leaderboard row has no edge")
+			assert(not top.Top3.Visible, "uigate: an empty leaderboard row shows")
+			press("MouseDash", "Leaderboard")
+			assert(not top.Visible, "uigate: a second press did not fold the leaderboard away (#3553)")
 			assert(window:FindFirstChild("IdeaBy", true), "uigate: no idea credit on Mouse Dash's card (#3296)")
 			local other = window:FindFirstChild("CircleStreak", true)
 			assert(other and not other.Visible, "uigate: a vaulted Circle Streak still has its button (#3296)")
@@ -4268,7 +4295,7 @@ local SCENES = {
 		function()
 			local window = mouseDashCard(false)
 			local nowAt = workspace:GetServerTimeNow()
-			UI.mouseDash.began(7, 3, nowAt)
+			UI.mouseDash.began(7, 3, nowAt, nowAt + 92)
 			UI.mouseDash.wave(7, 1, {
 				{ hole = 2, kind = "mouse", upAt = nowAt, downAt = nowAt + 600 },
 				{ hole = 6, kind = "kitten", upAt = nowAt, downAt = nowAt + 600 },
@@ -4278,6 +4305,14 @@ local SCENES = {
 			local board = window:FindFirstChild("Board", true)
 			assert(board and board.Visible, "uigate: Mouse Dash's board did not come up (#3296)")
 			assert(board:FindFirstChild("Score", true).Text == "23", "uigate: the score is not the server's (#3296)")
+			-- #3553: the next prize's banner, with its picture and bar, clear of every hole (checked below with the strip)
+			local banner = board:FindFirstChild("NextPrize")
+			assert(banner and banner.Visible, "uigate: no next prize banner on the board of " .. tostring(board.AbsoluteSize) .. " (#3553)")
+			assert(banner.Bar.Count.Text == "23/30", "uigate: the banner's bar reads " .. banner.Bar.Count.Text .. " (#3553)")
+			assert(banner.Picture.Image.Image ~= "", "uigate: the banner has no prize picture (#3553)")
+			-- the run's clock (Derek 2026-11-12): time left, in place of the best
+			local clock = board:FindFirstChild("Time", true)
+			assert(clock, "uigate: no clock on the board")
 			local hud = board:FindFirstChild("Hud")
 			local holes = {}
 			for index = 1, 9 do
@@ -4294,6 +4329,10 @@ local SCENES = {
 				local clearX = at.X >= hx + hud.AbsoluteSize.X + 15 or at.X + size.X <= hx - 15
 				local clearY = at.Y >= hy + hud.AbsoluteSize.Y + 15 or at.Y + size.Y <= hy - 15
 				assert(clearX or clearY, "uigate: hole " .. index .. " is under the hearts and score strip (#3296)")
+				local bx, by = banner.AbsolutePosition.X, banner.AbsolutePosition.Y
+				local offX = at.X >= bx + banner.AbsoluteSize.X + 10 or at.X + size.X <= bx - 10
+				local offY = at.Y >= by + banner.AbsoluteSize.Y + 10 or at.Y + size.Y <= by - 10
+				assert(offX or offY, "uigate: hole " .. index .. " is under the next prize banner (#3553)")
 				-- each animal's frame is centred on its hole, left to right (Derek: "look off centred")
 				local animal = hole:FindFirstChild("Animal", true)
 				local middle = animal.AbsolutePosition.X + animal.AbsoluteSize.X / 2

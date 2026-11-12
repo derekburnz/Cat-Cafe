@@ -1085,9 +1085,11 @@ local Config = {
 	MouseDashFirstRunWindow = 2.0,
 	MouseDashMouserAt = 50, -- points for the Mouser title
 	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
-	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off. The first: Saturday
-	-- 2026-11-14 17:00 UTC.
-	UpdateGift = { id = "2026-11-14", from = 1794675600, fish = 15, spins = 1 } :: {
+	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off.
+	-- #3420, #3424 (Derek 2026-11-12: "a giveaway of 100 gold fish to everyone 3 minute after restart"): the Thursday
+	-- 2026-11-12 launch gift, from 22:03 UTC, three minutes after the 22:00 restart. Saturday 2026-11-14's update
+	-- sets the weekly one again (id "2026-11-14", from 1794675600, fish 15, spins 1).
+	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0 } :: {
 		id: string,
 		from: number,
 		fish: number,

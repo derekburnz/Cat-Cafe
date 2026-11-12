@@ -8607,6 +8607,25 @@ do
 		return ReplicatedStorage:GetAttribute(name)
 	end
 
+	-- "6:00 PM": `unix` in this player's own time, for the party card (#3420)
+	function UI.cafeEvent.clock12(unix: number): string
+		local text = os.date("%I:%M %p", math.floor(unix)) :: string
+		return (string.gsub(text, "^0", ""))
+	end
+
+	-- the launch's headline features that are switched on right now, in the spec's order (#3420 section 5)
+	function UI.cafeEvent.news(): { string }
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local out: { string } = {}
+		for _, pair in { { "traits", "Mystic Pool" }, { "mouseDash", "Mouse Dash" } } do
+			if LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1])) then
+				table.insert(out, pair[2])
+			end
+		end
+		return out
+	end
+
 	-- one pass: read, follow, paint; the banner shows once per event this session
 	function UI.cafeEvent.tick()
 		local now = Workspace:GetServerTimeNow()
@@ -8614,9 +8633,23 @@ do
 		local seen, started = EventLogic.follow(events.seen, view, now)
 		events.seen = seen
 		if started and view ~= nil and toasts then
-			toasts:announce(
-				EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
-			)
+			-- #3420: the launch's Update Party starts with the party card; any other event with the toast
+			local party =
+				EventLogic.partyBanner(view, UI.cafeEvent.clock12(view.endsAt), UI.cafeEvent.news())
+			local shown = false
+			if party ~= nil then
+				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+				shown = EventBanner.show({
+					kind = "party",
+					title = party.title,
+					lines = party.lines,
+				}) == true
+			end
+			if not shown then
+				toasts:announce(
+					EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
+				)
+			end
 		end
 		local current = hud
 		if current then

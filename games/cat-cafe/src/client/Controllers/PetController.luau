@@ -58,7 +58,7 @@ local function note(cat: Instance, prompt: ProximityPrompt)
 end
 
 local function drop(cat: Instance)
-	local prompt = prompts[cat]
+	local prompt: ProximityPrompt? = prompts[cat]
 	if prompt ~= nil then
 		prompts[cat] = nil
 		prompt:Destroy()
@@ -83,7 +83,7 @@ local function refresh(cat: Instance)
 	end
 	local model = cat :: Model
 	local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-	local prompt = prompts[cat]
+	local prompt: ProximityPrompt? = prompts[cat]
 	if part == nil then
 		drop(cat)
 		return

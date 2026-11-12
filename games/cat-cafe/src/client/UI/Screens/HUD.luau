@@ -134,6 +134,7 @@ export type HUD = {
 	counterRow: (self: HUD) -> GuiObject, -- #2393: the money and golden fish (top middle on touch)
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
+	setParkGoal: (self: HUD, title: string?) -> (), -- #3554: the goal card's line on the way to a first Park catch
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
 	pressTravel: (self: HUD, destination: string) -> boolean,
@@ -2996,11 +2997,14 @@ function HUD.render(self: any, state: Types.PlayerState)
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
 	local started = second ~= nil and self._second == nil
 	self._second = second
+	-- #3554: after it, on the way to a first Park catch, "Visit the Park 🐾" then "Catch a Park cat 🐾"
+	local park: string? = self._parkGoal
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
 		if nudge then nudge.text else nil,
 		self:_secondGoal()
+			or (if park ~= nil then { title = park, lines = {}, chip = park } else nil)
 	)
 	if not self:_open("goal") then
 		self._goal.frame.Visible = false
@@ -3701,6 +3705,18 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	-- #3238: the "Catch a 2nd cat" card says when the strays come back, so it follows dusk and sunrise
 	local state = self._state
 	if state ~= nil and state.secondCat then
+		self:render(state)
+	end
+end
+
+-- #3554: the goal card's line on the way to a first Park catch (nil: the tier goal again).
+function HUD.setParkGoal(self: any, title: string?)
+	if self._parkGoal == title then
+		return
+	end
+	self._parkGoal = title
+	local state = self._state
+	if state ~= nil then
 		self:render(state)
 	end
 end

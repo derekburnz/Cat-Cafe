@@ -317,6 +317,10 @@ export type CustomEvent =
 	| "tutorial_closed"
 	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
 	| "park_first_hint"
+	-- #3554: the walk to a first Park catch, value 1, each once a session; the tier (PARK_TRAIL)
+	| "park_gate_trail_shown"
+	| "park_entered_first"
+	| "park_first_catch"
 	-- #2946: the first bait's cutscene ended, value 1, once a session; shown, skipped or none (CUT_OUTCOMES)
 	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
@@ -422,6 +426,7 @@ local REPORTS = {
 	"event_rsvp", -- #2766: the update Event's Notify Me ask, RSVP_KINDS
 	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
 	"park_first_hint", -- #2915: the first Park landing's hint shown, PARK_HINTS
+	"park_trail", -- #3554: the walk to a first Park catch: shown, entered or caught (PARK_TRAIL)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
@@ -441,6 +446,12 @@ local INTRO_CHOICES = 5
 -- #2915: the first Park landing's toast, and the soft ring on the nearest stray after 90 s with no Park catch; each
 -- once a session
 local PARK_HINTS = { "toast", "ring" }
+-- #3554: the client's park_trail report to the event it logs (UI/Components/ParkTrailLogic)
+local PARK_TRAIL: { [string]: CustomEvent } = {
+	shown = "park_gate_trail_shown",
+	entered = "park_entered_first",
+	caught = "park_first_catch",
+}
 -- #2946: the first bait's cutscene played to the end, was tapped through, or could not play (Reduce Motion, a busy
 -- camera, no cat in time); once a session
 local CUT_OUTCOMES = { "shown", "skipped", "none" }
@@ -509,6 +520,7 @@ type Session = {
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
+	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -1893,6 +1905,13 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.parkHints[kind] = true
 			Telemetry.custom(player, "park_first_hint", 1, { kind })
 		end
+	elseif name == "park_trail" then
+		local kind = Guard.oneOf(rawValue, { "shown", "entered", "caught" })
+		local event = if kind ~= nil then PARK_TRAIL[kind] else nil
+		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
+			session.parkTrail[kind] = true
+			Telemetry.custom(player, event, 1, { tierText(profile) })
+		end
 	elseif name == "first_bait_cutscene" then
 		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)
 		if outcome ~= nil and not session.firstBaitCut then
@@ -2083,6 +2102,7 @@ local function onLoaded(player: Player, profile: Profile)
 		uiOpened = {},
 		tutorialClosed = false,
 		parkHints = {},
+		parkTrail = {},
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",

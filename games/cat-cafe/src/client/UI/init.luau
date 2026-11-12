@@ -489,13 +489,8 @@ function applyTutorial()
 			tutorialMarker:hide()
 		end
 	end
-	if tutorialTrail then
-		if target ~= nil then
-			tutorialTrail:show(target :: any)
-		else
-			tutorialTrail:hide()
-		end
-	end
+	UI.parkTrail.tutorial = target ~= nil
+	UI.parkTrail.apply(target)
 end
 
 -- F72: the Tutorial tile shows once the intro is live and while its setting is on; the Settings rows once live.
@@ -3353,6 +3348,45 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
 UI.cannon.area = nil :: string?
+
+-- #3554: the walk to a first Park catch (Controllers/ParkTrailController, Components/ParkTrailLogic). The tutorial's
+-- trail is the one trail: a tutorial target has it as gold dots; with none, the Park target has it as paw prints
+-- (the folder's Paws attribute, Effects/PawTrail). `set` also gives the goal card its line (nil: the tier goal).
+UI.parkTrail = {
+	target = nil :: BasePart?,
+	goal = nil :: string?,
+	tutorial = false, -- a tutorial target has the trail
+}
+
+function UI.parkTrail.apply(tutorialTarget: any)
+	local trail = tutorialTrail
+	if trail == nil then
+		return
+	end
+	local park: BasePart? = UI.parkTrail.target
+	if park ~= nil and park.Parent == nil then
+		park = nil -- the stray was caught or went away; the controller picks the next one
+	end
+	trail:mark("Paws", tutorialTarget == nil and park ~= nil)
+	local to = if tutorialTarget ~= nil then tutorialTarget else park
+	if to ~= nil then
+		trail:show(to)
+	else
+		trail:hide()
+	end
+end
+
+function UI.parkTrail.set(target: BasePart?, goal: string?)
+	local changed = UI.parkTrail.target ~= target
+	UI.parkTrail.target = target
+	if UI.parkTrail.goal ~= goal and hud ~= nil then
+		UI.parkTrail.goal = goal
+		hud:setParkGoal(goal)
+	end
+	if changed and not UI.parkTrail.tutorial then
+		UI.parkTrail.apply(nil)
+	end
+end
 UI.cannon.nearest = nil :: (() -> string?)?
 
 function UI.cannon.setEnabled(on: boolean)

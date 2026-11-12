@@ -7340,6 +7340,34 @@ local SCENES = {
 	-- the first customer served the goal card reads "Catch a 2nd cat" under the gold YOUR GOAL line, with the server's
 	-- numbers: a new Tier 1 cafe has both jobs taken, so the wide card's money line names the new-cat bonus and never
 	-- "2x". Two preview lines show under it for 6 s, once. No bars and no Rank up! sticker.
+	-- #3554: on the way to a first Park catch the goal card reads "Visit the Park 🐾", then "Catch a Park cat 🐾",
+	-- with no requirement bars under it, and goes back to the tier goal after
+	{ "ParkGoal", function()
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		-- a ready rank up comes before any goal, so the cafe is short of money for the next tier here
+		local before: any = UI.getState()
+		Scenes._parkGoal = { money = before.money }
+		UI.update({ money = 0 } :: any)
+		UIShim.advance(0.1)
+		local tierTitle = title.Text
+		for _, words in { "Catch a Park cat 🐾", "Visit the Park 🐾" } do
+			UI.parkTrail.set(nil, words)
+			UIShim.advance(0.1)
+			assert(goal.Visible, "uigate: no goal card on the way to the Park (#3554)")
+			assert(title.Visible and title.Text == words, "uigate: the Park goal reads " .. title.Text .. " (#3554)")
+			assert(title.TextFits, "uigate: " .. words .. " does not fit the goal card (#3554)")
+			for index = 1, 3 do
+				local row = goal:FindFirstChild("Row" .. index) :: GuiObject
+				assert(not row.Visible, "uigate: a requirement bar under the Park goal (#3554)")
+			end
+		end
+		UI.parkTrail.set(nil, nil)
+		UIShim.advance(0.1)
+		assert(title.Text == tierTitle, "uigate: the goal card kept the Park goal, it reads " .. title.Text .. " (#3554)")
+		UI.parkTrail.set(nil, "Visit the Park 🐾") -- the picture
+		UIShim.advance(0.1)
+	end },
 	{ "SecondCatGoal", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
 		local touch = Scale.isTouch()
@@ -9902,6 +9930,11 @@ function Scenes.close()
 	if Scenes._ladder then
 		Scenes._ladder = nil
 		UI.update({ giftNext = {} } :: any) -- #2791's scene: the ladder done, the Rewards tile as it was
+	end
+	UI.parkTrail.set(nil, nil) -- #3554's scene: the tier goal again
+	if Scenes._parkGoal then
+		UI.update(Scenes._parkGoal :: any)
+		Scenes._parkGoal = nil
 	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")

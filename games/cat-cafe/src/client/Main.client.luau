@@ -24,6 +24,7 @@ local Moments = require(script.Parent.Moments)
 local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
+local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
@@ -46,6 +47,7 @@ ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
+ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client

@@ -65,6 +65,9 @@
 -- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
 --   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
 --   intro plays itself.
+-- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
+--   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
+--   off, nothing shows.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -101,6 +104,7 @@ LiveFlags.KEYS = {
 	"binRoll",
 	"yardSaleRoll",
 	"introSplit",
+	"parkGateTrail",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -120,6 +124,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	binRoll = true,
 	yardSaleRoll = true,
 	introSplit = true,
+	parkGateTrail = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

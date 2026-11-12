@@ -7303,10 +7303,12 @@ local SCENES = {
 		-- #3154 (Derek2: "make the tutorial X closing way more obvious on tutorial finish"): the big arrow points at the
 		-- ×, off the Hide tips tag, with the spotlight round it
 		assertArrowAt(dot.Parent :: GuiObject, "the Tutorial tile's ×")
-		assert(tutorialSpotlight(), "uigate: no spotlight round the Tutorial tile's × (#3154)")
+		-- #3638 (Derek 2026-11-12: "no need to force them to close tips and darken screen just show the x for a bit"):
+		-- the arrow, ring and tag only, the screen is not darkened, and it is over in 6 s
+		assert(tutorialSpotlight() == nil, "uigate: the screen darkens round the Tutorial tile's × (#3638)")
 		local across = (dot :: GuiObject).AbsoluteSize.X
 		assert(across >= 21 - 0.5, ("uigate: the Tutorial tile's × is %.1f px across (#2411)"):format(across))
-		UIShim.advance(12.5) -- #3154: the pulse lasts 12 s
+		UIShim.advance(5.2) -- #3638: the pulse lasts 6 s (1 s of it gone above)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2411)")
 		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
 		assert(hint() == nil, "uigate: the Hide tips tag does not go (#2411)")

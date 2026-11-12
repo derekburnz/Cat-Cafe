@@ -4202,6 +4202,8 @@ local SCENES = {
 		local connection = UI.events.sendFeedback:Connect(function(face, chip)
 			table.insert(sent, tostring(face) .. ":" .. tostring(chip))
 		end)
+		-- an ask the scene before left saying "Thanks!" slides away first (showAsk leaves a shown card alone)
+		task.wait(2.5)
 		UI.tips.showAsk()
 		task.wait(0.4)
 		press("CatCafeAsk", "Choice_no")
@@ -9935,6 +9937,10 @@ function Scenes.close()
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_ok")
+	end
+	-- #3657: on the faces ask "ok" brings the reasons up on the same card; Skip puts it away
+	if ask and ask:FindFirstChild("Choice_skip", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_skip")
 	end
 	-- F92: the invite nudge's Not now
 	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then

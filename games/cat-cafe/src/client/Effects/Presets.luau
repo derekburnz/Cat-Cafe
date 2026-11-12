@@ -4669,6 +4669,40 @@ Presets.trailSparkle = {
 	recheck = 3,
 }
 
+-- The Rummage Bin's prize roll and its reward effects (#3608; Effects/BinRoll). The roll goes `laps` times down
+-- the list and on to the prize, a tick every `first` seconds until the last lap's worth of ticks slow evenly to
+-- `last` (2.1 to 2.5 s for the seven rows of the design, whose BinRollSeconds is 2.5). While it rolls the bin
+-- rattles: it tips `rattle` degrees side to side `rattleHz` times a second about its base (still with Reduce
+-- Motion). A row with no tier of its own gets one from its chance: at most `good` the middle show, at most `best`
+-- the big one. `landed` is what the bin does as the roll stops, `tiers` what it does on the win, one entry per
+-- tier: `sparkles` in a burst, a ground ring `ring` studs wide (0 for none), `confetti` as a share of the budget's
+-- confetti, a light column `beam` studs high for `beamSeconds` (0 for none) and a `shake` of the screen in studs
+-- (the big win only; off with Screen shake or Reduce Motion). The landing's column is short and thin so it is
+-- gone before the bar's first hit and never covers the bar (design section 4).
+Presets.binRoll = {
+	laps = 2,
+	first = 0.07,
+	last = 0.45,
+	rattle = 4,
+	rattleHz = 7,
+	good = 0.15,
+	best = 0.05,
+	lift = 3, -- studs over the bin's base where a burst comes out
+	emitter = "catchSparkle",
+	landed = {
+		{ sparkles = 0, ring = 0, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 6, ring = 5, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 10, ring = 6, confetti = 0, beam = 14, beamSeconds = 0.9, shake = 0 },
+	},
+	tiers = {
+		{ sparkles = 6, ring = 0, confetti = 0, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 12, ring = 7, confetti = 0.4, beam = 0, beamSeconds = 0, shake = 0 },
+		{ sparkles = 20, ring = 10, confetti = 1, beam = 40, beamSeconds = 3, shake = 0.12 },
+	},
+	-- common, good (the board's soft blue edge) and best (gold)
+	colours = { Presets.palette.offwhite, Color3.fromRGB(143, 208, 255), Presets.palette.golden },
+}
+
 -- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the
 -- rolled cat floats up over the pool in a sparkle and drops in with a splash, the liquid steps grey, green, blue, gold
 -- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to purple with a

@@ -3424,4 +3424,48 @@ function Logic.cannonHandBackAt(): number
 	return Presets.cannonPose.drop - Presets.cannonCamera.over
 end
 
+-- The Rummage Bin's prize roll (#3608, Derek 2026-11-12: "ticks through the options a couple times before landing
+-- on one"; Effects/BinRoll). The marker goes down the `count` rows in list order, `laps` whole times round, then on
+-- to row `target` (the prize the server already picked) and stops. Returns each tick as { index, at }: the row lit
+-- and the seconds after the start. The gaps are `first` seconds until the last `count` ticks, which slow in even
+-- steps to `last`. Honesty rule (design section 3): that slowdown is the same wherever the roll stops, so it never
+-- lingers on one row longer than the same tick of any other roll would, and no better prize is ever dangled.
+function Logic.binRollSteps(
+	count: number,
+	target: number,
+	laps: number,
+	first: number,
+	last: number
+): { { index: number, at: number } }
+	local steps: { { index: number, at: number } } = {}
+	if count < 1 then
+		return steps
+	end
+	local goal = math.clamp(math.floor(target), 1, count)
+	local total = math.max(0, math.floor(laps)) * count + goal
+	local at = 0
+	for step = 1, total do
+		table.insert(steps, { index = (step - 1) % count + 1, at = at })
+		-- ticks still to come after this one; the last `count` gaps grow evenly from `first` to `last`
+		local left = total - step
+		local share = if left >= count then 0 else (count - left) / count
+		at += first + (last - first) * share
+	end
+	return steps
+end
+
+-- How big a show a bin prize gets (Derek: "better the reward better the vfx"): 1 common, 2 good, 3 best, by how
+-- rare its row is. A fixed first prize (no chance) is a good one.
+function Logic.binRewardTier(chance: number?, good: number, best: number): number
+	if chance == nil then
+		return 2
+	end
+	if chance <= best then
+		return 3
+	elseif chance <= good then
+		return 2
+	end
+	return 1
+end
+
 return Logic

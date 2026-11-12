@@ -1127,3 +1127,14 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Rummage Bin prize roll (#3608, 2026-11-12)
+
+`Effects/BinRoll.luau`, timing in `Logic.binRollSteps`, numbers in `Presets.binRoll`, sounds in `Audio/Logic.binRollCue`.
+
+| Look | Hook |
+|---|---|
+| The roll: a marker goes down the board's rows in list order, twice round and on to the prize, a tick every 0.07 s until the last lap's worth of ticks slow evenly to 0.45 s (2.1 to 2.5 s for seven rows). The slowdown is the same wherever it stops and it never lingers on any row but the last. The bin tips 4 degrees side to side while it rolls (still with Reduce Motion). A soft tick per row and the reel's stop as it lands. | `BinRoll.play(bin, count, target, tier, onTick, onDone)` returns a function that skips to the stop (a tap); the board lights the row in `onTick`. The server has already picked `target`. |
+| Landing by tier: nothing for a common prize; a blue ring and a few sparkles for a good one; a short thin gold light column (0.9 s) with a ring for the best, gone before the bar starts. | `BinRoll.landed(bin, tier)` (called by `play`) |
+| Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
+

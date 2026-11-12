@@ -40,6 +40,8 @@ The same gold and rainbow rolls and multipliers as every cat. A wild rainbow Sec
 
 The same game, harder than Mythical: 8 circles, `shrinkSeconds` 0.50, `catchWindow` 0.64, `trustNeed` 26, Mythical moods, double and paw rings, `fleeStuds` 72, `rescueHits` 8. Tries stay unlimited.
 
+**Roaming and the spawn call (Derek 2026-11-12, #3545).** "make sure the difficulty of catch matches the rarity also and have them be walking around much faster in the area, also announce if one spawns". The catch numbers above stay: each is one step past Mythical, and they are not pushed further because Mythical was already eased once. A wild Secret cat roams at 9 studs a second (other strays 3) over a 15 stud radius (5) with about half the normal pause, inside its area. A wild spawn is announced once to everyone in that server, banner and chat line, "A Secret cat is roaming the [area]!", area only. It is never filtered by the announcement thresholds of #3539 and also shows in the Rare Cats tab. Bait and rescue Secrets are not announced. Roaming speed is not built yet.
+
 ## 6. How it shows
 
 - **In the world:** its own look (section 8), a soft dark aura and a thin beam of light to the sky. The rarity colour `#16161D` is for tags and cards only; the beam, sparkles and rings use a pale starlight, RGB (226, 214, 255). The beam stays up while someone is catching it. The tag reads "SECRET" with "???" for the name until it is caught.

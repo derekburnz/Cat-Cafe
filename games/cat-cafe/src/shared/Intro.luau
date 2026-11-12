@@ -213,7 +213,8 @@ local CAMP_PAD_Z = -13
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_IN = -7 -- as Layout.indexBoards (#3349): 7 in at a gated area, 4 at the Alleyway
 local ALLEY_BOARD_IN = -4
-local BOARD_OUT = 4
+local BOARD_OUT = 12 -- #3628: 4 until the boards moved off the carrier baskets
+local BOARD_OUT_FOR: { [string]: number } = { woods = 7.2 }
 local ALLEY_BOARD_OUT = 7
 
 -- Where Layout.camps puts `area`'s camp, or nil for an area without one.
@@ -262,7 +263,7 @@ function Intro.camp(area: string): Camp?
 	end
 	-- every board beside the opening, on the left of it, 7 in; the Alleyway's 4 in and further out, past its low walls (F85)
 	local board = point(
-		-(opening + if area == "alley" then ALLEY_BOARD_OUT else BOARD_OUT),
+		-(opening + if area == "alley" then ALLEY_BOARD_OUT else (BOARD_OUT_FOR[area] or BOARD_OUT)),
 		if area == "alley" then ALLEY_BOARD_IN else BOARD_IN
 	)
 	return {

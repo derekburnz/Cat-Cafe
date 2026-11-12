@@ -134,10 +134,11 @@ return function()
 
 		-- #3112 (Derek2: "make the circles infront of the stations bigger"): radius 6, and every town station's range
 		-- grew with it, so each ring still touches its station's front (the fronts measured off the models)
-		it("fits a radius 6 ring in front of every town station, inside its range", function()
+		-- #3448 (Derek: "bigger for stepping on and auto claiming"): radius 8, each range 4 further out with it
+		it("fits a radius 8 ring in front of every town station, inside its range", function()
 			local Config = require(Shared.Config)
 			local FeedbackStand = require(Shared.FeedbackStand)
-			expect(WalkUp.FRONT_RADIUS).to.equal(6)
+			expect(WalkUp.FRONT_RADIUS).to.equal(8)
 			local stations: { [string]: { number } } = {
 				spin = { 2.99, Config.SpinStationRange },
 				market = { 2.8, Config.FishMarketRange },
@@ -175,9 +176,9 @@ return function()
 				local shift, fitted = WalkUp.fitRing(wide, {}, WalkUp.FIT_SHIFT_MAX, least)
 				expect(shift.Magnitude).to.equal(0)
 				expect(fitted).to.equal(wide)
-				-- a wall 5 studs east of the centre: the ring slides west and keeps its size
+				-- a wall 1 stud inside the rim on the east: the ring slides west and keeps its size
 				shift, fitted =
-					WalkUp.fitRing(wide, { Vector2.new(5, 0) }, WalkUp.FIT_SHIFT_MAX, least)
+					WalkUp.fitRing(wide, { Vector2.new(wide - 1, 0) }, WalkUp.FIT_SHIFT_MAX, least)
 				expect(shift.X < 0 and shift.Magnitude <= WalkUp.FIT_SHIFT_MAX + 1e-6).to.equal(
 					true
 				)
@@ -197,6 +198,158 @@ return function()
 			expect(WalkUp.aroundRadius(6, 10)).to.equal(10 - WalkUp.EDGE_SLACK)
 			expect(WalkUp.aroundRadius(3, 10)).to.equal(3 + WalkUp.AROUND_PAD)
 			expect(WalkUp.aroundRadius(0, 2)).to.equal(1)
+		end)
+	end)
+
+	describe("the wait before a window opens (#3448)", function()
+		local wait = WalkUp.DWELL_SECONDS
+
+		it("opens only after DWELL_SECONDS inside the ring", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 10)
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.15))).to.equal(nil)
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.3))).to.equal(nil)
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.15 + wait))).to.equal(
+				"spin"
+			)
+			-- once per step in
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 12))).to.equal(nil)
+		end)
+
+		it("opens nothing for a player who walks straight through", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 0)
+			WalkUp.step(state, { at("spin", 7, "Spin") }, false, nil, 0.15)
+			-- out past the ring and its LEAVE_EXTRA before the wait is over
+			expect((WalkUp.step(state, { at("spin", 12, "Spin") }, false, nil, 0.3))).to.equal(nil)
+			expect((WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 5))).to.equal(nil)
+			-- and the wait starts again on the next step in
+			WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 6)
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 6.1))).to.equal(nil)
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 6.05 + wait))).to.equal(
+				"spin"
+			)
+		end)
+
+		it("keeps a window closed by hand closed until the player steps out and back in", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("market", 20, "Market") }, false, nil, 0)
+			WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 1)
+			expect((WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 1 + wait))).to.equal(
+				"market"
+			)
+			-- closed by hand: still inside, nothing opens however long they stand there
+			for tick = 2, 6 do
+				expect((WalkUp.step(state, { at("market", 3, "Market") }, false, nil, tick))).to.equal(
+					nil
+				)
+			end
+			WalkUp.step(state, { at("market", 20, "Market") }, false, nil, 7)
+			WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 8)
+			expect((WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 8 + wait))).to.equal(
+				"market"
+			)
+		end)
+
+		it("asks once: blocked when the wait ends, it waits for the next step in", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 0)
+			WalkUp.step(state, { at("spin", 3, "Spin") }, false, nil, 1)
+			expect((WalkUp.step(state, { at("spin", 3, "Spin") }, true, nil, 1 + wait))).to.equal(
+				nil
+			)
+			expect((WalkUp.step(state, { at("spin", 3, "Spin") }, false, nil, 3))).to.equal(nil)
+		end)
+
+		it("opens the nearer of two rings the player stands in", function()
+			local state = WalkUp.new()
+			local far = { at("spin", 30, "Spin"), at("arcade", 30, "Arcade") }
+			WalkUp.step(state, far, false, nil, 0)
+			local both = { at("spin", 5, "Spin"), at("arcade", 3, "Arcade") }
+			WalkUp.step(state, both, false, nil, 1)
+			expect((WalkUp.step(state, both, false, nil, 1 + wait))).to.equal("arcade")
+			expect((WalkUp.step(state, both, false, "Arcade", 2))).to.equal(nil)
+		end)
+
+		it("opens nothing on landing inside a ring whose prompt was off", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("cannon", 40, "Cannon") }, true, nil, 0)
+			local landed = at("cannon", 3, "Cannon")
+			landed.off = true
+			expect((WalkUp.step(state, { landed }, false, nil, 1))).to.equal(nil)
+			expect((WalkUp.step(state, { at("cannon", 3, "Cannon") }, false, nil, 5))).to.equal(nil)
+		end)
+	end)
+
+	describe("rings that would overlap (#3448)", function()
+		local function front(x: number, z: number, deep: number, range: number): WalkUp.Ring
+			local way = -Vector2.new(x, z).Unit -- every town station faces the cannon at (0, 0)
+			return {
+				pivot = Vector2.new(x, z),
+				way = way,
+				front = deep,
+				range = range,
+				shift = Vector2.zero,
+				radius = WalkUp.FRONT_RADIUS,
+				least = WalkUp.FRONT_FIT_LEAST,
+			}
+		end
+		local function between(a: WalkUp.Ring, ra: number, b: WalkUp.Ring, rb: number): number
+			return (WalkUp.ringCentre(a, ra) - WalkUp.ringCentre(b, rb)).Magnitude - ra - rb
+		end
+
+		it("leaves two rings that are clear of each other alone", function()
+			local a, b = front(-45, -49.6, 3.5, 22), front(42, 44.5, 2.8, 22)
+			local ra, rb = WalkUp.apart(a, b)
+			expect(ra).to.equal(WalkUp.FRONT_RADIUS)
+			expect(rb).to.equal(WalkUp.FRONT_RADIUS)
+		end)
+
+		it(
+			"shrinks both until RING_GAP studs of floor show, each still against its front",
+			function()
+				-- the Spin Wheel and the arcade cabinet where they stand today: 1.3 studs into each other at radius 8
+				local wheel, cabinet = front(-35, 35, 2.99, 22), front(-43, 18, 1.55, 20)
+				expect(between(wheel, 8, cabinet, 8) < 0).to.equal(true)
+				local ra, rb = WalkUp.apart(wheel, cabinet)
+				expect(ra).to.equal(rb)
+				expect(ra < WalkUp.FRONT_RADIUS and ra >= WalkUp.FRONT_FIT_LEAST).to.equal(true)
+				expect(between(wheel, ra, cabinet, rb) >= WalkUp.RING_GAP).to.equal(true)
+				-- no smaller than it has to be
+				expect(between(wheel, ra + 0.1, cabinet, rb + 0.1) < WalkUp.RING_GAP).to.equal(true)
+				expect((WalkUp.ringCentre(wheel, ra) - wheel.pivot).Magnitude).to.be.near(
+					2.99 + ra,
+					1e-6
+				)
+			end
+		)
+
+		it(
+			"shrinks only the one that can when the other is at its least (a board, a cannon)",
+			function()
+				local station = front(0, 21, 1, math.huge)
+				local cannon: WalkUp.Ring = {
+					pivot = Vector2.new(0, 0),
+					way = Vector2.zero,
+					front = 0,
+					range = 30,
+					shift = Vector2.new(0.5, 0),
+					radius = 6.5,
+					least = 6.5,
+				}
+				expect(WalkUp.ringCentre(cannon, 3)).to.equal(Vector2.new(0.5, 0))
+				local ra, rb = WalkUp.apart(station, cannon)
+				expect(rb).to.equal(6.5)
+				expect(ra < 8 and ra >= WalkUp.FRONT_FIT_LEAST).to.equal(true)
+				expect(between(station, ra, cannon, rb) >= WalkUp.RING_GAP).to.equal(true)
+			end
+		)
+
+		it("stops at the least sizes when the floor is too tight", function()
+			local a, b = front(0, 10, 0, math.huge), front(0, -10, 0, math.huge)
+			local ra, rb = WalkUp.apart(a, b)
+			expect(ra).to.be.near(WalkUp.FRONT_FIT_LEAST, 1e-6)
+			expect(rb).to.be.near(WalkUp.FRONT_FIT_LEAST, 1e-6)
 		end)
 	end)
 

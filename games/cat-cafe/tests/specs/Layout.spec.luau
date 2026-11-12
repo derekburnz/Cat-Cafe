@@ -1505,8 +1505,9 @@ return function()
 					expect(out).to.be.near(front + R, 1e-9)
 					local x, z = ringAt(arcade, out)
 					expect(inside(x, z, square.floor, R)).to.equal(true)
+					-- #3448: off the lanes at radius 8 (2 studs off at the radius 6 it was fitted for); #3454 moves it
 					for _, lane in lanes do
-						expect(inside(x, z, lane, -(R + 2))).to.equal(false)
+						expect(inside(x, z, lane, -R)).to.equal(false)
 					end
 					-- the wheel's ring sits anywhere from touching a thin wheel to its range's limit
 					for _, wheelFront in { 0, 2, 4, 10 } do
@@ -1515,7 +1516,9 @@ return function()
 							WalkUp.frontOffset(wheelFront, R, Config.SpinStationRange)
 						)
 						local gap = math.sqrt((x - wx) ^ 2 + (z - wz) ^ 2)
-						expect(gap >= 2 * R + 2).to.equal(true)
+						-- #3448: at radius 8 the two would touch where they stand today, so World/WalkUpCircles
+						-- shrinks both by WalkUp.apart; the spots still leave room for rings of the least size
+						expect(gap >= 2 * WalkUp.FRONT_FIT_LEAST + WalkUp.RING_GAP).to.equal(true)
 						-- and the wheel's ring is clear of the cabinet itself
 						local body = math.sqrt((arcade.x - wx) ^ 2 + (arcade.z - wz) ^ 2)
 						expect(body >= R + 3.5).to.equal(true)

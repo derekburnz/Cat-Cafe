@@ -16,6 +16,8 @@
 --   FRONT_FIT_LEAST, BOARD_RADIUS     the camp stations' fitted front rings and the Index Boards' smaller one (#3113)
 --   fitRing(radius, blocks, most, least, keep?)  where that ring moves, and how small it gets, to clear what stands
 --                                     in it while still holding the station's base
+--   RING_GAP, apart(a, b, gap?)       #3448: two rings that would overlap both shrink until RING_GAP studs of floor
+--                                     show between them, each no smaller than its own least size
 --   promptReach(hasRing, own)         how far a station's click prompt reaches: nothing once the station has a ring
 --                                     (#3114), so the ring is the only way in; its own reach while it has none
 -- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
@@ -152,6 +154,56 @@ function WalkUp.fitRing(
 		reach = math.max(reach, (point - shift).Magnitude)
 	end
 	return shift, math.min(radius, math.max(math.min(least, radius), reach, fitted))
+end
+
+-- #3448 (the rings grew to radius 8): where two rings would overlap, both shrink until RING_GAP studs of floor show
+-- between them. A Ring is one laid ring as World/WalkUpCircles knows it: a front ring's centre sits
+-- frontOffset(front, radius, range) from `pivot` along `way` (a flat unit vector; zero for a ring all the way round)
+-- plus `shift`, so it follows its station's front as it shrinks. `least` is the smallest it may get; a ring whose
+-- least is its radius does not shrink (an Index Board's, a cannon's), and the other gives all the way.
+WalkUp.RING_GAP = 1
+WalkUp.APART_STEP = 0.05
+
+export type Ring = {
+	pivot: Vector2,
+	way: Vector2,
+	front: number,
+	range: number,
+	shift: Vector2,
+	radius: number,
+	least: number,
+}
+
+function WalkUp.ringCentre(ring: Ring, radius: number): Vector2
+	if ring.way.Magnitude < 1e-3 then
+		return ring.pivot + ring.shift
+	end
+	return ring.pivot + ring.way * WalkUp.frontOffset(ring.front, radius, ring.range) + ring.shift
+end
+
+-- The radius each ring ends at: their own where `gap` (RING_GAP when left out) studs already show between them, else
+-- both smaller in APART_STEP steps until it does or neither can shrink further. Rings that still touch at their least
+-- sizes stay there; WalkUp.step opens only the nearer one's window.
+function WalkUp.apart(a: Ring, b: Ring, gap: number?): (number, number)
+	local want = gap or WalkUp.RING_GAP
+	local ra, rb = a.radius, b.radius
+	for _ = 1, 400 do
+		local between = (WalkUp.ringCentre(a, ra) - WalkUp.ringCentre(b, rb)).Magnitude - ra - rb
+		if between >= want then
+			break
+		end
+		local canA, canB = ra > a.least + 1e-6, rb > b.least + 1e-6
+		if not canA and not canB then
+			break
+		end
+		if canA then
+			ra = math.max(a.least, ra - WalkUp.APART_STEP)
+		end
+		if canB then
+			rb = math.max(b.least, rb - WalkUp.APART_STEP)
+		end
+	end
+	return ra, rb
 end
 
 -- #3114 (Derek2: "remove all \"one click to open menu\" buttons in game for stations etc but make sure they each have

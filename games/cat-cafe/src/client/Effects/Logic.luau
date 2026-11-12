@@ -2071,13 +2071,24 @@ function Logic.lightness(colour: Color3): number
 	return 0.299 * colour.R + 0.587 * colour.G + 0.114 * colour.B
 end
 
--- How bright a part's band is, from `least` to 1: its own colour's lightness against the lightest coat part's, so
--- stripes and patches still show as darker bands.
-function Logic.rainbowShade(light: number, lightest: number, least: number): number
-	if lightest <= 1e-6 then
+-- How bright a part's band is, from `least` to 1: its own colour's lightness against the coat's main colour's
+-- (`main`, the body's), so stripes and patches darker than the body still show as darker bands and the body itself
+-- is always at full brightness. It was measured against the lightest part, which left a dark cat with a few pale
+-- marks (a Nebula's stars, a Tuxedo's chest) at `least` all over.
+function Logic.rainbowShade(light: number, main: number, least: number): number
+	if main <= 1e-6 then
 		return 1
 	end
-	return least + (1 - least) * math.clamp(light / lightest, 0, 1)
+	return least + (1 - least) * math.clamp(light / main, 0, 1)
+end
+
+-- How far a part's band is lifted toward white, 0 to `most`: a part lighter than the coat's main colour (stars, a
+-- white chest) shows as a paler band, by how much lighter it is, so those marks still read on a dark cat.
+function Logic.rainbowLift(light: number, main: number, most: number): number
+	if light <= main or main >= 1 then
+		return 0
+	end
+	return most * math.clamp((light - main) / (1 - main), 0, 1)
 end
 
 -- True for a face detail a rainbow coat leaves as it is (the nose, the mouth, the blush): a part whose longest side

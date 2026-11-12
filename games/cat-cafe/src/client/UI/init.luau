@@ -4036,9 +4036,28 @@ do
 		end
 		rescueOnCircle = false
 		-- #3050: the Rummage Bin's bar is the same bar with its own name and closing words
+		-- #3611: with the prize rolled first (`binRoll`), the bar names what is being rummaged for
+		local function binBarName(): string
+			local LiveFlags =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+			local waiting =
+				RummageBin.rollRow(Players.LocalPlayer:GetAttribute(RummageBin.PRIZE_ATTRIBUTE))
+			if
+				waiting == nil
+				or not LiveFlags.shown(
+					RummageBin.ROLL_FLAG,
+					ReplicatedStorage:GetAttribute(
+						LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG
+					)
+				)
+			then
+				return RummageBin.NAME
+			end
+			return "Rummage for: " .. RummageBin.rowTitle(waiting)
+		end
 		local header: RescueBar.Header = if rescueSpotId == RummageBin.SPOT
 			then {
-				catName = RummageBin.NAME,
+				catName = binBarName(),
 				words = {
 					slow = "Too slow! Try again",
 					gaveUp = "Maybe later",

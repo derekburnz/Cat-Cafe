@@ -690,6 +690,14 @@ return function()
 
 	-- #3222: a Golden find's toast plays the gold reveal; the update gift's plays the reward jingle.
 	describe("Audio.Logic toast jingles", function()
+		it("gives each update party banner a sound the game already has", function()
+			expect(Logic.bannerCue("party")).to.equal("stationReveal")
+			expect(Logic.bannerCue("giftSoon")).to.equal("uiGiftReady")
+			expect(Logic.bannerCue("gift")).to.equal("indexReward")
+			expect(Logic.bannerCue("sale")).to.equal(nil)
+			expect(Logic.bannerCue(nil)).to.equal(nil)
+		end)
+
 		it("maps only the two jingle toasts", function()
 			expect(Logic.toastJingle("Golden find! Golden Bench")).to.equal("goldReveal")
 			expect(Logic.toastJingle("Update gift! 🐟 15 + 1 spin")).to.equal("indexReward")

@@ -1318,12 +1318,13 @@ return function()
 		)
 
 		it(
-			"fits the Codes Cat, Juniper's cart and the Day Cart in the south-west corner, facing the cannon (#2565)",
+			"fits the Codes Cat and Juniper's cart in the south-west corner, facing the cannon (#2565, #3454)",
 			function()
+				-- #3454: the Day Cart left this corner for the north-east, beside the Golden Fish Market
+				expect(Layout.dayCart.x > 0 and Layout.dayCart.z > 0).to.equal(true)
 				local corner: { [string]: Point } = {
 					codesCat = Layout.codesCat,
 					mysteryCart = Layout.mysteryCart,
-					dayCart = Layout.dayCart,
 				}
 				for name, point in corner do
 					if not (point.x < 0 and point.z < 0) then
@@ -1341,8 +1342,10 @@ return function()
 					return math.sqrt((a.x - b.x) ^ 2 + (a.z - b.z) ^ 2)
 				end
 				expect(apart(Layout.mysteryCart, Layout.codesCat) > 12).to.equal(true)
-				expect(apart(Layout.mysteryCart, Layout.dayCart) > 12).to.equal(true)
-				expect(apart(Layout.codesCat, Layout.dayCart) > 12).to.equal(true)
+				expect(apart(Layout.fishMarket, Layout.dayCart) > 12).to.equal(true)
+				expect(apart(Layout.mysteryCart, Layout.townSquare.pitySign :: any) > 12).to.equal(
+					true
+				)
 			end
 		)
 
@@ -1359,10 +1362,13 @@ return function()
 					bellhopStand = Layout.bellhopStand,
 					mysteryCart = Layout.mysteryCart,
 					leaderboards = Layout.leaderboards,
-					cornerShop = Layout.cornerShop,
-					dayCart = Layout.dayCart,
+					dayCart = Layout.dayCart, -- #3454: the old Corner Shop building shares this spot; only one is built
 					thanksBoard = Layout.thanksBoard,
+					feedbackStand = Layout.feedbackStand,
+					arcadeCabinet = Layout.arcadeCabinet,
 				}
+				expect(Layout.cornerShop.x).to.equal(Layout.dayCart.x)
+				expect(Layout.cornerShop.z).to.equal(Layout.dayCart.z)
 				local props: { any } = { Layout.townSquare.pitySign, Layout.playerSpawn }
 				for _, prop in Layout.townSquare.rallyBoards do
 					table.insert(props, prop)
@@ -1443,15 +1449,15 @@ return function()
 		end)
 
 		it(
-			"keeps a spot each for the feedback stand and the arcade cabinet (#3070), the stand right of the Thanks board (#3189)",
+			"keeps a spot each for the feedback stand and the arcade cabinet (#3070), the stand beside the Thanks board (#3454)",
 			function()
 				local stand, arcade = Layout.feedbackStand, Layout.arcadeCabinet
-				-- #3189: facing the Thanks board from the cannon's side, the stand is on its right, south of the lane,
-				-- and well away from the Golden Fish Market
+				-- #3189 put the stand on the Thanks board's right. #3454 (Derek OK'd the picture): the board takes
+				-- the south-east corner and the stand the spot beside the street in the same quarter, a body's
+				-- width or more from the board, south of the lane and well away from the Golden Fish Market
 				local board = Layout.thanksBoard
-				local long = math.sqrt(board.x ^ 2 + board.z ^ 2)
-				local rightX, rightZ = -board.z / long, board.x / long
-				expect((stand.x - board.x) * rightX + (stand.z - board.z) * rightZ > 6).to.equal(
+				expect(stand.x > 0 and board.x > 0 and board.z < 0).to.equal(true)
+				expect(math.sqrt((stand.x - board.x) ^ 2 + (stand.z - board.z) ^ 2) > 12).to.equal(
 					true
 				)
 				expect(stand.z < 0).to.equal(true)

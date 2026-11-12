@@ -982,6 +982,16 @@ local Config = {
 		{ id = "first_tuna", lure = "tuna", count = 2, fish = 10 },
 		{ id = "first_crate", crate = "alley_crate", potion = "lucky_potion" },
 		{ id = "first_salmon", lure = "salmon", fish = 10 },
+	} :: {
+		{
+			id: string,
+			chance: number?,
+			count: number?,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+		}
 	},
 	BinTable = {
 		{ id = "tuna", chance = 0.34, lure = "tuna", count = 2 },
@@ -993,7 +1003,8 @@ local Config = {
 	} :: {
 		{
 			id: string,
-			chance: number,
+			chance: number?,
+			count: number?,
 			lure: string?,
 			fish: number?,
 			crate: string?,

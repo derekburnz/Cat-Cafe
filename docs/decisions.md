@@ -1096,6 +1096,6 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 
 ## 2026-11-12: the "Feature my name" tick is removed (#3653, Sync-Agent for Design-Agent's doc)
 
-- Derek, 17:49 UTC: "remove the feature my name tick option and we will just always do that on ideas". A player whose idea gets built is always named on the Thank You board and its What's New row, by display name only. This replaces the 2026-11-04 tick and the "only players who ticked are named" line of #3472.
+- Derek, 17:49 UTC: "remove the feature my name tick option and we will just always do that on ideas". A player whose idea gets built is always named on the Thank You board and its What's New row, by display name only. This replaces the 2026-11-04 tick and the "only players who ticked are named" line of #3472. It holds for reports sent after the tick is removed; an older report with the tick off stays "A player's idea", since that player was told they would not be named (recommended pick, Derek can change it).
 - Kept on purpose: the Settings row that hides a player's name, and one plain line on the Idea chip that says the display name goes on the board and can be hidden. The audience is young, so the window still says what happens with a name and there is still a way to say no.
 - Unchanged: no player name or id in the repo, issues, PRs, commits or logs. `idea-credits.md` section 9.

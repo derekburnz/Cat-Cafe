@@ -70,6 +70,9 @@ local IDS: { [string]: string } = {
 	-- #3330 (Derek 2026-11-12: "ok"): Swift Paws' own picture, the running cat
 	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_SwiftPaws.png); it was the paw cookie dish as a stand-in
 	Perk_SwiftPaws = "rbxassetid://79732833265075",
+	-- #3298: the luck clover (Icon_Clean_Clover) as a stand-in until the Lucky Charm's own picture
+	-- (assets/cat-cafe/exports/icons/CatCafe_Icon_Perk_LuckyCharm.png) is uploaded
+	Perk_LuckyCharm = "rbxassetid://106109471292317",
 	Coins = "rbxassetid://136732540501959",
 	Spin = "rbxassetid://137218266791913", -- the 8-slice wheel (#1603, Tools-Agent 11-05); was 109715715479737
 	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)

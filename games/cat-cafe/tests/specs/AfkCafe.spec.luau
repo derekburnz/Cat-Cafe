@@ -118,7 +118,7 @@ return function()
 	end)
 	describe("AfkCafe auto rejoin (#3602)", function()
 		it(
-			"is due once the rest has lasted Config.AutoRejoinSeconds, and again only after the retry wait",
+			"is due once the player has had no input for Config.AutoRejoinSeconds, and again only after the retry wait",
 			function()
 				local after = Config.AutoRejoinSeconds
 				expect(AfkCafe.rejoinDue(after - 1, nil, 5000)).to.equal(false)
@@ -131,8 +131,10 @@ return function()
 		)
 
 		it("rejoins ahead of Roblox's 20 minute idle disconnect, with room for retries", function()
-			local idleAtRejoin = Config.AfkCafeSeconds + Config.AutoRejoinSeconds
-			expect(idleAtRejoin + 3 * AfkCafe.REJOIN_RETRY_SECONDS <= 20 * 60).to.equal(true)
+			expect(Config.AutoRejoinSeconds + 3 * AfkCafe.REJOIN_RETRY_SECONDS <= 20 * 60).to.equal(
+				true
+			)
+			expect(Config.AutoRejoinSeconds > Config.AfkCafeSeconds).to.equal(true)
 		end)
 
 		it("knows its own arrival and nothing else", function()

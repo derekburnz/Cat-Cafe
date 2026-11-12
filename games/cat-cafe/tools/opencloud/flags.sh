@@ -33,7 +33,7 @@
 #                 after Derek has seen the pictures (he asked for no tab of our own on 2026-11-10)
 #   afkCafe       true pays the cats' cafe pay double while a player rests (no input, standing still) in their own
 #                 cafe or on its doorstep (#3573)
-#   autoRejoin    true sends a player who has rested in their cafe for 16 minutes back into the game before
+#   autoRejoin    true sends a player resting in their cafe, 18 minutes without input, back into the game before
 #                 Roblox's idle disconnect, landing at their cafe (#3602); needs afkCafe on
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it

@@ -10,7 +10,7 @@
 --     not moved, nothing carried, no trade (AfkCafeService).
 --   #3602 (Derek 2026-11-12: "add auto rejoin", "make sure they auto rejoin at their cafe back in the auto rejoin 2x
 --     money area"): Roblox disconnects a player after 20 minutes without input. Behind the `autoRejoin` switch
---     (off by default), a player who has rested for Config.AutoRejoinSeconds is teleported to this same place by the
+--     (off by default), a resting player with no input for Config.AutoRejoinSeconds is teleported to this same place by the
 --     server (AfkCafeService), which starts a new session before that disconnect. They arrive with TeleportData
 --     { cafeRest = true }, land at their own front door as every returning player does (CannonService.homeArrival,
 --     inside the doorstep zone) and rest again once they have stood there ARRIVAL_STILL_SECONDS, without the
@@ -89,10 +89,11 @@ function AfkCafe.doubled(eventMoney: number): boolean
 	return AfkCafe.money(eventMoney, true) > eventMoney
 end
 
--- #3602: whether a resting player is due a rejoin now: rested `restSeconds`, last tried at `lastTry` (os.clock, nil
--- when never).
-function AfkCafe.rejoinDue(restSeconds: number, lastTry: number?, now: number): boolean
-	if restSeconds < Config.AutoRejoinSeconds then
+-- #3602: whether a resting player is due a rejoin now: no input for `idleSeconds` (Roblox's disconnect counts from
+-- the last input, not from the rest's start, and a rest may stop and start again with no input between), last
+-- tried at `lastTry` (os.clock, nil when never).
+function AfkCafe.rejoinDue(idleSeconds: number, lastTry: number?, now: number): boolean
+	if idleSeconds < Config.AutoRejoinSeconds then
 		return false
 	end
 	return lastTry == nil or now - lastTry >= AfkCafe.REJOIN_RETRY_SECONDS

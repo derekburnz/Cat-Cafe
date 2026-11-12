@@ -6,7 +6,7 @@
 -- rate it was earned at (Economy.setResting, Economy.moneyFor). The Player's CafeRest attribute tells the HUD's chip.
 -- Ending a rest says what the cafe paid meanwhile, once. The first time each session a player past the tutorial
 -- walks into their own cafe, AfkCafe.LINE says that resting pays, once.
--- #3602: behind the `autoRejoin` switch a rest that has lasted Config.AutoRejoinSeconds is teleported to this same
+-- #3602: behind the `autoRejoin` switch a resting player with no input for Config.AutoRejoinSeconds is teleported to this same
 -- place, ahead of Roblox's 20 minute idle disconnect; the arrival (marked in its join data) takes the rest up again
 -- once it stands at its cafe. Never in Studio (teleports do not run there) or in a private server (a public
 -- teleport would take the player out of it).
@@ -40,7 +40,8 @@ type Watch = {
 	restSince: number?, -- os.clock() the rest started, nil while not resting
 	told: boolean, -- AfkCafe.LINE was said this session
 	arrivedAt: number?, -- #3602: os.clock() a rest's rejoin joined, until it rests again or its window ends
-	rejoinTry: number?, -- #3602: os.clock() of this rest's last rejoin teleport
+	idleSince: number?, -- #3602: os.clock() the player's last input, as far as the server knows; nil while not idle
+	rejoinTry: number?, -- #3602: os.clock() of the last rejoin teleport since then
 }
 
 local TUTORIAL_DONE = 5 -- the tutorial's last step (the client's TutorialHints.DONE)
@@ -59,6 +60,7 @@ local function watchOf(player: Player): Watch
 		restSince = nil,
 		told = false,
 		arrivedAt = nil,
+		idleSince = nil,
 		rejoinTry = nil,
 	}
 	watches[player] = watch
@@ -109,7 +111,6 @@ local function start(player: Player, watch: Watch)
 	Economy.takeRestEarned(profile)
 	Economy.setResting(profile, true)
 	watch.restSince = os.clock()
-	watch.rejoinTry = nil
 	local doubled = AfkCafe.doubled(Economy.eventMoney())
 	player:SetAttribute(AfkCafe.ATTRIBUTE, doubled)
 	Telemetry.custom(player, "afk_start", 1, { if doubled then "doubled" else "party" })
@@ -202,6 +203,8 @@ local function check(player: Player, now: number)
 		then
 			watch.arrivedAt = nil
 			watch.idle = true
+			watch.idleSince = arrivedAt -- this session's idle clock started as it joined
+			watch.rejoinTry = nil
 			watch.stillSince = now - Config.AfkCafeSeconds
 			player:SetAttribute(AfkCafe.ARRIVED_ATTRIBUTE, true)
 		end
@@ -217,7 +220,7 @@ local function check(player: Player, now: number)
 		if player:GetAttribute(AfkCafe.ATTRIBUTE) ~= doubled then
 			player:SetAttribute(AfkCafe.ATTRIBUTE, doubled)
 		end
-		local since = watch.restSince
+		local since = watch.idleSince
 		if
 			since ~= nil
 			and LiveFlagService.on(AfkCafe.REJOIN_FLAG)
@@ -236,6 +239,9 @@ function AfkCafeService.start()
 		end
 		local watch = watchOf(player)
 		watch.idle = raw
+		-- #3602: the client says idle AfkCafeSeconds after its last input
+		watch.idleSince = if raw then os.clock() - Config.AfkCafeSeconds else nil
+		watch.rejoinTry = nil
 		if not raw then
 			stop(player, watch) -- any input ends it at once
 		end

@@ -33,6 +33,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
@@ -310,26 +311,42 @@ local function finish(player: Player, run: Run, tell: boolean, quit: boolean?)
 	sendState(player)
 end
 
--- Pays the milestones a move from `before` to the run's points crossed that today has not paid yet.
-local function payMilestones(player: Player, run: Run, before: number): { number }
+-- Pays the milestones a move from `before` to `after` points crossed that today has not paid yet. `source` is the
+-- payout reason's start ("arcade" for Circle Streak, "mousedash" for Mouse Dash, #3296).
+local function claimAndPay(
+	player: Player,
+	before: number,
+	after: number,
+	source: string
+): { number }
 	local save = saves[player]
 	local profile = DataService.get(player)
 	if save == nil or profile == nil then
 		return {}
 	end
-	local due = Arcade.claim(save, before, run.points, os.time())
+	local due = Arcade.claim(save, before, after, os.time())
 	if #due == 0 then
 		return due
 	end
 	for _, at in due do
 		local milestone = Arcade.milestoneAt(at)
 		if milestone ~= nil then
-			Payout.pay(player, profile, milestone.prize, "arcade_" .. tostring(at))
-			table.insert(run.paid, at)
+			Payout.pay(player, profile, milestone.prize, source .. "_" .. tostring(at))
 		end
 	end
 	CafeService.sync(player)
 	queueSave(player.UserId, save)
+	return due
+end
+
+-- A Circle Streak game's milestones, remembered on the run for its results card.
+local function payMilestones(player: Player, run: Run, before: number): { number }
+	local due = claimAndPay(player, before, run.points, "arcade")
+	for _, at in due do
+		if Arcade.milestoneAt(at) ~= nil then
+			table.insert(run.paid, at)
+		end
+	end
 	return due
 end
 
@@ -431,7 +448,8 @@ local function onStart(player: Player)
 			)
 		end
 	end
-	if not LiveFlagService.on(Arcade.FLAG) then
+	-- #3296: `circleStreak` off vaults this game (Mouse Dash is the arcade's game then); a game running finishes
+	if not (LiveFlagService.on(Arcade.FLAG) and LiveFlagService.on(MouseDash.CIRCLE_FLAG)) then
 		Net.toast(player, CLOSED_TEXT, "warn")
 		blocked(true, true, false, false)
 		return
@@ -443,11 +461,13 @@ local function onStart(player: Player)
 	-- a free run spends no fish, so the trade fish freeze doesn't hold it up (#3296)
 	local busy = CatService.busyReason(player)
 		or (if free then nil else TradeService.fishSpendBlocker(player))
-	local blocker =
-		Arcade.startBlocker(profile.goldenFish, busy, runs[player] ~= nil, save ~= nil, free)
+	-- #3296: a Mouse Dash game counts as a game running
+	local other = ArcadeService.otherGame
+	local running = runs[player] ~= nil or (other ~= nil and other(player))
+	local blocker = Arcade.startBlocker(profile.goldenFish, busy, running, save ~= nil, free)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")
-		blocked(false, save ~= nil, runs[player] ~= nil, busy ~= nil)
+		blocked(false, save ~= nil, running, busy ~= nil)
 		return
 	end
 	if free and save ~= nil then
@@ -529,9 +549,49 @@ local function funnelBefore(player: Player, step: number)
 	Telemetry.arcadeStep(player, profile, step, save ~= nil and Arcade.freeToday(save, os.time()))
 end
 
--- Debug hooks for the specs and Studio checks.
+-- Debug hooks for the specs and Studio checks; MouseDashService also asks, so the two games never run at once.
 function ArcadeService.running(player: Player): boolean
 	return runs[player] ~= nil
+end
+
+-- #3296: Mouse Dash shares the arcade's day (the milestones paid today) and the Arcade Legend title, both kept in
+-- this service's save, so nothing pays twice whichever game or server gets there first. MouseDashService sets
+-- `otherGame` (whether its game is running for a player) so a Circle Streak game can't start beside one.
+ArcadeService.otherGame = nil :: ((player: Player) -> boolean)?
+
+-- Whether the player's arcade save is read (no milestone can be paid before it is).
+function ArcadeService.loaded(player: Player): boolean
+	return saves[player] ~= nil
+end
+
+-- The milestones paid today, and whether the player holds Arcade Legend.
+function ArcadeService.today(player: Player): ({ number }, boolean)
+	local save = saves[player]
+	if save == nil then
+		return {}, false
+	end
+	return table.clone(Arcade.today(save, os.time())), save.legend
+end
+
+-- Pays the milestones a move from `before` to `after` points crossed that today has not paid yet, as a Circle
+-- Streak game's (`source` names the game in the payout's reason). Returns those paid.
+function ArcadeService.claimMilestones(
+	player: Player,
+	before: number,
+	after: number,
+	source: string
+): { number }
+	return claimAndPay(player, before, after, source)
+end
+
+-- Arcade Legend for a 100 point game of either arcade game, kept for good.
+function ArcadeService.grantLegend(player: Player)
+	local save = saves[player]
+	if save ~= nil and not save.legend then
+		save.legend = true
+		queueSave(player.UserId, save)
+		sendState(player)
+	end
 end
 
 function ArcadeService.start()

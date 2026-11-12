@@ -440,6 +440,55 @@ function Logic.poolCue(beat: any, step: any): (string?, number?)
 	return nil, nil
 end
 
+-- #3296 Mouse Dash (the second Cat Arcade game). `kind` is what is in a hole: "mouse", "golden" or "kitten".
+-- What pops up: the mouse its pop, the golden mouse its chime, the napping kitten a soft purr.
+function Logic.mousePopCue(kind: any): string
+	if kind == "golden" then
+		return "mouseGoldUp"
+	elseif kind == "kitten" then
+		return "mousePurr"
+	end
+	return "mousePop"
+end
+
+-- #3296: a catch. The golden mouse has its own richer cue. A plain catch's squeak climbs one scale note per catch
+-- inside each group of `every` (5) of the streak and starts again, so it never runs off the scale in a long run.
+function Logic.mouseCatchCue(kind: any, streak: any, every: number?): (string, number?)
+	if kind == "golden" then
+		return "mouseGoldCatch", nil
+	end
+	local group = every or 5
+	if type(streak) ~= "number" or streak ~= streak or streak < 1 then
+		return "mouseCatch", 1
+	end
+	return "mouseCatch", (math.floor(streak) - 1) % group + 1
+end
+
+-- #3296: a heart lost. "escape" (the mouse ducked back in) the slide and puff, "kitten" (the napper tapped awake)
+-- its "mrow?", "empty" (a tap on an empty hole) the soft thud. Nil for anything else.
+function Logic.mouseMissCue(kind: any): string?
+	if kind == "escape" then
+		return "mouseDuck"
+	elseif kind == "kitten" then
+		return "mouseMrow"
+	elseif kind == "empty" then
+		return "mouseThud"
+	end
+	return nil
+end
+
+-- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
+-- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
+-- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
+function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
+	if reason == "win" or newBest == true then
+		return "mouseBest"
+	elseif reason == "hearts" and type(points) == "number" and points > 0 then
+		return "arcadeEnd"
+	end
+	return nil
+end
+
 -- Toast lines that earn their own jingle, since the server sends them as a toast only: the update gift (#2997) the
 -- reward jingle, and a Golden find (#3222, LawnService.giveDrop: "Golden find! ...") the gold reveal. Nil for any other.
 function Logic.toastJingle(text: any): string?

@@ -81,6 +81,8 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
 
 ## 4. Cat Arcade: Mouse Dash (#3296, second Arcade game; a player idea)
 
+**2026-11-11 23:30 UTC: superseded by [mouse-dash.md](mouse-dash.md).** Derek unpaused it ("build mouse dash if making it high enough quality it honestly should replace the current game"). The v2 spec there has nine holes, three hearts, golden mice, napping kittens, 100 points and the arcade's shared milestones. The text below is the v1 draft, kept for history.
+
 Derek2, 2026-11-11: "arcade game 1 free attempt daily".
 
 - **Where:** a second game on the same Arcade cabinet and menu row, as a tab beside Circle Streak.

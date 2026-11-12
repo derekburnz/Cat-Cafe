@@ -1750,14 +1750,27 @@ local function bindStations()
 		table.insert(arcadePrompts, prompt)
 		prompt.Enabled = arcadeOn()
 	end)
+	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game; `circleStreak` off vaults Circle Streak
+	local function flagOn(key: string): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			key,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+		)
+	end
 	local function applyArcade()
 		local on = arcadeOn()
-		UI.arcade.setOn(on)
+		local circle = flagOn("circleStreak")
+		local dash = on and flagOn("mouseDash")
+		UI.arcade.setOn(on and circle, on and (circle or dash))
+		UI.mouseDash.setFlags(dash, on and circle)
 		for _, prompt in arcadePrompts do
-			prompt.Enabled = on
+			prompt.Enabled = on and (circle or dash)
 		end
 	end
-	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
+	for _, key in { Arcade.FLAG, "mouseDash", "circleStreak" } do
+		ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. key):Connect(applyArcade)
+	end
 	applyArcade()
 end
 
@@ -2546,6 +2559,86 @@ local function wireServerEvents()
 	end)
 	UI.events.arcadeQuit:Connect(function(run: number)
 		Net.fire("ArcadeQuit", run)
+	end)
+	-- #3296: Mouse Dash. The server draws and judges everything; these only pass its answers to the window and the
+	-- sound moments (Motion-FX-Agent's, played when the build has them).
+	Net.on("MouseDashState", function(view: any)
+		UI.mouseDash.state(view)
+	end)
+	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number)
+		arcadeMoment("MouseDashStart")
+		UI.mouseDash.began(run, hearts, firstAt)
+	end)
+	Net.on("MouseDashWave", function(run: number, index: number, pops: any, hint: string?)
+		if type(pops) == "table" then
+			for _, pop in pops do
+				if type(pop) == "table" then
+					arcadeMoment("MouseDashPop", pop.kind)
+				end
+			end
+		end
+		UI.mouseDash.wave(run, index, pops, hint)
+	end)
+	local dashLevel = 0
+	Net.on(
+		"MouseDashJudged",
+		function(
+			run: number,
+			index: number,
+			tap: any,
+			points: number,
+			hearts: number,
+			streak: number,
+			milestones: any,
+			dizzyUntil: number
+		)
+			if type(tap) == "table" then
+				if tap.outcome == "catch" then
+					arcadeMoment("MouseDashCatch", points, tap.kind, streak)
+				elseif tap.outcome == "kitten" or tap.outcome == "empty" then
+					arcadeMoment("MouseDashMiss", tap.outcome)
+				end
+				if tap.heart == 1 then
+					arcadeMoment("MouseDashHeart")
+				end
+			end
+			local level = if type(points) == "number" then points // 5 else 0
+			if level > dashLevel then
+				arcadeMoment("MouseDashFaster", level)
+			end
+			dashLevel = level
+			if type(milestones) == "table" and #milestones > 0 then
+				arcadeMoment("MouseDashMilestone", milestones[#milestones])
+			end
+			UI.mouseDash.judged(run, index, tap, points, hearts, streak, milestones, dizzyUntil)
+		end
+	)
+	Net.on("MouseDashGone", function(run: number, index: number, gone: any, hearts: number)
+		if type(gone) == "table" then
+			for _, entry in gone do
+				-- a golden mouse or a kitten that ducks back is silent; only a grey mouse getting away sounds
+				if type(entry) == "table" and entry.kind == "mouse" then
+					arcadeMoment("MouseDashMiss", "escape")
+				end
+			end
+		end
+		UI.mouseDash.gone(run, index, gone, hearts)
+	end)
+	Net.on("MouseDashOver", function(run: number, result: any)
+		dashLevel = 0
+		if type(result) == "table" then
+			arcadeMoment("MouseDashEnd", result.points, result.reason, result.newBest == true)
+		end
+		UI.mouseDash.over(run, result)
+	end)
+	UI.events.mouseDashPlay:Connect(function()
+		Net.fire("MouseDashStart")
+	end)
+	UI.events.mouseDashTap:Connect(function(run: number, index: number, hole: number)
+		Net.fire("MouseDashTap", run, index, hole)
+	end)
+	UI.events.mouseDashQuit:Connect(function(run: number)
+		Net.fire("MouseDashQuit", run)
 	end)
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.

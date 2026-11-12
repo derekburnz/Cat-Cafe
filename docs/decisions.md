@@ -1028,3 +1028,28 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Why:** with the money bags fewer rich tips are missed, so Pace's "over 2 hours in one go with 4x Money" check gave a Tier 5 median of 1 h 59. By the economy rule the cost goes up and the bag is not cut (Design-Agent).
 - **What:** Tier 5 cost 370,000,000 to 390,000,000. 385M gave 2 h 01; 390M gives 2 h 02 (10th to 90th 1 h 29 to 2 h 22). The free player's median is 4 h 16, inside its 3.5 to 5.5 h band. A player who already has Tier 5 keeps it.
 - **Built now:** the bag on table 1, its own full 180 s, up to 3 waiting, no loss at dusk or night, the 20 s sit, and ClaimRichTip with an optional bag id. **Later, in its own PR:** tapping any bag on its own, a "total waiting" line on the HUD, the bag model and its fade.
+
+## 2026-11-11 Mystic Pool look: the built model is approved (#3314, Design-Agent)
+- **Why:** Derek was shown the built model and the earlier pink concept and answered "A", the built model.
+- **What:** `trait-station.md` section 1 now describes the approved look: cream and grey stone ring, soft purple liquid, moon arch with lanterns, brown wizard cat Sage Sorrel with a purple starry hat. The pool rests purple, so the Mythic step has to read as clearly stronger than the resting colour. Odds, traits, costs and caps do not change.
+- **No restart needed:** the trait save step (version 48, #3335) is already live since the restart at 19:13 UTC. What still gates the station is the `traits` switch, which stays off until the UI, the effects and the Pace gate are done.
+
+## 2026-11-11 Mouse Dash is unpaused and specced to be able to replace Circle Streak (#3296, Design-Agent)
+- **Why:** Derek, 23:30 UTC: "build mouse dash if making it high enough quality it honestly should replace the current game".
+- **What:** new spec `docs/design/cat-cafe/mouse-dash.md` (v2). Nine holes, three hearts with one back every 10 catches in a row, golden mice (+3), napping kittens you must not tap, two at once from 30 points, 100 points wins. The v1 draft in `new-activities.md` section 4 ended on the first miss and stopped at 50.
+- **Prizes:** it shares the arcade's ten daily milestones with Circle Streak, each paid once a day whichever game reaches it, so a second game adds no golden fish. 100 points gives the same Arcade Legend title; 50 gives a new Mouser title.
+- **Saves:** its record is a new DataStore and the shared milestones stay in the arcade's existing save, so there is no profile change and no restart.
+- **Taking over:** side by side first, then Mouse Dash becomes the main game if its start rate matches Circle Streak's, its played-again rate is at least 1.25 times, the median run is 10 to 15 points and Derek says it looks good. Circle Streak's board is kept as a Hall of Fame page.
+
+## 2026-11-11 Mouse Dash swaps in for Circle Streak outright; Circle Streak is vaulted (#3296, Design-Agent)
+- **Why:** Derek, 23:51 UTC, on the Mouse Dash art: "Swap this in for the current arcade game and vault the other one", then "make sure the rewards/leaderboard stuff still works". This replaces the side by side plan in the entry above.
+- **What:** once Mouse Dash passes review and QA, `mouseDash` goes on and a new switch `circleStreak` goes off in one step. Circle Streak's code, saves and board are kept, so it can come back with one switch.
+- **Kept working through the swap:** the ten daily milestones (same list, same daily tick, never paid twice), the Arcade Legend title (holders keep it, Mouse Dash awards it at 100) and the leaderboard (Mouse Dash's own board from the first run; Circle Streak's board frozen as a Hall of Fame page).
+- **Also from Derek's look at the art:** backdrop shapes stay clear of the holes and every mouse and kitten is centred on its hole (`mouse-dash.md` section 5).
+
+## 2026-11-12 Update launch on Thursday 22:00 UTC: one restart, a 1 hour party and 100 golden fish (#3420, Design-Agent)
+- **Why:** Derek, 00:50 UTC: release the cat traits wizard and pool station and the new arcade game "tomorrow at 5 pm", and at the push "restart servers and run a 1 hour event of our boosts ... global 2x money booster for an hour and a giveaway of 100 gold fish to everyone 3 minute after restart with an announcement banner".
+- **What:** spec `docs/design/cat-cafe/update-launch-2026-11-12.md`. The party is one Cafe Event record (`update-1112`, 22:00 to 23:00 UTC, x2 cafe earnings, +0.5 Luck, Lucky, Golden and Rainbow Day, 4 rare cat showers, not a `big` event so Saturday's party still runs). The x2 is the party's own money boost at its cap, not a second boost on top.
+- **Gift:** the existing update gift (`Config.UpdateGift`, id `2026-11-12`, from 22:03 UTC, 100 golden fish), once per account, paid to everyone in game then and on a first join after, so nobody misses it by being late. No new save field.
+- **Switches:** `traits` on, `mouseDash` on and `circleStreak` off right after the restart. A feature without its review and QA pass by 20:00 UTC stays off and is left out of the words; the launch still goes ahead.
+- **Rules kept:** nothing sold in the party, no purchase prompts during the hour, the end time always shows, no stacked numbers or passes in any text, nothing says to stay or that leaving loses anything.

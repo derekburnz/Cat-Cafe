@@ -807,7 +807,7 @@ function MouseDash._tap(self: any, index: number)
 	self._callbacks.tap(run, self._index, index)
 end
 
-function MouseDash._float(self: any, hole: Hole, words: string, color: Color3)
+function MouseDash._float(_self: any, hole: Hole, words: string, color: Color3)
 	local label = text({
 		Name = "Float",
 		AnchorPoint = Vector2.new(0.5, 0.5),

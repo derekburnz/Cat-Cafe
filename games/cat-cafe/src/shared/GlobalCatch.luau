@@ -11,6 +11,7 @@
 -- server 150 + 60 per player publishes a minute, so one every 5 s is far inside it.
 
 local Catalog = require(script.Parent.Catalog)
+local CoatWords = require(script.Parent.CoatWords)
 
 local GlobalCatch = {}
 
@@ -114,11 +115,16 @@ function GlobalCatch.color(rarity: string): string
 end
 
 -- The chat line for a shout-out `text` of a `rarity` cat, in the rarity's colour; `elsewhere` when it came from
--- another server.
+-- another server. #3692: a gold or rainbow cat's coat word is drawn in its own colours (shared/CoatWords).
 function GlobalCatch.chatLine(text: string, rarity: string, elsewhere: boolean): string
 	local color = GlobalCatch.COLORS[rarity] or GlobalCatch.COLORS.Common
 	local body = (if elsewhere then GlobalCatch.ELSEWHERE else "") .. text
-	return string.format('<font color="%s">%s</font>', color, GlobalCatch.escape(body))
+	-- #3692: the word "rainbow" or "gold" of the line in its own colours
+	return string.format(
+		'<font color="%s">%s</font>',
+		color,
+		CoatWords.rich(body, GlobalCatch.escape)
+	)
 end
 
 return GlobalCatch

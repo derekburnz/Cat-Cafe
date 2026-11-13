@@ -1712,6 +1712,38 @@ local SCENES = {
 		UI.open("Collection")
 		assert(tiles() == built, "uigate: opening the Index built tiles twice (#3722)")
 	end },
+	-- #3722: the Decor cards are not built at start-up either; a new catalog empties the grid, and the quiet build
+	-- lays the cards a few a frame while the window is shut, so opening it builds none twice
+	{ "DecorQuietBuild", function()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Decor", true) :: Instance?
+		assert(window, "uigate: no Decor window")
+		-- only the main grid's cards: a frame named by a decor id (the Lawn tab's own cards stay through a catalog)
+		local ids: { [string]: boolean } = {}
+		local DecorPieces = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.DecorPieces") :: any
+		for _, decor in DecorPieces.all(catalogLikeTheGame()) do
+			ids[decor.id] = true
+		end
+		local function cards(): number
+			local count = 0
+			for _, each in (window :: Instance):GetDescendants() do
+				if each:IsA("Frame") and ids[each.Name] and each:FindFirstChild("Action") then
+					count += 1
+				end
+			end
+			return count
+		end
+		UI.setCatalog(catalogLikeTheGame())
+		assert(cards() == 0, ("uigate: setCatalog built %d Decor cards at once (#3722)"):format(cards()))
+		for _ = 1, 600 do
+			UIShim.advance(1 / 60)
+		end
+		assert(UI.isOpen() ~= "Decor", "uigate: Decor is open before the quiet build check")
+		local built = cards()
+		assert(built > 50, ("uigate: the quiet build laid %d Decor cards in 10 s with the window shut (#3722)"):format(built))
+		UI.open("Decor")
+		assert(cards() == built, "uigate: opening Decor built cards twice (#3722)")
+	end },
 	-- #2493: the forever pills' fit runs deferred and settles: after a few frames its scale holds still, and the row
 	-- stays inside the title bar
 	{ "IndexPerksFit", function()

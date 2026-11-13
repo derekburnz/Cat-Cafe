@@ -11,7 +11,10 @@
 -- Each answers with one sync (PlayerState.traits and the cats' traits). Logs trait_roll and trait_token. Nothing here
 -- is sold: tokens come only from play, and golden fish are earned only.
 
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
@@ -55,12 +58,28 @@ local function refuse(player: Player, text: string)
 	CafeService.sync(player)
 end
 
--- Spec section 1a: a Mythic sends one server-wide line, display name only, through the rare-catch channel. Wired in
--- the effects PR with the pool; until then (the `traits` switch is off) it only prints, with no name or id.
+-- Spec section 1a: a Mythic (or better) sends one server-wide line, display name only, through the rare-catch
+-- channel (the Announce toast every client shows, in the Mythical colour). #3942: the roller's whole scene at the
+-- pool plays meanwhile, so the line goes to everyone else and never spoils the roller's own reveal.
 local function announce(player: Player, rolled: Traits.Trait)
 	local line = Traits.announceText(player.DisplayName, rolled)
-	if line ~= nil then
-		print("[TraitService] a Mythic trait was rolled")
+	if line == nil then
+		return
+	end
+	for _, other in Players:GetPlayers() do
+		if other ~= player then
+			Net.fire(other, "Announce", line, "Mythical")
+		end
+	end
+	-- #3942: everyone near the pool sees its pillar go up (Effects/BigTraitCut.watchPool). Attributes on the station,
+	-- no new remote: who rolled (so their own client skips it, it plays the scene) and the rarity, then the time last,
+	-- which is what the clients watch.
+	local station = CollectionService:GetTagged(Traits.TAG)[1]
+	local rarity = Traits.rarity(rolled)
+	if station ~= nil and rarity ~= nil and station:IsDescendantOf(Workspace) then
+		station:SetAttribute(Traits.ROLL_BY_ATTRIBUTE, player.UserId)
+		station:SetAttribute(Traits.ROLL_RARITY_ATTRIBUTE, rarity.id)
+		station:SetAttribute(Traits.ROLL_AT_ATTRIBUTE, Workspace:GetServerTimeNow())
 	end
 end
 

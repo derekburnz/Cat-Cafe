@@ -163,7 +163,8 @@ function MysticPool.roll(
 	station: Model,
 	cat: (Model | string)?,
 	rarity: string,
-	onReveal: () -> ()
+	onReveal: () -> (),
+	lift: number? -- #3942: seconds the cat rises up the pillar after it pops out (a whole scene); nil or 0 none
 ): () -> ()
 	local old = playing[station]
 	if old ~= nil then
@@ -272,7 +273,9 @@ function MysticPool.roll(
 	local splashAt = dropAt + p.drop
 	local poolEnd = splashAt + Logic.poolSeconds(rarity)
 	local popEnd = poolEnd + p.popUp
-	local doneAt = popEnd + p.showCat
+	local liftSeconds = if lift ~= nil and lift > 0 then lift else 0
+	local liftEnd = popEnd + liftSeconds
+	local doneAt = liftEnd + p.showCat
 	local began = os.clock()
 	local lastStep = 0
 	local sparkled, splashed, popped = false, false, false
@@ -366,8 +369,15 @@ function MysticPool.roll(
 			placeCat(under:Lerp(surface + Vector3.new(0, p.popHeight, 0), k), 0)
 			return
 		end
+		local floatAt = if liftSeconds > 0 then p.liftHeight else p.popHeight
+		if t < liftEnd then -- #3942: up the pillar, turning as it goes
+			local k = ease((t - popEnd) / liftSeconds)
+			local height = p.popHeight + (p.liftHeight - p.popHeight) * k
+			placeCat(surface + Vector3.new(0, height, 0), k * p.liftTurns * math.pi * 2)
+			return
+		end
 		if t < doneAt then
-			placeCat(surface + Vector3.new(0, p.popHeight + 0.15 * math.sin(t * 4), 0), 0)
+			placeCat(surface + Vector3.new(0, floatAt + 0.15 * math.sin(t * 4), 0), 0)
 			return
 		end
 		stop()

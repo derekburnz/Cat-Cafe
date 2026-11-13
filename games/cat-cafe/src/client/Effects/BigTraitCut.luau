@@ -71,6 +71,16 @@ function BigTraitCut.wanted(rarity: string): boolean
 	return Logic.bigTraitRoll(rarity)
 end
 
+-- #3942: seconds the rolled cat rises up the pillar in a Mythic or Secret roll's whole scene (for MysticPool.roll),
+-- 0 for any other rarity or with Reduce Motion.
+function BigTraitCut.liftFor(rarity: string): number
+	local scene = Logic.bigTraitScene(rarity)
+	if scene == nil or Context.reducedMotion() then
+		return 0
+	end
+	return scene.lift
+end
+
 -- Whether the camera is held by the cutscene now.
 function BigTraitCut.playing(): boolean
 	return running

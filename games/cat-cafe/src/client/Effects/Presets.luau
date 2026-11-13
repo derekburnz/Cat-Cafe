@@ -4916,6 +4916,10 @@ Presets.mysticPool = {
 	popUp = 0.45, -- seconds it pops back out
 	popHeight = 3, -- studs over the liquid it pops to
 	showCat = 1.6, -- seconds it floats there over the card before fading
+	-- #3942: in a Mythic or Secret roll's whole scene the cat then rises up the pillar to `liftHeight` studs, turning
+	-- `liftTurns` times as it goes, over the scene's `lift` seconds (Presets.bigTrait.scenes), and floats there
+	liftHeight = 9,
+	liftTurns = 2,
 	fadeBack = 1.5, -- seconds the liquid takes to go back to its rest colour
 	startFront = 1.2, -- studs in front of the pool's middle the cat starts, on the liquid's surface
 	sparkles = 14, -- the float's sparkle burst
@@ -5079,6 +5083,7 @@ Presets.bigTrait = {
 			orbitSeconds = 6,
 			spiral = 8,
 			spiralSeconds = 1.6,
+			lift = 1.6,
 			constellation = false,
 		},
 		secret = {
@@ -5090,6 +5095,7 @@ Presets.bigTrait = {
 			orbitSeconds = 7.5,
 			spiral = 12,
 			spiralSeconds = 2,
+			lift = 2.2,
 			constellation = true,
 		},
 	},

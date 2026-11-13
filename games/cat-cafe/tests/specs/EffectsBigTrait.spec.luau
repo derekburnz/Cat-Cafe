@@ -93,6 +93,8 @@ return function()
 				expect(m ~= nil and x ~= nil).to.equal(true)
 				expect(x.orbit > m.orbit and x.dim > m.dim and x.spiral > m.spiral).to.equal(true)
 				expect(m.constellation).to.equal(false)
+				-- the cat rises up the pillar a little longer for a Secret, and nothing rises for a Legendary
+				expect(x.lift > m.lift and m.lift > 0).to.equal(true)
 				expect(x.constellation).to.equal(true)
 				for _, scene in { m, x } :: { any } do
 					-- bars never take more than a quarter of the screen, the world never goes near black

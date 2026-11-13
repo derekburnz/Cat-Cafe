@@ -3721,6 +3721,7 @@ export type BigTraitScene = {
 	orbitSeconds: number,
 	spiral: number,
 	spiralSeconds: number,
+	lift: number,
 	constellation: boolean,
 }
 

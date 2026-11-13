@@ -310,6 +310,10 @@ return function()
 			expect(list[1].id).to.equal(11)
 			expect(list[1].label).to.equal("20 Tokens · R$99")
 			expect(list[2].label).to.equal("50 Tokens · R$199")
+			-- #3948: the picture cards' words
+			expect(list[1].tokens).to.equal(20)
+			expect(list[1].price).to.equal("R$99")
+			expect(list[2].rolls).to.equal("50 rolls")
 		end)
 		it(
 			"offers nothing while free rolls are left, a choice waits, or it was seen this session",

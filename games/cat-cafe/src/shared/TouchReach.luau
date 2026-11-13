@@ -4,11 +4,12 @@
 -- on a touch screen the client shows the glow and the Net button from SHARE times the swing's reach, and a press
 -- there walks the character the last steps and swings once the stray is truly in reach. Pure rules, no instances:
 -- Controllers/NetSwingController drives them, behind the live switch `touchCatchReach` (off by default).
---   FLAG, SHARE, WALK_SECONDS, TELEMETRY
+--   FLAG, SHARE, WALK_SECONDS, FOLLOW_SECONDS, TELEMETRY
 --   reach(extra?)                     how far the touch glow and button reach, in studs
 --   pick(origin, targets, extra?)     the nearest target inside that reach, or nil
 --   walking(elapsed, canSwing)        whether a walk goes on
 
+local Config = require(script.Parent.Config)
 local NetSwing = require(script.Parent.NetSwing)
 
 local TouchReach = {}
@@ -16,6 +17,9 @@ local TouchReach = {}
 TouchReach.FLAG = "touchCatchReach"
 TouchReach.SHARE = 1.5 -- of NetSwing.reach
 TouchReach.WALK_SECONDS = 2.5 -- a walk that has not reached the stray by now ends without a swing
+-- #4041: after the walk's swing the character keeps walking at the stray this long, so the root is where
+-- NetSwing.landingOrigin said it would be when the net lands (stopping at the press left it short and missed)
+TouchReach.FOLLOW_SECONDS = Config.NetSmackDelay + 0.15
 TouchReach.TELEMETRY = "catch_reach" -- TelemetryReport name; values "near" and "shown"
 TouchReach.NEAR_STUDS = 20 -- "near": this close to any free stray, on any device
 

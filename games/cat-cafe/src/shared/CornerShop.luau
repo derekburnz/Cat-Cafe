@@ -28,7 +28,7 @@ local DAY = 86400
 
 -- #1281: a bait food can't be bought past this many held (section 1b's LureMax). A stack already above it (from
 -- prizes) stays; it just can't grow by buying.
-CornerShop.LURE_MAX = 99
+CornerShop.LURE_MAX = 999 -- #4024 (Derek 2026-11-13): was 99
 
 -- The most of a row a window can stock (day-cart.md section 2: 1, 2 or 3).
 CornerShop.MOST = #Config.DayCartQtyOdds

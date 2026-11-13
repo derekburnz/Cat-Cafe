@@ -49,6 +49,13 @@ return function()
 			expect(TouchReach.near(ORIGIN, { at("a", TouchReach.NEAR_STUDS + 1) })).to.equal(false)
 		end)
 
+		it("walks on past the swing until the net has landed (#4041)", function()
+			local Config =
+				require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").Config)
+			expect(TouchReach.FOLLOW_SECONDS > Config.NetSmackDelay).to.equal(true)
+			expect(TouchReach.FOLLOW_SECONDS < 1).to.equal(true)
+		end)
+
 		it("ends a walk after WALK_SECONDS or when a swing cannot go", function()
 			expect(TouchReach.walking(0, true)).to.equal(true)
 			expect(TouchReach.walking(TouchReach.WALK_SECONDS - 0.1, true)).to.equal(true)

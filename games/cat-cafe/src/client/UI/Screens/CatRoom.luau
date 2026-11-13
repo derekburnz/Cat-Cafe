@@ -63,6 +63,7 @@ local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tr
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
+local INK = MenuFamily.card -- #3961: what sits on a cream picture card (batch 4 mock)
 
 export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
@@ -112,6 +113,7 @@ local FEED_TILE = 40
 local FEED_H = 54 -- the square and its "+40" strip
 local TRAIT_TITLE_H = 18 -- #3717: the trait's name
 local FEED_GAP = 8
+local FEED_CLEAR = 6 -- #3989: the "+600" strips keep this far above the actions row
 local FEED_HOLD = 0.4 -- seconds a finger stays down before a held tile starts feeding again
 local FEED_REPEAT = 0.3 -- seconds between feeds while held (FeedCat allows 4 a second)
 
@@ -256,7 +258,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._autoTaps = {} -- #2076: the pressed value, held as Settings holds a tap (SettingsList.shown)
 	local setAuto = callbacks.setAutoEquip
 	if setAuto ~= nil and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
-		self._crew.Size = UDim2.new(1, -(ACTION_W + 12), 1, 0)
+		self._crew.Size = UDim2.new(1, -(ACTION_W + 20), 1, 0) -- #3989: a clear gap before the switch
 		self._auto = Button.new({
 			name = "AutoEquip",
 			text = "Auto Equip: Off",
@@ -421,6 +423,13 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		self._connections,
 		grid:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
 			self:_loadPortraits()
+		end)
+	)
+	-- #3961: the cards stretch to fill the grid's width, so no empty strip is left at its right
+	table.insert(
+		self._connections,
+		grid:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_fitGrid()
 		end)
 	)
 	self._empty = text({
@@ -919,7 +928,8 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		Name = instance.uid,
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundColor3 = PAL.card,
+		-- #3961 (batch 4 mock, "My Cats"): a cream picture card with ink words, as every family window's cards
+		BackgroundColor3 = INK.card,
 		BorderSizePixel = 0,
 		Parent = self._grid,
 	}, {
@@ -927,7 +937,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		-- the rarity colour washes up from the bottom, like the inventory cards in Pet Simulator 99
 		Create("UIGradient", {
 			Rotation = 90,
-			Color = ColorSequence.new(PAL.card, PAL.card:Lerp(Theme.rarityColor(rarity), 0.45)),
+			Color = ColorSequence.new(INK.card, INK.card:Lerp(Theme.rarityColor(rarity), 0.3)),
 		}),
 	})
 	-- a gold cat's card has a thicker gold edge, a rainbow cat's a slowly turning rainbow one (F99); the picked card
@@ -985,6 +995,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		Size = UDim2.new(1, -8, 0, 18),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
+		TextColor3 = INK.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		ZIndex = 2,
 		Parent = button,
@@ -997,7 +1008,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		Size = UDim2.new(1, -8, 0, 16),
 		FontFace = Theme.fonts.display,
 		TextScaled = true,
-		TextColor3 = PAL.good,
+		TextColor3 = Theme.colors.goodDark,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		ZIndex = 2,
 		Parent = button,
@@ -1049,6 +1060,22 @@ function CatRoom._rateOf(self: any, instance: Types.CatInstance): (number, boole
 end
 
 -- The phone layout or the wide one, from the room the window has (design px, Scale.get()).
+-- #3961: as many CARD-wide columns as fit, each widened to share the leftover room (the outline padding stays).
+-- The window's own scale is read off the search box (SEARCH_W design px), since a window can be drawn smaller than
+-- Scale.get() when it fits a small screen.
+function CatRoom._fitGrid(self: any)
+	local grid: ScrollingFrame = self._grid
+	local layout = grid:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout?
+	local search: TextBox = self._search
+	local scale = search.AbsoluteSize.X / SEARCH_W
+	if layout == nil or scale <= 0 or grid.AbsoluteSize.X <= 0 then
+		return
+	end
+	local width = grid.AbsoluteSize.X / scale - Outline.ROOM - 8 -- inside Outline.listPadding(8)
+	local columns = math.max(1, math.floor((width + GAP) / (CARD.X + GAP)))
+	layout.CellSize = UDim2.new(1 / columns, -math.ceil(GAP * (columns - 1) / columns), 0, CARD.Y)
+end
+
 function CatRoom._layout(self: any)
 	local scale = Scale.get()
 	local height = self.frame.AbsoluteSize.Y / (if scale > 0 then scale else 1)
@@ -1497,6 +1524,27 @@ function CatRoom._placeFeed(self: any)
 		)
 		else BUFFS_H
 	local top: number = self._favTop + used + 6
+	-- #3982 (Review-QA, a 667 x 375 window with a mouse): where the open food row would run under the actions row,
+	-- it takes the buff chips' place while it shows (they come back when Feed closes), and failing that it sits right
+	-- on top of the actions row
+	local body = self._feedRow.Parent :: GuiObject
+	local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
+	local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
+	local squeezed = self._feedRow.Visible and bodyH > 0 and top + FEED_H + FEED_CLEAR > actionsTop
+	local rateCovered = false
+	if squeezed then
+		top = math.max(0, math.min(self._favTop, actionsTop - FEED_H - FEED_CLEAR))
+		-- _renderDetail shows them again on the next refresh (closing Feed is one)
+		self._detailBuffs.Visible = false
+		self._detailInfo.Visible = false
+		-- #3989 (Review-QA, Studio 667 x 375 with a mouse): pushed up that far, the tiles take the rate line's place
+		-- too, rather than draw over "+$1.5/s · Barista 1"
+		rateCovered = top < self._favTop - 2
+	end
+	self._detailRate.Visible = not rateCovered
+	if rateCovered then
+		self._detailKeep.Visible = false
+	end
 	self._feedRow.Position = UDim2.fromOffset(10, top)
 	local descTop = top + (if self._feedRow.Visible then FEED_H + 6 else 0)
 	-- #3717: the trait row, then the description under it
@@ -1522,6 +1570,9 @@ function CatRoom._placeFeed(self: any)
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
 	local descBottom = self._descBottom + (descTop - self._descTop)
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
+	-- #3989 (Review-QA, Studio 667 x 375): with the food row pushed up there is no room left for the description, so
+	-- it hides while Feed is open instead of drawing faintly between the tiles and the buttons
+	self._detailDesc.Visible = not squeezed
 end
 
 -- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's

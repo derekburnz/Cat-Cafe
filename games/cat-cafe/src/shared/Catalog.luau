@@ -2811,11 +2811,11 @@ local ACHIEVEMENT_LINES: { [string]: AchievementLine } = {
 		M = { crates = { alley_crate = 1 } },
 		L = { crates = { alley_golden_crate = 1 } },
 	},
-	-- the design's 1 and 3 Trait Tokens, paid as the golden fish they cost (Traits.COST_FISH 10 a roll) until a
-	-- prize can carry tokens
+	-- the design's 1 and 3 Trait Tokens, paid as the golden fish they cost (Traits.COST_FISH 20 a roll since #4006)
+	-- until a prize can carry tokens
 	traitRolls = {
-		M = { fish = 10 },
-		L = { fish = 30 },
+		M = { fish = 20 },
+		L = { fish = 60 },
 	},
 	dashRuns = {
 		M = { spins = 2 },

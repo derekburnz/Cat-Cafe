@@ -51,6 +51,12 @@ local CARD = Vector2.new(150, 132)
 local GAP = Theme.sizes.gap + 4
 local ICON = 52
 local BIG_ICON = 46 -- the pictures on a big gift's card
+-- #3961 (phone first): on a short screen (a phone held sideways) the cards are slimmer so two full rows show
+-- under the strip, where the second row was cut to its top line
+local SHORT_CARD_H = 86
+local SHORT_ICON = 28
+local SHORT_BIG_ICON = 28
+local SHORT_GAP = 8
 local BIG_FILL = CREAM.goldCard
 local STRIP_HEIGHT = 52
 -- A pressed Claim reads "Claiming" until TipJarState answers, or this long, then it can be pressed again. The
@@ -237,6 +243,13 @@ function TipJar._build(self: any)
 	end
 	table.clear(self._cards)
 	local catalog: Types.Catalog? = self._catalog
+	local short = Scale.isShort()
+	local cardH = if short then SHORT_CARD_H else CARD.Y
+	local gap = if short then SHORT_GAP else GAP
+	local layout = self._grid:FindFirstChildOfClass("UIListLayout")
+	if layout ~= nil then
+		layout.Padding = UDim.new(0, gap)
+	end
 	for _, row: TipJarLogic.Row in self._rows do
 		local prize = TipJarLogic.prize(row)
 		local size = TipJarLogic.size(prize)
@@ -255,9 +268,9 @@ function TipJar._build(self: any)
 			Name = "Gift" .. row.step,
 			BackgroundTransparency = 1,
 			Size = if size == "full"
-				then UDim2.new(1, 0, 0, CARD.Y + GAP)
-				elseif big then UDim2.fromOffset(CARD.X * 2 + GAP, CARD.Y + GAP)
-				else UDim2.fromOffset(CARD.X, CARD.Y + GAP),
+				then UDim2.new(1, 0, 0, cardH + gap)
+				elseif big then UDim2.fromOffset(CARD.X * 2 + gap, cardH + gap)
+				else UDim2.fromOffset(CARD.X, cardH + gap),
 			LayoutOrder = row.step,
 			Parent = self._grid,
 		})
@@ -265,7 +278,7 @@ function TipJar._build(self: any)
 			Name = "Card",
 			BackgroundColor3 = if big then BIG_FILL else CREAM.card,
 			BorderSizePixel = 0,
-			Size = UDim2.new(1, 0, 0, CARD.Y),
+			Size = UDim2.new(1, 0, 0, cardH),
 			Parent = cell,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
@@ -278,8 +291,8 @@ function TipJar._build(self: any)
 		local minutes = ("%d min"):format(row.minutes)
 		local when = text({
 			Name = "When",
-			Position = UDim2.fromOffset(6, 4),
-			Size = UDim2.new(1, -12, 0, 18),
+			Position = UDim2.fromOffset(6, if short then 2 else 4),
+			Size = UDim2.new(1, -12, 0, if short then 16 else 18),
 			FontFace = if big then Theme.fonts.display else Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = if big then CREAM.gold else CREAM.subtext,
@@ -296,10 +309,12 @@ function TipJar._build(self: any)
 		local chips = PrizeChips.new({
 			textColor = CREAM.text, -- light words on the dark window (#1028)
 			parent = frame,
-			tile = if big then BIG_ICON else ICON,
+			tile = if short
+				then (if big then SHORT_BIG_ICON else SHORT_ICON)
+				else (if big then BIG_ICON else ICON),
 			textSize = Theme.sizes.textBody,
 			name = "Prize",
-			position = UDim2.new(0.5, 0, 0, 24),
+			position = UDim2.new(0.5, 0, 0, if short then 19 else 24),
 			anchorPoint = Vector2.new(0.5, 0),
 			fitTo = frame,
 			fitPad = 12,
@@ -345,7 +360,7 @@ function TipJar._build(self: any)
 			style = "primary",
 			size = UDim2.new(1, -16, 0, 36), -- 36: the gate's mouse tap height
 			anchorPoint = Vector2.new(0.5, 1),
-			position = UDim2.new(0.5, 0, 1, -6),
+			position = UDim2.new(0.5, 0, 1, if short then -4 else -6),
 			textSize = Theme.sizes.textBody + 1,
 			parent = frame,
 			onClick = function()

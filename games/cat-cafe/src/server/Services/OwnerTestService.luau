@@ -31,6 +31,7 @@ local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local ProductService = require(script.Parent.ProductService)
 local Products = require(ReplicatedStorage.Shared.Products)
+local QuietStartService = require(script.Parent.QuietStartService)
 
 local OwnerTestService = {}
 
@@ -197,7 +198,7 @@ function OwnerTestService.shoutCommand(userId: number, text: string): string?
 	end
 	local shown = passed :: string
 	print(`[OwnerTest] {userId} /shout sent ({#shown} bytes)`)
-	Net.fireAll("OwnerShout", shown)
+	QuietStartService.fireAll(nil, "OwnerShout", shown) -- #4005: not over a new player's first minutes
 	tellServers(OwnerTest.shoutMessage(shown, game.JobId))
 	return if shown == body
 		then "Owner test mode: shout sent to all servers"
@@ -313,7 +314,7 @@ local function onServerMessage(message: any)
 	end
 	lastShown[kind] = now
 	if kind == "shout" and text ~= nil then
-		Net.fireAll("OwnerShout", text)
+		QuietStartService.fireAll(nil, "OwnerShout", text) -- #4005
 	elseif kind == "event" then
 		EventService.refresh()
 	end

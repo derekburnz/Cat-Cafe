@@ -96,15 +96,29 @@ local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the o
 -- the Roll row and the spaces between rows are a little shorter
 local SHORT_WORDS_H = 28
 local PENDING_SECONDS = 4
+local RETRY_SECONDS = 1.5 -- #3875: a tap on a grey choice after this sends it again
 local ROW_H = 68 -- #3700: three lines (name, rarity and level, trait)
 local PICKER_TALL = 680 -- #3700: the card grows to at most this while the cat list shows, so about six rows fit
 local SCREEN_ROOM = 16 -- px kept clear above and below the grown card
-local SORT_W = 86
-local TOOL_PAD = 5
+local SORT_W = 80 -- #3874: "Rarity ▼" fits
+local BACK_W = 64
+local FILTER_W = 72
+local TOOL_PAD = 2 -- room for the outlines inside the row's own edge
+local TOOL_GAP = 4
+local MENU_PAD = 8
+local MENU_GAP = 6
+local MENU_WORD_W = 46
+local CHIP_W = 80
+local WIDE_CHIP_W = 92 -- "No trait", "Has trait"
+local SEARCH_HINT = "🔍 Search"
+-- #3874: on a short screen a row has two lines (name and trait on top, the tags under) and a slimmer Pick, so about
+-- twice as many cats show at once
+local SHORT_ROW_H = 54
+local SHORT_FACE = 36
+local SHORT_PICK_W = 72
+local SHORT_PICK_H = 38 -- drawn; on a touch screen its pad still reaches a finger's 44 px (Button's Hit)
 local FACE = 44
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin)
-local CHIP_W = 78
-local WIDE_CHIP_W = 96 -- "No trait", "Has trait"
 local FIRST_ROWS = 12
 local ROWS_PER_FRAME = 20
 local FACES_PER_PASS = 15
@@ -255,6 +269,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._fish = 0
 	self._uid = nil :: string? -- the picked cat
 	self._pending = false
+	self._pendingAt = 0
 	self._pendingToken = 0
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
 	self._rolling = nil :: { uid: string, hadTrait: boolean }? -- a Roll waiting for its answer
@@ -279,6 +294,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	-- the card is kept short (the smallest phone has about 320 px under Roblox's top bar): the cat and its trait,
 	-- one row of buttons, three lines of words and the token row
 	local short = Scale.isShort()
+	self._short = short
 	local wordsH = if short then SHORT_WORDS_H else WORDS_H
 	local rowH = if short then buttonH else buttonH + 4 -- the Roll row; short: no extra 4 px
 	local space = if short then 2 else 4 -- between the rows
@@ -444,44 +460,70 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		end,
 	})
 
-	-- the cat list behind Pick a cat (#3700, cat-picker.md): the search and Back on one row, then one row of chips
-	-- that scrolls sideways (Sort, then Show, then how many cats show), then the list
+	-- the cat list behind Pick a cat (#3700, cat-picker.md). #3874 (Derek 2026-11-13: "make that just one small row on
+	-- the top so I can see more cats", then "make it a search bar and a filter menu that they can pop up and close with
+	-- an X. Make the default sort by money"): one row on top, a small search box, Filter and Back; Filter pops up the
+	-- Sort and Show chips over the list with an X, and the list starts right under the row. The count is in the search
+	-- box's hint
 	local picker = sheet("Picker", content, 5)
 	self._picker = picker
+	local tools: Frame = Create("Frame", {
+		Name = "Tools",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, TOOL_H),
+		ZIndex = 6,
+		Parent = picker,
+	})
 	self._back = Button.new({
 		name = "Back",
 		text = "Back",
 		style = "ghost",
-		size = UDim2.fromOffset(96, TOOL_H),
+		size = UDim2.fromOffset(BACK_W, TOOL_H),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, 0),
+		position = UDim2.new(1, -TOOL_PAD, 0, 0),
 		textSize = Theme.sizes.textSmall,
-		parent = picker,
+		parent = tools,
 		zIndex = 6,
 		onClick = function()
 			self:_showPicker(false)
 		end,
 	})
+	self._filterButton = Button.new({
+		name = "Filter",
+		text = "Filter",
+		style = "ghost",
+		size = UDim2.fromOffset(FILTER_W, TOOL_H),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -(TOOL_PAD + BACK_W + TOOL_GAP), 0, 0),
+		textSize = Theme.sizes.textSmall,
+		parent = tools,
+		zIndex = 6,
+		sound = "uiTab",
+		onClick = function()
+			self:_showMenu(not self._menu.Visible)
+		end,
+	})
+	local searchRight = TOOL_PAD + BACK_W + TOOL_GAP + FILTER_W + TOOL_GAP
 	local search: TextBox = Create("TextBox", {
 		Name = "Search",
 		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(1, 0),
-		Size = UDim2.new(1, -(96 + 8), 0, TOOL_H),
+		Size = UDim2.new(1, -(searchRight + 1), 0, TOOL_H),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.body,
-		TextSize = Theme.sizes.textSmall + 1,
+		TextSize = Theme.sizes.textSmall,
 		TextColor3 = CARD.text,
 		PlaceholderColor3 = CARD.subtext,
-		PlaceholderText = "🔍 Pick a cat for a trait",
+		PlaceholderText = SEARCH_HINT,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
 		ZIndex = 6,
-		Parent = picker,
+		Parent = tools,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 6) }),
 	})
 	Outline.border(search, Theme.sizes.stroke, CARD.cardStroke)
 	self._search = search
@@ -495,87 +537,104 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			end
 		end)
 	end)
-	local toolTop = TOOL_H + 4
-	local tools: ScrollingFrame = Create("ScrollingFrame", {
-		Name = "Tools",
-		BackgroundTransparency = 1,
+	local listTop = TOOL_H + 6
+
+	-- the Filter pop-up: Sort (Money, Level, Rarity) with the X at the right, then Show on two rows; a chip works at
+	-- once and the pop-up stays until the X or Filter
+	local menuRows = 3
+	local menuH = menuRows * TOOL_H + (menuRows - 1) * MENU_GAP + MENU_PAD * 2
+	local menu: Frame = Create("Frame", {
+		Name = "FilterMenu",
+		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, toolTop),
-		Size = UDim2.new(1, 0, 0, TOOL_H + TOOL_PAD * 2 + 4),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = PAL.caramel,
-		ScrollingDirection = Enum.ScrollingDirection.X,
-		ZIndex = 6,
-		Parent = picker,
+		Position = UDim2.fromOffset(0, listTop),
+		Size = UDim2.new(1, 0, 0, menuH),
+		Active = true, -- taps on it never reach the rows under it
+		Visible = false,
+		ZIndex = 20,
 	}, {
-		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 6),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-		-- room for the chips' outlines inside the row's own edge
-		Create("UIPadding", {
-			PaddingLeft = UDim.new(0, TOOL_PAD),
-			PaddingRight = UDim.new(0, TOOL_PAD),
-			PaddingTop = UDim.new(0, TOOL_PAD),
-		}),
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIStroke", { Color = PAL.caramel, Thickness = 2 }),
 	})
-	local order = 0
-	local function word(name: string, words: string, width: number): TextLabel
-		order += 1
-		return text({
-			Name = name,
-			LayoutOrder = order,
-			Size = UDim2.fromOffset(width, TOOL_H),
+	self._menu = menu
+	local function menuWord(words: string, row: number)
+		text({
+			Name = words .. "Word",
+			Position = UDim2.fromOffset(MENU_PAD, MENU_PAD + (row - 1) * (TOOL_H + MENU_GAP)),
+			Size = UDim2.fromOffset(MENU_WORD_W, TOOL_H),
+			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
-			Text = words,
-			ZIndex = 6,
-			Parent = tools,
+			TextColor3 = PAL.text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = if words == "" then "" else words,
+			ZIndex = 21,
+			Parent = menu,
 		})
 	end
-	word("SortWord", "Sort", 34)
-	self._sorts = {} :: { [string]: Button.Button }
-	for _, sort in CatPickLogic.SORTS do
-		order += 1
-		self._sorts[sort] = Button.new({
-			name = "Sort" .. sort,
-			text = sort,
+	local function chip(
+		name: string,
+		words: string,
+		row: number,
+		x: number,
+		width: number,
+		onClick: () -> ()
+	): Button.Button
+		return Button.new({
+			name = name,
+			text = words,
 			style = "ghost",
-			size = UDim2.fromOffset(SORT_W, TOOL_H),
-			layoutOrder = order,
+			size = UDim2.fromOffset(width, TOOL_H),
+			position = UDim2.fromOffset(x, MENU_PAD + (row - 1) * (TOOL_H + MENU_GAP)),
 			textSize = Theme.sizes.textSmall,
-			parent = tools,
-			zIndex = 6,
+			parent = menu,
+			zIndex = 21,
 			sound = "uiTab",
-			onClick = function()
-				self:_setSort(sort)
-			end,
+			onClick = onClick,
 		})
 	end
-	word("ShowWord", "Show", 40)
+	menuWord("Sort", 1)
+	self._sorts = {} :: { [string]: Button.Button }
+	local x = MENU_PAD + MENU_WORD_W
+	for _, sort in CatPickLogic.MENU_SORTS do
+		self._sorts[sort] = chip("Sort" .. sort, sort, 1, x, SORT_W, function()
+			self:_setSort(sort)
+		end)
+		x += SORT_W + TOOL_GAP
+	end
+	self._menuClose = Button.new({
+		name = "Close",
+		text = "X",
+		style = "danger",
+		size = UDim2.fromOffset(TOOL_H, TOOL_H),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -MENU_PAD, 0, MENU_PAD),
+		textSize = Theme.sizes.textBody,
+		parent = menu,
+		zIndex = 21,
+		onClick = function()
+			self:_showMenu(false)
+		end,
+	})
+	menuWord("Show", 2)
 	self._chips = {} :: { [string]: Button.Button }
-	for _, filter in CatPickLogic.FILTERS do
-		order += 1
-		self._chips[filter] = Button.new({
-			name = (string.gsub(filter, " ", "")),
-			text = filter,
-			style = if filter == "All" then "gold" else "ghost",
-			size = UDim2.fromOffset(if #filter > 7 then WIDE_CHIP_W else CHIP_W, TOOL_H),
-			layoutOrder = order,
-			textSize = Theme.sizes.textSmall,
-			parent = tools,
-			zIndex = 6,
-			sound = "uiTab",
-			onClick = function()
+	local row, at = 2, MENU_PAD + MENU_WORD_W
+	for index, filter in CatPickLogic.MENU_FILTERS do
+		if index == 4 then
+			row, at = 3, MENU_PAD + MENU_WORD_W
+		end
+		local width = if #filter > 7 then WIDE_CHIP_W else CHIP_W
+		self._chips[filter] = chip(
+			(string.gsub(filter, " ", "")),
+			filter,
+			row,
+			at,
+			width,
+			function()
 				self:_setFilter(filter)
-			end,
-		})
+			end
+		)
+		at += width + TOOL_GAP
 	end
-	self._count = word("Count", "", 96)
-	local listTop = toolTop + TOOL_H + TOOL_PAD * 2 + 4 + 4
 	self._list = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundTransparency = 1,
@@ -613,6 +672,9 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = picker,
 	})
 
+	-- #3874: the Filter pop-up goes in after the list, so it draws over the rows
+	menu.Parent = picker
+
 	-- a re-roll's choice: the old trait and the new one side by side
 	local choice = sheet("Choice", content, 8)
 	self._choice = choice
@@ -642,6 +704,17 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			end)
 		end
 	end
+	-- #3875: a tap on a grey Keep old or Take new once the wait is RETRY_SECONDS old sends the choice again (the
+	-- server ignores a choice with nothing waiting)
+	local function retry(takeNew: boolean): () -> ()
+		return function()
+			if self._pending and os.clock() - (self._pendingAt or 0) >= RETRY_SECONDS then
+				self._pending = false
+				self._pendingToken += 1
+				choose(takeNew)()
+			end
+		end
+	end
 	-- the same style on both, so neither answer is pushed (spec section 1a, a young audience)
 	self._keepOld = Button.new({
 		name = "KeepOld",
@@ -653,6 +726,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		parent = choice,
 		zIndex = 9,
 		onClick = choose(false),
+		onLocked = retry(false),
 	})
 	self._takeNew = Button.new({
 		name = "TakeNew",
@@ -664,6 +738,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		parent = choice,
 		zIndex = 9,
 		onClick = choose(true),
+		onLocked = retry(true),
 	})
 	oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
 
@@ -885,6 +960,7 @@ function MysticPool._send(self: any, fire: () -> ())
 		return
 	end
 	self._pending = true
+	self._pendingAt = os.clock()
 	self._stamp = self:_stampNow()
 	self._pendingToken += 1
 	local token = self._pendingToken
@@ -1015,15 +1091,36 @@ function MysticPool._showPicker(self: any, show: boolean)
 	self._picker.Visible = show
 	self:_fit(show)
 	if not show then
+		self:_showMenu(false)
 		self:_clearRows()
 		return
 	end
 	self._search.Text = ""
 	self._query = ""
 	self._searchToken += 1
+	self._sort = CatPickLogic.menuSort(self._sort)
+	self:_showMenu(false)
 	self:_setFilter("All", true)
 	self:_paintSorts()
 	self:_buildRows()
+end
+
+-- #3874: the Filter pop-up opens over the list and closes with its X or Filter.
+function MysticPool._showMenu(self: any, show: boolean)
+	self._menu.Visible = show
+	self:_paintFilterButton()
+end
+
+-- Filter is gold while its pop-up is open or a Show chip other than All is on, so a hidden filter is never a mystery.
+function MysticPool._paintFilterButton(self: any)
+	local on = self._menu.Visible or self._filter ~= "All"
+	local words = if self._filter ~= "All" then "Filter •" else "Filter"
+	local button: Button.Button = self._filterButton
+	button:setStyle(if on then "gold" else "ghost")
+	if self._filterWords ~= words then
+		self._filterWords = words
+		button:setText(words)
+	end
 end
 
 function MysticPool._setFilter(self: any, filter: string, quiet: boolean?)
@@ -1031,6 +1128,7 @@ function MysticPool._setFilter(self: any, filter: string, quiet: boolean?)
 	for name, chip: Button.Button in self._chips do
 		chip:setStyle(if name == filter then "gold" else "ghost")
 	end
+	self:_paintFilterButton()
 	if not quiet then
 		self:_applyFilter()
 	end
@@ -1060,6 +1158,9 @@ function MysticPool._setSort(self: any, sort: string)
 end
 
 function MysticPool._row(self: any, order: number, cat: any): Row
+	local short: boolean = self._short
+	local face = if short then SHORT_FACE else FACE
+	local pickW = if short then SHORT_PICK_W else 100
 	local rarityName = CatPickLogic.rarity(cat)
 	local rarity = Theme.rarityColor(rarityName)
 	local frame: Frame = Create("Frame", {
@@ -1067,7 +1168,12 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
-		Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._buttonH + 8)),
+		Size = UDim2.new(
+			1,
+			0,
+			0,
+			if short then SHORT_ROW_H else math.max(ROW_H, self._buttonH + 8)
+		),
 		ZIndex = 6,
 		Parent = self._list,
 	}, {
@@ -1087,18 +1193,23 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 14, 0.5, 0),
-		Size = UDim2.fromOffset(FACE, FACE),
+		Size = UDim2.fromOffset(face, face),
 		ZIndex = 7,
 		Parent = frame,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIStroke", { Color = rarity, Thickness = 3 }),
 	})
-	local left = 14 + FACE + 10
+	local left = 14 + face + (if short then 8 else 10)
+	local right = pickW + 14 -- the Pick button and the space before it
+	-- short (#3874): the name takes the top line's left part and the trait its right part, the tags go under
+	local nameW = if short
+		then UDim2.new(0.55, -math.floor((left + right) * 0.55), 0, 20)
+		else UDim2.new(1, -(left + right), 0, 20)
 	text({
 		Name = "Name",
-		Position = UDim2.fromOffset(left, 4),
-		Size = UDim2.new(1, -(left + 114), 0, 20),
+		Position = UDim2.fromOffset(left, if short then 3 else 4),
+		Size = nameW,
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = CatPickLogic.title(cat),
@@ -1110,8 +1221,8 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		Name = "Facts",
 		BackgroundTransparency = 1,
 		ClipsDescendants = true,
-		Position = UDim2.fromOffset(left, 25),
-		Size = UDim2.new(1, -(left + 114), 0, 18),
+		Position = UDim2.fromOffset(left, if short then 26 else 25),
+		Size = UDim2.new(1, -(left + right), 0, 18),
 		ZIndex = 7,
 		Parent = frame,
 	}, {
@@ -1163,14 +1274,20 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 	local trait = MysticPoolLogic.card(cat.trait)
 	text({
 		Name = "Trait",
-		Position = UDim2.fromOffset(left, 45),
-		Size = UDim2.new(1, -(left + 114), 0, 18),
+		Position = if short
+			then UDim2.new(0.55, left - math.floor((left + right) * 0.55) + 6, 0, 4)
+			else UDim2.fromOffset(left, 45),
+		Size = if short
+			then UDim2.new(0.45, -(math.ceil((left + right) * 0.45) + 6), 0, 18)
+			else UDim2.new(1, -(left + right), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = if trait.has
 			then MenuFamily.onCard(Color3.fromHex(trait.color))
 			else CARD.subtext,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = if trait.has then "Trait: " .. trait.name else trait.name,
+		TextXAlignment = if short then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
+		Text = if trait.has
+			then (if short then trait.name else "Trait: " .. trait.name)
+			else trait.name,
 		ZIndex = 7,
 		Parent = frame,
 	})
@@ -1179,7 +1296,7 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		name = "Pick",
 		text = "Pick",
 		style = "primary",
-		size = UDim2.fromOffset(100, self._buttonH),
+		size = UDim2.fromOffset(pickW, if short then SHORT_PICK_H else self._buttonH),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -6, 0.5, 0),
 		textSize = Theme.sizes.textSmall + 1,
@@ -1241,10 +1358,13 @@ function MysticPool._applyFilter(self: any)
 	local built = #self._rows >= self._candidates
 	self._empty.Text = if none
 		then "You have no cats yet. Catch one first."
-		else "No cat matches. Try another name or Show: All."
+		else "No cat matches. Try another name, or Filter: All."
 	self._empty.Visible = none or (shown == 0 and built)
-	local count: TextLabel = self._count
-	count.Text = if none or not built then "" else CatPickLogic.count(shown)
+	-- #3874: the count sits in the search box's hint ("🔍 Search 42 cats")
+	local search: TextBox = self._search
+	search.PlaceholderText = if none or not built
+		then SEARCH_HINT
+		else SEARCH_HINT .. " " .. CatPickLogic.count(shown)
 	self:_queueFaces()
 end
 
@@ -1316,6 +1436,13 @@ function MysticPool._syncRows(self: any)
 end
 
 function MysticPool._paint(self: any)
+	-- #3875 (Derek 2026-11-13: "sometimes the buttons for traits get stuck on gray"): a wait older than
+	-- PENDING_SECONDS ends here too, by the clock, so a missed timer or a slow answer never leaves them grey
+	if self._pending and os.clock() - (self._pendingAt or 0) > PENDING_SECONDS then
+		self._pending = false
+		self._pendingToken += 1
+		self._rolling = nil
+	end
 	local view = self._view
 	local cat = self:_cat()
 	local resting: boolean = self._pending
@@ -1464,7 +1591,11 @@ function MysticPool.opened(self: any)
 					self._callbacks.close()
 					return
 				end
-				self:_paint()
+				-- #3875: protected, so one bad repaint never stops the ticks that wake the buttons
+				local ok, problem = pcall(self._paint, self)
+				if not ok then
+					warn("MysticPool paint: " .. tostring(problem))
+				end
 			end
 		end
 	end)
@@ -1488,12 +1619,14 @@ function MysticPool.destroy(self: any)
 	self._searchChanged:Disconnect()
 	self._scrolled:Disconnect()
 	self._skipPressed:Disconnect()
-	for _, chip: Button.Button in self._chips do
-		chip:destroy()
-	end
 	for _, chip: Button.Button in self._sorts do
 		chip:destroy()
 	end
+	for _, chip: Button.Button in self._chips do
+		chip:destroy()
+	end
+	self._filterButton:destroy()
+	self._menuClose:destroy()
 	self._portrait:destroy()
 	self._change:destroy()
 	self._roll:destroy()

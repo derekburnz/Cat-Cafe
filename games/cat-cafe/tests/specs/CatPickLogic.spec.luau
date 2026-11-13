@@ -48,19 +48,31 @@ return function()
 	}
 
 	describe("Cat pick list", function()
-		it("sorts by rarity first, and it is the default", function()
-			expect(Logic.DEFAULT_SORT).to.equal("Rarity")
+		it("sorts by rarity first", function()
 			expect(Logic.SORTS[1]).to.equal("Rarity")
 			-- Legendary (gold before plain), then Rare by level, then Common
-			expect(uids(Logic.sorted(cats))).to.equal("d,b,c,e,a")
 			expect(uids(Logic.sorted(cats, "Rarity"))).to.equal("d,b,c,e,a")
-			expect(uids(Logic.sorted(cats, "nonsense"))).to.equal("d,b,c,e,a")
+		end)
+
+		it("sorts by money by default (#3874)", function()
+			expect(Logic.DEFAULT_SORT).to.equal("Money")
+			expect(uids(Logic.sorted(cats))).to.equal("c,a,b,d,e")
+			expect(uids(Logic.sorted(cats, "nonsense"))).to.equal("c,a,b,d,e")
 		end)
 
 		it("sorts by level, money and name", function()
 			expect(uids(Logic.sorted(cats, "Level"))).to.equal("a,c,e,b,d")
 			expect(uids(Logic.sorted(cats, "Money"))).to.equal("c,a,b,d,e")
 			expect(uids(Logic.sorted(cats, "Name"))).to.equal("a,b,c,d,e")
+		end)
+
+		it("has Money, Level and Rarity in the Filter pop-up, and a Name sort falls back to Money (#3874)", function()
+			expect(table.concat(Logic.MENU_SORTS, ",")).to.equal("Money,Level,Rarity")
+			expect(table.concat(Logic.MENU_FILTERS, ",")).to.equal("All,Working,Resting,No trait,Has trait")
+			expect(Logic.menuSort("Rarity")).to.equal("Rarity")
+			expect(Logic.menuSort("Level")).to.equal("Level")
+			expect(Logic.menuSort("Name")).to.equal("Money")
+			expect(Logic.menuSort(nil)).to.equal("Money")
 		end)
 
 		it("turns each order round", function()

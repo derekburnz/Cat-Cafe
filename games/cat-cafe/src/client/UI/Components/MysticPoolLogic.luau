@@ -356,9 +356,9 @@ export type Bundle = {
 	rolls: string,
 }
 
--- #3948: the Trait Token picture's uploaded image (docs/growth/store-art/trait-tokens/trait-token-alpha.png) once it
--- has an asset id; nil draws the token in code
-MysticPoolLogic.TOKEN_IMAGE = nil :: string?
+-- #3948: the Trait Token picture's uploaded image (docs/growth/store-art/trait-tokens/trait-token-alpha.png, uploaded
+-- 2026-11-13 as an Image, not the Decal); nil would draw the token in code
+MysticPoolLogic.TOKEN_IMAGE = "rbxassetid://127573010759024" :: string?
 
 -- The bundles to offer now, or nil: `view` the card's numbers, `ids` Config.ProductIds, `seen` true once the offer
 -- has shown (or been declined) this session. Only made products (an id) are offered.

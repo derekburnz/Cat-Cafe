@@ -5006,8 +5006,60 @@ Presets.mysticIntro = {
 -- vfx/sound before the menu pops up"): a Legendary or Mythic roll at the pool. Seconds, studs and pixels. The camera
 -- spot is Presets.mysticIntro's (back, up, swings). Nothing blinks: the rays turn slowly and the title grows in once.
 Presets.bigTrait = {
-	rarities = { legendary = true, mythic = true }, -- shared/Traits.RARITIES ids that get the cutscene
-	titles = { legendary = "LEGENDARY TRAIT!", mythic = "MYTHIC TRAIT!" },
+	rarities = { legendary = true, mythic = true, secret = true }, -- shared/Traits.RARITIES ids that get the cutscene
+	titles = { legendary = "LEGENDARY TRAIT!", mythic = "MYTHIC TRAIT!", secret = "SECRET TRAIT!" },
+	-- #3908 (Derek 2026-11-13: "make secret and mythic trait rolls have crazy animations and vfx"): each rarity's
+	-- size of big moment. `big` and `screenSeconds` are seconds; `beams` light columns `beamHeight` studs high, in a
+	-- circle `beamSpread` studs wide; `rings` ground rings `ringGap` seconds apart; `stars` and `confetti` before
+	-- the device budget's cap; `rays` on the screen; `shake` studs (off with Screen shake or Reduce Motion); `dim`
+	-- how dark the screen goes behind the title (0 none). The other numbers below are the Legendary's and shared.
+	sizes = {
+		legendary = {
+			big = 2.2,
+			screenSeconds = 1.8,
+			beams = 1,
+			beamHeight = 22,
+			rings = 1,
+			stars = 24,
+			confetti = 40,
+			rays = 10,
+			shake = 0,
+			dim = 0,
+		},
+		mythic = {
+			big = 3.2,
+			screenSeconds = 2.4,
+			beams = 3,
+			beamHeight = 30,
+			rings = 2,
+			stars = 36,
+			confetti = 60,
+			rays = 14,
+			shake = 0.06,
+			dim = 0.2,
+		},
+		secret = {
+			big = 4.2,
+			screenSeconds = 3,
+			beams = 5,
+			beamHeight = 40,
+			rings = 3,
+			stars = 48,
+			confetti = 80,
+			rays = 18,
+			shake = 0.1,
+			dim = 0.45,
+		},
+	},
+	beamSpread = 5,
+	ringGap = 0.35,
+	-- the Secret rarity's look until shared/Traits gives it a colour: the Secret cats' starlight on a dark sky
+	secretColour = Color3.fromRGB(226, 214, 255),
+	secretColours = {
+		Color3.fromRGB(226, 214, 255),
+		Color3.fromRGB(120, 92, 200),
+		Color3.fromRGB(255, 255, 255),
+	},
 	swingIn = 0.9, -- the camera over to the pool as the roll starts
 	swingOut = 0.7, -- and back once the big moment is over
 	skipOut = 0.25, -- back after a skip

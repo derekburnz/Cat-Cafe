@@ -96,6 +96,41 @@ return function()
 		end)
 	end)
 
+	describe("LateStationsLogic.spaCardText (#3961)", function()
+		it("words each slot's picture card as the batch 3 mock", function()
+			local cats = { a = cat("a", first, 15) }
+			local at = NOW - 30 * 60
+			local spa = spaOf(1, {
+				{
+					slot = 1,
+					uid = "a",
+					catId = first,
+					doneAt = at + HOUR,
+					fullAt = at + HOUR * Config.SpaMaxHours,
+				},
+			})
+			local soon = LateStationsLogic.spaCardText(LateStationsLogic.spaRows(spa, cats, NOW)[1])
+			expect(soon.title).to.equal(nil)
+			expect(soon.sub).to.equal("Level 15, soaking")
+			expect(soon.foot).to.equal("First level in 30m")
+			expect(soon.chip).to.equal(nil)
+			local later = LateStationsLogic.spaCardText(
+				LateStationsLogic.spaRows(spa, cats, at + 3 * HOUR + 600)[1]
+			)
+			expect(later.chip).to.equal("+3 levels ready")
+			expect(later.foot).to.equal("Next level in 50m")
+			local full = LateStationsLogic.spaCardText(
+				LateStationsLogic.spaRows(spa, cats, at + 30 * HOUR)[1]
+			)
+			expect(full.foot).to.equal("Full, collect to soak again")
+			local rows = LateStationsLogic.spaRows(spaOf(1, {}), {}, NOW)
+			expect(LateStationsLogic.spaCardText(rows[1]).title).to.equal("Slot 1 is empty")
+			expect(LateStationsLogic.spaCardText(rows[1]).sub).to.equal("Room for a cat")
+			expect(LateStationsLogic.spaCardText(rows[2]).sub).to.equal("Open it to rest 2 cats")
+			expect(LateStationsLogic.spaCardText(rows[3]).sub).to.equal("Open slot 2 first")
+		end)
+	end)
+
 	describe("LateStationsLogic.spaReady and collectText", function()
 		it("sums the levels waiting over the finished slots", function()
 			local cats = { a = cat("a", first, 10), b = cat("b", second, 20) }

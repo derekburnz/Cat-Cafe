@@ -630,6 +630,9 @@ return function()
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
 				YardSaleRollHours = true, -- #3614: checked in YardPick.spec
 				YardSaleTable = true, -- #3614: a table, checked in YardPick.spec
+				SecretWanderSpeed = true, -- #3545: checked in SecretCats.spec
+				SecretWanderRadius = true, -- #3545: checked in SecretCats.spec
+				SecretWanderPauseScale = true, -- #3545: checked in SecretCats.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

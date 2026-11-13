@@ -268,6 +268,10 @@ return function()
 		EventMinSeconds = 300,
 		EventMaxSeconds = 7200,
 		EventMoneyMax = 2,
+		PetMoneyBoost = 2, -- #3651
+		PetSeconds = 3600,
+		PetCooldownSeconds = 3,
+		PetRangeStuds = 10,
 		EventLuckMax = 1.0,
 		EventShowerMax = 12,
 		EventShowerGapMinSeconds = 300,

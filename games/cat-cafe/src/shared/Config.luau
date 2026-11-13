@@ -410,6 +410,14 @@ local Config = {
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,
+	-- #3651 (shared/Pet, switch `petCats`; Derek 2026-11-12: "increase how much money they make by 2x ... make it 1
+	-- hour long", one cat at a time): the happy cat's own pay is times PetMoneyBoost for PetSeconds after a pet, in
+	-- online cafe pay only and never above EventMoneyMax together with the event money slot above. A pet is taken
+	-- from within PetRangeStuds of the cat, PetCooldownSeconds apart.
+	PetMoneyBoost = 2,
+	PetSeconds = 3600,
+	PetCooldownSeconds = 3,
+	PetRangeStuds = 10,
 	-- #3573: resting in your own cafe (shared/AfkCafe). No input and no movement for AfkCafeSeconds in the cafe or on
 	-- its doorstep doubles the cats' cafe pay, in the event money slot above (so never more than EventMoneyMax).
 	AfkCafeSeconds = 120,

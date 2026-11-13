@@ -10,6 +10,7 @@ local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
 local Lawn = require(script.Parent.Lawn)
 local Pals = require(script.Parent.Pals)
+local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
 local StationPerks = require(script.Parent.StationPerks)
 local Types = require(script.Parent.Types)
@@ -458,6 +459,35 @@ function Economy.isResting(profile: Types.PlayerProfile): boolean
 	return resting[profile] == true
 end
 
+-- #3651 (shared/Pet): whether the `petCats` switch is on in this server; PetService keeps it. Off, a saved heart
+-- pays nothing and is left to run out.
+local petOn = false
+
+function Economy.setPetOn(on: boolean)
+	petOn = on
+end
+
+-- #3651: the happy cat's extra pay a second at money 1, before Pet.gain: its own share of incomePerSecond (its
+-- catRate over every working cat's). 0 with no heart running at `at`, or with the switch off.
+function Economy.petRate(profile: Types.PlayerProfile, at: number): number
+	if not petOn then
+		return 0
+	end
+	local uid = Pet.active(profile.pet, profile.cats, at)
+	local cat = if uid ~= nil then profile.cats[uid] else nil
+	if cat == nil then
+		return 0
+	end
+	local total = 0
+	for _, instance in profile.cats do
+		total += Economy.catRate(instance, profile.tier)
+	end
+	if total <= 0 then
+		return 0
+	end
+	return Economy.incomePerSecond(profile) * Economy.catRate(cat, profile.tier) / total
+end
+
 -- The money multiplier on this profile's cafe pay right now: the event's, or the rest's when larger.
 function Economy.moneyFor(profile: Types.PlayerProfile): number
 	if resting[profile] ~= true then
@@ -493,6 +523,19 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 		profile.lifetimeCoins += earned
 		-- the event's own share of it (the rest's 2x is not the event's doing)
 		Economy.noteEventExtra(profile, earned * eventMoney / money, eventMoney)
+		-- #3651: the happy cat's own pay again for the part of the window its heart ran, never above the event
+		-- money cap with the slot (Pet.gain); after the event's share is noted, as it is not the event's doing
+		local petCoins = Economy.petRate(profile, profile.lastTick)
+			* Pet.gain(money)
+			* base -- the paid seconds without the tip bonus: tips are unchanged
+			* Pet.seconds(profile.pet, profile.lastTick, elapsed)
+			/ elapsed
+		if petCoins > 0 then
+			earned += petCoins
+			profile.coins += petCoins
+			profile.lifetimeCoins += petCoins
+		end
+		Pet.prune(profile, now)
 		if resting[profile] == true then
 			restEarnedByProfile[profile] = (restEarnedByProfile[profile] or 0) + earned
 		end

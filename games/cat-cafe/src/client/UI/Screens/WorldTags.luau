@@ -42,6 +42,7 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local Pet = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Pet"))
 
 export type WorldTags = {
 	setRates: (self: WorldTags, on: boolean) -> (), -- #2551: the Cat income switch
@@ -355,14 +356,24 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		local napping = cat:GetAttribute("Napping") == true
 		local rarity = cat:GetAttribute("Rarity")
 		local earning = not napping and type(rate) == "number" and rate > 0
+		-- #3651 (shared/Pet): the happy cat's tag shows its doubled pay with a heart, until its hour ends
+		local happy = false
+		if earning then
+			rate, happy = Pet.shown(
+				rate :: number,
+				cat:GetAttribute(Pet.ATTRIBUTE),
+				Workspace:GetServerTimeNow()
+			)
+		end
 		local show = self._rates == true and (earning or napping)
 		billboard.Enabled = show
 		if show then
 			local night: boolean = self._night
 			if earning then
-				label.Text = if night
+				local text = if night
 					then MOON .. " " .. Format.rate((rate :: number) * NIGHT_TIPS)
 					else Format.rate(rate :: number)
+				label.Text = if happy then Pet.HEART .. " " .. text else text
 				label.TextColor3 =
 					Theme.rarityColor(if type(rarity) == "string" then rarity else nil)
 			else
@@ -378,6 +389,17 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	self._labels[cat] = billboard
 	self._heights[cat] = height
 	self._renders[cat] = render
+	-- #3651: the tag is drawn once more as the happy cat's heart ends
+	local function heartEnd()
+		local untilAt = cat:GetAttribute(Pet.ATTRIBUTE)
+		if type(untilAt) == "number" then
+			task.delay(math.max(0, untilAt - Workspace:GetServerTimeNow()) + 0.5, function()
+				if self._labels[cat] == billboard then
+					render()
+				end
+			end)
+		end
+	end
 	local function making()
 		local now: number = self._heights[cat] or height
 		self:_renderMaking(cat, part, now + RATE_SIZE.Y + NAME_HEIGHT + 0.3)
@@ -396,10 +418,15 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		cat:GetAttributeChangedSignal("Napping"):Connect(render),
 		cat:GetAttributeChangedSignal("Rarity"):Connect(render),
 		cat:GetAttributeChangedSignal("DisplayName"):Connect(render),
+		cat:GetAttributeChangedSignal(Pet.ATTRIBUTE):Connect(function()
+			render()
+			heartEnd()
+		end),
 		cat:GetAttributeChangedSignal("Making"):Connect(making),
 		cat:GetAttributeChangedSignal("MakeSeconds"):Connect(retime),
 	}
 	render()
+	heartEnd()
 	making()
 end
 

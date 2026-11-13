@@ -98,17 +98,34 @@ end
 -- setting is on. The tier reads "low" then, so what else scales by Effects.tier() (the street's customers)
 -- comes down too.
 -- A console (`console`, a ten-foot screen; #2871) keeps the "high" tier but takes Presets.budget.console.
+-- #3794: `lite` (Logic.wantsLite) takes Presets.budget.lite at the "low" tier, under Low performance and over the rest.
 function Logic.budgetFor(
 	device: Presets.Tier,
 	lowPerformance: boolean,
-	console: boolean?
+	console: boolean?,
+	lite: boolean?
 ): (Presets.Tier, Presets.Budget)
 	if lowPerformance then
 		return "low", Presets.budget.lowPerformance
+	elseif lite == true then
+		return "low", Presets.budget.lite
 	elseif console == true and device == "high" then
 		return device, Presets.budget.console
 	end
 	return device, Presets.budget[device]
+end
+
+-- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and this is a phone or tablet (the
+-- "low" device tier) or its graphics quality is set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is
+-- Automatic, which says nothing about the device, and 4 to 10 are left as they are).
+Logic.LITE_QUALITY_MAX = 3
+
+function Logic.wantsLite(switchOn: boolean, device: Presets.Tier, quality: number?): boolean
+	if not switchOn then
+		return false
+	end
+	return device == "low"
+		or (quality ~= nil and quality >= 1 and quality <= Logic.LITE_QUALITY_MAX)
 end
 
 -- One circle from CatchResult: "perfect", "good" or "miss" (catching v0.4), or the v0.3 score 1, 0.5 or 0.

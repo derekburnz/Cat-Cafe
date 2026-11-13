@@ -194,6 +194,9 @@ local FLAP_HINGE = "FlapHinge" -- the Weld that holds the flap, open or shut
 local FLAP_OPEN = 90
 local PACK_RIM = 0.66 -- the top of the pack's opening
 local PACK_MOUTH_Z = -0.33 -- the middle of the opening, front to back
+-- #3698 (Derek 2026-11-12: the head "a little bit more to the back so its not inside your roblox character as much"):
+-- the packed cat sits this far behind the middle of the opening (the pack's back, away from the wearer, is -Z)
+local PACK_HEAD_BACK = 0.18
 -- the packed cat's size, so its head fits the opening. #2888 (Derek2: the cat's head "like 60% smaller"): 0.4 in
 -- the 1.4x pack, about 0.56x the cat, was 0.7 in the 2x pack (1.4x). #3015 (Derek2: "WAY too small to see"): 0.7 in
 -- the 1.4x pack, about 0.98x the cat, so the head (about 1 stud wide) reads at the play camera and fills the opening
@@ -419,7 +422,11 @@ function HeldCat.attachBack(model: Model, character: Model): Weld?
 		local box, size = head:GetBoundingBox()
 		local headAt = model:GetPivot():PointToObjectSpace(box.Position)
 		local rim = PACK_RIM * packScale
-		local mouth = CFrame.new(0, rim + size.Y * (HEAD_OUT - 0.5), PACK_MOUTH_Z * packScale)
+		local mouth = CFrame.new(
+			0,
+			rim + size.Y * (HEAD_OUT - 0.5),
+			(PACK_MOUTH_Z - PACK_HEAD_BACK) * packScale
+		)
 		model:PivotTo(pack:GetPivot() * mouth * CFrame.new(-headAt))
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") and not descendant:IsDescendantOf(head) then

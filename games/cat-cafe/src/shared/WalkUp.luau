@@ -73,6 +73,9 @@ WalkUp.FIT_CLEAR = 0.02
 -- across the path from the landing pad to the opening and open the Index on everyone walking out.
 WalkUp.FRONT_FIT_LEAST = 6 -- #3448: 4.5 to 6
 WalkUp.BOARD_RADIUS = 5.5 -- #3448: 4.5 to 5.5 only, for the same reason
+-- The Mystic Pool's front ring (Derek 2026-11-12: "the circle for this station should be a little smaller as it's too
+-- big overlapping things"): at FRONT_RADIUS it ran over the camp's red stripe.
+WalkUp.POOL_RADIUS = 6.5
 
 -- #2433 (Laptop-Tester on #2432: each camp's cannon ring ran up to 1.1 studs under the camp's low side wall): a ring of
 -- `radius` round a station, with `blocks` the flat points (from the station's pivot) where something stands on its

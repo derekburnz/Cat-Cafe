@@ -47,12 +47,12 @@ return function()
 			expect((Logic.mysticIntroPhase(-1))).to.equal("in")
 		end)
 
-		it("steps the liquid through all five colours forward only", function()
+		it("steps the liquid through all six colours forward only", function()
 			local p = Presets.mysticIntro
 			local last = 1
 			local seen = {}
 			local s = 0
-			while s <= p.step * 5 + 1 do
+			while s <= p.step * p.steps + 1 do
 				local i, k = Logic.mysticIntroSwirl(s)
 				expect(i >= last).to.equal(true)
 				expect(i - last <= 1).to.equal(true)
@@ -61,14 +61,14 @@ return function()
 				last = i
 				s += 0.02
 			end
-			for i = 1, 5 do
+			for i = 1, p.steps do
 				expect(seen[i]).to.equal(true)
 			end
-			expect(last).to.equal(5)
+			expect(last).to.equal(6)
 			expect(p.steps).to.equal(#Traits.RARITIES)
 			-- each colour is fully in before the next starts
 			expect(p.blend < p.step).to.equal(true)
-			local _, settled = Logic.mysticIntroSwirl(p.step * 5 + 1)
+			local _, settled = Logic.mysticIntroSwirl(p.step * p.steps + 1)
 			expect(settled).to.equal(1)
 		end)
 

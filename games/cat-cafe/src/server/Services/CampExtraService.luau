@@ -32,13 +32,11 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
-local MysticPoolStationService = require(script.Parent.MysticPoolStationService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
-local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local YardPick = require(ReplicatedStorage.Shared.YardPick)
 local YardSale = require(ReplicatedStorage.Shared.YardSale)
@@ -97,20 +95,6 @@ local function pondTimes(player: Player): number
 	return CampExtras.pondTimes(player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true)
 end
 
--- #3196 (trait-station.md section 1): while the `traits` switch is on the Mystic Pool stands in the Picnic Basket's
--- place, so the basket reads as shut (no strip, no "!", nothing to collect) and a collect is refused. Its save
--- is left alone, so switching back gives the basket as it was. Only while the pool really stands: with the pool's
--- art missing the basket stays in the world and keeps working.
-local function poolStands(): boolean
-	return LiveFlagService.on(Traits.FLAG) and MysticPoolStationService.standing()
-end
-
-local function shutPicnic(state: Types.CampExtrasState)
-	if poolStands() then
-		state.picnic = { open = false, held = 0 }
-	end
-end
-
 -- #3614: the Yard Sale's lucky pick, behind its switch.
 local function pickOn(): boolean
 	return LiveFlagService.on(YardPick.FLAG)
@@ -134,7 +118,6 @@ local function refresh(player: Player, profile: Types.PlayerProfile, force: bool
 	local tier = Economy.tier(profile)
 	CampExtras.settle(profile.campExtras, tier, now)
 	local state = CampExtras.view(profile.campExtras, tier, now, pondTimes(player), yardHours())
-	shutPicnic(state)
 	addPick(state, tier)
 	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
 	local day = YardSale.dayAt(now)
@@ -235,10 +218,6 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	local extraId = Guard.oneOf(rawExtraId, CampExtras.COLLECT)
 	local profile = DataService.get(player)
 	if extraId == nil or profile == nil then
-		return
-	end
-	if extraId == Traits.STATION_EXTRA and poolStands() then
-		refuse(player, extraId, "The Picnic Basket is now the Mystic Pool")
 		return
 	end
 	local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
@@ -466,7 +445,6 @@ function CampExtraService.debugAway(
 	refresh(player, profile, true)
 	local tier = Economy.tier(profile)
 	local state = CampExtras.view(save, tier, os.time(), pondTimes(player), yardHours())
-	shutPicnic(state)
 	addPick(state, tier)
 	return state
 end

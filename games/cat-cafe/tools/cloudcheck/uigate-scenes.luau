@@ -4376,6 +4376,33 @@ local SCENES = {
 			assert(board:FindFirstChild("Score", true).Text == "24", "uigate: the score did not move on a catch (#3296)")
 		end,
 	},
+	-- #3765 (Derek: the banners "pop up on top of the game and should be moved higher up so we can see"): Ready,
+	-- Faster!, the kitten hint and Prize: sit in the window's header, above every hole and clear of the close button
+	{
+		"MouseDashBanner",
+		function()
+			local window = mouseDashCard(false)
+			local nowAt = workspace:GetServerTimeNow()
+			UI.mouseDash.began(9, 3, nowAt, nowAt + 92)
+			local banner = window:FindFirstChild("Banner", true)
+			assert(banner ~= nil and banner.Visible, "uigate: a new game shows no Ready banner (#3765)")
+			assert(banner.Text == "Ready?", "uigate: the banner reads " .. banner.Text .. " (#3765)")
+			banner.Text = "Let sleeping kittens nap!" -- the longest line it takes
+			local bottom = banner.AbsolutePosition.Y + banner.AbsoluteSize.Y
+			local grid = window:FindFirstChild("Board", true):FindFirstChild("Grid", true)
+			assert(bottom <= grid.AbsolutePosition.Y, ("uigate: the banner ends at %d, over the holes from %d (#3765)"):format(bottom, grid.AbsolutePosition.Y))
+			local hud = window:FindFirstChild("Hud", true)
+			assert(bottom <= hud.AbsolutePosition.Y, "uigate: the banner covers the hearts and score (#3765)")
+			local close = window:FindFirstChild("Close", true)
+			if close ~= nil then
+				assert(banner.AbsolutePosition.X + banner.AbsoluteSize.X <= close.AbsolutePosition.X, "uigate: the banner runs under the close button (#3765)")
+			end
+			assert(banner.AbsoluteSize.X >= 150 and banner.AbsoluteSize.Y >= 20, ("uigate: the banner is %d by %d (#3765)"):format(banner.AbsoluteSize.X, banner.AbsoluteSize.Y))
+			-- for the picture: Ready's own clock has put it away by the time the scene is drawn
+			UIShim.advance(1)
+			banner.Visible = true
+		end,
+	},
 	-- #3296: the end of a game: the card again with the game's line, and the arcade's prizes ticked
 	{
 		"MouseDashOver",

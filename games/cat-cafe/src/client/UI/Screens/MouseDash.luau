@@ -982,20 +982,28 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			downAt = 0,
 		}
 	end
+	-- #3765 (Derek 2026-11-13: the banners "pop up on top of the game and should be moved higher up so we can see"):
+	-- Ready, Faster!, the kitten hint and Prize: sit in the window's header, beside the title and clear of the close
+	-- button, never over a hole. On a phone held sideways the board fills the window, so the header is the only room.
+	local header = panel.body:FindFirstChild("Header") :: Frame?
 	self._banner = text({
 		Name = "Banner",
-		AnchorPoint = Vector2.new(0.5, 0),
+		AnchorPoint = if header ~= nil then Vector2.new(1, 0.5) else Vector2.new(0.5, 0),
 		BackgroundColor3 = Color3.fromHex("15101F"),
 		BackgroundTransparency = 0.15,
-		Position = UDim2.new(0.5, 0, 0, 6),
-		Size = UDim2.new(0.8, 0, 0, 34),
+		Position = if header ~= nil
+			then UDim2.new(1, -(panel.closeReach + 14), 0.5, 0)
+			else UDim2.new(0.5, 0, 0, 6),
+		Size = if header ~= nil
+			then UDim2.new(0.58, -panel.closeReach, 1, -8)
+			else UDim2.new(0.8, 0, 0, 34),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextWrapped = false,
 		TextScaled = true,
 		Visible = false,
 		ZIndex = 6,
-		Parent = board,
+		Parent = header or board,
 	})
 	round(self._banner, UDim.new(0, 12))
 	table.insert(

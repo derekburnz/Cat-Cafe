@@ -63,6 +63,7 @@ export type Store = {
 		prices: { [number]: StoreLogic.Price }
 	) -> (),
 	showTab: (self: Store, tab: string) -> (),
+	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,

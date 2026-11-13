@@ -421,6 +421,21 @@ Presets.emitters = {
 		lightEmission = 0,
 		rotSpeed = { -20, 20 },
 	},
+	-- The Secret cats' own glow (#3544, Effects/SecretGlow): a soft pale halo in the Secret colour round the cat,
+	-- locked to it, drawn behind it and bright against dark and light ground alike. A few big, slow, see-through
+	-- puffs: about 4 on screen a cat.
+	secretHalo = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(226, 214, 255), Color3.fromRGB(190, 170, 255) },
+		size = { 2.2, 3.2 },
+		transparency = { 0.72, 1 },
+		lifetime = { 1.6, 2.2 },
+		speed = { 0, 0.15 },
+		spread = 180,
+		rate = 2,
+		lightEmission = 0.7,
+		rotSpeed = { -12, 12 },
+	},
 	secretStars = {
 		texture = Presets.textures.sparkle,
 		colors = { Color3.fromRGB(226, 214, 255), Color3.fromRGB(255, 255, 255) },
@@ -4978,6 +4993,27 @@ Presets.secretStray = {
 		fadeOver = 30, -- studs past nearWithin over which it reaches `far`
 		topFade = 0.45, -- share of the height over which the top fades to nothing
 	},
+}
+
+-- The Secret cats' own glow (#3544, Effects/SecretGlow). The nearest `most` Secret cats within `within` studs glow
+-- (`mostLow` on Low performance, halo only), checked every `checkEvery` seconds. It is whole inside `full` studs and
+-- fades to nothing at `within`; the stars show while more than `starsFrom` of it is left. The light is `colour`,
+-- reaches `range` studs and breathes between `low` and 1 of `brightness` once every `breathe` seconds (slow: far
+-- under any flash); Reduce Motion holds it at `rest`. `behind` is the halo's ZOffset, so it draws behind the cat.
+Presets.secretGlow = {
+	most = 4,
+	mostLow = 2,
+	within = 90,
+	full = 45,
+	starsFrom = 0.5,
+	checkEvery = 0.5,
+	colour = Color3.fromRGB(226, 214, 255),
+	range = 9,
+	brightness = 1.1,
+	low = 0.55,
+	rest = 0.8,
+	breathe = 4,
+	behind = -1.5,
 }
 
 -- #3464 (a loot card's pop-in, Effects/LootCardFx): the card scales in from `from` over `popSeconds` with one soft

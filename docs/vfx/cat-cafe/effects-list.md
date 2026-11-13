@@ -1181,3 +1181,15 @@ All of it goes at once when your rescue bar opens, while someone else is on that
 | Landing on the mat of a `..._Trampoline` model throws the character about 9 studs up (a jump off the mat reaches 7.2), again on every landing. Not while carrying a cat, sitting or held by the cannon or a cutscene. | The local Humanoid turning to Landed or Running, then one ray down (the mat has CanTouch off); `Trampoline.bounces` decides, the root part's upward speed is set. |
 | The mat dips 0.3 studs in 0.08 s and springs back in 0.35 s with one overshoot. Skipped with Reduce Motion. | Two tweens on the mat's CFrame, on this client. |
 | A springy sound at the mat. | `Trampoline.onBounce`, Audio plays `netBounce` until a boing of its own exists. |
+
+## Secret cats' own glow (#3544, 2026-11-12)
+
+Derek, 2026-11-12: "make secrets have a special glow also when you see them around cafe or world". `Effects/SecretGlow.luau`, numbers in `Presets.secretGlow` and `Presets.emitters.secretHalo`, the fade and the breathing in `Logic.secretGlowFade` and `Logic.secretGlowLevel`. It rides `secretCats`: with no Secret cat model about it does nothing. Sketch: Library `Motion-FX-Agent/for-derek-2026-11-12/secret-cat-glow-sketch-3544.png`.
+
+| Look | Hook |
+|---|---|
+| A soft halo in the Secret colour (226, 214, 255) round every Secret cat near you, a stray in an area or an owned one in a cafe (walking, perched, at a station, carried, in a Backpack). Big, slow, see-through puffs locked to the cat and drawn behind it, so its own colours, gold and rainbow coats still read. The same on all three cats | any model whose `CatId` is a Secret cat in the Catalog |
+| A pale violet PointLight (9 studs, no shadows) that breathes between 55% and 100% once every 4 s; Reduce Motion holds it at 80% | `Logic.secretGlowLevel` |
+| A few small stars drifting up from owned Secret cats (a stray has its own from `SecretStray`) | `secretStars` |
+| Not a pointer: particles and a light, so walls hide it; no Highlight, no arrow, nothing on top | |
+| Budget: the nearest 4 within 90 studs, whole inside 45 and fading to nothing at 90; about 8 particles and one light a cat, 32 particles and 4 lights at most. Low performance: the nearest 2, halo only at the budget's rate, no light and no stars, never nothing. Frame cost: not measured in game yet (needs Studio); by count it is under one potion glow a cat | checked twice a second |

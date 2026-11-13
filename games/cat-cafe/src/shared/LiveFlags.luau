@@ -77,6 +77,9 @@
 -- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
 --   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
 --   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
+-- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
+--   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
+--   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -117,6 +120,7 @@ LiveFlags.KEYS = {
 	"parkGateTrail",
 	"touchCatchReach",
 	"rankUpSpotlight",
+	"bagColours",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -140,6 +144,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkGateTrail = true,
 	touchCatchReach = true,
 	rankUpSpotlight = true,
+	bagColours = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

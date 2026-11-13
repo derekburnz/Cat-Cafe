@@ -210,6 +210,13 @@ firstHourSteps=(joined played_2m played_5m played_10m played_20m played_30m play
 firstHourV2Steps=()
 onboardingFunnel=onboarding_v4
 introFunnel=onboarding_v4_intro
+# #3695: the clean funnel (Onboarding.CLEAN_FUNNEL, onboarding_v7) and playtime_v1 (Onboarding.PLAYTIME_FUNNEL). Once
+# Onboarding.luau has them they are the two the by Platform tables read; the ledger funnel (FUNNEL, onboarding_v6)
+# and first_hour_v3 stopped being sent with them and keep their labels for a window that starts before.
+cleanFunnel=
+cleanSteps=()
+playtimeFunnel=
+playtimeSteps=()
 onboardingSteps=()
 introSteps=()
 onboardingV3Steps=()
@@ -240,6 +247,10 @@ if [ -f "$onboarding" ]; then
 	onboardingFunnel=${funnelName:-$onboardingFunnel}
 	funnelName=$(luaString INTRO_FUNNEL)
 	introFunnel=${funnelName:-$introFunnel}
+	cleanFunnel=$(luaString CLEAN_FUNNEL)
+	mapfile -t cleanSteps < <(luaNames CLEAN_STEPS)
+	playtimeFunnel=$(luaString PLAYTIME_FUNNEL)
+	mapfile -t playtimeSteps < <(luaNames PLAYTIME_STEPS)
 fi
 storeFunnelFile=$here/../../src/shared/StoreFunnel.luau
 if [ -f "$storeFunnelFile" ]; then
@@ -268,6 +279,10 @@ stepName() { # funnel step label
 		# exact names first: onboarding_v4_intro also contains onboarding_v4
 		if [ "${funnel,,}" = "${introFunnel,,}" ] || [[ ${funnel,,} =~ ^onboarding_v[0-9]+_intro$ ]]; then
 			list=("${introSteps[@]}")
+		elif [ -n "$cleanFunnel" ] && [ "${funnel,,}" = "${cleanFunnel,,}" ]; then
+			list=("${cleanSteps[@]}")
+		elif [ -n "$playtimeFunnel" ] && [ "${funnel,,}" = "${playtimeFunnel,,}" ]; then
+			list=("${playtimeSteps[@]}")
 		elif [ "${funnel,,}" = "${onboardingFunnel,,}" ]; then
 			list=("${onboardingSteps[@]}")
 		elif [ "${funnel,,}" = "${firstHourFunnel,,}" ]; then
@@ -315,11 +330,13 @@ declare -A retired=(
 	[bait_cycle]="2026-11-08|bait_rolled and bait_resolved under Event fields"
 	[grand_opening]="2026-11-08|the Grand Opening steps of the onboarding funnel"
 	[onboarding_v4_intro]="2026-11-08|the intro_cutscene custom event"
+	[onboarding_v6]="2026-11-13|onboarding_v7, the clean funnel (#3695)"
+	[first_hour_v3]="2026-11-13|playtime_v1 (#3695)"
 )
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* && ${funnel,,} != playtime* ]] || unit=Players
 	[ "${funnel,,}" != "${arcadeFunnel,,}" ] || unit="Player days" # #3378: one run per player per UTC day
 	say "#### $funnel"
 	say ""
@@ -636,7 +653,7 @@ if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
 else
 	platformsLogged=(Phone Computer Tablet Console)
 fi
-for funnel in "$onboardingFunnel" "$firstHourFunnel" "$arcadeFunnel"; do
+for funnel in "${cleanFunnel:-$onboardingFunnel}" "${playtimeFunnel:-$firstHourFunnel}" "$arcadeFunnel"; do
 	say "#### $funnel by Platform"
 	say ""
 	declare -A cell=() firstOf=() label=()

@@ -502,6 +502,13 @@ local Config = {
 	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
 	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
+	-- #3545 (Derek 2026-11-12 12:33 UTC: "have them be walking around much faster in the area"): a wild Secret stray
+	-- walks three times as fast over three times the reach, with half the pause between walks and no naps. It still
+	-- stays in its area, stops at the first solid thing (clearPath) and keeps a perch as any stray does; a player
+	-- walks at 20, so it can always be reached.
+	SecretWanderSpeed = 9,
+	SecretWanderRadius = 15,
+	SecretWanderPauseScale = 0.5,
 	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic).
 	-- Derek 2026-11-12 ("make rainbow/gold finds also changed to only legendary + and make normals only mythic+ it
 	-- has a bit of clutter right now"): Mythical for a plain coat (was Legendary); a gold or rainbow coat from
@@ -1225,11 +1232,15 @@ local Config = {
 	-- #3420, #3424 (Derek 2026-11-12: "a giveaway of 100 gold fish to everyone 3 minute after restart"): the Thursday
 	-- 2026-11-12 launch gift, from 22:03 UTC, three minutes after the 22:00 restart. Saturday 2026-11-14's update
 	-- sets the weekly one again (id "2026-11-14", from 1794675600, fish 15, spins 1).
-	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0 } :: {
+	-- #3779 (Derek 2026-11-13: "its just giving 100 gold fish per person that logs in now and its not turned off"):
+	-- `to` ends a gift. The launch gift ended at 02:00 UTC on 2026-11-13; what was paid stays paid. Every gift from
+	-- now on carries a `to`.
+	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0, to = 1794535200 } :: {
 		id: string,
 		from: number,
 		fish: number,
 		spins: number,
+		to: number?,
 	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

@@ -1189,6 +1189,12 @@ export type TelemetryState = {
 	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
 	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
 	firstHourV3Step: number,
+	-- #3695: the furthest step logged of the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS) and of playtime_v1
+	-- (Onboarding.PLAYTIME_STEPS), 0 before any and the count once out of it. Optional fields with defaults, so no save
+	-- version: a server without them drops them, and the save then comes back out of both funnels once it is past its
+	-- first catch or has logged any first_hour step (ProfileSchema), so nothing is counted twice
+	cleanStep: number?,
+	playtimeStep: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)
@@ -1305,6 +1311,9 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
+	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
+	bagColours: { main: string, trim: string }?,
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1417,6 +1426,7 @@ export type PlayerState = {
 	fishPerks: { [string]: number },
 	mystery: { [string]: boolean }, -- #2565
 	mysterySeen: boolean,
+	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax

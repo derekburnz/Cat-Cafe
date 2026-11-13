@@ -40,8 +40,11 @@ permissions:
   contents: read
   actions: read
 
+# Hand-started runs (workflow_dispatch) have their own group, so a finished main check can no longer cancel a
+# hand-started publish that is still waiting (2026-11-13). The two lanes are kept apart by the "Wait for the
+# other lane" step instead (.github/scripts/wait-publish-lane.sh).
 concurrency:
-  group: publish
+  group: ${{ github.event_name == 'workflow_dispatch' && 'publish-hand' || 'publish' }}
   cancel-in-progress: false
 
 env:
@@ -155,7 +158,7 @@ jobs:
     needs: gate
     if: needs.gate.outputs.go == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 55 # 30 for the publish itself plus up to 25 waiting for the other lane
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
     defaults:
@@ -165,6 +168,12 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ needs.gate.outputs.sha }}
+
+      - name: Wait for the other lane (a hand-started or automatic publish or restart that started first)
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/wait-publish-lane.sh 25
 
       - name: Check the publish key is set
         run: |

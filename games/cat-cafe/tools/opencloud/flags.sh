@@ -48,6 +48,8 @@
 #                 the last steps on a press (#3556); false or no entry keeps the reach as on a PC
 #   rankUpSpotlight true dims the screen and points a Tier 1 player through the first rank up once it is possible,
 #                 in the safe area only (#3555); false or no entry shows nothing
+#   bagColours    true lets the Backpack's owner pick its two colours at the Featured Shop (#3699); false or no
+#                 entry refuses the picks and every bag wears its built colours. Turn on only after a restart
 #                 "New kind!" line and the five cats pointer (#3529); client and telemetry only, after review and QA
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
@@ -62,10 +64,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach and rankUpSpotlight (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade and circleStreak, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight and bagColours (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -75,7 +77,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours" >&2
 	exit 2
 }
 
@@ -151,6 +153,7 @@ show_key() {
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
 	touchCatchReach) if [ "$raw" = true ]; then meaning="wider Net button reach on touch screens ON"; else meaning="wider Net button reach on touch screens off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
+	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
@@ -198,6 +201,7 @@ show() {
 	show_key parkGateTrail
 	show_key touchCatchReach
 	show_key rankUpSpotlight
+	show_key bagColours
 }
 
 # write key json-value
@@ -217,7 +221,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -228,7 +232,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight) write "$2" false ;;
+	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

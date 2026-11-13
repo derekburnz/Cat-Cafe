@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
+local BagColours = require(ReplicatedStorage.Shared.BagColours)
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -1432,6 +1433,21 @@ local function hasBackpack(player: Player): boolean
 	return profile ~= nil and profile.mystery.backpack == true
 end
 
+-- #3699: the worn Backpack in its owner's two colour picks (the built colours with the switch off or nothing picked).
+-- The server colours the parts, so every player sees them.
+local function tintBackpack(player: Player)
+	local character = player.Character
+	local pack = if character ~= nil then HeldCat.pack(character) else nil
+	local profile = DataService.get(player)
+	if pack == nil or profile == nil then
+		return
+	end
+	BagColours.tint(
+		pack,
+		BagColours.picks(if LiveFlagService.on(BagColours.FLAG) then profile.bagColours else nil)
+	)
+end
+
 -- #2719: the Backpack's owner wears it (HeldCat.wearPack), at spawn and after the buy; every player sees it.
 local function wearBackpack(player: Player)
 	local character = player.Character
@@ -1446,6 +1462,7 @@ local function wearBackpack(player: Player)
 	local pack = AssetRegistry.clone(HeldCat.PACK_ASSET)
 	if HeldCat.wearPack(pack, character) then
 		pack.Parent = character
+		tintBackpack(player) -- #3699
 	else
 		pack:Destroy()
 	end
@@ -3488,6 +3505,11 @@ end
 -- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
 function CatService.wearBackpack(player: Player)
 	wearBackpack(player)
+end
+
+-- #3699: recolours the worn Backpack from the save (MysteryMarketService, right after a pick).
+function CatService.tintBackpack(player: Player)
+	tintBackpack(player)
 end
 
 function CatService.packedOf(player: Player): string?

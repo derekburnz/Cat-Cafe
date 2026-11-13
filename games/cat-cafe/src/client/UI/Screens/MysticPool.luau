@@ -53,8 +53,9 @@ export type Callbacks = {
 	play: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?,
 	far: (() -> boolean)?, -- true once the player has walked away from the pool: the card closes
 	-- #3702: while the pool's animation plays the card goes away and the screen's edges are shaded; `onTap` is a
-	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card
-	shade: ((onTap: () -> ()) -> () -> ())?,
+	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card.
+	-- #3943: `canSkip` false (a Mythic or Secret roll) shows no "Tap to skip"
+	shade: ((onTap: () -> (), canSkip: boolean) -> () -> ())?,
 	-- #3864: a bundle's Buy, with its developer product id (Roblox's purchase prompt); nil hides the offer
 	buy: ((productId: number) -> ())?,
 }
@@ -274,6 +275,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
 	self._rolling = nil :: { uid: string, hadTrait: boolean }? -- a Roll waiting for its answer
 	self._skip = nil :: (() -> ())? -- the running animation's skip
+	self._tapSkip = nil :: (() -> ())? -- #3943: what a tap does while it plays (nothing for Mythic and Secret)
 	self._lift = nil :: (() -> ())? -- #3702: ends the running reveal's shade and brings the card back
 	self._playToken = 0
 	self._open = false
@@ -912,7 +914,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = rolling,
 	})
-	text({
+	self._skipHint = text({
 		Name = "Hint",
 		Position = UDim2.new(0, 0, 0.3, 36),
 		Size = UDim2.new(1, 0, 0, 20),
@@ -931,7 +933,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = rolling,
 	})
 	self._skipPressed = skip.Activated:Connect(function()
-		local run: (() -> ())? = self._skip
+		local run: (() -> ())? = self._tapSkip
 		if run then
 			run()
 		end
@@ -1016,11 +1018,13 @@ function MysticPool._reveal(self: any, uid: string, traitId: string)
 		end
 		if self._playToken == token then
 			self._skip = nil
+			self._tapSkip = nil
 			self._lift = nil
 			self._rollingSheet.Visible = false
 		end
 	end
-	local skip = play(uid, MysticPoolLogic.rarityId(traitId), finish)
+	local rarity = MysticPoolLogic.rarityId(traitId)
+	local skip = play(uid, rarity, finish)
 	if done or skip == nil then
 		finish()
 		return
@@ -1029,10 +1033,19 @@ function MysticPool._reveal(self: any, uid: string, traitId: string)
 		skip()
 		finish()
 	end
-	self._skip = skipNow
+	self._skip = skipNow -- for closing the card mid scene (_stopPlay)
+	-- #3943: a tap skips only below Mythic
+	local function tapSkip()
+		if MysticPoolLogic.canSkip(rarity) then
+			skipNow()
+		end
+	end
+	self._tapSkip = tapSkip
+	local canSkip = MysticPoolLogic.canSkip(rarity)
+	self._skipHint.Visible = canSkip -- the sheet's "Tap to skip", hidden when a tap does nothing
 	local shade = (self._callbacks :: Callbacks).shade
 	if shade ~= nil then
-		lift = shade(skipNow)
+		lift = shade(tapSkip, canSkip)
 		self._lift = finish
 	else
 		self._rollingSheet.Visible = true
@@ -1044,6 +1057,7 @@ function MysticPool._stopPlay(self: any)
 	local skip: (() -> ())? = self._skip
 	local lift: (() -> ())? = self._lift
 	self._skip = nil
+	self._tapSkip = nil
 	self._lift = nil
 	self._rollingSheet.Visible = false
 	if skip then

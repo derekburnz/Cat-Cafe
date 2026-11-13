@@ -87,7 +87,7 @@ type Line = {
 local MAX_SIZE = Vector2.new(500, 372)
 local FEATURED_H = 146
 local TEASER_H = 52
-local ROW_H = 64
+local ROW_H = 72
 local PICTURE = 84
 local SMALL_PICTURE = 46
 local BUY_W = 104
@@ -487,10 +487,15 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			Text = row.name,
 			Parent = frame,
 		})
+		-- Review-QA's Studio pass 2026-11-13: "Your net reaches a stud further." was cut at both sizes; the line
+		-- folds onto two lines now, and the note sits under it
 		local line = text({
 			Name = "Text",
-			Position = UDim2.fromOffset(left, 27),
-			Size = UDim2.new(1, -(left + right), 0, 16),
+			Position = UDim2.fromOffset(left, 26),
+			Size = UDim2.new(1, -(left + right), 0, 28),
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			TextYAlignment = Enum.TextYAlignment.Top,
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = CARD.subtext,
@@ -499,7 +504,7 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 		})
 		local note = text({
 			Name = "Note",
-			Position = UDim2.fromOffset(left, 43),
+			Position = UDim2.fromOffset(left, 53),
 			Size = UDim2.new(1, -(left + right), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,

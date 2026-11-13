@@ -644,9 +644,10 @@ function StoreLogic.badge(
 end
 
 -- #3572: the Sale badge. The old price to strike through on this card, or nil for no badge: only a card in
--- Config.StoreWasPrice that is not owned, on sale below its original price (`was`), before Config.StoreSaleEnds.
--- #3594 follow up (Derek 2026-11-13): any price under the original, not only exactly half, since unsold items go a
--- little lower. A price at or over the original (a money pass that went up) shows no badge. No countdown.
+-- Config.StoreWasPrice that is not owned, on sale at its sale price (`now`) or lower, before Config.StoreSaleEnds.
+-- #3594 follow up (Derek 2026-11-13): not only exactly the sale price, since unsold items go a little lower. Above
+-- `now` (a regional price between the two, a price that went up) shows no badge, so nobody sees a sale that is not
+-- one for them (Review-QA, young audience). No countdown.
 StoreLogic.SALE = "SALE"
 function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): number?
 	local entry = if type(config.StoreWasPrice) == "table"
@@ -663,7 +664,9 @@ function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): 
 		or not price.forSale
 		or type(price.robux) ~= "number"
 		or type(entry.was) ~= "number"
-		or price.robux >= entry.was
+		or type(entry.now) ~= "number"
+		or price.robux > entry.now
+		or entry.was <= price.robux
 	then
 		return nil
 	end

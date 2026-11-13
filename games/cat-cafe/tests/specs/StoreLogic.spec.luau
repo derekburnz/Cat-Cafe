@@ -770,16 +770,16 @@ return function()
 			end
 			local before = Config.StoreSaleEnds - 1
 
-			it("shows the true old price for any price under it", function()
+			it("shows the true old price at the sale price or lower", function()
 				local half = { robux = 499, forSale = true }
 				expect(StoreLogic.saleWas(card("kingPack"), half, Config, before)).to.equal(999)
 				expect(StoreLogic.saleBadge(999)).to.equal("SALE  was <s>R$999</s>")
-				for _, robux in { 450, 498, 500, 998 } do
+				for _, robux in { 450, 498 } do
 					local price = { robux = robux, forSale = true }
 					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(999)
 				end
-				-- the old price or more (a price that went up): no badge
-				for _, robux in { 999, 1200 } do
+				-- above the sale price (a regional price, a price that went up): no badge
+				for _, robux in { 500, 998, 999, 1200 } do
 					local price = { robux = robux, forSale = true }
 					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(
 						nil

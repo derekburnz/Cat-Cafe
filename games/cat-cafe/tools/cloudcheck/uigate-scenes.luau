@@ -9615,7 +9615,7 @@ local SCENES = {
 		UIShim.advance(4) -- earlier scenes' toasts gone
 		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
 		local chip = assertEventChip(2)
-		assert(chip.Text:find("Cafe Party · ends in 1:59:", 1, true) ~= nil, "uigate: the running chip reads " .. chip.Text .. " (#2487)")
+		assert(chip.Text:find("Cafe Party · x2 money · ends in 1:59:", 1, true) ~= nil, "uigate: the running chip reads " .. chip.Text .. " (#2487)")
 		local nextLine = (UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel).Text
 		assert(nextLine:find("^next shower 9:") ~= nil, "uigate: the running chip's next shower reads " .. nextLine .. " (#2487)")
 		local banner = false
@@ -10006,7 +10006,9 @@ local SCENES = {
 		for _, piece in hud:GetDescendants() do
 			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
 				local text = (piece :: any).Text :: string
+				-- the boosts card (closed here) carries the pass's line on purpose, and with a running event its total
 				local shown = (piece :: GuiObject).Visible and (piece :: GuiObject).AbsoluteSize.X > 0
+					and piece:FindFirstAncestor("Boosts") == nil
 				assert(not (shown and (text:find("x4", 1, true) or text:find("4x", 1, true))), "uigate: the HUD still says " .. text .. " for the owned 4x pass (#3052)")
 			end
 		end

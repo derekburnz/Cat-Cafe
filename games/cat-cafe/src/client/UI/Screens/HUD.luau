@@ -128,6 +128,7 @@ export type HUD = {
 	setRallySoon: (self: HUD, line: string?) -> (),
 	setGift: (self: HUD, tier: string?) -> (), -- #2614: a Mystery gift waits on your plot in this wrap, or nil
 	setEvent: (self: HUD, lines: { string }?, kind: string?) -> (),
+	setEventBoost: (self: HUD, boost: BoostList.EventBoost?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
 	counterRow: (self: HUD) -> GuiObject, -- #2393: the money and golden fish (top middle on touch)
@@ -3593,6 +3594,19 @@ function HUD.setRest(self: any, resting: boolean, doubled: boolean?)
 	chip:set(resting, doubled)
 end
 
+-- #3935: the running event's money for the boosts card (EventLogic.moneyBoost), nil when none
+function HUD.setEventBoost(self: any, boost: BoostList.EventBoost?)
+	local old: BoostList.EventBoost? = self._eventBoost
+	local same = if old == nil or boost == nil
+		then old == boost
+		else old.name == boost.name and old.money == boost.money
+	if same then
+		return
+	end
+	self._eventBoost = boost
+	self:_renderBoosts()
+end
+
 -- #2487: the Cafe Event chip's lines (EventLogic.chip), nil to hide it; kind "running" paints it gold.
 function HUD.setEvent(self: any, lines: { string }?, kind: string?)
 	local text = if lines ~= nil and #lines > 0 then table.concat(lines, "\n") else nil
@@ -4808,6 +4822,7 @@ local BOOST_GLYPH: { [string]: string } = {
 	outfit_accessories = "🎀", -- #2147: each outfit pass by name
 	outfit_uniforms = "👕",
 	moneyPass = "💰",
+	event = "🎉", -- #3935: a running Cafe Event's money
 }
 local function boostPicture(key: string): string?
 	if key == "tables" then
@@ -4844,8 +4859,14 @@ function HUD._renderBoosts(self: any)
 		accessories = ownedPasses[Config.CatAccessoriesPassId or 0] == true,
 		uniforms = ownedPasses[Config.UniformStylesPassId or 0] == true,
 	}
-	local rows =
-		BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow(), #self._palIds, outfits)
+	local rows = BoostList.rows(
+		self._catalog,
+		state,
+		Workspace:GetServerTimeNow(),
+		#self._palIds,
+		outfits,
+		self._eventBoost
+	)
 	local said: { string } = {}
 	for _, row in rows do
 		table.insert(

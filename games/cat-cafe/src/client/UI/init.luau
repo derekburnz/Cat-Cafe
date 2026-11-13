@@ -9388,6 +9388,7 @@ do
 		local current = hud
 		if current then
 			current:setEvent(EventLogic.chip(view, seen, now))
+			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
 		if boards then

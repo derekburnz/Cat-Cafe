@@ -299,10 +299,15 @@ end
 
 function EventLogic.chip(view: View?, seen: Seen?, now: number): ({ string }?, ChipKind?)
 	if view ~= nil and running(view, now) then
+		-- #3935 (Derek: "the 2x money event running I believe works but doesn't show anywhere"): the money it pays
+		local money = if view.effects.money > 1
+			then " · x" .. number(view.effects.money) .. " money"
+			else ""
 		local first = string.format(
-			"%s %s · ends in %s",
+			"%s %s%s · ends in %s",
 			EventLogic.ICON,
 			view.title,
+			money,
 			EventLogic.clock(view.endsAt - now)
 		)
 		local shower = EventLogic.nextShower(view, now)
@@ -324,6 +329,14 @@ function EventLogic.chip(view: View?, seen: Seen?, now: number): ({ string }?, C
 		end
 	end
 	return nil, nil
+end
+
+-- #3935: the running event's money for the boosts card (Components/BoostList), nil when none runs or it pays x1
+function EventLogic.moneyBoost(view: View?, now: number): { name: string, money: number }?
+	if view == nil or not running(view, now) or view.effects.money <= 1 then
+		return nil
+	end
+	return { name = view.title, money = view.effects.money }
 end
 
 -- the start banner's headline: the event's two biggest effects

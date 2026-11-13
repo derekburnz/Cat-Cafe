@@ -17,11 +17,15 @@
 -- steps are the pool's own and only go up. The camera is only taken when it is free (not the intro, a cannon flight
 -- or another cut) and a spot sees the pool clear; otherwise the pool and the title play without it. Controls and
 -- prompts are off only while the camera is held, and a hard cap always gives them back.
+--   #3942: a Mythic or Secret roll at the pool is a whole scene (Presets.bigTrait.scenes): letterbox bars, the world
+--   dimmed and tinted, the camera slowly circling the pool, sparkles climbing the pillar and, for a Secret, a cat
+--   drawn in stars over the pool. The music ducks for it ("hush", then "done").
 -- Reduce Motion: no camera move and no particles; the title shows still for `still` seconds.
 -- Sound: BigTraitCut.onBeat's "fanfare" (with the rarity); Audio plays the Legendary or Mythical jingle on it.
 -- Client only; it sends nothing. Numbers in Presets.bigTrait.
 
 local GuiService = game:GetService("GuiService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local RunService = game:GetService("RunService")
@@ -38,7 +42,7 @@ local Presets = require(script.Parent.Presets)
 
 local BigTraitCut = {}
 
-export type Beat = "fanfare"
+export type Beat = "fanfare" | "hush" | "done" -- #3942: hush and done open and close a Mythic or Secret scene
 
 local STEP = "EffectsBigTraitCut"
 local FONT = Font.new(
@@ -50,7 +54,8 @@ local FONT = Font.new(
 local running = false
 local listeners: { (beat: Beat, rarity: string) -> () } = {}
 
--- Calls `listener("fanfare", rarity)` as the big moment lands. Listeners only listen.
+-- Calls `listener("fanfare", rarity)` as the big moment lands, and for a whole scene (#3942) "hush" as it starts and
+-- "done" as it ends. Listeners only listen.
 function BigTraitCut.onBeat(listener: (beat: Beat, rarity: string) -> ())
 	table.insert(listeners, listener)
 end
@@ -315,6 +320,81 @@ local function burst(surface: Vector3, rarity: string)
 	end
 end
 
+-- #3942: the whole scene's screen and world pieces: letterbox bars on their own ScreenGui and a ColorCorrection in
+-- Lighting (this client's only). Returns a function drawing them at weight `w` (0 none, 1 full) and their clean up.
+local function sceneLook(scene: Logic.BigTraitScene): ((w: number) -> (), () -> ())
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local gui: ScreenGui? = nil
+	local bars: { Frame } = {}
+	if playerGui ~= nil then
+		local holder = Instance.new("ScreenGui")
+		holder.Name = "EffectsBigTraitScene"
+		holder.ResetOnSpawn = false
+		holder.IgnoreGuiInset = true
+		holder.DisplayOrder = Presets.bigTrait.displayOrder - 1 -- under the title
+		for _, top in { true, false } do
+			local bar = Instance.new("Frame")
+			bar.Name = if top then "BarTop" else "BarBottom"
+			bar.BackgroundColor3 = Color3.new(0, 0, 0)
+			bar.BorderSizePixel = 0
+			bar.AnchorPoint = Vector2.new(0, if top then 0 else 1)
+			bar.Position = UDim2.fromScale(0, if top then 0 else 1)
+			bar.Size = UDim2.fromScale(1, 0)
+			bar.Parent = holder
+			table.insert(bars, bar)
+		end
+		holder.Parent = playerGui
+		gui = holder
+	end
+	local grade = Instance.new("ColorCorrectionEffect")
+	grade.Name = "EffectsBigTraitScene"
+	grade.Parent = Lighting
+	local white = Color3.new(1, 1, 1)
+	local function draw(w: number)
+		for _, bar in bars do
+			bar.Size = UDim2.fromScale(1, scene.bars * w)
+		end
+		grade.Brightness = -scene.dim * w
+		grade.Saturation = scene.saturation * w
+		grade.TintColor = white:Lerp(scene.tint, w)
+	end
+	draw(0)
+	local function clean()
+		if gui ~= nil then
+			gui:Destroy()
+			gui = nil
+		end
+		grade:Destroy()
+	end
+	return draw, clean
+end
+
+-- #3942: the big moment's extra pieces in a whole scene: sparkles climbing round the pillar and, for a Secret, a cat
+-- of stars drawn over the pool, facing the camera. Timed pops only, nothing left behind.
+local function sceneBurst(scene: Logic.BigTraitScene, surface: Vector3, colour: Color3)
+	local b = Presets.bigTrait
+	for i = 1, scene.spiral do
+		task.delay((i - 1) * scene.spiralSeconds / math.max(1, scene.spiral), function()
+			local at = surface + Logic.sceneSpiral(i, scene.spiral, b.spiralRadius, b.spiralHeight)
+			Particles.burst("catchSparkle", at, 3, colour)
+		end)
+	end
+	if not scene.constellation then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	local right = if camera ~= nil then camera.CFrame.RightVector else Vector3.xAxis
+	right = Vector3.new(right.X, 0, right.Z)
+	right = if right.Magnitude > 0.01 then right.Unit else Vector3.xAxis
+	local centre = surface + Vector3.new(0, b.skyHeight, 0)
+	for i, point in Logic.CAT_CONSTELLATION do
+		task.delay((i - 1) * b.starGap, function()
+			local at = centre + right * point.X * b.skyScale + Vector3.yAxis * point.Y * b.skyScale
+			Particles.burst("catchSparkle", at, b.starSparkles, colour)
+		end)
+	end
+end
+
 -- Near the pool: see the top of this file. `roll(reveal)` starts the pool's own roll with `reveal` as its onReveal
 -- and returns the roll's skip. Returns the skip for the whole cutscene.
 function BigTraitCut.atPool(
@@ -355,6 +435,10 @@ function BigTraitCut.atPool(
 	local module: any? = nil
 	local promptsWere = ProximityPromptService.Enabled
 	local rollSkip: (() -> ())? = nil
+	-- #3942: a Mythic or Secret gets the whole scene, only with the camera held (decided below)
+	local scene: Logic.BigTraitScene? = if eye ~= nil then Logic.bigTraitScene(rarity) else nil
+	local sceneDraw: (w: number) -> () = function(_w: number) end
+	local sceneClean: (() -> ())? = nil
 
 	local function finish()
 		if finished then
@@ -365,6 +449,12 @@ function BigTraitCut.atPool(
 		if gui ~= nil then
 			gui:Destroy()
 			gui = nil
+		end
+		local clean: (() -> ())? = sceneClean
+		if clean ~= nil then
+			sceneClean = nil
+			(clean :: () -> ())()
+			beat("done", rarity)
 		end
 		if held then
 			held = false
@@ -390,6 +480,9 @@ function BigTraitCut.atPool(
 		end
 		bigAt = os.clock()
 		burst(rig.surface, rarity)
+		if scene ~= nil then
+			sceneBurst(scene, rig.surface, colourFor(rarity))
+		end
 		gui, draw = overlay(rarity, false)
 		beat("fanfare", rarity)
 	end
@@ -413,6 +506,10 @@ function BigTraitCut.atPool(
 		camera.CameraType = Enum.CameraType.Scriptable
 	end
 	local away = if eye ~= nil then CFrame.lookAt(eye, look) else start
+	if scene ~= nil then
+		sceneDraw, sceneClean = sceneLook(scene)
+		beat("hush", rarity)
+	end
 
 	RunService:BindToRenderStep(STEP, Enum.RenderPriority.Camera.Value + 1, function()
 		local now = os.clock()
@@ -450,9 +547,17 @@ function BigTraitCut.atPool(
 			w = Logic.smoothstep01(t / b.swingIn)
 		end
 		local cam = Workspace.CurrentCamera
+		local shot = away
+		local circling: Logic.BigTraitScene? = scene
+		if circling ~= nil and eye ~= nil then
+			-- #3942: the slow turn round the pool, eased in and out over the whole scene
+			local turn = circling.orbit * Logic.smoothstep01(t / circling.orbitSeconds)
+			shot = CFrame.lookAt(Logic.sceneOrbit(look, eye :: Vector3, turn), look)
+			sceneDraw(w)
+		end
 		if held and cam ~= nil then
 			cam.CameraType = Enum.CameraType.Scriptable
-			cam.CFrame = start:Lerp(away, w)
+			cam.CFrame = start:Lerp(shot, w)
 		end
 	end)
 

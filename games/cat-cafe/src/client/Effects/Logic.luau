@@ -3712,6 +3712,61 @@ function Logic.bigTraitBeams(count: number, spread: number): { Vector3 }
 	return spots
 end
 
+export type BigTraitScene = {
+	bars: number,
+	dim: number,
+	saturation: number,
+	tint: Color3,
+	orbit: number,
+	orbitSeconds: number,
+	spiral: number,
+	spiralSeconds: number,
+	constellation: boolean,
+}
+
+-- #3942: the whole scene round a Mythic or Secret roll (Presets.bigTrait.scenes), or nil for any other rarity.
+function Logic.bigTraitScene(rarity: string?): BigTraitScene?
+	local scenes: { [string]: BigTraitScene } = Presets.bigTrait.scenes :: any
+	return if rarity ~= nil then scenes[rarity] else nil
+end
+
+-- #3942: `eye` turned `degrees` round the upright line through `look`, at the same height and distance.
+function Logic.sceneOrbit(look: Vector3, eye: Vector3, degrees: number): Vector3
+	local offset = eye - look
+	local a = math.rad(degrees)
+	local c, s = math.cos(a), math.sin(a)
+	return look + Vector3.new(offset.X * c - offset.Z * s, offset.Y, offset.X * s + offset.Z * c)
+end
+
+-- #3942: the Secret roll's cat in the sky, in drawing order: a sitting cat facing out (two ears, the head, the back,
+-- the curled tail and the front paws). Units across (right +) and up, the head about 1 wide; nothing random.
+Logic.CAT_CONSTELLATION = {
+	Vector2.new(-0.5, 2.2), -- left ear tip
+	Vector2.new(-0.6, 1.7),
+	Vector2.new(-0.1, 1.85),
+	Vector2.new(0.3, 1.85),
+	Vector2.new(0.7, 2.2), -- right ear tip
+	Vector2.new(0.6, 1.7),
+	Vector2.new(0.45, 1.2), -- the cheek
+	Vector2.new(0.9, 0.6), -- the back
+	Vector2.new(1.05, -0.2),
+	Vector2.new(0.8, -0.8), -- the hip
+	Vector2.new(1.5, -0.7), -- the tail curling round
+	Vector2.new(1.7, -0.2),
+	Vector2.new(0.2, -0.85), -- the front paws
+	Vector2.new(-0.4, -0.85),
+	Vector2.new(-0.35, 0.3), -- the chest
+	Vector2.new(-0.55, 1.2), -- the other cheek
+} :: { Vector2 }
+
+-- #3942: where the `i`th spiral pop of `count` climbs the pillar: round it `radius` studs out, two turns in all, from
+-- the surface to `height` studs up (an offset from the pool's surface).
+function Logic.sceneSpiral(i: number, count: number, radius: number, height: number): Vector3
+	local k = if count <= 1 then 1 else (i - 1) / (count - 1)
+	local a = k * math.pi * 4
+	return Vector3.new(math.cos(a) * radius, k * height, math.sin(a) * radius)
+end
+
 -- #3846: the cutscene's title for `rarity`.
 function Logic.bigTraitTitle(rarity: string): string
 	local titles: { [string]: string } = Presets.bigTrait.titles :: any

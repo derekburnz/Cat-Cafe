@@ -4255,15 +4255,17 @@ local SCENES = {
 		})
 		UI.dealer.open()
 		-- #2057: rarest first, Star Treat's row on top
-		local tops: { [string]: number } = {}
+		-- #4007: on a grid row, first is the left
+		local at: { [string]: Vector2 } = {}
 		for _, d in game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants() do
 			if d:IsA("Frame") and (d.Name == "star_treat" or d.Name == "sardines") and d.AbsoluteSize.Y > 40 then
-				tops[d.Name] = d.AbsolutePosition.Y
+				at[d.Name] = d.AbsolutePosition
 			end
 		end
-		local star, sardines = tops.star_treat, tops.sardines
+		local star, sardines = at.star_treat, at.sardines
 		assert(star and sardines, "uigate: the dealer drew no Star Treat or Sardines row (#2057)")
-		assert(star < sardines, "uigate: the dealer lists Sardines above Star Treat, wants rarest first (#2057)")
+		local first = star.Y < sardines.Y - 1 or (math.abs(star.Y - sardines.Y) <= 1 and star.X < sardines.X)
+		assert(first, "uigate: the dealer lists Sardines before Star Treat, wants rarest first (#2057)")
 	end },
 	-- Review-QA's Studio pass 2026-11-13: a card's odds (its ?) open over the whole food grid, not inside the card
 	{ "DealerDetail", function()
@@ -9451,6 +9453,26 @@ local SCENES = {
 			},
 		})
 		UI.cornerShop.open()
+		-- #4007 (Derek: "maybe 4 per row"): the cards in the open tab, four on a row where the window has room
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		local most = 0
+		for _, grid in window:GetDescendants() do
+			local layout = grid:IsA("Frame") and grid.Visible and grid.Name:find("Grid_", 1, true) and grid:FindFirstChildOfClass("UIGridLayout")
+			if layout then
+				local cell = layout.AbsoluteCellSize.X
+				most = math.max(most, math.floor((grid.AbsoluteSize.X + 2) / cell))
+				for _, card in grid:GetChildren() do
+					local name = card:IsA("Frame") and card.Visible and card:FindFirstChild("Name")
+					if name then
+						assert(name.TextFits, "uigate: " .. card.Name .. "'s name does not fit its card (#4007)")
+						local effect = card:FindFirstChild("Effect")
+						assert(effect == nil or effect.TextFits, "uigate: " .. card.Name .. "'s effect runs past its lines (#4007)")
+					end
+				end
+			end
+		end
+		print(("[CornerShop] %d cards a row"):format(most))
+		assert(most >= 4, ("uigate: the Day Cart grid has room for only %d cards a row (#4007)"):format(most))
 	end },
 	-- #1281: the three bait foods at the Corner Shop: their clean pictures and grade badges, "You have n" from the
 	-- player's lures, Salmon sold out

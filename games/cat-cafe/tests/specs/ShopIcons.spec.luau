@@ -190,9 +190,9 @@ return function()
 				end
 				expect(table.concat(missing, ",")).to.equal("")
 				expect(ShopIcons.decor("Decor_PartyBunting")).to.equal(
-					"rbxassetid://126747238801401"
+					"rbxassetid://100203816605384"
 				)
-				expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://98250313136423")
+				expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://124215158995706")
 				expect(ShopIcons.decor("not_a_piece")).to.equal(nil)
 				expect(ShopIcons.decor(nil)).to.equal(nil)
 			end

@@ -12,6 +12,7 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Crates = require(script.Parent.Crates)
 local LateStations = require(script.Parent.LateStations)
+local LiveFlags = require(script.Parent.LiveFlags)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
@@ -32,9 +33,52 @@ function IndexRewards.milestone(id: string): Types.IndexMilestone?
 	return milestonesById[id]
 end
 
+-- #3992: the milestones marked `late` (the All Cats tracks past 50 and the Rainbow track past 25) show and pay only
+-- while the `indexTo70` live switch is on. It goes on with the restart, since an older server's save check
+-- (ProfileSchema) drops a claim id it does not know, and the milestone could then be claimed again. Read from the
+-- switch's ReplicatedStorage attribute, which LiveFlagService sets on the server for both sides; specs set it here.
+IndexRewards.LATE_FLAG = "indexTo70"
+local lateOverride: boolean? = nil
+function IndexRewards.setLateOpen(open: boolean?)
+	lateOverride = open
+end
+function IndexRewards.lateOpen(): boolean
+	if lateOverride ~= nil then
+		return lateOverride
+	end
+	return game:GetService("ReplicatedStorage")
+		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. IndexRewards.LATE_FLAG) == true
+end
+
+local function shut(milestoneId: string): boolean
+	local milestone = milestonesById[milestoneId]
+	return milestone ~= nil and milestone.late == true and not IndexRewards.lateOpen()
+end
+
 function IndexRewards.prize(areaId: string, milestoneId: string): Types.IndexPrize?
 	local area = Catalog.indexPrizes[areaId]
-	return if area ~= nil then area[milestoneId] else nil
+	if area == nil or shut(milestoneId) then
+		return nil
+	end
+	return area[milestoneId]
+end
+
+-- #3992: Catalog.indexPrizes as the Index shows it now: without the `late` milestones while their switch is off.
+function IndexRewards.shownPrizes(): { [string]: { [string]: Types.IndexPrize } }
+	if IndexRewards.lateOpen() then
+		return Catalog.indexPrizes
+	end
+	local out: { [string]: { [string]: Types.IndexPrize } } = {}
+	for areaId, prizes in Catalog.indexPrizes do
+		local page: { [string]: Types.IndexPrize } = {}
+		for milestoneId, prize in prizes do
+			if not shut(milestoneId) then
+				page[milestoneId] = prize
+			end
+		end
+		out[areaId] = page
+	end
+	return out
 end
 
 -- Different cats of the area in `collection` (a collection or a gold collection: catId -> first caught at), or of
@@ -85,12 +129,31 @@ function IndexRewards.claimed(
 	return area ~= nil and area[milestoneId] == true
 end
 
--- What the milestone needs on this page: its `needs`, or for a `whole` milestone (decor10) every piece of the Decor
--- page, sixteen on the Classic page since F97.
+-- #3992: how many cats the All Cats and Rainbow pages count, the catalog's cats that `progress` counts (70 today).
+local bookSize: number? = nil
+function IndexRewards.bookSize(): number
+	if bookSize == nil then
+		local all = {}
+		for _, def in Catalog.cats do
+			all[def.id] = 0
+		end
+		bookSize = IndexRewards.progress(all, IndexRewards.ALL)
+	end
+	return bookSize :: number
+end
+
+-- What the milestone needs on this page: its `needs`, or for a `whole` milestone every piece of the Decor page
+-- (decor10, sixteen on the Classic page since F97) or every cat of the book (#3992: totalAll, goldtotalAll and
+-- rainbowAll), whichever is more.
 function IndexRewards.needs(areaId: string, milestone: Types.IndexMilestone): number
 	if milestone.whole == true and milestone.track == "decor" then
 		local pool = string.sub(areaId, #IndexRewards.DECOR_PREFIX + 1)
 		return math.max(milestone.needs, Crates.pageSize(pool))
+	end
+	if
+		milestone.whole == true and (areaId == IndexRewards.ALL or areaId == IndexRewards.RAINBOW)
+	then
+		return math.max(milestone.needs, IndexRewards.bookSize())
 	end
 	return milestone.needs
 end

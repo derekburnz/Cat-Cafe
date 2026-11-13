@@ -134,7 +134,7 @@ After the §4c re-fit, the coin buys land at about 11.7 (Tier 2), 22.6 (Tables 5
 ### 6a. One reason to come back tomorrow (2026-11-07, Derek2's pick of item 11)
 The D1 return rate is the launch number, and Home recommendations follow it (release.md). Two small changes, using lines and screens that already exist, with no new systems:
 
-- **A first-session recap at 15 minutes.** Most first sessions end before 40 minutes, so a player's first session shows the recap card after 15 minutes (`RecapFirstSessionSeconds` 900). Later sessions keep `RecapAfterSeconds` 2400. The calm-moment rules, once per session, the toggle and the 12 s auto-hide are unchanged.
+- **A first-session recap at 15 minutes.** Most first sessions end before 40 minutes, so a player's first session shows the recap card after 15 minutes (`RecapFirstSessionSeconds` 900). Since #3772 (2026-11-13) it comes at 8 minutes (480), and names the welcome back gift as its Tomorrow line while that pays tomorrow ([come-back-tomorrow.md](come-back-tomorrow.md)). Later sessions keep `RecapAfterSeconds` 2400. The calm-moment rules, once per session, the toggle and the 12 s auto-hide are unchanged.
 - **One "Tomorrow" line, picked in this order:** line 4 of the card names the single best thing waiting:
   1. "Your bait cat will be waiting for you", if bait is cooking and will be ready after the player leaves.
   2. "Tomorrow: Daily Treat day D, PRIZE", naming the next day's prize from the Daily Treat table (for example "2 Cat Snacks"), if tomorrow's treat isn't claimed yet.

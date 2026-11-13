@@ -56,3 +56,11 @@ What is missing: a first-day player has nothing of their own that waits for them
 - Next UTC day: the welcome back card says "Welcome back gift: a golden crate!" and the crate is banked once. A second join that day pays nothing. Two servers during a rollout pay once.
 - An account from before `ReturnGiftFromDay` gets no gift and no gift line.
 - With `returnGift` off nothing pays and no line names the gift; the card still shows lines 2 and 3.
+
+## 6. As built (2026-11-13, Design-Agent)
+
+- **Gift:** `shared/ReturnGift.luau` and `PlaytimeGiftService`. On the first second a returning player is loaded on a later UTC day than `telemetry.firstDay`, with the switch on and `firstDay >= Config.ReturnGiftFromDay` (20770, 2026-11-13), it marks `codesRedeemed.giftreturn` and then pays `{ crates = { highest_golden = 1 } }` through Payout, with the toast "Welcome back gift! ..." (on `ToastRules.KEEP`) and `return_gift_paid` (value: days since the first day).
+- **No save version step** (Gameplay-Engineer's advice): the mark lives in `codesRedeemed`, which every server keeps as it is, as the Saturday update gift's does, so hopping servers during a rollout cannot pay it twice and no restart is needed. The key starts with "gift", so the Store's used codes list leaves it out, and it has no digits, so no update gift key can match it. The switch can go on as soon as the build is live; an older server simply does not pay it.
+- **Tomorrow card:** built as the first session's recap card moved from 15 to 8 minutes (`RecapFirstSessionSeconds` 480), with the same calm-moment rules, toggle and auto-hide. Its Tomorrow line reads "Come back tomorrow for a golden crate" while the gift pays tomorrow (`ReturnHook.pick(..., "recap", gift)`, the switch checked in SessionRecapService), and the offline share line is already on the card. Not built: the separate "Today's Daily Treat is waiting for you" line and a `tomorrow_card` event (the recap's own close event already logs it).
+- **Join line:** the welcome back card keeps its line; the gift's own toast says what was paid.
+

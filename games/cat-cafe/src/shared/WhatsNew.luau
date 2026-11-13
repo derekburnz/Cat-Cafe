@@ -78,12 +78,14 @@ WhatsNew.rows = table.freeze({
 		text = "Bigger station circles",
 	},
 	-- #2718 refresh (11-12 09:10): player-facing changes since #3369, 148 merges, that are on without a switch. The
-	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) has no named credit (#3472).
+	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) was a player's idea, credited
+	-- since 2026-11-13 (Derek; the credit row c13 was added with the idea-credits workflow).
 	{
 		id = "top_ten_hello",
 		date = "2026-11-12",
 		icon = "new",
 		text = "Top 10 players get a hello",
+		creditId = "c13",
 	},
 	{
 		id = "spa_sort_toggle",

@@ -432,7 +432,6 @@ local DAY_CARD_W = 300 -- #1572: the day line's card
 local BANNER_RING = 2.5 -- #2885: the status banner's ring
 local BANNER_PAD_X = 8
 local BANNER_PAD_Y = 4
-local BANNER_GAP = 2 -- between its lines
 -- Derek 2026-11-13 ("stretch it long not downward it's taking up a lot of screen maybe narrow it down to 3 days Event
 -- timeleft and if clicked it shows the more details"): the banner is one thin strip of at most BANNER_MOST pieces
 -- side by side, a name and its time left each, BANNER_ITEM_GAP apart; a tap on any opens the card with the rest

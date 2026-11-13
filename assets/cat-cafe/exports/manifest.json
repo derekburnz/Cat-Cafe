@@ -324877,6 +324877,709 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_MoneyBag.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_MoneyBag.png"
+    },
+    {
+      "name": "CatCafe_RiftRun_Path",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Path",
+        "CatCafe_RiftRun_Path_Glow"
+      ],
+      "triangles": 864,
+      "budget": 2500,
+      "size_studs": {
+        "x": 10.44,
+        "y": 120.0,
+        "z": 4.6
+      },
+      "size_roblox": [
+        10.44,
+        4.6,
+        120.0
+      ],
+      "bounds_min": [
+        -5.22,
+        -120.0,
+        -4.6
+      ],
+      "bounds_max": [
+        5.22,
+        0.0,
+        0.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Path.model.json",
+      "rbx_parts": 72,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Path.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Path.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "864/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "432 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-4.60 (want 0)",
+          "centered": "footprint center x=0.00 y=-60.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_IslandA",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_IslandA",
+        "CatCafe_RiftRun_IslandA_Glow"
+      ],
+      "triangles": 184,
+      "budget": 1500,
+      "size_studs": {
+        "x": 10.0,
+        "y": 10.0,
+        "z": 7.81
+      },
+      "size_roblox": [
+        10.0,
+        7.81,
+        10.0
+      ],
+      "bounds_min": [
+        -5.0,
+        -5.0,
+        -5.55
+      ],
+      "bounds_max": [
+        5.0,
+        5.0,
+        2.26
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_IslandA.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_IslandA.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_IslandA.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "184/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "109 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-5.55 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_IslandB",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_IslandB",
+        "CatCafe_RiftRun_IslandB_Glow"
+      ],
+      "triangles": 196,
+      "budget": 1500,
+      "size_studs": {
+        "x": 16.0,
+        "y": 16.0,
+        "z": 11.2
+      },
+      "size_roblox": [
+        16.0,
+        11.2,
+        16.0
+      ],
+      "bounds_min": [
+        -8.0,
+        -8.0,
+        -8.16
+      ],
+      "bounds_max": [
+        8.0,
+        8.0,
+        3.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_IslandB.model.json",
+      "rbx_parts": 14,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_IslandB.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_IslandB.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "196/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "115 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-8.16 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_IslandC",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_IslandC",
+        "CatCafe_RiftRun_IslandC_Glow"
+      ],
+      "triangles": 260,
+      "budget": 1500,
+      "size_studs": {
+        "x": 24.0,
+        "y": 24.0,
+        "z": 15.84
+      },
+      "size_roblox": [
+        24.0,
+        15.84,
+        24.0
+      ],
+      "bounds_min": [
+        -12.0,
+        -12.0,
+        -11.64
+      ],
+      "bounds_max": [
+        12.0,
+        12.0,
+        4.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_IslandC.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_IslandC.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_IslandC.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "260/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "143 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-11.64 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Ring",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Ring",
+        "CatCafe_RiftRun_Ring_Glow"
+      ],
+      "triangles": 1476,
+      "budget": 3000,
+      "size_studs": {
+        "x": 32.46,
+        "y": 4.6,
+        "z": 31.04
+      },
+      "size_roblox": [
+        32.46,
+        31.04,
+        4.6
+      ],
+      "bounds_min": [
+        -15.78,
+        -2.3,
+        0.0
+      ],
+      "bounds_max": [
+        16.67,
+        2.3,
+        31.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Ring.model.json",
+      "rbx_parts": 119,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Ring.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Ring.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1476/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "726 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.45 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Common",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Common",
+        "CatCafe_RiftRun_Gate_Common_Glow"
+      ],
+      "triangles": 192,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 16.71
+      },
+      "size_roblox": [
+        16.1,
+        16.71,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        16.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Common.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Common.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Common.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Uncommon",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Uncommon",
+        "CatCafe_RiftRun_Gate_Uncommon_Glow"
+      ],
+      "triangles": 192,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 16.71
+      },
+      "size_roblox": [
+        16.1,
+        16.71,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        16.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Uncommon.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Uncommon.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Uncommon.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Rare",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Rare",
+        "CatCafe_RiftRun_Gate_Rare_Glow"
+      ],
+      "triangles": 192,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 16.71
+      },
+      "size_roblox": [
+        16.1,
+        16.71,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        16.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Rare.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Rare.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Rare.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Epic",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Epic",
+        "CatCafe_RiftRun_Gate_Epic_Glow"
+      ],
+      "triangles": 192,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 16.71
+      },
+      "size_roblox": [
+        16.1,
+        16.71,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        16.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Epic.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Epic.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Epic.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Legendary",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Legendary",
+        "CatCafe_RiftRun_Gate_Legendary_Glow"
+      ],
+      "triangles": 192,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 16.71
+      },
+      "size_roblox": [
+        16.1,
+        16.71,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        16.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Legendary.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Legendary.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Legendary.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Mythic",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Mythic",
+        "CatCafe_RiftRun_Gate_Mythic_Glow"
+      ],
+      "triangles": 192,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 16.71
+      },
+      "size_roblox": [
+        16.1,
+        16.71,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        16.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Mythic.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Mythic.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Mythic.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Gate_Secret",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Gate_Secret",
+        "CatCafe_RiftRun_Gate_Secret_Glow"
+      ],
+      "triangles": 372,
+      "budget": 1000,
+      "size_studs": {
+        "x": 16.1,
+        "y": 2.6,
+        "z": 21.62
+      },
+      "size_roblox": [
+        16.1,
+        21.62,
+        2.6
+      ],
+      "bounds_min": [
+        -8.05,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.05,
+        1.3,
+        21.62
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Gate_Secret.model.json",
+      "rbx_parts": 27,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Secret.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Gate_Secret.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "372/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "246 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_RiftRun_Meteor",
+      "category": "RiftRun",
+      "module": "riftrun",
+      "objects": [
+        "CatCafe_RiftRun_Meteor",
+        "CatCafe_RiftRun_Meteor_Glow"
+      ],
+      "triangles": 200,
+      "budget": 800,
+      "size_studs": {
+        "x": 3.24,
+        "y": 3.25,
+        "z": 3.27
+      },
+      "size_roblox": [
+        3.24,
+        3.27,
+        3.25
+      ],
+      "bounds_min": [
+        -1.62,
+        -1.5,
+        -1.56
+      ],
+      "bounds_max": [
+        1.62,
+        1.76,
+        1.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/RiftRun/CatCafe_RiftRun_Meteor.model.json",
+      "rbx_parts": 10,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Meteor.fbx",
+        "assets/cat-cafe/exports/CatCafe_RiftRun_Meteor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "200/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "200 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.56 (want 0)",
+          "centered": "footprint center x=0.00 y=0.13"
+        }
+      }
     }
   ]
 }

@@ -603,6 +603,9 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		BackgroundTransparency = 1,
 		Position = UDim2.new(split, 104, 0, 38),
 		Size = UDim2.new(1 - split, -(104 + ACTION_W + gap), 0, CHIP + 4),
+		-- Review-QA (daa09e07): at the 9 px text floor the chip row stays wider than the area keepClear leaves, so the
+		-- area clips it: whatever does not fit is cut at the area's edge, never drawn under the button
+		ClipsDescendants = true,
 		Parent = frame,
 	})
 	local chips = PrizeChips.new({
@@ -697,6 +700,9 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		-- Studio (5e74d9b4): the chips ended only 2 px before Claim and ran up to 8 px under it on 667 x 375; they now
 		-- stop 18 px short of it
 		Size = UDim2.new(1, -(24 + ACTION_W), 0, CARD_CHIP + 22),
+		-- Review-QA (daa09e07): at the 9 px text floor the chip row stays wider than the area keepClear leaves, so the
+		-- area clips it: whatever does not fit is cut at the area's edge, never drawn under the button
+		ClipsDescendants = true,
 		Parent = frame,
 	})
 	local chips = PrizeChips.new({

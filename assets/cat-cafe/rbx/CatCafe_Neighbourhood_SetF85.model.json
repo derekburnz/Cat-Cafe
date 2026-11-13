@@ -177527,19 +177527,19 @@
        "CFrame": {
         "position": [
          84.0,
-         4.0,
+         4.4,
          -21.0
         ],
         "orientation": [
          [
           0.0,
-          0.1961,
-          0.9806
+          -1.0,
+          0.0
          ],
          [
           0.0,
-          -0.9806,
-          0.1961
+          0.0,
+          -1.0
          ],
          [
           1.0,
@@ -177551,57 +177551,8 @@
       },
       "Size": [
        5.0,
-       0.7845,
-       3.9223
-      ],
-      "Color": [
-       0.1216,
-       0.6471,
-       0.5608
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Neighbourhood_SetF85_238_PottingShed",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         86.0,
-         4.4,
-         -21.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.1961,
-          -0.9806
-         ],
-         [
-          0.0,
-          -0.9806,
-          -0.1961
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       5.0,
-       0.7845,
-       0.1569
+       4.0,
+       0.8
       ],
       "Color": [
        0.1216,
@@ -227619,7 +227570,7 @@
        "CFrame": {
         "position": [
          46.0,
-         4.0,
+         4.4,
          140.0
         ],
         "orientation": [
@@ -227630,70 +227581,21 @@
          ],
          [
           0.0,
-          -0.9806,
-          0.1961
+          0.0,
+          -1.0
          ],
          [
           0.0,
-          0.1961,
-          0.9806
-         ]
-        ]
-       }
-      },
-      "Size": [
-       5.0,
-       0.7845,
-       3.9223
-      ],
-      "Color": [
-       0.1216,
-       0.6471,
-       0.5608
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Neighbourhood_SetF85_273_PottingShed",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         46.0,
-         4.4,
-         142.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
+          -1.0,
           0.0
-         ],
-         [
-          0.0,
-          -0.9806,
-          -0.1961
-         ],
-         [
-          0.0,
-          0.1961,
-          -0.9806
          ]
         ]
        }
       },
       "Size": [
        5.0,
-       0.7845,
-       0.1569
+       4.0,
+       0.8
       ],
       "Color": [
        0.1216,

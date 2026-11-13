@@ -8409,118 +8409,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0206,
-         3.6283,
+         -0.0318,
+         3.6,
          0.0
         ],
         "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0206,
-         3.5483,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
          [
           0.0,
           0.0,
           1.0
          ],
          [
+          0.0,
           1.0,
-          0.0,
           0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0206,
-         3.5483,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.309,
-          0.9511
-         ],
-         [
-          0.0,
-          0.9511,
-          0.309
          ],
          [
           -1.0,
@@ -8532,8 +8434,8 @@
       },
       "Size": [
        0.06,
-       0.0411,
-       0.0566
+       0.16,
+       0.0637
       ],
       "Color": [
        0.9843,
@@ -8556,806 +8458,22 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0967,
-         3.573,
+         0.0318,
+         3.6,
          0.0
         ],
         "orientation": [
-         [
-          0.0,
-          -0.309,
-          -0.9511
-         ],
-         [
-          0.0,
-          0.9511,
-          -0.309
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.1094,
-         3.5339,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.309,
-          -0.9511
-         ],
-         [
-          0.0,
-          -0.9511,
-          -0.309
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0333,
-         3.5092,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.309,
-          0.9511
-         ],
-         [
-          0.0,
-          -0.9511,
-          0.309
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0333,
-         3.5092,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          -0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0803,
-         3.4445,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.047,
-         3.4203,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         3.485,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          -0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         3.485,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          -0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.047,
-         3.4203,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0803,
-         3.4445,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0333,
-         3.5092,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          -0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0333,
-         3.5092,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.309,
-          -0.9511
-         ],
-         [
-          0.0,
-          -0.9511,
-          0.309
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.1094,
-         3.5339,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.309,
-          0.9511
-         ],
-         [
-          0.0,
-          -0.9511,
-          -0.309
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0967,
-         3.573,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.309,
-          0.9511
-         ],
-         [
-          0.0,
-          0.9511,
-          -0.309
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.1034
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0206,
-         3.5483,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.309,
-          -0.9511
-         ],
-         [
-          0.0,
-          0.9511,
-          0.309
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0206,
-         3.5483,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.06,
-       0.0411,
-       0.0566
-      ],
-      "Color": [
-       0.9843,
-       0.8941,
-       0.6039
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0206,
-         3.6283,
-         0.0
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
          [
           0.0,
           0.0,
           -1.0
          ],
          [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
           1.0,
           0.0,
           0.0
@@ -9364,9 +8482,401 @@
        }
       },
       "Size": [
-       0.06,
-       0.0411,
-       0.1034
+       0.0591,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0662,
+         3.575,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9511,
+          0.309
+         ],
+         [
+          0.0,
+          0.309,
+          -0.9511
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0582,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0859,
+         3.5144,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ],
+         [
+          0.0,
+          0.309,
+          0.9511
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0573,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0728,
+         3.474,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.5878,
+          -0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          -0.5878
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0564,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0213,
+         3.4366,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.5878,
+          0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          0.5878
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0555,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0213,
+         3.4366,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5878,
+          -0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          0.5878
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0546,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0728,
+         3.474,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5878,
+          0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          -0.5878
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0537,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0859,
+         3.5144,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9511,
+          0.309
+         ],
+         [
+          0.0,
+          0.309,
+          0.9511
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0528,
+       0.16,
+       0.0637
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0662,
+         3.575,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9511,
+          -0.309
+         ],
+         [
+          0.0,
+          0.309,
+          -0.9511
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0519,
+       0.16,
+       0.0637
       ],
       "Color": [
        0.9843,

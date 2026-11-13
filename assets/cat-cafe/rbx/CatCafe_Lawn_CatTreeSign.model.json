@@ -7979,20 +7979,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.4105,
-         6.7348,
+         -1.2675,
+         6.795,
          0.1
         ],
         "orientation": [
          [
           0.0,
-          0.309,
-          0.9511
+          0.0,
+          1.0
          ],
          [
           0.0,
-          0.9511,
-          -0.309
+          1.0,
+          0.0
          ],
          [
           -1.0,
@@ -8004,8 +8004,8 @@
       },
       "Size": [
        0.12,
-       0.0882,
-       0.2286
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,
@@ -8023,8 +8023,8 @@
        "CFrame": {
         "position": [
          0.0,
-         -0.2914,
-         0.316
+         -0.435,
+         0.0675
         ],
         "orientation": [
          [
@@ -8033,13 +8033,13 @@
           -1.0
          ],
          [
-          0.309,
-          0.9511,
+          0.0,
+          1.0,
           0.0
          ],
          [
-          0.9511,
-          -0.309,
+          1.0,
+          0.0,
           0.0
          ]
         ]
@@ -8057,23 +8057,23 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.1559,
-         6.8557,
+         -1.1325,
+         6.795,
          0.1
         ],
         "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
          [
           0.0,
           0.0,
           -1.0
          ],
          [
-          -1.0,
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
           0.0,
           0.0
          ]
@@ -8081,9 +8081,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.0882,
-       0.2286
+       0.1182,
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,
@@ -8106,71 +8106,22 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.1559,
-         6.6807,
+         -1.0544,
+         6.7383,
          0.1
         ],
         "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.1559,
-         6.6807,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.309,
-          0.9511
-         ],
          [
           0.0,
           0.9511,
           0.309
          ],
          [
+          0.0,
+          0.309,
+          -0.9511
+         ],
+         [
           -1.0,
           0.0,
           0.0
@@ -8179,9 +8130,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.0882,
-       0.1214
+       0.1164,
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,
@@ -8204,22 +8155,22 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.9895,
-         6.7348,
+         -1.0127,
+         6.6099,
          0.1
         ],
         "orientation": [
-         [
-          0.0,
-          -0.309,
-          -0.9511
-         ],
          [
           0.0,
           0.9511,
           -0.309
          ],
          [
+          0.0,
+          0.309,
+          0.9511
+         ],
+         [
           1.0,
           0.0,
           0.0
@@ -8228,9 +8179,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.0882,
-       0.2286
+       0.1146,
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,
@@ -8253,20 +8204,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.9622,
-         6.6509,
+         -1.0425,
+         6.5181,
          0.1
         ],
         "orientation": [
          [
           0.0,
-          0.309,
-          -0.9511
+          0.5878,
+          -0.809
          ],
          [
           0.0,
-          -0.9511,
-          -0.309
+          -0.809,
+          -0.5878
          ],
          [
           -1.0,
@@ -8277,9 +8228,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.0882,
-       0.2286
+       0.1128,
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,
@@ -8302,71 +8253,169 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.1287,
-         6.5968,
+         -1.1517,
+         6.4388,
          0.1
         ],
         "orientation": [
+         [
+          0.0,
+          0.5878,
+          0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          0.5878
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.111,
+       0.35,
+       0.135
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.2483,
+         6.4388,
+         0.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5878,
+          -0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          0.5878
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1092,
+       0.35,
+       0.135
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.3575,
+         6.5181,
+         0.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5878,
+          0.809
+         ],
+         [
+          0.0,
+          -0.809,
+          -0.5878
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1074,
+       0.35,
+       0.135
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.3873,
+         6.6099,
+         0.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9511,
+          0.309
+         ],
          [
           0.0,
           0.309,
           0.9511
          ],
          [
-          0.0,
-          -0.9511,
-          0.309
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.1287,
-         6.5968,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          -0.809
-         ],
-         [
           -1.0,
           0.0,
           0.0
@@ -8375,9 +8424,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.0882,
-       0.1214
+       0.1056,
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,
@@ -8400,463 +8449,22 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.0258,
-         6.4552,
+         -1.3456,
+         6.7383,
          0.1
         ],
         "orientation": [
-         [
-          0.0,
-          0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.2286
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.0971,
-         6.4034,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.2286
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2,
-         6.545,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          -0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2,
-         6.545,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          -0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.3029,
-         6.4034,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          -0.5878,
-          0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.2286
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.3742,
-         6.4552,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          0.809
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.2286
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2713,
-         6.5968,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.809,
-          -0.5878
-         ],
-         [
-          0.0,
-          0.5878,
-          -0.809
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2713,
-         6.5968,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.309,
-          -0.9511
-         ],
-         [
-          0.0,
-          -0.9511,
-          0.309
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.4378,
-         6.6509,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.309,
-          0.9511
-         ],
          [
           0.0,
           -0.9511,
           -0.309
          ],
          [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.2286
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2441,
-         6.6807,
-         0.1
-        ],
-        "orientation": [
-         [
           0.0,
           0.309,
           -0.9511
          ],
          [
-          0.0,
-          0.9511,
-          0.309
-         ],
-         [
           1.0,
           0.0,
           0.0
@@ -8865,107 +8473,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2441,
-         6.6807,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.1214
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "Metal",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_Star_Spin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.2441,
-         6.8557,
-         0.1
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.0882,
-       0.2286
+       0.1038,
+       0.35,
+       0.135
       ],
       "Color": [
        0.949,

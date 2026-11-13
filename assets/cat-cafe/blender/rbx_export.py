@@ -173,7 +173,8 @@ def _cyl_parts(name, M4, swatch, fr):
 
 
 def _tri_parts(name, M4, swatch, extra):
-    """Flat triangle of a given thickness as two right-angle WedgeParts (the usual Roblox triangle trick)."""
+    """Flat triangle of a given thickness as two right-angle WedgeParts (the usual Roblox triangle trick), or one
+    when it is already square at a corner."""
     (pa, pb, pc), thick = extra
     a, b, c = (C @ (M4 @ Vector((p[0], p[1], 0.0))) for p in (pa, pb, pc))
     ab, ac, bc = b - a, c - a, c - b
@@ -185,12 +186,16 @@ def _tri_parts(name, M4, swatch, extra):
     n = ac.cross(ab)
     if n.length < 1e-6 or bc.length < 1e-6:
         return []
+    _, _, scl = _to_rbx(M4)
+    t = thick * scl[2]
+    if abs(ab.dot(ac)) < 1e-4 * ab.length * ac.length:     # already square at a: one WedgePart (stars, #3743)
+        up, back = ab.normalized(), -ac.normalized()
+        rot = Matrix((up.cross(back), up, back)).transposed()
+        return [_part("WedgePart", name, (b + c) / 2, rot, (t, ab.length, ac.length), swatch)]
     right = n.normalized()
     up = bc.cross(right).normalized()
     back = bc.normalized()
     height = abs(ab.dot(up))
-    _, _, scl = _to_rbx(M4)
-    t = thick * scl[2]
     out = []
     for center, rt, bk, depth in (((a + b) / 2, right, back, abs(ab.dot(back))),
                                   ((a + c) / 2, -right, -back, abs(ac.dot(back)))):

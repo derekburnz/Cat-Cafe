@@ -783,33 +783,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1309,
-       0.0095,
-       -0.2671
+       -0.1806,
+       0.0342,
+       -0.2761
       ],
       "orientation": [
        [
         0.0,
-        1.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.342,
+        -0.9397,
         0.0
        ],
        [
-        0.342,
-        0.0,
-        0.9397
-       ],
-       [
         0.9397,
-        0.0,
-        -0.342
+        0.342,
+        0.0
        ]
       ]
      }
     },
     "Size": [
      0.025,
-     0.0382,
-     0.0874
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -832,33 +832,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1309,
-       0.0753,
-       -0.291
+       -0.1194,
+       0.0342,
+       -0.2761
       ],
       "orientation": [
        [
         0.0,
-        1.0,
+        0.0,
+        -1.0
+       ],
+       [
+        -0.342,
+        -0.9397,
         0.0
        ],
        [
-        -0.342,
-        0.0,
-        -0.9397
-       ],
-       [
         -0.9397,
-        0.0,
-        0.342
+        0.342,
+        0.0
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0526
+     0.0246,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -881,33 +881,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1309,
-       0.0753,
-       -0.291
+       -0.0929,
+       0.0523,
+       -0.2826
       ],
       "orientation": [
        [
         0.0,
-        -0.309,
-        0.9511
+        0.9511,
+        0.309
        ],
        [
         0.342,
-        -0.8937,
-        -0.2904
+        -0.2904,
+        0.8937
        ],
        [
         0.9397,
-        0.3253,
-        0.1057
+        0.1057,
+        -0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0526
+     0.0242,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -930,33 +930,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0643,
-       0.055,
-       -0.2836
+       -0.074,
+       0.107,
+       -0.3026
       ],
       "orientation": [
        [
         0.0,
-        -0.309,
-        -0.9511
+        0.9511,
+        -0.309
        ],
        [
         -0.342,
-        -0.8937,
-        0.2904
+        -0.2904,
+        -0.8937
        ],
        [
         -0.9397,
-        0.3253,
-        -0.1057
+        0.1057,
+        0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0874
+     0.0239,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -979,33 +979,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0525,
-       0.0891,
-       -0.296
+       -0.0841,
+       0.1363,
+       -0.3132
       ],
       "orientation": [
        [
         0.0,
-        0.309,
-        -0.9511
+        0.5878,
+        -0.809
        ],
        [
         0.342,
-        0.8937,
-        0.2904
+        0.7602,
+        0.5523
        ],
        [
         0.9397,
-        -0.3253,
-        -0.1057
+        -0.2767,
+        -0.201
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0874
+     0.0235,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -1028,33 +1028,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1191,
-       0.1094,
-       -0.3034
+       -0.1336,
+       0.1701,
+       -0.3255
       ],
       "orientation": [
        [
         0.0,
-        0.309,
-        0.9511
+        0.5878,
+        0.809
        ],
        [
         -0.342,
-        0.8937,
-        -0.2904
+        0.7602,
+        -0.5523
        ],
        [
         -0.9397,
-        -0.3253,
-        0.1057
+        -0.2767,
+        0.201
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0526
+     0.0231,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -1077,33 +1077,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1191,
-       0.1094,
-       -0.3034
+       -0.1664,
+       0.1701,
+       -0.3255
       ],
       "orientation": [
        [
         0.0,
-        0.809,
-        0.5878
+        -0.5878,
+        -0.809
        ],
        [
         0.342,
-        -0.5523,
-        0.7602
+        0.7602,
+        -0.5523
        ],
        [
         0.9397,
-        0.201,
-        -0.2767
+        -0.2767,
+        0.201
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0526
+     0.0227,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -1126,33 +1126,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0779,
-       0.1627,
-       -0.3228
+       -0.2159,
+       0.1363,
+       -0.3132
       ],
       "orientation": [
        [
         0.0,
-        0.809,
-        -0.5878
+        -0.5878,
+        0.809
        ],
        [
         -0.342,
-        -0.5523,
-        -0.7602
+        0.7602,
+        0.5523
        ],
        [
         -0.9397,
-        0.201,
-        0.2767
+        -0.2767,
+        -0.201
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0874
+     0.0224,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -1175,33 +1175,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1089,
-       0.1838,
-       -0.3305
+       -0.226,
+       0.107,
+       -0.3026
       ],
       "orientation": [
        [
         0.0,
-        -0.809,
-        -0.5878
+        -0.9511,
+        0.309
        ],
        [
         0.342,
-        0.5523,
-        -0.7602
+        -0.2904,
+        -0.8937
        ],
        [
         0.9397,
-        -0.201,
-        0.2767
+        0.1057,
+        0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0874
+     0.022,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -1224,33 +1224,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.15,
-       0.1305,
-       -0.3111
+       -0.2071,
+       0.0523,
+       -0.2826
       ],
       "orientation": [
        [
         0.0,
-        -0.809,
-        0.5878
+        -0.9511,
+        -0.309
        ],
        [
         -0.342,
-        0.5523,
-        0.7602
+        -0.2904,
+        0.8937
        ],
        [
         -0.9397,
-        -0.201,
-        -0.2767
+        0.1057,
+        -0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0382,
-     0.0526
+     0.0216,
+     0.14,
+     0.0612
     ],
     "Color": [
      0.7686,
@@ -1273,425 +1273,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.15,
-       0.1305,
-       -0.3111
+       -0.1706,
+       0.0178,
+       -0.2701
       ],
       "orientation": [
        [
         0.0,
-        0.809,
-        -0.5878
+        0.0,
+        1.0
        ],
        [
         0.342,
-        0.5523,
-        0.7602
-       ],
-       [
-        0.9397,
-        -0.201,
-        -0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0526
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1911,
-       0.1838,
-       -0.3305
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        -0.342,
-        0.5523,
-        -0.7602
-       ],
-       [
         -0.9397,
-        -0.201,
-        0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0874
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2221,
-       0.1627,
-       -0.3228
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.342,
-        -0.5523,
-        -0.7602
-       ],
-       [
-        0.9397,
-        0.201,
-        0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0874
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1809,
-       0.1094,
-       -0.3034
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        -0.342,
-        -0.5523,
-        0.7602
-       ],
-       [
-        -0.9397,
-        0.201,
-        -0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0526
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1809,
-       0.1094,
-       -0.3034
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.342,
-        0.8937,
-        -0.2904
-       ],
-       [
-        0.9397,
-        -0.3253,
-        0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0526
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2475,
-       0.0891,
-       -0.296
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        -0.342,
-        0.8937,
-        0.2904
-       ],
-       [
-        -0.9397,
-        -0.3253,
-        -0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0874
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2357,
-       0.055,
-       -0.2836
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.342,
-        -0.8937,
-        0.2904
-       ],
-       [
-        0.9397,
-        0.3253,
-        -0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0874
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1691,
-       0.0753,
-       -0.291
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        -0.342,
-        -0.8937,
-        -0.2904
-       ],
-       [
-        -0.9397,
-        0.3253,
-        0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0526
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1691,
-       0.0753,
-       -0.291
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
         0.0
        ],
        [
-        0.342,
-        0.0,
-        -0.9397
-       ],
-       [
         0.9397,
-        0.0,
-        0.342
+        0.342,
+        0.0
        ]
       ]
      }
     },
     "Size": [
      0.025,
-     0.0382,
-     0.0526
+     0.085,
+     0.0411
     ],
     "Color": [
      0.7686,
@@ -1714,131 +1322,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1691,
-       0.0095,
-       -0.2671
+       -0.1294,
+       0.0178,
+       -0.2701
       ],
       "orientation": [
        [
         0.0,
-        -1.0,
-        0.0
+        0.0,
+        -1.0
        ],
        [
         -0.342,
-        0.0,
-        0.9397
-       ],
-       [
         -0.9397,
-        0.0,
-        -0.342
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0382,
-     0.0874
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1377,
-       0.0018,
-       -0.2643
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
         0.0
        ],
        [
+        -0.9397,
         0.342,
-        0.0,
-        0.9397
-       ],
-       [
-        0.9397,
-        0.0,
-        -0.342
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1377,
-       0.0417,
-       -0.2788
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
         0.0
-       ],
-       [
-        -0.342,
-        0.0,
-        -0.9397
-       ],
-       [
-        -0.9397,
-        0.0,
-        0.342
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0247,
-     0.034
+     0.0246,
+     0.085,
+     0.0411
     ],
     "Color": [
      0.7686,
@@ -1861,33 +1371,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1377,
-       0.0417,
-       -0.2788
+       -0.1159,
+       0.027,
+       -0.2734
       ],
       "orientation": [
        [
         0.0,
-        -0.309,
-        0.9511
+        0.9511,
+        0.309
        ],
        [
         0.342,
-        -0.8937,
-        -0.2904
+        -0.2904,
+        0.8937
        ],
        [
         0.9397,
-        0.3253,
-        0.1057
+        0.1057,
+        -0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0247,
-     0.034
+     0.0242,
+     0.085,
+     0.0411
     ],
     "Color": [
      0.7686,
@@ -1910,131 +1420,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0972,
-       0.0294,
-       -0.2743
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        -0.342,
-        -0.8937,
-        0.2904
-       ],
-       [
-        -0.9397,
-        0.3253,
-        -0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0896,
-       0.0515,
-       -0.2823
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.342,
-        0.8937,
-        0.2904
-       ],
-       [
-        0.9397,
-        -0.3253,
-        -0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.13,
+       -0.1032,
        0.0638,
        -0.2868
       ],
       "orientation": [
        [
         0.0,
-        0.309,
-        0.9511
+        0.9511,
+        -0.309
        ],
        [
         -0.342,
-        0.8937,
-        -0.2904
+        -0.2904,
+        -0.8937
        ],
        [
         -0.9397,
-        -0.3253,
-        0.1057
+        0.1057,
+        0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0247,
-     0.034
+     0.0239,
+     0.085,
+     0.0411
     ],
     "Color": [
      0.7686,
@@ -2057,33 +1469,229 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.13,
+       -0.1084,
+       0.0787,
+       -0.2922
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.342,
+        0.7602,
+        0.5523
+       ],
+       [
+        0.9397,
+        -0.2767,
+        -0.201
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0235,
+     0.085,
+     0.0411
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafBeret",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1417,
+       0.1014,
+       -0.3005
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        -0.342,
+        0.7602,
+        -0.5523
+       ],
+       [
+        -0.9397,
+        -0.2767,
+        0.201
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0231,
+     0.085,
+     0.0411
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafBeret",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1583,
+       0.1014,
+       -0.3005
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.342,
+        0.7602,
+        -0.5523
+       ],
+       [
+        0.9397,
+        -0.2767,
+        0.201
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0227,
+     0.085,
+     0.0411
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafBeret",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1916,
+       0.0787,
+       -0.2922
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        -0.342,
+        0.7602,
+        0.5523
+       ],
+       [
+        -0.9397,
+        -0.2767,
+        -0.201
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0224,
+     0.085,
+     0.0411
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafBeret",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1968,
        0.0638,
        -0.2868
       ],
       "orientation": [
        [
         0.0,
-        0.809,
-        0.5878
+        -0.9511,
+        0.309
        ],
        [
         0.342,
-        -0.5523,
-        0.7602
+        -0.2904,
+        -0.8937
        ],
        [
         0.9397,
-        0.201,
-        -0.2767
+        0.1057,
+        0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0247,
-     0.034
+     0.022,
+     0.085,
+     0.0411
     ],
     "Color": [
      0.7686,
@@ -2106,621 +1714,33 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.105,
-       0.0961,
-       -0.2986
+       -0.1841,
+       0.027,
+       -0.2734
       ],
       "orientation": [
        [
         0.0,
-        0.809,
-        -0.5878
+        -0.9511,
+        -0.309
        ],
        [
         -0.342,
-        -0.5523,
-        -0.7602
+        -0.2904,
+        0.8937
        ],
        [
         -0.9397,
-        0.201,
-        0.2767
+        0.1057,
+        -0.3253
        ]
       ]
      }
     },
     "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.125,
-       0.1098,
-       -0.3036
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.342,
-        0.5523,
-        -0.7602
-       ],
-       [
-        0.9397,
-        -0.201,
-        0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.15,
-       0.0774,
-       -0.2918
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        -0.342,
-        0.5523,
-        0.7602
-       ],
-       [
-        -0.9397,
-        -0.201,
-        -0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.034
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.15,
-       0.0774,
-       -0.2918
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.342,
-        0.5523,
-        0.7602
-       ],
-       [
-        0.9397,
-        -0.201,
-        -0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.034
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.175,
-       0.1098,
-       -0.3036
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        -0.342,
-        0.5523,
-        -0.7602
-       ],
-       [
-        -0.9397,
-        -0.201,
-        0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.195,
-       0.0961,
-       -0.2986
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.342,
-        -0.5523,
-        -0.7602
-       ],
-       [
-        0.9397,
-        0.201,
-        0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.17,
-       0.0638,
-       -0.2868
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        -0.342,
-        -0.5523,
-        0.7602
-       ],
-       [
-        -0.9397,
-        0.201,
-        -0.2767
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.034
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.17,
-       0.0638,
-       -0.2868
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.342,
-        0.8937,
-        -0.2904
-       ],
-       [
-        0.9397,
-        -0.3253,
-        0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.034
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2104,
-       0.0515,
-       -0.2823
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        -0.342,
-        0.8937,
-        0.2904
-       ],
-       [
-        -0.9397,
-        -0.3253,
-        -0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2028,
-       0.0294,
-       -0.2743
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.342,
-        -0.8937,
-        0.2904
-       ],
-       [
-        0.9397,
-        0.3253,
-        -0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1623,
-       0.0417,
-       -0.2788
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        -0.342,
-        -0.8937,
-        -0.2904
-       ],
-       [
-        -0.9397,
-        0.3253,
-        0.1057
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.034
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1623,
-       0.0417,
-       -0.2788
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.342,
-        0.0,
-        -0.9397
-       ],
-       [
-        0.9397,
-        0.0,
-        0.342
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.034
-    ],
-    "Color": [
-     0.7686,
-     0.3176,
-     0.1843
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_LeafBeret",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1623,
-       0.0018,
-       -0.2643
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        -0.342,
-        0.0,
-        0.9397
-       ],
-       [
-        -0.9397,
-        0.0,
-        -0.342
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.025,
-     0.0247,
-     0.051
+     0.0216,
+     0.085,
+     0.0411
     ],
     "Color": [
      0.7686,

@@ -284708,7 +284708,7 @@
         "position": [
          -14.6,
          3.1,
-         -11.95
+         -11.35
         ],
         "orientation": [
          [
@@ -284718,70 +284718,21 @@
          ],
          [
           0.0,
-          -0.3939,
-          -0.9191
-         ],
-         [
-          0.0,
-          -0.9191,
-          0.3939
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.05,
-       1.103,
-       2.5736
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_104_BathtubBoat",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.6,
-         1.7,
-         -11.35
-        ],
-        "orientation": [
-         [
           1.0,
-          0.0,
           0.0
          ],
          [
           0.0,
-          -0.3939,
-          0.9191
-         ],
-         [
           0.0,
-          -0.9191,
-          -0.3939
+          -1.0
          ]
         ]
        }
       },
       "Size": [
        0.05,
-       1.103,
-       0.4727
+       2.8,
+       1.2
       ],
       "Color": [
        1.0,

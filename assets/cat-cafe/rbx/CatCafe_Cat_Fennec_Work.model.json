@@ -2455,19 +2455,19 @@
          "CFrame": {
           "position": [
            0.104,
-           0.8532,
+           0.7283,
            -0.6573
           ],
           "orientation": [
            [
             0.0,
-            -0.7682,
-            -0.6402
+            1.0,
+            0.0
            ],
            [
             0.0,
-            0.6402,
-            -0.7682
+            0.0,
+            1.0
            ],
            [
             1.0,
@@ -2479,112 +2479,8 @@
         },
         "Size": [
          0.0416,
-         0.1599,
-         0.1332
-        ],
-        "Color": [
-         0.1216,
-         0.6471,
-         0.5608
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           0.7283,
-           -0.6573
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.7682,
-            0.6402
-           ],
-           [
-            0.0,
-            0.6402,
-            0.7682
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0416,
-         0.1599,
-         0.1918
-        ],
-        "Color": [
-         0.1216,
-         0.6471,
-         0.5608
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           0.7283,
-           -0.6573
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.7682,
-            -0.6402
-           ],
-           [
-            0.0,
-            0.6402,
-            0.7682
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0416,
-         0.1599,
-         0.1918
+         0.2081,
+         0.2497
         ],
         "Color": [
          0.1216,
@@ -2611,22 +2507,22 @@
          "CFrame": {
           "position": [
            -0.104,
-           0.8532,
+           0.7283,
            -0.6573
           ],
           "orientation": [
            [
             0.0,
-            0.7682,
-            0.6402
+            0.0,
+            1.0
            ],
            [
             0.0,
-            0.6402,
-            -0.7682
+            -1.0,
+            0.0
            ],
            [
-            -1.0,
+            1.0,
             0.0,
             0.0
            ]
@@ -2635,8 +2531,8 @@
         },
         "Size": [
          0.0416,
-         0.1599,
-         0.1332
+         0.2497,
+         0.2081
         ],
         "Color": [
          0.1216,
@@ -2884,33 +2780,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.3867,
-           1.8438,
-           -0.5403
+           -0.4573,
+           1.8062,
+           -0.5214
           ],
           "orientation": [
            [
             -0.2588,
-            0.9659,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            1.0,
             0.0
            ],
            [
-            0.0,
-            0.0,
-            -1.0
-           ],
-           [
             -0.9659,
-            -0.2588,
-            0.0
+            0.0,
+            -0.2588
            ]
           ]
          }
         },
         "Size": [
          0.0516,
-         0.0546,
-         0.1107
+         0.1859,
+         0.0917
         ],
         "Color": [
          0.949,
@@ -2936,917 +2832,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.3867,
-           1.7509,
-           -0.5403
+           -0.3687,
+           1.8062,
+           -0.5451
           ],
           "orientation": [
            [
             0.2588,
-            0.9659,
-            0.0
+            0.0,
+            -0.9659
            ],
            [
             0.0,
-            0.0,
-            1.0
-           ],
-           [
-            0.9659,
-            -0.2588,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3867,
-           1.7509,
-           -0.5403
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            -0.2985,
-            0.9187
-           ],
-           [
-            0.0,
-            0.9511,
-            0.309
-           ],
-           [
-            -0.9659,
-            0.08,
-            -0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3013,
-           1.7796,
-           -0.5632
-          ],
-          "orientation": [
-           [
-            0.2588,
-            -0.2985,
-            -0.9187
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
-           ],
-           [
-            0.9659,
-            0.08,
-            0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.285,
-           1.7277,
-           -0.5676
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            0.2985,
-            -0.9187
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
-           ],
-           [
-            -0.9659,
-            -0.08,
-            0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3704,
-           1.6989,
-           -0.5447
-          ],
-          "orientation": [
-           [
-            0.2588,
-            0.2985,
-            0.9187
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ],
-           [
-            0.9659,
-            -0.08,
-            -0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3704,
-           1.6989,
-           -0.5447
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            0.7815,
-            0.5678
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ],
-           [
-            -0.9659,
-            -0.2094,
-            -0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3176,
-           1.6238,
-           -0.5588
-          ],
-          "orientation": [
-           [
-            0.2588,
-            0.7815,
-            -0.5678
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ],
-           [
-            0.9659,
-            -0.2094,
-            0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3603,
-           1.5917,
-           -0.5474
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            -0.7815,
-            -0.5678
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ],
-           [
-            -0.9659,
-            0.2094,
-            0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.413,
-           1.6668,
-           -0.5332
-          ],
-          "orientation": [
-           [
-            0.2588,
-            -0.7815,
-            0.5678
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ],
-           [
-            0.9659,
-            0.2094,
-            -0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.413,
-           1.6668,
-           -0.5332
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            0.7815,
-            -0.5678
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ],
-           [
-            -0.9659,
-            -0.2094,
-            0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4658,
-           1.5917,
-           -0.5191
-          ],
-          "orientation": [
-           [
-            0.2588,
-            0.7815,
-            0.5678
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ],
-           [
-            0.9659,
-            -0.2094,
-            -0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.5085,
-           1.6238,
-           -0.5077
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            -0.7815,
-            0.5678
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ],
-           [
-            -0.9659,
-            0.2094,
-            -0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4557,
-           1.6989,
-           -0.5218
-          ],
-          "orientation": [
-           [
-            0.2588,
-            -0.7815,
-            -0.5678
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ],
-           [
-            0.9659,
-            0.2094,
-            0.1521
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4557,
-           1.6989,
-           -0.5218
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            -0.2985,
-            -0.9187
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ],
-           [
-            -0.9659,
-            0.08,
-            0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.5411,
-           1.7277,
-           -0.4989
-          ],
-          "orientation": [
-           [
-            0.2588,
-            -0.2985,
-            0.9187
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
-           ],
-           [
-            0.9659,
-            0.08,
-            -0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.5248,
-           1.7796,
-           -0.5033
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            0.2985,
-            0.9187
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
-           ],
-           [
-            -0.9659,
-            -0.08,
-            -0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.1107
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4394,
-           1.7509,
-           -0.5262
-          ],
-          "orientation": [
-           [
-            0.2588,
-            0.2985,
-            -0.9187
-           ],
-           [
-            0.0,
-            0.9511,
-            0.309
-           ],
-           [
-            0.9659,
-            -0.08,
-            0.2462
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0516,
-         0.0546,
-         0.0752
-        ],
-        "Color": [
-         0.949,
-         0.5608,
-         0.6667
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Fennec_Work_Prop2",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4394,
-           1.7509,
-           -0.5262
-          ],
-          "orientation": [
-           [
-            -0.2588,
-            -0.9659,
+            1.0,
             0.0
            ],
            [
+            0.9659,
             0.0,
-            0.0,
-            1.0
-           ],
-           [
-            -0.9659,
-            0.2588,
-            0.0
+            0.2588
            ]
           ]
          }
         },
         "Size": [
-         0.0516,
-         0.0546,
-         0.0752
+         0.0509,
+         0.1859,
+         0.0917
         ],
         "Color": [
          0.949,
@@ -3872,33 +2884,397 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.4394,
-           1.8438,
-           -0.5262
+           -0.3414,
+           1.7856,
+           -0.5524
           ],
           "orientation": [
            [
-            0.2588,
+            -0.2588,
+            0.9187,
+            0.2985
+           ],
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ],
+           [
             -0.9659,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ],
-           [
-            0.9659,
-            0.2588,
-            0.0
+            -0.2462,
+            -0.08
            ]
           ]
          }
         },
         "Size": [
-         0.0516,
-         0.0546,
-         0.1107
+         0.0501,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.314,
+           1.6984,
+           -0.5598
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.9187,
+            -0.2985
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ],
+           [
+            0.9659,
+            -0.2462,
+            0.08
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0493,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3244,
+           1.6651,
+           -0.557
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.5678,
+            -0.7815
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ],
+           [
+            -0.9659,
+            -0.1521,
+            0.2094
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0485,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3961,
+           1.6112,
+           -0.5378
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.5678,
+            0.7815
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ],
+           [
+            0.9659,
+            -0.1521,
+            -0.2094
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0478,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.43,
+           1.6112,
+           -0.5287
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            -0.5678,
+            -0.7815
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ],
+           [
+            -0.9659,
+            0.1521,
+            0.2094
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.047,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5016,
+           1.6651,
+           -0.5095
+          ],
+          "orientation": [
+           [
+            0.2588,
+            -0.5678,
+            0.7815
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ],
+           [
+            0.9659,
+            0.1521,
+            -0.2094
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0462,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5121,
+           1.6984,
+           -0.5067
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            -0.9187,
+            0.2985
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ],
+           [
+            -0.9659,
+            0.2462,
+            -0.08
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0454,
+         0.1859,
+         0.0917
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Fennec_Work_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4847,
+           1.7856,
+           -0.514
+          ],
+          "orientation": [
+           [
+            0.2588,
+            -0.9187,
+            -0.2985
+           ],
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ],
+           [
+            0.9659,
+            0.2462,
+            0.08
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0447,
+         0.1859,
+         0.0917
         ],
         "Color": [
          0.949,

@@ -4279,20 +4279,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.1929,
+         -0.3237,
          1.0745,
          -0.5234
         ],
         "orientation": [
          [
           0.0,
-          0.8275,
-          -0.5615
+          0.0,
+          1.0
          ],
          [
           0.0,
-          0.5615,
-          0.8275
+          -1.0,
+          0.0
          ],
          [
           1.0,
@@ -4304,57 +4304,8 @@
       },
       "Size": [
        0.0276,
-       0.2166,
-       0.3192
-      ],
-      "Color": [
-       0.4314,
-       0.3176,
-       0.251
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_NPC_Collector_Coat",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.3237,
-         1.2673,
-         -0.5234
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.8275,
-          0.5615
-         ],
-         [
-          0.0,
-          0.5615,
-          -0.8275
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0276,
-       0.2166,
-       0.147
+       0.3857,
+       0.2617
       ],
       "Color": [
        0.4314,
@@ -4622,20 +4573,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.1929,
+         0.3237,
          1.0745,
          -0.5234
         ],
         "orientation": [
          [
           0.0,
-          -0.8275,
-          0.5615
+          0.0,
+          -1.0
          ],
          [
           0.0,
-          0.5615,
-          0.8275
+          -1.0,
+          0.0
          ],
          [
           -1.0,
@@ -4647,57 +4598,8 @@
       },
       "Size": [
        0.0276,
-       0.2166,
-       0.3192
-      ],
-      "Color": [
-       0.4314,
-       0.3176,
-       0.251
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_NPC_Collector_Coat",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.3237,
-         1.2673,
-         -0.5234
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.8275,
-          -0.5615
-         ],
-         [
-          0.0,
-          0.5615,
-          -0.8275
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0276,
-       0.2166,
-       0.147
+       0.3857,
+       0.2617
       ],
       "Color": [
        0.4314,

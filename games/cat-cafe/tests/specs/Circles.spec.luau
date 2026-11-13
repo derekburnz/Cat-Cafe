@@ -1330,7 +1330,7 @@ return function()
 				-- every milestone pays at least two things
 				for _, m in list do
 					local kinds = 0
-					for _ in m.prize do
+					for _ in m.prize :: { [string]: any } do
 						kinds += 1
 					end
 					expect(kinds >= 2).to.equal(true)

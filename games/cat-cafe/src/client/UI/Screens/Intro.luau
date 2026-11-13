@@ -10,9 +10,10 @@
 --   job card         shot 4's four role buttons in miniature beside the cat; the given role lights with a tap
 --   tip pop          #2242: the rich visitor shot's big gold "+$1,234" over the tip bag your copy grabs, rising and
 --                    fading out
---   Skip             an outlined "Skip »" pill on the lower bar at the right, on screen from the start and dimmed,
---                    with a gold bar filling it over skipAfter (Derek 2026-10-28: "show a bar loading it's ability
---                    to be pressed make it 5 seconds"). Full, it brightens and pops; a tap, a click or gamepad B
+--   Skip             a solid gold "Skip »" pill with dark words on the lower bar at the right (#3773: 1.5 times
+--                    bigger and bright, pressable from the first second since #3168), with a gold bar filling it
+--                    over skipAfter, now 0 (Derek 2026-10-28 had asked for 5 seconds). Full, it pops; a tap, a
+--                    click or gamepad B
 --                    then fires callbacks.skip(shot) once, and the controller ends the intro and calls finish. An
 --                    early press only shakes it. A replay starts full.
 --   Next             #2182 (intro-cutscene.md 2b): a "Next ›" pill of the same size just left of Skip, shown from the
@@ -106,7 +107,8 @@ local CAPTION_TEXT = 30
 local DOT = 10
 local DOT_NOW = 14
 local DOT_GAP = 8
-local SKIP_WIDTH = 116
+local SKIP_WIDTH = 174 -- #3773: 1.5 times the old 116
+local NEXT_WIDTH = 116
 local SKIP_ACTION = "CatCafeIntroSkip"
 local NEXT_ACTION = "CatCafeIntroNext" -- #2182: Space, Enter and gamepad A
 local SKIP_DIM = 0.5 -- Skip's label and outline while its bar fills
@@ -347,13 +349,14 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	self._readTween = nil :: Tween?
 
-	-- Skip: a dark pill with a light outline on the lower bar at the right, and a gold bar filling it
+	-- Skip: #3773, a solid gold pill with dark words and a dark outline on the lower bar at the right, the brightest
+	-- thing on screen (it was a dim dark pill). The gold bar inside still fills over a wait, which is 0 now.
 	local skip: TextButton = Create("TextButton", {
 		Name = "Skip",
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundColor3 = Theme.colors.ink,
-		BackgroundTransparency = 0.35,
+		BackgroundColor3 = Theme.colors.gold,
+		BackgroundTransparency = 0,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 1),
 		ClipsDescendants = true,
@@ -361,7 +364,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		Visible = false,
 		Parent = root,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._skipStroke = Outline.border(skip, 2, Theme.colors.paper)
+	self._skipStroke = Outline.border(skip, 3, Theme.colors.ink)
 	self._skipScale = Create("UIScale", { Parent = skip })
 	self._skipFill = Create("Frame", {
 		Name = "Fill",
@@ -376,13 +379,13 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
-		TextSize = 20,
-		TextColor3 = Theme.colors.white,
+		TextSize = 30,
+		TextColor3 = Theme.colors.ink,
 		Text = "Skip »",
 		ZIndex = 2,
 		Parent = skip,
 	})
-	self._skipLabelStroke = Outline.text(skipLabel, 2)
+	self._skipLabelStroke = Outline.text(skipLabel, 1, Theme.colors.paper)
 	self._skipButton = skip
 	self._skipLabel = skipLabel
 	table.insert(
@@ -401,7 +404,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		BackgroundTransparency = 0.35,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 1),
-		Size = UDim2.fromOffset(SKIP_WIDTH, IntroLogic.SKIP_HEIGHT),
+		Size = UDim2.fromOffset(NEXT_WIDTH, IntroLogic.SKIP_HEIGHT),
 		Visible = false,
 		Parent = root,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
@@ -634,11 +637,12 @@ function Intro._layout(self: any)
 		self._captionLabel.Position = UDim2.new(0.5, 0, 1, -(pillTop + 10))
 		self._read.Position = UDim2.new(0.5, 0, 1, -(pillTop + 4))
 	end
-	local width = SKIP_WIDTH + height - IntroLogic.SKIP_HEIGHT
+	local grow = height - IntroLogic.SKIP_HEIGHT
+	local width = SKIP_WIDTH + grow
 	self._skipButton.Size = UDim2.fromOffset(width, height)
 	self._skipButton.Position = UDim2.new(1, -SIDE, 1, -below)
-	-- #2182: Next the same size, just left of Skip
-	self._nextButton.Size = UDim2.fromOffset(width, height)
+	-- #2182: Next as tall as Skip and narrower (#3773: Skip is the big one), just left of it
+	self._nextButton.Size = UDim2.fromOffset(NEXT_WIDTH + grow, height)
 	self._nextButton.Position = UDim2.new(1, -(SIDE + width + IntroLogic.NEXT_GAP), 1, -below)
 end
 

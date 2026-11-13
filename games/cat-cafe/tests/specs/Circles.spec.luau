@@ -1310,7 +1310,7 @@ return function()
 		local NOW = 20400 * DAY + 3600 -- 1 a.m. UTC on a day
 
 		it(
-			"pays fish, foods, crates and a potion every 10 points, much more from 60 (2026-11-13), nothing sold",
+			"pays fish, foods, crates and potions every 10 points, about three times more since #3869, nothing sold",
 			function()
 				local list = Arcade.milestones()
 				expect(#list).to.equal(10)
@@ -1321,12 +1321,20 @@ return function()
 					fish += m.prize.fish or 0
 					expect(m.prize.coins).to.equal(nil) -- the arcade pays no coins
 				end
-				expect(fish).to.equal(238) -- Derek 2026-11-13: bigger from 60 (58 before); under TradeFishPerDay
+				expect(fish).to.equal(240) -- #3869: about three times every prize (238 before); under TradeFishPerDay
 				expect(fish < Config.TradeFishPerDay).to.equal(true)
-				expect(assert(Arcade.milestoneAt(10)).prize.fish).to.equal(5) -- Derek2 17:41
-				expect(assert(assert(Arcade.milestoneAt(60)).prize.crates).classic_golden_crate).to.equal(
+				expect(assert(Arcade.milestoneAt(10)).prize.fish).to.equal(15) -- #3869: was 5 (Derek2 17:41)
+				expect(assert(assert(Arcade.milestoneAt(30)).prize.crates).classic_golden_crate).to.equal(
 					1
 				)
+				-- every milestone pays at least two things
+				for _, m in list do
+					local kinds = 0
+					for _ in m.prize do
+						kinds += 1
+					end
+					expect(kinds >= 2).to.equal(true)
+				end
 				expect(Config.ArcadeCostFish).to.equal(1)
 			end
 		)

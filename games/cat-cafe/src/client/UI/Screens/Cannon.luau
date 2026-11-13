@@ -101,6 +101,7 @@ local PHONE_ART_H, PHONE_CARD_H = 24, 128
 local NAME_GAP = 14 -- the card's name sits this far under the picture (8 on a phone)
 local LAUNCH_INSET = 10 -- Launch's gap to the card's bottom (6 on a phone)
 local EXTRA_H = 40 -- F100: the camp extra's strip, added to the cards while one shows
+local EXTRA_ROOM = 8 -- #3961: more room under the strip in the family look (4 px to LAUNCH read as touching)
 -- #3082: the strip's button, as wide as its word needs, so the station's name and what waits keep their room on a
 -- phone's slim cards (#1463: the Golden Pond's Collect was 84)
 local BUTTON_W = { collect = 66, open = 52 } :: { [string]: number }
@@ -781,10 +782,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			local family = self._family
 			card.launch:setText(
 				if buttonState == "locked" and family
-					then ("%s Opens at Tier %d"):format(
-						Theme.icons.lock :: string,
-						card.tier :: number
-					)
+					then ("Opens at Tier %d"):format(card.tier :: number)
 					elseif buttonState == "locked" then ("%s Tier %d"):format(
 						Theme.icons.lock :: string,
 						card.tier :: number
@@ -794,6 +792,13 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 					elseif family then "LAUNCH"
 					else "Launch"
 			)
+			if buttonState == "locked" and family then
+				-- #3961 (Studio look): a shut card shows only the lock, not the launch burst beside it
+				card.launch.label.Text = ("%s Opens at Tier %d"):format(
+					Theme.icons.lock :: string,
+					card.tier :: number
+				)
+			end
 		end
 		if card.enabled ~= enabled then
 			card.enabled = enabled
@@ -803,7 +808,10 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	end
 	if tall ~= self._tall then
 		self._tall = tall
-		self._layout.CellSize = UDim2.fromOffset(CARD.X, CARD.Y + (if tall then EXTRA_H else 0))
+		-- #3961 (Studio look, #3990): in the family look the strip keeps 8 px or more clear of LAUNCH
+		local roomy = if tall and self._family then EXTRA_ROOM else 0
+		self._layout.CellSize =
+			UDim2.fromOffset(CARD.X, CARD.Y + (if tall then EXTRA_H else 0) + roomy)
 	end
 	local notice = CannonLogic.notice(closed, dusk, carrying, if closed then remaining else nil)
 	local plain = if self._cannonId == CannonLogic.TOWN

@@ -2229,13 +2229,18 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -MARGIN),
-		AutomaticSize = Enum.AutomaticSize.XY,
-		Size = UDim2.fromOffset(0, 0),
+		-- #3881 (Derek 2026-11-13, PC: "a lot of the buttons have the ... and are bugging back and fourth for
+		-- tutorial steps"): AutomaticSize on both sides with the wrap switched on and off made Roblox size the strip
+		-- narrower than its line ("A cat is on its way to your...") and resize it back and forth. Now the strip always
+		-- wraps, its width is set here (the widest box until the line is measured, then the line's own width) and
+		-- only its height follows the words
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.fromOffset(strip.w, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = strip.text,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		TextWrapped = false,
+		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
 		Visible = false,
@@ -3302,7 +3307,9 @@ function HUD.setTutorial(self: any, text: string?)
 			Tween.popIn(self._tutorial, 0.92)
 		end
 		if self._tutorial.Text ~= text then
-			-- #3865: the wrap stays as it was until the new line is measured, so a long line never flashes "..."
+			-- #3865 + #3881: a new line shows in the widest box (two rows at most) until it is measured, so it never
+			-- shows "..."
+			self._tutorial.Size = UDim2.fromOffset(self._strip.w, 0)
 			self._tutorial.Text = text
 			self:_wrapTutorial(text)
 		end
@@ -3331,8 +3338,9 @@ function HUD._renderStripBuy(self: any)
 	self:_layoutBottom()
 end
 
--- One row while the line fits the strip's widest box, two when it is longer. GetTextBoundsAsync yields, so the
--- answer lands a moment later and only while the strip still shows this line.
+-- The strip as wide as its line, up to its widest box, where a longer line takes two rows. GetTextBoundsAsync yields,
+-- so the answer lands a moment later and only while the strip still shows this line (#3881: the width is set, the
+-- wrap always on).
 function HUD._wrapTutorial(self: any, text: string)
 	local strip: TextLabel = self._tutorial
 	task.spawn(function()
@@ -3345,7 +3353,12 @@ function HUD._wrapTutorial(self: any, text: string)
 			return game:GetService("TextService"):GetTextBoundsAsync(params)
 		end)
 		if ok and bounds and strip.Text == text then
-			strip.TextWrapped = bounds.X > self._strip.w - 2 * self._strip.padX
+			local box = self._strip
+			-- a few px spare so the line never wraps on rounding
+			local width = math.min(box.w, math.ceil(bounds.X) + 2 * box.padX + 6)
+			if strip.Size.X.Offset ~= width then
+				strip.Size = UDim2.fromOffset(width, 0)
+			end
 			self:_layoutBottom()
 		end
 	end)

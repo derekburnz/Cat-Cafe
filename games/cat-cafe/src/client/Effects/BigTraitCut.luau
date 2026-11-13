@@ -562,7 +562,17 @@ function BigTraitCut.atPool(
 		if circling ~= nil and eye ~= nil then
 			-- #3942: the slow turn round the pool, eased in and out over the whole scene
 			local turn = circling.orbit * Logic.smoothstep01(t / circling.orbitSeconds)
-			shot = CFrame.lookAt(Logic.sceneOrbit(look, eye :: Vector3, turn), look)
+			-- as the cat rises up the pillar the camera tilts up to half its height, so it stays in frame
+			local raisedAt: number? = bigAt
+			local tilt = if raisedAt ~= nil
+				then Presets.mysticPool.liftHeight * 0.5 * Logic.smoothstep01(
+					(now - raisedAt) / math.max(circling.lift, 0.1)
+				)
+				else 0
+			shot = CFrame.lookAt(
+				Logic.sceneOrbit(look, eye :: Vector3, turn),
+				look + Vector3.new(0, tilt, 0)
+			)
 			sceneDraw(w)
 		end
 		if held and cam ~= nil then

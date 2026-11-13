@@ -2,7 +2,7 @@
 -- The owner's shout bubble (#3301, Derek2 2026-11-11: "make the /shout make a quick bubble with OWNER "whatever
 -- messege I put" on screen when i shout"): an owner's `/shout hello` (OwnerTestService, every server) pops a speech
 -- bubble across the upper screen for everyone: OWNER in gold over "hello" in a cream bubble with a tail. It stays
--- OwnerTest.BUBBLE_SECONDS, never takes input, and a newer shout replaces it. With Roblox's Reduce Motion it shows
+-- OwnerTest.bubbleSeconds(text) (10 to 20 s by length, #3872), never takes input, and a newer shout replaces it. With Roblox's Reduce Motion it shows
 -- and goes without the pop.
 
 local GuiService = game:GetService("GuiService")
@@ -140,7 +140,7 @@ function OwnerShout.show(self: any, text: string)
 	if not GuiService.ReducedMotionEnabled then
 		Tween.popIn(self._holder, 0.6)
 	end
-	task.delay(OwnerTest.BUBBLE_SECONDS, function()
+	task.delay(OwnerTest.bubbleSeconds(text), function()
 		if self._token ~= token then
 			return
 		end

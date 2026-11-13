@@ -125,6 +125,13 @@ local GIVE_UP_SECONDS = 0.5
 -- second tap in that time gives up. A mouse click and a gamepad's B stay one press.
 local GIVE_UP_ASK = "Tap again to give up"
 local GIVE_UP_ASK_SECONDS = 3
+-- #3556 (Growth-Agent, Nov 11: 25% of phone rescue attempts end "cancelled" against 4% on PC): on a touch screen
+-- Give up also leaves the bar. It sits in the top right corner (GIVE_UP_CORNER design pixels in from the right and
+-- down from the top, level with the header), away from the bar a thumb is tapping, and a second tap only gives up
+-- when it comes at least GIVE_UP_CONFIRM_GAP seconds after the first, so a fast double tap of a mashing thumb only
+-- asks. A mouse click and a gamepad's B are unchanged.
+local GIVE_UP_CORNER = Vector2.new(16, 80)
+local GIVE_UP_CONFIRM_GAP = 0.4
 local GIVE_UP_W = 120
 local GIVE_UP_ASK_W = 200 -- wide enough for GIVE_UP_ASK; the button grows to the left, off its right edge
 local NO_RESULT_TIMEOUT = 3 -- hide if the server has not ended the attempt this long after its deadline
@@ -441,6 +448,17 @@ function RescueBar.new(parent: Instance): RescueBar
 		end,
 	})
 	self._giveUpH = giveUpH
+	self._giveUpGroup = group
+	-- #3556: where Give up goes on a touch screen, the top right corner of the screen
+	self._giveUpCorner = Create("Frame", {
+		Name = "GiveUpCorner",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -GIVE_UP_CORNER.X, 0, GIVE_UP_CORNER.Y),
+		Size = UDim2.fromOffset(GIVE_UP_ASK_W, giveUpH),
+		Parent = root,
+	})
+	self._askedAt = 0
 	self._touch = false -- whether Give up asks twice (set by show)
 	self._askToken = 0
 	self._asking = false
@@ -598,6 +616,7 @@ function RescueBar.show(
 	self._bar.Position = self._barBase
 	self._cancel:setEnabled(true)
 	self._touch = touch
+	self:_placeGiveUp(touch)
 	self:_giveUpRest()
 
 	ContextActionService:BindActionAtPriority(
@@ -784,6 +803,18 @@ function RescueBar._onGiveUp(self: any, position: Vector3): boolean
 	return false
 end
 
+-- #3556: Give up under the bar's right end (mouse, gamepad) or in the screen's top right corner (touch).
+function RescueBar._placeGiveUp(self: any, touch: boolean)
+	local button: GuiObject = self._cancel.instance
+	if touch then
+		button.Parent = self._giveUpCorner
+		button.Position = UDim2.fromScale(1, 0)
+	else
+		button.Parent = self._giveUpGroup
+		button.Position = UDim2.new(1, 0, 0, BAR_TOP + BAR.Y + GIVE_UP_GAP)
+	end
+end
+
 -- Give up back to its resting words and width, with no second tap pending.
 function RescueBar._giveUpRest(self: any)
 	self._askToken += 1
@@ -797,11 +828,19 @@ function RescueBar._giveUpTap(self: any)
 	if not self._active or self._done then
 		return
 	end
-	if not self._touch or self._asking then
+	if not self._touch then
 		self:_giveUp()
 		return
 	end
+	if self._asking then
+		-- #3556: a second tap this soon is the same burst of taps, not a choice
+		if os.clock() - self._askedAt >= GIVE_UP_CONFIRM_GAP then
+			self:_giveUp()
+		end
+		return
+	end
 	self._asking = true
+	self._askedAt = os.clock()
 	self._askToken += 1
 	local token = self._askToken
 	self._cancel:setText(GIVE_UP_ASK)

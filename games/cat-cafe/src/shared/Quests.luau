@@ -382,8 +382,9 @@ function Quests.achievementBlocker(profile: Types.PlayerProfile, achievementId: 
 	return nil
 end
 
+-- #3694: the size's coins and pass XP with the line's item (Catalog.achievementPrize).
 function Quests.achievementPrize(def: Types.AchievementDef): Types.IndexPrize
-	return Catalog.achievementPrizes[def.size]
+	return Catalog.achievementPrize(def)
 end
 
 -- ProfileSync's quests at `now`.

@@ -173,6 +173,36 @@ return function()
 		end)
 	end)
 
+	describe("EventLogic Friday party (#3535)", function()
+		local friday = { EventId = "update-1113", EventTitle = "Update Party" }
+
+		it("gives the Friday party the same card with its own news", function()
+			local card: any =
+				EventLogic.partyBanner(read(friday), "6:00 PM", { "Speed Shoes", "Secret cats" })
+			expect(card.title).to.equal("Update Party!")
+			expect(card.lines[2]).to.equal("New: Speed Shoes and Secret cats")
+			for _, line in card.lines do
+				expect(#line <= 36).to.equal(true)
+			end
+			expect(EventLogic.PARTY_NEWS["update-1113"][2][1]).to.equal("secretCats")
+			expect(EventLogic.PARTY_NEWS["update-1112"][1][2]).to.equal("Mystic Pool")
+		end)
+
+		it("follows it with the Secret cats card only on Friday with the switch on", function()
+			expect(EventLogic.secretsBanner(read(friday), true, 3) :: any).to.deepEqual({
+				title = "Secret cats are out!",
+				lines = { "3 Secret cats are out there", "Rarer than Mythical. Find one!" },
+			})
+			local one: any = EventLogic.secretsBanner(read(friday), true, 1)
+			expect(one.title).to.equal("A Secret cat is out!")
+			expect(one.lines[1]).to.equal("1 Secret cat is out there")
+			expect(EventLogic.secretsBanner(read(friday), false, 3)).to.equal(nil)
+			expect(EventLogic.secretsBanner(read(friday), true, 0)).to.equal(nil)
+			local thursday = { EventId = "update-1112", EventTitle = "Update Party" }
+			expect(EventLogic.secretsBanner(read(thursday), true, 3)).to.equal(nil)
+		end)
+	end)
+
 	describe("EventLogic.banner", function()
 		it("names the two biggest effects and the local end time", function()
 			expect(EventLogic.banner(read(), "17:00")).to.equal(

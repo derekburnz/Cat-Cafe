@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PassShop = require(script.Parent.Parent.Components.PassShop)
 local Scale = require(script.Parent.Parent.Scale)
@@ -20,7 +21,7 @@ local Types = require(script.Parent.Parent.Types)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Callbacks = {
 	-- kind "sign", "uniform", "accessory", "theme" or "music"; id "" for the plain sign, Classic, None or the mix

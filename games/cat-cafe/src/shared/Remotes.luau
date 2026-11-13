@@ -99,8 +99,9 @@ Remotes.ClientToServer = {
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
 	-- Bellhop Cat not yet claimed, and the first goals done (GroupId 0) or the player in GroupId; 1 per 2 s, answered
 	-- with StarterCatResult
-	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 10: 0 when the intro cutscene played to the end, else
-	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
+	"IntroDone", -- (shot: number, replay: boolean, seconds: number?)  integer 0 to 10: 0 when the intro cutscene played
+	-- to the end, else the shot showing at Skip (F72, shared/Intro); seconds watched, whole, 0 to 600 (#3773, optional
+	-- so an old client still counts); 1 a second. The first non-replay call sets introSeen
 	"UsePotion", -- (potionId: string, count: number?)  F64: a known potion in the bag whose minutes fit under
 	-- PotionMaxMinutes with the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync.
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
@@ -125,7 +126,7 @@ Remotes.ClientToServer = {
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?, featureName: boolean?)  featureName (#1083)
 	-- is kept only for an idea and only as true;  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
-	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its
+	"TipSeen", -- (id: string, skipped: boolean?, seconds: number? #3430 for "mystic_intro" only)  F87 (easy-start.md section 6): a shared/Tips id or one of its
 	-- asks, 1 a second. A tip goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut was skipped);
 	-- F96: an ask this session sent (notify_ask, favorite_ask, like_ask) goes in tipsSeen and logs ask_shown (the
 	-- notification ask's first showing only sets notifyAskAt; skipped true: Roblox would not prompt), feedback_ask

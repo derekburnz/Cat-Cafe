@@ -62,12 +62,6 @@ WhatsNew.rows = table.freeze({
 		icon = "look",
 		text = "Trades show cat traits",
 	},
-	{
-		id = "update_party_1113",
-		date = "2026-11-13",
-		icon = "new",
-		text = "Party: 2x money 30 min",
-	},
 	-- #2718 (Design-Agent, 11-13 01:46 UTC): two changes the board did not name yet. The pick a cat menu (#3749, no
 	-- switch, merged 11-13 01:15 UTC) and resting in your cafe (afkCafe, on live since 11-12 15:41 UTC).
 	{
@@ -96,19 +90,8 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New Arcade game: Mouse Dash",
 	},
-	-- #3457 (Derek 2026-11-12: "also update whats new board with the update restart")
-	{
-		id = "update_party_1112",
-		date = "2026-11-12",
-		icon = "new",
-		text = "Update Party: 2x money hour",
-	},
-	{
-		id = "update_gift_1112",
-		date = "2026-11-12",
-		icon = "new",
-		text = "Gift: 100 golden fish",
-	},
+	-- #3457: the launch's party and gift rows were taken out on 2026-11-13 once both had ended (Review-QA's smoke
+	-- check); rows for timed events come out when the event ends, so the board never promises what is over.
 	{
 		id = "rich_money_bags",
 		date = "2026-11-12",

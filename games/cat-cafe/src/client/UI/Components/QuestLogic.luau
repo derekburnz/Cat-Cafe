@@ -14,7 +14,7 @@
 --   swapFree(quests, used) -> boolean            a free swap waits on an unfinished quest (the Weekly tab's dot)
 --   achievementRows(catalog, views) -> rows      ready to claim first, then the closest to done, claimed last
 --   claimedCount(catalog, views) -> number       achievements claimed ("12 of 44")
---   hoursText(def, progress) -> string?          #3694: a play time achievement's count in whole hours ("27/50
+--   hoursText(def, progress) -> string?          #3694: a play time or resting count in whole hours ("27/50
 --                                                hours"); nil for every other measure
 -- Pure: no Theme, Format or CFrame, so the cloud test runner checks it.
 
@@ -193,6 +193,9 @@ function QuestLogic.achievementRows(
 		else {}
 	for index, def in defs do
 		local view = if views then views[def.id] else nil
+		if def.flag ~= nil and view == nil then
+			continue -- #3694 section 3: its feature switch is off, so the server left it out
+		end
 		local needs = math.max(1, number(def.needs))
 		local progress = math.clamp(number(if view then view.progress else 0), 0, needs)
 		local claimed = view ~= nil and view.claimed == true
@@ -246,7 +249,7 @@ end
 -- the bar never says done early.
 local HOUR = 3600
 function QuestLogic.hoursText(def: Types.AchievementDef, progress: number): string?
-	if def.measure ~= "playtimeSeconds" then
+	if def.measure ~= "playtimeSeconds" and def.measure ~= "restSeconds" then
 		return nil
 	end
 	local needs = math.max(1, math.floor(def.needs / HOUR + 0.5))

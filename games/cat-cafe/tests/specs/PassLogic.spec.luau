@@ -218,9 +218,9 @@ return function()
 				).to.equal("CatCafe_Plot_SignGoldenLeaf")
 				local pumpkin =
 					PassLogic.itemArt({ kind = "uniform", id = "uniform_pumpkin", name = "" })
-				expect(pumpkin.image).to.equal("rbxassetid://119763026239046")
+				expect(pumpkin.image).to.equal("rbxassetid://124822185603420")
 				expect(PassLogic.itemArt({ kind = "tag", id = "tag_maple", name = "" }).image).to.equal(
-					"rbxassetid://124452576665708"
+					"rbxassetid://100120088018935"
 				)
 				-- a style with no picture yet keeps its colour tile
 				local plain = PassLogic.itemArt({ kind = "tag", id = "vip", name = "" })

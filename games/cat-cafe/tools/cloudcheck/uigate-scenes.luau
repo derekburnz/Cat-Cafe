@@ -3861,7 +3861,7 @@ local SCENES = {
 			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
 		UI.pass.open()
 		-- #2588: the corner badge is the HUD Pass tile's medal, not the 🍁 emoji
-		assert(badgeDraws("CafePass", "79367870405446"), "uigate: the Cafe Pass badge is not the Pass medal (#2588)")
+		assert(badgeDraws("CafePass", "73605076279409"), "uigate: the Cafe Pass badge is not the Pass medal (#2588)")
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("CafePass", true)
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Cafe Pass is not open")
@@ -3921,7 +3921,7 @@ local SCENES = {
 		-- #2592: the Pumpkin uniform's own picture (its apron and cap) in place of the 👕 on a pumpkin tile (#2087)
 		local drawn = false
 		for _, piece in uniform:GetDescendants() do
-			if piece:IsA("ImageLabel") and string.find(piece.Image, "119763026239046", 1, true) then
+			if piece:IsA("ImageLabel") and string.find(piece.Image, "124822185603420", 1, true) then
 				drawn = true
 			end
 		end
@@ -5340,7 +5340,7 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
-		assert(badgeDraws("Potions", "96046816170155"), "uigate: the Bag window's badge is not the backpack (#2588)")
+		assert(badgeDraws("Potions", "118552497512285"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	-- #3190 (Derek2: "... delays on using potions too fast"): two quick Use presses both count at once, the button never
@@ -5595,7 +5595,7 @@ local SCENES = {
 		for _, d in UIShim.playerGui:GetDescendants() do
 			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
 				assert(not string.find(d.Image, "76162414943592", 1, true), "uigate: " .. d:GetFullName() .. " draws the ? mystery box (#2089)")
-				if string.find(d.Image, "81784091360384", 1, true) then
+				if string.find(d.Image, "72888217681662", 1, true) then
 					crates += 1
 				end
 			end
@@ -8295,7 +8295,7 @@ local SCENES = {
 	{ "HUDBagBackpack", function()
 		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
 		local bag = ShopIcons.hud("Bag")
-		assert(bag == "rbxassetid://96046816170155", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
+		assert(bag == "rbxassetid://118552497512285", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
 		-- #2866: its only backup is the group's earlier backpack, never a bottle or the money bag
 		assert(ShopIcons.backup(bag) == "rbxassetid://88244676943674", "uigate: the Bag's backpack does not fall back to the earlier backpack (#2866)")

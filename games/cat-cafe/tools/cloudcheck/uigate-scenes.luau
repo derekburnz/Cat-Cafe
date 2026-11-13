@@ -4223,6 +4223,30 @@ local SCENES = {
 		local title = card and card:FindFirstChild("Title") :: TextLabel?
 		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")
 	end },
+	-- #3722: the Market's crate cards are not built inside setCatalog; opening the window builds them at once
+	{ "MarketDelayedBuild", function()
+		UI.setCatalog(catalogLikeTheGame())
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("FishMarket", true) :: Instance?
+		assert(window, "uigate: no Market window (#3722)")
+		local ids: { [string]: boolean } = {}
+		for _, crate in (catalogLikeTheGame() :: any).crates or {} do
+			ids[crate.id] = true
+		end
+		local function cards(): number
+			local n = 0
+			for _, each in (window :: Instance):GetDescendants() do
+				if each:IsA("Frame") and ids[each.Name] then
+					n += 1
+				end
+			end
+			return n
+		end
+		assert(cards() == 0, ("uigate: setCatalog built %d Market crate cards at once (#3722)"):format(cards()))
+		UI.market.open()
+		assert(cards() > 0, "uigate: opening the Market built no crate cards (#3722)")
+		UI.close()
+	end },
 	{ "Market", function()
 		-- #2571: a save that never opened Treats and perks shows the tab's red "!"; opening the tab clears it and
 		-- sends it as seen once

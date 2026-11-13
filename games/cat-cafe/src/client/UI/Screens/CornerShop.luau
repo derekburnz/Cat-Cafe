@@ -98,6 +98,8 @@ local GAP = Theme.sizes.gap
 -- #2593: the sections with a Buy all, the header button's width, and how long Buy all waits for its CornerShopStock
 local ALL_KINDS: { [string]: boolean } = { potion = true, food = true, bait = true }
 local ALL_W = 110
+-- #3961: the family look's picture cards (batch 1 mock), three across under each section's header
+local CARD_PICTURE = 56
 local ALL_PENDING_SECONDS = 3
 
 local CornerShop = {}
@@ -145,6 +147,8 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	self._plans = {} :: { [string]: CornerShopLogic.BuyAll }
 	self._cardKind = nil :: string?
 	self._allH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
+	self._family = MenuFamily.on()
+	self._grids = {} :: { [string]: Frame } -- #3961: section kind -> its grid of cards
 
 	local panel = Panel.new({
 		dark = true,
@@ -509,6 +513,10 @@ function CornerShop._clear(self: any)
 		header:Destroy()
 	end
 	table.clear(self._headers)
+	for _, grid in self._grids do
+		grid:Destroy()
+	end
+	table.clear(self._grids)
 end
 
 -- #3209: shows one section: its tab gold, its header and rows in the list, the list back at the top.
@@ -528,7 +536,43 @@ function CornerShop._showTab(self: any, kind: string)
 			end
 		end
 	end
+	-- #3961: the family look's grids and the cards in them
+	for gridKind, grid in self._grids do
+		grid.Visible = gridKind == kind
+	end
+	if self._family then
+		for _, row: Row in self._rows do
+			local def = rowOf(row.itemId)
+			row.frame.Visible = (if def ~= nil then def.kind else "other") == kind
+		end
+	end
 	self._list.CanvasPosition = Vector2.zero
+end
+
+-- #3961: a section's grid of picture cards, under its header
+function CornerShop._grid(self: any, kind: string, order: number): Frame
+	local grid: Frame = Create("Frame", {
+		Name = "Grid_" .. kind,
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		Visible = kind == self._tab,
+		LayoutOrder = order,
+		Parent = self._list,
+	}, {
+		Create("UIGridLayout", {
+			CellSize = UDim2.new(1 / 3, -GAP, 0, self:_cardHeight()),
+			CellPadding = UDim2.fromOffset(GAP, GAP),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._grids[kind] = grid
+	return grid
+end
+
+function CornerShop._cardHeight(self: any): number
+	return 8 + CARD_PICTURE + 4 + 20 + 30 + 4 + self._buyH + 8
 end
 
 -- #1599: a section's header over its rows ("Potions").
@@ -674,6 +718,10 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 	for _, section in CornerShopLogic.sections(stock.stock) do
 		order += 1
 		self:_header(section, order)
+		if self._family then
+			order += 1
+			self:_grid(section.kind, order)
+		end
 		for _, index in section.indexes do
 			order += 1
 			orderOf[index] = order
@@ -684,6 +732,11 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 		local itemId = item.itemId
 		local def = rowOf(itemId)
 		local kind: string = if def ~= nil then def.kind else "other"
+		local grid: Frame? = self._grids[kind]
+		if grid ~= nil then
+			self:_pictureCard(grid, index, orderOf[index] or index, item, def, kind)
+			continue
+		end
 		local frame: Frame = Create("Frame", {
 			Name = itemId,
 			BackgroundColor3 = CARD.card,
@@ -773,6 +826,101 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			{ itemId = itemId, frame = frame, icon = icon, effect = effect, line = line, buy = buy }
 		)
 	end
+end
+
+-- #3961: one picture card of the family look: the picture on top, the name, what it does, "x2 left" and Buy, with the
+-- same fields as a row so _paint fills both
+function CornerShop._pictureCard(
+	self: any,
+	grid: Frame,
+	_index: number,
+	order: number,
+	item: SharedTypes.CornerShopItem,
+	def: SharedTypes.CornerShopRow?,
+	kind: string
+)
+	local itemId = item.itemId
+	local frame: Frame = Create("Frame", {
+		Name = itemId,
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
+		Visible = kind == self._tab,
+		LayoutOrder = order,
+		Parent = grid,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+	local bait = def ~= nil and def.kind == "bait"
+	local icon = ItemIcon.new({
+		parent = frame,
+		size = UDim2.fromOffset(CARD_PICTURE, CARD_PICTURE),
+		position = UDim2.new(0.5, -CARD_PICTURE / 2, 0, 8),
+		badge = if bait then "gem" else nil,
+	})
+	if def and def.kind == "potion" then
+		icon:setPotion(def.potionId, "Epic")
+	elseif bait and def then
+		local lureId = def.lureId or itemId
+		icon:setFood(Catalog.getLure(lureId), lureId)
+	else
+		local food = if def and def.kind == "food" then def.foodId or itemId else nil
+		icon:set(nil, if food then ShopIcons.snackGlyph(food) else Theme.icons.potion, "Rare", nil)
+	end
+	local y = 8 + CARD_PICTURE + 4
+	local name = text({
+		Name = "Name",
+		Position = UDim2.fromOffset(6, y),
+		Size = UDim2.new(1, -12, 0, 20),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 1,
+		TextColor3 = CARD.text,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = if def then def.name else itemId,
+		Parent = frame,
+	})
+	MenuFamily.outline(name, 1.5)
+	local effect = text({
+		Name = "Effect",
+		Position = UDim2.fromOffset(6, y + 20),
+		Size = UDim2.new(1, -12, 0, 30),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = CARD.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		TextWrapped = true,
+		Text = if def then CornerShopLogic.effect(def) else "",
+		Parent = frame,
+	})
+	-- "x2 left" (or the tier gate) as a chip in the card's top right corner
+	local line = text({
+		Name = "Line",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -6, 0, 6),
+		Size = UDim2.new(0.5, -10, 0, 18),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = CARD.subtext,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = frame,
+	})
+	local buy = Button.new({
+		name = "Buy",
+		text = "Buy",
+		style = "primary",
+		size = UDim2.new(1, -16, 0, self._buyH),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -8),
+		textSize = Theme.sizes.textSmall,
+		parent = frame,
+		onClick = function()
+			self:_press(itemId)
+		end,
+	})
+	table.insert(
+		self._rows,
+		{ itemId = itemId, frame = frame, icon = icon, effect = effect, line = line, buy = buy }
+	)
 end
 
 function CornerShop._paint(self: any)

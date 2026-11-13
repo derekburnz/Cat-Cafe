@@ -1744,7 +1744,7 @@ function UI.gamepadSelect()
 		elseif hud ~= nil then hud:gamepadMenu()
 		else nil
 	if target ~= nil then
-		guiService.SelectedObject = target
+		require(script.Components.GamepadNav).select(target) -- #3839: never a hidden or taken out button
 	end
 end
 

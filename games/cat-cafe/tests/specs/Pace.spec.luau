@@ -1113,7 +1113,7 @@ return function()
 	-- after Tier 5, Tier 7 8 to 11 h after Tier 6, both in one go. Fit run (10 runs): Tier 6 16 h 17, Tier 7 26 h 19.
 	describe("Tiers 6 and 7 on the money ladder (QA edges, #2651)", function()
 		it(
-			"Tier 6 comes 5 to 7.5 h after Tier 5 and Tier 7 8 to 11.5 h after Tier 6, in one go",
+			"Tier 6 comes 4.5 to 7.5 h after Tier 5 and Tier 7 8 to 11.5 h after Tier 6, in one go",
 			function()
 				local limit = 40 * HOUR
 				local list =
@@ -1136,8 +1136,9 @@ return function()
 					clock(seven)
 				)
 				print("[Pace #2651] " .. text)
-				if six < 5 * HOUR or six > 7.5 * HOUR then
-					error("Tier 6 outside 5 to 7.5 h after Tier 5: " .. text)
+				-- #3660 (Design-Agent): the floor is 4.5 h, was 5 h, since a new save starts with one table
+				if six < 4.5 * HOUR or six > 7.5 * HOUR then
+					error("Tier 6 outside 4.5 to 7.5 h after Tier 5: " .. text)
 				end
 				if seven < 8 * HOUR or seven > 11.5 * HOUR then
 					error("Tier 7 outside 8 to 11.5 h after Tier 6: " .. text)
@@ -1480,8 +1481,13 @@ return function()
 			"buys Tables 5 at about minute 31 and Espresso 4 at about minute 44.5 (the middle run, #2557)",
 			function()
 				local list = firstHour()
-				-- Tables starts at level 0 and Espresso at 1, so these are the fifth and third buys
-				local tables = quantile(list, nthBuy("tables", 5), 0.5, HOUR + 1) / 60
+				-- Tables starts at Config.StartTables (#3660: 1) and Espresso at 1, so these are the fourth and third buys
+				local tables = quantile(
+					list,
+					nthBuy("tables", 5 - Config.StartTables),
+					0.5,
+					HOUR + 1
+				) / 60
 				local espresso = quantile(list, nthBuy("espresso", 3), 0.5, HOUR + 1) / 60
 				-- #2557 (Design-Agent): about 31 and 44.5 with a third more cats (were about 25 and 42), Tables 5 by 35 and
 				-- Espresso 4 by 50

@@ -1490,7 +1490,8 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			view:setBusy(name == dashWindow or name == "Arcade" or name == poolWindow)
+			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			view:setBusy(UI.rollBusy.window or UI.rollBusy.on)
 		end
 	end)
 
@@ -2192,6 +2193,19 @@ end
 -- (ToastRules.announce); true when it showed.
 -- (init.luau is at Luau's 200 locals a scope, so the rules load here and the time lives on UI.shoutout)
 UI.shoutout = { at = nil :: number? }
+-- Review-QA on #3904: a shout-out slid across the Rummage Bin's board mid-roll. While a roll or reveal plays
+-- (BinController) the pop-ups wait, as on a busy window (Toasts.setBusy); `window` is the open window's own part.
+UI.rollBusy = { on = false, window = false }
+function UI.setRollBusy(on: boolean)
+	if UI.rollBusy.on == on then
+		return
+	end
+	UI.rollBusy.on = on
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or on)
+	end
+end
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()

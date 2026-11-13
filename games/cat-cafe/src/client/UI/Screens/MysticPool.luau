@@ -1153,7 +1153,15 @@ function MysticPool._send(self: any, fire: () -> ())
 		if self._pendingToken == token and self._pending then
 			self._pending = false
 			self._rolling = nil
-			self:_paint()
+			warn(
+				"MysticPool: no answer to a press within "
+					.. PENDING_SECONDS
+					.. " s; the buttons wake"
+			) -- #4015
+			local ok, problem = pcall(self._paint, self)
+			if not ok then
+				warn("MysticPool paint: " .. tostring(problem))
+			end
 		end
 	end)
 	self:_paint()
@@ -1726,10 +1734,26 @@ function MysticPool._paint(self: any)
 		self._pending = false
 		self._pendingToken += 1
 		self._rolling = nil
+		warn(
+			"MysticPool: no answer to a press within " .. PENDING_SECONDS .. " s; the buttons wake"
+		) -- #4015
 	end
 	local view = self._view
 	local cat = self:_cat()
 	local resting: boolean = self._pending
+
+	-- Roll, first (#4015, Derek 2026-11-13: "sometimes rerolls get stuck" on "..."): a later line of this paint
+	-- that fails can no longer leave the button on "..." after the wait has ended
+	local roll = MysticPoolLogic.roll(view, cat ~= nil and cat.trait ~= nil, self._fish)
+	local rollText = if resting then "..." else roll.text
+	if self._rollText ~= rollText then
+		self._rollText = rollText
+		self._roll:setText(rollText)
+	end
+	self._roll:setEnabled(roll.enabled and cat ~= nil and not resting)
+	local why = if not roll.enabled then roll.why else nil
+	self._why.Text = why or MysticPoolLogic.haveLine(view, self._fish)
+	self._why.TextColor3 = if why ~= nil then PAL.warn else PAL.text
 
 	-- the picked cat
 	self._portrait.frame.Visible = cat ~= nil
@@ -1763,18 +1787,6 @@ function MysticPool._paint(self: any)
 		nil,
 		if cat ~= nil then "Roll to give this cat a trait" else "Pick a cat to see its trait"
 	)
-
-	-- Roll
-	local roll = MysticPoolLogic.roll(view, cat ~= nil and cat.trait ~= nil, self._fish)
-	local rollText = if resting then "..." else roll.text
-	if self._rollText ~= rollText then
-		self._rollText = rollText
-		self._roll:setText(rollText)
-	end
-	self._roll:setEnabled(roll.enabled and cat ~= nil and not resting)
-	local why = if not roll.enabled then roll.why else nil
-	self._why.Text = why or MysticPoolLogic.haveLine(view, self._fish)
-	self._why.TextColor3 = if why ~= nil then PAL.warn else PAL.text
 
 	-- the free tokens
 	local line, ready = MysticPoolLogic.tokens(view, now())
@@ -1872,7 +1884,11 @@ function MysticPool.render(self: any, state: Types.PlayerState)
 				if cat ~= nil then cat.trait else nil
 			)
 			if rolled ~= nil then
-				self:_reveal(rolling.uid, rolled)
+				-- #4015: protected, so a reveal that fails still lets the paint below wake the buttons
+				local ok, problem = pcall(self._reveal, self, rolling.uid, rolled)
+				if not ok then
+					warn("MysticPool reveal: " .. tostring(problem))
+				end
 			end
 		end
 	end

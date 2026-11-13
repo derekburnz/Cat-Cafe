@@ -7531,6 +7531,13 @@ do
 			collect = function()
 				UI.events.collectTraitTokens:Fire()
 			end,
+			-- #3864: a token bundle's Buy opens Roblox's own prompt; ProcessReceipt (ProductService) pays it
+			buy = function(productId: number)
+				pcall(function()
+					game:GetService("MarketplaceService")
+						:PromptProductPurchase(game:GetService("Players").LocalPlayer, productId)
+				end)
+			end,
 			close = function()
 				if modalView:current() == MysticPoolLogic.WINDOW then
 					modalView:close()

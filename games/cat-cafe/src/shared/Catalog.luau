@@ -5267,6 +5267,19 @@ Catalog.products = {
 		seasonPass = true,
 		prize = { potions = {} },
 	},
+	-- #3864 (Derek 2026-11-13: "a big trait reroll bundle ... advertised after using the mystic pool free spins", "lets
+	-- do 199 robux", "smaller one of 20 for 99 robux"): Trait Tokens, one roll each. Repeatable. Offered on the Mystic
+	-- Pool card with the roll's odds (shared/Traits.BUNDLES, traitBundles switch).
+	{
+		id = "trait_tokens_20",
+		name = "20 Trait Tokens",
+		prize = { potions = {}, traitTokens = 20 },
+	},
+	{
+		id = "trait_tokens_50",
+		name = "50 Trait Tokens",
+		prize = { potions = {}, traitTokens = 50 },
+	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }
 for _, product in Catalog.products do

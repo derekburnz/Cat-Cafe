@@ -19,8 +19,10 @@
 -- speed 1 and 1.5 studs/s, rich rate 2 and 0.24); a combo's effect counts like the single trait with the same effect.
 -- So a cafe full of one trait can't run away and no paid perk is undercut (spec section 5).
 --
--- Trait Tokens are never sold in any Robux product and never traded or gifted, and golden fish are earned only, so a
--- roll is not a paid random item; the odds line (oddsText) shows on the card anyway.
+-- Trait Tokens are never traded or gifted, and golden fish are earned only. #3864 (Derek 2026-11-13): tokens are sold
+-- in two bundles (BUNDLES, developer products), so a roll IS a paid random item (monetization-policy section 2): the
+-- offer shows the full odds (oddsText, summing to 100) before the Roblox prompt, it is never shown to a player whose
+-- policy restricts paid random items or is not read yet (TraitsView.bundles), and a "No thanks" hides it.
 --
 -- Everything sits behind LiveFlags `traits` (FLAG, off by default). Turning it on needs the save version step and the
 -- restart publish that ships the save fields (section 6), so no older server can drop a trait.
@@ -47,6 +49,13 @@ Traits.COST_TOKENS = 1
 Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token, on its own timer
 Traits.TOKEN_HOLD = 2
 Traits.TOKEN_MAX = 999 -- a save's tokens are clamped here (no source comes near it)
+-- #3864: the token bundles on the card once the free rolls are used, by Catalog.products id; `robux` is the price
+-- set in tools/opencloud/products.json (Roblox's own prompt shows the live price before anything is paid)
+Traits.BUNDLE_FLAG = "traitBundles"
+Traits.BUNDLES = table.freeze({
+	table.freeze({ product = "trait_tokens_20", tokens = 20, robux = 99 }),
+	table.freeze({ product = "trait_tokens_50", tokens = 50, robux = 199 }),
+})
 
 export type Trait = { id: string }
 

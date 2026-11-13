@@ -13,8 +13,10 @@
 -- so neither is pushed; nothing else can be pressed until one is picked (the server holds the roll). A roll's answer
 -- is the next PlayerState: the buttons rest until it shows (MysticPoolLogic.stamp) or PENDING_SECONDS, then
 -- `callbacks.play` (the pool's animation, Effects/MysticPool) runs with a tap to skip, and the card shows the
--- result. The server decides every roll and payment; this only asks. Nothing here is sold for Robux. Words in
--- Components/MysticPoolLogic.
+-- result. The server decides every roll and payment; this only asks. #3864: once the free rolls are used, the Trait
+-- Token bundles are offered once a session on a sheet of their own, with the roll's full odds and "No thanks"
+-- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own purchase prompt.
+-- Words in Components/MysticPoolLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -35,6 +37,8 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
 
 local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
@@ -51,6 +55,8 @@ export type Callbacks = {
 	-- #3702: while the pool's animation plays the card goes away and the screen's edges are shaded; `onTap` is a
 	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card
 	shade: ((onTap: () -> ()) -> () -> ())?,
+	-- #3864: a bundle's Buy, with its developer product id (Roblox's purchase prompt); nil hides the offer
+	buy: ((productId: number) -> ())?,
 }
 
 export type MysticPool = {
@@ -112,7 +118,8 @@ local MysticPool = {}
 MysticPool.__index = MysticPool
 
 -- #3700: the list's order is remembered for the session
-local remembered = { sort = CatPickLogic.DEFAULT_SORT, flipped = false }
+-- #3864: `offered`, once the token offer has shown this session (a "No thanks" holds for the session)
+local remembered = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, offered = false }
 
 local function text(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
@@ -741,10 +748,79 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
-		Text = MysticPoolLogic.EQUAL_LINE
-			.. " Rolls cost golden fish or Trait Tokens, never Robux.",
+		Text = MysticPoolLogic.EQUAL_LINE .. " Rolls cost golden fish or Trait Tokens.",
 		ZIndex = 12,
 		Parent = odds,
+	})
+
+	-- #3864: the Trait Token offer, once the free rolls are used (MysticPoolLogic.bundles)
+	local offer = sheet("TokenOffer", content, 11)
+	self._offerSheet = offer
+	text({
+		Name = "Title",
+		Size = UDim2.new(1, 0, 0, 30),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = MysticPoolLogic.OFFER_TITLE,
+		ZIndex = 12,
+		TextColor3 = PAL.text,
+		Parent = offer,
+	})
+	text({
+		Name = "Line",
+		Position = UDim2.fromOffset(0, 30),
+		Size = UDim2.new(1, 0, 0, 34),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = MysticPoolLogic.OFFER_LINE,
+		ZIndex = 12,
+		TextColor3 = PAL.text,
+		Parent = offer,
+	})
+	oddsLines(offer, 30 + 34 + 2, 12) -- every roll's odds, before anything is bought (monetization-policy 2.1)
+	local buyTop = 30 + 34 + 2 + 28 + GAP
+	self._offerButtons = {} :: { Button.Button }
+	for index = 1, #Traits.BUNDLES do
+		local button = Button.new({
+			name = "Bundle" .. index,
+			text = "",
+			style = "primary",
+			size = UDim2.new(1 / #Traits.BUNDLES, -GAP / 2, 0, buttonH + 4),
+			position = UDim2.new(
+				(index - 1) / #Traits.BUNDLES,
+				if index > 1 then GAP / 2 else 0,
+				0,
+				buyTop
+			),
+			textSize = Theme.sizes.textBody,
+			parent = offer,
+			zIndex = 12,
+			onClick = function()
+				local pick = self._offerBundles and self._offerBundles[index]
+				local buy = callbacks.buy
+				if pick ~= nil and buy ~= nil then
+					buy(pick.id)
+				end
+			end,
+		})
+		table.insert(self._offerButtons, button)
+	end
+	self._offerBundles = nil :: { MysticPoolLogic.Bundle }?
+	Button.new({
+		name = "NoThanks",
+		text = MysticPoolLogic.OFFER_NO,
+		style = "ghost",
+		size = UDim2.new(1, 0, 0, buttonH),
+		position = UDim2.fromOffset(0, buyTop + buttonH + 4 + GAP),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = offer,
+		zIndex = 12,
+		onClick = function()
+			offer.Visible = false
+		end,
 	})
 
 	-- while the pool's animation plays: a tap anywhere on the card skips to the result
@@ -1308,6 +1384,23 @@ function MysticPool._paint(self: any)
 		self._keepOld:setEnabled(not resting)
 		self._takeNew:setEnabled(not resting)
 	end
+
+	-- #3864: the token offer, once a session, when the card is at rest with the free rolls used
+	if not resting and self._callbacks.buy ~= nil and self._open then
+		local bundles = MysticPoolLogic.bundles(view, Config.ProductIds, remembered.offered)
+		if bundles ~= nil then
+			remembered.offered = true
+			self._offerBundles = bundles
+			for index, button in self._offerButtons do
+				local pick = bundles[index]
+				button.instance.Visible = pick ~= nil
+				if pick ~= nil then
+					button:setText(pick.label)
+				end
+			end
+			self._offerSheet.Visible = true
+		end
+	end
 end
 
 -- The cat the card shows (nil for none); one that is gone is dropped.
@@ -1356,6 +1449,7 @@ function MysticPool.opened(self: any)
 	local tick = self._tick
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
+	self._offerSheet.Visible = false
 	local waiting = MysticPoolLogic.pending(self._view, self._cats)
 	if waiting ~= nil and self._cats[waiting.uid] ~= nil then
 		self._uid = waiting.uid
@@ -1382,6 +1476,7 @@ function MysticPool.closed(self: any)
 	self:_stopPlay()
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
+	self._offerSheet.Visible = false
 end
 
 function MysticPool.destroy(self: any)

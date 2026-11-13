@@ -76,10 +76,13 @@ local function announce(player: Player, rolled: Traits.Trait)
 		end
 	end
 	-- #3908: the chat line here and on the other servers, like a Mythical catch (#2203). It waits CHAT_DELAY_SECONDS so
-	-- the roller's own chat does not show it before their scene's reveal.
-	task.delay(CHAT_DELAY_SECONDS, function()
-		GlobalCatchService.share(line, chat)
-	end)
+	-- the roller's own chat does not show it before their scene's reveal. Only with the secretTrait switch on, so
+	-- off stays exactly as before (Review-QA on ffbea7ba4).
+	if LiveFlagService.on(Traits.SECRET_FLAG) then
+		task.delay(CHAT_DELAY_SECONDS, function()
+			GlobalCatchService.share(line, chat)
+		end)
+	end
 	-- #3942: everyone near the pool sees its pillar go up (Effects/BigTraitCut.watchPool). Attributes on the station,
 	-- no new remote: who rolled (so their own client skips it, it plays the scene) and the rarity, then the time last,
 	-- which is what the clients watch.

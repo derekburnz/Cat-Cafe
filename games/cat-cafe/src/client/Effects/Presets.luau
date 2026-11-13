@@ -1489,6 +1489,10 @@ Presets.motion = {
 		seconds = 4.2,
 		every = 75,
 		hold = 24,
+		-- #3923 (Derek 2026-11-13: "sometimes the cats randomly sit up when you move around cafe even when resting
+		-- should just be asleep"): a resting cafe cat no longer sits up; it naps the whole rest. A cat in a
+		-- player's arms still loafs awake. true brings the sit-ups back.
+		resting = false,
 	},
 	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
 	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day, eyes half shut. The paw stays up

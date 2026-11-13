@@ -185,6 +185,29 @@ return function()
 			end
 		)
 
+		it("shows a running event's money as its own row, in the total (#3935)", function()
+			local none = byKey(BoostList.rows(Catalog, state(), NOW))
+			expect(none.event).to.equal(nil)
+			local party = byKey(
+				BoostList.rows(
+					Catalog,
+					state(),
+					NOW,
+					nil,
+					nil,
+					{ name = "Update Party", money = 2 }
+				)
+			)
+			expect(party.event.name).to.equal("Update Party")
+			expect(party.event.value).to.equal("x2")
+			expect(party.total.amount).to.be.near(none.total.amount * 2, 1e-9)
+			-- never above the server's cap
+			local big = byKey(
+				BoostList.rows(Catalog, state(), NOW, nil, nil, { name = "Party", money = 9 })
+			)
+			expect(big.event.amount).to.equal(require(Shared:WaitForChild("Config")).EventMoneyMax)
+		end)
+
 		it(
 			"names the one outfit pass owned, and keeps one row when it can't tell which (#2147)",
 			function()

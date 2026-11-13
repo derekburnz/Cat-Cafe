@@ -25,7 +25,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
-local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -160,7 +159,7 @@ local function mysticIntro(
 	local skipped = Guard.bool(rawSkipped)
 	if skipped == nil then
 		local open = LiveFlagService.on(Traits.FLAG)
-			and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+			and Traits.openAt(Economy.tier(profile))
 		if open and profile.tipsSeen[Tips.MYSTIC_INTRO] ~= true then
 			profile.tipsSeen[Tips.MYSTIC_INTRO] = true
 			session.introAt = os.clock()

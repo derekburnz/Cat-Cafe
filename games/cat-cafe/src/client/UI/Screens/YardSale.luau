@@ -31,6 +31,7 @@ export type Callbacks = {
 	buy: (crateId: string) -> (),
 	pick: (() -> ())?, -- #3615: the Lucky pick button (YardSalePick)
 	landed: ((crateId: string) -> ())?, -- #3615: the light has stopped on the crate won (the toast)
+	tick: (() -> ())?, -- #3615: a row lit during the roll (its tick sound)
 	close: () -> (),
 	far: (() -> boolean)?, -- true once the player has walked away from the Yard Sale: the card closes
 }
@@ -538,6 +539,10 @@ function YardSale.picked(self: any, index: number, crateId: string?)
 			if self._open then
 				self._board:light(step.index)
 				self:_showRow(step.index)
+				local ticking: Callbacks = self._callbacks
+				if ticking.tick ~= nil then
+					ticking.tick()
+				end
 				task.wait(step.rest)
 			end
 		end

@@ -6917,20 +6917,27 @@ do
 			pick = function()
 				UI.events.yardSalePick:Fire()
 			end,
+			tick = function()
+				Moments.YardSaleTick:Fire()
+			end,
 			landed = function(crateId: string)
-				if toasts then
-					local name = crateId
-					local crates: { Types.CrateDef } = if currentCatalog ~= nil
-							and currentCatalog.crates ~= nil
-						then currentCatalog.crates
-						else {}
-					for _, crate in crates do
-						if crate.id == crateId then
-							name = crate.name
-						end
+				local name = crateId
+				local golden = false
+				local crates: { Types.CrateDef } = if currentCatalog ~= nil
+						and currentCatalog.crates ~= nil
+					then currentCatalog.crates
+					else {}
+				for _, crate in crates do
+					if crate.id == crateId then
+						name = crate.name
+						golden = crate.golden == true
 					end
+				end
+				if toasts then
 					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
 				end
+				-- #3615: the landing's sound and, for a golden crate, the bigger show at the stall
+				Moments.YardSaleLanded:Fire(golden)
 				UI.events.yardSaleLanded:Fire(crateId)
 			end,
 			close = function()

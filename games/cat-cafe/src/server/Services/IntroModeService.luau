@@ -9,6 +9,8 @@
 -- config values with the player's experiment arm applied; GetValue(key) reads one.
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local IntroModeService = {}
 
@@ -38,6 +40,19 @@ function IntroModeService.get(player: Player): string?
 		waited += task.wait(0.1)
 	end
 	return modes[player]
+end
+
+-- Review-QA: ConfigService does not load in the dev place file, so in Studio only a Workspace attribute
+-- IntroModeTest ("full", "short" or "none") stands in for the Experiment's arm, and the save joins the test even when
+-- it is not new (Telemetry.introJoin). Never read on a live server.
+IntroModeService.TEST_ATTRIBUTE = "IntroModeTest"
+
+function IntroModeService.studioMode(): string?
+	if not RunService:IsStudio() then
+		return nil
+	end
+	local value = Workspace:GetAttribute(IntroModeService.TEST_ATTRIBUTE)
+	return if type(value) == "string" then value else nil
 end
 
 function IntroModeService.start()

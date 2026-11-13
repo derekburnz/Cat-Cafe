@@ -1263,24 +1263,26 @@ local function stageCatch(r: Run, t: number)
 		return
 	end
 	-- #4001 (Derek 2026-11-13: "your character holding cat is facing camera so they can see it being held"): in the
-	-- short intro, once the cat is in your arms you turn to the camera
-	if r.short and r.held and r.demo ~= nil then
-		local camera = Workspace.CurrentCamera
-		local landed = Intro.HOP_FROM + Intro.HOP_SECONDS
-		if camera ~= nil and t >= landed and not r.done.faced then
-			local spot = Intro.catchSpot()
+	-- short intro you turn to the camera as the cat hops in (the hop follows your arms) and keep facing it, cat in
+	-- your arms, through the rest of the shot. Review-QA's Studio run: turning only after the landing left a few
+	-- frames before the cut, so the turn now starts with the hop and the shot holds longer (Intro.SHORT_CATCH_HOLD).
+	local camera = Workspace.CurrentCamera
+	if r.short and camera ~= nil and t >= Intro.HOP_FROM then
+		local spot = Intro.catchSpot()
+		if not r.done.faced then
 			if r.faceFrom == nil then
 				r.faceFrom = toward(spot, Intro.strayPoint())
 			end
-			local k = math.clamp((t - landed) / Intro.FACE_CAMERA_SECONDS, 0, 1)
+			local k = math.clamp((t - Intro.HOP_FROM) / Intro.FACE_CAMERA_SECONDS, 0, 1)
 			local camWay = toward(spot, camera.CFrame.Position)
 			turnYou(you, spot, r.faceFrom :: Vector3, camWay, k)
 			if k >= 1 then
 				r.done.faced = true
 				r.faceFrom = camWay -- where the carry's turn starts from
 			end
+		elseif r.faceFrom ~= nil then
+			placeYou(you, spot, r.faceFrom :: Vector3) -- every frame, so nothing turns you back
 		end
-		return
 	end
 	if r.demo == nil or r.held or t < Intro.HOP_FROM then
 		return

@@ -58,7 +58,10 @@ Intro.SHORT_CAPTIONS = {
 -- the dot each kept shot lights (the catch and the carry share one)
 Intro.SHORT_DOTS = { [1] = 1, [3] = 2, [4] = 2, [5] = 3 } :: { [number]: number }
 Intro.SHORT_DOT_COUNT = 3
-Intro.FACE_CAMERA_SECONDS = 0.35
+Intro.FACE_CAMERA_SECONDS = 0.4
+-- Review-QA (Studio, 2026-11-13): the turn needs time on screen. The short catch holds until this far in, about a
+-- second and a half of you facing the camera with the cat in your arms before the carry.
+Intro.SHORT_CATCH_HOLD = 3.4
 Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 
@@ -810,7 +813,11 @@ function Intro.shots(
 				shot.caption = shortCaption :: string
 				-- the catch and the carry share one caption: the pair holds its reading time between them
 				shot.hold = if shot.index == 3
-					then math.max(shot.seconds, Intro.shortHold(shot.caption) - all[4].seconds)
+					then math.max(
+						shot.seconds,
+						Intro.SHORT_CATCH_HOLD,
+						Intro.shortHold(shot.caption) - all[4].seconds
+					)
 					elseif shot.index == 4 then shot.seconds
 					else math.max(shot.seconds, Intro.shortHold(shot.caption))
 			else

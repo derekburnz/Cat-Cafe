@@ -850,12 +850,17 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 			return -- another caller decided while this one waited
 		end
 	end
-	local joins = IntroSplit.joins(
-		on or mode ~= nil,
-		profile.stats.sessions,
-		profile.introSeen,
-		state.introGroup
-	)
+	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
+	if test ~= nil then
+		mode = test
+	end
+	local joins = test ~= nil
+		or IntroSplit.joins(
+			on or mode ~= nil,
+			profile.stats.sessions,
+			profile.introSeen,
+			state.introGroup
+		)
 	local group = if joins then mode or IntroSplit.group(player.UserId) else state.introGroup
 	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
 	if joins then

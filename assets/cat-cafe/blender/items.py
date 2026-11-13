@@ -36,11 +36,35 @@ def build_food_bowl_premium(mat):
     return [b.finalize("CatCafe_Item_FoodBowl_Premium", mat)]
 
 
+# Studio 2026-11-13 (Review-QA): each food's top is at least 0.3 studs over the bowl's rim once placed (food x1.2 on
+# the floor, bowl x2), so it reads from the side: a top of 0.5 above the food's pivot. The kibble heap is HEAP_UP of a
+# 0.72 ball, centred HEAP_Z up; _heap_top(x, y) is its surface there.
+HEAP_Z, HEAP_UP = 0.14, 0.85
+
+
+def _heap_top(x, y, z0=HEAP_Z, r=0.36, up=HEAP_UP):
+    q = max(0.0, 1 - (x * x + y * y) / (r * r))
+    return z0 + r * up * math.sqrt(q)
+
+
+def _bed(b, r, top):
+    """A low heap of kibble under a food that lies flat (the salmon, the sardines): its top `top` up, `r` across,
+    with a few round bits on it."""
+    up = top / r
+    b.sphere((0, 0, 0), r, "kibble", segments=12, rings=5, scale=(1, 1, up))
+    for (x, y, sw) in ((0.18, 0.12, "treat_tan"), (-0.2, -0.08, "fur_caramel"), (0.06, -0.22, "kibble"),
+                       (-0.1, 0.2, "treat_tan")):
+        q = max(0.0, 1 - (x * x + y * y) / (r * r))
+        b.cyl((x, y, r * up * math.sqrt(q)), 0.06, 0.04, sw, segments=8, bevel=False,
+              rot=_rz(40 * x / 0.2) @ Matrix.Rotation(math.radians(25), 3, "X"))
+
+
 def build_kibble(mat):
     """#3945 a heap of kibble on the bowl's floor: round bits and little fish-shaped bits in three bakes, a few tipped
     up on the heap so it reads as a pile from the street (it was a bag standing in the bowl)."""
     b = Builder()
-    b.sphere((0, 0, 0.0), 0.36, "kibble", segments=12, rings=5, scale=(1, 1, 0.3))             # the heap under them
+    # Studio 2026-11-13: heaped up so it shows over the bowl's rim (it sat level with it)
+    b.sphere((0, 0, HEAP_Z), 0.36, "kibble", segments=12, rings=6, scale=(1, 1, HEAP_UP))     # the heap under them
     bits = ((0.0, 0.0, 0.1, 0, 0, "kibble"), (0.14, 0.06, 0.08, 30, 20, "treat_tan"),
             (-0.13, 0.09, 0.08, -25, 60, "fur_caramel"), (0.05, -0.15, 0.08, 15, -40, "treat_tan"),
             (-0.07, -0.1, 0.1, -10, 10, "kibble"), (0.2, -0.1, 0.05, 40, 80, "fur_caramel"),
@@ -48,13 +72,14 @@ def build_kibble(mat):
             (-0.1, 0.22, 0.04, -30, 45, "treat_tan"), (0.25, 0.12, 0.03, 45, 0, "kibble"))
     for (x, y, z, tilt, turn, sw) in bits:                                                       # round bits
         x, y = 1.25 * x, 1.25 * y                                                                # spread over it
-        z += 0.06 - 0.14 * (x * x + y * y)                                                       # on the heap's top
+        z += _heap_top(x, y) - 0.05                                                              # on the heap's top
         R = _rz(turn) @ Matrix.Rotation(math.radians(tilt), 3, "X")
         b.cyl((x, y, z), 0.065, 0.04, sw, segments=8, bevel=False, rot=R)
         b.cyl((x, y, z), 0.022, 0.045, "fur_toffee", segments=6, bevel=False, rot=R)           # the hole's shadow
     for (x, y, z, turn, sw) in ((0.02, 0.08, 0.15, 35, "fur_caramel"), (-0.16, -0.14, 0.1, -60, "kibble"),
                                 (0.15, -0.2, 0.08, 100, "fur_caramel")):                       # fish-shaped bits
         R = _rz(turn)
+        z += _heap_top(x, y) - 0.08
         b.sphere((x, y, z), 0.07, sw, segments=8, rings=4, scale=(0.6, 1.0, 0.45), rot=R)
         tx, ty = -math.sin(math.radians(turn)) * 0.08, math.cos(math.radians(turn)) * 0.08
         b.cyl((x + tx, y + ty, z), 0.04, 0.03, sw, segments=3, bevel=False, rot=R @ _rz(-90))
@@ -84,11 +109,11 @@ def build_tuna_can(mat):
     return [b.finalize("CatCafe_Item_TunaCan", mat)]
 
 
-def _fish(b, x, y, z, turn, length, back, side, belly, fin, eye=True):
+def _fish(b, x, y, z, turn, length, back, side, belly, fin, eye=True, tilt=0.0):
     """#3945 a fish lying on its side, head toward -Y before `turn` (degrees about Z), `length` long: a `side` body,
     a `back` stripe along its top edge (+X) and a `belly` along the other, a forked tail, a back fin, a side fin, a
     gill line and an eye with a white."""
-    R = _rz(turn)
+    R = _rz(turn) @ Matrix.Rotation(math.radians(tilt), 3, "X")     # tilt < 0 lifts the head
     L = length
 
     def at(px, py, pz):
@@ -111,10 +136,11 @@ def _fish(b, x, y, z, turn, length, back, side, belly, fin, eye=True):
 
 
 def build_salmon(mat):
-    """#3945 a whole salmon lying on the kibble, across the bowl: a peach body with a deeper back, a pearl belly, a
+    """#3945 a whole salmon lying on heaped kibble, across the bowl: a peach body with a deeper back, a pearl belly, a
     forked tail and fins (it was a blue fish standing up)."""
     b = Builder()
-    _fish(b, 0, 0, 0.13, 20, 0.95, "fur_ginger", "fur_apricot", "pearl", "fur_copper")
+    _bed(b, 0.34, 0.2)                                                                           # on heaped kibble
+    _fish(b, 0, 0, 0.32, 20, 0.95, "fur_ginger", "fur_apricot", "pearl", "fur_copper", tilt=-12)
     return [b.finalize("CatCafe_Item_Salmon", mat)]
 
 
@@ -293,10 +319,11 @@ def _rz(deg):
 
 
 def build_sardines(mat):
-    """#3945 three silver sardines fanned on the kibble with blue backs, the middle one on top."""
+    """#3945 three silver sardines fanned on heaped kibble with blue backs, the middle one on top, head up."""
     b = Builder()
-    for (x, y, z, a) in ((-0.15, 0.03, 0.07, 14), (0.16, 0.01, 0.07, -12), (0.0, -0.04, 0.14, 2)):
-        _fish(b, x, y, z, a, 0.55, "fish_blue", "fur_silver", "pearl", "fur_mist")
+    _bed(b, 0.34, 0.2)                                                                           # on heaped kibble
+    for (x, y, z, a, t) in ((-0.15, 0.03, 0.27, 14, 0), (0.16, 0.01, 0.27, -12, 0), (0.0, -0.04, 0.36, 2, -14)):
+        _fish(b, x, y, z, a, 0.55, "fish_blue", "fur_silver", "pearl", "fur_mist", tilt=t)
     return [b.finalize("CatCafe_Item_Sardines", mat)]
 
 
@@ -347,10 +374,10 @@ def build_star_treat(mat):
     b = Builder()
     b.star((0.1, 0.08, 0.03), 0.2, 0.09, 0.06, "treat_tan")
     b.star((0.1, 0.08, 0.065), 0.16, 0.072, 0.02, "fur_golden")                                # its icing
-    tilt = Matrix.Rotation(math.radians(55), 3, "X")
-    b.star((-0.02, -0.04, 0.2), 0.27, 0.12, 0.08, "treat_tan", rot=tilt)
-    b.star((-0.02, -0.075, 0.225), 0.22, 0.1, 0.02, "rarity_legend", rot=tilt)                # its icing
-    for (x, y, z) in ((-0.08, -0.12, 0.27), (0.07, -0.11, 0.2), (0.0, -0.1, 0.33), (-0.1, -0.08, 0.17),
+    tilt = Matrix.Rotation(math.radians(62), 3, "X")
+    b.star((-0.02, -0.04, 0.27), 0.27, 0.12, 0.08, "treat_tan", rot=tilt)                     # stood up higher
+    b.star((-0.02, -0.075, 0.295), 0.22, 0.1, 0.02, "rarity_legend", rot=tilt)               # its icing
+    for (x, y, z) in ((-0.08, -0.12, 0.34), (0.07, -0.11, 0.27), (0.0, -0.1, 0.4), (-0.1, -0.08, 0.24),
                       (0.12, 0.1, 0.08), (0.05, 0.02, 0.08)):
         b.box((x, y, z), (0.035, 0.02, 0.035), "sparkle", bevel=False, rot=tilt)
     return [b.finalize("CatCafe_Item_StarTreat", mat)]

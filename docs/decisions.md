@@ -1177,3 +1177,6 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-13 The Potions button counts only potions that can be drunk (#3937, Design-Agent)
 - **Why:** Derek, 15:43 UTC, with a picture of 26 Quick Bait potions all reading Full: don't show "potion numbers for ones that cant be drank because already full".
 - **What:** the HUD Potions pill adds only the potions whose Use is on now (`PotionLogic.drinkable`, the rows' own canUse) and hides at none. While some wait behind a Full timer it looks again every 5 seconds. The rows keep their own counts.
+## 2026-11-13 The Bag's Titles tab lists titles rarest first (Design-Agent)
+- **Why:** Derek: "sort titles in backpack section to sort rarest first so that leaderboards players can see their good titles first".
+- **What:** owned titles, then locked ones, each in `TitlesLogic.RAREST`: #1, #2, #3, then the big achievements hardest first (Cat Legend, Devoted, Steady Hands, Week Champion, Gold Rush), then Grand Opener, Maple, Thank You and VIP. The server's default title (`ChatTags.ORDER`) is unchanged.

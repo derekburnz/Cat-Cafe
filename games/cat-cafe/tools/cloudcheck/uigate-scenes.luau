@@ -2544,6 +2544,10 @@ local SCENES = {
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)
 		assert(tokens.Text == "1 Trait Token ready", "uigate: the token line reads " .. tokens.Text .. " (#3196)")
+		-- #3848: the whole card, Collect included, sits on the screen with room under it
+		local _, screenH, inset = UIShim.screen()
+		local bottom = window.AbsolutePosition.Y + window.AbsoluteSize.Y + (inset or 0) -- the modals sit under the top bar
+		assert(bottom <= screenH - 8, ("uigate: the Mystic Pool card ends %d px from the screen's bottom (#3848)"):format(screenH - bottom))
 		local sent = nil
 		local connection = UI.events.rollTrait:Connect(function(uid)
 			sent = uid

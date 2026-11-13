@@ -85,6 +85,10 @@ local TILE_W = 150
 local TILE_H = 100 -- the cat's tile and the trait's card
 local ODDS_W = 84
 local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the odds on two lines
+-- #3848 (Derek 2026-11-13: "the collect trait reroll button is cutoff a bit on mobile"): on a short screen the card
+-- reached the screen's bottom edge, so the line of what the player has moves beside Collect, over the token line, and
+-- the Roll row and the spaces between rows are a little shorter
+local SHORT_WORDS_H = 28
 local PENDING_SECONDS = 4
 local ROW_H = 68 -- #3700: three lines (name, rarity and level, trait)
 local PICKER_TALL = 680 -- #3700: the card grows to at most this while the cat list shows, so about six rows fit
@@ -267,7 +271,11 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._buttonH = buttonH
 	-- the card is kept short (the smallest phone has about 320 px under Roblox's top bar): the cat and its trait,
 	-- one row of buttons, three lines of words and the token row
-	local contentH = TILE_H + GAP + (buttonH + 4) + 4 + WORDS_H + 4 + buttonH
+	local short = Scale.isShort()
+	local wordsH = if short then SHORT_WORDS_H else WORDS_H
+	local rowH = if short then buttonH else buttonH + 4 -- the Roll row; short: no extra 4 px
+	local space = if short then 2 else 4 -- between the rows
+	local contentH = TILE_H + GAP + rowH + space + wordsH + space + buttonH
 	local height = contentH + CHROME
 
 	local panel = Panel.new({
@@ -351,7 +359,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		name = "Change",
 		text = "Pick a cat",
 		style = "ghost",
-		size = UDim2.fromOffset(TILE_W, buttonH + 4),
+		size = UDim2.fromOffset(TILE_W, rowH),
 		position = UDim2.fromOffset(0, rollTop),
 		textSize = Theme.sizes.textSmall + 1,
 		parent = content,
@@ -366,7 +374,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		name = "Roll",
 		text = "Roll",
 		style = "primary",
-		size = UDim2.new(1, -(TILE_W + ODDS_W + GAP * 2), 0, buttonH + 4),
+		size = UDim2.new(1, -(TILE_W + ODDS_W + GAP * 2), 0, rowH),
 		position = UDim2.fromOffset(TILE_W + GAP, rollTop),
 		textSize = Theme.sizes.textBody,
 		parent = content,
@@ -379,7 +387,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		name = "Odds",
 		text = "Odds",
 		style = "ghost",
-		size = UDim2.fromOffset(ODDS_W, buttonH + 4),
+		size = UDim2.fromOffset(ODDS_W, rowH),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, 0, 0, rollTop),
 		textSize = Theme.sizes.textSmall + 1,
@@ -388,23 +396,26 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			self._oddsSheet.Visible = true
 		end,
 	})
-	local lineTop = rollTop + buttonH + 4 + 4
+	local lineTop = rollTop + rowH + space
+	local tokenTop = lineTop + wordsH + space
+	-- short: the two lines share the token row's left side, what the player has on top and the token line under
+	local half = math.floor(buttonH / 2)
 	self._why = text({
 		Name = "Why",
-		Position = UDim2.fromOffset(0, lineTop),
-		Size = UDim2.new(1, 0, 0, 18),
+		Position = UDim2.fromOffset(0, if short then tokenTop else lineTop),
+		Size = if short then UDim2.new(1, -(120 + GAP), 0, half) else UDim2.new(1, 0, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = if short then Enum.TextXAlignment.Left else Enum.TextXAlignment.Center,
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
-	oddsLines(content, lineTop + 18, 1)
+	oddsLines(content, if short then lineTop else lineTop + 18, 1)
 	-- the station's free tokens
-	local tokenTop = lineTop + WORDS_H + 4
 	self._tokens = text({
 		Name = "Tokens",
-		Position = UDim2.fromOffset(0, tokenTop),
-		Size = UDim2.new(1, -(120 + GAP), 0, buttonH),
+		Position = UDim2.fromOffset(0, if short then tokenTop + half else tokenTop),
+		Size = UDim2.new(1, -(120 + GAP), 0, if short then buttonH - half else buttonH),
 		TextSize = Theme.sizes.textSmall,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = PAL.text,

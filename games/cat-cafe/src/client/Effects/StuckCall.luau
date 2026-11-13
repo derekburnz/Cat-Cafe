@@ -172,7 +172,7 @@ local function make(model: Model): Call?
 	local ground = Context.effectPart(
 		"StuckCallGlow",
 		Vector3.new(g.thick, g.radius * 2, g.radius * 2),
-		p.colour
+		g.colour
 	)
 	ground.Shape = Enum.PartType.Cylinder
 	ground.Material = Enum.Material.Neon
@@ -180,7 +180,7 @@ local function make(model: Model): Call?
 	ground.CFrame = CFrame.new(base + Vector3.new(0, g.thick / 2 + 0.02, 0))
 		* CFrame.Angles(0, 0, math.pi / 2)
 	local light = Instance.new("PointLight")
-	light.Color = p.colour
+	light.Color = g.colour
 	light.Range = g.range
 	light.Brightness = g.brightness
 	light.Shadows = false

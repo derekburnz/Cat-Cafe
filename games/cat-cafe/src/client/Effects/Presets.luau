@@ -4990,6 +4990,7 @@ Presets.stuckCall = {
 	-- see-through over `seconds` each way (well under once a second; held at `bright` with Reduce Motion), and a
 	-- soft warm light of `range` studs.
 	glow = {
+		colour = Color3.fromRGB(255, 150, 48), -- warm orange, apart from the guide trail's yellow dots
 		radius = 4,
 		thick = 0.05,
 		bright = 0.35,

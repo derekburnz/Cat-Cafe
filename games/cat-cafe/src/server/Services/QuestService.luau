@@ -15,8 +15,10 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local ClaimAll = require(ReplicatedStorage.Shared.ClaimAll)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -219,6 +221,18 @@ local function onRerollQuest(player: Player, rawKind: unknown, rawSlot: unknown)
 	CafeService.sync(player)
 end
 
+-- #3694: a claimed big achievement's title shows in chat at once (when nothing else is picked) and joins the Bag's
+-- Titles tab.
+local function giveTitles(player: Player, profile: Types.PlayerProfile, ids: { string })
+	for _, achievementId in ids do
+		if ChatTags.ACHIEVEMENT_TITLES[achievementId] ~= nil then
+			CafePassService.refreshTag(player, profile)
+			CafePassService.send(player, profile)
+			return
+		end
+	end
+end
+
 local function onClaimAchievement(player: Player, rawId: unknown)
 	local achievementId = Guard.id(rawId)
 	local profile = DataService.get(player)
@@ -235,6 +249,7 @@ local function onClaimAchievement(player: Player, rawId: unknown)
 	local paid = Payout.pay(player, profile, Quests.achievementPrize(def), "achievement")
 	Telemetry.custom(player, "achievement_claimed", 1, { def.id, def.size })
 	answer(player, "Achievement " .. def.name, paid)
+	giveTitles(player, profile, { achievementId })
 end
 
 -- The title of a Claim all's toast: the one thing's own name, or how many ("3 daily quests").
@@ -288,6 +303,7 @@ function QuestService.claimAllAchievements(player: Player)
 		end
 	end
 	answer(player, allTitle(#ids, first, "achievements"), ClaimAll.merge(paid))
+	giveTitles(player, profile, ids)
 end
 
 -- Claim all across the Quests window (#1073): every ready daily quest, then weekly, then achievement, each paid as
@@ -318,6 +334,7 @@ function QuestService.claimEverything(player: Player)
 		Telemetry.custom(player, "achievement_claimed", 1, { def.id, def.size })
 	end
 	answer(player, allTitle(ready.count, "Reward claimed", "rewards"), ClaimAll.merge(paid))
+	giveTitles(player, profile, ready.achievements)
 end
 
 function QuestService.start()

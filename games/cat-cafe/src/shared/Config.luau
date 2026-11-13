@@ -1240,6 +1240,27 @@ local Config = {
 		from: number,
 		fish: number,
 		spins: number,
+		crates: { [string]: number }?,
+		to: number?,
+	}?,
+	-- #3535 (Derek 2026-11-12: Friday's update, "instead of golden fish giveaway 3 different golden crates"): the
+	-- gift after UpdateGift, which keeps paying until this one's `from`: Friday 2026-11-13 22:03 UTC, three minutes
+	-- after that update's restart. A Classic and an Alleyway Golden Crate and the golden crate of the best area the
+	-- player has opened (a second Classic for a player whose best is the Alleyway; shared/UpdateGift.prize).
+	-- #3779: it ends (`to`) at Saturday 2026-11-14 17:00 UTC, when Saturday's weekly gift starts.
+	UpdateGiftNext = {
+		id = "2026-11-13",
+		from = 1794607380,
+		fish = 0,
+		spins = 0,
+		crates = { classic_golden_crate = 1, alley_golden_crate = 1, highest_golden = 1 },
+		to = 1794675600,
+	} :: {
+		id: string,
+		from: number,
+		fish: number,
+		spins: number,
+		crates: { [string]: number }?,
 		to: number?,
 	}?,
 	CodeMaxLength = 20,

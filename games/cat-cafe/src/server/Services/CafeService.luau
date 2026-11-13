@@ -77,6 +77,10 @@ type Profile = Types.PlayerProfile
 
 local CafeService = {}
 
+-- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
+-- the achievements view; QuestService and Claim all reach Quests through it)
+Quests.setFlagReader(LiveFlagService.on)
+
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
 

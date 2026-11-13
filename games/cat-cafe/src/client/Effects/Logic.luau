@@ -77,9 +77,11 @@ export type PlotChange = "claim" | "release" | "rankUp"
 export type AreasTurn = "dusk" | "sunrise"
 export type PrizeTier = "small" | "good" | "jackpot"
 
--- A phone or tablet (touch with no keyboard) gets the low budget.
-function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
-	if touch and not keyboard then
+-- A phone or tablet gets the low budget: touch with no keyboard, or (#3918) touch with a keyboard but no mouse, as
+-- an iPad or Android tablet in a keyboard case. A touch screen laptop has a mouse or trackpad and stays "high".
+-- `mouse` nil (an older caller) leaves the keyboard rule alone.
+function Logic.tier(touch: boolean, keyboard: boolean, mouse: boolean?): Presets.Tier
+	if touch and (not keyboard or mouse == false) then
 		return "low"
 	end
 	return "high"

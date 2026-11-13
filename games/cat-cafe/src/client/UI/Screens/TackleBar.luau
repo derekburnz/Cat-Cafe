@@ -21,8 +21,8 @@
 -- nearest of them (Components/TackleCue, TackleTry.cueTarget), until this player has landed TackleTry.CUE_HITS
 -- tackles in the session. The bar's own key cap is bigger too.
 -- #3342 (Derek2 11-11: "tackling immunity for the first 5 minutes"): while this player's join shield runs (the
--- Player's TackleShieldUntil attribute, set by ShoveService; 15 minutes since #3475), a small "🛡️ Safe 14:32" chip sits just over the bar or
--- the round button, counting down. Pressing Tackle ends the shield on the server, and the chip goes with it.
+-- Player's TackleShieldUntil attribute, set by ShoveService; 15 minutes since #3475), a small "🛡️ Safe 14:32" chip sits beside the bar's
+-- right end (#3744; it sat over the bar, under the bag's Drop pill) or just over the round button, counting down. Pressing Tackle ends the shield on the server, and the chip goes with it.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
 --   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the bar
@@ -186,8 +186,10 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	})
 	Outline.text(word, 2)
 	self._word = word
-	-- #3342: the join shield's chip, just over the bar
-	self._shield = self:_buildShield(bar, UDim2.new(0.5, 0, 0, -6))
+	-- #3342: the join shield's chip. #3744 (Studio 11-12: with a cat in the bag the red "Drop cat" pill stands right
+	-- over the bar, and the chip over the bar covered its words): beside the bar's right end, level with it, where
+	-- nothing else sits, whether or not a Drop is up
+	self._shield = self:_buildShield(bar, UDim2.new(1, 10, 0.5, 0), Vector2.new(0, 0.5))
 
 	do
 		local key: TextLabel = Create("TextLabel", {
@@ -366,13 +368,19 @@ function TackleBar._place(self: any)
 	end
 end
 
--- #3342: the join shield's chip, hidden until _drawShield has a time to show. Its bottom centre sits at `position`.
-function TackleBar._buildShield(_self: any, parent: Instance, position: UDim2): TextLabel
+-- #3342: the join shield's chip, hidden until _drawShield has a time to show. Its bottom centre sits at `position`,
+-- or the point `anchor` names (#3744).
+function TackleBar._buildShield(
+	_self: any,
+	parent: Instance,
+	position: UDim2,
+	anchor: Vector2?
+): TextLabel
 	local chip: TextLabel = Create("TextLabel", {
 		Name = "Shield",
 		BackgroundColor3 = Theme.hud.panel,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 1),
+		AnchorPoint = anchor or Vector2.new(0.5, 1),
 		Position = position,
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 24),

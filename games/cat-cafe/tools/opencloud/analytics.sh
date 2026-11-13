@@ -760,6 +760,8 @@ fieldEvents=(
 	"client_memory|CustomField1,CustomField3|CustomEventCountUser|Client memory: players by device and growth since their first mark (#3743)"
 	"client_memory_tag|CustomField1,CustomField2|CustomEventAvgValue|Client memory by Roblox memory group: average MB at 5 and 30 minutes (#3743)"
 	"client_memory_tag|CustomField3,CustomField1|CustomEventAvgValue|Client memory by device and memory group: average MB (#3743)"
+	"badge_awarded|CustomField1|CustomEventCountUser|Badges: players awarded each badge (#3617)"
+	"badge_awarded|CustomField1,CustomField2|CustomEventCountUser|Badges: players by badge, earned live or caught up on join (#3617)"
 	"arcade_quit|CustomField1|CustomEventCount|Cat Arcade: games left early, free or paid (#3378)"
 	"arcade_quit|CustomField1|CustomEventAvgValue|Cat Arcade: average circles hit before leaving early (#3378)"
 	"arcade_blocked|CustomField1|CustomEventCount|Cat Arcade: Start refused, by reason (closed, loading, running, busy, no_fish) (#3378)"

@@ -92,6 +92,7 @@ local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
 local TrailSparkle = require(script.TrailSparkle)
+local Trampoline = require(script.Trampoline)
 local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
 
@@ -190,6 +191,7 @@ function Effects.start()
 		StrayCall.start,
 		CampGrowth.start,
 		Townsfolk.start,
+		Trampoline.start,
 	}
 	task.spawn(function()
 		local slice = os.clock()

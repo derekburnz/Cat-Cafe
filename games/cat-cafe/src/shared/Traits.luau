@@ -31,16 +31,19 @@ local Traits = {}
 Traits.FLAG = "traits"
 Traits.NAME = "Mystic Pool"
 Traits.KEEPER = "Sage Sorrel"
-Traits.STATION_EXTRA = "picnic" -- the camp extra whose spot and unlock the Mystic Pool takes (CampExtras)
--- The station in the world (WorldBuilder builds it on the Picnic Basket's spot; MysticPoolStationService shows it
--- in the basket's place while the switch is on): its model, its CollectionService tag and its prompt's name.
+-- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it"): the pool stands in the Town Square
+-- and is open to every tier, so a new player's first cats can use the five free rolls. Before, it took the Park
+-- camp's Picnic Basket's spot and that extra's Tier 2 unlock.
+Traits.OPEN_TIER = 1
+-- The station in the world (WorldBuilder builds it at Layout.mysticPool; MysticPoolStationService shows it while
+-- the switch is on): its model, its CollectionService tag and its prompt's name.
 Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
 Traits.TAG = "MysticPool"
 Traits.PROMPT = "MysticPoolPrompt"
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
 Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")
 Traits.COST_TOKENS = 1
-Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token (replaces the Picnic Basket's Money Potion)
+Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token, on its own timer
 Traits.TOKEN_HOLD = 2
 Traits.TOKEN_MAX = 999 -- a save's tokens are clamped here (no source comes near it)
 
@@ -188,6 +191,11 @@ for _, entry in list do
 		byRarity[entry.rarity.id] = group
 	end
 	table.insert(group, entry)
+end
+
+-- Whether a player of `tier` may use the station (the `traits` switch is checked by the caller).
+function Traits.openAt(tier: number): boolean
+	return tier >= Traits.OPEN_TIER
 end
 
 function Traits.get(id: string): Def?

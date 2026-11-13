@@ -392,8 +392,13 @@ end
 
 -- #2912 (shared/StuckGoal): the stuck cat pointer after the first bait cat. `shownAt` is when it first showed this
 -- session, `rescuing` while this player's rescue bar is up, `on` what the goal card was last told.
-local stuckGoal =
-	{ shownAt = nil :: number?, rescuing = false, on = false, target = nil :: Instance? }
+local stuckGoal = {
+	shownAt = nil :: number?,
+	arrived = false, -- the pointer has aimed at the cat itself once: its clock began again there
+	rescuing = false,
+	on = false,
+	target = nil :: Instance?,
+}
 
 local function stuckGoalActive(s: Types.PlayerState): boolean
 	local shownAt = stuckGoal.shownAt
@@ -651,6 +656,12 @@ local function refreshTutorial(s: Types.PlayerState)
 			UI.tutorial.hide()
 		else
 			if stuckGoal.shownAt == nil then
+				stuckGoal.shownAt = os.clock()
+			end
+			if where == "cat" and not stuckGoal.arrived then
+				-- Review-QA on #3528: a slow new player lost the pointer at the camp, before the trap. The clock
+				-- begins again once, on arrival in the Alleyway.
+				stuckGoal.arrived = true
 				stuckGoal.shownAt = os.clock()
 			end
 			showTutorial(
@@ -2799,9 +2810,9 @@ local function wireServerEvents()
 	Net.on("MouseDashState", function(view: any)
 		UI.mouseDash.state(view)
 	end)
-	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number)
+	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number, endsAt: any)
 		arcadeMoment("MouseDashStart")
-		UI.mouseDash.began(run, hearts, firstAt)
+		UI.mouseDash.began(run, hearts, firstAt, if type(endsAt) == "number" then endsAt else nil)
 	end)
 	Net.on("MouseDashWave", function(run: number, index: number, pops: any, hint: string?)
 		if type(pops) == "table" then

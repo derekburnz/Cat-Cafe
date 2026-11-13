@@ -719,7 +719,14 @@ local Config = {
 	UpdateEvents = {
 		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
 		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
-	} :: { { id: string, startsAt: number } },
+		-- #4026 (Derek 2026-11-13 23:12 UTC: "yes to update everything"): "Cat Outfit Packs!", 2026-11-14 22:00 UTC,
+		-- with its own words on the ask
+		{
+			id = "4733999329807827538",
+			startsAt = 1794693600,
+			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
+		},
+	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

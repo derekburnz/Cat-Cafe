@@ -2193,7 +2193,7 @@ local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
 local function offerEvent()
-	local id, startsAt = EventRsvp.next(Config.UpdateEvents, os.time())
+	local id, startsAt, words = EventRsvp.next(Config.UpdateEvents, os.time())
 	if
 		eventAsk.asked
 		or state == nil
@@ -2219,7 +2219,7 @@ local function offerEvent()
 		local card: any = if asks ~= nil then asks.card else nil
 		local shown = type(card) == "function"
 			and (card :: (any) -> unknown)({
-					title = EventRsvp.title(at, os.time()),
+					title = words or EventRsvp.title(at, os.time()),
 					choices = {
 						{ id = "remind", label = EventRsvp.REMIND, style = "primary" },
 						{ id = "later", label = EventRsvp.LATER, style = "ghost" },

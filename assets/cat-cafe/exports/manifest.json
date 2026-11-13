@@ -297300,7 +297300,7 @@
         "CatCafe_Sewer_SetF85_169_Grate",
         "CatCafe_Sewer_SetF85_170_Grate"
       ],
-      "triangles": 132598,
+      "triangles": 128622,
       "budget": 150000,
       "size_studs": {
         "x": 119.2,
@@ -297843,7 +297843,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetF85.model.json",
-      "rbx_parts": 7050,
+      "rbx_parts": 6868,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.glb"
@@ -297855,15 +297855,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "132598/150000 tris",
+          "budget": "128622/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "68282 faces on swatch centers",
+          "uv": "66350 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.07"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_SetF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_SetF85.png"
     },
     {
       "name": "CatCafe_Plot_BackDoor",

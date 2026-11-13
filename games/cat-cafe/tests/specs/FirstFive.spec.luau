@@ -9,6 +9,7 @@ return function()
 	local function stateAt(stepName: string)
 		local profile = ProfileSchema.template(100)
 		profile.telemetry.onboardingStep = Onboarding.index(stepName)
+		profile.telemetry.achieved = {} -- a save from before #3660, which had its first table to buy
 		return profile.telemetry
 	end
 
@@ -69,6 +70,15 @@ return function()
 			expect(FirstFive.nextBuy(stateAt("first_table"))).to.equal("lure_bowl")
 			expect(FirstFive.nextBuy(stateAt("bowl_bought"))).to.equal(nil)
 		end)
+
+		it(
+			"is the bait bowl straight away for a new save, which starts with its table (#3660)",
+			function()
+				local telemetry = ProfileSchema.template(100).telemetry
+				telemetry.onboardingStep = Onboarding.index("first_customer_served")
+				expect(FirstFive.nextBuy(telemetry)).to.equal("lure_bowl")
+			end
+		)
 
 		it("says yes or no against the cost, na when maxed", function()
 			expect(FirstFive.afford("tables", 150, 150)).to.equal("yes")

@@ -8,6 +8,9 @@ local Config = {
 	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
 	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
 	StartCoins = 850,
+	-- #3660 (Derek 2026-11-12: "make the players start with one table upgrade done and remove it from tutorial
+	-- steps"): the Tables level a new save starts at. Saves made before keep what they have
+	StartTables = 1,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,

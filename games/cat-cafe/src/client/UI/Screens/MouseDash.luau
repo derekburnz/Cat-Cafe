@@ -27,6 +27,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local LeaderboardLogic = require(script.Parent.Parent.Components.LeaderboardLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MouseDashLogic = require(script.Parent.Parent.Components.MouseDashLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -39,7 +40,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Rules = require(Shared:WaitForChild("MouseDash"))
 
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 local MAX_SIZE = Vector2.new(640, 720)
 local ACTION_NAME = "CatCafeMouseDashKeys"

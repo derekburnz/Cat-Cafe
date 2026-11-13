@@ -6646,7 +6646,7 @@
      "CFrame": {
       "position": [
        9.8,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -6670,7 +6670,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -6694,105 +6694,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.8,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       9.8,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       9.4,
+       9.2,
        10.0,
        -0.34
       ],
@@ -6816,7 +6718,7 @@
      }
     },
     "Size": [
-     1.2,
+     0.8,
      0.4,
      0.08
     ],
@@ -6891,7 +6793,7 @@
      "CFrame": {
       "position": [
        8.2,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -6915,7 +6817,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -6940,7 +6842,7 @@
      "CFrame": {
       "position": [
        7.4,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -6964,7 +6866,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -7012,202 +6914,6 @@
      }
     },
     "Size": [
-     1.2,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.2,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.4,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.2,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.4,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.4,
      0.4,
      0.08
@@ -7283,7 +6989,7 @@
      "CFrame": {
       "position": [
        6.2,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -7307,154 +7013,7 @@
     },
     "Size": [
      0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.2,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.2,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.2,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -7528,7 +7087,7 @@
      "CFrame": {
       "position": [
        4.2,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -7552,7 +7111,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -7576,105 +7135,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       4.2,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.2,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.8,
+       3.6,
        10.0,
        -0.34
       ],
@@ -7698,7 +7159,7 @@
      }
     },
     "Size": [
-     1.2,
+     0.8,
      0.4,
      0.08
     ],
@@ -7773,7 +7234,7 @@
      "CFrame": {
       "position": [
        2.6,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -7797,7 +7258,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -7822,7 +7283,7 @@
      "CFrame": {
       "position": [
        1.8,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -7846,7 +7307,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -7872,202 +7333,6 @@
       "position": [
        2.2,
        10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.6,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.8,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.6,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.8,
-       10.0,
        -0.34
       ],
       "orientation": [
@@ -8165,7 +7430,7 @@
      "CFrame": {
       "position": [
        1.0,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -8189,7 +7454,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -8213,106 +7478,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.8,
+       0.6,
        10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.8,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0,
-       10.0,
        -0.34
       ],
       "orientation": [
@@ -8410,7 +7577,56 @@
      "CFrame": {
       "position": [
        -0.6,
-       11.2,
+       10.6,
+       -0.34
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.4,
+     1.6,
+     0.08
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0,
+       10.8,
        -0.34
       ],
       "orientation": [
@@ -8458,8 +7674,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.8,
-       10.8,
+       -1.2,
+       10.0,
        -0.34
       ],
       "orientation": [
@@ -8507,104 +7723,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.0,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -3.4,
        11.6,
        -0.34
@@ -8655,7 +7773,7 @@
      "CFrame": {
       "position": [
        -3.4,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -8679,154 +7797,7 @@
     },
     "Size": [
      0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.4,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.4,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.4,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -8900,7 +7871,7 @@
      "CFrame": {
       "position": [
        -4.6,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -8924,7 +7895,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -8949,7 +7920,7 @@
      "CFrame": {
       "position": [
        -5.4,
-       11.2,
+       10.6,
        -0.34
       ],
       "orientation": [
@@ -8973,203 +7944,7 @@
     },
     "Size": [
      0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.6,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.4,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.6,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.4,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
+     1.6,
      0.08
     ],
     "Color": [
@@ -9217,202 +7992,6 @@
      }
     },
     "Size": [
-     1.2,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.2,
-       11.6,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.8,
-       11.6,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.2,
-       11.2,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.8,
-       11.2,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.4,
      0.4,
      0.08
@@ -9463,7 +8042,56 @@
     },
     "Size": [
      0.4,
+     2.0,
+     0.08
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -7.8,
+       10.8,
+       -0.34
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
      0.4,
+     2.0,
      0.08
     ],
     "Color": [
@@ -9536,56 +8164,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.8,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.4,
+       -6.6,
        10.4,
        -0.34
       ],
@@ -9609,7 +8188,7 @@
      }
     },
     "Size": [
-     0.8,
+     0.4,
      0.4,
      0.08
     ],
@@ -9634,106 +8213,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.6,
+       -7.4,
        10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.8,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.2,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.8,
-       10.0,
        -0.34
       ],
       "orientation": [
@@ -9782,7 +8263,7 @@
      "CFrame": {
       "position": [
        -8.6,
-       11.6,
+       10.8,
        -0.34
       ],
       "orientation": [
@@ -9806,7 +8287,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     2.0,
      0.08
     ],
     "Color": [
@@ -9831,7 +8312,7 @@
      "CFrame": {
       "position": [
        -9.8,
-       11.6,
+       10.8,
        -0.34
       ],
       "orientation": [
@@ -9855,7 +8336,7 @@
     },
     "Size": [
      0.4,
-     0.4,
+     2.0,
      0.08
     ],
     "Color": [
@@ -9879,56 +8360,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.8,
-       11.2,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.8,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.8,
+       -9.0,
        11.2,
        -0.34
       ],
@@ -9977,253 +8409,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.6,
+       -9.4,
        10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.6,
-       10.8,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.8,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.6,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.8,
-       10.4,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.6,
-       10.0,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.4,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.8,
-       10.0,
        -0.34
       ],
       "orientation": [
@@ -10762,202 +8949,6 @@
      "CFrame": {
       "position": [
        -5.0,
-       12.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.0,
-       12.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.0,
-       12.225,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.0,
-       12.225,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.0,
        11.975,
        0.335
       ],
@@ -10982,7 +8973,56 @@
     },
     "Size": [
      0.25,
+     1.25,
+     0.07
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -4.0,
+       11.975,
+       0.335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
      0.25,
+     1.25,
      0.07
     ],
     "Color": [
@@ -11055,56 +9095,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.0,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.875,
+       -4.75,
        11.725,
        0.335
       ],
@@ -11128,7 +9119,7 @@
      }
     },
     "Size": [
-     0.5,
+     0.25,
      0.25,
      0.07
     ],
@@ -11153,106 +9144,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.125,
+       -4.25,
        11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.5,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.0,
-       11.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.0,
-       11.475,
        0.335
       ],
       "orientation": [
@@ -11350,7 +9243,56 @@
      "CFrame": {
       "position": [
        -3.5,
-       12.225,
+       11.85,
+       0.335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.25,
+     1.0,
+     0.07
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.25,
+       11.975,
        0.335
       ],
       "orientation": [
@@ -11398,8 +9340,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.375,
-       11.975,
+       -3.125,
+       11.475,
        0.335
       ],
       "orientation": [
@@ -11447,202 +9389,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.25,
-       11.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.75,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.5,
-       12.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.5,
-       12.225,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -2.5,
        11.975,
        0.335
@@ -11668,7 +9414,7 @@
     },
     "Size": [
      0.25,
-     0.25,
+     1.25,
      0.07
     ],
     "Color": [
@@ -11692,56 +9438,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.25,
+       -2.125,
        11.475,
        0.335
       ],
@@ -11765,7 +9462,7 @@
      }
     },
     "Size": [
-     0.75,
+     0.5,
      0.25,
      0.07
     ],
@@ -11840,7 +9537,7 @@
      "CFrame": {
       "position": [
        -1.5,
-       12.225,
+       11.85,
        0.335
       ],
       "orientation": [
@@ -11864,7 +9561,7 @@
     },
     "Size": [
      0.25,
-     0.25,
+     1.0,
      0.07
     ],
     "Color": [
@@ -11888,105 +9585,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.5,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.25,
+       -1.125,
        11.475,
        0.335
       ],
@@ -12010,7 +9609,7 @@
      }
     },
     "Size": [
-     0.75,
+     0.5,
      0.25,
      0.07
     ],
@@ -12085,7 +9684,7 @@
      "CFrame": {
       "position": [
        -0.5,
-       12.225,
+       11.85,
        0.335
       ],
       "orientation": [
@@ -12109,7 +9708,7 @@
     },
     "Size": [
      0.25,
-     0.25,
+     1.0,
      0.07
     ],
     "Color": [
@@ -12134,7 +9733,7 @@
      "CFrame": {
       "position": [
        0.0,
-       12.225,
+       11.85,
        0.335
       ],
       "orientation": [
@@ -12158,203 +9757,7 @@
     },
     "Size": [
      0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
+     1.0,
      0.07
     ],
     "Color": [
@@ -12402,7 +9805,7 @@
      }
     },
     "Size": [
-     0.75,
+     0.25,
      0.25,
      0.07
     ],
@@ -12428,7 +9831,7 @@
      "CFrame": {
       "position": [
        0.5,
-       12.475,
+       11.975,
        0.335
       ],
       "orientation": [
@@ -12452,7 +9855,7 @@
     },
     "Size": [
      0.25,
-     0.25,
+     1.25,
      0.07
     ],
     "Color": [
@@ -12477,154 +9880,105 @@
      "CFrame": {
       "position": [
        1.5,
-       12.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.625,
-       12.225,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.5,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.375,
-       12.225,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.5,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5,
        11.975,
+       0.335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.25,
+     1.25,
+     0.07
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.75,
+       12.225,
+       0.335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.25,
+     0.25,
+     0.07
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.25,
+       12.225,
        0.335
       ],
       "orientation": [
@@ -12721,251 +10075,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.5,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5,
-       11.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.5,
-       11.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        2.25,
        12.475,
        0.335
@@ -13016,7 +10125,56 @@
      "CFrame": {
       "position": [
        2.0,
-       12.225,
+       11.85,
+       0.335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.25,
+     1.0,
+     0.07
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.25,
+       11.975,
        0.335
       ],
       "orientation": [
@@ -13064,8 +10222,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.125,
-       11.975,
+       2.375,
+       11.475,
        0.335
       ],
       "orientation": [
@@ -13113,104 +10271,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.0,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.25,
-       11.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.75,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        3.75,
        12.475,
        0.335
@@ -13261,7 +10321,7 @@
      "CFrame": {
       "position": [
        3.75,
-       12.225,
+       11.85,
        0.335
       ],
       "orientation": [
@@ -13285,154 +10345,7 @@
     },
     "Size": [
      0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.75,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.75,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.75,
-       11.475,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
+     1.0,
      0.07
     ],
     "Color": [
@@ -13506,7 +10419,7 @@
      "CFrame": {
       "position": [
        4.5,
-       12.225,
+       11.85,
        0.335
       ],
       "orientation": [
@@ -13530,7 +10443,7 @@
     },
     "Size": [
      0.25,
-     0.25,
+     1.0,
      0.07
     ],
     "Color": [
@@ -13555,7 +10468,7 @@
      "CFrame": {
       "position": [
        5.0,
-       12.225,
+       11.85,
        0.335
       ],
       "orientation": [
@@ -13579,203 +10492,7 @@
     },
     "Size": [
      0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.5,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.0,
-       11.975,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.5,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
-     0.07
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.0,
-       11.725,
-       0.335
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.25,
+     1.0,
      0.07
     ],
     "Color": [
@@ -13823,7 +10540,7 @@
      }
     },
     "Size": [
-     0.75,
+     0.25,
      0.25,
      0.07
     ],
@@ -13898,7 +10615,7 @@
      "CFrame": {
       "position": [
        -8.82,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -13922,7 +10639,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -13946,105 +10663,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.82,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.82,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.46,
+       -8.28,
        9.48,
        0.34
       ],
@@ -14068,7 +10687,7 @@
      }
     },
     "Size": [
-     1.08,
+     0.72,
      0.36,
      0.08
     ],
@@ -14143,7 +10762,7 @@
      "CFrame": {
       "position": [
        -7.38,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -14167,7 +10786,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -14192,7 +10811,7 @@
      "CFrame": {
       "position": [
        -6.66,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -14216,7 +10835,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -14264,202 +10883,6 @@
      }
     },
     "Size": [
-     1.08,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.38,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.66,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.38,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.66,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.36,
      0.36,
      0.08
@@ -14535,7 +10958,7 @@
      "CFrame": {
       "position": [
        -5.58,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -14559,154 +10982,7 @@
     },
     "Size": [
      0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.58,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.58,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.58,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -14780,7 +11056,7 @@
      "CFrame": {
       "position": [
        -3.78,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -14804,7 +11080,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -14828,105 +11104,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.78,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.78,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.42,
+       -3.24,
        9.48,
        0.34
       ],
@@ -14950,7 +11128,7 @@
      }
     },
     "Size": [
-     1.08,
+     0.72,
      0.36,
      0.08
     ],
@@ -15025,7 +11203,7 @@
      "CFrame": {
       "position": [
        -2.34,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -15049,7 +11227,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -15074,7 +11252,7 @@
      "CFrame": {
       "position": [
        -1.62,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -15098,7 +11276,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -15124,202 +11302,6 @@
       "position": [
        -1.98,
        10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.08,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.34,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.62,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.34,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.62,
-       9.48,
        0.34
       ],
       "orientation": [
@@ -15417,7 +11399,7 @@
      "CFrame": {
       "position": [
        -0.9,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -15441,7 +11423,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -15465,106 +11447,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.72,
+       -0.54,
        10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.72,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9,
-       9.48,
        0.34
       ],
       "orientation": [
@@ -15662,7 +11546,56 @@
      "CFrame": {
       "position": [
        0.54,
-       10.56,
+       10.02,
+       0.34
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     1.44,
+     0.08
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9,
+       10.2,
        0.34
       ],
       "orientation": [
@@ -15710,8 +11643,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.72,
-       10.2,
+       1.08,
+       9.48,
        0.34
       ],
       "orientation": [
@@ -15759,104 +11692,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.54,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.08,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        3.06,
        10.92,
        0.34
@@ -15907,7 +11742,7 @@
      "CFrame": {
       "position": [
        3.06,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -15931,154 +11766,7 @@
     },
     "Size": [
      0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.06,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.06,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.06,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -16152,7 +11840,7 @@
      "CFrame": {
       "position": [
        4.14,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -16176,7 +11864,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -16201,7 +11889,7 @@
      "CFrame": {
       "position": [
        4.86,
-       10.56,
+       10.02,
        0.34
       ],
       "orientation": [
@@ -16225,203 +11913,7 @@
     },
     "Size": [
      0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.14,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.86,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.14,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.86,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
+     1.44,
      0.08
     ],
     "Color": [
@@ -16469,202 +11961,6 @@
      }
     },
     "Size": [
-     1.08,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.58,
-       10.92,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.02,
-       10.92,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.58,
-       10.56,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.02,
-       10.56,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.36,
      0.36,
      0.08
@@ -16715,7 +12011,56 @@
     },
     "Size": [
      0.36,
+     1.8,
+     0.08
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Town_WelcomeArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       7.02,
+       10.2,
+       0.34
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
      0.36,
+     1.8,
      0.08
     ],
     "Color": [
@@ -16788,56 +12133,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.02,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.76,
+       5.94,
        9.84,
        0.34
       ],
@@ -16861,7 +12157,7 @@
      }
     },
     "Size": [
-     0.72,
+     0.36,
      0.36,
      0.08
     ],
@@ -16886,106 +12182,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.84,
+       6.66,
        9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.72,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.58,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.02,
-       9.48,
        0.34
       ],
       "orientation": [
@@ -17034,7 +12232,7 @@
      "CFrame": {
       "position": [
        7.74,
-       10.92,
+       10.2,
        0.34
       ],
       "orientation": [
@@ -17058,7 +12256,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.8,
      0.08
     ],
     "Color": [
@@ -17083,7 +12281,7 @@
      "CFrame": {
       "position": [
        8.82,
-       10.92,
+       10.2,
        0.34
       ],
       "orientation": [
@@ -17107,7 +12305,7 @@
     },
     "Size": [
      0.36,
-     0.36,
+     1.8,
      0.08
     ],
     "Color": [
@@ -17131,56 +12329,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.92,
-       10.56,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.72,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.82,
+       8.1,
        10.56,
        0.34
       ],
@@ -17229,253 +12378,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.74,
+       8.46,
        10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.64,
-       10.2,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.72,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.74,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.82,
-       9.84,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.74,
-       9.48,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.36,
-     0.36,
-     0.08
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Town_WelcomeArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.82,
-       9.48,
        0.34
       ],
       "orientation": [

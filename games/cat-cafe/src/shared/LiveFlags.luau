@@ -80,6 +80,9 @@
 -- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
 --   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
 --   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
+-- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
+--   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
+--   it is opened again.
 -- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
 --   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
 --   publish that added the row is running, since an older server's save check drops an item id it does not know.
@@ -124,6 +127,7 @@ LiveFlags.KEYS = {
 	"touchCatchReach",
 	"rankUpSpotlight",
 	"bagColours",
+	"menuFamily",
 	"speedShoes",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -149,6 +153,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	touchCatchReach = true,
 	rankUpSpotlight = true,
 	bagColours = true,
+	menuFamily = true,
 	speedShoes = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

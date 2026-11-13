@@ -125377,8 +125377,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         49.0,
-         7.8,
+         43.2,
+         7.4,
          149.85
         ],
         "orientation": [
@@ -125401,8 +125401,8 @@
        }
       },
       "Size": [
-       0.6,
        0.2,
+       1.0,
        0.06
       ],
       "Color": [
@@ -125420,8 +125420,8 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -49.0,
-         -7.8,
+         -43.2,
+         -7.4,
          -149.85
         ],
         "orientation": [
@@ -125455,8 +125455,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         49.2,
-         7.6,
+         49.0,
+         7.8,
          149.85
         ],
         "orientation": [
@@ -125479,7 +125479,7 @@
        }
       },
       "Size": [
-       0.2,
+       0.6,
        0.2,
        0.06
       ],
@@ -125505,7 +125505,7 @@
        "CFrame": {
         "position": [
          49.2,
-         7.4,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -125529,105 +125529,7 @@
       },
       "Size": [
        0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         48.8,
-         7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         49.2,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -125676,7 +125578,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.6,
        0.06
       ],
       "Color": [
@@ -125724,7 +125626,7 @@
        }
       },
       "Size": [
-       0.6,
+       0.2,
        0.2,
        0.06
       ],
@@ -125799,7 +125701,7 @@
        "CFrame": {
         "position": [
          48.4,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -125823,7 +125725,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -125896,7 +125798,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         48.3,
+         48.2,
          7.4,
          149.85
         ],
@@ -125920,204 +125822,57 @@
        }
       },
       "Size": [
+       0.2,
+       0.2,
+       0.06
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.0,
+         7.1,
+         149.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
        0.4,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         48.4,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         48.0,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         48.4,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         48.0,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
        0.06
       ],
       "Color": [
@@ -126191,7 +125946,7 @@
        "CFrame": {
         "position": [
          47.6,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -126215,105 +125970,7 @@
       },
       "Size": [
        0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         47.5,
-         7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.4,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         47.6,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -126338,6 +125995,55 @@
        "CFrame": {
         "position": [
          47.4,
+         7.4,
+         149.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.2,
+       0.06
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         47.3,
          7.0,
          149.85
         ],
@@ -126361,7 +126067,7 @@
        }
       },
       "Size": [
-       0.6,
+       0.4,
        0.2,
        0.06
       ],
@@ -126436,7 +126142,7 @@
        "CFrame": {
         "position": [
          46.8,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -126460,7 +126166,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -126485,7 +126191,7 @@
        "CFrame": {
         "position": [
          46.4,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -126509,7 +126215,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -126557,202 +126263,6 @@
        }
       },
       "Size": [
-       0.6,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         46.8,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         46.4,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         46.8,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         46.4,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.2,
        0.2,
        0.06
@@ -126828,7 +126338,7 @@
        "CFrame": {
         "position": [
          45.8,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -126852,154 +126362,7 @@
       },
       "Size": [
        0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         45.8,
-         7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         45.8,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         45.8,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -127073,7 +126436,7 @@
        "CFrame": {
         "position": [
          44.8,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -127097,7 +126460,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -127122,7 +126485,7 @@
        "CFrame": {
         "position": [
          44.4,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -127146,203 +126509,7 @@
       },
       "Size": [
        0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.8,
-         7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.4,
-         7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.8,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.4,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -127390,7 +126557,7 @@
        }
       },
       "Size": [
-       0.6,
+       0.2,
        0.2,
        0.06
       ],
@@ -127465,7 +126632,7 @@
        "CFrame": {
         "position": [
          44.0,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -127489,7 +126656,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -127514,7 +126681,7 @@
        "CFrame": {
         "position": [
          43.6,
-         7.6,
+         7.3,
          149.85
         ],
         "orientation": [
@@ -127538,7 +126705,7 @@
       },
       "Size": [
        0.2,
-       0.2,
+       0.8,
        0.06
       ],
       "Color": [
@@ -127564,251 +126731,6 @@
         "position": [
          43.8,
          7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.0,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         43.6,
-         7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         44.0,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         43.6,
-         7.0,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         43.2,
-         7.8,
          149.85
         ],
         "orientation": [
@@ -127905,7 +126827,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         43.1,
+         43.0,
          7.6,
          149.85
         ],
@@ -127929,55 +126851,6 @@
        }
       },
       "Size": [
-       0.4,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         43.2,
-         7.4,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.2,
        0.2,
        0.06
@@ -128003,57 +126876,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         43.1,
+         43.0,
          7.2,
-         149.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.4,
-       0.2,
-       0.06
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_084_TrailArchText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         43.2,
-         7.0,
          149.85
         ],
         "orientation": [

@@ -81,7 +81,7 @@ SettingsList.SECTIONS = {
 				-- #1573 (Derek, 2026-11-05: "a lighter phone setting: reduce effects and shadows first, never hide the
 				-- cats you own"): the Low performance switch, named for what it does. Your own cats always show.
 				name = "Lighter graphics",
-				detail = "Fewer effects, no shadows. For phones. Your cats still show",
+				detail = "Fewer effects, no shadows. Your cats still show",
 			},
 			{
 				key = "showOtherCats",

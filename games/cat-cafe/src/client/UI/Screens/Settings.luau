@@ -26,6 +26,10 @@
 -- sets in Studio and for the game's owner). Its Reset button swaps the list for a confirm card; the card's Reset
 -- calls callbacks.resetSave once, and the row reads "Resetting your save..." with the button grey until the server
 -- kicks the player to rejoin, or after RESET_HOLD_SECONDS when it refused (its toast says why).
+-- #3961 (Derek 2026-11-13: "make it easy to navigate on phone and pc"): one long list became four tabs over it,
+-- Sound, Screen, Help and Trading, so a phone shows a few rows at a time instead of a long scroll. Help holds
+-- Feedback, the tutorial rows, Show tips again, Show my name and the Testers rows. A tab with nothing to show (Trading
+-- before TradeService runs) has no button, and the others share the row.
 
 local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
@@ -172,6 +176,19 @@ local RESET_WAIT = "Resetting your save..."
 local RESET_HOLD_SECONDS = 5 -- the server kicks at once; still here after this, it refused and toasted why
 local CONFIRM_W = 380 -- the reset confirm card's widest
 local TIPS_DONE_SECONDS = 2 -- the button reads "Done" this long after a press
+-- #3961: the tabs over the list, a full tap tall
+local TAB_H = Scale.tapHeight(40)
+local TAB_GAP = 6
+type TabDef = { id: string, icon: string, label: string }
+local TABS: { TabDef } = {
+	{ id = "sound", icon = "🔊", label = "Sound" },
+	{ id = "screen", icon = "🖥️", label = "Screen" },
+	{ id = "help", icon = "❓", label = "Help" },
+	{ id = "trading", icon = TradeLogic.ICON, label = "Trading" },
+}
+local SECTION_TABS: { [string]: string } = { Sound = "sound", Screen = "screen" }
+-- rows of a section that sit on the Help tab instead (the Tutorial and tips switch beside Replay tutorial)
+local HELP_KEYS: { [string]: boolean } = { [SettingsList.TUTORIAL_KEY] = true }
 -- the rows hidden until the intro is live (F72)
 local TUTORIAL_ROWS = { SettingsList.TUTORIAL_KEY, REPLAY_ROW.key }
 
@@ -215,6 +232,11 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._cards = {} :: { [string]: Frame }
 	self._connections = {} :: { RBXScriptConnection }
 	self._alive = true
+	self._tab = TABS[1].id
+	self._tabOf = {} :: { [GuiObject]: string } -- the tab each row and header sits on
+	self._allowed = {} :: { [GuiObject]: boolean } -- false: hidden on every tab (showTrading and the like)
+	self._tabButtons = {} :: { [string]: TextButton }
+	self._buildTab = "help" -- the tab the next built row sits on
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -230,11 +252,51 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._panel = panel
 	self.frame = panel.frame
 
+	local tabs: Frame = Create("Frame", {
+		Name = "Tabs",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -8, 0, TAB_H),
+		Position = UDim2.fromOffset(2, 0),
+		Parent = panel.content,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, TAB_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._tabsRow = tabs
+	for index, tab in TABS do
+		local id = tab.id
+		local button: TextButton = Create("TextButton", {
+			Name = tab.label,
+			AutoButtonColor = false,
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1 / #TABS, 0, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextColor3 = PAL.subtext,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			Text = tab.icon .. " " .. tab.label,
+			LayoutOrder = index,
+			Parent = tabs,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		table.insert(
+			self._connections,
+			button.Activated:Connect(function()
+				self:_setTab(id)
+			end)
+		)
+		self._tabButtons[id] = button
+	end
+
 	local list: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromOffset(0, TAB_H + 6),
+		Size = UDim2.new(1, 0, 1, -(TAB_H + 6)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -261,22 +323,14 @@ function Settings.new(callbacks: Callbacks): Settings
 		order += 1
 		self:_buildButtonRow(FEEDBACK_ROW, order, openFeedback)
 	end
+	-- each section's rows on its own tab, which names it (no header over them)
 	for _, section in SettingsList.SECTIONS do
-		order += 1
-		text({
-			Name = section.title,
-			LayoutOrder = order,
-			Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge,
-			TextColor3 = PAL.subtext,
-			Text = section.title,
-			Parent = list,
-		})
+		self._buildTab = SECTION_TABS[section.title] or "screen"
 		for _, row in section.rows do
 			order += 1
 			self:_buildRow(row, order)
 		end
+		self._buildTab = "help"
 		local replayTutorial = callbacks.replayTutorial
 		if section.title == "Screen" and replayTutorial then
 			order += 1
@@ -303,7 +357,9 @@ function Settings.new(callbacks: Callbacks): Settings
 	local setTradeRequests = callbacks.setTradeRequests
 	local openTrades = callbacks.openTrades
 	if setTradeRequests and openTrades then
+		self._buildTab = "trading"
 		order = self:_buildTrading(order, setTradeRequests, openTrades)
+		self._buildTab = "help"
 	end
 	local setHideCredit = callbacks.setHideCredit
 	if setHideCredit then
@@ -381,6 +437,7 @@ function Settings._buildCard(self: any, key: string, icon: string, order: number
 		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._cards[key] = card
+	self._tabOf[card] = if HELP_KEYS[key] then "help" else self._buildTab
 	local tile: Frame = Create("Frame", {
 		Name = "Icon",
 		BackgroundColor3 = TILE_COLORS[key] or Theme.colors.caramel,
@@ -425,8 +482,8 @@ local function nameAndDetail(card: Frame, name: string, detail: string)
 	})
 	text({
 		Name = "Detail",
-		Position = UDim2.fromOffset(TEXT_LEFT, 42),
-		Size = UDim2.new(1, -TEXT_RIGHT, 0, 26),
+		Position = UDim2.fromOffset(TEXT_LEFT, 40),
+		Size = UDim2.new(1, -TEXT_RIGHT, 0, 34), -- #3961: room for two lines (Lighter graphics cut its second)
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = CARD.subtext,
 		TextWrapped = true,
@@ -554,17 +611,6 @@ function Settings._buildTrading(
 	openTrades: () -> ()
 ): number
 	local order = start + 1
-	self._tradingHeader = text({
-		Name = "Trading",
-		LayoutOrder = order,
-		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = PAL.subtext,
-		Text = "Trading",
-		Parent = self._list,
-	})
-	order += 1
 	local card = self:_buildCard("tradeRequests", TradeLogic.ICON, order)
 	local choiceH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 	card.Size = UDim2.new(1, 0, 0, 76 + choiceH + 12)
@@ -624,23 +670,74 @@ function Settings._refreshTrading(self: any)
 	end
 end
 
--- The Trading section, hidden until TradeService runs (F102).
+-- The Trading tab, hidden until TradeService runs (F102).
 function Settings.showTrading(self: any, shown: boolean)
-	local header: TextLabel? = self._tradingHeader
-	if header then
-		header.Visible = shown
-	end
-	for _, key in { "tradeRequests", TRADES_ROW.key } do
+	self:_allow({ "tradeRequests", TRADES_ROW.key }, shown)
+end
+
+-- #3961: shows or hides rows on every tab (by key), then lays the tabs out again.
+function Settings._allow(self: any, keys: { string }, shown: boolean)
+	for _, key in keys do
 		local card: Frame? = self._cards[key]
 		if card then
-			card.Visible = shown
+			self._allowed[card] = shown
 		end
+	end
+	self:_applyTab()
+end
+
+-- #3961: a tab pressed: its rows from the top.
+function Settings._setTab(self: any, id: string)
+	if self._tab == id then
+		return
+	end
+	Sound.play("uiClick")
+	self._tab = id
+	self:cancelReset()
+	self._list.CanvasPosition = Vector2.zero
+	self:_applyTab()
+end
+
+-- #3961: each row shows on its own tab while it is allowed; a tab with no row allowed loses its button, and the
+-- others share the row. The open tab is green.
+function Settings._applyTab(self: any)
+	local has: { [string]: boolean } = {}
+	for instance, tab in self._tabOf do
+		if self._allowed[instance] ~= false then
+			has[tab] = true
+		end
+	end
+	if not has[self._tab] then
+		for _, tab in TABS do
+			if has[tab.id] then
+				self._tab = tab.id
+				break
+			end
+		end
+	end
+	for instance: GuiObject, tab in self._tabOf do
+		instance.Visible = self._allowed[instance] ~= false and tab == self._tab
+	end
+	local shown = 0
+	for _, tab in TABS do
+		if has[tab.id] then
+			shown += 1
+		end
+	end
+	shown = math.max(shown, 1)
+	for _, tab in TABS do
+		local button: TextButton = self._tabButtons[tab.id]
+		local on = tab.id == self._tab
+		button.Visible = has[tab.id] == true
+		button.Size = UDim2.new(1 / shown, -TAB_GAP * (shown - 1) / shown, 1, 0)
+		button.BackgroundColor3 = if on then Theme.colors.mintDark else PAL.card
+		button.TextColor3 = if on then Theme.colors.white else PAL.subtext
 	end
 end
 
 -- The Testers section: its header, the Reset my save row and the confirm card its Reset opens over the list.
 function Settings._buildTester(self: any, order: number, content: Instance, resetSave: () -> ())
-	self._testerHeader = text({
+	local header = text({
 		Name = "Testers",
 		LayoutOrder = order,
 		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
@@ -650,6 +747,8 @@ function Settings._buildTester(self: any, order: number, content: Instance, rese
 		Text = "Testers",
 		Parent = self._list,
 	})
+	self._testerHeader = header
+	self._tabOf[header] = "help"
 	local rowButton = self:_buildButtonRow(RESET_ROW, order + 1, function()
 		self:_askReset()
 	end)
@@ -731,6 +830,7 @@ function Settings._askReset(self: any)
 		return
 	end
 	self._list.Visible = false
+	self._tabsRow.Visible = false
 	self._resetConfirm.Visible = true
 end
 
@@ -762,15 +862,13 @@ function Settings.cancelReset(self: any)
 		card.Visible = false
 	end
 	self._list.Visible = true
+	self._tabsRow.Visible = true
 end
 
 -- The Testers section, shown while the Player attribute Tester is true.
 -- #1083: the "Show my name" row, shown only while the player has a credit on the board (ThanksBoard's hasCredit).
 function Settings.showCredit(self: any, shown: boolean)
-	local card: Frame? = self._cards[CREDIT_ROW.key]
-	if card then
-		card.Visible = shown
-	end
+	self:_allow({ CREDIT_ROW.key }, shown)
 end
 
 function Settings._refreshCredit(self: any)
@@ -784,12 +882,9 @@ end
 function Settings.showTester(self: any, shown: boolean)
 	local header: TextLabel? = self._testerHeader
 	if header then
-		header.Visible = shown
+		self._allowed[header] = shown
 	end
-	local card: Frame? = self._cards[RESET_ROW.key]
-	if card then
-		card.Visible = shown
-	end
+	self:_allow({ RESET_ROW.key }, shown)
 	if not shown then
 		self:cancelReset()
 	end
@@ -926,12 +1021,7 @@ end
 
 -- The Tutorial button and Replay tutorial rows, hidden until the intro is live (F72).
 function Settings.showTutorial(self: any, shown: boolean)
-	for _, key in TUTORIAL_ROWS do
-		local card: Frame? = self._cards[key]
-		if card then
-			card.Visible = shown
-		end
-	end
+	self:_allow(TUTORIAL_ROWS, shown)
 end
 
 -- after the hold, fall back to the saved value if the server never answered

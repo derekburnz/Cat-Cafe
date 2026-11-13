@@ -4273,6 +4273,30 @@ local SCENES = {
 	end },
 	{ "Settings", function()
 		UI.open("Settings")
+		press("Settings", "Tabs.Sound") -- #3961: the Sound tab, whichever tab a scene left open
+	end },
+	-- #3961: the Screen and Help tabs, each with its own rows only
+	{ "SettingsScreenTab", function()
+		UI.open("Settings")
+		press("Settings", "Tabs.Screen")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		local shake = list and list:FindFirstChild("screenShake") :: GuiObject?
+		assert(shake and shake.Visible, "uigate: Screen shake is not on the Screen tab (#3961)")
+		local music = list and list:FindFirstChild("music") :: GuiObject?
+		assert(music and not music.Visible, "uigate: the Sound rows show on the Screen tab (#3961)")
+	end },
+	{ "SettingsHelpTab", function()
+		UI.open("Settings")
+		press("Settings", "Tabs.Help")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		local feedback = list and list:FindFirstChild("feedback") :: GuiObject?
+		assert(feedback and feedback.Visible, "uigate: Feedback is not on the Help tab (#3961)")
+		local shake = list and list:FindFirstChild("screenShake") :: GuiObject?
+		assert(shake and not shake.Visible, "uigate: the Screen rows show on the Help tab (#3961)")
 	end },
 	{ "TipJar", function()
 		UI.tipJar.open()
@@ -10961,12 +10985,14 @@ local SCENES = {
 		settings.tradeRequests = "friends"
 		UI.update({ settings = settings })
 		UI.open("Settings")
+		press("Settings", "Tabs.Trading") -- #3961: the Trading tab
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local panel = modals and modals:FindFirstChild("Settings", true)
 		local list = panel and panel:FindFirstChild("List", true)
-		if list and list:IsA("ScrollingFrame") then
-			list.CanvasPosition = Vector2.new(0, 100000) -- scrolled to the end, where the section is
-		end
+		local requests = list and list:FindFirstChild("tradeRequests") :: GuiObject?
+		assert(requests and requests.Visible, "uigate: Trade requests is not on the Trading tab (#3961)")
+		local music = list and list:FindFirstChild("music") :: GuiObject?
+		assert(music and not music.Visible, "uigate: the Sound rows show on the Trading tab (#3961)")
 	end },
 	-- F102 part 2: the Trades page: a trade 12 minutes ago, a gift yesterday, nine cats each way 4 days ago
 	{ "TradeLog", function()
@@ -11041,6 +11067,7 @@ local SCENES = {
 	{ "SettingsTester", function()
 		game:GetService("Players").LocalPlayer:SetAttribute("Tester", true)
 		UI.open("Settings")
+		press("Settings", "Tabs.Help") -- #3961: Reset my save is on the Help tab
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local panel = modals and modals:FindFirstChild("Settings", true)
 		local list = panel and panel:FindFirstChild("List", true)
@@ -11051,6 +11078,7 @@ local SCENES = {
 	{ "SettingsResetConfirm", function()
 		game:GetService("Players").LocalPlayer:SetAttribute("Tester", true)
 		UI.open("Settings")
+		press("Settings", "Tabs.Help")
 		press("Settings", "resetSave.Open")
 	end },
 	-- #3701: the cafe rest banner at the head of the toasts' stack, in its three states; in a 2x party no line

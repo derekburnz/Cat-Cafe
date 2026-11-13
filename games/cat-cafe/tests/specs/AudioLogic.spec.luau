@@ -1531,4 +1531,23 @@ return function()
 			end
 		)
 	end)
+
+	describe("Audio.Logic Yard Sale landing (#3615)", function()
+		it("plays the reel stop, and the gold reveal only for a golden crate", function()
+			local stop, chime = Logic.yardLandCues(false)
+			expect(stop).to.equal("uiReelStop")
+			expect(chime).to.equal(nil)
+			local goldStop, goldChime = Logic.yardLandCues(true)
+			expect(goldStop).to.equal("uiReelStop")
+			expect(goldChime).to.equal("goldReveal")
+			local _, oddChime = Logic.yardLandCues("yes")
+			expect(oddChime).to.equal(nil)
+		end)
+
+		it("uses cues that exist", function()
+			expect(Cues.uiReelTick ~= nil and Cues.uiReelStop ~= nil and Cues.goldReveal ~= nil).to.equal(
+				true
+			)
+		end)
+	end)
 end

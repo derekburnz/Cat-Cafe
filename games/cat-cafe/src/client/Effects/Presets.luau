@@ -3232,6 +3232,16 @@ Presets.campCollect = {
 			ring = 3,
 		},
 	} :: { [string]: CampCollect },
+	-- #3615: a golden crate won on the Yard Sale's lucky pick adds this on top of the yardSale burst: more gold
+	-- sparkles, gold confetti, a wider gold ring and a short light column (no column with Reduce Motion). `within`
+	-- seconds is how close the pick's landing must come before the stall's collect.
+	yardSaleGold = {
+		within = 1,
+		sparkles = 16,
+		confetti = 14,
+		ring = 5.5,
+		column = { width = 1.4, height = 9, seconds = 1.2 },
+	},
 }
 
 -- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic

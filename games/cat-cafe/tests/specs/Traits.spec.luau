@@ -22,7 +22,7 @@ return function()
 	end
 
 	describe("the rarities and traits (spec sections 2 and 3)", function()
-		it("has five rarities at 55 / 28 / 12 / 4 / 1 with the pool's colours", function()
+		it("has six rarities at 30 / 25 / 18 / 12 / 10 / 5 with the pool's colours", function()
 			local seen: { any } = {}
 			local total = 0
 			for i, rarity in Traits.RARITIES do
@@ -32,26 +32,34 @@ return function()
 			end
 			expect(total).to.equal(100)
 			expect(seen :: any).to.deepEqual({
-				{ "Common", 55, "#9AA0A6" },
-				{ "Uncommon", 28, "#4CAF50" },
-				{ "Rare", 12, "#3F8FE0" },
-				{ "Legendary", 4, "#F4C430" },
-				{ "Mythic", 1, "#B04FE0" },
+				{ "Common", 30, "#9AA0A6" },
+				{ "Uncommon", 25, "#4CAF50" },
+				{ "Rare", 18, "#3F8FE0" },
+				{ "Epic", 12, "#C07CFF" },
+				{ "Legendary", 10, "#F4C430" },
+				{ "Mythic", 5, "#FF5E7E" },
 			})
 		end)
 
 		it(
-			"holds 6 traits at each of Common, Uncommon and Rare, 4 Legendary and 3 Mythic",
+			"holds 6 traits at each of Common, Uncommon and Rare, 8 Epic, 4 Legendary and 3 Mythic",
 			function()
 				expect(#Traits.ofRarity("common")).to.equal(6)
 				expect(#Traits.ofRarity("uncommon")).to.equal(6)
 				expect(#Traits.ofRarity("rare")).to.equal(6)
+				expect(#Traits.ofRarity("epic")).to.equal(8)
 				expect(#Traits.ofRarity("legendary")).to.equal(4)
 				expect(#Traits.ofRarity("mythic")).to.equal(3)
-				expect(#Traits.LIST).to.equal(25)
+				expect(#Traits.LIST).to.equal(33)
 				for _, def in Traits.LIST do
 					expect(Traits.get(def.id)).to.equal(def)
-					local want = if def.rarity.rank <= 3 then 1 else def.rarity.rank - 2
+					-- one effect up to Rare and on Epic's six singles, two on Epic's own pair and Legendary, three on Mythic
+					local want = if def.rarity.rank <= 3
+						then 1
+						elseif def.rarity.id == "epic" then (if string.find(def.id, "_epic")
+							then 1
+							else 2)
+						else def.rarity.rank - 3
 					expect(#def.effects).to.equal(want)
 				end
 			end
@@ -59,16 +67,22 @@ return function()
 
 		it("keeps the spec's single-effect numbers, stronger at each rarity", function()
 			local function check(base: string, kind: Traits.Kind, amounts: { number })
-				for i, rarity in { "common", "uncommon", "rare" } do
+				for i, rarity in { "common", "uncommon", "rare", "epic" } do
 					expect(Traits.amount(t(base .. "_" .. rarity), kind)).to.be.near(amounts[i])
 				end
 			end
-			check("bigTipper", "income", { 0.05, 0.08, 0.12 })
-			check("nightOwl", "nightIncome", { 0.10, 0.15, 0.22 })
-			check("fastLearner", "xp", { 0.10, 0.15, 0.22 })
-			check("luckyBowl", "bowlLuck", { 0.02, 0.03, 0.04 })
-			check("quickPaws", "speed", { 0.3, 0.5, 0.7 })
-			check("richFriend", "richRate", { 0.02, 0.03, 0.04 })
+			check("bigTipper", "income", { 0.05, 0.08, 0.12, 0.15 })
+			check("nightOwl", "nightIncome", { 0.10, 0.15, 0.22, 0.26 })
+			check("fastLearner", "xp", { 0.10, 0.15, 0.22, 0.26 })
+			check("luckyBowl", "bowlLuck", { 0.02, 0.03, 0.04, 0.05 })
+			check("quickPaws", "speed", { 0.3, 0.5, 0.7, 0.85 })
+			check("richFriend", "richRate", { 0.02, 0.03, 0.04, 0.05 })
+			-- Epic's own pair (Derek 2026-11-12), each effect under the same effect in a Legendary
+			expect(Traits.amount(t("treasureNose"), "income")).to.be.near(0.10)
+			expect(Traits.amount(t("treasureNose"), "bowlLuck")).to.be.near(0.04)
+			expect(Traits.amount(t("nightSprinter"), "nightIncome")).to.be.near(0.18)
+			expect(Traits.amount(t("nightSprinter"), "speed")).to.be.near(0.6)
+			expect(Traits.fullTitle(t("quickPaws_epic"))).to.equal("Epic Quick Paws")
 		end)
 
 		it("keeps the spec's Legendary and Mythic combos", function()
@@ -136,22 +150,25 @@ return function()
 			expect(Traits.rank(t("flying"))).to.equal(0)
 			expect(Traits.rank(t("quickPaws_common"))).to.equal(1)
 			expect(Traits.rank(t("richFriend_rare"))).to.equal(3)
-			expect(Traits.rank(t("prodigy"))).to.equal(4)
-			expect(Traits.rank(t("starSage"))).to.equal(5)
+			expect(Traits.rank(t("nightSprinter"))).to.equal(4)
+			expect(Traits.rank(t("prodigy"))).to.equal(5)
+			expect(Traits.rank(t("starSage"))).to.equal(6)
 		end)
 	end)
 
 	describe("the roll (spec sections 2 and 3)", function()
 		it("picks the rarity first, then a trait of it evenly", function()
 			expect(Traits.roll(answers({ 1, 1 })) :: any).to.deepEqual(t("bigTipper_common"))
-			expect(Traits.roll(answers({ 55, 6 })) :: any).to.deepEqual(t("richFriend_common"))
-			expect(Traits.roll(answers({ 56, 2 })) :: any).to.deepEqual(t("nightOwl_uncommon"))
-			expect(Traits.roll(answers({ 83, 3 })) :: any).to.deepEqual(t("fastLearner_uncommon"))
-			expect(Traits.roll(answers({ 84, 5 })) :: any).to.deepEqual(t("quickPaws_rare"))
-			expect(Traits.roll(answers({ 95, 4 })) :: any).to.deepEqual(t("luckyBowl_rare"))
-			expect(Traits.roll(answers({ 96, 1 })) :: any).to.deepEqual(t("goldenWhiskers"))
-			expect(Traits.roll(answers({ 99, 4 })) :: any).to.deepEqual(t("lightningTail"))
-			expect(Traits.roll(answers({ 100, 3 })) :: any).to.deepEqual(t("starSage"))
+			expect(Traits.roll(answers({ 30, 6 })) :: any).to.deepEqual(t("richFriend_common"))
+			expect(Traits.roll(answers({ 31, 2 })) :: any).to.deepEqual(t("nightOwl_uncommon"))
+			expect(Traits.roll(answers({ 55, 3 })) :: any).to.deepEqual(t("fastLearner_uncommon"))
+			expect(Traits.roll(answers({ 56, 5 })) :: any).to.deepEqual(t("quickPaws_rare"))
+			expect(Traits.roll(answers({ 73, 4 })) :: any).to.deepEqual(t("luckyBowl_rare"))
+			expect(Traits.roll(answers({ 74, 1 })) :: any).to.deepEqual(t("bigTipper_epic"))
+			expect(Traits.roll(answers({ 85, 8 })) :: any).to.deepEqual(t("nightSprinter"))
+			expect(Traits.roll(answers({ 86, 1 })) :: any).to.deepEqual(t("goldenWhiskers"))
+			expect(Traits.roll(answers({ 95, 4 })) :: any).to.deepEqual(t("lightningTail"))
+			expect(Traits.roll(answers({ 96, 3 })) :: any).to.deepEqual(t("starSage"))
 			-- out-of-range answers are clamped, never a missing trait
 			expect(Traits.roll(answers({ 999, 99 })) :: any).to.deepEqual(t("starSage"))
 			expect(Traits.roll(answers({ -5, 0 })) :: any).to.deepEqual(t("bigTipper_common"))
@@ -159,7 +176,7 @@ return function()
 
 		it("lands near the printed odds over many rolls (QA check 9)", function()
 			local rng = Random.new(3196)
-			local ranks = { 0, 0, 0, 0, 0 }
+			local ranks = { 0, 0, 0, 0, 0, 0 }
 			local ids: { [string]: number } = {}
 			local N = 20000
 			for _ = 1, N do
@@ -169,19 +186,20 @@ return function()
 				ranks[Traits.rank(trait)] += 1
 				ids[trait.id] = (ids[trait.id] or 0) + 1
 			end
-			expect(math.abs(ranks[1] / N - 0.55) < 0.02).to.equal(true)
-			expect(math.abs(ranks[2] / N - 0.28) < 0.02).to.equal(true)
-			expect(math.abs(ranks[3] / N - 0.12) < 0.01).to.equal(true)
-			expect(math.abs(ranks[4] / N - 0.04) < 0.006).to.equal(true)
-			expect(math.abs(ranks[5] / N - 0.01) < 0.003).to.equal(true)
+			expect(math.abs(ranks[1] / N - 0.30) < 0.02).to.equal(true)
+			expect(math.abs(ranks[2] / N - 0.25) < 0.02).to.equal(true)
+			expect(math.abs(ranks[3] / N - 0.18) < 0.015).to.equal(true)
+			expect(math.abs(ranks[4] / N - 0.12) < 0.01).to.equal(true)
+			expect(math.abs(ranks[5] / N - 0.10) < 0.01).to.equal(true)
+			expect(math.abs(ranks[6] / N - 0.05) < 0.008).to.equal(true)
 			for _, def in Traits.ofRarity("common") do
-				expect(math.abs((ids[def.id] or 0) / N - 0.55 / 6) < 0.01).to.equal(true)
+				expect(math.abs((ids[def.id] or 0) / N - 0.30 / 6) < 0.01).to.equal(true)
 			end
 		end)
 
 		it("prints the odds on the card", function()
 			expect(Traits.oddsText()).to.equal(
-				"Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%. Each trait inside a rarity is equally likely."
+				"Common 30%, Uncommon 25%, Rare 18%, Epic 12%, Legendary 10%, Mythic 5%. Each trait inside a rarity is equally likely."
 			)
 		end)
 
@@ -194,8 +212,9 @@ return function()
 					"#4CAF50",
 					"#3F8FE0",
 				})
-				expect(#Traits.poolSteps(t("prodigy"))).to.equal(4)
-				expect(#Traits.poolSteps(t("cosmicFortune"))).to.equal(5)
+				expect(#Traits.poolSteps(t("treasureNose"))).to.equal(4)
+				expect(#Traits.poolSteps(t("prodigy"))).to.equal(5)
+				expect(#Traits.poolSteps(t("cosmicFortune"))).to.equal(6)
 			end
 		)
 

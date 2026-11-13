@@ -14,6 +14,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
+local RankSpot = require(script.Parent.RankSpot)
 local StationReveal = require(script.Parent.StationReveal)
 local Types = require(script.Parent.Types)
 
@@ -103,6 +104,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.FEEDBACK_ASK
 		or id == Tips.STUCK_HELP
 		or id == Tips.LESSON
+		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 end
 
@@ -252,6 +254,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					byId[key] ~= nil
 					or Tips.isAsk(key)
 					or key == Tips.LESSON
+					or key == RankSpot.SEEN -- #3555
 					or StationReveal.isKey(key)
 				)
 			then

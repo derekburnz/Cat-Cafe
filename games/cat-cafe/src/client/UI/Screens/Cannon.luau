@@ -15,13 +15,13 @@
 -- every opened station, so nobody has to fly there: Collect while a Picnic Basket, Fish Pond or Lost and Found holds
 -- something (in place of the dot), Open for the Yard Sale, the Oasis Spa and the Relic Museum, which have a card of
 -- their own (Components/CampExtrasLogic.remoteAction). Until then only a Golden Pond owner's pond had Collect (#1463).
--- F101 (rescue-rally.md section 4): while a Rescue Rally runs, at night every card wears a red "🏁 Rally: rescues x3"
--- tag along the foot of its picture, over the night cover in place of its "Closed until sunrise" (the header and the
--- button still say so), since a rescue scores three (setRally, RallyLogic).
+-- #3691: the cards no longer wear the red "Rally: rescues x3" tag at night (Derek, 2026-11-12). The Rally banner and
+-- the Town Square board still say it.
 -- #2915: setRing(areaId) puts the tutorial's pulsing gold ring and arrow (Components/StepTarget) on that card's Launch
 -- while it can launch: "Fly to the Park" on the rank-up card opens the picker with the Park's ringed.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -36,13 +36,16 @@ local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
-local RallyLogic = require(script.Parent.Parent.Components.RallyLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+
+-- shared/RummageBin.NEXT_AT_ATTRIBUTE on the player, and the `alleyBin` switch's attribute (on by default)
+local BIN_NEXT_AT = "BinNextAt"
+local BIN_FLAG = "LiveFlag_alleyBin"
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
@@ -74,8 +77,6 @@ export type Cannon = {
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
 	setTraits: (self: Cannon, traits: any) -> (), -- #3196: PlayerState.traits, for the Mystic Pool's strip
 	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
-	-- F101: the last RallyState, or nil
-	setRally: (self: Cannon, rally: Types.RallyState?) -> (),
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
 	opened: (self: Cannon) -> (),
 	closed: (self: Cannon) -> (),
@@ -165,7 +166,6 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._traits = nil :: any -- #3196: PlayerState.traits, for the Mystic Pool's strip
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
-	self._rally = nil :: Types.RallyState?
 	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
 
 	local panel = Panel.new({
@@ -374,30 +374,6 @@ function Cannon._buildCards(self: any)
 			{ PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = pal }
 		)
 		Outline.border(pal, 2)
-		-- F101: the Rally's night tag along the foot of the picture
-		local rally = text({
-			Name = "Rally",
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 1, if slim then 0 else -6),
-			Size = UDim2.fromOffset(0, math.min(24, ART_H)),
-			AutomaticSize = Enum.AutomaticSize.X,
-			BackgroundColor3 = Color3.fromHex("D9483B"), -- the Rally red (Components/RallyBar)
-			BackgroundTransparency = 0,
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.colors.white,
-			TextTruncate = Enum.TextTruncate.None,
-			Visible = false,
-			ZIndex = 5,
-			Parent = art,
-		})
-		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = rally })
-		Create(
-			"UIPadding",
-			{ PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = rally }
-		)
-		Outline.border(rally, 2)
-		Outline.text(rally, 1.5)
 		text({
 			Name = "Name",
 			Position = UDim2.fromOffset(10, ART_H + NAME_GAP),
@@ -506,7 +482,6 @@ function Cannon._buildCards(self: any)
 		self._cards[id] = {
 			frame = frame,
 			pal = pal,
-			rally = rally,
 			night = night,
 			nightLine = nightLine,
 			lock = lock,
@@ -529,9 +504,18 @@ end
 
 -- The strip's line for area `id`: its camp extra's, else its late station's (the Desert and the Ruins).
 function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
-	return MysticPoolLogic.pickerLine(self._traits, id)
-		or CampExtrasLogic.pickerLine(self._extras, id, Workspace:GetServerTimeNow())
+	local now = Workspace:GetServerTimeNow()
+	local station: CampExtrasLogic.Line? = MysticPoolLogic.pickerLine(self._traits, id)
+		or CampExtrasLogic.pickerLine(self._extras, id, now)
 		or LateStationsLogic.pickerLine(self._late, id)
+	-- the Rummage Bin on its area's card (Derek 2026-11-12): the player's BinNextAt and the `alleyBin` switch
+	local bin = CampExtrasLogic.binLine(
+		id,
+		Players.LocalPlayer:GetAttribute(BIN_NEXT_AT),
+		now,
+		ReplicatedStorage:GetAttribute(BIN_FLAG) ~= false
+	)
+	return CampExtrasLogic.withBin(station, bin)
 end
 
 -- #3196: PlayerState.traits (nil while the Mystic Pool is shut), for the Park card's strip.
@@ -599,12 +583,6 @@ end
 -- #2651 part 4: LateStationsState, kept for the Oasis Spa's and Relic Museum's strips.
 function Cannon.setLate(self: any, late: any)
 	self._late = late
-	self:_rerender()
-end
-
--- F101: RallyState, kept for the night tag; render shows it (once a second while the picker is open).
-function Cannon.setRally(self: any, rally: Types.RallyState?)
-	self._rally = rally
 	self:_rerender()
 end
 
@@ -681,8 +659,6 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		and remaining ~= nil
 		and NightClock.isDusk(self._phase :: NightClock.Phase, remaining, DUSK_SECONDS)
 	local pending = os.clock() < self._pendingUntil
-	local rallyLine =
-		RallyLogic.nightLine(self._rally, Workspace:GetServerTimeNow(), self._phase == "night")
 	local list = CannonLogic.cards(areas :: any, tier, self._cannonId)
 	local shown: { [string]: number } = {}
 	local lockedIds: { [string]: boolean } = {}
@@ -704,12 +680,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			CannonLogic.button(id, closed, dusk, carrying, locked)
 		card.night.Visible = buttonState == "night"
 		card.lock.Visible = locked
-		-- the Town Square has no night cover and no rescues, so no tag (review N327); a locked area has none either
-		local tag: string? = if id ~= CannonLogic.TOWN and not locked then rallyLine else nil
-		card.rally.Visible = tag ~= nil
-		-- the tag takes the cover's "Closed until sunrise" spot; the header and the button still say it
-		card.nightLine.Visible = tag == nil and ART_H >= 60 -- #2771: not in the phone's slim band
-		card.rally.Text = RallyLogic.ICON .. " " .. (tag or "")
+		card.nightLine.Visible = ART_H >= 60 -- #2771: not in the phone's slim band
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)
 			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)

@@ -72,6 +72,7 @@ local SettingsList = require(script.Components.SettingsList)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
+local SpotlightGuide = require(script.Components.SpotlightGuide) -- #3555
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
@@ -96,6 +97,7 @@ UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
+UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
@@ -489,13 +491,8 @@ function applyTutorial()
 			tutorialMarker:hide()
 		end
 	end
-	if tutorialTrail then
-		if target ~= nil then
-			tutorialTrail:show(target :: any)
-		else
-			tutorialTrail:hide()
-		end
-	end
+	UI.parkTrail.tutorial = target ~= nil
+	UI.parkTrail.apply(target)
 end
 
 -- F72: the Tutorial tile shows once the intro is live and while its setting is on; the Settings rows once live.
@@ -1653,6 +1650,7 @@ function UI.init(config: Types.InitConfig)
 	catchUI.pity = require(script.Screens.PityTags).new() -- #2099: the "Pity cat" tag over a pity stray
 	catchUI.secret = require(script.Screens.SecretTags).new() -- #3470: the "SECRET" tag over a Secret stray
 	catchUI.mark = require(script.Screens.CatchMark).new() -- #2005: the "!" over a stray being caught (NetDown)
+	UI.newKind.start() -- #3529: the "NEW" tag over strays of kinds not owned (off with its switch)
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1750,6 +1748,9 @@ end
 function UI.update(partial: Types.PartialState)
 	for key, value in partial :: { [string]: any } do
 		(state :: any)[key] = value
+	end
+	if partial.collection ~= nil then
+		UI.newKind.refresh() -- #3529: a kind just caught loses its "NEW" tag at once
 	end
 	-- F84: the first time the tier passes CannonLogic.HINT_TIER this session, hint at the area it opened. The first
 	-- update with a tier only records it, so joining at Tier 4 is no rank up.
@@ -1984,6 +1985,7 @@ function UI.destroy()
 		catchUI.mark:destroy()
 		catchUI.mark = nil
 	end
+	UI.newKind.stop()
 	if catCard then
 		catCard:destroy()
 	end
@@ -3353,7 +3355,73 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
 UI.cannon.area = nil :: string?
+
+-- #3554: the walk to a first Park catch (Controllers/ParkTrailController, Components/ParkTrailLogic). The tutorial's
+-- trail is the one trail: a tutorial target has it as gold dots; with none, the Park target has it as paw prints
+-- (the folder's Paws attribute, Effects/PawTrail). `set` also gives the goal card its line (nil: the tier goal).
+UI.parkTrail = {
+	target = nil :: BasePart?,
+	goal = nil :: string?,
+	tutorial = false, -- a tutorial target has the trail
+}
+
+function UI.parkTrail.apply(tutorialTarget: any)
+	local trail = tutorialTrail
+	if trail == nil then
+		return
+	end
+	local park: BasePart? = UI.parkTrail.target
+	if park ~= nil and park.Parent == nil then
+		park = nil -- the stray was caught or went away; the controller picks the next one
+	end
+	trail:mark("Paws", tutorialTarget == nil and park ~= nil)
+	local to = if tutorialTarget ~= nil then tutorialTarget else park
+	if to ~= nil then
+		trail:show(to)
+	else
+		trail:hide()
+	end
+end
+
+function UI.parkTrail.set(target: BasePart?, goal: string?)
+	local changed = UI.parkTrail.target ~= target
+	UI.parkTrail.target = target
+	if UI.parkTrail.goal ~= goal and hud ~= nil then
+		UI.parkTrail.goal = goal
+		hud:setParkGoal(goal)
+	end
+	if changed and not UI.parkTrail.tutorial then
+		UI.parkTrail.apply(nil)
+	end
+end
 UI.cannon.nearest = nil :: (() -> string?)?
+
+-- #3555: the first rank up's walk-through (Components/SpotlightGuide on the goal card, then on the rank up window's
+-- button). `set` shows a phase and returns whether its button was there to light; `onOutside` runs on a press on the
+-- dim. `moment` is set where the tips' own free-moment rule lives.
+UI.rankSpot = {
+	close = nil :: (() -> ())?,
+	moment = nil :: any,
+}
+
+function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?): boolean
+	local close = UI.rankSpot.close
+	if close ~= nil then
+		UI.rankSpot.close = nil
+		close()
+	end
+	local target: GuiObject? = nil
+	if phase == "button" and hud ~= nil then
+		target = hud:goalButton()
+	elseif phase == "confirm" and rankUpScreen ~= nil then
+		target = rankUpScreen:button()
+	end
+	if target == nil then
+		return false
+	end
+	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside)
+	return true
+end
 
 function UI.cannon.setEnabled(on: boolean)
 	cannonOn = on
@@ -3731,6 +3799,7 @@ do
 			fleeingUntil = info.fleeingUntil,
 			retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
 			ownerTurnUntil = info.ownerTurnUntil,
+			newKind = info.newKind, -- #3529
 		}
 		if catch then
 			catch:show(activeInfo :: Types.CatchInfo)
@@ -4308,6 +4377,8 @@ do
 			actionText = if prompt.ActionText ~= "" then prompt.ActionText else nil,
 			keyCode = prompt.KeyboardKeyCode,
 			gamepadKeyCode = prompt.GamepadKeyCode, -- #2874: the cap reads X on a gamepad
+			-- #3529: "New kind! 3/5 for Cozy Cafe" when the player has never owned this kind (a net catch or a rescue)
+			newKind = if pickUp then nil else (UI.newKind :: any).line(catId, rarity),
 		}
 	end
 
@@ -5144,12 +5215,55 @@ do
 		end
 	end
 
+	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
+	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card or an ask.
+	function UI.rankSpot.moment(): (boolean, string?)
+		local at = tipMoment()
+		local free = not (
+			at.catching
+			or at.rescuing
+			or at.carrying
+			or at.intro
+			or at.flying
+			or at.hidden
+			or tipBusy
+		)
+		local window: string? = if modal ~= nil then modal:current() else nil
+		if
+			window == nil
+			and (
+				(popups ~= nil and popups:isShowing())
+				or (baitCard ~= nil and baitCard:isShowing())
+				or (askCard ~= nil and askCard:isShowing())
+			)
+		then
+			window = "other"
+		end
+		return free, window
+	end
+
 	-- Nothing else is going on and no tip is showing: the one feedback ask may slide in.
 	function UI.tips.quiet(): boolean
 		return not tipBusy and TipQueue.free(tipMoment())
 	end
 
+	-- #3701: nothing is over the screen (a catch, a rescue, the intro, a window) and the UI is not hidden: the cafe
+	-- rest banner may show. Looser than quiet: a toast or the dusk warning does not hold it.
+	function UI.tips.calm(): boolean
+		local moment = tipMoment()
+		if moment.catching or moment.rescuing or moment.intro then
+			return false
+		end
+		return not (moment.window or moment.hidden)
+	end
+
 	ticks.tips = function(dt: number)
+		-- #3752: the catch and rescue card stays over the Tackle bar while both show
+		local card, bar = catch, tackleBar
+		if card ~= nil and card:isVisible() then
+			card:setClear(if bar ~= nil then bar:top() else nil)
+		end
 		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
 		local ask = askCard
 		if ask ~= nil and popups ~= nil then
@@ -5367,11 +5481,35 @@ do
 				end
 			end,
 			answer = function(face: string?)
-				if face ~= nil then
-					early.answered = true
-					(state :: any).feedbackAsked = true
-					UI.events.sendFeedback:Fire(face, nil)
+				if face == nil then
+					return
 				end
+				early.answered = true
+				(state :: any).feedbackAsked = true
+				local reasons = FeedbackLogic.reasons(face)
+				if #reasons == 0 then
+					UI.events.sendFeedback:Fire(face, nil)
+					return
+				end
+				-- #3657: the same card asks why; the face is sent once, with the chip tapped or alone
+				local chips: { AskCard.Choice } = {}
+				for _, reason in reasons do
+					table.insert(
+						chips,
+						{ id = reason.id, label = reason.label, icon = reason.glyph }
+					)
+				end
+				table.insert(chips, { id = FeedbackLogic.SKIP, label = "Skip" })
+				card:show({
+					title = FeedbackLogic.REASON_TITLE,
+					choices = chips,
+					rows = 2,
+					seconds = FeedbackLogic.REASON_SECONDS,
+					thanks = "Thanks!",
+					answer = function(reason: string?)
+						UI.events.sendFeedback:Fire(face, FeedbackLogic.reasonChip(reason))
+					end,
+				})
 			end,
 		})
 		local saved: any = state
@@ -6779,20 +6917,27 @@ do
 			pick = function()
 				UI.events.yardSalePick:Fire()
 			end,
+			tick = function()
+				Moments.YardSaleTick:Fire()
+			end,
 			landed = function(crateId: string)
-				if toasts then
-					local name = crateId
-					local crates: { Types.CrateDef } = if currentCatalog ~= nil
-							and currentCatalog.crates ~= nil
-						then currentCatalog.crates
-						else {}
-					for _, crate in crates do
-						if crate.id == crateId then
-							name = crate.name
-						end
+				local name = crateId
+				local golden = false
+				local crates: { Types.CrateDef } = if currentCatalog ~= nil
+						and currentCatalog.crates ~= nil
+					then currentCatalog.crates
+					else {}
+				for _, crate in crates do
+					if crate.id == crateId then
+						name = crate.name
+						golden = crate.golden == true
 					end
+				end
+				if toasts then
 					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
 				end
+				-- #3615: the landing's sound and, for a golden crate, the bigger show at the stall
+				Moments.YardSaleLanded:Fire(golden)
 				UI.events.yardSaleLanded:Fire(crateId)
 			end,
 			close = function()
@@ -7202,6 +7347,7 @@ end
 do
 	local MysticPool = require(script.Screens.MysticPool)
 	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
+	local EdgeShade = require(script.Components.EdgeShade)
 	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
 	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
 	UI.mysticPool.far = nil :: (() -> boolean)?
@@ -7237,6 +7383,16 @@ do
 			far = function(): boolean
 				local far = UI.mysticPool.far
 				return not pool.anywhere and far ~= nil and far()
+			end,
+			-- #3702: the card steps aside for the pool's animation, behind a soft shade at the screen's edges
+			shade = function(onTap: () -> ()): () -> ()
+				modalView:tuck(MysticPoolLogic.WINDOW, true)
+				local lift =
+					EdgeShade.show(modalView.screenGui.Parent :: Instance, "Tap to skip", onTap)
+				return function()
+					lift()
+					modalView:tuck(MysticPoolLogic.WINDOW, false)
+				end
 			end,
 		})
 		pool.card = card
@@ -7405,11 +7561,11 @@ do
 		end
 	end
 
-	function UI.mouseDash.began(run: number, hearts: number, firstAt: number)
+	function UI.mouseDash.began(run: number, hearts: number, firstAt: number, endsAt: number?)
 		local screen = dash.screen
 		if screen then
 			UI.mouseDash.open() -- (a start always comes from the open card; this keeps the board in view)
-			screen:began(run, hearts, firstAt)
+			screen:began(run, hearts, firstAt, endsAt)
 		end
 	end
 
@@ -7469,9 +7625,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- Controllers/RallyController calls UI.rally.update(state) on every RallyState: the banner top centre while a Rally
--- runs, the Town Square board's face, "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
--- (the Friday chip) and the Cat Cannon cards' night tag. The pops are VFX's (Effects/Rally hooks RallyPoint and finds
--- the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
+-- runs, the Town Square board's face and "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
+-- (the Friday chip). #3691 took the Cat Cannon cards' night tag away. The pops are VFX's (Effects/Rally hooks
+-- RallyPoint and finds the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
 -- once. Its own block, as the module is short of locals.
 do
 	local RallyBanner = require(script.Screens.RallyBanner)
@@ -7495,9 +7651,6 @@ do
 		local boards = rally.boards
 		if boards then
 			boards:set(current)
-		end
-		if cannonScreen then
-			cannonScreen:setRally(current)
 		end
 		if hud then
 			hud:setRallySoon(RallyLogic.soon(current, Workspace:GetServerTimeNow()))
@@ -8907,6 +9060,27 @@ do
 		end
 	end
 
+	-- #3701: the cafe rest banner (Components/RestBanner), from AfkController: its state (nil hides it), whether a
+	-- rest doubles the pay right now and, while it counts, the seconds left. Made the first time it is needed and
+	-- kept at the head of the toasts' stack. It replaces the rest chip above.
+	local restBanner: any = nil
+	function UI.rest.banner(state: string?, doubled: boolean?, remaining: number?)
+		if restBanner == nil then
+			local stack = toasts
+			if state == nil or stack == nil then
+				return
+			end
+			restBanner = require(script.Components.RestBanner).new()
+			stack:pin(restBanner.frame)
+		end
+		restBanner:set(state, doubled, remaining)
+	end
+
+	function UI.rest.calm(): boolean
+		local tips: any = UI.tips
+		return tips.calm()
+	end
+
 	-- one pass: read, follow, paint; the banner shows once per event this session
 	function UI.cafeEvent.tick()
 		local now = Workspace:GetServerTimeNow()
@@ -8967,6 +9141,80 @@ do
 			boards:destroy()
 		end
 		events.boards = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- #3529 (shared/NewKind): the "NEW" tag over strays and stuck cats of kinds this player has never owned
+-- (Screens/NewKindTags), and the catch card's "New kind!" line. Behind the `newKindTag` live switch, off by default.
+----------------------------------------------------------------------------------------------------
+
+do
+	local Shared = ReplicatedStorage:WaitForChild("Shared")
+	local NewKind = require(Shared:WaitForChild("NewKind"))
+	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
+
+	function UI.newKind.on(): boolean
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		return LiveFlags.shown(
+			NewKind.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
+		)
+	end
+
+	-- Different kinds owned toward rank up, from the Index the client has.
+	function UI.newKind.kinds(): number
+		local Economy = require(Shared:WaitForChild("Economy")) :: any
+		return Economy.rankUpCatCount(state.collection or {})
+	end
+
+	function UI.newKind.refresh()
+		if kind.tags ~= nil then
+			kind.tags:set(UI.newKind.on(), state.collection)
+		end
+	end
+
+	function UI.newKind.start()
+		if kind.tags ~= nil then
+			return
+		end
+		kind.tags = require(script.Screens.NewKindTags).new()
+		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		kind.watch = ReplicatedStorage
+			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
+			:Connect(UI.newKind.refresh)
+		UI.newKind.refresh()
+	end
+
+	function UI.newKind.stop()
+		if kind.watch ~= nil then
+			kind.watch:Disconnect()
+			kind.watch = nil
+		end
+		if kind.tags ~= nil then
+			kind.tags:destroy()
+			kind.tags = nil
+		end
+	end
+
+	-- This player is on a catch or rescue bar: the tags step aside.
+	function UI.newKind.setBusy(busy: boolean)
+		if kind.tags ~= nil then
+			kind.tags:setBusy(busy)
+		end
+	end
+
+	-- The nearest tagged stray's part in wild area `area`, for the five cats trail (UIController).
+	function UI.newKind.nearest(area: string): BasePart?
+		return if kind.tags ~= nil then kind.tags:nearest(area) else nil
+	end
+
+	-- The catch card's line for a cat of this kind, nil when the switch is off or the kind is not new.
+	function UI.newKind.line(catId: unknown, rarity: unknown): string?
+		if not UI.newKind.on() or not NewKind.isNew(state.collection, catId, rarity) then
+			return nil
+		end
+		return NewKind.line(UI.newKind.kinds(), state.tier or 1)
 	end
 end
 

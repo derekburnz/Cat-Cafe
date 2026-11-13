@@ -10,6 +10,10 @@
 -- attributes), for the UI's glow; `UI.net.setEnabled`, when the UI has it, shows the Net button while a swing could
 -- go. Both judge from shared/NetSwing.landingOrigin, where the root will be when the net lands. The ground
 -- outline that showed where a swing lands (Controllers/NetMarker) is gone (Derek2 2026-11-06, #1885: clutter).
+-- #3556, behind the switch touchCatchReach: on a touch screen the glow and the Net button show from
+-- shared/TouchReach.reach (1.5 times a swing's), and a press on a stray out there walks the character to it and
+-- swings once it is truly in reach. The server's reach is the same for everyone. Each session reports "near" (first
+-- time near a free stray) and "shown" (first glow) once through TelemetryReport, on any device.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -19,9 +23,12 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
+local Scale = require(script.Parent.Parent.UI.Scale)
+local TouchReach = require(Shared:WaitForChild("TouchReach"))
 local UI = require(script.Parent.Parent.UI)
 
 local NetSwingController = {}
@@ -38,6 +45,25 @@ local catchingUntil = 0 -- os.clock(): circles up, from CatchStart to CatchSucce
 local rescuingUntil = 0
 local inIntro = false
 local inReach: Model? = nil
+local swingReach: Model? = nil -- the stray a swing lands on right now; inReach may be a further one on touch (#3556)
+local walkId = 0 -- #3556: the walk to a stray going on, by number
+local walking = false
+local reported: { [string]: boolean } = {}
+
+local function touchReachOn(): boolean
+	return Scale.isTouch()
+		and LiveFlags.shown(
+			TouchReach.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TouchReach.FLAG)
+		)
+end
+
+local function report(kind: string)
+	if not reported[kind] then
+		reported[kind] = true
+		Net.fire("TelemetryReport", TouchReach.TELEMETRY, kind)
+	end
+end
 
 local function rootPart(): BasePart?
 	local character = player.Character
@@ -67,7 +93,7 @@ local function canSwing(): boolean
 		and character:GetAttribute("Camp") == nil
 end
 
-local function press()
+local function swing()
 	local now = os.clock()
 	if now < nextSwingAt or not canSwing() then
 		return
@@ -87,11 +113,12 @@ local function bodyOf(model: Model): BasePart?
 end
 
 -- The stray a swing pressed now would land on, from what the server shows: not running (FleeingUntil) and not
--- locked by someone else (LockedBy).
-local function findInReach(): Model?
+-- locked by someone else (LockedBy). #3556: then the stray a touch press would walk to, when the swing lands on
+-- none.
+local function findInReach(): (Model?, Model?)
 	local root = rootPart()
 	if root == nil or not canSwing() then
-		return nil
+		return nil, nil
 	end
 	local now = Workspace:GetServerTimeNow()
 	local targets: { NetSwing.Target } = {}
@@ -127,8 +154,11 @@ local function findInReach(): Model?
 		targets,
 		if type(extra) == "number" then extra else 0
 	)
+	if TouchReach.near(origin, targets) then
+		report("near")
+	end
 	if picked ~= nil then
-		return byId[picked.id]
+		return byId[picked.id], nil
 	end
 	-- #2774: the server lands a beginner's swing on their own tutorial stray within NetSwing.beginnerReach
 	for _, target in targets do
@@ -138,19 +168,85 @@ local function findInReach(): Model?
 			and model:GetAttribute("Beginner") == player.UserId
 			and NetSwing.beginnerReach(origin, target.position)
 		then
-			return model
+			return model, nil
 		end
 	end
-	return nil
+	if touchReachOn() then
+		local far = TouchReach.pick(origin, targets, if type(extra) == "number" then extra else 0)
+		if far ~= nil then
+			return nil, byId[far.id]
+		end
+	end
+	return nil, nil
+end
+
+-- #3556: ends the walk going on and stops the character where it stands.
+local function stopWalk()
+	walkId += 1
+	if not walking then
+		return
+	end
+	walking = false
+	local root = rootPart()
+	local character = player.Character
+	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	if humanoid ~= nil and root ~= nil then
+		humanoid:MoveTo(root.Position)
+	end
+end
+
+-- #3556: walks to `model` and swings once a swing would land on it. A new press, a swing that cannot go or
+-- TouchReach.WALK_SECONDS ends it.
+local function walkTo(model: Model)
+	stopWalk()
+	walking = true
+	local id = walkId
+	local started = os.clock()
+	task.spawn(function()
+		while walkId == id and TouchReach.walking(os.clock() - started, canSwing()) do
+			local character = player.Character
+			local humanoid = if character ~= nil
+				then character:FindFirstChildOfClass("Humanoid")
+				else nil
+			local body = if model.Parent ~= nil then bodyOf(model) else nil
+			if humanoid == nil or body == nil then
+				break
+			end
+			if swingReach == model then
+				swing()
+				break
+			end
+			humanoid:MoveTo(body.Position)
+			task.wait(REACH_TICK)
+		end
+		if walkId == id then
+			stopWalk()
+		end
+	end)
+end
+
+local function press()
+	stopWalk() -- a press ends a walk going on, where the character stands
+	local far = if swingReach == nil then inReach else nil
+	if far ~= nil and touchReachOn() and os.clock() >= nextSwingAt and canSwing() then
+		walkTo(far)
+		return
+	end
+	swing()
 end
 
 local function watchReach()
 	local enabled: boolean? = nil
 	while true do
-		local found = findInReach()
+		local landing, far = findInReach()
+		swingReach = landing
+		local found = landing or far
 		if found ~= inReach then
 			inReach = found
 			Moments.NetInReach:Fire(found)
+		end
+		if found ~= nil then
+			report("shown")
 		end
 		local on = canSwing()
 		if on ~= enabled then

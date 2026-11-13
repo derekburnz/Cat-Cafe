@@ -72,7 +72,13 @@ return function()
 
 	describe("the join notice (#3466)", function()
 		local function row(userId: number, rank: number): Types.LeaderboardRow
-			return { rank = rank, userId = userId, name = "P" .. userId, value = 100 - rank, crown = false }
+			return {
+				rank = rank,
+				userId = userId,
+				name = "P" .. userId,
+				value = 100 - rank,
+				crown = false,
+			}
 		end
 		local LISTS = {
 			index = { row(1, 1), row(2, 2), row(3, 11) },
@@ -96,12 +102,15 @@ return function()
 			expect(board).to.equal("playtime")
 		end)
 
-		it("has none for rank 11 and down, a weekly list only, an unranked player or lists not read yet", function()
-			expect((Leaderboards.joinRank(LISTS, 5, 10))).to.equal(nil)
-			expect((Leaderboards.joinRank(LISTS, 6, 10))).to.equal(nil)
-			expect((Leaderboards.joinRank(LISTS, 99, 10))).to.equal(nil)
-			expect((Leaderboards.joinRank({}, 1, 10))).to.equal(nil)
-		end)
+		it(
+			"has none for rank 11 and down, a weekly list only, an unranked player or lists not read yet",
+			function()
+				expect((Leaderboards.joinRank(LISTS, 5, 10))).to.equal(nil)
+				expect((Leaderboards.joinRank(LISTS, 6, 10))).to.equal(nil)
+				expect((Leaderboards.joinRank(LISTS, 99, 10))).to.equal(nil)
+				expect((Leaderboards.joinRank({}, 1, 10))).to.equal(nil)
+			end
+		)
 
 		it("reads as one line with the display name, the rank and the board", function()
 			expect(Leaderboards.joinLine("Mochi", 3, "money")).to.equal(
@@ -216,9 +225,14 @@ return function()
 				Leaderboards.noteRate(p, bad, NOW)
 			end
 			expect(p.stats.bestRate).to.equal(0)
-			Leaderboards.noteRate(p, 1e12, NOW)
+			-- #3688: a top cafe's rate is kept as it is; 10,000,000 used to be the cap and tied the top rows
+			Leaderboards.noteRate(p, 54321987.6, NOW)
+			expect(Leaderboards.values(p, NOW, NOW).money).to.equal(54321987)
+			expect(Leaderboards.values(p, NOW, NOW).money_week).to.equal(54321987)
+			Leaderboards.noteRate(p, 1e18, NOW)
 			expect(Leaderboards.values(p, NOW, NOW).money).to.equal(Config.LeaderboardRateMax)
-			expect(Config.LeaderboardRateMax).to.equal(10000000)
+			expect(Config.LeaderboardRateMax).to.equal(1e15)
+			expect(Config.LeaderboardRateMax < 2 ^ 53).to.equal(true) -- exact as a whole number
 		end)
 	end)
 
@@ -244,14 +258,17 @@ return function()
 	end)
 
 	describe("the reads (#2400)", function()
-		it("writes one entry of a store at most once every WRITE_GAP_SECONDS, but always on a leave", function()
-			expect(Leaderboards.WRITE_GAP_SECONDS > 6).to.equal(true) -- Roblox's 6 s between writes to one key
-			expect(Leaderboards.mayWrite(nil, 100, false)).to.equal(true)
-			expect(Leaderboards.mayWrite(100, 100, false)).to.equal(false)
-			expect(Leaderboards.mayWrite(100, 106.9, false)).to.equal(false)
-			expect(Leaderboards.mayWrite(100, 107, false)).to.equal(true)
-			expect(Leaderboards.mayWrite(100, 101, true)).to.equal(true)
-		end)
+		it(
+			"writes one entry of a store at most once every WRITE_GAP_SECONDS, but always on a leave",
+			function()
+				expect(Leaderboards.WRITE_GAP_SECONDS > 6).to.equal(true) -- Roblox's 6 s between writes to one key
+				expect(Leaderboards.mayWrite(nil, 100, false)).to.equal(true)
+				expect(Leaderboards.mayWrite(100, 100, false)).to.equal(false)
+				expect(Leaderboards.mayWrite(100, 106.9, false)).to.equal(false)
+				expect(Leaderboards.mayWrite(100, 107, false)).to.equal(true)
+				expect(Leaderboards.mayWrite(100, 101, true)).to.equal(true)
+			end
+		)
 
 		it(
 			"read every list at once on a server's first refresh, then spread across the period",

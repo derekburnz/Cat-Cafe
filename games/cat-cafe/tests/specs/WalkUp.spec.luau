@@ -173,6 +173,8 @@ return function()
 				local wide, least = WalkUp.FRONT_RADIUS, WalkUp.FRONT_FIT_LEAST
 				expect(least < wide and least >= 4).to.equal(true)
 				expect(WalkUp.BOARD_RADIUS <= wide and WalkUp.BOARD_RADIUS >= 4).to.equal(true)
+				-- the Mystic Pool's is a little smaller than the town's and never under the least
+				expect(WalkUp.POOL_RADIUS < wide and WalkUp.POOL_RADIUS >= least).to.equal(true)
 				local shift, fitted = WalkUp.fitRing(wide, {}, WalkUp.FIT_SHIFT_MAX, least)
 				expect(shift.Magnitude).to.equal(0)
 				expect(fitted).to.equal(wide)

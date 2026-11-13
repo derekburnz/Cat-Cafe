@@ -315,6 +315,11 @@ local function step(player: Player, run: Run)
 	end
 	local state = run.state
 	local now = serverNow()
+	if now >= state.endsAt then
+		-- the run's clock is out: what is up goes down at no cost, and the score stands
+		finish(player, run, "time", true)
+		return
+	end
 	if state.wave == nil then
 		if now >= state.nextAt then
 			if state.index >= MAX_WAVES then
@@ -344,7 +349,7 @@ local function step(player: Player, run: Run)
 		if #gone > 0 then
 			Net.fire(player, "MouseDashGone", run.id, index, gone, state.hearts)
 		end
-		local over: MouseDash.Reason? = MouseDash.over(state)
+		local over: MouseDash.Reason? = MouseDash.over(state, now)
 		if over ~= nil then
 			finish(player, run, over, true)
 			return
@@ -433,7 +438,7 @@ local function onStart(player: Player)
 	if not owner then
 		Telemetry.arcadeStarted(player, profile, free, freeUsed)
 	end
-	Net.fire(player, "MouseDashBegan", run.id, run.state.hearts, run.state.nextAt)
+	Net.fire(player, "MouseDashBegan", run.id, run.state.hearts, run.state.nextAt, run.state.endsAt)
 	sendState(player)
 	schedule(player, run)
 end

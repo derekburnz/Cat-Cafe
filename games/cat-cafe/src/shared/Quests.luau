@@ -13,7 +13,7 @@ local Types = require(script.Parent.Types)
 
 local Quests = {}
 
--- #3694 section 3: whether a live switch is on. Until QuestService hands over LiveFlagService.on, each switch reads
+-- #3694 section 3: whether a live switch is on. Until CafeService hands over LiveFlagService.on, each switch reads
 -- as its default (LiveFlags.OFF_BY_DEFAULT), so a gated achievement stays hidden on a server that never set one.
 local flagOn: (string) -> boolean = function(key: string): boolean
 	return LiveFlags.OFF_BY_DEFAULT[key] ~= true

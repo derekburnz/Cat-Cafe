@@ -1274,7 +1274,22 @@ local function stageCatch(r: Run, t: number)
 				r.faceFrom = toward(spot, Intro.strayPoint())
 			end
 			local k = math.clamp((t - Intro.HOP_FROM) / Intro.FACE_CAMERA_SECONDS, 0, 1)
-			local camWay = toward(spot, camera.CFrame.Position)
+			-- Review-QA (Studio, 38026c96): read from the live camera the turn ended with your back to it, so the way
+			-- to the camera now comes from the shot's own last camera key (the side view, square to the catch line)
+			local current = r.shots[r.shot]
+			local last = if current ~= nil and #current.cuts > 0
+				then current.cuts[#current.cuts].to
+				else nil
+			local camWay =
+				toward(spot, if last ~= nil then last.position else camera.CFrame.Position)
+			if RunService:IsStudio() and k >= 1 then
+				print(
+					`[Intro] face: you {spot} way {camWay} camera {camera.CFrame.Position} key {if last
+							~= nil
+						then last.position
+						else "none"} look {you.root.CFrame.LookVector}`
+				)
+			end
 			turnYou(you, spot, r.faceFrom :: Vector3, camWay, k)
 			if k >= 1 then
 				r.done.faced = true

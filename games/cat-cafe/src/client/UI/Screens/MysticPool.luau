@@ -14,8 +14,8 @@
 -- is the next PlayerState: the buttons rest until it shows (MysticPoolLogic.stamp) or PENDING_SECONDS, then
 -- `callbacks.play` (the pool's animation, Effects/MysticPool) runs with a tap to skip, and the card shows the
 -- result. The server decides every roll and payment; this only asks. #3864: once the free rolls are used, the Trait
--- Token bundles sit on a slim panel beside the card (#4006) with the roll's full odds and a small X that holds for the
--- session (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own prompt.
+-- Token bundles sit on a slim panel beside the card (#4006) with the roll's full odds, while the card is open
+-- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own prompt.
 -- Words in Components/MysticPoolLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -124,7 +124,6 @@ local SIDE_GAP = 10
 local SIDE_TOP = 56 -- below the window's header, beside its content
 local SIDE_PAD = 8
 local SIDE_TOKEN = 40
-local SIDE_CLOSE = 36 -- a mouse's tap size; Button's Hit pads it to 44 on touch
 local SIDE_EDGE = 8 -- px kept clear at the screen's edges
 local MIN_CARD_W = 380 -- the card never narrows past this to make room
 local SHORT_FACE = 36
@@ -152,7 +151,6 @@ local remembered = {
 	sort = CatPickLogic.DEFAULT_SORT,
 	flipped = false,
 	shown = {} :: CatPickLogic.Shown,
-	sideClosed = false, -- #4006: the token panel's X, for the session
 	seeded = false,
 	saved = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, show = "" },
 }
@@ -996,8 +994,9 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
 	-- panel beside the card, never over it: the token, "More rolls", the roll's odds (monetization-policy 2.1: before
-	-- anything is bought) and a Buy per bundle with its price, and a small X that hides it for the session. It shows
-	-- once the free rolls are used (MysticPoolLogic.bundles), and the card moves left so the two sit centred together.
+	-- anything is bought) and a Buy per bundle with its price. Derek 20:12 UTC: "don't give them an X option", so it stays
+	-- while the card is open once the free rolls are used (MysticPoolLogic.bundles); the card moves left so the two sit
+	-- centred together and the panel never covers it.
 	-- No countdowns, no "best value", no struck-out prices.
 	local side: Frame = Create("Frame", {
 		Name = "TokenSide",
@@ -1037,7 +1036,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	text({
 		Name = "Title",
 		Position = UDim2.fromOffset(SIDE_TOKEN + 6, 0),
-		Size = UDim2.new(1, -(SIDE_TOKEN + 8 + SIDE_CLOSE), 1, 0),
+		Size = UDim2.new(1, -(SIDE_TOKEN + 6), 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -1045,22 +1044,6 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Text = MysticPoolLogic.SIDE_TITLE,
 		ZIndex = 6,
 		Parent = head,
-	})
-	-- the small X: drawn small, its touch pad still a finger's 44 px (Button's Hit)
-	Button.new({
-		name = "Close",
-		text = "X",
-		style = "ghost",
-		size = UDim2.fromOffset(SIDE_CLOSE, SIDE_CLOSE),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, -2),
-		textSize = Theme.sizes.textSmall,
-		parent = head,
-		zIndex = 7,
-		onClick = function()
-			remembered.sideClosed = true
-			self:_showSide(false)
-		end,
 	})
 	text({
 		Name = "Odds",
@@ -1813,11 +1796,11 @@ function MysticPool._paint(self: any)
 		self._takeNew:setEnabled(not resting)
 	end
 
-	-- #4006: the token panel, once the free rolls are used, until its X; kept as it is while a press is out
+	-- #4006: the token panel, once the free rolls are used; kept as it is while a press is out
 	if not resting then
 		local bundles: { MysticPoolLogic.Bundle }? = nil
 		if self._callbacks.buy ~= nil and self._open then
-			bundles = MysticPoolLogic.bundles(view, Config.ProductIds, remembered.sideClosed)
+			bundles = MysticPoolLogic.bundles(view, Config.ProductIds, false)
 		end
 		self._offerBundles = bundles
 		if bundles ~= nil then

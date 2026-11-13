@@ -2869,11 +2869,9 @@ local SCENES = {
 		assert(odds.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y, "uigate: the odds sit under Buy (#4006)")
 		local roll = window:FindFirstChild("Roll", true)
 		assert(roll == nil or not roll.Visible or roll.AbsolutePosition.X + roll.AbsoluteSize.X <= side.AbsolutePosition.X, "uigate: Roll sits under the token panel (#4006)")
-		press("MysticPool", "TokenSide.Head.Close")
-		assert(not side.Visible, "uigate: the small X did not hide the token panel (#4006)")
+assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has an X (Derek: no X, #4006)")
 		UI.update({ traits = { tokens = 0, freeLeft = 0, held = 0, bundles = true } } :: any)
-		assert(not side.Visible, "uigate: the token panel came back after its X in one session (#4006)")
-		assert(math.abs(window.AbsolutePosition.X + window.AbsoluteSize.X / 2 - (screen.AbsolutePosition.X + screen.AbsoluteSize.X / 2)) <= 2, "uigate: the card did not move back to the middle after the X (#4006)")
+		assert(side.Visible, "uigate: the token panel went away on the next update (#4006)")
 	end },
 	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one
 	-- gold), one that can be filled with its green "!", the rest silhouettes with "You have n"
@@ -6376,6 +6374,12 @@ local SCENES = {
 		UI.open("Quests")
 		press("Quests", "DailyTab")
 		press("Quests", "Daily.Quest2.Claim")
+		-- #4025 (Derek: "the quests blend in and is hard to see"): a claimed card stays light behind its ink words
+		local window = UIShim.playerGui:FindFirstChild("Quests", true)
+		local row = window:FindFirstChild("Quest2", true)
+		local c = row.BackgroundColor3
+		local light = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B
+		assert(light >= 0.6, ("uigate: a claimed quest card is dark (%.2f) behind its ink words (#4025)"):format(light))
 	end },
 	-- Claim all on the Achievements tab (two met in the sample player)
 	{ "QuestsClaimAll", function()

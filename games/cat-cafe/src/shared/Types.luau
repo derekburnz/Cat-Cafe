@@ -713,6 +713,7 @@ export type TradeTile = {
 	charm: number?,
 	rateForMe: number,
 	earnsNow: number?, -- #3211: the viewer's own cat: what it earns this second (0 with no job); the totals use it
+	trait: TraitData?, -- #3710: the cat's Mystic Pool trait, which moves with it (shared/Trade)
 }
 -- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
 -- adds while placed (0.05 is +5%).
@@ -1188,6 +1189,12 @@ export type TelemetryState = {
 	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
 	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
 	firstHourV3Step: number,
+	-- #3695: the furthest step logged of the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS) and of playtime_v1
+	-- (Onboarding.PLAYTIME_STEPS), 0 before any and the count once out of it. Optional fields with defaults, so no save
+	-- version: a server without them drops them, and the save then comes back out of both funnels once it is past its
+	-- first catch or has logged any first_hour step (ProfileSchema), so nothing is counted twice
+	cleanStep: number?,
+	playtimeStep: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)
@@ -1304,6 +1311,9 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
+	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
+	bagColours: { main: string, trim: string }?,
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1416,6 +1426,7 @@ export type PlayerState = {
 	fishPerks: { [string]: number },
 	mystery: { [string]: boolean }, -- #2565
 	mysterySeen: boolean,
+	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
@@ -1445,6 +1456,8 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #2912: true from the first bait cat resolved until the first rescue starts (shared/StuckGoal.waiting)
+	stuckGoal: boolean?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
 	-- reads as Config.IntroAutoPlay

@@ -21,14 +21,18 @@ on:
         required: false
 
 # A new push to a PR cancels that PR's older run, so only the latest head is checked (and nobody gets mail about
-# a run nobody needs). Runs on main and dispatched runs each get their own group and are never cancelled.
+# a run nobody needs). Dispatched runs each get their own group and are never cancelled.
+# Pushes to main share one group, check-main, and never cancel a running check: at most one main check runs and
+# one waits, and a newer push replaces the waiting one. Before 2026-11-13 every main push got its own group, so
+# a busy evening queued 34 main checks ahead of every PR check and the publish. Nothing is lost: the automatic
+# publish only ever ships the newest passed main commit.
 # Turning auto-merge on cancels nothing: it used to cancel the run already checking the same head and start it
 # again (50 of 60 cancelled runs on 2026-11-11). Its run now waits for that one, then finds the tree already
 # passed (the "Already passed?" steps) and ends in about a minute, or checks in full when main moved in between
 # or the first run failed.
 concurrency:
-  group: check-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: ${{ github.event.action != 'auto_merge_enabled' }}
+  group: ${{ github.event_name == 'push' && 'check-main' || format('check-{0}', github.event.pull_request.number || github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'auto_merge_enabled' }}
 
 jobs:
   gate:

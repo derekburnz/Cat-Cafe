@@ -341,4 +341,22 @@ return function()
 			expect(gold:find("SECRET cat: Nebula", 1, true) ~= nil).to.equal(true)
 		end)
 	end)
+
+	describe("roaming (#3545)", function()
+		it("walks three times as fast over three times the reach, still slower than a player", function()
+			expect(Config.SecretWanderSpeed).to.equal(3 * Config.StrayWanderSpeed)
+			expect(Config.SecretWanderRadius).to.equal(3 * Config.StrayWanderRadius)
+			expect(Config.SecretWanderPauseScale > 0 and Config.SecretWanderPauseScale < 1).to.equal(true)
+			expect(Config.SecretWanderSpeed < 16).to.equal(true) -- a carrier walks at 16, a player at 20
+		end)
+
+		it("is never Sleepy, so it never stays put", function()
+			for _, u in { 0, 0.1, 0.19, 0.2, 0.5, 0.999999 } do
+				expect(Moods.roll(Catalog.SECRET, u) ~= "Sleepy").to.equal(true)
+			end
+			local weights = Catalog.rarities.Secret.moods
+			expect(weights.Sleepy).to.equal(0)
+			expect(weights.Sleepy + weights.Curious + weights.Skittish).to.equal(100)
+		end)
+	end)
 end

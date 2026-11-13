@@ -37,11 +37,14 @@ from mathutils import Matrix, Vector
 
 import doors
 from common import RB, bake_transform
-from plot import arc, rot_z
+from plot import BACK, arc, rot_z
 
 F_HINGE, F_Y0, F_Y1, F_T, F_ZIN = 3.4, 0.08, 7.33, 0.25, -0.03   # front leaves: hinge |x|, foot, top, thickness,
 F_W = F_HINGE - 0.02                                              # inside face; two leaves meet with a 0.04 gap
-B_HINGE = (-doors.HX - 8.0, 0.0, 14.5 - doors.HZ)                # the cafe's own hinge in the back model (2.88, 0, -0.22)
+# The cafe's own hinge in the back model (2.88, 0, -0.22). The doorway's foot is the middle of the back wall, half a stud
+# inside its outer face: a fixed 14.5 here (the 28 deep cafe's) hung every leaf built after the cafe grew to 34 deep
+# three studs out in the yard (Arch Gate, Temple Gate).
+B_HINGE = (-doors.HX - 8.0, 0.0, (BACK - 0.5) - doors.HZ)
 B_W, B_Y0, B_Y1, B_T = doors.LW, doors.LY0, doors.LY1, doors.LT
 HOLE = (doors.FC - doors.FW / 2, doors.FC + doors.FW / 2, doors.FY0, doors.FY1)   # in a back leaf: u0, u1, y0, y1
 ZONE = (doors.FC - 1.52, doors.FC + 1.52, doors.LY0 + 2.78)       # u0, u1, top: no relief here on a back leaf

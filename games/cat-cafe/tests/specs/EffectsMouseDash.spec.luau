@@ -75,7 +75,7 @@ return function()
 
 		it("exposes every hook the window calls", function()
 			for _, name in
-				{ "pop", "catch", "escape", "wrong", "heart", "faster", "best", "bounce" }
+				{ "pop", "catch", "escape", "wrong", "heart", "faster", "prize", "best", "bounce" }
 			do
 				expect(type(MouseDashFx[name])).to.equal("function")
 			end

@@ -13,7 +13,6 @@ local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
-local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -65,6 +64,7 @@ local Signal = require(ReplicatedStorage.Shared.Signal)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
+local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
@@ -231,8 +231,7 @@ end
 -- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
 -- off or the tier has not opened the station (TraitService.open reads the same)
 local function traitsView(profile: Profile, now: number): Types.TraitsView?
-	local open = LiveFlagService.on(Traits.FLAG)
-		and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+	local open = LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
 	Traits.settle(profile.traits, open, now)
 	return if open then Traits.view(profile.traits) else nil
 end
@@ -275,6 +274,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		fishPerks = profile.fishPerks,
 		mystery = profile.mystery, -- #2565
 		mysterySeen = profile.mysterySeen,
+		bagColours = profile.bagColours, -- #3699
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
@@ -292,6 +292,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
+		stuckGoal = StuckGoal.waiting(profile), -- #2912
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
 		potions = profile.potions, -- F64

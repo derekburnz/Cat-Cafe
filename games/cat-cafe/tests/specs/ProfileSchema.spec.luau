@@ -242,6 +242,8 @@ return function()
 					introStep = 0,
 					firstHourStep = 10,
 					firstHourV3Step = 0,
+					cleanStep = 0,
+					playtimeStep = 0,
 				})
 				expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
 			end
@@ -264,6 +266,8 @@ return function()
 					introStep = 13,
 					firstHourStep = 10,
 					firstHourV3Step = 12,
+					cleanStep = 27,
+					playtimeStep = 16,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
 				expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({
@@ -274,6 +278,8 @@ return function()
 					introStep = 0,
 					firstHourStep = 10,
 					firstHourV3Step = 0,
+					cleanStep = 0,
+					playtimeStep = 0,
 				})
 				raw.telemetry = "junk"
 				expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({
@@ -284,6 +290,8 @@ return function()
 					introStep = 0,
 					firstHourStep = 10,
 					firstHourV3Step = 0,
+					cleanStep = 0,
+					playtimeStep = 0,
 				})
 			end
 		)
@@ -2028,6 +2036,8 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 27,
+						playtimeStep = 16,
 					})
 				end
 			)
@@ -2050,6 +2060,8 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 27,
+						playtimeStep = 16,
 					})
 					raw.telemetry = {
 						onboardingStep = 6,
@@ -2065,6 +2077,8 @@ return function()
 						introStep = 0,
 						firstHourStep = 10,
 						firstHourV3Step = 0,
+						cleanStep = 0,
+						playtimeStep = 0,
 					})
 				end
 			)
@@ -2088,6 +2102,8 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 27,
+						playtimeStep = 16,
 					})
 					raw.telemetry = {
 						onboardingStep = 12,
@@ -2104,6 +2120,8 @@ return function()
 						introStep = 0,
 						firstHourStep = 10,
 						firstHourV3Step = 0,
+						cleanStep = 0,
+						playtimeStep = 0,
 					})
 				end
 			)
@@ -2127,6 +2145,8 @@ return function()
 						introStep = 4, -- v5 logs v4's intro funnel, so its step stays
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 27,
+						playtimeStep = 16,
 					})
 					raw.telemetry = {
 						onboardingStep = 12,
@@ -2143,6 +2163,8 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 0,
+						cleanStep = 0,
+						playtimeStep = 0,
 					})
 				end
 			)
@@ -2167,6 +2189,8 @@ return function()
 						introStep = 5,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 0,
+						playtimeStep = 16,
 					})
 					raw.telemetry = {
 						onboardingStep = 99,
@@ -2218,6 +2242,8 @@ return function()
 						introStep = 6, -- v6 logs v4's intro funnel too, so its step stays
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 27,
+						playtimeStep = 16,
 					})
 					raw.telemetry = {
 						onboardingStep = 4,
@@ -2235,9 +2261,56 @@ return function()
 						introStep = 2,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
+						cleanStep = 0,
+						playtimeStep = 16,
 					})
 					raw.telemetry.firstHourStep = 0
 					expect(ProfileSchema.migrate(raw, NOW).telemetry.firstHourV3Step).to.equal(0)
+				end
+			)
+
+			it(
+				"starts the clean funnel and playtime_v1 (#3695) only for a save new to them, and keeps their own fields after",
+				function()
+					local raw: any = ProfileSchema.template(NOW)
+					-- a v6 save before its first catch that logged none of first_hour: both from their start
+					raw.telemetry = {
+						onboardingStep = 8,
+						achieved = {},
+						funnel = 6,
+						firstDay = DAY,
+						introStep = 13,
+						firstHourStep = 10,
+						firstHourV3Step = 0,
+					}
+					local telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+					expect(telemetry.cleanStep).to.equal(0)
+					expect(telemetry.playtimeStep).to.equal(0)
+					-- any first_hour_v3 step logged: out of playtime_v1
+					raw.telemetry.firstHourV3Step = 3
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.playtimeStep).to.equal(16)
+					-- past the first catch, logged or held: out of the clean funnel
+					raw.telemetry.onboardingStep = 13
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(27)
+					raw.telemetry.onboardingStep = 9
+					raw.telemetry.achieved = { ["13"] = true }
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(27)
+					-- their own fields win once saved, clamped; a damaged one falls back to the rule above
+					raw.telemetry.cleanStep = 7
+					raw.telemetry.playtimeStep = 4
+					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+					expect(telemetry.cleanStep).to.equal(7)
+					expect(telemetry.playtimeStep).to.equal(4)
+					raw.telemetry.cleanStep = 99
+					raw.telemetry.playtimeStep = -3
+					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+					expect(telemetry.cleanStep).to.equal(27)
+					expect(telemetry.playtimeStep).to.equal(0)
+					raw.telemetry.cleanStep = "x"
+					raw.telemetry.playtimeStep = "x"
+					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+					expect(telemetry.cleanStep).to.equal(27)
+					expect(telemetry.playtimeStep).to.equal(16)
 				end
 			)
 
@@ -2516,6 +2589,24 @@ return function()
 			expect(ProfileSchema.migrate(raw, 1000).firstVisits :: any).to.deepEqual({ rich = true })
 			raw.firstVisits = nil
 			expect(next(ProfileSchema.migrate(raw, 1000).firstVisits)).never.to.be.ok()
+		end)
+	end)
+
+	describe("the Backpack's colours (#3699, no version bump)", function()
+		it("keeps two known colour ids, and drops anything else and the built pair", function()
+			local raw: any = ProfileSchema.template(1000)
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+			raw.bagColours = { main = "navy", trim = "honey", extra = 1 }
+			expect(ProfileSchema.migrate(raw, 1000).bagColours :: any).to.deepEqual({
+				main = "navy",
+				trim = "honey",
+			})
+			raw.bagColours = { main = "plum", trim = "rose" } -- the built colours save as nothing
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+			raw.bagColours = { main = "neon", trim = "honey" }
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+			raw.bagColours = "navy"
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
 		end)
 	end)
 end

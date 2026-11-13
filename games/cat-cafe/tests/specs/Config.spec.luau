@@ -447,6 +447,7 @@ return function()
 		ArcadeBlockLeadIn = 0.9,
 		-- #3296 (Mouse Dash, mouse-dash.md section 6)
 		MouseDashHearts = 3,
+		MouseDashRunSeconds = 180, -- #3553: a run ends on the clock after 3 minutes
 		MouseDashStepEvery = 5,
 		MouseDashWindowStart = 1.10,
 		MouseDashWindowStep = 0.93,
@@ -599,8 +600,7 @@ return function()
 				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
 				EventShowerDefaults = true, -- #2486 (live-events.md section 4): a table, checked in CafeEvents.spec
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
-				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
-				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				UpdateEvents = true, -- #2766: the listed Roblox Events (id, start), a table, checked in EventRsvp.spec
 				CozyLure = true, -- #2798: a lure id, checked in CozyCafe.spec
 				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
@@ -630,6 +630,9 @@ return function()
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
 				YardSaleRollHours = true, -- #3614: checked in YardPick.spec
 				YardSaleTable = true, -- #3614: a table, checked in YardPick.spec
+				SecretWanderSpeed = true, -- #3545: checked in SecretCats.spec
+				SecretWanderRadius = true, -- #3545: checked in SecretCats.spec
+				SecretWanderPauseScale = true, -- #3545: checked in SecretCats.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

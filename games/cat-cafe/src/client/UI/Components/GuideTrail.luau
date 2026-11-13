@@ -21,6 +21,7 @@ export type Target = BasePart | Attachment | Vector3
 
 export type GuideTrail = {
 	show: (self: GuideTrail, target: Target, color: Color3?) -> (),
+	mark: (self: GuideTrail, attribute: string, value: boolean) -> (), -- #3554: an attribute on the dots' folder
 	hide: (self: GuideTrail) -> (),
 	destroy: (self: GuideTrail) -> (),
 }
@@ -241,6 +242,13 @@ function GuideTrail.show(self: any, target: Target, color: Color3?)
 		accumulator = 0
 		self:_step()
 	end)
+end
+
+-- #3554: sets an attribute on the dots' folder, which Effects/PawTrail reads ("Paws": draw the dots as paw prints).
+function GuideTrail.mark(self: any, attribute: string, value: boolean)
+	if self._folder:GetAttribute(attribute) ~= value then
+		self._folder:SetAttribute(attribute, value)
+	end
 end
 
 function GuideTrail.hide(self: any)

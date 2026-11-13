@@ -31,6 +31,7 @@ local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local FirstFive = require(Shared:WaitForChild("FirstFive"))
 local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
+local GrandOpening = require(Shared:WaitForChild("GrandOpening"))
 local Invite = require(script.Parent.Parent.UI.Components.Invite)
 local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLogic)
 local Jukebox = require(Shared:WaitForChild("Jukebox"))
@@ -38,11 +39,14 @@ local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local MysticPool = require(script.Parent.Parent.Effects.MysticPool)
 local Net = require(script.Parent.Parent.Net)
+local NewKind = require(Shared:WaitForChild("NewKind"))
+local NewKindEconomy = require(Shared:WaitForChild("Economy"))
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
+local StuckGoal = require(Shared:WaitForChild("StuckGoal"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Traits = require(Shared:WaitForChild("Traits"))
 local Types = require(Shared:WaitForChild("Types"))
@@ -102,6 +106,15 @@ UIController.state = nil :: Types.PlayerState?
 UIController.leaderboards = nil :: Types.LeaderboardSync?
 
 -- #1645: the crate pieces, then the Cafe Pass decor (Catalog.passDecor), for the UI's crateDecor list.
+-- #3694: each achievement's prize with its line's item, for the Quests cards (the server pays the same).
+local function achievementPrizesById(): { [string]: Types.IndexPrize }
+	local out: { [string]: Types.IndexPrize } = {}
+	for _, def in Catalog.achievements do
+		out[def.id] = Catalog.achievementPrize(def)
+	end
+	return out
+end
+
 local function passAndCrateDecor(): { Types.DecorDef }
 	local list: { Types.DecorDef } = table.clone(Catalog.crateDecor)
 	for _, def in Catalog.passDecor do
@@ -386,6 +399,148 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+-- #2912 (shared/StuckGoal): the stuck cat pointer after the first bait cat. `shownAt` is when it first showed this
+-- session, `rescuing` while this player's rescue bar is up, `on` what the goal card was last told.
+local stuckGoal = {
+	shownAt = nil :: number?,
+	arrived = false, -- the pointer has aimed at the cat itself once: its clock began again there
+	rescuing = false,
+	on = false,
+	target = nil :: Instance?,
+	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
+}
+
+local function stuckGoalActive(s: Types.PlayerState): boolean
+	local shownAt = stuckGoal.shownAt
+	return StuckGoal.active(
+		s.stuckGoal,
+		if shownAt ~= nil then os.clock() - shownAt else nil,
+		stuckGoal.rescuing or s.carrying ~= nil
+	)
+end
+
+-- The stuck cat nearest the character in the Alleyway (the starter trap is the one by the camp), nil while none has
+-- streamed in.
+local function alleyStuckCat(): BasePart?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return nil
+	end
+	local best: BasePart? = nil
+	local bestDistance = math.huge
+	for _, model in CollectionService:GetTagged("StuckCat") do
+		if model:IsA("Model") and model:GetAttribute("Area") == StuckGoal.AREA then
+			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if part ~= nil then
+				local distance = (part.Position - root.Position).Magnitude
+				if distance < bestDistance then
+					best, bestDistance = part, distance
+				end
+			end
+		end
+	end
+	return best
+end
+
+-- The Town Square cannon's part, for the pointer from town.
+local function townCannon(): BasePart?
+	for _, model in CollectionService:GetTagged("CatCannon") do
+		if model:IsA("Model") and model:GetAttribute("CannonId") == "town" then
+			return (model :: Model).PrimaryPart
+				or model:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
+		end
+	end
+	return nil
+end
+
+-- The cannon model with this CannonId ("town", or a camp's area id), for a pointer.
+local function cannonPart(id: string): BasePart?
+	for _, model in CollectionService:GetTagged("CatCannon") do
+		if model:IsA("Model") and model:GetAttribute("CannonId") == id then
+			return (model :: Model).PrimaryPart
+				or model:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
+		end
+	end
+	return nil
+end
+
+-- #3529 (shared/NewKind): the five cats pointer. `idleSince` is the last catch start (or when the goal began or a
+-- new kind came), `shownAt` and `shownKinds` when the trail showed and for which count of kinds (it comes back after
+-- each new kind), `busy` while a catch or rescue bar is up, `goal` what the goal card was last told.
+local newKind = {
+	idleSince = os.clock(),
+	shownAt = nil :: number?,
+	shownKinds = nil :: number?,
+	kinds = -1,
+	busy = false,
+	goal = nil :: number?,
+	target = nil :: Instance?,
+	where = "none" :: NewKind.Where,
+	reported = {} :: { [string]: boolean },
+}
+
+-- Different kinds of cat this state owns toward rank up (the sync's own collection, not the UI's last copy).
+local function kindsOf(s: Types.PlayerState): number
+	return NewKindEconomy.rankUpCatCount(s.collection)
+end
+
+-- Whether five different cats is the goal now (the switch on, the Grand Opening's next milestone, under five kinds).
+local function newKindGoal(s: Types.PlayerState): boolean
+	if s.tutorialStep < 5 or not UI.newKind.on() then
+		return false
+	end
+	local opening = s.grandOpening
+	local current = if opening ~= nil then GrandOpening.current(opening) else nil
+	local step = if current ~= nil then GrandOpening.STEPS[current] else nil
+	return NewKind.goal(true, if step ~= nil then step.id else nil, kindsOf(s))
+end
+
+-- Whether the trail shows now. The stuck cat pointer (#2912) wins, and it never shows while carrying.
+local function newKindTrail(s: Types.PlayerState): boolean
+	if not newKindGoal(s) or stuckGoalActive(s) then
+		return false
+	end
+	local kinds = kindsOf(s)
+	local shownAt = if newKind.shownKinds == kinds then newKind.shownAt else nil
+	return NewKind.trail(
+		true,
+		newKind.busy or s.carrying ~= nil,
+		os.clock() - newKind.idleSince,
+		if shownAt ~= nil then os.clock() - shownAt else nil
+	)
+end
+
+-- What the trail leads to now: the nearest NEW stray in the area, the town's cannon from town, the camp's cannon
+-- when the area has none and another area is open, else nothing.
+local function newKindTarget(s: Types.PlayerState): (NewKind.Where, BasePart?)
+	local area: string? = (UI.cannon :: any).area
+	local stray = if area ~= nil then UI.newKind.nearest(area) else nil
+	local open = 0
+	for _, def in Catalog.areas do
+		if def.tier <= s.tier then
+			open += 1
+		end
+	end
+	local where: NewKind.Where = NewKind.where(area, not areasShut(), stray ~= nil, open > 1)
+	local target: BasePart? = nil
+	if where == "stray" then
+		target = stray
+	elseif where == "cannon" then
+		target = cannonPart("town")
+	elseif where == "next" and area ~= nil then
+		target = cannonPart(area)
+	end
+	return where, target
+end
+
+local function reportNewKind(kind: string)
+	if not newKind.reported[kind] then
+		newKind.reported[kind] = true
+		Net.fire("TelemetryReport", "new_kind_trail", kind)
+	end
+end
+
 -- the first catch line's wait after a carry ends (see refreshTutorial)
 local CARRY_SETTLE = 0.6
 local tutorialCarry = { was = false, endedAt = -math.huge }
@@ -395,6 +550,8 @@ local function refreshTutorial(s: Types.PlayerState)
 		tutorialWatch.connection:Disconnect()
 		tutorialWatch.connection = nil
 	end
+	newKind.target = nil -- #3529: set again below only while its trail is what shows
+	newKind.where = "none"
 	if s.carrying ~= nil then
 		tutorialCarry.was = true
 		UI.tutorial.hide()
@@ -495,6 +652,64 @@ local function refreshTutorial(s: Types.PlayerState)
 				"Bowl"
 			)
 		end
+	elseif stuckGoalActive(s) then
+		-- #2912: after the walk-through, to the Alleyway's stuck cat (the cannon first from town); nothing at night,
+		-- when the goal card says the cats come back at sunrise
+		local where = StuckGoal.where((UI.cannon :: any).area, not areasShut())
+		local target: BasePart? = nil
+		if where == "cat" then
+			target = alleyStuckCat()
+		elseif where == "cannon" then
+			target = townCannon()
+		end
+		if target == nil then
+			UI.tutorial.hide()
+		else
+			if stuckGoal.shownAt == nil then
+				stuckGoal.shownAt = os.clock()
+			end
+			if where == "cat" and not stuckGoal.arrived then
+				-- Review-QA on #3528: a slow new player lost the pointer at the camp, before the trap. The clock
+				-- begins again once, on arrival in the Alleyway.
+				stuckGoal.arrived = true
+				stuckGoal.shownAt = os.clock()
+			end
+			if where == "cat" and stuckGoal.aside then
+				UI.tutorial.hide()
+			else
+				showTutorial(
+					s,
+					if where == "cat" then StuckGoal.LINE else StuckGoal.TOWN_LINE,
+					target,
+					if where == "cat" then StuckGoal.LABEL else "Cannon"
+				)
+			end
+		end
+		stuckGoal.target = target
+	elseif newKindTrail(s) then
+		-- #3529: to the nearest stray of a kind the player has never owned, while five different cats is the goal
+		local where, target = newKindTarget(s)
+		if target == nil then
+			UI.tutorial.hide()
+		else
+			local kinds = kindsOf(s)
+			if newKind.shownKinds ~= kinds or newKind.shownAt == nil then
+				newKind.shownKinds = kinds
+				newKind.shownAt = os.clock()
+			end
+			reportNewKind("shown")
+			showTutorial(
+				s,
+				if where == "stray"
+					then NewKind.LINE
+					elseif where == "next" then NewKind.NEXT_AREA
+					else NewKind.CANNON_LINE,
+				target,
+				if where == "stray" then NewKind.LABEL else "Cannon"
+			)
+		end
+		newKind.target = target
+		newKind.where = where :: any -- typed NewKind.Where by newKindTarget; the checker widens it here
 	else
 		UI.tutorial.hide()
 	end
@@ -888,6 +1103,9 @@ local function applyState(s: Types.PlayerState)
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
 		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.done(s.stats),
+		stuckGoal = stuckGoalActive(s), -- #2912: the goal card's "Free a stuck cat" while the pointer may show
+		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
+		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
@@ -938,6 +1156,7 @@ local function applyState(s: Types.PlayerState)
 		mystery = s.mystery,
 		mysterySeen = s.mysterySeen,
 		mysteryOpen = s.mysteryOpen,
+		bagColours = s.bagColours or false, -- #3699: false for the built colours, as UI.update skips a nil
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
 		signStyle = s.signStyle or "",
@@ -947,6 +1166,8 @@ local function applyState(s: Types.PlayerState)
 		jukeboxShuffle = if shuffleCues ~= nil then (Jukebox :: any).SHUFFLE else nil, -- #2077
 		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
 		tradeLog = s.tradeLog, -- F102: the Trades page
+		-- #3686: sent since #1714 but never copied, so "Codes you've used" stayed empty in the live game
+		codesRedeemed = s.codesRedeemed,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -1107,6 +1328,12 @@ local function wireIntents()
 	if looseEvents.mysterySeen ~= nil then
 		looseEvents.mysterySeen:Connect(function()
 			Net.fire("MarkMysterySeen")
+		end)
+	end
+	-- #3699: Save on the Backpack's colour picker; the server checks both ids and that the Backpack is owned
+	if looseEvents.setBagColours ~= nil then
+		looseEvents.setBagColours:Connect(function(main: string, trim: string)
+			Net.fire("SetBagColours", main, trim)
 		end)
 	end
 	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock
@@ -1973,7 +2200,7 @@ local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
 local function offerEvent()
-	local id, startsAt = Config.UpdateEventId, Config.UpdateEventStartsAt
+	local id, startsAt = EventRsvp.next(Config.UpdateEvents, os.time())
 	if
 		eventAsk.asked
 		or state == nil
@@ -2604,9 +2831,9 @@ local function wireServerEvents()
 	Net.on("MouseDashState", function(view: any)
 		UI.mouseDash.state(view)
 	end)
-	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number)
+	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number, endsAt: any)
 		arcadeMoment("MouseDashStart")
-		UI.mouseDash.began(run, hearts, firstAt)
+		UI.mouseDash.began(run, hearts, firstAt, if type(endsAt) == "number" then endsAt else nil)
 	end)
 	Net.on("MouseDashWave", function(run: number, index: number, pops: any, hint: string?)
 		if type(pops) == "table" then
@@ -2976,6 +3203,7 @@ function UIController.start()
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
 		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
 		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
+		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
@@ -3000,6 +3228,124 @@ function UIController.start()
 			end
 		end)
 	end)
+	-- #2912: the stuck cat pointer follows the player (town or the Alleyway), the cat streaming in and its own
+	-- TRAIL_SECONDS; looked at once a second, and only while the save waits for its first rescue
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local current = state
+			if current == nil or current.stuckGoal ~= true or current.tutorialStep < 5 then
+				continue
+			end
+			local on = stuckGoalActive(current)
+			local where = StuckGoal.where((UI.cannon :: any).area, not areasShut())
+			local target: Instance? = nil
+			if on and where == "cat" then
+				target = alleyStuckCat()
+			elseif on and where == "cannon" then
+				target = townCannon()
+			end
+			local distance: number? = nil
+			if on and where == "cat" and target ~= nil and target:IsA("BasePart") then
+				local character = Players.LocalPlayer.Character
+				local root = if character ~= nil
+					then character:FindFirstChild("HumanoidRootPart")
+					else nil
+				if root ~= nil and root:IsA("BasePart") then
+					distance = ((target :: any).Position - root.Position).Magnitude
+				end
+			end
+			local aside = StuckGoal.aside(distance, stuckGoal.aside)
+			if target ~= stuckGoal.target or aside ~= stuckGoal.aside then
+				stuckGoal.aside = aside
+				refreshTutorial(current)
+			end
+			if on ~= stuckGoal.on then
+				stuckGoal.on = on
+				UI.update({ stuckGoal = on })
+			end
+		end
+	end)
+	-- #3529: the five cats pointer and the "NEW" tags follow the player, the strays and the switch; looked at once a
+	-- second, and only while the switch is on
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local current = state
+			if current == nil or not UI.newKind.on() then
+				if newKind.goal ~= nil then
+					newKind.goal = nil
+					UI.update({ newKindGoal = false })
+					if current ~= nil then
+						refreshTutorial(current)
+					end
+				end
+				continue
+			end
+			local kinds = kindsOf(current)
+			if kinds ~= newKind.kinds then
+				newKind.kinds = kinds
+				newKind.idleSince = os.clock() -- a new kind: the trail waits its IDLE_SECONDS again
+			end
+			local goal = if newKindGoal(current) then kinds else nil
+			if goal ~= newKind.goal then
+				if newKind.goal == nil then
+					newKind.idleSince = os.clock()
+				end
+				newKind.goal = goal
+				UI.update({ newKindGoal = goal or false })
+			end
+			local on = newKindTrail(current)
+			local where, target: Instance? = "none" :: NewKind.Where, nil
+			if on then
+				where, target = newKindTarget(current)
+			end
+			if target ~= newKind.target or where ~= newKind.where then
+				refreshTutorial(current)
+			end
+			-- followed: the player came to the stray the trail leads to
+			if on and where == "stray" and target ~= nil and target:IsA("BasePart") then
+				local character = Players.LocalPlayer.Character
+				local root = if character ~= nil
+					then character:FindFirstChild("HumanoidRootPart")
+					else nil
+				if
+					root ~= nil
+					and root:IsA("BasePart")
+					and NewKind.followed(root.Position, (target :: BasePart).Position)
+				then
+					reportNewKind("followed")
+				end
+			end
+		end
+	end)
+	local function newKindBusy(busy: boolean)
+		newKind.busy = busy
+		UI.newKind.setBusy(busy)
+		if busy then
+			newKind.idleSince = os.clock()
+		end
+	end
+	Moments.CatchStart:Connect(function()
+		newKindBusy(true)
+	end)
+	Moments.CatchSuccess:Connect(function()
+		newKindBusy(false)
+	end)
+	Moments.CatchFail:Connect(function()
+		newKindBusy(false)
+	end)
+	Moments.RescueStart:Connect(function()
+		stuckGoal.rescuing = true
+		newKindBusy(true)
+	end)
+	local function rescueEnded()
+		stuckGoal.rescuing = false
+		newKindBusy(false)
+	end
+	Moments.RescueDone:Connect(rescueEnded)
+	Moments.RescueFail:Connect(rescueEnded)
+	Moments.RescueCancel:Connect(rescueEnded)
 	wireIntents()
 	wireServerEvents()
 	bindDealerCart()

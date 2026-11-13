@@ -1,6 +1,6 @@
 # Achievements: easier targets, more steps, a prize of its own kind per line (#3694)
 
-Status 2026-11-12: spec, not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
+Status 2026-11-13: sections 1, 2 and 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, prize notes in 4a); section 3 and the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
 
 ## Rules for the change
 
@@ -49,6 +49,10 @@ The texts change with the numbers ("Catch 500 cats"). Sizes stay.
 
 Catch line after the change: 1, 25, 100, 250, 500, 1,000, 2,500.
 
+### 2a. Names of the new steps (as built)
+
+Cat Spotter (`a_catch25`), Cat Herder (`a_catch250`), Cat Tamer (`a_catch1000`), Rare Seeker (`a_rare25`), Gold Seeker (`a_gold10`), Sure Paws (`a_perfect100`), Helping Hand (`a_rescue25`), Bowl Regular (`a_bait25`), Quest Starter (`a_quests10`), Quest Fan (`a_quests30`), Week Keeper (`a_week3`), Settling In (`a_hours1`), Happy Visitor (`a_hours5`), Cafe Fixture (`a_hours25`), Rising Star (`a_level10`). Every name on the page is different. Play time reads "16/50 hours", rounded down.
+
 ## 3. New achievements for the newer features
 
 | New id | Text | Size | Counter |
@@ -92,5 +96,12 @@ Today the prize depends only on the size: S a spin, M a Money Potion, L a Classi
 - At most two pictures on a prize, three on XL (the existing rule).
 - Everything here is earned in play. Golden fish, spins, crates, Trait Tokens, Lucky and Gold Rush Potions are never sold for Robux, and nothing on this page can be bought.
 - If a lure or potion named here does not exist under that name in `Catalog`, use the nearest one of the same worth and say so in the PR.
+
+### 4a. As built
+
+- The lines are keyed by the achievement's measure (`Catalog.achievementLines`), so a new step on a line gets its line's item without a field of its own. `Catalog.achievementPrize(def)` merges the size's coins, coinSeconds and pass XP with the line's item; the server pays it and the Quests cards show the same.
+- Lines with no row for a size (rescues XL, bait XL, gold S, cat levels S) and every line not in the table pay the size's prize as before.
+- Spins go to the spin bank, which stops at its cap as it does for every spin prize.
+- Section 3's lines (Rummage Bin, Yard Sale, Mystic Pool, Mouse Dash) get their rows when their achievements are added; Trait Tokens will need a prize field of their own then.
 
 **Titles (second step, own PR if the title system needs work):** the XL achievements also give a chat title with the achievement's name: Cat Legend, Steady Hands, Devoted, Week Champion, Gold Rush. A player who already claimed one gets the title on the next join.

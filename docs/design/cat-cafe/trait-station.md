@@ -17,7 +17,7 @@ Derek2, 2026-11-11 14:34 UTC: "Re-work the station to be like a mystical wizard 
   - See its trait, then Roll (or Re-roll).
   - After a re-roll, the old trait and the new one show side by side, with **Keep old** and **Take new**.
   - The odds line is always on the card.
-  - The **Odds** button lists the rarity odds (Common 55%, Uncommon 28%, Rare 12%, Legendary 4%, Mythic 1%) and says each trait inside a rarity is equally likely. This replaces the old I/II/III odds text.
+  - The **Odds** button lists the rarity odds (Common 35%, Uncommon 30%, Rare 20%, Legendary 10%, Mythic 5%; changed on 2026-11-12 in #3712, they were 55, 28, 12, 4 and 1) and says each trait inside a rarity is equally likely. This replaces the old I/II/III odds text.
 - While a player still has starter rolls, the Roll button reads **Free roll (5 left)** and uses those first.
 - The Picnic Basket's Money Potion every 6 h goes away. In its place is **1 free Trait Token every 12 h, holding 2**, with the same "Next in ..." line.
 
@@ -56,6 +56,22 @@ At these rarities the roll picks one of six traits evenly. Each trait is stronge
 | Quick Paws | walk and carry speed | +0.3 | +0.5 | +0.7 studs/s | best 1 working cat |
 | Rich Friend | rich visitor rate | +2% | +3% | +4% | best 2 working cats |
 
+### 2a-2. Epic (#3719, from the 2026-11-13 02:30 UTC restart)
+Derek, 2026-11-12 22:21 UTC: "add an epic tier and some traits". Epic sits between Rare and Legendary, in the cat Epic rarity's purple (#C07CFF). The roll picks one of eight traits evenly: the six one effect traits one step above Rare, and two traits of its own with two smaller effects.
+
+| Trait | Effect at Epic |
+|---|---|
+| Big Tipper | this cat's income +15% |
+| Night Owl | this cat's income at night +26% |
+| Fast Learner | this cat's XP gain +26% |
+| Lucky Bowl | bait bowl luck +5% |
+| Quick Paws | walk and carry speed +0.85 studs/s |
+| Rich Friend | rich visitor rate +5% |
+| Treasure Nose (Epic only) | this cat's income +10%, bait bowl luck +4% |
+| Night Sprinter (Epic only) | this cat's night income +18%, walk and carry speed +0.6 |
+
+Every Epic number sits under the Legendary trait with the same effect and inside the cafe wide caps of section 2d. Epic ships only with a restart, because a server on the older build would drop an Epic id.
+
 ### 2b. Legendary: two effects
 The roll picks one of four traits evenly.
 
@@ -92,11 +108,15 @@ Each effect inside a combo counts like the single trait with the same effect. Fo
 
 | Rarity | Chance |
 |---|---|
-| Common | 55% |
-| Uncommon | 28% |
-| Rare | 12% |
-| Legendary | 4% |
-| Mythic | 1% |
+| Common | 35% |
+| Uncommon | 30% |
+| Rare | 20% |
+| Legendary | 10% |
+| Mythic | 5% |
+
+Changed on 2026-11-12 (#3711, PR #3712; Derek, 22:21 UTC: "those are good odds"). Before that they were 55, 28, 12, 4 and 1.
+
+**From the 2026-11-13 02:30 UTC restart (#3719), with the Epic tier:** Common 30%, Uncommon 25%, Rare 18%, Epic 12%, Legendary 10%, Mythic 5%. Mythic's colour is now #FF5E7E, the Mythical cat rarity's colour. An Epic tier between Rare and Legendary is planned for the Friday 2026-11-13 restart.
 
 - The first trait and every re-roll cost the same: **10 golden fish or 1 Trait Token**.
 - **How long it takes:**

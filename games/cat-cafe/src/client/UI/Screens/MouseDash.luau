@@ -26,11 +26,14 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local LeaderboardLogic = require(script.Parent.Parent.Components.LeaderboardLogic)
 local MouseDashLogic = require(script.Parent.Parent.Components.MouseDashLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
+local Tween = require(script.Parent.Parent.Components.Tween)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -57,6 +60,20 @@ local CLIP_HEIGHT = 0.9 -- of the pictures' frame: room above the hole for a ris
 local RISE = 0.83 / CLIP_HEIGHT -- how far up its clip a risen animal sits (0.83 of the frame's width)
 local HEART_COLOR = Color3.fromHex("FF8FB8")
 local HEART_EMPTY = Color3.fromHex("5A4E78")
+-- #3553, the cabinet look of Model-Agent's mock (Derek 2026-11-12: "that mock up is much better")
+local INK = Color3.fromHex("2C1642")
+local CREAM = Color3.fromHex("FFF6E5")
+local MINT = Color3.fromHex("D6F0DC")
+local TAG_PURPLE = Color3.fromHex("8E4FD0")
+local GO_GREEN = Color3.fromHex("5CD678")
+local BULB = Color3.fromHex("FFF078")
+local SIGN_H = 58
+local MENU_H = 112
+local MASCOT = 104
+local PRIZE_ROW_H = 56 -- a prize's row: its picture is 48 px (#3553: "at least 48 px on a phone")
+local TOP_ROW_H = 36
+local TWO_COLUMNS_FROM = 480 -- the prize list goes two wide on a card this wide
+local POP = TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
 export type Callbacks = {
 	play: () -> (),
@@ -72,7 +89,7 @@ export type MouseDash = {
 	setFish: (self: MouseDash, fish: number) -> (),
 	setOn: (self: MouseDash, on: boolean) -> (),
 	setOther: (self: MouseDash, on: boolean) -> (),
-	began: (self: MouseDash, run: number, hearts: number, firstAt: number) -> (),
+	began: (self: MouseDash, run: number, hearts: number, firstAt: number, endsAt: number?) -> (),
 	wave: (self: MouseDash, run: number, index: number, pops: { any }, hint: string?) -> (),
 	judged: (
 		self: MouseDash,
@@ -176,6 +193,45 @@ local function sheet(name: string, props: { [string]: any }): ImageLabel
 	return label
 end
 
+-- A prize's picture (MouseDashLogic.prizePicture): the item's uploaded icon, or a glyph for a kind with none. Returns
+-- the holder and a setter.
+local function prizeArt(parent: Instance, name: string): (Frame, (prize: any) -> ())
+	local holder: Frame =
+		Create("Frame", { Name = name, BackgroundTransparency = 1, Parent = parent })
+	local glyph = text({
+		Name = "Glyph",
+		Size = UDim2.fromScale(1, 1),
+		TextScaled = true,
+		TextWrapped = false,
+		Parent = holder,
+	})
+	local image: ImageLabel = Create("ImageLabel", {
+		Name = "Image",
+		BackgroundTransparency = 1,
+		ScaleType = Enum.ScaleType.Fit,
+		Size = UDim2.fromScale(1, 1),
+		Parent = holder,
+	})
+	return holder,
+		function(prize: any)
+			local picture = MouseDashLogic.prizePicture(prize)
+			glyph.Text = picture.glyph
+			glyph.Visible = picture.image == nil
+			image.Image = picture.image or ""
+		end
+end
+
+-- Words that shrink to fit their box, never under 13 (9 px on the smallest phone's scale, ui-review).
+local function fitted(props: { [string]: any }, most: number): TextLabel
+	local label = text(props)
+	label.TextScaled = true
+	Create(
+		"UITextSizeConstraint",
+		{ MinTextSize = 13, MaxTextSize = math.max(most, 13), Parent = label }
+	)
+	return label
+end
+
 local function round(frame: GuiObject, radius: UDim?)
 	Create("UICorner", { CornerRadius = radius or UDim.new(0, Theme.sizes.radius), Parent = frame })
 end
@@ -206,7 +262,9 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 	self._art = false -- the picture sheet has loaded (checked in _draw); the stand-ins show until then
 	self._quit = nil :: number? -- the run this window closed on, until its MouseDashOver comes
 	self._bannerToken = 0
-	self._tab = "Prizes"
+	self._tab = nil :: string? -- "Prizes" or "Leaderboard" once pressed (#3553: no list on the base menu)
+	self._nextAt = nil :: number?
+	self._endsAt = nil :: number?
 
 	local panel = Panel.new({
 		dark = true,
@@ -246,25 +304,163 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		Outline.listPadding(8, 6),
 	})
 	self._card = card
-	self._records = text({
-		Name = "Records",
-		Size = UDim2.new(1, 0, 0, 0),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
+	-- the lit sign: a pink band, the game's name in yellow, a row of bulbs above and below (drawn, not a picture)
+	local sign: Frame = Create("Frame", {
+		Name = "Sign",
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, SIGN_H),
 		LayoutOrder = 1,
 		Parent = card,
+	}, {
+		Create("UIGradient", {
+			Color = ColorSequence.new(Color3.fromHex("FF6E96"), Color3.fromHex("FF8CB4")),
+			Rotation = 90,
+		}),
+		Create("UIStroke", { Color = INK, Thickness = 2 }),
 	})
+	round(sign, UDim.new(0, 12))
+	for _, y in { 8, SIGN_H - 8 } do
+		for index = 1, 12 do
+			local bulb: Frame = Create("Frame", {
+				Name = "Bulb",
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundColor3 = BULB,
+				BorderSizePixel = 0,
+				Position = UDim2.new((index - 0.5) / 12, 0, 0, y),
+				Size = UDim2.fromOffset(7, 7),
+				Parent = sign,
+			}, { Create("UIStroke", { Color = INK, Thickness = 1 }) })
+			round(bulb, UDim.new(1, 0))
+		end
+	end
+	fitted({
+		Name = "Title",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -24, 0, 30),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Color3.fromHex("FFE650"),
+		TextWrapped = false,
+		Text = string.upper(Rules.NAME),
+		Parent = sign,
+	}, 30)
+	Create("UIStroke", { Color = INK, Thickness = 3, Parent = sign:FindFirstChild("Title") })
+
+	-- the mascot on the cabinet's screen, and beside it the best, the free play and the next prize
+	local menu: Frame = Create("Frame", {
+		Name = "Menu",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, MENU_H),
+		LayoutOrder = 2,
+		Parent = card,
+	})
+	local mascot: Frame = Create("Frame", {
+		Name = "Mascot",
+		BackgroundColor3 = CELLAR,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, 4),
+		Size = UDim2.fromOffset(MASCOT, MASCOT),
+		Parent = menu,
+	}, { Create("UIStroke", { Color = INK, Thickness = 2 }) })
+	round(mascot, UDim.new(0, 12))
+	text({
+		Name = "Face",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.6, 0.6),
+		TextScaled = true,
+		TextWrapped = false,
+		Text = "🐭",
+		Parent = mascot,
+	})
+	sheet("GoldMouse", {
+		Name = "Art",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.92, 0.92),
+		Parent = mascot,
+	})
+	local side = MASCOT + 10
+	self._records = fitted({
+		Name = "Records",
+		Position = UDim2.fromOffset(side, 2),
+		Size = UDim2.new(1, -side, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextWrapped = false,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = menu,
+	}, Theme.sizes.textLarge)
+	self._free = fitted({
+		Name = "Free",
+		BackgroundColor3 = GO_GREEN,
+		BackgroundTransparency = 0,
+		Position = UDim2.fromOffset(side, 32),
+		Size = UDim2.new(1, -side, 0, 24),
+		FontFace = Theme.fonts.bodyBold,
+		TextColor3 = INK,
+		TextWrapped = false,
+		Parent = menu,
+	}, Theme.sizes.textSmall)
+	Create("UIStroke", {
+		Color = INK,
+		Thickness = 2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = self._free,
+	})
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 8),
+		PaddingRight = UDim.new(0, 8),
+		PaddingTop = UDim.new(0, 3),
+		PaddingBottom = UDim.new(0, 3),
+		Parent = self._free,
+	})
+	round(self._free, UDim.new(0, 10))
+	local nextCard: Frame = Create("Frame", {
+		Name = "NextCard",
+		BackgroundColor3 = CREAM,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(side, 60),
+		Size = UDim2.new(1, -side, 0, 48),
+		Parent = menu,
+	}, { Create("UIStroke", { Color = INK, Thickness = 2 }) })
+	round(nextCard, UDim.new(0, 10))
+	local cardArt, setCardArt = prizeArt(nextCard, "Picture")
+	cardArt.Position = UDim2.fromOffset(4, 4)
+	cardArt.Size = UDim2.fromOffset(40, 40)
+	self._setCardArt = setCardArt
+	self._cardTag = text({
+		Name = "Tag",
+		Position = UDim2.fromOffset(50, 3),
+		Size = UDim2.new(1, -56, 0, 15),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = 13,
+		TextColor3 = TAG_PURPLE,
+		TextWrapped = false,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "NEXT PRIZE",
+		Parent = nextCard,
+	})
+	self._cardWords = fitted({
+		Name = "Words",
+		Position = UDim2.fromOffset(50, 18),
+		Size = UDim2.new(1, -56, 0, 26),
+		FontFace = Theme.fonts.bodyBold,
+		TextColor3 = INK,
+		TextWrapped = false,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = nextCard,
+	}, Theme.sizes.textBody)
 	self._lastLine = text({
 		Name = "LastGame",
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		TextColor3 = PAL.gold,
 		Visible = false,
-		LayoutOrder = 2,
+		LayoutOrder = 3,
 		Parent = card,
 	})
-	local buttonH = Scale.tapHeight(Theme.sizes.touchMin)
+	local buttonH = Scale.tapHeight(math.max(Theme.sizes.touchMin, 56))
 	self._play = Button.new({
 		name = "Play",
 		text = Rules.playText(false),
@@ -278,7 +474,16 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			end
 		end,
 	})
-	self._play.instance.LayoutOrder = 3
+	self._play.instance.LayoutOrder = 4
+	-- the grey mouse on the big button; a label, so a press goes through it to the button
+	sheet("Mouse", {
+		Name = "Mouse",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 10, 0.5, 0),
+		Size = UDim2.fromOffset(buttonH, buttonH),
+		ZIndex = 5,
+		Parent = self._play.instance,
+	})
 	self._playText = nil :: string?
 	self._why = text({
 		Name = "Why",
@@ -287,32 +492,194 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.warn,
 		Visible = false,
-		LayoutOrder = 4,
+		LayoutOrder = 5,
 		Parent = card,
 	})
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, buttonH),
-		LayoutOrder = 5,
+		LayoutOrder = 6,
 		Parent = card,
 	})
 	self._tabs = {} :: { [string]: Button.Button }
-	for index, tab in { "Prizes", "Leaderboard" } do
+	-- each with its own picture and colour (#3553): a pink gift, a blue trophy. A second press folds its list away.
+	local looks: { { name: string, style: Button.Style, icon: string, image: string? } } = {
+		{ name = "Prizes", style = "berry", icon = "🎁", image = MouseDashLogic.GIFT },
+		{ name = "Leaderboard", style = "sky", icon = "🏆", image = ShopIcons.hud("RankUp") },
+	}
+	for index, look in looks do
+		local tab = look.name
 		self._tabs[tab] = Button.new({
 			name = tab,
 			text = tab,
-			style = if index == 1 then "gold" else "ghost",
+			icon = look.icon,
+			image = look.image,
+			iconSize = math.floor(buttonH * 0.6),
+			style = look.style,
 			size = UDim2.new(0.5, -GAP / 2, 1, 0),
 			position = UDim2.new((index - 1) * 0.5, (index - 1) * GAP / 2, 0, 0),
 			textSize = Theme.sizes.textSmall + 1,
 			parent = tabs,
 			sound = "uiTab",
 			onClick = function()
-				self._tab = tab
+				self._tab = if self._tab == tab then nil else tab
 				self:_renderCard()
 			end,
 		})
+	end
+	-- the prizes, each with its picture, only once Prizes is pressed
+	self._prizeList = Create("Frame", {
+		Name = "PrizeList",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		LayoutOrder = 7,
+		Parent = card,
+	})
+	self._prizeGrid = Create("UIGridLayout", {
+		CellPadding = UDim2.fromOffset(6, 6),
+		CellSize = UDim2.new(1, 0, 0, PRIZE_ROW_H),
+		FillDirection = Enum.FillDirection.Horizontal,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = self._prizeList,
+	})
+	self._prizeRows = {} :: { [number]: any }
+	for order, row in MouseDashLogic.prizeRows(nil) do
+		local frame: Frame = Create("Frame", {
+			Name = "Prize" .. row.at,
+			BackgroundColor3 = CREAM,
+			BorderSizePixel = 0,
+			LayoutOrder = order,
+			Parent = self._prizeList,
+		})
+		round(frame, UDim.new(0, 10))
+		local stroke: UIStroke = Create("UIStroke", { Color = INK, Thickness = 2, Parent = frame })
+		local art, setArt = prizeArt(frame, "Picture")
+		art.Position = UDim2.fromOffset(4, 4)
+		art.Size = UDim2.fromOffset(PRIZE_ROW_H - 8, PRIZE_ROW_H - 8)
+		setArt(row.prize)
+		fitted({
+			Name = "PrizeName",
+			Position = UDim2.fromOffset(PRIZE_ROW_H + 4, 7),
+			Size = UDim2.new(1, -(PRIZE_ROW_H + 68), 0, 22),
+			FontFace = Theme.fonts.bodyBold,
+			TextColor3 = INK,
+			TextWrapped = false,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = row.name,
+			Parent = frame,
+		}, Theme.sizes.textBody)
+		text({
+			Name = "At",
+			Position = UDim2.fromOffset(PRIZE_ROW_H + 4, 30),
+			Size = UDim2.new(1, -(PRIZE_ROW_H + 68), 0, 16),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = TAG_PURPLE,
+			TextWrapped = false,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = "Score " .. row.at,
+			Parent = frame,
+		})
+		-- "Earned" with its tick or "NEXT": words as well as colour, so neither carries the meaning alone
+		local mark = text({
+			Name = "Mark",
+			AnchorPoint = Vector2.new(1, 0.5),
+			BackgroundColor3 = Color3.fromHex("FFD34D"),
+			Position = UDim2.new(1, -6, 0.5, 0),
+			Size = UDim2.fromOffset(58, 22),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = INK,
+			TextWrapped = false,
+			Visible = false,
+			Parent = frame,
+		})
+		round(mark, UDim.new(1, 0))
+		self._prizeRows[row.at] = { frame = frame, stroke = stroke, mark = mark }
+	end
+	-- the leaderboard in the station menus' row look (Derek 2026-11-12: "leaderboard use the reworked station menu
+	-- ones"): a round rank badge, gold, silver and bronze for the top three, the name, the score bold on the right, and
+	-- a sky edge on the player's own row
+	self._topList = Create("Frame", {
+		Name = "TopList",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		LayoutOrder = 8,
+		Parent = card,
+	}, {
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	self._topRows = {} :: { any }
+	for index = 1, Rules.TOP do
+		local frame: Frame = Create("Frame", {
+			Name = "Top" .. index,
+			BackgroundColor3 = Theme.colors.white,
+			BackgroundTransparency = 0.9,
+			BorderSizePixel = 0,
+			LayoutOrder = index,
+			Size = UDim2.new(1, 0, 0, TOP_ROW_H),
+			Visible = false,
+			Parent = self._topList,
+		})
+		round(frame, UDim.new(0, 8))
+		local edge: UIStroke = Create("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Theme.colors.sky,
+			Thickness = 2,
+			Enabled = false,
+			Parent = frame,
+		})
+		local badge: Frame = Create("Frame", {
+			Name = "Badge",
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundColor3 = HEART_EMPTY,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0, 6, 0.5, 0),
+			Size = UDim2.fromOffset(TOP_ROW_H - 10, TOP_ROW_H - 10),
+			Parent = frame,
+		}, { Create("UIStroke", { Color = INK, Thickness = 2 }) })
+		round(badge, UDim.new(1, 0))
+		local rank = text({
+			Name = "Rank",
+			Size = UDim2.fromScale(1, 1),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			TextWrapped = false,
+			Parent = badge,
+		})
+		Create("UIStroke", { Color = INK, Thickness = 1.5, Parent = rank })
+		local name = text({
+			Name = "PlayerName",
+			Position = UDim2.fromOffset(TOP_ROW_H + 4, 0),
+			Size = UDim2.new(1, -(TOP_ROW_H + 4 + 110), 1, 0),
+			FontFace = Theme.fonts.bodyBold,
+			TextWrapped = false,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = frame,
+		})
+		local value = text({
+			Name = "Value",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -8, 0, 0),
+			Size = UDim2.new(0, 100, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody + 2,
+			TextWrapped = false,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Parent = frame,
+		})
+		self._topRows[index] =
+			{ frame = frame, edge = edge, badge = badge, rank = rank, name = name, value = value }
 	end
 	self._list = text({
 		Name = "List",
@@ -321,7 +688,8 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		TextXAlignment = Enum.TextXAlignment.Left,
 		LineHeight = 1.25,
 		RichText = true,
-		LayoutOrder = 6,
+		Visible = false,
+		LayoutOrder = 9,
 		Parent = card,
 	})
 	text({
@@ -331,7 +699,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		Text = MouseDashLogic.RULE_LINE,
-		LayoutOrder = 7,
+		LayoutOrder = 10,
 		Parent = card,
 	})
 	if callbacks.other ~= nil then
@@ -344,7 +712,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			parent = card,
 			onClick = callbacks.other,
 		})
-		self._other.instance.LayoutOrder = 8
+		self._other.instance.LayoutOrder = 11
 	end
 	text({
 		Name = "IdeaBy",
@@ -352,7 +720,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
 		Text = Rules.IDEA_BY,
-		LayoutOrder = 9,
+		LayoutOrder = 12,
 		Parent = card,
 	})
 
@@ -399,6 +767,15 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		Text = "0",
 		Parent = hud,
 	})
+	-- the run's clock, where the best is (the best shows only when the server sends no clock)
+	self._time = text({
+		Name = "Time",
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextWrapped = false,
+		Visible = false,
+		Parent = hud,
+	})
 	self._best = text({
 		Name = "Best",
 		TextSize = Theme.sizes.textSmall,
@@ -406,11 +783,62 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		TextWrapped = false,
 		Parent = hud,
 	})
-	self._next = text({
+	-- #3553 (Derek: "just show next reward with an image in top banner when playing"): the next prize only, with
+	-- its picture and a bar of how close the score is. Placed by MouseDashLogic.layout, clear of every hole.
+	local nextBanner: Frame = Create("Frame", {
 		Name = "NextPrize",
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = PAL.subtext,
-		Parent = hud,
+		BackgroundColor3 = CREAM,
+		BorderSizePixel = 0,
+		Visible = false,
+		Parent = board,
+	}, { Create("UIStroke", { Color = INK, Thickness = 2 }) })
+	round(nextBanner, UDim.new(0, 12))
+	self._nextBanner = nextBanner
+	self._nextScale = Create("UIScale", { Parent = nextBanner })
+	local nextArt, setNextArt = prizeArt(nextBanner, "Picture")
+	self._nextArt = nextArt
+	self._setNextArt = setNextArt
+	self._nextTag = text({
+		Name = "Tag",
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = 13,
+		TextColor3 = TAG_PURPLE,
+		TextWrapped = false,
+		Text = "NEXT",
+		Parent = nextBanner,
+	})
+	self._nextWords = fitted({
+		Name = "Words",
+		FontFace = Theme.fonts.bodyBold,
+		TextColor3 = INK,
+		Parent = nextBanner,
+	}, 13)
+	local bar: Frame = Create("Frame", {
+		Name = "Bar",
+		BackgroundColor3 = INK,
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+		Parent = nextBanner,
+	})
+	round(bar, UDim.new(1, 0))
+	self._nextBar = bar
+	self._nextFill = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = GO_GREEN,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(0, 1),
+		Parent = bar,
+	})
+	round(self._nextFill, UDim.new(1, 0))
+	self._nextCount = text({
+		Name = "Count",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = 13,
+		TextColor3 = Theme.colors.white,
+		TextWrapped = false,
+		ZIndex = 2,
+		Parent = bar,
 	})
 	-- the cellar floor, a little wider than the holes so its cheese and buttons sit at the edge between the rows
 	-- (Derek: nothing distracting near where the animals come up)
@@ -554,20 +982,28 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 			downAt = 0,
 		}
 	end
+	-- #3765 (Derek 2026-11-13: the banners "pop up on top of the game and should be moved higher up so we can see"):
+	-- Ready, Faster!, the kitten hint and Prize: sit in the window's header, beside the title and clear of the close
+	-- button, never over a hole. On a phone held sideways the board fills the window, so the header is the only room.
+	local header = panel.body:FindFirstChild("Header") :: Frame?
 	self._banner = text({
 		Name = "Banner",
-		AnchorPoint = Vector2.new(0.5, 0),
+		AnchorPoint = if header ~= nil then Vector2.new(1, 0.5) else Vector2.new(0.5, 0),
 		BackgroundColor3 = Color3.fromHex("15101F"),
 		BackgroundTransparency = 0.15,
-		Position = UDim2.new(0.5, 0, 0, 6),
-		Size = UDim2.new(0.8, 0, 0, 34),
+		Position = if header ~= nil
+			then UDim2.new(1, -(panel.closeReach + 14), 0.5, 0)
+			else UDim2.new(0.5, 0, 0, 6),
+		Size = if header ~= nil
+			then UDim2.new(0.58, -panel.closeReach, 1, -8)
+			else UDim2.new(0.8, 0, 0, 34),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextWrapped = false,
 		TextScaled = true,
 		Visible = false,
 		ZIndex = 6,
-		Parent = board,
+		Parent = header or board,
 	})
 	round(self._banner, UDim.new(0, 12))
 	table.insert(
@@ -610,7 +1046,6 @@ function MouseDash._layout(self: any)
 	hearts.Size = UDim2.fromOffset(86, 26)
 	local score: TextLabel = self._score
 	local best: TextLabel = self._best
-	local nextPrize: TextLabel = self._next
 	if layout.side == "left" then
 		-- a column: hearts, the score, the best, the next prize, all centred
 		hearts.AnchorPoint = Vector2.new(0.5, 0)
@@ -621,10 +1056,9 @@ function MouseDash._layout(self: any)
 		best.AnchorPoint = Vector2.new(0.5, 0)
 		best.Position = UDim2.new(0.5, 0, 0, 82)
 		best.Size = UDim2.new(1, 0, 0, 18)
-		nextPrize.Visible = layout.hudH >= 170
-		nextPrize.AnchorPoint = Vector2.new(0.5, 0)
-		nextPrize.Position = UDim2.new(0.5, 0, 0, 106)
-		nextPrize.Size = UDim2.new(1, 0, 0, 58)
+		self._time.AnchorPoint = Vector2.new(0.5, 0)
+		self._time.Position = UDim2.new(0.5, 0, 0, 80)
+		self._time.Size = UDim2.new(1, 0, 0, 22)
 	else
 		-- a row: hearts on the left, the score in the middle, the best on the right
 		hearts.AnchorPoint = Vector2.new(0, 0.5)
@@ -635,7 +1069,49 @@ function MouseDash._layout(self: any)
 		best.AnchorPoint = Vector2.new(1, 0.5)
 		best.Position = UDim2.new(1, -2, 0.5, 0)
 		best.Size = UDim2.new(0, 80, 0, 18)
-		nextPrize.Visible = false
+		self._time.AnchorPoint = Vector2.new(1, 0.5)
+		self._time.Position = UDim2.new(1, -2, 0.5, 0)
+		self._time.Size = UDim2.new(0, 80, 0, 22)
+	end
+	-- the next prize's banner (#3553)
+	local banner: Frame = self._nextBanner
+	local art: Frame = self._nextArt
+	local tag: TextLabel = self._nextTag
+	local words: TextLabel = self._nextWords
+	local bar: Frame = self._nextBar
+	banner.Visible = layout.banner ~= "none"
+	banner.Position = UDim2.fromOffset(layout.bannerX, layout.bannerY)
+	banner.Size = UDim2.fromOffset(layout.bannerW, layout.bannerH)
+	tag.Visible = layout.banner ~= "small"
+	words.Visible = layout.banner ~= "small"
+	if layout.banner == "row" then
+		-- picture, then "NEXT" over the prize's words, then the bar
+		art.AnchorPoint = Vector2.new(0, 0.5)
+		art.Position = UDim2.new(0, 6, 0.5, 0)
+		art.Size = UDim2.fromOffset(32, 32)
+		tag.Position = UDim2.fromOffset(44, 2)
+		tag.Size = UDim2.new(1, -140, 0, 15)
+		tag.TextXAlignment = Enum.TextXAlignment.Left
+		words.Position = UDim2.fromOffset(44, 17)
+		words.Size = UDim2.new(1, -140, 0, 20)
+		words.TextXAlignment = Enum.TextXAlignment.Left
+		bar.AnchorPoint = Vector2.new(1, 0.5)
+		bar.Position = UDim2.new(1, -8, 0.5, 0)
+		bar.Size = UDim2.fromOffset(84, 18)
+	else
+		-- a block in the strip's column: picture, "NEXT", the words on two lines, the bar
+		art.AnchorPoint = Vector2.new(0.5, 0)
+		art.Position = UDim2.new(0.5, 0, 0, 5)
+		art.Size = UDim2.fromOffset(34, 34)
+		tag.Position = UDim2.fromOffset(0, 39)
+		tag.Size = UDim2.new(1, 0, 0, 15)
+		tag.TextXAlignment = Enum.TextXAlignment.Center
+		words.Position = UDim2.fromOffset(4, 54)
+		words.Size = UDim2.new(1, -8, 0, 30)
+		words.TextXAlignment = Enum.TextXAlignment.Center
+		bar.AnchorPoint = Vector2.new(0.5, 1)
+		bar.Position = UDim2.new(0.5, 0, 1, -5)
+		bar.Size = UDim2.new(1, -12, 0, 18)
 	end
 	local grid: Frame = self._grid
 	grid.Position = UDim2.fromOffset(layout.gridX, layout.gridY)
@@ -684,40 +1160,60 @@ function MouseDash._renderCard(self: any)
 	end
 	self._why.Text = why
 	self._why.Visible = why ~= ""
-	for name, tab: Button.Button in self._tabs do
-		tab:setStyle(if name == self._tab then "gold" else "ghost")
-	end
-	local lines: { string } = {}
-	if self._tab == "Prizes" then
-		for _, row in MouseDashLogic.prizeRows(if state ~= nil then state.today else nil) do
-			table.insert(
-				lines,
-				string.format(
-					"%s  <b>%d</b>  %s",
-					if row.paid then "✅" else "▫️",
-					row.at,
-					row.name
-				)
-			)
-		end
-	else
-		local top = if state ~= nil then state.top else nil
-		if type(top) == "table" then
-			for _, row in top do
-				local line = string.format(
-					"%d.  %s  <b>%s</b>",
-					row.rank,
-					row.name,
-					Rules.words(row.points, row.seconds)
-				)
-				table.insert(lines, if row.me == true then "<b>" .. line .. "</b>" else line)
+	local today = if state ~= nil then state.today else nil
+	-- the menu's free play pill and next prize (the first one not earned today above nothing: what to play for)
+	local freeLine = MouseDashLogic.freeLine(state)
+	self._free.Text = freeLine
+	self._free.Visible = freeLine ~= ""
+	self._free.BackgroundColor3 = if free then GO_GREEN else HEART_EMPTY
+	self._free.TextColor3 = if free then INK else Theme.colors.white
+	local nextRow = MouseDashLogic.nextRow(0, today)
+	self._setCardArt(if nextRow ~= nil then nextRow.prize else nil)
+	self._cardTag.Text = if nextRow ~= nil then "NEXT PRIZE" else ""
+	self._cardWords.Text = if nextRow ~= nil
+		then MouseDashLogic.bannerWords(nextRow) .. " points"
+		else MouseDashLogic.ALL_EARNED
+	-- the prizes, each with its picture; two wide where the card has the room
+	local showPrizes = self._tab == "Prizes"
+	self._prizeList.Visible = showPrizes
+	if showPrizes then
+		local wide = self._card.AbsoluteSize.X / math.max(Scale.get(), 0.01) >= TWO_COLUMNS_FROM
+		self._prizeGrid.CellSize = if wide
+			then UDim2.new(0.5, -3, 0, PRIZE_ROW_H)
+			else UDim2.new(1, 0, 0, PRIZE_ROW_H)
+		for _, row in MouseDashLogic.prizeRows(today) do
+			local view = self._prizeRows[row.at]
+			if view ~= nil then
+				local isNext = nextRow ~= nil and nextRow.at == row.at
+				view.frame.BackgroundColor3 = if row.paid then MINT else CREAM
+				view.stroke.Color = if isNext then Color3.fromHex("E0A800") else INK
+				view.stroke.Thickness = if isNext then 3 else 2
+				view.mark.Visible = row.paid or isNext
+				view.mark.Text = if row.paid then "✅ Earned" else "NEXT"
+				view.mark.BackgroundTransparency = if row.paid then 1 else 0
 			end
 		end
-		if #lines == 0 then
-			table.insert(lines, "No scores yet. Be the first!")
+	end
+	local showTop = self._tab == "Leaderboard"
+	local shown = 0
+	local top: any = if showTop and state ~= nil then state.top else nil
+	for index, view in self._topRows do
+		local row: any = if type(top) == "table" then top[index] else nil
+		local has = type(row) == "table"
+		view.frame.Visible = has
+		if has then
+			shown += 1
+			local medal = LeaderboardLogic.medal(row.rank)
+			view.badge.BackgroundColor3 = if medal ~= nil then Theme.medals[medal] else HEART_EMPTY
+			view.rank.Text = tostring(row.rank)
+			view.name.Text = tostring(row.name)
+			view.value.Text = Rules.words(row.points, row.seconds)
+			view.edge.Enabled = row.me == true
 		end
 	end
-	self._list.Text = table.concat(lines, "\n")
+	self._topList.Visible = showTop and shown > 0
+	self._list.Text = if showTop and shown == 0 then "No scores yet. Be the first!" else ""
+	self._list.Visible = showTop and shown == 0
 end
 
 function MouseDash.setState(self: any, state: Rules.State)
@@ -753,8 +1249,22 @@ function MouseDash._renderTop(self: any)
 	local state: Rules.State? = self._state
 	self._score.Text = tostring(self._points)
 	self._best.Text = if state ~= nil and state.best > 0 then "Best " .. state.best else ""
-	self._next.Text =
-		MouseDashLogic.nextPrize(self._points, if state ~= nil then state.today else nil)
+	-- the banner: the next prize, its picture and how close the score is; a small pop as one is passed
+	local row = MouseDashLogic.nextRow(self._points, if state ~= nil then state.today else nil)
+	self._nextWords.Text = MouseDashLogic.bannerWords(row)
+	self._nextTag.Text = if row ~= nil then "NEXT" else ""
+	self._setNextArt(if row ~= nil then row.prize else nil)
+	local share, count = MouseDashLogic.progress(self._points, row)
+	self._nextFill.Size = UDim2.fromScale(share, 1)
+	self._nextCount.Text = count
+	local at = if row ~= nil then row.at else 0
+	if self._run ~= nil and self._nextAt ~= nil and self._nextAt ~= at then
+		local scale: UIScale = self._nextScale
+		scale.Scale = 1.18
+		Tween.to(scale, POP, { Scale = 1 })
+		fx("prize", self._nextBanner)
+	end
+	self._nextAt = at
 	for index, pad: TextLabel in self._heartPads do
 		local full = index <= self._hearts
 		local picture: ImageLabel? = self._heartArt[index]
@@ -868,6 +1378,14 @@ end
 -- says what that cost).
 function MouseDash._draw(self: any)
 	local at = now()
+	local clock, low = MouseDashLogic.timeLeft(if self._run ~= nil then self._endsAt else nil, at)
+	local time: TextLabel = self._time
+	if time.Text ~= clock then
+		time.Text = clock
+		time.TextColor3 = if low then PAL.warn else PAL.text
+	end
+	time.Visible = clock ~= ""
+	self._best.Visible = clock == ""
 	if not self._art and (self._holes[1] :: Hole).holeArt.IsLoaded then
 		self:_useArt()
 	end
@@ -937,8 +1455,9 @@ function MouseDash._float(_self: any, hole: Hole, words: string, color: Color3)
 end
 
 -- MouseDashBegan: the board comes up with full hearts and "Ready?" until the first wave.
-function MouseDash.began(self: any, run: number, hearts: number, firstAt: number)
+function MouseDash.began(self: any, run: number, hearts: number, firstAt: number, endsAt: number?)
 	self._run = run
+	self._endsAt = endsAt -- the run's clock (nil from an older server: the best shows in its place)
 	self._index = 0
 	self._points = 0
 	self._hearts = hearts

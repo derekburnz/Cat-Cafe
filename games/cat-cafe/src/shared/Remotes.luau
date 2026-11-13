@@ -90,6 +90,9 @@ Remotes.ClientToServer = {
 	-- price above shownPrice (the sale ended while the window was open) is refused with "The sale just ended". 1 a
 	-- second; answered with a toast and a ProfileSync. Refused outside Studio while Config.MysteryOpen is false
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
+	"SetBagColours", -- (main: string, trim: string)  #3699: the Backpack's owner picks its two colours, each an id
+	-- of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second; the worn bag
+	-- is recoloured for everyone and the answer is a ProfileSync
 	"RedeemCode", -- (text: string)  from anywhere (#1747), at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
@@ -408,8 +411,8 @@ Remotes.ServerToClient = {
 	-- switch going off before it started)
 	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
 	-- titles, the free run and the board, once both saves are read and after every game
-	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number)  #3296: a game started; the first wave comes
-	-- at server time `firstAt`
+	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number, endsAt: number?)  #3296: a game started; the
+	-- first wave comes at server time `firstAt` and the run's clock runs out at `endsAt` (nil from an older server)
 	"MouseDashWave", -- (run: number, index: number, pops: { { hole: number, kind: string, upAt: number, downAt: number
 	-- } }, hint: string?)  #3296: the wave that is up now, sent only as it starts; `hint` with a player's first kitten
 	"MouseDashJudged", -- (run: number, index: number, tap: MouseDash.Tap, points: number, hearts: number, streak:

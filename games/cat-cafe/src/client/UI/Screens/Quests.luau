@@ -831,6 +831,7 @@ end
 function Quests._renderAchievements(self: any, state: Types.PlayerState, look: PrizeChips.Look)
 	local catalog: Types.Catalog? = self._catalog
 	local prizes = if catalog then catalog.achievementPrizes else nil
+	local byId = if catalog then catalog.achievementPrizesById else nil -- #3694: the line's item
 	-- a claim on its way counts as claimed: the card fades and moves to the end at once
 	local source = state.achievements
 	local views: { [string]: Types.AchievementView } = source or {}
@@ -863,11 +864,15 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 			then Theme.colors.gold
 			else Theme.colors.good
 		-- #2207: from a million up the count shortens ("33.3M/100M"), as "33,333,333/100,000,000" ran past its box
-		entry.count.Text = if needs >= 1e6
-			then ShortNumber.format(row.progress) .. "/" .. ShortNumber.format(needs)
-			else ShortNumber.commas(row.progress) .. "/" .. ShortNumber.commas(needs)
+		entry.count.Text = QuestLogic.hoursText(row.def, row.progress)
+			or if needs >= 1e6
+				then ShortNumber.format(row.progress) .. "/" .. ShortNumber.format(needs)
+				else ShortNumber.commas(row.progress) .. "/" .. ShortNumber.commas(needs)
 		entry.chips:set(
-			if prizes then prizes[entry.size] else nil,
+			if byId and byId[row.def.id]
+				then byId[row.def.id]
+				elseif prizes then prizes[entry.size]
+				else nil,
 			if entry.size == "XL" then big else small
 		)
 		entry.claim.instance.Visible = row.ready

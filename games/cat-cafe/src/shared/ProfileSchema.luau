@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local BagColours = require(script.Parent.BagColours)
 local CafePass = require(script.Parent.CafePass)
 local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
@@ -322,6 +323,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			introStep = 0,
 			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 			firstHourV3Step = 0,
+			cleanStep = 0,
+			playtimeStep = 0,
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
@@ -804,6 +807,8 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		introStep = 0,
 		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 		firstHourV3Step = 0,
+		cleanStep = 0,
+		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
 		return telemetry
@@ -854,6 +859,18 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		else 0
 	telemetry.firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT
 	telemetry.firstHourV3Step = math.clamp(firstHourV3Step, 0, Onboarding.FIRST_HOUR_COUNT)
+	-- #3695: the clean funnel and playtime_v1 from their own fields once this code has saved them. Without them (an
+	-- older save, or a server on v6 dropped them) a save past its first catch is out of the clean funnel, and one that
+	-- logged any first_hour step is out of playtime_v1: both count only players who start on them.
+	local cleanStep = value.cleanStep
+	telemetry.cleanStep = if type(cleanStep) == "number"
+		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.CLEAN_COUNT)
+		else Onboarding.cleanStart(telemetry)
+	local playtimeStep = value.playtimeStep
+	telemetry.playtimeStep = if type(playtimeStep) == "number"
+		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)
+		elseif telemetry.firstHourV3Step >= 1 then Onboarding.PLAYTIME_COUNT
+		else 0
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
 	return telemetry
@@ -984,6 +1001,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2565: the Mystery Market's owned items and its first visit; a save without them owns none, not yet seen
 	profile.mystery = MysteryMarket.sanitize(raw.mystery)
 	profile.mysterySeen = raw.mysterySeen == true
+	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
+	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
 	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none

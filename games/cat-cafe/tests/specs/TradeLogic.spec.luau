@@ -89,6 +89,34 @@ return function()
 		end)
 	end)
 
+	describe("TradeLogic.trait (#3710)", function()
+		it("names a cat's trait with its rarity and colour", function()
+			local tag = TradeLogic.trait({ id = "bigTipper_rare" })
+			expect(tag.name).to.equal("Big Tipper")
+			expect(tag.rarity).to.equal("Rare")
+			expect(tag.color).to.equal("#3F8FE0")
+			expect(TradeLogic.trait({ id = "goldenWhiskers" }).rarity).to.equal("Legendary")
+		end)
+
+		it("is nil for no trait, an unknown id or junk", function()
+			expect(TradeLogic.trait(nil)).to.equal(nil)
+			expect(TradeLogic.trait({ id = "notATrait" })).to.equal(nil)
+			expect(TradeLogic.trait("bigTipper_rare")).to.equal(nil)
+			expect(TradeLogic.trait({ id = 4 })).to.equal(nil)
+		end)
+
+		it("rides on your own cats in the list", function()
+			local picks = TradeLogic.myCats({
+				a = { uid = "a", catId = "tabby", trait = { id = "starSage" } },
+				b = { uid = "b", catId = "tabby" },
+			}, function(_catId: string): any
+				return { name = "Tabby", rarity = "Common" }
+			end, {})
+			expect(picks[1].trait.name).to.equal("Star Sage")
+			expect(picks[2].trait).to.equal(nil)
+		end)
+	end)
+
 	describe("TradeLogic.totals", function()
 		it("says what your cats earn now and what theirs would earn in your cafe", function()
 			local give, get = TradeLogic.totals(trade())

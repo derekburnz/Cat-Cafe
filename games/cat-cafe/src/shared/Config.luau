@@ -502,6 +502,13 @@ local Config = {
 	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
 	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
+	-- #3545 (Derek 2026-11-12 12:33 UTC: "have them be walking around much faster in the area"): a wild Secret stray
+	-- walks three times as fast over three times the reach, with half the pause between walks and no naps. It still
+	-- stays in its area, stops at the first solid thing (clearPath) and keeps a perch as any stray does; a player
+	-- walks at 20, so it can always be reached.
+	SecretWanderSpeed = 9,
+	SecretWanderRadius = 15,
+	SecretWanderPauseScale = 0.5,
 	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic).
 	-- Derek 2026-11-12 ("make rainbow/gold finds also changed to only legendary + and make normals only mythic+ it
 	-- has a bit of clutter right now"): Mythical for a plain coat (was Legendary); a gold or rainbow coat from
@@ -682,10 +689,14 @@ local Config = {
 	IntroAutoPlay = false,
 	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
 	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
-	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set
-	-- these for each new Event. #3450 (Derek 2026-11-12): the ask comes 3 to 10 minutes into the session.
-	UpdateEventId = "4928565040176562804" :: string?, -- "Mystic Pool + Mouse Dash" (#3424)
-	UpdateEventStartsAt = 1794520800 :: number?, -- 2026-11-12 22:00 UTC
+	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Add
+	-- each new Event here. #3450 (Derek 2026-11-12): the ask comes 3 to 10 minutes into the session.
+	-- Since 2026-11-13 (Derek: "make sure for the next event its prompting people in game to mark interested") this is
+	-- a list, and the ask is for the first Event on it that has not started, so two listed Events need one change.
+	UpdateEvents = {
+		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
+		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
+	} :: { { id: string, startsAt: number } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
@@ -1209,7 +1220,10 @@ local Config = {
 	MouseDashPairChance = 0.20,
 	MouseDashPairKittenFrom = 40,
 	MouseDashHeartBackEvery = 10, -- catches in a row for a heart back
-	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole
+	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole (which costs a heart since 2026-11-12)
+	-- Derek 2026-11-12, on the live game: "make a timer for how long left in the minigame". A run has this long from
+	-- its first mouse; a perfect 100 point win takes up to about 110 s, so the clock ends only a slow run.
+	MouseDashRunSeconds = 180,
 	MouseDashFirstRunMice = 3, -- a first ever run opens with this many slow mice that cannot cost a heart
 	MouseDashFirstRunWindow = 2.0,
 	MouseDashMouserAt = 50, -- points for the Mouser title
@@ -1218,11 +1232,15 @@ local Config = {
 	-- #3420, #3424 (Derek 2026-11-12: "a giveaway of 100 gold fish to everyone 3 minute after restart"): the Thursday
 	-- 2026-11-12 launch gift, from 22:03 UTC, three minutes after the 22:00 restart. Saturday 2026-11-14's update
 	-- sets the weekly one again (id "2026-11-14", from 1794675600, fish 15, spins 1).
-	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0 } :: {
+	-- #3779 (Derek 2026-11-13: "its just giving 100 gold fish per person that logs in now and its not turned off"):
+	-- `to` ends a gift. The launch gift ended at 02:00 UTC on 2026-11-13; what was paid stays paid. Every gift from
+	-- now on carries a `to`.
+	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0, to = 1794535200 } :: {
 		id: string,
 		from: number,
 		fish: number,
 		spins: number,
+		to: number?,
 	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

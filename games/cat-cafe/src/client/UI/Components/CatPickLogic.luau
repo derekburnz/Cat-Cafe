@@ -5,6 +5,9 @@
 --   SORTS, sorted(cats, sort, flipped)   Money (the default since #3874), Rarity, Level or Name; `flipped` turns it
 --   MENU_SORTS, menuSort(sort)           Money, Level, Rarity: the Filter pop-up's sorts (#3874)
 --   FILTERS, match(cat, query, filter)   All, Resting, Working, No trait, Has trait, with the search words
+--   matchShown(cat, query, shown)        #3940: several Show chips at once (Working and No trait on top of each other)
+--   toggleShown, anyShown                a chip press ("All" turns every chip off) and whether any chip is on
+--   packShown, unpackShown               the chips that are on as the catPickShow setting ("Working,No trait")
 --   rarity(cat), coatTag(cat)            "Mythical" and "GOLD" / "RAINBOW" for the row's tags
 --   line(cat, rate)                      "Lv 37 · Working · +$410/s"
 --   count(shown)                         "42 cats", "1 cat", "0 cats match"
@@ -155,28 +158,116 @@ function CatPickLogic.sorted(cats: { [string]: any }?, sort: string?, flipped: b
 	return out
 end
 
--- Whether a cat shows under the search words and a filter chip. The words are found in the cat's own name, its coat
--- or its breed, any case.
-function CatPickLogic.match(cat: any, query: string?, filter: string?): boolean
-	if filter == "Resting" and cat.spotId ~= nil then
-		return false
+-- #3940 (Derek 2026-11-13: "make the buttons in mystic be able to have multiple filters toggled on like working/no
+-- trait on top of eachother"): the Show chips in two groups. A cat shows when, in every group with a chip on, it fits
+-- one of the chips that are on. So Working with No trait lists working cats with no trait, and Working with Resting
+-- lists every cat. All is no chip on.
+CatPickLogic.SHOW_GROUPS = { { "Working", "Resting" }, { "No trait", "Has trait" } }
+CatPickLogic.SHOW_CHIPS = { "Working", "Resting", "No trait", "Has trait" } -- the order packShown writes them in
+
+export type Shown = { [string]: boolean }
+
+local function fits(cat: any, chip: string): boolean
+	if chip == "Working" then
+		return cat.spotId ~= nil
+	elseif chip == "Resting" then
+		return cat.spotId == nil
+	elseif chip == "No trait" then
+		return not hasTrait(cat)
+	elseif chip == "Has trait" then
+		return hasTrait(cat)
 	end
-	if filter == "Working" and cat.spotId == nil then
-		return false
-	end
-	if filter == "No trait" and hasTrait(cat) then
-		return false
-	end
-	if filter == "Has trait" and not hasTrait(cat) then
-		return false
-	end
-	local words = string.lower(string.match(query or "", "^%s*(.-)%s*$") or "")
-	if words == "" then
+	return true
+end
+
+local function words(cat: any, query: string?): boolean
+	local typed = string.lower(string.match(query or "", "^%s*(.-)%s*$") or "")
+	if typed == "" then
 		return true
 	end
 	local own = if type(cat.name) == "string" then cat.name else ""
 	local hay = string.lower(own .. " " .. coatWord(cat) .. breed(cat))
-	return string.find(hay, words, 1, true) ~= nil
+	return string.find(hay, typed, 1, true) ~= nil
+end
+
+-- Whether a cat shows under the search words and one filter chip. The words are found in the cat's own name, its
+-- coat or its breed, any case.
+function CatPickLogic.match(cat: any, query: string?, filter: string?): boolean
+	if filter ~= nil and filter ~= "All" and not fits(cat, filter) then
+		return false
+	end
+	return words(cat, query)
+end
+
+function CatPickLogic.matchShown(cat: any, query: string?, shown: Shown?): boolean
+	if shown ~= nil then
+		for _, group in CatPickLogic.SHOW_GROUPS do
+			local any, fit = false, false
+			for _, chip in group do
+				if shown[chip] then
+					any = true
+					fit = fit or fits(cat, chip)
+				end
+			end
+			if any and not fit then
+				return false
+			end
+		end
+	end
+	return words(cat, query)
+end
+
+-- A press on a Show chip: All turns every chip off, any other chip turns itself on or off. A new table.
+function CatPickLogic.toggleShown(shown: Shown?, chip: string): Shown
+	local out: Shown = {}
+	if chip == "All" or table.find(CatPickLogic.SHOW_CHIPS, chip) == nil then
+		return out
+	end
+	for _, name in CatPickLogic.SHOW_CHIPS do
+		local on = shown ~= nil and shown[name] == true
+		if name == chip then
+			on = not on
+		end
+		if on then
+			out[name] = true
+		end
+	end
+	return out
+end
+
+function CatPickLogic.anyShown(shown: Shown?): boolean
+	if shown ~= nil then
+		for _, name in CatPickLogic.SHOW_CHIPS do
+			if shown[name] then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- The chips that are on as the catPickShow setting: their names in SHOW_CHIPS order, joined by commas ("" for All).
+function CatPickLogic.packShown(shown: Shown?): string
+	local on: { string } = {}
+	for _, name in CatPickLogic.SHOW_CHIPS do
+		if shown ~= nil and shown[name] then
+			table.insert(on, name)
+		end
+	end
+	return table.concat(on, ",")
+end
+
+-- The setting back to chips; names it does not know are dropped, so an odd value reads as All.
+function CatPickLogic.unpackShown(text: unknown): Shown
+	local out: Shown = {}
+	if type(text) == "string" then
+		for name in string.gmatch(text, "[^,]+") do
+			if table.find(CatPickLogic.SHOW_CHIPS, name) ~= nil then
+				out[name] = true
+			end
+		end
+	end
+	return out
 end
 
 -- The count beside the chips.

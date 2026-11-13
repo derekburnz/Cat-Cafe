@@ -29,6 +29,7 @@ local DealerRows = require(script.Parent.Parent.Components.DealerRows)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
+local GridFit = require(script.Parent.Parent.Components.GridFit)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
@@ -83,8 +84,9 @@ local ALL_BUTTON = Vector2.new(124, 44)
 -- #3961: the family look's picture cards (batch 2 mock): three across, the food's picture on top, its name, a
 -- rarity chip, the stock line and the price; the odds open over the card from the small ? in its corner. Buy all
 -- stays on the strip's right (the mock centres it under the cards, but a phone held sideways has no room for it)
-local CARD_ICON = 64
-local CARD_HINT = 36
+local CARD_ICON = 52 -- #4007: a little smaller, four cards a row
+local MIN_CELL = 150 -- #4007: the narrowest card that still fits its name, stock line and price
+local CARD_HINT = 36 -- #4007: a mouse tap size on the smaller card
 local FAMILY_STRIP = 60 -- a slimmer strip, so a phone held sideways shows the whole card
 
 local Dealer = {}
@@ -229,7 +231,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._content = panel.content
 	local layout: Instance = if family
 		then Create("UIGridLayout", {
-			CellSize = UDim2.new(1 / 3, -Theme.sizes.gap, 0, self:_cardHeight()),
+			CellSize = GridFit.cell(GridFit.FEWEST, Theme.sizes.gap, self:_cardHeight()),
 			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
@@ -254,6 +256,18 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		layout,
 		Outline.listPadding(10, 6), -- #2294: room for the cards' outlines
 	})
+	if family then
+		-- #4007: four cards a row where they fit, else three
+		GridFit.fit(
+			self._list,
+			layout :: UIGridLayout,
+			MIN_CELL,
+			Theme.sizes.gap,
+			function(): number
+				return self:_cardHeight()
+			end
+		)
+	end
 	-- before the first DealerStock arrives, or when every food in it is unknown (#3961: over the grid, not a cell of it)
 	self._empty = text({
 		Name = "Empty",

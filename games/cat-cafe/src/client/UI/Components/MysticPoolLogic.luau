@@ -345,6 +345,18 @@ MysticPoolLogic.OFFER_TITLE = "More rolls with Trait Tokens"
 MysticPoolLogic.OFFER_LINE =
 	"One Trait Token is one roll. A cat never gets worse: keep the old trait or take the new."
 MysticPoolLogic.OFFER_NO = "No thanks"
+-- #4006: the side panel's words
+MysticPoolLogic.SIDE_TITLE = "More rolls"
+MysticPoolLogic.SIDE_LINE = "1 Trait Token = 1 roll"
+
+-- "Common 30% · Uncommon 25% · ...", every roll's odds on one wrapped line, then the equal line's short form.
+function MysticPoolLogic.oddsLine(): string
+	local parts: { string } = {}
+	for _, row in MysticPoolLogic.odds() do
+		table.insert(parts, string.format("%s %d%%", row.name, row.percent))
+	end
+	return "Roll odds: " .. table.concat(parts, " · ")
+end
 
 -- #3948: `tokens` and `price` ("R$99") for the bundle's picture card, `rolls` its plain fact ("50 rolls")
 export type Bundle = {

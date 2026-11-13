@@ -229,16 +229,16 @@ return function()
 
 	describe("paying for a roll", function()
 		it(
-			"uses the 5 free starter rolls first, then a token, then 10 golden fish, else refuses",
+			"uses the 5 free starter rolls first, then a token, then 20 golden fish, else refuses",
 			function()
 				expect(Traits.FREE_ROLLS).to.equal(5)
-				expect(Traits.COST_FISH).to.equal(10)
+				expect(Traits.COST_FISH).to.equal(20) -- #4006
 				expect(Traits.payment(0, 3, 100)).to.equal("free")
 				expect(Traits.payment(4, 0, 0)).to.equal("free")
 				expect(Traits.payment(5, 1, 100)).to.equal("token")
-				expect(Traits.payment(5, 0, 10)).to.equal("fish")
-				expect(Traits.payment(5, 0, 9)).to.equal(nil) -- QA check 5: 9 fish and no token is refused
-				expect(Traits.payment(99, 0, 9)).to.equal(nil)
+				expect(Traits.payment(5, 0, 20)).to.equal("fish")
+				expect(Traits.payment(5, 0, 19)).to.equal(nil) -- QA check 5: one fish short and no token is refused
+				expect(Traits.payment(99, 0, 19)).to.equal(nil)
 			end
 		)
 
@@ -246,7 +246,7 @@ return function()
 			expect(Traits.rollText(0, 0, false)).to.equal("Free roll (5 left)")
 			expect(Traits.rollText(4, 2, true)).to.equal("Free roll (1 left)")
 			expect(Traits.rollText(5, 2, false)).to.equal("Roll · 1 Trait Token")
-			expect(Traits.rollText(5, 0, true)).to.equal("Re-roll · 10 golden fish")
+			expect(Traits.rollText(5, 0, true)).to.equal("Re-roll · 20 golden fish")
 			expect(Traits.freeLeft(7)).to.equal(0)
 			expect(Traits.freeLeft(-3)).to.equal(5)
 		end)
@@ -355,14 +355,14 @@ return function()
 					expect(fish).to.equal(0)
 				end
 				expect(save.freeUsed).to.equal(5)
-				expect((Traits.pay(save, 9))).to.equal(nil) -- QA check 5
+				expect((Traits.pay(save, Traits.COST_FISH - 1))).to.equal(nil) -- QA check 5
 				expect(save.freeUsed).to.equal(5)
 				Traits.give(save, 1)
 				expect((Traits.pay(save, 0))).to.equal("token")
 				expect(save.tokens).to.equal(0)
-				local how, fish = Traits.pay(save, 10)
+				local how, fish = Traits.pay(save, Traits.COST_FISH)
 				expect(how).to.equal("fish")
-				expect(fish).to.equal(10)
+				expect(fish).to.equal(Traits.COST_FISH)
 				Traits.refund(save, "token")
 				expect(save.tokens).to.equal(1)
 				Traits.refund(save, "free")

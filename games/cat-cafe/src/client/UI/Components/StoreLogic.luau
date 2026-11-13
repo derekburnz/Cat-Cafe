@@ -237,20 +237,11 @@ end
 -- Each reads its id from Config.ProductIds[productKey] (0 while not made: hidden) and its exact contents from
 -- Catalog.products, and the card says how many of those potions the player already has, so nobody buys blind.
 export type ProductCard = { key: string, productKey: string, effect: string }
-local PRODUCTS: { ProductCard } = {
-	{
-		key = "potionXS",
-		productKey = "potion_pack_xs",
-		effect = "More money while they last.", -- #1715: one short line
-	},
-	-- #1715: the mixes need no line of their own (the name says the size, the rows say what is in it), so a phone card
-	-- keeps its text readable; "with 2 bonus" said nothing
-	{ key = "potionS", productKey = "potion_pack_s", effect = "" },
-	{ key = "potionM", productKey = "potion_pack_m", effect = "" },
-	{ key = "potionL", productKey = "potion_pack_l", effect = "" },
-	-- #1168 row 8: 10 Steady Paw potions, bought each time like the packs above; its rows say what is in it
-	{ key = "steadyPaw", productKey = "steady_paw_pack", effect = "" },
-}
+-- Derek 2026-11-13 ("can honestly remove potion packs as they kind of suck", then "remove stead paw pack also"): the
+-- four potion packs (XS, S, M, L) and the Steady Paw Pack are no longer sold here, so the Potions tab has no cards and
+-- hides; their products and ProcessReceipt handling stay, so a late receipt still pays. The list stays for a later
+-- product card.
+local PRODUCTS: { ProductCard } = {}
 StoreLogic.PRODUCTS = PRODUCTS
 
 -- The Starter Bundle (store-skus.md section 1): a developer product sold once per account, under Cats and as the
@@ -652,8 +643,10 @@ function StoreLogic.badge(
 end
 
 -- #3572: the Sale badge. The old price to strike through on this card, or nil for no badge: only a card in
--- Config.StoreWasPrice that is not owned, on sale at exactly its half price, before Config.StoreSaleEnds. It has to
--- be true, so any other live price (a regional one, a later change) shows no badge. No countdown, no end date shown.
+-- Config.StoreWasPrice that is not owned, on sale at its sale price (`now`) or lower, before Config.StoreSaleEnds.
+-- #3594 follow up (Derek 2026-11-13): not only exactly the sale price, since unsold items go a little lower. Above
+-- `now` (a regional price between the two, a price that went up) shows no badge, so nobody sees a sale that is not
+-- one for them (Review-QA, young audience). No countdown.
 StoreLogic.SALE = "SALE"
 function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): number?
 	local entry = if type(config.StoreWasPrice) == "table"
@@ -668,9 +661,11 @@ function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): 
 		or row.closed == true
 		or price == nil
 		or not price.forSale
-		or price.robux ~= entry.now
+		or type(price.robux) ~= "number"
 		or type(entry.was) ~= "number"
-		or entry.was <= entry.now
+		or type(entry.now) ~= "number"
+		or price.robux > entry.now
+		or entry.was <= price.robux
 	then
 		return nil
 	end
@@ -807,11 +802,11 @@ function StoreLogic.rows(
 				icon = MONEY_ICON,
 				multiplier = nextRung.multiplier,
 				effect = if top > 1
-					then ("All your cafe's money x%d, in place of x%d."):format(
+					then ("Multiplies ALL your bonuses x%d, in place of x%d."):format(
 						nextRung.multiplier,
 						top
 					)
-					else ("All your cafe's money x%d."):format(nextRung.multiplier),
+					else ("Multiplies ALL your bonuses x%d."):format(nextRung.multiplier),
 				owned = false,
 				tab = "passes",
 			})
@@ -823,7 +818,7 @@ function StoreLogic.rows(
 				name = ("%dx Money"):format(last.multiplier),
 				icon = MONEY_ICON,
 				multiplier = last.multiplier,
-				effect = ("All your cafe's money x%d."):format(last.multiplier),
+				effect = ("Multiplies ALL your bonuses x%d."):format(last.multiplier),
 				owned = true,
 				tab = "passes",
 			})

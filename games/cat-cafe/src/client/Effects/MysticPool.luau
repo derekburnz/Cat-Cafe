@@ -262,10 +262,17 @@ function MysticPool.roll(
 	local over = surface + Vector3.new(0, p.riseHeight, 0)
 	local under = surface - Vector3.new(0, p.sink + catSize.Y, 0)
 	local facing = station:GetPivot().Rotation * CFrame.Angles(0, math.pi, 0) -- the cat looks out at the players
+	-- Derek 2026-11-13 ("cats coming out of trait portal not facing you"): the cat turns to this player's camera,
+	-- level, wherever they stand round the pool (and as the scene's camera circles); the pool's front only when
+	-- the camera is straight overhead
 	local function placeCat(at: Vector3, spin: number)
-		if copy ~= nil then
-			copy:PivotTo(CFrame.new(at) * facing * CFrame.Angles(0, spin, 0))
+		if copy == nil then
+			return
 		end
+		local camera = workspace.CurrentCamera
+		local yaw = if camera ~= nil then Logic.facePoint(at, camera.CFrame.Position) else nil
+		local turn = if yaw ~= nil then CFrame.Angles(0, yaw, 0) else facing
+		copy:PivotTo(CFrame.new(at) * turn * CFrame.Angles(0, spin, 0))
 	end
 
 	local riseAt = p.raise

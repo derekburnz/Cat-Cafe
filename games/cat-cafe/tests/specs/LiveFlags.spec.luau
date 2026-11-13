@@ -84,7 +84,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, menuFamily, speedShoes, petCats, returnGift, picnicTreats, traitBundles, storeRework and indexTo70 alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, menuFamily, speedShoes, petCats, returnGift, picnicTreats, traitBundles, storeRework, indexTo70, quietStart and quietAway alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -119,10 +119,12 @@ return function()
 							or key == "traitBundles"
 							or key == "storeRework"
 							or key == "indexTo70"
+							or key == "quietStart"
+							or key == "quietAway"
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(29)
+				expect(count).to.equal(31)
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)

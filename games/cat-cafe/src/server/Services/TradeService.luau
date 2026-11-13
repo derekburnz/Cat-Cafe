@@ -57,6 +57,8 @@ local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local QuietStart = require(ReplicatedStorage.Shared.QuietStart)
+local QuietStartService = require(script.Parent.QuietStartService)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeBook = require(script.Parent.Parent.Util.TradeBook)
@@ -736,6 +738,12 @@ local function onRequest(player: Player, rawUserId: unknown)
 	)
 	if refusal ~= nil then
 		Net.toast(player, refusal, "warn")
+		askRefused(player, target.UserId)
+		return
+	end
+	-- #4005: no trade window over a new player's first minutes
+	if QuietStartService.quiet(target) then
+		Net.toast(player, QuietStart.TRADE_REFUSED, "warn")
 		askRefused(player, target.UserId)
 		return
 	end

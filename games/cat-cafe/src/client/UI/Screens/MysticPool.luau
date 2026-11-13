@@ -14,8 +14,8 @@
 -- is the next PlayerState: the buttons rest until it shows (MysticPoolLogic.stamp) or PENDING_SECONDS, then
 -- `callbacks.play` (the pool's animation, Effects/MysticPool) runs with a tap to skip, and the card shows the
 -- result. The server decides every roll and payment; this only asks. #3864: once the free rolls are used, the Trait
--- Token bundles are offered once a session on a sheet of their own, with the roll's full odds and "No thanks"
--- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own purchase prompt.
+-- Token bundles sit on a slim panel beside the card (#4006) with the roll's full odds, while the card is open
+-- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own prompt.
 -- Words in Components/MysticPoolLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -58,6 +58,8 @@ export type Callbacks = {
 	shade: ((onTap: () -> (), canSkip: boolean) -> () -> ())?,
 	-- #3864: a bundle's Buy, with its developer product id (Roblox's purchase prompt); nil hides the offer
 	buy: ((productId: number) -> ())?,
+	-- #3940: a saved setting changed (catPickSort, catPickFlipped, catPickShow), sent as SetSetting
+	remember: ((key: string, value: any) -> ())?,
 }
 
 export type MysticPool = {
@@ -116,7 +118,14 @@ local SEARCH_HINT = "🔍 Search"
 -- #3874: on a short screen a row has two lines (name and trait on top, the tags under) and a slimmer Pick, so about
 -- twice as many cats show at once
 local SHORT_ROW_H = 54
-local OFFER_PICTURE = 40 -- #3948: the Trait Token on a bundle's card
+-- #4006: the Trait Token side panel beside the card
+local SIDE_W = 176
+local SIDE_GAP = 10
+local SIDE_TOP = 56 -- below the window's header, beside its content
+local SIDE_PAD = 8
+local SIDE_TOKEN = 40
+local SIDE_EDGE = 8 -- px kept clear at the screen's edges
+local MIN_CARD_W = 380 -- the card never narrows past this to make room
 local SHORT_FACE = 36
 local SHORT_PICK_W = 72
 local SHORT_PICK_H = 38 -- drawn; on a touch screen its pad still reaches a finger's 44 px (Button's Hit)
@@ -136,7 +145,15 @@ MysticPool.__index = MysticPool
 
 -- #3700: the list's order is remembered for the session
 -- #3864: `offered`, once the token offer has shown this session (a "No thanks" holds for the session)
-local remembered = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, offered = false }
+-- #3940: the Show chips too, and all three ride the save (catPickSort, catPickFlipped, catPickShow): `seeded` once the
+-- saved values have come in, `saved` what the save holds, so only a change goes out
+local remembered = {
+	sort = CatPickLogic.DEFAULT_SORT,
+	flipped = false,
+	shown = {} :: CatPickLogic.Shown,
+	seeded = false,
+	saved = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, show = "" },
+}
 
 local function text(props: { [string]: any }, children: { Instance }?): TextLabel
 	local merged: { [string]: any } = {
@@ -430,7 +447,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._candidates = 0
 	self._buildToken = 0
 	self._query = ""
-	self._filter = "All"
+	self._shown = {} :: CatPickLogic.Shown -- #3940: the Show chips that are on
 	self._sort = remembered.sort
 	self._flipped = remembered.flipped
 	self._searchToken = 0
@@ -776,7 +793,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			at,
 			width,
 			function()
-				self:_setFilter(filter)
+				self:_toggleShown(filter)
 			end
 		)
 		at += width + TOOL_GAP
@@ -974,92 +991,84 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = odds,
 	})
 
-	-- #3864: the Trait Token offer, once the free rolls are used (MysticPoolLogic.bundles). #3948 (Derek: "this menu
-	-- needs to look nicer and the purchase is missing an image"): the title and its line, the roll's odds as pills
-	-- (monetization-policy: before anything is bought), then a picture card per bundle (the token, "20 Tokens", its
-	-- rolls as a plain fact and a wide Buy with the price) and "No thanks" as big as Buy. No countdowns, no "best
-	-- value", no struck-out prices.
-	local offer = sheet("TokenOffer", content, 11)
-	self._offerSheet = offer
+	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
+	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
+	-- panel beside the card, never over it: the token, "More rolls", the roll's odds (monetization-policy 2.1: before
+	-- anything is bought) and a Buy per bundle with its price. Derek 20:12 UTC: "don't give them an X option", so it stays
+	-- while the card is open once the free rolls are used (MysticPoolLogic.bundles); the card moves left so the two sit
+	-- centred together and the panel never covers it.
+	-- No countdowns, no "best value", no struck-out prices.
+	local side: Frame = Create("Frame", {
+		Name = "TokenSide",
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
+		Position = UDim2.new(1, SIDE_GAP, 0, SIDE_TOP),
+		Size = UDim2.fromOffset(SIDE_W, 100),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		ZIndex = 4,
+		Parent = panel.frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 2) }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.outline }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, SIDE_PAD),
+			PaddingRight = UDim.new(0, SIDE_PAD),
+			PaddingTop = UDim.new(0, SIDE_PAD),
+			PaddingBottom = UDim.new(0, SIDE_PAD),
+		}),
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		}),
+	})
+	self._side = side
+	local head: Frame = Create("Frame", {
+		Name = "Head",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, SIDE_TOKEN),
+		LayoutOrder = 1,
+		ZIndex = 5,
+		Parent = side,
+	})
+	tokenPicture(head, UDim2.fromOffset(0, 0), SIDE_TOKEN, 6)
 	text({
 		Name = "Title",
-		Size = UDim2.new(1, 0, 0, 24),
+		Position = UDim2.fromOffset(SIDE_TOKEN + 6, 0),
+		Size = UDim2.new(1, -(SIDE_TOKEN + 6), 1, 0),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 2,
+		TextSize = Theme.sizes.textBody,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = MysticPoolLogic.OFFER_TITLE,
-		ZIndex = 12,
-		TextColor3 = PAL.text,
-		Parent = offer,
+		TextColor3 = CARD.text,
+		Text = MysticPoolLogic.SIDE_TITLE,
+		ZIndex = 6,
+		Parent = head,
 	})
 	text({
-		Name = "Line",
-		Position = UDim2.fromOffset(0, 24),
-		Size = UDim2.new(1, 0, 0, 16),
+		Name = "Odds",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
 		TextSize = Theme.sizes.textTiny,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = MysticPoolLogic.OFFER_LINE,
-		ZIndex = 12,
-		TextColor3 = PAL.subtext,
-		Parent = offer,
+		TextColor3 = CARD.subtext,
+		Text = MysticPoolLogic.SIDE_LINE .. ". " .. MysticPoolLogic.oddsLine(),
+		LayoutOrder = 2,
+		ZIndex = 6,
+		Parent = side,
 	})
-	oddsPills(offer, 44, 12) -- every roll's odds, before anything is bought (monetization-policy 2.1)
-	local cardTop = 44 + 28 + GAP
-	local cardH = OFFER_PICTURE + 4 + buttonH + 4
 	self._offerButtons = {} :: { Button.Button }
-	self._offerCards = {} :: { { frame: Frame, heading: TextLabel, rolls: TextLabel } }
 	for index = 1, #Traits.BUNDLES do
-		local card: Frame = Create("Frame", {
-			Name = "Bundle" .. index .. "Card",
-			BackgroundColor3 = CARD.card,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1 / #Traits.BUNDLES, -GAP / 2, 0, cardH),
-			Position = UDim2.new(
-				(index - 1) / #Traits.BUNDLES,
-				if index > 1 then GAP / 2 else 0,
-				0,
-				cardTop
-			),
-			ZIndex = 12,
-			Parent = offer,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
-		})
-		tokenPicture(card, UDim2.fromOffset(6, 4), OFFER_PICTURE, 13)
-		local heading = text({
-			Name = "Heading",
-			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 4),
-			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 20),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody + 2,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = CARD.text,
-			ZIndex = 13,
-			Parent = card,
-		})
-		local rolls = text({
-			Name = "Rolls",
-			-- #3989 (Review-QA): ends 6 px above the Buy button, not on its top edge
-			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 24),
-			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 14),
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = CARD.subtext,
-			ZIndex = 13,
-			Parent = card,
-		})
 		local button = Button.new({
 			name = "Bundle" .. index,
 			text = "",
 			style = "primary",
-			size = UDim2.new(1, -12, 0, buttonH),
-			anchorPoint = Vector2.new(0.5, 1),
-			position = UDim2.new(0.5, 0, 1, -4),
-			textSize = Theme.sizes.textBody,
-			parent = card,
-			zIndex = 13,
+			size = UDim2.new(1, 0, 0, buttonH),
+			textSize = Theme.sizes.textSmall,
+			parent = side,
+			zIndex = 6,
 			onClick = function()
 				local pick = self._offerBundles and self._offerBundles[index]
 				local buy = callbacks.buy
@@ -1068,23 +1077,11 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 				end
 			end,
 		})
+		button.instance.LayoutOrder = 2 + index
 		table.insert(self._offerButtons, button)
-		table.insert(self._offerCards, { frame = card, heading = heading, rolls = rolls })
 	end
 	self._offerBundles = nil :: { MysticPoolLogic.Bundle }?
-	Button.new({
-		name = "NoThanks",
-		text = MysticPoolLogic.OFFER_NO,
-		style = "ghost",
-		size = UDim2.new(1, 0, 0, buttonH),
-		position = UDim2.fromOffset(0, cardTop + cardH + GAP),
-		textSize = Theme.sizes.textBody,
-		parent = offer,
-		zIndex = 12,
-		onClick = function()
-			offer.Visible = false
-		end,
-	})
+	self._sideOn = false
 
 	-- while the pool's animation plays: a tap anywhere on the card skips to the result
 	local rolling = sheet("Rolling", content, 14)
@@ -1156,7 +1153,15 @@ function MysticPool._send(self: any, fire: () -> ())
 		if self._pendingToken == token and self._pending then
 			self._pending = false
 			self._rolling = nil
-			self:_paint()
+			warn(
+				"MysticPool: no answer to a press within "
+					.. PENDING_SECONDS
+					.. " s; the buttons wake"
+			) -- #4015
+			local ok, problem = pcall(self._paint, self)
+			if not ok then
+				warn("MysticPool paint: " .. tostring(problem))
+			end
 		end
 	end)
 	self:_paint()
@@ -1281,7 +1286,7 @@ function MysticPool._fit(self: any, tall: boolean)
 			height = math.clamp(room, height, PICKER_TALL)
 		end
 	end
-	limit.MaxSize = Vector2.new(MAX_WIDTH, height)
+	limit.MaxSize = Vector2.new(limit.MaxSize.X, height)
 	frame.Size = UDim2.new(1, 0, 0, height)
 end
 
@@ -1293,6 +1298,7 @@ function MysticPool._showPicker(self: any, show: boolean)
 	if not show then
 		self:_showMenu(false)
 		self:_clearRows()
+		self:_save()
 		return
 	end
 	self._search.Text = ""
@@ -1300,7 +1306,7 @@ function MysticPool._showPicker(self: any, show: boolean)
 	self._searchToken += 1
 	self._sort = CatPickLogic.menuSort(self._sort)
 	self:_showMenu(false)
-	self:_setFilter("All", true)
+	self:_setShown(remembered.shown, true)
 	self:_paintSorts()
 	self:_buildRows()
 end
@@ -1309,12 +1315,55 @@ end
 function MysticPool._showMenu(self: any, show: boolean)
 	self._menu.Visible = show
 	self:_paintFilterButton()
+	if not show then
+		self:_save()
+	end
+end
+
+-- #3940: the Sort and Show chips go to the save once the pop-up or the list closes, only what changed (SetSetting is
+-- rate limited, so a run of chip taps sends one value each).
+function MysticPool._save(self: any)
+	local remember = (self._callbacks :: Callbacks).remember
+	if remember == nil or not remembered.seeded then
+		return
+	end
+	local saved = remembered.saved
+	local show = CatPickLogic.packShown(remembered.shown)
+	if saved.sort ~= remembered.sort then
+		saved.sort = remembered.sort
+		remember("catPickSort", remembered.sort)
+	end
+	if saved.flipped ~= remembered.flipped then
+		saved.flipped = remembered.flipped
+		remember("catPickFlipped", remembered.flipped)
+	end
+	if saved.show ~= show then
+		saved.show = show
+		remember("catPickShow", show)
+	end
+end
+
+-- #3940: the first settings to arrive set the list's Sort and Show chips; after that the player's own taps lead.
+function MysticPool._seed(self: any, settings: any)
+	if remembered.seeded or type(settings) ~= "table" then
+		return
+	end
+	remembered.seeded = true
+	local sort = CatPickLogic.menuSort(settings.catPickSort)
+	local flipped = settings.catPickFlipped == true
+	local shown = CatPickLogic.unpackShown(settings.catPickShow)
+	remembered.saved = { sort = sort, flipped = flipped, show = CatPickLogic.packShown(shown) }
+	remembered.sort, remembered.flipped, remembered.shown = sort, flipped, shown
+	if not self._picking then
+		self._sort, self._flipped = sort, flipped
+	end
 end
 
 -- Filter is gold while its pop-up is open or a Show chip other than All is on, so a hidden filter is never a mystery.
 function MysticPool._paintFilterButton(self: any)
-	local on = self._menu.Visible or self._filter ~= "All"
-	local words = if self._filter ~= "All" then "Filter •" else "Filter"
+	local filtered = CatPickLogic.anyShown(self._shown)
+	local on = self._menu.Visible or filtered
+	local words = if filtered then "Filter •" else "Filter"
 	local button: Button.Button = self._filterButton
 	button:setStyle(if on then "gold" else "ghost")
 	if self._filterWords ~= words then
@@ -1323,15 +1372,23 @@ function MysticPool._paintFilterButton(self: any)
 	end
 end
 
-function MysticPool._setFilter(self: any, filter: string, quiet: boolean?)
-	self._filter = filter
+-- #3940: the Show chips that are on light gold (All when none is); kept for the session and, on close, the save.
+function MysticPool._setShown(self: any, shown: CatPickLogic.Shown, quiet: boolean?)
+	self._shown = table.clone(shown)
+	remembered.shown = table.clone(shown)
+	local none = not CatPickLogic.anyShown(shown)
 	for name, chip: Button.Button in self._chips do
-		chip:setStyle(if name == filter then "gold" else "ghost")
+		chip:setStyle(if (name == "All" and none) or shown[name] then "gold" else "ghost")
 	end
 	self:_paintFilterButton()
 	if not quiet then
 		self:_applyFilter()
 	end
+end
+
+-- A Show chip press: All clears every chip, the rest turn on and off on top of each other.
+function MysticPool._toggleShown(self: any, filter: string)
+	self:_setShown(CatPickLogic.toggleShown(self._shown, filter))
 end
 
 -- The Sort chips: the one in use is gold and shows which way it runs.
@@ -1555,7 +1612,7 @@ function MysticPool._buildRows(self: any)
 	local function build(from: number, to: number)
 		for order = from, to do
 			local row = self:_row(order, cats[order])
-			row.frame.Visible = CatPickLogic.match(row.cat, self._query, self._filter)
+			row.frame.Visible = CatPickLogic.matchShown(row.cat, self._query, self._shown)
 			table.insert(self._rows, row)
 		end
 	end
@@ -1581,7 +1638,7 @@ end
 function MysticPool._applyFilter(self: any)
 	local shown = 0
 	for _, row: Row in self._rows do
-		local visible = CatPickLogic.match(row.cat, self._query, self._filter)
+		local visible = CatPickLogic.matchShown(row.cat, self._query, self._shown)
 		if row.frame.Visible ~= visible then
 			row.frame.Visible = visible
 		end
@@ -1677,10 +1734,26 @@ function MysticPool._paint(self: any)
 		self._pending = false
 		self._pendingToken += 1
 		self._rolling = nil
+		warn(
+			"MysticPool: no answer to a press within " .. PENDING_SECONDS .. " s; the buttons wake"
+		) -- #4015
 	end
 	local view = self._view
 	local cat = self:_cat()
 	local resting: boolean = self._pending
+
+	-- Roll, first (#4015, Derek 2026-11-13: "sometimes rerolls get stuck" on "..."): a later line of this paint
+	-- that fails can no longer leave the button on "..." after the wait has ended
+	local roll = MysticPoolLogic.roll(view, cat ~= nil and cat.trait ~= nil, self._fish)
+	local rollText = if resting then "..." else roll.text
+	if self._rollText ~= rollText then
+		self._rollText = rollText
+		self._roll:setText(rollText)
+	end
+	self._roll:setEnabled(roll.enabled and cat ~= nil and not resting)
+	local why = if not roll.enabled then roll.why else nil
+	self._why.Text = why or MysticPoolLogic.haveLine(view, self._fish)
+	self._why.TextColor3 = if why ~= nil then PAL.warn else PAL.text
 
 	-- the picked cat
 	self._portrait.frame.Visible = cat ~= nil
@@ -1715,18 +1788,6 @@ function MysticPool._paint(self: any)
 		if cat ~= nil then "Roll to give this cat a trait" else "Pick a cat to see its trait"
 	)
 
-	-- Roll
-	local roll = MysticPoolLogic.roll(view, cat ~= nil and cat.trait ~= nil, self._fish)
-	local rollText = if resting then "..." else roll.text
-	if self._rollText ~= rollText then
-		self._rollText = rollText
-		self._roll:setText(rollText)
-	end
-	self._roll:setEnabled(roll.enabled and cat ~= nil and not resting)
-	local why = if not roll.enabled then roll.why else nil
-	self._why.Text = why or MysticPoolLogic.haveLine(view, self._fish)
-	self._why.TextColor3 = if why ~= nil then PAL.warn else PAL.text
-
 	-- the free tokens
 	local line, ready = MysticPoolLogic.tokens(view, now())
 	self._tokens.Text = line
@@ -1747,26 +1808,49 @@ function MysticPool._paint(self: any)
 		self._takeNew:setEnabled(not resting)
 	end
 
-	-- #3864: the token offer, once a session, when the card is at rest with the free rolls used
-	if not resting and self._callbacks.buy ~= nil and self._open then
-		local bundles = MysticPoolLogic.bundles(view, Config.ProductIds, remembered.offered)
+	-- #4006: the token panel, once the free rolls are used; kept as it is while a press is out
+	if not resting then
+		local bundles: { MysticPoolLogic.Bundle }? = nil
+		if self._callbacks.buy ~= nil and self._open then
+			bundles = MysticPoolLogic.bundles(view, Config.ProductIds, false)
+		end
+		self._offerBundles = bundles
 		if bundles ~= nil then
-			remembered.offered = true
-			self._offerBundles = bundles
+			local list: { MysticPoolLogic.Bundle } = bundles
 			for index, button in self._offerButtons do
-				local pick = bundles[index]
-				local card = self._offerCards[index]
-				card.frame.Visible = pick ~= nil
+				local pick = list[index]
 				button.instance.Visible = pick ~= nil
 				if pick ~= nil then
-					button:setText("Buy · " .. pick.price)
-					card.heading.Text = string.format("%d Tokens", pick.tokens)
-					card.rolls.Text = pick.rolls
+					button:setText(pick.label)
 				end
 			end
-			self._offerSheet.Visible = true
+		end
+		self:_showSide(bundles ~= nil)
+	end
+end
+
+-- #4006: the token panel on or off. With it on, the card narrows if it must (never past MIN_CARD_W) and moves left so
+-- the two sit centred; with no room beside the card at all the panel stays hidden, so it never covers the card.
+function MysticPool._showSide(self: any, on: boolean)
+	local frame: Frame = self.frame
+	local holder = frame.Parent
+	local scale = Scale.get()
+	local width = MAX_WIDTH
+	if on and holder ~= nil and holder:IsA("GuiBase2d") and scale > 0 then
+		local room = holder.AbsoluteSize.X / scale - SIDE_W - SIDE_GAP - SIDE_EDGE * 2
+		if room < MIN_CARD_W then
+			on = false
+		else
+			width = math.min(MAX_WIDTH, room)
 		end
 	end
+	self._sideOn = on
+	self._side.Visible = on
+	local limit: UISizeConstraint = self._limit
+	limit.MaxSize = Vector2.new(width, limit.MaxSize.Y)
+	frame.Position = if on
+		then UDim2.new(0.5, -(SIDE_W + SIDE_GAP) / 2, 0.5, 0)
+		else UDim2.fromScale(0.5, 0.5)
 end
 
 -- The cat the card shows (nil for none); one that is gone is dropped.
@@ -1776,6 +1860,7 @@ function MysticPool.pick(self: any, uid: string?)
 end
 
 function MysticPool.render(self: any, state: Types.PlayerState)
+	self:_seed((state :: any).settings)
 	local view: any = (state :: any).traits
 	self._view = if type(view) == "table" then view else nil
 	self._fish = state.goldenFish or 0
@@ -1799,7 +1884,11 @@ function MysticPool.render(self: any, state: Types.PlayerState)
 				if cat ~= nil then cat.trait else nil
 			)
 			if rolled ~= nil then
-				self:_reveal(rolling.uid, rolled)
+				-- #4015: protected, so a reveal that fails still lets the paint below wake the buttons
+				local ok, problem = pcall(self._reveal, self, rolling.uid, rolled)
+				if not ok then
+					warn("MysticPool reveal: " .. tostring(problem))
+				end
 			end
 		end
 	end
@@ -1815,7 +1904,6 @@ function MysticPool.opened(self: any)
 	local tick = self._tick
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
-	self._offerSheet.Visible = false
 	local waiting = MysticPoolLogic.pending(self._view, self._cats)
 	if waiting ~= nil and self._cats[waiting.uid] ~= nil then
 		self._uid = waiting.uid
@@ -1846,7 +1934,7 @@ function MysticPool.closed(self: any)
 	self:_stopPlay()
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
-	self._offerSheet.Visible = false
+	self:_showSide(false)
 end
 
 function MysticPool.destroy(self: any)

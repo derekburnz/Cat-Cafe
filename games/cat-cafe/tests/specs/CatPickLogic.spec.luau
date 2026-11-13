@@ -66,14 +66,19 @@ return function()
 			expect(uids(Logic.sorted(cats, "Name"))).to.equal("a,b,c,d,e")
 		end)
 
-		it("has Money, Level and Rarity in the Filter pop-up, and a Name sort falls back to Money (#3874)", function()
-			expect(table.concat(Logic.MENU_SORTS, ",")).to.equal("Money,Level,Rarity")
-			expect(table.concat(Logic.MENU_FILTERS, ",")).to.equal("All,Working,Resting,No trait,Has trait")
-			expect(Logic.menuSort("Rarity")).to.equal("Rarity")
-			expect(Logic.menuSort("Level")).to.equal("Level")
-			expect(Logic.menuSort("Name")).to.equal("Money")
-			expect(Logic.menuSort(nil)).to.equal("Money")
-		end)
+		it(
+			"has Money, Level and Rarity in the Filter pop-up, and a Name sort falls back to Money (#3874)",
+			function()
+				expect(table.concat(Logic.MENU_SORTS, ",")).to.equal("Money,Level,Rarity")
+				expect(table.concat(Logic.MENU_FILTERS, ",")).to.equal(
+					"All,Working,Resting,No trait,Has trait"
+				)
+				expect(Logic.menuSort("Rarity")).to.equal("Rarity")
+				expect(Logic.menuSort("Level")).to.equal("Level")
+				expect(Logic.menuSort("Name")).to.equal("Money")
+				expect(Logic.menuSort(nil)).to.equal("Money")
+			end
+		)
 
 		it("turns each order round", function()
 			expect(uids(Logic.sorted(cats, "Rarity", true))).to.equal("a,e,c,b,d")
@@ -97,6 +102,43 @@ return function()
 			expect(Logic.match(cats.a, "  A ", "All")).to.equal(true)
 			expect(Logic.match(cats.a, "zzz", "All")).to.equal(false)
 			expect(Logic.match(cats.d, "gold", "All")).to.equal(true)
+		end)
+
+		it("puts Show chips on top of each other, one group at a time (#3940)", function()
+			local function shown(...: string): { [string]: boolean }
+				local out = {}
+				for _, name in { ... } do
+					out[name] = true
+				end
+				return out
+			end
+			-- c works with no trait, a rests with no trait, e has a trait
+			expect(Logic.matchShown(cats.c, "", shown("Working", "No trait"))).to.equal(true)
+			expect(Logic.matchShown(cats.a, "", shown("Working", "No trait"))).to.equal(false)
+			expect(Logic.matchShown(cats.e, "", shown("No trait"))).to.equal(false)
+			expect(Logic.matchShown(cats.a, "", shown("Working", "Resting"))).to.equal(true)
+			expect(Logic.matchShown(cats.c, "", shown("Working", "Resting"))).to.equal(true)
+			expect(Logic.matchShown(cats.e, "", shown("No trait", "Has trait"))).to.equal(true)
+			expect(Logic.matchShown(cats.a, "", {})).to.equal(true)
+			expect(Logic.matchShown(cats.a, "zzz", {})).to.equal(false)
+			expect(Logic.matchShown(cats.a, "", nil)).to.equal(true)
+		end)
+
+		it("toggles a chip, clears on All and packs the chips for the save (#3940)", function()
+			local on = Logic.toggleShown({}, "Working")
+			expect(Logic.packShown(on)).to.equal("Working")
+			on = Logic.toggleShown(on, "No trait")
+			expect(Logic.packShown(on)).to.equal("Working,No trait")
+			expect(Logic.anyShown(on)).to.equal(true)
+			on = Logic.toggleShown(on, "Working")
+			expect(Logic.packShown(on)).to.equal("No trait")
+			expect(Logic.anyShown(Logic.toggleShown(on, "All"))).to.equal(false)
+			expect(Logic.packShown(Logic.toggleShown(on, "Nonsense"))).to.equal("")
+			expect(Logic.packShown(Logic.unpackShown("Has trait,Resting"))).to.equal(
+				"Resting,Has trait"
+			)
+			expect(Logic.anyShown(Logic.unpackShown("Bad,Words"))).to.equal(false)
+			expect(Logic.anyShown(Logic.unpackShown(7))).to.equal(false)
 		end)
 
 		it("words a row and the count", function()

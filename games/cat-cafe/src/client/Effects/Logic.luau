@@ -3817,4 +3817,15 @@ function Logic.bigTraitPop(t: number): number
 	return 1
 end
 
+-- The turn about the vertical (radians, for CFrame.Angles(0, yaw, 0)) that looks from `at` to `eye` along the
+-- ground, as a cat model faces its LookVector; nil when `eye` is straight above or below (MysticPool's cat turning
+-- to the player's camera).
+function Logic.facePoint(at: Vector3, eye: Vector3): number?
+	local dx, dz = eye.X - at.X, eye.Z - at.Z
+	if dx * dx + dz * dz < 0.0025 then
+		return nil
+	end
+	return math.atan2(-dx, -dz)
+end
+
 return Logic

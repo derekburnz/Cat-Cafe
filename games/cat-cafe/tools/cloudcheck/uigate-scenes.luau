@@ -2330,6 +2330,34 @@ local SCENES = {
 		end
 		-- #3178: on a PC the clock and banner are at the top middle, where toasts stack; a toast keeps clear of them
 		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			-- Review-QA 2026-11-13: a piece dropped for something beside the strip comes back once it has gone
+			local function pieces(): number
+				local n = 0
+				for _, child in banner:GetChildren() do
+					if child:IsA("GuiObject") and child.Visible and child.Name ~= "Ring" then
+						n += 1
+					end
+				end
+				return n
+			end
+			local before = pieces()
+			local block = Instance.new("Frame")
+			-- (a small window's strip already holds one piece, with none to drop)
+			block.Name = "GateBlock"
+			block.Size = UDim2.fromOffset(40, banner.AbsoluteSize.Y)
+			block.Position = UDim2.fromOffset(banner.AbsolutePosition.X + banner.AbsoluteSize.X * 0.8 - hud.Root.AbsolutePosition.X, banner.AbsolutePosition.Y - hud.Root.AbsolutePosition.Y)
+			block.Parent = if before > 1 then hud.Root else nil
+			for _ = 1, 4 do
+				UI.update({ luck = 2.5, luckSources = { { id = "statue", value = 1.5 } } })
+				UIShim.advance(0.3)
+			end
+			assert(before == 1 or pieces() < before, ("uigate: the strip kept %d pieces beside a piece in its way (#2885)"):format(pieces()))
+			block:Destroy()
+			for _ = 1, 4 do
+				UI.update({ luck = 2.5, luckSources = { { id = "statue", value = 1.5 } } })
+				UIShim.advance(0.3)
+			end
+			assert(pieces() == before, ("uigate: the strip came back with %d of its %d pieces once the way was clear (#2885)"):format(pieces(), before))
 			-- the day card open under the banner, the lowest of the three (the event's piece is always in the strip)
 			press("CatCafeHUD", "EventChip.Tap")
 			local dayCard = hud:FindFirstChild("DayCard", true) :: GuiObject

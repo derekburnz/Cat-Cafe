@@ -437,6 +437,8 @@ local BANNER_PAD_Y = 4
 -- side by side, a name and its time left each, BANNER_ITEM_GAP apart; a tap on any opens the card with the rest
 local BANNER_ITEM_GAP = 10
 local BANNER_MOST = 3
+local BANNER_GUESS_W = 200 -- design px for a piece not yet measured in the strip (HUD._fitBanner)
+local BANNER_SPARE = 8 -- design px a dropped piece needs past its own width to come back
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
@@ -3916,6 +3918,9 @@ function HUD._paintBanner(self: any)
 	if not shown then
 		self._dayCard.Visible = false
 	end
+	if most < math.min(#wanted, BANNER_MOST) then
+		self:_queueFit() -- a dropped piece looks for its way back (HUD._fitBanner)
+	end
 	-- Derek 2026-11-13: through a catch, a rescue or the Rummage Bin's roll it stays down. A repaint mid-catch (the
 	-- event's countdown ticks each second) used to set it back, and the catch's focus hid it again: the flash.
 	if self._catching or next(self._bannerHold) ~= nil then
@@ -4039,10 +4044,38 @@ function HUD._fitBanner(self: any)
 			end
 		end
 	end
-	local gap = Theme.sizes.gap * Scale.get()
-	local inStrip = math.min(#self:_bannerShown(), BANNER_MOST, self._bannerFit)
-	if (at.X + size.X > room - gap or at.X < floor + gap) and inStrip > 1 then
+	local scale = Scale.get()
+	local gap = Theme.sizes.gap * scale
+	local shown = self:_bannerShown()
+	local inStrip = math.min(#shown, BANNER_MOST, self._bannerFit)
+	-- each piece's width while it is in the strip, so a dropped one can be measured for its way back
+	local widths: { [GuiObject]: number } = self._pieceW or {}
+	self._pieceW = widths
+	for _, line in shown do
+		if line.Parent == banner then
+			widths[line] = line.AbsoluteSize.X
+		end
+	end
+	local right = at.X + size.X
+	if (right > room - gap or at.X < floor + gap) and inStrip > 1 then
 		self._bannerFit = inStrip - 1
+		self:_paintBanner()
+		self:_layoutRight()
+		return
+	end
+	-- Review-QA 2026-11-13: a piece dropped for something that has since gone (a "Triple Day!" banner, a smaller
+	-- window) comes back once there is room for it again, with a little to spare so it never flickers in and out
+	local nextPiece = shown[inStrip + 1]
+	if nextPiece == nil or inStrip >= BANNER_MOST then
+		return
+	end
+	local need = (widths[nextPiece] or BANNER_GUESS_W * scale)
+		+ (BANNER_ITEM_GAP + BANNER_SPARE) * scale
+	local grows = if TOUCH
+		then right + need <= room - gap
+		else right + need / 2 <= room - gap and at.X - need / 2 >= floor + gap
+	if grows then
+		self._bannerFit = inStrip + 1
 		self:_paintBanner()
 		self:_layoutRight()
 	end

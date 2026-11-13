@@ -85,9 +85,10 @@ return function()
 			local tier, budget = Logic.budgetFor("high", false, false, true)
 			expect(tier).to.equal("low")
 			expect(budget).to.equal(Presets.budget.lite)
-			_, budget = Logic.budgetFor("low", true, false, true)
+			tier, budget = Logic.budgetFor("low", true, false, true)
 			expect(budget).to.equal(Presets.budget.lowPerformance)
-			_, budget = Logic.budgetFor("low", false, false, false)
+			tier, budget = Logic.budgetFor("low", false, false, false)
+			expect(tier).to.equal("low")
 			expect(budget).to.equal(Presets.budget.low)
 			local low, lite, saver =
 				Presets.budget.low, Presets.budget.lite, Presets.budget.lowPerformance

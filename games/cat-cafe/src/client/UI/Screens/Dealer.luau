@@ -84,7 +84,7 @@ local ALL_BUTTON = Vector2.new(124, 44)
 -- rarity chip, the stock line and the price; the odds open over the card from the small ? in its corner. Buy all
 -- stays on the strip's right (the mock centres it under the cards, but a phone held sideways has no room for it)
 local CARD_ICON = 64
-local CARD_HINT = 32
+local CARD_HINT = 36
 local FAMILY_STRIP = 60 -- a slimmer strip, so a phone held sideways shows the whole card
 
 local Dealer = {}
@@ -225,6 +225,8 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self:_buildConfirm(panel.frame)
 
 	local listTop = (if family then FAMILY_STRIP else STRIP_HEIGHT) + Theme.sizes.gap + 4
+	self._listTop = listTop
+	self._content = panel.content
 	local layout: Instance = if family
 		then Create("UIGridLayout", {
 			CellSize = UDim2.new(1 / 3, -Theme.sizes.gap, 0, self:_cardHeight()),
@@ -284,6 +286,10 @@ function Dealer._clearRows(self: any)
 		row.buy:destroy()
 		row.details:destroy()
 		row.icon:destroy()
+		if row.close then
+			row.close:destroy()
+			row.cover:Destroy()
+		end
 		row.frame:Destroy()
 	end
 	table.clear(self._rows)
@@ -571,40 +577,79 @@ function Dealer._buildCard(self: any, index: number, group: DealerRows.Row)
 			self:_buy(lureId)
 		end,
 	})
-	-- the odds over the card's top, under its ? (the price stays in sight)
+	-- the odds over the whole food grid, not inside the card: Review-QA's Studio pass 2026-11-13 found the odds,
+	-- the food's line and the stock chances longer than a card at every size. The card's ? opens it, its X closes it.
+	local listTop = self._listTop
 	local cover: ScrollingFrame = Create("ScrollingFrame", {
-		Name = "DetailCover",
+		Name = "DetailCover_" .. group.lureId,
 		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 1, -(buyH + 12)),
+		Position = UDim2.fromOffset(0, listTop),
+		Size = UDim2.new(1, 0, 1, -listTop),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollBarThickness = 4,
+		ClipsDescendants = true,
+		ScrollBarThickness = 6,
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Visible = false,
-		ZIndex = 5,
-		Parent = card,
-	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+		ZIndex = 20,
+		Parent = self._content,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = 2 }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 14),
+			PaddingRight = UDim.new(0, 14),
+			PaddingTop = UDim.new(0, 10),
+			PaddingBottom = UDim.new(0, 12),
+		}),
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	text({
+		Name = "Title",
+		Size = UDim2.new(1, -(hintH + 12), 0, 26),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = CARD.text,
+		Text = def.name .. " odds",
+		LayoutOrder = 1,
+		ZIndex = 21,
+		Parent = cover,
+	})
 	local detail = text({
 		Name = "Detail",
 		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, -(hintH + 8), 0, 0),
-		TextSize = Theme.sizes.textTiny,
+		Size = UDim2.new(1, -(hintH + 12), 0, 0),
+		TextSize = Theme.sizes.textSmall,
 		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		RichText = true,
-		ZIndex = 5,
+		LayoutOrder = 2,
+		ZIndex = 21,
 		Parent = cover,
 	})
-	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 10),
-		PaddingTop = UDim.new(0, 8),
-		PaddingBottom = UDim.new(0, 8),
-		Parent = detail,
+	local lureIdForClose = group.lureId
+	local close = Button.new({
+		name = "CloseDetail",
+		text = "X",
+		style = "ghost",
+		size = UDim2.fromOffset(hintH + 4, hintH + 4),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -8, 0, listTop + 8),
+		textSize = Theme.sizes.textSmall,
+		zIndex = 22,
+		parent = self._content,
+		onClick = function()
+			self:_toggleDetail(lureIdForClose)
+		end,
 	})
+	close.instance.Visible = false
 	local details = Button.new({
 		name = "Details",
 		text = "?",
@@ -628,6 +673,7 @@ function Dealer._buildCard(self: any, index: number, group: DealerRows.Row)
 		details = details,
 		detail = detail,
 		cover = cover,
+		close = close,
 		odds = FoodOdds.rich(def.odds, rarityHex),
 		split = nil :: string?,
 		group = group,
@@ -636,15 +682,15 @@ end
 
 function Dealer._toggleDetail(self: any, lureId: string)
 	for _, row in self._rows do
-		if row.group.lureId == lureId then
-			-- #3961: a card's odds open over it, and its ? turns into an X
-			local shown = row.cover or row.detail
-			shown.Visible = not shown.Visible
-			if row.cover then
-				row.details:setText(if shown.Visible then "X" else "?")
-			else
-				row.details:setText(if shown.Visible then "Hide details" else "Details")
-			end
+		if row.cover then
+			-- #3961: one food's odds open over the grid at a time; its X (or its ? again) closes them
+			local open = row.group.lureId == lureId and not row.cover.Visible
+			row.cover.Visible = open
+			row.close.instance.Visible = open
+			row.cover.CanvasPosition = Vector2.zero
+		elseif row.group.lureId == lureId then
+			row.detail.Visible = not row.detail.Visible
+			row.details:setText(if row.detail.Visible then "Hide details" else "Details")
 		end
 	end
 end

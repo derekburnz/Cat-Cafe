@@ -4095,6 +4095,21 @@ local SCENES = {
 		assert(star and sardines, "uigate: the dealer drew no Star Treat or Sardines row (#2057)")
 		assert(star < sardines, "uigate: the dealer lists Sardines above Star Treat, wants rarest first (#2057)")
 	end },
+	-- Review-QA's Studio pass 2026-11-13: a card's odds (its ?) open over the whole food grid, not inside the card
+	{ "DealerDetail", function()
+		UI.dealer.setStock({
+			window = 20400,
+			restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
+			stock = {
+				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
+				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
+				{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
+				{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
+			},
+		})
+		UI.dealer.open()
+		press("Dealer", "star_treat.Details")
+	end },
 	-- #2573 (riverpopcorn886's idea): Buy all on the strip; its card lists the plan, best grade first, and at 3M coins
 	-- says 3 of 4 fit (one Star Treat, two Sardines); Buy sends one buyDealerAll with the night shown
 	{ "DealerBuyAll", function()

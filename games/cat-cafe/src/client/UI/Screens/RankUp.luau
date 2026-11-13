@@ -509,8 +509,13 @@ function RankUp._fit(self: any)
 		self._teaser.Position = UDim2.new(x, UDim.new(0, 22))
 		self._teaser.Size = UDim2.new(right, UDim.new(0, TEASER_WIDE))
 		self._opens.Position = UDim2.new(x, UDim.new(0, 22 + TEASER_WIDE + 2))
-		self._opens.Size =
-			UDim2.new(right, UDim.new(1, -(22 + TEASER_WIDE + 2 + BUTTON.Y + Theme.sizes.gap)))
+		-- Review-QA's Studio pass 2026-11-13: on a short screen the last row sat under the button (its lip and
+		-- touch pad stand taller than BUTTON.Y), so the list now ends above the button's full height
+		local buttonTall = math.max(BUTTON.Y + Theme.sizes.buttonDepth, button.AbsoluteSize.Y)
+		self._opens.Size = UDim2.new(
+			right,
+			UDim.new(1, -(22 + TEASER_WIDE + 2 + buttonTall + Theme.sizes.gap + 6))
+		)
 		self._opensList.Position = self._opens.Position
 		self._opensList.Size = self._opens.Size
 		button.Position = UDim2.new(LEFT + (1 - LEFT) / 2, half / 2, 1, 0)

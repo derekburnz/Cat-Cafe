@@ -5733,8 +5733,11 @@ do
 	local hinted: { state: any, text: string?, device: TipQueue.Device? } = {}
 	local stall = { step = -1, seconds = 0, pulses = 0, asked = false, clock = 0 }
 
+	-- #3865: the strip follows a new input only once it has held a moment (TipQueue.settle)
+	local settle = TipQueue.newSettle()
 	local function inputDevice(): TipQueue.Device
-		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
+		local now = TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
+		return TipQueue.settle(settle, now, os.clock())
 	end
 
 	local function hintFor(s: any, device: TipQueue.Device): string?

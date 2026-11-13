@@ -918,4 +918,18 @@ function Logic.trustPurrSpeed(trust: any, need: any): number
 	return 1 + 0.5 * math.clamp(trust / need, 0, 1)
 end
 
+-- #3656: a music or ambience bed is kept and reused, so one that failed to load (a 502, NetFail or a refused
+-- permission) would stay silent the whole session. It is rebuilt with a fresh fetch when it still has not loaded
+-- RELOAD_AFTER seconds after it was made, at most RELOAD_TRIES times per cue.
+Logic.RELOAD_AFTER = 20
+Logic.RELOAD_TRIES = 3
+
+function Logic.shouldReload(isLoaded: any, age: any, tries: any): boolean
+	return isLoaded ~= true
+		and type(age) == "number"
+		and age >= Logic.RELOAD_AFTER
+		and type(tries) == "number"
+		and tries < Logic.RELOAD_TRIES
+end
+
 return Logic

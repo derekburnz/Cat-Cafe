@@ -1531,4 +1531,22 @@ return function()
 			end
 		)
 	end)
+
+	describe("Audio.Logic bed reload (#3656)", function()
+		it("rebuilds a bed that has not loaded after RELOAD_AFTER seconds", function()
+			expect(Logic.shouldReload(false, Logic.RELOAD_AFTER, 0)).to.equal(true)
+			expect(Logic.shouldReload(false, Logic.RELOAD_AFTER + 30, 2)).to.equal(true)
+		end)
+
+		it("keeps a loaded bed, a young bed and one past its tries", function()
+			expect(Logic.shouldReload(true, 999, 0)).to.equal(false)
+			expect(Logic.shouldReload(false, Logic.RELOAD_AFTER - 1, 0)).to.equal(false)
+			expect(Logic.shouldReload(false, 999, Logic.RELOAD_TRIES)).to.equal(false)
+		end)
+
+		it("refuses odd values", function()
+			expect(Logic.shouldReload(false, nil, 0)).to.equal(false)
+			expect(Logic.shouldReload(false, 30, nil)).to.equal(false)
+		end)
+	end)
 end

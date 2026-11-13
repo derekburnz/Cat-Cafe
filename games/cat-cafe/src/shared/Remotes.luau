@@ -125,7 +125,7 @@ Remotes.ClientToServer = {
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?, featureName: boolean?)  featureName (#1083)
 	-- is kept only for an idea and only as true;  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
-	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its
+	"TipSeen", -- (id: string, skipped: boolean?, seconds: number? #3430 for "mystic_intro" only)  F87 (easy-start.md section 6): a shared/Tips id or one of its
 	-- asks, 1 a second. A tip goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut was skipped);
 	-- F96: an ask this session sent (notify_ask, favorite_ask, like_ask) goes in tipsSeen and logs ask_shown (the
 	-- notification ask's first showing only sets notifyAskAt; skipped true: Roblox would not prompt), feedback_ask
@@ -395,7 +395,7 @@ Remotes.ServerToClient = {
 	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
 	"PlaytimeGift", -- (kind: PlaytimeGifts.Kind, paid: { string })  #1947: the like ("like") or favourite ("fav")
 	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
-	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish: number, spins: number, secondsLeft: number)  #3420: the
+	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish, spins, secondsLeft, crates: number)  #3420, #3535: the
 	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
 	-- first); the client shows the banner with UpdateGift.banner's words
 	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync

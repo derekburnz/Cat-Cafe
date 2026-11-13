@@ -18,13 +18,14 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Callbacks = {
 	-- #1751: Use or Remove on a card; a piece's spot and id ("" takes it in), or a path or fence and id ("" for none)

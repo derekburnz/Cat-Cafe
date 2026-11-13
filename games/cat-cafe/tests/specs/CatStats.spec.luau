@@ -477,6 +477,7 @@ return function()
 	describe("Economy integration", function()
 		it("a fresh profile still earns 1.5 per second (starter Tabby is neutral)", function()
 			local profile = ProfileSchema.template(1000)
+			profile.upgradeLevels.tables = 0 -- #3660: the starting table adds its own share, checked in ProfileSchema.spec
 			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.tier).to.equal(1)
 			expect((profile :: any).renovations).never.to.be.ok()
@@ -546,6 +547,7 @@ return function()
 
 		it("coins in a settle window use the rate from before the level up", function()
 			local profile = ProfileSchema.template(0)
+			profile.upgradeLevels.tables = 0 -- #3660
 			profile.coins = 0
 			Economy.settle(profile, Config.CatXpBase)
 			expect(profile.coins).to.be.near(1.5 * Config.CatXpBase)
@@ -557,6 +559,7 @@ return function()
 			local economy = Economy :: any
 			expect(economy.prestigeMultiplier).never.to.be.ok()
 			local profile: any = ProfileSchema.template(0)
+			profile.upgradeLevels.tables = 0 -- #3660
 			profile.renovations = 2
 			expect(Economy.incomePerSecond(profile)).to.be.near(1.5)
 		end)

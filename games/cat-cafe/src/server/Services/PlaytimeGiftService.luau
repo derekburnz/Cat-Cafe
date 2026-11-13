@@ -14,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CafeService = require(script.Parent.CafeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local Economy = require(ReplicatedStorage.Shared.Economy)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
@@ -33,28 +34,45 @@ local noticed: { [Player]: string } = {} -- #3420: the gift id whose "a gift is 
 -- true when the update gift was paid this tick
 local function updateGift(player: Player): boolean
 	local profile = DataService.get(player)
-	local gift = Config.UpdateGift
-	if profile == nil or gift == nil then
+	if profile == nil then
 		return false
 	end
 	local now = os.time()
+	-- #3535: the gift that pays now, and the one whose notice may show (the next one, in the minutes before it)
+	local gift, coming = UpdateGift.pick(Config.UpdateGift, Config.UpdateGiftNext, now)
 	-- #3420: in the minutes before it, one "a gift is coming" banner per player per gift (on join, or at the first
 	-- tick for players already in). It promises only what the gift pays, and nothing is lost by leaving.
-	local left = UpdateGift.soon(profile.codesRedeemed, gift, now)
-	if left ~= nil and noticed[player] ~= gift.id then
-		noticed[player] = gift.id
-		Net.fire(player, "UpdateGiftNotice", "soon", gift.fish, gift.spins, left)
+	local left = UpdateGift.soon(profile.codesRedeemed, coming, now)
+	if coming ~= nil and left ~= nil and noticed[player] ~= coming.id then
+		noticed[player] = coming.id
+		Net.fire(
+			player,
+			"UpdateGiftNotice",
+			"soon",
+			coming.fish,
+			coming.spins,
+			left,
+			UpdateGift.crateCount(coming)
+		)
 		return false
 	end
-	if not UpdateGift.due(profile.codesRedeemed, gift, now) then
+	if gift == nil or not UpdateGift.due(profile.codesRedeemed, gift, now) then
 		return false
 	end
 	profile.codesRedeemed[UpdateGift.key(gift.id)] = now
-	Payout.pay(player, profile, UpdateGift.prize(gift), "update_gift")
+	Payout.pay(player, profile, UpdateGift.prize(gift, Economy.tier(profile)), "update_gift")
 	Telemetry.custom(player, "update_gift", 1, { gift.id })
 	CafeService.sync(player)
 	-- the banner in place of the toast (#3420); the client falls back to the toast's words when no banner can show
-	Net.fire(player, "UpdateGiftNotice", "paid", gift.fish, gift.spins, 0)
+	Net.fire(
+		player,
+		"UpdateGiftNotice",
+		"paid",
+		gift.fish,
+		gift.spins,
+		0,
+		UpdateGift.crateCount(gift)
+	)
 	return true
 end
 

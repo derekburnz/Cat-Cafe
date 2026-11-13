@@ -24,6 +24,11 @@ return function()
 			"vip",
 			"supporter",
 			"tag_grand_opener",
+			"title_cat_legend", -- #3694
+			"title_steady_hands",
+			"title_devoted",
+			"title_week_champion",
+			"title_gold_rush",
 			"rank_1", -- #3333
 			"rank_2",
 			"rank_3",

@@ -20,6 +20,7 @@ local BuyAllCard = require(script.Parent.Parent.Components.BuyAllCard)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -32,7 +33,8 @@ local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
 -- the dark window palette (#1028)
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	buy: (itemId: string, window: number, shownPrice: number, catUid: string?) -> (),
@@ -684,7 +686,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 		local kind: string = if def ~= nil then def.kind else "other"
 		local frame: Frame = Create("Frame", {
 			Name = itemId,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Visible = kind == self._tab, -- #3209: only the open tab's rows
 			LayoutOrder = orderOf[index] or index,
@@ -692,7 +694,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			Parent = self._list,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
-			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local bait = def ~= nil and def.kind == "bait"
 		local icon = ItemIcon.new({
@@ -728,10 +730,11 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			Size = UDim2.new(1, -(left + right + STOCK_W), 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody + 1,
+			TextColor3 = CARD.text,
 			Text = if def then def.name else itemId,
 			Parent = frame,
 		})
-		Outline.text(name, 1.5)
+		MenuFamily.outline(name, 1.5)
 		local line = text({
 			Name = "Line",
 			AnchorPoint = Vector2.new(1, 0),
@@ -739,7 +742,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			Size = UDim2.fromOffset(STOCK_W, 18),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny + 1,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Parent = frame,
 		})
@@ -748,7 +751,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			Position = UDim2.new(0, left, 0.5, 3),
 			Size = UDim2.new(1, -(left + right), 0, 16),
 			TextSize = Theme.sizes.textTiny + 1,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Text = if def then CornerShopLogic.effect(def) else "",
 			Parent = frame,
 		})

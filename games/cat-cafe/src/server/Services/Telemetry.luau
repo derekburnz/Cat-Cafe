@@ -264,6 +264,8 @@ export type CustomEvent =
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
 	| "tip_shown"
+	-- #3430: the Mystic Pool's first walk-up cutscene ended; value the seconds seen; watched or skipped
+	| "mystic_intro"
 	| "ask_shown" -- F96: value 1; kind (notify, favorite, like or F92's invite), the session number
 	| "feedback"
 	-- #2681: with each feedback answer, value 1: the face, the furthest clean funnel step (onboarding_v7, #3695), the account's minutes

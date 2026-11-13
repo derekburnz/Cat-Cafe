@@ -111,6 +111,11 @@ async function runProfile(profile) {
         return { path: where, prop, changes: Number(changes), distinct: Number(distinct) };
       });
   const results = [];
+  // --flag a,b: those live switches read true from the start, as on a server that has them on (the UI builds its
+  // windows once, at setup)
+  for (const flag of (process.env.UIGATE_FLAG || '').split(',').filter((f) => /^[A-Za-z0-9]+$/.test(f))) {
+    lua.load(`game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_${flag}", true)`, { name: 'uigate-flag', environment: env }).call();
+  }
   run(scenes.rawGet('setup'), 3);
   run(scenes.rawGet('close'), 0.6); // a window the login opens by itself (a Daily Treat that is due)
   const hudJitter = watch();
@@ -286,6 +291,7 @@ function parseArgs(argv) {
     else if (arg === '--devices') out.devices = true;
     else if (arg === '--tablets') out.tablets = true;
     else if (arg === '--scene') out.scene = argv[++i];
+    else if (arg === '--flag') process.env.UIGATE_FLAG = argv[++i]; // live switches set true before the UI is built, comma separated (#3558: menuFamily)
     else if (arg === '--update-baseline') out.updateBaseline = true;
     else if (arg === '--verbose' || arg === '-v') out.verbose = true;
     else if (arg === '--mem') out.mem = true; // the Luau heap after each scene, on stderr
@@ -294,7 +300,7 @@ function parseArgs(argv) {
     else if (arg === '--save') out.save = argv[++i]; // with --shard: write each size's scenes to this folder
     else if (arg === '--merge') out.merge = argv[++i]; // check the scenes every --save shard wrote to this folder
     else if (arg === '--help' || arg === '-h') {
-      console.log('usage: node uigate.mjs [--out dir] [--devices] [--tablets] [--profile desktop|laptop|phone|tablet|smallphone|console|ipadmini|ipad43|ipadpro|tab1610|fire7] [--scene Name] [--update-baseline] [--verbose]');
+      console.log('usage: node uigate.mjs [--out dir] [--devices] [--tablets] [--profile desktop|laptop|phone|tablet|smallphone|console|ipadmini|ipad43|ipadpro|tab1610|fire7] [--scene Name] [--flag menuFamily] [--update-baseline] [--verbose]');
       process.exit(0);
     } else throw new Error(`unknown argument ${arg}`);
   }

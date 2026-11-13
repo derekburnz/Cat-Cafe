@@ -2007,7 +2007,7 @@
      "CFrame": {
       "position": [
        -2.145,
-       2.61,
+       2.37,
        -3.02
       ],
       "orientation": [
@@ -2031,7 +2031,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -2055,106 +2055,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.225,
+       -2.305,
        2.45,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.145,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.145,
-       2.13,
        -3.02
       ],
       "orientation": [
@@ -2252,7 +2154,7 @@
      "CFrame": {
       "position": [
        -2.785,
-       2.61,
+       2.37,
        -3.02
       ],
       "orientation": [
@@ -2276,7 +2178,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -2349,7 +2251,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.865,
+       -2.945,
        2.45,
        -3.02
       ],
@@ -2373,204 +2275,57 @@
      }
     },
     "Size": [
+     0.16,
+     0.16,
+     0.06
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Blocker_Van",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.105,
+       2.21,
+       -3.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
      0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.785,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.105,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.785,
-       2.13,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.105,
-       2.13,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
      0.06
     ],
     "Color": [
@@ -2644,7 +2399,7 @@
      "CFrame": {
       "position": [
        -3.425,
-       2.61,
+       2.37,
        -3.02
       ],
       "orientation": [
@@ -2668,105 +2423,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.505,
-       2.45,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.425,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -2791,6 +2448,55 @@
      "CFrame": {
       "position": [
        -3.585,
+       2.45,
+       -3.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.16,
+     0.06
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Blocker_Van",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.665,
        2.13,
        -3.02
       ],
@@ -2814,7 +2520,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -2889,7 +2595,7 @@
      "CFrame": {
       "position": [
        -4.065,
-       2.61,
+       2.53,
        -3.02
       ],
       "orientation": [
@@ -2913,7 +2619,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -2937,7 +2643,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.225,
+       -4.305,
        2.45,
        -3.02
       ],
@@ -2961,7 +2667,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -2987,7 +2693,7 @@
      "CFrame": {
       "position": [
        -4.385,
-       2.29,
+       2.21,
        -3.02
       ],
       "orientation": [
@@ -3011,7 +2717,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -3035,7 +2741,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.225,
+       -4.145,
        2.13,
        -3.02
       ],
@@ -3059,7 +2765,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -3085,7 +2791,7 @@
      "CFrame": {
       "position": [
        -4.705,
-       2.77,
+       2.45,
        -3.02
       ],
       "orientation": [
@@ -3109,7 +2815,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -3134,7 +2840,7 @@
      "CFrame": {
       "position": [
        -5.025,
-       2.77,
+       2.45,
        -3.02
       ],
       "orientation": [
@@ -3158,105 +2864,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.705,
-       2.61,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.025,
-       2.61,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -3282,202 +2890,6 @@
       "position": [
        -4.865,
        2.45,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.48,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.705,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.025,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.705,
-       2.13,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.025,
-       2.13,
        -3.02
       ],
       "orientation": [
@@ -3575,7 +2987,7 @@
      "CFrame": {
       "position": [
        -5.665,
-       2.61,
+       2.37,
        -3.02
       ],
       "orientation": [
@@ -3599,7 +3011,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -3623,106 +3035,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.745,
+       -5.825,
        2.45,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.665,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.665,
-       2.13,
        -3.02
       ],
       "orientation": [
@@ -3820,7 +3134,7 @@
      "CFrame": {
       "position": [
        -6.465,
-       2.61,
+       2.37,
        -3.02
       ],
       "orientation": [
@@ -3844,7 +3158,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -3868,105 +3182,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.465,
-       2.45,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.465,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.465,
+       -6.305,
        2.13,
        -3.02
       ],
@@ -3990,7 +3206,56 @@
      }
     },
     "Size": [
-     0.48,
+     0.16,
+     0.16,
+     0.06
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Blocker_Van",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.625,
+       2.13,
+       -3.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
      0.16,
      0.06
     ],
@@ -4065,7 +3330,7 @@
      "CFrame": {
       "position": [
        -6.945,
-       2.61,
+       2.53,
        -3.02
       ],
       "orientation": [
@@ -4089,7 +3354,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -4113,7 +3378,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.105,
+       -7.185,
        2.45,
        -3.02
       ],
@@ -4137,7 +3402,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -4163,7 +3428,7 @@
      "CFrame": {
       "position": [
        -7.265,
-       2.29,
+       2.21,
        -3.02
       ],
       "orientation": [
@@ -4187,7 +3452,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -4211,7 +3476,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.105,
+       -7.025,
        2.13,
        -3.02
       ],
@@ -4235,7 +3500,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -4261,7 +3526,7 @@
      "CFrame": {
       "position": [
        -7.585,
-       2.77,
+       2.45,
        -3.02
       ],
       "orientation": [
@@ -4285,7 +3550,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -4310,7 +3575,7 @@
      "CFrame": {
       "position": [
        -7.905,
-       2.77,
+       2.45,
        -3.02
       ],
       "orientation": [
@@ -4334,105 +3599,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.585,
-       2.61,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.905,
-       2.61,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -4458,202 +3625,6 @@
       "position": [
        -7.745,
        2.45,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.48,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.585,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.905,
-       2.29,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.585,
-       2.13,
-       -3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.905,
-       2.13,
        -3.02
       ],
       "orientation": [
@@ -4751,7 +3722,7 @@
      "CFrame": {
       "position": [
        -7.905,
-       2.61,
+       2.37,
        3.02
       ],
       "orientation": [
@@ -4775,7 +3746,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -4799,106 +3770,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.825,
+       -7.745,
        2.45,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.905,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.905,
-       2.13,
        3.02
       ],
       "orientation": [
@@ -4996,7 +3869,7 @@
      "CFrame": {
       "position": [
        -7.265,
-       2.61,
+       2.37,
        3.02
       ],
       "orientation": [
@@ -5020,7 +3893,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -5093,7 +3966,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.185,
+       -7.105,
        2.45,
        3.02
       ],
@@ -5117,204 +3990,57 @@
      }
     },
     "Size": [
+     0.16,
+     0.16,
+     0.06
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Blocker_Van",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.945,
+       2.21,
+       3.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
      0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.265,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.945,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.265,
-       2.13,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.945,
-       2.13,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
      0.06
     ],
     "Color": [
@@ -5388,7 +4114,7 @@
      "CFrame": {
       "position": [
        -6.625,
-       2.61,
+       2.37,
        3.02
       ],
       "orientation": [
@@ -5412,105 +4138,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.545,
-       2.45,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.625,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -5535,6 +4163,55 @@
      "CFrame": {
       "position": [
        -6.465,
+       2.45,
+       3.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.16,
+     0.06
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Blocker_Van",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.385,
        2.13,
        3.02
       ],
@@ -5558,7 +4235,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -5633,7 +4310,7 @@
      "CFrame": {
       "position": [
        -5.985,
-       2.61,
+       2.53,
        3.02
       ],
       "orientation": [
@@ -5657,7 +4334,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -5681,7 +4358,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.825,
+       -5.745,
        2.45,
        3.02
       ],
@@ -5705,7 +4382,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -5731,7 +4408,7 @@
      "CFrame": {
       "position": [
        -5.665,
-       2.29,
+       2.21,
        3.02
       ],
       "orientation": [
@@ -5755,7 +4432,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -5779,7 +4456,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.825,
+       -5.905,
        2.13,
        3.02
       ],
@@ -5803,7 +4480,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -5829,7 +4506,7 @@
      "CFrame": {
       "position": [
        -5.345,
-       2.77,
+       2.45,
        3.02
       ],
       "orientation": [
@@ -5853,7 +4530,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -5878,7 +4555,7 @@
      "CFrame": {
       "position": [
        -5.025,
-       2.77,
+       2.45,
        3.02
       ],
       "orientation": [
@@ -5902,105 +4579,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.345,
-       2.61,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.025,
-       2.61,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -6026,202 +4605,6 @@
       "position": [
        -5.185,
        2.45,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.48,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.345,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.025,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.345,
-       2.13,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.025,
-       2.13,
        3.02
       ],
       "orientation": [
@@ -6319,7 +4702,7 @@
      "CFrame": {
       "position": [
        -4.385,
-       2.61,
+       2.37,
        3.02
       ],
       "orientation": [
@@ -6343,7 +4726,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -6367,106 +4750,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.305,
+       -4.225,
        2.45,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.385,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.385,
-       2.13,
        3.02
       ],
       "orientation": [
@@ -6564,7 +4849,7 @@
      "CFrame": {
       "position": [
        -3.585,
-       2.61,
+       2.37,
        3.02
       ],
       "orientation": [
@@ -6588,7 +4873,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.06
     ],
     "Color": [
@@ -6612,105 +4897,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.585,
-       2.45,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.585,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.585,
+       -3.745,
        2.13,
        3.02
       ],
@@ -6734,7 +4921,56 @@
      }
     },
     "Size": [
-     0.48,
+     0.16,
+     0.16,
+     0.06
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Blocker_Van",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.425,
+       2.13,
+       3.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
      0.16,
      0.06
     ],
@@ -6809,7 +5045,7 @@
      "CFrame": {
       "position": [
        -3.105,
-       2.61,
+       2.53,
        3.02
       ],
       "orientation": [
@@ -6833,7 +5069,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -6857,7 +5093,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.945,
+       -2.865,
        2.45,
        3.02
       ],
@@ -6881,7 +5117,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -6907,7 +5143,7 @@
      "CFrame": {
       "position": [
        -2.785,
-       2.29,
+       2.21,
        3.02
       ],
       "orientation": [
@@ -6931,7 +5167,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.32,
      0.06
     ],
     "Color": [
@@ -6955,7 +5191,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.945,
+       -3.025,
        2.13,
        3.02
       ],
@@ -6979,7 +5215,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.32,
      0.16,
      0.06
     ],
@@ -7005,7 +5241,7 @@
      "CFrame": {
       "position": [
        -2.465,
-       2.77,
+       2.45,
        3.02
       ],
       "orientation": [
@@ -7029,7 +5265,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -7054,7 +5290,7 @@
      "CFrame": {
       "position": [
        -2.145,
-       2.77,
+       2.45,
        3.02
       ],
       "orientation": [
@@ -7078,105 +5314,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.465,
-       2.61,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.145,
-       2.61,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.8,
      0.06
     ],
     "Color": [
@@ -7202,202 +5340,6 @@
       "position": [
        -2.305,
        2.45,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.48,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.465,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.145,
-       2.29,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.465,
-       2.13,
-       3.02
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.06
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_Van",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.145,
-       2.13,
        3.02
       ],
       "orientation": [

@@ -146,4 +146,34 @@ return function()
 			end
 		end)
 	end)
+
+	describe("achievement titles (#3694)", function()
+		local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").Catalog)
+
+		it("gives each big achievement's title its own name, offered in ORDER", function()
+			local n = 0
+			for achievementId, tagId in ChatTags.ACHIEVEMENT_TITLES do
+				n += 1
+				local def = Catalog.getAchievement(achievementId) :: any
+				expect(def).to.be.ok()
+				expect(def.size).to.equal("XL")
+				expect(ChatTags.TAGS[tagId].text).to.equal("[" .. def.name .. "]")
+				expect(table.find(ChatTags.ORDER, tagId)).to.be.ok()
+				expect(ChatTags.validPick(tagId)).to.equal(true)
+			end
+			expect(n).to.equal(5)
+		end)
+
+		it("adds only the titles of claimed achievements, from the save alone", function()
+			local items = ChatTags.addAchievementTitles(
+				{ tag_maple = true },
+				{ a_catch10k = true, a_hours100 = false, a_catch100 = true }
+			)
+			expect(items.tag_maple).to.equal(true)
+			expect(items.title_cat_legend).to.equal(true)
+			expect(items.title_devoted).to.equal(nil)
+			expect(ChatTags.choices(false, items)).to.deepEqual({ "tag_maple", "title_cat_legend" })
+			expect(ChatTags.shown(nil, false, { title_gold_rush = true })).to.equal("title_gold_rush")
+		end)
+	end)
 end

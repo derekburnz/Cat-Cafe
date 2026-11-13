@@ -17,15 +17,54 @@
 --   soon(redeemed, gift, now) -> number?   seconds until an unpaid gift, while inside the notice window; else nil
 --   banner(kind, fish, spins, secondsLeft) -> Banner?   the banner's title and lines; nil for bad arguments
 
+-- #3535 (Derek 2026-11-12, the Friday 2026-11-13 update: "instead of golden fish giveaway 3 different golden
+-- crates"): a gift may carry `crates` (crate id -> count, banked for the Golden Fish Market like any prize's). The
+-- id "highest_golden" is the golden crate of the best area the player's tier has opened; when that is a crate the
+-- gift already names (a Tier 1 player's is the Alleyway's), it becomes a Classic Golden Crate instead, so nobody is
+-- handed a crate of an area they cannot open. Config.UpdateGiftNext is the gift after Config.UpdateGift: the one
+-- before keeps paying until the next one's `from`, then the next takes over (`pick`), with nothing carried over.
+--   pick(gift, nextGift, now) -> (Gift?, Gift?)   the gift that pays at `now`, and the one whose notice may show
+--   crateCount(gift) -> number                     how many crates it carries in all
+
+local Prizes = require(script.Parent.Prizes)
 local Types = require(script.Parent.Types)
 
 local UpdateGift = {}
 
 UpdateGift.PREFIX = "gift"
+UpdateGift.SPARE_CRATE = "classic_golden_crate" -- in place of a "highest_golden" the gift already names
 
 -- #3779: `to` (os.time(), optional) ends a gift: from then on it pays nobody new and gives no notice. The launch gift
 -- had no end, so every account that joined for the first time since kept getting its 100 fish.
-export type Gift = { id: string, from: number, fish: number, spins: number, to: number? }
+export type Gift = {
+	id: string,
+	from: number,
+	fish: number,
+	spins: number,
+	crates: { [string]: number }?,
+	to: number?,
+}
+
+-- The gift that pays at `now` and the gift whose "a gift is coming" notice may show: `nextGift` for both once its
+-- `from` has come, else `gift` pays and `nextGift` (when there is one) gives notice.
+function UpdateGift.pick(gift: Gift?, nextGift: Gift?, now: number): (Gift?, Gift?)
+	if nextGift == nil then
+		return gift, gift
+	elseif now >= nextGift.from then
+		return nextGift, nextGift
+	end
+	return gift, nextGift
+end
+
+function UpdateGift.crateCount(gift: Gift): number
+	local count = 0
+	if gift.crates ~= nil then
+		for _, n in gift.crates do
+			count += n
+		end
+	end
+	return count
+end
 
 function UpdateGift.key(id: string): string
 	return UpdateGift.PREFIX .. string.gsub(id, "%W", "")
@@ -48,6 +87,7 @@ end
 UpdateGift.NOTICE_SECONDS = 300
 UpdateGift.MAX_FISH = 1000 -- a banner never shows more than this (the client checks what it is sent)
 UpdateGift.MAX_SPINS = 10
+UpdateGift.MAX_CRATES = 10
 
 export type NoticeKind = "soon" | "paid"
 export type Banner = { title: string, lines: { string } }
@@ -83,15 +123,23 @@ local function whole(value: unknown, most: number): number?
 	return value
 end
 
+-- `crates` is how many golden crates the gift carries (#3535); nil, an older call's, reads as none.
 function UpdateGift.banner(
 	kind: unknown,
 	fish: unknown,
 	spins: unknown,
-	secondsLeft: unknown
+	secondsLeft: unknown,
+	crates: unknown?
 ): Banner?
 	local fishCount = whole(fish, UpdateGift.MAX_FISH)
 	local spinCount = whole(spins, UpdateGift.MAX_SPINS)
-	if fishCount == nil or spinCount == nil or fishCount + spinCount == 0 then
+	local crateCount = if crates == nil then 0 else whole(crates, UpdateGift.MAX_CRATES)
+	if
+		fishCount == nil
+		or spinCount == nil
+		or crateCount == nil
+		or fishCount + spinCount + crateCount == 0
+	then
 		return nil
 	end
 	local parts: { string } = {}
@@ -100,6 +148,12 @@ function UpdateGift.banner(
 	end
 	if spinCount > 0 then
 		table.insert(parts, tostring(spinCount) .. (if spinCount == 1 then " spin" else " spins"))
+	end
+	if crateCount > 0 then
+		table.insert(
+			parts,
+			tostring(crateCount) .. (if crateCount == 1 then " golden crate" else " golden crates")
+		)
 	end
 	local what = table.concat(parts, " + ")
 	if kind == "paid" then
@@ -124,13 +178,31 @@ function UpdateGift.banner(
 	}
 end
 
-function UpdateGift.prize(gift: Gift): Types.IndexPrize
+-- What it pays a player at cafe tier `tier` (1 when not given: a gift without crates pays the same at any tier).
+function UpdateGift.prize(gift: Gift, tier: number?): Types.IndexPrize
 	local prize: Types.IndexPrize = {}
 	if gift.fish > 0 then
 		prize.fish = gift.fish
 	end
 	if gift.spins > 0 then
 		prize.spins = gift.spins
+	end
+	if gift.crates ~= nil and next(gift.crates) ~= nil then
+		local crates: { [string]: number } = {}
+		for id, count in gift.crates do
+			if id ~= Prizes.HIGHEST_GOLDEN then
+				crates[id] = (crates[id] or 0) + count
+			end
+		end
+		local best = gift.crates[Prizes.HIGHEST_GOLDEN]
+		if best ~= nil and best > 0 then
+			local id = Prizes.crateFor(Prizes.HIGHEST_GOLDEN, tier or 1)
+			if id == nil or gift.crates[id] ~= nil then
+				id = UpdateGift.SPARE_CRATE
+			end
+			crates[id :: string] = (crates[id :: string] or 0) + best
+		end
+		prize.crates = crates
 	end
 	return prize
 end
@@ -142,6 +214,13 @@ function UpdateGift.words(gift: Gift): string
 	end
 	if gift.spins > 0 then
 		table.insert(parts, tostring(gift.spins) .. (if gift.spins == 1 then " spin" else " spins"))
+	end
+	local crates = UpdateGift.crateCount(gift)
+	if crates > 0 then
+		table.insert(
+			parts,
+			tostring(crates) .. (if crates == 1 then " golden crate" else " golden crates")
+		)
 	end
 	return "Update gift! " .. table.concat(parts, " + ")
 end

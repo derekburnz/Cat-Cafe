@@ -42,6 +42,8 @@ local AUTO_WAIT = 3 -- seconds a sent claim holds back the next one for that ext
 local PICK_RESULT_SECONDS = 5 -- #3615: a pick's CampExtraResult follows YardSalePicked at once; this is ample
 local pickRolling: number? = nil -- os.clock() of a YardSalePicked whose CampExtraResult has not come yet
 local pending: { [string]: number } = {} -- #2498: os.clock() of each extra's claim still unanswered
+-- #3938: the extras whose square already acted this walk-up (claimed or opened a card), until the player walks off
+local opened: { [string]: boolean } = {}
 
 local prompts: { [ProximityPrompt]: string } = {} -- each extra's prompt on this client and its extra id
 local holds: { [ProximityPrompt]: number } = {} -- each prompt's HoldDuration as the server made it
@@ -221,6 +223,13 @@ local function autoClaim()
 			if pending[extraId] == math.huge then
 				pending[extraId] = nil -- walked away after a refusal: the next walk-up tries again
 			end
+			if opened[extraId] then
+				opened[extraId] = nil
+				local closeInfo = hook("closeInfo") -- #3938: walking off the square closes its card
+				if closeInfo ~= nil then
+					closeInfo(extraId)
+				end
+			end
 			continue
 		end
 		local sent = pending[extraId]
@@ -228,13 +237,24 @@ local function autoClaim()
 		if (sent ~= nil and now - sent < AUTO_WAIT) or view == nil or not prompt.Enabled then
 			continue
 		end
-		local how, crateId = CampExtras.autoClaim(extraId, view)
+		-- #3938 (Derek: "the squares don't open menus if item not ready"): with nothing to claim the square opens
+		-- the station's card, once a walk-up
+		local how, crateId = CampExtras.walkUp(extraId, view)
 		if how == "collect" then
 			pending[extraId] = now
+			opened[extraId] = true -- the card waits for the next walk-up, not the moment the claim lands
 			Net.fire("CollectCampExtra", extraId)
 		elseif how == "yard" and crateId ~= nil then
 			pending[extraId] = now
+			opened[extraId] = true
 			Net.fire("BuyYardSale", crateId)
+		elseif how == "info" and not opened[extraId] then
+			-- the Yard Sale and Picnic Treats cards are WalkUpController's to open
+			local openInfo = hook("openInfo")
+			if openInfo ~= nil then
+				opened[extraId] = true
+				openInfo(extraId)
+			end
 		end
 	end
 end

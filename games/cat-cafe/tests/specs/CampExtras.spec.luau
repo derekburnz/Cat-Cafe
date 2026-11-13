@@ -112,6 +112,7 @@ return function()
 				local save = emptied(2)
 				local ready = treatsAt(save, 2, T + 5 * HOUR)
 				expect(CampExtras.autoClaim("picnic", ready.picnic)).to.equal(nil)
+				expect((CampExtras.walkUp("picnic", ready.picnic))).to.equal("treats") -- #3938: its pick card
 				local name, action = CampExtras.promptText("picnic", ready.picnic, T + 5 * HOUR)
 				expect(name).to.equal("Picnic Treats")
 				expect(action).to.equal("Pick one treat")
@@ -607,6 +608,34 @@ return function()
 			local pick = table.clone(view) :: any
 			pick.pick = { { crateId = "classic_crate", chance = 100 } }
 			expect((CampExtras.autoClaim(CampExtras.YARD_SALE, pick))).to.equal(nil)
+		end)
+
+		it("opens the station's card when nothing waits, or it is shut (#3938)", function()
+			local fresh = at(CampExtras.fresh(T), 5, T)
+			for _, id in CampExtras.COLLECT do
+				-- #3955: the Lost and Found's ring opens its own card, full or empty
+				local want = if id == "lostFound" then "lostCard" else "collect"
+				expect((CampExtras.walkUp(id, (fresh :: any)[id]))).to.equal(want)
+			end
+			local empty = CampExtras.view(emptied(5), 5, T)
+			for _, id in CampExtras.COLLECT do
+				local want = if id == "lostFound" then "lostCard" else "info"
+				expect((CampExtras.walkUp(id, (empty :: any)[id]))).to.equal(want)
+			end
+			local shut = at(CampExtras.fresh(T), 1, T)
+			expect((CampExtras.walkUp("pond", shut.pond))).to.equal("info")
+			expect((CampExtras.walkUp(CampExtras.YARD_SALE, shut.yardSale))).to.equal("info")
+			-- the Yard Sale: its free crate as before, else its own card (a lucky pick is pressed there)
+			local yard = at(CampExtras.fresh(T), 3, T).yardSale
+			local how, crateId = CampExtras.walkUp(CampExtras.YARD_SALE, yard)
+			expect(how).to.equal("yard")
+			expect(crateId).to.equal((CampExtras.nextYardCrate(yard) :: any).crateId)
+			local taken = table.clone(yard)
+			taken.held = 0
+			expect((CampExtras.walkUp(CampExtras.YARD_SALE, taken))).to.equal("yardCard")
+			local pick = table.clone(yard) :: any
+			pick.pick = { { crateId = "classic_crate", chance = 100 } }
+			expect((CampExtras.walkUp(CampExtras.YARD_SALE, pick))).to.equal("yardCard")
 		end)
 	end)
 

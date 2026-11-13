@@ -4809,6 +4809,7 @@ Presets.binRoll = {
 	laps = 2,
 	first = 0.067,
 	last = 0.45,
+	slow = 4, -- #3903: the last ticks that slow down, all inside the final run to the prize (no near miss)
 	rattle = 4,
 	rattleHz = 7,
 	good = 0.15,

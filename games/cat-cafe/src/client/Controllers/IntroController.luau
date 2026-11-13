@@ -1282,12 +1282,22 @@ local function stageCatch(r: Run, t: number)
 				else nil
 			local camWay =
 				toward(spot, if last ~= nil then last.position else camera.CFrame.Position)
+			-- Review-QA (Studio, f9293840): with the root's LookVector on the camera the picture still showed the
+			-- back, so the turn aims the other way while Intro.FACE_FLIP is on (the head's look is printed to check)
+			if Intro.FACE_FLIP then
+				camWay = -camWay
+			end
 			if RunService:IsStudio() and k >= 1 then
 				print(
 					`[Intro] face: you {spot} way {camWay} camera {camera.CFrame.Position} key {if last
 							~= nil
 						then last.position
-						else "none"} look {you.root.CFrame.LookVector}`
+						else "none"} look {you.root.CFrame.LookVector} head {(function(): any
+						local head = you.model:FindFirstChild("Head")
+						return if head ~= nil and head:IsA("BasePart")
+							then head.CFrame.LookVector
+							else "none"
+					end)()}`
 				)
 			end
 			turnYou(you, spot, r.faceFrom :: Vector3, camWay, k)

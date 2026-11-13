@@ -7435,11 +7435,11 @@ do
 		end
 	end
 
-	function UI.mouseDash.began(run: number, hearts: number, firstAt: number)
+	function UI.mouseDash.began(run: number, hearts: number, firstAt: number, endsAt: number?)
 		local screen = dash.screen
 		if screen then
 			UI.mouseDash.open() -- (a start always comes from the open card; this keeps the board in view)
-			screen:began(run, hearts, firstAt)
+			screen:began(run, hearts, firstAt, endsAt)
 		end
 	end
 

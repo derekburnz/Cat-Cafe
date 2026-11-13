@@ -2648,6 +2648,34 @@ local SCENES = {
 		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
 	end },
+	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
+	-- No thanks that hides it, and once a session only
+	{ "MysticPoolOffer", function()
+		local window = mysticPool(nil, "gate_1", { tokens = 0, freeLeft = 0, held = 0, bundles = true })
+		local offer = window:FindFirstChild("TokenOffer", true)
+		assert(offer and offer.Visible, "uigate: the token offer did not show after the free rolls (#3864)")
+		local want = { "20 Tokens · R$99", "50 Tokens · R$199" }
+		for index, words in want do
+			local button = offer:FindFirstChild("Bundle" .. index, true)
+			local label = button and button:FindFirstChildWhichIsA("TextLabel", true)
+			assert(button and button.Visible and label and label.Text == words, "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#3864)")
+			assert(label.TextFits, "uigate: bundle " .. index .. "'s label does not fit (#3864)")
+		end
+		local odds = 0
+		for _, piece in offer:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible and piece.Text:find("%d+%%") then
+				odds += 1
+			end
+		end
+		assert(odds >= 1, "uigate: the token offer shows no odds before the buy buttons (#3864)")
+		local no = offer:FindFirstChild("NoThanks", true)
+		local bottom = offer.AbsolutePosition.Y + offer.AbsoluteSize.Y
+		assert(no and no.AbsolutePosition.Y + no.AbsoluteSize.Y <= bottom + 1, "uigate: No thanks hangs below the offer (#3864)")
+		press("MysticPool", "TokenOffer.NoThanks")
+		assert(not offer.Visible, "uigate: No thanks did not hide the token offer (#3864)")
+		UI.update({ traits = { tokens = 0, freeLeft = 0, held = 0, bundles = true } } :: any)
+		assert(not offer.Visible, "uigate: the token offer showed twice in one session (#3864)")
+	end },
 	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one
 	-- gold), one that can be filled with its green "!", the rest silhouettes with "You have n"
 	{ "RelicMuseum", function()

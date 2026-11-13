@@ -35,6 +35,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LateBuild = require(script.Parent.Parent.Components.LateBuild)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -577,6 +578,8 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	return self :: SpinWheel
 end
 
+SpinWheel.BUILD_AFTER = 10 -- #3722: seconds after the catalog arrives
+
 function SpinWheel.setCatalog(self: any, catalog: Types.Catalog)
 	table.clear(self._lureById)
 	for _, lure in catalog.lures do
@@ -586,7 +589,12 @@ function SpinWheel.setCatalog(self: any, catalog: Types.Catalog)
 	self._crates = CrateLogic.byId(catalog.crates)
 	self._areas = (catalog.areas or {}) :: any
 	self._rows = catalog.spinWheel or {}
-	self:_build()
+	-- #3722: the wheel's tiles and odds rows are built after start-up, or at once when the window opens first
+	self._lateBuild = self._lateBuild
+		or LateBuild.new(SpinWheel.BUILD_AFTER, function()
+			self:_build()
+		end)
+	self._lateBuild:queue()
 end
 
 function SpinWheel.setNight(self: any, night: boolean)
@@ -595,6 +603,9 @@ function SpinWheel.setNight(self: any, night: boolean)
 end
 
 function SpinWheel.render(self: any, state: Types.PlayerState)
+	if self.frame.Visible and self._lateBuild ~= nil then
+		self._lateBuild:ensure()
+	end
 	self._spin = state.spin
 	self._income = state.incomePerSecond
 	self._prizeRate = state.prizeRate -- #2539

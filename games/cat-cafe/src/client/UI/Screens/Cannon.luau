@@ -30,6 +30,7 @@ local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local LateBuild = require(script.Parent.Parent.Components.LateBuild)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
@@ -586,10 +587,19 @@ function Cannon.setLate(self: any, late: any)
 	self:_rerender()
 end
 
+Cannon.BUILD_AFTER = 9 -- #3722: seconds after the catalog arrives
+
 function Cannon.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
-	self:_buildCards()
-	self:_paintPal()
+	-- #3722: the area cards are built after start-up, or at once when the window opens first
+	self._lateBuild = self._lateBuild
+		or LateBuild.new(Cannon.BUILD_AFTER, function()
+			self:_buildCards()
+			self:_paintPal()
+		end, function()
+			self:_rerender()
+		end)
+	self._lateBuild:queue()
 	self:_rerender()
 end
 
@@ -643,6 +653,9 @@ function Cannon._rerender(self: any)
 end
 
 function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
+	if self.frame.Visible and self._lateBuild ~= nil then
+		self._lateBuild:ensure()
+	end
 	self._state = state
 	self._carrying = carrying
 	local catalog: Types.Catalog? = self._catalog

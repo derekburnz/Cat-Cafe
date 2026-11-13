@@ -117,6 +117,10 @@ NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head",
         "_Held_Barista": "_LegF2", "_Held_Waiter": "_LegF1", "_Held_Entertainer": "_LegF2"}   # body S's held things
 
 
+# #3743: a part whose longest side is under this casts no shadow. Half of all model parts are this small (letters,
+# rivets, petals, eyelets); their shadows are a few pixels but each one is drawn in the shadow pass on every device.
+SMALL_NO_SHADOW = 0.5
+
 def _r(v):
     x = round(float(v), ROUND)
     return 0.0 if x == 0 else x
@@ -302,7 +306,8 @@ def _props(p, asset, uid):
         "Anchored": True,
         "CanCollide": bool(collide),
         "CanTouch": p["name"].endswith(TOUCH_OBJECTS),
-        "CastShadow": material != "ForceField" and not see_through and transparency < 1 and BACKDROP not in asset,
+        "CastShadow": material != "ForceField" and not see_through and transparency < 1 and BACKDROP not in asset
+                      and max(size) >= SMALL_NO_SHADOW,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
     }

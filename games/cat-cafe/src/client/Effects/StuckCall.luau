@@ -12,6 +12,7 @@
 -- the UIController's Moments.RescueStart, RescueDone, RescueFail and RescueCancel. The trap is WorldBuilder's
 -- `<rescueSpotId>_Trap` model beside the spot's `RescueSpot` anchor; one built into the area's set keeps still. The
 -- meow is Beats.hit("stuckCall", the cat) for Audio's strayCall. Listening only. Numbers in Presets.stuckCall.
+-- The live switch `stuckCall` (shared/LiveFlags, on unless the store holds false) hides it all at the next check.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +20,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 
 local Beats = require(script.Parent.Parent.Audio.Beats)
@@ -316,6 +318,7 @@ local function check()
 	local model = starter()
 	if
 		model == nil
+		or not LiveFlags.shown("stuckCall", ReplicatedStorage:GetAttribute("LiveFlag_stuckCall"))
 		or not Logic.stuckCallOn(waiting, busy, model:GetAttribute("LockedBy"))
 		or Context.isNight()
 	then

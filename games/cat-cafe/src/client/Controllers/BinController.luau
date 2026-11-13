@@ -301,7 +301,7 @@ local function boardPlace()
 	local asked = false
 	for _, found in boards do
 		local gui = found.gui
-		local part = gui.Adornee
+		local part: any = gui.Adornee -- (any: the CI type check will not compare an Instance with nil)
 		if not gui.Enabled or part == nil or not part:IsA("BasePart") then
 			continue
 		end

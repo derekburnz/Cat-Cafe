@@ -59,6 +59,25 @@ return function()
 			expect(Logic.layout(340, 520).side).to.equal("top")
 		end)
 
+		it("gives the next prize's banner room clear of every hole (#3553)", function()
+			for _, size in { { 560, 262 }, { 340, 520 }, { 600, 640 }, { 700, 300 }, { 300, 300 } } do
+				local layout = Logic.layout(size[1], size[2])
+				if layout.banner ~= "none" then
+					expect(layout.bannerH > 0).to.equal(true)
+					expect(layout.bannerY + layout.bannerH <= size[2]).to.equal(true)
+					expect(layout.bannerX + layout.bannerW <= size[1]).to.equal(true)
+					for hole = 1, 9 do
+						local x, y = Logic.holeAt(layout, hole)
+						local beside = x >= layout.bannerX + layout.bannerW + Logic.HUD_GAP
+						local below = y >= layout.bannerY + layout.bannerH + Logic.HUD_GAP
+						expect(beside or below).to.equal(true)
+					end
+				end
+			end
+			expect(Logic.layout(340, 520).banner).to.equal("row")
+			expect(Logic.layout(560, 262).banner).to.equal("column")
+		end)
+
 		it("numbers the holes row by row from the top left", function()
 			local layout = Logic.layout(600, 640)
 			local x1, y1 = Logic.holeAt(layout, 1)
@@ -133,6 +152,54 @@ return function()
 				"Next prize: " .. rows[3].name .. " at 30"
 			)
 			expect(Logic.nextPrize(100, {})).to.equal("All of today's prizes won!")
+		end)
+
+		it("gives the top banner its next prize, words and bar (#3553)", function()
+			local row = Logic.nextRow(24, { 10, 20 })
+			assert(row ~= nil, "a next prize")
+			expect(row.at).to.equal(30)
+			expect(Logic.bannerWords(row)).to.equal(row.name .. " at 30")
+			local share, words = Logic.progress(24, row)
+			expect(share).to.be.near(0.8, 1e-9)
+			expect(words).to.equal("24/30")
+			-- a prize already paid today is skipped, and past the last one the banner says so
+			local after = Logic.nextRow(5, { 10 })
+			assert(after ~= nil, "the prize after a paid one")
+			expect(after.at).to.equal(20)
+			expect(Logic.nextRow(100, {})).to.equal(nil)
+			expect(Logic.bannerWords(nil)).to.equal(Logic.ALL_EARNED)
+			local full, none = Logic.progress(100, nil)
+			expect(full).to.equal(1)
+			expect(none).to.equal("")
+		end)
+
+		it("has a real picture for every arcade prize (#3553)", function()
+			for _, row in Logic.prizeRows({}) do
+				local picture = Logic.prizePicture(row.prize)
+				expect(type(picture.image)).to.equal("string")
+				expect(#picture.glyph > 0).to.equal(true)
+			end
+			expect(Logic.prizePicture(nil).glyph).to.equal("🎁")
+			expect(Logic.prizePicture({ lures = { no_such_food = 1 } }).image).to.equal(nil)
+		end)
+
+		it("reads the run's clock and names a run it ended", function()
+			local clock, low = Logic.timeLeft(200, 108)
+			expect(clock).to.equal("1:32")
+			expect(low).to.equal(false)
+			clock, low = Logic.timeLeft(200, 190.5)
+			expect(clock).to.equal("0:10")
+			expect(low).to.equal(true)
+			expect((Logic.timeLeft(200, 260))).to.equal("0:00")
+			expect((Logic.timeLeft(nil, 5))).to.equal("") -- an older server sends no clock
+			expect(Logic.endWords({ reason = "time" })).to.equal(Logic.TIME_UP)
+			expect(Logic.endWords({ reason = "time", newBest = true })).to.equal("New best!")
+		end)
+
+		it("words the free play (#3553)", function()
+			expect(Logic.freeLine(nil)).to.equal("")
+			expect(Logic.freeLine({ loaded = true, free = true })).to.equal(Logic.FREE_PLAY)
+			expect(Logic.freeLine({ loaded = true, free = false })).to.equal(Logic.FREE_USED)
 		end)
 	end)
 

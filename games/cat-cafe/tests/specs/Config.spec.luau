@@ -292,7 +292,7 @@ return function()
 		LeaderboardRefreshSeconds = 120,
 		LeaderboardSize = 50,
 		LeaderboardBoardRows = 10,
-		LeaderboardRateMax = 10000000,
+		LeaderboardRateMax = 1000000000000000, -- #3688
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
 		-- #3466: the top player join notice
@@ -447,6 +447,7 @@ return function()
 		ArcadeBlockLeadIn = 0.9,
 		-- #3296 (Mouse Dash, mouse-dash.md section 6)
 		MouseDashHearts = 3,
+		MouseDashRunSeconds = 180, -- #3553: a run ends on the clock after 3 minutes
 		MouseDashStepEvery = 5,
 		MouseDashWindowStart = 1.10,
 		MouseDashWindowStep = 0.93,
@@ -599,8 +600,7 @@ return function()
 				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
 				EventShowerDefaults = true, -- #2486 (live-events.md section 4): a table, checked in CafeEvents.spec
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
-				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
-				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				UpdateEvents = true, -- #2766: the listed Roblox Events (id, start), a table, checked in EventRsvp.spec
 				CozyLure = true, -- #2798: a lure id, checked in CozyCafe.spec
 				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec

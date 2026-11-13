@@ -198,7 +198,9 @@ def _desert(b, screen, st):
     b.span((-0.12, roof + 0.6, -0.15), (0.12, roof + 0.71, -0.05), "fur_caramel")
     for x in (-HX + 0.9, HX - 0.9):
         _paw(b, x, HY + HEAD / 2, -0.15, "eye_amber")
-    b.ball((-(HX + 0.9), 0.0, -0.9), 0.9, "fur_oat", scale=(1.3, 0.4, 0.7))              # sand at a post's foot
+    # sand at a post's foot, resting on the ground: half buried, its underside put the walk-up ring under the camp
+    # floor (#3642: the ring is laid at the model's lowest point)
+    b.ball((-(HX + 0.9), 0.27, -0.9), 0.9, "fur_oat", scale=(1.3, 0.3, 0.7))
 
 
 def _ruins(b, screen, st):

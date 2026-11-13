@@ -25,11 +25,13 @@
 -- MyCats owns the window; this view only reads state and calls back.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatBuffs = require(script.Parent.Parent.Components.CatBuffs)
+local CatCardLogic = require(script.Parent.Parent.Components.CatCardLogic)
 local CatLock = require(script.Parent.Parent.Components.CatLock)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
@@ -53,6 +55,10 @@ local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
+
+-- #3717: the trait row reads the `traits` switch and the trait's name
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
@@ -103,6 +109,7 @@ local COMPACT_H = 420 -- design px of room under which a touch screen gets the p
 -- #2418: the food tiles under the buff chips (Bag-style squares, a finger tall on a phone through Button's Hit pad)
 local FEED_TILE = 40
 local FEED_H = 54 -- the square and its "+40" strip
+local TRAIT_TITLE_H = 18 -- #3717: the trait's name
 local FEED_GAP = 8
 local FEED_HOLD = 0.4 -- seconds a finger stays down before a held tile starts feeding again
 local FEED_REPEAT = 0.3 -- seconds between feeds while held (FeedCat allows 4 a second)
@@ -680,6 +687,20 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 			self:_placeFeed()
 		end)
 	table.insert(self._connections, wrapped)
+	-- #3717: the cat's Mystic Pool trait, between the food row and the description: its name with a dot in the
+	-- rarity's colour. Its effects lead the description under it. On the phone's short sheet, which has no room
+	-- there, the name joins the Charm line at the top instead (_renderDetail).
+	self._detailTrait = text({
+		Name = "TraitRow",
+		Position = UDim2.fromOffset(10, descTop),
+		Size = UDim2.new(1, -20, 0, TRAIT_TITLE_H),
+		RichText = true,
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Visible = false,
+		Parent = body,
+	})
+	FitText.shrink(self._detailTrait)
 	self._detailDesc = text({
 		Name = "Description",
 		Position = UDim2.fromOffset(10, descTop),
@@ -1536,6 +1557,12 @@ function CatRoom._placeFeed(self: any)
 	local top: number = self._favTop + used + 6
 	self._feedRow.Position = UDim2.fromOffset(10, top)
 	local descTop = top + (if self._feedRow.Visible then FEED_H + 6 else 0)
+	-- #3717: the trait row, then the description under it
+	local trait: TextLabel = self._detailTrait
+	if trait.Visible then
+		trait.Position = UDim2.fromOffset(10, descTop)
+		descTop += TRAIT_TITLE_H + 2
+	end
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
 	local descBottom = self._descBottom + (self._lockExtra or 0) + (descTop - self._descTop)
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
@@ -1740,6 +1767,35 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._detailBuffs.Visible = false
 	end
 	self._detailDesc.Text = if def then def.description or "" else ""
+	-- #3717: the trait row; hidden for a cat with no trait while the `traits` switch is off
+	local traitsOpen = LiveFlags.shown(
+		Traits.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.FLAG)
+	)
+	local traitTitle, traitEffects = CatCardLogic.traitRow(instance.trait, traitsOpen)
+	local hasTrait = traitTitle ~= nil and traitEffects ~= ""
+	local traitLabel: TextLabel = self._detailTrait
+	local stats: TextLabel = self._detailStats
+	stats.RichText = true
+	if self._compact then
+		-- the short sheet: the trait's name beside the Charm line, where there is always room
+		traitLabel.Visible = false
+		if hasTrait and traitTitle ~= nil then
+			local charmWords = stats.Text
+			stats.Text = if charmWords ~= ""
+				then charmWords .. "  ·  " .. traitTitle
+				else traitTitle
+		end
+	else
+		traitLabel.Visible = traitTitle ~= nil
+		traitLabel.Text = traitTitle or ""
+		traitLabel.TextColor3 = if hasTrait then PAL.text else PAL.subtext
+	end
+	if hasTrait then
+		-- what the trait does, ahead of the breed's line
+		local about: string = self._detailDesc.Text
+		self._detailDesc.Text = if about ~= "" then traitEffects .. "\n" .. about else traitEffects
+	end
 
 	-- F62: the Lock row, and Sell greyed while the cat is locked
 	local live = self._lockLive

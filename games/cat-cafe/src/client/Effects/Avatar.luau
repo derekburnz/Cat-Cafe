@@ -714,6 +714,24 @@ function Avatar.waveArm(rig: Rig, swing: number): { [Joint]: CFrame }
 	return out
 end
 
+-- Petting a cat (#3651, Presets.petCat): the left arm reached forward and down to a cat at the feet, the hand at
+-- `stroke` (-1 to 1) of its stroke along the cat's back, a small bend at the elbow; on R6 the whole arm reaches
+-- forward and sways. The rest of the body stays the character's own.
+function Avatar.petArm(rig: Rig, stroke: number): { [Joint]: CFrame }
+	local p = Presets.petCat
+	local rad = math.rad
+	local out: { [Joint]: CFrame } = {}
+	local set = setter(rig, out)
+	if rig.joints.LeftElbow ~= nil then
+		set("LeftShoulder", CFrame.Angles(rad(p.sh + p.swing * stroke), 0, rad(-p.sp)))
+		set("LeftElbow", CFrame.Angles(rad(p.el - p.swing * stroke), 0, 0))
+		set("LeftWrist", CFrame.identity)
+	else
+		set("LeftShoulder", CFrame.Angles(rad(p.sh6 + p.swing * stroke), 0, rad(-p.sp)))
+	end
+	return out
+end
+
 -- Whether a character carries a cat in its arms: a `CarryingCatId` (CatService sets it while the HeldCat is on) and
 -- alive.
 function Avatar.carrying(carryingCatId: unknown, alive: boolean): boolean

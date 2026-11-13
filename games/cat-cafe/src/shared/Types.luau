@@ -1190,6 +1190,12 @@ export type TelemetryState = {
 	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
 	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
 	firstHourV3Step: number,
+	-- #3695: the furthest step logged of the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS) and of playtime_v1
+	-- (Onboarding.PLAYTIME_STEPS), 0 before any and the count once out of it. Optional fields with defaults, so no save
+	-- version: a server without them drops them, and the save then comes back out of both funnels once it is past its
+	-- first catch or has logged any first_hour step (ProfileSchema), so nothing is counted twice
+	cleanStep: number?,
+	playtimeStep: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)

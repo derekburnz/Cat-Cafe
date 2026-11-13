@@ -2034,19 +2034,19 @@ Layout.townSquare = {
 -- spacing and look"; his tweaks: "push feedback stand, day cart, spin wheel a little bit back and rallyboard a little
 -- forward the rest are good"): four tidy corners, each with the same three spots facing the cannon, and room for the
 -- radius 8 rings (#3448). North-west is play (Arcade, Spin Wheel, Rally board), north-east the market (Golden Fish
--- Market, Day Cart, a free spot at (44, 22)), south-west visitors (Codes Cat, Mystery Market, Lucky cat sign) and
+-- Market, Day Cart, the Mystic Pool at (44, 22) since #3770), south-west visitors (Codes Cat, Mystery Market, Lucky cat sign) and
 -- south-east notices and night (Night Market cart, Feedback stand, Thank You board). Spots by Design-Agent, fitted
 -- by Model-Agent against the real parts (Model-Agent/town-square-3454 in the project Library). The Bellhop stand,
 -- the leaderboards, the cannon, its pad and the spawn stay. The notes below keep each station's history; the
 -- numbers are #3454's.
 Layout.spinWheel = station(-26, 54) -- #3454: (-35, 35) before
--- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it/notice the update"): the Mystic Pool,
--- north-east of the cannon between the lanes and the market corner, its front toward the player spawn (not the
--- cannon) so a landing player sees it about 30 degrees to their left. Model-Agent's spot, fitted against the real
--- parts with the radius 6.5 ring: 6 studs off the street lane, 6.6 off the cross lane, 13.4 off the Day Cart's ring.
--- The free spot at (44, 22) stays free. It stood on the Park camp's picnic spot before; the Picnic Basket has that
--- spot back.
-Layout.mysticPool = { x = 26, y = 0.1, z = 28, rotY = 31.76 } :: Point
+-- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it/notice the update"): the Mystic Pool
+-- stands in the Town Square. It stood on the Park camp's picnic spot before; the Picnic Basket has that spot back.
+-- #3770 (Derek 2026-11-13: "not have it blocking anything and move it to the sides and not close to middle of map"):
+-- on the market corner's free spot at the east side, (44, 22), the mirror of the Arcade cabinet's (-44, 22) and
+-- fitted for a station with a radius 8 ring in #3454. It faces the cannon like every corner station. Its first
+-- Town Square spot, (26, 28), was 38 studs from the cannon, in the open quarter between the lanes.
+Layout.mysticPool = station(44, 22)
 Layout.fishMarket = station(45, 52) -- #3454: (42, 44.5) before
 -- #3000 (Derek2 2026-11-10: "push the codes back between mystery market and codes cat", option A): the whole Codes
 -- stand stands back from the middle, in the gap between the Mystery Market and the Bellhop Cat (#3070: at

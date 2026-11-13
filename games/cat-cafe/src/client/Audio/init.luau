@@ -69,6 +69,9 @@ local groups: { [string]: SoundGroup } = {}
 local holder: Folder? = nil
 local pools: { [string]: { Voice } } = {}
 local bedSounds: { [string]: Sound } = {}
+-- #3656: when each kept bed Sound was made, and how many times its cue has been rebuilt after failing to load
+local bedMade: { [string]: number } = {}
+local bedReloads: { [string]: number } = {}
 local lastPlayed: { [string]: number } = {}
 local warned: { [string]: boolean } = {}
 local rng = Random.new()
@@ -267,7 +270,21 @@ end
 local function loopSound(cueId: string): Sound?
 	local kept: Sound? = bedSounds[cueId]
 	if kept ~= nil then
-		return kept
+		local tries = bedReloads[cueId] or 0
+		if
+			not Logic.shouldReload(
+				kept.IsLoaded,
+				os.clock() - (bedMade[cueId] or os.clock()),
+				tries
+			)
+		then
+			return kept
+		end
+		-- #3656: it never loaded, so drop it and fetch the file again below
+		bedReloads[cueId] = tries + 1
+		bedSounds[cueId] = nil
+		kept:Stop()
+		kept:Destroy()
 	end
 	local cue = Cues[cueId]
 	if cue == nil then
@@ -281,6 +298,7 @@ local function loopSound(cueId: string): Sound?
 	sound.Looped = true
 	sound.SoundId = id
 	bedSounds[cueId] = sound
+	bedMade[cueId] = os.clock()
 	return sound
 end
 

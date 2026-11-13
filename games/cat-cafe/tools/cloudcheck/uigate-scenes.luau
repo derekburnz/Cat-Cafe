@@ -5650,6 +5650,15 @@ local SCENES = {
 				assert(UI.rescue.isActive(), "uigate: the ask running out ended the attempt (#3024)")
 				press("CatCafeRescueBar", "GiveUp")
 				assert(label.Text == "Tap again to give up", "uigate: Give up does not ask again (#3024)")
+				-- #3556: a second tap straight away is the same burst of taps and only keeps asking
+				press("CatCafeRescueBar", "GiveUp")
+				assert(label.Text == "Tap again to give up", "uigate: a fast second tap changed Give up to " .. label.Text .. " (#3556)")
+				assert(UI.rescue.isActive(), "uigate: a fast second tap on Give up ended the attempt (#3556)")
+				-- #3556: on touch Give up sits in the top right corner, away from the bar
+				assert(giveUp:FindFirstAncestor("GiveUpCorner") ~= nil, "uigate: Give up is not in its corner on touch (#3556)")
+				UIShim.advance(0.5)
+			else
+				assert(giveUp:FindFirstAncestor("BarGroup") ~= nil, "uigate: Give up left the bar on a mouse screen (#3556)")
 			end
 			press("CatCafeRescueBar", "GiveUp")
 			UIShim.advance(1)

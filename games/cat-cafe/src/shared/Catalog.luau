@@ -2649,6 +2649,91 @@ Catalog.achievementPrizes = {
 	},
 } :: { [string]: Types.IndexPrize }
 
+-- #3694 (Derek 2026-11-12: "make the rewards slightly more unique/diff"; achievements-v2.md section 4): the coins,
+-- coinSeconds and pass XP stay by size, and the item comes from the achievement's line, keyed by its measure. A line
+-- with no row for a size, or a measure with no line, pays the size's item as before. "highest" is the crate of the
+-- player's best open area and "highest_golden" its golden crate (shared/Prizes). Everything here is earned in play;
+-- none of it is sold for Robux.
+type AchievementLine = { [string]: Types.IndexPrize }
+local CATCHING: AchievementLine = {
+	S = { lures = { tuna = 2 } },
+	M = { lures = { salmon = 1, tuna = 1 } },
+	L = { crates = { highest = 1 } },
+	XL = { crates = { highest_golden = 1 }, lures = { caviar = 1 } },
+}
+local FINDING: AchievementLine = {
+	S = { spins = 1 },
+	M = { crates = { highest = 1 } },
+	L = { crates = { highest_golden = 1 } },
+	XL = { crates = { highest_golden = 2 } },
+}
+local QUESTS: AchievementLine = {
+	S = { spins = 2 },
+	M = { spins = 3 },
+	L = { spins = 5, fish = 10 },
+	XL = { crates = { classic_golden_crate = 1 }, spins = 5 },
+}
+local PLAYING: AchievementLine = {
+	S = { fish = 5 },
+	M = { fish = 10 },
+	L = { fish = 25, potions = { tip_potion = 1 } },
+	XL = { fish = 50, potions = { big_tip_potion = 1 } },
+}
+local ACHIEVEMENT_LINES: { [string]: AchievementLine } = {
+	catsCaught = CATCHING,
+	rareCatches = CATCHING,
+	goldCatches = {
+		M = { potions = { lucky_potion = 1 } },
+		L = { potions = { lucky_potion = 2 } },
+		XL = { crates = { classic_golden_crate = 1 }, potions = { gold_rush_potion = 1 } },
+	},
+	perfectCircles = {
+		S = { potions = { steady_potion = 1 } },
+		M = { potions = { steady_potion = 2 } },
+		L = { potions = { steady_potion = 3 }, fish = 10 },
+		XL = { crates = { classic_golden_crate = 1 }, potions = { steady_potion = 3 } },
+	},
+	rescues = {
+		S = { potions = { swift_potion = 1 } },
+		M = { potions = { swift_potion = 2 } },
+		L = { potions = { swift_potion = 3 }, crates = { classic_crate = 1 } },
+	},
+	baitsTamed = {
+		S = { lures = { tuna = 2 } },
+		M = { lures = { salmon = 2 } },
+		L = { lures = { caviar = 1, salmon = 1 } },
+	},
+	distinctCats = FINDING,
+	goldCats = FINDING,
+	mythicalCats = FINDING,
+	dailyQuestsDone = QUESTS,
+	weeklySetsDone = QUESTS,
+	playtimeSeconds = PLAYING,
+	topCatLevel = {
+		M = { potions = { tip_potion = 1 } },
+		L = { potions = { tip_potion = 2 } },
+		XL = { potions = { big_tip_potion = 1 }, crates = { classic_golden_crate = 1 } },
+	},
+}
+Catalog.achievementLines = ACHIEVEMENT_LINES
+
+-- #3694: what one achievement pays: its size's coins and pass XP with its line's item, or the size's whole prize when
+-- its line has no row for that size. A new table each call, so callers may keep it.
+local PRIZE_BY_SIZE = { "coins", "coinSeconds", "passXp" }
+function Catalog.achievementPrize(def: Types.AchievementDef): Types.IndexPrize
+	local base = Catalog.achievementPrizes[def.size]
+	local line = Catalog.achievementLines[def.measure]
+	local item = if line then line[def.size] else nil
+	if base == nil or item == nil then
+		return table.clone((base or {}) :: Types.IndexPrize)
+	end
+	local prize: { [string]: any } = table.clone(item :: any)
+	for _, key in PRIZE_BY_SIZE do
+		prize[key] = (base :: any)[key]
+	end
+	return prize :: Types.IndexPrize
+end
+
 Catalog.questsById = {} :: { [string]: Types.QuestDef }
 Catalog.questPools = {} :: { [string]: string } -- quest id -> its pool
 for _, pools in { Catalog.quests.daily, Catalog.quests.weekly } do
@@ -2672,6 +2757,18 @@ for _, def in Catalog.achievements do
 	table.freeze(def)
 end
 table.freeze(Catalog.achievements)
+for _, line in Catalog.achievementLines do
+	for _, prize in line do
+		for _, part in prize :: { [string]: any } do
+			if type(part) == "table" and not table.isfrozen(part) then
+				table.freeze(part)
+			end
+		end
+		if not table.isfrozen(prize) then
+			table.freeze(prize)
+		end
+	end
+end
 for _, prizes in { Catalog.questPrizes, Catalog.achievementPrizes } do
 	for _, prize in prizes do
 		for _, part in prize :: { [string]: any } do

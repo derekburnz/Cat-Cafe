@@ -78,6 +78,7 @@ type QuestRow = {
 	swap: Button.Button,
 	check: TextLabel,
 	claimed: boolean, -- shown as claimed, the server's or a claim on its way
+	picture: TextLabel?, -- #3961: the family look's picture of what the quest asks
 }
 
 type Page = {
@@ -140,13 +141,118 @@ local CARD = Vector2.new(0, 142) -- two cards a row; the width follows the windo
 local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse needs
 -- an achievement card's prize pictures (#3694 Review-QA 2026-11-13: 26 read as very small)
 local CARD_CHIP = 34
+local CLIP_INSET = 3 -- px between a clipping chip area's left edge and its first chip (the 2 px outline stays whole)
 local GAP = Theme.sizes.gap
+-- #3961: the family look (batch 2 mock): a picture for what each quest asks, upper case CLAIM and a sky SWAP
+local QUEST_PICTURE = 44
+local STAT_PICTURES: { [string]: string } = {
+	baitsTamed = "🥣",
+	catLevelUps = "⬆️",
+	catsCaught = "🐱",
+	cratesOpened = "📦",
+	dailyQuestsDone = "📜",
+	dailySetsDone = "📜",
+	distinctCats = "🐾",
+	fishEarned = "🐟",
+	goldCatches = "✨",
+	lifetimeCoins = "💰",
+	luresUsed = "🍣",
+	perfectCircles = "🎯",
+	rareCatches = "💎",
+	rescues = "🆘",
+	spins = "🎡",
+	tipJarClaims = "🫙",
+	tipPilesCollected = "🪙",
+}
+
+-- the quest's stat from the catalog, for its picture
+local function questStat(catalog: Types.Catalog?, id: string): string?
+	local quests = if catalog then catalog.quests else nil
+	if quests then
+		for _, group in { quests.daily, quests.weekly } do
+			for _, pool in group do
+				for _, def in pool do
+					if def.id == id then
+						return def.stat
+					end
+				end
+			end
+		end
+	end
+	return nil
+end
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
 local SYNC_GRACE = 0.5 -- a sync this soon after a press may predate it (one round trip)
 local CLAIM_ALL_W = 150 -- fits right of the three tabs at the window's narrowest (636 px of tab row)
 local TICK_SECONDS = 1 -- the reset times, while the window is open
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
+
+-- Review-QA's Studio pass on a 667 x 375 window (f7f52504): Roblox drew the prize chips a few px past their area's
+-- design-pixel edge there, so the "+1" still slid under CLAIM however much room the layout left. The area now takes
+-- its width from where the buttons really are: the left edge of the widest one, less `gap` design px. `unit` is the
+-- design width of `buttons[1]`, which gives the screen px per design px (the screen's scale and any pop-in).
+local function keepClear(area: Frame, buttons: { GuiObject }, unit: number, gap: number)
+	local function fit()
+		local per = buttons[1].AbsoluteSize.X / unit
+		if per <= 0 then
+			return
+		end
+		local left = math.huge
+		for _, button in buttons do
+			left = math.min(left, button.AbsolutePosition.X)
+		end
+		local width = math.max(0, math.floor((left - area.AbsolutePosition.X) / per - gap))
+		area.Size = UDim2.new(0, width, area.Size.Y.Scale, area.Size.Y.Offset)
+	end
+	-- Review-QA (19cb1e6a): the clip cut chips in half ("+150 pass", a sliver of "+1"). A chip that does not fit
+	-- whole inside the area is hidden instead (only ever hidden: a rebuilt row brings new chips, checked again)
+	local pending = false
+	local function hideCut()
+		pending = false
+		local right = area.AbsolutePosition.X + area.AbsoluteSize.X + 0.5
+		for _, row in area:GetChildren() do
+			if row:IsA("GuiObject") then
+				for _, child in row:GetChildren() do
+					if child:IsA("GuiObject") then
+						local chip = child :: GuiObject
+						if
+							chip.Visible
+							and chip.AbsolutePosition.X + chip.AbsoluteSize.X > right
+						then
+							chip.Visible = false
+						end
+					end
+				end
+			end
+		end
+	end
+	local function soon()
+		if not pending then
+			pending = true
+			task.defer(hideCut)
+		end
+	end
+	for _, button in buttons do
+		button:GetPropertyChangedSignal("AbsolutePosition"):Connect(fit)
+		button:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	end
+	area:GetPropertyChangedSignal("AbsolutePosition"):Connect(fit)
+	area:GetPropertyChangedSignal("AbsoluteSize"):Connect(soon)
+	area.DescendantAdded:Connect(soon)
+	area.ChildAdded:Connect(function(row)
+		if row:IsA("GuiObject") then
+			row:GetPropertyChangedSignal("AbsoluteSize"):Connect(soon)
+		end
+	end)
+	for _, row in area:GetChildren() do
+		if row:IsA("GuiObject") then
+			row:GetPropertyChangedSignal("AbsoluteSize"):Connect(soon)
+		end
+	end
+	fit()
+	soon()
+end
 
 local Quests = {}
 Quests.__index = Quests
@@ -337,7 +443,8 @@ function Quests.new(callbacks: Callbacks): Quests
 		text = "Claim all",
 		style = "primary",
 		size = UDim2.fromOffset(CLAIM_ALL_W, tabHeight),
-		textSize = Theme.sizes.textBody,
+		-- Review-QA's Studio pass 2026-11-13: cut to "Claim al" on a phone in the family look
+		textSize = if MenuFamily.on() then Theme.sizes.textSmall + 1 else Theme.sizes.textBody,
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.fromScale(1, 0),
 		parent = content,
@@ -488,7 +595,26 @@ end
 
 function Quests._buildRow(self: any, kind: string, slot: number, parent: Instance): QuestRow
 	local frame = card("Quest" .. slot, UDim2.new(1, 0, 0, ROW), parent, 10 + slot)
+	local family = MenuFamily.on()
 	local left = 14
+	local picture: TextLabel? = nil
+	if family then
+		local tile: TextLabel = text({
+			Name = "Picture",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 10, 0.5, 0),
+			Size = UDim2.fromOffset(QUEST_PICTURE, QUEST_PICTURE),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = CREAM.line,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextSize = 26,
+			Text = "📜",
+			Parent = frame,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = tile })
+		picture = tile
+		left = 10 + QUEST_PICTURE + 10
+	end
 	local title = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(left, 10),
@@ -498,10 +624,16 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		Parent = frame,
 	})
 	-- the bar and count on the left half, what it pays on the right half of the second line
-	local fill = bar(frame, UDim2.fromOffset(left, 48), UDim2.new(0.42, -left, 0, BAR))
+	-- Review-QA's Studio pass 2026-11-13: CLAIM and SWAP covered the last prize chip ("+1") in the family look;
+	-- there the bar is shorter and the chips end a clear gap before the button
+	-- Studio again (5e74d9b4): Roblox draws the "+1" wider than the chips' fit allows at the 9 px floor, so on a 667 x 375
+	-- window it ran 4 px under CLAIM; the chips now stop 34 px short of CLAIM, the widest of the two buttons
+	local split = if family then 0.34 else 0.42
+	local gap = if family then 44 else 16
+	local fill = bar(frame, UDim2.fromOffset(left, 48), UDim2.new(split, -left, 0, BAR))
 	local count = text({
 		Name = "Count",
-		Position = UDim2.new(0.42, 6, 0, 44),
+		Position = UDim2.new(split, 6, 0, 44),
 		Size = UDim2.fromOffset(96, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
@@ -511,8 +643,12 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	local chipArea: Frame = Create("Frame", {
 		Name = "Prize",
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0.42, 104, 0, 38),
-		Size = UDim2.new(0.58, -(104 + ACTION_W + 16), 0, CHIP + 4),
+		-- UI gate strokeclip: the area starts CLIP_INSET px left of the chips so the clip keeps their outlines
+		Position = UDim2.new(split, 104 - CLIP_INSET, 0, 38),
+		Size = UDim2.new(1 - split, -(104 - CLIP_INSET + ACTION_W + gap), 0, CHIP + 4),
+		-- Review-QA (daa09e07): at the 9 px text floor the chip row stays wider than the area keepClear leaves, so the
+		-- area clips it: whatever does not fit is cut at the area's edge, never drawn under the button
+		ClipsDescendants = true,
 		Parent = frame,
 	})
 	local chips = PrizeChips.new({
@@ -521,16 +657,16 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		tile = CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.fromScale(0, 0.5),
+		position = UDim2.new(0, CLIP_INSET, 0.5, 0),
 		fitTo = chipArea,
-		fitPad = 2,
+		fitPad = 2 + CLIP_INSET,
 		maxPictures = 2, -- F94: two pictures a quest
 	})
 	local actionPosition = UDim2.new(1, -10, 0.5, 0)
 	local actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth) -- 64 of the 80 on a phone
 	local claim = Button.new({
 		name = "Claim",
-		text = "Claim",
+		text = if family then "CLAIM" else "Claim",
 		style = "primary",
 		size = UDim2.fromOffset(ACTION_W, actionHeight),
 		anchorPoint = Vector2.new(1, 0.5),
@@ -542,11 +678,11 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	})
 	local swap = Button.new({
 		name = "Swap",
-		text = "Swap",
+		text = if family then "SWAP" else "Swap",
 		icon = "🔄",
-		style = "ghost",
+		style = if family then "sky" else "ghost",
 		textSize = Theme.sizes.textSmall,
-		size = UDim2.fromOffset(SWAP_W, SWAP_H),
+		size = UDim2.fromOffset(if family then SWAP_W + 16 else SWAP_W, SWAP_H),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = actionPosition,
 		parent = frame,
@@ -554,6 +690,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 			self:_press(kind, slot, "swap")
 		end,
 	})
+	keepClear(chipArea, { claim.instance, swap.instance }, ACTION_W, gap)
 	return {
 		frame = frame,
 		title = title,
@@ -564,6 +701,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		swap = swap,
 		check = check(frame, actionPosition, Vector2.new(1, 0.5)),
 		claimed = false,
+		picture = picture,
 	}
 end
 
@@ -601,8 +739,13 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 	local chipArea: Frame = Create("Frame", {
 		Name = "Prize",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(12, 82),
-		Size = UDim2.new(1, -(24 + ACTION_W - 16), 0, CARD_CHIP + 22),
+		Position = UDim2.fromOffset(12 - CLIP_INSET, 82),
+		-- Studio (5e74d9b4): the chips ended only 2 px before Claim and ran up to 8 px under it on 667 x 375; they now
+		-- stop 18 px short of it
+		Size = UDim2.new(1, -(24 - CLIP_INSET + ACTION_W), 0, CARD_CHIP + 22),
+		-- Review-QA (daa09e07): at the 9 px text floor the chip row stays wider than the area keepClear leaves, so the
+		-- area clips it: whatever does not fit is cut at the area's edge, never drawn under the button
+		ClipsDescendants = true,
 		Parent = frame,
 	})
 	local chips = PrizeChips.new({
@@ -611,9 +754,9 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		tile = CARD_CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.fromScale(0, 0.5),
+		position = UDim2.new(0, CLIP_INSET, 0.5, 0),
 		fitTo = chipArea,
-		fitPad = 2,
+		fitPad = 2 + CLIP_INSET,
 	})
 	local actionPosition = UDim2.new(1, -10, 1, -10)
 	local claim = Button.new({
@@ -628,6 +771,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 			self:_pressAchievement(def.id)
 		end,
 	})
+	keepClear(chipArea, { claim.instance }, ACTION_W - 16, 18)
 	local done = check(frame, UDim2.new(1, -4, 1, -14), Vector2.new(1, 1))
 	return {
 		frame = frame,
@@ -807,6 +951,10 @@ function Quests._renderRow(
 	local progress = math.clamp(quest.progress, 0, needs)
 	local done = QuestLogic.done(quest)
 	row.title.Text = quest.text
+	local picture: TextLabel? = row.picture
+	if picture ~= nil then
+		picture.Text = STAT_PICTURES[questStat(self._catalog, quest.id) or ""] or "📜"
+	end
 	row.fill.Size = UDim2.fromScale(progress / needs, 1)
 	row.fill.BackgroundColor3 = if done then Theme.colors.gold else Theme.colors.good
 	row.count.Text = if QuestLogic.isCoins(self._catalog, quest.id)
@@ -821,7 +969,7 @@ function Quests._renderRow(
 	-- a used swap stays, greyed, with its wait: _tickResets sets that text (#1166)
 	row.swap.instance.Visible = not done and not claimed
 	if row.swap.instance:GetAttribute("Waiting") ~= true then
-		row.swap:setText(if swapping then "..." else "Swap")
+		row.swap:setText(if swapping then "..." elseif row.picture ~= nil then "SWAP" else "Swap")
 		row.swap:setEnabled(not swapping)
 	end
 	row.check.Visible = claimed
@@ -940,7 +1088,7 @@ function Quests._tickResets(self: any)
 				swap:setEnabled(false)
 			elseif was then
 				swap.instance:SetAttribute("Waiting", nil)
-				swap:setText("Swap")
+				swap:setText(if row.picture ~= nil then "SWAP" else "Swap")
 				swap:setEnabled(true)
 			end
 		end

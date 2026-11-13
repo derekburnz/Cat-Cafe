@@ -2179,7 +2179,7 @@ local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
 local function offerEvent()
-	local id, startsAt = Config.UpdateEventId, Config.UpdateEventStartsAt
+	local id, startsAt = EventRsvp.next(Config.UpdateEvents, os.time())
 	if
 		eventAsk.asked
 		or state == nil

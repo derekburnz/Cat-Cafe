@@ -187,6 +187,31 @@ local CLAIM_ALL_W = 150 -- fits right of the three tabs at the window's narrowes
 local TICK_SECONDS = 1 -- the reset times, while the window is open
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 
+-- Review-QA's Studio pass on a 667 x 375 window (f7f52504): Roblox drew the prize chips a few px past their area's
+-- design-pixel edge there, so the "+1" still slid under CLAIM however much room the layout left. The area now takes
+-- its width from where the buttons really are: the left edge of the widest one, less `gap` design px. `unit` is the
+-- design width of `buttons[1]`, which gives the screen px per design px (the screen's scale and any pop-in).
+local function keepClear(area: Frame, buttons: { GuiObject }, unit: number, gap: number)
+	local function fit()
+		local per = buttons[1].AbsoluteSize.X / unit
+		if per <= 0 then
+			return
+		end
+		local left = math.huge
+		for _, button in buttons do
+			left = math.min(left, button.AbsolutePosition.X)
+		end
+		local width = math.max(0, math.floor((left - area.AbsolutePosition.X) / per - gap))
+		area.Size = UDim2.new(0, width, area.Size.Y.Scale, area.Size.Y.Offset)
+	end
+	for _, button in buttons do
+		button:GetPropertyChangedSignal("AbsolutePosition"):Connect(fit)
+		button:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	end
+	area:GetPropertyChangedSignal("AbsolutePosition"):Connect(fit)
+	fit()
+end
+
 local Quests = {}
 Quests.__index = Quests
 
@@ -619,6 +644,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 			self:_press(kind, slot, "swap")
 		end,
 	})
+	keepClear(chipArea, { claim.instance, swap.instance }, ACTION_W, gap)
 	return {
 		frame = frame,
 		title = title,
@@ -696,6 +722,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 			self:_pressAchievement(def.id)
 		end,
 	})
+	keepClear(chipArea, { claim.instance }, ACTION_W - 16, 18)
 	local done = check(frame, UDim2.new(1, -4, 1, -14), Vector2.new(1, 1))
 	return {
 		frame = frame,

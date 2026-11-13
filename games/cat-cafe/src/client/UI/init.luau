@@ -2900,14 +2900,11 @@ function UI.arcade.state(view: any)
 	end
 end
 
--- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
--- #3296: `row` is the Menu row alone, for when Circle Streak is vaulted (off) but Mouse Dash still opens from it.
-function UI.arcade.setOn(on: boolean, row: boolean?)
+-- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
+-- gone since 2026-11-13 (Derek: "remove the old cat arcade icon from settings"); callers may still pass it.
+function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
-	end
-	if hud then
-		hud:setArcade(if row ~= nil then row else on)
 	end
 end
 

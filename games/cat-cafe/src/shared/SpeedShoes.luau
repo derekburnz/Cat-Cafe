@@ -43,7 +43,7 @@ end
 -- The server does it, so every player sees them; the character's SpeedShoes attribute says they are on.
 SpeedShoes.ASSET = "CatCafe_Item_SpeedShoes"
 SpeedShoes.WORN = "SpeedShoesWorn"
-SpeedShoes.FIT = 1.1 -- the shoe's width and length over the foot's
+SpeedShoes.FIT = 1.3 -- the shoe's width and length over the foot's (1.1 read a little small in Studio, #4051)
 local SIDES = { { "Left", "LeftFoot", "Left Leg" }, { "Right", "RightFoot", "Right Leg" } }
 
 -- Puts the pair from `asset` (a clone of ASSET, used up) on `character`'s feet: R15 feet, else the bottom of R6 legs.

@@ -51,7 +51,6 @@ local TICK = 0.1 -- seconds between look checks; the fill itself moves every fra
 local WIDTH = 240 -- design pixels
 local HEIGHT = 36 -- #2510: a click target the UI gate accepts (it was 30)
 local INSET = 4 -- the fill sits this far inside the bar's dark edge
-local SHIELD_LIFT = 6 -- #3342: the shield chip's foot sits this far over the bar
 local ICON = "💨"
 
 export type Callbacks = {
@@ -69,7 +68,6 @@ export type TackleBar = {
 	result: (self: TackleBar, ok: boolean, outcome: string?) -> (),
 	ready: (self: TackleBar) -> boolean, -- #2302: shown and full, a press would lunge
 	pulse: (self: TackleBar) -> (), -- #2302: one pop, while the "tackle them" tip points at it
-	top: (self: TackleBar) -> number?, -- #3752: the bar's top edge (and its shield chip's), nil when not shown
 	destroy: (self: TackleBar) -> (),
 }
 
@@ -189,7 +187,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	Outline.text(word, 2)
 	self._word = word
 	-- #3342: the join shield's chip, just over the bar
-	self._shield = self:_buildShield(bar, UDim2.new(0.5, 0, 0, -SHIELD_LIFT))
+	self._shield = self:_buildShield(bar, UDim2.new(0.5, 0, 0, -6))
 
 	do
 		local key: TextLabel = Create("TextLabel", {
@@ -409,21 +407,6 @@ function TackleBar._drawShield(self: any)
 	if text ~= nil then
 		shield.Text = text
 	end
-end
-
--- #3752: how far over the screen's bottom the bar's top edge sits, the shield chip over it included, in design pixels
--- (negative, as `lift`). Nil on touch, where the Tackle is a round button by the jump button, and while the bar is not
--- shown. The catch card keeps its foot over this, so the "[E] Rescue" card never lies on the bar.
-function TackleBar.top(self: any): number?
-	if self._touch or not self.screenGui.Enabled then
-		return nil
-	end
-	local top = self._callbacks.lift() - self._height
-	local shield: TextLabel? = self._shield
-	if shield ~= nil and shield.Visible then
-		top -= SHIELD_LIFT + shield.Size.Y.Offset
-	end
-	return top
 end
 
 -- Whether a lunge, a miss slide, a hit's hold or someone else's tackle has this player down right now.

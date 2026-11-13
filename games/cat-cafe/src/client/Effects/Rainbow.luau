@@ -28,8 +28,9 @@ local Presets = require(script.Parent.Presets)
 
 local Rainbow = {}
 
--- One coat part: its own colour, how far back from the nose it sits (0 to 1) and how bright its band is.
-type Coat = { part: BasePart, phase: number, shade: number }
+-- One coat part: its own colour, how far back from the nose it sits (0 to 1), how bright its band is and how far
+-- it is lifted toward white (a mark lighter than the body).
+type Coat = { part: BasePart, phase: number, shade: number, lift: number }
 
 type Cat = {
 	model: Model,
@@ -124,15 +125,21 @@ local function bind(model: Model): Cat
 				local z: number = pivot:PointToObjectSpace(part.Position).Z
 				front, back = math.min(front, z), math.max(back, z)
 				lightest = math.max(lightest, Logic.lightness(own))
-				table.insert(coats, { part = part, phase = 0, shade = 1 })
+				table.insert(coats, { part = part, phase = 0, shade = 1, lift = 0 })
 				table.insert(depth, z)
 			end
 		end
 	end
+	-- the coat's main colour is the body's; a cat with no body part read yet falls back to its lightest part
+	local main = lightest
+	if body ~= nil then
+		main = Logic.lightness(originals[body] or body.Color)
+	end
 	for i, coat in coats do
-		local own = originals[coat.part] or coat.part.Color
+		local light = Logic.lightness(originals[coat.part] or coat.part.Color)
 		coat.phase = Logic.rainbowPhase(depth[i] or 0, front, back)
-		coat.shade = Logic.rainbowShade(Logic.lightness(own), lightest, r.least)
+		coat.shade = Logic.rainbowShade(light, main, r.least)
+		coat.lift = Logic.rainbowLift(light, main, r.lift)
 	end
 	return {
 		model = model,
@@ -160,8 +167,12 @@ local function paint(cat: Cat, t: number)
 		local part = coat.part
 		if part.Parent ~= nil then
 			local hue = bandAt(t, coat.phase)
-			local s = coat.shade
-			part.Color = Color3.new(hue.R * s, hue.G * s, hue.B * s)
+			local s, w = coat.shade, coat.lift
+			part.Color = Color3.new(
+				hue.R * s + (1 - hue.R * s) * w,
+				hue.G * s + (1 - hue.G * s) * w,
+				hue.B * s + (1 - hue.B * s) * w
+			)
 		end
 	end
 	local outline = cat.outline
@@ -281,6 +292,7 @@ local function consider(instance: Instance)
 end
 
 -- Every `pick` seconds: the nearest rainbow cats flow, glow and trail; the nearest of those get the outline.
+local picks = 0
 local function pick()
 	local r = Presets.rainbow
 	local budget = Context.budget
@@ -289,12 +301,15 @@ local function pick()
 		then math.min(budget.rainbowCats, cap)
 		else budget.rainbowCats
 	local candidates: { Logic.Candidate<Cat> } = {}
+	picks += 1
+	local recounting = picks % r.recount == 0
 	for model, cat in cats do
 		if not model:IsDescendantOf(Workspace) then
 			drop(cat)
 			continue
 		end
-		if countParts(model) ~= cat.parts then
+		-- counting walks the whole model, so it runs on one pick in `recount`, not on every one (the frame rate job)
+		if recounting and countParts(model) ~= cat.parts then
 			-- more of it streamed in (or out): read it again, keeping its glow and trail
 			local again = bind(model)
 			again.flowing, again.since, again.holder, again.trail =
@@ -344,7 +359,8 @@ end
 
 local function step()
 	local now = os.clock()
-	if now - lastStep < 1 / math.min(Presets.rainbow.hz, Context.budget.animHz) then
+	local hz = if Context.tier == "low" then Presets.rainbow.hzLow else Presets.rainbow.hz
+	if now - lastStep < 1 / math.min(hz, Context.budget.animHz) then
 		return
 	end
 	lastStep = now

@@ -39,7 +39,7 @@ The Corner Shop (corner-shop-v2.md) is already that shop: coins only, useful ite
 
 ## 5. The top shelf (#3462, 2026-11-12)
 
-Derek, 2026-11-12: "add better items to day cart like legendary bait and better potions but make it for more money", then "move all of those items to be in the billions" and "and tier 6+". Not built yet when this was written; the as-built numbers replace this table if they differ.
+Derek, 2026-11-12: "add better items to day cart like legendary bait and better potions but make it for more money", then "move all of those items to be in the billions" and "and tier 6+". Built 2026-11-12 (#3484, #3485, art #3481 and #3483) with these numbers. The rows are a top shelf behind the `cartTier6` switch, which starts off and goes on only when every server runs a build that knows the new ids, so after a restart.
 
 | Item | What it does | Price | Gate |
 |---|---|---|---|
@@ -47,11 +47,11 @@ Derek, 2026-11-12: "add better items to day cart like legendary bait and better 
 | Comet Treat (Mythical bait, cart only) | odds: Epic 35, Legendary 48, Mythical 17 | 3B | Tier 6 |
 | Big Lucky Potion | +75% Luck, 30 min | 5B | Tier 6 |
 | Big Gold Rush Potion | +50% gold luck, 30 min | 8B | Tier 6 |
-| Mega Tip Potion | +100% money, 30 min | 20B | Tier 6 |
+| Mega Money Potion (id `mega_tip_potion`) | +100% money, 30 min | 20B | Tier 6 |
 
-- **Coins only, flat prices.** No tier scaling on these rows. Sized against the Tier 7 rank up (54B): the cheapest is about 2% of it and Mega Tip about 37%.
+- **Coins only, flat prices.** No tier scaling on these rows. Sized against the Tier 7 rank up (54B): the cheapest is about 2% of it and Mega Money about 37%.
 - **The two baits are the cart's own** (`source = "cart"`), not the night dealer's Caviar and Moon Milk. The dealer sells those for a few million, so the same item at a billion would read as a mistake. The cart baits are about a third better at the top end than Moon Milk and Star Treat. The names, odds and the swap were Design-Agent's call while Derek was away, for him to confirm.
 - **Star Treat stays dealer only.**
 - **Stock.** The rows join the section 2 roll with no special case, so they sit at the dear end and are in stock about a quarter of days.
-- **Stacking.** A bigger potion and a smaller one of the same kind do not add up: the stronger one runs. Tip, Big Tip and Mega Tip are one kind.
+- **Stacking.** A bigger potion and a smaller one of the same kind do not add up: the stronger one runs. Money, Big Money and Mega Money (ids `tip_potion`, `big_tip_potion`, `mega_tip_potion`) are one kind, and the Mega Money card says it alone fills the most potions can add.
 - **Rules kept.** Nothing random in what is bought, bait cards show their odds, no timers and no "last chance" wording.

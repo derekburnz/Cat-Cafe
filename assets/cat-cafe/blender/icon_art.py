@@ -360,6 +360,35 @@ def big_bowl(mat):
     return [b.finalize("CatCafe_IconArt_BigBowl", mat)]
 
 
+def lucky_charm(mat):
+    """#3298: the Lucky Charm perk. A big four-leaf clover charm with a gold paw coin at its heart, hung from a gold
+    ring on two chain beads, so it reads as a keepsake and apart from the Lucky Potion's bottle."""
+    b = RB()
+    cy = 1.25                                                # the clover's middle
+    for k in range(4):                                       # four heart leaves: two round lobes and a body each
+        a = math.radians(45 + 90 * k)
+        ux, uy = math.cos(a), math.sin(a)
+        px, py = -uy, ux
+        b.cyl((0.5 * ux, cy + 0.5 * uy, 0.0), 0.36, 0.2 + 0.01 * k, "leaf_green", axis="Z", segments=14)
+        for sgn in (-1, 1):
+            b.cyl((0.95 * ux + sgn * 0.25 * px, cy + 0.95 * uy + sgn * 0.25 * py, 0.0), 0.34,
+                  0.24 + 0.01 * k + 0.005 * sgn, "leaf_green", axis="Z", segments=14)
+        b.box((0.8 * ux, cy + 0.8 * uy, -0.13), (0.07, 0.5, 0.04), "leaf_dark",
+              rot=Matrix.Rotation(math.pi / 2 - a, 3, "Z"))                           # the leaf's middle vein
+        b.cyl((1.0 * ux + 0.3 * px, cy + 1.0 * uy + 0.3 * py, -0.14), 0.09, 0.04, "mint", axis="Z", segments=8)
+    b.box((0.2, cy - 1.12, 0.0), (0.16, 0.5, 0.16), "leaf_dark", rot=Matrix.Rotation(math.radians(-22), 3, "Z"))
+    b.cyl((0, cy, -0.14), 0.4, 0.12, "gold_mid", axis="Z", segments=16)              # the paw coin
+    b.cyl((0, cy, -0.2), 0.33, 0.04, "gold_light", axis="Z", segments=16)
+    b.cyl((0, cy - 0.08, -0.24), 0.13, 0.04, "gold_dark", axis="Z", segments=10)     # pad
+    for dx, dy in ((-0.17, 0.07), (-0.06, 0.16), (0.06, 0.16), (0.17, 0.07)):
+        b.cyl((dx, cy + dy, -0.24), 0.05, 0.04, "gold_dark", axis="Z", segments=8)   # toes
+    for y in (cy + 1.22, cy + 1.42):                                                  # two chain beads
+        b.ball((0, y, 0.0), 0.11, "gold_mid")
+    b.b.ring(RB.p(0, cy + 1.86, 0.0), 0.36, 0.11, 0.14, "gold_mid", segments=16, bevel=False,
+             rot=(math.radians(90), "X"))                                             # the ring it hangs from
+    return [b.finalize("CatCafe_IconArt_LuckyCharm", mat)]
+
+
 def swift_paws(mat):
     """#3330: the Swift Paws perk. A tabby at full gallop, front legs reaching and back legs kicked out, nose down a
     touch, off the floor, with three short speed streaks and a dust puff close behind it."""

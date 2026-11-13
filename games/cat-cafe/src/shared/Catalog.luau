@@ -92,12 +92,46 @@ Catalog.rarities = {
 		firstCatchReward = 30000,
 		color = "#FF5E7E",
 	},
+	-- #3470 (Derek 2026-11-12, from a player's idea: "a secret tier of pet that is out of index can spawn on any area
+	-- and its super rare like 100x rarer then mythic but its better then all current mythics"): four times a
+	-- Mythical's income, at the owner's best open area (CatStats.areaMultiplier), and a harder catch in the same
+	-- game. Design-Agent's numbers on #3470.
+	Secret = {
+		incomePerSecond = 300,
+		circles = 8,
+		shrinkSeconds = 0.50,
+		catchWindow = 0.64,
+		trustNeed = 26,
+		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- as Mythical
+		doubleRings = true,
+		pawRings = true,
+		fleeStuds = 72,
+		rescueHits = 8,
+		sellValue = 60000,
+		firstCatchReward = 150000,
+		color = "#16161D", -- tags and cards only (white stroke); effects use a pale starlight (Effects/Presets)
+	},
 } :: { [string]: Types.RarityDef }
 
+-- The five rarities an odds table rolls (areas, foods, crates, decor), commonest first. #3470: Secret is not in it
+-- on purpose, so every odds loop stays as it was; it has a rank (6) for "this rarity or better" checks and sorts.
 local rarityOrder: { Types.Rarity } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 Catalog.rarityOrder = rarityOrder
-Catalog.rarityRank =
-	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 } :: { [string]: number }
+Catalog.rarityRank = {
+	Common = 1,
+	Rare = 2,
+	Epic = 3,
+	Legendary = 4,
+	Mythical = 5,
+	Secret = 6,
+} :: { [string]: number }
+-- #3470: every cat rarity, commonest first (rarityOrder and Secret)
+Catalog.catRarityOrder =
+	{ "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" } :: { Types.Rarity }
+Catalog.SECRET = "Secret" :: Types.Rarity
+-- #3470: the share of rolled Mythicals that turn Secret (wild strays, bait and rescues), so a source's Secret chance
+-- is its Mythical chance over 100 and no other rarity moves. Only while the `secretCats` switch is on.
+Catalog.secretPerMythical = 0.01
 
 -- Data-model v0.13.7 (Derek 2026-10-28 01:50: "just make the base money generation more from further areas"): a
 -- cat earns its rarity's income times its area's multiplier. Catalog.areas carries the same numbers. F95 (the money
@@ -151,6 +185,14 @@ local function exclusive(def: Types.CatDef, source: Types.CatSource): Types.CatD
 	def.area = "exclusive"
 	def.exclusive = true
 	def.source = source
+	return def
+end
+
+-- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
+-- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
+-- an owner's best open area multiplies it (CatStats.areaMultiplier).
+local function secret(def: Types.CatDef): Types.CatDef
+	def.area = "secret"
 	return def
 end
 
@@ -1063,7 +1105,48 @@ Catalog.cats = {
 		),
 		"pass"
 	),
+	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
+	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
+	-- the area away.
+	secret(cat(
+		"nebula",
+		"Nebula",
+		"Secret",
+		"alley",
+		"entertainer",
+		"solid", -- a deep space coat with slow drifting stars and a faint purple glow
+		{ 38, 26, 84 },
+		"Came down with the night sky and stayed for the milk."
+	)),
+	secret(cat(
+		"glitch",
+		"Glitch",
+		"Secret",
+		"alley",
+		"barista",
+		"patches", -- teal and magenta, shimmering in little squares
+		{ 40, 200, 190 },
+		"Nobody is sure it is meant to be here."
+	)),
+	secret(cat(
+		"cafe_ghost",
+		"Cafe Ghost",
+		"Secret",
+		"alley",
+		"greeter",
+		"solid", -- pale and see-through, with a tiny chef hat
+		{ 232, 238, 248 },
+		"Has worked here longer than the cafe has."
+	)),
 } :: { Types.CatDef }
+
+-- #3470: the Secret cats, in catalog order
+Catalog.secretCats = {} :: { Types.CatDef }
+for _, def in Catalog.cats do
+	if def.rarity == "Secret" then
+		table.insert(Catalog.secretCats, def)
+	end
+end
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
 function Catalog.catModelName(catId: string): string
@@ -1785,7 +1868,7 @@ Catalog.potions = {
 		id = "mega_tip_potion",
 		name = "Mega Money Potion",
 		minutes = 30,
-		effect = "+100% money",
+		effect = "+100% money, the most potions can add",
 		tips = 1,
 		shopOnly = true,
 	},
@@ -2070,6 +2153,15 @@ Catalog.achievements = {
 		size = "S",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_catch25",
+		name = "Cat Spotter",
+		text = "Catch 25 cats",
+		measure = "catsCaught",
+		needs = 25,
+		size = "S",
+	},
+	{
 		id = "a_catch100",
 		name = "Cat Catcher",
 		text = "Catch 100 cats",
@@ -2078,8 +2170,26 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_catch250",
+		name = "Cat Herder",
+		text = "Catch 250 cats",
+		measure = "catsCaught",
+		needs = 250,
+		size = "M",
+	},
+	{
 		id = "a_catch1k",
 		name = "Cat Wrangler",
+		text = "Catch 500 cats",
+		measure = "catsCaught",
+		needs = 500,
+		size = "L",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_catch1000",
+		name = "Cat Tamer",
 		text = "Catch 1,000 cats",
 		measure = "catsCaught",
 		needs = 1000,
@@ -2088,9 +2198,9 @@ Catalog.achievements = {
 	{
 		id = "a_catch10k",
 		name = "Cat Legend",
-		text = "Catch 10,000 cats",
+		text = "Catch 2,500 cats",
 		measure = "catsCaught",
-		needs = 10000,
+		needs = 2500,
 		size = "XL",
 	},
 	{
@@ -2100,6 +2210,15 @@ Catalog.achievements = {
 		measure = "rareCatches",
 		needs = 1,
 		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_rare25",
+		name = "Rare Seeker",
+		text = "Catch 25 Rare or better cats",
+		measure = "rareCatches",
+		needs = 25,
+		size = "M",
 	},
 	{
 		id = "a_rare100",
@@ -2118,11 +2237,20 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_gold10",
+		name = "Gold Seeker",
+		text = "Catch 10 gold cats",
+		measure = "goldCatches",
+		needs = 10,
+		size = "L",
+	},
+	{
 		id = "a_gold50",
 		name = "Gold Rush",
-		text = "Catch 50 gold cats",
+		text = "Catch 25 gold cats",
 		measure = "goldCatches",
-		needs = 50,
+		needs = 25,
 		size = "XL",
 	},
 	{
@@ -2132,6 +2260,15 @@ Catalog.achievements = {
 		measure = "perfectCircles",
 		needs = 1,
 		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_perfect100",
+		name = "Sure Paws",
+		text = "Land 100 perfect circles",
+		measure = "perfectCircles",
+		needs = 100,
+		size = "M",
 	},
 	{
 		id = "a_perfect500",
@@ -2144,9 +2281,9 @@ Catalog.achievements = {
 	{
 		id = "a_perfect5k",
 		name = "Steady Hands",
-		text = "Land 5,000 perfect circles",
+		text = "Land 2,000 perfect circles",
 		measure = "perfectCircles",
-		needs = 5000,
+		needs = 2000,
 		size = "XL",
 	},
 	{
@@ -2158,11 +2295,20 @@ Catalog.achievements = {
 		size = "S",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_rescue25",
+		name = "Helping Hand",
+		text = "Rescue 25 stuck cats",
+		measure = "rescues",
+		needs = 25,
+		size = "M",
+	},
+	{
 		id = "a_rescue250",
 		name = "Rescue Hero",
-		text = "Rescue 250 stuck cats",
+		text = "Rescue 100 stuck cats",
 		measure = "rescues",
-		needs = 250,
+		needs = 100,
 		size = "L",
 	},
 	{
@@ -2174,11 +2320,20 @@ Catalog.achievements = {
 		size = "S",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_bait25",
+		name = "Bowl Regular",
+		text = "Tame 25 cats at your bait bowl",
+		measure = "baitsTamed",
+		needs = 25,
+		size = "M",
+	},
+	{
 		id = "a_bait200",
 		name = "Bait Master",
-		text = "Tame 200 cats at your bait bowl",
+		text = "Tame 100 cats at your bait bowl",
 		measure = "baitsTamed",
-		needs = 200,
+		needs = 100,
 		size = "L",
 	},
 	{
@@ -2288,9 +2443,9 @@ Catalog.achievements = {
 	{
 		id = "a_tips2k",
 		name = "Head Waiter",
-		text = "Collect 2,000 tip piles",
+		text = "Collect 1,000 tip piles",
 		measure = "tipPilesCollected",
-		needs = 2000,
+		needs = 1000,
 		size = "L",
 	},
 	{
@@ -2358,6 +2513,24 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_hours1",
+		name = "Settling In",
+		text = "Play for 1 hour",
+		measure = "playtimeSeconds",
+		needs = 3600,
+		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_hours5",
+		name = "Happy Visitor",
+		text = "Play for 5 hours",
+		measure = "playtimeSeconds",
+		needs = 18000,
+		size = "M",
+	},
+	{
 		id = "a_hours10",
 		name = "Cafe Regular",
 		text = "Play for 10 hours",
@@ -2366,19 +2539,46 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_hours25",
+		name = "Cafe Fixture",
+		text = "Play for 25 hours",
+		measure = "playtimeSeconds",
+		needs = 90000,
+		size = "L",
+	},
+	{
 		id = "a_hours100",
 		name = "Devoted",
-		text = "Play for 100 hours",
+		text = "Play for 50 hours",
 		measure = "playtimeSeconds",
-		needs = 360000,
+		needs = 180000,
 		size = "XL",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_quests10",
+		name = "Quest Starter",
+		text = "Finish 10 daily quests",
+		measure = "dailyQuestsDone",
+		needs = 10,
+		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_quests30",
+		name = "Quest Fan",
+		text = "Finish 30 daily quests",
+		measure = "dailyQuestsDone",
+		needs = 30,
+		size = "M",
 	},
 	{
 		id = "a_quests100",
 		name = "Quest Keeper",
-		text = "Finish 100 daily quests",
+		text = "Finish 60 daily quests",
 		measure = "dailyQuestsDone",
-		needs = 100,
+		needs = 60,
 		size = "L",
 	},
 	{
@@ -2390,12 +2590,30 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_week3",
+		name = "Week Keeper",
+		text = "Finish every weekly quest in 3 weeks",
+		measure = "weeklySetsDone",
+		needs = 3,
+		size = "L",
+	},
+	{
 		id = "a_week10",
 		name = "Week Champion",
-		text = "Finish every weekly quest in 10 weeks",
+		text = "Finish every weekly quest in 5 weeks",
 		measure = "weeklySetsDone",
-		needs = 10,
+		needs = 5,
 		size = "XL",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_level10",
+		name = "Rising Star",
+		text = "Raise a cat to level 10",
+		measure = "topCatLevel",
+		needs = 10,
+		size = "M",
 	},
 	{
 		id = "a_level25",
@@ -3078,6 +3296,25 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, crates = { classic_crate = 1 } },
 	},
+	-- #3576 (Derek 2026-11-12: "add codes for 2000visits,10likes and update2 when it's out"): two thank-you codes, on
+	-- as soon as a server has them, and the second update's code, on by the clock at the update (Thursday 2026-11-12
+	-- 22:00 UTC; unknown before it). Prizes are Design-Agent's, beside `update1` and `500visits` in size; no end.
+	["2000visits"] = {
+		id = "2000visits",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, crates = { classic_crate = 2 } },
+	},
+	["10likes"] = {
+		id = "10likes",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	update2 = {
+		id = "update2",
+		active = true,
+		startsAt = 1794520800, -- 2026-11-12 22:00 UTC
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { big_tip_potion = 2 } },
+	},
 	group = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set
@@ -3111,8 +3348,10 @@ end
 -- equally among that rarity's pieces. Every crate shows these odds before it opens (monetization-policy).
 local CRATE_ODDS =
 	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
+-- #3665 (Derek 2026-11-12: "buff gold crates chance of legendary / mythic so its not only always epics"): 70, 24, 6
+-- (was 80, 17.5, 2.5). A plain crate's lucky twentieth keeps the old numbers in its own table (Crates.LUCKY_ODDS).
 local GOLDEN_CRATE_ODDS =
-	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
+	{ Common = 0, Rare = 0, Epic = 70, Legendary = 24, Mythical = 6 } :: { [string]: number }
 -- F101: the Rally Crate is never sold and has no golden twin (`sold` and `golden` false).
 local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boolean? } } = {
 	{ area = "alley", name = "Alley" },
@@ -4355,7 +4594,7 @@ Catalog.rallySteps = {
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
 -- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a
--- level, Swift Paws a little walk speed a level (#3063).
+-- level, Swift Paws a little walk speed a level (#3063), Lucky Charm +0.1 Luck a level (#3298).
 Catalog.fishShop = {} :: { Types.FishShopRow }
 local function shopRow(row: Types.FishShopRow)
 	table.insert(Catalog.fishShop, row)
@@ -4372,6 +4611,9 @@ shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150, 300, 500, 800 }, 
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })
+-- #3298 (new-activities.md section 5): Lucky Charm, +0.1 overall Luck a level (shared/LuckyCharm), 850 fish in all.
+-- Hidden and not sold until the `luckyCharm` switch is on.
+shopRow({ id = "lucky_charm", kind = "perk", costs = { 100, 250, 500 }, maxLevel = 3 })
 
 Catalog.fishShopById = {} :: { [string]: Types.FishShopRow }
 for _, row in Catalog.fishShop do

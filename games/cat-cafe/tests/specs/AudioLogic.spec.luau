@@ -264,7 +264,7 @@ return function()
 			expect(Logic.jingleFor("Common")).to.equal(nil)
 			expect(Logic.jingleFor("Rare")).to.equal("jingleRare")
 			expect(Logic.jingleFor("Mythical")).to.equal("jingleMythical")
-			expect(Logic.jingleFor("Secret")).to.equal("jingleMythical")
+			expect(Logic.jingleFor("Secret")).to.equal("jingleSecret") -- #3470
 			expect(Logic.jingleFor(nil)).to.equal(nil)
 		end)
 
@@ -411,7 +411,9 @@ return function()
 
 		it("gives the Mythical sting to Mythical and the old Secret only, in any case", function()
 			for rarity in Catalog.rarities do
-				local want = if string.lower(rarity) == "mythical"
+				-- #3470: Secret is a rarity again (above Mythical) and keeps the Mythical sting
+				local lower = string.lower(rarity)
+				local want = if lower == "mythical" or lower == "secret"
 					then "announceMythical"
 					else "announce"
 				expect(Logic.announceCue(rarity)).to.equal(want)
@@ -624,6 +626,9 @@ return function()
 			expect(Logic.mouseEndCue(42, "hearts", true)).to.equal("mouseBest")
 			expect(Logic.mouseEndCue(12, "hearts", false)).to.equal("arcadeEnd")
 			expect(Logic.mouseEndCue(0, "hearts", false)).to.equal(nil)
+			expect(Logic.mouseEndCue(12, "time", false)).to.equal("arcadeEnd")
+			expect(Logic.mouseEndCue(0, "time", false)).to.equal(nil)
+			expect(Logic.mouseEndCue(12, "time", true)).to.equal("mouseBest")
 			expect(Logic.mouseEndCue(30, "quit", true)).to.equal("mouseBest")
 			expect(Logic.mouseEndCue(30, "quit", false)).to.equal(nil)
 			expect(Logic.mouseEndCue(nil, nil, nil)).to.equal(nil)
@@ -656,6 +661,19 @@ return function()
 	describe("Audio.Logic rummage prize cue", function()
 		it("picks a cue by prize, and dings for anything else", function()
 			expect(Logic.rummageCue("golden")).to.equal("goldReveal")
+			expect(Logic.rummageCue("bigmoney")).to.equal("goldReveal")
+			-- #3608: the roll's ticks and stop; the win stays with the row's own cue
+			expect(Logic.binRollCue("tick")).to.equal("uiReelTick")
+			expect(Logic.binRollCue("land")).to.equal("uiReelStop")
+			expect(Logic.binRollCue("win")).to.equal(nil)
+			expect(Logic.binRollCue(nil)).to.equal(nil)
+			-- #3651: petting a cat is a heart chime and a purr; the moved heart's landing is silent
+			local chime, purr, held = Logic.petCatCue("pet")
+			expect(held > 0 and held <= 2).to.equal(true)
+			expect(chime).to.equal("mouseHeart")
+			expect(purr).to.equal("purr")
+			expect((Logic.petCatCue("heart"))).to.equal(nil)
+			expect((Logic.petCatCue(nil))).to.equal(nil)
 			expect(Logic.rummageCue("crate")).to.equal("indexReward")
 			for _, id in { "tuna", "fish", "salmon", "potion", "nope" } do
 				expect(Logic.rummageCue(id)).to.equal("giftClaim")
@@ -711,6 +729,8 @@ return function()
 			expect(Logic.bannerCue("party")).to.equal("stationReveal")
 			expect(Logic.bannerCue("giftSoon")).to.equal("uiGiftReady")
 			expect(Logic.bannerCue("gift")).to.equal("indexReward")
+			expect(Logic.bannerCue("secrets")).to.equal("secretNear")
+			expect(Logic.bannerCue("secretSpawn")).to.equal("secretNear")
 			expect(Logic.bannerCue("sale")).to.equal(nil)
 			expect(Logic.bannerCue(nil)).to.equal(nil)
 		end)
@@ -969,6 +989,12 @@ return function()
 				expect(Logic.stingAction("jingleLegendary", 10, "jingleRainbow", 12, 4)).to.equal(
 					"replace"
 				)
+				expect(Logic.stingAction("jingleMythical", 10, "jingleSecret", 12, 4)).to.equal(
+					"replace"
+				)
+				expect(Logic.stingAction("jingleSecret", 10, "jingleMythical", 12, 4)).to.equal(
+					"skip"
+				)
 				expect(Logic.stingAction("jingleRainbow", 10, "jingleMythical", 12, 4)).to.equal(
 					"skip"
 				)
@@ -989,6 +1015,8 @@ return function()
 				expect(Logic.pullSting("Epic", nil)).to.equal("jingleEpic")
 				expect(Logic.pullSting("Legendary", "gold")).to.equal("jingleLegendary")
 				expect(Logic.pullSting("Mythical", nil)).to.equal("jingleMythical")
+				expect(Logic.pullSting("Secret", nil)).to.equal("jingleSecret")
+				expect(Logic.pullSting("Secret", "rainbow")).to.equal("jingleRainbow")
 				expect(Logic.pullSting("Rare", nil)).to.equal(nil)
 				expect(Logic.pullSting("Common", nil)).to.equal(nil)
 				expect(Logic.pullSting(nil, nil)).to.equal(nil)
@@ -1001,6 +1029,8 @@ return function()
 				expect(Logic.strayNoticeCue("Common", "rainbow")).to.equal("rainbowNear")
 				expect(Logic.strayNoticeCue("Mythical", "rainbow")).to.equal("rainbowNear")
 				expect(Logic.strayNoticeCue("Mythical", nil)).to.equal("rareNear")
+				expect(Logic.strayNoticeCue("Secret", nil)).to.equal("secretNear")
+				expect(Logic.strayNoticeCue("Secret", "rainbow")).to.equal("rainbowNear")
 				expect(Logic.strayNoticeCue("Legendary", "gold")).to.equal(nil)
 				expect(Logic.strayNoticeCue(nil, nil)).to.equal(nil)
 			end
@@ -1502,5 +1532,24 @@ return function()
 				expect(cue.pitch ~= nil and cue.pitch[2] < 1).to.equal(true)
 			end
 		)
+	end)
+
+	describe("Audio.Logic Yard Sale landing (#3615)", function()
+		it("plays the reel stop, and the gold reveal only for a golden crate", function()
+			local stop, chime = Logic.yardLandCues(false)
+			expect(stop).to.equal("uiReelStop")
+			expect(chime).to.equal(nil)
+			local goldStop, goldChime = Logic.yardLandCues(true)
+			expect(goldStop).to.equal("uiReelStop")
+			expect(goldChime).to.equal("goldReveal")
+			local _, oddChime = Logic.yardLandCues("yes")
+			expect(oddChime).to.equal(nil)
+		end)
+
+		it("uses cues that exist", function()
+			expect(Cues.uiReelTick ~= nil and Cues.uiReelStop ~= nil and Cues.goldReveal ~= nil).to.equal(
+				true
+			)
+		end)
 	end)
 end

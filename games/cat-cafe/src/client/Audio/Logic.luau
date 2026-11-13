@@ -221,13 +221,14 @@ function Logic.sliderGain(value: any): number
 	return clamped * clamped
 end
 
--- The catch jingle for a rarity (sound list section 3); Common has none. Secret is the v0.2 name for Mythical.
+-- The catch jingle for a rarity (sound list section 3); Common has none. A Secret (#3470, the tier above Mythical)
+-- has its own: the Mythical fanfare played lower and slower (Cues jingleSecret).
 local JINGLES: { [string]: string } = {
 	rare = "jingleRare",
 	epic = "jingleEpic",
 	legendary = "jingleLegendary",
 	mythical = "jingleMythical",
-	secret = "jingleMythical",
+	secret = "jingleSecret",
 }
 
 function Logic.jingleFor(rarity: string?): string?
@@ -377,8 +378,8 @@ function Logic.travelCue(destination: any, inWild: boolean, hopping: boolean): s
 	return "travelPoof"
 end
 
--- Whether a stray twinkles as a player comes near (rareNear): Mythical only. Derek 2026-10-28: the sound around
--- rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
+-- Whether a stray twinkles as a player comes near (rareNear, a Secret its own secretNear): Mythical and up only.
+-- Derek 2026-10-28: the sound around rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
 function Logic.shimmers(rarity: any): boolean
 	local step = if type(rarity) == "string" then Logic.rarityStep(rarity) else nil
 	return step ~= nil and step >= 5
@@ -416,12 +417,40 @@ end
 -- (RescueDone), so this is the prize itself and reuses existing cues: a golden prize its reveal, a crate the reward
 -- jingle, and every other prize (tuna, fish, salmon, potion) a small gift ding. Unknown ids ding too.
 function Logic.rummageCue(rowId: any): string
-	if rowId == "golden" then
+	if rowId == "golden" or rowId == "bigmoney" then -- #3608: the Big Money Potion is a top prize too
 		return "goldReveal"
-	elseif rowId == "crate" then
+	elseif rowId == "crate" or rowId == "first_crate" then -- #3460: the fixed second prize holds a crate too
 		return "indexReward"
 	end
 	return "giftClaim"
+end
+
+-- #3690: a bounce on the Neighborhood's trampoline (Effects/Trampoline.onBounce): the net's springy bounce, until
+-- the trampoline has a boing of its own.
+Logic.TRAMPOLINE_CUE = "netBounce"
+
+-- #3608: the Rummage Bin's prize roll (Effects/BinRoll.onBeat). A soft tick as each row lights and the reel's
+-- stop as it lands, both existing cues. The win keeps its own cue by row (Logic.rummageCue on Moments.RummageWin),
+-- so the "win" beat plays nothing here and no win is heard twice. Nil for any other beat.
+function Logic.binRollCue(beat: any): string?
+	if beat == "tick" then
+		return "uiReelTick"
+	elseif beat == "land" then
+		return "uiReelStop"
+	end
+	return nil
+end
+
+-- #3651: petting a cat (Effects/PetCat.onBeat). "pet", as the hand reaches the cat: the soft heart chime (our own
+-- `mouseHeart`) and a short purr at the cat (the `purr` loop, held for `purrSeconds`). "heart", the moved heart
+-- landing, is silent since "pet" follows it at once. Returns the one-shot cue, the loop cue and the seconds the
+-- loop is held; nil and 0 for other beats.
+Logic.PET_PURR_SECONDS = 1.6
+function Logic.petCatCue(beat: any): (string?, string?, number)
+	if beat == "pet" then
+		return "mouseHeart", "purr", Logic.PET_PURR_SECONDS
+	end
+	return nil, nil, 0
 end
 
 -- #3389: the Mystic Pool's roll (Effects/MysticPool.onBeat). The cat's splash, one bubbling note per colour step
@@ -489,13 +518,14 @@ function Logic.mouseMissCue(kind: any): string?
 	return nil
 end
 
--- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
--- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
--- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
+-- #3296: a run's end. `reason` is "hearts" (out of hearts), "time" (the run clock ran out, #3553), "win" (the top
+-- score) or "quit". A win or a new best plays the fanfare (a run closed on a new best too, since the window throws
+-- its confetti then), any other run that ran out of hearts or time with points the arcade's "nice try"; any other
+-- quit is silent.
 function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
 	if reason == "win" or newBest == true then
 		return "mouseBest"
-	elseif reason == "hearts" and type(points) == "number" and points > 0 then
+	elseif (reason == "hearts" or reason == "time") and type(points) == "number" and points > 0 then
 		return "arcadeEnd"
 	end
 	return nil
@@ -522,6 +552,8 @@ function Logic.bannerCue(kind: any): string?
 		return "uiGiftReady"
 	elseif kind == "gift" then
 		return "indexReward"
+	elseif kind == "secrets" or kind == "secretSpawn" then
+		return "secretNear" -- #3523: the Secret stray's low twinkle
 	end
 	return nil
 end
@@ -544,13 +576,16 @@ function Logic.strayCallDue(
 	return lastAt == nil or now - lastAt >= gap
 end
 
--- F99: a rainbow stray (its Variant "rainbow") twinkles with its own rainbowNear, a Mythical with rareNear, and
--- every other stray stays quiet.
+-- F99: a rainbow stray (its Variant "rainbow") twinkles with its own rainbowNear, a Secret (#3470) with the deep
+-- secretNear, a Mythical with rareNear, and every other stray stays quiet.
 function Logic.strayNoticeCue(rarity: any, variant: any): string?
 	if variant == "rainbow" then
 		return "rainbowNear"
 	end
-	return if Logic.shimmers(rarity) then "rareNear" else nil
+	if not Logic.shimmers(rarity) then
+		return nil
+	end
+	return if string.lower(rarity) == "secret" then "secretNear" else "rareNear"
 end
 
 -- F89 and F99: the sting on your own big pull (SecuredRare). A rainbow cat always gets its own; otherwise the
@@ -567,7 +602,15 @@ function Logic.pullSting(rarity: any, variant: any): string?
 end
 
 local STING_RANK: { [string]: number } =
-	{ jingleRare = 1, jingleEpic = 2, jingleLegendary = 3, jingleMythical = 4, jingleRainbow = 5 }
+	-- a rainbow's own sting stays on top: a rainbow cat of any rarity plays it (Logic.pullSting)
+	{
+		jingleRare = 1,
+		jingleEpic = 2,
+		jingleLegendary = 3,
+		jingleMythical = 4,
+		jingleSecret = 5,
+		jingleRainbow = 6,
+	}
 
 -- Two stings within `quiet` seconds (a tame's BaitTame and its SecuredRare land together): the same one or a
 -- smaller one is skipped, a bigger one replaces the first (a rainbow's own sting over the rarity's).
@@ -775,6 +818,7 @@ local BEAT_CUES: { [string]: string } = {
 	rodCast = "campSplash",
 	basketOpen = "campBasket",
 	lidRattle = "campRattle",
+	stuckCall = "strayCall", -- #2912: the starter trap's cat calls for help (Effects/StuckCall)
 }
 
 function Logic.beatCue(beat: any): string?
@@ -875,6 +919,14 @@ function Logic.trustPurrSpeed(trust: any, need: any): number
 		return 1
 	end
 	return 1 + 0.5 * math.clamp(trust / need, 0, 1)
+end
+
+-- #3615: the Yard Sale lucky pick's landing: the reel's stop, and for a golden crate the gold reveal chime
+-- YARD_CHIME_AFTER seconds later, so the two do not land on each other.
+Logic.YARD_CHIME_AFTER = 0.25
+
+function Logic.yardLandCues(golden: any): (string, string?)
+	return "uiReelStop", if golden == true then "goldReveal" else nil
 end
 
 return Logic

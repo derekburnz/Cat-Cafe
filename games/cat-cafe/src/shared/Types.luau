@@ -2,11 +2,14 @@
 -- Shared types. Field names follow docs/design/cat-cafe/ui-contract.md and data-model.md.
 -- Pure: no Roblox globals, so tests can require it.
 
-export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
+-- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
+-- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
+export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
 export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
 -- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
 -- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
-export type CatArea = Area | "spare" | "exclusive"
+-- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
+export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
 export type CatSource = "free" | "shop" | "pass"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
@@ -388,6 +391,7 @@ export type CodeDef = {
 	id: string,
 	prize: IndexPrize,
 	active: boolean,
+	startsAt: number?, -- os.time(): before it the code reads as one that does not exist (#3576)
 	endsAt: number?, -- os.time()
 	requiresGroup: boolean?,
 }
@@ -709,6 +713,7 @@ export type TradeTile = {
 	charm: number?,
 	rateForMe: number,
 	earnsNow: number?, -- #3211: the viewer's own cat: what it earns this second (0 with no job); the totals use it
+	trait: TraitData?, -- #3710: the cat's Mystic Pool trait, which moves with it (shared/Trade)
 }
 -- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
 -- adds while placed (0.05 is +5%).
@@ -938,10 +943,16 @@ export type CampExtrasSave = {
 
 -- #3050: the Rummage Bin (shared/RummageBin): the os.time() it is full again (0: ready) and the wins so far. Kept in its
 -- own DataStore (BinService), not the save, so it needs no save version step.
-export type RummageBinSave = { nextAt: number, uses: number }
+-- #3610: `prize` is the row id rolled and waiting for the player (the `binRoll` switch): the next win pays it, and a
+-- miss, a leave or a rejoin keeps it. nil when none waits.
+export type RummageBinSave = { nextAt: number, uses: number, prize: string? }
 -- A Rummage Bin win as RescueResult's last argument carries it: the BinTable row's id and whether it is the account's
 -- first win (shared/RummageBin.winWords).
-export type RummageWin = { id: string, first: boolean }
+-- #3464: `items` is the whole win, one entry per thing paid (kind "lure", "crate", "potion" or "fish"; `id` the
+-- item's id, nil for golden fish; `count` how many), for the loot card.
+export type RummageItem = { kind: string, id: string?, count: number }
+-- #3608: `rolled` true when the row is the `binRoll` bin's (a BinRollTable row or a fixed first prize).
+export type RummageWin = { id: string, first: boolean, items: { RummageItem }?, rolled: boolean? }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
 export type YardSaleCrate = { crateId: string, price: number, bought: boolean }
@@ -954,6 +965,8 @@ export type CampExtraView = {
 	held: number,
 	nextAt: number?,
 	stock: { YardSaleCrate }?,
+	-- #3614: the lucky pick's rows for this player while the `yardSaleRoll` switch is on (shared/YardPick.rows)
+	pick: { { crateId: string, chance: number, golden: boolean, tier: number } }?,
 	decor: { YardDecorRow }?, -- #1537: the Yard Sale's lawn rows today (shared/YardSale)
 	decorAt: number?, -- #1537: when the Yard Sale's next lawn stock arrives (server time), the next sunrise
 }
@@ -1176,6 +1189,10 @@ export type TelemetryState = {
 	-- such a server logs no v2 step for a player this code has seen. A server on v2 drops this field; a save it wrote
 	-- comes back with firstHourStep at 1 or more and so leaves v3 (no double counting)
 	firstHourV3Step: number,
+	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
+	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
+	-- reads as never in the test)
+	introGroup: string?,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount
@@ -1429,7 +1446,12 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #2912: true from the first bait cat resolved until the first rescue starts (shared/StuckGoal.waiting)
+	stuckGoal: boolean?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
+	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
+	-- reads as Config.IntroAutoPlay
+	introAuto: boolean?,
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)

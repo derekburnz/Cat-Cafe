@@ -1,16 +1,15 @@
 --!strict
--- #3196 (trait-station.md section 1): which of the two stations stands on the Park camp's picnic spot. WorldBuilder
--- builds both, the Picnic Basket and the Mystic Pool, each with its floor ring. While the `traits` switch is on the
--- pool stands there and the basket waits in ServerStorage; off, the other way round. The switch is read every
--- CHECK_SECONDS, so turning it on or off swaps the station in every running server with no publish and no restart.
--- A station that is put away is not in the world for any client, so its ring, prompt and "!" go with it.
--- Without the pool's art (WorldBuilder built none) the basket always stays.
+-- #3196 (trait-station.md section 1), #3715: whether the Mystic Pool stands in the Town Square. WorldBuilder builds
+-- it with its floor ring at Layout.mysticPool. While the `traits` switch is on the pool stands there; off, it and
+-- its ring wait in ServerStorage. The switch is read every CHECK_SECONDS, so turning it on or off shows or hides the
+-- station in every running server with no publish and no restart. A station that is put away is not in the world for
+-- any client, so its ring, prompt and "!" go with it. Until #3715 the pool took the Park's Picnic Basket's spot and
+-- the basket was put away in its place; the basket now always stands in the Park and works as it did.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
@@ -23,7 +22,6 @@ local STORE = "MysticPoolSwap"
 type Station = { model: Model, ring: Instance?, home: Instance }
 
 local pool: Station? = nil
-local basket: Station? = nil
 local shown: boolean? = nil -- whether the pool is the one standing; nil before the first pass
 
 local function store(): Folder
@@ -47,7 +45,7 @@ local function stationOf(model: Instance): Station?
 	return { model = model :: Model, ring = ring, home = home }
 end
 
--- Finds the two stations once; false until both are built.
+-- Finds the pool once; false until it is built.
 local function find(): boolean
 	if pool == nil then
 		local tagged = CollectionService:GetTagged(Traits.TAG)[1]
@@ -55,15 +53,7 @@ local function find(): boolean
 			pool = stationOf(tagged)
 		end
 	end
-	if basket == nil then
-		for _, model in CollectionService:GetTagged(CampExtras.TAG) do
-			if model:GetAttribute("ExtraId") == Traits.STATION_EXTRA then
-				basket = stationOf(model)
-				break
-			end
-		end
-	end
-	return pool ~= nil and basket ~= nil
+	return pool ~= nil
 end
 
 local function put(station: Station, standing: boolean)
@@ -84,13 +74,11 @@ function MysticPoolStationService.apply(): boolean
 	if shown ~= on then
 		shown = on
 		put(pool :: Station, on)
-		put(basket :: Station, not on)
 	end
 	return on
 end
 
--- Whether the pool is the station standing right now. False while the switch is off, and also when the pool was
--- never built (no art), so the basket keeps working then (CampExtraService asks this).
+-- Whether the pool stands right now. False while the switch is off, and also when the pool was never built (no art).
 function MysticPoolStationService.standing(): boolean
 	return shown == true
 end

@@ -14,6 +14,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
+local RankSpot = require(script.Parent.RankSpot)
 local StationReveal = require(script.Parent.StationReveal)
 local Types = require(script.Parent.Types)
 
@@ -107,6 +108,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.STUCK_HELP
 		or id == Tips.LESSON
 		or id == Tips.MYSTIC_INTRO -- #3430
+		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 end
 
@@ -174,7 +176,7 @@ Tips.NOTIFY_RETRY_SECONDS = 30 * 86400
 local function securedLegendary(profile: Types.PlayerProfile): boolean
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
-		if def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical") then
+		if def ~= nil and (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Legendary then
 			return true
 		end
 	end
@@ -270,6 +272,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or Tips.isAsk(key)
 					or key == Tips.LESSON
 					or key == Tips.MYSTIC_INTRO
+					or key == RankSpot.SEEN -- #3555
 					or StationReveal.isKey(key)
 				)
 			then

@@ -27,6 +27,8 @@
 -- it one rich line that shrinks, then wraps onto a second row, so a name is never cut. A tap runs card.onTap.
 
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CoatWords =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("CoatWords"))
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -67,6 +69,7 @@ export type Toasts = {
 	setHeld: (self: Toasts, held: boolean) -> (),
 	setFocus: (self: Toasts, on: boolean) -> (), -- #2724: mid-catch toasts wait
 	isHeld: (self: Toasts) -> boolean,
+	pin: (self: Toasts, piece: GuiObject) -> (), -- #3701: the rest banner, kept at the head of the stack
 	lastShown: (self: Toasts) -> number?,
 	destroy: (self: Toasts) -> (),
 }
@@ -248,16 +251,19 @@ end
 -- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
 -- Silent: Audio plays the shout-out sting from the Announce remote itself.
 function Toasts.announce(self: any, text: string, rarity: string?)
-	local fill = if rarity and (Theme.rarity :: any)[rarity]
-		then Theme.rarityColor(rarity)
+	-- #3470: a Secret's pill is its near black swatch under the white words, not the pale UI colour
+	local fill = if rarity == "Secret"
+		then Theme.rarity.Secret.text
+		elseif rarity and (Theme.rarity :: any)[rarity] then Theme.rarityColor(rarity)
 		else announceColor(text) or KIND_COLORS.announce
 	self:_push(text, fill, ANNOUNCE_LIFETIME)
 end
 
 -- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.
 function Toasts.rainbow(self: any, text: string, rarity: string?)
-	local fill = if rarity and (Theme.rarity :: any)[rarity]
-		then Theme.rarityColor(rarity)
+	local fill = if rarity == "Secret"
+		then Theme.rarity.Secret.text
+		elseif rarity and (Theme.rarity :: any)[rarity] then Theme.rarityColor(rarity)
 		else KIND_COLORS.announce
 	self:_push(text, fill, ANNOUNCE_LIFETIME, true)
 end
@@ -574,6 +580,15 @@ function Toasts._push(
 		lifetime = RewardList.lifetime(#rewards, math.max(lifetime, PRIZE_LIFETIME))
 	else
 		Toasts._wrap(toast, message, if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX)
+		-- #3692: a shout-out that names a Rainbow or Gold cat draws that one word in its colours (shared/CoatWords).
+		-- Set after _wrap has read the plain words to measure; the letters are as wide either way.
+		if prize == nil and (fill ~= KIND_COLORS.good and fill ~= KIND_COLORS.warn) then
+			local rich, found = CoatWords.rich(text, CoatWords.escape)
+			if found then
+				message.RichText = true
+				message.Text = rich
+			end
+		end
 	end
 	local textOutline = Outline.text(message)
 	textOutline.Transparency = 1
@@ -839,6 +854,14 @@ function Toasts.setFocus(self: any, on: boolean)
 	for _, line in waiting do
 		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize, line.oneLine)
 	end
+end
+
+-- #3701: a piece that is not a toast (the cafe rest banner) at the head of the stack, so it sits top centre, clear of
+-- the HUD, and the toasts line up under it. Its own Visible decides whether it takes room.
+function Toasts.pin(self: any, piece: GuiObject)
+	piece.LayoutOrder = 0
+	piece.Parent = self._stack
+	self:_place()
 end
 
 function Toasts.isHeld(self: any): boolean

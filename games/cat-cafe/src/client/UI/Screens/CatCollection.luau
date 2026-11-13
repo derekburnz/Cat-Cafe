@@ -92,6 +92,8 @@ local RAINBOW_NAME = "Rainbow cats"
 -- All cats line becomes Gold cats, every area's gold cats against the All Cats page's gold track (goldtotal5 to 50)
 local GOLD_NAME = "Gold cats"
 local PORTRAITS_PER_FRAME = 10 -- a tab's 50-odd models are cloned over a few frames
+local INDEX_BUILD_AFTER = 3 -- #3722: seconds after the catalog arrives before the quiet build of the tiles starts
+local INDEX_BUILD_BATCH = 4 -- tiles a frame in the quiet build
 
 local CatCollection = {}
 CatCollection.__index = CatCollection
@@ -225,6 +227,11 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._catById = {} :: { [string]: Types.CatDef }
 	self._cells = {} :: { [string]: any }
 	self._sections = {} :: { [string]: any } -- area id (or "all") -> its header, strip and grid
+	-- #3722: the index is built off the start-up path. `_indexNext` is the next catalog cat to get a tile (0 before
+	-- the section lines exist), `_indexBuilt` once every tile stands, `_indexToken` stops an older build.
+	self._indexNext = 0
+	self._indexBuilt = false
+	self._indexToken = 0
 	self._loadToken = 0 -- the latest portrait queue's, so an older one stops
 	self._tab = "Index" :: Tab
 	self._selected = nil :: string? -- the cat on the detail card
@@ -765,8 +772,8 @@ function CatCollection._clear(self: any)
 	table.clear(self._catById)
 end
 
-function CatCollection._buildIndex(self: any)
-	self:_clear()
+-- The section lines of the index (the tiles follow in _buildTiles).
+function CatCollection._buildSections(self: any)
 	local catalog: Types.Catalog? = self._catalog
 	if not catalog then
 		return
@@ -786,75 +793,127 @@ function CatCollection._buildIndex(self: any)
 		order += 1
 		self:_buildSection(area.id, area.name, order, true)
 	end
-
-	for index, def in catalog.cats do
-		self._catById[def.id] = def
-		local areaId: string = def.area or IndexBook.FALLBACK_AREA
-		local section = self._sections[areaId]
-		if not section or not section.grid then
-			continue
+	-- #3470: the Secret page comes last and stays hidden until the player has found a Secret cat (_renderBook)
+	for _, def in catalog.cats do
+		if def.area == IndexBook.SECRET then
+			local page =
+				self:_buildSection(IndexBook.SECRET, IndexBook.SECRET_NAME, order + 1, true)
+			page.title.TextColor3 = Theme.rarityColor(def.rarity)
+			page.frame.Visible = false
+			break
 		end
-		local rarity = def.rarity
-		local tile: TextButton = Create("TextButton", {
-			Name = def.id,
-			Text = "",
-			AutoButtonColor = false,
-			BackgroundColor3 = Theme.rarityColor(rarity),
-			BorderSizePixel = 0,
-			LayoutOrder = (table.find(IndexBook.RARITIES, rarity) or 1) * 1000 + index,
-			Parent = section.grid,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-		local border = Outline.border(tile, Theme.sizes.outline)
-		Outline.shade(tile, 0.3)
-		local portrait = CatPortrait.new({
-			parent = tile,
-			size = UDim2.fromOffset(PORTRAIT, PORTRAIT),
-			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.new(0.5, 0, 0, 4),
-			still = true,
-			zIndex = 2,
-		})
-		local name = text({
-			Name = "Name",
-			Position = UDim2.fromOffset(4, PORTRAIT + 8),
-			Size = UDim2.new(1, -8, 0, 30), -- room for two lines under the portrait
-			FontFace = Theme.fonts.display,
-			TextScaled = true,
-			-- a long name ("Duchess Marzipan") breaks onto two lines on a phone, never under MinTextSize (#1543)
-			TextWrapped = true,
-			TextColor3 = Theme.colors.white,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Text = "???",
-			ZIndex = 3,
-			Parent = tile,
-		})
-		Create("UITextSizeConstraint", {
-			MaxTextSize = Theme.sizes.textSmall + 1,
-			MinTextSize = 9,
-			Parent = name,
-		})
-		Outline.text(name, 2)
-		local connection = tile.Activated:Connect(function()
-			Sound.play("uiTab")
-			self._selected = def.id
-			self:_showDetail()
-		end)
-		self._cells[def.id] = {
-			frame = tile,
-			border = border,
-			portrait = portrait,
-			loaded = nil :: boolean?, -- the coat the portrait holds: false the base, true the gold, nil none yet
-			name = name,
-			def = def,
-			connection = connection,
-			bands = nil :: { UIGradient }?, -- the rainbow border and name, made the first time it shows as rainbow
-		}
 	end
+	for _, def in catalog.cats do
+		self._catById[def.id] = def
+	end
+	self._indexNext = 1
+end
+
+-- Up to `count` more cat tiles (every tile left when nil), in catalog order.
+function CatCollection._buildTiles(self: any, count: number?)
+	local catalog: Types.Catalog? = self._catalog
+	if not catalog or self._indexBuilt then
+		return
+	end
+	if self._indexNext == 0 then
+		self:_buildSections()
+	end
+	local cats = catalog.cats
+	local last = if count then math.min(#cats, self._indexNext + count - 1) else #cats
+	for index = self._indexNext, last do
+		self:_buildTile(index, cats[index])
+	end
+	self._indexNext = last + 1
+	self._indexBuilt = last >= #cats
+end
+
+function CatCollection._buildTile(self: any, index: number, def: Types.CatDef)
+	local areaId: string = def.area or IndexBook.FALLBACK_AREA
+	local section = self._sections[areaId]
+	if not section or not section.grid then
+		return
+	end
+	local rarity = def.rarity
+	local tile: TextButton = Create("TextButton", {
+		Name = def.id,
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.rarityColor(rarity),
+		BorderSizePixel = 0,
+		LayoutOrder = (table.find(IndexBook.RARITIES, rarity) or 1) * 1000 + index,
+		Parent = section.grid,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	local border = Outline.border(tile, Theme.sizes.outline)
+	Outline.shade(tile, 0.3)
+	local portrait = CatPortrait.new({
+		parent = tile,
+		size = UDim2.fromOffset(PORTRAIT, PORTRAIT),
+		anchorPoint = Vector2.new(0.5, 0),
+		position = UDim2.new(0.5, 0, 0, 4),
+		still = true,
+		zIndex = 2,
+	})
+	local name = text({
+		Name = "Name",
+		Position = UDim2.fromOffset(4, PORTRAIT + 8),
+		Size = UDim2.new(1, -8, 0, 30), -- room for two lines under the portrait
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		-- a long name ("Duchess Marzipan") breaks onto two lines on a phone, never under MinTextSize (#1543)
+		TextWrapped = true,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "???",
+		ZIndex = 3,
+		Parent = tile,
+	})
+	Create("UITextSizeConstraint", {
+		MaxTextSize = Theme.sizes.textSmall + 1,
+		MinTextSize = 9,
+		Parent = name,
+	})
+	Outline.text(name, 2)
+	local connection = tile.Activated:Connect(function()
+		Sound.play("uiTab")
+		self._selected = def.id
+		self:_showDetail()
+	end)
+	self._cells[def.id] = {
+		frame = tile,
+		border = border,
+		portrait = portrait,
+		loaded = nil :: boolean?, -- the coat the portrait holds: false the base, true the gold, nil none yet
+		name = name,
+		def = def,
+		connection = connection,
+		bands = nil :: { UIGradient }?, -- the rainbow border and name, made the first time it shows as rainbow
+	}
+end
+
+-- #3722: 160 odd tiles with a portrait each took the main thread for seconds at start-up on slow phones (the
+-- "Script has run for over 15 seconds" warning), so nothing is built in setCatalog. A quiet build lays a few
+-- tiles a frame once the game has started, and opening the window first finishes whatever is left at once.
+function CatCollection._queueIndex(self: any)
+	self:_clear()
+	self._indexNext = 0
+	self._indexBuilt = false
+	self._indexToken += 1
+	local token: number = self._indexToken
+	task.delay(INDEX_BUILD_AFTER, function()
+		while token == self._indexToken and not self._indexBuilt do
+			self:_buildTiles(INDEX_BUILD_BATCH)
+			task.wait()
+		end
+		-- a window opened and painted before the last tile is painted again in full
+		if token == self._indexToken and self.frame.Visible and self._lastState then
+			self:render(self._lastState)
+		end
+	end)
 end
 
 function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
-	self:_buildIndex()
+	self:_queueIndex()
 	self._decorIndex:setCatalog(catalog)
 	-- the Decor tab shows once the catalog has crates to fill its pages, the Rainbow tab once it has the track
 	self._decorTab.instance.Visible = #DecorPieces.pools(catalog) > 0
@@ -965,6 +1024,23 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
 		end
 	end
+	-- #3470: the Secret page only for a player who has found one, with nothing to claim and no total
+	local secretArea = IndexBook.secret(catalog, state, kind)
+	local secretPage = self._sections[IndexBook.SECRET]
+	if secretArea and secretPage then
+		shown[IndexBook.SECRET] = true
+		self:_paintHeader(
+			secretPage,
+			secretArea.have,
+			secretArea.total,
+			IndexBook.count(secretArea),
+			{ state = "none", ready = 0 },
+			false,
+			IndexBook.SECRET,
+			state
+		)
+		secretPage.hint.Text = IndexBook.EXCLUSIVE_NOTE
+	end
 	-- the line over the areas: the All Cats track on the Cats tab, its gold track as Gold cats on the Gold tab (#1772)
 	-- and the Rainbow track on the Rainbow tab
 	local lineId: string? = if tab == "Index" or gold
@@ -1000,10 +1076,16 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 	local toLoad = {}
 	for catId, cell in self._cells do
 		local def: Types.CatDef = cell.def
+		local isFound = found[catId] == true
+		if def.area == IndexBook.SECRET then
+			cell.frame.Visible = isFound -- #3470: a Secret cat not yet found has no tile at all
+			if not isFound then
+				continue
+			end
+		end
 		if cell.loaded ~= gold then
 			table.insert(toLoad, cell)
 		end
-		local isFound = found[catId] == true
 		local color = Theme.rarityColor(def.rarity)
 		cell.frame.BackgroundColor3 = if isFound
 			then color
@@ -1154,6 +1236,8 @@ function CatCollection._showDetail(self: any)
 			meta,
 			if def.source == "free" then "free at its stand in town" else "from the shop"
 		)
+	elseif def.area == IndexBook.SECRET then
+		table.insert(meta, "turns up anywhere") -- #3470: a Secret cat has no home area
 	else
 		table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
 	end
@@ -1177,6 +1261,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		return
 	end
 	self._dirty = false
+	self:_buildTiles() -- #3722: whatever the quiet build has not reached yet
 	local catalog: Types.Catalog? = self._catalog
 	local kind: IndexBook.Tab = kindOf(self._tab)
 	-- the title's "12 / 50" leaves the spare cats out (F78); the Gold and Rainbow tabs count their coats
@@ -1380,6 +1465,8 @@ function CatCollection._fitPerks(self: any)
 end
 
 function CatCollection.destroy(self: any)
+	self._indexToken += 1
+	self._indexBuilt = true
 	self:_clear()
 	self._claimAll:destroy()
 	self._detailArt:destroy()

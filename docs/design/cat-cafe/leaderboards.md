@@ -61,3 +61,11 @@ It lasts while they are in the top 10 at the last refresh. It gives nothing else
 6. With 8 players in a server, the output shows no DataStore budget warnings over 30 minutes.
 7. No line in the server output contains a user id or player name from the boards.
 8. On a phone at 844 x 390 the Top tab's rows and the player's own line fit without clipping.
+
+## 7. A chat line when a top player joins (#3466, built in #3488)
+
+From a player's idea (in-game feedback, 2026-11-11). When a player in the top 10 of an all-time board joins, everyone in the server gets one system line in chat naming their display name, best rank and board.
+
+- `LeaderboardJoinNotice` true, `LeaderboardJoinNoticeRank` 10, `LeaderboardJoinNoticeDelay` 5 seconds after their save loads, and not again for a rejoin within `LeaderboardJoinNoticeRejoinSeconds` 600 on the same server.
+- It reads the list the server already caches, so there are no new DataStore reads. An empty cache means no line.
+- Display name only. No banner, sound or popup. The Arcade board is not included.

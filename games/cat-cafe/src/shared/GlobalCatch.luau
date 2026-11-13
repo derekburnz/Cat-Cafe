@@ -1,6 +1,6 @@
 --!strict
 -- The rare-catch chat line (#2203, Dread via Derek2 2026-11-07: "a global caught rare cats message in chat"), pure.
--- Every catch shout-out (Catching.shoutOut: Legendary and up, or a gold or rainbow coat, #2205) also goes in the chat
+-- Every catch shout-out (Catching.shoutOut: Mythical and up, or a gold or rainbow coat from Legendary up) also goes in the chat
 -- of its own server, and on MessagingService topic TOPIC to every other server, where it shows as a chat line only
 -- ("🌍 Global: Sam caught a Legendary Maine Coon!"), no toast. server/Services/GlobalCatchService sends and
 -- reads it; client/Controllers/RareCatchChatController writes the line. #2429: Legendary and Mythical crate pieces
@@ -11,6 +11,7 @@
 -- server 150 + 60 per player publishes a minute, so one every 5 s is far inside it.
 
 local Catalog = require(script.Parent.Catalog)
+local CoatWords = require(script.Parent.CoatWords)
 
 local GlobalCatch = {}
 
@@ -31,6 +32,7 @@ GlobalCatch.COLORS = {
 	Epic = "#C07CFF",
 	Legendary = "#FFC94D",
 	Mythical = "#FF5E7E",
+	Secret = "#E2D6FF", -- #3470: the pale starlight of its effects; its own #16161D swatch cannot be read in chat
 } :: { [string]: string }
 
 export type Message = { t: string, r: string, j: string } -- the text, the cat's rarity, the sender's JobId
@@ -44,7 +46,8 @@ end
 -- Whether a line of `rarity` may go through `gate` at `now` (any clock, in seconds); one that may is counted. A
 -- Mythical always may, and counts too.
 function GlobalCatch.take(gate: Gate, now: number, rarity: string): boolean
-	if rarity ~= "Mythical" and now - gate.last < gate.gap then
+	local top = (Catalog.rarityRank[rarity] or 0) >= Catalog.rarityRank.Mythical -- #3470: a Secret as a Mythical
+	if not top and now - gate.last < gate.gap then
 		return false
 	end
 	gate.last = now
@@ -112,11 +115,15 @@ function GlobalCatch.color(rarity: string): string
 end
 
 -- The chat line for a shout-out `text` of a `rarity` cat, in the rarity's colour; `elsewhere` when it came from
--- another server.
+-- another server. #3692: the coat word of a Rainbow or Gold cat is drawn in its own colours (shared/CoatWords).
 function GlobalCatch.chatLine(text: string, rarity: string, elsewhere: boolean): string
 	local color = GlobalCatch.COLORS[rarity] or GlobalCatch.COLORS.Common
 	local body = (if elsewhere then GlobalCatch.ELSEWHERE else "") .. text
-	return string.format('<font color="%s">%s</font>', color, GlobalCatch.escape(body))
+	return string.format(
+		'<font color="%s">%s</font>',
+		color,
+		(CoatWords.rich(body, GlobalCatch.escape))
+	)
 end
 
 return GlobalCatch

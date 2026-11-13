@@ -103,7 +103,7 @@ return function()
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,
 		RemoteRateLimitPerSecond = 10,
-		AnnounceMinRarity = "Legendary", -- #2205: was Epic
+		AnnounceMinRarity = "Mythical", -- Derek 2026-11-12: was Legendary (#2205), Epic before
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
@@ -117,7 +117,7 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
-		-- F87 (easy-start.md section 6); IntroAutoPlay is true since #1575, checked below
+		-- F87 (easy-start.md section 6); IntroAutoPlay is false again since #3162, checked below
 		TutorialShrinkSeconds = 1.6,
 		TutorialWindowScale = 2,
 		TutorialRetrySeconds = 1.0,
@@ -292,9 +292,14 @@ return function()
 		LeaderboardRefreshSeconds = 120,
 		LeaderboardSize = 50,
 		LeaderboardBoardRows = 10,
-		LeaderboardRateMax = 10000000,
+		LeaderboardRateMax = 1000000000000000, -- #3688
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
+		-- #3466: the top player join notice
+		LeaderboardJoinNotice = true,
+		LeaderboardJoinNoticeRank = 10,
+		LeaderboardJoinNoticeDelay = 5,
+		LeaderboardJoinNoticeRejoinSeconds = 600,
 		-- The crate reel (F103, crate-reel.md 4)
 		CrateReelTiles = 40,
 		CrateReelLandingTile = 34,
@@ -347,8 +352,13 @@ return function()
 		BinFirstRepeatSeconds = 180,
 		BinCooldownSeconds = 900,
 		BinMissRetrySeconds = 10,
-		BinZoneWidth = 0.42, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed
-		BinBarSpeed = 0.64,
+		BinZoneWidth = 0.22, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before
+		BinBarSpeed = 0.80, -- #3458: 0.64 before
+		BinHits = 5, -- #3458: the bin's own hit count
+		BinPadRadius = 4, -- #3608: the pad in front of the bin
+		BinPadDwellSeconds = 0.5,
+		BinRollSeconds = 2.5, -- #3608: the roll before the bar
+		BinRevealSeconds = 1,
 		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
 		SpaMaxHours = 24, -- #2904: a level an hour, up to a day
 		MuseumRoomTipBonus = 0.05, -- #2908
@@ -437,6 +447,7 @@ return function()
 		ArcadeBlockLeadIn = 0.9,
 		-- #3296 (Mouse Dash, mouse-dash.md section 6)
 		MouseDashHearts = 3,
+		MouseDashRunSeconds = 180, -- #3553: a run ends on the clock after 3 minutes
 		MouseDashStepEvery = 5,
 		MouseDashWindowStart = 1.10,
 		MouseDashWindowStep = 0.93,
@@ -495,9 +506,9 @@ return function()
 		)
 
 		it(
-			"IntroAutoPlay = true: the intro plays on a first join (#1575, Derek 2026-11-05; was false under F87)",
+			"IntroAutoPlay = false: no intro on a first join, the ? tile replays it (#3162; true from #1575 until then)",
 			function()
-				expect(Config.IntroAutoPlay).to.equal(true)
+				expect(Config.IntroAutoPlay).to.equal(false)
 			end
 		)
 
@@ -517,7 +528,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
-				IntroAutoPlay = true, -- true since #1575, checked below
+				IntroAutoPlay = true, -- false since #3162, checked below
 				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
@@ -589,8 +600,7 @@ return function()
 				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
 				EventShowerDefaults = true, -- #2486 (live-events.md section 4): a table, checked in CafeEvents.spec
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
-				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
-				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				UpdateEvents = true, -- #2766: the listed Roblox Events (id, start), a table, checked in EventRsvp.spec
 				CozyLure = true, -- #2798: a lure id, checked in CozyCafe.spec
 				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
@@ -606,12 +616,20 @@ return function()
 				QuickRingScale = true, -- #3140: a table, checked in Circles.spec
 				DealerDryNights = true, -- #3011: a table, checked in Dealer.spec
 				BinTable = true, -- #3050: a table, checked in RummageBin.spec
+				BinRollTable = true, -- #3608: a table, checked in RummageBin.spec
 				BinFirstEase = true, -- #3050: a table, checked in RummageBin.spec
-				BinFirstPrizes = true, -- #3050: row ids, checked in RummageBin.spec
+				BinFirstPrizes = true, -- #3460: fixed prize rows, checked in RummageBin.spec
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
+				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
+				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
+				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
+				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
+				YardSaleRollHours = true, -- #3614: checked in YardPick.spec
+				YardSaleTable = true, -- #3614: a table, checked in YardPick.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -635,11 +653,13 @@ return function()
 				Epic = 5,
 				Legendary = 12,
 				Mythical = 25,
+				Secret = 100, -- #3470
 			}) -- #2237
 			expect(Config.FishRepeatCatch :: any).to.deepEqual({
 				Epic = 1,
 				Legendary = 2,
 				Mythical = 5,
+				Secret = 20, -- #3470
 			})
 			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
 		end)

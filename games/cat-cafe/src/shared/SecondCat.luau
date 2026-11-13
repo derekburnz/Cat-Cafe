@@ -12,7 +12,8 @@
 --     the player, so the client's pointer and the trail find it),
 --   three step_time events say how far the player got (STEPS).
 -- It ends by itself at the second check-in and reads only what the save already holds, so it needs no save field.
--- #3160: the two cats are cats caught by hand (`caught`): a cat tamed at the bait bowl does not end it.
+-- #3160: a cat tamed at the bait bowl does not end it. #3551: the first bowl cat counts as one of the two (`progress`),
+-- and the cat that ends it is always one caught by hand (`done`).
 -- Pure.
 
 local CatStats = require(script.Parent.CatStats)
@@ -56,9 +57,25 @@ function SecondCat.caught(stats: Types.Stats): number
 	return math.max(0, caught - (if type(tamed) == "number" then tamed else 0))
 end
 
+-- #3551 (Derek 2026-11-12: "the catch a second cat gets set to 0/2 instead of 1/2 this is after I caught one"): the
+-- cats that count toward the goal, 0 to CATS. The walk-through leads to the bait bowl before the cannon, so the first
+-- cat most new players get is the bowl's, and the card read 0/2 with it in the cafe. The first bowl cat now counts
+-- as one (only one: more bowl cats add nothing), and every cat caught by hand counts.
+function SecondCat.progress(stats: Types.Stats): number
+	local tamed: unknown = stats.baitsTamed
+	local bowl = if type(tamed) == "number" and tamed >= 1 then 1 else 0
+	return math.min(SecondCat.caught(stats) + bowl, SecondCat.CATS)
+end
+
+-- Whether the goal is finished: CATS cats that count, at least one of them caught by hand, so the bowl never ends
+-- it and a trip out by cannon is always part of it (#3160).
+function SecondCat.done(stats: Types.Stats): boolean
+	return SecondCat.caught(stats) >= 1 and SecondCat.progress(stats) >= SecondCat.CATS
+end
+
 -- Whether the save is between its first customer served and its second cat checked in.
 function SecondCat.waiting(profile: Types.PlayerProfile): boolean
-	return SecondCat.caught(profile.stats) < SecondCat.CATS
+	return not SecondCat.done(profile.stats)
 		and Onboarding.reached(profile.telemetry, "first_customer_served")
 end
 
@@ -139,7 +156,8 @@ function SecondCat.view(profile: Types.PlayerProfile): Types.SecondCatView?
 	return {
 		now = now,
 		with = with,
-		cats = SecondCat.caught(profile.stats), -- #3160: by hand; a tamed bowl cat is not one
+		-- #3551: the first bowl cat is one; never CATS while the goal still shows (two bowl cats and none by hand)
+		cats = math.min(SecondCat.progress(profile.stats), SecondCat.CATS - 1),
 		bonus = Catalog.rarities.Common.firstCatchReward,
 	}
 end
@@ -154,6 +172,12 @@ end
 function SecondCat.fits(rarity: string, variant: string): boolean
 	local rank, top = Catalog.rarityRank[rarity], Catalog.rarityRank[SecondCat.MAX_RARITY]
 	return rank ~= nil and top ~= nil and rank <= top and variant == "base"
+end
+
+-- #3662: whether a free stray's catch is the easy guided one for this save: no cat caught by hand yet, and the stray
+-- fits (plain, MAX_RARITY or below), so the guided first catch is never a rare prize.
+function SecondCat.easyFirst(stats: Types.Stats, rarity: string, variant: string): boolean
+	return SecondCat.caught(stats) == 0 and SecondCat.fits(rarity, variant)
 end
 
 -- Whether a stray at `at` is near enough the landing at `pad` to be the one that waits.

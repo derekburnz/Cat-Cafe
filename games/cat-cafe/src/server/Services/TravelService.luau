@@ -110,6 +110,7 @@ local function cloudHop(player: Player, landing: CFrame, arrived: (() -> ())?)
 	task.delay(Config.CloudHopMoveAtSeconds, function()
 		if current() then
 			character:PivotTo(landing)
+			Cannon.noteMove(player, landing)
 			if arrived ~= nil then
 				arrived()
 			end
@@ -176,6 +177,7 @@ local function onTravel(player: Player, rawDestination: unknown)
 		cloudHop(player, landing :: CFrame)
 	else
 		character:PivotTo(landing :: CFrame)
+		Cannon.noteMove(player, landing :: CFrame)
 	end
 	Net.fire(player, "TravelResult", destination, true, nil)
 	Telemetry.custom(player, "travel", 1, { destination }) -- "home" or "cannon": landingFor allowed it
@@ -204,6 +206,7 @@ function TravelService.sendHome(player: Player, arrived: (() -> ())?): boolean
 		cloudHop(player, landing, arrived)
 	else
 		character:PivotTo(landing)
+		Cannon.noteMove(player, landing)
 		if arrived ~= nil then
 			arrived()
 		end

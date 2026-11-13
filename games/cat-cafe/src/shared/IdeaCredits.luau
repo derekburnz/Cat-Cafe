@@ -1,7 +1,7 @@
 --!strict
 -- Idea credits (#1083, idea-credits.md): the Thank You board's rows, pure. A credit is written by the lead's
 -- idea-credits.yml (never by the game) into the IdeaCredits_v1 DataStore under a CREDIT_PREFIX key, only for an idea
--- report the player ticked "Feature my name". The game reads them, looks each player's display name up and shows the
+-- idea report (since #3652 every idea; before it only one ticked "Feature my name"). The game reads them, looks each player's display name up and shows the
 -- newest first: our words for the idea, the version it shipped in and "Idea from <display name>". A player who turned
 -- "Show my name on the Thank You board" off (a HIDE_PREFIX key, mirrored from profile.hideCredit) or whose name could
 -- not be looked up shows as ANON. Nothing here ever shows a username or a user id.

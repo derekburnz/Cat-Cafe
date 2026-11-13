@@ -1104,6 +1104,8 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | `"party"`: a pink "x2" badge and 12 confetti sparkles in gold, pink and mint from behind the card. Sound: the station fanfare | kind `"party"` |
 | `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
 | `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |
+| `"secrets"` (#3523, the 2026-11-13 update): a night blue title strip, a violet "?" badge and, under the words, the Secret cats in a row as black shapes with a "?" on each. The shapes are the cats' own models from `ReplicatedStorage.Assets` drawn all black in a ViewportFrame (Derek, 2026-11-12: blacked out), with see-through parts made solid and every glow, particle and label taken off, so no coat, colour or name shows and a redesigned model changes its shape by itself; a black dot stands in for a model that is not there. Glitch's trail of loose pixels off one ear is left off its shape (`Presets.eventBanner.shapeLeaveOff`; in black it joined into a horn, Derek 2026-11-12). `cats = { ids }` draws only those cats, for a day one is held back. 6 sparkles in violet and cream, one shine, no fish. Sound: the Secret stray's low twinkle. Picture: Library `Motion-FX-Agent/for-derek-2026-11-12/friday-banner-secret-cats-3523.png` | kind `"secrets"` |
+| `"secretSpawn"` (#3545): a wild Secret cat has appeared. The night strip and, for a badge, a plain black cat head with a "?" on a starlight disc (226, 214, 255), drawn from plain shapes and the same every time, so it shows none of the three cats. 6 sparkles in violet and cream, one shine. Sound: the Secret stray's low twinkle. The caller gives the words ("A Secret cat is roaming the Park!"): the area, never the cat. Picture: Library `Motion-FX-Agent/for-derek-2026-11-12/secret-spawn-banner-3545.png` | kind `"secretSpawn"` |
 | One banner at a time; up to 3 wait; a kind already showing or waiting is dropped. Reduce Motion: the card fades in and out in place with no shine, confetti or fish. Low performance: half the confetti and fish | `EventBanner.onShown(listener)` (Audio's sound) |
 
 ## Mystic Pool first walk-up cutscene (#3430, 2026-11-12)
@@ -1127,3 +1129,55 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Look | Hook |
 |---|---|
 | The card scales in from 80% with one soft overshoot (0.22 s); its rows land top to bottom 0.15 s apart, each icon giving one small bounce. No particles and no sound. Reduce Motion: everything shows at once. A card closed part way keeps every row visible | `LootCardFx.play(card, rows, icons)` |
+
+## Rummage Bin prize roll (#3608, 2026-11-12)
+
+`Effects/BinRoll.luau`, timing in `Logic.binRollSteps`, numbers in `Presets.binRoll`, sounds in `Audio/Logic.binRollCue`.
+
+| Look | Hook |
+|---|---|
+| The roll: a marker goes down the board's rows in list order, twice round and on to the prize, a tick every 0.067 s until the last lap's worth of ticks slow evenly to a 0.40 s last gap (2.0 to 2.5 s for seven rows). The slowdown is the same wherever it stops and it never lingers on any row but the last. The bin tips 4 degrees side to side while it rolls (still with Reduce Motion). A soft tick per row and the reel's stop as it lands. | `BinRoll.play(bin, count, target, tier, onTick, onDone)` returns a function that skips to the stop (a tap); the board lights the row in `onTick`. The server has already picked `target`. |
+| Landing by tier: nothing for a common prize; a blue ring and a few sparkles for a good one; a short thin gold light column (0.9 s) with a ring for the best, gone before the bar starts. | `BinRoll.landed(bin, tier)` (called by `play`) |
+| Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
+| Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
+
+## The stuck cat that calls for help (#2912, 2026-11-12)
+
+Design-Agent's pick on top of the stuck cat pointer, for the first rescue step (140 of 582 new players never started one). `Effects/StuckCall.luau`, numbers in `Presets.stuckCall`.
+
+| Moment | What plays | Source |
+|---|---|---|
+| The save waits for its first rescue and the Alleyway's starter trap holds a cat | A golden pillar of light 90 studs tall over the trap, 2 to 4 studs wide with a soft halo and nearly solid from the camp so it reads by day, fading as you walk up. It holds still. Under the trap a warm orange glow on the ground (apart from the guide trail's yellow dots), 8 studs across with a soft light, breathes slowly (1.6 s each way, held still with Reduce Motion), so the cat reads from the camp pad where the street arch hides the pillar | ProfileSync `stuckGoal`, the `StuckCat` model with `Starter` true and `Area` alley |
+| Within 70 studs (not inside 10, where the Rescue card shows) | A "Help! 🐾" bubble over the "!" and the gem, rocking 6 degrees each way, 0.9 s one way, like a waving paw | the same |
+| Every 5 s within 80 studs | The trap gives one small shake, the size of a rescue's first hit (`Logic.trapShake`) | the `<rescueSpotId>_Trap` model |
+| Within 60 studs | The cat meows (`strayCall`), again every 45 s, 4 times at most in a session | `Beats.hit("stuckCall", cat)` |
+
+All of it goes at once when your rescue bar opens, while someone else is on that cat, at night (the trap is empty then) and for good once your first rescue has started. No arrow, no countdown, no "hurry". Reduce Motion: the bubble and the trap keep still; the pillar already does. Cost: one Beam, one BillboardGui and one part, for one player state.
+
+## Petting a cat (#3651)
+
+`Effects/PetCat.luau`, timing in `Logic.petAt` and `Logic.petHeart`, the arm in `Avatar.petArm`, numbers in `Presets.petCat`, sounds in `Audio/Logic.petCatCue`. Plays on `Moments.CatPetted(userId, cat, from)` or the `CatPetted` remote.
+
+| Effect | How |
+|---|---|
+| The player's free left arm reaches down to the cat (0.2 s), strokes twice (0.4 s each) and comes back (0.25 s). The right arm keeps the net; a carried cat keeps both arms. Off with Reduce Motion. | `PetCat.layer(userId, rig)` in Tackle's frame, like the pal wave |
+| As the hand arrives the cat perks up (ears, nose and tail, the catch's "perk") and 5 pink hearts float up 2.4 studs over its head, fan out and fade in 1.1 s. The hearts are the ♥ glyph on billboards, so no texture or upload; the count follows the phone burst scale. A soft heart chime and a 1.6 s purr play at the cat. | `PetCat.pet(userId, cat, from)` |
+| When the heart moves from another cat: one grey heart fades off the old cat and a pink heart arcs to the new one in 0.6 s, then the puff plays. With Reduce Motion the puff plays at once. | same call with `from` |
+
+## Guide trail paw prints (#3554, 2026-11-12)
+
+`Effects/PawTrail.luau`, numbers in `Presets.pawTrail`.
+
+| Look | Hook |
+|---|---|
+| Each guide trail dot is drawn as a gold paw print (a pad and four toes) 1.7 studs across, toes towards the target, left and right of the line in turn; the prints fade with their dots, so the trail's comet of light and its Reduce Motion look carry over. No arrows, no words, no timer. | The attribute `Paws = true` on GuideTrail's folder (`CatCafeTutorialTrail` in the Workspace); clearing it puts the dots back. At most 48 prints (GuideTrail's dot cap), one CanvasGroup each, on this client only. |
+
+## Trampoline bounce (#3690, 2026-11-12)
+
+`Effects/Trampoline.luau`, numbers in `Presets.trampoline`. This player's own character only, no remote.
+
+| Effect | How |
+|---|---|
+| Landing on the mat of a `..._Trampoline` model throws the character about 9 studs up (a jump off the mat reaches 7.2), again on every landing. Not while carrying a cat, sitting or held by the cannon or a cutscene. | The local Humanoid turning to Landed or Running, then one ray down (the mat has CanTouch off); `Trampoline.bounces` decides, the root part's upward speed is set. |
+| The mat dips 0.3 studs in 0.08 s and springs back in 0.35 s with one overshoot. Skipped with Reduce Motion. | Two tweens on the mat's CFrame, on this client. |
+| A springy sound at the mat. | `Trampoline.onBounce`, Audio plays `netBounce` until a boing of its own exists. |

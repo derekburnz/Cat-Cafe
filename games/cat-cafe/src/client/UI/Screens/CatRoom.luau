@@ -25,11 +25,13 @@
 -- MyCats owns the window; this view only reads state and calls back.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatBuffs = require(script.Parent.Parent.Components.CatBuffs)
+local CatCardLogic = require(script.Parent.Parent.Components.CatCardLogic)
 local CatLock = require(script.Parent.Parent.Components.CatLock)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
@@ -52,6 +54,10 @@ local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
+
+-- #3717: the trait row reads the `traits` switch and the trait's name
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
@@ -84,8 +90,9 @@ local SQUARE = Scale.tapHeight(Theme.sizes.touchMin)
 local CREW_LABEL = 16
 local CREW_H = CREW_LABEL + 4 + SQUARE + 8
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
-local SEARCH_W = 180
+local SEARCH_W = 116 -- 180 before #3647: the Sort button took the room
 local CHIP_W = 96
+local SORT_W = 96 -- #3647: the Sort button, after the filters
 local ACTION_W = 124
 local DETAIL_W = 236
 local DETAIL_ART = 64
@@ -101,6 +108,7 @@ local COMPACT_H = 420 -- design px of room under which a touch screen gets the p
 -- #2418: the food tiles under the buff chips (Bag-style squares, a finger tall on a phone through Button's Hit pad)
 local FEED_TILE = 40
 local FEED_H = 54 -- the square and its "+40" strip
+local TRAIT_TITLE_H = 18 -- #3717: the trait's name
 local FEED_GAP = 8
 local FEED_HOLD = 0.4 -- seconds a finger stays down before a held tile starts feeding again
 local FEED_REPEAT = 0.3 -- seconds between feeds while held (FeedCat allows 4 a second)
@@ -197,6 +205,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._roles = {} :: { any } -- crew strip groups, one per role in catalog order
 	self._filter = "All" :: CatRoomList.Filter
 	self._query = ""
+	self._sort = "Best" :: CatRoomList.Sort -- #3647: kept for the session, a fresh open does not reset it
 	self._selected = nil :: string? -- the picked cat's uid
 	self._placing = false -- Assign pressed: the next "+" tap puts the picked cat there
 	self._confirmSell = false
@@ -334,6 +343,22 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			end,
 		})
 	end
+
+	-- #3647 (Derek 2026-11-12): one button steps the order round Best, Rarity and Level
+	self._sortButton = Button.new({
+		name = "Sort",
+		text = "Sort: Best",
+		style = "ghost",
+		size = UDim2.fromOffset(SORT_W, TOOL_H),
+		position = UDim2.fromOffset(SEARCH_W + GAP + #FILTERS * (CHIP_W + GAP), 0),
+		textSize = Theme.sizes.textSmall,
+		parent = toolbar,
+		sound = "uiTab",
+		onClick = function()
+			self._sort = CatRoomList.nextSort(self._sort)
+			self:_refresh()
+		end,
+	})
 
 	-- Equip best: the server fills the open slots with the highest-rated cats (cat stats thread)
 	self._equipBest = Button.new({
@@ -661,6 +686,20 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 			self:_placeFeed()
 		end)
 	table.insert(self._connections, wrapped)
+	-- #3717: the cat's Mystic Pool trait, between the food row and the description: its name with a dot in the
+	-- rarity's colour. Its effects lead the description under it. On the phone's short sheet, which has no room
+	-- there, the name joins the Charm line at the top instead (_renderDetail).
+	self._detailTrait = text({
+		Name = "TraitRow",
+		Position = UDim2.fromOffset(10, descTop),
+		Size = UDim2.new(1, -20, 0, TRAIT_TITLE_H),
+		RichText = true,
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Visible = false,
+		Parent = body,
+	})
+	FitText.shrink(self._detailTrait)
 	self._detailDesc = text({
 		Name = "Description",
 		Position = UDim2.fromOffset(10, descTop),
@@ -1270,6 +1309,8 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		chip:setText(("%s %d"):format(filter, countOf[filter] or 0))
 		chip:setStyle(if filter == self._filter then "gold" else "ghost")
 	end
+	self._sortButton:setText("Sort: " .. self._sort)
+	self._sortButton:setStyle(if self._sort == "Best" then "ghost" else "gold")
 	self._equipBest:setEnabled(counts.all > 0)
 	-- #2697: while the tutorial asks for a job, Equip Best rings (one press puts the new cat to work)
 	local catalog: Types.Catalog? = self._catalog
@@ -1293,7 +1334,8 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	self:_paintAuto()
 
 	-- grid
-	local shown = CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query)
+	local shown =
+		CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query, self._sort)
 	local order: { [string]: number } = {}
 	for index, instance in shown do
 		order[instance.uid] = index
@@ -1514,6 +1556,12 @@ function CatRoom._placeFeed(self: any)
 	local top: number = self._favTop + used + 6
 	self._feedRow.Position = UDim2.fromOffset(10, top)
 	local descTop = top + (if self._feedRow.Visible then FEED_H + 6 else 0)
+	-- #3717: the trait row, then the description under it
+	local trait: TextLabel = self._detailTrait
+	if trait.Visible then
+		trait.Position = UDim2.fromOffset(10, descTop)
+		descTop += TRAIT_TITLE_H + 2
+	end
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
 	local descBottom = self._descBottom + (self._lockExtra or 0) + (descTop - self._descTop)
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
@@ -1718,6 +1766,35 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._detailBuffs.Visible = false
 	end
 	self._detailDesc.Text = if def then def.description or "" else ""
+	-- #3717: the trait row; hidden for a cat with no trait while the `traits` switch is off
+	local traitsOpen = LiveFlags.shown(
+		Traits.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.FLAG)
+	)
+	local traitTitle, traitEffects = CatCardLogic.traitRow(instance.trait, traitsOpen)
+	local hasTrait = traitTitle ~= nil and traitEffects ~= ""
+	local traitLabel: TextLabel = self._detailTrait
+	local stats: TextLabel = self._detailStats
+	stats.RichText = true
+	if self._compact then
+		-- the short sheet: the trait's name beside the Charm line, where there is always room
+		traitLabel.Visible = false
+		if hasTrait and traitTitle ~= nil then
+			local charmWords = stats.Text
+			stats.Text = if charmWords ~= ""
+				then charmWords .. "  ·  " .. traitTitle
+				else traitTitle
+		end
+	else
+		traitLabel.Visible = traitTitle ~= nil
+		traitLabel.Text = traitTitle or ""
+		traitLabel.TextColor3 = if hasTrait then PAL.text else PAL.subtext
+	end
+	if hasTrait then
+		-- what the trait does, ahead of the breed's line
+		local about: string = self._detailDesc.Text
+		self._detailDesc.Text = if about ~= "" then traitEffects .. "\n" .. about else traitEffects
+	end
 
 	-- F62: the Lock row, and Sell greyed while the cat is locked
 	local live = self._lockLive
@@ -1875,6 +1952,7 @@ function CatRoom.destroy(self: any)
 			square.portrait:destroy()
 		end
 	end
+	self._sortButton:destroy()
 	for _, chip in self._chips do
 		chip:destroy()
 	end

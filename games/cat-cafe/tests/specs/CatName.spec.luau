@@ -38,7 +38,15 @@ return function()
 
 		it("refuses control characters, newlines, < and >", function()
 			for _, raw in
-				{ "Mo\nchi", "Mo\tchi", "Mo\0chi", "Mo\127chi", "<b>Mochi", "Mochi>", "Mo\u{85}chi" }
+				{
+					"Mo\nchi",
+					"Mo\tchi",
+					"Mo\0chi",
+					"Mo\127chi",
+					"<b>Mochi",
+					"Mochi>",
+					"Mo\u{85}chi",
+				}
 			do
 				expect((CatName.validate(raw))).never.to.be.ok()
 			end

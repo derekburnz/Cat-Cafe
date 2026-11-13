@@ -648,7 +648,8 @@ end
 
 -- #3942: watches the Mystic Pool station for other players' big rolls (seenRoll). Started once with the effects.
 function BigTraitCut.watchPool()
-	local watched: { [Instance]: boolean } = {}
+	-- weak keys: a station that streams out and back is a new instance, and the old one is let go
+	local watched: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local function watch(station: Instance)
 		if watched[station] or not station:IsA("Model") then
 			return

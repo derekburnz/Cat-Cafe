@@ -8454,7 +8454,7 @@ do
 	for _, def in SharedCatalog.potions or {} do
 		potionNames[def.id] = def.name
 	end
-	local function rows(): { StoreLogic.Row }
+	local function view(): StoreLogic.ShopView
 		-- #1625: the Starter Bundle's cats by name, and the server's word on whether it is bought
 		local catNames: { [string]: string } = {}
 		for _, product in SharedCatalog.products or {} do
@@ -8463,7 +8463,7 @@ do
 				catNames[catId] = if def then def.name else nil
 			end
 		end
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, {
+		return {
 			products = SharedCatalog.products,
 			potionNames = potionNames,
 			catNames = catNames,
@@ -8471,7 +8471,10 @@ do
 			starterBought = (state :: any).starterBought,
 			cafePass = (UI.pass :: any).offer(), -- #1646: the running season's paid track, nil while closed (defined below)
 			supporter = Players.LocalPlayer:GetAttribute(shop.supporterKey) == true, -- #1168 row 4
-		})
+		}
+	end
+	local function rows(): { StoreLogic.Row }
+		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -8486,6 +8489,8 @@ do
 			local list = if up or next(unseen) ~= nil then rows() else nil
 			screen:setNew(if list then StoreLogic.newTabs(unseen, list) else {})
 			if up and list then
+				-- #3572: the Potions tab's bag strip (rework only)
+				screen:setBag(StoreLogic.bag(view()))
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -8586,6 +8591,8 @@ do
 			onOpen = function()
 				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
+				-- #3572: the Potions tab's bag strip (rework only)
+				screen:setBag(StoreLogic.bag(view()))
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,
@@ -9388,6 +9395,7 @@ do
 		local current = hud
 		if current then
 			current:setEvent(EventLogic.chip(view, seen, now))
+			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
 		if boards then

@@ -1548,7 +1548,7 @@ local function wireIntents()
 		local pool = station :: Model
 		if big then
 			return BigTraitCut.atPool(pool, rarity, function(reveal: () -> ()): () -> ()
-				return MysticPool.roll(pool, asset, rarity, reveal)
+				return MysticPool.roll(pool, asset, rarity, reveal, BigTraitCut.liftFor(rarity))
 			end, onReveal)
 		end
 		return MysticPool.roll(pool, asset, rarity, onReveal)

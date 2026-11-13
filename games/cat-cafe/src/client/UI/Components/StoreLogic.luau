@@ -63,6 +63,21 @@ function StoreLogic.railTabs(rework: boolean): { Tab }
 	return out
 end
 
+-- #3572: the reworked Store's header line under its title, by tab (the mock's words): what a tab's items are and
+-- that prices are in Robux. The Codes tab keeps the window's own line.
+StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
+local SUBTITLES: { [string]: string } = {
+	featured = "Prices are in Robux.", -- Featured can show potion packs, which are used up
+	cats = "Passes are yours to keep. Prices are in Robux.",
+	passes = "Passes are yours to keep. Prices are in Robux.",
+	potions = "Potions are used from your Bag. Prices are in Robux.",
+	cafePass = "Prices are in Robux.",
+}
+
+function StoreLogic.subtitle(tab: string): string
+	return SUBTITLES[tab] or StoreLogic.SUBTITLE_DEFAULT
+end
+
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
 export type Price = {
 	robux: number?,
@@ -402,6 +417,45 @@ function StoreLogic.contentsLine(
 		rows[index] = row:gsub(" Potion$", "")
 	end
 	return table.concat(rows, ", ") .. " potions"
+end
+
+-- #3572 (the OK'd mock's Potions tab): the "In your bag now" strip over the potion packs, one entry per potion any pack
+-- holds, with how many the bag has (0 included), by name. A wide card shows only its first line, so the strip carries
+-- the bag counts the old "In your bag: N" line gave.
+export type BagEntry = { id: string, name: string, count: number }
+function StoreLogic.bag(view: ShopView?): { BagEntry }
+	local out: { BagEntry } = {}
+	if view == nil then
+		return out
+	end
+	local names: { [string]: string } = view.potionNames or {}
+	local have: { [string]: number } = view.have or {}
+	local seen: { [string]: boolean } = {}
+	local defs: { any } = view.products or {}
+	for _, def in defs do
+		local potions = if type(def.prize) == "table" then def.prize.potions else nil
+		if type(potions) ~= "table" then
+			continue
+		end
+		for id in potions do
+			if type(id) == "string" and not seen[id] then
+				seen[id] = true
+				local count = have[id]
+				table.insert(out, {
+					id = id,
+					name = names[id] or id,
+					count = if type(count) == "number" then math.max(0, math.floor(count)) else 0,
+				})
+			end
+		end
+	end
+	table.sort(out, function(a: BagEntry, b: BagEntry): boolean
+		if a.name ~= b.name then
+			return a.name < b.name
+		end
+		return a.id < b.id
+	end)
+	return out
 end
 
 local function productRows(config: any, view: ShopView?): { Row }

@@ -900,12 +900,10 @@ local function assertStoreCards(featured)
 				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
 			)
 			-- #3572: the box can sit clear of the button while its words run on past it (a wide card's one line
-			-- pushed down by its chip), so on a wide card (the rework's, its picture centred at the left) the drawn
+			-- pushed down by its chip, #3930 a grid card's lines at the smallest size), so on a list card the drawn
 			-- words must end above the button too
-			local tile = card:FindFirstChild("Tile")
-			local wide = not featured and tile ~= nil and tile:IsA("GuiObject") and tile.AnchorPoint.Y == 0.5
 			local besideButton = effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X + 0.5
-			if wide and effect.Visible and not besideButton then
+			if not featured and effect.Visible and not besideButton then
 				local drawnBottom = effect.AbsolutePosition.Y + effect.TextBounds.Y
 				assert(
 					drawnBottom <= buy.AbsolutePosition.Y + 0.5,

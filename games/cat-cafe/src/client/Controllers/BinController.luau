@@ -58,7 +58,8 @@ local PAD_SECONDS = 0.1
 
 local LABEL_SECONDS = 1
 local BANG_RANGE = 40 -- studs from the camera, as the camp stations' "!" (CampExtrasLogic.BANG_RANGE)
-local BANG_LIFT = 2 -- studs over the top of the bin
+local BANG_LIFT = 2 -- studs over the top of the bin, for a model with no BANG_ANCHOR
+local BANG_ANCHOR = "BangAnchor" -- the model's attachment for its "!" (Components/ReadyBang.ANCHOR), #3834
 local BOB_STUDS = 1
 local BOB_SECONDS = 2
 
@@ -122,8 +123,21 @@ local function bangFor(model: Model): Bang?
 	if part == nil or playerGui == nil then
 		return nil
 	end
-	local box, size = model:GetBoundingBox()
-	local top = box.Position.Y + size.Y / 2
+	-- #3834 (Derek 2026-11-13: "exclamation mark is off on the rummage bin"): it hangs from the model's own
+	-- BangAnchor, Model-Agent's spot for it over the middle of the bin, as every station's "!" does (ReadyBang). Lifted
+	-- off the bounding box it floated far over the rim, since the box takes in the Ready look's open lid standing up at
+	-- the back. A model with no anchor keeps that lift.
+	local anchor = model:FindFirstChild(BANG_ANCHOR, true)
+	local adornee: Instance = part
+	local lift: Vector3
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		adornee = anchor
+		lift = Vector3.zero
+	else
+		local box, size = model:GetBoundingBox()
+		local top = box.Position.Y + size.Y / 2
+		lift = Vector3.new(0, top - part.Position.Y + BANG_LIFT, 0)
+	end
 	local gui: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeBinBang",
 		Size = UDim2.new(
@@ -132,14 +146,14 @@ local function bangFor(model: Model): Bang?
 			1.6 * Scale.phoneStuds(),
 			Scale.billboard(28)
 		),
-		StudsOffsetWorldSpace = Vector3.new(0, top - part.Position.Y + BANG_LIFT, 0),
+		StudsOffsetWorldSpace = lift,
 		LightInfluence = 0,
 		AlwaysOnTop = false,
 		MaxDistance = BANG_RANGE,
 		DistanceLowerLimit = Scale.BUBBLE_NEAR,
 		ResetOnSpawn = false,
 		Enabled = false,
-		Adornee = part,
+		Adornee = adornee,
 		Parent = playerGui,
 	})
 	local dot: Frame = Create("Frame", {

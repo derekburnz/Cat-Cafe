@@ -112,6 +112,8 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	self._catalog = nil :: Types.Catalog?
 	self._chips = {} :: { Chip }
 	self._cells = {} :: { [string]: { Cell } } -- pool -> its page's cells
+	-- #3722: pages whose cells are not built yet; a page is built the first time it shows, not at start-up
+	self._unbuilt = {} :: { [string]: boolean }
 	self._pool = nil :: string? -- the open page
 	self._state = nil :: Types.PlayerState?
 
@@ -298,6 +300,7 @@ function DecorIndex._clear(self: any)
 		end
 	end
 	table.clear(self._cells)
+	table.clear(self._unbuilt)
 end
 
 function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
@@ -392,17 +395,28 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 			connection = connection,
 		})
 
-		local cells: { Cell } = {}
-		for index, def in DecorPieces.poolPieces(catalog, pool) do
-			local cell = self:_buildCell(def, index)
-			table.insert(cells, cell)
-		end
-		self._cells[pool] = cells
+		-- #3722: the cells (an icon each) are built when the page first shows (_buildPage), not here inside UI.init
+		self._cells[pool] = {}
+		self._unbuilt[pool] = true
 	end
 	if self._pool == nil or self._cells[self._pool] == nil then
 		self._pool = if pools[1] then pools[1] else nil
 	end
 	self:_sizeTabs()
+end
+
+-- #3722: one page's cells, built the first time the page shows.
+function DecorIndex._buildPage(self: any, pool: string)
+	local catalog: Types.Catalog? = self._catalog
+	if catalog == nil or not self._unbuilt[pool] then
+		return
+	end
+	self._unbuilt[pool] = nil
+	local cells: { Cell } = self._cells[pool]
+	for index, def in DecorPieces.poolPieces(catalog, pool) do
+		local cell: Cell = self:_buildCell(def, index)
+		table.insert(cells, cell)
+	end
 end
 
 -- Each page tab gets an equal share of the row, or TAB_MIN when that share is narrower (the row then scrolls).
@@ -519,6 +533,9 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 	end
 
 	self._strip:render(state, if open then DecorPieces.areaOf(open) else nil)
+	if open ~= nil then
+		self:_buildPage(open)
+	end
 	local rally = open == RALLY_POOL
 	self._source.Visible = rally
 	local shown = 0

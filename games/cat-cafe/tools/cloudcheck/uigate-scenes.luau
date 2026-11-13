@@ -4996,6 +4996,45 @@ local SCENES = {
 		end
 		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
 	end },
+	-- #3722: the Decor Index builds no cells at start-up; a page's cells are made the first time it shows
+	{ "DecorIndexLazy", function()
+		UI.setCatalog(catalogLikeTheGame())
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true) :: Instance?
+		local cells = window and window:FindFirstChild("Cells", true) :: Instance?
+		assert(cells, "uigate: no Decor Index cells frame (#3722)")
+		local function count(): number
+			local n = 0
+			for _, cell in (cells :: Instance):GetChildren() do
+				if cell:IsA("Frame") then
+					n += 1
+				end
+			end
+			return n
+		end
+		assert(count() == 0, ("uigate: setCatalog built %d Decor Index cells (#3722)"):format(count()))
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		local first = count()
+		assert(first > 0, "uigate: the Decor Index's first page has no cells (#3722)")
+		-- another page than the one open builds its own cells the first time it shows
+		local chipBar = (window :: Instance):FindFirstChild("rally", true)
+		local other: string? = nil
+		if chipBar ~= nil and chipBar.Parent ~= nil then
+			for _, chip in chipBar.Parent:GetChildren() do
+				if chip:IsA("TextButton") and chip.Name ~= "rally" then
+					other = chip.Name
+					break
+				end
+			end
+		end
+		assert(other, "uigate: the Decor Index has one page only (#3722)")
+		local otherChip = (chipBar :: Instance).Parent:FindFirstChild(other :: string) :: GuiButton
+		UIShim.fire(UIShim.eventOf(otherChip, "Activated"))
+		local after = count()
+		UIShim.fire(UIShim.eventOf((chipBar :: Instance) :: GuiButton, "Activated"))
+		assert(after > first or count() > first, ("uigate: a second page built no cells of its own (%d, %d, %d, #3722)"):format(first, after, count()))
+	end },
 	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
 	{ "IndexGold", function()
 		UI.open("Collection")

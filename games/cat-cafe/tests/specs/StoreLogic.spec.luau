@@ -1023,4 +1023,41 @@ return function()
 			end
 		end)
 	end)
+
+	describe("the reworked Store (#3572, storeRework)", function()
+		it("puts Cats above Passes on the rail with the rework on, as before without", function()
+			local ids = {}
+			for _, tab in StoreLogic.railTabs(true) do
+				table.insert(ids, tab.id)
+			end
+			expect(table.concat(ids, ",")).to.equal("featured,cats,passes,potions,cafePass,codes")
+			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
+			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
+		end)
+
+		it("orders rows cheapest first, unpriced and off sale last, ties as before", function()
+			local function row(key: string, passId: number): any
+				return { key = key, passId = passId, tab = "passes" }
+			end
+			local rows = { row("a", 1), row("b", 2), row("c", 3), row("d", 4), row("e", 5) }
+			local prices = {
+				[1] = { robux = 149, forSale = true },
+				[2] = { robux = 5, forSale = true },
+				[3] = { robux = 149, forSale = true },
+				[4] = { robux = 25, forSale = false }, -- off sale
+				-- 5 not in yet
+			}
+			local keys = {}
+			for _, r in StoreLogic.cheapestFirst(rows, prices) do
+				table.insert(keys, r.key)
+			end
+			expect(table.concat(keys, ",")).to.equal("b,a,c,d,e")
+			expect(rows[1].key).to.equal("a") -- the list given is not changed
+			local none = {}
+			for _, r in StoreLogic.cheapestFirst(rows, nil) do
+				table.insert(none, r.key)
+			end
+			expect(table.concat(none, ",")).to.equal("a,b,c,d,e")
+		end)
+	end)
 end

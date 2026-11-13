@@ -61,9 +61,23 @@ local function rebudget()
 end
 
 function Context.init()
-	Context.device = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
+	local function retier()
+		Context.device = Logic.tier(
+			UserInputService.TouchEnabled,
+			UserInputService.KeyboardEnabled,
+			UserInputService.MouseEnabled
+		)
+	end
+	retier()
 	Context.console = GuiService:IsTenFootInterface()
 	rebudget()
+	-- #3918: a keyboard case or a mouse can be attached mid session; the tier follows within a second
+	for _, name in { "KeyboardEnabled", "MouseEnabled", "TouchEnabled" } do
+		UserInputService:GetPropertyChangedSignal(name):Connect(function()
+			retier()
+			rebudget()
+		end)
+	end
 	-- #3794: the switch and the graphics quality can change mid session; effects pick the budget up within a second
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
 		:Connect(rebudget)

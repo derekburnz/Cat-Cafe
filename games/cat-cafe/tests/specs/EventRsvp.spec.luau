@@ -26,6 +26,40 @@ return function()
 		end)
 	end)
 
+	describe("EventRsvp.next", function()
+		local list = { { id = "222", startsAt = 2000 }, { id = "111", startsAt = 1000 } }
+
+		it("asks about the first listed Event that has not started", function()
+			local id, at = EventRsvp.next(list, 500)
+			expect(id).to.equal("111")
+			expect(at).to.equal(1000)
+		end)
+
+		it("moves on to the next Event once one starts, and asks nothing after the last", function()
+			local id, at = EventRsvp.next(list, 1000)
+			expect(id).to.equal("222")
+			expect(at).to.equal(2000)
+			expect(EventRsvp.next(list, 2000)).to.equal(nil)
+		end)
+
+		it("asks nothing for an empty or broken list", function()
+			expect(EventRsvp.next({}, 0)).to.equal(nil)
+			expect(EventRsvp.next(nil, 0)).to.equal(nil)
+			expect(EventRsvp.next({ "x", { id = "abc", startsAt = 5 }, { id = "1" } }, 0)).to.equal(
+				nil
+			)
+		end)
+
+		it("has Config's Events as ids with starts", function()
+			local Config = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+			) :: any
+			for _, entry in Config.UpdateEvents do
+				expect(EventRsvp.due(entry.id, entry.startsAt, 0)).to.equal(true)
+			end
+		end)
+	end)
+
 	describe("EventRsvp.window (#3450)", function()
 		it("opens 3 minutes into the session and shuts after 10", function()
 			expect(EventRsvp.window(0)).to.equal(false)

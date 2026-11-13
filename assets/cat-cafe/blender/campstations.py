@@ -113,7 +113,12 @@ def _picnic_table(b):
             foot_z, top_z = sz * (SEAT_Z + 0.2), sz * 0.55
             L = math.hypot(foot_z - top_z, TOP_Y - 0.3)
             ang = math.degrees(math.atan2(top_z - foot_z, TOP_Y - 0.3))      # leaning in toward the top: an A
-            b.box((x, (TOP_Y - 0.3) / 2, (foot_z + top_z) / 2), (0.2, L + 0.1, 0.2), DARK, rot=rot_x(ang))
+            # the leg's foot is cut level with the ground: a corner below it sank the walk-up ring under the floor
+            ca, sa = math.cos(math.radians(ang)), abs(math.sin(math.radians(ang)))
+            cut = ((L + 0.1) / 2 * ca + 0.1 * sa - (TOP_Y - 0.3) / 2) / ca
+            uy, uz = (TOP_Y - 0.3) / L, (top_z - foot_z) / L
+            b.box((x, (TOP_Y - 0.3) / 2 + uy * cut / 2, (foot_z + top_z) / 2 + uz * cut / 2), (0.2, L + 0.1 - cut, 0.2),
+                  DARK, rot=rot_x(ang))
     # the parasol pole through the middle of the top, on a weighted base under the table
     b.cyl((0, 0.12, 0), 0.5, 0.24, "metal", segments=10)
     b.cyl((0, POLE_TOP / 2 + 0.1, 0), 0.07, POLE_TOP - 0.2, "offwhite", segments=8)
@@ -203,9 +208,10 @@ def _a_frame(b):
     lean = 12
     R, Rb = rot_x(lean), rot_x(-lean)
     H, W = 2.4, 1.6
-    back_foot = (SIGN_X, 0.0, SIGN_Z + 2 * H * math.sin(math.radians(lean)))
+    lift = 0.05 * math.sin(math.radians(lean)) + 0.001                 # the leaning boards' lower edges on the ground
+    back_foot = (SIGN_X, lift, SIGN_Z + 2 * H * math.sin(math.radians(lean)))
 
-    def at(p, Rm=R, base=(SIGN_X, 0.0, SIGN_Z)):
+    def at(p, Rm=R, base=(SIGN_X, lift, SIGN_Z)):
         v = Rm @ Vector(p)
         return (base[0] + v.x, base[1] + v.y, base[2] + v.z)
 
@@ -416,8 +422,9 @@ def _pond(b, water, gold):
         if abs(a - 1.5 * math.pi) < 0.3:                                                         # the jetty's gap
             continue
         r = 0.55 + 0.07 * ((k * 7) % 3)
-        b.ball(((PA + 0.15) * math.cos(a), 0.12, PZ + (PC + 0.15) * math.sin(a)), r, stones[k % 4],
-               scale=(1.0, 0.62, 0.9))
+        hy = (0.12 + 0.62 * r) / 2                                    # same top as before, underside on the ground:
+        b.ball(((PA + 0.15) * math.cos(a), hy, PZ + (PC + 0.15) * math.sin(a)), r, stones[k % 4],   # a stone below
+               scale=(1.0, hy / r, 0.9))                              # the ground sank the walk-up ring under the floor
     pad = "gold_mid" if gold else "leaf_green"
     for (lx, lz, r, flower) in ((-2.1, -0.4, 0.4, True), (-1.4, -1.2, 0.3, False), (2.2, -0.6, 0.36, False),
                                 (1.4, -1.4, 0.3, True)):
@@ -568,7 +575,7 @@ CTR_Y, WIN_TOP, ROOF_Y = 2.0, 4.3, 4.8          # the counter's top, the window'
 WALL_X, WALL_Z0, WALL_Z1, WALL_Y = 3.6, 1.0, 1.6, 5.6      # the brick wall section it is built into
 LAWN_F, LAWN_B = 4.15, 4.7                      # the awning's front and back edge heights
 AWN_Z = -1.95                                   # the awning's front edge
-SIGN_Y0, SIGN_Y1, SIGN_Z = 5.15, 6.65, -0.85    # the sign board's bottom, top and face
+SIGN_Y0, SIGN_Y1, LF_SIGN_Z = 5.15, 6.65, -0.85    # the sign board's bottom, top and face
 PIPE_X, PIPE_Z, PIPE_TOP, PIPE_MOUTH = 3.2, 0.72, 7.25, 1.2
 KIOSK, TRIM = "sign_teal", "offwhite"
 
@@ -684,25 +691,25 @@ def _lost_sign(b, bulb, blink):
     """LOST & FOUND on a cream board framed in dark wood on the roof, bulbs round its frame. Returns its top."""
     hw = 2.6
     for sx in (-1, 1):                                                                          # its legs
-        b.span((sx * 2.0 - 0.06, ROOF_Y + 0.2, SIGN_Z + 0.15), (sx * 2.0 + 0.06, SIGN_Y0 + 0.9, SIGN_Z + 0.27),
+        b.span((sx * 2.0 - 0.06, ROOF_Y + 0.2, LF_SIGN_Z + 0.15), (sx * 2.0 + 0.06, SIGN_Y0 + 0.9, LF_SIGN_Z + 0.27),
                "metal")
-    b.span((-hw, SIGN_Y0 + 0.1, SIGN_Z + 0.05), (hw, SIGN_Y1 - 0.1, SIGN_Z + 0.15), "cream")
+    b.span((-hw, SIGN_Y0 + 0.1, LF_SIGN_Z + 0.05), (hw, SIGN_Y1 - 0.1, LF_SIGN_Z + 0.15), "cream")
     for y0, y1 in ((SIGN_Y0, SIGN_Y0 + 0.1), (SIGN_Y1 - 0.1, SIGN_Y1)):                          # the frame
-        b.span((-hw - 0.15, y0, SIGN_Z), (hw + 0.15, y1, SIGN_Z + 0.15), "dark_wood")
+        b.span((-hw - 0.15, y0, LF_SIGN_Z), (hw + 0.15, y1, LF_SIGN_Z + 0.15), "dark_wood")
     for sx in (-1, 1):
         x0, x1 = sorted((sx * hw, sx * (hw + 0.15)))
-        b.span((x0, SIGN_Y0 + 0.1, SIGN_Z), (x1, SIGN_Y1 - 0.1, SIGN_Z + 0.15), "dark_wood")
-    _label_front(b, "LOST &", 0.0, SIGN_Y0 + 0.78, SIGN_Z + 0.05, 0.1, 0.04, "bowl_red")
-    _label_front(b, "FOUND", 0.0, SIGN_Y0 + 0.2, SIGN_Z + 0.05, 0.1, 0.04, "bowl_red")
+        b.span((x0, SIGN_Y0 + 0.1, LF_SIGN_Z), (x1, SIGN_Y1 - 0.1, LF_SIGN_Z + 0.15), "dark_wood")
+    _label_front(b, "LOST &", 0.0, SIGN_Y0 + 0.78, LF_SIGN_Z + 0.05, 0.1, 0.04, "bowl_red")
+    _label_front(b, "FOUND", 0.0, SIGN_Y0 + 0.2, LF_SIGN_Z + 0.05, 0.1, 0.04, "bowl_red")
     for k in range(9):                                                                          # bulbs, top and bottom
         x = -2.4 + 0.6 * k
         for y in (SIGN_Y0 + 0.05, SIGN_Y1 - 0.05):
-            (blink if (k, y) == (4, SIGN_Y1 - 0.05) else bulb).cyl((x, y, SIGN_Z - 0.03), 0.07, 0.06, "lamp_warm",
+            (blink if (k, y) == (4, SIGN_Y1 - 0.05) else bulb).cyl((x, y, LF_SIGN_Z - 0.03), 0.07, 0.06, "lamp_warm",
                                                                     axis="Z", segments=6)
     for sx in (-1, 1):
         for y in (SIGN_Y0 + 0.55, SIGN_Y1 - 0.55):
-            bulb.cyl((sx * (hw + 0.075), y, SIGN_Z - 0.03), 0.07, 0.06, "lamp_warm", axis="Z", segments=6)
-    return (0.0, SIGN_Y1, SIGN_Z + 0.07)
+            bulb.cyl((sx * (hw + 0.075), y, LF_SIGN_Z - 0.03), 0.07, 0.06, "lamp_warm", axis="Z", segments=6)
+    return (0.0, SIGN_Y1, LF_SIGN_Z + 0.07)
 
 
 def _lost_pipe(b):
@@ -909,7 +916,7 @@ def build_spa_towel(mat):
 MUSEUM = "CatCafe_Camp_Ruins_RelicMuseum"
 MX, MZ0, MZ1 = 5.0, -1.0, 3.0                    # the building block: half width, front face, back
 STEP_H, STEP_D, FLOOR_Y = 0.35, 0.8, 1.05        # three steps up to the floor
-TOP_Y = 6.2                                      # the wall top under the entablature
+MUS_TOP_Y = 6.2                                  # the wall top under the entablature
 DOOR_X, DOOR_Y = 1.3, 4.2                        # the door's half width and top
 COL_X, COL_Z = 3.7, -1.9                         # the two columns
 STONE_M, STONE_ML, JADE, GOLD = "fur_caramel", "paving_tan", "fur_emerald", "gold_light"
@@ -945,11 +952,11 @@ def _museum_steps(b):
 def _museum_front(b):
     """The walls round the door: a recessed dark doorway, jade trim bands, the entablature and a pediment."""
     y0 = FLOOR_Y
-    b.span((-MX, y0, MZ0 + 0.4), (MX, TOP_Y, MZ1), STONE_M)                                    # the block
+    b.span((-MX, y0, MZ0 + 0.4), (MX, MUS_TOP_Y, MZ1), STONE_M)                                    # the block
     for sx in (-1, 1):                                                                          # the front wall
         x0, x1 = sorted((sx * DOOR_X, sx * MX))
-        b.span((x0, y0, MZ0), (x1, TOP_Y, MZ0 + 0.4), STONE_ML)
-    b.span((-DOOR_X, DOOR_Y, MZ0), (DOOR_X, TOP_Y, MZ0 + 0.4), STONE_ML)                        # over the door
+        b.span((x0, y0, MZ0), (x1, MUS_TOP_Y, MZ0 + 0.4), STONE_ML)
+    b.span((-DOOR_X, DOOR_Y, MZ0), (DOOR_X, MUS_TOP_Y, MZ0 + 0.4), STONE_ML)                        # over the door
     b.span((-DOOR_X, y0, MZ0 + 0.4), (DOOR_X, DOOR_Y, MZ0 + 0.5), "fur_ink")                   # the dark doorway
     for sx in (-1, 1):                                                                          # jade door frame
         x0, x1 = sorted((sx * DOOR_X, sx * (DOOR_X + 0.25)))
@@ -962,12 +969,12 @@ def _museum_front(b):
         b.span((cx - 0.9, y0 + 1.4, MZ0 - 0.05), (cx + 0.9, y0 + 3.6, MZ0), "fur_latte")
         b.span((cx - 0.25, y0 + 2.2, MZ0 - 0.09), (cx + 0.25, y0 + 2.8, MZ0 - 0.05), JADE)    # a jade cat-eye
     # the entablature over the columns: a beam, a jade frieze, a cornice
-    b.span((-MX - 0.3, TOP_Y, COL_Z - 0.6), (MX + 0.3, TOP_Y + 0.6, MZ1), STONE_ML)
-    b.span((-MX - 0.3, TOP_Y + 0.6, COL_Z - 0.6), (MX + 0.3, TOP_Y + 0.85, MZ1), JADE)
-    b.span((-MX - 0.5, TOP_Y + 0.85, COL_Z - 0.8), (MX + 0.5, TOP_Y + 1.1, MZ1 + 0.2), STONE_M)
+    b.span((-MX - 0.3, MUS_TOP_Y, COL_Z - 0.6), (MX + 0.3, MUS_TOP_Y + 0.6, MZ1), STONE_ML)
+    b.span((-MX - 0.3, MUS_TOP_Y + 0.6, COL_Z - 0.6), (MX + 0.3, MUS_TOP_Y + 0.85, MZ1), JADE)
+    b.span((-MX - 0.5, MUS_TOP_Y + 0.85, COL_Z - 0.8), (MX + 0.5, MUS_TOP_Y + 1.1, MZ1 + 0.2), STONE_M)
     # the pediment: a low triangle on the cornice, a gold sun disc in it
-    apex = TOP_Y + 2.6
-    base = TOP_Y + 1.1
+    apex = MUS_TOP_Y + 2.6
+    base = MUS_TOP_Y + 1.1
     b.fan_z(COL_Z - 0.6, (0.0, apex), [(MX + 0.2, base), (-MX - 0.2, base)], 0.5, STONE_ML)
     b.cyl((0.0, base + 0.6, COL_Z - 0.65), 0.35, 0.1, GOLD, axis="Z", segments=12)
     return apex
@@ -977,19 +984,19 @@ def _museum_columns(b):
     for sx in (-1, 1):
         x = sx * COL_X
         b.span((x - 0.55, FLOOR_Y, COL_Z - 0.55), (x + 0.55, FLOOR_Y + 0.4, COL_Z + 0.55), STONE_M)   # base
-        b.cyl((x, (FLOOR_Y + 0.4 + TOP_Y - 0.4) / 2, COL_Z), 0.4, TOP_Y - 0.8 - FLOOR_Y, STONE_ML, segments=10)
+        b.cyl((x, (FLOOR_Y + 0.4 + MUS_TOP_Y - 0.4) / 2, COL_Z), 0.4, MUS_TOP_Y - 0.8 - FLOOR_Y, STONE_ML, segments=10)
         for y in (FLOOR_Y + 1.6, FLOOR_Y + 3.4):                                                   # jade rings
             b.cyl((x, y, COL_Z), 0.43, 0.15, JADE, segments=10)
-        b.span((x - 0.6, TOP_Y - 0.4, COL_Z - 0.6), (x + 0.6, TOP_Y, COL_Z + 0.6), STONE_M)         # capital
+        b.span((x - 0.6, MUS_TOP_Y - 0.4, COL_Z - 0.6), (x + 0.6, MUS_TOP_Y, COL_Z + 0.6), STONE_M)         # capital
 
 
 def _museum_sign(b):
     """RELIC MUSEUM in gold on a jade board fixed to the beam's front. Returns its top."""
     z = COL_Z - 0.6
-    hw, y0, y1 = 3.0, TOP_Y + 0.02, TOP_Y + 0.58
+    hw, y0, y1 = 3.0, MUS_TOP_Y + 0.02, MUS_TOP_Y + 0.58
     b.span((-hw, y0, z - 0.06), (hw, y1, z), "night_sky")
     _label_front(b, "RELIC MUSEUM", 0.0, y0 + 0.07, z - 0.06, 0.085, 0.03, GOLD)
-    return (0.0, TOP_Y + 2.6, z)
+    return (0.0, MUS_TOP_Y + 2.6, z)
 
 
 def _museum_rope(b):

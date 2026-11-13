@@ -259,14 +259,14 @@ export type CustomEvent =
 	| "tip_shown"
 	| "ask_shown" -- F96: value 1; kind (notify, favorite, like or F92's invite), the session number
 	| "feedback"
-	-- #2681: with each feedback answer, value 1: the face, the furthest onboarding_v6 step, the account's minutes
+	-- #2681: with each feedback answer, value 1: the face, the furthest clean funnel step (onboarding_v7, #3695), the account's minutes
 	-- played (FeedbackFunnel.minutesBucket)
 	| "feedback_ctx"
 	-- #2681: with each feedback answer, value 1: the face, the device, "<place version>:<err|ok>" (whether this
 	-- session's client logged an error before it)
 	| "feedback_env"
 	-- #3272: the once-a-day session ask (shared/SessionFeedback), one answer a UTC day, value 1 each: the answer (love,
-	-- ok, no or skipped), the device and the session length bucket; the answer, the furthest onboarding_v6 step and
+	-- ok, no or skipped), the device and the session length bucket; the answer, the furthest clean funnel step (onboarding_v7, #3695) and
 	-- the cats owned bucket; the answer, the screen open and the build ("<place version>:<err|ok>")
 	| "session_feedback"
 	-- #3196 (trait-station.md section 7): a trait rolled, value its rarity rank (1 Common to 5 Mythic): the trait id
@@ -795,7 +795,8 @@ end
 -- steps already reached; held in profile.telemetry otherwise (Onboarding.reach). `values` go with this step only.
 -- #1273 (easy-start.md section 5): the funnel goes out as Onboarding.FUNNEL with the player's user id as its one funnel
 -- session, since LogOnboardingFunnelStepEvent has no name to keep it apart from the earlier funnels. v3 replaced
--- onboarding_v2 outright (Derek 2026-11-04), and v4 (#1888, 45 steps) replaces v3.
+-- onboarding_v2 outright (Derek 2026-11-04), and v4 (#1888, 45 steps) replaces v3. #3695: the ledger is no longer sent
+-- to Roblox; the clean funnel onboarding_v7 (logClean) is.
 -- #3022: a listener hears each step as it is reached (CatService starts the second cat's waiting stray at
 -- first_customer_served), after the step is logged. A listener that errors is logged and the rest still run.
 local stepListeners: { (player: Player, name: string) -> () } = {}
@@ -838,6 +839,19 @@ end
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
 -- session: every clean step done since the last one logged, read off the ledger, the cafe's tier and the areas with
 -- a catch. Called after every ledger step, every rank up and every catch in an area.
+-- The areas the save has a cat from (a spare cat counts by its old area too), added to `areas`.
+local function saveAreas(profile: Profile, areas: { [string]: boolean })
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil then
+			areas[def.area] = true
+			if def.incomeArea ~= nil then
+				areas[def.incomeArea] = true
+			end
+		end
+	end
+end
+
 local function logClean(player: Player, profile: Profile)
 	local session = sessions[player]
 	local state = profile.telemetry
@@ -845,10 +859,15 @@ local function logClean(player: Player, profile: Profile)
 	if logged >= Onboarding.CLEAN_COUNT then
 		return
 	end
-	local facts: Onboarding.CleanFacts = {
-		tier = Economy.tier(profile),
-		areas = if session ~= nil and session.areasCaught ~= nil then session.areasCaught else {},
-	}
+	local areas: { [string]: boolean } = if session ~= nil and session.areasCaught ~= nil
+		then session.areasCaught
+		else {}
+	if logged >= Onboarding.CLEAN_TUTORIAL then
+		-- past the tutorial the next steps can be an area's: a cat from bait or a rescue never passes caughtIn, so
+		-- the save is read again (Review-QA on #3697)
+		saveAreas(profile, areas)
+	end
+	local facts: Onboarding.CleanFacts = { tier = Economy.tier(profile), areas = areas }
 	for _, step in Onboarding.cleanDue(state, logged, facts) do
 		state.cleanStep = step
 		local name = Onboarding.CLEAN_STEPS[step]
@@ -1757,7 +1776,7 @@ function Telemetry.feedbackAsked(player: Player, profile: Profile)
 	funnelStep(player, FeedbackFunnel.NAME, run, FeedbackFunnel.index("ask_shown"), "ask_shown", {
 		tierText(profile),
 		FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
-		Onboarding.furthest(profile.telemetry),
+		Onboarding.cleanFurthest(profile.telemetry),
 	})
 end
 
@@ -1777,7 +1796,7 @@ function Telemetry.sessionFeedback(player: Player, profile: Profile, answer: str
 		player,
 		"session_feedback_ctx",
 		1,
-		{ answer, Onboarding.furthest(profile.telemetry), SessionFeedback.catsBucket(cats) }
+		{ answer, Onboarding.cleanFurthest(profile.telemetry), SessionFeedback.catsBucket(cats) }
 	)
 	Telemetry.custom(player, "session_feedback_where", 1, {
 		answer,
@@ -1798,7 +1817,7 @@ function Telemetry.feedbackAnswered(player: Player, profile: Profile, face: stri
 		player,
 		"feedback_ctx",
 		1,
-		{ face, Onboarding.furthest(profile.telemetry), minutes }
+		{ face, Onboarding.cleanFurthest(profile.telemetry), minutes }
 	)
 	Telemetry.custom(player, "feedback_env", 1, {
 		face,
@@ -1863,19 +1882,14 @@ local function logJoined(player: Player)
 	session.joinLogged = true
 	-- #3695: the areas the save has a cat from (a spare cat counts by its old area), before the first step logs
 	local parkCats = 0
-	local areasCaught: { [string]: boolean } = {}
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
-		if def ~= nil then
-			if def.area == "park" or def.incomeArea == "park" then
-				parkCats += 1
-			end
-			areasCaught[def.area] = true
-			if def.incomeArea ~= nil then
-				areasCaught[def.incomeArea] = true
-			end
+		if def ~= nil and (def.area == "park" or def.incomeArea == "park") then
+			parkCats += 1
 		end
 	end
+	local areasCaught: { [string]: boolean } = {}
+	saveAreas(profile, areasCaught)
 	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
 	logFirstHour(player, profile)
@@ -1908,7 +1922,7 @@ end
 
 -- The three fields of the time markers and the leave events: the furthest step logged, the screen open, and `third`.
 local function whereInFunnel(profile: Profile, session: Session, third: string): { string }
-	return { Onboarding.furthest(profile.telemetry), session.screen, third }
+	return { Onboarding.cleanFurthest(profile.telemetry), session.screen, third }
 end
 
 -- What the client reports (TelemetryReport), analytics only: every name and value is allowlisted or range checked,
@@ -2356,7 +2370,7 @@ local function onLoaded(player: Player, profile: Profile)
 	then
 		local minutes = math.floor(away / 60)
 		Telemetry.custom(player, "quick_return", minutes, {
-			Onboarding.furthest(profile.telemetry),
+			Onboarding.cleanFurthest(profile.telemetry),
 			FirstFive.awayBucket(minutes),
 			FirstFive.sessionBucket(profile.stats.sessions),
 		})
@@ -2538,7 +2552,7 @@ local function onRelease(player: Player, profile: Profile)
 		local carrying = character ~= nil and character:GetAttribute("CarryingCatId") ~= nil
 		local baiting = profile.bait ~= nil or profile.bait2 ~= nil
 		Telemetry.custom(player, "quit_state", played, {
-			Onboarding.furthest(profile.telemetry),
+			Onboarding.cleanFurthest(profile.telemetry),
 			where,
 			(if carrying then "carry" else "empty") .. (if baiting then " bait" else " nobait"),
 		})
@@ -2565,7 +2579,7 @@ local function onRelease(player: Player, profile: Profile)
 				introShot = session.introShot,
 				launching = character ~= nil and character:GetAttribute("Launching") == true,
 				carrying = carrying,
-				furthest = Onboarding.furthest(profile.telemetry),
+				furthest = Onboarding.cleanFurthest(profile.telemetry),
 				where = where,
 			}),
 			session.device or "unknown",
@@ -2587,7 +2601,7 @@ local function onRelease(player: Player, profile: Profile)
 			FirstFive.cafeFields(working, Economy.level(profile, "tables"), owned)
 		)
 		Telemetry.custom(player, "quit_snapshot", played, {
-			Onboarding.furthest(profile.telemetry),
+			Onboarding.cleanFurthest(profile.telemetry),
 			FirstFive.idleBucket(os.clock() - session.activeAt) .. " " .. session.snapScreen,
 			FirstFive.afford(
 				buy,

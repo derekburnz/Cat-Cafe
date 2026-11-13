@@ -591,13 +591,16 @@ return function()
 	-- #3695: the clean funnel onboarding_v7 and playtime_v1
 	describe("the clean funnel (#3695)", function()
 		it(
-			"is onboarding_v7: 26 steps from joined to the Ruins catch, with no rescue step",
+			"is onboarding_v7: 27 steps from joined to the Ruins catch, with no rescue step",
 			function()
 				expect(Onboarding.CLEAN_FUNNEL).to.equal("onboarding_v7")
-				expect(Onboarding.CLEAN_COUNT).to.equal(26)
+				expect(Onboarding.CLEAN_COUNT).to.equal(27)
 				expect(Onboarding.CLEAN_STEPS[1]).to.equal("joined")
-				expect(Onboarding.CLEAN_STEPS[14]).to.equal("first_bait_resolved")
-				expect(Onboarding.CLEAN_STEPS[26]).to.equal("ruins_catch")
+				expect(Onboarding.CLEAN_STEPS[11]).to.equal("second_cat")
+				expect(Onboarding.CLEAN_STEPS[Onboarding.CLEAN_TUTORIAL]).to.equal(
+					"first_bait_resolved"
+				)
+				expect(Onboarding.CLEAN_STEPS[27]).to.equal("ruins_catch")
 				local seen: { [string]: boolean } = {}
 				for _, name in Onboarding.CLEAN_STEPS do
 					expect(seen[name]).to.equal(nil)
@@ -630,20 +633,18 @@ return function()
 			function()
 				local state = fresh()
 				local facts = { tier = 1, areas = {} }
-				play(
-					state,
-					{
-						"joined",
-						"first_role_assigned",
-						"first_table",
-						"first_bait",
-						"first_bait_resolved",
-					}
-				)
+				play(state, {
+					"joined",
+					"first_role_assigned",
+					"second_cat",
+					"first_table",
+					"first_bait",
+					"first_bait_resolved",
+				})
 				-- the ledger holds first_bait_resolved behind the rescue steps
 				expect(Onboarding.furthest(state) == "first_bait_resolved").to.equal(false)
 				local due = Onboarding.cleanDue(state, 0, facts)
-				expect(due[#due]).to.equal(14)
+				expect(due[#due]).to.equal(15)
 			end
 		)
 
@@ -651,36 +652,52 @@ return function()
 			"reads the tiers and the area catches off the facts, each tier before its area",
 			function()
 				local state = fresh()
-				play(
-					state,
-					{
-						"joined",
-						"first_role_assigned",
-						"first_table",
-						"first_bait",
-						"first_bait_resolved",
-					}
-				)
+				play(state, {
+					"joined",
+					"first_role_assigned",
+					"second_cat",
+					"first_table",
+					"first_bait",
+					"first_bait_resolved",
+				})
 				-- a Park cat with the cafe still at Tier 1 (a gift) does not pass tier_2
-				expect(#Onboarding.cleanDue(state, 14, { tier = 1, areas = { park = true } })).to.equal(
+				expect(#Onboarding.cleanDue(state, 15, { tier = 1, areas = { park = true } })).to.equal(
 					0
 				)
-				expect(Onboarding.cleanDue(state, 14, { tier = 2, areas = {} }) :: any).to.deepEqual({
-					15,
+				expect(Onboarding.cleanDue(state, 15, { tier = 2, areas = {} }) :: any).to.deepEqual({
+					16,
 				})
-				expect(Onboarding.cleanDue(state, 14, { tier = 3, areas = { park = true } }) :: any).to.deepEqual({
-					15,
+				expect(Onboarding.cleanDue(state, 15, { tier = 3, areas = { park = true } }) :: any).to.deepEqual({
 					16,
 					17,
+					18,
 				})
 				local all = { tier = 7, areas = {} :: { [string]: boolean } }
 				for _, area in Onboarding.CLEAN_AREAS do
 					all.areas[area] = true
 				end
-				local due = Onboarding.cleanDue(state, 14, all)
+				local due = Onboarding.cleanDue(state, 15, all)
 				expect(#due).to.equal(12)
-				expect(due[12]).to.equal(26)
-				expect(#Onboarding.cleanDue(state, 26, all)).to.equal(0)
+				expect(due[12]).to.equal(27)
+				expect(#Onboarding.cleanDue(state, 27, all)).to.equal(0)
+			end
+		)
+
+		it(
+			"holds the table behind the second cat, and names the furthest step for the leave events",
+			function()
+				local state = fresh()
+				local facts = { tier = 1, areas = {} }
+				expect(Onboarding.cleanFurthest(state)).to.equal("none")
+				play(state, { "joined", "first_role_assigned", "first_table" })
+				local due = Onboarding.cleanDue(state, 0, facts)
+				expect(due[#due]).to.equal(10) -- first_role_assigned: the table waits for the second cat
+				state.cleanStep = 10
+				expect(Onboarding.cleanFurthest(state)).to.equal("first_role_assigned")
+				play(state, { "second_cat" })
+				expect(Onboarding.cleanDue(state, 10, facts) :: any).to.deepEqual({ 11, 12 })
+				state.cleanStep = Onboarding.CLEAN_COUNT
+				expect(Onboarding.cleanFurthest(state)).to.equal("done")
 			end
 		)
 

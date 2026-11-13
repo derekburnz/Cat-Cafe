@@ -528,6 +528,9 @@ local CLEAN_RULES: { CleanRule } = {
 	{ name = "first_catch", ledger = "first_catch" },
 	{ name = "first_checkin", ledger = "first_checkin" },
 	{ name = "first_role_assigned", ledger = "first_role_assigned" },
+	-- the tutorial's "catch another cat" goal: the table can be bought first, but every cafe that goes on gets a second
+	-- cat, and it is where phones lose the most players (Growth-Agent, the 7 day read), so it has its own step
+	{ name = "second_cat", ledger = "second_cat" },
 	{ name = "first_table", ledger = "first_table" },
 	{ name = "bowl_bought", ledger = "bowl_bought" },
 	{ name = "first_bait", ledger = "first_bait" },
@@ -558,6 +561,7 @@ Onboarding.CLEAN_STEPS = {
 	"first_catch",
 	"first_checkin",
 	"first_role_assigned",
+	"second_cat",
 	"first_table",
 	"bowl_bought",
 	"first_bait",
@@ -576,6 +580,7 @@ Onboarding.CLEAN_STEPS = {
 	"ruins_catch",
 } :: { string }
 Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
+Onboarding.CLEAN_TUTORIAL = 15 -- first_bait_resolved, the tutorial's last step: the tiers and areas come after
 
 -- The areas the clean funnel asks about, for a caller that gathers CleanFacts.
 Onboarding.CLEAN_AREAS =
@@ -608,6 +613,16 @@ function Onboarding.cleanDue(
 		table.insert(out, step)
 	end
 	return out
+end
+
+-- The furthest clean step logged, for the events that say where a player was: "none" before joined and "done" for a
+-- player through it or out of it (a veteran who never started it).
+function Onboarding.cleanFurthest(state: Types.TelemetryState): string
+	local step = state.cleanStep or 0
+	if step >= Onboarding.CLEAN_COUNT then
+		return "done"
+	end
+	return Onboarding.CLEAN_STEPS[step] or "none"
 end
 
 -- Where a save that never had the clean funnel starts it: out of it (CLEAN_COUNT) once the ledger shows a first

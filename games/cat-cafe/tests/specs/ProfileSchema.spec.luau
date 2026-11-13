@@ -266,7 +266,7 @@ return function()
 					introStep = 13,
 					firstHourStep = 10,
 					firstHourV3Step = 12,
-					cleanStep = 26,
+					cleanStep = 27,
 					playtimeStep = 16,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
@@ -2036,7 +2036,7 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
-						cleanStep = 26,
+						cleanStep = 27,
 						playtimeStep = 16,
 					})
 				end
@@ -2060,7 +2060,7 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
-						cleanStep = 26,
+						cleanStep = 27,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2102,7 +2102,7 @@ return function()
 						introStep = 13,
 						firstHourStep = 10,
 						firstHourV3Step = 12,
-						cleanStep = 26,
+						cleanStep = 27,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2145,7 +2145,7 @@ return function()
 						introStep = 4, -- v5 logs v4's intro funnel, so its step stays
 						firstHourStep = 10,
 						firstHourV3Step = 12,
-						cleanStep = 26,
+						cleanStep = 27,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2242,7 +2242,7 @@ return function()
 						introStep = 6, -- v6 logs v4's intro funnel too, so its step stays
 						firstHourStep = 10,
 						firstHourV3Step = 12,
-						cleanStep = 26,
+						cleanStep = 27,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2291,10 +2291,10 @@ return function()
 					expect(ProfileSchema.migrate(raw, NOW).telemetry.playtimeStep).to.equal(16)
 					-- past the first catch, logged or held: out of the clean funnel
 					raw.telemetry.onboardingStep = 13
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(26)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(27)
 					raw.telemetry.onboardingStep = 9
 					raw.telemetry.achieved = { ["13"] = true }
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(26)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(27)
 					-- their own fields win once saved, clamped; a damaged one falls back to the rule above
 					raw.telemetry.cleanStep = 7
 					raw.telemetry.playtimeStep = 4
@@ -2304,12 +2304,12 @@ return function()
 					raw.telemetry.cleanStep = 99
 					raw.telemetry.playtimeStep = -3
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanStep).to.equal(26)
+					expect(telemetry.cleanStep).to.equal(27)
 					expect(telemetry.playtimeStep).to.equal(0)
 					raw.telemetry.cleanStep = "x"
 					raw.telemetry.playtimeStep = "x"
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanStep).to.equal(26)
+					expect(telemetry.cleanStep).to.equal(27)
 					expect(telemetry.playtimeStep).to.equal(16)
 				end
 			)

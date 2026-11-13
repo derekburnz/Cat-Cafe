@@ -1251,6 +1251,9 @@ export type Settings = {
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
+	catPickSort: string, -- #3940: the pick-a-cat list's Sort ("Money", "Level" or "Rarity")
+	catPickFlipped: boolean, -- #3940: that Sort turned round
+	catPickShow: string, -- #3940: the Show chips that are on ("Working,No trait"; "" for All)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1486,6 +1489,9 @@ export type PlayerState = {
 	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
 	-- reads as Config.IntroAutoPlay
 	introAuto: boolean?,
+	-- #4001: the save is in the short intro test's "short" arm (shared/IntroSplit.SHORT): its first play is the short
+	-- intro; nil or false plays the long one there (a replay is always the short one)
+	introShort: boolean?,
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)

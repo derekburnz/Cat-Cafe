@@ -840,5 +840,35 @@ return function()
 				expect(Intro.CANNON_TAG).to.equal("CatCannon")
 			end)
 		end)
+
+		it(
+			"#4001: the short intro is the cannon, the catch and carry under one caption, and the job",
+			function()
+				local plot = Intro.plot(1)
+				local shots = Intro.shots(plot, true, true, true)
+				local indexes, dots = {}, {}
+				for _, shot in shots do
+					table.insert(indexes, shot.index)
+					table.insert(dots, Intro.SHORT_DOTS[shot.index])
+					expect(#shot.caption <= Intro.MAX_CAPTION).to.equal(true)
+				end
+				expect(table.concat(indexes, ",")).to.equal("1,3,4,5")
+				expect(table.concat(dots, ",")).to.equal("1,2,2,3")
+				expect(shots[2].caption).to.equal(shots[3].caption)
+				-- each caption holds 1.0 s plus 0.4 s a word, the catch and carry pair together
+				expect(math.abs(shots[1].hold - 3.8) < 1e-9).to.equal(true)
+				expect(shots[2].hold + shots[3].hold >= Intro.shortHold(shots[2].caption) - 1e-9).to.equal(
+					true
+				)
+				expect(math.abs(shots[4].hold - 3.8) < 1e-9).to.equal(true)
+				-- back to back on their own timings
+				expect(shots[2].starts).to.equal(shots[1].seconds)
+				-- without the camp, the cannon and the job only
+				local bare = Intro.shots(plot, true, false, true)
+				expect(#bare).to.equal(2)
+				-- the long intro is as it was
+				expect(#Intro.shots(plot, true, true)).to.equal(Intro.SHOTS)
+			end
+		)
 	end)
 end

@@ -923,6 +923,82 @@ def check_layout():
     assert sum(1 for t in traps[5:] if t[2] > 0) == 6, [t for t in traps[5:] if t[2] > 0]
 
 
+# ------------------------------------------------------------------------------------- the Cocoa Lodge camp --
+# camps.py builds CatCafe_Camp_Snowy (the camp's ground, walls, pad and basket, as every camp) and places these. The
+# camp is the area's only warm colour (plan 1b): orange light, red trims, warm wood.
+def lodge_front(mat):
+    """The Cocoa Lodge's front, built against the camp's back wall (pivot at its base centre, front -Z): a timber
+    front 22 wide and 7 high on a stone footing, a gable with a red trim and snow on the roof, a warm-lit window
+    either side of a double door (_Pane, lit at night), a stone chimney at the east end, a sign board over the door
+    (the words are the game's) and a snowy porch roof on two posts."""
+    b, panes = Builder(), Builder()
+    W, D, H = 22.0, 4.0, 7.0
+    b.box_base((0, 0, 0), (W + 0.6, D + 0.6, 0.8), ROCK, bevel=False)
+    b.box_base((0, 0, 0.8), (W, D, H - 0.8), WOOD, bevel=False)
+    for i in range(1, 7):                                                    # the log courses
+        b.box((0, -D / 2 - 0.05, 0.8 + i * 0.9), (W, 0.12, 0.14), WOOD_DARK, bevel=False)
+    for sx in (-1, 1):
+        b.box_base((sx * (W / 2 - 0.3), -D / 2 - 0.1, 0.8), (0.7, 0.5, H - 0.8), WOOD_DARK, bevel=False)
+    gable(b, 0, 0, H, W, D, 4.6, WOOD, RED, over=0.8, thick=0.45)
+    a = math.atan2(4.6, W / 2)
+    for sx in (-1, 1):                                                       # snow on the roof slabs
+        L = math.hypot(W / 2, 4.6) * 0.86
+        b.box((sx * W / 4, 0, H + 2.3 + 0.5), (L, D + 1.4, 0.25), SNOW, bevel=False, rot=(sx * a, "Y"))
+    b.box_base((0, -D / 2 - 0.06, 0.8), (4.0, 0.12, 3.6), WOOD_DARK, bevel=False)            # the double door
+    b.box((0, -D / 2 - 0.14, 2.6), (0.08, 0.06, 3.4), "fur_black", bevel=False)
+    b.box((0, -D / 2 - 0.1, 5.4), (6.0, 0.14, 1.3), RED, bevel=False)                       # the sign board
+    b.box((0, -D / 2 - 0.16, 5.4), (5.6, 0.06, 0.95), "cream", bevel=False)
+    for sx in (-1, 1):
+        x = sx * 6.6
+        b.box((x, -D / 2 - 0.06, 3.4), (4.2, 0.2, 2.8), RED, bevel=False)                    # window frames
+        panes.box((x, -D / 2 - 0.12, 3.4), (3.6, 0.06, 2.2), "lamp_warm", bevel=False)
+        b.box((x, -D / 2 - 0.2, 3.4), (0.14, 0.05, 2.2), RED, bevel=False)
+        b.box((x, -D / 2 - 0.3, 2.05), (4.6, 0.6, 0.2), WOOD_DARK, bevel=False)              # sills
+        b.box((x, -D / 2 - 0.3, 2.2), (4.2, 0.5, 0.12), SNOW, bevel=False)
+    # the porch: two posts and a short roof over the door
+    for sx in (-1, 1):
+        b.cyl_base((sx * 2.8, -D / 2 - 2.6, 0), 0.22, 4.6, WOOD_DARK, segments=8, bevel=False)
+    b.box((0, -D / 2 - 1.4, 4.75), (7.0, 3.2, 0.3), RED, bevel=False, rot=(-0.2, "X"))
+    b.box((0, -D / 2 - 1.4, 5.0), (6.6, 2.8, 0.22), SNOW, bevel=False, rot=(-0.2, "X"))
+    # the chimney, stone, at the east end (Blender -x is Roblox +x)
+    b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, 0), (2.4, 2.2, H + 6.4), ROCK_LIGHT, bevel=False)
+    b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, H + 6.4), (2.8, 2.6, 0.4), ROCK_DARK, bevel=False)
+    b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, H + 6.8), (2.2, 2.0, 0.2), SNOW, bevel=False)
+    return [b.finalize(N + "LodgeFront", mat), panes.finalize(N + "LodgeFront_Pane", mat)]
+
+
+def fire_pit(mat):
+    """A fire pit: a ring of stones round crossed logs and a soft fire (_Glow, Neon day and night, no smoke)."""
+    b, glow = Builder(), Builder()
+    for k in range(10):
+        a = 2 * PI * k / 10
+        b.ico((1.4 * math.cos(a), 1.4 * math.sin(a), 0.25), 0.42, (ROCK, ROCK_LIGHT)[k % 2], subdivisions=1,
+              scale=(1.0, 1.0, 0.7))
+    for k in range(3):
+        b.cyl((0, 0, 0.3 + 0.05 * k), 0.16, 1.9, WOOD_DARK, segments=6, bevel=False,
+              rot=Matrix.Rotation(k * PI / 3, 3, "Z") @ Matrix.Rotation(PI / 2, 3, "Y"))
+    glow.cyl_base((0, 0, 0.35), 0.7, 0.6, "fur_marmalade", segments=10, radius2=0.35)
+    glow.cyl_base((0, 0, 0.9), 0.35, 0.55, "pastel_butter", segments=8, radius2=0.08)
+    return [b.finalize(N + "FirePit", mat), glow.finalize(N + "FirePit_Glow", mat)]
+
+
+def ski_rack(mat):
+    """A ski rack 4 wide: a wooden frame with four pairs of skis leaning in it, poles hooked on its end, snow on top."""
+    b = Builder()
+    for sx in (-1, 1):
+        b.box_base((sx * 2.0, 0, 0), (0.25, 1.4, 2.4), WOOD_DARK, bevel=False)
+    b.box((0, 0.55, 2.2), (4.3, 0.2, 0.2), WOOD, bevel=False)
+    b.box((0, -0.55, 0.5), (4.3, 0.2, 0.2), WOOD, bevel=False)
+    b.box((0, 0.6, 2.36), (4.0, 0.3, 0.1), SNOW, bevel=False)
+    for i, sw in enumerate(("shirt_blue", RED, "fur_orange", "shirt_green")):
+        x = -1.5 + i
+        for dx in (-0.14, 0.14):
+            b.box((x + dx, 0.05, 1.5), (0.18, 0.08, 3.0), sw, bevel=False, rot=(-0.35, "X"))
+    for dx in (2.3, 2.45):
+        b.cyl_base((dx, 0.0, 0.0), 0.04, 2.0, "metal", segments=6, bevel=False)
+    return [b.finalize(N + "SkiRack", mat)]
+
+
 # --------------------------------------------------------------------------------------------------- set --
 def build_set(mat):
     check_layout()

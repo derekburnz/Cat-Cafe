@@ -195,8 +195,8 @@ local function stopWalk()
 	end
 end
 
--- #3556: walks to `model` and swings once a swing would land on it. A new press, a swing that cannot go or
--- TouchReach.WALK_SECONDS ends it.
+-- #3556: walks to `model` and swings once a swing would land on a stray, then walks on for
+-- TouchReach.FOLLOW_SECONDS (#4041). A new press, a swing that cannot go or TouchReach.WALK_SECONDS ends it.
 local function walkTo(model: Model)
 	stopWalk()
 	walking = true
@@ -212,8 +212,19 @@ local function walkTo(model: Model)
 			if humanoid == nil or body == nil then
 				break
 			end
-			if swingReach == model then
+			-- #4041: any stray a swing lands on now (the server takes the nearest), and the walk goes on while the
+			-- net comes down: landingOrigin judged from the root still moving, so stopping here fell short
+			if swingReach ~= nil then
 				swing()
+				local landAt = os.clock() + TouchReach.FOLLOW_SECONDS
+				while walkId == id and os.clock() < landAt and os.clock() >= catchingUntil do
+					local following = if model.Parent ~= nil then bodyOf(model) else nil
+					if following == nil then
+						break
+					end
+					humanoid:MoveTo(following.Position)
+					task.wait()
+				end
 				break
 			end
 			humanoid:MoveTo(body.Position)
@@ -226,6 +237,9 @@ local function walkTo(model: Model)
 end
 
 local function press()
+	if walking and swingReach ~= nil then
+		return -- #4041: the walk swings at its next check and keeps moving while the net lands
+	end
 	stopWalk() -- a press ends a walk going on, where the character stands
 	local far = if swingReach == nil then inReach else nil
 	if far ~= nil and touchReachOn() and os.clock() >= nextSwingAt and canSwing() then

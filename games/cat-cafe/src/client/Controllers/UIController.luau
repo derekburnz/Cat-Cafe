@@ -2461,7 +2461,8 @@ local function wireServerEvents()
 		"RainbowSpawned",
 		function(areaId: string, catId: string, strayId: string, toast: boolean)
 			Moments.RainbowSpawned:Fire(areaId, catId, strayId)
-			if toast ~= true then
+			-- #4005: the cat stays, the toast waits out a new player's quiet start
+			if toast ~= true or select(2, require(Shared:WaitForChild("QuietStart")).live()) then
 				return
 			end
 			local hook: unknown = (UI :: any).rainbowSpawned

@@ -50,6 +50,7 @@ local DataService = require(script.Parent.DataService)
 local EventService = require(script.Parent.EventService)
 local Net = require(script.Parent.Net)
 local Pity = require(ReplicatedStorage.Shared.Pity)
+local QuietStartService = require(script.Parent.QuietStartService)
 local Telemetry = require(script.Parent.Telemetry)
 
 local PityService = {}
@@ -241,7 +242,7 @@ local function markCaught(c: Current, winner: string?)
 	publishState()
 	local banner = Pity.caughtBanner(winner)
 	if banner ~= nil then
-		Net.fireAll("Announce", banner, c.kind)
+		QuietStartService.fireAll(nil, "Announce", banner, c.kind) -- #4005: the marker stays, the banner waits
 	end
 	Net.fireAll("PityAnnounce", c.kind, c.areaId, "caught", winner)
 end
@@ -485,7 +486,7 @@ local function showerCaught(s: Shower, winner: string?)
 	s.state = "caught"
 	s.winner = winner
 	if winner ~= nil then
-		Net.fireAll("Announce", CafeEvents.showerCaughtText(winner), s.pick.kind)
+		QuietStartService.fireAll(nil, "Announce", CafeEvents.showerCaughtText(winner), s.pick.kind) -- #4005
 	end
 end
 

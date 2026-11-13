@@ -320454,7 +320454,7 @@
         "CatCafe_Ruins_Set_220_Rubble",
         "CatCafe_Ruins_Set_220_Rubble_Decor"
       ],
-      "triangles": 136002,
+      "triangles": 134874,
       "budget": 150000,
       "size_studs": {
         "x": 140.0,
@@ -321223,7 +321223,7 @@
       },
       "studio": "Tier 7 (tier6-7-areas.md section 5). Place it at the Ruins' centre on its floor with the camp's turn (0: the camp on the south edge, toward the town), like the F85 sets. Every blocker has a _Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -300 and the east bridge bay (a 9 high parapet barrier). The rescue spots (points_roblox trap_rubble_pile, trap_stone_urn, trap_bridge_ledge) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Ruins_Set.model.json",
-      "rbx_parts": 6952,
+      "rbx_parts": 6858,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.glb"
@@ -321235,10 +321235,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "136002/150000 tris",
+          "budget": "134874/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "77206 faces on swatch centers",
+          "uv": "76642 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.33 (want 0)",
           "centered": "footprint center x=0.00 y=0.00",

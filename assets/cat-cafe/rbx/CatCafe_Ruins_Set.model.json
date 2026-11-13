@@ -158582,7 +158582,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.55,
+         -40.0,
          6.0,
          48.8857
         ],
@@ -158606,7 +158606,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -158631,7 +158631,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.45,
+         -40.0,
          11.1,
          48.8857
         ],
@@ -158655,7 +158655,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -158680,105 +158680,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.45,
-         6.0,
-         48.8857
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.55,
-         11.1,
-         48.8857
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.55,
+         -40.0,
          6.0,
          56.5714
         ],
@@ -158802,7 +158704,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -158827,7 +158729,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.45,
+         -40.0,
          11.1,
          56.5714
         ],
@@ -158851,7 +158753,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -158876,9 +158778,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.45,
+         -40.0,
          6.0,
-         56.5714
+         64.2571
         ],
         "orientation": [
          [
@@ -158900,7 +158802,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -158925,105 +158827,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.55,
-         11.1,
-         56.5714
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.55,
-         6.0,
-         64.2571
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.45,
+         -40.0,
          11.1,
          64.2571
         ],
@@ -159047,105 +158851,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.45,
-         6.0,
-         64.2571
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.55,
-         11.1,
-         64.2571
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -159562,7 +159268,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.55,
+         -40.0,
          6.0,
          87.3143
         ],
@@ -159586,7 +159292,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -159611,7 +159317,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.45,
+         -40.0,
          11.1,
          87.3143
         ],
@@ -159635,105 +159341,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.45,
-         6.0,
-         87.3143
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.55,
-         11.1,
-         87.3143
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -165344,7 +164952,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.55,
+         -40.0,
          6.0,
          112.975
         ],
@@ -165368,7 +164976,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -165393,7 +165001,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.45,
+         -40.0,
          11.1,
          112.975
         ],
@@ -165417,7 +165025,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -165442,9 +165050,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.45,
+         -40.0,
          6.0,
-         112.975
+         120.95
         ],
         "orientation": [
          [
@@ -165466,7 +165074,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -165491,105 +165099,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.55,
-         11.1,
-         112.975
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.55,
-         6.0,
-         120.95
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.45,
+         -40.0,
          11.1,
          120.95
         ],
@@ -165613,105 +165123,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.45,
-         6.0,
-         120.95
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.55,
-         11.1,
-         120.95
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -166128,7 +165540,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.55,
+         -40.0,
          6.0,
          144.875
         ],
@@ -166152,7 +165564,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -166177,7 +165589,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.45,
+         -40.0,
          11.1,
          144.875
         ],
@@ -166201,7 +165613,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -166226,105 +165638,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.45,
-         6.0,
-         144.875
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.55,
-         11.1,
-         144.875
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.55,
+         -40.0,
          6.0,
          152.85
         ],
@@ -166348,7 +165662,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -166373,7 +165687,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -38.45,
+         -40.0,
          11.1,
          152.85
         ],
@@ -166397,7 +165711,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -166422,9 +165736,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.45,
+         -40.0,
          6.0,
-         152.85
+         160.825
         ],
         "orientation": [
          [
@@ -166446,7 +165760,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -166471,105 +165785,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -41.55,
-         11.1,
-         152.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.55,
-         6.0,
-         160.825
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -38.45,
+         -40.0,
          11.1,
          160.825
         ],
@@ -166593,105 +165809,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.45,
-         6.0,
-         160.825
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -41.55,
-         11.1,
-         160.825
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -171763,7 +170881,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.55,
+         -14.0,
          6.0,
          49.1333
         ],
@@ -171787,7 +170905,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -171812,7 +170930,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.45,
+         -14.0,
          11.1,
          49.1333
         ],
@@ -171836,105 +170954,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.45,
-         6.0,
-         49.1333
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.55,
-         11.1,
-         49.1333
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -175585,7 +174605,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.55,
+         -14.0,
          6.0,
          82.8167
         ],
@@ -175609,7 +174629,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -175634,7 +174654,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.45,
+         -14.0,
          11.1,
          82.8167
         ],
@@ -175658,7 +174678,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -175683,9 +174703,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.45,
+         -14.0,
          6.0,
-         82.8167
+         90.6333
         ],
         "orientation": [
          [
@@ -175707,7 +174727,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -175732,105 +174752,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.55,
-         11.1,
-         82.8167
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.55,
-         6.0,
-         90.6333
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.45,
+         -14.0,
          11.1,
          90.6333
         ],
@@ -175854,105 +174776,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.45,
-         6.0,
-         90.6333
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.55,
-         11.1,
-         90.6333
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -176369,7 +175193,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.55,
+         -14.0,
          6.0,
          114.0833
         ],
@@ -176393,7 +175217,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -176418,7 +175242,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.45,
+         -14.0,
          11.1,
          114.0833
         ],
@@ -176442,7 +175266,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -176467,105 +175291,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.45,
-         6.0,
-         114.0833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.55,
-         11.1,
-         114.0833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.55,
+         -14.0,
          6.0,
          121.9
         ],
@@ -176589,7 +175315,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -176614,7 +175340,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.45,
+         -14.0,
          11.1,
          121.9
         ],
@@ -176638,7 +175364,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -176663,9 +175389,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.45,
+         -14.0,
          6.0,
-         121.9
+         129.7167
         ],
         "orientation": [
          [
@@ -176687,7 +175413,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -176712,105 +175438,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.55,
-         11.1,
-         121.9
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.55,
-         6.0,
-         129.7167
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.45,
+         -14.0,
          11.1,
          129.7167
         ],
@@ -176834,105 +175462,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.45,
-         6.0,
-         129.7167
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.55,
-         11.1,
-         129.7167
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -177349,7 +175879,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.55,
+         -14.0,
          6.0,
          153.1667
         ],
@@ -177373,7 +175903,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -177398,7 +175928,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.45,
+         -14.0,
          11.1,
          153.1667
         ],
@@ -177422,7 +175952,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -177447,9 +175977,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.45,
+         -14.0,
          6.0,
-         153.1667
+         160.9833
         ],
         "orientation": [
          [
@@ -177471,7 +176001,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -177496,105 +176026,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.55,
-         11.1,
-         153.1667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.55,
-         6.0,
-         160.9833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.45,
+         -14.0,
          11.1,
          160.9833
         ],
@@ -177618,105 +176050,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.45,
-         6.0,
-         160.9833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -15.55,
-         11.1,
-         160.9833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -185875,7 +184209,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.45,
+         14.0,
          6.0,
          49.0167
         ],
@@ -185899,7 +184233,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -185924,7 +184258,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.55,
+         14.0,
          11.1,
          49.0167
         ],
@@ -185948,105 +184282,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.55,
-         6.0,
-         49.0167
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.45,
-         11.1,
-         49.0167
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -186463,7 +184699,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.45,
+         14.0,
          6.0,
          72.4667
         ],
@@ -186487,7 +184723,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -186512,7 +184748,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.55,
+         14.0,
          11.1,
          72.4667
         ],
@@ -186536,7 +184772,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -186561,105 +184797,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.55,
-         6.0,
-         72.4667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.45,
-         11.1,
-         72.4667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.45,
+         14.0,
          6.0,
          80.2833
         ],
@@ -186683,7 +184821,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -186708,7 +184846,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.55,
+         14.0,
          11.1,
          80.2833
         ],
@@ -186732,7 +184870,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -186757,9 +184895,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.55,
+         14.0,
          6.0,
-         80.2833
+         88.1
         ],
         "orientation": [
          [
@@ -186781,7 +184919,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -186806,105 +184944,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.45,
-         11.1,
-         80.2833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.45,
-         6.0,
-         88.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.55,
+         14.0,
          11.1,
          88.1
         ],
@@ -186928,105 +184968,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.55,
-         6.0,
-         88.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.45,
-         11.1,
-         88.1
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -187443,7 +185385,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.45,
+         14.0,
          6.0,
          111.55
         ],
@@ -187467,7 +185409,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -187492,7 +185434,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.55,
+         14.0,
          11.1,
          111.55
         ],
@@ -187516,7 +185458,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -187541,105 +185483,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.55,
-         6.0,
-         111.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.45,
-         11.1,
-         111.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.45,
+         14.0,
          6.0,
          119.3667
         ],
@@ -187663,7 +185507,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -187688,7 +185532,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.55,
+         14.0,
          11.1,
          119.3667
         ],
@@ -187712,7 +185556,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -187737,9 +185581,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.55,
+         14.0,
          6.0,
-         119.3667
+         127.1833
         ],
         "orientation": [
          [
@@ -187761,7 +185605,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -187786,105 +185630,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.45,
-         11.1,
-         119.3667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.45,
-         6.0,
-         127.1833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.55,
+         14.0,
          11.1,
          127.1833
         ],
@@ -187908,105 +185654,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.55,
-         6.0,
-         127.1833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.45,
-         11.1,
-         127.1833
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -195136,7 +192784,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.45,
+         14.0,
          6.0,
          152.9333
         ],
@@ -195160,7 +192808,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -195185,7 +192833,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.55,
+         14.0,
          11.1,
          152.9333
         ],
@@ -195209,7 +192857,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -195234,9 +192882,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.55,
+         14.0,
          6.0,
-         152.9333
+         160.8667
         ],
         "orientation": [
          [
@@ -195258,7 +192906,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -195283,105 +192931,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.45,
-         11.1,
-         152.9333
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.45,
-         6.0,
-         160.8667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         15.55,
+         14.0,
          11.1,
          160.8667
         ],
@@ -195405,105 +192955,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.55,
-         6.0,
-         160.8667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.45,
-         11.1,
-         160.8667
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -198468,7 +195920,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.45,
+         40.0,
          6.0,
          48.8857
         ],
@@ -198492,7 +195944,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -198517,7 +195969,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.55,
+         40.0,
          11.1,
          48.8857
         ],
@@ -198541,7 +195993,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -198566,105 +196018,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.55,
-         6.0,
-         48.8857
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.45,
-         11.1,
-         48.8857
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.45,
+         40.0,
          6.0,
          56.5714
         ],
@@ -198688,7 +196042,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -198713,7 +196067,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.55,
+         40.0,
          11.1,
          56.5714
         ],
@@ -198737,7 +196091,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -198762,9 +196116,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.55,
+         40.0,
          6.0,
-         56.5714
+         64.2571
         ],
         "orientation": [
          [
@@ -198786,7 +196140,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -198811,105 +196165,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.45,
-         11.1,
-         56.5714
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.45,
-         6.0,
-         64.2571
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.55,
+         40.0,
          11.1,
          64.2571
         ],
@@ -198933,105 +196189,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.55,
-         6.0,
-         64.2571
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.45,
-         11.1,
-         64.2571
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -199448,7 +196606,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.45,
+         40.0,
          6.0,
          87.3143
         ],
@@ -199472,7 +196630,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -199497,7 +196655,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.55,
+         40.0,
          11.1,
          87.3143
         ],
@@ -199521,105 +196679,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.55,
-         6.0,
-         87.3143
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.45,
-         11.1,
-         87.3143
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -205230,7 +202290,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.45,
+         40.0,
          6.0,
          112.975
         ],
@@ -205254,7 +202314,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -205279,7 +202339,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.55,
+         40.0,
          11.1,
          112.975
         ],
@@ -205303,7 +202363,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -205328,9 +202388,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.55,
+         40.0,
          6.0,
-         112.975
+         120.95
         ],
         "orientation": [
          [
@@ -205352,7 +202412,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -205377,105 +202437,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.45,
-         11.1,
-         112.975
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.45,
-         6.0,
-         120.95
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.55,
+         40.0,
          11.1,
          120.95
         ],
@@ -205499,105 +202461,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.55,
-         6.0,
-         120.95
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.45,
-         11.1,
-         120.95
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -206014,7 +202878,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.45,
+         40.0,
          6.0,
          144.875
         ],
@@ -206038,7 +202902,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -206063,7 +202927,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.55,
+         40.0,
          11.1,
          144.875
         ],
@@ -206087,7 +202951,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -206112,105 +202976,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.55,
-         6.0,
-         144.875
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.45,
-         11.1,
-         144.875
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.45,
+         40.0,
          6.0,
          152.85
         ],
@@ -206234,7 +203000,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -206259,7 +203025,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         41.55,
+         40.0,
          11.1,
          152.85
         ],
@@ -206283,7 +203049,7 @@
        }
       },
       "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -206308,9 +203074,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.55,
+         40.0,
          6.0,
-         152.85
+         160.825
         ],
         "orientation": [
          [
@@ -206332,7 +203098,7 @@
        }
       },
       "Size": [
-       0.5,
+       3.4,
        9.6,
        1.3
       ],
@@ -206357,105 +203123,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         38.45,
-         11.1,
-         152.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.45,
-         6.0,
-         160.825
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         41.55,
+         40.0,
          11.1,
          160.825
         ],
@@ -206479,105 +203147,7 @@
        }
       },
       "Size": [
-       0.7,
-       0.6,
-       1.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.55,
-         6.0,
-         160.825
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.5,
-       9.6,
-       1.3
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         38.45,
-         11.1,
-         160.825
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.7,
+       3.8,
        0.6,
        1.7
       ],
@@ -213317,7 +209887,7 @@
         "position": [
          -13.65,
          6.0,
-         38.55
+         40.0
         ],
         "orientation": [
          [
@@ -213341,7 +209911,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -213366,7 +209936,7 @@
         "position": [
          -13.65,
          11.1,
-         38.45
+         40.0
         ],
         "orientation": [
          [
@@ -213390,105 +209960,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.65,
-         6.0,
-         41.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.65,
-         11.1,
-         41.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -213513,7 +209985,7 @@
         "position": [
          -22.3,
          6.0,
-         38.55
+         40.0
         ],
         "orientation": [
          [
@@ -213537,7 +210009,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -213562,7 +210034,7 @@
         "position": [
          -22.3,
          11.1,
-         38.45
+         40.0
         ],
         "orientation": [
          [
@@ -213586,105 +210058,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -22.3,
-         6.0,
-         41.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -22.3,
-         11.1,
-         41.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -213709,7 +210083,7 @@
         "position": [
          -30.95,
          6.0,
-         38.55
+         40.0
         ],
         "orientation": [
          [
@@ -213733,7 +210107,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -213758,7 +210132,7 @@
         "position": [
          -30.95,
          11.1,
-         38.45
+         40.0
         ],
         "orientation": [
          [
@@ -213782,105 +210156,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -30.95,
-         6.0,
-         41.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -30.95,
-         11.1,
-         41.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -218217,7 +214493,7 @@
         "position": [
          30.95,
          6.0,
-         38.55
+         40.0
         ],
         "orientation": [
          [
@@ -218241,7 +214517,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -218266,7 +214542,7 @@
         "position": [
          30.95,
          11.1,
-         38.45
+         40.0
         ],
         "orientation": [
          [
@@ -218290,105 +214566,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         30.95,
-         6.0,
-         41.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         30.95,
-         11.1,
-         41.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -218413,7 +214591,7 @@
         "position": [
          22.3,
          6.0,
-         38.55
+         40.0
         ],
         "orientation": [
          [
@@ -218437,7 +214615,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -218462,7 +214640,7 @@
         "position": [
          22.3,
          11.1,
-         38.45
+         40.0
         ],
         "orientation": [
          [
@@ -218486,105 +214664,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         22.3,
-         6.0,
-         41.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         22.3,
-         11.1,
-         41.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -218609,7 +214689,7 @@
         "position": [
          13.65,
          6.0,
-         38.55
+         40.0
         ],
         "orientation": [
          [
@@ -218633,7 +214713,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -218658,7 +214738,7 @@
         "position": [
          13.65,
          11.1,
-         38.45
+         40.0
         ],
         "orientation": [
          [
@@ -218682,105 +214762,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         13.65,
-         6.0,
-         41.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         13.65,
-         11.1,
-         41.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -223901,7 +219883,7 @@
         "position": [
          -40.625,
          6.0,
-         168.55
+         170.0
         ],
         "orientation": [
          [
@@ -223925,7 +219907,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -223950,7 +219932,7 @@
         "position": [
          -40.625,
          11.1,
-         168.45
+         170.0
         ],
         "orientation": [
          [
@@ -223974,105 +219956,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -40.625,
-         6.0,
-         171.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -40.625,
-         11.1,
-         171.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -224097,7 +219981,7 @@
         "position": [
          -49.25,
          6.0,
-         168.55
+         170.0
         ],
         "orientation": [
          [
@@ -224121,7 +220005,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -224146,7 +220030,7 @@
         "position": [
          -49.25,
          11.1,
-         168.45
+         170.0
         ],
         "orientation": [
          [
@@ -224170,105 +220054,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.25,
-         6.0,
-         171.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.25,
-         11.1,
-         171.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -227233,7 +223019,7 @@
         "position": [
          -13.5,
          6.0,
-         168.55
+         170.0
         ],
         "orientation": [
          [
@@ -227257,7 +223043,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -227282,7 +223068,7 @@
         "position": [
          -13.5,
          11.1,
-         168.45
+         170.0
         ],
         "orientation": [
          [
@@ -227306,105 +223092,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.5,
-         6.0,
-         171.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.5,
-         11.1,
-         171.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -229438,7 +225126,7 @@
         "position": [
          13.5,
          6.0,
-         168.55
+         170.0
         ],
         "orientation": [
          [
@@ -229462,7 +225150,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -229487,7 +225175,7 @@
         "position": [
          13.5,
          11.1,
-         168.45
+         170.0
         ],
         "orientation": [
          [
@@ -229511,105 +225199,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         13.5,
-         6.0,
-         171.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         13.5,
-         11.1,
-         171.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -231937,7 +227527,7 @@
         "position": [
          57.875,
          6.0,
-         168.55
+         170.0
         ],
         "orientation": [
          [
@@ -231961,7 +227551,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -231986,7 +227576,7 @@
         "position": [
          57.875,
          11.1,
-         168.45
+         170.0
         ],
         "orientation": [
          [
@@ -232010,105 +227600,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         57.875,
-         6.0,
-         171.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         57.875,
-         11.1,
-         171.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,
@@ -235416,7 +230908,7 @@
         "position": [
          -4.4,
          6.0,
-         103.55
+         105.0
         ],
         "orientation": [
          [
@@ -235440,7 +230932,7 @@
       "Size": [
        1.3,
        9.6,
-       0.5
+       3.4
       ],
       "Color": [
        0.8431,
@@ -235465,7 +230957,7 @@
         "position": [
          -4.4,
          11.1,
-         103.45
+         105.0
         ],
         "orientation": [
          [
@@ -235489,105 +230981,7 @@
       "Size": [
        1.7,
        0.6,
-       0.7
-      ],
-      "Color": [
-       0.6471,
-       0.6471,
-       0.6667
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.4,
-         6.0,
-         106.45
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.3,
-       9.6,
-       0.5
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Ruins_Set_087_GlyphHalls",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.4,
-         11.1,
-         106.55
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.7,
-       0.6,
-       0.7
+       3.8
       ],
       "Color": [
        0.6471,

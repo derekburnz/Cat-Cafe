@@ -251,6 +251,7 @@ UI.events = {
 	buyCornerShop = Signal.new(),
 	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
 	mysterySeen = Signal.new(), -- #2574: Juniper's window opened, forwarded as MarkMysterySeen
+	setBagColours = Signal.new(), -- #3699: (main, trim) from the Backpack's colour picker, forwarded as SetBagColours
 	buyCornerShopAll = Signal.new(), -- (kind, window)   #2593: Buy all on a Day Cart section: forward as BuyCornerShopAll
 	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
 	feedCat = Signal.new(),
@@ -6656,6 +6657,20 @@ do
 			far = function(): boolean
 				local distance = cartDistance()
 				return distance ~= nil and distance > FAR_STUDS
+			end,
+			-- #3699: the Backpack's colour picker, behind the switch bagColours
+			colours = function(): boolean
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local key = "bagColours"
+				return LiveFlags.shown(
+					key,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+				)
+			end,
+			saveColours = function(main: string, trim: string)
+				UI.events.setBagColours:Fire(main, trim)
 			end,
 		})
 		mystery.view = view

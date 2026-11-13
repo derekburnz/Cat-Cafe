@@ -1,6 +1,6 @@
 --!strict
 -- #3699 (shared/BagColours; Design-Agent's picks on the issue): the Backpack's colour picker, a page inside Juniper's
--- window. Left: a drawn bag that changes as the player taps, with Save and Reset under it. Right: two blocks of
+-- window. Top row: Reset, Save and Back. Left: a drawn bag that changes as the player taps. Right: two blocks of
 -- twelve swatches, "Bag" and "Trim", six to a row. Nothing is sent until Save; Reset picks the built colours again
 -- (and is saved by Save like any pick). Back returns to the shelf without saving.
 --   BagColourPicker.new(parent, callbacks) -> picker
@@ -39,9 +39,11 @@ BagColourPicker.__index = BagColourPicker
 
 BagColourPicker.SWATCH = 44 -- a thumb's width
 BagColourPicker.COLUMNS = 6
+BagColourPicker.TOUCH_COLUMNS = 4
 local GAP = 6
 local LEFT_W = 112
 local PREVIEW = 104
+local HEAD_W = 80 -- Reset, Save and Back in the top row
 local PENDING_SECONDS = 5
 
 local function label(props: { [string]: any }): TextLabel
@@ -59,7 +61,13 @@ local function label(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
-local function block(parent: Instance, name: string, position: UDim2, size: UDim2, radius: number): Frame
+local function block(
+	parent: Instance,
+	name: string,
+	position: UDim2,
+	size: UDim2,
+	radius: number
+): Frame
 	return Create("Frame", {
 		Name = name,
 		BorderSizePixel = 0,
@@ -102,17 +110,18 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 	label({
 		Name = "Title",
 		Position = UDim2.fromOffset(8, 2),
-		Size = UDim2.new(1, -110, 0, 24),
+		Size = UDim2.new(1, -(3 * (HEAD_W + 6) + 16), 0, 24),
 		TextSize = Theme.sizes.textLarge,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = BagColours.WORDS.title,
 		Parent = frame,
 	})
-	local tap = Scale.tapHeight(34, Theme.sizes.buttonDepth)
+	local tap = Scale.tapHeight(36 + Theme.sizes.buttonDepth, Theme.sizes.buttonDepth)
 	self._back = Button.new({
 		name = "Back",
 		text = "Back",
 		style = "ghost",
-		size = UDim2.fromOffset(84, tap),
+		size = UDim2.fromOffset(HEAD_W, tap),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, -8, 0, 0),
 		textSize = Theme.sizes.textSmall,
@@ -133,11 +142,31 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
 	self._parts = {
-		{ block(preview, "Handle", UDim2.fromOffset(34, 8), UDim2.fromOffset(36, 18), 9), "trim", 1 },
-		{ block(preview, "Body", UDim2.fromOffset(16, 20), UDim2.fromOffset(72, 74), 14), "main", 1 },
-		{ block(preview, "Flap", UDim2.fromOffset(16, 20), UDim2.fromOffset(72, 30), 14), "main", 2 },
-		{ block(preview, "Pocket", UDim2.fromOffset(28, 58), UDim2.fromOffset(48, 28), 8), "trim", 3 },
-		{ block(preview, "PocketTop", UDim2.fromOffset(28, 58), UDim2.fromOffset(48, 9), 4), "trim", 1 },
+		{
+			block(preview, "Handle", UDim2.fromOffset(34, 8), UDim2.fromOffset(36, 18), 9),
+			"trim",
+			1,
+		},
+		{
+			block(preview, "Body", UDim2.fromOffset(16, 20), UDim2.fromOffset(72, 74), 14),
+			"main",
+			1,
+		},
+		{
+			block(preview, "Flap", UDim2.fromOffset(16, 20), UDim2.fromOffset(72, 30), 14),
+			"main",
+			2,
+		},
+		{
+			block(preview, "Pocket", UDim2.fromOffset(28, 58), UDim2.fromOffset(48, 28), 8),
+			"trim",
+			3,
+		},
+		{
+			block(preview, "PocketTop", UDim2.fromOffset(28, 58), UDim2.fromOffset(48, 9), 4),
+			"trim",
+			1,
+		},
 	} :: { { any } }
 	local clasp = block(preview, "Clasp", UDim2.fromOffset(46, 44), UDim2.fromOffset(12, 10), 3)
 	clasp.BackgroundColor3 = Color3.fromHex("F2C14E")
@@ -149,8 +178,10 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 		name = "Save",
 		text = BagColours.WORDS.save,
 		style = "primary",
-		size = UDim2.fromOffset(PREVIEW, tap),
-		position = UDim2.fromOffset(8, top + PREVIEW + 8),
+		-- Save and Reset sit in the top row beside Back: under the bag they ran off a phone's short window
+		size = UDim2.fromOffset(HEAD_W, tap),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -(8 + HEAD_W + 6), 0, 0),
 		textSize = Theme.sizes.textBody,
 		parent = frame,
 		onClick = function()
@@ -161,8 +192,9 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 		name = "Reset",
 		text = BagColours.WORDS.reset,
 		style = "ghost",
-		size = UDim2.fromOffset(PREVIEW, tap),
-		position = UDim2.fromOffset(8, top + PREVIEW + 8 + tap + 6),
+		size = UDim2.fromOffset(HEAD_W, tap),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -(8 + 2 * (HEAD_W + 6)), 0, 0),
 		textSize = Theme.sizes.textSmall,
 		parent = frame,
 		onClick = function()
@@ -189,11 +221,14 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 			"UIListLayout",
 			{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }
 		),
-		Outline.listPadding(3, 3),
+		Outline.listPadding(8, 8),
 	})
 	self._names = {} :: { [string]: TextLabel }
-	local swatch = BagColourPicker.SWATCH
-	local columns = BagColourPicker.COLUMNS
+	-- a finger needs 44 px on screen, so on touch a swatch is drawn larger and the rows are four wide
+	local swatch = Scale.tapHeight(BagColourPicker.SWATCH)
+	local columns = if Scale.isTouch()
+		then BagColourPicker.TOUCH_COLUMNS
+		else BagColourPicker.COLUMNS
 	local rows = math.ceil(#BagColours.LIST / columns)
 	for order, slot in { "main", "trim" } do
 		self._names[slot] = label({

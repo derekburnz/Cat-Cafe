@@ -392,7 +392,7 @@ local Config = {
 	-- #3572 (Derek 2026-11-12: "make the prizes of anything not being bought yet half'd", "put a sale badge on it"): the
 	-- Store's Sale badge, by Store card key. `was` is the real Robux price the item had on 2026-11-12 and `now` the
 	-- half price Derek OK'd. Roblox only tells the game today's price, so the card shows the badge and the struck old
-	-- price only while Roblox's price is exactly `now` (a player whose regional price differs sees the plain price),
+	-- price while Roblox's price is under `was` (#3594 follow up, 2026-11-13: unsold items go a little below half),
 	-- and only before StoreSaleEnds (os.time: 2026-12-13 00:00 UTC, 30 days on; never shown to players, no countdown).
 	-- After that the half price is simply the price. Every key is a Store card (StoreLogic.spec checks); the Golden
 	-- Pond pass (99 to 49) is sold at the camp pond, not on a Store card, so it is not here.
@@ -404,10 +404,6 @@ local Config = {
 		kingCat = { was = 799, now = 399 },
 		grandTheme = { was = 799, now = 399 },
 		kingPack = { was = 999, now = 499 },
-		potionXS = { was = 10, now = 5 },
-		potionS = { was = 25, now = 13 },
-		potionM = { was = 49, now = 25 },
-		potionL = { was = 99, now = 49 },
 		steadyPaw = { was = 25, now = 13 },
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },

@@ -237,17 +237,9 @@ end
 -- Each reads its id from Config.ProductIds[productKey] (0 while not made: hidden) and its exact contents from
 -- Catalog.products, and the card says how many of those potions the player already has, so nobody buys blind.
 export type ProductCard = { key: string, productKey: string, effect: string }
+-- Derek 2026-11-13 ("can honestly remove potion packs as they kind of suck"): the four potion packs (XS, S, M, L)
+-- are no longer sold here; their products and ProcessReceipt handling stay, so a late receipt still pays.
 local PRODUCTS: { ProductCard } = {
-	{
-		key = "potionXS",
-		productKey = "potion_pack_xs",
-		effect = "More money while they last.", -- #1715: one short line
-	},
-	-- #1715: the mixes need no line of their own (the name says the size, the rows say what is in it), so a phone card
-	-- keeps its text readable; "with 2 bonus" said nothing
-	{ key = "potionS", productKey = "potion_pack_s", effect = "" },
-	{ key = "potionM", productKey = "potion_pack_m", effect = "" },
-	{ key = "potionL", productKey = "potion_pack_l", effect = "" },
 	-- #1168 row 8: 10 Steady Paw potions, bought each time like the packs above; its rows say what is in it
 	{ key = "steadyPaw", productKey = "steady_paw_pack", effect = "" },
 }
@@ -652,8 +644,9 @@ function StoreLogic.badge(
 end
 
 -- #3572: the Sale badge. The old price to strike through on this card, or nil for no badge: only a card in
--- Config.StoreWasPrice that is not owned, on sale at exactly its half price, before Config.StoreSaleEnds. It has to
--- be true, so any other live price (a regional one, a later change) shows no badge. No countdown, no end date shown.
+-- Config.StoreWasPrice that is not owned, on sale below its original price (`was`), before Config.StoreSaleEnds.
+-- #3594 follow up (Derek 2026-11-13): any price under the original, not only exactly half, since unsold items go a
+-- little lower. A price at or over the original (a money pass that went up) shows no badge. No countdown.
 StoreLogic.SALE = "SALE"
 function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): number?
 	local entry = if type(config.StoreWasPrice) == "table"
@@ -668,9 +661,9 @@ function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): 
 		or row.closed == true
 		or price == nil
 		or not price.forSale
-		or price.robux ~= entry.now
+		or type(price.robux) ~= "number"
 		or type(entry.was) ~= "number"
-		or entry.was <= entry.now
+		or price.robux >= entry.was
 	then
 		return nil
 	end

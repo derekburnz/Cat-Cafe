@@ -5232,6 +5232,9 @@ do
 			or tipBusy
 		)
 		local window: string? = if modal ~= nil then modal:current() else nil
+		-- (any: UI.gift and UI.recap are filled further down this file, and the CI type check loses the whole UI
+		-- table's shape when they are read here by their own types)
+		local cards: any = UI
 		if
 			window == nil
 			and (
@@ -5239,9 +5242,9 @@ do
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing())
 				-- the gift, tip and recap cards too: a press on their Close is not a press on the dim
-				or (UI.gift.card ~= nil and UI.gift.card:isShowing())
+				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
 				or (tipCard ~= nil and tipCard:isShowing())
-				or (UI.recap.card ~= nil and UI.recap.card:isShowing())
+				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
 			)
 		then
 			window = "other"

@@ -120,6 +120,9 @@ local function open(
 	end
 	setCount(profile.crateLuck, crate.area, Crates.luckAfter(luck, rarity))
 	profile.stats.cratesOpened += 1
+	if crate.golden then
+		profile.stats.goldenCratesOpened += 1 -- #3694 section 3
+	end
 
 	local duplicate = profile.decorOwned[decorId] == true
 	local refund = 0

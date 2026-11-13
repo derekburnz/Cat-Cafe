@@ -673,6 +673,14 @@ export type Stats = {
 	purrfectStreak: number,
 	bestPurrfectStreak: number,
 	teamRescuesHelped: number,
+	-- #3694 section 3 (no new version): counters for the newer features' achievements: Rummage Bin wins, Yard Sale
+	-- lucky picks, Mystic Pool rolls, Mouse Dash games played, golden crates opened and seconds rested in the cafe
+	binWins: number,
+	yardPicks: number,
+	traitRolls: number,
+	dashRuns: number,
+	goldenCratesOpened: number,
+	restSeconds: number,
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -819,6 +827,7 @@ export type AchievementDef = {
 	measure: string,
 	needs: number,
 	size: AchievementSize,
+	flag: string?, -- #3694 section 3: a LiveFlags key; while that switch is off the achievement is hidden
 }
 -- ProfileSync's quests: each slot's text, progress and claim, the reset times (os.time()) and what is spent.
 export type QuestView = {

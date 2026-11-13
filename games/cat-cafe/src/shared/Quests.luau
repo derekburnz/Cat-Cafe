@@ -8,9 +8,26 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
+local LiveFlags = require(script.Parent.LiveFlags)
 local Types = require(script.Parent.Types)
 
 local Quests = {}
+
+-- #3694 section 3: whether a live switch is on. Until QuestService hands over LiveFlagService.on, each switch reads
+-- as its default (LiveFlags.OFF_BY_DEFAULT), so a gated achievement stays hidden on a server that never set one.
+local flagOn: (string) -> boolean = function(key: string): boolean
+	return LiveFlags.OFF_BY_DEFAULT[key] ~= true
+end
+
+function Quests.setFlagReader(reader: (string) -> boolean)
+	flagOn = reader
+end
+
+-- Whether the achievement is on the page: one with no `flag`, or one whose feature switch is on. A hidden one is not
+-- sent, not counted in "x of y" and cannot be claimed.
+function Quests.achievementShown(def: Types.AchievementDef): boolean
+	return def.flag == nil or flagOn(def.flag :: string)
+end
 
 -- Each slot's pool, in slot order: two Streets quests (never the same counter twice), a Cafe one, an Extra one and
 -- the Big Request; one from each weekly pool.
@@ -321,7 +338,7 @@ function Quests.allClaimed(list: { Types.QuestEntry }, slots: number): boolean
 end
 
 -- An achievement's measure now (quests.md section 6): a Stats key, "lifetimeCoins", "tier", "distinctCats",
--- "goldCats", "mythicalCats", "decorOwned", "topCatLevel" or "upgrade:<id>".
+-- "goldCats", "mythicalCats", "secretCats", "decorOwned", "topCatLevel" or "upgrade:<id>".
 function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 	if string.sub(measure, 1, 8) == "upgrade:" then
 		return Economy.level(profile, string.sub(measure, 9))
@@ -339,6 +356,15 @@ function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 				and (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Mythical
 				and def.exclusive ~= true
 			then
+				n += 1
+			end
+		end
+		return n
+	elseif measure == "secretCats" then
+		-- #3694 section 3: the Secret kinds found (Catalog.secretCats)
+		local n = 0
+		for _, def in Catalog.secretCats do
+			if (profile.collection[def.id] or 0) > 0 then
 				n += 1
 			end
 		end
@@ -374,6 +400,8 @@ function Quests.achievementBlocker(profile: Types.PlayerProfile, achievementId: 
 	local def = Catalog.getAchievement(achievementId)
 	if def == nil then
 		return "Unknown"
+	elseif not Quests.achievementShown(def) then
+		return "Not open yet"
 	elseif profile.achievements[achievementId] == true then
 		return "Already claimed"
 	elseif Quests.achievementProgress(profile, def) < def.needs then
@@ -420,6 +448,9 @@ end
 function Quests.achievementsView(profile: Types.PlayerProfile): { [string]: Types.AchievementView }
 	local out: { [string]: Types.AchievementView } = {}
 	for _, def in Catalog.achievements do
+		if not Quests.achievementShown(def) then
+			continue -- #3694 section 3: the client shows a gated achievement only once it is sent
+		end
 		out[def.id] = {
 			progress = Quests.achievementProgress(profile, def),
 			claimed = profile.achievements[def.id] == true,

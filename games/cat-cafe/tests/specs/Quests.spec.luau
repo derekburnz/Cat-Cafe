@@ -148,9 +148,9 @@ return function()
 		)
 
 		it(
-			"has 59 achievements (#3694: 44 and 15 steps), each measuring something real, with a prize for its size",
+			"has 69 achievements (#3694: 44, 15 steps and 10 for newer features), each measuring something real",
 			function()
-				expect(#Catalog.achievements).to.equal(59)
+				expect(#Catalog.achievements).to.equal(69)
 				local stats = ProfileSchema.template(0).stats :: any
 				local special = {
 					lifetimeCoins = true,
@@ -158,6 +158,7 @@ return function()
 					distinctCats = true,
 					goldCats = true,
 					mythicalCats = true,
+					secretCats = true,
 					decorOwned = true,
 					topCatLevel = true,
 				}
@@ -304,6 +305,109 @@ return function()
 				end
 				expect(pictures <= (if def.size == "XL" then 3 else 2)).to.equal(true)
 			end
+		end)
+	end)
+
+	describe("achievements behind a switch (#3694 section 3)", function()
+		local LiveFlags = require(Shared.LiveFlags)
+		local ClaimAll = require(Shared.ClaimAll)
+		local function reader(on: boolean): (string) -> boolean
+			return function(): boolean
+				return on
+			end
+		end
+		local function default(key: string): boolean
+			return LiveFlags.OFF_BY_DEFAULT[key] ~= true
+		end
+
+		it("names only real switches", function()
+			local keys: { [string]: boolean } = {}
+			for _, key in LiveFlags.KEYS do
+				keys[key] = true
+			end
+			for _, def in Catalog.achievements do
+				if def.flag ~= nil then
+					expect(keys[def.flag :: string]).to.equal(true)
+				end
+			end
+		end)
+
+		it("hides one whose switch is off: not sent, not claimable, not in Claim all", function()
+			local p = fresh()
+			p.stats.traitRolls = 50
+			Quests.setFlagReader(reader(false))
+			local ok, problem = pcall(function()
+				local def = Catalog.getAchievement("a_traits10") :: any
+				expect(Quests.achievementShown(def)).to.equal(false)
+				expect(Quests.achievementsView(p).a_traits10).to.equal(nil)
+				expect(Quests.achievementBlocker(p, "a_traits10")).to.equal("Not open yet")
+				expect(table.find(ClaimAll.achievements(p), "a_traits10")).to.equal(nil)
+				-- one with no switch is not touched
+				expect(Quests.achievementsView(p).a_first_catch ~= nil).to.equal(true)
+				local n = 0
+				for _ in Quests.achievementsView(p) do
+					n += 1
+				end
+				expect(n).to.equal(60) -- the 59 and golden crates
+			end)
+			Quests.setFlagReader(default)
+			if not ok then
+				error(problem)
+			end
+		end)
+
+		it("shows and pays one whose switch is on", function()
+			local p = fresh()
+			p.stats.traitRolls = 12
+			Quests.setFlagReader(reader(true))
+			local ok, problem = pcall(function()
+				local view = Quests.achievementsView(p)
+				local n = 0
+				for _ in view do
+					n += 1
+				end
+				expect(n).to.equal(69)
+				expect(view.a_traits10.progress).to.equal(10)
+				expect(view.a_traits50.progress).to.equal(12)
+				expect(Quests.achievementBlocker(p, "a_traits10")).to.equal(nil)
+				expect(Quests.achievementBlocker(p, "a_traits50")).to.equal("Not there yet")
+				expect(table.find(ClaimAll.achievements(p), "a_traits10") ~= nil).to.equal(true)
+			end)
+			Quests.setFlagReader(default)
+			if not ok then
+				error(problem)
+			end
+		end)
+
+		it("counts the new measures from the save", function()
+			local p = fresh()
+			p.stats.binWins = 3
+			p.stats.yardPicks = 4
+			p.stats.dashRuns = 5
+			p.stats.goldenCratesOpened = 6
+			p.stats.restSeconds = 700
+			expect(Quests.measure(p, "binWins")).to.equal(3)
+			expect(Quests.measure(p, "yardPicks")).to.equal(4)
+			expect(Quests.measure(p, "dashRuns")).to.equal(5)
+			expect(Quests.measure(p, "goldenCratesOpened")).to.equal(6)
+			expect(Quests.measure(p, "restSeconds")).to.equal(700)
+			expect(Quests.measure(p, "secretCats")).to.equal(0)
+			local secrets = Catalog.secretCats
+			p.collection[secrets[1].id] = 1
+			p.collection[secrets[2].id] = 2
+			expect(Quests.measure(p, "secretCats")).to.equal(2)
+			-- a Secret also counts as a Mythical or better, as before
+			expect(Quests.measure(p, "mythicalCats") >= 2).to.equal(true)
+			expect((Catalog.getAchievement("a_secret3") :: any).needs).to.equal(#secrets)
+		end)
+
+		it("keeps the new counters through a save and load", function()
+			local p = fresh()
+			p.stats.binWins = 7
+			p.stats.restSeconds = 1234
+			local loaded = ProfileSchema.migrate(p, 1000) :: any
+			expect(loaded.stats.binWins).to.equal(7)
+			expect(loaded.stats.restSeconds).to.equal(1234)
 		end)
 	end)
 
@@ -625,7 +729,9 @@ return function()
 				expect(row.claimed).to.equal(id == first.id)
 				expect(row.progress <= (Catalog.getAchievement(id) :: any).needs).to.equal(true)
 			end
-			expect(n).to.equal(59)
+			-- every switch at its default: the Rummage Bin's two (alleyBin is on by default) and the golden crates
+			-- one join the 59; the five whose switch starts off stay out
+			expect(n).to.equal(62)
 		end)
 	end)
 

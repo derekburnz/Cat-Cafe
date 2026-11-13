@@ -148,6 +148,19 @@ return function()
 			expect(rows[1].progress).to.equal(0)
 			expect(rows[1].ready).to.equal(false)
 		end)
+
+		it("leaves out one behind a switch until the server sends it (#3694 section 3)", function()
+			local gated: any = table.clone(catalog :: any)
+			gated.achievements = table.clone(gated.achievements)
+			table.insert(
+				gated.achievements,
+				{ id = "a_traits10", name = "Pool Regular", needs = 10, size = "M", flag = "traits" }
+			)
+			expect(#QuestLogic.achievementRows(gated, nil)).to.equal(4)
+			expect(#QuestLogic.achievementRows(gated, { a_rare1 = { progress = 1, claimed = false } })).to.equal(4)
+			local rows = QuestLogic.achievementRows(gated, { a_traits10 = { progress = 3, claimed = false } })
+			expect(#rows).to.equal(5)
+		end)
 	end)
 
 	describe("QuestLogic.claimAllCount", function()
@@ -171,6 +184,12 @@ return function()
 			local first: any = { id = "a_hours1", measure = "playtimeSeconds", needs = 3600, size = "S" }
 			expect(QuestLogic.hoursText(first, 3599)).to.equal("0/1 hour")
 			expect(QuestLogic.hoursText(first, 3600)).to.equal("1/1 hour")
+		end)
+
+		it("counts resting time in hours too", function()
+			local napper: any = { id = "a_rest1h", measure = "restSeconds", needs = 3600, size = "M" }
+			expect(QuestLogic.hoursText(napper, 1800)).to.equal("0/1 hour")
+			expect(QuestLogic.hoursText(napper, 3700)).to.equal("1/1 hour")
 		end)
 
 		it("leaves every other count alone", function()
@@ -214,7 +233,7 @@ return function()
 			end
 			table.sort(catches)
 			expect(table.concat(catches, ",")).to.equal("1,25,100,250,500,1000,2500")
-			expect(#Catalog.achievements).to.equal(59)
+			expect(#Catalog.achievements).to.equal(69) -- #3694 section 3: ten for the newer features
 		end)
 	end)
 	end)

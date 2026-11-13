@@ -93,6 +93,7 @@ export type AchievementDef = {
 	measure: string?,
 	needs: number,
 	size: string, -- "S", "M", "L" or "XL", the Catalog.achievementPrizes key
+	flag: string?, -- #3694 section 3: a feature switch; the row shows only once the server sends its view
 }
 export type QuestView = {
 	id: string,

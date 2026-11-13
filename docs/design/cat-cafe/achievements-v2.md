@@ -1,6 +1,6 @@
 # Achievements: easier targets, more steps, a prize of its own kind per line (#3694)
 
-Status 2026-11-13: sections 1, 2 and 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, prize notes in 4a); section 3 and the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
+Status 2026-11-13: sections 1 to 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, the new ones in 3a, prize notes in 4a), except `a_pet25`, which waits for the pet a cat server build; the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
 
 ## Rules for the change
 
@@ -70,6 +70,23 @@ Cat Spotter (`a_catch25`), Cat Herder (`a_catch250`), Cat Tamer (`a_catch1000`),
 | `a_goldcrate5` | Open 5 golden crates | L | new |
 
 An achievement whose feature switch is off is hidden until the switch is on, and does not count in "x of y claimed" until then. With everything on the page holds 70 (44 now, 15 steps, 11 new).
+
+### 3a. As built
+
+| Id | Name | Counter (save `stats`, or measure) | Switch |
+|---|---|---|---|
+| `a_bin10`, `a_bin50` | Bin Diver, Treasure Hunter | `binWins` | `alleyBin` |
+| `a_yard10` | Lucky Picker | `yardPicks` | `yardSaleRoll` |
+| `a_traits10`, `a_traits50` | Pool Regular, Pool Wizard | `traitRolls` (every roll, a first or a re-roll) | `traits` |
+| `a_dash10` | Mouse Chaser | `dashRuns` (every game played to its end or quit) | `mouseDash` |
+| `a_secret1`, `a_secret3` | Secret Spotter, Secret Keeper | `secretCats` (Secret kinds in the collection) | `secretCats` |
+| `a_rest1h` | Cozy Napper | `restSeconds` (added when a rest ends or the player leaves), shown in hours | `afkCafe` |
+| `a_goldcrate5` | Golden Opener | `goldenCratesOpened` | none |
+
+- The six counters are new `stats` fields with no save version bump, as #1934 did: an older server drops them, which only loses those counts. They start at 0 on the day they ship, except Secret cats, which reads the collection.
+- `flag` on the achievement names the live switch. While it is off the server leaves the achievement out of the view, refuses its claim ("Not open yet") and Claim all skips it; the window shows a row with a `flag` only once its view arrives, and "x of y claimed" counts the rows shown. With every switch on the page holds 69.
+- `a_pet25` is left out until the pet a cat server part (#3651, switch `petCats`) is built; it then needs a `pets` counter and the same `flag`.
+- Prizes (section 4's table): Rummage Bin and Yard Sale pay an Alley Crate (M) and a Golden Alley Crate (L); Mouse Dash 2 spins; Secret cats the finding line; resting the play time line; golden crates by size. The Mystic Pool's 1 and 3 Trait Tokens are paid as the golden fish they cost (10 and 30, `Traits.COST_FISH` a roll), since a prize cannot carry tokens yet.
 
 ## 4. Rewards: each line pays its own kind of thing
 

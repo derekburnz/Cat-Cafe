@@ -852,6 +852,14 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 	local big: PrizeChips.Look = table.clone(look)
 	big.maxPictures = 3
 	local ready = 0
+	-- #3694 section 3: a card whose achievement is not in the rows (its feature switch is off) stays hidden
+	local listed: { [string]: boolean } = {}
+	for _, row in rows do
+		listed[row.def.id] = true
+	end
+	for id, entry in self._cards do
+		entry.frame.Visible = listed[id] == true
+	end
 	for order, row in rows do
 		local entry: Card? = self._cards[row.def.id]
 		if entry == nil then

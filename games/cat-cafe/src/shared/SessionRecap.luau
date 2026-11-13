@@ -5,9 +5,11 @@
 -- SessionRecapService keeps the join's numbers and asks here.
 --   start(profile, now) -> Start            the numbers at the join
 --   due(start, now, enabled) -> boolean     whether the recap goes out now: not sent yet, long enough, setting on
---   view(start, profile, now) -> SessionRecapView   whole minutes, new Index cats and coins earned since the join,
---                                                     and the "Tomorrow" line (shared/ReturnHook, #2123); #2916 the
---                                                     next goals (shared/ReturnGoals)
+--   view(start, profile, now, gift?) -> SessionRecapView   whole minutes, new Index cats and coins earned since the
+--                                                     join,
+--                                                     and the "Tomorrow" line (shared/ReturnHook, #2123; `gift`
+--                                                     true names the welcome back gift, #3772); #2916 the next
+--                                                     goals (shared/ReturnGoals)
 
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
@@ -46,13 +48,14 @@ end
 function SessionRecap.view(
 	start: Start,
 	profile: Types.PlayerProfile,
-	now: number
+	now: number,
+	gift: boolean?
 ): Types.SessionRecapView
 	return {
 		minutes = math.floor(math.max(0, now - start.at) / 60),
 		newCats = math.max(0, Economy.distinctCats(profile) - start.distinctCats),
 		earned = math.max(0, math.floor(profile.lifetimeCoins - start.lifetimeCoins)),
-		tomorrow = ReturnHook.pick(profile, now, "recap"),
+		tomorrow = ReturnHook.pick(profile, now, "recap", gift),
 		goals = ReturnGoals.pick(profile, now),
 	}
 end

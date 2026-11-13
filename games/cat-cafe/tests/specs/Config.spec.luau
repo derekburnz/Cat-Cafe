@@ -230,7 +230,7 @@ return function()
 		FirstBaitWaitSeconds = 5, -- #1895: the account's first bait; #3161: was 1 (#2946), 45 (#2774), 120 before
 		FirstBaitCatLeadSeconds = 4, -- #3161: the first bait's cat stands at the bowl this long before its timer ends
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
-		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
+		RecapFirstSessionSeconds = 480, -- #2123: sooner in the account's first session; #3772: 8 minutes
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
 		LikeGiftIncomeMinutes = 15, -- #1947 (Set 10 Q3): minutes of income in the like gift
 		FavGiftMinutes = 30, -- #1947: the favourite card's play time
@@ -643,6 +643,7 @@ return function()
 				SecretWanderSpeed = true, -- #3545: checked in SecretCats.spec
 				SecretWanderRadius = true, -- #3545: checked in SecretCats.spec
 				SecretWanderPauseScale = true, -- #3545: checked in SecretCats.spec
+				ReturnGiftFromDay = true, -- #3772: checked in ReturnGift.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

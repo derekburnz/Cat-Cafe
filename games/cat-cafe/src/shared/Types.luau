@@ -228,6 +228,9 @@ export type ProductDef = {
 		cats: { string }?,
 		signStyles: { string }?,
 		moneyMultiplier: number?,
+		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
+		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
+		traitTokens: number?,
 	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
@@ -600,6 +603,9 @@ export type TraitsView = {
 	held: number,
 	nextAt: number?,
 	pending: TraitPending?,
+	-- #3864: whether the Trait Token bundles may be offered to this player (the traitBundles switch on, and their
+	-- policy read and not restricting paid random items); nil or false hides the offer
+	bundles: boolean?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }

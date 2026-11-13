@@ -36,6 +36,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
 local LawnTab = require(script.Parent.LawnTab)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -46,7 +47,8 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
@@ -112,7 +114,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -218,6 +220,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Position = UDim2.fromOffset(4, chipHeight + Theme.sizes.gap),
 		Size = UDim2.new(1, -8, 0, TOTAL_HEIGHT),
 		FontFace = Theme.fonts.bodyBold,
+		TextColor3 = PAL.text,
 		Parent = panel.content,
 	})
 
@@ -246,12 +249,12 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	local footer: Frame = Create("Frame", {
 		Name = "FindMore",
 		LayoutOrder = 100000,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Parent = self._grid,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	text({
 		Name = "Glyph",
@@ -277,7 +280,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Position = UDim2.fromOffset(10, FOOTER_HEIGHT + 50),
 		Size = UDim2.new(1, -20, 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "Golden Fish Market",
 		Parent = footer,
@@ -518,13 +521,13 @@ function DecorShop._build(self: any)
 		local piece = DecorPieces.info(decor)
 		local card: Frame = Create("Frame", {
 			Name = decor.id,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			LayoutOrder = index,
 			Parent = self._grid,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 
 		-- art
@@ -670,7 +673,7 @@ function DecorShop._build(self: any)
 			Position = UDim2.fromOffset(10, 114 + ART_LIFT),
 			Size = UDim2.new(1, -20, 0, 18),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			-- #2006: never "+0%": a piece with no bonus yet says where it comes from instead
 			Text = if piece.kind and (decor.bonus or 0) > 0
 				then ("+%s money while in use"):format(Format.percent(decor.bonus or 0))

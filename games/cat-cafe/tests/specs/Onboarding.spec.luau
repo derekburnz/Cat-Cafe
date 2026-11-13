@@ -623,4 +623,176 @@ return function()
 			end
 		)
 	end)
+
+	-- #3695: the clean funnel onboarding_v7 and playtime_v1
+	describe("the clean funnel (#3695)", function()
+		it(
+			"is onboarding_v7: 27 steps from joined to the Ruins catch, with no rescue step",
+			function()
+				expect(Onboarding.CLEAN_FUNNEL).to.equal("onboarding_v7")
+				expect(Onboarding.CLEAN_COUNT).to.equal(27)
+				expect(Onboarding.CLEAN_STEPS[1]).to.equal("joined")
+				expect(Onboarding.CLEAN_STEPS[11]).to.equal("second_cat")
+				expect(Onboarding.CLEAN_STEPS[Onboarding.CLEAN_TUTORIAL]).to.equal(
+					"first_bait_resolved"
+				)
+				expect(Onboarding.CLEAN_STEPS[27]).to.equal("ruins_catch")
+				local seen: { [string]: boolean } = {}
+				for _, name in Onboarding.CLEAN_STEPS do
+					expect(seen[name]).to.equal(nil)
+					seen[name] = true
+					expect(string.find(name, "rescue", 1, true)).to.equal(nil)
+					expect(string.find(name, "_shown", 1, true)).to.equal(nil)
+				end
+				expect(seen.returned_next_day).to.equal(nil)
+			end
+		)
+
+		it(
+			"logs each step once the ledger shows it, in order, and stops at the first not done",
+			function()
+				local state = fresh()
+				local facts = { tier = 1, areas = {} }
+				expect(#Onboarding.cleanDue(state, 0, facts)).to.equal(0)
+				play(state, { "joined" })
+				expect(Onboarding.cleanDue(state, 0, facts) :: any).to.deepEqual({ 1 })
+				-- a walking character proves loaded; the client steps between them never hold the clean funnel
+				play(state, { "first_move" })
+				expect(Onboarding.cleanDue(state, 1, facts) :: any).to.deepEqual({ 2, 3 })
+				play(state, { "first_catch" })
+				expect(Onboarding.cleanDue(state, 3, facts) :: any).to.deepEqual({ 4, 5, 6, 7, 8 })
+			end
+		)
+
+		it(
+			"never waits on the optional rescue: bait resolved logs with the rescue steps unreached",
+			function()
+				local state = fresh()
+				local facts = { tier = 1, areas = {} }
+				play(state, {
+					"joined",
+					"first_role_assigned",
+					"second_cat",
+					"first_table",
+					"first_bait",
+					"first_bait_resolved",
+				})
+				-- the ledger holds first_bait_resolved behind the rescue steps
+				expect(Onboarding.furthest(state) == "first_bait_resolved").to.equal(false)
+				local due = Onboarding.cleanDue(state, 0, facts)
+				expect(due[#due]).to.equal(15)
+			end
+		)
+
+		it(
+			"reads the tiers and the area catches off the facts, each tier before its area",
+			function()
+				local state = fresh()
+				play(state, {
+					"joined",
+					"first_role_assigned",
+					"second_cat",
+					"first_table",
+					"first_bait",
+					"first_bait_resolved",
+				})
+				-- a Park cat with the cafe still at Tier 1 (a gift) does not pass tier_2
+				expect(#Onboarding.cleanDue(state, 15, { tier = 1, areas = { park = true } })).to.equal(
+					0
+				)
+				expect(Onboarding.cleanDue(state, 15, { tier = 2, areas = {} }) :: any).to.deepEqual({
+					16,
+				})
+				expect(Onboarding.cleanDue(state, 15, { tier = 3, areas = { park = true } }) :: any).to.deepEqual({
+					16,
+					17,
+					18,
+				})
+				local all = { tier = 7, areas = {} :: { [string]: boolean } }
+				for _, area in Onboarding.CLEAN_AREAS do
+					all.areas[area] = true
+				end
+				local due = Onboarding.cleanDue(state, 15, all)
+				expect(#due).to.equal(12)
+				expect(due[12]).to.equal(27)
+				expect(#Onboarding.cleanDue(state, 27, all)).to.equal(0)
+			end
+		)
+
+		it(
+			"holds the table behind the second cat, and names the furthest step for the leave events",
+			function()
+				local state = fresh()
+				local facts = { tier = 1, areas = {} }
+				expect(Onboarding.cleanFurthest(state)).to.equal("none")
+				play(state, { "joined", "first_role_assigned", "first_table" })
+				local due = Onboarding.cleanDue(state, 0, facts)
+				expect(due[#due]).to.equal(10) -- first_role_assigned: the table waits for the second cat
+				state.cleanStep = 10
+				expect(Onboarding.cleanFurthest(state)).to.equal("first_role_assigned")
+				play(state, { "second_cat" })
+				expect(Onboarding.cleanDue(state, 10, facts) :: any).to.deepEqual({ 11, 12 })
+				state.cleanStep = Onboarding.CLEAN_COUNT
+				expect(Onboarding.cleanFurthest(state)).to.equal("done")
+			end
+		)
+
+		it("starts a save without the field out of the funnel once past its first catch", function()
+			local state = fresh()
+			expect(Onboarding.cleanStart(state)).to.equal(0)
+			play(state, { "joined", "near_stray" })
+			expect(Onboarding.cleanStart(state)).to.equal(0)
+			play(state, { "first_catch" })
+			expect(Onboarding.cleanStart(state)).to.equal(Onboarding.CLEAN_COUNT)
+		end)
+	end)
+
+	describe("playtime_v1 (#3695)", function()
+		it("is joined, moved, then 30 s to 12 h of play", function()
+			expect(Onboarding.PLAYTIME_FUNNEL).to.equal("playtime_v1")
+			expect(Onboarding.PLAYTIME_STEPS :: any).to.deepEqual({
+				"joined",
+				"moved",
+				"played_30s",
+				"played_1m",
+				"played_2m",
+				"played_3m",
+				"played_4m",
+				"played_5m",
+				"played_10m",
+				"played_15m",
+				"played_30m",
+				"played_1h",
+				"played_2h",
+				"played_3h",
+				"played_6h",
+				"played_12h",
+			})
+			expect(#Onboarding.PLAYTIME_SECONDS).to.equal(Onboarding.PLAYTIME_COUNT)
+			expect(Onboarding.PLAYTIME_SECONDS[16]).to.equal(12 * 3600)
+			for step = 2, Onboarding.PLAYTIME_COUNT do
+				expect(Onboarding.PLAYTIME_SECONDS[step] >= Onboarding.PLAYTIME_SECONDS[step - 1]).to.equal(
+					true
+				)
+			end
+		end)
+
+		it("holds every time step until the player has moved", function()
+			expect(Onboarding.playtimeDue(0, 0, false) :: any).to.deepEqual({ 1 })
+			expect(#Onboarding.playtimeDue(1, 600, false)).to.equal(0)
+			expect(Onboarding.playtimeDue(1, 10, true) :: any).to.deepEqual({ 2 })
+			expect(Onboarding.playtimeDue(1, 130, true) :: any).to.deepEqual({ 2, 3, 4, 5 })
+		end)
+
+		it(
+			"logs every mark passed since the last one, and nothing past the end or on a bad number",
+			function()
+				expect(Onboarding.playtimeDue(5, 899, true) :: any).to.deepEqual({ 6, 7, 8, 9 })
+				expect(Onboarding.playtimeDue(9, 900, true) :: any).to.deepEqual({ 10 })
+				expect(#Onboarding.playtimeDue(0, 50000, true)).to.equal(16)
+				expect(#Onboarding.playtimeDue(16, 50000, true)).to.equal(0)
+				expect(Onboarding.playtimeDue(2, 0 / 0, true) :: any).to.deepEqual({})
+			end
+		)
+	end)
 end

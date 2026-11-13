@@ -18,9 +18,9 @@ NetButtonPlace.SMALL_SCREEN = 500 -- TouchJump's cut-off on the short side
 NetButtonPlace.GAP = 12 -- #2721: between the Net button's right edge and the jump button's left
 -- #2525 (Derek2: "make the net and tackle buttons a little smaller take up a lot of the screen"): 54 px beside the
 -- 70 px jump button, 80 px beside the 120 px one; still over the 44 px a thumb needs
-NetButtonPlace.SMALL = 54
+NetButtonPlace.SMALL = 56 -- #3556: was 54
 NetButtonPlace.BIG = 80
-NetButtonPlace.TACKLE = 0.85 -- of the Net button's size; 46 px and 68 px, still over 44
+NetButtonPlace.TACKLE = 0.85 -- of the Net button's size; 48 px and 68 px, still over 44
 NetButtonPlace.REACH = 1.4 -- the Tackle's centre, in jump widths from the jump button's centre
 NetButtonPlace.ANGLE = 45 -- degrees up from the left, on the arc between Net (0) and straight up (90)
 

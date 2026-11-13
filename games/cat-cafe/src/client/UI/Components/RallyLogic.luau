@@ -9,8 +9,6 @@
 --                                    point to share the prizes", "You've done your laps this weekend")
 --   soon(state, now) -> string?      the line under the clock in the last SOON_SECONDS before a Rally starts:
 --                                    "Rescue Rally in 5h 20m" (rescue-rally.md section 1, the Friday chip)
---   nightLine(state, now, night)     the Cat Cannon cards' tag while a Rally runs at night, when the stuck cats are
---                                    out: "Rally: rescues x3" (section 4), else nil
 --   left(seconds) -> string          "1d 4h", "5h 20m", "12m", at least "1m"
 --   stepPicture(prize)               a step's picture: its crate, else its potion, else the golden fish
 
@@ -49,8 +47,6 @@ RallyLogic.SOON_SECONDS = 12 * 3600
 RallyLogic.LAP_TEXT = "Lap %d: bigger prizes!" -- #2608 (no wording about leaving the server)
 
 local MIN_POINTS: number = Config.RallyMinPoints or 3
-local RESCUE_POINTS: number = (Config.RallyPoints or {}).rescue or 3
-local CHECK_IN_POINTS: number = (Config.RallyPoints or {}).checkIn or 1
 
 function RallyLogic.left(seconds: number): string
 	local minutes = math.max(1, math.ceil(seconds / 60))
@@ -143,16 +139,6 @@ function RallyLogic.soon(state: SharedTypes.RallyState?, now: number): string?
 		return nil
 	end
 	return string.format("%s in %s", RallyLogic.TITLE, RallyLogic.left(wait))
-end
-
-function RallyLogic.nightLine(state: SharedTypes.RallyState?, now: number, night: boolean): string?
-	if not night or not running(state, now) then
-		return nil
-	end
-	return string.format(
-		"Rally: rescues x%d",
-		math.max(1, math.floor(RESCUE_POINTS / CHECK_IN_POINTS))
-	)
 end
 
 return RallyLogic

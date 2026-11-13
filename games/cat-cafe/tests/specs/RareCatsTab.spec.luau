@@ -7,6 +7,25 @@ return function()
 	local RareCatsTab = require(Shared.RareCatsTab)
 
 	describe("RareCatsTab (#3053)", function()
+		it(
+			"sends every line to the tab and keeps other servers' lines out of Here (#3673)",
+			function()
+				expect(RareCatsTab.NAME).to.equal("🌍 Global")
+				local toTab, toHere = RareCatsTab.route(true, true)
+				expect(toTab).to.equal(true)
+				expect(toHere).to.equal(false)
+				toTab, toHere = RareCatsTab.route(true, false)
+				expect(toTab).to.equal(true)
+				expect(toHere).to.equal(true)
+				-- no tab for this player: everything stays in the normal chat, as before
+				for _, elsewhere in { true, false } do
+					toTab, toHere = RareCatsTab.route(false, elsewhere)
+					expect(toTab).to.equal(false)
+					expect(toHere).to.equal(true)
+				end
+			end
+		)
+
 		it("takes Mythical and Secret lines and nothing below", function()
 			expect(RareCatsTab.wants("Mythical")).to.equal(true)
 			expect(RareCatsTab.wants("Secret")).to.equal(true)

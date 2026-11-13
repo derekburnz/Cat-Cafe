@@ -43,6 +43,7 @@ local PAD = 8
 local GAP = 4
 local TILE = 26
 local CHANCE_WIDTH = 46
+local CHANCE_WIDE = 60 -- a chance to one decimal ("12.5%", the Yard Sale's)
 local TITLE_SIZE = 22
 local LINE_SIZE = 15
 local NAME_SIZE = 17
@@ -214,7 +215,11 @@ function RollBoard._row(self: any, index: number, view: RollBoardLogic.RowView):
 		IconArt.setImage(small, view.images[2], 1)
 		table.insert(pictures, small)
 	end
-	local chanceWidth = if view.chance ~= nil then CHANCE_WIDTH else 0
+	local chanceText: string? = view.chance
+	local chanceWidth = if chanceText == nil
+		then 0
+		elseif #chanceText > 4 then CHANCE_WIDE
+		else CHANCE_WIDTH
 	local name = words({
 		Name = "Name",
 		Position = UDim2.fromOffset(TILE + 9, 0),
@@ -234,7 +239,7 @@ function RollBoard._row(self: any, index: number, view: RollBoardLogic.RowView):
 			Name = "Chance",
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.new(1, -6, 0, 0),
-			Size = UDim2.new(0, CHANCE_WIDTH, 1, 0),
+			Size = UDim2.new(0, chanceWidth, 1, 0),
 			TextSize = NAME_SIZE,
 			TextXAlignment = Enum.TextXAlignment.Right,
 			TextColor3 = if view.tier >= 3 then GOLD else WHITE,

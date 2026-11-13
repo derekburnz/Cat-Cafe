@@ -11,6 +11,7 @@ renders each as CatCafe_Icon_Hud_<Name> (512 px, transparent, dark outline) like
     RankUp         a gold trophy cup with handles on a dark base, a star on the cup
     Bellhop        a gold service bell on a wooden base, its press button on top
     YardSale       an open cardboard box of odds and ends with a price tag on a string
+    PicnicSandwich, PicnicLemonade, PicnicCupcake   the three Picnic Treats on the Park station's pick card (#3715)
     Gift           a pink gift box with a yellow ribbon and bow (prizes and gifts: the Cat Arcade's PRIZES button,
                    #3553; the trophy for its LEADERBOARD button is RankUp)
   Mystery Market perks (one picture per perk id)
@@ -238,6 +239,71 @@ def gift(mat):
         b.box((sx * 0.3, -0.5, 1.3), (0.2, 0.5, 0.06), "rarity_legend", rot=_rot((0, 0, sx * 22)))
     b.box((0, 0, 1.42), (0.3, 0.34, 0.3), "eye_amber")                              # the knot
     return _fin(b, "Gift", mat)
+
+
+# ------------------------------------------------------------------------------- Picnic Treats (#3715) --
+
+def picnic_sandwich(mat):
+    """A tall picnic sandwich: two slices of bread with lettuce, cheese and tomato, held by a pick with an olive."""
+    b = Builder()
+    b.box((0, 0, 0.22), (1.9, 1.5, 0.36), "treat_tan")                              # bottom slice
+    b.box((0, 0, 0.22), (1.94, 1.54, 0.2), "fur_caramel")                           # its crust
+    b.box((0, 0, 0.5), (2.2, 1.8, 0.12), "leaf_green", rot=_rot((0, 0, 8)))         # lettuce, poking out
+    b.box((0.05, 0, 0.6), (2.05, 1.65, 0.1), "leaf_dark", rot=_rot((0, 0, -10)))
+    b.box((0, 0, 0.72), (2.0, 1.6, 0.12), "rarity_legend", rot=_rot((0, 0, 4)))     # cheese
+    for x in (-0.55, 0.55):                                                          # tomato slices
+        b.cyl((x, -0.1, 0.86), 0.55, 0.14, "shirt_red", segments=14)
+    b.box((0, 0, 1.12), (1.9, 1.5, 0.36), "treat_tan")                              # top slice
+    b.box((0, 0, 1.12), (1.94, 1.54, 0.2), "fur_caramel")
+    b.cyl((0, 0, 1.75), 0.05, 1.0, "caramel_wood", segments=6)                      # the pick
+    b.sphere((0, 0, 2.2), 0.24, "shirt_green", segments=10, rings=6)                # an olive on top
+    b.sphere((0, -0.2, 2.2), 0.09, "shirt_red", segments=6, rings=4)
+    return _fin(b, "PicnicSandwich", mat)
+
+
+def picnic_lemonade(mat):
+    """A glass of lemonade: a tall yellow drink with ice, a striped straw and a lemon slice on the rim."""
+    b = Builder()
+    b.cyl((0, 0, 1.0), 0.6, 2.0, "glass", segments=16, radius2=0.82)                # the glass
+    b.cyl((0, 0, 0.95), 0.63, 1.5, "rarity_legend", segments=16, radius2=0.8)       # lemonade showing through
+    b.cyl((0, 0, 1.72), 0.81, 0.06, "sparkle", segments=16)                         # the top of the drink
+    b.cyl((0, 0, 0.06), 0.64, 0.14, "fish_belly", segments=16)                      # thick base
+    for x, y, a in ((-0.3, -0.2, 20), (0.25, 0.1, -15)):                            # ice cubes
+        b.box((x, y, 1.8), (0.36, 0.36, 0.3), "fish_belly", rot=_rot((10, a, a)))
+    a, c = Vector((0.2, 0.1, 0.5)), Vector((0.75, 0.1, 2.75))                       # the straw
+    _bar(b, tuple(a), tuple(c), 0.14, 0.14, "milk")
+    d = c - a
+    for f in (0.62, 0.74, 0.86, 0.98):
+        _bar(b, tuple(a + d * (f - 0.03)), tuple(a + d * (f + 0.03)), 0.17, 0.17, "nose_pink")
+    R = _rot((90, 0, 0))
+    b.cyl((-0.78, -0.05, 2.05), 0.48, 0.14, "rarity_legend", segments=16, rot=R)    # lemon slice on the rim
+    b.cyl((-0.78, -0.14, 2.05), 0.38, 0.04, "sparkle", segments=16, rot=R)
+    for k in range(6):                                                               # its segments
+        t = math.radians(60 * k)
+        _bar(b, (-0.78, -0.17, 2.05), (-0.78 + 0.36 * math.cos(t), -0.17, 2.05 + 0.36 * math.sin(t)), 0.04, 0.03,
+             "rarity_legend")
+    return _fin(b, "PicnicLemonade", mat)
+
+
+def picnic_cupcake(mat):
+    """A picnic cupcake: a striped blue wrapper, a tall pink swirl of frosting, sprinkles and a cherry."""
+    b = Builder()
+    b.cyl((0, 0, 0.45), 0.62, 0.9, "pastel_sky", segments=16, radius2=0.9)          # the wrapper
+    for k in range(8):                                                               # its pleats
+        t = math.radians(45 * k + 22.5)
+        lo = Vector((0.63 * math.cos(t), 0.63 * math.sin(t), 0.04))
+        hi = Vector((0.91 * math.cos(t), 0.91 * math.sin(t), 0.86))
+        _bar(b, tuple(lo), tuple(hi), 0.12, 0.04, "fish_blue", up=(math.cos(t), math.sin(t), 0))
+    b.cyl((0, 0, 0.98), 0.98, 0.2, "treat_tan", segments=16)                        # cake edge
+    for r, z, h in ((0.95, 1.22, 0.42), (0.72, 1.56, 0.38), (0.48, 1.86, 0.34), (0.26, 2.1, 0.28)):
+        b.sphere((0, 0, z), r, "fur_strawberry", segments=14, rings=6, scale=(1, 1, h / r))   # frosting swirl
+    for k, sw in enumerate(("sparkle", "fish_blue", "milk", "leaf_green", "sparkle", "milk", "fish_blue")):
+        t = math.radians(-150 + 20 * k + (7 if k % 2 else 0))
+        r, z = (0.86, 1.3) if k % 2 else (0.64, 1.64)
+        b.box((r * math.cos(t), r * math.sin(t), z), (0.16, 0.06, 0.06), sw, rot=_rot((0, 30 * (k - 3), 0)))
+    b.sphere((0, 0, 2.42), 0.24, "shirt_red", segments=10, rings=6)                 # the cherry
+    _bar(b, (0, 0, 2.6), (0.18, 0, 2.95), 0.05, 0.05, "leaf_dark")
+    return _fin(b, "PicnicCupcake", mat)
 
 
 # ----------------------------------------------------------------------------------- Mystery Market perks --
@@ -614,7 +680,8 @@ def set_auto_equip(mat):
 ICONS = {
     "MysteryMarket": mystery_market, "Codes": codes, "Collector": collector, "CornerShop": corner_shop,
     "LawnStall": lawn_stall, "RankUp": rank_up, "Bellhop": bellhop, "YardSale": yard_sale,
-    "Gift": gift,
+    "Gift": gift, "PicnicSandwich": picnic_sandwich, "PicnicLemonade": picnic_lemonade,
+    "PicnicCupcake": picnic_cupcake,
     "BigBackpack": big_backpack, "LongNet": long_net,
     "Tables": tables, "Espresso": espresso, "LuckyCat": lucky_cat,
     "RoleBarista": role_barista, "RoleWaiter": role_waiter, "RoleGreeter": role_greeter,
@@ -629,7 +696,8 @@ ICONS = {
 VIEWS = {
     "MysteryMarket": (-14.0, 10.0), "Codes": (-18.0, 8.0), "Collector": (-10.0, 6.0), "CornerShop": (-26.0, 14.0),
     "LawnStall": (-18.0, 12.0), "RankUp": (-14.0, 10.0), "Bellhop": (-18.0, 22.0), "YardSale": (-24.0, 24.0),
-    "Gift": (-24.0, 22.0),
+    "Gift": (-24.0, 22.0), "PicnicSandwich": (-24.0, 24.0), "PicnicLemonade": (-16.0, 16.0),
+    "PicnicCupcake": (-16.0, 16.0),
     "BigBackpack": (-24.0, 14.0), "LongNet": (-10.0, 12.0),
     "Tables": (-20.0, 22.0), "Espresso": (-24.0, 12.0), "LuckyCat": (-18.0, 8.0),
     "RoleBarista": (-14.0, 34.0), "RoleWaiter": (-22.0, 22.0), "RoleGreeter": (-10.0, 6.0),

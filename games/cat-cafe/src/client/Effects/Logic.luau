@@ -262,6 +262,27 @@ function Logic.glowColour(rarity: unknown): Color3
 	return Presets.rarityGlow[rarity] or Presets.rarity[rarity] or Presets.rarity.Common
 end
 
+-- #3544: how much of a Secret cat's glow is left at `distance` studs: all of it inside `full`, none at `within`.
+function Logic.secretGlowFade(distance: number): number
+	local g = Presets.secretGlow
+	if distance ~= distance then
+		return 0
+	end
+	return 1 - math.clamp((distance - g.full) / (g.within - g.full), 0, 1)
+end
+
+-- #3544: the share of full brightness a Secret cat's light has `t` seconds in, seen from `distance` studs. It
+-- breathes between `low` and 1 once every `breathe` seconds; with Reduce Motion it holds at `rest`.
+function Logic.secretGlowLevel(distance: number, t: number, reducedMotion: boolean): number
+	local g = Presets.secretGlow
+	local fade = Logic.secretGlowFade(distance)
+	if reducedMotion then
+		return g.rest * fade
+	end
+	local wave = 0.5 - 0.5 * math.cos(t * 2 * math.pi / g.breathe)
+	return (g.low + (1 - g.low) * wave) * fade
+end
+
 -- A Secret stray's sky beam seen from `distance` studs (Presets.secretStray.beam): its width in studs, wider the
 -- further you are so it stays a thin line on screen, and how see-through its foot is, fading as you come close.
 function Logic.secretBeam(distance: number): (number, number)
@@ -270,6 +291,39 @@ function Logic.secretBeam(distance: number): (number, number)
 	local width = math.clamp(away * b.perStud, b.widthMin, b.widthMax)
 	local share = math.clamp((away - b.nearWithin) / b.fadeOver, 0, 1)
 	return width, b.near + (b.far - b.near) * share
+end
+
+-- The stuck cat that calls for help (#2912, Presets.stuckCall). Whether it calls now: the save waits for its first
+-- rescue (`waiting`, ProfileSync's stuckGoal), this player is not on a rescue bar (`busy`) and nobody is rescuing
+-- that cat (`lockedBy`, the model's attribute: 0 or nil when free).
+function Logic.stuckCallOn(waiting: unknown, busy: boolean, lockedBy: unknown): boolean
+	return waiting == true and not busy and (lockedBy == nil or lockedBy == 0)
+end
+
+-- Its light pillar seen from `distance` studs: the width in studs, wider the further you are so it stays a thin
+-- line, and how see-through its foot is, fading as you come close so it never covers the cat.
+function Logic.stuckPillar(distance: number): (number, number)
+	local b = Presets.stuckCall.pillar
+	local away = math.max(distance, 0)
+	local width = math.clamp(away * b.perStud, b.widthMin, b.widthMax)
+	local share = math.clamp((away - b.nearWithin) / b.fadeOver, 0, 1)
+	return width, b.near + (b.far - b.near) * share
+end
+
+-- Whether the cat meows now: within `near` studs, `gap` seconds after the last one, `most` times at most.
+function Logic.stuckMeowDue(
+	lastAt: number?,
+	calls: number,
+	now: number,
+	distance: number,
+	near: number,
+	gap: number,
+	most: number
+): boolean
+	if calls >= most or distance > near then
+		return false
+	end
+	return lastAt == nil or now - lastAt >= gap
 end
 
 -- Where a Secret stray's beam stands `dt` seconds on, gliding from `at` to the beacon's `target` (the server's word
@@ -3331,7 +3385,7 @@ end
 
 -- The Mystic Pool (#3314, trait-station.md section 1a): the rarity ids its liquid steps through, lowest first, the
 -- same ids and order as shared/Traits.RARITIES (EffectsMysticPool.spec checks).
-Logic.POOL_RARITIES = { "common", "uncommon", "rare", "legendary", "mythic" }
+Logic.POOL_RARITIES = { "common", "uncommon", "rare", "epic", "legendary", "mythic" }
 
 -- The colours the pool shows for a roll of `rarity`, grey first, one step per rarity up to it and never past it: a
 -- common stays grey, a rare goes grey, green, blue. An unknown rarity shows grey only.
@@ -3477,6 +3531,51 @@ function Logic.binLidPop(u: number, height: number, fly: boolean): (number, numb
 		return height * (1 - (1 - t) * (1 - t)), math.clamp((t - 0.6) / 0.4, 0, 1)
 	end
 	return 4 * height * t * (1 - t), 0
+end
+
+-- Petting a cat (#3651, Effects/PetCat) `seconds` after the reach starts: how much of the petting arm shows (0 to
+-- 1, eased up over `raise` and down over `lower`) and where the hand is in its stroke (-1 to 1, a sine through
+-- `strokes` strokes of `every` seconds, 0 while the arm goes down to the cat or comes back). Both 0 outside it.
+function Logic.petAt(
+	seconds: number,
+	raise: number,
+	strokes: number,
+	every: number,
+	lower: number
+): (number, number)
+	local stroking = strokes * every
+	local function smooth(k: number): number
+		k = math.clamp(k, 0, 1)
+		return k * k * (3 - 2 * k)
+	end
+	if seconds <= 0 or seconds >= raise + stroking + lower then
+		return 0, 0
+	elseif seconds < raise then
+		return smooth(seconds / raise), 0
+	elseif seconds < raise + stroking then
+		return 1, math.sin(2 * math.pi * (seconds - raise) / every)
+	end
+	return smooth(1 - (seconds - raise - stroking) / lower), 0
+end
+
+-- One heart of the petting puff at `u` (0 to 1 through its life): its offset from the puff's start (floating up
+-- `rise` studs, easing out, the hearts fanned evenly across `fan` studs and the later ones a little behind), its
+-- size (popping from 0.5 to 1 over the first fifth) and how faded it is (0 until 60%, then to 1).
+function Logic.petHeart(
+	index: number,
+	count: number,
+	u: number,
+	rise: number,
+	fan: number
+): (Vector3, number, number)
+	local t = math.clamp(u, 0, 1)
+	local side = if count > 1 then (index - 1) / (count - 1) - 0.5 else 0
+	local late = if count > 1 then 0.15 * ((index * 2) % count) / count else 0
+	local k = math.clamp((t - late) / (1 - late), 0, 1)
+	local up = rise * (1 - (1 - k) * (1 - k))
+	local scale = 0.5 + 0.5 * math.clamp(k / 0.2, 0, 1)
+	local fade = if k <= 0 then 1 else math.clamp((t - 0.6) / 0.4, 0, 1)
+	return Vector3.new(side * fan * k, up, 0), scale, fade
 end
 
 return Logic

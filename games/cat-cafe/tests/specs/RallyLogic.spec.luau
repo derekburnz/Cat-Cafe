@@ -167,17 +167,4 @@ return function()
 			expect(RallyLogic.soon(nil, NOW)).to.equal(nil)
 		end)
 	end)
-
-	describe("RallyLogic.nightLine", function()
-		it("tags the Cat Cannon's cards at night while a Rally runs", function()
-			expect(RallyLogic.nightLine(rally(), NOW, true)).to.equal("Rally: rescues x3")
-		end)
-
-		it("is nil by day, with no Rally and once it ends", function()
-			expect(RallyLogic.nightLine(rally(), NOW, false)).to.equal(nil)
-			expect(RallyLogic.nightLine(rally({ active = false }), NOW, true)).to.equal(nil)
-			expect(RallyLogic.nightLine(rally({ endsAt = NOW - 1 }), NOW, true)).to.equal(nil)
-			expect(RallyLogic.nightLine(nil, NOW, true)).to.equal(nil)
-		end)
-	end)
 end

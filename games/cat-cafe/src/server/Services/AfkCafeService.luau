@@ -4,8 +4,8 @@
 -- Config.AfkCafeSeconds as this server saw it, it stands in its own cafe or on its doorstep (the home landing), and
 -- the player carries no cat and is in no trade. A rest starts and ends on a settle, so every second is paid at the
 -- rate it was earned at (Economy.setResting, Economy.moneyFor). The Player's CafeRest attribute tells the HUD's chip.
--- Ending a rest says what the cafe paid meanwhile, once. The first time each session a player past the tutorial
--- walks into their own cafe, AfkCafe.LINE says that resting pays, once.
+-- Ending a rest says what the cafe paid meanwhile, once. While a player past the tutorial stands in their rest zone
+-- the Player's CafeRestZone attribute says so, for the client's rest banner (#3701).
 -- #3602: behind the `autoRejoin` switch a resting player with no input for Config.AutoRejoinSeconds is teleported to this same
 -- place, ahead of Roblox's 20 minute idle disconnect; the arrival (marked in its join data) takes the rest up again
 -- once it stands at its cafe. Never in Studio (teleports do not run there) or in a private server (a public
@@ -159,6 +159,7 @@ local function check(player: Player, now: number)
 		-- switch off and nobody resting: nothing to measure (the stillness clock starts when it comes on)
 		watch.at = nil
 		watch.stillSince = now
+		player:SetAttribute(AfkCafe.ZONE_ATTRIBUTE, nil)
 		return
 	end
 	local plot = PlotService.get(player)
@@ -167,6 +168,7 @@ local function check(player: Player, now: number)
 	if plot == nil or profile == nil or root == nil then
 		watch.at = nil
 		watch.stillSince = now
+		player:SetAttribute(AfkCafe.ZONE_ATTRIBUTE, nil)
 		stop(player, watch)
 		return
 	end
@@ -185,15 +187,15 @@ local function check(player: Player, now: number)
 		W.PlotDepth
 	)
 	local on = LiveFlagService.on(AfkCafe.FLAG)
-	-- the once a session line, the first time a player past the tutorial is inside their cafe
-	if
-		on
-		and not watch.told
-		and profile.tutorialStep >= TUTORIAL_DONE
-		and AfkCafe.inZone(plot.cframe:PointToObjectSpace(position), nil, W.PlotWidth, W.PlotDepth)
-	then
-		watch.told = true
-		Net.toast(player, AfkCafe.line(AfkCafe.doubled(Economy.eventMoney())), "info")
+	-- #3701: the rest banner's zone, for a player past the tutorial. It replaces the once a session line (Derek
+	-- 2026-11-12: it "only pops up once not everytime your in cafe and also gets cut off"): the client's banner
+	-- shows on every walk in (Components/RestBannerLogic).
+	local zone: boolean? = nil
+	if on and inZone and profile.tutorialStep >= TUTORIAL_DONE then
+		zone = AfkCafe.doubled(Economy.eventMoney())
+	end
+	if player:GetAttribute(AfkCafe.ZONE_ATTRIBUTE) ~= zone then
+		player:SetAttribute(AfkCafe.ZONE_ATTRIBUTE, zone)
 	end
 	-- #3602: a rest's rejoin takes the rest up again without the wait, once it stands still at its cafe
 	local arrivedAt = watch.arrivedAt

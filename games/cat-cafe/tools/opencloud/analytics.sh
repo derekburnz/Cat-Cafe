@@ -210,6 +210,13 @@ firstHourSteps=(joined played_2m played_5m played_10m played_20m played_30m play
 firstHourV2Steps=()
 onboardingFunnel=onboarding_v4
 introFunnel=onboarding_v4_intro
+# #3695: the clean funnel (Onboarding.CLEAN_FUNNEL, onboarding_v7) and playtime_v1 (Onboarding.PLAYTIME_FUNNEL). Once
+# Onboarding.luau has them they are the two the by Platform tables read; the ledger funnel (FUNNEL, onboarding_v6)
+# and first_hour_v3 stopped being sent with them and keep their labels for a window that starts before.
+cleanFunnel=
+cleanSteps=()
+playtimeFunnel=
+playtimeSteps=()
 onboardingSteps=()
 introSteps=()
 onboardingV3Steps=()
@@ -240,6 +247,10 @@ if [ -f "$onboarding" ]; then
 	onboardingFunnel=${funnelName:-$onboardingFunnel}
 	funnelName=$(luaString INTRO_FUNNEL)
 	introFunnel=${funnelName:-$introFunnel}
+	cleanFunnel=$(luaString CLEAN_FUNNEL)
+	mapfile -t cleanSteps < <(luaNames CLEAN_STEPS)
+	playtimeFunnel=$(luaString PLAYTIME_FUNNEL)
+	mapfile -t playtimeSteps < <(luaNames PLAYTIME_STEPS)
 fi
 storeFunnelFile=$here/../../src/shared/StoreFunnel.luau
 if [ -f "$storeFunnelFile" ]; then
@@ -268,6 +279,10 @@ stepName() { # funnel step label
 		# exact names first: onboarding_v4_intro also contains onboarding_v4
 		if [ "${funnel,,}" = "${introFunnel,,}" ] || [[ ${funnel,,} =~ ^onboarding_v[0-9]+_intro$ ]]; then
 			list=("${introSteps[@]}")
+		elif [ -n "$cleanFunnel" ] && [ "${funnel,,}" = "${cleanFunnel,,}" ]; then
+			list=("${cleanSteps[@]}")
+		elif [ -n "$playtimeFunnel" ] && [ "${funnel,,}" = "${playtimeFunnel,,}" ]; then
+			list=("${playtimeSteps[@]}")
 		elif [ "${funnel,,}" = "${onboardingFunnel,,}" ]; then
 			list=("${onboardingSteps[@]}")
 		elif [ "${funnel,,}" = "${firstHourFunnel,,}" ]; then
@@ -315,11 +330,13 @@ declare -A retired=(
 	[bait_cycle]="2026-11-08|bait_rolled and bait_resolved under Event fields"
 	[grand_opening]="2026-11-08|the Grand Opening steps of the onboarding funnel"
 	[onboarding_v4_intro]="2026-11-08|the intro_cutscene custom event"
+	[onboarding_v6]="2026-11-13|onboarding_v7, the clean funnel (#3695)"
+	[first_hour_v3]="2026-11-13|playtime_v1 (#3695)"
 )
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* && ${funnel,,} != playtime* ]] || unit=Players
 	[ "${funnel,,}" != "${arcadeFunnel,,}" ] || unit="Player days" # #3378: one run per player per UTC day
 	say "#### $funnel"
 	say ""
@@ -636,7 +653,7 @@ if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
 else
 	platformsLogged=(Phone Computer Tablet Console)
 fi
-for funnel in "$onboardingFunnel" "$firstHourFunnel" "$arcadeFunnel"; do
+for funnel in "${cleanFunnel:-$onboardingFunnel}" "${playtimeFunnel:-$firstHourFunnel}" "$arcadeFunnel"; do
 	say "#### $funnel by Platform"
 	say ""
 	declare -A cell=() firstOf=() label=()
@@ -702,6 +719,8 @@ done
 # event's value, in seconds for these). CustomEventName is a filter only, as in section 4.
 #   quit_state          value seconds played; fields furthest step, where, "carry|empty bait|nobait" (Tier < 2 leavers)
 #   step_time           value account seconds of play at the step; field the onboarding step name
+#   step_gap            value seconds between two steps; fields the gap, the bucket (#3530, shared/StepGaps)
+#   quit_have           value seconds played; fields kinds of cat, coin share of Tier 2, ready or not_ready (#3530)
 #   cat_caught_area     value 1; fields area id, rarity
 #   bait_rolled         value 1; fields food, rarity rolled, Lucky Potion or none (food into a bowl; #3030)
 #   bait_resolved       value 1; fields food, rarity, choice (tame or letgo)
@@ -716,6 +735,11 @@ fieldEvents=(
 	"quit_state|Platform,CustomField1|CustomEventCountUser|Leavers by device and furthest step"
 	"step_time|CustomField1|CustomEventAvgValue|Average seconds of play when each step came"
 	"step_time|CustomField1|CustomEventCountUser|Players per step (step_time)"
+	"step_gap|CustomField1,CustomField2|CustomEventCountUser|Players per gap between two steps, by time bucket (#3530)"
+	"step_gap|CustomField1|CustomEventAvgValue|Average seconds per gap (earlier_visit and no_start rows count as 0)"
+	"quit_have|CustomField1|CustomEventCountUser|Leavers before Tier 2 by kinds of cat owned (#3530)"
+	"quit_have|CustomField2|CustomEventCountUser|Leavers before Tier 2 by coins as a share of Tier 2's cost"
+	"quit_have|CustomField3|CustomEventCountUser|Leavers before Tier 2: ready to rank up or not (rank_up_ready_quit)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"
@@ -749,6 +773,12 @@ fieldEvents=(
 	"arcade_run|CustomField1|CustomEventCount|Cat Arcade: games by circles hit (#3378)"
 	"arcade_run|CustomField2|CustomEventCount|Cat Arcade: games by prizes paid (#3378)"
 	"upgrade_bought|CustomField2,CustomField3|CustomEventCountUser|Players buying each upgrade level (Swift Paws 5 levels, #3332)"
+	"client_memory|CustomField1,CustomField2|CustomEventAvgValue|Client memory: average MB by device and minutes into the session (#3743)"
+	"client_memory|CustomField1,CustomField3|CustomEventCountUser|Client memory: players by device and growth since their first mark (#3743)"
+	"client_memory_tag|CustomField1,CustomField2|CustomEventAvgValue|Client memory by Roblox memory group: average MB at 5 and 30 minutes (#3743)"
+	"client_memory_tag|CustomField3,CustomField1|CustomEventAvgValue|Client memory by device and memory group: average MB (#3743)"
+	"badge_awarded|CustomField1|CustomEventCountUser|Badges: players awarded each badge (#3617)"
+	"badge_awarded|CustomField1,CustomField2|CustomEventCountUser|Badges: players by badge, earned live or caught up on join (#3617)"
 	"arcade_quit|CustomField1|CustomEventCount|Cat Arcade: games left early, free or paid (#3378)"
 	"arcade_quit|CustomField1|CustomEventAvgValue|Cat Arcade: average circles hit before leaving early (#3378)"
 	"arcade_blocked|CustomField1|CustomEventCount|Cat Arcade: Start refused, by reason (closed, loading, running, busy, no_fish) (#3378)"

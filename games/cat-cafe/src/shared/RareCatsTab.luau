@@ -14,11 +14,15 @@
 -- server/Services/RareCatsTabService makes the channel; client/Controllers/RareCatchChatController writes the lines.
 
 local Catalog = require(script.Parent.Catalog)
+local CoatWords = require(script.Parent.CoatWords)
 local GlobalCatch = require(script.Parent.GlobalCatch)
 
 local RareCatsTab = {}
 
-RareCatsTab.NAME = "Rare Cats" -- the channel's Name, which is the tab's label
+-- #3673 (Derek 2026-11-12: "moving all the global messages to the global chat tab", with another game's own
+-- "Global" tab with a globe as the example): the tab is called "🌍 Global" and takes every line of the rare-catch
+-- chat while it is there; the Here tab then keeps only this server's lines (RareCatsTab.route).
+RareCatsTab.NAME = "🌍 Global" -- the channel's Name, which is the tab's label
 RareCatsTab.FLAG = "rareCatsTab" -- the LiveFlags key
 RareCatsTab.FROM = "Mythical"
 RareCatsTab.COAT_FROM = "Legendary" -- Catching.COAT_SHOUT_FROM: a gold or rainbow coat's line from here up
@@ -49,12 +53,22 @@ function RareCatsTab.wants(rarity: string, text: string?): boolean
 	return false
 end
 
+-- #3673: where a line goes. `tab` is whether this player has the tab (the switch on, the channel made and the player
+-- a reader of it). With the tab: every line goes in it, and one from another server goes nowhere else. Without it:
+-- everything is in the normal chat, as before.
+function RareCatsTab.route(tab: boolean, elsewhere: boolean): (boolean, boolean)
+	if not tab then
+		return false, true
+	end
+	return true, not elsewhere
+end
+
 function RareCatsTab.line(text: string, rarity: string, elsewhere: boolean): string
 	local body = (if elsewhere then RareCatsTab.ELSEWHERE else RareCatsTab.HERE) .. text
 	return string.format(
 		'<font color="%s">%s</font>',
 		GlobalCatch.color(rarity),
-		GlobalCatch.escape(body)
+		(CoatWords.rich(body, GlobalCatch.escape)) -- #3692
 	)
 end
 

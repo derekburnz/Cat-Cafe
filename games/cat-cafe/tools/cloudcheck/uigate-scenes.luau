@@ -3081,6 +3081,11 @@ local SCENES = {
 		UI.cannon.open()
 		UIShim.advance(0.3)
 		assert(not lock.Visible, "uigate: the lock broke again on the next open (#3884)")
+		-- the later scenes in this shard's state expect the first tier, as every scene before this one left it
+		UI.close()
+		UIShim.advance(0.5)
+		UI.update({ tier = 1 } :: any)
+		UIShim.advance(0.2)
 	end },
 	-- #2692: at night a new player with the night pass (the NightPass attribute, before the first check-in) sees the
 	-- area cards open, no moon cover; once the pass ends, the cover is back

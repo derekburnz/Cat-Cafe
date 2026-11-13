@@ -4603,10 +4603,20 @@ local SCENES = {
 	-- F87: the Feedback tile opens on the three faces, and a face brings the chips
 	{ "FeedbackFaces", function()
 		UI.bugReport.open()
+		-- Studio 2026-11-13: no lone "0 / 500" counter or note without the text box
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("BugReport", true)
+		local counter = window and window:FindFirstChild("Counter", true) :: GuiObject?
+		assert(not (counter and counter.Visible), "uigate: the feedback faces step shows the text counter with no text box")
 	end },
 	{ "FeedbackChips", function()
 		UI.bugReport.open()
 		press("BugReport", "Face_love")
+		-- Studio 2026-11-13: no lone "0 / 500" counter or note without the text box
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("BugReport", true)
+		local counter = window and window:FindFirstChild("Counter", true) :: GuiObject?
+		assert(not (counter and counter.Visible), "uigate: the feedback faces step shows the text counter with no text box")
 	end },
 	-- F87: the one slide-in faces ask over the travel row
 	{ "FeedbackAsk", function()

@@ -555,8 +555,9 @@ function BugReport._layout(self: any, compact: boolean)
 	end
 	self._slim = slim
 	self._prompt.Visible = not compact and not slim and self._page == "report"
-	self._note.Visible = not compact
-	self._counter.Visible = not compact
+	-- Studio 2026-11-13: the note and the "0 / 500" counter belong to the report page, never the faces step
+	self._note.Visible = not compact and self._page == "report"
+	self._counter.Visible = not compact and self._page == "report"
 	local chipWidth = if compact then CHIP_COMPACT else CHIP.X
 	local chipTop = if compact or slim then 0 else PROMPT_HEIGHT + GAP
 	for index, kind in BugReportLogic.KINDS do

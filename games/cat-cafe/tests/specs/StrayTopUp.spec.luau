@@ -115,5 +115,55 @@ return function()
 				end
 			end
 		end)
+
+		it(
+			"places a sunrise wave over time: each area's rarest at once, the rest in turn from the gate end (#3661)",
+			function()
+				local a = { "a1", "a2", "a3", "a4", "a5" }
+				local b = { "b1", "b2", "b3" }
+				local c = { "c1" }
+				local now, later = StrayTopUp.waveOrder({ a, b, c }, 2)
+				expect(table.concat(now, " ")).to.equal("a1 a2 b1 b2 c1")
+				-- one area after another, each from its last (commonest, by the gate) back
+				expect(table.concat(later, " ")).to.equal("a5 b3 a4 a3")
+				-- nothing is lost or placed twice, whatever the sizes
+				for atOnce = 0, 6 do
+					local first, rest = StrayTopUp.waveOrder({ a, b, c, {} }, atOnce)
+					local seen: { [string]: number } = {}
+					for _, list in { first, rest } do
+						for _, name in list do
+							seen[name] = (seen[name] or 0) + 1
+						end
+					end
+					for _, wave in { a, b, c } do
+						for _, name in wave do
+							expect(seen[name]).to.equal(1)
+						end
+					end
+					expect(#first + #rest).to.equal(9)
+				end
+				local all, none = StrayTopUp.waveOrder({ a }, 5)
+				expect(#all).to.equal(5)
+				expect(#none).to.equal(0)
+				-- the gap: the last one lands WaveSpreadSeconds after sunrise, between a frame and a second apart
+				expect(StrayTopUp.waveGap(60, 30)).to.equal(0.5)
+				expect(StrayTopUp.waveGap(10, 30)).to.equal(1)
+				expect(StrayTopUp.waveGap(100000, 30)).to.equal(1 / 30)
+				expect(StrayTopUp.waveGap(0, 30)).to.equal(0)
+				-- the real waves: every area shows its Epic or rarer at sunrise, and the rest is in well inside the
+				-- shortest top-up wait, so the spread never draws a top-up of its own
+				expect(Config.WaveAtOnce >= 1).to.equal(true)
+				expect(Config.WaveSpreadSeconds <= Config.StrayTopUpMinSeconds).to.equal(true)
+				local laterCount = 0
+				for _, areaDef in Catalog.areas do
+					laterCount += math.max(0, areaDef.waveSize - Config.WaveAtOnce)
+				end
+				local gap = StrayTopUp.waveGap(laterCount, Config.WaveSpreadSeconds)
+				expect(gap >= 0.2).to.equal(true) -- at most five cat models a second
+				-- each area's gate strays (its last entryFloor) are placed inside the gate's own top-up wait
+				local turns = Config.StrayEntryFloor * #Catalog.areas
+				expect(turns * gap < Config.StrayEntryTopUpSeconds).to.equal(true)
+			end
+		)
 	end)
 end

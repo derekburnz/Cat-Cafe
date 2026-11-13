@@ -68,6 +68,7 @@ local PawTrail = require(script.PawTrail)
 local PetCat = require(script.PetCat)
 local Pity = require(script.Pity)
 local Plots = require(script.Plots)
+local PoolBeacon = require(script.PoolBeacon)
 local Potions = require(script.Potions)
 local Pull = require(script.Pull)
 local PullHop = require(script.PullHop)
@@ -187,6 +188,7 @@ function Effects.start()
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,
+		PoolBeacon.start,
 		RuinsWater.start,
 		TrailSparkle.start,
 		PawTrail.start,

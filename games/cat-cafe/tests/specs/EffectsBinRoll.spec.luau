@@ -53,19 +53,33 @@ return function()
 				if gapsFromEnd == nil or target >= p.slow then
 					gapsFromEnd = fromEnd
 				end
-				-- #3903: no slow tick before the last run, so a slow tick never passes a row under the prize
-				local lastRun = p.laps * 7
-				for i = 2, lastRun do
-					expect(math.abs((steps[i].at - steps[i - 1].at) - p.first) < 1e-6).to.equal(
-						true
-					)
+				-- #3903: a lit row under the prize (index > target) never lingers: its gap is the fast one
+				for i = 1, #steps - 1 do
+					if steps[i].index > target then
+						expect(math.abs((steps[i + 1].at - steps[i].at) - p.first) < 1e-6).to.equal(
+							true
+						)
+					end
 				end
-				-- the last gap is always the slowest one, and the whole roll stays short
-				expect(math.abs((steps[#steps].at - steps[#steps - 1].at) - p.last) < 1e-6).to.equal(
+				-- the row lit just before the prize lingers longest, unless the prize is row 1 (nothing above it)
+				local final = steps[#steps].at - steps[#steps - 1].at
+				expect(math.abs(final - (if target > 1 then p.last else p.first)) < 1e-6).to.equal(
 					true
 				)
-				expect(steps[#steps].at >= 1.2).to.equal(true)
+				expect(steps[#steps].at >= 0.8).to.equal(true)
 				expect(steps[#steps].at <= 2.5).to.equal(true)
+			end
+			for count = 1, 9 do
+				for target = 1, count do
+					local steps = Logic.binRollSteps(count, target, p.laps, p.first, p.last, p.slow)
+					for i = 1, #steps - 1 do
+						if steps[i].index > target then
+							expect(math.abs((steps[i + 1].at - steps[i].at) - p.first) < 1e-6).to.equal(
+								true
+							)
+						end
+					end
+				end
 			end
 			-- no flashing: never more than about 15 ticks a second
 			expect(p.first >= 1 / 15).to.equal(true)

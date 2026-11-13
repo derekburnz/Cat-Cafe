@@ -3514,8 +3514,9 @@ end
 -- on one"; Effects/BinRoll). The marker goes down the `count` rows in list order, `laps` whole times round, then on
 -- to row `target` (the prize the server already picked) and stops. Returns each tick as { index, at }: the row lit
 -- and the seconds after the start. #3903 (no near miss): the laps tick at an even `first`, and only the last run
--- from row 1 to the prize slows, its last `slow` ticks (or fewer, for a prize near the top) growing evenly to
--- `last`. So a slow tick never passes a row under the prize (the rare rows at the foot) before it lands. Honesty
+-- from row 1 to the prize slows: the last `slow` rows lit before the prize (fewer for a prize near the top, none
+-- for row 1) stay lit longer, growing evenly to `last`. No row under the prize (the rare rows at the foot) ever
+-- lingers before it lands. Honesty
 -- rule (design section 3): the gap at each tick from the end is the same curve wherever the roll stops (or the fast
 -- `first`), so it never lingers on one row longer than the same tick of any other roll, and no better prize is ever
 -- dangled.
@@ -3534,7 +3535,8 @@ function Logic.binRollSteps(
 	local goal = math.clamp(math.floor(target), 1, count)
 	local total = math.max(0, math.floor(laps)) * count + goal
 	local curve = math.max(1, math.floor(slow or 4)) -- the slow-down's length in ticks, the same for every roll
-	local slowTicks = math.min(goal, curve) -- only inside the last run, so never past the prize
+	-- the gap after a tick is how long its row stays lit; only rows of the last run before the prize may linger
+	local slowTicks = math.min(goal - 1, curve)
 	local at = 0
 	for step = 1, total do
 		table.insert(steps, { index = (step - 1) % count + 1, at = at })
@@ -3542,7 +3544,7 @@ function Logic.binRollSteps(
 		-- the last run, from row 1 down to the prize, slows, its gaps growing evenly to `last`. So the slow ticks
 		-- never pass a row under the prize (the rare rows at the foot of the list) before it lands.
 		local left = total - step -- ticks still to come after this one
-		local share = if left > slowTicks then 0 else (curve - left + 1) / curve
+		local share = if left < 1 or left > slowTicks then 0 else (curve - left + 1) / curve
 		at += first + (last - first) * share
 	end
 	return steps

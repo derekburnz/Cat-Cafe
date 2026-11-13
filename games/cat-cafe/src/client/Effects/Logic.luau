@@ -3676,6 +3676,42 @@ function Logic.bigTraitRoll(rarity: string?): boolean
 	return rarity ~= nil and rarities[rarity] == true
 end
 
+export type BigTraitSize = {
+	big: number,
+	screenSeconds: number,
+	beams: number,
+	beamHeight: number,
+	rings: number,
+	stars: number,
+	confetti: number,
+	rays: number,
+	shake: number,
+	dim: number,
+}
+
+-- #3908: the size of the big moment for `rarity` (Presets.bigTrait.sizes): Mythic bigger than Legendary, Secret
+-- the biggest; any other rarity gets the Legendary's.
+function Logic.bigTraitSize(rarity: string?): BigTraitSize
+	local sizes: { [string]: BigTraitSize } = Presets.bigTrait.sizes :: any
+	return (if rarity ~= nil then sizes[rarity] else nil) or sizes.legendary
+end
+
+-- #3908: where each of `count` light columns stands round the pool's surface: one in the middle, the rest evenly
+-- on a circle `spread` studs wide (flat offsets).
+function Logic.bigTraitBeams(count: number, spread: number): { Vector3 }
+	local spots: { Vector3 } = {}
+	if count < 1 then
+		return spots
+	end
+	table.insert(spots, Vector3.zero)
+	local around = count - 1
+	for i = 1, around do
+		local a = (i - 1) / around * math.pi * 2
+		table.insert(spots, Vector3.new(math.cos(a) * spread / 2, 0, math.sin(a) * spread / 2))
+	end
+	return spots
+end
+
 -- #3846: the cutscene's title for `rarity`.
 function Logic.bigTraitTitle(rarity: string): string
 	local titles: { [string]: string } = Presets.bigTrait.titles :: any

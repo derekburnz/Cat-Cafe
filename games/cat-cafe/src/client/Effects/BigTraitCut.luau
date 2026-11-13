@@ -71,6 +71,14 @@ function BigTraitCut.playing(): boolean
 	return running
 end
 
+-- #3908: the rarity's colour; the Secret rarity has the Secret cats' starlight until shared/Traits gives it one.
+local function colourFor(rarity: string): Color3
+	if rarity == "secret" then
+		return Presets.bigTrait.secretColour
+	end
+	return MysticPool.colourOf(rarity)
+end
+
 -- The title and the rays on their own ScreenGui, over the card's edge shade. Returns the gui and a function that
 -- draws them `t` seconds in (the rays turning and fading in, the title's grow).
 local function overlay(rarity: string, withRays: boolean): (ScreenGui?, (t: number) -> ())
@@ -79,7 +87,8 @@ local function overlay(rarity: string, withRays: boolean): (ScreenGui?, (t: numb
 		return nil, function(_t: number) end
 	end
 	local b = Presets.bigTrait
-	local colour = MysticPool.colourOf(rarity)
+	local sized = Logic.bigTraitSize(rarity)
+	local colour = colourFor(rarity)
 	local still = Context.reducedMotion()
 	local edge = if GuiService:IsTenFootInterface() then b.tvSafe else 0
 	local gui = Instance.new("ScreenGui")
@@ -87,6 +96,19 @@ local function overlay(rarity: string, withRays: boolean): (ScreenGui?, (t: numb
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
 	gui.DisplayOrder = b.displayOrder
+
+	-- #3908: a Mythic or Secret darkens the screen behind the title a little, so its colour stands out
+	local shade: Frame? = nil
+	if sized.dim > 0 then
+		local dark = Instance.new("Frame")
+		dark.Name = "Dim"
+		dark.BackgroundColor3 = Color3.fromRGB(16, 10, 32)
+		dark.BackgroundTransparency = if still then 1 - sized.dim else 1
+		dark.BorderSizePixel = 0
+		dark.Size = UDim2.fromScale(1, 1)
+		dark.Parent = gui
+		shade = dark
+	end
 
 	local hub: Frame? = nil
 	local rays: { Frame } = {}
@@ -100,13 +122,13 @@ local function overlay(rarity: string, withRays: boolean): (ScreenGui?, (t: numb
 		local square = Instance.new("UIAspectRatioConstraint")
 		square.AspectRatio = 1
 		square.Parent = centre
-		for i = 1, b.rays do
+		for i = 1, sized.rays do
 			local ray = Instance.new("Frame")
 			ray.Name = "Ray"
 			ray.AnchorPoint = Vector2.new(0.5, 0.5)
 			ray.Position = UDim2.fromScale(0.5, 0.5)
 			ray.Size = UDim2.new(0.07, 0, 1, 0)
-			ray.Rotation = (i - 1) * 180 / b.rays
+			ray.Rotation = (i - 1) * 180 / sized.rays
 			ray.BackgroundColor3 = colour
 			ray.BackgroundTransparency = 1
 			ray.BorderSizePixel = 0
@@ -155,6 +177,9 @@ local function overlay(rarity: string, withRays: boolean): (ScreenGui?, (t: numb
 			return
 		end
 		scale.Scale = Logic.bigTraitPop(t)
+		if shade ~= nil then
+			shade.BackgroundTransparency = 1 - sized.dim * Logic.smoothstep01(t / b.popSeconds)
+		end
 		if hub ~= nil then
 			hub.Rotation = (t * b.raySpin * 360) % 360
 			local seen = 1 - (1 - b.rayFade) * Logic.smoothstep01(t / b.popSeconds)
@@ -187,7 +212,14 @@ function BigTraitCut.screen(rarity: string, onReveal: () -> ()): () -> ()
 	RunService:BindToRenderStep(STEP .. "Screen", Enum.RenderPriority.Last.Value, function()
 		local t = os.clock() - began
 		draw(t)
-		if t >= (if Context.reducedMotion() then b.still else b.screenSeconds) then
+		if
+			t
+			>= (
+				if Context.reducedMotion()
+					then b.still
+					else Logic.bigTraitSize(rarity).screenSeconds
+			)
+		then
 			finish()
 		end
 	end)
@@ -248,21 +280,39 @@ local function clearEye(look: Vector3, front: Vector3, tall: boolean, station: M
 end
 
 -- The big moment's effects at the pool's surface, in the rarity's colour.
+-- #3908: a Mythic gets three columns, two rings one after the other and more confetti; a Secret five columns,
+-- three rings, the most of everything, a darker screen and a small shake.
 local function burst(surface: Vector3, rarity: string)
 	local b = Presets.bigTrait
-	local colour = MysticPool.colourOf(rarity)
-	Particles.beam(surface, colour, b.beamWidth, b.beamHeight, b.big)
-	Particles.ring(surface + Vector3.new(0, 0.2, 0), colour, b.ringDiameter, b.ringSeconds)
+	local sized = Logic.bigTraitSize(rarity)
+	local colour = colourFor(rarity)
+	for _, offset in Logic.bigTraitBeams(sized.beams, b.beamSpread) do
+		Particles.beam(surface + offset, colour, b.beamWidth, sized.beamHeight, sized.big)
+	end
+	for i = 1, sized.rings do
+		task.delay((i - 1) * b.ringGap, function()
+			Particles.ring(
+				surface + Vector3.new(0, 0.2, 0),
+				colour,
+				b.ringDiameter * (1 + (i - 1) * 0.35),
+				b.ringSeconds
+			)
+		end)
+	end
 	Particles.burst(
 		"catchSparkle",
 		surface + Vector3.new(0, 2, 0),
-		b.stars,
+		sized.stars,
 		Presets.palette.sparkle
 	)
-	local palette = if rarity == "mythic"
-		then Presets.mysticPool.mythicColours
+	local palette = if rarity == "secret"
+		then b.secretColours
+		elseif rarity == "mythic" then Presets.mysticPool.mythicColours
 		else { colour, Presets.palette.sparkle, Presets.palette.offwhite }
-	Particles.confetti(surface + Vector3.new(0, 3, 0), b.confetti, palette)
+	Particles.confetti(surface + Vector3.new(0, 3, 0), sized.confetti, palette)
+	if sized.shake > 0 then
+		Context.shake(0.35, sized.shake)
+	end
 end
 
 -- Near the pool: see the top of this file. `roll(reveal)` starts the pool's own roll with `reveal` as its onReveal
@@ -380,7 +430,10 @@ function BigTraitCut.atPool(
 		local at = bigAt
 		if at ~= nil then
 			draw(now - at)
-			if now - at >= (if Context.reducedMotion() then b.still else b.big) then
+			if
+				now - at
+				>= (if Context.reducedMotion() then b.still else Logic.bigTraitSize(rarity).big)
+			then
 				swingBack(now, false)
 			end
 		end

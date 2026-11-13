@@ -475,7 +475,8 @@ function Logic.bigTraitCue(beat: any, rarity: any): string?
 	if beat ~= "fanfare" then
 		return nil
 	end
-	return if rarity == "mythic" then "jingleMythical" else "jingleLegendary"
+	-- #3908: a Secret trait gets the Mythical sting too, the biggest the game has
+	return if rarity == "mythic" or rarity == "secret" then "jingleMythical" else "jingleLegendary"
 end
 
 -- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut.onBeat) plays the pool's own chimes,

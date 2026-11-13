@@ -46,7 +46,45 @@ return function()
 			expect(b.cap >= 12).to.equal(true) -- a Mythic roll (about 6 s) plus the big moment and the swing back
 		end)
 
+		it("makes a Mythic bigger than a Legendary and a Secret the biggest (#3908)", function()
+			expect(Logic.bigTraitRoll("secret")).to.equal(true)
+			expect(Logic.bigTraitTitle("secret")).to.equal("SECRET TRAIT!")
+			local l, m, x =
+				Logic.bigTraitSize("legendary"),
+				Logic.bigTraitSize("mythic"),
+				Logic.bigTraitSize("secret")
+			for _, key in { "big", "beams", "rings", "stars", "confetti", "rays", "dim" } do
+				expect((m :: any)[key] >= (l :: any)[key]).to.equal(true)
+				expect((x :: any)[key] > (m :: any)[key]).to.equal(true)
+			end
+			-- an unknown rarity gets the Legendary's
+			expect(Logic.bigTraitSize("rare")).to.equal(l)
+			-- still short, and inside the cap with a Mythic roll and the swings
+			expect(x.big <= 5).to.equal(true)
+			expect(x.screenSeconds <= 3).to.equal(true)
+			expect(6 + x.big + b.swingIn + b.swingOut < b.cap).to.equal(true)
+			-- a small shake only, and the screen never goes fully dark
+			expect(x.shake <= 0.15).to.equal(true)
+			expect(x.dim < 0.6).to.equal(true)
+			-- the rings come one after the other, slower than about 3 a second
+			expect(b.ringGap >= 1 / 3).to.equal(true)
+		end)
+
+		it("stands the light columns round the pool, one in the middle", function()
+			expect(#Logic.bigTraitBeams(0, 5)).to.equal(0)
+			local one = Logic.bigTraitBeams(1, 5)
+			expect(#one).to.equal(1)
+			expect(one[1]).to.equal(Vector3.zero)
+			local five = Logic.bigTraitBeams(5, 5)
+			expect(#five).to.equal(5)
+			for i = 2, 5 do
+				expect(math.abs(five[i].Magnitude - 2.5) < 1e-6).to.equal(true)
+				expect(five[i].Y).to.equal(0)
+			end
+		end)
+
 		it("plays the Legendary or Mythical fanfare on its beat", function()
+			expect(AudioLogic.bigTraitCue("fanfare", "secret")).to.equal("jingleMythical")
 			expect(AudioLogic.bigTraitCue("fanfare", "legendary")).to.equal("jingleLegendary")
 			expect(AudioLogic.bigTraitCue("fanfare", "mythic")).to.equal("jingleMythical")
 			expect(AudioLogic.bigTraitCue("other", "mythic")).to.equal(nil)

@@ -69,14 +69,16 @@ type Tile = {
 	connection: RBXScriptConnection,
 }
 
-local MAX_SIZE = Vector2.new(600, 430)
+local MAX_SIZE = Vector2.new(600, 386) -- #3961: two full rows of TILE_H and the one line footer, no gap under them
 local COLUMNS = 5
 local TILE_H = 112
 local PICTURE = 60
 local PENDING_SECONDS = 2.5
 local SEND_GAP = 1.1 -- #3124: the server's MuseumDonate limit is one a second
 local FILL_GAP = 2.1 -- #3130: MuseumFill's is one per 2 s
-local FOOT_H = 62
+local FOOT_H = 22 -- #3961: one line (the note, else what a finished hall gives); the count sits under the hall's name
+local NAME_H = 16
+local LINE_H = 14
 local FILL_W = 104
 local ROW_H = 52
 local GAP = Theme.sizes.gap
@@ -102,6 +104,13 @@ end
 
 -- A page over the card's content (a list, a question): a little past its edges, so the tiles' outlines don't show.
 -- `z` lifts a question over a list.
+-- #3961: a cat's name as big as its tile allows (Garbage Bag Cat was cut to "arbage Bag Ca" on a phone): the bold
+-- font runs a little over half its size a letter
+local function nameSize(name: string, width: number): number
+	local fit = math.floor(width / (math.max(1, utf8.len(name) or #name) * 0.56))
+	return math.clamp(fit, Theme.sizes.textTiny, Theme.sizes.textSmall)
+end
+
 local function sheet(name: string, parent: Instance, z: number?): Frame
 	return Create("Frame", {
 		Name = name,
@@ -200,31 +209,38 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			self:_askFill()
 		end,
 	})
+	-- #3961: the hall's name with the museum's count under it, so the footer is one line and both rows fit
 	self._title = text({
 		Name = "Room",
 		Position = UDim2.fromOffset(64, 0),
-		Size = UDim2.new(1, -(128 + FILL_W + 8), 0, buttonH),
+		Size = UDim2.new(1, -(128 + FILL_W + 8), 0, math.floor(buttonH * 0.6)),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
+	self._count = text({
+		Name = "Count",
+		Position = UDim2.fromOffset(64, math.floor(buttonH * 0.6)),
+		Size = UDim2.new(1, -(128 + FILL_W + 8), 0, buttonH - math.floor(buttonH * 0.6)),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = PAL.subtext,
+		Parent = content,
+	})
 
 	-- #3123: two rows of five placed by hand (a UIGridLayout's five cells and four gaps could round past the width
-	-- and wrap at four), in a scroller between the arrows and the footer
-	local grid: ScrollingFrame = Create("ScrollingFrame", {
+	-- and wrap at four). #3961 (Derek: cells cut off on a phone): the two rows share the room between the arrows and
+	-- the footer, each half of it (up to TILE_H), and the pictures shrink to fit, so nothing scrolls or is cut
+	local grid: Frame = Create("Frame", {
 		Name = "Exhibits",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(0, buttonH + GAP),
 		Size = UDim2.new(1, 0, 1, -(buttonH + GAP * 2 + FOOT_H)),
-		CanvasSize = UDim2.fromOffset(0, TILE_H * 2 + GAP + 8),
-		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = PAL.caramel,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
 		Parent = content,
 	}, {
+		Create("UISizeConstraint", { MaxSize = Vector2.new(math.huge, TILE_H * 2 + GAP + 6) }),
 		-- room for the tiles' outlines inside the scroller's clip
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, 3),
@@ -241,12 +257,12 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			AutoButtonColor = false,
 			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
-			Size = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0, TILE_H),
+			Size = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0.5, -GAP / 2),
 			Position = UDim2.new(
 				((index - 1) % COLUMNS) / COLUMNS,
 				((index - 1) % COLUMNS) * GAP / COLUMNS,
-				0,
-				(math.ceil(index / COLUMNS) - 1) * (TILE_H + GAP)
+				(math.ceil(index / COLUMNS) - 1) * 0.5,
+				(math.ceil(index / COLUMNS) - 1) * GAP / 2
 			),
 			Parent = grid,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
@@ -256,25 +272,31 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Parent = frame,
 		})
+		-- the picture takes what the two lines under it leave, square and at most PICTURE
 		local portrait = CatPortrait.new({
 			parent = frame,
-			size = UDim2.fromOffset(PICTURE, PICTURE),
+			size = UDim2.new(1, -8, 1, -(NAME_H + LINE_H + 10)),
 			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.new(0.5, 0, 0, 6),
+			position = UDim2.new(0.5, 0, 0, 4),
 			still = true,
 		})
+		Create("UIAspectRatioConstraint", { AspectRatio = 1, Parent = portrait.frame })
+		Create(
+			"UISizeConstraint",
+			{ MaxSize = Vector2.new(PICTURE, PICTURE), Parent = portrait.frame }
+		)
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(4, PICTURE + 10),
-			Size = UDim2.new(1, -8, 0, 18),
+			Position = UDim2.new(0, 3, 1, -(NAME_H + LINE_H + 4)),
+			Size = UDim2.new(1, -6, 0, NAME_H),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			Parent = frame,
 		})
 		local line = text({
 			Name = "Line",
-			Position = UDim2.fromOffset(4, PICTURE + 28),
-			Size = UDim2.new(1, -8, 0, 16),
+			Position = UDim2.new(0, 3, 1, -(LINE_H + 4)),
+			Size = UDim2.new(1, -6, 0, LINE_H),
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = CARD.subtext,
 			Parent = frame,
@@ -318,27 +340,9 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 	self._noteLabel = text({
 		Name = "Note",
 		Position = UDim2.new(0, 0, 1, -FOOT_H),
-		Size = UDim2.new(1, 0, 0, 18),
+		Size = UDim2.new(1, 0, 0, FOOT_H),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
-		Parent = content,
-	})
-	self._count = text({
-		Name = "Count",
-		Position = UDim2.new(0, 0, 1, -FOOT_H + 20),
-		Size = UDim2.new(1, 0, 0, 22),
-		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
-		Parent = content,
-	})
-	text({
-		Name = "RoomBonus",
-		Position = UDim2.new(0, 0, 1, -FOOT_H + 42),
-		Size = UDim2.new(1, 0, 0, 18),
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = PAL.gold,
-		Text = LateStationsLogic.roomBonusText(),
 		Parent = content,
 	})
 
@@ -742,6 +746,7 @@ function RelicMuseum._paint(self: any)
 		-- a cat found at least once is named, as in the Index; its picture stays a silhouette until given
 		local found = exhibit.coat ~= nil or exhibit.have > 0 or self._found[exhibit.catId] ~= nil
 		tile.name.Text = if found then exhibit.name else "???"
+		tile.name.TextSize = nameSize(tile.name.Text, tile.name.AbsoluteSize.X)
 		tile.line.Text = exhibit.line
 		local canGive = exhibit.coat == nil and #exhibit.give > 0
 		tile.line.TextColor3 = if exhibit.coat ~= nil
@@ -767,11 +772,14 @@ function RelicMuseum._paint(self: any)
 		total,
 		LateStationsLogic.bonusText(if museum ~= nil then museum.bonus else 0)
 	)
-	self._noteLabel.Text = if self._pending
+	-- #3961: one footer line: the note, else the hint while a copy can be given, else what a finished hall gives
+	local note = if self._pending
 		then "Giving..."
 		else (self._note or if room.canFill > 0
 			then "Tap an exhibit with a ! to give a copy"
-			else "Give a copy of a cat to fill its exhibit")
+			else nil)
+	self._noteLabel.Text = note or LateStationsLogic.roomBonusText()
+	self._noteLabel.TextColor3 = if note ~= nil then PAL.subtext else PAL.gold
 	self._prev:setEnabled(not self._pending)
 	self._next:setEnabled(not self._pending)
 	self._fillButton.instance.Visible = (self._callbacks :: Callbacks).fill ~= nil

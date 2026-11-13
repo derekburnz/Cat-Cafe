@@ -2792,6 +2792,16 @@ local SCENES = {
 		end
 		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
 		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		-- #3961 (Derek: names clipped, cells cut off): both rows sit whole above the footer, nothing scrolls
+		local note = window:FindFirstChild("Note", true)
+		for index = 1, 10 do
+			local cell = window:FindFirstChild("Exhibit" .. index, true)
+			if cell ~= nil and cell.Visible then
+				local bottom = cell.AbsolutePosition.Y + cell.AbsoluteSize.Y
+				assert(bottom <= note.AbsolutePosition.Y + 1, "uigate: exhibit " .. index .. " runs under the footer (#3961)")
+				assert(cell.AbsoluteSize.Y >= 60, "uigate: exhibit " .. index .. " is " .. cell.AbsoluteSize.Y .. " px tall (#3961)")
+			end
+		end
 	end },
 	-- #2651 part 4: tapping the exhibit with a ! lists its copies weakest first; the gold copy asks first
 	{ "RelicMuseumGive", function()

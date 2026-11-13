@@ -5482,11 +5482,35 @@ do
 				end
 			end,
 			answer = function(face: string?)
-				if face ~= nil then
-					early.answered = true
-					(state :: any).feedbackAsked = true
-					UI.events.sendFeedback:Fire(face, nil)
+				if face == nil then
+					return
 				end
+				early.answered = true
+				(state :: any).feedbackAsked = true
+				local reasons = FeedbackLogic.reasons(face)
+				if #reasons == 0 then
+					UI.events.sendFeedback:Fire(face, nil)
+					return
+				end
+				-- #3657: the same card asks why; the face is sent once, with the chip tapped or alone
+				local chips: { AskCard.Choice } = {}
+				for _, reason in reasons do
+					table.insert(
+						chips,
+						{ id = reason.id, label = reason.label, icon = reason.glyph }
+					)
+				end
+				table.insert(chips, { id = FeedbackLogic.SKIP, label = "Skip" })
+				card:show({
+					title = FeedbackLogic.REASON_TITLE,
+					choices = chips,
+					rows = 2,
+					seconds = FeedbackLogic.REASON_SECONDS,
+					thanks = "Thanks!",
+					answer = function(reason: string?)
+						UI.events.sendFeedback:Fire(face, FeedbackLogic.reasonChip(reason))
+					end,
+				})
 			end,
 		})
 		local saved: any = state
@@ -6908,20 +6932,27 @@ do
 			pick = function()
 				UI.events.yardSalePick:Fire()
 			end,
+			tick = function()
+				Moments.YardSaleTick:Fire()
+			end,
 			landed = function(crateId: string)
-				if toasts then
-					local name = crateId
-					local crates: { Types.CrateDef } = if currentCatalog ~= nil
-							and currentCatalog.crates ~= nil
-						then currentCatalog.crates
-						else {}
-					for _, crate in crates do
-						if crate.id == crateId then
-							name = crate.name
-						end
+				local name = crateId
+				local golden = false
+				local crates: { Types.CrateDef } = if currentCatalog ~= nil
+						and currentCatalog.crates ~= nil
+					then currentCatalog.crates
+					else {}
+				for _, crate in crates do
+					if crate.id == crateId then
+						name = crate.name
+						golden = crate.golden == true
 					end
+				end
+				if toasts then
 					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
 				end
+				-- #3615: the landing's sound and, for a golden crate, the bigger show at the stall
+				Moments.YardSaleLanded:Fire(golden)
 				UI.events.yardSaleLanded:Fire(crateId)
 			end,
 			close = function()

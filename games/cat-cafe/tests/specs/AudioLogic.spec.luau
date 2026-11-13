@@ -729,6 +729,8 @@ return function()
 			expect(Logic.bannerCue("party")).to.equal("stationReveal")
 			expect(Logic.bannerCue("giftSoon")).to.equal("uiGiftReady")
 			expect(Logic.bannerCue("gift")).to.equal("indexReward")
+			expect(Logic.bannerCue("secrets")).to.equal("secretNear")
+			expect(Logic.bannerCue("secretSpawn")).to.equal("secretNear")
 			expect(Logic.bannerCue("sale")).to.equal(nil)
 			expect(Logic.bannerCue(nil)).to.equal(nil)
 		end)
@@ -1530,5 +1532,24 @@ return function()
 				expect(cue.pitch ~= nil and cue.pitch[2] < 1).to.equal(true)
 			end
 		)
+	end)
+
+	describe("Audio.Logic Yard Sale landing (#3615)", function()
+		it("plays the reel stop, and the gold reveal only for a golden crate", function()
+			local stop, chime = Logic.yardLandCues(false)
+			expect(stop).to.equal("uiReelStop")
+			expect(chime).to.equal(nil)
+			local goldStop, goldChime = Logic.yardLandCues(true)
+			expect(goldStop).to.equal("uiReelStop")
+			expect(goldChime).to.equal("goldReveal")
+			local _, oddChime = Logic.yardLandCues("yes")
+			expect(oddChime).to.equal(nil)
+		end)
+
+		it("uses cues that exist", function()
+			expect(Cues.uiReelTick ~= nil and Cues.uiReelStop ~= nil and Cues.goldReveal ~= nil).to.equal(
+				true
+			)
+		end)
 	end)
 end

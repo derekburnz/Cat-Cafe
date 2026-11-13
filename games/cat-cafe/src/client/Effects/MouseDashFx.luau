@@ -13,6 +13,8 @@
 --   MouseDashFx.heart(pad, gained)                a heart pad: won back a pink ring, sparkles and a pulse of the pad;
 --                                                 lost a grey puff
 --   MouseDashFx.faster(target, level)             the speed step: a blue ring and sparkles
+--   MouseDashFx.prize(banner)                     a run's points pass the next daily prize (#3553): a gold ring
+--                                                 and a few gold sparkles round the "NEXT" banner, which pops itself
 --   MouseDashFx.best(target, words?)              a new best or a win: two gold rings and confetti in three colours,
 --                                                 with `words` rising over them when given
 --   MouseDashFx.bounce(object, kind)              the one that touches the window: a quick scale bounce on a UIScale
@@ -204,6 +206,15 @@ function MouseDashFx.faster(target: GuiObject, _level: number?)
 	end
 	local f = Presets.mouseDash.faster
 	ArcadeFx.burst(gui, target, { colour = f.colour, sparkles = f.sparkles, rings = f.rings })
+end
+
+function MouseDashFx.prize(banner: GuiObject)
+	local gui = ArcadeFx.ready(banner)
+	if gui == nil then
+		return
+	end
+	local p = Presets.mouseDash.prize
+	ArcadeFx.burst(gui, banner, { colour = p.colour, sparkles = p.sparkles, rings = p.rings })
 end
 
 function MouseDashFx.best(target: GuiObject, words: string?)

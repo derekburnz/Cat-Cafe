@@ -1689,6 +1689,29 @@ local SCENES = {
 	{ "Index", function()
 		UI.open("Collection")
 	end },
+	-- #3722: the tiles are not built at start-up; the quiet build lays them a few a frame while the window is shut
+	{ "IndexQuietBuild", function()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true) :: Instance?
+		assert(window, "uigate: no Index window")
+		local function tiles(): number
+			local count = 0
+			for _, each in (window :: Instance):GetDescendants() do
+				if each:IsA("TextButton") and each:FindFirstChild("Name") then
+					count += 1
+				end
+			end
+			return count
+		end
+		for _ = 1, 600 do
+			UIShim.advance(1 / 60)
+		end
+		assert(UI.isOpen() ~= "Collection", "uigate: the Index is open before the quiet build check")
+		local built = tiles()
+		assert(built > 50, ("uigate: the quiet build laid %d tiles in 10 s with the Index shut (#3722)"):format(built))
+		UI.open("Collection")
+		assert(tiles() == built, "uigate: opening the Index built tiles twice (#3722)")
+	end },
 	-- #2493: the forever pills' fit runs deferred and settles: after a few frames its scale holds still, and the row
 	-- stays inside the title bar
 	{ "IndexPerksFit", function()
@@ -1923,6 +1946,29 @@ local SCENES = {
 	-- #2418 (Derek2: "make the feeding cats from cat menu much easier and more clean looking then long blue bubbles and
 	-- text"): the picked cat's food tiles under its chips, one per food, inside the card; a tap feeds that food to
 	-- this cat; a cat at the top level and a Bag with no food each say so in the row instead
+	-- #3717: the picked cat's trait on the small detail card: its name with its rarity, then its effects; a cat with
+	-- none reads "No trait yet" only while the traits switch is on
+	{ "CatsTrait", function()
+		local before = (UI.getState() :: any).cats
+		Scenes._traitBefore = before -- Scenes.close puts the cats back, so no later scene sees this trait
+		local cats = table.clone(before)
+		cats.gate_3 = table.clone(cats.gate_3)
+		cats.gate_3.trait = { id = "cosmicFortune" }
+		UI.update({ cats = cats } :: any)
+		Scenes._poolTraits = true
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_3")
+			-- the name of the trait shows: in its own row, or on the phone's short sheet beside the Charm line
+			local shown = false
+			for _, piece in UIShim.playerGui:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Visible and piece.Text:find("Cosmic Fortune", 1, true) then
+					shown = true
+				end
+			end
+			assert(shown, "uigate: the detail card does not name the cat's trait (#3717)")
+		end)
+	end },
 	{ "CatsFeed", function()
 		local before: any = UI.getState()
 		Scenes._feedBefore = { catFood = before.catFood, cats = before.cats }
@@ -2466,6 +2512,9 @@ local SCENES = {
 		press("MysticPool", "Change")
 		local picker = window:FindFirstChild("Picker", true)
 		assert(picker.Visible, "uigate: Pick a cat did not open the cat list (#3196)")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60) -- the rest of the rows, a few a frame
+		end
 		press("MysticPool", "Picker.List.gate_2.Pick")
 		assert(not picker.Visible, "uigate: picking a cat left the list open (#3196)")
 		local words = roll:FindFirstChildWhichIsA("TextLabel", true)
@@ -2480,6 +2529,9 @@ local SCENES = {
 		local window = mysticPool(nil, "gate_1")
 		press("MysticPool", "Change")
 		local list = window:FindFirstChild("Picker", true):FindFirstChild("List")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60) -- the rest of the rows, a few a frame
+		end
 		local rows = 0
 		for _, row in list:GetChildren() do
 			rows += if row:IsA("Frame") then 1 else 0
@@ -2487,6 +2539,30 @@ local SCENES = {
 		assert(rows >= 10, "uigate: the cat list has only " .. rows .. " cats (#3196)")
 		local trait = list:FindFirstChild("gate_1"):FindFirstChild("Trait")
 		assert(trait.Text:find("Golden Whiskers", 1, true), "uigate: the row reads " .. trait.Text .. " (#3196)")
+		-- #3700: Sort chips (Rarity first and in use), the rarity's word on every row, and the Has trait filter
+		local tools = window:FindFirstChild("Picker", true):FindFirstChild("Tools")
+		local sortWords = tools:FindFirstChild("SortRarity"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(sortWords.Text:find("Rarity", 1, true), "uigate: the Rarity sort chip reads " .. sortWords.Text .. " (#3700)")
+		assert(list:FindFirstChild("gate_1"):FindFirstChild("Rarity", true), "uigate: a row has no rarity tag (#3700)")
+		press("MysticPool", "Picker.Tools.Hastrait")
+		local shown = 0
+		for _, row in list:GetChildren() do
+			shown += if row:IsA("Frame") and row.Visible then 1 else 0
+		end
+		local withTrait = 0
+		for _, cat in (UI.getState() :: any).cats do
+			withTrait += if cat.trait ~= nil then 1 else 0
+		end
+		assert(withTrait >= 1, "uigate: the sample cats have no trait for the Has trait filter (#3700)")
+		assert(
+			shown == withTrait,
+			("uigate: Has trait shows %d cats, %d have a trait (#3700)"):format(shown, withTrait)
+		)
+		press("MysticPool", "Picker.Tools.All")
+		press("MysticPool", "Picker.Tools.SortLevel")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
 	end },
 	-- #3196: a re-roll waiting: the old trait and the new one side by side, Keep old and Take new the same size and
 	-- style, the odds line on it; Take new sends ChooseTrait's event with true
@@ -2513,7 +2589,7 @@ local SCENES = {
 		press("MysticPool", "Odds")
 		local list = window:FindFirstChild("OddsList", true)
 		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
-		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "35%", "uigate: the odds list reads wrong (#3196)")
+		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
 	end },
 	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one
@@ -4260,6 +4336,37 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3657: a thumbs down on the slide-in ask brings the reasons up on the same card, in two rows with Skip; the
+	-- face is sent once, with the reason tapped
+	{ "FeedbackAskReasons", function()
+		local sent = {}
+		local connection = UI.events.sendFeedback:Connect(function(face, chip)
+			table.insert(sent, tostring(face) .. ":" .. tostring(chip))
+		end)
+		-- an ask the scene before left saying "Thanks!" slides away first (showAsk leaves a shown card alone)
+		-- the clock is run by hand: a scene that yields is left behind on a slow CI run and wakes inside a later scene
+		UIShim.advance(2.5)
+		UI.tips.showAsk()
+		UIShim.advance(0.4)
+		press("CatCafeAsk", "Choice_no")
+		UIShim.advance(0.2)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "What is the main reason?", "uigate: after a thumbs down the ask reads " .. title.Text .. " (#3657)")
+		assert(title.TextFits, "uigate: the reasons title does not fit (#3657)")
+		assert(#sent == 0, "uigate: the face was sent before a reason could be picked (#3657)")
+		local second = ask:FindFirstChild("Choices2", true)
+		assert(second.Visible, "uigate: the reasons ask has no second row (#3657)")
+		for _, name in { "Choice_too_hard", "Choice_confusing", "Choice_boring", "Choice_laggy", "Choice_skip" } do
+			local piece = ask:FindFirstChild(name, true)
+			assert(piece, "uigate: the reasons ask lacks " .. name .. " (#3657)")
+			local label = piece:FindFirstChildWhichIsA("TextLabel", true)
+			assert(label == nil or label.TextFits, "uigate: " .. name .. "'s words do not fit (#3657)")
+		end
+		press("CatCafeAsk", "Choice_boring")
+		connection:Disconnect()
+		assert(#sent == 1 and sent[1] == "no:boring", "uigate: the reasons ask sent " .. table.concat(sent, " ") .. " (#3657)")
+	end },
 	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
 	-- face and thumbs down, with its title on one card
 	{ "SessionAsk", function()
@@ -4432,6 +4539,33 @@ local SCENES = {
 				assert(floor.AbsoluteSize.X >= holes[9].AbsolutePosition.X + holes[9].AbsoluteSize.X - holes[1].AbsolutePosition.X, "uigate: the cellar floor is smaller than the holes (#3296)")
 			end
 			assert(board:FindFirstChild("Score", true).Text == "24", "uigate: the score did not move on a catch (#3296)")
+		end,
+	},
+	-- #3765 (Derek: the banners "pop up on top of the game and should be moved higher up so we can see"): Ready,
+	-- Faster!, the kitten hint and Prize: sit in the window's header, above every hole and clear of the close button
+	{
+		"MouseDashBanner",
+		function()
+			local window = mouseDashCard(false)
+			local nowAt = workspace:GetServerTimeNow()
+			UI.mouseDash.began(9, 3, nowAt, nowAt + 92)
+			local banner = window:FindFirstChild("Banner", true)
+			assert(banner ~= nil and banner.Visible, "uigate: a new game shows no Ready banner (#3765)")
+			assert(banner.Text == "Ready?", "uigate: the banner reads " .. banner.Text .. " (#3765)")
+			banner.Text = "Let sleeping kittens nap!" -- the longest line it takes
+			local bottom = banner.AbsolutePosition.Y + banner.AbsoluteSize.Y
+			local grid = window:FindFirstChild("Board", true):FindFirstChild("Grid", true)
+			assert(bottom <= grid.AbsolutePosition.Y, ("uigate: the banner ends at %d, over the holes from %d (#3765)"):format(bottom, grid.AbsolutePosition.Y))
+			local hud = window:FindFirstChild("Hud", true)
+			assert(bottom <= hud.AbsolutePosition.Y, "uigate: the banner covers the hearts and score (#3765)")
+			local close = window:FindFirstChild("Close", true)
+			if close ~= nil then
+				assert(banner.AbsolutePosition.X + banner.AbsoluteSize.X <= close.AbsolutePosition.X, "uigate: the banner runs under the close button (#3765)")
+			end
+			assert(banner.AbsoluteSize.X >= 150 and banner.AbsoluteSize.Y >= 20, ("uigate: the banner is %d by %d (#3765)"):format(banner.AbsoluteSize.X, banner.AbsoluteSize.Y))
+			-- for the picture: Ready's own clock has put it away by the time the scene is drawn
+			UIShim.advance(1)
+			banner.Visible = true
 		end,
 	},
 	-- #3296: the end of a game: the card again with the game's line, and the arcade's prizes ticked
@@ -5021,7 +5155,7 @@ local SCENES = {
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
 		-- #3205 (Derek2: "the quick update in ... gets cut off"): the restart warning's calm early mark is an info
 		-- toast, and still shows every word
-		local notice = "A quick update is coming in 10 minutes, then a 10-minute event! Keep playing, your cafe is saved."
+		local notice = "A quick update is coming in 10 minutes, then a 30-minute event! Keep playing, your cafe is saved."
 		UI.toast(notice, "info")
 		local warned = find(notice)
 		assert(warned.TextTruncate == Enum.TextTruncate.None, "uigate: the restart warning ends in ... (#3205)")
@@ -5448,6 +5582,15 @@ local SCENES = {
 			end
 		end
 		assert(crates > 0, "uigate: no achievement shows the Classic Crate's picture (#2089)")
+		-- #3694: Devoted counts hours ("16/50 hours"), not seconds, and the words fit their box
+		local hours: TextLabel? = nil
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and string.match(d.Text, "^%d+/50 hours$") then
+				hours = d
+			end
+		end
+		assert(hours, "uigate: Devoted does not count in hours (#3694)")
+		assert((hours :: TextLabel).TextFits, "uigate: Devoted's hours do not fit (#3694)")
 	end },
 	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
 	{ "QuestsClaimed", function()
@@ -10223,6 +10366,10 @@ function Scenes.close()
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene
 		Scenes._rankTier = nil
 	end
+	if Scenes._traitBefore then
+		UI.update({ cats = Scenes._traitBefore } :: any) -- #3717's CatsTrait: gate_3 without its trait again
+		Scenes._traitBefore = nil
+	end
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back
 		Scenes._feedBefore = nil
@@ -10315,6 +10462,10 @@ function Scenes.close()
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_ok")
+	end
+	-- #3657: on the faces ask "ok" brings the reasons up on the same card; Skip puts it away
+	if ask and ask:FindFirstChild("Choice_skip", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_skip")
 	end
 	-- F92: the invite nudge's Not now
 	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then

@@ -138,6 +138,10 @@ local Moments = {
 	-- tagged RummageBin (its BangAnchor is where prizes pop out, its GlowAnchor the mouth). RescueStart, RescueHit, RescueMiss, RescueDone and RescueFail fire for its bar too,
 	-- with the spot id RummageBin.SPOT and no trap or rarity.
 	RummageWin = Signal.new() :: Signal.Signal<string, boolean>,
+	-- #3615: the Yard Sale lucky pick's board (UI/Screens/YardSale, through UI's callbacks): YardSaleTick as each row
+	-- lights during the roll, YardSaleLanded (golden) once as it stops on the crate won, before its CampExtraCollect.
+	YardSaleTick = Signal.new() :: Signal.Signal<()>,
+	YardSaleLanded = Signal.new() :: Signal.Signal<boolean>,
 	-- #2687 (shared/StationReveal): (area, perkId) the first time this account walks or flies into an area whose tier
 	-- it owns, for the station's build-in beat (VFX, Animation), the fanfare (Sound) and the Unlocked card (UI, with
 	-- StationPerks.get(perkId)). Fired once per area per account (WorldController, saved through TipSeen).

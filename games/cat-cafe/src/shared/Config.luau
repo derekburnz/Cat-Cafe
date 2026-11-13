@@ -682,10 +682,14 @@ local Config = {
 	IntroAutoPlay = false,
 	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
 	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
-	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set
-	-- these for each new Event. #3450 (Derek 2026-11-12): the ask comes 3 to 10 minutes into the session.
-	UpdateEventId = "4928565040176562804" :: string?, -- "Mystic Pool + Mouse Dash" (#3424)
-	UpdateEventStartsAt = 1794520800 :: number?, -- 2026-11-12 22:00 UTC
+	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Add
+	-- each new Event here. #3450 (Derek 2026-11-12): the ask comes 3 to 10 minutes into the session.
+	-- Since 2026-11-13 (Derek: "make sure for the next event its prompting people in game to mark interested") this is
+	-- a list, and the ask is for the first Event on it that has not started, so two listed Events need one change.
+	UpdateEvents = {
+		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
+		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
+	} :: { { id: string, startsAt: number } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

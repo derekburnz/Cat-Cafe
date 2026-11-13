@@ -56,6 +56,7 @@ local NightService = require(script.Parent.Services.NightService)
 local OwnerTestService = require(script.Parent.Services.OwnerTestService)
 local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
+local PetService = require(script.Parent.Services.PetService)
 local PityService = require(script.Parent.Services.PityService)
 local PlaytimeGiftService = require(script.Parent.Services.PlaytimeGiftService)
 local PlotService = require(script.Parent.Services.PlotService)
@@ -169,6 +170,7 @@ MouseDashService.start() -- #3296: the arcade's Mouse Dash, before DataService f
 ArcadeCabinetService.start() -- #3443: the cabinet and its ring are in the world only while the arcade has a game on
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
+PetService.start() -- #3651: pet a cat, the happy cat pays double for an hour (switch petCats)
 AfkCafeService.start() -- #3573: resting in your own cafe pays the cats' cafe pay double
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)

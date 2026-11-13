@@ -47,6 +47,7 @@ local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
+local Pet = require(ReplicatedStorage.Shared.Pet)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local PlotService = require(script.Parent.PlotService)
@@ -472,6 +473,29 @@ local function buildCat(
 	return model
 end
 
+-- #3651 (shared/Pet): the happy cat's model says when its heart ends (Pet.ATTRIBUTE, for the money tag and the
+-- prompt's note); every other cat says nothing. A heart whose cat left its job or the save ends here.
+local function markHappy(plot: WorldBuilder.Plot, profile: Profile)
+	local now = os.time()
+	Pet.prune(profile, now)
+	local pet = profile.pet
+	local uid = if LiveFlagService.on(Pet.FLAG) then Pet.active(pet, profile.cats, now) else nil
+	for _, child in plot.cats:GetChildren() do
+		local untilAt = if pet ~= nil and uid ~= nil and child.Name == uid then pet.untilAt else nil
+		if child:GetAttribute(Pet.ATTRIBUTE) ~= untilAt then
+			child:SetAttribute(Pet.ATTRIBUTE, untilAt)
+		end
+	end
+end
+
+function CafeService.markHappy(player: Player)
+	local profile = DataService.get(player)
+	local plot = PlotService.get(player)
+	if profile ~= nil and plot ~= nil then
+		markHappy(plot, profile)
+	end
+end
+
 local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Profile)
 	local multiplier = Economy.staffMultiplier(profile)
 		* Economy.cafeMultiplier(profile)
@@ -653,6 +677,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		end
 		model.Parent = plot.cats
 	end
+	markHappy(plot, profile) -- #3651
 end
 
 -- Puts the piece's model at `at` (moving it when its place changed), or takes it away when `at` is nil. Every

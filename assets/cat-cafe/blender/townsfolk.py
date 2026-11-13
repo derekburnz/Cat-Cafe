@@ -56,7 +56,15 @@ def build_townsfolk(n):
         if k != 1.0:
             scale_mesh(hat, k)
         hat["rides"] = "Head"
-        return objs + [hat]
+        extra = []
+        for suffix, (pb, at) in ctx.extra.items():    # a prop's own pieces, the fedora's lit band (#2739) among them
+            piece = pb.finalize(name + "_" + suffix, mat,
+                                location=tuple((h + a) * k for h, a in zip(d["pivots"]["Head"], at)))
+            if k != 1.0:
+                scale_mesh(piece, k)
+            piece["rides"] = "Head"
+            extra.append(piece)
+        return objs + [hat] + extra
     return build
 
 

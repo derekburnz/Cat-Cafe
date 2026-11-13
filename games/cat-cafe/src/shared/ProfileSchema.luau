@@ -22,6 +22,7 @@ local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
 local MysteryMarket = require(script.Parent.MysteryMarket)
 local Onboarding = require(script.Parent.Onboarding)
+local Pet = require(script.Parent.Pet)
 local PlaytimeGifts = require(script.Parent.PlaytimeGifts)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
@@ -296,6 +297,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lures = {},
 		bait = nil,
 		bait2 = nil,
+		pet = nil,
 		freshCatch = FreshCatch.fresh(),
 		cats = {
 			[STARTER_UID] = starter,
@@ -952,6 +954,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	end
 
 	sanitizeCats(raw, profile, fromVersion, now)
+	profile.pet = Pet.sanitize(raw.pet, now) -- #3651: the happy cat, at any version (an older server drops it)
 
 	profile.collection = sanitizeCollection(raw.collection, now)
 	for _, instance in profile.cats do

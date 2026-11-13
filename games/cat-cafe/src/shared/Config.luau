@@ -1225,29 +1225,36 @@ local Config = {
 	-- #3420, #3424 (Derek 2026-11-12: "a giveaway of 100 gold fish to everyone 3 minute after restart"): the Thursday
 	-- 2026-11-12 launch gift, from 22:03 UTC, three minutes after the 22:00 restart. Saturday 2026-11-14's update
 	-- sets the weekly one again (id "2026-11-14", from 1794675600, fish 15, spins 1).
-	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0 } :: {
+	-- #3779 (Derek 2026-11-13: "its just giving 100 gold fish per person that logs in now and its not turned off"):
+	-- `to` ends a gift. The launch gift ended at 02:00 UTC on 2026-11-13; what was paid stays paid. Every gift from
+	-- now on carries a `to`.
+	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0, to = 1794535200 } :: {
 		id: string,
 		from: number,
 		fish: number,
 		spins: number,
 		crates: { [string]: number }?,
+		to: number?,
 	}?,
 	-- #3535 (Derek 2026-11-12: Friday's update, "instead of golden fish giveaway 3 different golden crates"): the
 	-- gift after UpdateGift, which keeps paying until this one's `from`: Friday 2026-11-13 22:03 UTC, three minutes
 	-- after that update's restart. A Classic and an Alleyway Golden Crate and the golden crate of the best area the
 	-- player has opened (a second Classic for a player whose best is the Alleyway; shared/UpdateGift.prize).
+	-- #3779: it ends (`to`) at Saturday 2026-11-14 17:00 UTC, when Saturday's weekly gift starts.
 	UpdateGiftNext = {
 		id = "2026-11-13",
 		from = 1794607380,
 		fish = 0,
 		spins = 0,
 		crates = { classic_golden_crate = 1, alley_golden_crate = 1, highest_golden = 1 },
+		to = 1794675600,
 	} :: {
 		id: string,
 		from: number,
 		fish: number,
 		spins: number,
 		crates: { [string]: number }?,
+		to: number?,
 	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

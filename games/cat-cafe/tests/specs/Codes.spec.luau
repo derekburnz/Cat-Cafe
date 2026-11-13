@@ -33,6 +33,18 @@ return function()
 				)
 				expect(live.fish).to.equal(100)
 				expect(live.spins).to.equal(0)
+				-- #3779: it ended at 02:00 UTC on Friday 2026-11-13 and pays nobody new after that
+				expect(os.date("!%Y-%m-%d %H:%M %A", live.to)).to.equal("2026-11-13 02:00 Friday")
+				local to = live.to :: number
+				expect(UpdateGift.due({}, live, to - 1)).to.equal(true)
+				expect(UpdateGift.due({}, live, to)).to.equal(false)
+				expect(UpdateGift.due({}, live, to + 86400)).to.equal(false)
+				-- a gift with no end still pays, and one that ends before it starts gives no notice
+				expect(UpdateGift.due({}, gift, SATURDAY + 86400 * 30)).to.equal(true)
+				local dead: UpdateGift.Gift =
+					{ id = "x1", from = SATURDAY, fish = 5, spins = 0, to = SATURDAY - 10 }
+				expect(UpdateGift.soon({}, dead, SATURDAY - 60)).to.equal(nil)
+				expect(UpdateGift.due({}, dead, SATURDAY + 1)).to.equal(false)
 				expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 100")
 				expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 100 })
 				-- the weekly gift keeps its words and prize
@@ -49,6 +61,11 @@ return function()
 			expect(UpdateGift.crateCount(coming)).to.equal(3)
 			expect(UpdateGift.crateCount(live)).to.equal(0)
 			expect(UpdateGift.words(coming)).to.equal("Update gift! 3 golden crates")
+			-- #3779: it ends when Saturday's weekly gift starts, so it pays nobody new after that
+			expect(os.date("!%Y-%m-%d %H:%M %A", coming.to)).to.equal("2026-11-14 17:00 Saturday")
+			local ends = coming.to :: number
+			expect(UpdateGift.due({}, coming, ends - 1)).to.equal(true)
+			expect(UpdateGift.due({}, coming, ends)).to.equal(false)
 			-- Thursday's pays until Friday's `from`, with Friday's notice in the minutes before it; then Friday's
 			local pays, notice = UpdateGift.pick(live, coming, coming.from - 1)
 			expect(pays).to.equal(live)

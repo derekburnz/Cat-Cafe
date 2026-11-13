@@ -34,12 +34,15 @@ local UpdateGift = {}
 UpdateGift.PREFIX = "gift"
 UpdateGift.SPARE_CRATE = "classic_golden_crate" -- in place of a "highest_golden" the gift already names
 
+-- #3779: `to` (os.time(), optional) ends a gift: from then on it pays nobody new and gives no notice. The launch gift
+-- had no end, so every account that joined for the first time since kept getting its 100 fish.
 export type Gift = {
 	id: string,
 	from: number,
 	fish: number,
 	spins: number,
 	crates: { [string]: number }?,
+	to: number?,
 }
 
 -- The gift that pays at `now` and the gift whose "a gift is coming" notice may show: `nextGift` for both once its
@@ -75,6 +78,9 @@ function UpdateGift.due(redeemed: { [string]: number }, gift: Gift?, now: number
 	if gift == nil or type(gift.id) ~= "string" or gift.id == "" or now < gift.from then
 		return false
 	end
+	if gift.to ~= nil and now >= gift.to then
+		return false -- #3779: the gift is over
+	end
 	return redeemed[UpdateGift.key(gift.id)] == nil
 end
 
@@ -91,6 +97,9 @@ function UpdateGift.soon(redeemed: { [string]: number }, gift: Gift?, now: numbe
 		return nil
 	end
 	local left = gift.from - now
+	if gift.to ~= nil and gift.to <= gift.from then
+		return nil -- #3779: a gift that ends before it starts never pays, so it promises nothing
+	end
 	if
 		left <= 0
 		or left > UpdateGift.NOTICE_SECONDS

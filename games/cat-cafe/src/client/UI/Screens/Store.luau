@@ -62,6 +62,7 @@ export type Store = {
 		prices: { [number]: StoreLogic.Price }
 	) -> (),
 	showTab: (self: Store, tab: string) -> (),
+	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
@@ -112,6 +113,8 @@ local WIDE_TILE = 76
 local WIDE_NAME_H = 24
 local WIDE_EFFECT_MIN = 30 -- two small lines at least
 local WIDE_MAX = 170
+local BAG_H = 40 -- #3572: the Potions tab's "In your bag now" strip over its cards
+local BAG_ICON = 28
 -- the hero: a big picture, the name and what you get, the price button at the right
 local HERO_TILE_MAX = 132
 local HERO_BUTTON_W = 150
@@ -383,10 +386,129 @@ function Store.new(callbacks: Callbacks): Store
 		}),
 	})
 
+	-- #3572: with the rework on, the Potions tab leads with what the bag already holds (StoreLogic.bag), filled by
+	-- setBag; the list moves down under it on that tab only
+	self._bag = {} :: { StoreLogic.BagEntry }
+	if self._rework then
+		local strip: Frame = Create("Frame", {
+			Name = "BagStrip",
+			BackgroundColor3 = CARD.goldCard,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(CARD_INSET, CARD_STROKE),
+			Size = UDim2.new(1, -2 * CARD_INSET - SCROLL_BAR, 0, BAG_H),
+			Visible = false,
+			Parent = pages,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIStroke", { Color = Theme.colors.gold, Thickness = CARD_STROKE }),
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, CARD_PAD),
+				PaddingRight = UDim.new(0, CARD_PAD),
+			}),
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Padding = UDim.new(0, 12),
+			}),
+		})
+		local title = text({
+			Name = "Title",
+			Text = "In your bag now:",
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextTruncate = Enum.TextTruncate.None,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, BAG_H),
+			LayoutOrder = 0,
+			Parent = strip,
+		})
+		MenuFamily.outline(title)
+		self._bagStrip = strip
+	end
+
 	self._sizeChanged = pages:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_layout()
 	end)
 	return self :: Store
+end
+
+-- #3572: the potions the bag holds, for the Potions tab's strip (rework only). One chip per potion: its flask and
+-- "x3", as the OK'd mock; the pack cards under it name each potion beside the same flask.
+function Store.setBag(self: any, bag: { StoreLogic.BagEntry })
+	self._bag = bag
+	local strip = self._bagStrip
+	if strip == nil then
+		return
+	end
+	local key = {}
+	for _, entry in bag do
+		table.insert(key, entry.id .. "=" .. entry.count)
+	end
+	local signature = table.concat(key, ",")
+	if signature == self._bagSignature then
+		return
+	end
+	self._bagSignature = signature
+	for _, child in strip:GetChildren() do
+		if child.Name == "Potion" then
+			child:Destroy()
+		end
+	end
+	for order, entry in bag do
+		local chip: Frame = Create("Frame", {
+			Name = "Potion",
+			BackgroundTransparency = 1,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, BAG_ICON),
+			LayoutOrder = order,
+			Parent = strip,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 4),
+			}),
+		})
+		local glyph = text({
+			Name = "Icon",
+			Size = UDim2.fromOffset(BAG_ICON, BAG_ICON),
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextScaled = true,
+			Parent = chip,
+		})
+		local images = ShopIcons.potionAll(entry.id)
+		if #images > 0 then
+			IconArt.setImages(glyph, images)
+		else
+			IconArt.set(glyph, "🧪")
+		end
+		local count = text({
+			Name = "Count",
+			Text = "x" .. entry.count,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextTruncate = Enum.TextTruncate.None,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, BAG_ICON),
+			Parent = chip,
+		})
+		MenuFamily.outline(count)
+	end
+	self:_placeBag()
+end
+
+-- #3572: the strip shows on the Potions tab when the bag list has a potion; the list then starts under it.
+function Store._placeBag(self: any)
+	local strip = self._bagStrip
+	if strip == nil then
+		return
+	end
+	local shown = self._tab == "potions" and #self._bag > 0
+	strip.Visible = shown and self._list.Visible
+	local top = if shown then BAG_H + CARD_STROKE + GAP else 0
+	self._list.Position = UDim2.fromOffset(0, top)
+	self._list.Size = UDim2.new(1, 0, 1, -top)
 end
 
 -- A gold card: `look` "hero" (wide, the button at the right) or "tile" (a grid card or top pick, the button at the
@@ -832,6 +954,7 @@ function Store.showTab(self: any, tab: string)
 	local codes = self._tab == "codes"
 	self._featured.Visible = featured
 	self._list.Visible = not featured and not codes
+	self:_placeBag()
 	self.codesPage.Visible = codes
 	local onCodes: ((boolean) -> ())? = self._callbacks.codes
 	if (was == "codes") ~= codes and onCodes then

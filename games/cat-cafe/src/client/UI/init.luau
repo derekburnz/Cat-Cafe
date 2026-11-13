@@ -9207,12 +9207,12 @@ function UI.perks.unlock(perkId: string)
 		-- both up at once); the card waits for the window to close, up to WINDOW_WAIT_SECONDS
 		local waited = 0
 		local windows = modal
-		while
-			UI.perks.token == token
-			and windows ~= nil
-			and windows:current() ~= nil
-			and waited < UI.perks.WINDOW_WAIT_SECONDS
-		do
+		-- Review-QA's Studio pass 2026-11-13: the "Unlocked! Haggler" card came up over a Rummage Bin roll, which
+		-- is not a window; a roll or its reveal (UI.rollBusy) holds the card as a window does
+		local function blocked(): boolean
+			return (windows ~= nil and windows:current() ~= nil) or UI.rollBusy.on
+		end
+		while UI.perks.token == token and blocked() and waited < UI.perks.WINDOW_WAIT_SECONDS do
 			waited += task.wait(0.5)
 		end
 		if UI.perks.token ~= token or UI.perks.card == nil then
@@ -9223,22 +9223,28 @@ function UI.perks.unlock(perkId: string)
 		local card = UI.perks.card
 		card:showUnlocked(perk, pool)
 		-- #3585, the other direction: a window that opens while the card is up (the walk onto the pool's ring a
-		-- moment after the card) takes the screen; the card steps aside and comes back when the window has closed
+		-- moment after the card) takes the screen; the card steps aside and comes back when the window has closed.
+		-- It comes back once: a second window or roll puts it away (Rank up's Perks lists it), so it never returns
+		-- after every Rummage Bin roll.
+		local returns = 0
 		while UI.perks.token == token and UI.perks.card == card and card:isShowing() do
 			task.wait(UI.perks.YIELD_STEP)
 			if
-				windows ~= nil
-				and windows:current() ~= nil
+				blocked()
 				and UI.perks.token == token
 				and UI.perks.card == card
 				and card:isShowing()
 				and card._mode == "unlocked"
 			then
 				card:hide()
+				returns += 1
+				if returns > 1 then
+					return
+				end
 				local away = 0
 				while
 					UI.perks.token == token
-					and windows:current() ~= nil
+					and blocked()
 					and away < UI.perks.WINDOW_WAIT_SECONDS
 				do
 					away += task.wait(0.5)

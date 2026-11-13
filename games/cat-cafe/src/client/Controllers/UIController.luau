@@ -19,6 +19,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local AfkController = require(script.Parent.AfkController)
 local Arcade = require(Shared:WaitForChild("Arcade"))
 local Audio = require(script.Parent.Parent.Audio)
+local BigTraitCut = require(script.Parent.Parent.Effects.BigTraitCut)
 local CarrySync = require(Shared:WaitForChild("CarrySync"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Catching = require(Shared:WaitForChild("Catching"))
@@ -1550,15 +1551,23 @@ local function wireIntents()
 	mysticPool.play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
 		local station = poolStation()
 		local distance = poolDistance()
+		-- #3846: a Legendary or Mythic roll gets its cutscene first, at the pool or (away from it) on the screen
+		local big = BigTraitCut.wanted(rarity)
 		if station == nil or distance == nil or distance > POOL_SEEN_STUDS then
-			return nil
+			return if big then BigTraitCut.screen(rarity, onReveal) else nil
 		end
 		local state: any = UIController.state
 		local cat = if state ~= nil and type(state.cats) == "table" then state.cats[uid] else nil
 		local asset: string? = if type(cat) == "table" and type(cat.catId) == "string"
 			then Catalog.sitModelName(Catalog.catModelName(cat.catId))
 			else nil
-		return MysticPool.roll(station, asset, rarity, onReveal)
+		local pool = station :: Model
+		if big then
+			return BigTraitCut.atPool(pool, rarity, function(reveal: () -> ()): () -> ()
+				return MysticPool.roll(pool, asset, rarity, reveal)
+			end, onReveal)
+		end
+		return MysticPool.roll(pool, asset, rarity, onReveal)
 	end
 	UI.events.rollTrait:Connect(function(uid: string)
 		Net.fire("RollTrait", uid)

@@ -3670,4 +3670,31 @@ function Logic.touchKey(order: { string }, key: string, cap: number): string?
 	return nil
 end
 
+-- #3846: whether a trait roll of `rarity` (a shared/Traits.RARITIES id) gets the big cutscene (Effects/BigTraitCut).
+function Logic.bigTraitRoll(rarity: string?): boolean
+	local rarities: { [string]: boolean } = Presets.bigTrait.rarities :: any
+	return rarity ~= nil and rarities[rarity] == true
+end
+
+-- #3846: the cutscene's title for `rarity`.
+function Logic.bigTraitTitle(rarity: string): string
+	local titles: { [string]: string } = Presets.bigTrait.titles :: any
+	local title = titles[rarity]
+	return if type(title) == "string" then title else string.upper(rarity) .. " TRAIT!"
+end
+
+-- #3846: the title's scale `t` seconds in: it grows from popFrom past full to popOver over popSeconds, settles on 1
+-- over as long again, and holds. Once, never a pulse.
+function Logic.bigTraitPop(t: number): number
+	local b = Presets.bigTrait
+	if t <= 0 then
+		return b.popFrom
+	elseif t < b.popSeconds then
+		return b.popFrom + (b.popOver - b.popFrom) * Logic.smoothstep01(t / b.popSeconds)
+	elseif t < b.popSeconds * 2 then
+		return b.popOver + (1 - b.popOver) * Logic.smoothstep01((t - b.popSeconds) / b.popSeconds)
+	end
+	return 1
+end
+
 return Logic

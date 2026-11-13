@@ -469,6 +469,15 @@ function Logic.poolCue(beat: any, step: any): (string?, number?)
 	return nil, nil
 end
 
+-- #3846: a Legendary or Mythic trait roll's cutscene (Effects/BigTraitCut.onBeat): the fanfare lands with the big
+-- moment, the Mythical jingle for a Mythic, else the Legendary one. Flat, like the reveal.
+function Logic.bigTraitCue(beat: any, rarity: any): string?
+	if beat ~= "fanfare" then
+		return nil
+	end
+	return if rarity == "mythic" then "jingleMythical" else "jingleLegendary"
+end
+
 -- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut.onBeat) plays the pool's own chimes,
 -- calm: each colour step the step chime one note up the scale, and the silhouette's rise the soft reveal. Never the
 -- Mythic sting, since nothing was won.

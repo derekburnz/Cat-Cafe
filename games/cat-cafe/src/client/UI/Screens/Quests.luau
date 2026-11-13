@@ -78,6 +78,7 @@ type QuestRow = {
 	swap: Button.Button,
 	check: TextLabel,
 	claimed: boolean, -- shown as claimed, the server's or a claim on its way
+	picture: TextLabel?, -- #3961: the family look's picture of what the quest asks
 }
 
 type Page = {
@@ -141,6 +142,44 @@ local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse n
 -- an achievement card's prize pictures (#3694 Review-QA 2026-11-13: 26 read as very small)
 local CARD_CHIP = 34
 local GAP = Theme.sizes.gap
+-- #3961: the family look (batch 2 mock): a picture for what each quest asks, upper case CLAIM and a sky SWAP
+local QUEST_PICTURE = 44
+local STAT_PICTURES: { [string]: string } = {
+	baitsTamed = "🥣",
+	catLevelUps = "⬆️",
+	catsCaught = "🐱",
+	cratesOpened = "📦",
+	dailyQuestsDone = "📜",
+	dailySetsDone = "📜",
+	distinctCats = "🐾",
+	fishEarned = "🐟",
+	goldCatches = "✨",
+	lifetimeCoins = "💰",
+	luresUsed = "🍣",
+	perfectCircles = "🎯",
+	rareCatches = "💎",
+	rescues = "🆘",
+	spins = "🎡",
+	tipJarClaims = "🫙",
+	tipPilesCollected = "🪙",
+}
+
+-- the quest's stat from the catalog, for its picture
+local function questStat(catalog: Types.Catalog?, id: string): string?
+	local quests = if catalog then catalog.quests else nil
+	if quests then
+		for _, group in { quests.daily, quests.weekly } do
+			for _, pool in group do
+				for _, def in pool do
+					if def.id == id then
+						return def.stat
+					end
+				end
+			end
+		end
+	end
+	return nil
+end
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
 local SYNC_GRACE = 0.5 -- a sync this soon after a press may predate it (one round trip)
@@ -488,7 +527,26 @@ end
 
 function Quests._buildRow(self: any, kind: string, slot: number, parent: Instance): QuestRow
 	local frame = card("Quest" .. slot, UDim2.new(1, 0, 0, ROW), parent, 10 + slot)
+	local family = MenuFamily.on()
 	local left = 14
+	local picture: TextLabel? = nil
+	if family then
+		local tile: TextLabel = text({
+			Name = "Picture",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 10, 0.5, 0),
+			Size = UDim2.fromOffset(QUEST_PICTURE, QUEST_PICTURE),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = CREAM.line,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextSize = 26,
+			Text = "📜",
+			Parent = frame,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = tile })
+		picture = tile
+		left = 10 + QUEST_PICTURE + 10
+	end
 	local title = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(left, 10),
@@ -530,7 +588,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	local actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth) -- 64 of the 80 on a phone
 	local claim = Button.new({
 		name = "Claim",
-		text = "Claim",
+		text = if family then "CLAIM" else "Claim",
 		style = "primary",
 		size = UDim2.fromOffset(ACTION_W, actionHeight),
 		anchorPoint = Vector2.new(1, 0.5),
@@ -542,11 +600,11 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	})
 	local swap = Button.new({
 		name = "Swap",
-		text = "Swap",
+		text = if family then "SWAP" else "Swap",
 		icon = "🔄",
-		style = "ghost",
+		style = if family then "sky" else "ghost",
 		textSize = Theme.sizes.textSmall,
-		size = UDim2.fromOffset(SWAP_W, SWAP_H),
+		size = UDim2.fromOffset(if family then SWAP_W + 16 else SWAP_W, SWAP_H),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = actionPosition,
 		parent = frame,
@@ -564,6 +622,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		swap = swap,
 		check = check(frame, actionPosition, Vector2.new(1, 0.5)),
 		claimed = false,
+		picture = picture,
 	}
 end
 
@@ -807,6 +866,10 @@ function Quests._renderRow(
 	local progress = math.clamp(quest.progress, 0, needs)
 	local done = QuestLogic.done(quest)
 	row.title.Text = quest.text
+	local picture: TextLabel? = row.picture
+	if picture ~= nil then
+		picture.Text = STAT_PICTURES[questStat(self._catalog, quest.id) or ""] or "📜"
+	end
 	row.fill.Size = UDim2.fromScale(progress / needs, 1)
 	row.fill.BackgroundColor3 = if done then Theme.colors.gold else Theme.colors.good
 	row.count.Text = if QuestLogic.isCoins(self._catalog, quest.id)
@@ -821,7 +884,7 @@ function Quests._renderRow(
 	-- a used swap stays, greyed, with its wait: _tickResets sets that text (#1166)
 	row.swap.instance.Visible = not done and not claimed
 	if row.swap.instance:GetAttribute("Waiting") ~= true then
-		row.swap:setText(if swapping then "..." else "Swap")
+		row.swap:setText(if swapping then "..." elseif row.picture ~= nil then "SWAP" else "Swap")
 		row.swap:setEnabled(not swapping)
 	end
 	row.check.Visible = claimed
@@ -940,7 +1003,7 @@ function Quests._tickResets(self: any)
 				swap:setEnabled(false)
 			elseif was then
 				swap.instance:SetAttribute("Waiting", nil)
-				swap:setText("Swap")
+				swap:setText(if row.picture ~= nil then "SWAP" else "Swap")
 				swap:setEnabled(true)
 			end
 		end

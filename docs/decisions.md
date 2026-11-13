@@ -1167,3 +1167,7 @@ Derek 16:08 UTC: "lost and found also needs changing it just doesnt do anything 
 
 ## 2026-11-13: Mystic Pool main card closer to the station menus picture (#3961 batch 3)
 The main card's odds are now six pills in the rarities' colours (two rows of three, "Common 30%"), with "Each trait inside a rarity is equally likely" beside them; Change cat and Odds are blue buttons; the trait's name is bigger and its effect lines bold. Same odds, prices and rules; the Keep old / Take new choice and the bundle offer keep their odds lines.
+
+## 2026-11-13 The Index's Decor tabs wrap into rows (#3931, Design-Agent)
+- **Why:** Derek, 15:35 UTC: "the decor menu side gets cut off for the new areas in index". With the new areas the tabs scrolled off the right edge.
+- **What:** each tab gets an equal share of its row; one row while that is at least 100 px, else the fewest rows (up to 3) at 84 px or more, so every area shows without scrolling. The completion line and the page move down under the rows. UI gate scene IndexDecorTabsFit.

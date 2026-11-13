@@ -67,6 +67,10 @@ local CHIP_HEIGHT = 46
 -- #2675: a page tab is never narrower than this (design px), so "Neighbourhood" keeps a 9 px name on a phone; with
 -- more pages than fit, the row scrolls sideways
 local TAB_MIN = 100
+-- #3931 (Derek 2026-11-13: "the decor menu side gets cut off for the new areas"): when the tabs would go under TAB_MIN
+-- in one row they wrap into rows of equal tabs, up to TAB_ROWS, each at least TAB_WRAP_MIN, so every area shows
+local TAB_ROWS = 3
+local TAB_WRAP_MIN = 84
 local TAB_PAD = 3 -- room for a tab's outline inside the clipping row
 local TAB_BADGE = 4 -- and more above and right of the tabs for a page's red count badge, which sits over the corner
 local TAB_BAR = 4 -- the row's scroll bar, under the tabs
@@ -146,12 +150,16 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 			PaddingRight = UDim.new(0, TAB_PAD + TAB_BADGE),
 			PaddingTop = UDim.new(0, TAB_PAD + TAB_BADGE),
 		}),
-		Create("UIListLayout", {
+		Create("UIGridLayout", {
+			Name = "Tabs",
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, gap),
+			CellPadding = UDim2.fromOffset(gap, gap),
+			CellSize = UDim2.fromOffset(TAB_MIN, chipHeight),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._tabGrid = self._chipBar:FindFirstChild("Tabs") :: UIGridLayout
+	self._tabRows = 1
 
 	self._resized = self._chipBar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_sizeTabs()
@@ -166,6 +174,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		Size = UDim2.new(1, 0, 0, PROGRESS_HEIGHT),
 		Parent = self.frame,
 	})
+	self._progress = progress
 	self._progressName = text({
 		Name = "Page",
 		Size = UDim2.new(0, 190, 1, 0),
@@ -419,7 +428,9 @@ function DecorIndex._buildPage(self: any, pool: string)
 	end
 end
 
--- Each page tab gets an equal share of the row, or TAB_MIN when that share is narrower (the row then scrolls).
+-- Each page tab gets an equal share of its row. One row while that share is at least TAB_MIN, else the fewest rows
+-- (up to TAB_ROWS) whose share is at least TAB_WRAP_MIN (#3931); only past TAB_ROWS does the row scroll. The
+-- completion line and the page move down under the rows.
 function DecorIndex._sizeTabs(self: any)
 	local count = #self._chips
 	if count == 0 then
@@ -429,11 +440,33 @@ function DecorIndex._sizeTabs(self: any)
 	local width = self._chipBar.AbsoluteSize.X / math.max(Scale.get(), 0.01)
 		- TAB_PAD * 2
 		- TAB_BADGE
-	local share = math.floor((width - gap * (count - 1)) / count)
-	local tab = math.max(TAB_MIN, share)
-	for _, chip: Chip in self._chips do
-		chip.frame.Size = UDim2.new(0, tab, 0, self._chipHeight)
+	local rows, tab = TAB_ROWS, TAB_WRAP_MIN
+	for tryRows = 1, TAB_ROWS do
+		local perRow = math.ceil(count / tryRows)
+		local share = math.floor((width - gap * (perRow - 1)) / perRow)
+		if share >= (if tryRows == 1 then TAB_MIN else TAB_WRAP_MIN) then
+			rows, tab = tryRows, share
+			break
+		end
 	end
+	local chipHeight = self._chipHeight
+	local grid: UIGridLayout = self._tabGrid
+	grid.CellSize = UDim2.fromOffset(tab, chipHeight)
+	for _, chip: Chip in self._chips do
+		chip.frame.Size = UDim2.new(0, tab, 0, chipHeight)
+	end
+	if rows == self._tabRows and self._laidOut then
+		return
+	end
+	self._tabRows = rows
+	self._laidOut = true
+	local barHeight = rows * chipHeight + (rows - 1) * gap + TAB_PAD * 2 + TAB_BADGE + TAB_BAR
+	self._chipBar.Size = UDim2.new(1, 0, 0, barHeight)
+	local progressTop = barHeight + gap
+	self._progress.Position = UDim2.fromOffset(0, progressTop)
+	local pageTop = progressTop + PROGRESS_HEIGHT + gap
+	self._page.Position = UDim2.fromOffset(0, pageTop)
+	self._page.Size = UDim2.new(1, 0, 1, -pageTop)
 end
 
 function DecorIndex._buildCell(self: any, def: Types.DecorDef, order: number): Cell

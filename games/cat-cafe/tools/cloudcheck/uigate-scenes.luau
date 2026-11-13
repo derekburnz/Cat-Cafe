@@ -5301,6 +5301,33 @@ local SCENES = {
 		end
 		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
 	end },
+	-- #3931 (Derek 2026-11-13: "the decor menu side gets cut off for the new areas in index"): with every area the
+	-- page tabs wrap into rows, each tab whole inside the tab row, none past the window's right edge
+	{ "IndexDecorTabsFit", function()
+		UI.setCatalog(catalogLikeTheGame())
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true) :: Instance
+		local decor = window:FindFirstChild("DecorIndex", true) :: Instance
+		local bar = decor:FindFirstChild("Pages") :: GuiObject
+		assert(bar, "uigate: no Decor Index tab row (#3931)")
+		local x0, x1 = bar.AbsolutePosition.X, bar.AbsolutePosition.X + bar.AbsoluteSize.X
+		local y0, y1 = bar.AbsolutePosition.Y, bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
+		local tabs = 0
+		for _, tab in bar:GetChildren() do
+			if tab:IsA("TextButton") then
+				tabs += 1
+				local p, z = tab.AbsolutePosition, tab.AbsoluteSize
+				assert(p.X >= x0 - 1 and p.X + z.X <= x1 + 1 and p.Y >= y0 - 1 and p.Y + z.Y <= y1 + 1, "uigate: the " .. tab.Name .. " tab is cut off (#3931)")
+				local name = tab:FindFirstChild("Name") :: TextLabel
+				assert(name and name.TextFits, "uigate: the " .. tab.Name .. " tab's name does not fit (#3931)")
+			end
+		end
+		assert(tabs >= 9, "uigate: only " .. tabs .. " Decor Index tabs (#3931)")
+		local progress = decor:FindFirstChild("Progress") :: GuiObject
+		assert(progress.AbsolutePosition.Y >= y1 - 1, "uigate: the completion line sits under the tabs (#3931)")
+	end },
 	-- #3722: the Decor Index builds no cells at start-up; a page's cells are made the first time it shows
 	{ "DecorIndexLazy", function()
 		UI.setCatalog(catalogLikeTheGame())

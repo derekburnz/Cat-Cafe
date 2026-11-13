@@ -92,6 +92,9 @@
 -- - `returnGift` (#3772): a golden crate once per account on the first join on a later UTC day than its first, for
 --   accounts first seen from Config.ReturnGiftFromDay, and the recap's "come back tomorrow" line for it
 --   (shared/ReturnGift). It starts OFF (OFF_BY_DEFAULT).
+-- - `picnicTreats` (#3715): the Park's Picnic Basket is a pick of one of three treats every 4 hours
+--   (shared/CampExtras.TREATS, PickPicnicTreat); off, it bags Money Potions as before. It starts OFF
+--   (OFF_BY_DEFAULT) and goes on once every server runs a build that knows it.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -139,6 +142,7 @@ LiveFlags.KEYS = {
 	"returnGift",
 	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
+	"picnicTreats",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -167,6 +171,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	speedShoes = true,
 	petCats = true,
 	returnGift = true,
+	picnicTreats = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

@@ -116,6 +116,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	InviteCard = RateLimiter.new(1, 2), -- #2797: the invite card's report, 1 per 2 s
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 	YardSalePick = RateLimiter.new(1, 1), -- #3614: 1 a second
+	PickPicnicTreat = RateLimiter.new(1, 1), -- #3715: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
 	-- #2593: a section's Buy all. 3 per 2 s since #3646: the Day Cart has three sections on this one remote, and at
 	-- 1 per 2 s the second section's Buy all (or a second press after a partial one) was dropped in silence, so its

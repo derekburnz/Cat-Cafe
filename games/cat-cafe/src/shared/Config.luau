@@ -1037,6 +1037,10 @@ local Config = {
 	-- from the player's open areas). Each is collected within CampExtraRangeStuds of its PromptAnchor.
 	PicnicEverySeconds = 21600,
 	PicnicHold = 2,
+	-- Picnic Treats (#3715, behind the `picnicTreats` switch): one pick every PicnicTreatSeconds, holding
+	-- PicnicTreatHold. At most 6 potions a day for a player who comes back every 4 hours.
+	PicnicTreatSeconds = 14400,
+	PicnicTreatHold = 1,
 	PicnicPotion = "tip_potion",
 	YardSaleClaimHours = 4,
 	-- #3609 (Derek 2026-11-12, table OK'd 15:09 UTC; camp-stations.md section 3a), behind the `yardSaleRoll` switch: a

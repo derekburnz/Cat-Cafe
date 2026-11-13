@@ -175,6 +175,18 @@ local KINDS: { Kind } = {
 			UI.campExtras.openYardSale(nil)
 		end,
 	},
+	-- #3715: with Picnic Treats on, the Picnic Basket has a card too: its ring opens the pick card
+	{
+		tag = CampExtras.TAG,
+		prompt = CampExtras.PROMPT,
+		window = "PicnicTreats",
+		only = function(model: Instance)
+			return model:GetAttribute("ExtraId") == "picnic" and UI.campExtras.treats()
+		end,
+		open = function()
+			UI.campExtras.openPicnic()
+		end,
+	},
 	{
 		tag = LateStations.TAG,
 		prompt = LateStations.PROMPT,

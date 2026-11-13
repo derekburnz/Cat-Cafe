@@ -163,6 +163,10 @@ local IDS: { [string]: string } = {
 	Icon_Hud_RankUp = "rbxassetid://87240525857020",
 	Icon_Hud_Bellhop = "rbxassetid://72671179884106",
 	Icon_Hud_YardSale = "rbxassetid://119512773142032",
+	-- #3715: the Picnic Treats pick card (Model-Agent, icons-2836-pass2-asset-ids.md)
+	Icon_Hud_PicnicSandwich = "rbxassetid://132726319271125",
+	Icon_Hud_PicnicLemonade = "rbxassetid://81662521137810",
+	Icon_Hud_PicnicCupcake = "rbxassetid://70925840022035",
 	Icon_Hud_BigBackpack = "rbxassetid://80136188031786",
 	Icon_Hud_LongNet = "rbxassetid://90836615615293",
 	Icon_Hud_Tables = "rbxassetid://138663166395206",

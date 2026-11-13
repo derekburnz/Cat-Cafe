@@ -344,6 +344,8 @@ return function()
 		TradeIdsMax = 100,
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
+		PicnicTreatSeconds = 14400, -- #3715
+		PicnicTreatHold = 1,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
 		YardSaleClaimHours = 4, -- #1154
 		PondFishPerStep = 1, -- #1232: was 2

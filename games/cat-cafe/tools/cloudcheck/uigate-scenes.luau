@@ -8568,6 +8568,91 @@ local SCENES = {
 		end
 		assert(shown, "uigate: no Collect on the pond strip (#3082)")
 	end },
+	-- #3715: Picnic Treats (the `picnicTreats` switch): the Picnic Basket's pick card with a pick waiting. Three
+	-- treats, each with its potion and a Pick button, and nothing that reads as a sale or a roll
+	{ "PicnicTreats", function()
+		atTier(2)
+		local extras = campExtras(1, true)
+		extras.picnic = { open = true, held = 1, treats = { "sandwich", "lemonade", "cupcake" } }
+		UI.campExtras.update(extras)
+		UI.campExtras.openPicnic()
+		assert(UI.isOpen() == "PicnicTreats", "uigate: the Picnic Treats card did not open (#3715)")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("PicnicTreats", true)
+		assert(card, "uigate: no Picnic Treats card (#3715)")
+		local status = card:FindFirstChild("Status", true)
+		assert(status and status.Text == "Pick one treat.", "uigate: the Picnic Treats line reads " .. tostring(status and status.Text) .. " (#3715)")
+		local gives = {}
+		for _, id in { "sandwich", "lemonade", "cupcake" } do
+			local treat = card:FindFirstChild(id, true)
+			assert(treat and treat:FindFirstChild("Pick", true), "uigate: no Pick on the " .. id .. " (#3715)")
+			table.insert(gives, treat:FindFirstChild("Gives", true).Text)
+		end
+		assert(
+			table.concat(gives, ", ") == "1 Money Potion, 1 Swift Potion, 1 Lucky Potion",
+			"uigate: the treats give " .. table.concat(gives, ", ") .. " (#3715)"
+		)
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
+				local words = string.lower(piece.Text)
+				for _, banned in { "robux", "buy", "sale", "hurry", "last chance", "spin", "lucky pick" } do
+					assert(not string.find(words, banned, 1, true), "uigate: a word Picnic Treats must not use: " .. piece.Text)
+				end
+			end
+		end
+		-- Pick on the Lemonade asks the server for that treat and no other
+		local asked = nil
+		local connection = UI.events.pickPicnicTreat:Connect(function(treatId)
+			asked = treatId
+		end)
+		press("PicnicTreats", "lemonade.Pick")
+		connection:Disconnect()
+		assert(asked == "lemonade", "uigate: Pick on the Lemonade asked for " .. tostring(asked) .. " (#3715)")
+		-- the server's new state answers the pick: the wait line, the buttons off
+		local after = campExtras(0, true)
+		after.picnic = { open = true, held = 0, nextAt = workspace:GetServerTimeNow() + 4 * 3600, treats = { "sandwich", "lemonade", "cupcake" } }
+		UI.campExtras.update(after)
+		assert(string.find(status.Text, "Next picnic in", 1, true), "uigate: no wait line after a pick: " .. status.Text .. " (#3715)")
+		asked = nil
+		connection = UI.events.pickPicnicTreat:Connect(function(treatId)
+			asked = treatId
+		end)
+		pcall(press, "PicnicTreats", "cupcake.Pick")
+		connection:Disconnect()
+		assert(asked == nil, "uigate: a treat could be picked while none waits (#3715)")
+		-- back to a waiting pick for the picture
+		UI.campExtras.update(extras)
+	end },
+	-- #3715: the card with no pick waiting: "Next picnic in 3 h 12 min" and the three treats greyed
+	{ "PicnicTreatsWait", function()
+		atTier(2)
+		local extras = campExtras(0, true)
+		extras.picnic = { open = true, held = 0, nextAt = workspace:GetServerTimeNow() + 3 * 3600 + 12 * 60 - 20, treats = { "sandwich", "lemonade", "cupcake" } }
+		UI.campExtras.update(extras)
+		UI.campExtras.openPicnic()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("PicnicTreats", true)
+		local status = card and card:FindFirstChild("Status", true)
+		assert(status and string.find(status.Text, "Next picnic in 3 h 12", 1, true), "uigate: the wait reads " .. tostring(status and status.Text) .. " (#3715)")
+	end },
+	-- #3715: with Picnic Treats on, the Park strip's button on the Cat Cannon opens the pick card and collects nothing
+	{ "CannonOpensPicnic", function()
+		atTier(3)
+		local extras = campExtras(1, false)
+		extras.picnic = { open = true, held = 1, treats = { "sandwich", "lemonade", "cupcake" } }
+		UI.campExtras.update(extras)
+		UI.cannon.open()
+		local collected = false
+		local connection = UI.events.collectCampExtra:Connect(function()
+			collected = true
+		end)
+		press("Cannon", "park.Collect")
+		connection:Disconnect()
+		assert(not collected, "uigate: the Park strip collected the basket with Picnic Treats on (#3715)")
+		assert(UI.isOpen() == "PicnicTreats", "uigate: the Park strip opened " .. tostring(UI.isOpen()) .. " (#3715)")
+		-- the scenes after this one read the plain basket
+		UI.campExtras.update(campExtras(1, false))
+	end },
 	-- F100: the Yard Sale card, the Classic Crate bought today and the Park Crate for 40 golden fish
 	{ "YardSale", function()
 		local extras = campExtras(0, false)

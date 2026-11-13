@@ -59,6 +59,7 @@ local MyCats = require(script.Screens.MyCats)
 local NetButton = require(script.Screens.NetButton)
 local NetGlow = require(script.Components.NetGlow)
 local NightClock = require(script.Components.NightClock)
+local PicnicTreats = require(script.Screens.PicnicTreats)
 local Popups = require(script.Screens.Popups)
 local PotionLogic = require(script.Components.PotionLogic)
 local Potions = require(script.Screens.Potions)
@@ -239,6 +240,7 @@ UI.events = {
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	yardSalePick = Signal.new(), -- ()   #3615: Lucky pick on the Yard Sale card: forward as YardSalePick
+	pickPicnicTreat = Signal.new(), -- (treatId)   #3715: Pick on the Picnic Treats card: forward as PickPicnicTreat
 	yardSaleLanded = Signal.new(), -- (crateId)   #3615: the card's board landed on the picked crate
 	-- #2651 part 4: (remote, ...)   a press on the Oasis Spa or Relic Museum card: forward as that remote (SpaPut,
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
@@ -1020,6 +1022,11 @@ function UI.init(config: Types.InitConfig)
 		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
 		-- Golden Pond owner's pond)
 		collect = function(extraId: string)
+			-- #3715: with Picnic Treats on, the basket's button opens its pick card instead
+			if extraId == "picnic" and UI.campExtras.treats() then
+				UI.campExtras.openPicnic()
+				return
+			end
 			UI.events.collectCampExtra:Fire(extraId)
 		end,
 		-- #3082: Open on a card's strip: the station's own card takes the picker's place
@@ -6908,6 +6915,7 @@ do
 		state = nil :: Types.CampExtrasState?,
 		late = nil :: any, -- #2651 part 4: the last LateStationsState
 		yard = nil :: YardSale.YardSale?,
+		picnic = nil :: PicnicTreats.PicnicTreats?, -- #3715: the Picnic Treats pick card
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
 		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
@@ -7026,6 +7034,28 @@ do
 			end,
 		})
 		camp.yard = yard
+		-- #3715: the Picnic Treats pick card
+		local picnic = PicnicTreats.new({
+			pick = function(treatId: string)
+				UI.events.pickPicnicTreat:Fire(treatId)
+			end,
+			close = function()
+				if modalView:current() == "PicnicTreats" then
+					modalView:close()
+				end
+			end,
+		})
+		camp.picnic = picnic
+		picnic:setView(if camp.state ~= nil then camp.state.picnic else nil)
+		modalView:register("PicnicTreats", {
+			frame = picnic.frame,
+			onOpen = function()
+				picnic:opened()
+			end,
+			onClose = function()
+				picnic:closed()
+			end,
+		})
 		modalView:register("YardSale", {
 			frame = yard.frame,
 			onOpen = function()
@@ -7091,6 +7121,25 @@ do
 		if yard then
 			yard:setView(extras.yardSale)
 		end
+		local picnic = camp.picnic
+		if picnic then
+			picnic:setView(extras.picnic)
+		end
+	end
+
+	-- #3715: whether the server runs Picnic Treats (the basket's view carries its treats).
+	function UI.campExtras.treats(): boolean
+		local current = camp.state
+		return current ~= nil and current.picnic ~= nil and current.picnic.treats ~= nil
+	end
+
+	-- #3715: the Picnic Basket's ring, prompt or Cat Cannon strip: its pick card.
+	function UI.campExtras.openPicnic()
+		local modalView = modal
+		if camp.picnic == nil or modalView == nil or not UI.campExtras.treats() then
+			return
+		end
+		modalView:open("PicnicTreats")
 	end
 
 	-- The Yard Sale's prompt: its card with today's crates.
@@ -7130,6 +7179,10 @@ do
 		if yard and extraId == CampExtrasLogic.YARD_SALE then
 			yard:refused()
 		end
+		local picnic = camp.picnic
+		if picnic and extraId == "picnic" then
+			picnic:refused()
+		end
 	end
 
 	-- UI.destroy: the card goes with the modal and the "!" with the UI; the state stays for the next build.
@@ -7139,6 +7192,11 @@ do
 			yard:destroy()
 		end
 		camp.yard = nil
+		local picnic = camp.picnic
+		if picnic then
+			picnic:destroy()
+		end
+		camp.picnic = nil
 		local bang = camp.bang
 		if bang then
 			bang:destroy()

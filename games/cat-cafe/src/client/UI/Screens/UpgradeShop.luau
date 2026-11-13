@@ -271,6 +271,7 @@ function UpgradeShop.new(
 		Size = UDim2.new(1, -(BUTTON_W + 40), 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge - 2,
+		TextColor3 = CARD.text, -- Derek 2026-11-13: dark words on the cream card (it read white on cream)
 		Parent = rank,
 	})
 	self._rankSub = text({
@@ -278,7 +279,7 @@ function UpgradeShop.new(
 		Position = UDim2.fromOffset(16, 40),
 		Size = UDim2.new(1, -(BUTTON_W + 40), 0, 24),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		Parent = rank,
 	})
@@ -455,6 +456,7 @@ function UpgradeShop._buildRows(self: any)
 			Size = UDim2.fromOffset(200, 28),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textLarge,
+			TextColor3 = CARD.text, -- Derek 2026-11-13: dark words on the cream card
 			Text = role.name,
 			Parent = row,
 		})
@@ -463,7 +465,7 @@ function UpgradeShop._buildRows(self: any)
 			Position = UDim2.fromOffset(TEXT_LEFT, 36),
 			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Parent = row,
 		})
 		local slotRow: Frame = Create("Frame", {

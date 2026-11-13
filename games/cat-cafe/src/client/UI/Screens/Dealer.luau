@@ -536,6 +536,7 @@ function Dealer._buildCard(self: any, index: number, group: DealerRows.Row)
 		TextSize = Theme.sizes.textTiny + 1,
 		TextColor3 = Theme.rarityTextColor(grade),
 		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None, -- #4030: the chip grows to its word, so "LEGENDARY" is never cut short
 		Text = FoodGrade.badge(grade),
 		Parent = card,
 	})

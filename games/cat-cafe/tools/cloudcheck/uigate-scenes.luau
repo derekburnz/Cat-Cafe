@@ -9476,7 +9476,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		print(("[CornerShop] %d cards a row"):format(most))
-		assert(most >= 4, ("uigate: the Day Cart grid has room for only %d cards a row (#4007)"):format(most))
+		-- the grids are the family look's (#3961); the old look's list has none, so the count is only for the family look
+		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		assert(
+			not MenuFamily.on() or most >= 4,
+			("uigate: the Day Cart grid has room for only %d cards a row (#4007)"):format(most)
+		)
 	end },
 	-- #1281: the three bait foods at the Corner Shop: their clean pictures and grade badges, "You have n" from the
 	-- player's lures, Salmon sold out

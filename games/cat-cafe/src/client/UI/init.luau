@@ -7558,10 +7558,13 @@ do
 				return not pool.anywhere and far ~= nil and far()
 			end,
 			-- #3702: the card steps aside for the pool's animation, behind a soft shade at the screen's edges
-			shade = function(onTap: () -> ()): () -> ()
+			shade = function(onTap: () -> (), canSkip: boolean): () -> ()
 				modalView:tuck(MysticPoolLogic.WINDOW, true)
-				local lift =
-					EdgeShade.show(modalView.screenGui.Parent :: Instance, "Tap to skip", onTap)
+				local lift = EdgeShade.show(
+					modalView.screenGui.Parent :: Instance,
+					if canSkip then "Tap to skip" else nil, -- #3943: no skip words on a Mythic or Secret roll
+					onTap
+				)
 				return function()
 					lift()
 					modalView:tuck(MysticPoolLogic.WINDOW, false)

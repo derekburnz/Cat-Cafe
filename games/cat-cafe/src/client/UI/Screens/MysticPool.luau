@@ -53,8 +53,9 @@ export type Callbacks = {
 	play: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?,
 	far: (() -> boolean)?, -- true once the player has walked away from the pool: the card closes
 	-- #3702: while the pool's animation plays the card goes away and the screen's edges are shaded; `onTap` is a
-	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card
-	shade: ((onTap: () -> ()) -> () -> ())?,
+	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card.
+	-- #3943: `canSkip` false (a Mythic or Secret roll) shows no "Tap to skip"
+	shade: ((onTap: () -> (), canSkip: boolean) -> () -> ())?,
 	-- #3864: a bundle's Buy, with its developer product id (Roblox's purchase prompt); nil hides the offer
 	buy: ((productId: number) -> ())?,
 }
@@ -913,7 +914,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = rolling,
 	})
-	text({
+	self._skipHint = text({
 		Name = "Hint",
 		Position = UDim2.new(0, 0, 0.3, 36),
 		Size = UDim2.new(1, 0, 0, 20),
@@ -1040,9 +1041,11 @@ function MysticPool._reveal(self: any, uid: string, traitId: string)
 		end
 	end
 	self._tapSkip = tapSkip
+	local canSkip = MysticPoolLogic.canSkip(rarity)
+	self._skipHint.Visible = canSkip -- the sheet's "Tap to skip", hidden when a tap does nothing
 	local shade = (self._callbacks :: Callbacks).shade
 	if shade ~= nil then
-		lift = shade(tapSkip)
+		lift = shade(tapSkip, canSkip)
 		self._lift = finish
 	else
 		self._rollingSheet.Visible = true

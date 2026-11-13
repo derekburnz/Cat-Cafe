@@ -13,6 +13,10 @@ on:
         description: "Tell every server 10 and 2 minutes and 30 seconds ahead and at the restart (adds 10 minutes)"
         type: boolean
         default: true
+      warnings:
+        description: "With warn_players: the countdown, in seconds before the restart, largest first (\"300 120 30 0\" for 5 minutes)"
+        type: string
+        default: "600 120 30 0"
 
 permissions:
   contents: read
@@ -54,6 +58,8 @@ jobs:
 
       - name: Warn players in game (10 and 2 minutes, 30 seconds, then now)
         if: inputs.warn_players
+        env:
+          WARNINGS: ${{ inputs.warnings }}
         run: bash tools/opencloud/restart-countdown.sh
 
       - name: Restart running servers

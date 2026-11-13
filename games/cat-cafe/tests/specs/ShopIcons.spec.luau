@@ -58,9 +58,9 @@ return function()
 			expect(#ShopIcons.potionAll(nil)).to.equal(0)
 		end)
 		it("has the three shop cats' pictures (#1191)", function()
-			expect(ShopIcons.shopCat("Sprinkles")).to.equal("rbxassetid://132934776901111")
-			expect(ShopIcons.shopCat("DuchessMarzipan")).to.equal("rbxassetid://120092810809619")
-			expect(ShopIcons.shopCat("KingCroissant")).to.equal("rbxassetid://97923289789222")
+			expect(ShopIcons.shopCat("Sprinkles")).to.equal("rbxassetid://111524784628537")
+			expect(ShopIcons.shopCat("DuchessMarzipan")).to.equal("rbxassetid://115820297355843")
+			expect(ShopIcons.shopCat("KingCroissant")).to.equal("rbxassetid://100720497654876")
 			expect(ShopIcons.shopCat("Nobody")).to.equal(nil)
 		end)
 		it("has a dish picture for every menu item (#950)", function()
@@ -74,12 +74,12 @@ return function()
 				end
 			end
 			expect(table.concat(missing, ",")).to.equal("")
-			expect(ShopIcons.menu("paw_cookie")).to.equal("rbxassetid://99959252804941")
+			expect(ShopIcons.menu("paw_cookie")).to.equal("rbxassetid://132564442579365")
 			expect(ShopIcons.menu("nothing")).to.equal(nil)
 		end)
 		it("has a bottle for every potion in the catalog", function()
 			-- the clean bottle first (#1070), the old picture behind it
-			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://111453568394621") -- the #1193 flask (#1204)
+			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://75986108239288") -- the #1193 flask (#1204)
 			local missing: { string } = {}
 			for _, potion in Catalog.potions do
 				if ShopIcons.potion(potion.id) == nil then
@@ -144,7 +144,7 @@ return function()
 		end)
 
 		it("has the prize pictures for coins and spins (F97 section 4)", function()
-			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://136732540501959")
+			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://79655038297576")
 			-- the 8-slice wheel once uploaded (#1665), else the clean wheel (#1070)
 			expect(ShopIcons.image("Spin")).to.equal(ShopIcons.hud("Spin"))
 			expect(ShopIcons.clean("Spin")).to.equal("rbxassetid://92256242473029")
@@ -190,16 +190,16 @@ return function()
 				end
 				expect(table.concat(missing, ",")).to.equal("")
 				expect(ShopIcons.decor("Decor_PartyBunting")).to.equal(
-					"rbxassetid://126747238801401"
+					"rbxassetid://100203816605384"
 				)
-				expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://98250313136423")
+				expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://124215158995706")
 				expect(ShopIcons.decor("not_a_piece")).to.equal(nil)
 				expect(ShopIcons.decor(nil)).to.equal(nil)
 			end
 		)
 
 		it("has the HUD's Decor picture", function()
-			expect(ShopIcons.image("Icon_Decor")).to.equal("rbxassetid://88901788469222")
+			expect(ShopIcons.image("Icon_Decor")).to.equal("rbxassetid://87005516591423")
 		end)
 
 		it("has a clean symbol for every HUD tile (2026-11-03)", function()
@@ -227,19 +227,19 @@ return function()
 					expect(ShopIcons.store(card.key)).never.to.equal(nil)
 				end
 				expect(ShopIcons.store(StoreLogic.STARTER.key)).to.equal(
-					"rbxassetid://83823033546025"
+					"rbxassetid://95362407964835"
 				)
 				-- #1168: the new cards' own pictures (Tools-Agent 11-06), no stand-ins
 				expect(ShopIcons.store(StoreLogic.THANK_YOU.key)).to.equal(
-					"rbxassetid://124763763193731"
+					"rbxassetid://106632179958380"
 				)
-				expect(ShopIcons.store("steadyPaw")).to.equal("rbxassetid://124844091674201")
-				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://111176293548634")
-				expect(ShopIcons.store("gardenDecor")).to.equal("rbxassetid://76001339098213")
-				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://136378395182949")
-				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://82155674128354")
-				expect(ShopIcons.store("money", 3)).to.equal("rbxassetid://97377712325581")
-				expect(ShopIcons.store("money", 4)).to.equal("rbxassetid://120063755686083")
+				expect(ShopIcons.store("steadyPaw")).to.equal("rbxassetid://101350837995186")
+				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://83129638022589")
+				expect(ShopIcons.store("gardenDecor")).to.equal("rbxassetid://112628648933098")
+				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://127782122363076")
+				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://106785644491188")
+				expect(ShopIcons.store("money", 3)).to.equal("rbxassetid://124737817716796")
+				expect(ShopIcons.store("money", 4)).to.equal("rbxassetid://103246165862005")
 				expect(ShopIcons.store("money")).to.equal(nil)
 				expect(ShopIcons.store("money", 9)).to.equal(nil)
 				expect(ShopIcons.store("nope")).to.equal(nil)
@@ -252,17 +252,17 @@ return function()
 			for _, tab in StoreLogic.TABS do
 				expect(ShopIcons.storeTab(tab.id)).never.to.equal(nil)
 			end
-			expect(ShopIcons.storeTab("featured")).to.equal("rbxassetid://137967213846475")
-			expect(ShopIcons.storeTab("codes")).to.equal("rbxassetid://96392852887729")
+			expect(ShopIcons.storeTab("featured")).to.equal("rbxassetid://137984752078851")
+			expect(ShopIcons.storeTab("codes")).to.equal("rbxassetid://126780860250721")
 			expect(ShopIcons.storeTab("cafePass")).to.equal(ShopIcons.store("cafePass"))
 			expect(ShopIcons.storeTab("nope")).to.equal(nil)
 		end)
 
 		it("draws the Fish Market tabs and the Night Market bubble (Tools-Agent 11-05)", function()
-			expect(ShopIcons.market("Crates")).to.equal("rbxassetid://86512063079182")
-			expect(ShopIcons.market("Treats")).to.equal("rbxassetid://86498761565767")
-			expect(ShopIcons.market("FreshCatch")).to.equal("rbxassetid://74465916818248")
-			expect(ShopIcons.hud("NightMarket")).to.equal("rbxassetid://73145081487107")
+			expect(ShopIcons.market("Crates")).to.equal("rbxassetid://128217805544577")
+			expect(ShopIcons.market("Treats")).to.equal("rbxassetid://116114044663145")
+			expect(ShopIcons.market("FreshCatch")).to.equal("rbxassetid://77230621253557")
+			expect(ShopIcons.hud("NightMarket")).to.equal("rbxassetid://98840630712996")
 		end)
 
 		it("gives each cat food its own glyph, not the same star (#1616)", function()

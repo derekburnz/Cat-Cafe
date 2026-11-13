@@ -47,11 +47,15 @@ export type Gift = {
 
 -- The gift that pays at `now` and the gift whose "a gift is coming" notice may show: `nextGift` for both once its
 -- `from` has come, else `gift` pays and `nextGift` (when there is one) gives notice.
+-- #3497: both gifts may lie ahead (Friday's crates, then Saturday's weekly gift, set in one publish so the servers
+-- of Friday's restart already know Saturday's). Until `gift` starts, the notice is its own.
 function UpdateGift.pick(gift: Gift?, nextGift: Gift?, now: number): (Gift?, Gift?)
 	if nextGift == nil then
 		return gift, gift
 	elseif now >= nextGift.from then
 		return nextGift, nextGift
+	elseif gift ~= nil and now < gift.from then
+		return gift, gift
 	end
 	return gift, nextGift
 end

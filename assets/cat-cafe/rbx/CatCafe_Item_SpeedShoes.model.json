@@ -472,153 +472,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.3225,
-         0.105,
-         -0.54
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.025,
-       0.08,
-       0.12
-      ],
-      "Color": [
-       0.4314,
-       0.4941,
-       0.5961
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.3225,
-         0.105,
-         -0.14
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.025,
-       0.08,
-       0.12
-      ],
-      "Color": [
-       0.4314,
-       0.4941,
-       0.5961
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.3225,
-         0.105,
-         0.26
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.025,
-       0.08,
-       0.12
-      ],
-      "Color": [
-       0.4314,
-       0.4941,
-       0.5961
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -0.715,
          0.425,
          -0.59
@@ -903,7 +756,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -947,104 +800,6 @@
        1.0,
        0.9765,
        0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.355,
-         0.6286,
-         -0.6538
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.075,
-         0.6286,
-         -0.6538
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -1111,104 +866,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.355,
-         0.7006,
-         -0.5438
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.075,
-         0.7006,
-         -0.5438
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -0.715,
          0.7631,
          -0.44
@@ -1241,104 +898,6 @@
        1.0,
        0.9765,
        0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.355,
-         0.7725,
-         -0.4338
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.075,
-         0.7725,
-         -0.4338
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -1405,223 +964,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.355,
-         0.8444,
-         -0.3238
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.075,
-         0.8444,
-         -0.3238
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.585,
-         0.885,
-         -0.3
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.221,
-       0.136,
-       0.136
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere"
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.845,
-         0.885,
-         -0.3
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.221,
-       0.136,
-       0.136
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere"
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Left",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -0.715,
          0.885,
-         -0.31
+         -0.3
         ],
         "orientation": [
          [
@@ -1643,9 +988,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.12,
-       0.12
+       0.493,
+       0.136,
+       0.136
       ],
       "Color": [
        1.0,
@@ -1656,11 +1001,19 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Shape": "Ball"
-     }
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Item_SpeedShoes_Left",
@@ -1951,7 +1304,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2000,7 +1353,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -2050,7 +1403,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -2100,7 +1453,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -2150,7 +1503,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -2200,7 +1553,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2249,7 +1602,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2347,7 +1700,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2445,7 +1798,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2494,7 +1847,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2543,7 +1896,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -2592,7 +1945,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -2967,153 +2320,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.3225,
-         0.105,
-         -0.54
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.025,
-       0.08,
-       0.12
-      ],
-      "Color": [
-       0.4314,
-       0.4941,
-       0.5961
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.3225,
-         0.105,
-         -0.14
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.025,
-       0.08,
-       0.12
-      ],
-      "Color": [
-       0.4314,
-       0.4941,
-       0.5961
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.3225,
-         0.105,
-         0.26
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.025,
-       0.08,
-       0.12
-      ],
-      "Color": [
-       0.4314,
-       0.4941,
-       0.5961
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          0.715,
          0.425,
          -0.59
@@ -3398,7 +2604,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -3442,104 +2648,6 @@
        1.0,
        0.9765,
        0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.355,
-         0.6286,
-         -0.6538
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.075,
-         0.6286,
-         -0.6538
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -3606,104 +2714,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.355,
-         0.7006,
-         -0.5438
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.075,
-         0.7006,
-         -0.5438
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          0.715,
          0.7631,
          -0.44
@@ -3736,104 +2746,6 @@
        1.0,
        0.9765,
        0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.355,
-         0.7725,
-         -0.4338
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.075,
-         0.7725,
-         -0.4338
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -3900,223 +2812,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.355,
-         0.8444,
-         -0.3238
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.075,
-         0.8444,
-         -0.3238
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.837,
-          -0.5472
-         ],
-         [
-          0.0,
-          0.5472,
-          0.837
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.07,
-       0.0825,
-       0.08
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.585,
-         0.885,
-         -0.3
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.221,
-       0.136,
-       0.136
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere"
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.845,
-         0.885,
-         -0.3
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.221,
-       0.136,
-       0.136
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     },
-     "children": [
-      {
-       "name": "Mesh",
-       "className": "SpecialMesh",
-       "properties": {
-        "MeshType": "Sphere"
-       }
-      }
-     ]
-    },
-    {
-     "name": "CatCafe_Item_SpeedShoes_Right",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          0.715,
          0.885,
-         -0.31
+         -0.3
         ],
         "orientation": [
          [
@@ -4138,9 +2836,9 @@
        }
       },
       "Size": [
-       0.12,
-       0.12,
-       0.12
+       0.493,
+       0.136,
+       0.136
       ],
       "Color": [
        1.0,
@@ -4151,11 +2849,19 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Shape": "Ball"
-     }
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Item_SpeedShoes_Right",
@@ -4446,7 +3152,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4495,7 +3201,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -4545,7 +3251,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -4595,7 +3301,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -4645,7 +3351,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -4695,7 +3401,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4744,7 +3450,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4842,7 +3548,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4940,7 +3646,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4989,7 +3695,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -5038,7 +3744,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -5087,7 +3793,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"

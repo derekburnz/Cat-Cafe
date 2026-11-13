@@ -84,7 +84,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, menuFamily, speedShoes and petCats alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, menuFamily, speedShoes, petCats and returnGift alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -114,10 +114,11 @@ return function()
 							or key == "menuFamily"
 							or key == "speedShoes"
 							or key == "petCats"
+							or key == "returnGift"
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(24)
+				expect(count).to.equal(25)
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)
@@ -129,6 +130,11 @@ return function()
 				expect(LiveFlags.defaults().circleStreak).to.equal(true)
 				expect(LiveFlags.parse({ circleStreak = false }).circleStreak).to.equal(false)
 				expect(LiveFlags.parse({ mouseDash = true }).mouseDash).to.equal(true)
+				-- #2912: the stuck cat's call stays on (it is live) until an explicit false hides it
+				expect(LiveFlags.defaults().stuckCall).to.equal(true)
+				expect(LiveFlags.parse({ stuckCall = false }).stuckCall).to.equal(false)
+				expect(LiveFlags.shown("stuckCall", nil)).to.equal(true)
+				expect(LiveFlags.shown("stuckCall", false)).to.equal(false)
 				-- #3222: no Golden drop until it is switched on, even with a broken store
 				expect(LiveFlags.defaults().goldenDrops).to.equal(false)
 				expect(LiveFlags.parse(nil).goldenDrops).to.equal(false)

@@ -10,8 +10,9 @@
 --   hook(raw) -> Hook?               ReturnHook.pick's table as sent, checked; nil for none or a bad one
 --   treatWords(day) -> string?       #2123: the Daily Treat day's prize in words, its first two things after the
 --                                    coins, best first ("2 Small Snacks", "15 Golden Fish and 1 spin"); nil for an unknown day
---   tomorrow(hook) -> string         "Your bait cat will be waiting for you", "Tomorrow: Daily Treat day 2, 2 Cat
---                                    Snacks" or "Tomorrow: new daily quests"
+--   tomorrow(hook) -> string         #3772 "Come back tomorrow for a golden crate", "Your bait cat will be waiting
+--                                    for you", "Tomorrow: Daily Treat day 2, 2 Cat Snacks" or "Tomorrow: new daily
+--                                    quests"
 --   next(state, nextTier) -> string? "Grand Opening 6/8: Twelve different cats", else "Next: rank up to <tier>"
 --   isToday(line) -> boolean        #2916: the first line, which the card's goals (ReturnGoalWords) sit under
 --   canShow(input) -> boolean        on, after the tutorial, not catching, carrying or in a menu, idle IDLE_SECONDS
@@ -28,7 +29,7 @@ export type View = { minutes: number?, newCats: number?, earned: number?, tomorr
 -- #2123: Gameplay's ReturnHook.pick, the one best reason to come back (first-hour.md 6a). ProfileSync sends it as
 -- state.returnHook (picked at join, for the welcome back card) and SessionRecap's view as `tomorrow` (the recap's
 -- line); nil when there is none. The server sends no prize: the treat's words come from Catalog.dailyTreat here.
-export type Hook = { kind: string, day: number?, prize: string? } -- kind "bait", "treat" or "quests"
+export type Hook = { kind: string, day: number?, prize: string? } -- kind "gift", "bait", "treat" or "quests"
 
 export type Input = {
 	view: View,
@@ -150,7 +151,7 @@ local function away(input: Input): string
 	return line .. ". " .. tomorrow
 end
 
-local KINDS = { bait = true, treat = true, quests = true }
+local KINDS = { gift = true, bait = true, treat = true, quests = true }
 local PRIZE_MAX = 40 -- characters; a longer prize name is left off
 
 function RecapLogic.hook(raw: any): Hook?
@@ -224,8 +225,13 @@ function RecapLogic.treatWords(day: number?): string?
 	return if #words > 0 then table.concat(words, " and ") else nil
 end
 
+-- #3772 (shared/ReturnGift): the welcome back gift waits for tomorrow's first join
+RecapLogic.GIFT_LINE = "Come back tomorrow for a golden crate"
+
 function RecapLogic.tomorrow(hook: Hook): string
-	if hook.kind == "bait" then
+	if hook.kind == "gift" then
+		return RecapLogic.GIFT_LINE
+	elseif hook.kind == "bait" then
 		return "Your bait cat will be waiting for you"
 	elseif hook.kind == "treat" then
 		local line = if hook.day

@@ -3635,4 +3635,22 @@ function Logic.cannonLandingFocus(focus: Vector3): Vector3
 	return if focus.Magnitude > most then focus.Unit * most else focus
 end
 
+-- #3743: the pooled burst emitters are one per preset and tint (Particles.burst). A tint that keeps changing (the
+-- Lucky Cat's rainbow twinkle asks a new colour every twinkle) made a new emitter each time and kept it for the
+-- session, thousands in a long one. Tinted emitters now live in a short recently-used list: `touchKey` moves `key`
+-- to the newest end (adding it when new) and returns the oldest key once the list holds more than `cap`, which the
+-- caller retires.
+Logic.BURST_TINTS_MAX = 48
+function Logic.touchKey(order: { string }, key: string, cap: number): string?
+	local at = table.find(order, key)
+	if at ~= nil then
+		table.remove(order, at)
+	end
+	table.insert(order, key)
+	if #order > cap then
+		return table.remove(order, 1)
+	end
+	return nil
+end
+
 return Logic

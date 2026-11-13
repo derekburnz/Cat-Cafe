@@ -12,6 +12,8 @@
 --   D:Invoke("baitReady", nil, nil, 2)      -- the second bowl's cat arrives now (#1161)
 --   D:Invoke("secondBowl", nil, true)  -- act as if you own the Second Bait Bowl pass this session (false: as if not)
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe, gone unpaid in 20 s
+--   D:Invoke("firstVisit", nil, "rich", 30)  -- your plot says a first rich customer is in for 30 s (the client's
+--                                      first visit card or toast; "mystery" and "collector" too; no save change)
 --   D:Invoke("tipPiles", nil, 6)       -- 6 tip piles on your cafe's tables now, whatever the clock (F61)
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
 --   D:Invoke("tackle", "Player1", "loose")  -- a real Tackle press with every check, the roll forced (F74)
@@ -101,6 +103,7 @@ local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PityService = require(script.Parent.PityService)
+local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuestService = require(script.Parent.QuestService)
@@ -747,6 +750,35 @@ end
 function Debug.richTip(player: (Player | number | string)?, staySeconds: number?): number
 	guard()
 	return RichTipService.debugOpen(resolve(player), staySeconds)
+end
+
+-- #3620 (Review-QA: the richTip seed cannot bring up the first visit card): names `kind` ("rich", "mystery" or
+-- "collector") in the plot's FirstVisit attribute for `seconds` (30 by default), which is all the client's first
+-- visit card or toast reads. No visitor comes and the save's first visits stay as they are, so it can be run again
+-- and again on one account. Returns the kind, or nil without a plot.
+function Debug.firstVisit(
+	player: (Player | number | string)?,
+	kind: string?,
+	seconds: number?
+): string?
+	guard()
+	local which = kind or "rich"
+	assert(
+		which == "rich" or which == "mystery" or which == "collector",
+		"Debug.firstVisit: kind must be rich, mystery or collector"
+	)
+	local plot = PlotService.get(resolve(player))
+	if plot == nil then
+		return nil
+	end
+	local model = plot.model
+	model:SetAttribute("FirstVisit", which)
+	task.delay(math.clamp(seconds or 30, 1, 600), function()
+		if model.Parent ~= nil and model:GetAttribute("FirstVisit") == which then
+			model:SetAttribute("FirstVisit", nil)
+		end
+	end)
+	return which
 end
 
 -- Puts `count` tip piles (1 by default) on the player's cafe tables now, whatever the clock, up to TipPilesMax

@@ -134,7 +134,7 @@ After the §4c re-fit, the coin buys land at about 11.7 (Tier 2), 22.6 (Tables 5
 ### 6a. One reason to come back tomorrow (2026-11-07, Derek2's pick of item 11)
 The D1 return rate is the launch number, and Home recommendations follow it (release.md). Two small changes, using lines and screens that already exist, with no new systems:
 
-- **A first-session recap at 15 minutes.** Most first sessions end before 40 minutes, so a player's first session shows the recap card after 15 minutes (`RecapFirstSessionSeconds` 900). Later sessions keep `RecapAfterSeconds` 2400. The calm-moment rules, once per session, the toggle and the 12 s auto-hide are unchanged.
+- **A first-session recap at 15 minutes.** Most first sessions end before 40 minutes, so a player's first session shows the recap card after 15 minutes (`RecapFirstSessionSeconds` 900). Since #3772 (2026-11-13) it comes at 8 minutes (480), and names the welcome back gift as its Tomorrow line while that pays tomorrow ([come-back-tomorrow.md](come-back-tomorrow.md)). Later sessions keep `RecapAfterSeconds` 2400. The calm-moment rules, once per session, the toggle and the 12 s auto-hide are unchanged.
 - **One "Tomorrow" line, picked in this order:** line 4 of the card names the single best thing waiting:
   1. "Your bait cat will be waiting for you", if bait is cooking and will be ready after the player leaves.
   2. "Tomorrow: Daily Treat day D, PRIZE", naming the next day's prize from the Daily Treat table (for example "2 Cat Snacks"), if tomorrow's treat isn't claimed yet.
@@ -168,3 +168,12 @@ After the first customer is served, the goal card reads "Catch a 2nd cat 🐾 1/
 - **Earnings wording.** The "2x" and "Now +$X/s → +$Y/s" wording shows only when a job slot is really free.
 - **Early card.** The goal card opens before walk-through step 5 while this goal is on.
 - **Source.** `shared/SecondCat.luau`.
+
+## 7. The first bowl cat's card (#3815)
+
+About 31% of players who put the first food in the bowl never pressed Tame or Let go (onboarding_v7, `first_bait` to `first_bait_resolved`). The first bait's wait is a few seconds since 2026-11-10, and since #3158 that card also ends the tutorial's step 4, so the loss sits at the card.
+
+- **One step.** While `tutorialStep` is 4 (only the account's first bowl cat), the card has one wide button, "Tame it!", with the tutorial's gold pulse, big arrow and spotlight (`TutorialGlow`), and no X, no Let go and no line under the cat (the arrow stands there). Taming the first cat costs nothing and gives a cat, so one choice there is not a dark pattern.
+- **Every later bowl cat** keeps the card as before: the X, Tame and Let go with its second tap.
+- **Read after:** the same v7 step by device, with the first bait's `bait_resolved` choice, `first_bait_cutscene` outcome and `quit_state` (Growth-Agent's baseline on #3815). Target: 85% or more from `first_bait` to `first_bait_resolved`.
+- **Source:** `client/UI/Screens/BaitCard.luau` (`show(..., first)`), `UI.bait.showReady`; uigate scene `BaitCardFirst`.

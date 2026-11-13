@@ -5,6 +5,9 @@
 -- (state.collection). It shows within NewKind.RANGE studs, hides inside NewKind.NEAR (the name tag is enough up
 -- close), while a net holds the cat and while this player is on a catch or rescue bar. A Secret cat never gets it
 -- (it keeps its "???"), nor a pity cat (its own tag has that spot). Off with the `newKindTag` live switch.
+-- Since the Studio look of 2026-11-13 the pill shows over stuck cats only: a stray of a new kind already wears the
+-- green NEW on its rarity gem (Effects/Rarity, #2258) and two labels sat stacked. Strays are still tracked here for
+-- the five cats trail.
 --   NewKindTags.new()
 --   tags:set(on, collection)   the switch and the collection (catId -> anything) as they stand now
 --   tags:setBusy(busy)         this player is on a catch or rescue bar
@@ -40,7 +43,8 @@ type Entry = {
 	label: TextLabel,
 }
 
-local TAGS = { "Stray", "StuckCat" }
+local STRAY = "Stray"
+local TAGS = { STRAY, "StuckCat" }
 local PITY = "PityCat" -- shared/Pity.ATTRIBUTE: a pity cat wears its own tag in this spot
 local WIDTH = 120 -- px, the billboard; the pill inside is as wide as its word
 local HEIGHT = 22 -- px, smaller than the mood icon and the name
@@ -143,8 +147,10 @@ function NewKindTags._look(self: any)
 	local at = rootPosition()
 	for cat, entry: Entry in self._entries do
 		local distance = if at ~= nil then (entry.part.Position - at).Magnitude else NewKind.RANGE
-		entry.billboard.Enabled =
-			NewKind.shows(self._on, self._busy, cat:GetAttribute("LockedBy"), distance)
+		-- a stray already wears the green NEW on its rarity gem (Effects/Rarity, #2258): one label, not two. It
+		-- stays in the list for the trail (`nearest`); only a stuck cat, which has no such gem tag, gets this pill
+		entry.billboard.Enabled = not CollectionService:HasTag(cat, STRAY)
+			and NewKind.shows(self._on, self._busy, cat:GetAttribute("LockedBy"), distance)
 	end
 end
 
@@ -160,7 +166,7 @@ function NewKindTags.nearest(self: any, area: string): BasePart?
 		local locked = cat:GetAttribute("LockedBy")
 		local beginner = cat:GetAttribute("Beginner")
 		if
-			CollectionService:HasTag(cat, "Stray")
+			CollectionService:HasTag(cat, STRAY)
 			and cat:GetAttribute("Area") == area
 			and (locked == nil or locked == 0 or locked == me)
 			and (beginner == nil or beginner == 0 or beginner == me)

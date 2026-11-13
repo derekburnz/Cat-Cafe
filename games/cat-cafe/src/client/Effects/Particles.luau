@@ -102,11 +102,32 @@ function Particles.attach(presetName: string, parent: Instance): ParticleEmitter
 end
 
 local pool: { [string]: ParticleEmitter } = {}
+-- #3743: tinted keys, oldest first (Logic.touchKey), and how long each one's particles live, so a retired emitter
+-- is freed only after its last particle is gone
+local tintOrder: { string } = {}
+local tintLife: { [string]: number } = {}
+
+local function retire(key: string)
+	local emitter: ParticleEmitter? = pool[key]
+	pool[key] = nil
+	local life = tintLife[key] or 0
+	tintLife[key] = nil
+	if emitter ~= nil then
+		local holder = emitter.Parent
+		Debris:AddItem(
+			if holder ~= nil and holder:IsA("Attachment") then holder else emitter,
+			life + 0.5
+		)
+	end
+end
 
 local function burstEmitter(presetName: string, tint: Color3?): ParticleEmitter?
 	local key = if tint ~= nil then presetName .. "_" .. tint:ToHex() else presetName
 	local existing: ParticleEmitter? = pool[key]
 	if existing ~= nil then
+		if tint ~= nil then
+			Logic.touchKey(tintOrder, key, Logic.BURST_TINTS_MAX)
+		end
 		return existing
 	end
 	local preset: Presets.EmitterPreset? = Presets.emitters[presetName]
@@ -117,7 +138,24 @@ local function burstEmitter(presetName: string, tint: Color3?): ParticleEmitter?
 	emitter.Name = key
 	emitter.Parent = Particles.anchor("Burst_" .. key, Vector3.zero)
 	pool[key] = emitter
+	if tint ~= nil then
+		tintLife[key] = preset.lifetime[2] or preset.lifetime[1] or 0
+		local oldest = Logic.touchKey(tintOrder, key, Logic.BURST_TINTS_MAX)
+		if oldest ~= nil then
+			retire(oldest)
+		end
+	end
 	return emitter
+end
+
+-- #3743: how many burst emitters are pooled now (untinted ones are one per preset; tinted ones at most
+-- Logic.BURST_TINTS_MAX), for a memory check in Studio
+function Particles.pooled(): number
+	local n = 0
+	for _ in pool do
+		n += 1
+	end
+	return n
 end
 
 -- Fires `count` particles of a preset at a world position, scaled by the device budget.

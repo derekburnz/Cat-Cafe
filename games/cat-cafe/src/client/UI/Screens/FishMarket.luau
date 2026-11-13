@@ -1258,10 +1258,37 @@ function FishMarket.setCatalog(self: any, catalog: Types.Catalog)
 	for _, potion in PotionLogic.list(catalog) do
 		self._potionById[potion.id] = potion
 	end
-	self:_build()
+	self:_queueBuild()
 end
 
-function FishMarket._build(self: any)
+-- #3722: the crate cards and food rows (about 1,400 instances) are not built inside UI.init's start-up run. They
+-- are built MARKET_BUILD_AFTER seconds after the catalog arrives, or at once when the window opens before that.
+local MARKET_BUILD_AFTER = 6
+function FishMarket._queueBuild(self: any)
+	self:_clearCards() -- the old catalog's cards go now; the new ones come with the build
+	self._built = false
+	self._buildToken = (self._buildToken or 0) + 1
+	local token: number = self._buildToken
+	task.delay(MARKET_BUILD_AFTER, function()
+		if token ~= self._buildToken or self._destroyed or self._built then
+			return
+		end
+		self:_ensureBuilt()
+		local state: Types.PlayerState? = self._state
+		if state ~= nil then
+			self:render(state)
+		end
+	end)
+end
+
+function FishMarket._ensureBuilt(self: any)
+	if self._built == false then
+		self._built = true
+		self:_build()
+	end
+end
+
+function FishMarket._clearCards(self: any)
 	for _, entry in self._crateCards do
 		entry.icon:destroy()
 		entry.odds:destroy()
@@ -1277,6 +1304,10 @@ function FishMarket._build(self: any)
 		entry.frame:Destroy()
 	end
 	table.clear(self._itemRows)
+end
+
+function FishMarket._build(self: any)
+	self:_clearCards()
 	local catalog: Types.Catalog? = self._catalog
 	if not catalog then
 		return
@@ -1774,6 +1805,9 @@ end
 
 function FishMarket.render(self: any, state: Types.PlayerState)
 	self._state = state
+	if self.frame.Visible then
+		self:_ensureBuilt() -- #3722: opened before the delayed build
+	end
 	-- a sync that changes a perk's level or a food count ends that row's wait for the server (the state table is
 	-- the same one each time, so the counts are kept by value)
 	for _, entry: ItemRow in self._itemRows do

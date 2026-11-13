@@ -1712,6 +1712,38 @@ local SCENES = {
 		UI.open("Collection")
 		assert(tiles() == built, "uigate: opening the Index built tiles twice (#3722)")
 	end },
+	-- #3722: the Decor cards are not built at start-up either; a new catalog empties the grid, and the quiet build
+	-- lays the cards a few a frame while the window is shut, so opening it builds none twice
+	{ "DecorQuietBuild", function()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Decor", true) :: Instance?
+		assert(window, "uigate: no Decor window")
+		-- only the main grid's cards: a frame named by a decor id (the Lawn tab's own cards stay through a catalog)
+		local ids: { [string]: boolean } = {}
+		local DecorPieces = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.DecorPieces") :: any
+		for _, decor in DecorPieces.all(catalogLikeTheGame()) do
+			ids[decor.id] = true
+		end
+		local function cards(): number
+			local count = 0
+			for _, each in (window :: Instance):GetDescendants() do
+				if each:IsA("Frame") and ids[each.Name] and each:FindFirstChild("Action") then
+					count += 1
+				end
+			end
+			return count
+		end
+		UI.setCatalog(catalogLikeTheGame())
+		assert(cards() == 0, ("uigate: setCatalog built %d Decor cards at once (#3722)"):format(cards()))
+		for _ = 1, 600 do
+			UIShim.advance(1 / 60)
+		end
+		assert(UI.isOpen() ~= "Decor", "uigate: Decor is open before the quiet build check")
+		local built = cards()
+		assert(built > 50, ("uigate: the quiet build laid %d Decor cards in 10 s with the window shut (#3722)"):format(built))
+		UI.open("Decor")
+		assert(cards() == built, "uigate: opening Decor built cards twice (#3722)")
+	end },
 	-- #2493: the forever pills' fit runs deferred and settles: after a few frames its scale holds still, and the row
 	-- stays inside the title bar
 	{ "IndexPerksFit", function()
@@ -3422,6 +3454,37 @@ local SCENES = {
 		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: the card stays after the visit ended (#2792)")
 		UI.firstVisit.changed("collector", away)
 	end },
+	-- #3620 (Review-QA's Studio round 3: the Daily Treat window opened over the rich customer's card and left it half
+	-- hidden): the card waits while a window is up, steps aside when one opens over it and comes back when it closes
+	{ "FirstVisitYields", function()
+		local function away()
+			return true
+		end
+		-- the card comes at present()'s next one second look after the window has closed, so wait for it, not a fixed time
+		local function comes(): boolean
+			for _ = 1, 16 do
+				if UI.firstVisit.carded then
+					return true
+				end
+				task.wait(0.25)
+			end
+			return UI.firstVisit.carded
+		end
+		UI.firstVisit.changed(nil, away)
+		UI.open("DailyTreat")
+		UI.firstVisit.changed("rich", away)
+		task.wait(0.3)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local holder = ask and ask:FindFirstChild("Holder", true)
+		assert(holder and not UI.firstVisit.carded, "uigate: the rich customer's card showed over a window (#3620)")
+		UI.close()
+		assert(comes() and holder.Visible, "uigate: the card did not come once the window closed (#3620)")
+		UI.open("DailyTreat")
+		task.wait(0.6)
+		assert(not UI.firstVisit.carded, "uigate: the card stayed under a window that opened over it (#3620)")
+		UI.close()
+		assert(comes() and holder.Visible, "uigate: the card did not come back after the window (#3620)")
+	end },
 	-- #2791 (Derek2: "we have gift milestones can be improved but don't make this ... take a lot of precious phone
 	-- screen space"): the gift ladder on the Rewards tile, no new slot: the tile counts down to the next step and its
 	-- list shows the next two with what they pay
@@ -3695,6 +3758,33 @@ local SCENES = {
 		local pill = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("AreaCount", true)
 		assert(pill == nil, "uigate: the Tame card still shows an area count (#2530)")
 	end },
+	-- #3815: the first bowl cat (tutorial step 4) has one wide glowing "Tame it!" with the tutorial's arrow and no X, Let go
+	-- or line under the cat; a later bowl cat's card has them all back
+	{ "BaitCardFirst", function()
+		local now = workspace:GetServerTimeNow()
+		local cat = { catId = Catalog.cats[1].id, stars = 1 }
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 5, placedAt = now - 30 }, 1)
+		-- a first bowl cat's card, then a later one's: the later card has its X and Let go back and no glow
+		UI.update({ tutorialStep = 4 })
+		UI.bait.showReady(cat, 1)
+		UI.update({ tutorialStep = 9 })
+		UI.bait.showReady(cat, 1)
+		local card = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		local tame = card:FindFirstChild("Tame", true)
+		assert(card:FindFirstChild("LetGo", true).Visible and card:FindFirstChild("Close", true).Visible,
+			"uigate: a later bowl cat's card lost Let go or the X (#3815)")
+		assert(tame:FindFirstChild("TutorialGlow") == nil, "uigate: a later bowl cat's Tame still glows (#3815)")
+		-- the first bowl cat's card, as the scene's picture
+		UI.update({ tutorialStep = 4 })
+		UI.bait.showReady(cat, 1)
+		assert(tame.Visible and tame.Size.X.Offset >= 200, "uigate: the first bowl cat's Tame is not the wide one (#3815)")
+		assert(tame:FindFirstChild("TutorialGlow") ~= nil, "uigate: the first bowl cat's Tame does not glow (#3815)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: the first bowl cat's card shows Let go (#3815)")
+		assert(not card:FindFirstChild("Close", true).Visible, "uigate: the first bowl cat's card shows the X (#3815)")
+		assert(not card:FindFirstChild("Hint", true).Visible, "uigate: the first bowl cat's line sits under the arrow (#3815)")
+		local label = tame:FindFirstChildWhichIsA("TextLabel", true)
+		assert(label and label.Text == "Tame it!", "uigate: the first bowl cat's button says " .. tostring(label and label.Text))
+	end },
 	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
 	{ "BaitBothReady", function()
 		local now = workspace:GetServerTimeNow()
@@ -3861,7 +3951,7 @@ local SCENES = {
 			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
 		UI.pass.open()
 		-- #2588: the corner badge is the HUD Pass tile's medal, not the 🍁 emoji
-		assert(badgeDraws("CafePass", "79367870405446"), "uigate: the Cafe Pass badge is not the Pass medal (#2588)")
+		assert(badgeDraws("CafePass", "73605076279409"), "uigate: the Cafe Pass badge is not the Pass medal (#2588)")
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("CafePass", true)
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Cafe Pass is not open")
@@ -3921,7 +4011,7 @@ local SCENES = {
 		-- #2592: the Pumpkin uniform's own picture (its apron and cap) in place of the 👕 on a pumpkin tile (#2087)
 		local drawn = false
 		for _, piece in uniform:GetDescendants() do
-			if piece:IsA("ImageLabel") and string.find(piece.Image, "119763026239046", 1, true) then
+			if piece:IsA("ImageLabel") and string.find(piece.Image, "124822185603420", 1, true) then
 				drawn = true
 			end
 		end
@@ -4124,6 +4214,15 @@ local SCENES = {
 		local trim = picker:FindFirstChild("trim", true)
 		assert(bag and trim, "uigate: the picker has no Bag and Trim grids (#3699)")
 		tap(bag:FindFirstChild("Swatch_mint"), "Mint swatch")
+		-- a short screen shows one block at a time behind Bag and Trim tabs; a tall one shows both
+		local trimTab = picker:FindFirstChild("Tab_trim", true)
+		if trimTab ~= nil then
+			assert(bag.Visible and not trim.Visible, "uigate: a short screen should open on the Bag block alone (#3699)")
+			tap(trimTab, "Trim tab")
+			assert(trim.Visible and not bag.Visible, "uigate: the Trim tab did not show the Trim block (#3699)")
+		else
+			assert(bag.Visible and trim.Visible, "uigate: a tall screen shows both blocks (#3699)")
+		end
 		tap(trim:FindFirstChild("Swatch_honey"), "Honey swatch")
 		tap(picker:FindFirstChild("Save", true), "Save")
 		listening:Disconnect()
@@ -4154,6 +4253,30 @@ local SCENES = {
 		local card = UIShim.playerGui:FindFirstChild("Gift", true)
 		local title = card and card:FindFirstChild("Title") :: TextLabel?
 		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")
+	end },
+	-- #3722: the Market's crate cards are not built inside setCatalog; opening the window builds them at once
+	{ "MarketDelayedBuild", function()
+		UI.setCatalog(catalogLikeTheGame())
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("FishMarket", true) :: Instance?
+		assert(window, "uigate: no Market window (#3722)")
+		local ids: { [string]: boolean } = {}
+		for _, crate in (catalogLikeTheGame() :: any).crates or {} do
+			ids[crate.id] = true
+		end
+		local function cards(): number
+			local n = 0
+			for _, each in (window :: Instance):GetDescendants() do
+				if each:IsA("Frame") and ids[each.Name] then
+					n += 1
+				end
+			end
+			return n
+		end
+		assert(cards() == 0, ("uigate: setCatalog built %d Market crate cards at once (#3722)"):format(cards()))
+		UI.market.open()
+		assert(cards() > 0, "uigate: opening the Market built no crate cards (#3722)")
+		UI.close()
 	end },
 	{ "Market", function()
 		-- #2571: a save that never opened Treats and perks shows the tab's red "!"; opening the tab clears it and
@@ -4996,6 +5119,45 @@ local SCENES = {
 		end
 		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
 	end },
+	-- #3722: the Decor Index builds no cells at start-up; a page's cells are made the first time it shows
+	{ "DecorIndexLazy", function()
+		UI.setCatalog(catalogLikeTheGame())
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true) :: Instance?
+		local cells = window and window:FindFirstChild("Cells", true) :: Instance?
+		assert(cells, "uigate: no Decor Index cells frame (#3722)")
+		local function count(): number
+			local n = 0
+			for _, cell in (cells :: Instance):GetChildren() do
+				if cell:IsA("Frame") then
+					n += 1
+				end
+			end
+			return n
+		end
+		assert(count() == 0, ("uigate: setCatalog built %d Decor Index cells (#3722)"):format(count()))
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		local first = count()
+		assert(first > 0, "uigate: the Decor Index's first page has no cells (#3722)")
+		-- another page than the one open builds its own cells the first time it shows
+		local chipBar = (window :: Instance):FindFirstChild("rally", true)
+		local other: string? = nil
+		if chipBar ~= nil and chipBar.Parent ~= nil then
+			for _, chip in chipBar.Parent:GetChildren() do
+				if chip:IsA("TextButton") and chip.Name ~= "rally" then
+					other = chip.Name
+					break
+				end
+			end
+		end
+		assert(other, "uigate: the Decor Index has one page only (#3722)")
+		local otherChip = (chipBar :: Instance).Parent:FindFirstChild(other :: string) :: GuiButton
+		UIShim.fire(UIShim.eventOf(otherChip, "Activated"))
+		local after = count()
+		UIShim.fire(UIShim.eventOf((chipBar :: Instance) :: GuiButton, "Activated"))
+		assert(after > first or count() > first, ("uigate: a second page built no cells of its own (%d, %d, %d, #3722)"):format(first, after, count()))
+	end },
 	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
 	{ "IndexGold", function()
 		UI.open("Collection")
@@ -5331,7 +5493,7 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
-		assert(badgeDraws("Potions", "96046816170155"), "uigate: the Bag window's badge is not the backpack (#2588)")
+		assert(badgeDraws("Potions", "118552497512285"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	-- #3190 (Derek2: "... delays on using potions too fast"): two quick Use presses both count at once, the button never
@@ -5586,7 +5748,7 @@ local SCENES = {
 		for _, d in UIShim.playerGui:GetDescendants() do
 			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
 				assert(not string.find(d.Image, "76162414943592", 1, true), "uigate: " .. d:GetFullName() .. " draws the ? mystery box (#2089)")
-				if string.find(d.Image, "81784091360384", 1, true) then
+				if string.find(d.Image, "72888217681662", 1, true) then
 					crates += 1
 				end
 			end
@@ -8286,7 +8448,7 @@ local SCENES = {
 	{ "HUDBagBackpack", function()
 		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
 		local bag = ShopIcons.hud("Bag")
-		assert(bag == "rbxassetid://96046816170155", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
+		assert(bag == "rbxassetid://118552497512285", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
 		-- #2866: its only backup is the group's earlier backpack, never a bottle or the money bag
 		assert(ShopIcons.backup(bag) == "rbxassetid://88244676943674", "uigate: the Bag's backpack does not fall back to the earlier backpack (#2866)")

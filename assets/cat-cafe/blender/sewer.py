@@ -507,8 +507,11 @@ def barrel(mat):
 
 def tyre_stack(mat):
     b = Builder()
-    for k in range(3):
-        b.ring((0.1 * (k % 2), 0, 0.35 + k * 0.7), 1.2, 0.55, 0.7, "fur_black", segments=14)
+    # the two lower tyres as solid cylinders (the tyre on top hides their holes): 30 parts where four rings of 14
+    # boxes cost 56 (#3743, phone weight)
+    for k in range(2):
+        b.cyl((0.1 * (k % 2), 0, 0.35 + k * 0.7), 1.2, 0.7, "fur_black", segments=14)
+    b.ring((0, 0, 0.35 + 2 * 0.7), 1.2, 0.55, 0.7, "fur_black", segments=14)
     b.ring((1.7, 0.6, 1.2), 1.2, 0.55, 0.7, "fur_black", segments=14, rot=rx(75))
     return [b.finalize(N + "TyreStack", mat)]
 

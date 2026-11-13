@@ -593,6 +593,10 @@ def _carved_wall(b, glow, L, box, seed):
         u = -L / 2 + i * bay
         if i in (0, n):
             u += 0.7 if i == 0 else -0.7
+        if 0 < i < n and not (broken[i - 1] or broken[i]):        # whole wall both sides: one part through it
+            box(u, 0, 6.0, 1.3, HALL_T + 1.0, 9.6, SANDSTONE)                       # (#3743, phone weight)
+            box(u, 0, 11.1, 1.7, HALL_T + 1.4, 0.6, STONE_LIGHT)
+            continue
         for f in (-1, 1):
             box(u, f * (HALL_T / 2 + 0.25), 6.0, 1.3, 0.5, 9.6, SANDSTONE)
             box(u, f * (HALL_T / 2 + 0.35), 11.1, 1.7, 0.7, 0.6, STONE_LIGHT)

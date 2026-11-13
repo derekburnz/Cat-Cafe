@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 local Logic = require(script.Parent.Logic)
@@ -23,15 +24,38 @@ Context.budget = Presets.budget.high
 Context.screenShake = true -- the Screen shake setting
 Context.lowPerformance = false -- the Low performance setting
 Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.budget.console (#2871)
+Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a phone or graphics quality 1 to 3, switch on
+local LITE_FLAG = "fxLite"
 
 local SHAKE_STEP = "CatCafeEffectsShake"
 
 local folder: Folder? = nil
 local rng = Random.new()
 
+-- The graphics quality the player set (1 to 10), or 0 for Automatic or when it cannot be read.
+local function savedQuality(): number
+	local ok, level = pcall(function(): number
+		local saved = UserSettings():GetService("UserGameSettings").SavedQualityLevel
+		return saved.Value
+	end)
+	return if ok and type(level) == "number" then level else 0
+end
+
 local function rebudget()
-	local tier, budget =
-		Logic.budgetFor(Context.device :: Presets.Tier, Context.lowPerformance, Context.console)
+	Context.lite = Logic.wantsLite(
+		LiveFlags.shown(
+			LITE_FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
+		),
+		Context.device :: Presets.Tier,
+		savedQuality()
+	)
+	local tier, budget = Logic.budgetFor(
+		Context.device :: Presets.Tier,
+		Context.lowPerformance,
+		Context.console,
+		Context.lite
+	)
 	Context.tier = tier
 	Context.budget = budget
 end
@@ -40,6 +64,13 @@ function Context.init()
 	Context.device = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
 	Context.console = GuiService:IsTenFootInterface()
 	rebudget()
+	-- #3794: the switch and the graphics quality can change mid session; effects pick the budget up within a second
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
+		:Connect(rebudget)
+	pcall(function()
+		local userSettings = UserSettings():GetService("UserGameSettings")
+		userSettings:GetPropertyChangedSignal("SavedQualityLevel"):Connect(rebudget)
+	end)
 end
 
 -- Follows the player's Settings switches (Effects.applySettings). Turning Screen shake off also stops a shake that

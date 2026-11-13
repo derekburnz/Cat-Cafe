@@ -1133,3 +1133,7 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 - **Why:** Derek, 2026-11-11 23:54 UTC: "look in to the issues that pr's keep failing with". 50 of the last 60 cancelled `check` runs were a run on the same head cancelled and started again because auto-merge was turned on while it ran.
 - **What:** the `auto_merge_enabled` run now waits for the running one instead of cancelling it. Each job then looks for a mark that this exact tree (the PR merged with main) already passed and skips its work when it finds one. The mark is written only by the last job of a run where `gate` and `cloudcheck` both passed, so a red run is never hidden. When main moved in between, or the first run failed, the check runs in full as before.
 - **What it changes for merging:** GitHub can now merge on the first run's result when auto-merge is turned on while it runs. That run checked the main of its start, which is the same as turning auto-merge on first and main moving during the run.
+
+## 2026-11-13 The first bowl cat's card has one button (#3815, Design-Agent)
+- **Why:** about 31% of players who put the first food in the bowl never pressed Tame or Let go, and that card ends the tutorial's step 4 (#3158). Derek's overnight blanket OK (2026-11-13 01:31 UTC) covers going with the recommendation.
+- **What:** while the tutorial is on step 4 the bait card shows one wide glowing "Tame it!" with the tutorial arrow, and no X or Let go. Later bowl cats are unchanged. Spec: `docs/design/cat-cafe/first-hour.md` section 7.

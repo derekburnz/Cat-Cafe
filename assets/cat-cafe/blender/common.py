@@ -180,12 +180,13 @@ class Builder:
                                        matrix=_mat(center, scale, rot))
         return self._tag(r["verts"], swatch, False)
 
-    def prism(self, center, points, height, swatch, bevel=False, rot=None):
+    def prism(self, center, points, height, swatch, bevel=False, rot=None, log=True):
         """Flat outline extruded `height` along Z, centered on `center`. `points` are (x, y) around
-        (0, 0), counter-clockwise, every point visible from (0, 0) (stars, badges)."""
+        (0, 0), counter-clockwise, every point visible from (0, 0) (stars, badges). log=False leaves the
+        Part export to the caller (star)."""
         m = _mat(center, (1, 1, 1), rot)
         n = len(points)
-        for i in range(n):
+        for i in range(n if log else 0):
             self._log("tri", m, swatch, (((0.0, 0.0), points[i], points[(i + 1) % n]), height))
         h = height / 2
         bot = [self.bm.verts.new(m @ Vector((x, y, -h))) for x, y in points]
@@ -218,7 +219,25 @@ class Builder:
             a = math.pi / 2 + math.pi * k / points
             r = outer if k % 2 == 0 else inner
             pts.append((r * math.cos(a), r * math.sin(a)))
-        return self.prism(center, pts, height, swatch, rot=rot)
+        if points != 5 or not 0.3 <= inner / outer <= 0.6:
+            return self.prism(center, pts, height, swatch, rot=rot)
+        # Parts (#3743): each tip as two right triangles from the centre, one WedgePart each, 10 a star instead of
+        # the 20 a fan of 10 triangles costs. Each runs from the centre out to the tip and sideways along the tip's
+        # edge, extended inward, to where it crosses the line through the centre square to the tip. They overlap
+        # inside (same colour, so nothing flickers) and their union is the star for inner/outer 0.3 to 0.6. Each is a
+        # touch thinner than the one before so no two faces share a plane (a renderer's shadow ray from one face
+        # would hit its twin and draw the middle dark).
+        m = _mat(center, (1, 1, 1), rot)
+        j = 0
+        for k in range(points):
+            o = Vector((*pts[2 * k], 0.0))
+            u = o / outer
+            for i in (pts[2 * k - 1], pts[2 * k + 1]):
+                iv = Vector((*i, 0.0))
+                p = o + (iv - o) * (outer / (outer - iv.dot(u)))      # on the edge's line, square to u at the centre
+                self._log("tri", m, swatch, (((0.0, 0.0), tuple(o.xy), tuple(p.xy)), height * (1 - 0.015 * j)))
+                j += 1
+        return self.prism(center, pts, height, swatch, rot=rot, log=False)
 
     def fan(self, center, apex, chain, height, swatch, rot=None):
         """Triangles (apex, chain[i], chain[i+1]) in local XY, each extruded `height` along Z around z 0.

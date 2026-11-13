@@ -45,6 +45,15 @@ return function()
 				expect(FirstVisitLogic.holds(5, true, false)).to.equal(false)
 				expect(FirstVisitLogic.holds(5, false, true)).to.equal(false)
 				expect(FirstVisitLogic.holds(nil, true, true)).to.equal(true)
+				-- #3620: a window or the "Unlocked!" perk card holds the call and makes a shown card step aside
+				expect(FirstVisitLogic.yields(nil, false)).to.equal(false)
+				expect(FirstVisitLogic.yields(nil, nil)).to.equal(false)
+				expect(FirstVisitLogic.yields("DailyTreat", false)).to.equal(true)
+				expect(FirstVisitLogic.yields(nil, true)).to.equal(true)
+				expect(FirstVisitLogic.yields("Store", true)).to.equal(true)
+				expect(FirstVisitLogic.YIELD_STEP > 0 and FirstVisitLogic.YIELD_STEP <= 0.5).to.equal(
+					true
+				)
 			end
 		)
 	end)

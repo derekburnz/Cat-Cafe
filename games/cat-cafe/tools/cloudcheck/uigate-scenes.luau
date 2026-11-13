@@ -2042,6 +2042,14 @@ local SCENES = {
 			tiles += 1
 		end
 		assert(tiles == 3, "uigate: food tiles " .. tiles)
+		-- #3982 (Review-QA, a short window with a mouse): the tiles sit above the Equip / Feed / Lock row, whole
+		local actions = card:FindFirstChild("Actions") :: GuiObject?
+		if actions ~= nil then
+			for _, id in { "small_cat_snack", "cat_snack", "big_cat_snack" } do
+				local tile = row:FindFirstChild(id) :: GuiObject
+				assert(tile.AbsolutePosition.Y + tile.AbsoluteSize.Y <= actions.AbsolutePosition.Y + 1, "uigate: the " .. id .. " tile runs under the actions row (#3982)")
+			end
+		end
 		local count = row:FindFirstChild("cat_snack"):FindFirstChild("Count") :: TextLabel
 		assert(count.Text == "x3", "uigate: the cat_snack tile counts " .. count.Text .. " (#2418)")
 		local fed: { string } = {}

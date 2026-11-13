@@ -1497,6 +1497,19 @@ function CatRoom._placeFeed(self: any)
 		)
 		else BUFFS_H
 	local top: number = self._favTop + used + 6
+	-- #3982 (Review-QA, a 667 x 375 window with a mouse): where the open food row would run under the actions row,
+	-- it takes the buff chips' place while it shows (they come back when Feed closes), and failing that it sits right
+	-- on top of the actions row
+	local body = self._feedRow.Parent :: GuiObject
+	local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
+	local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
+	local squeezed = self._feedRow.Visible and bodyH > 0 and top + FEED_H > actionsTop
+	if squeezed then
+		top = math.max(0, math.min(self._favTop, actionsTop - FEED_H))
+		-- _renderDetail shows them again on the next refresh (closing Feed is one)
+		self._detailBuffs.Visible = false
+		self._detailInfo.Visible = false
+	end
 	self._feedRow.Position = UDim2.fromOffset(10, top)
 	local descTop = top + (if self._feedRow.Visible then FEED_H + 6 else 0)
 	-- #3717: the trait row, then the description under it

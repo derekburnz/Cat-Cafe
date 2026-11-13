@@ -287,6 +287,7 @@ export type CustomEvent =
 	| "trait_roll"
 	-- #3196: Trait Tokens gained, value how many: the source (station, spin, daily_treat, quest, lost_found, code)
 	| "trait_token"
+	| "rare_customer" -- #3889: a rare customer came by chance; field: rich, mystery or collector
 	| "session_feedback_ctx"
 	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device

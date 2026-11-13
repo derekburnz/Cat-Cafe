@@ -14,9 +14,9 @@
 -- grants them again), else one Trait Token, else COST_FISH golden fish. After a re-roll the player keeps the old trait
 -- or takes the new one, so a cat never gets worse.
 --
--- Effects (KINDS): income, night income and XP work on their own cat only. Bowl luck, speed and rich visitor rate work
+-- Effects (KINDS): income, night income and XP work on their own cat only. Bowl luck, speed and rare customer chance work
 -- cafe wide, only from cats in a staff slot, only the best `best` of them and at most `cap` (bowl luck 3 and 0.36,
--- speed 1 and 2.5 studs/s, rich rate 2 and 0.40); a combo's effect counts like the single trait with the same effect.
+-- speed 1 and 2.5 studs/s, rare customer chance 2 and 0.40); a combo's effect counts like the single trait with the same effect.
 -- So a cafe full of one trait can't run away and no paid perk is undercut (spec section 5).
 --
 -- Trait Tokens are never traded or gifted, and golden fish are earned only. #3864 (Derek 2026-11-13): tokens are sold
@@ -59,7 +59,7 @@ Traits.BUNDLES = table.freeze({
 
 export type Trait = { id: string }
 
-export type Kind = "income" | "nightIncome" | "xp" | "bowlLuck" | "speed" | "richRate"
+export type Kind = "income" | "nightIncome" | "xp" | "bowlLuck" | "speed" | "rareCustomer"
 
 export type Rarity = {
 	id: string,
@@ -115,7 +115,15 @@ Traits.KINDS = {
 	xp = { cafe = false, best = 1, cap = math.huge, what = "this cat's XP", studs = false },
 	bowlLuck = { cafe = true, best = 3, cap = 0.50, what = "bait bowl luck", studs = false },
 	speed = { cafe = true, best = 1, cap = 2.5, what = "walk and carry speed", studs = true },
-	richRate = { cafe = true, best = 2, cap = 0.40, what = "rich visitor rate", studs = false },
+	-- #3889 (Derek 2026-11-13: "change traits that are rich customer buffs to be just rare customer chance increase"):
+	-- was richRate, rich visitors only; now every rare customer: rich, Mystery gift and the Cat Collector
+	rareCustomer = {
+		cafe = true,
+		best = 2,
+		cap = 0.40,
+		what = "rare customer chance",
+		studs = false,
+	},
 } :: { [Kind]: KindInfo }
 
 local function e(kind: Kind, amount: number): Effect
@@ -158,8 +166,8 @@ local SINGLES: { { id: string, name: string, kind: Kind, amounts: { number } } }
 	{ id = "quickPaws", name = "Quick Paws", kind = "speed", amounts = { 0.3, 0.5, 0.7, 1.2 } },
 	{
 		id = "richFriend",
-		name = "Rich Friend",
-		kind = "richRate",
+		name = "Crowd Pleaser", -- #3889: was Rich Friend (the id stays, saves keep it)
+		kind = "rareCustomer",
 		amounts = { 0.02, 0.03, 0.04, 0.08 },
 	},
 }
@@ -190,7 +198,12 @@ table.insert(
 -- Spec section 2b: Legendary, two effects.
 table.insert(
 	list,
-	def("goldenWhiskers", "Golden Whiskers", LEGENDARY, { e("income", 0.45), e("richRate", 0.15) })
+	def(
+		"goldenWhiskers",
+		"Golden Whiskers",
+		LEGENDARY,
+		{ e("income", 0.45), e("rareCustomer", 0.15) }
+	)
 )
 table.insert(
 	list,
@@ -213,7 +226,7 @@ table.insert(
 		"cosmicFortune",
 		"Cosmic Fortune",
 		MYTHIC,
-		{ e("income", 1.0), e("bowlLuck", 0.25), e("richRate", 0.25) }
+		{ e("income", 1.0), e("bowlLuck", 0.25), e("rareCustomer", 0.25) }
 	)
 )
 table.insert(

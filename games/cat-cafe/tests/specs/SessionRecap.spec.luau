@@ -52,8 +52,12 @@ return function()
 	it("names the welcome back gift as tomorrow's line when asked to (#3772)", function()
 		local profile: any = ProfileSchema.template(NOW)
 		local start = SessionRecap.start(profile, NOW)
-		expect((SessionRecap.view(start, profile, NOW + 600, true).tomorrow :: any).kind).to.equal("gift")
-		expect((SessionRecap.view(start, profile, NOW + 600, false).tomorrow :: any).kind).never.to.equal("gift")
+		expect((SessionRecap.view(start, profile, NOW + 600, true).tomorrow :: any).kind).to.equal(
+			"gift"
+		)
+		expect((SessionRecap.view(start, profile, NOW + 600, false).tomorrow :: any).kind).never.to.equal(
+			"gift"
+		)
 	end)
 
 	it("carries the Tomorrow line (#2123)", function()

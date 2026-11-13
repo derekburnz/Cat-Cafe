@@ -48,7 +48,12 @@ local function baitWaiting(profile: Types.PlayerProfile, now: number, mode: Mode
 	return false
 end
 
-function ReturnHook.pick(profile: Types.PlayerProfile, now: number, mode: Mode, gift: boolean?): Hook?
+function ReturnHook.pick(
+	profile: Types.PlayerProfile,
+	now: number,
+	mode: Mode,
+	gift: boolean?
+): Hook?
 	if mode == "recap" and gift == true then
 		return { kind = "gift" }
 	end

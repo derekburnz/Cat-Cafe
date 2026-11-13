@@ -38,7 +38,11 @@ local function check(player: Player): boolean
 	end
 	if SessionRecap.due(start, now, profile.settings.sessionRecap ~= false) then
 		start.sent = true
-		Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now, giftTomorrow(profile, now)))
+		Net.fire(
+			player,
+			"SessionRecap",
+			SessionRecap.view(start, profile, now, giftTomorrow(profile, now))
+		)
 		return true
 	end
 	return false
@@ -57,7 +61,11 @@ function SessionRecapService.debugSendNow(player: Player): boolean
 	local start = starts[player] or SessionRecap.start(profile, now - 60)
 	starts[player] = start
 	start.sent = true
-	Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now, giftTomorrow(profile, now)))
+	Net.fire(
+		player,
+		"SessionRecap",
+		SessionRecap.view(start, profile, now, giftTomorrow(profile, now))
+	)
 	return true
 end
 

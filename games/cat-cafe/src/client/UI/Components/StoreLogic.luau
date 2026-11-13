@@ -802,11 +802,11 @@ function StoreLogic.rows(
 				icon = MONEY_ICON,
 				multiplier = nextRung.multiplier,
 				effect = if top > 1
-					then ("All your cafe's money x%d, in place of x%d."):format(
+					then ("Multiplies ALL your bonuses x%d, in place of x%d."):format(
 						nextRung.multiplier,
 						top
 					)
-					else ("All your cafe's money x%d."):format(nextRung.multiplier),
+					else ("Multiplies ALL your bonuses x%d."):format(nextRung.multiplier),
 				owned = false,
 				tab = "passes",
 			})
@@ -818,7 +818,7 @@ function StoreLogic.rows(
 				name = ("%dx Money"):format(last.multiplier),
 				icon = MONEY_ICON,
 				multiplier = last.multiplier,
-				effect = ("All your cafe's money x%d."):format(last.multiplier),
+				effect = ("Multiplies ALL your bonuses x%d."):format(last.multiplier),
 				owned = true,
 				tab = "passes",
 			})

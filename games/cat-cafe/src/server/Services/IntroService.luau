@@ -37,6 +37,9 @@ local function onIntroDone(
 		return
 	end
 	local firstSeen = not replay and not profile.introSeen
+	local version = if replay or Telemetry.introShort(profile)
+		then Intro.SHORT_VERSION
+		else Intro.VERSION
 	if firstSeen then
 		profile.introSeen = true
 		CafeService.sync(player)
@@ -46,10 +49,11 @@ local function onIntroDone(
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then
 		events[player] = count
-		-- the shot carries the intro's version, "3:4", since the shots moved (intro-cutscene.md section 3)
+		-- the shot carries the intro's version, "3:4", since the shots moved (intro-cutscene.md section 3); #4001:
+		-- the short intro (every replay, and a first play in the test's "short" arm) is Intro.SHORT_VERSION
 		Telemetry.custom(player, "intro_cutscene", 1, {
 			if shot == 0 then "finished" else "skipped",
-			tostring(Intro.VERSION) .. ":" .. tostring(shot),
+			tostring(version) .. ":" .. tostring(shot),
 			if replay then "replay" else "first",
 		})
 	end
@@ -57,7 +61,7 @@ local function onIntroDone(
 	local seconds = Guard.int(rawSeconds, 0, SKIP_SECONDS_MAX)
 	if firstSeen and shot ~= 0 and seconds ~= nil then
 		Telemetry.custom(player, "intro_skip", seconds, {
-			tostring(Intro.VERSION) .. ":" .. tostring(shot),
+			tostring(version) .. ":" .. tostring(shot),
 			Telemetry.device(player) or "unknown",
 		})
 	end

@@ -40,6 +40,7 @@ local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
+local IntroModeService = require(script.Parent.Services.IntroModeService)
 local IntroService = require(script.Parent.Services.IntroService)
 local InviteService = require(script.Parent.Services.InviteService)
 local LateStationService = require(script.Parent.Services.LateStationService)
@@ -150,6 +151,7 @@ RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
 RareCatsTabService.start() -- #3053: the chat's Rare Cats tab, behind the rareCatsTab switch (off)
 IntroService.start()
+IntroModeService.start() -- #4001: the short intro test arm, read as each player joins
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
 IdeaCreditsService.start() -- #1083: the Thank You board's credits

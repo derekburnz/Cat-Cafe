@@ -1760,7 +1760,7 @@ case(
 case(
 	"doubleSpend",
 	Enum.KeyCode.Equals,
-	"Double spend: SellCat twice in one frame, ClaimOffline twice 2 s apart",
+	"Double spend: SellCat twice in one frame (refused since #3924), ClaimOffline twice 2 s apart",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
@@ -1779,35 +1779,31 @@ case(
 					and (uid == nil or instance.spotId == nil)
 				then
 					uid = candidate
-					value = Catalog.rarities[def.rarity].sellValue
+					-- #3924: selling is gone, so SellCat moves no coins and no cat
+					value = 0
 				end
 			end
 			if uid ~= nil then
 				local before, cats = freshWallet(), catCount()
-				log("    selling one cat on purpose (test profile)")
+				log("    SellCat twice (refused since #3924)")
 				fire("SellCat", uid)
 				fire("SellCat", uid)
 				task.wait(1.5)
 				local coinsOk, coinsText = coinsMovedBy(before, value)
 				local lost = cats - catCount()
-				if coinsOk and lost == 1 then
+				if coinsOk and lost == 0 then
 					table.insert(
 						notes,
-						string.format(
-							"one sale for $%d, second call added nothing (%s)",
-							value,
-							coinsText
-						)
+						string.format("both refused, nothing moved (%s)", coinsText)
 					)
 				else
 					verdict = "FAIL"
 					table.insert(
 						notes,
 						string.format(
-							"sell: %s and %d cat(s) gone for one cat worth $%d",
+							"sell: %s and %d cat(s) gone, selling is off (#3924)",
 							coinsText,
-							lost,
-							value
+							lost
 						)
 					)
 				end
@@ -5575,7 +5571,7 @@ case(
 			if state == nil or state.cats[uid] == nil or money() - w.money > incomeSince(w) then
 				return done("FAIL", "SellCat sold the Bellhop Cat; " .. table.concat(notes, ", "))
 			end
-			if toasted(sellAt, "cannot be sold") then
+			if toasted(sellAt, "be sold") then -- #3924: "Cats can't be sold. ..."
 				table.insert(notes, "SellCat refused with the exclusive toast")
 			else
 				verdict = downgrade(verdict, "CHECK")

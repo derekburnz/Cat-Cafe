@@ -2008,6 +2008,7 @@ local SCENES = {
 		UI.open("Cats")
 		task.wait(0.2)
 		press("Cats", "gate_3")
+		press("Cats", "Feed") -- #3924: the tiles show once Feed is pressed
 		task.wait(0.1)
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local row = modals:FindFirstChild("FeedRow", true) :: Frame
@@ -5202,16 +5203,48 @@ local SCENES = {
 			press("Cats", "gate_rainbow")
 		end)
 	end },
-	-- its sell asks twice: "Sell your Rainbow ...? It earns x3", then "Really sell it?"
-	{ "CatsRainbowSell", function()
+	-- #3924 (Derek 2026-11-13: "just one row of things an equip/unequip button (no move), remove sell ... make the lock a
+	-- small square ... feed opens the menu attached ... rename just when you click on their name"): Equip, Feed and the
+	-- Lock square on one row, no Sell or Move, the food row shut until Feed, a tap on the name opens Rename
+	{ "CatsOneRow", function()
 		local player = samplePlayer(os.time())
 		player.cats.gate_rainbow = rainbowCat()
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 		task.delay(0.2, function()
 			press("Cats", "gate_rainbow")
-			press("Cats", "Sell")
-			press("Cats", "Sell")
+			task.wait(0.1)
+			local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+			local rootFrame = modals and modals:FindFirstChild("Root")
+			local container = rootFrame and rootFrame:FindFirstChild("Container")
+			local cats = container and container:FindFirstChild("Cats")
+			assert(cats, "uigate: no Cats window (#3924)")
+			local actions = cats:FindFirstChild("Actions", true)
+			assert(actions, "uigate: no Actions row (#3924)")
+			for _, gone in { "Sell", "Rest", "Move" } do
+				assert(cats:FindFirstChild(gone, true) == nil, "uigate: the cat room still has " .. gone .. " (#3924)")
+			end
+			local lock = actions:FindFirstChild("Lock", true)
+			assert(lock and lock.Visible, "uigate: no Lock square on the row (#3924)")
+			local size = lock.AbsoluteSize
+			assert(math.abs(size.X - size.Y) <= 2, "uigate: the Lock is not square: " .. tostring(size) .. " (#3924)")
+			local top = actions.AbsolutePosition.Y
+			local edge = actions.AbsolutePosition.X + actions.AbsoluteSize.X + 1
+			for _, name in { "Assign", "Feed", "Lock" } do
+				local piece = actions:FindFirstChild(name, true)
+				assert(piece, "uigate: no " .. name .. " on the row (#3924)")
+				assert(math.abs(piece.AbsolutePosition.Y - top) <= 2, "uigate: " .. name .. " is off the row (#3924)")
+				assert(piece.AbsolutePosition.X + piece.AbsoluteSize.X <= edge, "uigate: " .. name .. " spills off the row (#3924)")
+			end
+			local feedRow = cats:FindFirstChild("FeedRow", true)
+			assert(feedRow and not feedRow.Visible, "uigate: the food row shows before Feed (#3924)")
+			press("Cats", "Feed")
+			task.wait(0.1)
+			assert(feedRow.Visible, "uigate: Feed did not open the food row (#3924)")
+			press("Cats", "NameTap")
+			task.wait(0.1)
+			local rename = modals:FindFirstChild("Rename", true)
+			assert(rename and rename.Visible, "uigate: a tap on the name did not open Rename (#3924)")
 		end)
 	end },
 	-- #1618 (Derek2 11-05: "don't even need that button just remove it"): no Sell extras card in the cat room

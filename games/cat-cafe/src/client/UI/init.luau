@@ -120,8 +120,7 @@ UI.events = {
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
-	sellCat = Signal.new(), -- (uid)
-	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
+	lockCat = Signal.new(), -- (uid, locked)   the Lock square in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
@@ -960,9 +959,6 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unplaceCat = function(uid: string)
 			UI.events.unplaceCat:Fire(uid)
-		end,
-		sellCat = function(uid: string)
-			UI.events.sellCat:Fire(uid)
 		end,
 		lockCat = function(uid: string, locked: boolean)
 			UI.events.lockCat:Fire(uid, locked)

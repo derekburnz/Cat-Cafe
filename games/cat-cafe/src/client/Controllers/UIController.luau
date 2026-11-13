@@ -1544,6 +1544,7 @@ local function wireIntents()
 		return (station:GetPivot().Position - root.Position).Magnitude
 	end
 	local mysticPool: any = (UI :: any).mysticPool
+	mysticPool.cutting = BigTraitCut.playing -- #3846: the bait and gift cards wait while it plays
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS

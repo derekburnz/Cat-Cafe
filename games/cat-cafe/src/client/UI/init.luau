@@ -2517,6 +2517,15 @@ function UI.bait.busy(): boolean
 		or (type(rescuing) == "function" and (rescuing :: () -> unknown)() == true)
 		or (hud ~= nil and hud:isCarrying())
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
+		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
+end
+
+-- #3846: Effects/BigTraitCut.playing, set by the controller as UI.mysticPool.cutting: pop-up cards (bait, gift) wait
+-- while a Legendary or Mythic trait roll's cutscene holds the camera.
+function UI.bigTraitCutting(): boolean
+	local pool: any = UI.mysticPool
+	local cutting = if type(pool) == "table" then pool.cutting else nil
+	return type(cutting) == "function" and cutting() == true
 end
 
 -- Runs `show` once the player has been calm (not busy) for SETTLE seconds, unless `wanted` turns false first.
@@ -7500,6 +7509,7 @@ do
 	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
 	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
 	UI.mysticPool.far = nil :: (() -> boolean)?
+	UI.mysticPool.cutting = nil :: (() -> boolean)? -- #3846: Effects/BigTraitCut.playing (UI.bigTraitCutting)
 
 	function UI.mysticPool.start()
 		UI.mysticPool.reset()
@@ -9111,6 +9121,7 @@ local function giftTry(): boolean
 		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
 		or card:isShowing()
 		or not visible
+		or UI.bigTraitCutting() -- #3846: never over a trait roll's cutscene
 	if
 		not GiftCardLogic.canShow({
 			idleSeconds = recapIdleSeconds(),

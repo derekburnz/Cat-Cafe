@@ -60,7 +60,7 @@ return function()
 			-- an unknown rarity gets the Legendary's
 			expect(Logic.bigTraitSize("rare")).to.equal(l)
 			-- still short, and inside the cap with a Mythic roll and the swings
-			expect(x.big <= 5).to.equal(true)
+			expect(x.big <= 6).to.equal(true) -- #3942: the Secret scene runs about 8 s with the swings
 			expect(x.screenSeconds <= 3).to.equal(true)
 			expect(6 + x.big + b.swingIn + b.swingOut < b.cap).to.equal(true)
 			-- a small shake only, and the screen never goes fully dark
@@ -81,6 +81,52 @@ return function()
 				expect(math.abs(five[i].Magnitude - 2.5) < 1e-6).to.equal(true)
 				expect(five[i].Y).to.equal(0)
 			end
+		end)
+
+		it(
+			"gives Mythic and Secret a whole scene, the Secret the bigger, inside the safety rules (#3942)",
+			function()
+				local b = Presets.bigTrait
+				expect(Logic.bigTraitScene("legendary")).to.equal(nil)
+				expect(Logic.bigTraitScene(nil)).to.equal(nil)
+				local m, x = Logic.bigTraitScene("mythic"), Logic.bigTraitScene("secret")
+				expect(m ~= nil and x ~= nil).to.equal(true)
+				expect(x.orbit > m.orbit and x.dim > m.dim and x.spiral > m.spiral).to.equal(true)
+				expect(m.constellation).to.equal(false)
+				-- the cat rises up the pillar a little longer for a Secret, and nothing rises for a Legendary
+				expect(x.lift > m.lift and m.lift > 0).to.equal(true)
+				expect(x.constellation).to.equal(true)
+				for _, scene in { m, x } :: { any } do
+					-- bars never take more than a quarter of the screen, the world never goes near black
+					expect(scene.bars > 0 and scene.bars <= 0.125).to.equal(true)
+					expect(scene.dim > 0 and scene.dim <= 0.35).to.equal(true)
+					-- a slow turn: no faster than 10 degrees a second
+					expect(scene.orbit / scene.orbitSeconds <= 10).to.equal(true)
+				end
+				-- the scene runs about 6 s for a Mythic and 8 s for a Secret, well under the cap that frees the controls
+				local mythicSeconds = b.swingIn + b.sizes.mythic.big + b.swingOut
+				local secretSeconds = b.swingIn + b.sizes.secret.big + b.swingOut
+				expect(secretSeconds > mythicSeconds).to.equal(true)
+				expect(secretSeconds + 4 < b.cap).to.equal(true)
+				-- the stars come one after the other, slower than about 10 a second, and the cat is done in the big moment
+				expect(b.starGap >= 0.1).to.equal(true)
+				expect(#Logic.CAT_CONSTELLATION * b.starGap < b.sizes.secret.big).to.equal(true)
+			end
+		)
+
+		it("circles the camera round the pool at the same height and distance (#3942)", function()
+			local look = Vector3.new(10, 5, -3)
+			local eye = Vector3.new(10, 12, 9)
+			local turned = Logic.sceneOrbit(look, eye, 90)
+			expect(math.abs(turned.Y - eye.Y) < 1e-6).to.equal(true)
+			expect(math.abs((turned - look).Magnitude - (eye - look).Magnitude) < 1e-6).to.equal(
+				true
+			)
+			expect((Logic.sceneOrbit(look, eye, 0) - eye).Magnitude < 1e-6).to.equal(true)
+			local first = Logic.sceneSpiral(1, 8, 2, 18)
+			local last = Logic.sceneSpiral(8, 8, 2, 18)
+			expect(first.Y).to.equal(0)
+			expect(math.abs(last.Y - 18) < 1e-6).to.equal(true)
 		end)
 
 		it("plays the Legendary or Mythical fanfare on its beat", function()

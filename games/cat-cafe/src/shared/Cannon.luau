@@ -232,6 +232,11 @@ end
 --   HOME_ATTRIBUTE      the Player attribute the server sets to the landing's position once it has moved them
 --   HOME_CAMERA         how far behind and above the character the camera starts, and how high it looks
 Cannon.HOME_WAIT_SECONDS = 20
+-- Derek 2026-11-13: the AFK rest's rejoin (#3602) "puts you in town square". The rejoin's new server has to wait for
+-- the old one to let go of the save (ProfileStore's session lock), which can take longer than HOME_WAIT_SECONDS, so
+-- the move gave up and left the resting player at the Town Square spawn, outside the rest zone. A rest's rejoin
+-- waits this long instead; the player is idle, so they still stand at the spawn when the save comes.
+Cannon.REJOIN_HOME_WAIT_SECONDS = 120
 Cannon.HOME_SPAWN_STUDS = 10
 Cannon.HOME_ATTRIBUTE = "HomeArrival"
 -- Review-QA's fresh join runs, 2026-11-12 (Derek: "the cannon step of tutorial steps pulls you super far out so you
@@ -263,6 +268,11 @@ function Cannon.joinsAtHome(
 		return false
 	end
 	return (tutorialStep or 0) >= doneStep
+end
+
+-- How long a join's move home waits for the save and the cafe: longer for a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE).
+function Cannon.homeWaitSeconds(restRejoin: boolean): number
+	return if restRejoin then Cannon.REJOIN_HOME_WAIT_SECONDS else Cannon.HOME_WAIT_SECONDS
 end
 
 -- Whether a character at `at` still stands at the spawn `spawn` (flat distance), so moving it surprises nobody.

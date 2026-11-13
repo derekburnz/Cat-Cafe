@@ -121,8 +121,7 @@ UI.events = {
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
-	sellCat = Signal.new(), -- (uid)
-	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
+	lockCat = Signal.new(), -- (uid, locked)   the Lock square in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
@@ -962,9 +961,6 @@ function UI.init(config: Types.InitConfig)
 		unplaceCat = function(uid: string)
 			UI.events.unplaceCat:Fire(uid)
 		end,
-		sellCat = function(uid: string)
-			UI.events.sellCat:Fire(uid)
-		end,
 		lockCat = function(uid: string, locked: boolean)
 			UI.events.lockCat:Fire(uid, locked)
 		end,
@@ -1026,6 +1022,11 @@ function UI.init(config: Types.InitConfig)
 			-- #3715: with Picnic Treats on, the basket's button opens its pick card instead
 			if extraId == "picnic" and UI.campExtras.treats() then
 				UI.campExtras.openPicnic()
+				return
+			end
+			-- #3955: the Lost and Found's button opens its card, where the find is revealed
+			if extraId == "lostFound" then
+				UI.campExtras.openLostFound(true)
 				return
 			end
 			UI.events.collectCampExtra:Fire(extraId)
@@ -2919,14 +2920,11 @@ function UI.arcade.state(view: any)
 	end
 end
 
--- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
--- #3296: `row` is the Menu row alone, for when Circle Streak is vaulted (off) but Mouse Dash still opens from it.
-function UI.arcade.setOn(on: boolean, row: boolean?)
+-- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
+-- gone since 2026-11-13 (Derek: "remove the old cat arcade icon from settings"); callers may still pass it.
+function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
-	end
-	if hud then
-		hud:setArcade(if row ~= nil then row else on)
 	end
 end
 
@@ -6958,6 +6956,7 @@ end
 do
 	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
 	local YardSale = require(script.Screens.YardSale)
+	local LostFound = require(script.Screens.LostFound) -- #3955
 	local ReadyBang = require(script.Components.ReadyBang)
 	local MarketBang = require(script.Components.MarketBang)
 	local RescueBang = require(script.Components.RescueBang)
@@ -6972,6 +6971,8 @@ do
 		late = nil :: any, -- #2651 part 4: the last LateStationsState
 		yard = nil :: YardSale.YardSale?,
 		picnic = nil :: PicnicTreats.PicnicTreats?, -- #3715: the Picnic Treats pick card
+		lost = nil :: LostFound.LostFound?, -- #3955: the Lost and Found's card
+		lostAnywhere = false, -- #3955: opened from the Cannon menu, walking away does not close it
 		info = {} :: { [string]: StationInfo.StationInfo }, -- #3938: each station's card while nothing waits
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
@@ -6985,8 +6986,9 @@ do
 		return if current ~= nil then current.yardSale else nil
 	end
 
-	-- Studs from this player's character to the Yard Sale's model, or nil while either is streamed out.
-	local function yardDistance(): number?
+	-- Studs from this player's character to a camp extra's model (the Yard Sale's by default), or nil while either is
+	-- streamed out.
+	local function yardDistance(extraId: string?): number?
 		local character = Players.LocalPlayer.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		if root == nil or not root:IsA("BasePart") then
@@ -6995,7 +6997,7 @@ do
 		for _, model in CollectionService:GetTagged(CAMP_TAG) do
 			if
 				model:IsA("Model")
-				and model:GetAttribute("ExtraId") == CampExtrasLogic.YARD_SALE
+				and model:GetAttribute("ExtraId") == (extraId or CampExtrasLogic.YARD_SALE)
 				and model:IsDescendantOf(Workspace)
 			then
 				return ((model :: Model):GetPivot().Position - (root :: BasePart).Position).Magnitude
@@ -7104,6 +7106,38 @@ do
 		})
 		camp.picnic = picnic
 		picnic:setView(if camp.state ~= nil then camp.state.picnic else nil)
+		-- #3955: the Lost and Found's card; its Claim sends the same CollectCampExtra the ring used to
+		local lost = LostFound.new({
+			collect = function()
+				UI.events.collectCampExtra:Fire("lostFound")
+			end,
+			close = function()
+				if modalView:current() == "LostFound" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				if camp.lostAnywhere then
+					return false
+				end
+				local distance = yardDistance("lostFound")
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		camp.lost = lost
+		lost:setView(if camp.state ~= nil then (camp.state :: any).lostFound else nil)
+		if currentCatalog then
+			lost:setCatalog(currentCatalog)
+		end
+		modalView:register("LostFound", {
+			frame = lost.frame,
+			onOpen = function()
+				lost:opened()
+			end,
+			onClose = function()
+				lost:closed()
+			end,
+		})
 		-- #3938: a station square with nothing ready opens its card with the timer
 		local SharedCatalog =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
@@ -7170,6 +7204,10 @@ do
 	end
 
 	function UI.campExtras.setCatalog(catalog: Types.Catalog)
+		local lost = camp.lost
+		if lost then
+			lost:setCatalog(catalog)
+		end
 		local yard = camp.yard
 		if yard then
 			yard:setCatalog(catalog)
@@ -7204,6 +7242,10 @@ do
 		local picnic = camp.picnic
 		if picnic then
 			picnic:setView(extras.picnic)
+		end
+		local lost = camp.lost
+		if lost then
+			lost:setView((extras :: any).lostFound)
 		end
 		for extraId, card in camp.info do
 			card:setView((extras :: any)[extraId])
@@ -7244,6 +7286,16 @@ do
 		modalView:open("PicnicTreats")
 	end
 
+	-- #3955: the Lost and Found's ring or prompt (or, `anywhere`, the Cat Cannon menu): its card.
+	function UI.campExtras.openLostFound(anywhere: boolean?)
+		local modalView = modal
+		if camp.lost == nil or modalView == nil then
+			return
+		end
+		camp.lostAnywhere = anywhere == true
+		modalView:open("LostFound")
+	end
+
 	-- The Yard Sale's prompt: its card with today's crates.
 	function UI.campExtras.openYardSale(view: Types.CampExtraView?, anywhere: boolean?)
 		camp.yardAnywhere = anywhere == true -- #3213: from the Cannon menu, walking away does not close it
@@ -7259,6 +7311,13 @@ do
 	-- CampExtraResult ok: the prize toast, the extra's name and what it paid as at most two pictures ("Fish Pond" and
 	-- the gold fish "x14"); with no prize the server's words say it ("Fish Pond: +14 golden fish").
 	function UI.campExtras.collected(extraId: string, paid: { string }?, prize: Types.IndexPrize?)
+		-- #3955: with its card open the Lost and Found's find shows there, large, in place of the toast
+		local lost = camp.lost
+		local modalView = modal
+		if extraId == "lostFound" and lost and modalView and modalView:current() == "LostFound" then
+			lost:found(prize, paid)
+			return
+		end
 		if toasts then
 			toasts:prize(
 				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
@@ -7285,6 +7344,10 @@ do
 		if picnic and extraId == "picnic" then
 			picnic:refused()
 		end
+		local lost = camp.lost
+		if lost and extraId == "lostFound" then
+			lost:refused()
+		end
 	end
 
 	-- UI.destroy: the card goes with the modal and the "!" with the UI; the state stays for the next build.
@@ -7299,6 +7362,11 @@ do
 			picnic:destroy()
 		end
 		camp.picnic = nil
+		local lost = camp.lost
+		if lost then
+			lost:destroy()
+		end
+		camp.lost = nil
 		for _, card in camp.info do
 			card:destroy()
 		end
@@ -7584,7 +7652,9 @@ do
 	local MysticPool = require(script.Screens.MysticPool)
 	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
 	local EdgeShade = require(script.Components.EdgeShade)
-	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
+	local PoolBang = require(script.Components.PoolBang)
+	local pool =
+		{ card = nil :: MysticPool.MysticPool?, anywhere = false, bang = nil :: PoolBang.PoolBang? }
 	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
 	UI.mysticPool.far = nil :: (() -> boolean)?
 	UI.mysticPool.cutting = nil :: (() -> boolean)? -- #3846: Effects/BigTraitCut.playing (UI.bigTraitCutting)
@@ -7629,10 +7699,13 @@ do
 				return not pool.anywhere and far ~= nil and far()
 			end,
 			-- #3702: the card steps aside for the pool's animation, behind a soft shade at the screen's edges
-			shade = function(onTap: () -> ()): () -> ()
+			shade = function(onTap: () -> (), canSkip: boolean): () -> ()
 				modalView:tuck(MysticPoolLogic.WINDOW, true)
-				local lift =
-					EdgeShade.show(modalView.screenGui.Parent :: Instance, "Tap to skip", onTap)
+				local lift = EdgeShade.show(
+					modalView.screenGui.Parent :: Instance,
+					if canSkip then "Tap to skip" else nil, -- #3943: no skip words on a Mythic or Secret roll
+					onTap
+				)
 				return function()
 					lift()
 					modalView:tuck(MysticPoolLogic.WINDOW, false)
@@ -7640,6 +7713,7 @@ do
 			end,
 		})
 		pool.card = card
+		pool.bang = PoolBang.new() -- #3936: the red "!" over the pool while a roll waits
 		modalView:register(MysticPoolLogic.WINDOW, {
 			frame = card.frame,
 			onOpen = function()
@@ -7660,6 +7734,10 @@ do
 		local card = pool.card
 		if card then
 			card:render(playerState)
+		end
+		local bang = pool.bang
+		if bang then
+			bang:update((playerState :: any).traits)
 		end
 	end
 
@@ -7689,6 +7767,11 @@ do
 			card:destroy()
 		end
 		pool.card = nil
+		local bang = pool.bang
+		if bang then
+			bang:destroy()
+		end
+		pool.bang = nil
 	end
 end
 
@@ -8446,7 +8529,7 @@ do
 	for _, def in SharedCatalog.potions or {} do
 		potionNames[def.id] = def.name
 	end
-	local function rows(): { StoreLogic.Row }
+	local function view(): StoreLogic.ShopView
 		-- #1625: the Starter Bundle's cats by name, and the server's word on whether it is bought
 		local catNames: { [string]: string } = {}
 		for _, product in SharedCatalog.products or {} do
@@ -8455,7 +8538,7 @@ do
 				catNames[catId] = if def then def.name else nil
 			end
 		end
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, {
+		return {
 			products = SharedCatalog.products,
 			potionNames = potionNames,
 			catNames = catNames,
@@ -8463,7 +8546,10 @@ do
 			starterBought = (state :: any).starterBought,
 			cafePass = (UI.pass :: any).offer(), -- #1646: the running season's paid track, nil while closed (defined below)
 			supporter = Players.LocalPlayer:GetAttribute(shop.supporterKey) == true, -- #1168 row 4
-		})
+		}
+	end
+	local function rows(): { StoreLogic.Row }
+		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -8478,6 +8564,8 @@ do
 			local list = if up or next(unseen) ~= nil then rows() else nil
 			screen:setNew(if list then StoreLogic.newTabs(unseen, list) else {})
 			if up and list then
+				-- #3572: the Potions tab's bag strip (rework only)
+				screen:setBag(StoreLogic.bag(view()))
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -8578,6 +8666,8 @@ do
 			onOpen = function()
 				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
+				-- #3572: the Potions tab's bag strip (rework only)
+				screen:setBag(StoreLogic.bag(view()))
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,
@@ -9380,6 +9470,7 @@ do
 		local current = hud
 		if current then
 			current:setEvent(EventLogic.chip(view, seen, now))
+			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
 		if boards then

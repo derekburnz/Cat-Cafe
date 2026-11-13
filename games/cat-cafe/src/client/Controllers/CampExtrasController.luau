@@ -130,6 +130,12 @@ local function onTriggered(extraId: string)
 			end
 			return
 		end
+		-- #3955: the Lost and Found's card, where the player claims and sees what turned up
+		local openLost = if extraId == "lostFound" then hook("openLostFound") else nil
+		if openLost ~= nil then
+			openLost()
+			return
+		end
 		Net.fire("CollectCampExtra", extraId)
 		return
 	end

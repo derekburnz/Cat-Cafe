@@ -57,7 +57,6 @@ local Quests = require(ReplicatedStorage.Shared.Quests)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
-local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
@@ -1917,87 +1916,18 @@ local function onUnequipAll(player: Player)
 	CafeService.sync(player)
 end
 
-local function onSellCat(player: Player, rawUid: unknown)
-	local uid = Guard.id(rawUid)
-	local profile = profileFor(player)
-	if profile == nil or uid == nil then
-		return
-	end
-	local instance = profile.cats[uid]
-	if instance == nil then
-		return
-	end
-	if ProfileSchema.catCount(profile) <= 1 then
-		Net.toast(player, "You cannot sell your last cat.", "warn")
-		return
-	end
-	if instance.locked == true then
-		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
-		return
-	end
-	if CatStats.atSpa(profile, uid) then
-		Net.toast(player, LateStations.Messages.atSpa, "warn") -- #2651 part 4
-		return
-	end
-	if offerCheck(player, uid) then
-		Net.toast(player, Trade.Messages.catInTrade, "warn") -- F102: take it off the offer first
-		return
-	end
-	local def = Catalog.getCat(instance.catId)
-	if def == nil then
-		return
-	end
-	if def.exclusive == true then
-		-- F95 and F96: an exclusive cat can be locked but never sold
-		Net.toast(
-			player,
-			string.format("The %s stays with you. Exclusive cats cannot be sold.", def.name),
-			"warn"
-		)
-		return
-	end
-	profile.cats[uid] = nil
-	profile.stats.catsSold += 1
-	-- #2687: the Yard Sale's Haggler pays 10% more from Tier 3
-	local value =
-		StationPerks.sellValue(Catalog.rarities[def.rarity].sellValue, Economy.tier(profile))
-	Economy.credit(profile, value)
-	Telemetry.source(player, profile, value, "Gameplay", "sell_cat")
-	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
-	-- #2399: no "Sold X for $Y" toast; the money counter ticks up and flashes
-	CafeService.refreshPlot(player)
-	CafeService.sync(player)
+-- Derek 2026-11-13 ("remove sell from game it's not needed"): cats are not sold. The two old sell remotes stay
+-- registered only to say so to an old client (an exploiter firing them gets the same words and nothing else).
+CafeService.NO_SELL = "Cats can't be sold. Trade them or give them to the Cat Collector."
+local function onSellCat(player: Player, _rawUid: unknown)
+	Net.toast(player, CafeService.NO_SELL, "info")
 end
 
--- #1573: one tap sells every spare Common and keeps the best of each kind (shared/SellExtras: never a working,
--- locked, exclusive, gold or rainbow cat, one on a trade offer, or the last cat). Each pays its sellValue, as SellCat.
 local function onSellExtraCommons(player: Player)
-	local profile = profileFor(player)
-	if profile == nil then
-		return
-	end
-	local plan = SellExtras.plan(profile, Economy.tier(profile), function(uid: string): boolean
-		return offerCheck(player, uid)
-	end)
-	if #plan.uids == 0 then
-		Net.toast(player, "No extra Commons to sell. You keep one of each.", "info")
-		CafeService.sync(player)
-		return
-	end
-	for _, uid in plan.uids do
-		local instance = profile.cats[uid]
-		profile.cats[uid] = nil
-		profile.stats.catsSold += 1
-		Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
-	end
-	Economy.credit(profile, plan.coins)
-	Telemetry.source(player, profile, plan.coins, "Gameplay", "sell_cat")
-	-- #2399: no "Sold N extra Commons" toast; the money counter ticks up and flashes
-	CafeService.refreshPlot(player)
-	CafeService.sync(player)
+	Net.toast(player, CafeService.NO_SELL, "info")
 end
 
--- F62 (section 4): the lock icon on a cat card. A locked cat cannot be sold or traded to the Cat Collector.
+-- F62 (section 4): the lock icon on a cat card. A locked cat cannot be traded or given to the Cat Collector.
 local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	local uid = Guard.id(rawUid)
 	local profile = profileFor(player)

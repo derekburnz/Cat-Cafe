@@ -7,7 +7,7 @@
 -- a second, and a chip goes when its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a
 -- rejoin shows what is left.
 -- `frame` is the row over the money and golden fish counters in the bottom left (beside the menu's arrow tab on a
--- phone) that holds the HUD's Luck chip (F88, Screens/LuckChip) and pal chip (F92, Screens/PalChip); setLead keeps it
+-- phone) that holds the HUD's Luck chip (F88, Screens/LuckChip) (the pal chip, F92, is gone since 2026-11-13); setLead keeps it
 -- up while either shows, under its own key.
 -- #2090 (Derek2 11-07: "add an arrow to hide potion effects as if you drink a lot it's a lot of screen clutter"):
 -- with potions running (two or more until #2396), an arrow tab sits at the row's left end. A tap folds the chips away into one

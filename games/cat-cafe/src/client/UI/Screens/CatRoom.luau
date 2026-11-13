@@ -7,13 +7,14 @@
 --   Toolbar     search (name, breed or rarity), All / Working / Resting with counts, Unequip All and Equip Best.
 --   Grid        a card per cat in Components/CatRoomList order: model, name, level and rate, the role icon while it
 --               works, a sparkle when gold. Models load as cards scroll near view (reviewer N71).
---   Detail      the picked cat: name with the rename pencil, rarity and charm ("Charm +12%"), rate and where it
+--   Detail      the picked cat: its name (a tap renames it), rarity and charm ("Charm +12%"), rate and where it
 --               works, then what lifts its rate as chips (Components/CatBuffs, F97 section 5: no charm stars, Derek
---               2026-10-28): "♥ +50% as Barista" or "Likes: Barista", "Gold +50%", "Lv 12 +22%"; then Assign (Move
---               while working), Unequip and Sell (Rare and up ask first, with the price). Assign rings every free "+"
---               in gold and marks the cat's favourite role "★ 1.5x". Unequip was Rest (Derek 2026-10-28).
---   Lock (F62)  a locked cat shows a lock on its card, cannot be sold, and its detail has the Lock row that sets it
---               (Components/CatLock). Gold, Legendary and Mythical cats arrive locked from the server.
+--               2026-10-28): "♥ +50% as Barista" or "Likes: Barista", "Gold +50%", "Lv 12 +22%"; then one row of
+--               buttons (Derek 2026-11-13: "just one row of things"): Equip (a resting cat; it rings every free "+"
+--               in gold and marks the cat's favourite role "★ 1.5x") or Unequip (a working one), Feed, which opens
+--               the food tiles under the chips, and the Lock square. No Move and no Sell: cats are not sold.
+--   Lock (F62)  a locked cat shows a lock on its card and can't be traded or given to the Cat Collector; the
+--               detail's Lock square (the lock picture only) sets it (Components/CatLock).
 --   Keeps up    (F86) an older Legendary or Mythical earning like a newer area's cat has a "Keeps up" tag on its
 --               card and its detail; the detail's tag says why when pressed (Components/KeepUp). The rate shown is
 --               the server's kept-up rating.
@@ -66,7 +67,6 @@ local PAL = MenuFamily.pal
 export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
 	unplaceCat: (uid: string) -> (),
-	sellCat: (uid: string) -> (),
 	lockCat: (uid: string, locked: boolean) -> (),
 	renameCat: (uid: string, name: string) -> (),
 	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: one food from the Bag to this cat (FeedCat)
@@ -88,6 +88,7 @@ export type CatRoom = {
 local GAP = Theme.sizes.gap
 -- #2675: a 44 px face on the smallest phone scale too, now that seven tiers of role slots fill the strip (it scrolls)
 local SQUARE = Scale.tapHeight(Theme.sizes.touchMin)
+local NAME_TAP = math.max(36, SQUARE) -- the name's tap area (#3924), the mouse or touch minimum, over name and breed
 local CREW_LABEL = 16
 local CREW_H = CREW_LABEL + 4 + SQUARE + 8
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
@@ -99,8 +100,8 @@ local DETAIL_W = 236
 local DETAIL_ART = 64
 local CARD = Vector2.new(104, 134)
 local CARD_ART = 76
-local RENAME_W = 42 -- a 37 px face, over the 36 px a mouse needs (ui-review)
-local LOCK_H = 42
+local RENAME_W = 42 -- the phone sheet's Back button height: a 37 px face, over the 36 px a mouse needs (ui-review)
+local ACTION_GAP = 6 -- between the detail's buttons
 local BUFFS_H = 52 -- the buff chips: two lines of BUFF_H
 local BUFF_H = 22
 local BUFF_GAP = 6
@@ -124,10 +125,6 @@ type FeedTile = {
 -- cards this far above or below the visible part of the grid already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
-
--- Sell asks for confirmation from this rarity up (data-model: Rare and above), showing the price from
--- catalog.rarities (Catalog.rarities[rarity].sellValue, the number the server pays).
-local CONFIRM_SELL_FROM = 2
 
 local FILTERS: { CatRoomList.Filter } = { "All", "Working", "Resting" }
 
@@ -209,8 +206,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._sort = "Best" :: CatRoomList.Sort -- #3647: kept for the session, a fresh open does not reset it
 	self._selected = nil :: string? -- the picked cat's uid
 	self._placing = false -- Assign pressed: the next "+" tap puts the picked cat there
-	self._confirmSell = false
-	self._sellAgain = false -- F99: a rainbow cat's sell asks a second time
+	self._feedOpen = false -- Feed pressed: the food tiles show under the chips
 	self._lockTaps = {} :: { [string]: CatLock.Tap } -- uid -> the player's last lock tap (F62)
 	self._lockLive = false -- the server sends `locked` on its cats
 	self._notice = nil :: string?
@@ -518,7 +514,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailName = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(textLeft, 8),
-		Size = UDim2.new(1, -(textLeft + RENAME_W + 10), 0, 24),
+		Size = UDim2.new(1, -(textLeft + 10), 0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		Parent = body,
@@ -527,7 +523,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailBreed = text({
 		Name = "Breed",
 		Position = UDim2.fromOffset(textLeft, 32),
-		Size = UDim2.new(1, -(textLeft + RENAME_W + 10), 0, 18), -- clear of the Rename button
+		Size = UDim2.new(1, -(textLeft + 10), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		Parent = body,
 	})
@@ -535,25 +531,29 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailStats = text({
 		Name = "Stats",
 		Position = UDim2.fromOffset(textLeft, 50),
-		Size = UDim2.new(1, -(textLeft + RENAME_W + 10), 0, 18), -- clear of the Rename button
+		Size = UDim2.new(1, -(textLeft + 10), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.caramel,
 		Parent = body,
 	})
-	self._renameButton = Button.new({
-		name = "Rename",
-		text = "✏️",
-		style = "ghost",
-		size = UDim2.fromOffset(renameW, renameW),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -8, 0, 6),
-		textSize = Theme.sizes.textSmall,
-		parent = body,
-		onClick = function()
-			self:_openRename()
-		end,
+	-- Derek 2026-11-13 ("rename just when you click on their name"): the name itself renames; no pencil button
+	local nameTap: TextButton = Create("TextButton", {
+		Name = "NameTap",
+		BackgroundTransparency = 1,
+		Text = "",
+		Position = UDim2.fromOffset(textLeft, 4),
+		Size = UDim2.new(1, -(textLeft + 10), 0, NAME_TAP),
+		ZIndex = 3,
+		Parent = body,
 	})
-	table.insert(self._buttons, self._renameButton)
+	self._nameTap = nameTap
+	table.insert(
+		self._connections,
+		nameTap.Activated:Connect(function()
+			Sound.play("uiClick")
+			self:_openRename()
+		end)
+	)
 	self._detailRate = text({
 		Name = "Rate",
 		Position = UDim2.fromOffset(10, DETAIL_ART + 14),
@@ -620,8 +620,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		}),
 	})
 	self._buffsKey = ""
-	-- the phone sheet's way back to the grid, top right, the pencil left of it (_layout); "Back", so it is not
-	-- taken for the window's own X
+	-- the phone sheet's way back to the grid, top right (_layout); "Back", so it is not taken for the window's own X
 	local backW = renameW + 40
 	self._backW = backW
 	self._back = Button.new({
@@ -642,13 +641,12 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	table.insert(self._buttons, self._back)
 	-- the breed's line from the catalog, where the window is tall enough for it
 	local actionsH = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
-	local lockH = Scale.tapHeight(LOCK_H, Theme.sizes.buttonDepth)
-	self._lockH = lockH
 	local descTop = favTop + BUFFS_H + 6
-	self._descBottom = descTop + actionsH + 18 -- grows by the Lock row while it shows
+	self._descBottom = descTop + actionsH + 18
 	-- #2418 (Derek2: "make the feeding cats from cat menu much easier and more clean looking then long blue bubbles
 	-- and text"): the Feed button and its list of long rows are gone; a row of square food tiles sits under the buff
-	-- chips while the Bag holds cat food and the cat can still level. A tap feeds one (FeedCat); holding keeps feeding,
+	-- chips. Derek 2026-11-13 ("feed opens the menu attached instead of having it always there"): the row shows only
+	-- after the Feed button is pressed. A tap feeds one (FeedCat); holding keeps feeding,
 	-- one every FEED_REPEAT seconds. A cat at the top level shows "Max level" there, and with no food a short line
 	-- says where to get some. The description moves down under the row.
 	self._descTop = descTop
@@ -713,22 +711,6 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		Parent = body,
 	})
 
-	-- F62: the lock, a full-width row over the actions so it is easy to find and to tap
-	self._lock = Button.new({
-		name = "Lock",
-		text = "",
-		style = "ghost",
-		size = UDim2.new(1, -16, 0, lockH),
-		anchorPoint = Vector2.new(0, 1),
-		position = UDim2.new(0, 8, 1, -(10 + actionsH + 6)),
-		textSize = Theme.sizes.textSmall,
-		parent = body,
-		onClick = function()
-			self:_pressLock()
-		end,
-	})
-	self._lock.instance.Visible = false
-
 	local actions: Frame = Create("Frame", {
 		Name = "Actions",
 		BackgroundTransparency = 1,
@@ -739,46 +721,53 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 6),
+			Padding = UDim.new(0, ACTION_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._actionsH = actionsH
+	-- Equip or Unequip, one button (Derek 2026-11-13: "an equip/unequip button (no move)")
 	self._assign = Button.new({
 		name = "Assign",
-		text = "Assign",
+		text = "Equip",
 		style = "primary",
-		size = UDim2.new(1 / 3, -4, 1, 0),
+		size = UDim2.new(0.6, 0, 1, 0),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 1,
 		parent = actions,
 		onClick = function()
-			self:_pressAssign()
+			self:_pressEquip()
 		end,
 	})
-	self._rest = Button.new({
-		name = "Rest",
-		text = "Unequip",
+	self._feed = Button.new({
+		name = "Feed",
+		text = "Feed",
 		style = "ghost",
-		size = UDim2.new(1 / 3, -4, 1, 0),
+		size = UDim2.new(0.4, 0, 1, 0),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 2,
 		parent = actions,
 		onClick = function()
-			self:_pressRest()
+			self._feedOpen = not self._feedOpen
+			self._placing = false
+			self:_refresh()
 		end,
 	})
-	self._sell = Button.new({
-		name = "Sell",
-		text = "Sell",
-		style = "danger",
-		size = UDim2.new(1 / 3, -4, 1, 0),
-		textSize = Theme.sizes.textSmall,
+	-- F62: the lock, a small square with only the lock picture (Derek 2026-11-13: "make the lock a small square to
+	-- toggle with just the image")
+	self._lock = Button.new({
+		name = "Lock",
+		text = Theme.icons.unlock,
+		style = "ghost",
+		size = UDim2.fromOffset(actionsH, actionsH),
+		textSize = Theme.sizes.textBody,
 		layoutOrder = 3,
 		parent = actions,
 		onClick = function()
-			self:_pressSell()
+			self:_pressLock()
 		end,
 	})
+	self._lock.instance.Visible = false
 end
 
 function CatRoom.setCatalog(self: any, catalog: Types.Catalog)
@@ -1086,17 +1075,12 @@ function CatRoom._layout(self: any)
 		detail.ZIndex = 1
 		detail.Visible = true
 	end
-	-- the pencil moves left of the sheet's X
-	local renameW: number = self._renameW
+	-- the name and its tap stay clear of the sheet's Back
 	self._back.instance.Visible = compact
-	local rename = self._renameButton
-	if rename then
-		rename.instance.Position =
-			UDim2.new(1, if compact then -(8 + self._backW + 6) else -8, 0, 6)
-	end
-	local textRight = self._textLeft + renameW + 10 + (if compact then self._backW + 6 else 0)
+	local textRight = self._textLeft + 10 + (if compact then self._backW + 6 else 0)
 	self._detailName.Size = UDim2.new(1, -textRight, 0, 24)
 	self._detailBreed.Size = UDim2.new(1, -textRight, 0, 18)
+	self._nameTap.Size = UDim2.new(1, -textRight, 0, NAME_TAP)
 	self:_refresh()
 end
 
@@ -1104,7 +1088,7 @@ function CatRoom._select(self: any, uid: string?)
 	if self._selected ~= uid or self._compact then
 		-- on a phone a tap on the cat again also ends Assign, so its sheet comes back
 		self._placing = false
-		self._confirmSell = false
+		self._feedOpen = false
 		self._notice = nil
 	end
 	self._selected = uid
@@ -1145,8 +1129,17 @@ function CatRoom._pressSquare(self: any, square: any)
 	end
 end
 
-function CatRoom._pressAssign(self: any)
-	self._confirmSell = false
+-- Equip on a resting cat rings the free "+" slots (a tap on one puts it there); on a working cat it reads Unequip
+-- and the cat rests. While a "+" is awaited it reads Cancel.
+function CatRoom._pressEquip(self: any)
+	local uid = self._selected
+	local state: Types.PlayerState? = self._state
+	local cats = if state then state.cats else nil
+	local instance = if cats and uid then cats[uid] else nil
+	if uid and instance and instance.spotId ~= nil and not self._placing then
+		self._callbacks.unplaceCat(uid)
+		return
+	end
 	if self._placing then
 		self._placing = false
 		self:_refresh()
@@ -1161,57 +1154,12 @@ function CatRoom._pressAssign(self: any)
 		end
 	end
 	if free == 0 then
-		self:_say("Every open slot is taken. Rest a cat or rank up for more.")
+		self:_say("Every open slot is taken. Unequip a cat or rank up for more.")
 		return
 	end
 	self._placing = true
+	self._feedOpen = false
 	self:_refresh()
-end
-
-function CatRoom._pressRest(self: any)
-	local uid = self._selected
-	if not uid then
-		return
-	end
-	if self._confirmSell then
-		self._confirmSell = false
-		self:_refresh()
-		return
-	end
-	self._placing = false
-	self._callbacks.unplaceCat(uid)
-end
-
-function CatRoom._pressSell(self: any)
-	local uid = self._selected
-	local state: Types.PlayerState? = self._state
-	local cats = if state then state.cats else nil
-	local instance = if cats and uid then cats[uid] else nil
-	if not (uid and instance) or self:_locked(instance) then
-		return -- a locked cat's Sell is greyed (F62)
-	end
-	local def: Types.CatDef? = self._catById[instance.catId]
-	if def ~= nil and def.exclusive == true then
-		return -- F95 and F96: an exclusive cat is never sold; its Sell reads "Can't sell"
-	end
-	-- F99: a rainbow cat always asks, and asks twice
-	local rainbow = CatVariant.isRainbow(instance.variant)
-	local needsConfirm = rainbow or (def ~= nil and rarityRank(def.rarity) >= CONFIRM_SELL_FROM)
-	if needsConfirm and not self._confirmSell then
-		self._placing = false
-		self._confirmSell = true
-		self._sellAgain = false
-		self:_refresh()
-		return
-	end
-	if rainbow and not self._sellAgain then
-		self._sellAgain = true
-		self:_refresh()
-		return
-	end
-	self._confirmSell = false
-	self._sellAgain = false
-	self._callbacks.sellCat(uid)
 end
 
 -- Whether this cat shows as locked: never before the server sends `locked`, else its saved value or a fresh tap.
@@ -1220,7 +1168,7 @@ function CatRoom._locked(self: any, instance: Types.CatInstance): boolean
 	return self._lockLive and CatLock.shown(instance.locked, tap, os.clock())
 end
 
--- F62: the Lock row flips the picked cat's lock at once and sends it; the server's answer settles it.
+-- F62: the Lock square flips the picked cat's lock at once and sends it; the server's answer settles it.
 function CatRoom._pressLock(self: any)
 	local uid = self._selected
 	local state: Types.PlayerState? = self._state
@@ -1232,7 +1180,6 @@ function CatRoom._pressLock(self: any)
 	local locked = not self:_locked(instance)
 	self._lockTaps[uid] = { value = locked, at = os.clock() }
 	self._placing = false
-	self._confirmSell = false
 	self._callbacks.lockCat(uid, locked)
 	-- if the server never agrees, the row goes back to the saved value once the hold is over
 	task.delay(CatLock.HOLD_SECONDS, function()
@@ -1252,16 +1199,14 @@ function CatRoom._openRename(self: any)
 		return
 	end
 	self._placing = false
-	self._confirmSell = false
 	local def: Types.CatDef? = self._catById[instance.catId]
 	self._rename:open(uid, instance.name, if def then def.name else instance.catId)
 end
 
--- Cancels a half-done pick, sell or rename (the tab was switched or the window closed).
+-- Cancels a half-done pick or rename and closes the food tiles (the tab was switched or the window closed).
 function CatRoom.reset(self: any)
 	self._placing = false
-	self._confirmSell = false
-	self._extrasAsk = false
+	self._feedOpen = false
 	self._notice = nil
 	self._rename:close()
 end
@@ -1284,18 +1229,15 @@ function CatRoom._paintAuto(self: any)
 end
 
 function CatRoom.render(self: any, state: Types.PlayerState)
-	if state ~= self._state then
-		self._extrasSent = false -- the server answered a Sell extras (a sale syncs, a refusal toasts)
-	end
 	self._state = state
 	local cats: { [string]: Types.CatInstance } = state.cats or {}
 	local selected: string? = self._selected
 	if selected and cats[selected] == nil then
-		-- sold, or gone with a reset: let go of it
+		-- traded, given to the Collector or gone with a reset: let go of it
 		selected = nil
 		self._selected = nil
 		self._placing = false
-		self._confirmSell = false
+		self._feedOpen = false
 	end
 	if self._rename:editing() and cats[self._rename:editing()] == nil then
 		self._rename:close()
@@ -1508,14 +1450,14 @@ function CatRoom._renderFeed(self: any): boolean
 	)
 	local level = if instance and type(instance.level) == "number" then instance.level else 1
 	local feeds = self._callbacks.feedCat ~= nil and instance ~= nil
-	local can = feeds and #foods > 0 and BagLogic.canFeed(level)
+	local can = feeds and #foods > 0 and BagLogic.canFeed(level) and self._feedOpen == true
 	local note: string? = if not feeds
 		then nil
 		elseif not BagLogic.canFeed(level) then "⭐ Max level: no more food needed"
 		elseif #foods == 0 then "🍪 Get cat food at the Corner Shop to level cats up"
 		else nil
 	local row: Frame = self._feedRow
-	row.Visible = can or note ~= nil
+	row.Visible = self._feedOpen == true and (can or note ~= nil)
 	self._feedNote.Visible = note ~= nil
 	self._feedNote.Text = note or ""
 	local keep: { [string]: boolean } = {}
@@ -1544,7 +1486,7 @@ function CatRoom._renderFeed(self: any): boolean
 end
 
 -- #2418: the food row right under the buff chips as they wrap (or under the Info line, BUFFS_H tall), and the
--- description under the row, down to the Lock row or the actions.
+-- description under the row, down to the actions.
 function CatRoom._placeFeed(self: any)
 	local scale = Scale.get()
 	local layout: UIListLayout = self._buffsLayout
@@ -1560,11 +1502,25 @@ function CatRoom._placeFeed(self: any)
 	-- #3717: the trait row, then the description under it
 	local trait: TextLabel = self._detailTrait
 	if trait.Visible then
-		trait.Position = UDim2.fromOffset(10, descTop)
-		descTop += TRAIT_TITLE_H + 2
+		-- #3982 (Review-QA, a 667 x 375 window with a mouse): where the actions row comes up under it, the row folds
+		-- away: a trait's name joins the Charm line as on the phone sheet, and "No trait yet" just hides
+		local body = trait.Parent :: GuiObject
+		local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
+		local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
+		if bodyH > 0 and descTop + TRAIT_TITLE_H > actionsTop then
+			trait.Visible = false
+			local title = self._traitTitle
+			local stats: TextLabel = self._detailStats
+			if title ~= nil and string.find(stats.Text, title, 1, true) == nil then
+				stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. title else title
+			end
+		else
+			trait.Position = UDim2.fromOffset(10, descTop)
+			descTop += TRAIT_TITLE_H + 2
+		end
 	end
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
-	local descBottom = self._descBottom + (self._lockExtra or 0) + (descTop - self._descTop)
+	local descBottom = self._descBottom + (descTop - self._descTop)
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
 end
 
@@ -1754,18 +1710,6 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	end
 	self._detailInfo.Visible = not showBuffs
 	self._detailBuffs.Visible = showBuffs
-	-- F99: a rainbow cat's sell asks twice and says what it earns
-	if self._confirmSell and rainbow then
-		self._detailInfo.Text = if self._sellAgain
-			then "Really sell it? It can't be undone."
-			else ("Sell your Rainbow %s? It earns x%g"):format(
-				breed,
-				CatVariant.multiplier("rainbow")
-			)
-		self._detailInfo.TextColor3 = PAL.warn
-		self._detailInfo.Visible = true
-		self._detailBuffs.Visible = false
-	end
 	self._detailDesc.Text = if def then def.description or "" else ""
 	-- #3717: the trait row; hidden for a cat with no trait while the `traits` switch is off
 	local traitsOpen = LiveFlags.shown(
@@ -1789,6 +1733,8 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	else
 		traitLabel.Visible = traitTitle ~= nil
 		traitLabel.Text = traitTitle or ""
+		-- #3982: a real trait's name, for the Charm line if the row has no room (_placeFeed)
+		self._traitTitle = if hasTrait then traitTitle else nil
 		traitLabel.TextColor3 = if hasTrait then PAL.text else PAL.subtext
 	end
 	if hasTrait then
@@ -1797,57 +1743,24 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._detailDesc.Text = if about ~= "" then traitEffects .. "\n" .. about else traitEffects
 	end
 
-	-- F62: the Lock row, and Sell greyed while the cat is locked
+	-- F62: the Lock square, the lock picture only, gold while locked
 	local live = self._lockLive
 	local locked = self:_locked(instance)
-	if locked then
-		self._confirmSell = false
-	end
 	self._lock.instance.Visible = live
-	self._lock:setText(
-		if locked
-			then Theme.icons.lock .. " Locked: tap to unlock"
-			else Theme.icons.unlock .. " Lock so it can't be sold"
-	)
+	self._lock:setText(if locked then Theme.icons.lock else Theme.icons.unlock)
 	self._lock:setStyle(if locked then "gold" else "ghost")
-	self._lockExtra = if live then self._lockH + 6 else 0
 	self:_placeFeed()
 
-	-- actions: Assign (Move), Rest, Sell; a sell to confirm becomes Cancel and a wide "Sell $150"
-	if self._confirmSell then
-		local rarities: { [string]: Types.RarityDef } = if self._catalog
-			then self._catalog.rarities or {}
-			else {}
-		local rarityDef = rarities[rarity]
-		local value = if rarityDef then rarityDef.sellValue else 0
-		self._assign.instance.Visible = false
-		self._rest:setText("Cancel")
-		self._rest:setEnabled(true)
-		self._rest.instance.Size = UDim2.new(1 / 3, -3, 1, 0)
-		local again = rainbow and self._sellAgain
-		self._sell:setText(
-			if again
-				then "Yes, sell it"
-				elseif value > 0 then "Sell " .. Format.money(value)
-				else "Confirm"
-		)
-		self._sell:setStyle("gold")
-		self._sell:setEnabled(true)
-		self._sell.instance.Size = UDim2.new(2 / 3, -3, 1, 0)
-	else
-		self._assign.instance.Visible = true
-		self._assign:setText(if self._placing then "Cancel" elseif spotId then "Move" else "Assign")
-		self._assign:setStyle(if self._placing then "ghost" else "primary")
-		self._assign:setEnabled(self._catalog ~= nil)
-		self._rest:setText("Unequip")
-		self._rest:setEnabled(spotId ~= nil)
-		self._rest.instance.Size = UDim2.new(1 / 3, -4, 1, 0)
-		local exclusive = def ~= nil and def.exclusive == true -- F95 and F96: exclusive cats can be locked, never sold
-		self._sell:setText(if exclusive then "Can't sell" else "Sell")
-		self._sell:setStyle("danger")
-		self._sell:setEnabled(not locked and not exclusive)
-		self._sell.instance.Size = UDim2.new(1 / 3, -4, 1, 0)
-	end
+	-- one row: Equip or Unequip (Cancel while a "+" is awaited), Feed (gold while its tiles show), the Lock square
+	local square = if live then self._actionsH + ACTION_GAP else 0
+	local gaps = ACTION_GAP + square
+	self._assign:setText(if self._placing then "Cancel" elseif spotId then "Unequip" else "Equip")
+	self._assign:setStyle(if self._placing or spotId then "ghost" else "primary")
+	self._assign:setEnabled(self._catalog ~= nil)
+	self._assign.instance.Size = UDim2.new(0.6, -math.ceil(gaps * 0.6), 1, 0)
+	self._feed:setStyle(if self._feedOpen then "gold" else "ghost")
+	self._feed:setEnabled(self._callbacks.feedCat ~= nil)
+	self._feed.instance.Size = UDim2.new(0.4, -math.ceil(gaps * 0.4), 1, 0)
 end
 
 -- Theme colours per chip: the favourite role in berry with a heart, gold in gold, rainbow on the turning bands (F99),
@@ -1935,8 +1848,6 @@ end
 
 function CatRoom.destroy(self: any)
 	self._gone = true
-	self._extrasSell:destroy()
-	self._extrasKeep:destroy()
 	for _, tile in self._feedTiles do
 		tile.held = false
 		tile.button:destroy()
@@ -1966,8 +1877,7 @@ function CatRoom.destroy(self: any)
 	end
 	self._unequipAll:destroy()
 	self._assign:destroy()
-	self._rest:destroy()
-	self._sell:destroy()
+	self._feed:destroy()
 	self._lock:destroy()
 	self._detailArt:destroy()
 	self._rename:destroy()

@@ -4938,6 +4938,10 @@ Presets.mysticPool = {
 	popUp = 0.45, -- seconds it pops back out
 	popHeight = 3, -- studs over the liquid it pops to
 	showCat = 1.6, -- seconds it floats there over the card before fading
+	-- #3942: in a Mythic or Secret roll's whole scene the cat then rises up the pillar to `liftHeight` studs, turning
+	-- `liftTurns` times as it goes, over the scene's `lift` seconds (Presets.bigTrait.scenes), and floats there
+	liftHeight = 9,
+	liftTurns = 2,
 	fadeBack = 1.5, -- seconds the liquid takes to go back to its rest colour
 	startFront = 1.2, -- studs in front of the pool's middle the cat starts, on the liquid's surface
 	sparkles = 14, -- the float's sparkle burst
@@ -5027,7 +5031,7 @@ Presets.bigTrait = {
 			dim = 0,
 		},
 		mythic = {
-			big = 3.2,
+			big = 4.0,
 			screenSeconds = 2.4,
 			beams = 3,
 			beamHeight = 30,
@@ -5039,7 +5043,7 @@ Presets.bigTrait = {
 			dim = 0.2,
 		},
 		secret = {
-			big = 4.2,
+			big = 5.4,
 			screenSeconds = 3,
 			beams = 5,
 			beamHeight = 40,
@@ -5084,6 +5088,51 @@ Presets.bigTrait = {
 	displayOrder = 22, -- over the card's edge shade (21) and its "Tap to skip"
 	cap = 16, -- controls always come back by now
 	tvSafe = 0.05,
+	-- #3942 (Derek 2026-11-13: "should give them a whole scene animation"): a Mythic or Secret roll at the pool is a
+	-- whole scene, not just the card's moment. With the camera held: letterbox bars `bars` of the screen's height
+	-- each, the world dimmed by `dim` (ColorCorrection brightness) and greyed by `saturation` toward `tint`, all
+	-- following the camera's swing in and out, and the camera turning `orbit` degrees round the pool over
+	-- `orbitSeconds`. At the big moment `spiral` sparkle pops climb the pillar over `spiralSeconds`; a Secret also
+	-- draws a cat of `constellation` stars in the sky, `skyHeight` studs over the pool and `skyScale` studs a unit,
+	-- one star every `starGap` seconds. Audio ducks the music for the scene. Reduce Motion: none of it.
+	scenes = {
+		mythic = {
+			bars = 0.1,
+			dim = 0.15,
+			saturation = -0.25,
+			tint = Color3.fromRGB(255, 226, 240),
+			orbit = 30,
+			orbitSeconds = 6,
+			spiral = 8,
+			spiralSeconds = 1.6,
+			lift = 1.6,
+			constellation = false,
+		},
+		secret = {
+			bars = 0.12,
+			dim = 0.3,
+			saturation = -0.4,
+			tint = Color3.fromRGB(206, 200, 255),
+			orbit = 45,
+			orbitSeconds = 7.5,
+			spiral = 12,
+			spiralSeconds = 2,
+			lift = 2.2,
+			constellation = true,
+		},
+	},
+	skyHeight = 30,
+	skyScale = 4,
+	starGap = 0.12,
+	starSparkles = 4,
+	spiralRadius = 2.2,
+	spiralHeight = 18,
+	-- #3942: another player's Mythic or Secret roll seen from nearby (BigTraitCut.watchPool): within `seenRadius`
+	-- studs, `seenDelay` seconds after the server's mark (about when the roller's pillar goes up), and only while
+	-- the mark is under `seenFresh` seconds old
+	seenRadius = 160,
+	seenDelay = 4,
+	seenFresh = 10,
 }
 
 -- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for

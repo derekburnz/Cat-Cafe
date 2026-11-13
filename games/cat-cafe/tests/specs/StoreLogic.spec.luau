@@ -1023,4 +1023,78 @@ return function()
 			end
 		end)
 	end)
+
+	describe("the reworked Store (#3572, storeRework)", function()
+		it("puts Cats above Passes on the rail with the rework on, as before without", function()
+			local ids = {}
+			for _, tab in StoreLogic.railTabs(true) do
+				table.insert(ids, tab.id)
+			end
+			expect(table.concat(ids, ",")).to.equal("featured,cats,passes,potions,cafePass,codes")
+			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
+			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
+		end)
+
+		it("gives each tab its header line, Codes the window's own", function()
+			expect(StoreLogic.subtitle("passes")).to.equal(
+				"Passes are yours to keep. Prices are in Robux."
+			)
+			expect(StoreLogic.subtitle("potions")).to.equal(
+				"Potions are used from your Bag. Prices are in Robux."
+			)
+			expect(StoreLogic.subtitle("featured")).to.equal("Prices are in Robux.")
+			expect(StoreLogic.subtitle("codes")).to.equal(StoreLogic.SUBTITLE_DEFAULT)
+			for _, tab in StoreLogic.TABS do
+				expect(#StoreLogic.subtitle(tab.id) > 0).to.equal(true)
+			end
+		end)
+
+		it("lists each potion a pack holds once, by name, with the bag's count", function()
+			local view: any = {
+				products = {
+					{ id = "s", prize = { potions = { tip = 3, swift = 1 } } },
+					{ id = "m", prize = { potions = { tip = 5, steady = 2 } } },
+					{ id = "badge", prize = { potions = {} } },
+					{ id = "odd", prize = {} },
+				},
+				potionNames = { tip = "Big Money Potion", swift = "Swift Potion", steady = "Steady Paw Potion" },
+				have = { tip = 3, steady = 2.7, other = 9 },
+			}
+			local bag = StoreLogic.bag(view)
+			expect(#bag).to.equal(3)
+			expect(bag[1].name).to.equal("Big Money Potion")
+			expect(bag[1].count).to.equal(3)
+			expect(bag[2].id).to.equal("steady")
+			expect(bag[2].count).to.equal(2)
+			expect(bag[3].id).to.equal("swift")
+			expect(bag[3].count).to.equal(0)
+			expect(#StoreLogic.bag(nil)).to.equal(0)
+			expect(#StoreLogic.bag({ products = {} } :: any)).to.equal(0)
+		end)
+
+		it("orders rows cheapest first, unpriced and off sale last, ties as before", function()
+			local function row(key: string, passId: number): any
+				return { key = key, passId = passId, tab = "passes" }
+			end
+			local rows = { row("a", 1), row("b", 2), row("c", 3), row("d", 4), row("e", 5) }
+			local prices = {
+				[1] = { robux = 149, forSale = true },
+				[2] = { robux = 5, forSale = true },
+				[3] = { robux = 149, forSale = true },
+				[4] = { robux = 25, forSale = false }, -- off sale
+				-- 5 not in yet
+			}
+			local keys = {}
+			for _, r in StoreLogic.cheapestFirst(rows, prices) do
+				table.insert(keys, r.key)
+			end
+			expect(table.concat(keys, ",")).to.equal("b,a,c,d,e")
+			expect(rows[1].key).to.equal("a") -- the list given is not changed
+			local none = {}
+			for _, r in StoreLogic.cheapestFirst(rows, nil) do
+				table.insert(none, r.key)
+			end
+			expect(table.concat(none, ",")).to.equal("a,b,c,d,e")
+		end)
+	end)
 end

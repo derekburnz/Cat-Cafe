@@ -9,6 +9,19 @@ return function()
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
 
 	describe("Effects settings", function()
+		it(
+			"puts a tablet in a keyboard case on the low tier, and a touch screen laptop on high (#3918)",
+			function()
+				expect(Logic.tier(true, false)).to.equal("low")
+				expect(Logic.tier(true, false, false)).to.equal("low")
+				expect(Logic.tier(true, true, false)).to.equal("low")
+				expect(Logic.tier(true, true, true)).to.equal("high")
+				expect(Logic.tier(true, true)).to.equal("high")
+				expect(Logic.tier(false, true, true)).to.equal("high")
+				expect(Logic.tier(false, false, false)).to.equal("high")
+			end
+		)
+
 		it("keeps shake on and Low performance off until the player flips them", function()
 			local shake, low = Logic.readSettings(nil)
 			expect(shake == true and low == false).to.equal(true)

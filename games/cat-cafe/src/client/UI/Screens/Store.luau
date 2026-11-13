@@ -26,6 +26,8 @@ local Config = require(
 ) :: any
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local LiveFlags =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LiveFlags"))
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -60,6 +62,7 @@ export type Store = {
 		prices: { [number]: StoreLogic.Price }
 	) -> (),
 	showTab: (self: Store, tab: string) -> (),
+	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
@@ -104,6 +107,14 @@ local EFFECT_MIN_TEXT = 12 -- a card's contents shrink no smaller than this (9 p
 local CELL_MAX = 230 -- a grid card no taller than this, however tall the window
 local GRID_COLUMNS = 3
 local NARROW = 520 -- a page narrower than this (design px) gets 2 columns
+-- #3572 (the `storeRework` switch, Model-Agent's OK'd mock): a tab's cards two across, each a wide card with its
+-- picture at the left and the name, what it does and the price button beside it, about three rows in view
+local WIDE_TILE = 76
+local WIDE_NAME_H = 24
+local WIDE_EFFECT_MIN = 30 -- two small lines at least
+local WIDE_MAX = 170
+local BAG_H = 40 -- #3572: the Potions tab's "In your bag now" strip over its cards
+local BAG_ICON = 28
 -- the hero: a big picture, the name and what you get, the price button at the right
 local HERO_TILE_MAX = 132
 local HERO_BUTTON_W = 150
@@ -150,6 +161,29 @@ local function fitText(label: TextLabel, maxSize: number)
 	end
 end
 
+-- #3572: a wide card's words, fitted; when even the smallest size runs past its one line (a phone's narrow card),
+-- they drop the worth line and stop at the line's end with "...", so nothing runs on under the price button
+local function fitEffect(entry: any)
+	local effect = entry.effect :: TextLabel
+	if not entry.wide then
+		fitText(effect, entry.effectMax)
+		return
+	end
+	if effect.AbsoluteSize.X <= 0 or effect.AbsoluteSize.Y <= 0 then
+		return -- no box yet (or a card mid-pop from nothing): keep the last fit until it has one
+	end
+	effect.Text = entry.fullText or effect.Text
+	effect.TextWrapped = true
+	effect.TextTruncate = Enum.TextTruncate.None
+	fitText(effect, entry.effectMax)
+	if effect.TextFits then
+		return
+	end
+	effect.Text = entry.shortText or effect.Text
+	effect.TextWrapped = false
+	effect.TextTruncate = Enum.TextTruncate.AtEnd
+end
+
 function Store.new(callbacks: Callbacks): Store
 	local self = setmetatable({}, Store) :: any
 	-- #2500 (Derek2: "lots of store images when first opening store take a second to load and show old default
@@ -179,6 +213,16 @@ function Store.new(callbacks: Callbacks): Store
 	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._cellMin = CARD_PAD + TILE + 6 + EFFECT_MIN + 6 + self._actionHeight + CARD_PAD
+	-- #3572: read once, when the Store is built at join, so a flip never changes a window under a player
+	local reworkAttribute = LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.REWORK_FLAG
+	self._rework = LiveFlags.shown(
+		StoreLogic.REWORK_FLAG,
+		game:GetService("ReplicatedStorage"):GetAttribute(reworkAttribute)
+	)
+	self._wideMin = math.max(
+		CARD_PAD + WIDE_NAME_H + 2 + WIDE_EFFECT_MIN + 6 + self._actionHeight + CARD_PAD,
+		WIDE_TILE + 2 * CARD_PAD
+	)
 	self._pickCompact = CARD_PAD + TILE + 6 + self._actionHeight + CARD_PAD
 	self._compact = false
 
@@ -218,7 +262,7 @@ function Store.new(callbacks: Callbacks): Store
 		}),
 		Outline.listPadding(7), -- #2294: room for the tabs' outlines, and the scroll bar on the right
 	})
-	for order, tab in StoreLogic.TABS do
+	for order, tab in StoreLogic.railTabs(self._rework) do
 		local id = tab.id
 		self._railButtons[id] = Button.new({
 			name = id,
@@ -342,10 +386,129 @@ function Store.new(callbacks: Callbacks): Store
 		}),
 	})
 
+	-- #3572: with the rework on, the Potions tab leads with what the bag already holds (StoreLogic.bag), filled by
+	-- setBag; the list moves down under it on that tab only
+	self._bag = {} :: { StoreLogic.BagEntry }
+	if self._rework then
+		local strip: Frame = Create("Frame", {
+			Name = "BagStrip",
+			BackgroundColor3 = CARD.goldCard,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(CARD_INSET, CARD_STROKE),
+			Size = UDim2.new(1, -2 * CARD_INSET - SCROLL_BAR, 0, BAG_H),
+			Visible = false,
+			Parent = pages,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIStroke", { Color = Theme.colors.gold, Thickness = CARD_STROKE }),
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, CARD_PAD),
+				PaddingRight = UDim.new(0, CARD_PAD),
+			}),
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Padding = UDim.new(0, 12),
+			}),
+		})
+		local title = text({
+			Name = "Title",
+			Text = "In your bag now:",
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextTruncate = Enum.TextTruncate.None,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, BAG_H),
+			LayoutOrder = 0,
+			Parent = strip,
+		})
+		MenuFamily.outline(title)
+		self._bagStrip = strip
+	end
+
 	self._sizeChanged = pages:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_layout()
 	end)
 	return self :: Store
+end
+
+-- #3572: the potions the bag holds, for the Potions tab's strip (rework only). One chip per potion: its flask and
+-- "x3", as the OK'd mock; the pack cards under it name each potion beside the same flask.
+function Store.setBag(self: any, bag: { StoreLogic.BagEntry })
+	self._bag = bag
+	local strip = self._bagStrip
+	if strip == nil then
+		return
+	end
+	local key = {}
+	for _, entry in bag do
+		table.insert(key, entry.id .. "=" .. entry.count)
+	end
+	local signature = table.concat(key, ",")
+	if signature == self._bagSignature then
+		return
+	end
+	self._bagSignature = signature
+	for _, child in strip:GetChildren() do
+		if child.Name == "Potion" then
+			child:Destroy()
+		end
+	end
+	for order, entry in bag do
+		local chip: Frame = Create("Frame", {
+			Name = "Potion",
+			BackgroundTransparency = 1,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, BAG_ICON),
+			LayoutOrder = order,
+			Parent = strip,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 4),
+			}),
+		})
+		local glyph = text({
+			Name = "Icon",
+			Size = UDim2.fromOffset(BAG_ICON, BAG_ICON),
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextScaled = true,
+			Parent = chip,
+		})
+		local images = ShopIcons.potionAll(entry.id)
+		if #images > 0 then
+			IconArt.setImages(glyph, images)
+		else
+			IconArt.set(glyph, "🧪")
+		end
+		local count = text({
+			Name = "Count",
+			Text = "x" .. entry.count,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextTruncate = Enum.TextTruncate.None,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, BAG_ICON),
+			Parent = chip,
+		})
+		MenuFamily.outline(count)
+	end
+	self:_placeBag()
+end
+
+-- #3572: the strip shows on the Potions tab when the bag list has a potion; the list then starts under it.
+function Store._placeBag(self: any)
+	local strip = self._bagStrip
+	if strip == nil then
+		return
+	end
+	local shown = self._tab == "potions" and #self._bag > 0
+	strip.Visible = shown and self._list.Visible
+	local top = if shown then BAG_H + CARD_STROKE + GAP else 0
+	self._list.Position = UDim2.fromOffset(0, top)
+	self._list.Size = UDim2.new(1, 0, 1, -top)
 end
 
 -- A gold card: `look` "hero" (wide, the button at the right) or "tile" (a grid card or top pick, the button at the
@@ -358,6 +521,8 @@ function Store._makeCard(
 	order: number
 ): any
 	local hero = look == "hero"
+	-- #3572: with the rework on, a tab page's card is a wide one (WIDE_TILE): the Featured cards stay as they are
+	local wide = self._rework and slot:sub(1, 5) == "grid:"
 	local card: Frame = Create("Frame", {
 		Name = slot,
 		LayoutOrder = order,
@@ -377,12 +542,13 @@ function Store._makeCard(
 			Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(205, 205, 205)),
 		}),
 	})
-	local tileSize = if hero then HERO_MIN - 2 * CARD_PAD else TILE
+	local tileSize = if hero then HERO_MIN - 2 * CARD_PAD elseif wide then WIDE_TILE else TILE
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
-		AnchorPoint = if hero then Vector2.new(0, 0.5) else Vector2.new(0, 0),
+		AnchorPoint = if hero or wide then Vector2.new(0, 0.5) else Vector2.new(0, 0),
 		Position = if hero
 			then UDim2.new(0, CARD_PAD + 4, 0.5, 0)
+			elseif wide then UDim2.new(0, CARD_PAD, 0.5, 0)
 			else UDim2.fromOffset(CARD_PAD, CARD_PAD),
 		Size = UDim2.fromOffset(tileSize, tileSize),
 		BackgroundColor3 = Color3.new(1, 1, 1),
@@ -409,7 +575,7 @@ function Store._makeCard(
 		Name = "Name",
 		FontFace = Theme.fonts.display,
 		TextSize = if hero then Theme.sizes.textTitle else Theme.sizes.textBody + 2,
-		TextWrapped = not hero,
+		TextWrapped = not hero and not wide,
 		Parent = card,
 	})
 	MenuFamily.outline(name)
@@ -421,12 +587,18 @@ function Store._makeCard(
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = card,
 	})
+	local wideLeft = CARD_PAD + WIDE_TILE + 10 -- a wide card's words and button start here
 	local buttonSize = if hero
 		then UDim2.fromOffset(HERO_BUTTON_W, self._actionHeight)
+		elseif wide then UDim2.new(1, -(wideLeft + CARD_PAD), 0, self._actionHeight)
 		else UDim2.new(1, -2 * CARD_PAD, 0, self._actionHeight)
-	local buttonAnchor = if hero then Vector2.new(1, 0.5) else Vector2.new(0.5, 1)
+	local buttonAnchor = if hero
+		then Vector2.new(1, 0.5)
+		elseif wide then Vector2.new(1, 1)
+		else Vector2.new(0.5, 1)
 	local buttonPosition = if hero
 		then UDim2.new(1, -(CARD_PAD + 4), 0.5, 0)
+		elseif wide then UDim2.new(1, -CARD_PAD, 1, -CARD_PAD)
 		else UDim2.new(0.5, 0, 1, -CARD_PAD)
 	-- an owned pass: the green word in place of the button (no price)
 	local owned = text({
@@ -507,6 +679,7 @@ function Store._makeCard(
 	local entry: any = {
 		frame = card,
 		look = look,
+		wide = wide,
 		perk = perk,
 		tile = tile,
 		glyph = glyph,
@@ -540,7 +713,7 @@ function Store._makeCard(
 	})
 	-- a new box (the window or the page resized): fit the words again
 	effect:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		fitText(effect, entry.effectMax)
+		fitEffect(entry)
 	end)
 	self:_place(entry)
 	self._cards[slot] = entry
@@ -566,6 +739,23 @@ function Store._place(self: any, entry: any)
 		local lift = if entry.perk.Visible then PERK_H + 4 else 0 -- #2147: the chip leads the words
 		entry.effect.Position = UDim2.fromOffset(left, top + nameH + 6 + lift)
 		entry.effect.Size = UDim2.new(1, -(left + right), 0, math.max(wordsH - nameH - 6 - lift, 0))
+	elseif entry.wide then
+		-- #3572: the picture at the left, the name and what it does beside it, the button under the words. The gold
+		-- chip sits on the foot of the picture, so it never pushes the one line of words under the button
+		local left = CARD_PAD + WIDE_TILE + 10
+		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
+		entry.name.Size = UDim2.new(1, -(left + CARD_PAD), 0, WIDE_NAME_H)
+		local top = CARD_PAD + WIDE_NAME_H + 2
+		entry.perk.AnchorPoint = Vector2.new(0.5, 1)
+		entry.perk.Position = UDim2.new(0, CARD_PAD + WIDE_TILE / 2, 0.5, WIDE_TILE / 2 + 4)
+		entry.effect.Position = UDim2.fromOffset(left, top)
+		local saleRoom = if entry.saleLow then SALE_ROOM else 0
+		entry.effect.Size =
+			UDim2.new(1, -(left + CARD_PAD), 1, -(top + 6 + saleRoom + action + CARD_PAD))
+		entry.badge.AnchorPoint = if entry.saleLow then Vector2.new(0, 1) else Vector2.new(1, 0)
+		entry.badge.Position = if entry.saleLow
+			then UDim2.new(0, left, 1, -(CARD_PAD + action + 6))
+			else UDim2.new(1, -6, 0, 6)
 	else
 		local left = CARD_PAD + TILE + 8
 		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
@@ -601,7 +791,12 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
 	local worth = StoreLogic.worthLine(row, self._prices, self._ownedIds)
-	entry.effect.Text = if worth then row.effect .. "\n" .. worth else row.effect
+	-- #3572: a wide card has room for one short line, so it keeps the first line of what the item does
+	local firstLine = string.match(row.effect, "^[^\n]+") or row.effect
+	local effect = if entry.wide then firstLine else row.effect
+	entry.fullText = if worth then effect .. "\n" .. worth else effect
+	entry.shortText = effect
+	entry.effect.Text = entry.fullText
 	-- #2147: the gold chip, placed before the words are fitted under it
 	local perkText = row.perk or ""
 	local perkShown = perkText ~= "" and not entry.compact
@@ -610,7 +805,7 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 		entry.perk.Visible = perkShown
 		self:_place(entry)
 	end
-	fitText(entry.effect, entry.effectMax)
+	fitEffect(entry)
 	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
 	local art = row.key .. (if row.multiplier then tostring(row.multiplier) else "")
 	if entry.key ~= art then
@@ -713,9 +908,11 @@ function Store._layout(self: any)
 	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room. A tab with one card (the Cafe Pass)
 	-- gives it the whole width, so its long contents keep readable text on a phone.
 	local single = #StoreLogic.tabRows(self._rows, self._tab) == 1
-	local columns = if single then 1 elseif width < NARROW then 2 else GRID_COLUMNS
+	local columns = if single then 1 elseif width < NARROW or self._rework then 2 else GRID_COLUMNS
 	local cellW = math.floor((width - SCROLL_BAR - (columns - 1) * spacing) / columns)
-	local cellH = math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
+	local cellH = if self._rework
+		then math.clamp(math.floor((height - 2 * spacing) / 3), self._wideMin, WIDE_MAX)
+		else math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
 	self._grid.CellSize = UDim2.fromOffset(cellW, cellH)
 end
 
@@ -735,6 +932,10 @@ function Store.showTab(self: any, tab: string)
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end
+	if self._rework then
+		-- #3572: the tab's header line
+		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab))
+	end
 	-- #1823 §4: opening a tab clears its New dot, and the server saves it once
 	if self._new[self._tab] then
 		self._new[self._tab] = nil
@@ -753,6 +954,7 @@ function Store.showTab(self: any, tab: string)
 	local codes = self._tab == "codes"
 	self._featured.Visible = featured
 	self._list.Visible = not featured and not codes
+	self:_placeBag()
 	self.codesPage.Visible = codes
 	local onCodes: ((boolean) -> ())? = self._callbacks.codes
 	if (was == "codes") ~= codes and onCodes then
@@ -842,7 +1044,11 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	self._empty.Visible = #rows == 0
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}
-	for order, row in rows do
+	-- #3572: with the rework on, each tab cheapest first (StoreLogic.cheapestFirst); the cards are ordered, not moved
+	local gridRows: { StoreLogic.Row } = if self._rework
+		then StoreLogic.cheapestFirst(rows, prices)
+		else rows
+	for order, row in gridRows do
 		local slot = "grid:" .. row.key
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._list, order)
 		entry.frame.LayoutOrder = order

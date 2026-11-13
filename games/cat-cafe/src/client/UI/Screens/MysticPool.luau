@@ -116,6 +116,7 @@ local SEARCH_HINT = "🔍 Search"
 -- #3874: on a short screen a row has two lines (name and trait on top, the tags under) and a slimmer Pick, so about
 -- twice as many cats show at once
 local SHORT_ROW_H = 54
+local OFFER_PICTURE = 40 -- #3948: the Trait Token on a bundle's card
 local SHORT_FACE = 36
 local SHORT_PICK_W = 72
 local SHORT_PICK_H = 38 -- drawn; on a touch screen its pad still reaches a finger's 44 px (Button's Hit)
@@ -185,6 +186,65 @@ local function sheet(name: string, parent: Instance, z: number): Frame
 			PaddingBottom = UDim.new(0, 12),
 		}),
 	})
+end
+
+-- #3948: the Trait Token's picture, `size` square at `position`: its uploaded image once MysticPoolLogic.TOKEN_IMAGE
+-- has one, else drawn as the store art draws it (a violet coin with a light ring and a cream star)
+local TOKEN_VIOLET = Color3.fromHex("9B6BFF")
+local TOKEN_EDGE = Color3.fromHex("2E1A47")
+local TOKEN_STAR = Color3.fromHex("FFF6D0")
+local function tokenPicture(parent: Instance, position: UDim2, size: number, z: number): GuiObject
+	local image = MysticPoolLogic.TOKEN_IMAGE
+	if image ~= nil then
+		return Create("ImageLabel", {
+			Name = "Token",
+			BackgroundTransparency = 1,
+			Image = image,
+			Position = position,
+			Size = UDim2.fromOffset(size, size),
+			ZIndex = z,
+			Parent = parent,
+		})
+	end
+	local coin: Frame = Create("Frame", {
+		Name = "Token",
+		BackgroundColor3 = TOKEN_VIOLET,
+		BorderSizePixel = 0,
+		Position = position,
+		Size = UDim2.fromOffset(size, size),
+		ZIndex = z,
+		Parent = parent,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = TOKEN_EDGE, Thickness = 2 }),
+	})
+	Create("Frame", {
+		Name = "Ring",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.74, 0.74),
+		ZIndex = z,
+		Parent = coin,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = Color3.fromHex("D9C8FF"), Thickness = 1.5 }),
+	})
+	-- the star: two thin diamonds crossed
+	for _, turn in { 0, 90 } do
+		Create("Frame", {
+			Name = "Star" .. turn,
+			BackgroundColor3 = TOKEN_STAR,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(0.16, 0.5),
+			Rotation = turn,
+			ZIndex = z + 1,
+			Parent = coin,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+	end
+	return coin
 end
 
 -- A trait's card: a small heading ("Trait", "Now", "New"), the name in the rarity's colour, the rarity and a line
@@ -914,12 +974,16 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = odds,
 	})
 
-	-- #3864: the Trait Token offer, once the free rolls are used (MysticPoolLogic.bundles)
+	-- #3864: the Trait Token offer, once the free rolls are used (MysticPoolLogic.bundles). #3948 (Derek: "this menu
+	-- needs to look nicer and the purchase is missing an image"): the title and its line, the roll's odds as pills
+	-- (monetization-policy: before anything is bought), then a picture card per bundle (the token, "20 Tokens", its
+	-- rolls as a plain fact and a wide Buy with the price) and "No thanks" as big as Buy. No countdowns, no "best
+	-- value", no struck-out prices.
 	local offer = sheet("TokenOffer", content, 11)
 	self._offerSheet = offer
 	text({
 		Name = "Title",
-		Size = UDim2.new(1, 0, 0, 30),
+		Size = UDim2.new(1, 0, 0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -930,35 +994,71 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	})
 	text({
 		Name = "Line",
-		Position = UDim2.fromOffset(0, 30),
-		Size = UDim2.new(1, 0, 0, 34),
-		TextSize = Theme.sizes.textSmall,
+		Position = UDim2.fromOffset(0, 24),
+		Size = UDim2.new(1, 0, 0, 16),
+		TextSize = Theme.sizes.textTiny,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
 		Text = MysticPoolLogic.OFFER_LINE,
 		ZIndex = 12,
-		TextColor3 = PAL.text,
+		TextColor3 = PAL.subtext,
 		Parent = offer,
 	})
-	oddsLines(offer, 30 + 34 + 2, 12) -- every roll's odds, before anything is bought (monetization-policy 2.1)
-	local buyTop = 30 + 34 + 2 + 28 + GAP
+	oddsPills(offer, 44, 12) -- every roll's odds, before anything is bought (monetization-policy 2.1)
+	local cardTop = 44 + 28 + GAP
+	local cardH = OFFER_PICTURE + 4 + buttonH + 4
 	self._offerButtons = {} :: { Button.Button }
+	self._offerCards = {} :: { { frame: Frame, heading: TextLabel, rolls: TextLabel } }
 	for index = 1, #Traits.BUNDLES do
+		local card: Frame = Create("Frame", {
+			Name = "Bundle" .. index .. "Card",
+			BackgroundColor3 = CARD.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1 / #Traits.BUNDLES, -GAP / 2, 0, cardH),
+			Position = UDim2.new(
+				(index - 1) / #Traits.BUNDLES,
+				if index > 1 then GAP / 2 else 0,
+				0,
+				cardTop
+			),
+			ZIndex = 12,
+			Parent = offer,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
+		})
+		tokenPicture(card, UDim2.fromOffset(6, 4), OFFER_PICTURE, 13)
+		local heading = text({
+			Name = "Heading",
+			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 6),
+			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 22),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody + 2,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextColor3 = CARD.text,
+			ZIndex = 13,
+			Parent = card,
+		})
+		local rolls = text({
+			Name = "Rolls",
+			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 28),
+			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 16),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextColor3 = CARD.subtext,
+			ZIndex = 13,
+			Parent = card,
+		})
 		local button = Button.new({
 			name = "Bundle" .. index,
 			text = "",
 			style = "primary",
-			size = UDim2.new(1 / #Traits.BUNDLES, -GAP / 2, 0, buttonH + 4),
-			position = UDim2.new(
-				(index - 1) / #Traits.BUNDLES,
-				if index > 1 then GAP / 2 else 0,
-				0,
-				buyTop
-			),
+			size = UDim2.new(1, -12, 0, buttonH),
+			anchorPoint = Vector2.new(0.5, 1),
+			position = UDim2.new(0.5, 0, 1, -4),
 			textSize = Theme.sizes.textBody,
-			parent = offer,
-			zIndex = 12,
+			parent = card,
+			zIndex = 13,
 			onClick = function()
 				local pick = self._offerBundles and self._offerBundles[index]
 				local buy = callbacks.buy
@@ -968,6 +1068,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			end,
 		})
 		table.insert(self._offerButtons, button)
+		table.insert(self._offerCards, { frame = card, heading = heading, rolls = rolls })
 	end
 	self._offerBundles = nil :: { MysticPoolLogic.Bundle }?
 	Button.new({
@@ -975,8 +1076,8 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		text = MysticPoolLogic.OFFER_NO,
 		style = "ghost",
 		size = UDim2.new(1, 0, 0, buttonH),
-		position = UDim2.fromOffset(0, buyTop + buttonH + 4 + GAP),
-		textSize = Theme.sizes.textSmall + 1,
+		position = UDim2.fromOffset(0, cardTop + cardH + GAP),
+		textSize = Theme.sizes.textBody,
 		parent = offer,
 		zIndex = 12,
 		onClick = function()
@@ -1653,9 +1754,13 @@ function MysticPool._paint(self: any)
 			self._offerBundles = bundles
 			for index, button in self._offerButtons do
 				local pick = bundles[index]
+				local card = self._offerCards[index]
+				card.frame.Visible = pick ~= nil
 				button.instance.Visible = pick ~= nil
 				if pick ~= nil then
-					button:setText(pick.label)
+					button:setText("Buy · " .. pick.price)
+					card.heading.Text = string.format("%d Tokens", pick.tokens)
+					card.rolls.Text = pick.rolls
 				end
 			end
 			self._offerSheet.Visible = true

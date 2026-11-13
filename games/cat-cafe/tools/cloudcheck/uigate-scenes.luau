@@ -2770,11 +2770,15 @@ local SCENES = {
 		local window = mysticPool(nil, "gate_1", { tokens = 0, freeLeft = 0, held = 0, bundles = true })
 		local offer = window:FindFirstChild("TokenOffer", true)
 		assert(offer and offer.Visible, "uigate: the token offer did not show after the free rolls (#3864)")
-		local want = { "20 Tokens · R$99", "50 Tokens · R$199" }
+		-- #3948: a picture card per bundle: the token, "20 Tokens", its rolls and Buy with the price
+		local want = { { "20 Tokens", "Buy · R$99" }, { "50 Tokens", "Buy · R$199" } }
 		for index, words in want do
-			local button = offer:FindFirstChild("Bundle" .. index, true)
+			local card = offer:FindFirstChild("Bundle" .. index .. "Card", true)
+			assert(card and card.Visible and card:FindFirstChild("Token"), "uigate: bundle " .. index .. " has no picture card (#3948)")
+			assert(card:FindFirstChild("Heading").Text == words[1], "uigate: bundle " .. index .. " is headed " .. card:FindFirstChild("Heading").Text .. " (#3948)")
+			local button = card:FindFirstChild("Bundle" .. index)
 			local label = button and button:FindFirstChildWhichIsA("TextLabel", true)
-			assert(button and button.Visible and label and label.Text == words, "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#3864)")
+			assert(button and button.Visible and label and label.Text == words[2], "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#3864)")
 			assert(label.TextFits, "uigate: bundle " .. index .. "'s label does not fit (#3864)")
 		end
 		local odds = 0
@@ -2785,6 +2789,8 @@ local SCENES = {
 		end
 		assert(odds >= 1, "uigate: the token offer shows no odds before the buy buttons (#3864)")
 		local no = offer:FindFirstChild("NoThanks", true)
+		local buy = offer:FindFirstChild("Bundle1", true)
+		assert(math.abs(no.AbsoluteSize.Y - buy.AbsoluteSize.Y) <= 1, "uigate: No thanks is not as big as Buy (#3948)")
 		local bottom = offer.AbsolutePosition.Y + offer.AbsoluteSize.Y
 		assert(no and no.AbsolutePosition.Y + no.AbsoluteSize.Y <= bottom + 1, "uigate: No thanks hangs below the offer (#3864)")
 		press("MysticPool", "TokenOffer.NoThanks")

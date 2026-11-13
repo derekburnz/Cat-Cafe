@@ -1,6 +1,6 @@
 --!strict
 -- The roll board (#3611, part of #3608): the list that hovers over a station whose prize is rolled, drawn from a
--- RollBoardLogic.View. A violet card with the station's name, one line, and a row per prize: its picture on a cream
+-- RollBoardLogic.View. A charcoal card (#3965, was violet) with the station's name, one line, and a row per prize: its picture on a cream
 -- tile (a food with a small golden fish when it brings both), its name and its chance. A better prize has a blue
 -- edge, the best a gold edge and a gold chance. While the roll passes, the row it is on lights soft blue (LIT:
 -- never white or gold, which are resting edges on the Yard Sale's board, Derek 2026-11-12) and the others fade; the
@@ -49,13 +49,13 @@ local LINE_SIZE = 15
 local NAME_SIZE = 17
 local FADED = 0.55 -- a row the roll is not on, and every row of an empty bin: 45% of itself
 
-local BODY = Color3.fromHex("3C286E")
-local ROW = Color3.fromHex("543C8C")
-local ROW_EDGE = Color3.fromHex("6A52A8")
+local BODY = Color3.fromHex("2D2A32")
+local ROW = Color3.fromHex("3D3943")
+local ROW_EDGE = Color3.fromHex("57525F")
 local TILE_COLOR = Color3.fromHex("FFE296")
 local BLUE = Color3.fromHex("6EB4FF")
 local GOLD = Color3.fromHex("FFD650")
-local LINE = Color3.fromHex("E4D6FF") -- the line under the title: 9.6:1 on the body
+local LINE = Color3.fromHex("DAD5DF") -- the line under the title: about 11:1 on the body
 local LIT = Color3.fromRGB(143, 208, 255) -- the roll's light, the effects' soft blue
 local LIT_FILL = Color3.fromHex("3F7FD0") -- under white words: 4.2:1, and the words wear an ink outline
 local INK = Theme.colors.ink

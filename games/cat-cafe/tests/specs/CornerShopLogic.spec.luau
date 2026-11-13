@@ -215,6 +215,43 @@ return function()
 			end
 		)
 
+		it(
+			"#3915: plans with the top shelf exactly when its rows are shown, as the server does",
+			function()
+				local window: number? = nil
+				for w = 5000, 20000 do
+					for _, item in CornerShop.stock(w) do
+						local row = Catalog.getCornerShopRow(item.itemId)
+						if row.topShelf == true and row.kind == "bait" and item.amount > 0 then
+							window = w
+							break
+						end
+					end
+					if window ~= nil then
+						break
+					end
+				end
+				local at = assert(window)
+				local wasOpen = CornerShop.topShelfOpen()
+				for _, open in { true, false } do
+					CornerShop.setTopShelf(open)
+					local view = CornerShop.view(state(at), at, 7)
+					expect(Logic.topShelfShown(view)).to.equal(open)
+					local server, total = CornerShop.planAll(state(at), at, "bait", 7, 1e13, NONE)
+					-- the card resets the shelf from the view, so it matches even after the flag is changed under it
+					CornerShop.setTopShelf(not open)
+					local plan = Logic.buyAll(view, "bait", 7, 1e13, NONE)
+					local count = 0
+					for _, item in server do
+						count += item.count
+					end
+					expect(plan.count).to.equal(count)
+					expect(plan.total).to.equal(total)
+				end
+				CornerShop.setTopShelf(wasOpen)
+			end
+		)
+
 		it("says how many fit when coins run short, and is nil when none do", function()
 			local window = windowFor("potion", 2)
 			local view = CornerShop.view(state(window), window, 5)

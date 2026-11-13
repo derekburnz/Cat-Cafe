@@ -1195,3 +1195,12 @@ Derek, 2026-11-12: "make secrets have a special glow also when you see them arou
 | A few small stars drifting up from owned Secret cats (a stray has its own from `SecretStray`) | `secretStars` |
 | Not a pointer: particles and a light, so walls hide it; no Highlight, no arrow, nothing on top | |
 | Budget: the nearest 4 within 90 studs, whole inside 45 and fading to nothing at 90; about 8 particles and one light a cat, 32 particles and 4 lights at most. Low performance: the nearest 2, halo only at the budget's rate, no light and no stars, never nothing. Frame cost: not measured in game yet (needs Studio); by count it is under one potion glow a cat | checked twice a second |
+
+## Speed Shoes trail (#3523, 2026-11-12)
+
+`Effects/SpeedShoes.luau`, numbers in `Presets.speedShoes` and `Presets.emitters.shoeTrail`, the rule in `Logic.shoeTrailOn`. It waits for the Speed Shoes build (#3535): until a character carries the `SpeedShoes` attribute or wears the `CatCafe_Item_SpeedShoes` model it does nothing.
+
+| Look | Hook |
+|---|---|
+| Small mint and cream puffs left at the heels of a player who wears the Speed Shoes, carries a cat and is on the move with feet on the ground: 8 a second, each gone in under half a second, so about 4 on screen. Nothing while standing, in the air or with no cat, because the shoes only speed up carrying. A steady thin stream, nothing blinks | character attribute `SpeedShoes == true` (server, where the shoes are put on) or a child named `CatCafe_Item_SpeedShoes`; `CarryingCatId`; the Humanoid's `MoveDirection` and `FloorMaterial` |
+| The nearest wearers within 50 studs show it, your own first, sharing the potion glow count of the budget (3 on a phone); Low performance shows none | checked 4 times a second |

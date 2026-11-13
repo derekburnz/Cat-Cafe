@@ -31,6 +31,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -47,7 +48,8 @@ local BIN_NEXT_AT = "BinNextAt"
 local BIN_FLAG = "LiveFlag_alleyBin"
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CREAM = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 -- #3347 (Derek2: "make the spa symbol better and not some simple symbols"): a station's drawn picture on its picker
 -- line, in place of its emoji (which shows until the picture loads)
 local LINE_IMAGES: { [string]: string? } = { spa = ShopIcons.clean("Spa") }
@@ -120,7 +122,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CREAM.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -232,13 +234,13 @@ function Cannon._buildCards(self: any)
 		local id = place.id
 		local frame: Frame = Create("Frame", {
 			Name = id,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CREAM.card,
 			BorderSizePixel = 0,
 			Visible = false,
 			Parent = self._grid,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = CREAM.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local art: Frame = Create("Frame", {
 			Name = "Art",
@@ -386,14 +388,14 @@ function Cannon._buildCards(self: any)
 			Position = UDim2.fromOffset(10, ART_H + NAME_GAP + 26),
 			Size = UDim2.new(1, -20, 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			Text = if id == CannonLogic.TOWN then "Cafes and markets" else "",
 			Parent = frame,
 		})
 		-- F100: the camp extra's strip, shown by render when the area's extra is open
 		local extra: Frame = Create("Frame", {
 			Name = "Extra",
-			BackgroundColor3 = PAL.line,
+			BackgroundColor3 = CREAM.line,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(10, ART_H + NAME_GAP + 46),
 			Size = UDim2.new(1, -20, 0, EXTRA_H - 4),
@@ -423,7 +425,7 @@ function Cannon._buildCards(self: any)
 			Position = UDim2.fromOffset(36, 19),
 			Size = UDim2.new(1, -66, 0, 15),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CREAM.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Parent = extra,
 		})
@@ -691,7 +693,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			IconArt.setImage(card.extraIcon, LINE_IMAGES[line.extraId], 0.95) -- #3347: drawn, not the emoji
 			card.extraName.Text = line.name
 			card.extraState.Text = line.state
-			card.extraState.TextColor3 = if line.ready then PAL.good else PAL.subtext
+			card.extraState.TextColor3 = if line.ready then CREAM.good else CREAM.subtext
 			card.extraState.FontFace = if line.ready then Theme.fonts.bodyBold else Theme.fonts.body
 			-- #3082: Collect in place of the dot (it rests a moment after a press, until the server's answer
 			-- refreshes the strip), or Open for a station with its own card (green words say when something waits)

@@ -5,7 +5,9 @@
 -- Reduce Motion on it holds still, thick and gold. It is its own frame the target's size (the stroke draws outside
 -- its edge), so the target's own UIStroke stays as it is (a GuiObject draws only one UIStroke) and the HUD grid's
 -- spacing check still measures the tile alone.
---   set(target, on)   puts the outline on the target, or takes it off; calling it again with the same answer is free
+--   set(target, on, outside?)   puts the outline on the target, or takes it off; calling it again with the same
+--       answer is free. `outside` draws the ring round the target's edge instead of inside it, for a card whose
+--       words reach its edge (the goal card: the inside ring covered the first letters of its lines)
 -- #2314: each glowing target also gets Components/TutorialArrow, the big arrow pointing at it for a while.
 
 local GuiService = game:GetService("GuiService")
@@ -22,7 +24,7 @@ local THIN = 3
 local THICK = 7
 local PULSE_SECONDS = 0.6
 
-function TutorialGlow.set(target: GuiObject?, on: boolean)
+function TutorialGlow.set(target: GuiObject?, on: boolean, outside: boolean?)
 	if target == nil then
 		return
 	end
@@ -46,7 +48,7 @@ function TutorialGlow.set(target: GuiObject?, on: boolean)
 		-- measured the outline as part of the tile and found it 1 px from its neighbour (CI on #1797)
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.new(1, -2 * THICK, 1, -2 * THICK),
+		Size = if outside then UDim2.fromScale(1, 1) else UDim2.new(1, -2 * THICK, 1, -2 * THICK),
 		ZIndex = 8,
 		Parent = target,
 	}, {

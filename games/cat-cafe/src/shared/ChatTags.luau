@@ -10,6 +10,7 @@
 --   shown(pick, ownsVip, items) -> the tag id to show, or nil
 --   validPick(pick) -> whether a saved pick is a known tag id or OFF
 --   textFor(tagId, text) -> the message text in the tag's colour, or nil
+--   addAchievementTitles(items, achievements) -> items with the claimed big achievements' titles (#3694)
 
 local Config = require(script.Parent.Config)
 
@@ -32,6 +33,13 @@ local TAGS: { [string]: Tag } = {
 	rank_1 = { text = "[#1]", color = "#FFD54A" },
 	rank_2 = { text = "[#2]", color = "#D9DEE6" },
 	rank_3 = { text = "[#3]", color = "#E3A36B" },
+	-- #3694 (achievements-v2.md, titles): the big achievements' own titles, held for good once claimed
+	-- (ChatTags.ACHIEVEMENT_TITLES)
+	title_cat_legend = { text = "[Cat Legend]", color = "#E9A23B" },
+	title_steady_hands = { text = "[Steady Hands]", color = "#7FC8A9" },
+	title_devoted = { text = "[Devoted]", color = "#C79BE8" },
+	title_week_champion = { text = "[Week Champion]", color = "#6FB3E8" },
+	title_gold_rush = { text = "[Gold Rush]", color = "#E8C547" },
 }
 for _, tag in TAGS do
 	table.freeze(tag)
@@ -40,10 +48,32 @@ table.freeze(TAGS)
 ChatTags.TAGS = TAGS
 
 -- The order tags are offered in and the default falls through: VIP, then the season tags oldest first.
-local ORDER: { string } =
-	{ "vip", "supporter", "tag_maple", "tag_grand_opener", "rank_1", "rank_2", "rank_3" }
+local ORDER: { string } = {
+	"vip",
+	"supporter",
+	"tag_maple",
+	"tag_grand_opener",
+	"title_cat_legend",
+	"title_steady_hands",
+	"title_devoted",
+	"title_week_champion",
+	"title_gold_rush",
+	"rank_1",
+	"rank_2",
+	"rank_3",
+}
 table.freeze(ORDER)
 ChatTags.ORDER = ORDER
+
+-- #3694: achievement id -> the title its claim gives. Read from the save's claimed achievements each time, so a
+-- player who claimed one before the titles shipped has it on the next join.
+ChatTags.ACHIEVEMENT_TITLES = table.freeze({
+	a_catch10k = "title_cat_legend",
+	a_perfect5k = "title_steady_hands",
+	a_hours100 = "title_devoted",
+	a_week10 = "title_week_champion",
+	a_gold50 = "title_gold_rush",
+}) :: { [string]: string }
 
 ChatTags.OFF = "off" -- the pick that shows no tag
 ChatTags.OWNER = "owner" -- #3324: the owner's tag, set by the server from the user id alone
@@ -113,6 +143,20 @@ function ChatTags.withSupporter(
 		out.supporter = true
 	end
 	return out
+end
+
+-- #3694: `items` with the title of each claimed achievement in ACHIEVEMENT_TITLES set (`achievements` the save's
+-- achievementId -> claimed). Changes and returns `items`.
+function ChatTags.addAchievementTitles(
+	items: { [string]: boolean },
+	achievements: { [string]: boolean }
+): { [string]: boolean }
+	for achievementId, tagId in ChatTags.ACHIEVEMENT_TITLES do
+		if achievements[achievementId] == true then
+			items[tagId] = true
+		end
+	end
+	return items
 end
 
 -- Derek2 11-11 ("make the title change text color in chat also"): the message text drawn in the

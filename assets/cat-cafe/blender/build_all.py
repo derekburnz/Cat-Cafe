@@ -848,7 +848,7 @@ def main():
         if name == "CatCafe_Decor_DoorSign":      # #1140: the moon rides the CLOSED face's Model
             extra = {"nest": decor.DOOR_SIGN_NEST}
         if name == "CatCafe_Street_DealerCart":   # the dealer's cat: its hood rides its Head
-            extra = {"nest": {"_Prop": "_Head"}}
+            extra = {"nest": {"_Prop": "_Head", "_Glow": "_Head"}}   # the fedora band (#2739) rides it too
         if name in shopcats.ASSETS:               # #1191: King Croissant's cushion throne, its Seat
             extra = {"attachments": shopcats.attachments()}
         if name == feedbackstand.NAME:            # #3066: the feedback prompt's spot; the Postie's cap and letter in its Head
@@ -894,7 +894,7 @@ def main():
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
             extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in townsfolk.ASSETS:              # #2687: the hat rides the Head Model
-            extra = {"nest": {"_Prop": "_Head"}}
+            extra = {"nest": {"_Prop": "_Head", "_Glow": "_Head"}}   # the fedora band (#2739) rides it too
         if name in campgrowth.ASSETS:             # #2687: the townsfolk cats' spots
             extra = {"attachments": campgrowth.rbx_attachments(name)}
         if name in nooks.ASSETS:                  # #2687: RescueSpot and PathEnd

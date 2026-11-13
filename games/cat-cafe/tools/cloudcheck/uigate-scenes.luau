@@ -4042,6 +4042,8 @@ local SCENES = {
 	{ "MysteryMarket", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		-- #3535: the Speed Shoes are on the shelf (their switch on), so the featured card is there in their week too
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_speedShoes", true)
 		UI.update({ goldenFish = 350, mystery = {}, mysterySeen = false, mysteryOpen = true } :: any)
 		local seen = 0
 		local counting = UI.events.mysterySeen:Connect(function()
@@ -4054,6 +4056,14 @@ local SCENES = {
 		local window = modals and modals:FindFirstChild("MysteryMarket", true)
 		assert(window and window:FindFirstChild("Featured", true), "uigate: no featured card (#2574)")
 		assert(window:FindFirstChild("Teaser", true), "uigate: no next week teaser (#2574)")
+		local shoes = false
+		for _, piece in window:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == "Speed Shoes" then
+				shoes = true
+				assert(piece.TextFits, "uigate: the Speed Shoes' name does not fit its card (#3535)")
+			end
+		end
+		assert(shoes, "uigate: the Speed Shoes are not on Juniper's shelf with their switch on (#3535)")
 		UI.update({ mysterySeen = true } :: any)
 	end },
 	-- #2574: the featured item owned and buys not open yet ("Soon")
@@ -7717,6 +7727,21 @@ local SCENES = {
 		assert(title.Text == tierTitle, "uigate: the goal card kept the Park goal, it reads " .. title.Text .. " (#3554)")
 		UI.parkTrail.set(nil, "Visit the Park 🐾") -- the picture
 		UIShim.advance(0.1)
+	end },
+	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
+	-- window can end up with cream cards under white words; the flip reaches a player at their next join.
+	{ "MenuFamilyLatch", function()
+		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		local RS = game:GetService("ReplicatedStorage")
+		local name = "LiveFlag_" .. MenuFamily.FLAG
+		local was = RS:GetAttribute(name)
+		local on = MenuFamily.on()
+		local card = MenuFamily.card.card
+		RS:SetAttribute(name, not on)
+		assert(MenuFamily.on() == on, "uigate: the menu look followed a mid-session switch flip (#3558)")
+		assert(MenuFamily.card.card == card, "uigate: the card colour followed a mid-session switch flip (#3558)")
+		RS:SetAttribute(name, was)
+		UI.open("Quests")
 	end },
 	-- #3555: the first rank up's walk-through: the goal card lit with "You can rank up!", then the rank up window's
 	-- button with "Press to rank up", and a press on the dim tells the caller. Nothing is left once it is closed.

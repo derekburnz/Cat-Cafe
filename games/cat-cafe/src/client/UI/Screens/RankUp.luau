@@ -14,6 +14,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic) -- #2687: the next station's perk
 local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #1141: the server's own counts
@@ -23,7 +24,8 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Requirement = {
 	label: string, -- "5 different cats"
@@ -479,7 +481,7 @@ end
 function RankUp._row(self: any, index: number, item: Requirement): Frame
 	local row: Frame = Create("Frame", {
 		Name = "Row" .. index,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = index,
 		Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
@@ -487,7 +489,7 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIStroke", {
-			Color = if item.met then Theme.colors.good else PAL.cardStroke,
+			Color = if item.met then Theme.colors.good else CARD.cardStroke,
 			Thickness = Theme.sizes.stroke,
 		}),
 	})
@@ -496,6 +498,7 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		Position = UDim2.fromOffset(14, 0),
 		Size = UDim2.new(1, -190, 1, -6),
 		FontFace = Theme.fonts.bodyBold,
+		TextColor3 = CARD.text,
 		Text = item.label,
 		Parent = row,
 	})
@@ -507,13 +510,13 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		Size = UDim2.new(0, 170, 1, -6),
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		TextColor3 = if item.met then PAL.good else PAL.warn,
+		TextColor3 = if item.met then CARD.good else CARD.warn,
 		Text = item.status,
 		Parent = row,
 	})
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 14, 1, -9),
 		Size = UDim2.new(1, -28, 0, 4),

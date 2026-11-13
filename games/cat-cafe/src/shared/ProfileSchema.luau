@@ -22,6 +22,7 @@ local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
 local MysteryMarket = require(script.Parent.MysteryMarket)
 local Onboarding = require(script.Parent.Onboarding)
+local Pet = require(script.Parent.Pet)
 local PlaytimeGifts = require(script.Parent.PlaytimeGifts)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
@@ -142,6 +143,8 @@ local ProfileSchema = {}
 -- #1934 (no new version): stats.purrfectCatches, purrfectStreak, bestPurrfectStreak and teamRescuesHelped, for the
 -- Roblox badges (shared/Badges). An older server drops them, which only loses those counts: a badge already awarded
 -- stays on the player's Roblox account.
+-- #3694 section 3 (no new version): stats.binWins, yardPicks, traitRolls, dashRuns, goldenCratesOpened and
+-- restSeconds, for the newer features' achievements. An older server drops them, which only loses those counts.
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
@@ -237,6 +240,12 @@ local function newStats(): Types.Stats
 		purrfectStreak = 0,
 		bestPurrfectStreak = 0,
 		teamRescuesHelped = 0,
+		binWins = 0, -- #3694 section 3
+		yardPicks = 0,
+		traitRolls = 0,
+		dashRuns = 0,
+		goldenCratesOpened = 0,
+		restSeconds = 0,
 	}
 end
 
@@ -267,6 +276,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 	for _, def in Catalog.upgrades do
 		levels[def.id] = def.startLevel
 	end
+	levels.tables = math.max(levels.tables or 0, Config.StartTables) -- #3660: the first table is already open
 	-- The starter has neutral charm (50) so every new cafe earns the same 1.5 per second.
 	local starter = CatStats.newInstance(STARTER_UID, "tabby", now)
 	starter.spotId = "barista_1"
@@ -287,6 +297,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lures = {},
 		bait = nil,
 		bait2 = nil,
+		pet = nil,
 		freshCatch = FreshCatch.fresh(),
 		cats = {
 			[STARTER_UID] = starter,
@@ -317,7 +328,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		flags = { autoPress = false },
 		telemetry = {
 			onboardingStep = 0,
-			achieved = {},
+			-- #3660: the first table is there from the start, so its funnel step counts as met: it is logged in its
+			-- place as the funnel reaches it (the funnel needs every step in order) and nothing waits on it
+			achieved = Onboarding.startAchieved(Config.StartTables),
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
 			introStep = 0,
@@ -941,6 +954,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	end
 
 	sanitizeCats(raw, profile, fromVersion, now)
+	profile.pet = Pet.sanitize(raw.pet, now) -- #3651: the happy cat, at any version (an older server drops it)
 
 	profile.collection = sanitizeCollection(raw.collection, now)
 	for _, instance in profile.cats do

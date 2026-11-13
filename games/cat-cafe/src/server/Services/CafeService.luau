@@ -47,6 +47,7 @@ local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
+local Pet = require(ReplicatedStorage.Shared.Pet)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local PlotService = require(script.Parent.PlotService)
@@ -76,6 +77,10 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 type Profile = Types.PlayerProfile
 
 local CafeService = {}
+
+-- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
+-- the achievements view; QuestService and Claim all reach Quests through it)
+Quests.setFlagReader(LiveFlagService.on)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
@@ -468,6 +473,29 @@ local function buildCat(
 	return model
 end
 
+-- #3651 (shared/Pet): the happy cat's model says when its heart ends (Pet.ATTRIBUTE, for the money tag and the
+-- prompt's note); every other cat says nothing. A heart whose cat left its job or the save ends here.
+local function markHappy(plot: WorldBuilder.Plot, profile: Profile)
+	local now = os.time()
+	Pet.prune(profile, now)
+	local pet = profile.pet
+	local uid = if LiveFlagService.on(Pet.FLAG) then Pet.active(pet, profile.cats, now) else nil
+	for _, child in plot.cats:GetChildren() do
+		local untilAt = if pet ~= nil and uid ~= nil and child.Name == uid then pet.untilAt else nil
+		if child:GetAttribute(Pet.ATTRIBUTE) ~= untilAt then
+			child:SetAttribute(Pet.ATTRIBUTE, untilAt)
+		end
+	end
+end
+
+function CafeService.markHappy(player: Player)
+	local profile = DataService.get(player)
+	local plot = PlotService.get(player)
+	if profile ~= nil and plot ~= nil then
+		markHappy(plot, profile)
+	end
+end
+
 local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Profile)
 	local multiplier = Economy.staffMultiplier(profile)
 		* Economy.cafeMultiplier(profile)
@@ -649,6 +677,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		end
 		model.Parent = plot.cats
 	end
+	markHappy(plot, profile) -- #3651
 end
 
 -- Puts the piece's model at `at` (moving it when its place changed), or takes it away when `at` is nil. Every
@@ -1355,6 +1384,15 @@ local function newUid(): string
 	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
 
+-- #3660: the tutorial step a first cat put to work leads to: the first table (3), or for a save that has a table
+-- already (new saves start with one) the Bait bowl (4), or the end (5) when food has been used too.
+local function stepAfterJob(profile: Profile): number
+	if Economy.level(profile, "tables") < 1 then
+		return 3
+	end
+	return if profile.stats.luresUsed > 0 then 5 else 4
+end
+
 -- Moves the tutorial on to `step` when it is behind, and logs tutorial_step for every step it passes, as
 -- TutorialAdvance does for the steps the client reports, so a step skipped over (an upgrade bought from step 3, a
 -- catch before the alley step) still counts and never reads as a drop in the funnel.
@@ -1661,7 +1699,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 	end
 	instance.spotId = spotId
 	noteHand(player, uid) -- #1955: Auto Equip leaves it there a while
-	CafeService.advanceTutorial(player, profile, 3)
+	CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 	Telemetry.onboarding(player, profile, "first_role_assigned")
 	Telemetry.catWorking(player, uid)
 	local catDef = Catalog.getCat(instance.catId)
@@ -1736,7 +1774,7 @@ local function runAutoEquip(player: Player, profile: Profile): number
 		end
 	end
 	if plan.catsPlaced > 0 then
-		CafeService.advanceTutorial(player, profile, 3)
+		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
 	end
 	if #swaps > 0 then
@@ -1820,7 +1858,7 @@ local function onEquipBest(player: Player)
 		end
 	end
 	if plan.catsPlaced > 0 then
-		CafeService.advanceTutorial(player, profile, 3)
+		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
 	end
 	Net.toast(

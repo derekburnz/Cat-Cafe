@@ -2392,7 +2392,7 @@
      "CFrame": {
       "position": [
        2.325,
-       14.085,
+       13.86,
        -0.33
       ],
       "orientation": [
@@ -2416,7 +2416,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.6,
      0.05
     ],
     "Color": [
@@ -2440,7 +2440,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.325,
+       1.875,
        13.935,
        -0.33
       ],
@@ -2465,154 +2465,7 @@
     },
     "Size": [
      0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.325,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.325,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.875,
-       14.235,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -2637,7 +2490,7 @@
      "CFrame": {
       "position": [
        1.575,
-       14.235,
+       13.935,
        -0.33
       ],
       "orientation": [
@@ -2661,105 +2514,7 @@
     },
     "Size": [
      0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.875,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.575,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -2807,202 +2562,6 @@
      }
     },
     "Size": [
-     0.45,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.875,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.575,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.875,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.575,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.15,
      0.15,
      0.05
@@ -3078,7 +2637,7 @@
      "CFrame": {
       "position": [
        1.275,
-       14.085,
+       13.86,
        -0.33
       ],
       "orientation": [
@@ -3102,7 +2661,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.6,
      0.05
     ],
     "Color": [
@@ -3127,7 +2686,7 @@
      "CFrame": {
       "position": [
        0.975,
-       14.085,
+       13.86,
        -0.33
       ],
       "orientation": [
@@ -3151,7 +2710,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.6,
      0.05
     ],
     "Color": [
@@ -3199,398 +2758,6 @@
      }
     },
     "Size": [
-     0.45,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.275,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.975,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.275,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.975,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.675,
-       14.235,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.225,
-       14.235,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.6,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.3,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.225,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.15,
      0.15,
      0.05
@@ -3641,7 +2808,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -3665,7 +2832,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3,
+       0.225,
        13.935,
        -0.33
       ],
@@ -3689,8 +2856,8 @@
      }
     },
     "Size": [
-     0.3,
      0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -3714,8 +2881,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.675,
-       13.785,
+       0.525,
+       14.085,
        -0.33
       ],
       "orientation": [
@@ -3763,106 +2930,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.225,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.675,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.225,
-       13.635,
+       0.375,
+       13.935,
        -0.33
       ],
       "orientation": [
@@ -3911,7 +2980,7 @@
      "CFrame": {
       "position": [
        -0.075,
-       14.235,
+       13.935,
        -0.33
       ],
       "orientation": [
@@ -3935,7 +3004,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -4008,7 +3077,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.15,
+       -0.225,
        14.085,
        -0.33
       ],
@@ -4032,55 +3101,6 @@
      }
     },
     "Size": [
-     0.3,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.075,
-       13.935,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.15,
      0.15,
      0.05
@@ -4106,57 +3126,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.15,
+       -0.225,
        13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.3,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.075,
-       13.635,
        -0.33
       ],
       "orientation": [
@@ -4254,7 +3225,7 @@
      "CFrame": {
       "position": [
        -0.975,
-       14.235,
+       14.16,
        -0.33
       ],
       "orientation": [
@@ -4278,7 +3249,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.3,
      0.05
     ],
     "Color": [
@@ -4303,7 +3274,7 @@
      "CFrame": {
       "position": [
        -1.275,
-       14.235,
+       14.16,
        -0.33
       ],
       "orientation": [
@@ -4327,154 +3298,7 @@
     },
     "Size": [
      0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.975,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.275,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.125,
-       13.935,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
+     0.3,
      0.05
     ],
     "Color": [
@@ -4523,56 +3347,7 @@
     },
     "Size": [
      0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.125,
-       13.635,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
+     0.45,
      0.05
     ],
     "Color": [
@@ -4646,7 +3421,7 @@
      "CFrame": {
       "position": [
        -1.575,
-       14.085,
+       13.86,
        -0.33
       ],
       "orientation": [
@@ -4670,7 +3445,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.6,
      0.05
     ],
     "Color": [
@@ -4695,7 +3470,7 @@
      "CFrame": {
       "position": [
        -1.875,
-       14.085,
+       13.86,
        -0.33
       ],
       "orientation": [
@@ -4719,203 +3494,7 @@
     },
     "Size": [
      0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.575,
-       13.935,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.875,
-       13.935,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.575,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.875,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
+     0.6,
      0.05
     ],
     "Color": [
@@ -4963,202 +3542,6 @@
      }
     },
     "Size": [
-     0.45,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.175,
-       14.235,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.475,
-       14.235,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.175,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.475,
-       14.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.15,
      0.15,
      0.05
@@ -5209,7 +3592,7 @@
     },
     "Size": [
      0.15,
-     0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -5258,105 +3641,7 @@
     },
     "Size": [
      0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.175,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.9216,
-     0.8667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.475,
-       13.785,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.15,
-     0.15,
+     0.75,
      0.05
     ],
     "Color": [
@@ -5404,7 +3689,7 @@
      }
     },
     "Size": [
-     0.45,
+     0.15,
      0.15,
      0.05
     ],
@@ -5479,7 +3764,7 @@
      "CFrame": {
       "position": [
        2.16,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -5503,7 +3788,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -5527,106 +3812,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.115,
+       2.07,
        13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.18,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.16,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.16,
-       13.085,
        -0.33
       ],
       "orientation": [
@@ -5724,7 +3911,7 @@
      "CFrame": {
       "position": [
        1.8,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -5748,7 +3935,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -5773,7 +3960,7 @@
      "CFrame": {
       "position": [
        1.62,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -5797,203 +3984,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.8,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.62,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.8,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.62,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -6041,7 +4032,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.09,
      0.09,
      0.05
     ],
@@ -6116,7 +4107,7 @@
      "CFrame": {
       "position": [
        1.44,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -6140,7 +4131,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -6213,7 +4204,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.395,
+       1.35,
        13.265,
        -0.33
       ],
@@ -6237,204 +4228,57 @@
      }
     },
     "Size": [
+     0.09,
+     0.09,
+     0.05
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Street_ThanksBoard",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.26,
+       13.13,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
      0.18,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.44,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.26,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.44,
-       13.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.26,
-       13.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
      0.05
     ],
     "Color": [
@@ -6508,7 +4352,7 @@
      "CFrame": {
       "position": [
        0.81,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -6532,7 +4376,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -6556,7 +4400,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.81,
+       0.54,
        13.265,
        -0.33
       ],
@@ -6581,154 +4425,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.81,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.81,
-       13.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.54,
-       13.445,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.45,
      0.05
     ],
     "Color": [
@@ -6753,7 +4450,7 @@
      "CFrame": {
       "position": [
        0.36,
-       13.445,
+       13.265,
        -0.33
       ],
       "orientation": [
@@ -6777,105 +4474,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.54,
-       13.355,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.36,
-       13.355,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.45,
      0.05
     ],
     "Color": [
@@ -6923,202 +4522,6 @@
      }
     },
     "Size": [
-     0.27,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.54,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.36,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.54,
-       13.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.36,
-       13.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.09,
      0.09,
      0.05
@@ -7194,7 +4597,7 @@
      "CFrame": {
       "position": [
        0.18,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -7218,105 +4621,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.135,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.18,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.18,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -7341,6 +4646,55 @@
      "CFrame": {
       "position": [
        0.09,
+       13.265,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
+     0.09,
+     0.05
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Street_ThanksBoard",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.045,
        13.085,
        -0.33
       ],
@@ -7364,7 +4718,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.05
     ],
@@ -7439,7 +4793,7 @@
      "CFrame": {
       "position": [
        -0.45,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -7463,7 +4817,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -7487,105 +4841,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.45,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.45,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.45,
+       -0.36,
        13.085,
        -0.33
       ],
@@ -7609,7 +4865,56 @@
      }
     },
     "Size": [
-     0.27,
+     0.09,
+     0.09,
+     0.05
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Street_ThanksBoard",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.54,
+       13.085,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
      0.09,
      0.05
     ],
@@ -7684,7 +4989,7 @@
      "CFrame": {
       "position": [
        -0.72,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -7708,105 +5013,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9,
-       13.355,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.72,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -7855,7 +5062,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.27,
      0.05
     ],
     "Color": [
@@ -7879,105 +5086,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.72,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.765,
+       -0.81,
        13.085,
        -0.33
       ],
@@ -8001,7 +5110,7 @@
      }
     },
     "Size": [
-     0.18,
+     0.09,
      0.09,
      0.05
     ],
@@ -8076,7 +5185,7 @@
      "CFrame": {
       "position": [
        -1.08,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -8100,105 +5209,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.125,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.18,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.08,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -8223,6 +5234,55 @@
      "CFrame": {
       "position": [
        -1.17,
+       13.265,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
+     0.09,
+     0.05
+    ],
+    "Color": [
+     0.9647,
+     0.8745,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Street_ThanksBoard",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.215,
        13.085,
        -0.33
       ],
@@ -8246,7 +5306,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.05
     ],
@@ -8321,7 +5381,7 @@
      "CFrame": {
       "position": [
        -1.44,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -8345,7 +5405,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -8370,7 +5430,7 @@
      "CFrame": {
       "position": [
        -1.62,
-       13.355,
+       13.22,
        -0.33
       ],
       "orientation": [
@@ -8394,7 +5454,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.05
     ],
     "Color": [
@@ -8420,202 +5480,6 @@
       "position": [
        -1.53,
        13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.27,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.44,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.62,
-       13.175,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.44,
-       13.085,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.62,
-       13.085,
        -0.33
       ],
       "orientation": [
@@ -8713,7 +5577,7 @@
      "CFrame": {
       "position": [
        -1.8,
-       13.355,
+       13.31,
        -0.33
       ],
       "orientation": [
@@ -8737,7 +5601,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.05
     ],
     "Color": [
@@ -8761,7 +5625,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.89,
+       -1.935,
        13.265,
        -0.33
       ],
@@ -8785,7 +5649,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.05
     ],
@@ -8811,7 +5675,7 @@
      "CFrame": {
       "position": [
        -1.98,
-       13.175,
+       13.13,
        -0.33
       ],
       "orientation": [
@@ -8835,7 +5699,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.05
     ],
     "Color": [
@@ -8859,7 +5723,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.89,
+       -1.845,
        13.085,
        -0.33
       ],
@@ -8883,56 +5747,7 @@
      }
     },
     "Size": [
-     0.27,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.16,
-       13.445,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
+     0.18,
      0.09,
      0.05
     ],
@@ -8982,56 +5797,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.05
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Street_ThanksBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.16,
-       13.265,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.27,
      0.05
     ],
     "Color": [

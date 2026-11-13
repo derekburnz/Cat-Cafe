@@ -22,9 +22,11 @@ local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RankUp = require(script.Parent.RankUp)
+local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
@@ -35,7 +37,8 @@ local Types = require(script.Parent.Parent.Types)
 local UpgradeReady = require(script.Parent.Parent.Components.UpgradeReady)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local FLASH = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
@@ -62,6 +65,14 @@ local SLOT = Theme.sizes.touchMin -- reviewer N102: tappable slot squares
 local RANK_HEIGHT = 76
 local TEXT_LEFT = 12 + ICON_BOX + 14
 local BUTTON_W = 136
+-- #3558 batch 1 (Model-Agent's mock): in the family look the Cafe tab is a grid of picture cards, two across (one on
+-- a narrow window): the picture on the left, the name, stars and one line beside it, the price button bottom right
+local GRID_CELL = 134
+local GRID_ICON = 64
+local GRID_MIN_TWO = 520 -- the list's width in design px from which two cards fit side by side
+local GRID_LEFT = 10 + GRID_ICON + 10
+local GRID_STAR = 16
+local GRID_BUTTON_W = 124
 
 local UpgradeShop = {}
 UpgradeShop.__index = UpgradeShop
@@ -85,20 +96,20 @@ end
 local function card(name: string, height: number, order: number, parent: Instance): Frame
 	return Create("Frame", {
 		Name = name,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, height),
 		LayoutOrder = order,
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 end
 
 -- The square on the left of a row with a big glyph, like the item art boxes in the references; returns the glyph,
 -- which a row with an uploaded icon (the Net) draws its picture over.
-local function iconBox(parent: Instance, glyph: string, color: Color3): TextLabel
+local function iconBox(parent: Instance, glyph: string, color: Color3, grid: boolean?): TextLabel
 	local label: TextLabel = Create("TextLabel", {
 		Name = "Glyph",
 		BackgroundTransparency = 1,
@@ -114,8 +125,12 @@ local function iconBox(parent: Instance, glyph: string, color: Color3): TextLabe
 		Name = "Icon",
 		BackgroundColor3 = color,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(12, (ROW_HEIGHT - ICON_BOX) / 2),
-		Size = UDim2.fromOffset(ICON_BOX, ICON_BOX),
+		Position = if grid
+			then UDim2.fromOffset(10, 10)
+			else UDim2.fromOffset(12, (ROW_HEIGHT - ICON_BOX) / 2),
+		Size = if grid
+			then UDim2.fromOffset(GRID_ICON, GRID_ICON)
+			else UDim2.fromOffset(ICON_BOX, ICON_BOX),
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
@@ -126,7 +141,17 @@ local function iconBox(parent: Instance, glyph: string, color: Color3): TextLabe
 	return label
 end
 
-local function scrollList(name: string, parent: Instance): ScrollingFrame
+local function scrollList(name: string, parent: Instance, grid: boolean?): ScrollingFrame
+	local layout: Instance = if grid
+		then Create("UIGridLayout", {
+			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+			CellSize = UDim2.new(0.5, -Theme.sizes.gap / 2, 0, GRID_CELL),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		})
+		else Create("UIListLayout", {
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		})
 	return Create("ScrollingFrame", {
 		Name = name,
 		BackgroundTransparency = 1,
@@ -140,10 +165,7 @@ local function scrollList(name: string, parent: Instance): ScrollingFrame
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = parent,
 	}, {
-		Create("UIListLayout", {
-			Padding = UDim.new(0, Theme.sizes.gap),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
+		layout,
 		Outline.listPadding(10), -- #2294: room for the rows' outlines
 	})
 end
@@ -220,7 +242,22 @@ function UpgradeShop.new(
 		end,
 	})
 
-	self._list = scrollList("List", panel.content)
+	-- #3558: the family look's grid of picture cards, two across where they fit
+	self._grid = MenuFamily.on()
+	self._list = scrollList("List", panel.content, self._grid)
+	if self._grid then
+		local list: ScrollingFrame = self._list
+		local cells = list:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
+		local function fit()
+			local scale = math.max(Scale.get(), 0.01)
+			local two = list.AbsoluteSize.X / scale >= GRID_MIN_TWO
+			cells.CellSize = if two
+				then UDim2.new(0.5, -Theme.sizes.gap / 2, 0, GRID_CELL)
+				else UDim2.new(1, 0, 0, GRID_CELL)
+		end
+		list:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+		fit()
+	end
 	self._staff = scrollList("Staff", panel.content)
 	self._staff.Visible = false
 
@@ -296,10 +333,12 @@ function UpgradeShop._buildRows(self: any)
 
 	for index, upgrade in catalog.upgrades do
 		local row = card(upgrade.id, ROW_HEIGHT, index, self._list)
+		local grid: boolean = self._grid
 		local glyph = iconBox(
 			row,
 			Theme.upgradeIcons[upgrade.id] or Theme.icons.upgrades,
-			Theme.colors.caramel
+			if grid then CARD.goldCard else Theme.colors.caramel,
+			grid
 		)
 		local drawn = ShopIcons.upgrade(upgrade.id) -- #2836: the drawn picture over the emoji
 		if drawn then
@@ -307,19 +346,27 @@ function UpgradeShop._buildRows(self: any)
 		end
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(TEXT_LEFT, 8),
-			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, 28),
+			Position = if grid
+				then UDim2.fromOffset(GRID_LEFT, 6)
+				else UDim2.fromOffset(TEXT_LEFT, 8),
+			Size = if grid
+				then UDim2.new(1, -(GRID_LEFT + 8), 0, 24)
+				else UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, 28),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge,
+			TextSize = if grid then Theme.sizes.textBody + 2 else Theme.sizes.textLarge,
+			TextColor3 = CARD.text,
 			Text = upgrade.name,
 			Parent = row,
 		})
 		-- one star per level, gold up to the level owned (the fishing games' purple stars, in cafe gold)
+		local star = if grid then GRID_STAR else STAR
 		local starRow: Frame = Create("Frame", {
 			Name = "Stars",
 			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(TEXT_LEFT, 38),
-			Size = UDim2.fromOffset(upgrade.maxLevel * (STAR + 2), STAR),
+			Position = if grid
+				then UDim2.fromOffset(GRID_LEFT, 31)
+				else UDim2.fromOffset(TEXT_LEFT, 38),
+			Size = UDim2.fromOffset(upgrade.maxLevel * (star + 2), star),
 			Parent = row,
 		}, {
 			Create("UIListLayout", {
@@ -330,39 +377,50 @@ function UpgradeShop._buildRows(self: any)
 		})
 		local stars: { TextLabel } = {}
 		for level = 1, upgrade.maxLevel do
-			local star = text({
+			local starLabel = text({
 				Name = "Star",
-				Size = UDim2.fromOffset(STAR, STAR),
+				Size = UDim2.fromOffset(star, star),
 				FontFace = Theme.fonts.display,
-				TextSize = STAR,
+				TextSize = star,
 				TextXAlignment = Enum.TextXAlignment.Center,
 				TextTruncate = Enum.TextTruncate.None,
-				TextColor3 = PAL.line,
+				TextColor3 = CARD.line,
 				Text = "★",
 				LayoutOrder = level,
 				Parent = starRow,
 			})
-			Outline.text(star, 1.5)
-			table.insert(stars, star)
+			Outline.text(starLabel, 1.5)
+			table.insert(stars, starLabel)
 		end
 		-- the Bait bowl's two lines (F82) and the Lucky Cat's (F88) start a little higher to fit
 		local twoLines = upgrade.id == "lure_bowl" or upgrade.id == LuckLogic.UPGRADE
 		local description = text({
 			Name = "Description",
-			Position = UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
-			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, if twoLines then 36 else 20),
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			Position = if grid
+				then UDim2.fromOffset(GRID_LEFT, 50)
+				else UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
+			Size = if grid
+				-- the Bait bowl's second line can wrap on a card two across: room for a third line, whose short
+				-- tail ends left of the button (Studio look, 2026-11-13)
+				then UDim2.new(1, -(GRID_LEFT + 8), 0, if twoLines then 44 else 30)
+				else UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, if twoLines then 36 else 20),
+			TextSize = if grid then Theme.sizes.textTiny else Theme.sizes.textSmall,
+			TextWrapped = grid,
+			ClipsDescendants = grid, -- two lines at most on a card; a longer one is cut, never under the button
+			TextYAlignment = if grid then Enum.TextYAlignment.Top else Enum.TextYAlignment.Center,
+			TextColor3 = CARD.subtext,
 			Text = upgrade.description,
 			Parent = row,
 		})
 		local buy = Button.new({
 			name = "Buy",
 			text = "",
-			style = "gold",
-			size = UDim2.fromOffset(BUTTON_W, Theme.sizes.touchMin + 6),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -12, 0.5, 0),
+			style = if grid then "primary" else "gold",
+			size = if grid
+				then UDim2.fromOffset(GRID_BUTTON_W, Theme.sizes.touchMin)
+				else UDim2.fromOffset(BUTTON_W, Theme.sizes.touchMin + 6),
+			anchorPoint = if grid then Vector2.new(1, 1) else Vector2.new(1, 0.5),
+			position = if grid then UDim2.new(1, -8, 1, -8) else UDim2.new(1, -12, 0.5, 0),
 			textSize = Theme.sizes.textBody + 1,
 			parent = row,
 			onClick = function()
@@ -571,7 +629,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			self:_celebrate(row, before, level)
 		else
 			for index, star in row.stars do
-				star.TextColor3 = if index <= level then Theme.colors.gold else PAL.line
+				star.TextColor3 = if index <= level then Theme.colors.gold else CARD.line
 			end
 		end
 
@@ -645,12 +703,12 @@ function UpgradeShop._celebrate(_self: any, row: any, before: number, level: num
 				Tween.popIn(star, 0.4)
 			end
 		else
-			star.TextColor3 = if index <= level then Theme.colors.gold else PAL.line
+			star.TextColor3 = if index <= level then Theme.colors.gold else CARD.line
 		end
 	end
 	local frame: Frame = row.frame
 	frame.BackgroundColor3 = Theme.colors.mint
-	Tween.to(frame, FLASH, { BackgroundColor3 = PAL.card })
+	Tween.to(frame, FLASH, { BackgroundColor3 = CARD.card })
 end
 
 function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)

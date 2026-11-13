@@ -443,6 +443,7 @@ export type MysteryItem = {
 	cost: number,
 	minTier: number,
 	kind: "tool" | "decor" | "look" | "music",
+	flag: string?, -- #3535: the LiveFlags key that must be on for the item to be on the shelf (nil: always)
 }
 
 export type FishShopRow = {
@@ -673,6 +674,14 @@ export type Stats = {
 	purrfectStreak: number,
 	bestPurrfectStreak: number,
 	teamRescuesHelped: number,
+	-- #3694 section 3 (no new version): counters for the newer features' achievements: Rummage Bin wins, Yard Sale
+	-- lucky picks, Mystic Pool rolls, Mouse Dash games played, golden crates opened and seconds rested in the cafe
+	binWins: number,
+	yardPicks: number,
+	traitRolls: number,
+	dashRuns: number,
+	goldenCratesOpened: number,
+	restSeconds: number,
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -819,6 +828,7 @@ export type AchievementDef = {
 	measure: string,
 	needs: number,
 	size: AchievementSize,
+	flag: string?, -- #3694 section 3: a LiveFlags key; while that switch is off the achievement is hidden
 }
 -- ProfileSync's quests: each slot's text, progress and claim, the reset times (os.time()) and what is spent.
 export type QuestView = {
@@ -1275,6 +1285,9 @@ export type SessionRecapView = {
 	goals: { ReturnGoalView }?, -- #2916: the next goals with their progress (shared/ReturnGoals)
 }
 
+-- #3651 (shared/Pet): the cat petted last and when its heart ends (os.time).
+export type PetSave = { uid: string, untilAt: number }
+
 export type PlayerProfile = {
 	version: number,
 	coins: number,
@@ -1295,6 +1308,7 @@ export type PlayerProfile = {
 	lures: { [string]: number },
 	bait: BaitState?,
 	bait2: BaitState?, -- #1161: the Second Bait Bowl's bait (save version 34), nil when that bowl is empty
+	pet: PetSave?, -- #3651: the happy cat (shared/Pet), nil with no heart; no version step, see Pet
 	freshCatch: FreshCatchState, -- F94 (save version 18; the dealer's saved counts went with it)
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },

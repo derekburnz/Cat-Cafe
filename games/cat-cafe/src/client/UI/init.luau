@@ -3412,6 +3412,20 @@ UI.rankSpot = {
 	moment = nil :: any,
 }
 
+-- #3683: the HUD day clock's box on screen in viewport px (left, right, bottom), nil while it is not showing. For
+-- the Rummage Bin's board, which comes down from under it (BinController).
+function UI.clockBox(): (number?, number?, number?)
+	local frame: GuiObject? = if hud ~= nil then hud:clockFrame() else nil
+	if frame == nil then
+		return nil, nil, nil
+	end
+	local inset = if hud ~= nil and hud.screenGui.IgnoreGuiInset
+		then 0
+		else game:GetService("GuiService"):GetGuiInset().Y
+	local at, size = frame.AbsolutePosition, frame.AbsoluteSize
+	return at.X, at.X + size.X, at.Y + size.Y + inset
+end
+
 function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?): boolean
 	local close = UI.rankSpot.close
 	if close ~= nil then
@@ -3427,7 +3441,8 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	if target == nil then
 		return false
 	end
-	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside)
+	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters
+	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside, phase == "button")
 	return true
 end
 
@@ -4256,15 +4271,18 @@ do
 		return value
 	end
 
+	local PET_PROMPT = "PetPrompt"
 	local function isCatPrompt(prompt: ProximityPrompt): boolean
+		-- #3651: a working cat's Pet prompt (shared/Pet's PROMPT) sits in a cat model and is no stray
 		return prompt.Style == Enum.ProximityPromptStyle.Custom
+			and prompt.Name ~= PET_PROMPT
 			and promptAttribute(prompt, "CatId") ~= nil
 	end
 
 	-- Every other custom prompt (bait bowl, dealer cart, manhole, Bump) gets an action pill
 	local function isActionPrompt(prompt: ProximityPrompt): boolean
 		return prompt.Style == Enum.ProximityPromptStyle.Custom
-			and promptAttribute(prompt, "CatId") == nil
+			and (prompt.Name == PET_PROMPT or promptAttribute(prompt, "CatId") == nil)
 	end
 
 	-- The plot a prompt sits in (its nearest ancestor tagged Plot), or nil
@@ -5225,7 +5243,7 @@ do
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
 	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card or an ask.
+	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5238,12 +5256,19 @@ do
 			or tipBusy
 		)
 		local window: string? = if modal ~= nil then modal:current() else nil
+		-- (any: UI.gift and UI.recap are filled further down this file, and the CI type check loses the whole UI
+		-- table's shape when they are read here by their own types)
+		local cards: any = UI
 		if
 			window == nil
 			and (
 				(popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing())
+				-- the gift, tip and recap cards too: a press on their Close is not a press on the dim
+				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
+				or (tipCard ~= nil and tipCard:isShowing())
+				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
 			)
 		then
 			window = "other"
@@ -9112,13 +9137,18 @@ do
 		return (string.gsub(text, "^0", ""))
 	end
 
-	-- the launch's headline features that are switched on right now, in the spec's order (#3420 section 5)
-	function UI.cafeEvent.news(): { string }
+	-- the headline features of party `id` that are switched on right now, in the spec's order (#3420 section 5,
+	-- #3535). A switch this build does not know (its feature has not merged) counts as off.
+	function UI.cafeEvent.news(id: string): { string }
 		local LiveFlags =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		local out: { string } = {}
-		for _, pair in { { "traits", "Mystic Pool" }, { "mouseDash", "Mouse Dash" } } do
-			if LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1])) then
+		local pairsOf: { { string } } = EventLogic.PARTY_NEWS[id] or {}
+		for _, pair in pairsOf do
+			if
+				table.find(LiveFlags.KEYS, pair[1]) ~= nil
+				and LiveFlags.shown(pair[1], get(LiveFlags.ATTRIBUTE_PREFIX .. pair[1]))
+			then
 				table.insert(out, pair[2])
 			end
 		end
@@ -9161,9 +9191,12 @@ do
 		local seen, started = EventLogic.follow(events.seen, view, now)
 		events.seen = seen
 		if started and view ~= nil and toasts then
-			-- #3420: the launch's Update Party starts with the party card; any other event with the toast
-			local party =
-				EventLogic.partyBanner(view, UI.cafeEvent.clock12(view.endsAt), UI.cafeEvent.news())
+			-- #3420: an Update Party starts with the party card; any other event with the toast
+			local party = EventLogic.partyBanner(
+				view,
+				UI.cafeEvent.clock12(view.endsAt),
+				UI.cafeEvent.news(view.id)
+			)
 			local shown = false
 			if party ~= nil then
 				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
@@ -9172,6 +9205,24 @@ do
 					title = party.title,
 					lines = party.lines,
 				}) == true
+				-- #3535: Friday's party is followed by the Secret cats card (queued behind the party card)
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local Catalog =
+					require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+				local secrets = EventLogic.secretsBanner(
+					view,
+					LiveFlags.shown("secretCats", get(LiveFlags.ATTRIBUTE_PREFIX .. "secretCats")),
+					#Catalog.secretCats
+				)
+				if secrets ~= nil then
+					EventBanner.show({
+						kind = "secrets",
+						title = secrets.title,
+						lines = secrets.lines,
+					})
+				end
 			end
 			if not shown then
 				toasts:announce(

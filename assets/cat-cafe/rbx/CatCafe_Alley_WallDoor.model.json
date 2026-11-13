@@ -2296,7 +2296,7 @@
      "CFrame": {
       "position": [
        -5.1,
-       5.85,
+       5.8,
        -1.235
       ],
       "orientation": [
@@ -2320,7 +2320,7 @@
     },
     "Size": [
      0.1,
-     0.1,
+     0.2,
      0.03
     ],
     "Color": [
@@ -2344,7 +2344,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.2,
+       -5.25,
        5.75,
        -1.235
       ],
@@ -2368,7 +2368,7 @@
      }
     },
     "Size": [
-     0.3,
+     0.2,
      0.1,
      0.03
     ],
@@ -2394,7 +2394,7 @@
      "CFrame": {
       "position": [
        -5.3,
-       5.65,
+       5.6,
        -1.235
       ],
       "orientation": [
@@ -2418,7 +2418,7 @@
     },
     "Size": [
      0.1,
-     0.1,
+     0.2,
      0.03
     ],
     "Color": [
@@ -2442,7 +2442,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.2,
+       -5.15,
        5.55,
        -1.235
       ],
@@ -2466,7 +2466,7 @@
      }
     },
     "Size": [
-     0.3,
+     0.2,
      0.1,
      0.03
     ],
@@ -2541,7 +2541,7 @@
      "CFrame": {
       "position": [
        -5.6,
-       5.85,
+       5.7,
        -1.235
       ],
       "orientation": [
@@ -2565,154 +2565,7 @@
     },
     "Size": [
      0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.6,
-       5.75,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.6,
-       5.65,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.6,
-       5.55,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
+     0.4,
      0.03
     ],
     "Color": [
@@ -2786,7 +2639,7 @@
      "CFrame": {
       "position": [
        -5.9,
-       5.85,
+       5.7,
        -1.235
       ],
       "orientation": [
@@ -2810,7 +2663,7 @@
     },
     "Size": [
      0.1,
-     0.1,
+     0.4,
      0.03
     ],
     "Color": [
@@ -2835,7 +2688,7 @@
      "CFrame": {
       "position": [
        -6.1,
-       5.85,
+       5.7,
        -1.235
       ],
       "orientation": [
@@ -2859,7 +2712,7 @@
     },
     "Size": [
      0.1,
-     0.1,
+     0.4,
      0.03
     ],
     "Color": [
@@ -2885,202 +2738,6 @@
       "position": [
        -6.0,
        5.75,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.3,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.9,
-       5.65,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.1,
-       5.65,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.9,
-       5.55,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.1,
-       5.55,
        -1.235
       ],
       "orientation": [
@@ -3178,7 +2835,7 @@
      "CFrame": {
       "position": [
        -6.3,
-       5.85,
+       5.7,
        -1.235
       ],
       "orientation": [
@@ -3202,7 +2859,7 @@
     },
     "Size": [
      0.1,
-     0.1,
+     0.4,
      0.03
     ],
     "Color": [
@@ -3226,106 +2883,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.35,
+       -6.4,
        5.75,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.3,
-       5.65,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.3,
-       5.55,
        -1.235
       ],
       "orientation": [
@@ -3423,7 +2982,7 @@
      "CFrame": {
       "position": [
        -6.7,
-       5.85,
+       5.7,
        -1.235
       ],
       "orientation": [
@@ -3447,7 +3006,7 @@
     },
     "Size": [
      0.1,
-     0.1,
+     0.4,
      0.03
     ],
     "Color": [
@@ -3471,106 +3030,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.75,
+       -6.8,
        5.75,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.7,
-       5.65,
-       -1.235
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1,
-     0.1,
-     0.03
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_WallDoor",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.7,
-       5.55,
        -1.235
       ],
       "orientation": [

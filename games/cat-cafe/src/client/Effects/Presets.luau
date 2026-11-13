@@ -813,6 +813,21 @@ Presets.emitters = {
 		drag = 1,
 		lightEmission = 0.4,
 	},
+	-- The Speed Shoes' trail (#3523, Effects/SpeedShoes): small mint and cream puffs left at the heels of a wearer who
+	-- carries a cat on the move. Thinner and shorter than the Swift Potion's blue wisps, so the two read apart.
+	shoeTrail = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.mint, Presets.palette.offwhite },
+		size = { 0.55, 0.15 },
+		transparency = { 0.35, 1 },
+		lifetime = { 0.3, 0.45 },
+		speed = { 0.2, 0.5 },
+		spread = 25,
+		rate = 8,
+		acceleration = Vector3.new(0, 0.6, 0),
+		drag = 1.5,
+		lightEmission = 0.3,
+	},
 	potionSteady = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.mint, Presets.palette.offwhite },
@@ -3668,6 +3683,18 @@ Presets.potions = {
 	},
 	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
+-- The Speed Shoes' trail (Effects/SpeedShoes): shown on wearers within `radius` studs, checked every `pickEvery`
+-- seconds; `moving` is how much of full walking input counts as on the move; the puffs start `lift` studs over the
+-- ground and `behind` studs back from the middle of the body. `model` is the worn shoes' name in the character.
+Presets.speedShoes = {
+	radius = 50,
+	pickEvery = 0.25,
+	moving = 0.2,
+	lift = 0.25,
+	behind = 0.6,
+	model = "CatCafe_Item_SpeedShoes",
+}
+
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
 

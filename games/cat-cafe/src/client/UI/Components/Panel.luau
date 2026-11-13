@@ -11,6 +11,9 @@
 -- #2339: on a short screen (a phone held sideways, Scale.isShort) the header is slimmer (HEADER_SHORT) and the title
 -- and its subtitle closer, so the content gets the rows back.
 --
+-- #3558: with the `menuFamily` switch on, a dark window wears the station menu family's dress (Components/MenuFamily):
+-- the violet body, a row of party bulbs along the top of the title band, the badge sitting straight, and no ears.
+--
 -- Roblox terms: `frame` is a see-through holder that does not clip, so the ears, badge and touch X can stick out of the
 -- window; the window itself is its child `Body`, which clips the content to the rounded corners. A child
 -- GuiObject turns with its parent's Rotation, so each ear is one square turned 45 degrees with its pink inside.
@@ -19,6 +22,7 @@ local Button = require(script.Parent.Button)
 local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
 local IconArt = require(script.Parent.IconArt)
+local MenuFamily = require(script.Parent.MenuFamily)
 local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -79,6 +83,7 @@ Panel.__index = Panel
 function Panel.new(props: Props): Panel
 	local color = props.color or Theme.modal.header
 	local HEADER_HEIGHT = if Scale.isShort() then HEADER_SHORT else HEADER_TALL
+	local family = props.dark == true and MenuFamily.on() -- #3558
 	local frame: Frame = Create("Frame", {
 		Name = props.name or "Panel",
 		BackgroundTransparency = 1,
@@ -89,16 +94,18 @@ function Panel.new(props: Props): Panel
 	})
 
 	-- behind the body, so only the top half of each ear shows
-	CatEars.add(frame, color, {
-		size = EAR_SIZE,
-		inset = EAR_X,
-		y = 6,
-		outline = Theme.sizes.outline + 1,
-	})
+	if not family then
+		CatEars.add(frame, color, {
+			size = EAR_SIZE,
+			inset = EAR_X,
+			y = 6,
+			outline = Theme.sizes.outline + 1,
+		})
+	end
 
 	local body: Frame = Create("Frame", {
 		Name = "Body",
-		BackgroundColor3 = if props.dark then Theme.dark.panel else Theme.modal.panel,
+		BackgroundColor3 = if props.dark then MenuFamily.pal.panel else Theme.modal.panel,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
 		ClipsDescendants = true,
@@ -165,6 +172,39 @@ function Panel.new(props: Props): Panel
 			ZIndex = 2,
 		}),
 	})
+
+	-- #3558: the family's party bulbs, evenly along the top of the band between the badge and the X
+	if family then
+		local bulbs: Frame = Create("Frame", {
+			Name = "Bulbs",
+			BackgroundTransparency = 1,
+			-- on the band's top edge, half over it: lower down they ran through the title's letters (Studio look,
+			-- 2026-11-13). A child of the panel, not of the header: the body clips, and would cut each bulb in half
+			Position = UDim2.fromOffset(BADGE_SIZE, -math.floor(MenuFamily.BULB_SIZE / 2)),
+			Size = UDim2.new(
+				1,
+				-(BADGE_SIZE + HEADER_HEIGHT + Theme.sizes.padding),
+				0,
+				MenuFamily.BULB_SIZE
+			),
+			ZIndex = 3,
+			Parent = frame,
+		})
+		for i = 1, MenuFamily.BULBS do
+			local bulb: Frame = Create("Frame", {
+				Name = "Bulb",
+				AnchorPoint = Vector2.new(0.5, 0),
+				BackgroundColor3 = MenuFamily.BULB_COLORS[(i - 1) % #MenuFamily.BULB_COLORS + 1],
+				BorderSizePixel = 0,
+				Position = UDim2.fromScale((i - 0.5) / MenuFamily.BULBS, 0),
+				Size = UDim2.fromOffset(MenuFamily.BULB_SIZE, MenuFamily.BULB_SIZE),
+				Parent = bulbs,
+			}, {
+				Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
+			})
+			Outline.border(bulb, 1.5)
+		end
+	end
 
 	-- the title starts right of the badge when there is one
 	local textLeft = if props.icon
@@ -263,7 +303,7 @@ function Panel.new(props: Props): Panel
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(-BADGE_OVERHANG, -BADGE_OVERHANG),
 			Size = UDim2.fromOffset(BADGE_SIZE, BADGE_SIZE),
-			Rotation = -8,
+			Rotation = if family then 0 else -8,
 			ZIndex = 3,
 			Parent = frame,
 		}, {

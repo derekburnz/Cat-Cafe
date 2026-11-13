@@ -135,6 +135,7 @@ type TownCannon = {
 
 type Run = {
 	replay: boolean,
+	started: number, -- os.clock() when the play began, for IntroDone's seconds watched (#3773)
 	shotStarted: number, -- os.clock() when the showing shot began (#2182: each shot runs for its hold, or to Next)
 	shots: { Intro.Shot },
 	plot: Intro.Plot,
@@ -1668,7 +1669,8 @@ finish = function(finished: boolean)
 	Net.fire(
 		"IntroDone",
 		if finished then 0 else (if showing ~= nil then showing.index else 1),
-		r.replay
+		r.replay,
+		math.floor(os.clock() - r.started) -- #3773: whole seconds watched, for intro_skip
 	)
 	run = nil
 	local tailShow = Tail.show
@@ -2191,6 +2193,7 @@ function IntroController.play(replay: boolean)
 	local camera = Workspace.CurrentCamera
 	local r: Run = {
 		replay = replay,
+		started = os.clock(),
 		shotStarted = os.clock(),
 		shots = Intro.shots(plot, hasCodesCat(), alleyStreamed),
 		plot = plot,

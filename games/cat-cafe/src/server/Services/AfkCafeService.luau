@@ -93,6 +93,7 @@ local function stop(player: Player, watch: Watch)
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
 	Economy.setResting(profile, false)
+	profile.stats.restSeconds += math.floor(os.clock() - since) -- #3694 section 3: the resting achievement
 	local earned = math.floor(Economy.takeRestEarned(profile))
 	Telemetry.custom(player, "afk_end", math.floor(os.clock() - since))
 	Telemetry.custom(player, "afk_pay", earned)

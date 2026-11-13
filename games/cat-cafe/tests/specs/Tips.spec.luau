@@ -208,6 +208,32 @@ return function()
 		end)
 	end)
 
+	describe("the Mystic Pool's cutscene mark (#3430)", function()
+		it("is due once the pool is open to the player and the tutorial is done", function()
+			expect(Tips.mysticIntroDue({}, { tokens = 5 }, 5)).to.equal(true)
+			expect(Tips.mysticIntroDue(nil, {}, 9)).to.equal(true)
+		end)
+
+		it("is not due with the switch off, mid tutorial or once seen", function()
+			expect(Tips.mysticIntroDue({}, nil, 5)).to.equal(false)
+			expect(Tips.mysticIntroDue({}, false, 5)).to.equal(false)
+			expect(Tips.mysticIntroDue({}, {}, 4)).to.equal(false)
+			expect(Tips.mysticIntroDue({}, {}, nil)).to.equal(false)
+			expect(Tips.mysticIntroDue({ mystic_intro = true }, {}, 5)).to.equal(false)
+		end)
+
+		it("rides tipsSeen through a save and through Show tips again", function()
+			expect(Tips.seenId(Tips.MYSTIC_INTRO)).to.equal(true)
+			expect(Tips.isAsk(Tips.MYSTIC_INTRO)).to.equal(false)
+			expect(Tips.sanitizeSeen({ mystic_intro = true }, false) :: any).to.deepEqual({
+				mystic_intro = true,
+			})
+			expect(Tips.cleared({ bowl = true, mystic_intro = true }) :: any).to.deepEqual({
+				mystic_intro = true,
+			})
+		end)
+	end)
+
 	describe("feedback (section 4)", function()
 		it("has the three faces and six chips as short fixed values", function()
 			expect(Tips.FACES :: any).to.deepEqual({ "love", "ok", "no" })

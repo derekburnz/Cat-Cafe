@@ -266,4 +266,36 @@ function RollBoardLogic.rollSteps(
 	return steps
 end
 
+-- #3683: how far up the board sits over its point, as BillboardGui.SizeOffset.Y (0.5: its bottom edge on the point,
+-- the usual place). When its top would reach into the strip the HUD's day clock holds (`clearBelow`, viewport px
+-- from the top; nil when no clock shows) and the two overlap side to side, the board comes down just enough to
+-- clear it, at most LOWER_MOST of its own height, so the clock never sits on the title.
+--   pointX, pointY  the point over the bin on screen (viewport px)
+--   width, height   the board's size on screen (px)
+--   clockLeft, clockRight  the clock's edges (viewport px)
+RollBoardLogic.LOWER_MOST = 0.6
+function RollBoardLogic.sizeOffsetY(
+	pointX: number,
+	pointY: number,
+	width: number,
+	height: number,
+	clearBelow: number?,
+	clockLeft: number?,
+	clockRight: number?
+): number
+	if clearBelow == nil or height <= 0 then
+		return 0.5
+	end
+	if clockLeft ~= nil and clockRight ~= nil then
+		if pointX + width / 2 < clockLeft or pointX - width / 2 > clockRight then
+			return 0.5
+		end
+	end
+	local over = clearBelow - (pointY - height)
+	if over <= 0 then
+		return 0.5
+	end
+	return 0.5 - math.min(over / height, RollBoardLogic.LOWER_MOST)
+end
+
 return RollBoardLogic

@@ -107,6 +107,7 @@ local function onRoll(player: Player, rawUid: unknown)
 	local rolled = Traits.roll(function(n: number): number
 		return rng:NextInteger(1, n)
 	end)
+	profile.stats.traitRolls += 1 -- #3694 section 3: every roll, a first or a re-roll
 	local reroll = cat.trait ~= nil
 	if reroll then
 		save.pending = { uid = uid, id = rolled.id, paid = how :: string }

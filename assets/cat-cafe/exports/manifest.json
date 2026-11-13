@@ -322338,7 +322338,8 @@
         "CatCafe_NPC_Townsfolk_Trader_Tail",
         "CatCafe_NPC_Townsfolk_Trader_LegF1",
         "CatCafe_NPC_Townsfolk_Trader_LegF2",
-        "CatCafe_NPC_Townsfolk_Trader_Prop"
+        "CatCafe_NPC_Townsfolk_Trader_Prop",
+        "CatCafe_NPC_Townsfolk_Trader_Glow"
       ],
       "triangles": 952,
       "budget": 1500,
@@ -322409,6 +322410,11 @@
           0.0,
           -0.09,
           0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Glow": [
+          0.02,
+          -0.24,
+          1.66
         ]
       },
       "part_pivots_roblox": {
@@ -322456,6 +322462,11 @@
           0.0,
           0.97,
           -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Glow": [
+          -0.02,
+          1.66,
+          -0.24
         ]
       },
       "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",

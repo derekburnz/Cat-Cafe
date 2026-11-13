@@ -11,12 +11,13 @@
 --   tile:flash()
 
 local Create = require(script.Parent.Create)
+local MenuFamily = require(script.Parent.MenuFamily)
 local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Props = {
 	parent: Instance,

@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PassLogic = require(script.Parent.Parent.Components.PassLogic)
@@ -31,7 +32,8 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local SharedPass = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CafePass")) :: any
 
 -- the dark window palette (#1028 pilot)
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	claim: (track: string, level: number) -> (),
@@ -109,7 +111,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -152,13 +154,13 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 	-- the level, the XP bar and Claim all
 	local top: Frame = Create("Frame", {
 		Name = "Top",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, TOP_H),
 		Parent = content,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._levelText = text({
 		Name = "Level",
@@ -166,13 +168,13 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		Size = UDim2.fromOffset(96, TOP_H),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 4,
-		TextColor3 = PAL.gold,
+		TextColor3 = CARD.gold,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = top,
 	})
 	local bar: Frame = Create("Frame", {
 		Name = "Bar",
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, BAR_X, 0.5, 0),
@@ -194,7 +196,9 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		ZIndex = 2,
 		Parent = bar,
 	})
-	Create("UIStroke", { Color = Theme.colors.outline, Thickness = 1.5, Parent = self._xpText })
+	if not MenuFamily.on() then
+		Create("UIStroke", { Color = Theme.colors.outline, Thickness = 1.5, Parent = self._xpText })
+	end
 	self._claimAll = Button.new({
 		name = "ClaimAll",
 		text = "Claim all",
@@ -258,6 +262,7 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		Size = UDim2.fromOffset(SIDE_W - 6, SLOT_MAX),
 		FontFace = Theme.fonts.display,
 		Text = "Free",
+		TextColor3 = PAL.text,
 		Parent = side,
 	})
 	self._paidWord = text({
@@ -310,6 +315,7 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		TextSize = Theme.sizes.textBody + 2,
 		Text = "The Cafe Pass opens soon.",
 		Visible = false,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 	self._sized = self._track:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -388,13 +394,13 @@ end
 function CafePassScreen._slot(self: any, parent: Frame, track: string, level: number): Slot
 	local frame: Frame = Create("Frame", {
 		Name = if track == "free" then "Free" else "Paid",
-		BackgroundColor3 = if track == "paid" then PAL.goldCard else PAL.card,
+		BackgroundColor3 = if track == "paid" then CARD.goldCard else CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.fromOffset(COL_W, SLOT_MAX),
 		Parent = parent,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 	local stroke: UIStroke = Create("UIStroke", {
-		Color = PAL.cardStroke,
+		Color = CARD.cardStroke,
 		Thickness = Theme.sizes.stroke,
 		Parent = frame,
 	})
@@ -404,10 +410,10 @@ function CafePassScreen._slot(self: any, parent: Frame, track: string, level: nu
 		Position = UDim2.new(0.5, 0, 1, -6),
 		Size = UDim2.new(1, -12, 0, 24),
 		BackgroundTransparency = 0,
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CARD.line,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Visible = false,
 		Parent = frame,
 	})
@@ -493,7 +499,7 @@ function CafePassScreen._fill(self: any, slot: Slot, reward: Types.PassReward)
 		parent = slot.frame,
 		tile = TILE,
 		textSize = Theme.sizes.textBody,
-		textColor = PAL.text,
+		textColor = CARD.text,
 		name = "Prize",
 		anchorPoint = Vector2.new(0.5, 0),
 		fitTo = slot.frame,
@@ -530,6 +536,7 @@ function CafePassScreen._build(self: any, view: Types.CafePassView?)
 			Name = "Number",
 			Size = UDim2.fromOffset(COL_W, LEVEL_H - 2),
 			FontFace = Theme.fonts.display,
+			TextColor3 = PAL.text, -- on the window's body, over the column
 			Text = ("Level %d"):format(level),
 			Parent = frame,
 		})
@@ -666,8 +673,8 @@ local function paintSlot(slot: Slot, cell: PassLogic.Cell?, pending: boolean)
 	slot.claim:setText(if pending then "..." else "Claim")
 	slot.status.Visible = cell ~= nil and (state == "claimed" or state == "locked")
 	slot.status.Text = if state == "claimed" then "✓ Claimed" else "🔒 Paid track"
-	slot.status.TextColor3 = if state == "claimed" then PAL.good else PAL.gold
-	slot.stroke.Color = if ready then Theme.colors.good else PAL.cardStroke
+	slot.status.TextColor3 = if state == "claimed" then CARD.good else CARD.gold
+	slot.stroke.Color = if ready then Theme.colors.good else CARD.cardStroke
 	slot.stroke.Thickness = Theme.sizes.stroke + (if ready then 1 else 0)
 	slot.frame.BackgroundTransparency = if cell == nil
 		then 0.7
@@ -723,7 +730,7 @@ function CafePassScreen._refresh(self: any)
 		if cell == nil then
 			continue
 		end
-		column.level.TextColor3 = if cell.reached then PAL.gold else PAL.subtext
+		column.level.TextColor3 = if cell.reached then CARD.gold else CARD.subtext
 		local free = column.free
 		if free then
 			paintSlot(free, cell.free, pending)

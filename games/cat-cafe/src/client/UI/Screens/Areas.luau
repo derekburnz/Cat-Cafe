@@ -7,13 +7,14 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Callbacks = {
 	travel: (areaId: string) -> (),

@@ -7,6 +7,8 @@
 --                                       at a check-in, dropped on a knock loose). F96 (starter-cat.md section 3): an
 --                                       ask (notify, favorite, like or F92's invite) from `Tips.dueAsk`, one a
 --                                       session. Each id goes at most once a session until it is seen.
+--   (#3430: TipSeen("mystic_intro") starts the Mystic Pool's cutscene and saves its mark; TipSeen("mystic_intro",
+--   skipped, seconds) ends it and logs mystic_intro)
 --   TipSeen(id, skipped?)       C -> S  1 a second: a tip shown (saved in tipsSeen and logged once as tip_shown, at
 --                                       most #LIST a session), an ask this session sent (saved in tipsSeen and logged
 --                                       as ask_shown; the notification ask's first showing only sets notifyAskAt, and
@@ -28,12 +30,14 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Telemetry = require(script.Parent.Telemetry)
 local Tips = require(ReplicatedStorage.Shared.Tips)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
@@ -48,6 +52,7 @@ type Session = {
 	feedback: number, -- SendFeedback calls taken this session
 	logged: number, -- tip_shown events logged this session (review S103: ClearTips must not refill the budget)
 	asked: boolean, -- F96: this session's one ask went out
+	introAt: number?, -- #3430: os.clock() the Mystic Pool cutscene started this session, until its end is logged
 }
 
 -- tip_shown events a session: every tip once. Past it tips are still saved, just not logged.
@@ -139,7 +144,45 @@ local function askSeen(
 	end
 end
 
-local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown)
+-- #3430: the Mystic Pool's cutscene. The first TipSeen (no `skipped`) is its start: the mark is saved then, so a
+-- skip, a crash or a rejoin never plays it twice, and only while the pool is open to this player. The second (with
+-- `skipped`) is its end: `mystic_intro` is logged once with watched or skipped and the seconds seen, never more than
+-- the server's own clock allows.
+local MYSTIC_INTRO_MAX_SECONDS = 30
+local function mysticIntro(
+	player: Player,
+	profile: Profile,
+	session: Session,
+	rawSkipped: unknown,
+	rawSeconds: unknown
+)
+	local skipped = Guard.bool(rawSkipped)
+	if skipped == nil then
+		local open = LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
+		if open and profile.tipsSeen[Tips.MYSTIC_INTRO] ~= true then
+			profile.tipsSeen[Tips.MYSTIC_INTRO] = true
+			session.introAt = os.clock()
+		end
+		return
+	end
+	local startedAt = session.introAt
+	if startedAt == nil then
+		return
+	end
+	session.introAt = nil
+	local seconds = math.min(os.clock() - startedAt, MYSTIC_INTRO_MAX_SECONDS)
+	if type(rawSeconds) == "number" and rawSeconds == rawSeconds and rawSeconds >= 0 then
+		seconds = math.min(seconds, rawSeconds)
+	end
+	Telemetry.custom(
+		player,
+		"mystic_intro",
+		math.floor(seconds + 0.5),
+		{ if skipped then "skipped" else "watched" }
+	)
+end
+
+local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown, rawSeconds: unknown)
 	local id = Guard.id(rawId)
 	local profile = DataService.get(player)
 	local session = sessionOf(player)
@@ -158,6 +201,10 @@ local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown)
 	if id == Tips.FEEDBACK_ASK then
 		profile.feedbackAsked = true
 		Telemetry.feedbackAsked(player, profile) -- #2681: opens a feedback_v1 run, capped a session
+		return
+	end
+	if id == Tips.MYSTIC_INTRO then
+		mysticIntro(player, profile, session, rawSkipped, rawSeconds)
 		return
 	end
 	if id == Tips.STUCK_HELP then

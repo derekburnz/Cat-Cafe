@@ -21,14 +21,23 @@ local IntroService = {}
 local MAX_EVENTS = 20
 local events: { [Player]: number } = {}
 
-local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
+-- #3773: the most seconds an intro_skip reports; a longer number is a paused or stuck client, so it is dropped
+local SKIP_SECONDS_MAX = 600
+
+local function onIntroDone(
+	player: Player,
+	rawShot: unknown,
+	rawReplay: unknown,
+	rawSeconds: unknown
+)
 	local shot = Guard.int(rawShot, 0, Intro.SHOTS)
 	local replay = Guard.bool(rawReplay)
 	local profile = DataService.get(player)
 	if shot == nil or replay == nil or profile == nil then
 		return
 	end
-	if not replay and not profile.introSeen then
+	local firstSeen = not replay and not profile.introSeen
+	if firstSeen then
 		profile.introSeen = true
 		CafeService.sync(player)
 	end
@@ -42,6 +51,14 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 			if shot == 0 then "finished" else "skipped",
 			tostring(Intro.VERSION) .. ":" .. tostring(shot),
 			if replay then "replay" else "first",
+		})
+	end
+	-- #3773: how long a first play ran before Skip, once a save (introSeen is set just above)
+	local seconds = Guard.int(rawSeconds, 0, SKIP_SECONDS_MAX)
+	if firstSeen and shot ~= 0 and seconds ~= nil then
+		Telemetry.custom(player, "intro_skip", seconds, {
+			tostring(Intro.VERSION) .. ":" .. tostring(shot),
+			Telemetry.device(player) or "unknown",
 		})
 	end
 end

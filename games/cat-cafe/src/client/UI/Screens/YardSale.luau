@@ -14,6 +14,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RollBoard = require(script.Parent.Parent.Components.RollBoard)
 local RollBoardLogic = require(script.Parent.Parent.Components.RollBoardLogic)
@@ -25,7 +26,8 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	buy: (crateId: string) -> (),
@@ -89,7 +91,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -223,6 +225,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		Size = UDim2.new(1, 0, 0, 20),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 	self._note = text({
@@ -266,14 +269,14 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 		local crate = self:_crate(crateId)
 		local frame: Frame = Create("Frame", {
 			Name = crateId,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			LayoutOrder = index,
 			Size = UDim2.fromOffset(CARD_W, self._cardH),
 			Parent = self._row,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local icon = ItemIcon.new({
 			parent = frame,
@@ -303,14 +306,14 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			Size = UDim2.new(1, -12, 0, 18),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Text = if marketPrice ~= nil then ("%d at the Market"):format(marketPrice) else "",
 			Parent = frame,
 		})
 		-- the crate's rarity table over the picture and name, under the Odds and Take buttons (#1051)
 		local sheet: Frame = Create("Frame", {
 			Name = "OddsSheet",
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 1, -(self._buyH + 8)),
 			Visible = false,

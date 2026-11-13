@@ -9,11 +9,12 @@
 
 local Button = require(script.Parent.Button)
 local Create = require(script.Parent.Create)
+local MenuFamily = require(script.Parent.MenuFamily)
 local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 local BUTTON = Vector2.new(124, 44)
 
 export type BuyAllCard = {

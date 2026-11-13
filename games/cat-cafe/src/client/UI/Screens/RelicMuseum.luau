@@ -24,6 +24,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -35,7 +36,8 @@ local Types = require(script.Parent.Parent.Types)
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local SharedTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Types"))
 
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	donate: (uid: string) -> (),
@@ -87,7 +89,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -204,6 +206,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		Size = UDim2.new(1, -(128 + FILL_W + 8), 0, buttonH),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 
@@ -236,7 +239,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			Name = "Exhibit" .. index,
 			Text = "",
 			AutoButtonColor = false,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0, TILE_H),
 			Position = UDim2.new(
@@ -248,7 +251,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			Parent = grid,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 		local stroke: UIStroke = Create("UIStroke", {
-			Color = PAL.cardStroke,
+			Color = CARD.cardStroke,
 			Thickness = Theme.sizes.stroke,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Parent = frame,
@@ -273,7 +276,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			Position = UDim2.fromOffset(4, PICTURE + 28),
 			Size = UDim2.new(1, -8, 0, 16),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			Parent = frame,
 		})
 		local dot: Frame = Create("Frame", {
@@ -326,6 +329,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		Size = UDim2.new(1, 0, 0, 22),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.text,
 		Parent = content,
 	})
 	text({
@@ -348,6 +352,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		TextSize = Theme.sizes.textBody + 2,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 6,
+		TextColor3 = PAL.text,
 		Parent = give,
 	})
 	text({
@@ -412,6 +417,7 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = 9,
+		TextColor3 = PAL.text,
 		Parent = confirm,
 	})
 	self._giveIt = Button.new({
@@ -625,7 +631,7 @@ function RelicMuseum._showGive(self: any, catId: string?)
 		local best = order == 1 and #copies > 1 -- #3125: the one to give first
 		local frame: Frame = Create("Frame", {
 			Name = cat.uid,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			LayoutOrder = order,
 			Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._buttonH + 8)),
@@ -658,7 +664,7 @@ function RelicMuseum._showGive(self: any, catId: string?)
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = if shiny then PAL.gold else PAL.text,
+			TextColor3 = if shiny then CARD.gold else CARD.text,
 			Text = CatVariant.name(name, cat.variant),
 			ZIndex = 7,
 			Parent = frame,
@@ -668,7 +674,7 @@ function RelicMuseum._showGive(self: any, catId: string?)
 			Position = UDim2.fromOffset(16, 28),
 			Size = UDim2.new(1, -130, 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = string.format(
 				"Lv %d · %s%s%s",
@@ -739,15 +745,15 @@ function RelicMuseum._paint(self: any)
 		tile.line.Text = exhibit.line
 		local canGive = exhibit.coat == nil and #exhibit.give > 0
 		tile.line.TextColor3 = if exhibit.coat ~= nil
-			then PAL.gold
-			elseif canGive then PAL.good
-			else PAL.subtext
+			then CARD.gold
+			elseif canGive then CARD.good
+			else CARD.subtext
 		tile.dot.Visible = canGive
 		tile.stroke.Color = if exhibit.coat == "gold"
 			then Theme.colors.gold
 			elseif exhibit.coat == "rainbow" then Theme.colors.rainbowChip
 			elseif exhibit.coat ~= nil then Theme.rarityColor(exhibit.rarity)
-			else PAL.cardStroke
+			else CARD.cardStroke
 		tile.stroke.Thickness = if exhibit.coat == "gold" or exhibit.coat == "rainbow"
 			then Theme.sizes.outline
 			else Theme.sizes.stroke

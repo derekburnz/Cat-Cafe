@@ -3529,15 +3529,20 @@ end
 -- The Rummage Bin's prize roll (#3608, Derek 2026-11-12: "ticks through the options a couple times before landing
 -- on one"; Effects/BinRoll). The marker goes down the `count` rows in list order, `laps` whole times round, then on
 -- to row `target` (the prize the server already picked) and stops. Returns each tick as { index, at }: the row lit
--- and the seconds after the start. The gaps are `first` seconds until the last `count` ticks, which slow in even
--- steps to `last`. Honesty rule (design section 3): that slowdown is the same wherever the roll stops, so it never
--- lingers on one row longer than the same tick of any other roll would, and no better prize is ever dangled.
+-- and the seconds after the start. #3903 (no near miss): the laps tick at an even `first`, and only the last run
+-- from row 1 to the prize slows: the last `slow` rows lit before the prize (fewer for a prize near the top, none
+-- for row 1) stay lit longer, growing evenly to `last`. No row under the prize (the rare rows at the foot) ever
+-- lingers before it lands. Honesty
+-- rule (design section 3): the gap at each tick from the end is the same curve wherever the roll stops (or the fast
+-- `first`), so it never lingers on one row longer than the same tick of any other roll, and no better prize is ever
+-- dangled.
 function Logic.binRollSteps(
 	count: number,
 	target: number,
 	laps: number,
 	first: number,
-	last: number
+	last: number,
+	slow: number?
 ): { { index: number, at: number } }
 	local steps: { { index: number, at: number } } = {}
 	if count < 1 then
@@ -3545,12 +3550,17 @@ function Logic.binRollSteps(
 	end
 	local goal = math.clamp(math.floor(target), 1, count)
 	local total = math.max(0, math.floor(laps)) * count + goal
+	local curve = math.max(1, math.floor(slow or 4)) -- the slow-down's length in ticks, the same for every roll
+	-- the gap after a tick is how long its row stays lit; only rows of the last run before the prize may linger
+	local slowTicks = math.min(goal - 1, curve)
 	local at = 0
 	for step = 1, total do
 		table.insert(steps, { index = (step - 1) % count + 1, at = at })
-		-- ticks still to come after this one; the last `count` gaps grow evenly from `first` to `last`
-		local left = total - step
-		local share = if left >= count then 0 else (count - left) / count
+		-- #3903 (no near miss, Review-QA on the Yard Sale's same pattern): the laps run at an even `first`, and only
+		-- the last run, from row 1 down to the prize, slows, its gaps growing evenly to `last`. So the slow ticks
+		-- never pass a row under the prize (the rare rows at the foot of the list) before it lands.
+		local left = total - step -- ticks still to come after this one
+		local share = if left < 1 or left > slowTicks then 0 else (curve - left + 1) / curve
 		at += first + (last - first) * share
 	end
 	return steps

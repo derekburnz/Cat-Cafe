@@ -385,7 +385,7 @@ local function mysticPool(waiting, uid, view)
 	Scenes._poolTraits = true
 	UI.close()
 	assert(UI.mysticPool.open(true, uid), "uigate: the Mystic Pool did not open (#3196)")
-	assert(UI.isOpen() == "MysticPool", "uigate: the Mystic Pool's ring opened " .. tostring(UI.isOpen()) .. " (#3196)")
+	assert(UI.isOpen() == "MysticPool", "uigate: the Mystic Pool's ring opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3196)")
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 	return modals:FindFirstChild("MysticPool", true)
 end
@@ -410,7 +410,7 @@ local function mouseDashCard(circle)
 		},
 	})
 	UI.arcade.open()
-	assert(UI.isOpen() == "MouseDash", "uigate: with mouseDash on the cabinet opened " .. tostring(UI.isOpen()) .. " (#3296)")
+	assert(UI.isOpen() == "MouseDash", "uigate: with mouseDash on the cabinet opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3296)")
 	return UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("MouseDash", true)
 end
 
@@ -2467,7 +2467,7 @@ local SCENES = {
 	{ "OasisSpa", function()
 		UI.lateStations.update(lateState(3 * 3600 + 600))
 		UI.lateStations.open("spa")
-		assert(UI.isOpen() == "OasisSpa", "uigate: the spa's prompt opened " .. tostring(UI.isOpen()) .. " (#2651)")
+		assert(UI.isOpen() == "OasisSpa", "uigate: the spa's prompt opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#2651)")
 		local window = lateWindow("OasisSpa")
 		local level = window:FindFirstChild("Slot1", true):FindFirstChild("Level")
 		assert(string.match(level.Text, "^Lv %d+ → %d+$"), "uigate: the soaking cat reads " .. level.Text .. " (#2651)")
@@ -2773,7 +2773,7 @@ local SCENES = {
 		lateCats()
 		UI.lateStations.update(lateState(nil))
 		UI.lateStations.open("museum")
-		assert(UI.isOpen() == "RelicMuseum", "uigate: the museum's prompt opened " .. tostring(UI.isOpen()) .. " (#2651)")
+		assert(UI.isOpen() == "RelicMuseum", "uigate: the museum's prompt opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#2651)")
 		local window = lateWindow("RelicMuseum")
 		local title = window:FindFirstChild("Room", true)
 		assert(string.match(title.Text, "Hall 2/10$"), "uigate: the room reads " .. title.Text .. " (#2651)")
@@ -3175,6 +3175,41 @@ local SCENES = {
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
+	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch
+	{ "CannonUnlock", function()
+		-- Scenes.close puts the sample tier back, so the later scenes in this shard see the tier they expect
+		Scenes._rankTier = (UI.getState() :: any).tier
+		UI.update({ tier = 1, tutorialStep = 5 } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.2)
+		UI.close()
+		UIShim.advance(0.5)
+		UI.update({ tier = 2 } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local park = window:FindFirstChild("park", true)
+		local lock = park and park:FindFirstChild("Lock", true)
+		assert(lock and lock:IsA("GuiObject") and lock.Visible, "uigate: the Park card's lock did not wait to break (#3884)")
+		UIShim.advance(1.4)
+		local line = lock:FindFirstChild("Line")
+		assert(line and line.Text == "Unlocked!", "uigate: the breaking lock does not say Unlocked! (#3884)")
+		UIShim.advance(3)
+		assert(not lock.Visible, "uigate: the Park card's lock is still up after the break (#3884)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(not lock.Visible, "uigate: the lock broke again on the next open (#3884)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.cannon.clearFly() -- the Tier 2 rank up's Park hint ends, as a flight would, so later cards are not held
+		UI.update({ tutorialStep = 9 } :: any) -- the tutorial done again, so the later first visit cards are not held
+		-- the rank up to Tier 2 started the 45 s Park hint (CannonLogic.OPENED_HINT_SECONDS); let it end here, or its
+		-- applyTutorial lands in a later scene and holds the first visit cards (FirstVisitAway, GiftLadder)
+		UIShim.advance(46)
+	end },
 	-- #2692: at night a new player with the night pass (the NightPass attribute, before the first check-in) sees the
 	-- area cards open, no moon cover; once the pass ends, the cover is back
 	{ "CannonNightPass", function()
@@ -3560,7 +3595,7 @@ local SCENES = {
 		end)
 		UIShim.fire(UIShim.eventOf(UIShim.playerGui:FindFirstChild("TierGoal", true), "Activated"))
 		connection:Disconnect()
-		assert(UI.isOpen() == "Collection", "uigate: the nudge opened " .. tostring(UI.isOpen()) .. ", not the Index (#1919)")
+		assert(UI.isOpen() == "Collection", "uigate: the nudge opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. ", not the Index (#1919)")
 		local open = false
 		for _, area in Catalog.areas do
 			if area.id == tapped and area.tier <= 3 then
@@ -4731,7 +4766,7 @@ local SCENES = {
 			local other = window:FindFirstChild("CircleStreak", true)
 			assert(other and other.Visible, "uigate: no button to Circle Streak while both games are on (#3296)")
 			press("MouseDash", "CircleStreak")
-			assert(UI.isOpen() == "Arcade", "uigate: the Circle Streak button opened " .. tostring(UI.isOpen()) .. " (#3296)")
+			assert(UI.isOpen() == "Arcade", "uigate: the Circle Streak button opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3296)")
 			UI.close()
 			mouseDashCard(true)
 		end,
@@ -8711,7 +8746,7 @@ local SCENES = {
 		UI.cannon.open()
 		press("Cannon", "desert.Collect")
 		task.wait(0.4)
-		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " (#3082)")
+		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3082)")
 	end },
 	-- #3082: 14 fish in the pond: Collect on the Woods strip in place of the red dot, for every player (#1463 had it
 	-- for a Golden Pond owner; the pass doubles the fish instead, #3093)
@@ -8812,7 +8847,7 @@ local SCENES = {
 		press("Cannon", "park.Collect")
 		connection:Disconnect()
 		assert(not collected, "uigate: the Park strip collected the basket with Picnic Treats on (#3715)")
-		assert(UI.isOpen() == "PicnicTreats", "uigate: the Park strip opened " .. tostring(UI.isOpen()) .. " (#3715)")
+		assert(UI.isOpen() == "PicnicTreats", "uigate: the Park strip opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3715)")
 		-- the scenes after this one read the plain basket
 		UI.campExtras.update(campExtras(1, false))
 	end },

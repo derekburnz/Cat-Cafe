@@ -8833,6 +8833,23 @@ local SCENES = {
 		local status = card and card:FindFirstChild("Status", true)
 		assert(status and string.find(status.Text, "Next picnic in 3 h 12", 1, true), "uigate: the wait reads " .. tostring(status and status.Text) .. " (#3715)")
 	end },
+	-- #3938 (Derek: "the squares don't open menus if item not ready"): the Picnic Basket's square with nothing ready
+	-- opens its card: the timer, what it gives and OK; walking off closes it
+	{ "StationInfoPicnic", function()
+		atTier(2)
+		local extras = campExtras(0, true)
+		extras.picnic = { open = true, held = 0, nextAt = workspace:GetServerTimeNow() + 4 * 3600 + 14 * 60 - 20 }
+		UI.campExtras.update(extras)
+		UI.campExtras.openInfo("picnic")
+		assert(UI.isOpen() == "StationInfo_picnic", "uigate: the Picnic Basket card did not open (#3938)")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("StationInfo_picnic", true)
+		local status = card and card:FindFirstChild("Status", true)
+		assert(status and status.Text == "Next in 4 h 14 m", "uigate: the basket's timer reads " .. tostring(status and status.Text) .. " (#3938)")
+		local gives = card:FindFirstChild("Gives", true)
+		assert(gives and string.find(gives.Text, "Money Potion", 1, true), "uigate: the basket's card says it gives " .. tostring(gives and gives.Text) .. " (#3938)")
+		assert(card:FindFirstChild("Ok", true), "uigate: no OK on the station card (#3938)")
+	end },
 	-- #3715: with Picnic Treats on, the Park strip's button on the Cat Cannon opens the pick card and collects nothing
 	{ "CannonOpensPicnic", function()
 		atTier(3)

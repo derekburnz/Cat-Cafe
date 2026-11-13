@@ -54,6 +54,7 @@ type Card = {
 	status: TextLabel,
 	claim: Button.Button,
 	best: boolean,
+	tick: TextLabel?, -- #3961: the family look's tick on a stamped day
 }
 
 local CARD = Vector2.new(150, 140)
@@ -98,7 +99,9 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 	self._pendingAt = nil :: number? -- os.clock() of the last Claim press
 	self._shown = false -- what status last said
 	self._due = false
-	if Scale.isPhone() then
+	-- #3974 (Studio, a 667x375 mouse window: day 5's Tomorrow chip cut): any short screen, mouse or touch, as the top
+	-- bar takes 58 px off a short PC window too and the tall cards' second row no longer fits
+	if Scale.isShort() then
 		CARD = Vector2.new(CARD.X, PHONE_CARD_H)
 		STRIP_HEIGHT = PHONE_STRIP_H
 	end
@@ -181,6 +184,10 @@ end
 
 -- The seven cards, built once; the catalog's prizes fill them on each refresh.
 function DailyTreat._build(self: any)
+	-- #3961: the family look (batch 2 mock): DAY 1 on the card's left, a stamped day tinted green with a tick in its
+	-- corner, CLAIM upper case
+	local family = MenuFamily.on()
+	self._family = family
 	for day = 1, DailyTreatLogic.DAYS do
 		local best = day == DailyTreatLogic.DAYS
 		local cell: Frame = Create("Frame", {
@@ -206,16 +213,40 @@ function DailyTreat._build(self: any)
 			Thickness = Theme.sizes.stroke,
 			Parent = frame,
 		})
+		local dayWords = if best
+			then ("Day %d  ·  Best day"):format(day)
+			else ("Day %d"):format(day)
 		text({
 			Name = "Day",
-			Position = UDim2.fromOffset(6, 4),
-			Size = UDim2.new(1, -12, 0, 20),
+			Position = UDim2.fromOffset(if family then 10 else 6, 4),
+			Size = UDim2.new(1, if family then -40 else -12, 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
 			TextColor3 = if best then CREAM.gold else CREAM.text,
-			Text = if best then ("Day %d  ·  Best day"):format(day) else ("Day %d"):format(day),
+			TextXAlignment = if family then Enum.TextXAlignment.Left else nil,
+			Text = if family then string.upper(dayWords) else dayWords,
 			Parent = frame,
 		})
+		local tick: TextLabel? = nil
+		if family then
+			local mark: TextLabel = text({
+				Name = "Tick",
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -5, 0, 4),
+				Size = UDim2.fromOffset(22, 22),
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Theme.colors.good,
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textSmall,
+				TextColor3 = Theme.colors.white,
+				Text = "✓",
+				Visible = false,
+				ZIndex = 2,
+				Parent = frame,
+			})
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = mark })
+			tick = mark
+		end
 		local chips = PrizeChips.new({
 			parent = frame,
 			tile = ICON,
@@ -242,7 +273,7 @@ function DailyTreat._build(self: any)
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = status })
 		local claim = Button.new({
 			name = "Claim",
-			text = "Claim",
+			text = if family then "CLAIM" else "Claim",
 			style = "primary",
 			size = UDim2.new(1, -16, 0, 34),
 			anchorPoint = Vector2.new(0.5, 1),
@@ -261,6 +292,7 @@ function DailyTreat._build(self: any)
 			status = status,
 			claim = claim,
 			best = best,
+			tick = tick,
 		}
 	end
 end
@@ -346,16 +378,30 @@ function DailyTreat._refresh(self: any)
 		end
 		card.claim.instance.Visible = ready
 		card.claim:setEnabled(not pending)
-		card.claim:setText(if pending then "..." else "Claim")
+		card.claim:setText(if pending then "..." elseif self._family then "CLAIM" else "Claim")
 		card.status.Visible = stamped or cell.state == "next"
-		card.status.Text = if stamped then "✓ Stamped" else "Tomorrow"
+		card.status.Text = if stamped
+			then (if self._family then "Stamped" else "✓ Stamped")
+			else "Tomorrow"
+		local tick: TextLabel? = card.tick
+		if tick ~= nil then
+			tick.Visible = stamped
+		end
 		card.status.TextColor3 = if stamped then CREAM.good else CREAM.subtext
 		card.stroke.Color = if ready
 			then Theme.colors.good
 			elseif card.best then Theme.colors.goldDark
 			else CREAM.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready or card.best then 1 else 0)
-		card.frame.BackgroundTransparency = if stamped then 0.35 else 0
+		if self._family and not card.best then
+			-- #3961: a stamped day is tinted green and stays solid, as in the mock
+			card.frame.BackgroundColor3 = if stamped
+				then CREAM.card:Lerp(Theme.colors.good, 0.22)
+				else CREAM.card
+			card.frame.BackgroundTransparency = 0
+		else
+			card.frame.BackgroundTransparency = if stamped then 0.35 else 0
+		end
 	end
 
 	local wait = DailyTreatLogic.waitText(DailyTreatLogic.untilTomorrow(now))

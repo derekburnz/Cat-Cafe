@@ -9,6 +9,8 @@
 # that leaves every server on its build (an automatic publish, or a manual Published with restart_servers on, the
 # restart included) records its save version in a `published-build` artifact for the next automatic publish.
 name: publish
+# wait-publish-lane.sh tells an automatic label-merge publish from a hand-started one by this title.
+run-name: ${{ github.event_name == 'workflow_dispatch' && (inputs.automatic && 'publish (automatic, after a label merge)' || 'publish (by hand)') || 'publish after a main check' }}
 
 on:
   workflow_dispatch:
@@ -40,11 +42,12 @@ permissions:
   contents: read
   actions: read
 
-# Hand-started runs (workflow_dispatch) have their own group, so a finished main check can no longer cancel a
+# Hand-started runs (workflow_dispatch without automatic; automerge.sh's label-merge publish passes automatic and
+# counts as an automatic publish) have their own group, so a finished main check can no longer cancel a
 # hand-started publish that is still waiting (2026-11-13). The two lanes are kept apart by the "Wait for the
 # other lane" step instead (.github/scripts/wait-publish-lane.sh).
 concurrency:
-  group: ${{ github.event_name == 'workflow_dispatch' && 'publish-hand' || 'publish' }}
+  group: ${{ github.event_name == 'workflow_dispatch' && !inputs.automatic && 'publish-hand' || 'publish' }}
   cancel-in-progress: false
 
 env:
@@ -173,7 +176,7 @@ jobs:
         working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/wait-publish-lane.sh 25
+        run: bash .github/scripts/wait-publish-lane.sh 25 "${{ github.event_name == 'workflow_dispatch' && !inputs.automatic && 'hand' || 'auto' }}"
 
       - name: Check the publish key is set
         run: |

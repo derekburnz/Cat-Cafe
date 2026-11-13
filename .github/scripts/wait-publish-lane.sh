@@ -8,8 +8,9 @@
 # so this step does: each run waits for the other lane's runs that started before it (oldest first, ties by run
 # id), which is a total order, so two runs can never wait on each other.
 #
-# Usage: wait-publish-lane.sh <max minutes>. Needs GH_TOKEN (actions: read), GITHUB_REPOSITORY, GITHUB_RUN_ID and
-# GITHUB_EVENT_NAME. After the limit it goes on with a warning rather than fail a restart players were told about.
+# Usage: wait-publish-lane.sh <max minutes> <hand|auto>, this run's own lane. Needs GH_TOKEN (actions: read),
+# GITHUB_REPOSITORY and GITHUB_RUN_ID. Another run's lane: a restart is hand; a publish is auto when started by a
+# check (workflow_run) or with the automatic input (automerge.sh's label merges), else hand. After the limit it goes on with a warning rather than fail a restart players were told about.
 set -euo pipefail
 
 max_minutes="${1:-25}"
@@ -21,8 +22,7 @@ api() {
     -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$repo/$1"
 }
 
-lane() { if [ "$1" = "workflow_dispatch" ]; then echo hand; else echo auto; fi; }
-my_lane=$(lane "$GITHUB_EVENT_NAME")
+my_lane="${2:?lane hand or auto}"
 my_start=$(api "actions/runs/$me" | jq -r '.run_started_at')
 deadline=$(($(date +%s) + max_minutes * 60))
 
@@ -30,10 +30,13 @@ while :; do
   ahead=""
   for wf in publish.yml restart-servers.yml; do
     found=$(api "actions/workflows/$wf/runs?status=in_progress&per_page=30" | jq -r \
-      --arg me "$me" --arg lane "$my_lane" --arg start "$my_start" '
+      --arg me "$me" --arg lane "$my_lane" --arg start "$my_start" --arg wf "$wf" '
         .workflow_runs[]
         | select((.id | tostring) != $me)
-        | select((if .event == "workflow_dispatch" then "hand" else "auto" end) != $lane)
+        | select((if $wf == "restart-servers.yml" then "hand"
+            elif .event != "workflow_dispatch" then "auto"
+            elif ((.display_title // "") | test("automatic"; "i")) then "auto"
+            else "hand" end) != $lane)
         | select(.run_started_at < $start or (.run_started_at == $start and (.id | tostring) < $me))
         | "\(.name) run \(.id) (\(.event), started \(.run_started_at))"')
     [ -n "$found" ] && ahead+="$found"$'\n'

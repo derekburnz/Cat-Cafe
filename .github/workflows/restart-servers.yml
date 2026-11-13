@@ -43,7 +43,7 @@ jobs:
         working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/wait-publish-lane.sh 25
+        run: bash .github/scripts/wait-publish-lane.sh 25 hand
 
       - name: Check the publish key is set
         run: |

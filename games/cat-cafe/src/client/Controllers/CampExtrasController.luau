@@ -242,20 +242,12 @@ local function autoClaim()
 			pending[extraId] = now
 			opened[extraId] = true
 			Net.fire("BuyYardSale", crateId)
-		elseif not opened[extraId] then
-			local card = if how == "treats"
-				then hook("openPicnic")
-				elseif how == "yardCard" then hook("openYardSale")
-				else hook("openInfo")
-			if card ~= nil then
+		elseif how == "info" and not opened[extraId] then
+			-- the Yard Sale and Picnic Treats cards are WalkUpController's to open
+			local openInfo = hook("openInfo")
+			if openInfo ~= nil then
 				opened[extraId] = true
-				if how == "treats" then
-					card()
-				elseif how == "yardCard" then
-					card(view)
-				else
-					card(extraId)
-				end
+				openInfo(extraId)
 			end
 		end
 	end

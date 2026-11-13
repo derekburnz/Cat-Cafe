@@ -4278,6 +4278,37 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #3657: a thumbs down on the slide-in ask brings the reasons up on the same card, in two rows with Skip; the
+	-- face is sent once, with the reason tapped
+	{ "FeedbackAskReasons", function()
+		local sent = {}
+		local connection = UI.events.sendFeedback:Connect(function(face, chip)
+			table.insert(sent, tostring(face) .. ":" .. tostring(chip))
+		end)
+		-- an ask the scene before left saying "Thanks!" slides away first (showAsk leaves a shown card alone)
+		-- the clock is run by hand: a scene that yields is left behind on a slow CI run and wakes inside a later scene
+		UIShim.advance(2.5)
+		UI.tips.showAsk()
+		UIShim.advance(0.4)
+		press("CatCafeAsk", "Choice_no")
+		UIShim.advance(0.2)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "What is the main reason?", "uigate: after a thumbs down the ask reads " .. title.Text .. " (#3657)")
+		assert(title.TextFits, "uigate: the reasons title does not fit (#3657)")
+		assert(#sent == 0, "uigate: the face was sent before a reason could be picked (#3657)")
+		local second = ask:FindFirstChild("Choices2", true)
+		assert(second.Visible, "uigate: the reasons ask has no second row (#3657)")
+		for _, name in { "Choice_too_hard", "Choice_confusing", "Choice_boring", "Choice_laggy", "Choice_skip" } do
+			local piece = ask:FindFirstChild(name, true)
+			assert(piece, "uigate: the reasons ask lacks " .. name .. " (#3657)")
+			local label = piece:FindFirstChildWhichIsA("TextLabel", true)
+			assert(label == nil or label.TextFits, "uigate: " .. name .. "'s words do not fit (#3657)")
+		end
+		press("CatCafeAsk", "Choice_boring")
+		connection:Disconnect()
+		assert(#sent == 1 and sent[1] == "no:boring", "uigate: the reasons ask sent " .. table.concat(sent, " ") .. " (#3657)")
+	end },
 	-- #3272 (Derek2: "a thumb up or down or neutral face very simple"): the once-a-day session ask, thumbs up, a plain
 	-- face and thumbs down, with its title on one card
 	{ "SessionAsk", function()
@@ -10346,6 +10377,10 @@ function Scenes.close()
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_ok")
+	end
+	-- #3657: on the faces ask "ok" brings the reasons up on the same card; Skip puts it away
+	if ask and ask:FindFirstChild("Choice_skip", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_skip")
 	end
 	-- F92: the invite nudge's Not now
 	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then

@@ -5481,11 +5481,35 @@ do
 				end
 			end,
 			answer = function(face: string?)
-				if face ~= nil then
-					early.answered = true
-					(state :: any).feedbackAsked = true
-					UI.events.sendFeedback:Fire(face, nil)
+				if face == nil then
+					return
 				end
+				early.answered = true
+				(state :: any).feedbackAsked = true
+				local reasons = FeedbackLogic.reasons(face)
+				if #reasons == 0 then
+					UI.events.sendFeedback:Fire(face, nil)
+					return
+				end
+				-- #3657: the same card asks why; the face is sent once, with the chip tapped or alone
+				local chips: { AskCard.Choice } = {}
+				for _, reason in reasons do
+					table.insert(
+						chips,
+						{ id = reason.id, label = reason.label, icon = reason.glyph }
+					)
+				end
+				table.insert(chips, { id = FeedbackLogic.SKIP, label = "Skip" })
+				card:show({
+					title = FeedbackLogic.REASON_TITLE,
+					choices = chips,
+					rows = 2,
+					seconds = FeedbackLogic.REASON_SECONDS,
+					thanks = "Thanks!",
+					answer = function(reason: string?)
+						UI.events.sendFeedback:Fire(face, FeedbackLogic.reasonChip(reason))
+					end,
+				})
 			end,
 		})
 		local saved: any = state

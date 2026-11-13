@@ -174,7 +174,9 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		color = TEAL,
 		icon = MysteryLogic.ICON,
 		image = ShopIcons.hud("MysteryMarket"), -- #2836: the drawn badge (the emoji until it loads)
-		size = UDim2.new(1, 0, 0, MAX_SIZE.Y),
+		-- as tall as the screen allows, up to MAX_SIZE (as the Garden Nursery and the Oasis Spa): on a 705 x 338 phone
+		-- the fixed height ran off the top, and the title icon sat under Roblox's menu buttons (#3518)
+		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
 	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })

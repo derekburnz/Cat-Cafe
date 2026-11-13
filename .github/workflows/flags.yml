@@ -10,17 +10,17 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "show | set | clear (clear: back to the default: trading, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak, stuckCall and fxLite on, tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, picnicTreats, traitBundles, storeRework and quietStart off, Config's minimum tier)"
+        description: "show | set | clear (clear: back to the default: trading, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak, stuckCall and fxLite on, tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, picnicTreats, traitBundles, storeRework, indexTo70 and quietStart off, Config's minimum tier)"
         type: choice
         options: [show, set, clear]
         default: show
       key:
         description: "Which switch (set and clear)"
         type: choice
-        options: [trading, tradeMinTier, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, circleStreak, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, stuckCall, fxLite, picnicTreats, traitBundles, storeRework, quietStart]
+        options: [trading, tradeMinTier, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, circleStreak, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, stuckCall, fxLite, picnicTreats, traitBundles, storeRework, indexTo70, quietStart]
         default: trading
       value:
-        description: "set only: true or false for trading, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak, tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, stuckCall, fxLite, picnicTreats, traitBundles, storeRework and quietStart (traits, tradeFish, cartTier6, secretCats and luckyCharm true only after QA, review and a restart publish), 0 to 99 for tradeMinTier"
+        description: "set only: true or false for trading, codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak, tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, stuckCall, fxLite, picnicTreats, traitBundles, storeRework, indexTo70 and quietStart (traits, tradeFish, cartTier6, secretCats and luckyCharm true only after QA, review and a restart publish), 0 to 99 for tradeMinTier"
         required: false
         default: ""
 

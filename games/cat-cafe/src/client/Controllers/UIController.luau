@@ -3206,6 +3206,14 @@ function UIController.start()
 		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
+	-- #3992: the Index's milestones past 50 (and the Rainbow track's past 25) wait for the `indexTo70` switch; the UI
+	-- reads catalog.indexPrizes each time, so a switch change shows at the next render
+	local SharedIndexRewards = require(Shared:WaitForChild("IndexRewards")) :: any
+	catalog.indexPrizes = SharedIndexRewards.shownPrizes()
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. SharedIndexRewards.LATE_FLAG)
+		:Connect(function()
+			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
+		end)
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

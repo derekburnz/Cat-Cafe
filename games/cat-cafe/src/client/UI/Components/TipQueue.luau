@@ -119,6 +119,37 @@ function TipQueue.device(lastInput: string, touch: boolean): Device
 	return device
 end
 
+-- #3865 (Derek 2026-11-13: "the upgrades is spamming ... and u back and forth"): where the last input flips back and
+-- forth (a tap and the mouse it moves on a touch laptop or in Studio's device view), the tutorial strip swapped its
+-- keyboard and touch lines several times a second and its wrap check flashed "..." each time. A new device now counts
+-- only once it has held for SETTLE_SECONDS without the old one coming back.
+TipQueue.SETTLE_SECONDS = 1.5
+-- (Plain strings inside: luau-lsp widens the Device literals on the way in, so the answer is cast back.)
+export type Settle = { device: string?, candidate: string?, since: number }
+
+function TipQueue.newSettle(): Settle
+	return { device = nil, candidate = nil, since = 0 }
+end
+
+-- The settled device for the device read `now` at time `clock` (seconds). Mutates `settle`.
+function TipQueue.settle(settle: Settle, now: string, clock: number): Device
+	local current = settle.device
+	if current == nil then
+		settle.device = now
+		current = now
+	elseif now == current then
+		settle.candidate = nil
+	elseif settle.candidate ~= now then
+		settle.candidate = now
+		settle.since = clock
+	elseif clock - settle.since >= TipQueue.SETTLE_SECONDS then
+		settle.device = now
+		settle.candidate = nil
+		current = now
+	end
+	return (current :: any) :: Device
+end
+
 function TipQueue.line(id: string, device: Device, cut: boolean?, nextArea: string?): string?
 	local line: Line? = if cut then CUT[id] else nil
 	if line == nil then

@@ -62,5 +62,21 @@
 		"price": 25,
 		"regionalPricing": false,
 		"description": "A thank-you badge for your profile. One per player."
+	},
+	{
+		"name": "20 Trait Tokens",
+		"id": 0,
+		"config": "ProductIds.trait_tokens_20",
+		"price": 99,
+		"regionalPricing": false,
+		"description": "20 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you buy."
+	},
+	{
+		"name": "50 Trait Tokens",
+		"id": 0,
+		"config": "ProductIds.trait_tokens_50",
+		"price": 199,
+		"regionalPricing": false,
+		"description": "50 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you buy."
 	}
 ]

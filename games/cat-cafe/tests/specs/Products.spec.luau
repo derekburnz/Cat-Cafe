@@ -8,6 +8,7 @@ return function()
 	local Config = require(Shared.Config)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local Products = require(Shared.Products)
+	local Traits = require(Shared.Traits)
 
 	describe("receipts", function()
 		it("records a PurchaseId once and keeps the newest RECEIPT_LIMIT", function()
@@ -68,6 +69,8 @@ return function()
 				starter_bundle = { big_tip_potion = 10, swift_potion = 5, steady_potion = 5 }, -- #1625, #2850
 				thank_you_badge = {}, -- #1168 row 4: a supporter mark only
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
+				trait_tokens_20 = {}, -- #3864: Trait Tokens only
+				trait_tokens_50 = {},
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
 			local extras = { cats = true, signStyles = true, moneyMultiplier = true } -- #2850: a fixed 2x, not random
@@ -77,7 +80,12 @@ return function()
 				local any = product.prize :: any
 				for key in any do
 					expect(
-						key == "potions" or (product.id == "starter_bundle" and extras[key] == true)
+						key == "potions"
+							or (product.id == "starter_bundle" and extras[key] == true)
+							or (
+								key == "traitTokens"
+								and string.sub(product.id, 1, 13) == "trait_tokens_"
+							)
 					).to.equal(true)
 				end
 				for potionId, count in product.prize.potions do
@@ -88,6 +96,24 @@ return function()
 				expect(table.isfrozen(product)).to.equal(true)
 			end
 		end)
+
+		it(
+			"sells Trait Tokens in the two bundles Traits.BUNDLES offers, 20 and 50 (#3864)",
+			function()
+				expect(#Traits.BUNDLES).to.equal(2)
+				for _, bundle in Traits.BUNDLES do
+					local product = Catalog.getProduct(bundle.product) :: any
+					expect(product).to.be.ok()
+					expect(product.prize.traitTokens).to.equal(bundle.tokens)
+					expect(product.oncePerAccount).to.equal(nil)
+					expect(Config.ProductIds[bundle.product]).to.be.ok()
+				end
+				expect(Traits.BUNDLES[1].tokens).to.equal(20)
+				expect(Traits.BUNDLES[1].robux).to.equal(99)
+				expect(Traits.BUNDLES[2].tokens).to.equal(50)
+				expect(Traits.BUNDLES[2].robux).to.equal(199)
+			end
+		)
 
 		it("sells the Cafe Pass as the season's paid track and nothing else (#1626)", function()
 			local pass = Catalog.getProduct("cafe_pass") :: any

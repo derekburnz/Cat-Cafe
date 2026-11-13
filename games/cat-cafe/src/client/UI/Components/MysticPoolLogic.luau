@@ -68,6 +68,7 @@ type View = {
 	held: number?,
 	nextAt: number?,
 	pending: { uid: string?, id: string? }?,
+	bundles: boolean?, -- #3864: the server's word that the token bundles may be offered
 }
 
 local function whole(value: any): number
@@ -317,6 +318,40 @@ end
 function MysticPoolLogic.rarityId(id: string): string
 	local def: any = Traits.get(id)
 	return if def ~= nil then def.rarity.id else Traits.RARITIES[1].id
+end
+
+-- #3864 (Derek 2026-11-13): the Trait Token bundles, offered on the card once the free rolls are used. A roll from a
+-- bought token is a paid random item (monetization-policy section 2), so the offer carries the full odds, plain words
+-- and a "No thanks" that holds for the session; it never shows unless the server says `bundles` (the traitBundles
+-- switch on and the player's policy read and not restricting paid random items).
+MysticPoolLogic.OFFER_TITLE = "More rolls with Trait Tokens"
+MysticPoolLogic.OFFER_LINE =
+	"One Trait Token is one roll. A cat never gets worse: keep the old trait or take the new."
+MysticPoolLogic.OFFER_NO = "No thanks"
+
+export type Bundle = { product: string, id: number, label: string }
+
+-- The bundles to offer now, or nil: `view` the card's numbers, `ids` Config.ProductIds, `seen` true once the offer
+-- has shown (or been declined) this session. Only made products (an id) are offered.
+function MysticPoolLogic.bundles(view: View?, ids: { [string]: any }?, seen: boolean): { Bundle }?
+	if seen or view == nil or view.bundles ~= true or type(ids) ~= "table" then
+		return nil
+	end
+	if whole(view.freeLeft) > 0 or view.pending ~= nil then
+		return nil
+	end
+	local out: { Bundle } = {}
+	for _, bundle in Traits.BUNDLES do
+		local id = ids[bundle.product]
+		if type(id) == "number" and id > 0 then
+			table.insert(out, {
+				product = bundle.product,
+				id = id,
+				label = string.format("%d Tokens · R$%d", bundle.tokens, bundle.robux),
+			})
+		end
+	end
+	return if #out > 0 then out else nil
 end
 
 return MysticPoolLogic

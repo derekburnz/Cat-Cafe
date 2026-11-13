@@ -235,10 +235,20 @@ end
 
 -- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
 -- off or the tier has not opened the station (TraitService.open reads the same)
-local function traitsView(profile: Profile, now: number): Types.TraitsView?
+-- #3864: `bundles` says whether the token bundles may be offered: the traitBundles switch on, and the player's policy
+-- read and not restricting paid random items (unread counts as restricted, monetization-policy section 2.3)
+local function traitsView(player: Player, profile: Profile, now: number): Types.TraitsView?
 	local open = LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
 	Traits.settle(profile.traits, open, now)
-	return if open then Traits.view(profile.traits) else nil
+	if not open then
+		return nil
+	end
+	local view = Traits.view(profile.traits)
+	local policy = DataService.policy(player)
+	view.bundles = LiveFlagService.on(Traits.BUNDLE_FLAG)
+		and policy ~= nil
+		and policy.ArePaidRandomItemsRestricted == false
+	return view
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
@@ -293,7 +303,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
-		traits = traitsView(profile, now), -- #3196: the Mystic Pool card, nil while it is shut
+		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022

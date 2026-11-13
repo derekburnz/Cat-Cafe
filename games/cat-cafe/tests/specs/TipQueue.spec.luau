@@ -87,6 +87,20 @@ return function()
 			expect(TipQueue.device("None", true)).to.equal("touch")
 			expect(TipQueue.device("None", false)).to.equal("keyboard")
 		end)
+
+		-- #3865: a flip back and forth never moves the settled device; one that holds does
+		it("settles on a new device only once it holds", function()
+			local settle = TipQueue.newSettle()
+			expect(TipQueue.settle(settle, "touch", 0)).to.equal("touch")
+			for step = 1, 20 do
+				local now: any = if step % 2 == 1 then "keyboard" else "touch"
+				expect(TipQueue.settle(settle, now, step * 0.25)).to.equal("touch")
+			end
+			expect(TipQueue.settle(settle, "keyboard", 10)).to.equal("touch")
+			expect(TipQueue.settle(settle, "keyboard", 10 + TipQueue.SETTLE_SECONDS - 0.1)).to.equal("touch")
+			expect(TipQueue.settle(settle, "keyboard", 10 + TipQueue.SETTLE_SECONDS)).to.equal("keyboard")
+			expect(TipQueue.settle(settle, "keyboard", 20)).to.equal("keyboard")
+		end)
 	end)
 
 	describe("TipQueue.free", function()

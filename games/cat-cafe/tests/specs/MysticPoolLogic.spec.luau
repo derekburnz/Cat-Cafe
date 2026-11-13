@@ -288,4 +288,69 @@ return function()
 			expect(bare.state).to.equal("Give a cat a trait")
 		end)
 	end)
+	-- #3864: the Trait Token bundles, offered once the free rolls are used (a paid random item: odds on the offer)
+	describe("MysticPoolLogic.bundles", function()
+		local ids = { trait_tokens_20 = 11, trait_tokens_50 = 22 }
+		local used = { tokens = 0, freeLeft = 0, held = 0, bundles = true }
+		it("offers both bundles, priced, once the free rolls are used", function()
+			local list: any = MysticPoolLogic.bundles(used, ids, false)
+			expect(#list).to.equal(2)
+			expect(list[1].id).to.equal(11)
+			expect(list[1].label).to.equal("20 Tokens · R$99")
+			expect(list[2].label).to.equal("50 Tokens · R$199")
+		end)
+		it(
+			"offers nothing while free rolls are left, a choice waits, or it was seen this session",
+			function()
+				expect(
+					MysticPoolLogic.bundles(
+						{ tokens = 0, freeLeft = 1, held = 0, bundles = true },
+						ids,
+						false
+					)
+				).to.equal(nil)
+				expect(MysticPoolLogic.bundles({
+					tokens = 0,
+					freeLeft = 0,
+					held = 0,
+					bundles = true,
+					pending = { uid = "a", id = "b" },
+				}, ids, false)).to.equal(nil)
+				expect(MysticPoolLogic.bundles(used, ids, true)).to.equal(nil)
+			end
+		)
+		it(
+			"offers nothing unless the server says so (switch off, or paid random items restricted)",
+			function()
+				expect(MysticPoolLogic.bundles({ tokens = 0, freeLeft = 0, held = 0 }, ids, false)).to.equal(
+					nil
+				)
+				expect(
+					MysticPoolLogic.bundles(
+						{ tokens = 0, freeLeft = 0, held = 0, bundles = false },
+						ids,
+						false
+					)
+				).to.equal(nil)
+				expect(MysticPoolLogic.bundles(nil, ids, false)).to.equal(nil)
+			end
+		)
+		it("offers only products that are made", function()
+			expect(
+				MysticPoolLogic.bundles(used, { trait_tokens_20 = 0, trait_tokens_50 = 0 }, false)
+			).to.equal(nil)
+			local one: any =
+				MysticPoolLogic.bundles(used, { trait_tokens_20 = 0, trait_tokens_50 = 22 }, false)
+			expect(#one).to.equal(1)
+			expect(one[1].product).to.equal("trait_tokens_50")
+		end)
+		it("shows every roll's odds, summing to 100 (monetization-policy 2.1)", function()
+			local sum = 0
+			for _, row in MysticPoolLogic.odds() do
+				sum += row.percent
+			end
+			expect(sum).to.equal(100)
+			expect(#MysticPoolLogic.ODDS_LINES >= 1).to.equal(true)
+		end)
+	end)
 end

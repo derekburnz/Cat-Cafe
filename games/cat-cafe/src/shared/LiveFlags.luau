@@ -95,6 +95,9 @@
 -- - `picnicTreats` (#3715): the Park's Picnic Basket is a pick of one of three treats every 4 hours
 --   (shared/CampExtras.TREATS, PickPicnicTreat); off, it bags Money Potions as before. It starts OFF
 --   (OFF_BY_DEFAULT) and goes on once every server runs a build that knows it.
+-- - `traitBundles` (#3864): the Trait Token bundles (20 and 50, developer products) on the Mystic Pool card once the
+--   free rolls are used. It starts OFF (OFF_BY_DEFAULT); off, no offer shows (a receipt still pays, since Roblox
+--   took the Robux).
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -143,6 +146,7 @@ LiveFlags.KEYS = {
 	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
 	"picnicTreats",
+	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -172,6 +176,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	petCats = true,
 	returnGift = true,
 	picnicTreats = true,
+	traitBundles = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

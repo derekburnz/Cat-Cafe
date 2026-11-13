@@ -79,6 +79,8 @@ local Config = {
 		thank_you_badge = 3728719483, -- #1168 row 4: once per account (Tools-Agent, 2026-11-06), off sale until live
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
+		trait_tokens_20 = 0, -- #3864: 20 Trait Tokens, R$99; made with dev-products.yml, then its id goes here
+		trait_tokens_50 = 0, -- #3864: 50 Trait Tokens, R$199
 	} :: { [string]: number },
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
@@ -1219,33 +1221,54 @@ local Config = {
 	ArcadeShrinkFloorSeconds = 0.30,
 	ArcadeBlockLeadIn = 0.9,
 	ArcadeMilestones = {
-		{ at = 10, prize = { fish = 5 }, name = "5 golden fish" },
-		{ at = 20, prize = { fish = 8 }, name = "8 golden fish" },
-		{ at = 30, prize = { lures = { salmon = 1 } }, name = "Salmon" },
-		{ at = 40, prize = { potions = { lucky_potion = 1 } }, name = "Lucky Potion" },
-		{ at = 50, prize = { fish = 15 }, name = "15 golden fish" },
-		-- Derek 2026-11-13 ("increase rewards significantly after 50 since thats pretty much leaderboards"): 60 to 100
-		-- pay several times what they did (were a Golden Crate, a Caviar, 30 fish, a Moon Milk and a Star Treat)
+		-- Derek 2026-11-13 ("make the overall rewards inside the cat arcade game way better so people actually come
+		-- back to do them daily"): every milestone pays about three times what it did (#3869). Fish stay under
+		-- TradeFishPerDay in all (240); the rest is foods, potions and crates, which cannot be traded for fish.
+		{ at = 10, prize = { fish = 15, lures = { salmon = 1 } }, name = "15 fish + Salmon" },
+		{
+			at = 20,
+			prize = { fish = 15, potions = { lucky_potion = 1 } },
+			name = "15 fish + Lucky Potion",
+		},
+		{
+			at = 30,
+			prize = { crates = { classic_golden_crate = 1 }, lures = { caviar = 1 } },
+			name = "Golden Crate + Caviar",
+		},
+		{
+			at = 40,
+			prize = { fish = 20, potions = { big_lucky_potion = 1 } },
+			name = "20 fish + Big Lucky Potion",
+		},
+		{
+			at = 50,
+			prize = { fish = 25, crates = { classic_golden_crate = 2 } },
+			name = "2 Golden Crates + 25 fish",
+		},
 		{
 			at = 60,
-			prize = { crates = { classic_golden_crate = 1 }, fish = 20 },
-			name = "Golden Crate + 20 fish",
+			prize = { fish = 25, crates = { alley_golden_crate = 1 }, lures = { moon_milk = 1 } },
+			name = "Alley Crate + Moon Milk + 25 fish",
 		},
-		{ at = 70, prize = { lures = { caviar = 2 }, fish = 30 }, name = "2 Caviar + 30 fish" },
+		{
+			at = 70,
+			prize = { fish = 30, lures = { caviar = 3 }, potions = { gold_rush_potion = 1 } },
+			name = "3 Caviar + Gold Rush + 30 fish",
+		},
 		{
 			at = 80,
-			prize = { crates = { alley_golden_crate = 1 }, fish = 60 },
-			name = "Alley Crate + 60 fish",
+			prize = { fish = 35, crates = { alley_golden_crate = 2 } },
+			name = "2 Alley Crates + 35 fish",
 		},
 		{
 			at = 90,
-			prize = { lures = { moon_milk = 2 }, crates = { classic_golden_crate = 1 } },
-			name = "2 Moon Milk + Golden Crate",
+			prize = { fish = 25, lures = { moon_milk = 3 }, crates = { classic_golden_crate = 2 } },
+			name = "3 Moon Milk + 2 Golden Crates",
 		},
 		{
 			at = 100,
-			prize = { lures = { star_treat = 2 }, fish = 100, crates = { alley_golden_crate = 1 } },
-			name = "2 Star Treats + 100 fish + Crate",
+			prize = { fish = 50, lures = { star_treat = 3 }, crates = { alley_golden_crate = 2 } },
+			name = "3 Star Treats + 2 Alley Crates + 50 fish",
 		},
 	} :: { { at: number, prize: { [string]: any }, name: string } },
 	-- #3296 (Mouse Dash, shared/MouseDash, mouse-dash.md section 6): the arcade's second game. Three hearts; every

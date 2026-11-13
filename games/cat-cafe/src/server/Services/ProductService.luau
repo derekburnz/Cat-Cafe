@@ -9,8 +9,9 @@
 -- never both pay. The answer is PurchaseGranted only after a save holding the id has reached the DataStore; until
 -- then it is NotProcessedYet, and Roblox delivers the receipt again (at the player's next join, in whichever server),
 -- where the recorded id pays nothing and only the save is waited for. A product id Config does not name, or a
--- player not in this server, is never granted here. Nothing a product holds is random, so no PolicyService check
--- applies (ArePaidRandomItemsRestricted is for paid random items).
+-- player not in this server, is never granted here. Nothing a product holds is random. #3864: the Trait Token bundles
+-- buy rolls that are, so their offer (the Mystic Pool card) is hidden where ArePaidRandomItemsRestricted holds
+-- (CafeService.traitsView); a receipt that still comes is paid, since Roblox took the Robux.
 -- #1625: the Starter Bundle is once per account (Catalog.products oncePerAccount, saved in profile.onceBought). Its
 -- first receipt gives Sprinkles (CafeService.addGiftCat), the potions and the Bakery Stripes sign, which the sign then
 -- shows; a second one, which only a prompt the Store never shows could start, pays only the potions.
@@ -35,6 +36,7 @@ local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local Telemetry = require(script.Parent.Telemetry)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local ProductService = {}
@@ -127,6 +129,19 @@ function ProductService.give(
 				local prize: Types.IndexPrize = { potions = give.potions }
 				for _, line in Payout.pay(player, profile, prize, sku, "Shop") do
 					table.insert(paid, line)
+				end
+			end,
+		},
+		{
+			-- #3864: the token bundles (Catalog.products prize.traitTokens), paid whatever the switches say, since
+			-- Roblox took the Robux; a bank near Traits.TOKEN_MAX keeps only what fits (no real bank comes near it)
+			name = "tokens",
+			run = function()
+				local count = product.prize.traitTokens
+				if count ~= nil and count > 0 then
+					local added = Traits.give(profile.traits, count)
+					Telemetry.custom(player, "trait_token", added, { "product" })
+					table.insert(paid, string.format("%d Trait Tokens", added))
 				end
 			end,
 		},

@@ -1042,6 +1042,7 @@ return function()
 			expect(StoreLogic.subtitle("potions")).to.equal(
 				"Potions are used from your Bag. Prices are in Robux."
 			)
+			expect(StoreLogic.subtitle("featured")).to.equal("Prices are in Robux.")
 			expect(StoreLogic.subtitle("codes")).to.equal(StoreLogic.SUBTITLE_DEFAULT)
 			for _, tab in StoreLogic.TABS do
 				expect(#StoreLogic.subtitle(tab.id) > 0).to.equal(true)

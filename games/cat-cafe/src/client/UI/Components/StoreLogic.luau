@@ -67,7 +67,7 @@ end
 -- that prices are in Robux. The Codes tab keeps the window's own line.
 StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
 local SUBTITLES: { [string]: string } = {
-	featured = "Passes are yours to keep. Prices are in Robux.",
+	featured = "Prices are in Robux.", -- Featured can show potion packs, which are used up
 	cats = "Passes are yours to keep. Prices are in Robux.",
 	passes = "Passes are yours to keep. Prices are in Robux.",
 	potions = "Potions are used from your Bag. Prices are in Robux.",

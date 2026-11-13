@@ -72,6 +72,7 @@ local SettingsList = require(script.Components.SettingsList)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
+local SpotlightGuide = require(script.Components.SpotlightGuide) -- #3555
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
@@ -490,13 +491,8 @@ function applyTutorial()
 			tutorialMarker:hide()
 		end
 	end
-	if tutorialTrail then
-		if target ~= nil then
-			tutorialTrail:show(target :: any)
-		else
-			tutorialTrail:hide()
-		end
-	end
+	UI.parkTrail.tutorial = target ~= nil
+	UI.parkTrail.apply(target)
 end
 
 -- F72: the Tutorial tile shows once the intro is live and while its setting is on; the Settings rows once live.
@@ -3359,7 +3355,73 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
 UI.cannon.area = nil :: string?
+
+-- #3554: the walk to a first Park catch (Controllers/ParkTrailController, Components/ParkTrailLogic). The tutorial's
+-- trail is the one trail: a tutorial target has it as gold dots; with none, the Park target has it as paw prints
+-- (the folder's Paws attribute, Effects/PawTrail). `set` also gives the goal card its line (nil: the tier goal).
+UI.parkTrail = {
+	target = nil :: BasePart?,
+	goal = nil :: string?,
+	tutorial = false, -- a tutorial target has the trail
+}
+
+function UI.parkTrail.apply(tutorialTarget: any)
+	local trail = tutorialTrail
+	if trail == nil then
+		return
+	end
+	local park: BasePart? = UI.parkTrail.target
+	if park ~= nil and park.Parent == nil then
+		park = nil -- the stray was caught or went away; the controller picks the next one
+	end
+	trail:mark("Paws", tutorialTarget == nil and park ~= nil)
+	local to = if tutorialTarget ~= nil then tutorialTarget else park
+	if to ~= nil then
+		trail:show(to)
+	else
+		trail:hide()
+	end
+end
+
+function UI.parkTrail.set(target: BasePart?, goal: string?)
+	local changed = UI.parkTrail.target ~= target
+	UI.parkTrail.target = target
+	if UI.parkTrail.goal ~= goal and hud ~= nil then
+		UI.parkTrail.goal = goal
+		hud:setParkGoal(goal)
+	end
+	if changed and not UI.parkTrail.tutorial then
+		UI.parkTrail.apply(nil)
+	end
+end
 UI.cannon.nearest = nil :: (() -> string?)?
+
+-- #3555: the first rank up's walk-through (Components/SpotlightGuide on the goal card, then on the rank up window's
+-- button). `set` shows a phase and returns whether its button was there to light; `onOutside` runs on a press on the
+-- dim. `moment` is set where the tips' own free-moment rule lives.
+UI.rankSpot = {
+	close = nil :: (() -> ())?,
+	moment = nil :: any,
+}
+
+function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?): boolean
+	local close = UI.rankSpot.close
+	if close ~= nil then
+		UI.rankSpot.close = nil
+		close()
+	end
+	local target: GuiObject? = nil
+	if phase == "button" and hud ~= nil then
+		target = hud:goalButton()
+	elseif phase == "confirm" and rankUpScreen ~= nil then
+		target = rankUpScreen:button()
+	end
+	if target == nil then
+		return false
+	end
+	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside)
+	return true
+end
 
 function UI.cannon.setEnabled(on: boolean)
 	cannonOn = on
@@ -5151,6 +5213,34 @@ do
 		then
 			UI.tips.show(TackleTry.TIP)
 		end
+	end
+
+	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
+	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card or an ask.
+	function UI.rankSpot.moment(): (boolean, string?)
+		local at = tipMoment()
+		local free = not (
+			at.catching
+			or at.rescuing
+			or at.carrying
+			or at.intro
+			or at.flying
+			or at.hidden
+			or tipBusy
+		)
+		local window: string? = if modal ~= nil then modal:current() else nil
+		if
+			window == nil
+			and (
+				(popups ~= nil and popups:isShowing())
+				or (baitCard ~= nil and baitCard:isShowing())
+				or (askCard ~= nil and askCard:isShowing())
+			)
+		then
+			window = "other"
+		end
+		return free, window
 	end
 
 	-- Nothing else is going on and no tip is showing: the one feedback ask may slide in.

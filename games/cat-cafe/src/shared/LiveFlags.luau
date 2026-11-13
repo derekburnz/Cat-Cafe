@@ -56,6 +56,27 @@
 -- - `autoRejoin` (#3602): a player resting in their cafe with no input for Config.AutoRejoinSeconds is teleported back into
 --   the game before Roblox's 20 minute idle disconnect (shared/AfkCafe). It starts OFF (OFF_BY_DEFAULT) and does
 --   nothing while `afkCafe` is off.
+-- - `binRoll` (#3608): the Rummage Bin rolls its prize before the bar, from Config.BinRollTable, and keeps it for the
+--   player until they win it (shared/RummageBin); the board, the roll and the pad come with it. It starts OFF
+--   (OFF_BY_DEFAULT); off, the bin is as it was.
+-- - `yardSaleRoll` (#3609): the Yard Sale's free crate becomes a free lucky pick every Config.YardSaleRollHours that
+--   lands on a crate, golden crates included (shared/YardPick). It starts OFF (OFF_BY_DEFAULT); off, the Yard Sale
+--   is as it was.
+-- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
+--   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
+--   intro plays itself.
+-- - `newKindTag` (#3529): the "NEW" tag over strays of kinds the player has never owned, the catch card's "New kind!"
+--   line and the five cats pointer (shared/NewKind). It starts OFF (OFF_BY_DEFAULT) until review and QA pass. Read by
+--   the client (the tag, the line, the pointer) and by Telemetry (the pointer's two step_time events).
+-- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
+--   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
+--   off, nothing shows.
+-- - `touchCatchReach` (#3556): on a touch screen the in-reach glow and the Net button show from 1.5 times a swing's
+--   reach, and a press out there walks the character to the stray and swings (shared/TouchReach). The server's reach
+--   does not change. It starts OFF (OFF_BY_DEFAULT).
+-- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
+--   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
+--   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
@@ -92,6 +113,13 @@ LiveFlags.KEYS = {
 	"rareCatsTab",
 	"afkCafe",
 	"autoRejoin",
+	"binRoll",
+	"yardSaleRoll",
+	"introSplit",
+	"newKindTag",
+	"parkGateTrail",
+	"touchCatchReach",
+	"rankUpSpotlight",
 	"menuFamily",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -109,6 +137,13 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rareCatsTab = true,
 	afkCafe = true,
 	autoRejoin = true,
+	binRoll = true,
+	yardSaleRoll = true,
+	introSplit = true,
+	newKindTag = true,
+	parkGateTrail = true,
+	touchCatchReach = true,
+	rankUpSpotlight = true,
 	menuFamily = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

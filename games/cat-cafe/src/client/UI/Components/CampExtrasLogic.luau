@@ -6,6 +6,8 @@
 --                                    name and what waits ("1 ready", "14 fish", "Next in 2 h 10 m"), with `ready`
 --                                    for the card's red "!" dot (the Yard Sale's free crate too, #1051), or nil for
 --                                    an area with no extra, a shut one or no state yet
+--   binLine(areaId, nextAt, now, on) the Rummage Bin's line on the Alleyway's card: "Ready" with the dot, or "Empty
+--                                    for now"; withBin(station, bin) picks which of the two lines a card shows
 --   yardRows(view, fish)             the Yard Sale card's crates in stock order: id, price, bought, and whether this
 --                                    player's golden fish cover it
 --   yardButton(row, pending)         a crate's button: "Take", "Taken" once taken, "..." while a take is out
@@ -24,6 +26,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CampExtras = require(Shared:WaitForChild("CampExtras")) :: any
 local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+local RummageBin = require(Shared:WaitForChild("RummageBin")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
 local MarketLogic = require(script.Parent:WaitForChild("MarketLogic"))
@@ -105,6 +108,39 @@ function CampExtrasLogic.pickerLine(
 		state = rest,
 		ready = ready, -- the Yard Sale's free crate lights the dot too since #1051
 	}
+end
+
+-- Derek 2026-11-12 ("the rummage bin ... doesn't show in cannon menu like it should"): the Rummage Bin's line on its
+-- area's Cat Cannon card. `nextAt` is the player's BinNextAt attribute (anything but a number: full), `on` the
+-- `alleyBin` switch. "Ready" with the red dot while it is full, else "Empty for now": never a countdown, like the
+-- bin's own prompt (#3050). nil on another area's card or while the bin is switched off.
+CampExtrasLogic.BIN = "bin"
+CampExtrasLogic.BIN_ICON = "🗑️"
+CampExtrasLogic.BIN_READY = "Ready"
+CampExtrasLogic.BIN_EMPTY = "Empty for now"
+
+function CampExtrasLogic.binLine(areaId: string, nextAt: unknown, now: number, on: boolean): Line?
+	if not on or areaId ~= RummageBin.AREA then
+		return nil
+	end
+	local full = type(nextAt) ~= "number" or now >= (nextAt :: number)
+	return {
+		extraId = CampExtrasLogic.BIN,
+		icon = CampExtrasLogic.BIN_ICON,
+		name = RummageBin.NAME,
+		state = if full then CampExtrasLogic.BIN_READY else CampExtrasLogic.BIN_EMPTY,
+		ready = full,
+	}
+end
+
+-- A card has room for one line: the station's own line keeps it unless only the bin has something waiting.
+function CampExtrasLogic.withBin(station: Line?, bin: Line?): Line?
+	if station == nil then
+		return bin
+	elseif bin ~= nil and bin.ready and not station.ready then
+		return bin
+	end
+	return station
 end
 
 function CampExtrasLogic.yardRows(view: SharedTypes.CampExtraView?, fish: number?): { YardRow }
@@ -191,8 +227,8 @@ CampExtrasLogic.REMOTE_COLLECT =
 CampExtrasLogic.REMOTE_WORDS = { collect = "Collect", open = "Open" } :: { [string]: string }
 
 function CampExtrasLogic.remoteAction(line: Line?): RemoteAction?
-	if line == nil then
-		return nil
+	if line == nil or line.extraId == CampExtrasLogic.BIN then
+		return nil -- the Rummage Bin is played at the bin: no button, the red dot says it is full
 	end
 	if CampExtrasLogic.REMOTE_COLLECT[line.extraId] then
 		return if line.ready then "collect" else nil

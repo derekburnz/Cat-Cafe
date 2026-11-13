@@ -159,7 +159,7 @@ return function()
 				expect(total).to.be.near(100, 1e-9)
 				if def.golden then
 					expect((def.odds.Common or 0) + (def.odds.Rare or 0)).to.equal(0)
-					expect(def.odds.Epic).to.equal(80)
+					expect(def.odds.Epic).to.equal(70) -- #3665
 				else
 					expect(def.odds.Common).to.equal(60)
 					expect(def.odds.Mythical).to.equal(0.5)
@@ -183,8 +183,7 @@ return function()
 				-- #3317: the Star Treat is off the Market (Derek2 2026-11-11), still a lure everywhere else
 				expect(Catalog.getFishShopRow("star_treat")).never.to.be.ok()
 				expect(Catalog.getLure("star_treat")).to.be.ok()
-				local perks: { [string]: number } =
-					{
+				local perks: { [string]: number } = {
 					golden_espresso = 5,
 					big_bowl = 1,
 					extra_decor_spot = 2,
@@ -207,8 +206,7 @@ return function()
 	describe("GoldenFish edges (QA)", function()
 		local FIRST: { [string]: number } =
 			{ Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25, Secret = 100 } -- #3470
-		local REPEAT: { [string]: number } =
-			{ Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 }
+		local REPEAT: { [string]: number } = { Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 }
 		local seed = 20261027
 		local function roll(n: number): number
 			seed = (seed * 1103515245 + 12345) % 2147483648
@@ -382,7 +380,7 @@ return function()
 
 		it("gives every crate section 4's rarity odds, plain and golden", function()
 			local plain = { Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 }
-			local golden = { Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 }
+			local golden = { Common = 0, Rare = 0, Epic = 70, Legendary = 24, Mythical = 6 } -- #3665
 			for _, def in Catalog.crates do
 				local want: { [string]: number } = if def.golden then golden else plain
 				for _, rarity in Catalog.rarityOrder do

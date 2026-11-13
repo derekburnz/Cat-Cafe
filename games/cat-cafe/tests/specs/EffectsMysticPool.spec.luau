@@ -22,10 +22,11 @@ return function()
 			expect(table.concat(Logic.poolSteps("common"), ",")).to.equal("common")
 			expect(table.concat(Logic.poolSteps("uncommon"), ",")).to.equal("common,uncommon")
 			expect(table.concat(Logic.poolSteps("rare"), ",")).to.equal("common,uncommon,rare")
+			expect(table.concat(Logic.poolSteps("epic"), ",")).to.equal("common,uncommon,rare,epic")
 			expect(table.concat(Logic.poolSteps("legendary"), ",")).to.equal(
-				"common,uncommon,rare,legendary"
+				"common,uncommon,rare,epic,legendary"
 			)
-			expect(#Logic.poolSteps("mythic")).to.equal(5)
+			expect(#Logic.poolSteps("mythic")).to.equal(6)
 			expect(table.concat(Logic.poolSteps("nonsense"), ",")).to.equal("common")
 		end)
 
@@ -48,8 +49,14 @@ return function()
 		end)
 
 		it("takes about the spec's times in the pool", function()
-			local want: { [string]: number } =
-				{ common = 1.2, uncommon = 1.8, rare = 2.4, legendary = 3.0, mythic = 4.0 }
+			local want: { [string]: number } = {
+				common = 1.2,
+				uncommon = 1.8,
+				rare = 2.4,
+				epic = 3.0,
+				legendary = 3.6,
+				mythic = 4.6,
+			}
 			for id, seconds in want do
 				expect(math.abs(Logic.poolSeconds(id) - seconds) < 0.05).to.equal(true)
 			end

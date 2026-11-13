@@ -12,6 +12,8 @@
 --   earlyDue(asked, played, working, free) -> boolean   #2681: the same ask once earlier for a player never asked,
 --                                     at EARLY_MINUTES (#2880: 8, and no longer sooner once a cat has served; `working`
 --                                     is kept for the callers but no longer read)
+--   reasons(face) -> { Choice }       #3657: the reasons the slide-in ask offers after a face (none: send it at once)
+--   reasonChip(answer) -> string?     the chip in that ask's answer, nil for Skip or none
 --   answer() -> Answer                :pick(face, now), :chip(id) -> (face, chip)?, :due(now) -> (face, nil)?,
 --                                     :flush() -> (face, nil)?, :face(), :sent(), :reset()
 -- Pure, so the cloud spec runner checks it.
@@ -67,6 +69,31 @@ end
 
 FeedbackLogic.FACES = choices(Tips.FACES, FACE_LOOKS)
 FeedbackLogic.CHIPS = choices(Tips.CHIPS, CHIP_LOOKS)
+
+-- #3657: the slide-in ask sent its face at once and never showed a chip, so one reason came with 106 faces. After a
+-- plain face or a thumbs down the same card now asks why: REASONS and Skip, for REASON_SECONDS; the face goes with
+-- the chip tapped, or alone on Skip, the X or when the time runs out. A thumbs up is sent at once (no reason here
+-- fits it).
+FeedbackLogic.REASON_TITLE = "What is the main reason?"
+FeedbackLogic.REASON_SECONDS = 8
+FeedbackLogic.SKIP = "skip"
+FeedbackLogic.REASON_FACES = table.freeze({ "ok", "no" })
+FeedbackLogic.REASONS = choices({ "too_hard", "confusing", "boring", "laggy" }, CHIP_LOOKS)
+
+-- The reasons the slide-in ask offers after `face`: none for a face that is sent at once.
+function FeedbackLogic.reasons(face: string): { Choice }
+	return if table.find(FeedbackLogic.REASON_FACES, face) ~= nil then FeedbackLogic.REASONS else {}
+end
+
+-- The chip to send for the reasons ask's answer: nil for Skip, no answer or anything that is not one of REASONS.
+function FeedbackLogic.reasonChip(answer: string?): string?
+	for _, chip in FeedbackLogic.REASONS do
+		if chip.id == answer then
+			return chip.id
+		end
+	end
+	return nil
+end
 
 function FeedbackLogic.askDue(asked: boolean?, played: number, free: boolean): boolean
 	return asked == false and played >= FeedbackLogic.ASK_MINUTES * 60 and free

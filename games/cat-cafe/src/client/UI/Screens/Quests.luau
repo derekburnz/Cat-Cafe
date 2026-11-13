@@ -864,9 +864,10 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 			then Theme.colors.gold
 			else Theme.colors.good
 		-- #2207: from a million up the count shortens ("33.3M/100M"), as "33,333,333/100,000,000" ran past its box
-		entry.count.Text = if needs >= 1e6
-			then ShortNumber.format(row.progress) .. "/" .. ShortNumber.format(needs)
-			else ShortNumber.commas(row.progress) .. "/" .. ShortNumber.commas(needs)
+		entry.count.Text = QuestLogic.hoursText(row.def, row.progress)
+			or if needs >= 1e6
+				then ShortNumber.format(row.progress) .. "/" .. ShortNumber.format(needs)
+				else ShortNumber.commas(row.progress) .. "/" .. ShortNumber.commas(needs)
 		entry.chips:set(
 			if prizes then prizes[entry.size] else nil,
 			if entry.size == "XL" then big else small

@@ -12,6 +12,8 @@
 --   hide(how?)     slides it away, answering nil
 --   follow()       keeps a shown card just over the HUD's bottom row as that row moves (#2694)
 --   isShowing() -> boolean
+-- #3657: an ask's answer may show the next ask on the same card (the faces ask's reasons); the card then stays up
+-- with the new words and buttons, with no "Thanks!" between.
 -- An ask's answer(id) runs once: the id of the button pressed, or nil when it drained, was closed, was hidden or was
 -- replaced; its ended(how), when given, says which: "answered", "closed" (the X), "ignored" (it drained), "hidden"
 -- or "replaced" (#2694's funnel). #2694 (Derek2: "make it easier to notice the close and make the tips bubbles (and
@@ -42,6 +44,7 @@ export type Ask = {
 	seconds: number, -- how long it stays with no answer
 	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
 	lines: number?, -- F92: 2 wraps a long title onto two lines and makes the card that much taller; 1 by default
+	rows: number?, -- #3657: 2 lays the buttons over two rows (the first half, rounded down, on top), the card that much taller
 	answer: (id: string?) -> (),
 	ended: ((how: string) -> ())?,
 }
@@ -82,13 +85,15 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	self._showing = false
 	self._ask = nil :: Ask?
 	self._buttons = {} :: { Button.Button }
+	self._lines = 1
+	self._rows = 1
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeAsk",
 		ResetOnSpawn = false,
 		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 11, -- over the HUD (10), under the windows
+		DisplayOrder = 16, -- over the HUD (10) and the Tackle bar (14), which covered its buttons at 11; under the windows (20)
 		Parent = parent,
 	})
 	self.screenGui = screenGui
@@ -177,6 +182,21 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- #3657: the second row of buttons, for an ask with rows = 2
+	self._row2 = Create("Frame", {
+		Name = "Choices2",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(PAD, PAD + TITLE_H + 6 + choiceH + GAP),
+		Size = UDim2.new(1, -2 * PAD, 0, choiceH),
+		Visible = false,
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 	local track: Frame = Create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.colors.line,
@@ -207,13 +227,19 @@ function AskCard._fit(self: any)
 	self._holder.Size = UDim2.fromOffset(math.min(CARD_W, math.max(280, width - 32)), self._cardH)
 end
 
--- F92: one title line or two; the buttons and the card's foot move down with it.
-function AskCard._setLines(self: any, lines: number)
+-- F92: one title line or two; the buttons and the card's foot move down with it. #3657: one row of buttons or two.
+function AskCard._setLines(self: any, lines: number, rows: number?)
+	local two = (rows or 1) >= 2
+	self._lines = lines
+	self._rows = if two then 2 else 1
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
 	self._title.Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, titleH)
 	self._row.Position = UDim2.fromOffset(PAD, PAD + titleH + 6)
-	self._cardH = PAD + titleH + 6 + self._choiceH + PAD + BAR_H
+	self._row2.Position = UDim2.fromOffset(PAD, PAD + titleH + 6 + self._choiceH + GAP)
+	self._row2.Visible = two
+	local buttonsH = if two then self._choiceH * 2 + GAP else self._choiceH
+	self._cardH = PAD + titleH + 6 + buttonsH + PAD + BAR_H
 	self:_fit()
 end
 
@@ -222,15 +248,18 @@ function AskCard._place(self: any, shown: boolean): UDim2
 	return if shown then UDim2.new(0.5, 0, 1, lift) else UDim2.new(0.5, 0, 1, self._cardH + 24)
 end
 
--- The ask's buttons, made again for each ask, sharing the row evenly.
+-- The ask's buttons, made again for each ask, sharing the row evenly. #3657: over two rows, the first half (the
+-- smaller half of an odd count, so the longer words lead with more room) on top, each row sharing its own width evenly.
 function AskCard._buildChoices(self: any, choices: { Choice })
 	for _, button: Button.Button in self._buttons do
 		button:destroy()
 	end
 	table.clear(self._buttons)
-	local count = math.max(1, #choices)
+	local top = if self._rows >= 2 then math.floor(#choices / 2) else #choices
 	for index, choice in choices do
 		local id = choice.id
+		local upper = index <= top
+		local count = math.max(1, if upper then top else #choices - top)
 		table.insert(
 			self._buttons,
 			Button.new({
@@ -245,7 +274,7 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 				textSize = CHOICE_TEXT,
 				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
 				layoutOrder = index,
-				parent = self._row,
+				parent = if upper then self._row else self._row2,
 				sound = "uiToggle",
 				onClick = function()
 					self:_press(id)
@@ -292,7 +321,7 @@ function AskCard.show(self: any, ask: Ask)
 	self._token += 1
 	local token = self._token
 	self._title.Text = ask.title
-	self:_setLines(ask.lines or 1)
+	self:_setLines(ask.lines or 1, ask.rows)
 	self:_buildChoices(ask.choices)
 	local card: Frame = self._holder
 	local wasVisible = card.Visible
@@ -343,6 +372,9 @@ function AskCard._press(self: any, id: string)
 	end
 	self._close.instance.Visible = false
 	self:_answer(id, "answered")
+	if self._ask ~= nil then
+		return -- #3657: the answer showed the next ask on this card
+	end
 	local thanks = ask.thanks
 	if thanks == nil then
 		self:hide()

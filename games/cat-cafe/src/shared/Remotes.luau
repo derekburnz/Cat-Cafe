@@ -159,6 +159,9 @@ Remotes.ClientToServer = {
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
+	"YardSalePick", -- ()  #3614: the Yard Sale's free lucky pick (the `yardSaleRoll` switch), within reach of the
+	-- stall or from its card; 1 a second. The server rolls shared/YardPick's rows and banks the crate in the same
+	-- call, answered with YardSalePicked (or CampExtraResult with ok false) and CampExtrasState
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet and
 	-- in the Yard Sale's stock today (#1537, shared/YardSale), not bought by the caller today, the caller within reach
@@ -300,6 +303,10 @@ Remotes.ServerToClient = {
 	-- with the trust after it (#1884). A device that called its press a Miss keeps the
 	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
 	-- final word.
+	"BinRolled", -- (rowId: string, mode: string, seconds: number)  #3608: the Rummage Bin prize the server chose for
+	-- this player before the bar (the `binRoll` switch): mode RummageBin.MODE_ROLL (just rolled: play the roll on
+	-- the board), MODE_FIXED (a fixed first prize: reveal it) or MODE_WAITING (it was waiting after a miss); the bar
+	-- (RescueChallenge) follows `seconds` later, or at once on a RescuePress for the bin's spot (a tap skips the roll)
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is
@@ -363,6 +370,8 @@ Remotes.ServerToClient = {
 	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on
 	-- join, at each step, lap, start and end, and at most every Config.RallyStateSeconds while points come in
 	"RallyPoint", -- (userId: number, amount: number)  F101: to every client for each score in the Rally, for the pops
+	"YardSalePicked", -- (index: number, crateId: string, tier: number)  #3614: the row of the player's YardPick rows
+	-- the lucky pick landed on, already banked; `tier` sets how big the landing effect is (1 or 3)
 	"CampExtraResult", -- (extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)  F100: the
 	-- answer to CollectCampExtra or BuyYardSale; paid is what it gave in Payout's words ("2 Money Potion", "+14 golden
 	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)
@@ -399,8 +408,8 @@ Remotes.ServerToClient = {
 	-- switch going off before it started)
 	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
 	-- titles, the free run and the board, once both saves are read and after every game
-	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number)  #3296: a game started; the first wave comes
-	-- at server time `firstAt`
+	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number, endsAt: number?)  #3296: a game started; the
+	-- first wave comes at server time `firstAt` and the run's clock runs out at `endsAt` (nil from an older server)
 	"MouseDashWave", -- (run: number, index: number, pops: { { hole: number, kind: string, upAt: number, downAt: number
 	-- } }, hint: string?)  #3296: the wave that is up now, sent only as it starts; `hint` with a player's first kitten
 	"MouseDashJudged", -- (run: number, index: number, tap: MouseDash.Tap, points: number, hearts: number, streak:

@@ -2391,6 +2391,26 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: Select again did not let go (#2872)")
 		UIShim.setLastInput(nil)
 	end },
+	-- #3839 (84 "Setting GuiService.SelectedObject to invalid GuiObject" a day): a button whose ScreenGui was taken out of
+	-- PlayerGui keeps Enabled and Visible, and the engine refuses it; GamepadNav.select and restore leave it alone
+	{ "GamepadSelectDetached", function()
+		local GuiService = game:GetService("GuiService")
+		local GamepadNav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "GateDetachedSelect"
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.fromOffset(120, 48)
+		button.Parent = gui
+		gui.Parent = UIShim.playerGui
+		assert(GamepadNav.shown(button), "uigate: a button in an open ScreenGui in PlayerGui does not count as shown (#3839)")
+		assert(GamepadNav.select(button) and GuiService.SelectedObject == button, "uigate: a shown button was not selected (#3839)")
+		gui.Parent = nil
+		assert(not GamepadNav.shown(button), "uigate: a button whose ScreenGui left PlayerGui still counts as shown (#3839)")
+		GamepadNav.restore(button)
+		assert(GuiService.SelectedObject == nil, "uigate: restore handed the selection to a button out of PlayerGui (#3839)")
+		assert(not GamepadNav.select(button), "uigate: select took a button out of PlayerGui (#3839)")
+		gui:Destroy()
+	end },
 	-- #2868 (Derek2: the "+$/s" tags a little smaller, and on the sleeping cats too): a resting cat napping in a
 	-- cafe's Cats folder shows its name over "Resting" (it earns nothing), a working cat its rate, both a fifth smaller
 	{ "RateTagResting", function()

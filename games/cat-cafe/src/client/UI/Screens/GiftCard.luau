@@ -334,7 +334,7 @@ function GiftCard.showAfter(self: any)
 	-- #2968: the selection was on the first button, which has gone; Close takes it
 	local selected = GuiService.SelectedObject
 	if self._focused and (selected == nil or selected:IsDescendantOf(self._action.instance)) then
-		GuiService.SelectedObject = self:_closeFace()
+		GamepadNav.select(self:_closeFace()) -- #3839: only while it shows
 	end
 end
 

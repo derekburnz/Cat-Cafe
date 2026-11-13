@@ -53,7 +53,23 @@ function GamepadNav.shown(object: Instance?): boolean
 				return false
 			end
 		elseif here:IsA("LayerCollector") then
-			return (here :: LayerCollector).Enabled
+			if not (here :: LayerCollector).Enabled then
+				return false
+			end
+			-- a ScreenGui that was destroyed or taken out keeps Enabled, and selecting a button in it is the
+			-- engine's "Setting GuiService.SelectedObject to invalid GuiObject" (84 a day, #3839): it must still
+			-- hang under a PlayerGui
+			local up: Instance? = here.Parent
+			for _ = 1, 16 do
+				local step = up
+				if step == nil then
+					return false
+				elseif step:IsA("PlayerGui") then
+					return true
+				end
+				up = step.Parent
+			end
+			return false
 		end
 		at = here.Parent
 	end
@@ -99,6 +115,19 @@ function GamepadNav.first(root: Instance): GuiButton?
 	return buttons[1]
 end
 
+-- Selects `target` when it still shows (GamepadNav.shown), else clears the selection, so the engine is never handed a
+-- hidden, destroyed or taken out button (#3839). Returns whether `target` was selected.
+function GamepadNav.select(target: GuiObject?): boolean
+	if target ~= nil and GamepadNav.shown(target) then
+		GuiService.SelectedObject = target
+		return true
+	end
+	if GuiService.SelectedObject ~= nil then
+		GuiService.SelectedObject = nil
+	end
+	return false
+end
+
 -- Puts the gamepad selection on the first useful button under `root` and returns what was selected before (to hand
 -- back to restore). Does nothing off a gamepad, or when `root` has no button, and then returns nil.
 function GamepadNav.focus(root: Instance): (GuiObject?, boolean)
@@ -110,17 +139,12 @@ function GamepadNav.focus(root: Instance): (GuiObject?, boolean)
 		return nil, false
 	end
 	local before = GuiService.SelectedObject
-	GuiService.SelectedObject = first
-	return before, true
+	return before, GamepadNav.select(first)
 end
 
 -- Gives the selection back to `before` when it still shows, else clears it (the sticks walk again).
 function GamepadNav.restore(before: GuiObject?)
-	if before ~= nil and GamepadNav.shown(before) then
-		GuiService.SelectedObject = before
-	else
-		GuiService.SelectedObject = nil
-	end
+	GamepadNav.select(before)
 end
 
 -- The selection ring: an outer sky-blue stroke and a white inner line, over the selected button's whole size.

@@ -136,7 +136,8 @@ local SWAP_W = 76
 local SWAP_H = if Scale.isTouch() then 28 else 36
 local CARD = Vector2.new(0, 142) -- two cards a row; the width follows the window
 local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse needs
-local CARD_CHIP = 26
+-- an achievement card's prize pictures (#3694 Review-QA 2026-11-13: 26 read as very small)
+local CARD_CHIP = 34
 local GAP = Theme.sizes.gap
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
@@ -604,7 +605,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		parent = chipArea,
 		textColor = PAL.text,
 		tile = CARD_CHIP,
-		textSize = Theme.sizes.textTiny,
+		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
 		position = UDim2.fromScale(0, 0.5),
 		fitTo = chipArea,

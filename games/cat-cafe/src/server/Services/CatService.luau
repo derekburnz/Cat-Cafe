@@ -1267,8 +1267,9 @@ local function rollWave(areaDef: Types.AreaDef, luck: number): ({ WavePlace }, b
 end
 
 local function placeWave(entry: WavePlace)
-	-- (cast: the CI type check widens the rarity read back from the record to a plain string)
-	local areaDef, rarity = entry.areaDef, (entry.rarity :: any) :: Types.Rarity
+	-- (an annotated local: the CI type check widens the rarity read back from the record, or cast, to a string)
+	local areaDef = entry.areaDef
+	local rarity: Types.Rarity = entry.rarity :: any
 	-- #1621: the commonest few land by the gate, so the start of the area is never bare at sunrise
 	local point = freeSpawnPoint(
 		areaDef.id,

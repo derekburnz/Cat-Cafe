@@ -1223,11 +1223,29 @@ local Config = {
 		{ at = 30, prize = { lures = { salmon = 1 } }, name = "Salmon" },
 		{ at = 40, prize = { potions = { lucky_potion = 1 } }, name = "Lucky Potion" },
 		{ at = 50, prize = { fish = 15 }, name = "15 golden fish" },
-		{ at = 60, prize = { crates = { classic_golden_crate = 1 } }, name = "Golden Crate" },
-		{ at = 70, prize = { lures = { caviar = 1 } }, name = "Caviar" },
-		{ at = 80, prize = { fish = 30 }, name = "30 golden fish" },
-		{ at = 90, prize = { lures = { moon_milk = 1 } }, name = "Moon Milk" },
-		{ at = 100, prize = { lures = { star_treat = 1 } }, name = "Star Treat" },
+		-- Derek 2026-11-13 ("increase rewards significantly after 50 since thats pretty much leaderboards"): 60 to 100
+		-- pay several times what they did (were a Golden Crate, a Caviar, 30 fish, a Moon Milk and a Star Treat)
+		{
+			at = 60,
+			prize = { crates = { classic_golden_crate = 1 }, fish = 20 },
+			name = "Golden Crate + 20 fish",
+		},
+		{ at = 70, prize = { lures = { caviar = 2 }, fish = 30 }, name = "2 Caviar + 30 fish" },
+		{
+			at = 80,
+			prize = { crates = { alley_golden_crate = 1 }, fish = 60 },
+			name = "Alley Crate + 60 fish",
+		},
+		{
+			at = 90,
+			prize = { lures = { moon_milk = 2 }, crates = { classic_golden_crate = 1 } },
+			name = "2 Moon Milk + Golden Crate",
+		},
+		{
+			at = 100,
+			prize = { lures = { star_treat = 2 }, fish = 100, crates = { alley_golden_crate = 1 } },
+			name = "2 Star Treats + 100 fish + Crate",
+		},
 	} :: { { at: number, prize: { [string]: any }, name: string } },
 	-- #3296 (Mouse Dash, shared/MouseDash, mouse-dash.md section 6): the arcade's second game. Three hearts; every
 	-- MouseDashStepEvery points the mouse's window is x MouseDashWindowStep (never under the floor: a phone's tap
@@ -1237,8 +1255,10 @@ local Config = {
 	MouseDashHearts = 3,
 	MouseDashStepEvery = 5,
 	MouseDashWindowStart = 1.10,
-	MouseDashWindowStep = 0.93,
-	MouseDashWindowFloor = 0.40,
+	-- Derek 2026-11-13 ("scale up the time so that people can actually get 100"): the window shrinks x 0.96 a step (was
+	-- 0.93) to a 0.45 s floor (was 0.40), so it is 0.73 s at 50 points (was 0.53) and 0.49 s at 100 (was 0.40 from 65)
+	MouseDashWindowStep = 0.96,
+	MouseDashWindowFloor = 0.45,
 	MouseDashGapStart = 0.50,
 	MouseDashGapStep = 0.95,
 	MouseDashGapFloor = 0.25,
@@ -1254,8 +1274,9 @@ local Config = {
 	MouseDashHeartBackEvery = 10, -- catches in a row for a heart back
 	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole (which costs a heart since 2026-11-12)
 	-- Derek 2026-11-12, on the live game: "make a timer for how long left in the minigame". A run has this long from
-	-- its first mouse; a perfect 100 point win takes up to about 110 s, so the clock ends only a slow run.
-	MouseDashRunSeconds = 180,
+	-- its first mouse; a perfect 100 point win takes up to about 110 s, so the clock ends only a slow run. 240 s (was
+	-- 180) since the slower windows of 2026-11-13, so a careful run to 100 never meets the clock.
+	MouseDashRunSeconds = 240,
 	MouseDashFirstRunMice = 3, -- a first ever run opens with this many slow mice that cannot cost a heart
 	MouseDashFirstRunWindow = 2.0,
 	MouseDashMouserAt = 50, -- points for the Mouser title

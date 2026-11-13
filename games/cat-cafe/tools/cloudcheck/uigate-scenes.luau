@@ -4575,7 +4575,7 @@ local SCENES = {
 			press("MouseDash", "Prizes")
 			assert(prizes.Visible, "uigate: Prizes did not open the prize list (#3553)")
 			local last = prizes:FindFirstChild("Prize100")
-			assert(last and last.PrizeName.Text == "Star Treat", "uigate: Mouse Dash's card lacks the arcade's prizes (#3296)")
+			assert(last and last.PrizeName.Text == "2 Star Treats + 100 fish + Crate", "uigate: Mouse Dash's card lacks the arcade's prizes (#3296)")
 			for _, at in { 10, 20, 30, 100 } do
 				local row = prizes:FindFirstChild("Prize" .. at)
 				assert(row.Picture.Image.Image ~= "", "uigate: prize " .. at .. " has no picture (#3553)")

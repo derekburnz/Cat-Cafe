@@ -453,11 +453,11 @@ return function()
 		ArcadeBlockLeadIn = 0.9,
 		-- #3296 (Mouse Dash, mouse-dash.md section 6)
 		MouseDashHearts = 3,
-		MouseDashRunSeconds = 180, -- #3553: a run ends on the clock after 3 minutes
+		MouseDashRunSeconds = 240, -- #3553: a run ends on the clock (3 minutes until 2026-11-13, now 4)
 		MouseDashStepEvery = 5,
 		MouseDashWindowStart = 1.10,
-		MouseDashWindowStep = 0.93,
-		MouseDashWindowFloor = 0.40,
+		MouseDashWindowStep = 0.96,
+		MouseDashWindowFloor = 0.45,
 		MouseDashGapStart = 0.50,
 		MouseDashGapStep = 0.95,
 		MouseDashGapFloor = 0.25,

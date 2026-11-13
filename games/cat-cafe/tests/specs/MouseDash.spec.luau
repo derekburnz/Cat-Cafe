@@ -33,14 +33,17 @@ return function()
 	end
 
 	describe("MouseDash pace", function()
-		it("starts at 1.10 s and 0.50 s and reaches the floors by 70 points", function()
+		-- Derek 2026-11-13 ("scale up the time so that people can actually get 100"): x 0.96 a step to a 0.45 s floor
+		it("starts at 1.10 s and 0.50 s and shrinks gently enough to reach 100", function()
 			expect(MouseDash.window(0)).to.be.near(1.10, 1e-6)
 			expect(MouseDash.gap(0)).to.be.near(0.50, 1e-6)
-			expect(MouseDash.window(MouseDash.step(25))).to.be.near(0.765, 0.01)
-			expect(MouseDash.window(MouseDash.step(50))).to.be.near(0.532, 0.01)
-			expect(MouseDash.window(MouseDash.step(65)) > 0.40).to.equal(true)
-			expect(MouseDash.window(MouseDash.step(70))).to.equal(0.40)
-			expect(MouseDash.window(MouseDash.step(100))).to.equal(0.40)
+			expect(MouseDash.window(MouseDash.step(25))).to.be.near(0.897, 0.01)
+			expect(MouseDash.window(MouseDash.step(50))).to.be.near(0.731, 0.01)
+			expect(MouseDash.window(MouseDash.step(75))).to.be.near(0.596, 0.01)
+			expect(MouseDash.window(MouseDash.step(100))).to.be.near(0.487, 0.01)
+			expect(MouseDash.window(MouseDash.step(100)) >= Config.MouseDashWindowFloor).to.equal(
+				true
+			)
 			expect(MouseDash.gap(MouseDash.step(100))).to.equal(0.25)
 		end)
 
@@ -338,7 +341,7 @@ return function()
 				local run = runAt(0)
 				local endsAt = run.startedAt + MouseDash.LEAD_IN + Config.MouseDashRunSeconds
 				expect(run.endsAt).to.be.near(endsAt, 1e-9)
-				expect(Config.MouseDashRunSeconds).to.equal(180)
+				expect(Config.MouseDashRunSeconds).to.equal(240)
 				expect(MouseDash.over(run)).to.equal(nil)
 				expect(MouseDash.over(run, endsAt - 0.01)).to.equal(nil)
 				expect(MouseDash.over(run, endsAt)).to.equal("time")

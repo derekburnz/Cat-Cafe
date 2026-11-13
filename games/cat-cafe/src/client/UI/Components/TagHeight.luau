@@ -27,4 +27,12 @@ function TagHeight.settle(current: number, measured: number): number
 	return current
 end
 
+-- Whether a tag `distance` studs from the camera is worth measuring: within the distance it is drawn at, plus
+-- NEAR_MARGIN so it is already right as it comes into view.
+TagHeight.NEAR_MARGIN = 15
+
+function TagHeight.near(distance: number, drawn: number): boolean
+	return distance <= drawn + TagHeight.NEAR_MARGIN
+end
+
 return TagHeight

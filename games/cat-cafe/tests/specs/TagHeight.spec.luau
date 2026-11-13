@@ -35,5 +35,11 @@ return function()
 			expect(TagHeight.CHECK_SECONDS <= 1).to.equal(true)
 			expect(TagHeight.CHECK_SECONDS >= 0.25).to.equal(true)
 		end)
+
+		it("measures only the cats whose tag can be seen", function()
+			expect(TagHeight.near(10, 70)).to.equal(true)
+			expect(TagHeight.near(70 + TagHeight.NEAR_MARGIN, 70)).to.equal(true)
+			expect(TagHeight.near(71 + TagHeight.NEAR_MARGIN, 70)).to.equal(false)
+		end)
 	end)
 end

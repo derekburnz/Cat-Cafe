@@ -128,6 +128,7 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 		CatService.wearBackpack(player) -- #2719: on their back at once
 	end
 	CatService.refreshSpeed(player) -- #3535: the Speed Shoes count on the carry in hand
+	CatService.keepShoes(player) -- #4050: on their feet at once
 	Telemetry.fishSink(player, profile, price, "Shop", "mystery_" .. item.id)
 	Telemetry.custom(player, "mystery_buy", fishBefore, {
 		item.id,

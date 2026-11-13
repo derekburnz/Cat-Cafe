@@ -4628,7 +4628,13 @@ local clockConnections: { RBXScriptConnection } = {}
 function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	local previous = clockPhase
 	clockPhase = phase
-	if previous == "night" and phase == "day" and areaTitle then
+	-- Review-QA on #3854: the day's banners stay off a busy window too (Toasts.setBusy)
+	if
+		previous == "night"
+		and phase == "day"
+		and areaTitle
+		and not (toasts and toasts:isBusy())
+	then
 		areaTitle:banner(
 			"sunrise",
 			"Sunrise!",
@@ -4822,7 +4828,7 @@ function UI.clock.bind(clock: Instance)
 			local title, line = LuckLogic.dayBanner(view)
 			if title then
 				task.delay(SUNRISE_HOLD + 0.4, function()
-					if areaTitle then
+					if areaTitle and not (toasts and toasts:isBusy()) then
 						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
 					end
 				end)
@@ -4875,7 +4881,7 @@ function UI.luckyDay(
 		if type(coming) == "table" then
 			title, said = (require(script.Components.LuckLogic) :: any).warnBanner(coming)
 		end
-		if areaTitle and title ~= nil then
+		if areaTitle and title ~= nil and not (toasts and toasts:isBusy()) then
 			areaTitle:banner("lucky_warning", title, said or line, Theme.colors.gold, 4)
 		end
 		return

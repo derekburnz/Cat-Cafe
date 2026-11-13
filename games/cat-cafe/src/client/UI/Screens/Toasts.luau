@@ -237,7 +237,10 @@ function Toasts.show(
 		return
 	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
-	if not quiet then
+	-- Review-QA on #3854: a toast that will wait (held, mid-catch or a busy window) makes no sound now
+	local waits = kind ~= "warn"
+		and (self._held or self._busy or (self._focus and string.sub(text, 1, 9) ~= "Try again"))
+	if not quiet and not waits then
 		Sound.play(if kind == "warn" then "uiError" else "uiToast")
 	end
 	self:_push(

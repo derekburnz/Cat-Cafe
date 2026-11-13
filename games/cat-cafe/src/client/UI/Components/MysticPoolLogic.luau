@@ -209,6 +209,15 @@ function MysticPoolLogic.pickerLine(
 	}
 end
 
+-- #3936: whether the red "!" hangs over the pool (Components/PoolBang): a free roll left, a Trait Token banked or
+-- free tokens waiting at the station, and no Keep old / Take new choice waiting. False while the pool is shut.
+function MysticPoolLogic.bangShows(view: View?): boolean
+	if view == nil or view.pending ~= nil then
+		return false
+	end
+	return whole(view.freeLeft) > 0 or whole(view.tokens) > 0 or whole(view.held) > 0
+end
+
 -- The station's free tokens: the line, and whether Collect has something to take. `now` is the server's time.
 function MysticPoolLogic.tokens(view: View?, now: number): (string, boolean)
 	if view == nil then

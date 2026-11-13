@@ -7513,7 +7513,9 @@ do
 	local MysticPool = require(script.Screens.MysticPool)
 	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
 	local EdgeShade = require(script.Components.EdgeShade)
-	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
+	local PoolBang = require(script.Components.PoolBang)
+	local pool =
+		{ card = nil :: MysticPool.MysticPool?, anywhere = false, bang = nil :: PoolBang.PoolBang? }
 	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
 	UI.mysticPool.far = nil :: (() -> boolean)?
 	UI.mysticPool.cutting = nil :: (() -> boolean)? -- #3846: Effects/BigTraitCut.playing (UI.bigTraitCutting)
@@ -7569,6 +7571,7 @@ do
 			end,
 		})
 		pool.card = card
+		pool.bang = PoolBang.new() -- #3936: the red "!" over the pool while a roll waits
 		modalView:register(MysticPoolLogic.WINDOW, {
 			frame = card.frame,
 			onOpen = function()
@@ -7589,6 +7592,10 @@ do
 		local card = pool.card
 		if card then
 			card:render(playerState)
+		end
+		local bang = pool.bang
+		if bang then
+			bang:update((playerState :: any).traits)
 		end
 	end
 
@@ -7618,6 +7625,11 @@ do
 			card:destroy()
 		end
 		pool.card = nil
+		local bang = pool.bang
+		if bang then
+			bang:destroy()
+		end
+		pool.bang = nil
 	end
 end
 

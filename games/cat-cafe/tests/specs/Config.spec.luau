@@ -534,6 +534,8 @@ return function()
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysterySaleShare = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				MysteryFeatured = true, -- #3535: a table, the dated featured weeks, checked in MysteryMarket.spec
+				SpeedShoesCarryBonus = true, -- #3535: checked in SpeedShoes.spec
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor

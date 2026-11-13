@@ -919,6 +919,15 @@ local Config = {
 	MysteryEpoch = 1794009600,
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
+	-- #3535: featured weeks set by date, which win over the weekly rotation (shared/MysteryMarket.featuredAt). `from`
+	-- and `to` are os.time() seconds; outside them the rotation runs. Friday 2026-11-13 22:00 UTC, the update: the
+	-- Speed Shoes for a week (so the Backpack is back at its full price from that moment), then the Long Net until
+	-- Saturday 2026-11-28 00:00 UTC, where the rotation's own week starts and carries on with the Backpack.
+	MysteryFeatured = {
+		{ from = 1794607200, to = 1795212000, id = "speed_shoes" },
+		{ from = 1795212000, to = 1795824000, id = "long_net" },
+	} :: { { from: number, to: number, id: string } },
+	SpeedShoesCarryBonus = 3, -- #3535: walk speed the Speed Shoes add while carrying a cat (16 to 19), never up to the walk speed with no cat
 	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
 	MysteryMarketRange = 22, -- #3448: 18 until the rings grew to radius 8; #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)

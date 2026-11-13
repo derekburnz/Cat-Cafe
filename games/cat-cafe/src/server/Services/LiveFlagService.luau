@@ -89,7 +89,21 @@ local function read()
 	publish()
 end
 
+-- Studio only: switches named in the Workspace attribute DebugFlagsOn ("menuFamily,petCats", set in edit mode before
+-- Play) are on from this server's first moment, for a look the client takes once at its start (the menu family).
+LiveFlagService.DEBUG_ATTRIBUTE = "DebugFlagsOn"
+
 function LiveFlagService.start()
+	if RunService:IsStudio() then
+		local named = game:GetService("Workspace"):GetAttribute(LiveFlagService.DEBUG_ATTRIBUTE)
+		if type(named) == "string" then
+			for key in string.gmatch(named, "[%w]+") do
+				if table.find(LiveFlags.KEYS, key) ~= nil then
+					overrides[key] = true
+				end
+			end
+		end
+	end
 	publish()
 	task.spawn(function()
 		while true do

@@ -83,6 +83,9 @@
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
+-- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
+--   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
+--   publish that added the row is running, since an older server's save check drops an item id it does not know.
 -- - `returnGift` (#3772): a golden crate once per account on the first join on a later UTC day than its first, for
 --   accounts first seen from Config.ReturnGiftFromDay, and the recap's "come back tomorrow" line for it
 --   (shared/ReturnGift). It starts OFF (OFF_BY_DEFAULT).
@@ -128,6 +131,7 @@ LiveFlags.KEYS = {
 	"rankUpSpotlight",
 	"bagColours",
 	"menuFamily",
+	"speedShoes",
 	"returnGift",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -154,6 +158,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankUpSpotlight = true,
 	bagColours = true,
 	menuFamily = true,
+	speedShoes = true,
 	returnGift = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

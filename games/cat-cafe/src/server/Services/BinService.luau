@@ -479,6 +479,12 @@ function BinService.debugSet(player: Player, how: string): Types.RummageBinSave?
 		bin.uses = 0
 		bin.prize = nil
 	end
+	-- #3613 (Review-QA: tier 3 "did not come up in 7 rolls and cannot be forced"): "prize:golden" stores that row as
+	-- the waiting prize, so the next rummage's roll lands on it and its tier's effects play
+	local id = how:match("^prize:(.+)$")
+	if id ~= nil and RummageBin.rollRow(id) ~= nil then
+		bin.prize = id
+	end
 	retryAt[player] = nil
 	save(player, bin)
 	publish(player)

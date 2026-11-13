@@ -1017,7 +1017,7 @@ local function assertBowlTabs(selected, title)
 	local window = baitWindow()
 	local tabs = window:FindFirstChild("Bowls", true)
 	assert(tabs and tabs.Visible, "uigate: two bowls but no bowl tabs (#1161)")
-	local shown = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+	local shown = window:FindFirstChild("Status", true):FindFirstChild("Title", true).Text
 	assert(string.find(shown, title, 1, true), ("uigate: bowl %d's card says %q (#1161)"):format(selected, shown))
 end
 
@@ -3296,7 +3296,7 @@ local SCENES = {
 		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50, wow = true }, 1)
 		UI.bait.openPicker()
 		local window = baitWindow()
-		local title = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title", true).Text
 		assert(title == "Your next cat will be Rare or better!", "uigate: the wow bowl reads " .. title)
 	end },
 	-- #1893 (first-hour.md 1b): the Grand Opening strip under the goal card at 3/8, tapped open into its eight steps
@@ -3985,7 +3985,7 @@ local SCENES = {
 		assertBowlTabs(1, "empty") -- never opens on the locked tab
 		press("Bait", "Bowls.Bowl2")
 		local window = baitWindow()
-		local title = window:FindFirstChild("Status", true):FindFirstChild("Title")
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title", true)
 		assert(title.Text == "Get a second bowl", "uigate: bowl 2's tab shows " .. title.Text .. " (#1161)")
 		local odds = window:FindFirstChild("SecondOdds", true)
 		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no card under it (#1161)")

@@ -44,7 +44,14 @@ local function show(next: any)
 	local shown: boolean = rankSpot.set(next, (RankSpot.WORDS :: any)[next], function()
 		-- a press anywhere on the dim closes it. After KEEP_SECONDS on screen it does not come back as a dim; a
 		-- sooner one (a thumb already on the stick) only hides it until the next free moment
-		if RankSpot.putsAway(os.clock() - shownAt) then
+		-- and never for good while another card is up: that press was for the card (its Close)
+		local window: string? = nil
+		local moment: unknown = rankSpot.moment
+		if type(moment) == "function" then
+			local _, open: string? = (moment :: () -> (boolean, string?))()
+			window = open
+		end
+		if RankSpot.putsAway(os.clock() - shownAt, next, window) then
 			putAway = true
 			report("closed")
 			Net.fire("TipSeen", RankSpot.SEEN, false)

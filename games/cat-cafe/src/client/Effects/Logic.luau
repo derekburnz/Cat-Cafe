@@ -1637,6 +1637,22 @@ function Logic.hopArc(from: Vector3, to: Vector3, height: number, alpha: number)
 	return from + (to - from) * k + Vector3.new(0, 4 * height * k * (1 - k), 0)
 end
 
+-- #3885: where the Rummage Bin's prize picture is at `alpha` (0 to 1 of Presets.binRoll.prize.seconds) and how big,
+-- as a share of its full size. It rises straight up out of the bin top `from` by `rise` studs while it grows (eased
+-- out), then arcs over to `to` (the hands) and shrinks to `catch`.
+function Logic.binPrizePop(from: Vector3, to: Vector3, alpha: number): (Vector3, number)
+	local p = Presets.binRoll.prize
+	local k = math.clamp(alpha, 0, 1)
+	local top = from + Vector3.new(0, p.rise, 0)
+	if k < p.popShare then
+		local t = k / p.popShare
+		local eased = 1 - (1 - t) * (1 - t)
+		return from:Lerp(top, eased), p.from + (1 - p.from) * eased
+	end
+	local t = (k - p.popShare) / (1 - p.popShare)
+	return Logic.hopArc(top, to, p.height, t), 1 + (p.catch - 1) * t
+end
+
 -- The Lucky Cat's paw at time t (Presets.luckyPaw), radians about its shoulder's X: a smooth beckon forward and back,
 -- one every seconds[level], faster at each level; level 0 (the empty plinth) or an unknown level rests at 0.
 function Logic.pawWave(t: number, level: number): number

@@ -31,6 +31,7 @@ local PAD = 12
 local TITLE_H = 28
 local ROW_H = 48 -- 36 px on a phone, where the UI is drawn at 0.75 (#3464)
 local ROW_GAP = 4
+local HINT_H = 22 -- #3885: the line under the rows that says what to do with the prize ("Put it in your bowl")
 local ICON = 40
 local BOTTOM = 110 -- as the rescue bar's result banner: clear of the hotbar
 
@@ -104,6 +105,19 @@ function LootCard.new(parent: Instance): LootCard
 		Parent = card,
 	})
 	self._rows = rows
+	self._hint = Create("TextLabel", {
+		Name = "Hint",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -PAD * 2, 0, HINT_H),
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textBody - 1,
+		TextColor3 = Theme.modal.text,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+		Visible = false,
+		Parent = card,
+	})
 	card.Activated:Connect(function()
 		self:hide()
 	end)
@@ -187,7 +201,8 @@ function LootCard._row(self: any, index: number, row: LootCardLogic.Row): Frame
 	return frame
 end
 
-function LootCard.show(self: any, win: unknown)
+-- `hint` (#3885): what to do with the prize, under the rows, now the bar's win banner is gone ("Put it in your bowl").
+function LootCard.show(self: any, win: unknown, hint: string?)
 	local rows = LootCardLogic.rows(win)
 	if #rows == 0 then
 		return
@@ -202,7 +217,15 @@ function LootCard.show(self: any, win: unknown)
 	local tall = #rows * ROW_H + (#rows - 1) * ROW_GAP
 	local holder: Frame = self._rows
 	holder.Size = UDim2.new(1, -PAD * 2, 0, tall)
-	card.Size = UDim2.fromOffset(CARD_W, PAD - 4 + TITLE_H + 2 + tall + PAD)
+	local hintLabel: TextLabel = self._hint
+	local hasHint = hint ~= nil and hint ~= ""
+	hintLabel.Text = if hasHint then hint :: string else ""
+	hintLabel.Visible = hasHint
+	hintLabel.Position = UDim2.fromOffset(PAD, PAD - 4 + TITLE_H + 2 + tall + 2)
+	card.Size = UDim2.fromOffset(
+		CARD_W,
+		PAD - 4 + TITLE_H + 2 + tall + (if hasHint then HINT_H + 2 else 0) + PAD
+	)
 	local frames: { GuiObject } = {}
 	local icons: { [number]: GuiObject } = {}
 	for index, row in rows do

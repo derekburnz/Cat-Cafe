@@ -137,6 +137,7 @@ export type HUD = {
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setParkGoal: (self: HUD, title: string?) -> (), -- #3554: the goal card's line on the way to a first Park catch
 	goalButton: (self: HUD) -> GuiObject?, -- #3555: the goal card while it is on screen, for the rank up walk-through
+	clockFrame: (self: HUD) -> GuiObject?, -- #3683
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
 	pressTravel: (self: HUD, destination: string) -> boolean,
@@ -3762,6 +3763,15 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	if state ~= nil and (state.secondCat or state.stuckGoal == true) then
 		self:render(state)
 	end
+end
+
+-- #3683: the day clock while it is on screen, for world boards that keep clear of it (BinController).
+function HUD.clockFrame(self: any): GuiObject?
+	local frame: GuiObject = self._clock
+	if frame.Visible and self.screenGui.Enabled then
+		return frame
+	end
+	return nil
 end
 
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.

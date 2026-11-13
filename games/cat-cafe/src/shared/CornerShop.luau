@@ -283,7 +283,7 @@ function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: n
 		end
 	end
 	if buy.coins < price then
-		return "Not enough coins"
+		return CornerShop.NO_COINS
 	end
 	return nil
 end
@@ -375,6 +375,46 @@ function CornerShop.planAll(
 		end
 	end
 	return plan, total
+end
+
+CornerShop.NO_COINS = "Not enough coins"
+CornerShop.NOTHING_LEFT = "Nothing left to buy here right now"
+
+-- #3693: why a Buy all of the `kind` section buys nothing, for the toast (planAll came back empty). "Not enough
+-- coins" when that is what stops a row; else the first row's own reason that is not "sold out this time" (the Bag
+-- full, the day's limit, a tier); else NOTHING_LEFT. Same arguments as planAll; `state` is not changed.
+function CornerShop.whyNone(
+	state: Types.CornerShopState,
+	window: number,
+	kind: string,
+	tier: number,
+	coins: number,
+	held: Held
+): string
+	local other: string? = nil
+	for _, item in CornerShop.stock(window) do
+		local row = Catalog.getCornerShopRow(item.itemId)
+		if row == nil or row.kind ~= kind or row.topShelf == true then
+			continue
+		end
+		if (state.bought[row.id] or 0) >= CornerShop.amountOf(window, row.id) then
+			continue -- sold out this time: nothing to say about it
+		end
+		local blocker = CornerShop.buyBlocker(state, {
+			itemId = row.id,
+			seenWindow = window,
+			tier = tier,
+			coins = coins,
+			foodHeld = if row.foodId ~= nil then held.catFood[row.foodId] or 0 else 0,
+			lureHeld = if row.lureId ~= nil then held.lures[row.lureId] or 0 else nil,
+		}, window)
+		if blocker == CornerShop.NO_COINS then
+			return CornerShop.NO_COINS
+		elseif blocker ~= nil and other == nil then
+			other = blocker
+		end
+	end
+	return other or CornerShop.NOTHING_LEFT
 end
 
 -- A saved state made whole at os.time() `now`: whole numbers, the window no later than the next one, the day no

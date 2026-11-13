@@ -291969,7 +291969,7 @@
         "CatCafe_Park_SetF85_215_Poplar",
         "CatCafe_Park_SetF85_216_Poplar"
       ],
-      "triangles": 113156,
+      "triangles": 124872,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -292386,7 +292386,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 5611,
+      "rbx_parts": 5207,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -292399,10 +292399,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "113156/150000 tris",
+          "budget": "124872/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71584 faces on swatch centers",
+          "uv": "78654 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"
@@ -314744,7 +314744,7 @@
         "CatCafe_Plot_YardFence",
         "CatCafe_Plot_YardFence_Barrier"
       ],
-      "triangles": 3960,
+      "triangles": 3600,
       "budget": 8000,
       "size_studs": {
         "x": 46.4,
@@ -314770,7 +314770,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence.model.json",
-      "rbx_parts": 294,
+      "rbx_parts": 264,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence.glb"
@@ -314783,10 +314783,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3960/8000 tris",
+          "budget": "3600/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2484 faces on swatch centers",
+          "uv": "2304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=23.09"
@@ -318806,7 +318806,7 @@
         "CatCafe_Item_SpeedShoes_Left",
         "CatCafe_Item_SpeedShoes_Right"
       ],
-      "triangles": 1944,
+      "triangles": 1600,
       "budget": 2400,
       "size_studs": {
         "x": 3.5,
@@ -318856,7 +318856,7 @@
       },
       "studio": "#3538 (update-2026-11-13.md): the Speed Shoes, for Juniper's window picture and the pedestal (the pair on a round mat). Worn: clone the child Models _Left and _Right alone, scale each by the foot's width (built for a 1 x 1 stud foot), pivot it to the middle of the R15 LeftFoot or RightFoot's underside facing the way the foot faces, and weld it there, massless and CanCollide off. On R6 the same spot under each leg.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_SpeedShoes.model.json",
-      "rbx_parts": 100,
+      "rbx_parts": 74,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_SpeedShoes.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_SpeedShoes.glb"
@@ -318868,15 +318868,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "1944/2400 tris",
+          "budget": "1600/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "886 faces on swatch centers",
+          "uv": "674 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.20"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_SpeedShoes.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_SpeedShoes.png"
     },
     {
       "name": "CatCafe_Desert_Set",
@@ -322338,7 +322340,8 @@
         "CatCafe_NPC_Townsfolk_Trader_Tail",
         "CatCafe_NPC_Townsfolk_Trader_LegF1",
         "CatCafe_NPC_Townsfolk_Trader_LegF2",
-        "CatCafe_NPC_Townsfolk_Trader_Prop"
+        "CatCafe_NPC_Townsfolk_Trader_Prop",
+        "CatCafe_NPC_Townsfolk_Trader_Glow"
       ],
       "triangles": 952,
       "budget": 1500,
@@ -322409,6 +322412,11 @@
           0.0,
           -0.09,
           0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Glow": [
+          0.02,
+          -0.24,
+          1.66
         ]
       },
       "part_pivots_roblox": {
@@ -322456,6 +322464,11 @@
           0.0,
           0.97,
           -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Glow": [
+          -0.02,
+          1.66,
+          -0.24
         ]
       },
       "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",

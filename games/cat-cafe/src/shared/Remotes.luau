@@ -99,8 +99,9 @@ Remotes.ClientToServer = {
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
 	-- Bellhop Cat not yet claimed, and the first goals done (GroupId 0) or the player in GroupId; 1 per 2 s, answered
 	-- with StarterCatResult
-	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 10: 0 when the intro cutscene played to the end, else
-	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
+	"IntroDone", -- (shot: number, replay: boolean, seconds: number?)  integer 0 to 10: 0 when the intro cutscene played
+	-- to the end, else the shot showing at Skip (F72, shared/Intro); seconds watched, whole, 0 to 600 (#3773, optional
+	-- so an old client still counts); 1 a second. The first non-replay call sets introSeen
 	"UsePotion", -- (potionId: string, count: number?)  F64: a known potion in the bag whose minutes fit under
 	-- PotionMaxMinutes with the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync.
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits

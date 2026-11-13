@@ -29,8 +29,11 @@ IntroLogic.OUT_SECONDS = 0.45 -- the bars slide out this long at the end while t
 -- replay starts full
 IntroLogic.FIRST_SKIP = 0 -- #3168: Skip from the first second (was 5.0)
 IntroLogic.MAX_CAPTION = 45 -- characters a caption fits on one line at full size; a longer one shrinks to fit
-IntroLogic.SKIP_HEIGHT = 40 -- the Skip pill, in design pixels
+-- #3773 (Derek 2026-11-13: make Skip more obvious so players who just want to play skip instead of leaving): the
+-- Skip pill, in design pixels, 1.5 times its old 40, and at least SKIP_TOUCH_MIN real pixels tall on touch
+IntroLogic.SKIP_HEIGHT = 60
 IntroLogic.TOUCH_MIN = 44 -- real pixels a finger needs (Theme.sizes.touchMin)
+IntroLogic.SKIP_TOUCH_MIN = 48
 IntroLogic.SKIP_FALLBACK = 1.5 -- after a Skip, the screen ends itself if the controller has not called finish
 -- shot 2's demo ring: the circle closes onto its ring in CLOSE seconds, PERFECT pops then, the sparkle runs to END
 IntroLogic.RING_RADIUS = 46 -- as Screens/CatchCircles draws the real ones
@@ -94,7 +97,7 @@ function IntroLogic.skipPlace(
 ): (number, number)
 	local height = IntroLogic.SKIP_HEIGHT
 	if touch and scale > 0 then
-		height = math.max(height, math.ceil(IntroLogic.TOUCH_MIN / scale))
+		height = math.max(height, math.ceil(IntroLogic.SKIP_TOUCH_MIN / scale))
 	end
 	if noBar then
 		return height, IntroLogic.NO_BAR_EDGE

@@ -786,6 +786,15 @@ def parse_args():
     return p.parse_args(argv)
 
 
+# Older versions of the four long areas' sets, backdrops and camps (v1 and v3.2, before F85). The game loads only the
+# F85 ones (Layout.luau `set` and `artSuffix`), but everything in rbx/ is synced into ReplicatedStorage.Assets and so
+# held in memory on every client: these 15 were about 29,000 parts and 26 MB of model files for nothing (#3743, #3722).
+# A normal build skips them and writes no rbx file; name one exactly in --only to build it again.
+RETIRED = {f"CatCafe_{a}_{k}" for a in ("Park", "Neighbourhood", "Woods", "Sewer") for k in ("Set", "Backdrop")} | {
+    f"CatCafe_{a}_SetV32" for a in ("Neighbourhood", "Woods", "Sewer")} | {
+    f"CatCafe_Camp_{a}" for a in ("Park", "Neighbourhood", "Woods", "Sewer")}
+
+
 def all_assets():
     out = {}
     for m in MODULES:
@@ -812,6 +821,8 @@ def main():
         print("view sheets:", common.resolve_views_engine(args.views_engine))
     for name, (fn, budget, module) in all_assets().items():
         if wanted and not any(w.lower() in name.lower() for w in wanted):
+            continue
+        if name in RETIRED and name not in wanted:
             continue
         objs = fn(mat)
         built[name] = objs

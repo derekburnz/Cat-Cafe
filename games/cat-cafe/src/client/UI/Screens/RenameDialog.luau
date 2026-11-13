@@ -17,6 +17,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -29,7 +30,9 @@ local CatName = require(Shared:WaitForChild("CatName"))
 local Config = require(Shared:WaitForChild("Config"))
 
 local MAX_LENGTH: number = Config.CatNameMaxLength
-local CARD = Vector2.new(380, 236)
+-- #3924: the name box is a finger's 44 px on a touch screen (the UI gate's tap check), so the card grows with it
+local BOX_H = Scale.tapHeight(46)
+local CARD = Vector2.new(380, 236 + (BOX_H - 46))
 local FILTER_NOTE = "Other players see it after the chat filter"
 
 export type RenameDialog = {
@@ -101,7 +104,7 @@ function RenameDialog.new(
 		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(16, 50),
-		Size = UDim2.new(1, -32, 0, 46),
+		Size = UDim2.new(1, -32, 0, BOX_H),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
@@ -124,7 +127,7 @@ function RenameDialog.new(
 		Name = "Counter",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -16, 0, 100),
+		Position = UDim2.new(1, -16, 0, 54 + BOX_H),
 		Size = UDim2.fromOffset(60, 18),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
@@ -138,7 +141,7 @@ function RenameDialog.new(
 	local note: TextLabel = Create("TextLabel", {
 		Name = "Note",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(16, 100),
+		Position = UDim2.fromOffset(16, 54 + BOX_H),
 		Size = UDim2.new(1, -96, 0, 36),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,

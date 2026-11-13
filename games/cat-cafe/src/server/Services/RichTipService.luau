@@ -31,6 +31,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local RichBags = require(ReplicatedStorage.Shared.RichBags)
+local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VisitTimer = require(ReplicatedStorage.Shared.VisitTimer)
@@ -266,6 +267,12 @@ local function checkExpiries()
 	end
 end
 
+-- The player's cafe tier, 1 before the save loads (for the Haggler perk).
+local function tierOf(player: Player): number
+	local profile = DataService.get(player)
+	return if profile ~= nil then Economy.tier(profile) else 1
+end
+
 -- Drops a bag on the plot: the whole rich payout, waiting `seconds` from now (RichBagSeconds, or the first visit's
 -- longer stay). Nil when the plot is full.
 local function drop(
@@ -294,7 +301,11 @@ local function drop(
 	local bag: RichBags.Bag = {
 		id = RichBags.idOf(serial),
 		slot = slot,
-		amount = Economy.richTipAmount(dayRate * Economy.eventMoney()), -- #2486: x a running Cafe Event's money
+		-- #2486: x a running Cafe Event's money; the Yard Sale's Haggler adds 10% from Tier 3 (2026-11-13)
+		amount = StationPerks.richBag(
+			Economy.richTipAmount(dayRate * Economy.eventMoney()),
+			tierOf(player)
+		),
 		boost = Economy.eventMoney(),
 		droppedAt = now,
 		expiresAt = now + (seconds or FirstVisits.stay(first, Config.RichBagSeconds)),

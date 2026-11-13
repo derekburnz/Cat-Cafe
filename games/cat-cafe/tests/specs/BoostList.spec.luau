@@ -137,7 +137,7 @@ return function()
 			expect(byKey(BoostList.rows(Catalog, state(), NOW, 0)).pals).to.equal(nil)
 			expect(byKey(BoostList.rows(Catalog, state(), NOW)).pals).to.equal(nil)
 			local one = byKey(BoostList.rows(Catalog, state(), NOW, 1))
-			expect(one.pals.name).to.equal("Pals (1)")
+			expect(one.pals.name).to.equal("Friend bonus (1)")
 			expect(one.pals.value).to.equal("+10%")
 			expect(one.total.value).to.equal("x1.1")
 			-- a full potion share and two pals: the pals still add, as Economy.tipMultiplier adds them past the cap

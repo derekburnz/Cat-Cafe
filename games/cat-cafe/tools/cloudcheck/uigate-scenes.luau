@@ -2026,6 +2026,7 @@ local SCENES = {
 		UI.open("Cats")
 		task.wait(0.2)
 		press("Cats", "gate_3")
+		press("Cats", "Feed") -- #3924: the tiles show once Feed is pressed
 		task.wait(0.1)
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local row = modals:FindFirstChild("FeedRow", true) :: Frame
@@ -5255,16 +5256,48 @@ local SCENES = {
 			press("Cats", "gate_rainbow")
 		end)
 	end },
-	-- its sell asks twice: "Sell your Rainbow ...? It earns x3", then "Really sell it?"
-	{ "CatsRainbowSell", function()
+	-- #3924 (Derek 2026-11-13: "just one row of things an equip/unequip button (no move), remove sell ... make the lock a
+	-- small square ... feed opens the menu attached ... rename just when you click on their name"): Equip, Feed and the
+	-- Lock square on one row, no Sell or Move, the food row shut until Feed, a tap on the name opens Rename
+	{ "CatsOneRow", function()
 		local player = samplePlayer(os.time())
 		player.cats.gate_rainbow = rainbowCat()
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 		task.delay(0.2, function()
 			press("Cats", "gate_rainbow")
-			press("Cats", "Sell")
-			press("Cats", "Sell")
+			task.wait(0.1)
+			local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+			local rootFrame = modals and modals:FindFirstChild("Root")
+			local container = rootFrame and rootFrame:FindFirstChild("Container")
+			local cats = container and container:FindFirstChild("Cats")
+			assert(cats, "uigate: no Cats window (#3924)")
+			local actions = cats:FindFirstChild("Actions", true)
+			assert(actions, "uigate: no Actions row (#3924)")
+			for _, gone in { "Sell", "Rest", "Move" } do
+				assert(cats:FindFirstChild(gone, true) == nil, "uigate: the cat room still has " .. gone .. " (#3924)")
+			end
+			local lock = actions:FindFirstChild("Lock", true)
+			assert(lock and lock.Visible, "uigate: no Lock square on the row (#3924)")
+			local size = lock.AbsoluteSize
+			assert(math.abs(size.X - size.Y) <= 2, "uigate: the Lock is not square: " .. tostring(size) .. " (#3924)")
+			local top = actions.AbsolutePosition.Y
+			local edge = actions.AbsolutePosition.X + actions.AbsoluteSize.X + 1
+			for _, name in { "Assign", "Feed", "Lock" } do
+				local piece = actions:FindFirstChild(name, true)
+				assert(piece, "uigate: no " .. name .. " on the row (#3924)")
+				assert(math.abs(piece.AbsolutePosition.Y - top) <= 2, "uigate: " .. name .. " is off the row (#3924)")
+				assert(piece.AbsolutePosition.X + piece.AbsoluteSize.X <= edge, "uigate: " .. name .. " spills off the row (#3924)")
+			end
+			local feedRow = cats:FindFirstChild("FeedRow", true)
+			assert(feedRow and not feedRow.Visible, "uigate: the food row shows before Feed (#3924)")
+			press("Cats", "Feed")
+			task.wait(0.1)
+			assert(feedRow.Visible, "uigate: Feed did not open the food row (#3924)")
+			press("Cats", "NameTap")
+			task.wait(0.1)
+			local rename = modals:FindFirstChild("Rename", true)
+			assert(rename and rename.Visible, "uigate: a tap on the name did not open Rename (#3924)")
 		end)
 	end },
 	-- #1618 (Derek2 11-05: "don't even need that button just remove it"): no Sell extras card in the cat room
@@ -6261,63 +6294,34 @@ local SCENES = {
 	{ "TeamRescue", function()
 		UI.teamRescue(4242, localUserId(), 1240)
 	end },
-	-- F92: four pals on the server: three faces, "+1" and "+15% with pals" after the potion timer
-	-- #3052: on touch the chip is not in that row; it floats small on the clock's line, left of the clock
+	-- F92: four pals on the server. Derek 2026-11-13 ("move that to just be in money breakdown area ... and don't put
+	-- a line anywhere"): no pal chip on the HUD; the boosts card a tap on the money opens has the "Friend bonus" row
 	{ "HUDPals", function()
 		local t = workspace:GetServerTimeNow()
 		UI.update({ buffs = { tip_potion = t + 492 } })
-		-- the floating chip shows with the clock (Scenes.close clears it)
-		local clock = Instance.new("Folder")
-		clock.Name = "Clock"
-		clock:SetAttribute("Phase", "day")
-		clock:SetAttribute("PhaseEndsAt", workspace:GetServerTimeNow() + 190)
-		clock:SetAttribute("AreasOpen", true)
-		clock:SetAttribute("Day", 4)
-		clock:SetAttribute("NextLuckyDay", 8)
-		clock:SetAttribute("LuckyDay", false)
-		UI.clock.bind(clock)
 		UI.pals({ 4242, 4343, 4444, 4545 })
 		UIShim.advance(0.1)
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
-		local chip = hud:FindFirstChild("Pals", true) :: GuiObject
-		local words = chip:FindFirstChild("Bonus") :: TextLabel
-		assert(chip.Visible, "uigate: four pals show no chip (F92)")
-		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
-			local line = hud:FindFirstChild("Clock", true) :: GuiObject
-			local sky = line:FindFirstChild("Sky") :: GuiObject
-			assert(chip.Parent == line, "uigate: on touch the pal chip is not in the clock's line (#3052)")
-			assert(not chip:IsA("GuiButton"), "uigate: the floating pal chip takes taps (#3052)")
-			assert(words.Text:match("^%+%d+%%$"), "uigate: the pal chip reads " .. words.Text .. " (#2712)")
-			assert(words.AbsolutePosition.X + words.AbsoluteSize.X <= sky.AbsolutePosition.X, "uigate: the pal chip runs into the clock's sun (#3052)")
-			assert(chip:FindFirstChild("Face2", true) == nil and chip:FindFirstChild("More", true) == nil, "uigate: the floating pal chip shows more than one face (#3052)")
-			-- clear of the money and golden fish, also at night (a longer clock line) with a long amount
-			local counters = hud:FindFirstChild("Counters", true) :: GuiObject
-			local before = UI.getState() :: any
-			Scenes._stepState = { money = before.money, buffs = before.buffs }
-			for _, case in { { "night", 987654321098 }, { "day", 1.23e9 } } do
-				clock:SetAttribute("Phase", case[1])
-				UI.update({ money = case[2] } :: any)
-				UIShim.advance(0.3)
-				local apart = chip.AbsolutePosition.X >= counters.AbsolutePosition.X + counters.AbsoluteSize.X
-					or chip.AbsolutePosition.Y >= counters.AbsolutePosition.Y + counters.AbsoluteSize.Y
-					or chip.AbsolutePosition.Y + chip.AbsoluteSize.Y <= counters.AbsolutePosition.Y
-				assert(apart, ("uigate: at %s the pal chip (x %d) runs into the counters (to x %d) (#3052)"):format(case[1], chip.AbsolutePosition.X, counters.AbsolutePosition.X + counters.AbsoluteSize.X))
+		assert(hud:FindFirstChild("Pals", true) == nil, "uigate: the HUD still has a pal chip (2026-11-13)")
+		for _, piece in hud:GetDescendants() do
+			if piece:IsA("TextLabel") and (piece :: TextLabel).Visible then
+				assert(not (piece :: TextLabel).Text:find("with pals", 1, true), "uigate: the HUD shows " .. (piece :: TextLabel).Text .. " (2026-11-13)")
 			end
-			for _ = 1, 60 do
-				UIShim.advance(0.1) -- the "Sunrise!" words leave before the picture
-			end
-		else
-			assert(words.Text:match("^%+%d+%% with pals$"), "uigate: the pal chip reads " .. words.Text .. " (F92)")
 		end
-		-- smaller than it was (28 px faces, 18 px words)
-		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
-		local face = chip:FindFirstChild("Face1", true) :: GuiObject
-		assert(face.AbsoluteSize.X / scale <= 24.5, ("uigate: a pal's face is %d px wide (#3052)"):format(face.AbsoluteSize.X / scale))
-		assert(words.TextSize <= 16, ("uigate: the pal chip's words are %d px (#3052)"):format(words.TextSize))
+		press("CatCafeHUD", "Counters.Money")
+		local card = hud:FindFirstChild("Boosts", true) :: GuiObject
+		assert(card and card.Visible, "uigate: the money did not open the boosts card (F92)")
+		local found = false
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and (piece :: TextLabel).Text == "Friend bonus (4)" then
+				found = true
+			end
+		end
+		assert(found, "uigate: the boosts card has no Friend bonus (4) row (F92)")
+		press("CatCafeHUD", "Counters.Money")
 	end },
 	-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join"): on any device no piece of the HUD
-	-- moves or changes size when pals join and leave, with the Luck chip up and a Lucky Day on, as in his screenshot;
-	-- only the pal chip itself (and on a PC the row it closes) may change
+	-- moves or changes size when pals join and leave, with the Luck chip up and a Lucky Day on, as in his screenshot
 	{ "HUDPalsStay", function()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local root = hud:FindFirstChild("Root") :: Frame
@@ -6325,7 +6329,6 @@ local SCENES = {
 		Scenes._stepState = { money = before.money, buffs = before.buffs }
 		local t = workspace:GetServerTimeNow()
 		UI.update({ money = 25.3e9, buffs = { lucky_potion = t + 300 } } :: any)
-		-- the floating chip shows with the clock (Scenes.close clears it)
 		local clock = Instance.new("Folder")
 		clock.Name = "Clock"
 		clock:SetAttribute("Phase", "day")
@@ -6338,12 +6341,11 @@ local SCENES = {
 		Scenes._palsClock = true
 		UI.pals({})
 		UIShim.advance(0.2)
-		local chip = hud:FindFirstChild("Pals", true) :: GuiObject
-		assert(not chip.Visible, "uigate: the pal chip shows with no pals (F92)")
 		local function shot(): { [string]: { Vector2 } }
 			local out = {}
 			for _, piece in root:GetDescendants() do
-				if piece:IsA("GuiObject") and piece.Visible and not piece:FindFirstAncestor("Pals") and piece.Name ~= "Pals" then
+				-- (an open boosts card gains its Friend bonus row, which is where the bonus belongs)
+				if piece:IsA("GuiObject") and piece.Visible and not piece:FindFirstAncestor("Boosts") then
 					local path = piece:GetFullName()
 					if out[path] == nil then
 						out[path] = { piece.AbsolutePosition, piece.AbsoluteSize }
@@ -6356,17 +6358,17 @@ local SCENES = {
 		for index, pals in { { 4242 }, { 4242, 4343 }, { 4242, 4343, 4444, 4545 }, { 4242 }, {} } do
 			UI.pals(pals)
 			UIShim.advance(0.2)
-			assert(chip.Visible == (#pals > 0), ("uigate: with pals set %d the pal chip is %s (#3052)"):format(index, tostring(chip.Visible)))
 			local now = shot()
 			for path, was in base do
 				local is = now[path]
-				-- (the clock's words tick; the row the chip closes on a PC grows sideways only)
-				local row = path:find("%.Potions$") ~= nil
-				if is ~= nil and not path:find("Clock", 1, true) then
+				if is ~= nil and not path:find("Clock", 1, true) then -- (the clock's words tick)
 					local moved = (is[1] - was[1]).Magnitude
-					local grew = if row then math.abs(is[2].Y - was[2].Y) else (is[2] - was[2]).Magnitude
+					local grew = (is[2] - was[2]).Magnitude
 					assert(moved < 1 and grew < 1, ("uigate: with pals set %d, %s moved %d px and grew %d px (#3052)"):format(index, path, moved, grew))
 				end
+			end
+			for path in now do
+				assert(base[path] ~= nil or path:find("Clock", 1, true), ("uigate: with pals set %d, %s showed up (2026-11-13)"):format(index, path))
 			end
 		end
 	end },
@@ -8894,6 +8896,34 @@ local SCENES = {
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
 	end },
+	-- #3953: today's crate still free: the wide card with its "FREE TODAY" pill, the odds as pills in view (no Odds
+	-- button to find them behind) and the Take button
+	{ "YardSaleFree", function()
+		local extras = campExtras(0, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.2)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local yard = modals and modals:FindFirstChild("YardSale", true)
+		assert(yard, "uigate: no Yard Sale card (#3953)")
+		local crates = yard:FindFirstChild("Crates", true)
+		local card = crates and crates:FindFirstChildWhichIsA("Frame")
+		assert(card, "uigate: no crate card on the Yard Sale (#3953)")
+		local status = card:FindFirstChild("Status")
+		assert(
+			status and status:IsA("TextLabel") and status.Text == "FREE TODAY",
+			"uigate: the Yard Sale crate has no FREE TODAY pill (#3953)"
+		)
+		assert(card:FindFirstChild("OddsSheet", true) == nil, "uigate: the Yard Sale still hides its odds on a sheet (#3953)")
+		local odds = card:FindFirstChild("Odds", true)
+		local pills = 0
+		for _, pill in (if odds then odds:GetChildren() else {}) do
+			if pill:IsA("TextLabel") and string.find(pill.Text, "%%") then
+				pills += 1
+			end
+		end
+		assert(pills >= 2, "uigate: the Yard Sale crate shows " .. pills .. " odds pills (#3953)")
+	end },
 	-- #3615: the Yard Sale card as the lucky pick (the `yardSaleRoll` switch): the board with one row per crate a
 	-- Tier 4 player can win, chances to one decimal, and the Lucky pick button
 	{ "YardSalePick", function()
@@ -9690,7 +9720,13 @@ local SCENES = {
 		press("CatCafeHUD", "Icons.Rewards")
 	end },
 	{ "HUDMenu", function()
+		UI.arcade.setOn(true, true)
 		press("CatCafeHUD", "Icons.Menu")
+		-- Derek 2026-11-13 ("remove the old cat arcade icon from settings"): no Cat Arcade row in the list
+		local pop = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Pop", true)
+		if pop and pop.Visible then
+			assert(pop:FindFirstChild("Arcade") == nil, "uigate: the Menu list still has the Cat Arcade row (2026-11-13)")
+		end
 	end },
 	-- carrying a cat: the banner over the bottom row with the cat's head in its rarity circle (Derek 2026-11-03)
 	{ "HUDCarry", function()

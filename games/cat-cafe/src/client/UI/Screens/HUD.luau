@@ -28,8 +28,8 @@
 -- gold "New!" on its button for NEW_SECONDS.
 -- Laid out in design pixels under one UIScale from Scale.bind.
 --
--- F92 (playing-together.md sections 2 and 5): the pal chip (Screens/PalChip) closes the potion timers' row while pals
--- are on the server, the boosts card gets their "Pals (2)" row, Invite sends Roblox's invite with this player's name
+-- F92 (playing-together.md sections 2 and 5): while pals are on the server the boosts card gets their "Friend bonus
+-- (2)" row (no chip on the HUD since 2026-11-13), Invite sends Roblox's invite with this player's name
 -- in its launch data (Components/Invite), and a joiner whose pal is out in an area sees "Sam is in the Park" over the
 -- glowing Cannon (Screens/PalMarker).
 --
@@ -64,12 +64,10 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
-local MenuFit = require(script.Parent.Parent.Components.MenuFit)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
-local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
 local PassShop = require(script.Parent.Parent.Components.PassShop)
 local PityLogic = require(script.Parent.Parent.Components.PityLogic)
@@ -164,7 +162,6 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
-	setArcade: (self: HUD, on: boolean) -> (), -- #3062: the Menu list's Arcade row
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -302,75 +299,9 @@ local function rowGap(foot: number): number
 end
 local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 20 on touch)
 local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
--- #3033 (Laptop-Tester, live 494: "the chat window covers the top left Store tile"): the bottom of Roblox's chat
--- window in pixels from the top of `root`, when it is on and reaches over the left column's first `columnW` pixels;
--- nil otherwise (touch, no TextChatService window, or one placed elsewhere). Roblox terms: TextChatService's
--- ChatWindowConfiguration reports where the chat window is drawn (AbsolutePosition, AbsoluteSize).
-local function chatWindow(): Instance?
-	local ok, service = pcall(function(): Instance?
-		return game:GetService("TextChatService")
-	end)
-	if not ok or service == nil then
-		return nil
-	end
-	return (service :: Instance):FindFirstChildOfClass("ChatWindowConfiguration")
-end
-
--- #3686: the box under the chat window (TextChatService's ChatInputBarConfiguration)
-local function chatInputBar(): Instance?
-	local ok, service = pcall(function(): Instance?
-		return game:GetService("TextChatService")
-	end)
-	if not ok or service == nil then
-		return nil
-	end
-	return (service :: Instance):FindFirstChildOfClass("ChatInputBarConfiguration")
-end
-
--- #3686: false once the player has closed the chat with the top bar's chat button (StarterGui's "ChatActive" core
--- value); true when Roblox cannot say
-local function chatActive(): boolean
-	local ok, active = pcall(function(): any
-		return game:GetService("StarterGui"):GetCore("ChatActive")
-	end)
-	return not (ok and active == false)
-end
-
-local function chatBottom(root: GuiObject, columnW: number): number?
-	local config: any = chatWindow()
-	if config == nil or config.Enabled ~= true then
-		return nil
-	end
-	local okPos, at = pcall(function(): Vector2
-		return config.AbsolutePosition
-	end)
-	local okSize, size = pcall(function(): Vector2
-		return config.AbsoluteSize
-	end)
-	if not okPos or not okSize or typeof(at) ~= "Vector2" or typeof(size) ~= "Vector2" then
-		return nil
-	end
-	local left = (at :: Vector2).X - root.AbsolutePosition.X
-	if size.X <= 0 or size.Y <= 0 or left > columnW then
-		return nil
-	end
-	if not chatActive() then
-		return nil -- #3686: the player closed the chat from Roblox's top bar
-	end
-	local bottom = (at :: Vector2).Y + (size :: Vector2).Y
-	-- #3686 (Review-QA, Studio 11-12: the window ended at 208 px and the box under it at 253): the box the player
-	-- types in sits under the window and takes clicks too
-	local bar: any = chatInputBar()
-	if bar ~= nil and bar.Enabled == true then
-		local okBar, barBottom = pcall(function(): number
-			return bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
-		end)
-		if okBar and type(barBottom) == "number" then
-			bottom = math.max(bottom, barBottom)
-		end
-	end
-	return bottom - root.AbsolutePosition.Y
-end
+-- #3033 and #3686 moved the column under Roblox's chat window on a computer. Derek 2026-11-13: "when chat is open it
+-- also pushes the buttons down maybe make it so the chat doesn't effect it and just goes over top": the column stays
+-- where it is and the chat draws over it.
 
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
@@ -2318,24 +2249,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_hideBoosts()
 		end
 	)
-	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
-	-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join move the friend join bonuses and make
-	-- it smaller"): on touch it is not in that row (a pal joining made the row too wide for the top bar, and the Luck
-	-- chip, the money badge and the status banner all dropped a line). It is a small label in the clock's own line,
-	-- left of the sun: the clock is right-aligned, so the chip grows into free space and nothing is laid out from it
+	-- F92: the pals' bonus is a row of the boosts card a tap on the money opens. Derek 2026-11-13 ("the friend bonus is
+	-- the reason maybe move that to just be in money breakdown area ... and don't put a line anywhere"): there is no
+	-- pal chip on the HUD any more (it widened the bottom row on a PC and broke the left side).
 	self._palIds = {} :: { number }
-	self._pals = PalChip.new(
-		if TOUCH then self._clock else self._buffs.frame,
-		function(shown: boolean)
-			if not TOUCH then
-				self._buffs:setLead(shown, "pals")
-			end
-		end,
-		function()
-			self:_toggleBoosts()
-		end,
-		TOUCH
-	)
 	self._palMarker = PalMarker.new()
 	-- #3052 (Derek2 11-10: "if 4x money is bought just add it to money breakdown no need for a symbol"): an owned money
 	-- pass has no chip or tag in the HUD (#1962's gold "💰 Cash x2" chip, #2447's small tag after the amount); its
@@ -2360,39 +2277,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- pair; the layouts wait for this flag, then run once here
 	self._built = true
 	self:_layoutMenu()
-	-- #3033: and Roblox's chat window, which can sit over the Store tile on a computer
-	local chat: any = if TOUCH then nil else chatWindow()
-	if chat ~= nil then
-		-- #3686: and the box under it
-		for _, config: any in { chat, chatInputBar() } do
-			for _, property in { "AbsolutePosition", "AbsoluteSize", "Enabled" } do
-				local okSignal, signal = pcall(function(): RBXScriptSignal
-					return config:GetPropertyChangedSignal(property)
-				end)
-				if okSignal then
-					table.insert(
-						self._connections,
-						signal:Connect(function()
-							self:_layoutMenu()
-						end)
-					)
-				end
-			end
-		end
-		-- #3686: Roblox has no signal for the top bar's chat button, so the menu looks once a second and moves when
-		-- the chat was opened or closed
-		local was = chatActive()
-		task.spawn(function()
-			while not self._gone do
-				task.wait(1)
-				local now = chatActive()
-				if now ~= was and not self._gone then
-					was = now
-					self:_layoutMenu()
-				end
-			end
-		end)
-	end
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
 		self._connections,
@@ -4406,10 +4290,11 @@ function HUD._tradeLockedNote(self: any)
 	end)
 end
 
--- The Menu tile's press: the list (Settings, the Cat Arcade, Invite) once Invite is unlocked or the arcade is on,
--- else Settings at once.
+-- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once. Derek
+-- 2026-11-13 ("remove the old cat arcade icon from settings"): the list has no Cat Arcade row (#3062's); the arcade
+-- opens at its cabinet.
 function HUD._pressMenu(self: any)
-	if self:_open("invite") or self._arcadeOn ~= false then
+	if self:_open("invite") then
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4475,17 +4360,6 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				callbacks.openScreen("Settings")
 			end,
 		})
-		-- #3062: the Cat Arcade from anywhere ("can play when bored"), unless its live switch is off
-		if self._arcadeOn ~= false then
-			table.insert(rows, {
-				id = "Arcade",
-				icon = "🕹️",
-				style = "purple" :: Button.Style,
-				press = function()
-					callbacks.openScreen("Arcade")
-				end,
-			})
-		end
 		if self:_open("invite") then
 			table.insert(rows, {
 				id = "Invite",
@@ -4520,8 +4394,6 @@ function HUD._popText(self: any, id: string): string
 		return if row then GiftLadderLogic.line(row) else "Gift"
 	elseif id == "Invite" then
 		return "Invite friends"
-	elseif id == "Arcade" then
-		return "Cat Arcade"
 	end
 	return id
 end
@@ -4641,11 +4513,6 @@ end
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
 -- the function that opens the Store window, hidden with nil. init's Store block calls it as soon as the window exists,
 -- passes on sale or not (#1167); hidden, the grid closes up (review N341: moved here).
--- #3062: the `arcade` live switch, for the Menu list's Arcade row.
-function HUD.setArcade(self: any, on: boolean)
-	self._arcadeOn = on
-end
-
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile
@@ -5163,28 +5030,6 @@ function HUD._layoutMenu(self: any)
 			columns += 1
 		end
 	end
-	-- #3686 (Review-QA, Studio 11-12: "clicks on Store did nothing while the chat was open"): on a computer the chat
-	-- window lies over the top of the column, and on most screens the column did not fit under it, so it stayed
-	-- (#3033 only moved a column that fitted). Now a column that does not fit under the chat takes more tiles a
-	-- row until it does, with the arrow tab beside it as on a short screen.
-	local chatTop: number? = nil
-	if not TOUCH and scale > 0 then
-		local under = chatBottom(self._root, (MARGIN + MENU_W) * scale)
-		if under ~= nil then
-			chatTop = math.ceil(under / scale) + gap
-		end
-	end
-	if chatTop ~= nil then
-		local fitsAsIs = roomy
-			and chatTop + gridH(columns) + foldUnder <= bandBottom - (buffsH + BUFFS_GAP)
-		if not fitsAsIs then
-			local wider = MenuFit.underChat(chatTop, bandBottom, columns, MENU_COLUMNS_MAX, gridH)
-			if wider ~= nil then
-				columns = wider
-				roomy = false
-			end
-		end
-	end
 	local rows = math.ceil(shown / columns)
 	local spaces = math.max(0, rows - 1)
 	self._menuLayout.FillDirectionMaxCells = columns
@@ -5204,11 +5049,6 @@ function HUD._layoutMenu(self: any)
 	local block = storeH + menuH + (if roomy then foldUnder else 0)
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
-	-- #3033: on a computer, the column starts under Roblox's chat window when that covers it and the column still
-	-- fits above the counters; else it stays where it was
-	if chatTop ~= nil and chatTop > self._menuTop and chatTop + block <= bandBottom then
-		self._menuTop = chatTop
-	end
 	self._gridTop = self._menuTop + storeH
 	self._foldBeside = not roomy
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid
@@ -5367,7 +5207,6 @@ end
 -- their faces and the bonus; an open boosts card gets their row; a marker for a pal who left goes.
 function HUD.setPals(self: any, userIds: { number })
 	self._palIds = table.clone(userIds)
-	self._pals:set(userIds)
 	if self._boosts.Visible then
 		self:_renderBoosts()
 	end
@@ -5464,7 +5303,6 @@ function HUD.destroy(self: any)
 	self._goal:destroy()
 	self._luck:destroy()
 	self._palMarker:destroy()
-	self._pals:destroy()
 	self._buffs:destroy()
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)

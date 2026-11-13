@@ -344,6 +344,23 @@ return function()
 			expect(#one).to.equal(1)
 			expect(one[1].product).to.equal("trait_tokens_50")
 		end)
+		it("hangs the red ! over the pool while a roll waits (#3936)", function()
+			expect(MysticPoolLogic.bangShows(nil)).to.equal(false)
+			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 })).to.equal(
+				false
+			)
+			expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 0, held = 0 })).to.equal(
+				true
+			)
+			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 2, held = 0 })).to.equal(true)
+			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 1 })).to.equal(true)
+			expect(MysticPoolLogic.bangShows({ tokens = 3, pending = { uid = "a", id = "b" } })).to.equal(
+				false
+			)
+			expect(MysticPoolLogic.bangShows({ tokens = -4, freeLeft = 0 / 0 } :: any)).to.equal(
+				false
+			)
+		end)
 		it("shows every roll's odds, summing to 100 (monetization-policy 2.1)", function()
 			local sum = 0
 			for _, row in MysticPoolLogic.odds() do

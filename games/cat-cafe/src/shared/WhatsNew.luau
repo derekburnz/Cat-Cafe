@@ -68,18 +68,19 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "Party: 2x money 30 min",
 	},
-	-- #2718 (Design-Agent, 11-13 01:46 UTC): two changes live since 2026-11-12 that the board did not name yet.
+	-- #2718 (Design-Agent, 11-13 01:46 UTC): two changes the board did not name yet. The pick a cat menu (#3749, no
+	-- switch, merged 11-13 01:15 UTC) and resting in your cafe (afkCafe, on live since 11-12 15:41 UTC).
+	{
+		id = "mystic_pool_pick_cat",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Mystic Pool: pick your cat",
+	},
 	{
 		id = "rest_in_cafe_double_pay",
 		date = "2026-11-12",
 		icon = "new",
 		text = "Rest in your cafe: 2x pay",
-	},
-	{
-		id = "mystic_pool_pick_cat",
-		date = "2026-11-12",
-		icon = "look",
-		text = "Mystic Pool: pick your cat",
 	},
 	-- #3420, #3424: the Thursday 2026-11-12 launch (22:00 UTC). Merge this only with the launch publish, and only
 	-- the rows whose feature is switched on at the launch.

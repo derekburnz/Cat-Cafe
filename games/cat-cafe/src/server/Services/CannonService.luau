@@ -207,6 +207,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	profile.stats.cannonFlights += 1 -- #3618: the Liftoff badge
 	if
 		pass
 		and destination ~= Cannon.TOWN

@@ -1502,8 +1502,22 @@ function CatRoom._placeFeed(self: any)
 	-- #3717: the trait row, then the description under it
 	local trait: TextLabel = self._detailTrait
 	if trait.Visible then
-		trait.Position = UDim2.fromOffset(10, descTop)
-		descTop += TRAIT_TITLE_H + 2
+		-- #3982 (Review-QA, a 667 x 375 window with a mouse): where the actions row comes up under it, the row folds
+		-- away: a trait's name joins the Charm line as on the phone sheet, and "No trait yet" just hides
+		local body = trait.Parent :: GuiObject
+		local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
+		local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
+		if bodyH > 0 and descTop + TRAIT_TITLE_H > actionsTop then
+			trait.Visible = false
+			local title = self._traitTitle
+			local stats: TextLabel = self._detailStats
+			if title ~= nil and string.find(stats.Text, title, 1, true) == nil then
+				stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. title else title
+			end
+		else
+			trait.Position = UDim2.fromOffset(10, descTop)
+			descTop += TRAIT_TITLE_H + 2
+		end
 	end
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
 	local descBottom = self._descBottom + (descTop - self._descTop)
@@ -1719,6 +1733,8 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	else
 		traitLabel.Visible = traitTitle ~= nil
 		traitLabel.Text = traitTitle or ""
+		-- #3982: a real trait's name, for the Charm line if the row has no room (_placeFeed)
+		self._traitTitle = if hasTrait then traitTitle else nil
 		traitLabel.TextColor3 = if hasTrait then PAL.text else PAL.subtext
 	end
 	if hasTrait then

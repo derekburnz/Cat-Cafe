@@ -54,6 +54,7 @@ local TILE = 104 -- the station's picture tile
 local STATUS_H = 22 -- the pill on the tile's edge
 local FIND_H = 50 -- one "can turn up" tile
 local FIND_PICTURE = 22
+local FINDS_CLEAR = 10 -- #3982: px between the last row of finds and the Claim button
 local REVEAL_PICTURE = 56
 local REVEAL_SECONDS = 4
 local PENDING_SECONDS = 5 -- a claim with no answer lets the button go again after this long
@@ -112,7 +113,10 @@ function LostFound.new(callbacks: Callbacks): LostFound
 	local rows = LostFoundLogic.rows()
 	local findRows = math.ceil(#rows / 4)
 	local findsH = findRows * FIND_H + (findRows - 1) * 4
-	local top = math.max(TILE + math.ceil(STATUS_H / 2) + 12, 28 + 20 + 4 + findsH + 8)
+	-- #3982 (Review-QA in Studio): the finds keep FINDS_CLEAR above the Claim button, whose lip and outline reach
+	-- up past its box and covered the second row's chances
+	local top =
+		math.max(TILE + math.ceil(STATUS_H / 2) + 12, 28 + 20 + 4 + findsH + 8 + FINDS_CLEAR)
 	local cardH = top + buyH + 8
 	local height = cardH + GAP + 18 + 56
 
@@ -230,24 +234,21 @@ function LostFound.new(callbacks: Callbacks): LostFound
 			Create("UIStroke", { Color = CARD.line, Thickness = 1 }),
 		})
 		if row.lostCat ~= nil then
-			text(
-				{
-					Name = "Cat",
-					Position = UDim2.fromOffset(2, 3),
-					Size = UDim2.new(1, -4, 0, FIND_PICTURE + 4),
-					FontFace = Theme.fonts.bodyBold,
-					TextScaled = true,
-					TextColor3 = MenuFamily.rarity(row.lostCat),
-					Text = "🐱 " .. row.lostCat .. " cat",
-					Parent = cell,
-				},
-				{
-					Create(
-						"UITextSizeConstraint",
-						{ MaxTextSize = Theme.sizes.textSmall, MinTextSize = 9 }
-					),
-				}
-			)
+			text({
+				Name = "Cat",
+				Position = UDim2.fromOffset(2, 3),
+				Size = UDim2.new(1, -4, 0, FIND_PICTURE + 4),
+				FontFace = Theme.fonts.bodyBold,
+				TextScaled = true,
+				TextColor3 = MenuFamily.rarity(row.lostCat),
+				Text = "🐱 " .. row.lostCat .. " cat",
+				Parent = cell,
+			}, {
+				Create(
+					"UITextSizeConstraint",
+					{ MaxTextSize = Theme.sizes.textSmall, MinTextSize = 9 }
+				),
+			})
 		else
 			local chips = PrizeChips.new({
 				parent = cell,

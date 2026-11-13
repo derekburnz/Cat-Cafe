@@ -87,12 +87,17 @@ type Line = {
 local MAX_SIZE = Vector2.new(500, 372)
 local FEATURED_H = 146
 local TEASER_H = 52
-local ROW_H = 64
+local ROW_H = 72
 local PICTURE = 84
 local SMALL_PICTURE = 46
 local BUY_W = 104
 local PENDING_SECONDS = 5
 local GAP = Theme.sizes.gap
+-- #3961: the family look (batch 1 mock): this week's sale as a tall picture card on the left, next week's teaser and
+-- what is always on the shelf on the right
+local FAMILY_SIZE = Vector2.new(640, 372)
+local FEATURED_MIN = 214 -- the tall card's least height; a shorter window scrolls it
+local FAMILY_PICTURE = 56
 
 -- each item's picture until Model-Agent's art is in
 local EMOJI: { [string]: string } = {
@@ -179,7 +184,10 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
-	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })
+	Create("UISizeConstraint", {
+		MaxSize = if MenuFamily.on() then FAMILY_SIZE else MAX_SIZE,
+		Parent = panel.frame,
+	})
 	panel.frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	panel.frame.Position = UDim2.fromScale(0.5, 0.5)
 	self._panel = panel
@@ -373,7 +381,71 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Parent = panel.content,
 	})
+	if MenuFamily.on() then
+		self:_family(body, featured, teaser, others)
+	end
 	return self :: MysteryMarket
+end
+
+-- #3961: two columns. The featured card stands tall on the left (picture on top, name, words, price, the week's end,
+-- then a full width Buy); the teaser, "Always on the shelf" and its rows scroll on the right.
+function MysteryMarketScreen._family(
+	self: any,
+	body: ScrollingFrame,
+	featured: Frame,
+	teaser: Frame,
+	others: Frame
+)
+	local half = GAP / 2
+	body.Size = UDim2.new(0.46, -half, 1, -22)
+	featured.Size = UDim2.new(1, 0, 1, -14)
+	Create("UISizeConstraint", { MinSize = Vector2.new(0, FEATURED_MIN), Parent = featured })
+	local right: ScrollingFrame = Create("ScrollingFrame", {
+		Name = "Shelf",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromScale(1, 0),
+		Size = UDim2.new(0.54, -half, 1, -22),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = body.Parent,
+	}, {
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, GAP), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+		Outline.listPadding(8, 6),
+	})
+	teaser.Parent = right
+	self._othersTitle.Parent = right
+	self._othersTitle.Text = "ALWAYS ON THE SHELF"
+	others.Parent = right
+	local picture: TextLabel = self._featuredPicture
+	picture.AnchorPoint = Vector2.new(0.5, 0)
+	picture.Position = UDim2.new(0.5, 0, 0, 10)
+	picture.Size = UDim2.fromOffset(FAMILY_PICTURE, FAMILY_PICTURE)
+	picture.TextSize = math.floor(FAMILY_PICTURE * 0.55)
+	local y = 10 + FAMILY_PICTURE + 2
+	local function place(label: TextLabel, top: number, height: number)
+		label.Position = UDim2.fromOffset(10, top)
+		label.Size = UDim2.new(1, -20, 0, height)
+		label.TextXAlignment = Enum.TextXAlignment.Center
+	end
+	place(self._featuredName, y, 24)
+	place(self._featuredText, y + 24, 16)
+	self._featuredText.TextWrapped = false
+	self._featuredText.TextTruncate = Enum.TextTruncate.AtEnd
+	place(self._featuredPrice, y + 40, 20)
+	place(self._ends, y + 60, 16)
+	place(self._featuredNote, y + 76, 16)
+	local buy = self._featuredBuy.instance
+	buy.AnchorPoint = Vector2.new(0.5, 1)
+	buy.Position = UDim2.new(0.5, 0, 1, -10)
+	buy.Size = UDim2.new(1, -20, 0, self._buyH)
 end
 
 function MysteryMarketScreen._clearLines(self: any)
@@ -415,10 +487,15 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			Text = row.name,
 			Parent = frame,
 		})
+		-- Review-QA's Studio pass 2026-11-13: "Your net reaches a stud further." was cut at both sizes; the line
+		-- folds onto two lines now, and the note sits under it
 		local line = text({
 			Name = "Text",
-			Position = UDim2.fromOffset(left, 27),
-			Size = UDim2.new(1, -(left + right), 0, 16),
+			Position = UDim2.fromOffset(left, 26),
+			Size = UDim2.new(1, -(left + right), 0, 28),
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.AtEnd, -- a line longer than two (the Backpack's) ends in "..."
+			TextYAlignment = Enum.TextYAlignment.Top,
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = CARD.subtext,
@@ -427,13 +504,17 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 		})
 		local note = text({
 			Name = "Note",
-			Position = UDim2.fromOffset(left, 43),
+			Position = UDim2.fromOffset(left, 53),
 			Size = UDim2.new(1, -(left + right), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textTiny,
+			TextScaled = true, -- "Not enough golden fish" shrinks to its column instead of being cut
 			TextColor3 = CARD.gold,
 			Parent = frame,
 		})
+		Create(
+			"UITextSizeConstraint",
+			{ MaxTextSize = Theme.sizes.textTiny, MinTextSize = 8, Parent = note }
+		)
 		local buy = Button.new({
 			name = "Buy",
 			text = row.button,

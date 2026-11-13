@@ -41,6 +41,9 @@ type Entry = {
 	billboard: BillboardGui,
 	pill: Frame,
 	label: TextLabel,
+	height: number, -- studs from the anchor part to the top of the cat
+	stuck: boolean,
+	lift: number, -- studs over the top of the cat the pill sits at now
 }
 
 local STRAY = "Stray"
@@ -55,8 +58,11 @@ local RAISE = (28 + 6 + HEIGHT / 2) / HEIGHT
 local LIFT = 0.8 -- studs over the top of the cat, as the mood icon
 -- A stuck cat wears the red "!" (and its rarity gem) over its head (Effects/Rescue, Presets.stuckMark: up to 2.9 studs
 -- over the cat with the gem and the bob), so its pill sits over that mark, not on it: it read "!EW" (Studio look,
--- 2026-11-13)
+-- 2026-11-13). The mark hides within 10 studs and comes back 1 stud further out (stuckMark.hideWithin, showAfter);
+-- the pill follows it, back down by the cat while the mark is away
 local LIFT_STUCK = 3
+local MARK_HIDES_WITHIN = 10
+local MARK_SHOWS_PAST = 11
 local LOOK_SECONDS = 0.25 -- how often the distances are looked at
 
 local NewKindTags = {}
@@ -156,6 +162,18 @@ function NewKindTags._look(self: any)
 		-- stays in the list for the trail (`nearest`); only a stuck cat, which has no such gem tag, gets this pill
 		entry.billboard.Enabled = not CollectionService:HasTag(cat, STRAY)
 			and NewKind.shows(self._on, self._busy, cat:GetAttribute("LockedBy"), distance)
+		if entry.stuck then
+			local lift = entry.lift
+			if distance <= MARK_HIDES_WITHIN then
+				lift = LIFT
+			elseif distance > MARK_SHOWS_PAST then
+				lift = LIFT_STUCK
+			end
+			if lift ~= entry.lift then
+				entry.lift = lift
+				entry.billboard.StudsOffsetWorldSpace = Vector3.new(0, entry.height + lift, 0)
+			end
+		end
 	end
 end
 
@@ -269,11 +287,10 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Name = "CatCafeNewKindTag",
 		Size = UDim2.fromOffset(WIDTH, HEIGHT),
 		SizeOffset = Vector2.new(0, RAISE),
-		StudsOffsetWorldSpace = Vector3.new(
-			0,
-			height + (if CollectionService:HasTag(cat, STUCK) then LIFT_STUCK else LIFT),
-			0
-		),
+		StudsOffsetWorldSpace = Vector3.new(0, height + LIFT, 0),
+		-- the pill sizes itself to its word; a pill placed before that size settled sat right of centre with its
+		-- end cut by this box (Studio look, 2026-11-13). The list below centres it once it has its size
+		ClipsDescendants = false,
 		AlwaysOnTop = false,
 		MaxDistance = NewKind.RANGE,
 		LightInfluence = 0,
@@ -281,10 +298,14 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Enabled = false,
 		Parent = part,
 	})
+	Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
+		Parent = billboard,
+	})
 	local pill: Frame = Create("Frame", {
 		Name = "Tag",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, HEIGHT),
 		BackgroundColor3 = Theme.rarityColor(nil),
@@ -314,7 +335,15 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Parent = pill,
 	})
 	Outline.text(label, 1)
-	local entry: Entry = { part = part, billboard = billboard, pill = pill, label = label }
+	local entry: Entry = {
+		part = part,
+		billboard = billboard,
+		pill = pill,
+		label = label,
+		height = height,
+		stuck = CollectionService:HasTag(cat, STUCK),
+		lift = LIFT,
+	}
 	self._entries[cat] = entry
 	local at = rootPosition()
 	local distance = if at ~= nil then (part.Position - at).Magnitude else NewKind.RANGE

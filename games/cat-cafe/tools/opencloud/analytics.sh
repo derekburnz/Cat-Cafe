@@ -726,6 +726,7 @@ done
 #   bait_resolved       value 1; fields food, rarity, choice (tame or letgo)
 #   first_bait_wait     value seconds from food in to resolve; fields lure, rarity, choice
 #   first_bait_arrived  value seconds from food in to arrival; field where the player was
+#   first_bait_cutscene value 1; field how the first bait cutscene ended (#2946)
 fieldEvents=(
 	"quit_state|CustomField1|CustomEventCountUser|Leavers before Tier 2 by furthest step"
 	"quit_state|CustomField1|CustomEventAvgValue|Leavers: average seconds played by furthest step"
@@ -746,6 +747,10 @@ fieldEvents=(
 	"bait_resolved|CustomField1,CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by food and choice"
 	"first_bait_wait|CustomField3|CustomEventAvgValue|First bait: average seconds food in to resolve, by choice"
 	"first_bait_arrived|CustomField1|CustomEventAvgValue|First bait cat arrived: average seconds, by where the player was"
+	"first_bait_arrived|Platform,CustomField1|CustomEventCountUser|First bait cat arrived: players by device and where they were (#3815)"
+	"first_bait_wait|Platform,CustomField3|CustomEventCountUser|First bait: players by device and choice, tame or let go (#3815)"
+	"first_bait_cutscene|Platform,CustomField1|CustomEventCountUser|First bait cutscene: players by device and outcome (#3815)"
+	"quit_state|Platform,CustomField1,CustomField3|CustomEventCountUser|Leavers by device, furthest step and carry or bait state (#3815)"
 	"catch_circles|Platform,CustomField3|CustomEventCountUser|Catch results (caught, purrfect, missed, forfeit) by device"
 	"catch_finish|Platform,CustomField1|CustomEventCountUser|Catch finish kind (bolt is the cat running off) by device"
 	"first_catch_tries|Platform,CustomField1|CustomEventAvgValue|Tries before the first catch, by method and device"

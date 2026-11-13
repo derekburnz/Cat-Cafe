@@ -62,18 +62,23 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 			Name = "Hint",
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, EdgeShadeLogic.HINT_AT),
-			Size = UDim2.fromOffset(0, 30),
+			Size = UDim2.fromOffset(0, 34),
 			AutomaticSize = Enum.AutomaticSize.X,
 			BackgroundColor3 = Color3.new(0, 0, 0),
 			BackgroundTransparency = EdgeShadeLogic.HINT_FILL,
-			FontFace = Theme.fonts.body,
+			FontFace = Theme.fonts.bodyBold,
 			TextSize = EdgeShadeLogic.HINT_SIZE,
 			TextColor3 = Color3.new(1, 1, 1),
 			Text = hint,
 			Parent = gui,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			Create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 16), PaddingRight = UDim.new(0, 16) }),
+			Create("UIStroke", {
+				Color = Color3.new(1, 1, 1),
+				Thickness = EdgeShadeLogic.HINT_RING,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			}),
 		})
 	end
 	local lifted = false

@@ -19,8 +19,10 @@
 -- that many studs, and SizeOffset moves it by a share of its own size (here up).
 
 local CollectionService = game:GetService("CollectionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
@@ -41,10 +43,14 @@ type Entry = {
 	billboard: BillboardGui,
 	pill: Frame,
 	label: TextLabel,
+	height: number, -- studs from the anchor part to the top of the cat
+	stuck: boolean,
+	lift: number, -- studs over the top of the cat the pill sits at now
 }
 
 local STRAY = "Stray"
-local TAGS = { STRAY, "StuckCat" }
+local STUCK = "StuckCat"
+local TAGS = { STRAY, STUCK }
 local PITY = "PityCat" -- shared/Pity.ATTRIBUTE: a pity cat wears its own tag in this spot
 local WIDTH = 120 -- px, the billboard; the pill inside is as wide as its word
 local HEIGHT = 22 -- px, smaller than the mood icon and the name
@@ -52,6 +58,14 @@ local TEXT_SIZE = 14
 -- above the 56 px mood icon box (centred 0.8 studs over the cat's head) with 6 px between
 local RAISE = (28 + 6 + HEIGHT / 2) / HEIGHT
 local LIFT = 0.8 -- studs over the top of the cat, as the mood icon
+-- A stuck cat wears the red "!" (and its rarity gem) over its head (Effects/Rescue, Presets.stuckMark: up to 2.9 studs
+-- over the cat with the gem and the bob), so its pill sits over that mark, not on it: it read "!EW" (Studio look,
+-- 2026-11-13). The mark hides within 10 studs and comes back 1 stud further out (stuckMark.hideWithin, showAfter);
+-- the pill follows it, back down by the cat while the mark is away
+local LIFT_STUCK = 3
+local MARK_HIDES_WITHIN = 10
+local MARK_SHOWS_PAST = 11
+local MOVE = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local LOOK_SECONDS = 0.25 -- how often the distances are looked at
 
 local NewKindTags = {}
@@ -151,6 +165,25 @@ function NewKindTags._look(self: any)
 		-- stays in the list for the trail (`nearest`); only a stuck cat, which has no such gem tag, gets this pill
 		entry.billboard.Enabled = not CollectionService:HasTag(cat, STRAY)
 			and NewKind.shows(self._on, self._busy, cat:GetAttribute("LockedBy"), distance)
+		if entry.stuck then
+			local lift = entry.lift
+			if distance <= MARK_HIDES_WITHIN then
+				lift = LIFT
+			elseif distance > MARK_SHOWS_PAST then
+				lift = LIFT_STUCK
+			end
+			if lift ~= entry.lift then
+				entry.lift = lift
+				local offset = Vector3.new(0, entry.height + lift, 0)
+				if GuiService.ReducedMotionEnabled then
+					entry.billboard.StudsOffsetWorldSpace = offset
+				else
+					-- a short glide, not a 2 stud jump (Studio look, 2026-11-13)
+					TweenService:Create(entry.billboard, MOVE, { StudsOffsetWorldSpace = offset })
+						:Play()
+				end
+			end
+		end
 	end
 end
 
@@ -265,6 +298,9 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Size = UDim2.fromOffset(WIDTH, HEIGHT),
 		SizeOffset = Vector2.new(0, RAISE),
 		StudsOffsetWorldSpace = Vector3.new(0, height + LIFT, 0),
+		-- the pill sizes itself to its word; a pill placed before that size settled sat right of centre with its
+		-- end cut by this box (Studio look, 2026-11-13). The list below centres it once it has its size
+		ClipsDescendants = false,
 		AlwaysOnTop = false,
 		MaxDistance = NewKind.RANGE,
 		LightInfluence = 0,
@@ -272,10 +308,14 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Enabled = false,
 		Parent = part,
 	})
+	Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
+		Parent = billboard,
+	})
 	local pill: Frame = Create("Frame", {
 		Name = "Tag",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, HEIGHT),
 		BackgroundColor3 = Theme.rarityColor(nil),
@@ -305,7 +345,15 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Parent = pill,
 	})
 	Outline.text(label, 1)
-	local entry: Entry = { part = part, billboard = billboard, pill = pill, label = label }
+	local entry: Entry = {
+		part = part,
+		billboard = billboard,
+		pill = pill,
+		label = label,
+		height = height,
+		stuck = CollectionService:HasTag(cat, STUCK),
+		lift = LIFT,
+	}
 	self._entries[cat] = entry
 	local at = rootPosition()
 	local distance = if at ~= nil then (part.Position - at).Magnitude else NewKind.RANGE

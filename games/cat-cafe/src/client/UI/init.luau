@@ -2581,7 +2581,13 @@ function UI.bait.away(): boolean
 		return false
 	end
 	local character = Players.LocalPlayer.Character
-	return character ~= nil and character:GetAttribute("NetHidden") ~= true
+	-- NetHidden is off in an area's wild part outside its camp, and on while carrying (CatService.markCamps), so a
+	-- carry counts as away too: the run back to camp stays quiet (review of #4040)
+	return character ~= nil
+		and (
+			character:GetAttribute("NetHidden") ~= true
+			or character:GetAttribute("CarryingCatId") ~= nil
+		)
 end
 
 -- #3846: Effects/BigTraitCut.playing, set by the controller as UI.mysticPool.cutting: pop-up cards (bait, gift) wait

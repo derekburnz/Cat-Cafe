@@ -646,13 +646,17 @@ local function assertEventChip(lines: number): TextLabel
 	local chip = hud:FindFirstChild("EventChip", true) :: TextLabel
 	assert(chip and chip.Visible, "uigate: no Cafe Event chip under the clock (#2487)")
 	assert(chip.TextFits, "uigate: the Cafe Event chip's words do not fit (#2487)")
-	local nextLine = hud:FindFirstChild("EventNext", true) :: TextLabel
-	local shown = if nextLine.Visible then 2 else 1
-	assert(shown == lines, ("uigate: the Cafe Event chip has %d lines, not %d (#2487)"):format(shown, lines))
-	assert(not nextLine.Visible or nextLine.TextFits, "uigate: the next shower line does not fit (#2487)")
-	local last = if nextLine.Visible then nextLine else chip
-	local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-	assert(last == chip or last.AbsolutePosition.Y >= chipBottom - 1, "uigate: the next shower line is over the chip (#2487)")
+	-- Derek 2026-11-13: the strip is one row, the next shower beside the event; a narrow phone may leave the shower to
+	-- the card a tap opens (HUD._fitBanner), so it can be missing here but never over the chip
+	local nextLine = hud:FindFirstChild("EventNext", true) :: TextLabel?
+	local shown = if nextLine and nextLine.Visible then 2 else 1
+	assert(shown == lines or (lines == 2 and nextLine == nil), ("uigate: the Cafe Event chip has %d pieces, not %d (#2487)"):format(shown, lines))
+	if nextLine and nextLine.Visible then
+		assert(nextLine.TextFits, "uigate: the next shower line does not fit (#2487)")
+		local chipRight = chip.AbsolutePosition.X + chip.AbsoluteSize.X
+		local beside = nextLine.AbsolutePosition.X >= chipRight - 1 or nextLine.AbsolutePosition.X + nextLine.AbsoluteSize.X <= chip.AbsolutePosition.X + 1
+		assert(beside, "uigate: the next shower line is over the chip (#2487)")
+	end
 	-- #2885: the lines are in the status banner (under the counters on touch, under the clock on a PC), which must not
 	-- cover the goal card
 	local goal = hud:FindFirstChild("TierGoal", true) :: GuiObject?
@@ -10121,21 +10125,22 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local t = workspace:GetServerTimeNow()
 		Scenes._cafeEvent = true
 		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
-		local chip = assertEventChip(2) -- running: "ends in 1:59:40" repaints every second
-		local nextLine = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel
+		local chip = assertEventChip(2) -- running: "1:59:40" repaints every second
+		-- (on a narrow phone the shower may be in the strip's card instead, HUD._fitBanner)
+		local nextLine = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel?
 		startCatch("gate_eventchip", "Rare", 3, 0.2, 0.9)
 		UIShim.advance(0.3)
 		assert(UI.catch.circlesActive(), "uigate: the catch circles did not start")
 		for _ = 1, 3 do
 			UIShim.advance(1.1)
 			UI.cafeEvent.tick()
-			assert(not chip.Visible and not nextLine.Visible, "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+			assert(not chip.Visible and not (nextLine and nextLine.Visible), "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
 		end
 		UI.catch.hideCircles()
 		UI.catch.hide()
 		UIShim.advance(0.5)
 		UI.cafeEvent.tick()
-		assert(chip.Visible and nextLine.Visible, "uigate: the Cafe Event chip did not come back after the catch (#2860)")
+		assert(chip.Visible and (nextLine == nil or nextLine.Visible), "uigate: the Cafe Event chip did not come back after the catch (#2860)")
 	end },
 	-- #2487: the party running: the start banner and the gold chip with the end and the next shower
 	{ "CafeEventRunning", function()
@@ -10144,9 +10149,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(4) -- earlier scenes' toasts gone
 		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
 		local chip = assertEventChip(2)
-		assert(chip.Text:find("Cafe Party · x2 money · ends in 1:59:", 1, true) ~= nil, "uigate: the running chip reads " .. chip.Text .. " (#2487)")
-		local nextLine = (UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel).Text
-		assert(nextLine:find("^next shower 9:") ~= nil, "uigate: the running chip's next shower reads " .. nextLine .. " (#2487)")
+		-- Derek 2026-11-13: the strip has the name and time left; the card a tap opens has the money and the next shower
+		assert(chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the running chip reads " .. chip.Text .. " (#2487)")
+		local shower = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel?
+		assert(shower == nil or shower.Text:find("^Shower 9:") ~= nil, "uigate: the strip's next shower reads " .. tostring(shower and shower.Text) .. " (#2487)")
+		local cardLines = UIShim.playerGui:FindFirstChild("EventLines", true) :: TextLabel
+		assert(cardLines and cardLines.Text:find("Cafe Party · x2 money · ends in 1:59:", 1, true) and cardLines.Text:find("next shower 9:", 1, true), "uigate: the strip's card does not have the event's full words (#2487)")
 		local banner = false
 		for _, label in UIShim.playerGui:GetDescendants() do
 			if label:IsA("TextLabel") and label.Name == "Text" and label.Parent and label.Parent.Name == "Toast" then

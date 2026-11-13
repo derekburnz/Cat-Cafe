@@ -266,6 +266,7 @@ local function finish(player: Player, run: Run, reason: string?)
 		bin.prize = nil
 		save(player, bin)
 		Payout.pay(player, profile, RummageBin.prize(row), "rummage_bin")
+		profile.stats.binWins += 1 -- #3694 section 3: the Rummage Bin achievements
 		Telemetry.custom(player, "bin_play", 1, { row.id, tostring(math.min(bin.uses, 10)) })
 		if first then
 			Telemetry.stepTime(player, profile, "first_bin")

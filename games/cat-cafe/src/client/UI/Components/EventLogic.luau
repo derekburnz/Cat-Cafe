@@ -356,10 +356,17 @@ end
 -- and the toast shows). `endsAt` is the end in the player's own time ("6:00 PM"); `news` names the headline features
 -- that are switched on, in the spec's order.
 EventLogic.UPDATE_PARTY = "update-1112"
+-- #3535: the Friday 2026-11-13 update runs the same party under its own id, with its own headline features.
+EventLogic.FRIDAY_PARTY = "update-1113"
+-- per party id: the LiveFlags key of each headline feature and the name the card gives it, in the spec's order
+EventLogic.PARTY_NEWS = {
+	[EventLogic.UPDATE_PARTY] = { { "traits", "Mystic Pool" }, { "mouseDash", "Mouse Dash" } },
+	[EventLogic.FRIDAY_PARTY] = { { "speedShoes", "Speed Shoes" }, { "secretCats", "Secret cats" } },
+} :: { [string]: { { string } } }
 export type PartyBanner = { title: string, lines: { string } }
 
 function EventLogic.partyBanner(view: View, endsAt: string, news: { string }): PartyBanner?
-	if view.id ~= EventLogic.UPDATE_PARTY or view.effects.money ~= 2 then
+	if EventLogic.PARTY_NEWS[view.id] == nil or view.effects.money ~= 2 then
 		return nil
 	end
 	local lines = { "x2 cafe earnings until " .. endsAt }
@@ -372,6 +379,22 @@ function EventLogic.partyBanner(view: View, endsAt: string, news: { string }): P
 		table.insert(lines, "Rare cat showers all hour")
 	end
 	return { title = view.title .. "!", lines = lines }
+end
+
+-- #3535: the Friday party's second card (Effects/EventBanner kind "secrets", the cats as black shapes), queued
+-- behind the party card while the `secretCats` switch is on. `count` is how many Secret cats exist
+-- (#Catalog.secretCats), so the number on the card is the number of shapes under it. nil for any other event.
+function EventLogic.secretsBanner(view: View, secretsOn: boolean, count: number): PartyBanner?
+	if view.id ~= EventLogic.FRIDAY_PARTY or not secretsOn or count < 1 then
+		return nil
+	end
+	local first = if count == 1
+		then "1 Secret cat is out there"
+		else count .. " Secret cats are out there"
+	return {
+		title = if count == 1 then "A Secret cat is out!" else "Secret cats are out!",
+		lines = { first, "Rarer than Mythical. Find one!" },
+	}
 end
 
 function EventLogic.banner(view: View, endsAt: string): string

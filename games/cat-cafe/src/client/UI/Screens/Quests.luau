@@ -27,6 +27,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -40,7 +41,8 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028 pilot), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CREAM = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
@@ -136,7 +138,8 @@ local SWAP_W = 76
 local SWAP_H = if Scale.isTouch() then 28 else 36
 local CARD = Vector2.new(0, 142) -- two cards a row; the width follows the window
 local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse needs
-local CARD_CHIP = 26
+-- an achievement card's prize pictures (#3694 Review-QA 2026-11-13: 26 read as very small)
+local CARD_CHIP = 34
 local GAP = Theme.sizes.gap
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
@@ -153,7 +156,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CREAM.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -167,14 +170,14 @@ end
 local function card(name: string, size: UDim2, parent: Instance, order: number?): Frame
 	return Create("Frame", {
 		Name = name,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CREAM.card,
 		BorderSizePixel = 0,
 		Size = size,
 		LayoutOrder = order or 0,
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CREAM.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 end
 
@@ -182,7 +185,7 @@ end
 local function bar(parent: Instance, position: UDim2, size: UDim2): Frame
 	local track: Frame = Create("Frame", {
 		Name = "Bar",
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CREAM.line,
 		BorderSizePixel = 0,
 		Position = position,
 		Size = size,
@@ -204,7 +207,7 @@ local function check(parent: Instance, position: UDim2, anchor: Vector2): TextLa
 		Position = position,
 		Size = UDim2.fromOffset(ACTION_W, 32),
 		FontFace = Theme.fonts.display,
-		TextColor3 = PAL.good,
+		TextColor3 = CREAM.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "✓ Claimed",
 		Visible = false,
@@ -365,6 +368,7 @@ function Quests.new(callbacks: Callbacks): Quests
 		Size = UDim2.new(1, 0, 0, HEAD),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = PAL.text, -- on the window's body, not on a card
 		Parent = achievements,
 	})
 	local grid = scroll("Grid", achievements, HEAD + 4)
@@ -409,6 +413,7 @@ function Quests._buildPage(
 		Size = UDim2.new(0.5, 0, 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = PAL.text,
 		Parent = head,
 	})
 	local resets = text({
@@ -424,7 +429,7 @@ function Quests._buildPage(
 
 	-- what finishing all of them pays
 	local strip = card("Set", UDim2.new(1, 0, 0, STRIP), page, 2)
-	strip.BackgroundColor3 = PAL.goldCard
+	strip.BackgroundColor3 = CREAM.goldCard
 	local setCaption = text({
 		Name = "Caption",
 		AnchorPoint = Vector2.new(0, 0.5),
@@ -443,7 +448,7 @@ function Quests._buildPage(
 	})
 	local setChips = PrizeChips.new({
 		parent = chipArea,
-		textColor = PAL.text,
+		textColor = CREAM.text,
 		tile = CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
@@ -458,7 +463,7 @@ function Quests._buildPage(
 		Position = UDim2.new(1, -8, 0.5, 0),
 		Size = UDim2.fromOffset(ACTION_W, 24),
 		FontFace = Theme.fonts.display,
-		TextColor3 = PAL.good,
+		TextColor3 = CREAM.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Parent = strip,
 	})
@@ -500,7 +505,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		Size = UDim2.fromOffset(96, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		Parent = frame,
 	})
 	local chipArea: Frame = Create("Frame", {
@@ -512,7 +517,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	})
 	local chips = PrizeChips.new({
 		parent = chipArea,
-		textColor = PAL.text,
+		textColor = CREAM.text,
 		tile = CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
@@ -577,7 +582,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		Position = UDim2.fromOffset(12, 30),
 		Size = UDim2.new(1, -24, 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		Parent = frame,
 	})
 	-- the count has room for "120,000/360,000" (Play for 100 hours) beside the bar
@@ -589,7 +594,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		Size = UDim2.fromOffset(126, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CREAM.subtext,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = frame,
 	})
@@ -602,9 +607,9 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 	})
 	local chips = PrizeChips.new({
 		parent = chipArea,
-		textColor = PAL.text,
+		textColor = CREAM.text,
 		tile = CARD_CHIP,
-		textSize = Theme.sizes.textTiny,
+		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
 		position = UDim2.fromScale(0, 0.5),
 		fitTo = chipArea,
@@ -824,7 +829,7 @@ function Quests._renderRow(
 		Tween.popIn(row.check, 0.6)
 	end
 	row.claimed = claimed
-	row.frame.BackgroundColor3 = if claimed then PAL.panel else PAL.card
+	row.frame.BackgroundColor3 = if claimed then PAL.panel else CREAM.card
 	row.frame.LayoutOrder = QuestLogic.rowOrder(slot, claimed)
 end
 
@@ -852,6 +857,14 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 	local big: PrizeChips.Look = table.clone(look)
 	big.maxPictures = 3
 	local ready = 0
+	-- #3694 section 3: a card whose achievement is not in the rows (its feature switch is off) stays hidden
+	local listed: { [string]: boolean } = {}
+	for _, row in rows do
+		listed[row.def.id] = true
+	end
+	for id, entry in self._cards do
+		entry.frame.Visible = listed[id] == true
+	end
 	for order, row in rows do
 		local entry: Card? = self._cards[row.def.id]
 		if entry == nil then
@@ -883,8 +896,8 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 		entry.claimed = row.claimed
 		entry.frame.BackgroundColor3 = if row.claimed
 			then PAL.panel
-			elseif row.ready then PAL.goldCard
-			else PAL.card
+			elseif row.ready then CREAM.goldCard
+			else CREAM.card
 		if row.ready then
 			ready += 1
 		end

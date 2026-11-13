@@ -2631,6 +2631,97 @@ Catalog.achievements = {
 		needs = 50,
 		size = "XL",
 	},
+	-- #3694 section 3: the newer features. `flag` is the feature's live switch: while it is off the achievement is
+	-- hidden and not counted (Quests.achievementShown). Pet your cats (a_pet25) waits for the petCats server build.
+	{
+		id = "a_bin10",
+		name = "Bin Diver",
+		text = "Win 10 rummages at the Rummage Bin",
+		measure = "binWins",
+		needs = 10,
+		size = "M",
+		flag = "alleyBin",
+	},
+	{
+		id = "a_bin50",
+		name = "Treasure Hunter",
+		text = "Win 50 rummages at the Rummage Bin",
+		measure = "binWins",
+		needs = 50,
+		size = "L",
+		flag = "alleyBin",
+	},
+	{
+		id = "a_yard10",
+		name = "Lucky Picker",
+		text = "Take 10 Yard Sale lucky picks",
+		measure = "yardPicks",
+		needs = 10,
+		size = "M",
+		flag = "yardSaleRoll",
+	},
+	{
+		id = "a_traits10",
+		name = "Pool Regular",
+		text = "Roll 10 traits at the Mystic Pool",
+		measure = "traitRolls",
+		needs = 10,
+		size = "M",
+		flag = "traits",
+	},
+	{
+		id = "a_traits50",
+		name = "Pool Wizard",
+		text = "Roll 50 traits at the Mystic Pool",
+		measure = "traitRolls",
+		needs = 50,
+		size = "L",
+		flag = "traits",
+	},
+	{
+		id = "a_dash10",
+		name = "Mouse Chaser",
+		text = "Play 10 games of Mouse Dash",
+		measure = "dashRuns",
+		needs = 10,
+		size = "M",
+		flag = "mouseDash",
+	},
+	{
+		id = "a_secret1",
+		name = "Secret Spotter",
+		text = "Find a Secret cat",
+		measure = "secretCats",
+		needs = 1,
+		size = "L",
+		flag = "secretCats",
+	},
+	{
+		id = "a_secret3",
+		name = "Secret Keeper",
+		text = "Find all three Secret cats",
+		measure = "secretCats",
+		needs = 3,
+		size = "XL",
+		flag = "secretCats",
+	},
+	{
+		id = "a_rest1h",
+		name = "Cozy Napper",
+		text = "Rest in your cafe for 1 hour in total",
+		measure = "restSeconds",
+		needs = 3600,
+		size = "M",
+		flag = "afkCafe",
+	},
+	{
+		id = "a_goldcrate5",
+		name = "Golden Opener",
+		text = "Open 5 golden crates",
+		measure = "goldenCratesOpened",
+		needs = 5,
+		size = "L",
+	},
 } :: { Types.AchievementDef }
 
 -- An achievement's prize by its size; coins scale with the day rate when claimed. F94 (rewards-and-shops.md section
@@ -2709,6 +2800,26 @@ local ACHIEVEMENT_LINES: { [string]: AchievementLine } = {
 	dailyQuestsDone = QUESTS,
 	weeklySetsDone = QUESTS,
 	playtimeSeconds = PLAYING,
+	restSeconds = PLAYING, -- #3694 section 3: resting counts as play time
+	secretCats = FINDING,
+	-- #3694 section 3: the Rummage Bin and the Yard Sale pay Alley crates
+	binWins = {
+		M = { crates = { alley_crate = 1 } },
+		L = { crates = { alley_golden_crate = 1 } },
+	},
+	yardPicks = {
+		M = { crates = { alley_crate = 1 } },
+		L = { crates = { alley_golden_crate = 1 } },
+	},
+	-- the design's 1 and 3 Trait Tokens, paid as the golden fish they cost (Traits.COST_FISH 10 a roll) until a
+	-- prize can carry tokens
+	traitRolls = {
+		M = { fish = 10 },
+		L = { fish = 30 },
+	},
+	dashRuns = {
+		M = { spins = 2 },
+	},
 	topCatLevel = {
 		M = { potions = { tip_potion = 1 } },
 		L = { potions = { tip_potion = 2 } },

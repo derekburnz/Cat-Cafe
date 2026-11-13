@@ -45,6 +45,19 @@ return function()
 			expect(view.count).to.equal(1)
 			expect(view.rows[3].done).to.equal(true)
 		end)
+
+		it(
+			"says the first table is open once that row is done, and asks for it until then (#3660)",
+			function()
+				local done = RoadmapLogic.view({
+					tutorialStep = 2,
+					grandOpening = { done = { [1] = true } },
+				})
+				expect(done.rows[1].text).to.equal("Your first table is open")
+				local open = RoadmapLogic.view({ tutorialStep = 2, grandOpening = { done = {} } })
+				expect(open.rows[1].text).to.equal("Open your first table")
+			end
+		)
 	end)
 
 	describe("RoadmapLogic.toast", function()

@@ -154,6 +154,21 @@ function Logic.nearest<K>(candidates: { Candidate<K> }, radius: number, limit: n
 	return keys
 end
 
+-- #3523: whether the Speed Shoes' trail runs on a character. The shoes only speed up carrying, so it takes the
+-- shoes, a cat in the arms, feet on the ground and at least `least` of full walking input (0 to 1).
+function Logic.shoeTrailOn(
+	wears: boolean,
+	carrying: boolean,
+	moving: number,
+	grounded: boolean,
+	least: number
+): boolean
+	if moving ~= moving then
+		return false
+	end
+	return wears and carrying and grounded and moving >= least
+end
+
 -- Logic.nearest over `first`, then the nearest of `rest` in whatever is left of `limit`, so a crowd of `rest` never
 -- takes a slot one of `first` needs (Rare and better strays ahead of Commons for the rarity gem).
 function Logic.nearestFirst<K>(

@@ -1796,7 +1796,7 @@
        "CFrame": {
         "position": [
          -4.16,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -1820,154 +1820,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.16,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.32,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.16,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -2016,7 +1869,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.24,
        0.02
       ],
       "Color": [
@@ -2064,7 +1917,7 @@
        }
       },
       "Size": [
-       0.24,
+       0.08,
        0.08,
        0.02
       ],
@@ -2139,7 +1992,7 @@
        "CFrame": {
         "position": [
          -4.48,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -2163,7 +2016,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -2236,7 +2089,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -4.52,
+         -4.56,
          9.1806,
          -18.595
         ],
@@ -2260,204 +2113,57 @@
        }
       },
       "Size": [
+       0.08,
+       0.08,
+       0.02
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.64,
+         9.0606,
+         -18.595
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.08,
        0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.48,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.64,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.48,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.64,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
        0.02
       ],
       "Color": [
@@ -2531,7 +2237,7 @@
        "CFrame": {
         "position": [
          -4.8,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -2555,7 +2261,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -2580,7 +2286,7 @@
        "CFrame": {
         "position": [
          -4.96,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -2604,7 +2310,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -2652,398 +2358,6 @@
        }
       },
       "Size": [
-       0.24,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.8,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.96,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.8,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.96,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.12,
-         9.3406,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.36,
-         9.3406,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.16,
-         9.2606,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.36,
-         9.2606,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.08,
        0.08,
        0.02
@@ -3094,7 +2408,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -3118,7 +2432,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.32,
+         -5.36,
          9.1806,
          -18.595
         ],
@@ -3142,8 +2456,8 @@
        }
       },
       "Size": [
-       0.16,
        0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -3167,8 +2481,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.12,
-         9.1006,
+         -5.2,
+         9.2606,
          -18.595
         ],
         "orientation": [
@@ -3216,106 +2530,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.36,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.12,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.36,
-         9.0206,
+         -5.28,
+         9.1806,
          -18.595
         ],
         "orientation": [
@@ -3413,7 +2629,7 @@
        "CFrame": {
         "position": [
          -5.52,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -3437,105 +2653,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.68,
-         9.2606,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.52,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -3584,7 +2702,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.24,
        0.02
       ],
       "Color": [
@@ -3608,105 +2726,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.52,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.68,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.56,
+         -5.6,
          9.0206,
          -18.595
         ],
@@ -3730,7 +2750,7 @@
        }
       },
       "Size": [
-       0.16,
+       0.08,
        0.08,
        0.02
       ],
@@ -3805,7 +2825,7 @@
        "CFrame": {
         "position": [
          -6.0,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -3829,7 +2849,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -3854,7 +2874,7 @@
        "CFrame": {
         "position": [
          -6.16,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -3878,203 +2898,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.0,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.16,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.0,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.16,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -4122,7 +2946,7 @@
        }
       },
       "Size": [
-       0.24,
+       0.08,
        0.08,
        0.02
       ],
@@ -4197,7 +3021,7 @@
        "CFrame": {
         "position": [
          -6.32,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -4221,7 +3045,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -4294,106 +3118,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.36,
+         -6.4,
          9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.32,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.32,
-         9.0206,
          -18.595
         ],
         "orientation": [
@@ -4491,7 +3217,7 @@
        "CFrame": {
         "position": [
          -6.64,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -4515,105 +3241,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.68,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.64,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -4638,6 +3266,55 @@
        "CFrame": {
         "position": [
          -6.72,
+         9.1806,
+         -18.595
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.08,
+       0.08,
+       0.02
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.76,
          9.0206,
          -18.595
         ],
@@ -4661,203 +3338,7 @@
        }
       },
       "Size": [
-       0.24,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.96,
-         9.3406,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.2,
-         9.3406,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.0,
-         9.2606,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.2,
-         9.2606,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
        0.08,
        0.02
       ],
@@ -4907,7 +3388,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -4931,7 +3412,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.16,
+         -7.2,
          9.1806,
          -18.595
         ],
@@ -4955,8 +3436,8 @@
        }
       },
       "Size": [
-       0.16,
        0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -4980,8 +3461,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.96,
-         9.1006,
+         -7.04,
+         9.2606,
          -18.595
         ],
         "orientation": [
@@ -5029,106 +3510,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.2,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.96,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.2,
-         9.0206,
+         -7.12,
+         9.1806,
          -18.595
         ],
         "orientation": [
@@ -5226,7 +3609,7 @@
        "CFrame": {
         "position": [
          -7.44,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -5250,7 +3633,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -5274,105 +3657,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.44,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.44,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.44,
+         -7.36,
          9.0206,
          -18.595
         ],
@@ -5396,55 +3681,6 @@
        }
       },
       "Size": [
-       0.24,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.68,
-         9.3406,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.08,
        0.08,
        0.02
@@ -5470,106 +3706,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.92,
-         9.3406,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.72,
-         9.2606,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.92,
-         9.2606,
+         -7.52,
+         9.0206,
          -18.595
         ],
         "orientation": [
@@ -5642,7 +3780,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -5666,7 +3804,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.88,
+         -7.92,
          9.1806,
          -18.595
         ],
@@ -5690,8 +3828,8 @@
        }
       },
       "Size": [
-       0.16,
        0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -5715,8 +3853,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.68,
-         9.1006,
+         -7.76,
+         9.2606,
          -18.595
         ],
         "orientation": [
@@ -5764,106 +3902,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.92,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.68,
-         9.0206,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.92,
-         9.0206,
+         -7.84,
+         9.1806,
          -18.595
         ],
         "orientation": [
@@ -5961,7 +4001,7 @@
        "CFrame": {
         "position": [
          -8.08,
-         9.2606,
+         9.1406,
          -18.595
         ],
         "orientation": [
@@ -5985,154 +4025,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.08,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.24,
-         9.1806,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.08,
-         9.1006,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -6181,7 +4074,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.24,
        0.02
       ],
       "Color": [
@@ -6229,7 +4122,7 @@
        }
       },
       "Size": [
-       0.24,
+       0.08,
        0.08,
        0.02
       ],
@@ -6304,7 +4197,7 @@
        "CFrame": {
         "position": [
          -5.6,
-         8.7306,
+         8.6906,
          -18.595
         ],
         "orientation": [
@@ -6328,7 +4221,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.16,
        0.02
       ],
       "Color": [
@@ -6352,7 +4245,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.68,
+         -5.72,
          8.6506,
          -18.595
         ],
@@ -6376,7 +4269,7 @@
        }
       },
       "Size": [
-       0.24,
+       0.16,
        0.08,
        0.02
       ],
@@ -6402,7 +4295,7 @@
        "CFrame": {
         "position": [
          -5.76,
-         8.5706,
+         8.5306,
          -18.595
         ],
         "orientation": [
@@ -6426,7 +4319,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.16,
        0.02
       ],
       "Color": [
@@ -6450,7 +4343,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.68,
+         -5.64,
          8.4906,
          -18.595
         ],
@@ -6474,7 +4367,7 @@
        }
       },
       "Size": [
-       0.24,
+       0.16,
        0.08,
        0.02
       ],
@@ -6549,7 +4442,7 @@
        "CFrame": {
         "position": [
          -5.92,
-         8.7306,
+         8.6106,
          -18.595
         ],
         "orientation": [
@@ -6573,7 +4466,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -6598,7 +4491,7 @@
        "CFrame": {
         "position": [
          -6.08,
-         8.7306,
+         8.6106,
          -18.595
         ],
         "orientation": [
@@ -6622,203 +4515,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.92,
-         8.6506,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.08,
-         8.6506,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -5.92,
-         8.5706,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.08,
-         8.5706,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -6866,7 +4563,7 @@
        }
       },
       "Size": [
-       0.24,
+       0.08,
        0.08,
        0.02
       ],
@@ -6941,7 +4638,7 @@
        "CFrame": {
         "position": [
          -6.24,
-         8.7306,
+         8.6106,
          -18.595
         ],
         "orientation": [
@@ -6965,7 +4662,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -6990,7 +4687,7 @@
        "CFrame": {
         "position": [
          -6.4,
-         8.7306,
+         8.6106,
          -18.595
         ],
         "orientation": [
@@ -7014,203 +4711,7 @@
       },
       "Size": [
        0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.24,
-         8.6506,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.4,
-         8.6506,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.24,
-         8.5706,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.4,
-         8.5706,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
+       0.32,
        0.02
       ],
       "Color": [
@@ -7258,202 +4759,6 @@
        }
       },
       "Size": [
-       0.24,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.56,
-         8.8106,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.8,
-         8.8106,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.6,
-         8.7306,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.8,
-         8.7306,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.08,
        0.08,
        0.02
@@ -7504,7 +4809,7 @@
       },
       "Size": [
        0.08,
-       0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -7528,7 +4833,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.76,
+         -6.8,
          8.6506,
          -18.595
         ],
@@ -7552,8 +4857,8 @@
        }
       },
       "Size": [
-       0.16,
        0.08,
+       0.4,
        0.02
       ],
       "Color": [
@@ -7577,8 +4882,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.56,
-         8.5706,
+         -6.64,
+         8.7306,
          -18.595
         ],
         "orientation": [
@@ -7626,106 +4931,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.8,
-         8.5706,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.56,
-         8.4906,
-         -18.595
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.08,
-       0.08,
-       0.02
-      ],
-      "Color": [
-       0.851,
-       0.298,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.8,
-         8.4906,
+         -6.72,
+         8.6506,
          -18.595
         ],
         "orientation": [

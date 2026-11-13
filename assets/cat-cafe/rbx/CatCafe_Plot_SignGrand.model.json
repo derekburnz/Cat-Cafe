@@ -830,7 +830,7 @@
      "CFrame": {
       "position": [
        1.52,
-       17.87,
+       17.63,
        -18.645
       ],
       "orientation": [
@@ -854,154 +854,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.52,
-       17.71,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.2,
-       17.71,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.52,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.64,
      0.05
     ],
     "Color": [
@@ -1050,7 +903,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.48,
      0.05
     ],
     "Color": [
@@ -1098,7 +951,7 @@
      }
     },
     "Size": [
-     0.48,
+     0.16,
      0.16,
      0.05
     ],
@@ -1173,7 +1026,7 @@
      "CFrame": {
       "position": [
        0.88,
-       17.87,
+       17.63,
        -18.645
       ],
       "orientation": [
@@ -1197,7 +1050,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.05
     ],
     "Color": [
@@ -1270,7 +1123,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.8,
+       0.72,
        17.71,
        -18.645
       ],
@@ -1294,204 +1147,57 @@
      }
     },
     "Size": [
+     0.16,
+     0.16,
+     0.05
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_SignGrand",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.56,
+       17.47,
+       -18.645
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
      0.32,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.88,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.56,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.88,
-       17.39,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.56,
-       17.39,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
      0.05
     ],
     "Color": [
@@ -1565,7 +1271,7 @@
      "CFrame": {
       "position": [
        0.24,
-       17.87,
+       17.63,
        -18.645
       ],
       "orientation": [
@@ -1589,7 +1295,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.05
     ],
     "Color": [
@@ -1614,7 +1320,7 @@
      "CFrame": {
       "position": [
        -0.08,
-       17.87,
+       17.63,
        -18.645
       ],
       "orientation": [
@@ -1638,7 +1344,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.64,
      0.05
     ],
     "Color": [
@@ -1686,398 +1392,6 @@
      }
     },
     "Size": [
-     0.48,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.24,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.08,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.24,
-       17.39,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.08,
-       17.39,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4,
-       18.03,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.88,
-       18.03,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.48,
-       17.87,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.88,
-       17.87,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.16,
      0.16,
      0.05
@@ -2128,7 +1442,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.8,
      0.05
     ],
     "Color": [
@@ -2152,7 +1466,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.8,
+       -0.88,
        17.71,
        -18.645
       ],
@@ -2176,8 +1490,8 @@
      }
     },
     "Size": [
-     0.32,
      0.16,
+     0.8,
      0.05
     ],
     "Color": [
@@ -2201,8 +1515,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4,
-       17.55,
+       -0.56,
+       17.87,
        -18.645
       ],
       "orientation": [
@@ -2250,106 +1564,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.88,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4,
-       17.39,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.88,
-       17.39,
+       -0.72,
+       17.71,
        -18.645
       ],
       "orientation": [
@@ -2447,7 +1663,7 @@
      "CFrame": {
       "position": [
        -1.2,
-       17.87,
+       17.63,
        -18.645
       ],
       "orientation": [
@@ -2471,105 +1687,7 @@
     },
     "Size": [
      0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.52,
-       17.87,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.2,
-       17.71,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
+     0.64,
      0.05
     ],
     "Color": [
@@ -2618,7 +1736,7 @@
     },
     "Size": [
      0.16,
-     0.16,
+     0.48,
      0.05
     ],
     "Color": [
@@ -2642,105 +1760,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.2,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.52,
-       17.55,
-       -18.645
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_SignGrand",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.28,
+       -1.36,
        17.39,
        -18.645
       ],
@@ -2764,7 +1784,7 @@
      }
     },
     "Size": [
-     0.32,
+     0.16,
      0.16,
      0.05
     ],

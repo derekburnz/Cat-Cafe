@@ -83,6 +83,7 @@ local Shove = require(script.Shove)
 local Signature = require(script.Signature)
 local Sky = require(script.Sky)
 local SlotWalk = require(script.SlotWalk)
+local SpeedShoes = require(script.SpeedShoes)
 local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
@@ -140,6 +141,7 @@ function Effects.start()
 		Decor.start,
 		Equip.start,
 		Potions.start,
+		SpeedShoes.start,
 		Pull.start,
 		Mystery.start,
 		Levels.start,

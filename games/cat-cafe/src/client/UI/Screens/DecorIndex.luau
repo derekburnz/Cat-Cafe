@@ -14,6 +14,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -22,7 +23,8 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	claim: (areaId: string, milestoneId: string) -> (),
@@ -82,7 +84,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -173,7 +175,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	Outline.text(self._progressName, 2)
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = PAL.line,
+		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 196, 0.5, 0),
@@ -310,7 +312,7 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 			Name = pool,
 			Text = "",
 			AutoButtonColor = false,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(0, TAB_MIN, 0, self._chipHeight),
 			LayoutOrder = order,
@@ -423,7 +425,7 @@ end
 function DecorIndex._buildCell(self: any, def: Types.DecorDef, order: number): Cell
 	local frame: Frame = Create("Frame", {
 		Name = def.id,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
 		Visible = false,
@@ -481,16 +483,16 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 	for _, chip: Chip in self._chips do
 		local selected = chip.pool == open
 		local have, all = DecorPieces.pageCounts(catalog, state, chip.pool)
-		chip.frame.BackgroundColor3 = if selected then chip.color else PAL.card
-		chip.border.Color = if selected then Theme.colors.outline else PAL.cardStroke
-		chip.label.TextColor3 = if selected then Theme.colors.white else PAL.text
+		chip.frame.BackgroundColor3 = if selected then chip.color else CARD.card
+		chip.border.Color = if selected then Theme.colors.outline else CARD.cardStroke
+		chip.label.TextColor3 = if selected then Theme.colors.white else CARD.text
 		chip.count.Text = if have >= all and all > 0
 			then "Complete!"
 			else ("%d / %d"):format(have, all)
 		chip.count.TextColor3 = if selected
 			then Theme.colors.cream
-			elseif have >= all and all > 0 then PAL.good
-			else PAL.subtext
+			elseif have >= all and all > 0 then CARD.good
+			else CARD.subtext
 		local waiting = ready[DecorPieces.areaOf(chip.pool)] or 0
 		chip.dot.Visible = waiting > 0
 		chip.dotCount.Text = tostring(waiting)
@@ -538,12 +540,12 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 			)
 			cell.kind.Visible = owned
 			cell.name.Text = if owned then cell.def.name elseif rally then RALLY_LOCKED else "???"
-			cell.name.TextColor3 = if owned then PAL.text else PAL.subtext
+			cell.name.TextColor3 = if owned then CARD.text else CARD.subtext
 			local rarity = piece.rarity or ""
 			cell.sub.Text = if owned
 				then ("%s · +%s"):format(rarity, Format.percent(cell.def.bonus or 0))
 				else rarity
-			cell.sub.TextColor3 = if owned then PAL.subtext else Theme.rarityColor(piece.rarity)
+			cell.sub.TextColor3 = if owned then CARD.subtext else Theme.rarityColor(piece.rarity)
 		end
 	end
 	self._empty.Visible = shown == 0

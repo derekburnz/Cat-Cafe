@@ -31,6 +31,12 @@ local HOW: { [string]: string } = {
 	rank_1 = "Hold 1st place on an all-time leaderboard", -- #3333: kept only while the place is held
 	rank_2 = "Hold 2nd place on an all-time leaderboard",
 	rank_3 = "Hold 3rd place on an all-time leaderboard",
+	-- #3694: the big achievements (ChatTags.ACHIEVEMENT_TITLES)
+	title_cat_legend = "Achievement: Cat Legend",
+	title_steady_hands = "Achievement: Steady Hands",
+	title_devoted = "Achievement: Devoted",
+	title_week_champion = "Achievement: Week Champion",
+	title_gold_rush = "Achievement: Gold Rush",
 }
 table.freeze(HOW)
 TitlesLogic.HOW = HOW

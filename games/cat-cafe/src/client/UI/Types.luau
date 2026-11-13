@@ -93,6 +93,7 @@ export type AchievementDef = {
 	measure: string?,
 	needs: number,
 	size: string, -- "S", "M", "L" or "XL", the Catalog.achievementPrizes key
+	flag: string?, -- #3694 section 3: a feature switch; the row shows only once the server sends its view
 }
 export type QuestView = {
 	id: string,
@@ -374,6 +375,8 @@ export type PartialState = {
 	mystery: { [string]: boolean }?, -- #2574: Mystery Market items owned
 	mysterySeen: boolean?, -- #2574: false shows the "!" over Juniper's cart
 	mysteryOpen: boolean?, -- #2574: BuyMystery is taken (else every button reads "Soon")
+	-- #3699: the Backpack's colour picks; false or nil for the built colours
+	bagColours: ({ main: string, trim: string } | boolean)?,
 	signStyles: { string }?, -- #1625
 	signStyle: string?, -- #1625
 	looks: SharedTypes.LooksView?, -- #1624

@@ -75,16 +75,16 @@ RestartNotice.EVENT_LINE = "then a 30-minute event!"
 -- that window, and whenever `now` (os.time()) is not given, the words are the usual ones, with no later publish.
 RestartNotice.LAUNCH_AT = 1794520800 -- 2026-11-12 22:00 UTC
 RestartNotice.LAUNCH_LINE = "then a 1-hour party and a gift!"
+-- #3535: the Friday 2026-11-13 update (22:00 UTC) has the same party and a gift of its own, so the same words
+RestartNotice.LAUNCHES = { RestartNotice.LAUNCH_AT, 1794607200 }
 local LAUNCH_BEFORE, LAUNCH_AFTER = 3600, 1800
 
 -- the promise a warning shown at `now` ends on, and what the event is called at zero
 local function promise(now: number?): (string, string)
-	if
-		now ~= nil
-		and now >= RestartNotice.LAUNCH_AT - LAUNCH_BEFORE
-		and now <= RestartNotice.LAUNCH_AT + LAUNCH_AFTER
-	then
-		return RestartNotice.LAUNCH_LINE, "a 1-hour party and a gift!"
+	for _, at in RestartNotice.LAUNCHES do
+		if now ~= nil and now >= at - LAUNCH_BEFORE and now <= at + LAUNCH_AFTER then
+			return RestartNotice.LAUNCH_LINE, "a 1-hour party and a gift!"
+		end
 	end
 	return RestartNotice.EVENT_LINE, "a 30-minute event!"
 end

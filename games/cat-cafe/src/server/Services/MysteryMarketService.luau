@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local BagColours = require(ReplicatedStorage.Shared.BagColours)
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -24,6 +25,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryMarket = require(ReplicatedStorage.Shared.MysteryMarket)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -139,8 +141,40 @@ local function onSeen(player: Player)
 	CafeService.sync(player)
 end
 
+-- #3699 (shared/BagColours): the Backpack's owner picks its two colours. Two ids of BagColours.LIST and nothing
+-- else; free, from anywhere, as often as the rate limit allows. Refused quietly with the switch off, without the
+-- Backpack or for an unknown id (the window never sends those).
+local function onBagColours(player: Player, rawMain: unknown, rawTrim: unknown)
+	local main, trim = Guard.id(rawMain), Guard.id(rawTrim)
+	local profile = DataService.get(player)
+	if
+		main == nil
+		or trim == nil
+		or profile == nil
+		or not LiveFlagService.on(BagColours.FLAG)
+		or not BagColours.valid(main)
+		or not BagColours.valid(trim)
+	then
+		return
+	end
+	if not MysteryMarket.owns(profile, BagColours.ITEM) then
+		Net.toast(player, BagColours.WORDS.locked, "warn")
+		return
+	end
+	local picks = BagColours.sanitize({ main = main, trim = trim })
+	local before = BagColours.picks(profile.bagColours)
+	if before.main == main and before.trim == trim then
+		return
+	end
+	profile.bagColours = picks
+	CatService.tintBackpack(player)
+	Telemetry.custom(player, "bag_colours", 1, { main, trim })
+	CafeService.sync(player)
+end
+
 function MysteryMarketService.start()
 	Net.on("BuyMystery", onBuy)
+	Net.on("SetBagColours", onBagColours)
 	Net.on("MarkMysterySeen", onSeen)
 	DataService.onLoaded:Connect(function(player: Player)
 		local profile = DataService.get(player)

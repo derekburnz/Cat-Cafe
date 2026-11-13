@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local BagColours = require(script.Parent.BagColours)
 local CafePass = require(script.Parent.CafePass)
 local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
@@ -142,6 +143,8 @@ local ProfileSchema = {}
 -- #1934 (no new version): stats.purrfectCatches, purrfectStreak, bestPurrfectStreak and teamRescuesHelped, for the
 -- Roblox badges (shared/Badges). An older server drops them, which only loses those counts: a badge already awarded
 -- stays on the player's Roblox account.
+-- #3694 section 3 (no new version): stats.binWins, yardPicks, traitRolls, dashRuns, goldenCratesOpened and
+-- restSeconds, for the newer features' achievements. An older server drops them, which only loses those counts.
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
@@ -237,6 +240,12 @@ local function newStats(): Types.Stats
 		purrfectStreak = 0,
 		bestPurrfectStreak = 0,
 		teamRescuesHelped = 0,
+		binWins = 0, -- #3694 section 3
+		yardPicks = 0,
+		traitRolls = 0,
+		dashRuns = 0,
+		goldenCratesOpened = 0,
+		restSeconds = 0,
 	}
 end
 
@@ -1003,6 +1012,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2565: the Mystery Market's owned items and its first visit; a save without them owns none, not yet seen
 	profile.mystery = MysteryMarket.sanitize(raw.mystery)
 	profile.mysterySeen = raw.mysterySeen == true
+	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
+	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
 	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none

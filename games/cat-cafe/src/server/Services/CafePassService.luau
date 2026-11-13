@@ -47,6 +47,7 @@ local function tagItems(player: Player, profile: Types.PlayerProfile): { [string
 	if profile.grandOpening.done[GrandOpening.COUNT] == true then
 		items[GrandOpening.TAG] = true -- #1893: the Grand Opening's tag
 	end
+	ChatTags.addAchievementTitles(items, profile.achievements) -- #3694: the big achievements' titles
 	local rank = ChatTags.rankTag(LeaderboardService.place(player)) -- #3333: held while the place is
 	if rank ~= nil then
 		items[rank] = true

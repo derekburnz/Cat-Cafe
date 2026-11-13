@@ -242,6 +242,10 @@ local function finish(player: Player, run: Run, reason: MouseDash.Reason, tell: 
 		end
 	end
 	ArcadeService.noteMouseDash(player, state.points, seconds)
+	local played = DataService.get(player)
+	if played ~= nil then
+		played.stats.dashRuns += 1 -- #3694 section 3: every game played to its end or quit
+	end
 	local win = state.points >= Config.ArcadeMaxPoints
 	if win then
 		ArcadeService.grantLegend(player)

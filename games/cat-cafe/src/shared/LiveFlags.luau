@@ -77,6 +77,9 @@
 -- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
 --   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
 --   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
+-- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
+--   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
+--   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
 -- - `petCats` (#3651): the Pet prompt on the cats in a player's own cafe; the petted cat is the happy cat, earning
 --   Config.PetMoneyBoost times its pay for Config.PetSeconds (shared/Pet). It starts OFF (OFF_BY_DEFAULT); off, no
 --   prompt shows, no pet is taken and a running heart pays nothing extra.
@@ -120,6 +123,7 @@ LiveFlags.KEYS = {
 	"parkGateTrail",
 	"touchCatchReach",
 	"rankUpSpotlight",
+	"bagColours",
 	"petCats",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -144,6 +148,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkGateTrail = true,
 	touchCatchReach = true,
 	rankUpSpotlight = true,
+	bagColours = true,
 	petCats = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

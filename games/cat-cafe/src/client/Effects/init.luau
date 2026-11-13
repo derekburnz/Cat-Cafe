@@ -76,12 +76,14 @@ local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local RuinsWater = require(script.RuinsWater)
+local SecretGlow = require(script.SecretGlow)
 local SecretStray = require(script.SecretStray)
 local ShopCats = require(script.ShopCats)
 local Shove = require(script.Shove)
 local Signature = require(script.Signature)
 local Sky = require(script.Sky)
 local SlotWalk = require(script.SlotWalk)
+local SpeedShoes = require(script.SpeedShoes)
 local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
@@ -139,11 +141,13 @@ function Effects.start()
 		Decor.start,
 		Equip.start,
 		Potions.start,
+		SpeedShoes.start,
 		Pull.start,
 		Mystery.start,
 		Levels.start,
 		Rarity.start,
 		SecretStray.start,
+		SecretGlow.start,
 		Splash.start,
 		Rescue.start,
 		StuckCall.start,

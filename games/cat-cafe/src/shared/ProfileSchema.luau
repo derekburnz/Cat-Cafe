@@ -322,6 +322,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			introStep = 0,
 			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 			firstHourV3Step = 0,
+			cleanStep = 0,
+			playtimeStep = 0,
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
@@ -804,6 +806,8 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		introStep = 0,
 		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 		firstHourV3Step = 0,
+		cleanStep = 0,
+		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
 		return telemetry
@@ -825,18 +829,15 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		step = Onboarding.fromOld(old, step)
 		-- a player out of the funnel is out of the intro one too; #2391: v5 keeps v4's intro funnel, so a v4 save keeps
 		-- its intro step
-		-- #3695: v7 keeps the intro funnel too, and first_hour_v3 as it was, so a v6 save keeps both steps
-		if old ~= 4 and old ~= 5 and old ~= 6 then
+		if old ~= 4 and old ~= 5 then
 			introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
 		end
 		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too. #2636: v6 sends
 		-- first_hour_v2, whose steps moved, so a v5 save that logged any of first_hour leaves it as well.
-		if old ~= 6 then
-			local loggedFirstHour = old == 5 and firstHourStep >= 1
-			firstHourStep = if step >= Onboarding.COUNT or loggedFirstHour
-				then Onboarding.FIRST_HOUR_COUNT
-				else 0
-		end
+		local loggedFirstHour = old == 5 and firstHourStep >= 1
+		firstHourStep = if step >= Onboarding.COUNT or loggedFirstHour
+			then Onboarding.FIRST_HOUR_COUNT
+			else 0
 	end
 	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
 	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do
@@ -851,12 +852,24 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- is then written as v2's count, so a server still on v2 logs no v2 step for this player.
 	local v3Step = value.firstHourV3Step
 	local firstHourV3Step = if type(v3Step) == "number"
-			and (value.funnel == Onboarding.VERSION or value.funnel == 6)
+			and value.funnel == Onboarding.VERSION
 		then math.max(0, asInt(v3Step, 0))
 		elseif firstHourStep >= 1 then Onboarding.FIRST_HOUR_COUNT
 		else 0
 	telemetry.firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT
 	telemetry.firstHourV3Step = math.clamp(firstHourV3Step, 0, Onboarding.FIRST_HOUR_COUNT)
+	-- #3695: the clean funnel and playtime_v1 from their own fields once this code has saved them. Without them (an
+	-- older save, or a server on v6 dropped them) a save past its first catch is out of the clean funnel, and one that
+	-- logged any first_hour step is out of playtime_v1: both count only players who start on them.
+	local cleanStep = value.cleanStep
+	telemetry.cleanStep = if type(cleanStep) == "number"
+		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.CLEAN_COUNT)
+		else Onboarding.cleanStart(telemetry)
+	local playtimeStep = value.playtimeStep
+	telemetry.playtimeStep = if type(playtimeStep) == "number"
+		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)
+		elseif telemetry.firstHourV3Step >= 1 then Onboarding.PLAYTIME_COUNT
+		else 0
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
 	return telemetry

@@ -36,12 +36,6 @@
 -- the older ones. The intro funnel keeps its name (onboarding_v4_intro). `first_hour_v2` adds `played_30s` and
 -- `played_60s` in front of `played_2m`; a save that logged any of `first_hour` leaves `first_hour_v2`, so both
 -- funnels count only players who started on them.
---
--- Version 7 (#3695, Derek 2026-11-12: "fix this funnel to remove returned next day"): `onboarding_v7` is v6 without
--- `returned_next_day`. A return on a later day is not a first session step, and as step 36 it read as nearly everyone
--- leaving after the first Park catch. It is a custom event of the same name now (Telemetry). V6_STEPS keeps v6's
--- order for the report; a v6 save past its first catch leaves the funnel like the older ones, and keeps its intro and
--- first_hour_v3 steps (neither funnel changed).
 
 local Types = require(script.Parent.Types)
 
@@ -51,9 +45,9 @@ local Onboarding = {}
 local GRAND_OPENING_COUNT = 8
 Onboarding.GRAND_OPENING_COUNT = GRAND_OPENING_COUNT
 
-Onboarding.VERSION = 7
-Onboarding.FUNNEL = "onboarding_v7"
-Onboarding.INTRO_FUNNEL = "onboarding_v4_intro" -- unchanged in v5, v6 and v7 (see above)
+Onboarding.VERSION = 6
+Onboarding.FUNNEL = "onboarding_v6"
+Onboarding.INTRO_FUNNEL = "onboarding_v4_intro" -- unchanged in v5 and v6 (see above)
 
 export type StepName =
 	-- loading and the first catch
@@ -95,6 +89,7 @@ export type StepName =
 	| "rank_up_ready"
 	| "tier_2"
 	| "first_park_catch"
+	| "returned_next_day"
 	| "first_offline_claim"
 	| "tier_3"
 	| "grand_opening_done" -- v5 (#2391): all eight Grand Opening milestones (the last is Tier 3)
@@ -162,6 +157,7 @@ Onboarding.STEPS = {
 	"rank_up_ready",
 	"tier_2",
 	"first_park_catch",
+	"returned_next_day",
 	"first_offline_claim",
 	"tier_3",
 	"grand_opening_done", -- v5: the eighth milestone (Tier 3) paid
@@ -178,59 +174,6 @@ Onboarding.STEPS = {
 } :: { StepName }
 
 Onboarding.COUNT = #Onboarding.STEPS
-
--- v6's 49 steps in v6's order (fromOld, and the report's labels for onboarding_v6, #3695).
-Onboarding.V6_STEPS = {
-	"joined",
-	"loaded",
-	"tut_0_shown",
-	"first_move",
-	"first_cannon",
-	"entered_alley",
-	"tut_1_shown",
-	"first_stray_in_view",
-	"near_stray",
-	"catch_card_opened",
-	"catch_started",
-	"first_circle_hit",
-	"first_catch",
-	"carrying_first_cat",
-	"first_checkin",
-	"next_goal_shown", -- v6 (#2636): the next instruction on screen after the first check-in (a client step)
-	"first_role_assigned",
-	"tut_3_shown",
-	"first_customer_served",
-	"second_cat",
-	"first_window_opened",
-	"first_table",
-	"first_tip_collected",
-	"tut_4_shown",
-	"bowl_bought",
-	"first_bait",
-	"first_rescue_started",
-	"first_rescue_done",
-	"first_bait_resolved",
-	"first_goal_done", -- v5: the first Grand Opening milestone paid
-	"five_cats",
-	"rank_up_card_seen",
-	"rank_up_ready",
-	"tier_2",
-	"first_park_catch",
-	"returned_next_day",
-	"first_offline_claim",
-	"tier_3",
-	"grand_opening_done", -- v5: the eighth milestone (Tier 3) paid
-	"starter_cat",
-	"first_store_open", -- the Store opened (a client step)
-	"first_pass_xp", -- the first Cafe Pass XP (a quest's prize)
-	"first_pass_claim", -- a Cafe Pass reward claimed
-	"first_camp_collect", -- a camp station collected (CampExtras.COLLECT)
-	"first_equip_best", -- the Equip best button pressed
-	"pass_level_5", -- Cafe Pass level 5
-	"tier_4",
-	"first_robux_purchase", -- the account's first pass or product bought (robux_purchase tells it apart in time)
-	"first_wow_cat", -- #1897 (first-hour.md 2): the guaranteed Rare-or-better bait cat arrived, field rarity
-} :: { string }
 
 -- v5's 50 steps in v5's order (fromOld, and the report's labels for onboarding_v5, #2636).
 Onboarding.V5_STEPS = {
@@ -493,12 +436,11 @@ function Onboarding.furthest(state: Types.TelemetryState): string
 	return Onboarding.STEPS[state.onboardingStep] or "none"
 end
 
--- The v7 step for a state saved by funnel `funnel` (1 to 6, nil before F87) at `step`: COUNT (out of the funnel)
--- once that funnel had logged its first catch, else 0 (a new player, who starts v7 from joined).
+-- The v6 step for a state saved by funnel `funnel` (1 to 5, nil before F87) at `step`: COUNT (out of the funnel)
+-- once that funnel had logged its first catch, else 0 (a new player, who starts v6 from joined).
 function Onboarding.fromOld(funnel: number?, step: number): number
-	local list = if funnel == 6
-		then Onboarding.V6_STEPS
-		elseif funnel == 5 then Onboarding.V5_STEPS
+	local list = if funnel == 5
+		then Onboarding.V5_STEPS
 		elseif funnel == 4 then Onboarding.V4_STEPS
 		elseif funnel == 3 then Onboarding.V3_STEPS
 		elseif funnel == 2 then Onboarding.V2_STEPS
@@ -561,6 +503,117 @@ end
 -- The steps to log now, in order (reachDetail's `log`). Mutates `state`.
 function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { StepName }
 	return Onboarding.reachDetail(state, stepName).log
+end
+
+-- Version 7 (#3695; Derek 2026-11-13: "make a new onboarding with the exact steps a player would have to take to
+-- progress and keep it clean joined, loaded, all tutorial steps 1 by 1, then tiers and catching cats in next area"):
+-- `onboarding_v7`, the clean funnel. STEPS above stays as the ledger other code reads through `reached` (StuckGoal,
+-- FirstFive, StepGaps, the second cat's stray), and is no longer sent to Roblox as a funnel. The clean funnel is a
+-- second, shorter list read off the ledger, the cafe's tier and the areas the player has caught in: only what every
+-- player must do, in the order the game asks for it. Out of it on purpose: the optional rescue, the cards and windows
+-- a client reports, coming back the next day, the Store, the Cafe Pass and Robux. Its place is its own telemetry
+-- field (cleanStep), so a server still on v6 during a rollout never reads it.
+Onboarding.CLEAN_FUNNEL = "onboarding_v7"
+
+-- One clean step: `ledger` a step of STEPS reached, `tier` the cafe at that tier or over, `area` a cat caught there.
+type CleanRule = { name: string, ledger: StepName?, tier: number?, area: string? }
+local CLEAN_RULES: { CleanRule } = {
+	{ name = "joined", ledger = "joined" },
+	{ name = "loaded", ledger = "loaded" },
+	{ name = "first_move", ledger = "first_move" },
+	{ name = "first_cannon", ledger = "first_cannon" },
+	{ name = "entered_alley", ledger = "entered_alley" },
+	{ name = "near_stray", ledger = "near_stray" },
+	{ name = "catch_started", ledger = "catch_started" },
+	{ name = "first_catch", ledger = "first_catch" },
+	{ name = "first_checkin", ledger = "first_checkin" },
+	{ name = "first_role_assigned", ledger = "first_role_assigned" },
+	{ name = "first_table", ledger = "first_table" },
+	{ name = "bowl_bought", ledger = "bowl_bought" },
+	{ name = "first_bait", ledger = "first_bait" },
+	{ name = "first_bait_resolved", ledger = "first_bait_resolved" }, -- the tutorial's last step
+	{ name = "tier_2", tier = 2 },
+	{ name = "park_catch", area = "park" },
+	{ name = "tier_3", tier = 3 },
+	{ name = "neighbourhood_catch", area = "neighbourhood" },
+	{ name = "tier_4", tier = 4 },
+	{ name = "woods_catch", area = "woods" },
+	{ name = "tier_5", tier = 5 },
+	{ name = "sewer_catch", area = "sewer" },
+	{ name = "tier_6", tier = 6 },
+	{ name = "desert_catch", area = "desert" },
+	{ name = "tier_7", tier = 7 },
+	{ name = "ruins_catch", area = "ruins" },
+}
+
+-- The names in order; the step number is the index (tools/opencloud/analytics.sh reads this list).
+Onboarding.CLEAN_STEPS = {
+	"joined",
+	"loaded",
+	"first_move",
+	"first_cannon",
+	"entered_alley",
+	"near_stray",
+	"catch_started",
+	"first_catch",
+	"first_checkin",
+	"first_role_assigned",
+	"first_table",
+	"bowl_bought",
+	"first_bait",
+	"first_bait_resolved",
+	"tier_2",
+	"park_catch",
+	"tier_3",
+	"neighbourhood_catch",
+	"tier_4",
+	"woods_catch",
+	"tier_5",
+	"sewer_catch",
+	"tier_6",
+	"desert_catch",
+	"tier_7",
+	"ruins_catch",
+} :: { string }
+Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
+
+-- The areas the clean funnel asks about, for a caller that gathers CleanFacts.
+Onboarding.CLEAN_AREAS =
+	{ "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } :: { string }
+
+-- What the clean funnel needs beside the ledger: the cafe's tier and the areas with a catch.
+export type CleanFacts = { tier: number, areas: { [string]: boolean } }
+
+-- The clean step numbers to log now, in order, for a player whose furthest logged clean step is `logged` (0 before
+-- joined): every step past it that is done, stopping at the first that is not. Pure, mutates nothing.
+function Onboarding.cleanDue(
+	state: Types.TelemetryState,
+	logged: number,
+	facts: CleanFacts
+): { number }
+	local out: { number } = {}
+	for step = math.max(0, logged) + 1, Onboarding.CLEAN_COUNT do
+		local rule = CLEAN_RULES[step]
+		local done = false
+		if rule.ledger ~= nil then
+			done = Onboarding.reached(state, rule.ledger)
+		elseif rule.tier ~= nil then
+			done = facts.tier >= rule.tier
+		elseif rule.area ~= nil then
+			done = facts.areas[rule.area] == true
+		end
+		if not done then
+			break
+		end
+		table.insert(out, step)
+	end
+	return out
+end
+
+-- Where a save that never had the clean funnel starts it: out of it (CLEAN_COUNT) once the ledger shows a first
+-- catch, since the funnel counts only players who start on it; else 0, from joined.
+function Onboarding.cleanStart(state: Types.TelemetryState): number
+	return if Onboarding.reached(state, "first_catch") then Onboarding.CLEAN_COUNT else 0
 end
 
 -- The intro funnel: logs `stepName` when it is past the furthest intro step logged, and returns whether it did. A
@@ -652,6 +705,69 @@ function Onboarding.firstHourDue(logged: number, playSeconds: number): { number 
 	local seconds = if playSeconds ~= playSeconds then 0 else playSeconds
 	for step = math.max(0, logged) + 1, Onboarding.FIRST_HOUR_COUNT do
 		if seconds < Onboarding.FIRST_HOUR_SECONDS[step] then
+			break
+		end
+		table.insert(out, step)
+	end
+	return out
+end
+
+-- #3695 (Derek 2026-11-13: "a funnel for more in depth minutes, moved, 30 seconds, 1 min, 2,3,4,5,10,15,30,1h,2h,3h,
+-- 6h,12h"): `playtime_v1`, one run per player like first_hour, which it replaces (first_hour_v3 is no longer sent;
+-- its names above stay for the report's older rows and for saves). joined, then moved (the ledger's first_move), then
+-- each PLAYTIME_SECONDS mark of account play time. A player who never moves stays at joined, as the order says. Its
+-- place is its own telemetry field (playtimeStep); a save that logged any of first_hour_v3 leaves it.
+Onboarding.PLAYTIME_FUNNEL = "playtime_v1"
+Onboarding.PLAYTIME_STEPS = {
+	"joined",
+	"moved",
+	"played_30s",
+	"played_1m",
+	"played_2m",
+	"played_3m",
+	"played_4m",
+	"played_5m",
+	"played_10m",
+	"played_15m",
+	"played_30m",
+	"played_1h",
+	"played_2h",
+	"played_3h",
+	"played_6h",
+	"played_12h",
+} :: { string }
+Onboarding.PLAYTIME_COUNT = #Onboarding.PLAYTIME_STEPS
+Onboarding.PLAYTIME_MOVED = 2 -- the step that needs the first move and no play time
+-- the play time each step needs, by index (joined and moved need none)
+Onboarding.PLAYTIME_SECONDS = {
+	0,
+	0,
+	30,
+	60,
+	120,
+	180,
+	240,
+	300,
+	600,
+	900,
+	1800,
+	3600,
+	7200,
+	10800,
+	21600,
+	43200,
+} :: { number }
+
+-- The playtime_v1 step numbers to log now, in order, for a player at `playSeconds` of account play whose furthest
+-- logged step is `logged` (0 before joined) and who has `moved` or not: every step past `logged` that is reached.
+function Onboarding.playtimeDue(logged: number, playSeconds: number, moved: boolean): { number }
+	local out: { number } = {}
+	local seconds = if playSeconds ~= playSeconds then 0 else playSeconds
+	for step = math.max(0, logged) + 1, Onboarding.PLAYTIME_COUNT do
+		if step >= Onboarding.PLAYTIME_MOVED and not moved then
+			break
+		end
+		if seconds < Onboarding.PLAYTIME_SECONDS[step] then
 			break
 		end
 		table.insert(out, step)

@@ -1,5 +1,5 @@
 --!strict
--- Analytics (feature F16, growth analytics-plan.md): the onboarding_v7, first_hour_v3 and catch_attempt funnels (only
+-- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v3 and catch_attempt funnels (only
 -- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
 -- the feedback_v1 funnel (#2681: the slide-in faces ask, a face, a chip),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
@@ -279,8 +279,6 @@ export type CustomEvent =
 	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
 	| "like_ask_shown"
-	-- #3695: a join on a later UTC day than the last session ended, value 1; tier (was an onboarding step up to v6)
-	| "returned_next_day"
 	-- #2694: how a slide-in faces ask ended, at most one per ask shown, value 1: answered, closed or ignored; early or
 	-- late (the client's report); minutes played bucket
 	| "feedback_ask_end"
@@ -587,6 +585,7 @@ type Session = {
 	healthLogged: boolean, -- #3098 P2: health_check logged this session
 	introShot: number, -- #3098 P1b: the furthest intro shot the client reported this session (0 none)
 	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
+	areasCaught: { [string]: boolean }?, -- #3695: the areas with a catch, for the clean funnel (nil until joined is logged)
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -836,6 +835,54 @@ function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	return introChecked[player] == true
 end
 
+-- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
+-- session: every clean step done since the last one logged, read off the ledger, the cafe's tier and the areas with
+-- a catch. Called after every ledger step, every rank up and every catch in an area.
+local function logClean(player: Player, profile: Profile)
+	local session = sessions[player]
+	local state = profile.telemetry
+	local logged = state.cleanStep or 0
+	if logged >= Onboarding.CLEAN_COUNT then
+		return
+	end
+	local facts: Onboarding.CleanFacts = {
+		tier = Economy.tier(profile),
+		areas = if session ~= nil and session.areasCaught ~= nil then session.areasCaught else {},
+	}
+	for _, step in Onboarding.cleanDue(state, logged, facts) do
+		state.cleanStep = step
+		local name = Onboarding.CLEAN_STEPS[step]
+		local fields = grouped(profile, {}) -- #3666
+		remember(player, "funnel", Onboarding.CLEAN_FUNNEL .. " " .. name, step, fields)
+		send(player, "funnel " .. Onboarding.CLEAN_FUNNEL, function()
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				Onboarding.CLEAN_FUNNEL,
+				tostring(player.UserId),
+				step,
+				name,
+				customFields(fields)
+			)
+		end)
+	end
+end
+
+-- #3695: a cat caught in `area` (CatService, as the catch is won), for the clean funnel's area steps.
+function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local areas = session.areasCaught
+	if areas == nil then
+		return -- joined is not logged yet: logJoined reads the save's areas, and the cat joins them at check-in
+	end
+	if areas[area] ~= true then
+		areas[area] = true
+		logClean(player, profile)
+	end
+end
+
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -866,17 +913,9 @@ function Telemetry.onboarding(
 	for _, name in reach.log do
 		local step = Onboarding.index(name)
 		local fields = grouped(profile, if name == stepName and values ~= nil then values else {})
+		-- #3695: the ledger is kept and listened to as before, but no longer sent to Roblox as a funnel: the clean
+		-- funnel (logClean, below) is what goes out, and Roblox drops every funnel past ten a day
 		remember(player, "onboarding", name, step, fields)
-		send(player, "onboarding " .. name, function()
-			AnalyticsService:LogFunnelStepEvent(
-				player,
-				Onboarding.FUNNEL,
-				tostring(player.UserId),
-				step,
-				name,
-				customFields(fields)
-			)
-		end)
 		-- #2774 (Derek2: "setup funnels"): when in the account's play the step came, once per step
 		if not reach.released[name] then
 			Telemetry.stepTime(player, profile, name)
@@ -900,6 +939,9 @@ function Telemetry.onboarding(
 		if StepGaps.marks(stepName) then
 			session.stepClock[stepName] = now
 		end
+	end
+	if #reach.log > 0 or #reach.held > 0 then
+		logClean(player, profile) -- #3695
 	end
 end
 
@@ -1171,19 +1213,25 @@ function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
 	end
 end
 
--- #2391: the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), one run per player with the user id as its session:
--- every step the account's play time has reached since the last one logged. #3308: first_hour_v3, in firstHourV3Step.
+-- #3695: the playtime_v1 funnel (Onboarding.PLAYTIME_STEPS), one run per player with the user id as its session:
+-- joined, moved (the ledger's first_move), then every mark the account's play time has reached since the last one
+-- logged. It replaces first_hour_v3 (#2391, #3308), which is no longer sent.
 local function logFirstHour(player: Player, profile: Profile)
 	local state = profile.telemetry
-	for _, step in Onboarding.firstHourDue(state.firstHourV3Step, PlayTime.seconds(player, profile)) do
-		state.firstHourV3Step = step
-		local name = Onboarding.FIRST_HOUR_STEPS[step]
+	local logged = state.playtimeStep or 0
+	if logged >= Onboarding.PLAYTIME_COUNT then
+		return
+	end
+	local moved = Onboarding.reached(state, "first_move")
+	for _, step in Onboarding.playtimeDue(logged, PlayTime.seconds(player, profile), moved) do
+		state.playtimeStep = step
+		local name = Onboarding.PLAYTIME_STEPS[step]
 		local fields = grouped(profile, {}) -- #3666
-		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, fields)
-		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()
+		remember(player, "funnel", Onboarding.PLAYTIME_FUNNEL .. " " .. name, step, fields)
+		send(player, "funnel " .. Onboarding.PLAYTIME_FUNNEL, function()
 			AnalyticsService:LogFunnelStepEvent(
 				player,
-				Onboarding.FIRST_HOUR_FUNNEL,
+				Onboarding.PLAYTIME_FUNNEL,
 				tostring(player.UserId),
 				step,
 				name,
@@ -1501,6 +1549,7 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 	elseif tier == 4 then
 		Telemetry.onboarding(player, profile, "tier_4") -- #1888
 	end
+	logClean(player, profile) -- #3695: the tier steps (Tier 5 to 7 have no ledger step)
 end
 
 -- #1888: Cafe Pass XP added (Payout's passXp), the level `before` and `after` it: first_pass_xp, pass_level_5, and
@@ -1803,7 +1852,7 @@ end
 
 -- Join and leave --------------------------------------------------------------------------------------------------
 
--- joined goes out as the profile loads (#1273: loaded carries the device now), then returned_next_day (an event) and the
+-- joined goes out as the profile loads (#1273: loaded carries the device now), then returned_next_day and the
 -- steps the save already shows, so a save is never stuck behind a step it passed silently (QA S72).
 local function logJoined(player: Player)
 	local session = sessions[player]
@@ -1812,18 +1861,26 @@ local function logJoined(player: Player)
 		return
 	end
 	session.joinLogged = true
+	-- #3695: the areas the save has a cat from (a spare cat counts by its old area), before the first step logs
+	local parkCats = 0
+	local areasCaught: { [string]: boolean } = {}
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil then
+			if def.area == "park" or def.incomeArea == "park" then
+				parkCats += 1
+			end
+			areasCaught[def.area] = true
+			if def.incomeArea ~= nil then
+				areasCaught[def.incomeArea] = true
+			end
+		end
+	end
+	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
 	logFirstHour(player, profile)
 	if session.returnedNextDay then
-		-- #3695: a custom event, no longer a funnel step (a later day is not part of the first session)
-		Telemetry.custom(player, "returned_next_day", 1, { tierText(profile) })
-	end
-	local parkCats = 0
-	for catId in profile.collection do
-		local def = Catalog.getCat(catId)
-		if def ~= nil and (def.area == "park" or def.incomeArea == "park") then
-			parkCats += 1
-		end
+		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
 	local shown = Onboarding.fromSave({
 		catsCaught = profile.stats.catsCaught,

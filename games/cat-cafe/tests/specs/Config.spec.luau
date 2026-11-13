@@ -529,6 +529,7 @@ return function()
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
 				IntroAutoPlay = true, -- false since #3162, checked below
+				StartTables = true, -- #3660
 				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)

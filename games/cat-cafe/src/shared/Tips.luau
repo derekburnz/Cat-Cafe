@@ -77,6 +77,9 @@ Tips.NOTIFY_RETURN_SECONDS = 5 * 60
 -- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table, then F92's invite nudge).
 Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK, Tips.INVITE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
+-- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut), once per account ever. Its mark rides
+-- tipsSeen like the asks (no new save field) and "Show tips again" keeps it.
+Tips.MYSTIC_INTRO = "mystic_intro"
 Tips.STUCK_HELP = "stuck_help"
 
 -- SendFeedback's values (section 4): the three faces and the optional chips, as analytics' short fixed values.
@@ -104,8 +107,22 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.FEEDBACK_ASK
 		or id == Tips.STUCK_HELP
 		or id == Tips.LESSON
+		or id == Tips.MYSTIC_INTRO -- #3430
 		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
+end
+
+-- #3430: whether the Mystic Pool's cutscene is due at a walk-up: the pool is open to this player (`traits` is the
+-- state's traits view, a table only while the `traits` switch is on and their tier has the station), the starting
+-- tutorial is done and the account has not seen it.
+function Tips.mysticIntroDue(
+	seen: { [string]: boolean }?,
+	traits: unknown,
+	tutorialStep: number?
+): boolean
+	return type(traits) == "table"
+		and (tutorialStep or 0) >= 5
+		and not (seen ~= nil and seen[Tips.MYSTIC_INTRO] == true)
 end
 
 local function anyCount(counts: { [string]: number }): boolean
@@ -254,6 +271,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					byId[key] ~= nil
 					or Tips.isAsk(key)
 					or key == Tips.LESSON
+					or key == Tips.MYSTIC_INTRO
 					or key == RankSpot.SEEN -- #3555
 					or StationReveal.isKey(key)
 				)
@@ -286,6 +304,9 @@ function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
 		if seen[id] == true then
 			kept[id] = true
 		end
+	end
+	if seen[Tips.MYSTIC_INTRO] == true then
+		kept[Tips.MYSTIC_INTRO] = true -- #3430: once per account, ever
 	end
 	return kept
 end

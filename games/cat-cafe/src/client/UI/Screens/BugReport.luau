@@ -42,6 +42,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FeedbackLogic = require(script.Parent.Parent.Components.FeedbackLogic)
 local FitText = require(script.Parent.Parent.Components.FitText)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -56,7 +57,8 @@ export type Callbacks = {
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type BugReport = {
 	frame: Frame,
@@ -191,7 +193,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 
 	local box: TextBox = Create("TextBox", {
 		Name = "Box",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		ClearTextOnFocus = false,
 		ClipsDescendants = true,
@@ -199,8 +201,8 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		TextWrapped = true,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
-		PlaceholderColor3 = PAL.subtext,
+		TextColor3 = CARD.text,
+		PlaceholderColor3 = CARD.subtext,
 		PlaceholderText = BugReportLogic.example(self._kind),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -215,7 +217,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 			PaddingRight = UDim.new(0, 12),
 		}),
 	})
-	Outline.border(box, Theme.sizes.stroke, PAL.cardStroke)
+	Outline.border(box, Theme.sizes.stroke, CARD.cardStroke)
 	self._box = box
 
 	self._note = text({

@@ -32,6 +32,7 @@ local ArcadeFx = require(script.Parent.Parent.Parent.Effects.ArcadeFx)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -43,7 +44,7 @@ local ArcadeRules = require(Shared:WaitForChild("Arcade"))
 local Config = require(Shared:WaitForChild("Config")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 local MAX_SIZE = Vector2.new(640, 720) -- #3338: was 500 x 560
 local RING = 34 -- the ring's radius in px

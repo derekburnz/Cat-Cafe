@@ -10,7 +10,7 @@
 
 local RoadmapLogic = {}
 
-export type Step = { text: string, short: string, reward: string }
+export type Step = { text: string, short: string, reward: string, doneText: string? }
 export type Row = { n: number, text: string, reward: string, done: boolean, next: boolean }
 export type View = { count: number, total: number, rows: { Row }, title: string }
 
@@ -25,7 +25,13 @@ RoadmapLogic.BANNER_LINE = "Your cafe's Grand Opening! +30 golden fish"
 
 -- first-hour.md 1a: the card text, the toast's short words and the reward (#2795: the server's prizes since #2237)
 RoadmapLogic.STEPS = {
-	{ text = "Open your first table", short = "First table!", reward = "+3 golden fish" },
+	-- #3660: a new save starts with its first table, so the row never asks for it once it is done
+	{
+		text = "Open your first table",
+		short = "First table!",
+		reward = "+3 golden fish",
+		doneText = "Your first table is open",
+	},
 	{ text = "Your first bait cat", short = "First bait cat!", reward = "+3 golden fish" },
 	{ text = "Five different cats", short = "Five cats!", reward = "+1 spin" },
 	{ text = "Rank up to Tier 2", short = "Tier 2!", reward = "+5 golden fish" },
@@ -82,10 +88,13 @@ function RoadmapLogic.view(state: { [string]: any }): View?
 		if isNext then
 			nextFound = true
 		end
-		table.insert(
-			rows,
-			{ n = n, text = step.text, reward = step.reward, done = isDone, next = isNext }
-		)
+		table.insert(rows, {
+			n = n,
+			text = if isDone and step.doneText ~= nil then step.doneText else step.text,
+			reward = step.reward,
+			done = isDone,
+			next = isNext,
+		})
 	end
 	return {
 		count = count,

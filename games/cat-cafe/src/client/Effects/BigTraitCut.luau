@@ -24,10 +24,12 @@
 -- Sound: BigTraitCut.onBeat's "fanfare" (with the rarity); Audio plays the Legendary or Mythical jingle on it.
 -- Client only; it sends nothing. Numbers in Presets.bigTrait.
 
+local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -39,6 +41,7 @@ local MysticIntroCut = require(script.Parent.MysticIntroCut)
 local MysticPool = require(script.Parent.MysticPool)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits"))
 
 local BigTraitCut = {}
 
@@ -603,6 +606,62 @@ function BigTraitCut.atPool(
 			finish()
 		end
 	end
+end
+
+-- #3942: someone else's Mythic (or better) roll at the pool, seen from nearby: the pillar, rings, stars and confetti
+-- of the big moment and the scene's spiral (a Secret's star cat too), with no camera, bars or title. Within
+-- Presets.bigTrait.seenRadius studs of the pool, once per roll, never for this player's own roll (its scene plays),
+-- not under Reduce Motion, and not for a mark older than `seenFresh` seconds (joining after it).
+local function seenRoll(station: Model)
+	local b = Presets.bigTrait
+	local at = station:GetAttribute(Traits.ROLL_AT_ATTRIBUTE)
+	local by = station:GetAttribute(Traits.ROLL_BY_ATTRIBUTE)
+	local rarity = station:GetAttribute(Traits.ROLL_RARITY_ATTRIBUTE)
+	if type(at) ~= "number" or type(rarity) ~= "string" or by == Players.LocalPlayer.UserId then
+		return
+	end
+	if Workspace:GetServerTimeNow() - at > b.seenFresh or Context.reducedMotion() then
+		return
+	end
+	local scene = Logic.bigTraitScene(rarity)
+	if scene == nil then
+		return
+	end
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	local rig = MysticPool.rig(station)
+	if
+		root == nil
+		or not root:IsA("BasePart")
+		or (root.Position - rig.surface).Magnitude > b.seenRadius
+	then
+		return
+	end
+	-- the server rolled as the roller's scene began; the pillar goes up about when theirs does
+	task.delay(b.seenDelay, function()
+		if station:IsDescendantOf(game) then
+			burst(rig.surface, rarity)
+			sceneBurst(scene, rig.surface, colourFor(rarity))
+		end
+	end)
+end
+
+-- #3942: watches the Mystic Pool station for other players' big rolls (seenRoll). Started once with the effects.
+function BigTraitCut.watchPool()
+	local watched: { [Instance]: boolean } = {}
+	local function watch(station: Instance)
+		if watched[station] or not station:IsA("Model") then
+			return
+		end
+		watched[station] = true
+		station:GetAttributeChangedSignal(Traits.ROLL_AT_ATTRIBUTE):Connect(function()
+			seenRoll(station :: Model)
+		end)
+	end
+	for _, station in CollectionService:GetTagged(Traits.TAG) do
+		watch(station)
+	end
+	CollectionService:GetInstanceAddedSignal(Traits.TAG):Connect(watch)
 end
 
 return BigTraitCut

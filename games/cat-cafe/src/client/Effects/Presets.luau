@@ -5127,6 +5127,12 @@ Presets.bigTrait = {
 	starSparkles = 4,
 	spiralRadius = 2.2,
 	spiralHeight = 18,
+	-- #3942: another player's Mythic or Secret roll seen from nearby (BigTraitCut.watchPool): within `seenRadius`
+	-- studs, `seenDelay` seconds after the server's mark (about when the roller's pillar goes up), and only while
+	-- the mark is under `seenFresh` seconds old
+	seenRadius = 160,
+	seenDelay = 4,
+	seenFresh = 10,
 }
 
 -- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for

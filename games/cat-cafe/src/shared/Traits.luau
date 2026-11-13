@@ -42,6 +42,10 @@ Traits.OPEN_TIER = 1
 -- the switch is on): its model, its CollectionService tag and its prompt's name.
 Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
 Traits.TAG = "MysticPool"
+-- #3942: a Mythic or better roll marks the station (TraitService.announce) so every client near it sees the pillar
+Traits.ROLL_BY_ATTRIBUTE = "BigRollBy" -- the roller's UserId
+Traits.ROLL_RARITY_ATTRIBUTE = "BigRollRarity" -- the rolled trait's rarity id
+Traits.ROLL_AT_ATTRIBUTE = "BigRollAt" -- server time, set last
 Traits.PROMPT = "MysticPoolPrompt"
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
 Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")

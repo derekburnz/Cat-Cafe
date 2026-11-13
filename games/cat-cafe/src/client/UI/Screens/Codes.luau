@@ -119,6 +119,7 @@ function Codes.new(callbacks: Callbacks): Codes
 	self._open = false
 	self._alive = true
 	self._failed = false -- the answer line shows a refusal, which typing again clears
+	self._refused = false -- #3686: the box still holds a refused code, which the next tap on it clears
 	self._sentAt = -math.huge -- os.clock() of the last Redeem
 	self._state = nil :: Types.PlayerState?
 	self._night = false
@@ -388,6 +389,16 @@ function Codes.new(callbacks: Callbacks): Codes
 			self:_refresh()
 		end)
 	)
+	-- #3686: a refused code leaves the box as the player taps back into it
+	table.insert(
+		self._connections,
+		box.Focused:Connect(function()
+			if self._refused then
+				self._refused = false
+				box.Text = ""
+			end
+		end)
+	)
 	table.insert(
 		self._connections,
 		box.FocusLost:Connect(function(enterPressed: boolean)
@@ -560,8 +571,9 @@ function Codes._submit(self: any)
 	end)
 end
 
--- CodeResult(ok, message, prize): a redeemed code clears the box and shows what it paid; a refusal keeps the text
--- so it can be fixed.
+-- CodeResult(ok, message, prize): a redeemed code clears the box and shows what it paid. A refusal keeps the text
+-- on show beside its answer, and the next tap on the box clears it (#3686: the next code typed used to join onto
+-- the refused one and read as wrong too).
 function Codes.result(self: any, ok: boolean, message: string, prize: Types.IndexPrize?)
 	self._pending = false
 	self._token += 1
@@ -569,6 +581,7 @@ function Codes.result(self: any, ok: boolean, message: string, prize: Types.Inde
 	if ok then
 		self._box.Text = ""
 	end
+	self._refused = not ok and self._box.Text ~= ""
 	self:_setAnswer(ok, message, if ok then prize else nil)
 	self:_refresh()
 	-- light Redeem again once the server would take another try
@@ -598,6 +611,7 @@ function Codes.onClose(self: any)
 		self._box:ReleaseFocus()
 	end
 	self._box.Text = ""
+	self._refused = false
 	self:_setAnswer(nil, nil, nil)
 	self:_refresh()
 end

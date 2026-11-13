@@ -20,9 +20,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CatPickLogic = require(script.Parent.Parent.Components.CatPickLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local Format = require(script.Parent.Parent.Components.Format)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
@@ -45,6 +47,9 @@ export type Callbacks = {
 	-- returns its skip. nil (or a nil skip) shows the card at once
 	play: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?,
 	far: (() -> boolean)?, -- true once the player has walked away from the pool: the card closes
+	-- #3702: while the pool's animation plays the card goes away and the screen's edges are shaded; `onTap` is a
+	-- tap anywhere (the skip). Returns the function that brings the card back. nil keeps the old sheet on the card
+	shade: ((onTap: () -> ()) -> () -> ())?,
 }
 
 export type MysticPool = {
@@ -80,10 +85,15 @@ local TILE_H = 100 -- the cat's tile and the trait's card
 local ODDS_W = 84
 local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the odds on two lines
 local PENDING_SECONDS = 4
-local ROW_H = 52
+local ROW_H = 68 -- #3700: three lines (name, rarity and level, trait)
+local PICKER_TALL = 680 -- #3700: the card grows to at most this while the cat list shows, so about six rows fit
+local SCREEN_ROOM = 16 -- px kept clear above and below the grown card
+local SORT_W = 86
+local TOOL_PAD = 5
 local FACE = 44
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin)
 local CHIP_W = 78
+local WIDE_CHIP_W = 96 -- "No trait", "Has trait"
 local FIRST_ROWS = 12
 local ROWS_PER_FRAME = 20
 local FACES_PER_PASS = 15
@@ -95,6 +105,9 @@ local GAP = Theme.sizes.gap
 
 local MysticPool = {}
 MysticPool.__index = MysticPool
+
+-- #3700: the list's order is remembered for the session
+local remembered = { sort = CatPickLogic.DEFAULT_SORT, flipped = false }
 
 local function text(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
@@ -234,6 +247,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
 	self._rolling = nil :: { uid: string, hadTrait: boolean }? -- a Roll waiting for its answer
 	self._skip = nil :: (() -> ())? -- the running animation's skip
+	self._lift = nil :: (() -> ())? -- #3702: ends the running reveal's shade and brings the card back
 	self._playToken = 0
 	self._open = false
 	self._tick = 0
@@ -244,6 +258,8 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._buildToken = 0
 	self._query = ""
 	self._filter = "All"
+	self._sort = remembered.sort
+	self._flipped = remembered.flipped
 	self._searchToken = 0
 	self._facesQueued = false
 	local buttonH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
@@ -263,7 +279,8 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		size = UDim2.new(1, 0, 0, height),
 		onClose = callbacks.close,
 	})
-	Create("UISizeConstraint", {
+	self._height = height
+	self._limit = Create("UISizeConstraint", {
 		MaxSize = Vector2.new(MAX_WIDTH, height),
 		Parent = panel.frame,
 	})
@@ -406,24 +423,15 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		end,
 	})
 
-	-- the cat list behind Pick a cat
+	-- the cat list behind Pick a cat (#3700, cat-picker.md): the search and Back on one row, then one row of chips
+	-- that scrolls sideways (Sort, then Show, then how many cats show), then the list
 	local picker = sheet("Picker", content, 5)
 	self._picker = picker
-	text({
-		Name = "Title",
-		Size = UDim2.new(1, -110, 0, 32),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 2,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "Pick a cat for a trait",
-		ZIndex = 6,
-		Parent = picker,
-	})
 	self._back = Button.new({
 		name = "Back",
 		text = "Back",
 		style = "ghost",
-		size = UDim2.fromOffset(96, buttonH),
+		size = UDim2.fromOffset(96, TOOL_H),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, 0, 0, 0),
 		textSize = Theme.sizes.textSmall,
@@ -433,20 +441,18 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			self:_showPicker(false)
 		end,
 	})
-	local toolTop = buttonH + 6
-	local chipsW = #LateStationsLogic.SPA_FILTERS * (CHIP_W + 6)
 	local search: TextBox = Create("TextBox", {
 		Name = "Search",
 		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(1, toolTop),
-		Size = UDim2.new(1, -(chipsW + 2), 0, TOOL_H),
+		Position = UDim2.fromOffset(1, 0),
+		Size = UDim2.new(1, -(96 + 8), 0, TOOL_H),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall + 1,
 		TextColor3 = PAL.text,
 		PlaceholderColor3 = PAL.subtext,
-		PlaceholderText = "🔍 Search cats",
+		PlaceholderText = "🔍 Pick a cat for a trait",
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -468,22 +474,78 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			end
 		end)
 	end)
+	local toolTop = TOOL_H + 4
+	local tools: ScrollingFrame = Create("ScrollingFrame", {
+		Name = "Tools",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, toolTop),
+		Size = UDim2.new(1, 0, 0, TOOL_H + TOOL_PAD * 2 + 4),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.X,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.X,
+		ZIndex = 6,
+		Parent = picker,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		-- room for the chips' outlines inside the row's own edge
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, TOOL_PAD),
+			PaddingRight = UDim.new(0, TOOL_PAD),
+			PaddingTop = UDim.new(0, TOOL_PAD),
+		}),
+	})
+	local order = 0
+	local function word(name: string, words: string, width: number): TextLabel
+		order += 1
+		return text({
+			Name = name,
+			LayoutOrder = order,
+			Size = UDim2.fromOffset(width, TOOL_H),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = PAL.subtext,
+			Text = words,
+			ZIndex = 6,
+			Parent = tools,
+		})
+	end
+	word("SortWord", "Sort", 34)
+	self._sorts = {} :: { [string]: Button.Button }
+	for _, sort in CatPickLogic.SORTS do
+		order += 1
+		self._sorts[sort] = Button.new({
+			name = "Sort" .. sort,
+			text = sort,
+			style = "ghost",
+			size = UDim2.fromOffset(SORT_W, TOOL_H),
+			layoutOrder = order,
+			textSize = Theme.sizes.textSmall,
+			parent = tools,
+			zIndex = 6,
+			sound = "uiTab",
+			onClick = function()
+				self:_setSort(sort)
+			end,
+		})
+	end
+	word("ShowWord", "Show", 40)
 	self._chips = {} :: { [string]: Button.Button }
-	for index, filter in LateStationsLogic.SPA_FILTERS do
+	for _, filter in CatPickLogic.FILTERS do
+		order += 1
 		self._chips[filter] = Button.new({
-			name = filter,
+			name = (string.gsub(filter, " ", "")),
 			text = filter,
 			style = if filter == "All" then "gold" else "ghost",
-			size = UDim2.fromOffset(CHIP_W, TOOL_H),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(
-				1,
-				-(#LateStationsLogic.SPA_FILTERS - index) * (CHIP_W + 6),
-				0,
-				toolTop
-			),
+			size = UDim2.fromOffset(if #filter > 7 then WIDE_CHIP_W else CHIP_W, TOOL_H),
+			layoutOrder = order,
 			textSize = Theme.sizes.textSmall,
-			parent = picker,
+			parent = tools,
 			zIndex = 6,
 			sound = "uiTab",
 			onClick = function()
@@ -491,7 +553,8 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			end,
 		})
 	end
-	local listTop = toolTop + TOOL_H + 8
+	self._count = word("Count", "", 96)
+	local listTop = toolTop + TOOL_H + TOOL_PAD * 2 + 4 + 4
 	self._list = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundTransparency = 1,
@@ -759,7 +822,10 @@ function MysticPool._rollPress(self: any)
 	end)
 end
 
--- The roll's answer has come: the pool plays it (a tap skips), then the card shows it.
+-- The roll's answer has come: the pool plays it (a tap skips), then the card shows it. #3702: while it plays the
+-- card is tucked away behind a soft shade at the screen's edges (callbacks.shade), so the pool is in full view, and
+-- it pops back with the result when the animation ends or is skipped. Without the callback the card stays up
+-- under its "stirs the pool" sheet, as before.
 function MysticPool._reveal(self: any, uid: string, traitId: string)
 	local play = (self._callbacks :: Callbacks).play
 	if play == nil or not self._open then
@@ -768,35 +834,54 @@ function MysticPool._reveal(self: any, uid: string, traitId: string)
 	self._playToken += 1
 	local token = self._playToken
 	local done = false
+	local lift: (() -> ())? = nil
 	local function finish()
 		if done then
 			return
 		end
 		done = true
+		local back: (() -> ())? = lift
+		lift = nil
+		if back then
+			(back :: () -> ())()
+		end
 		if self._playToken == token then
 			self._skip = nil
+			self._lift = nil
 			self._rollingSheet.Visible = false
 		end
 	end
-	self._rollingSheet.Visible = true
 	local skip = play(uid, MysticPoolLogic.rarityId(traitId), finish)
 	if done or skip == nil then
 		finish()
 		return
 	end
-	self._skip = function()
+	local function skipNow()
 		skip()
 		finish()
+	end
+	self._skip = skipNow
+	local shade = (self._callbacks :: Callbacks).shade
+	if shade ~= nil then
+		lift = shade(skipNow)
+		self._lift = finish
+	else
+		self._rollingSheet.Visible = true
 	end
 end
 
 function MysticPool._stopPlay(self: any)
 	self._playToken += 1
 	local skip: (() -> ())? = self._skip
+	local lift: (() -> ())? = self._lift
 	self._skip = nil
+	self._lift = nil
 	self._rollingSheet.Visible = false
 	if skip then
 		skip()
+	end
+	if lift then
+		lift() -- the shade never outlives the card (closed, destroyed)
 	end
 end
 
@@ -813,10 +898,29 @@ function MysticPool._clearRows(self: any)
 	self._rowsKey = nil
 end
 
+-- #3700: while the cat list shows the card grows to the room the screen has (at most PICKER_TALL), so about six rows
+-- fit on a desktop; back on the card it is its own short height again.
+function MysticPool._fit(self: any, tall: boolean)
+	local frame: Frame = self.frame
+	local limit: UISizeConstraint = self._limit
+	local height: number = self._height
+	if tall then
+		local holder = frame.Parent
+		local scale = Scale.get()
+		if holder ~= nil and holder:IsA("GuiBase2d") and scale > 0 then
+			local room = holder.AbsoluteSize.Y / scale - SCREEN_ROOM * 2
+			height = math.clamp(room, height, PICKER_TALL)
+		end
+	end
+	limit.MaxSize = Vector2.new(MAX_WIDTH, height)
+	frame.Size = UDim2.new(1, 0, 0, height)
+end
+
 -- The cat list, or back to the card (false), which frees every row and face.
 function MysticPool._showPicker(self: any, show: boolean)
 	self._picking = show
 	self._picker.Visible = show
+	self:_fit(show)
 	if not show then
 		self:_clearRows()
 		return
@@ -825,6 +929,7 @@ function MysticPool._showPicker(self: any, show: boolean)
 	self._query = ""
 	self._searchToken += 1
 	self:_setFilter("All", true)
+	self:_paintSorts()
 	self:_buildRows()
 end
 
@@ -838,9 +943,32 @@ function MysticPool._setFilter(self: any, filter: string, quiet: boolean?)
 	end
 end
 
+-- The Sort chips: the one in use is gold and shows which way it runs.
+function MysticPool._paintSorts(self: any)
+	for name, chip: Button.Button in self._sorts do
+		local on = name == self._sort
+		chip:setStyle(if on then "gold" else "ghost")
+		chip:setText(if on then name .. (if self._flipped then " ▲" else " ▼") else name)
+	end
+end
+
+-- A press on a Sort chip: another order, or the same one turned round.
+function MysticPool._setSort(self: any, sort: string)
+	if sort == self._sort then
+		self._flipped = not self._flipped
+	else
+		self._sort = sort
+		self._flipped = false
+	end
+	remembered.sort = self._sort
+	remembered.flipped = self._flipped
+	self:_paintSorts()
+	self:_buildRows()
+end
+
 function MysticPool._row(self: any, order: number, cat: any): Row
-	local def = Catalog.getCat(cat.catId)
-	local rarity = Theme.rarityColor(if def ~= nil then def.rarity else nil)
+	local rarityName = CatPickLogic.rarity(cat)
+	local rarity = Theme.rarityColor(rarityName)
 	local frame: Frame = Create("Frame", {
 		Name = cat.uid,
 		BackgroundColor3 = PAL.card,
@@ -851,13 +979,21 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		-- the rarity's colour down the left edge
+		Create("Frame", {
+			Name = "Edge",
+			BackgroundColor3 = rarity,
+			BorderSizePixel = 0,
+			Size = UDim2.new(0, 6, 1, 0),
+			ZIndex = 7,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, 3) }) }),
 	})
 	local disc: Frame = Create("Frame", {
 		Name = "Face",
 		AnchorPoint = Vector2.new(0, 0.5),
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		Position = UDim2.new(0, 8, 0.5, 0),
+		Position = UDim2.new(0, 14, 0.5, 0),
 		Size = UDim2.fromOffset(FACE, FACE),
 		ZIndex = 7,
 		Parent = frame,
@@ -865,31 +1001,81 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIStroke", { Color = rarity, Thickness = 3 }),
 	})
-	local left = 8 + FACE + 10
+	local left = 14 + FACE + 10
 	text({
 		Name = "Name",
-		Position = UDim2.fromOffset(left, 6),
-		Size = UDim2.new(1, -(left + 114), 0, 22),
+		Position = UDim2.fromOffset(left, 4),
+		Size = UDim2.new(1, -(left + 114), 0, 20),
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = LateStationsLogic.spaTitle(cat),
+		Text = CatPickLogic.title(cat),
 		ZIndex = 7,
 		Parent = frame,
 	})
+	-- the rarity's word on its colour (colour is never the only sign), the coat, then level, job and pay
+	local facts: Frame = Create("Frame", {
+		Name = "Facts",
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
+		Position = UDim2.fromOffset(left, 25),
+		Size = UDim2.new(1, -(left + 114), 0, 18),
+		ZIndex = 7,
+		Parent = frame,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 5),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+		}),
+	})
+	local function tag(name: string, words: string, fill: Color3, ink: Color3, place: number)
+		Create("TextLabel", {
+			Name = name,
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundColor3 = fill,
+			BorderSizePixel = 0,
+			FontFace = Theme.fonts.bodyBold,
+			LayoutOrder = place,
+			Size = UDim2.new(0, 0, 1, 0),
+			Text = words,
+			TextColor3 = ink,
+			TextSize = Theme.sizes.textTiny,
+			ZIndex = 7,
+			Parent = facts,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }),
+		})
+	end
+	tag("Rarity", rarityName, rarity, Theme.rarityTextColor(rarityName), 1)
+	local coat = CatPickLogic.coatTag(cat)
+	if coat ~= nil then
+		tag("Coat", coat, Theme.colors.gold, Theme.colors.ink, 2)
+	end
+	Create("TextLabel", {
+		Name = "Line",
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		FontFace = Theme.fonts.body,
+		LayoutOrder = 3,
+		Size = UDim2.new(0, 0, 1, 0),
+		Text = CatPickLogic.line(cat, Format.rate(tonumber(cat.rating) or 0)),
+		TextColor3 = PAL.text,
+		TextSize = Theme.sizes.textSmall,
+		ZIndex = 7,
+		Parent = facts,
+	})
 	-- its trait in the rarity's colour, so the list shows which cats still have none
 	local trait = MysticPoolLogic.card(cat.trait)
-	local job = ""
-	if cat.spotId ~= nil then
-		job = " · Working"
-	end
 	text({
 		Name = "Trait",
-		Position = UDim2.fromOffset(left, 28),
+		Position = UDim2.fromOffset(left, 45),
 		Size = UDim2.new(1, -(left + 114), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = if trait.has then Color3.fromHex(trait.color) else PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "Lv " .. tostring(tonumber(cat.level) or 1) .. job .. " · " .. trait.name,
+		Text = if trait.has then "Trait: " .. trait.name else trait.name,
 		ZIndex = 7,
 		Parent = frame,
 	})
@@ -916,13 +1102,13 @@ end
 function MysticPool._buildRows(self: any)
 	self:_clearRows()
 	local token = self._buildToken
-	local cats = MysticPoolLogic.cats(self._cats)
+	local cats = CatPickLogic.sorted(self._cats, self._sort, self._flipped)
 	self._rowsKey = MysticPoolLogic.key(cats)
 	self._candidates = #cats
 	local function build(from: number, to: number)
 		for order = from, to do
 			local row = self:_row(order, cats[order])
-			row.frame.Visible = LateStationsLogic.spaMatch(row.cat, self._query, self._filter)
+			row.frame.Visible = CatPickLogic.match(row.cat, self._query, self._filter)
 			table.insert(self._rows, row)
 		end
 	end
@@ -948,7 +1134,7 @@ end
 function MysticPool._applyFilter(self: any)
 	local shown = 0
 	for _, row: Row in self._rows do
-		local visible = LateStationsLogic.spaMatch(row.cat, self._query, self._filter)
+		local visible = CatPickLogic.match(row.cat, self._query, self._filter)
 		if row.frame.Visible ~= visible then
 			row.frame.Visible = visible
 		end
@@ -957,10 +1143,13 @@ function MysticPool._applyFilter(self: any)
 		end
 	end
 	local none = self._candidates == 0
+	local built = #self._rows >= self._candidates
 	self._empty.Text = if none
 		then "You have no cats yet. Catch one first."
-		else "No cat matches. Try another name."
-	self._empty.Visible = none or (shown == 0 and #self._rows >= self._candidates)
+		else "No cat matches. Try another name or Show: All."
+	self._empty.Visible = none or (shown == 0 and built)
+	local count: TextLabel = self._count
+	count.Text = if none or not built then "" else CatPickLogic.count(shown)
 	self:_queueFaces()
 end
 
@@ -1025,7 +1214,8 @@ function MysticPool._syncRows(self: any)
 	if not self._picking then
 		return
 	end
-	if MysticPoolLogic.key(MysticPoolLogic.cats(self._cats)) ~= self._rowsKey then
+	local cats = CatPickLogic.sorted(self._cats, self._sort, self._flipped)
+	if MysticPoolLogic.key(cats) ~= self._rowsKey then
 		self:_buildRows()
 	end
 end
@@ -1185,6 +1375,9 @@ function MysticPool.destroy(self: any)
 	self._scrolled:Disconnect()
 	self._skipPressed:Disconnect()
 	for _, chip: Button.Button in self._chips do
+		chip:destroy()
+	end
+	for _, chip: Button.Button in self._sorts do
 		chip:destroy()
 	end
 	self._portrait:destroy()

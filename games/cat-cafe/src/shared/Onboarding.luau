@@ -449,11 +449,16 @@ function Onboarding.fromOld(funnel: number?, step: number): number
 	return if step >= caught then Onboarding.COUNT else 0
 end
 
--- Marks `stepName` reached and returns the steps to log now, in order: the steps it implies that were not reached
--- yet, this step and every held step right after, or nothing when it is already logged or an earlier step is missing
--- (it is held). Mutates `state`.
-function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { StepName }
+-- Marks `stepName` reached. `log`: the steps to log now, in order: the steps it implies that were not reached yet,
+-- this step and every held step right after, or nothing when it is already logged or an earlier step is missing (it
+-- is held). #3530: `held` names the steps this call put on hold (reached now, logged later) and `released` the logged
+-- ones that had been on hold, so a caller can time a step when it happens and not when the funnel catches up.
+-- Mutates `state`.
+export type Reach = { log: { StepName }, held: { StepName }, released: { [string]: boolean } }
+function Onboarding.reachDetail(state: Types.TelemetryState, stepName: StepName): Reach
 	local toLog: { StepName } = {}
+	local held: { StepName } = {}
+	local released: { [string]: boolean } = {}
 	-- names are plain strings here (IMPLIES' lists read back as strings); what is logged is STEPS', typed
 	local function go(name: string)
 		local step = indexOf[name]
@@ -472,6 +477,7 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 		end
 		if step > state.onboardingStep + 1 then
 			state.achieved[tostring(step)] = true
+			table.insert(held, Onboarding.STEPS[step])
 			return
 		end
 		state.onboardingStep = step
@@ -480,10 +486,23 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 			state.onboardingStep += 1
 			state.achieved[tostring(state.onboardingStep)] = nil
 			table.insert(toLog, Onboarding.STEPS[state.onboardingStep])
+			released[Onboarding.STEPS[state.onboardingStep]] = true
 		end
 	end
 	go(stepName)
-	return toLog
+	-- a step held and let go inside this one call was never waiting: it is timed once, as logged
+	for index = #held, 1, -1 do
+		if released[held[index]] then
+			released[held[index]] = nil
+			table.remove(held, index)
+		end
+	end
+	return { log = toLog, held = held, released = released }
+end
+
+-- The steps to log now, in order (reachDetail's `log`). Mutates `state`.
+function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { StepName }
+	return Onboarding.reachDetail(state, stepName).log
 end
 
 -- The intro funnel: logs `stepName` when it is past the furthest intro step logged, and returns whether it did. A

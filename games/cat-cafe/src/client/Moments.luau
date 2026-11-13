@@ -138,6 +138,10 @@ local Moments = {
 	-- tagged RummageBin (its BangAnchor is where prizes pop out, its GlowAnchor the mouth). RescueStart, RescueHit, RescueMiss, RescueDone and RescueFail fire for its bar too,
 	-- with the spot id RummageBin.SPOT and no trap or rarity.
 	RummageWin = Signal.new() :: Signal.Signal<string, boolean>,
+	-- #3615: the Yard Sale lucky pick's board (UI/Screens/YardSale, through UI's callbacks): YardSaleTick as each row
+	-- lights during the roll, YardSaleLanded (golden) once as it stops on the crate won, before its CampExtraCollect.
+	YardSaleTick = Signal.new() :: Signal.Signal<()>,
+	YardSaleLanded = Signal.new() :: Signal.Signal<boolean>,
 	-- #2687 (shared/StationReveal): (area, perkId) the first time this account walks or flies into an area whose tier
 	-- it owns, for the station's build-in beat (VFX, Animation), the fanfare (Sound) and the Unlocked card (UI, with
 	-- StationPerks.get(perkId)). Fired once per area per account (WorldController, saved through TipSeen).
@@ -150,6 +154,19 @@ local Moments = {
 	ArcadeStart = Signal.new() :: Signal.Signal<()>,
 	ArcadeMilestone = Signal.new() :: Signal.Signal<number>,
 	ArcadeEnd = Signal.new() :: Signal.Signal<number, boolean>,
+	-- #3296 Mouse Dash (the second Cat Arcade game), fired by UIController's Mouse Dash window for the sounds
+	-- (Audio's handlers of the same names). They were missing here at the 2026-11-12 launch, so UIController found
+	-- no signal to fire and the game was silent. A run begins; one pops up (kind "mouse", "golden" or "kitten");
+	-- a catch (points, kind, streak); a heart lost ("escape", "kitten" or "empty"); a heart won back; a speed step
+	-- (level); every milestone (points); the run ends (points, reason "hearts", "win" or "quit", newBest).
+	MouseDashStart = Signal.new() :: Signal.Signal<()>,
+	MouseDashPop = Signal.new() :: Signal.Signal<string>,
+	MouseDashCatch = Signal.new() :: Signal.Signal<number, string, number>,
+	MouseDashMiss = Signal.new() :: Signal.Signal<string>,
+	MouseDashHeart = Signal.new() :: Signal.Signal<()>,
+	MouseDashFaster = Signal.new() :: Signal.Signal<number>,
+	MouseDashMilestone = Signal.new() :: Signal.Signal<number>,
+	MouseDashEnd = Signal.new() :: Signal.Signal<number, string, boolean>,
 }
 
 return Moments

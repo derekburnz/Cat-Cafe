@@ -42,6 +42,27 @@ StoreLogic.TABS = {
 	{ id = "codes", name = "Codes", icon = "🔑", always = true },
 } :: { Tab }
 
+-- #3572 (Derek's OK of Model-Agent's mock, 2026-11-12 13:10 UTC): the reworked Store, behind the `storeRework`
+-- switch, puts Cats above Passes on the rail.
+StoreLogic.REWORK_FLAG = "storeRework"
+StoreLogic.REWORK_RAIL = { "featured", "cats", "passes", "potions", "cafePass", "codes" }
+
+-- The rail's tabs in their order: TABS, or with the rework on REWORK_RAIL's order.
+function StoreLogic.railTabs(rework: boolean): { Tab }
+	if not rework then
+		return StoreLogic.TABS
+	end
+	local out: { Tab } = {}
+	for _, id in StoreLogic.REWORK_RAIL do
+		for _, tab in StoreLogic.TABS do
+			if tab.id == id then
+				table.insert(out, tab)
+			end
+		end
+	end
+	return out
+end
+
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
 export type Price = {
 	robux: number?,
@@ -816,6 +837,28 @@ function StoreLogic.tabRows(rows: { Row }, tab: string): { Row }
 			table.insert(out, row)
 		end
 	end
+	return out
+end
+
+-- #3572: the rows cheapest first, the rework's order inside each tab. A row whose price is not in yet (or is off
+-- sale) goes after the priced ones; equal prices keep the Store's order. Rows are not changed, only reordered.
+function StoreLogic.cheapestFirst(rows: { Row }, prices: { [number]: Price }?): { Row }
+	local index: { [Row]: number } = {}
+	for i, row in rows do
+		index[row] = i
+	end
+	local function cost(row: Row): number
+		local price = if prices then prices[row.passId] else nil
+		return if price and price.forSale and price.robux then price.robux else math.huge
+	end
+	local out = table.clone(rows)
+	table.sort(out, function(a: Row, b: Row): boolean
+		local ca, cb = cost(a), cost(b)
+		if ca ~= cb then
+			return ca < cb
+		end
+		return index[a] < index[b]
+	end)
 	return out
 end
 

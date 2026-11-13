@@ -26,6 +26,9 @@ local Config = require(
 ) :: any
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local LiveFlags = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LiveFlags")
+)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -104,6 +107,12 @@ local EFFECT_MIN_TEXT = 12 -- a card's contents shrink no smaller than this (9 p
 local CELL_MAX = 230 -- a grid card no taller than this, however tall the window
 local GRID_COLUMNS = 3
 local NARROW = 520 -- a page narrower than this (design px) gets 2 columns
+-- #3572 (the `storeRework` switch, Model-Agent's OK'd mock): a tab's cards two across, each a wide card with its
+-- picture at the left and the name, what it does and the price button beside it, about three rows in view
+local WIDE_TILE = 76
+local WIDE_NAME_H = 24
+local WIDE_EFFECT_MIN = 30 -- two small lines at least
+local WIDE_MAX = 170
 -- the hero: a big picture, the name and what you get, the price button at the right
 local HERO_TILE_MAX = 132
 local HERO_BUTTON_W = 150
@@ -179,6 +188,16 @@ function Store.new(callbacks: Callbacks): Store
 	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._cellMin = CARD_PAD + TILE + 6 + EFFECT_MIN + 6 + self._actionHeight + CARD_PAD
+	-- #3572: read once, when the Store is built at join, so a flip never changes a window under a player
+	local reworkAttribute = LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.REWORK_FLAG
+	self._rework = LiveFlags.shown(
+		StoreLogic.REWORK_FLAG,
+		game:GetService("ReplicatedStorage"):GetAttribute(reworkAttribute)
+	)
+	self._wideMin = math.max(
+		CARD_PAD + WIDE_NAME_H + 2 + WIDE_EFFECT_MIN + 6 + self._actionHeight + CARD_PAD,
+		WIDE_TILE + 2 * CARD_PAD
+	)
 	self._pickCompact = CARD_PAD + TILE + 6 + self._actionHeight + CARD_PAD
 	self._compact = false
 
@@ -218,7 +237,7 @@ function Store.new(callbacks: Callbacks): Store
 		}),
 		Outline.listPadding(7), -- #2294: room for the tabs' outlines, and the scroll bar on the right
 	})
-	for order, tab in StoreLogic.TABS do
+	for order, tab in StoreLogic.railTabs(self._rework) do
 		local id = tab.id
 		self._railButtons[id] = Button.new({
 			name = id,
@@ -358,6 +377,8 @@ function Store._makeCard(
 	order: number
 ): any
 	local hero = look == "hero"
+	-- #3572: with the rework on, a tab page's card is a wide one (WIDE_TILE): the Featured cards stay as they are
+	local wide = self._rework and slot:sub(1, 5) == "grid:"
 	local card: Frame = Create("Frame", {
 		Name = slot,
 		LayoutOrder = order,
@@ -377,12 +398,13 @@ function Store._makeCard(
 			Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(205, 205, 205)),
 		}),
 	})
-	local tileSize = if hero then HERO_MIN - 2 * CARD_PAD else TILE
+	local tileSize = if hero then HERO_MIN - 2 * CARD_PAD elseif wide then WIDE_TILE else TILE
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
-		AnchorPoint = if hero then Vector2.new(0, 0.5) else Vector2.new(0, 0),
+		AnchorPoint = if hero or wide then Vector2.new(0, 0.5) else Vector2.new(0, 0),
 		Position = if hero
 			then UDim2.new(0, CARD_PAD + 4, 0.5, 0)
+			elseif wide then UDim2.new(0, CARD_PAD, 0.5, 0)
 			else UDim2.fromOffset(CARD_PAD, CARD_PAD),
 		Size = UDim2.fromOffset(tileSize, tileSize),
 		BackgroundColor3 = Color3.new(1, 1, 1),
@@ -409,7 +431,7 @@ function Store._makeCard(
 		Name = "Name",
 		FontFace = Theme.fonts.display,
 		TextSize = if hero then Theme.sizes.textTitle else Theme.sizes.textBody + 2,
-		TextWrapped = not hero,
+		TextWrapped = not hero and not wide,
 		Parent = card,
 	})
 	MenuFamily.outline(name)
@@ -421,12 +443,18 @@ function Store._makeCard(
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = card,
 	})
+	local wideLeft = CARD_PAD + WIDE_TILE + 10 -- a wide card's words and button start here
 	local buttonSize = if hero
 		then UDim2.fromOffset(HERO_BUTTON_W, self._actionHeight)
+		elseif wide then UDim2.new(1, -(wideLeft + CARD_PAD), 0, self._actionHeight)
 		else UDim2.new(1, -2 * CARD_PAD, 0, self._actionHeight)
-	local buttonAnchor = if hero then Vector2.new(1, 0.5) else Vector2.new(0.5, 1)
+	local buttonAnchor = if hero
+		then Vector2.new(1, 0.5)
+		elseif wide then Vector2.new(1, 1)
+		else Vector2.new(0.5, 1)
 	local buttonPosition = if hero
 		then UDim2.new(1, -(CARD_PAD + 4), 0.5, 0)
+		elseif wide then UDim2.new(1, -CARD_PAD, 1, -CARD_PAD)
 		else UDim2.new(0.5, 0, 1, -CARD_PAD)
 	-- an owned pass: the green word in place of the button (no price)
 	local owned = text({
@@ -507,6 +535,7 @@ function Store._makeCard(
 	local entry: any = {
 		frame = card,
 		look = look,
+		wide = wide,
 		perk = perk,
 		tile = tile,
 		glyph = glyph,
@@ -566,6 +595,22 @@ function Store._place(self: any, entry: any)
 		local lift = if entry.perk.Visible then PERK_H + 4 else 0 -- #2147: the chip leads the words
 		entry.effect.Position = UDim2.fromOffset(left, top + nameH + 6 + lift)
 		entry.effect.Size = UDim2.new(1, -(left + right), 0, math.max(wordsH - nameH - 6 - lift, 0))
+	elseif entry.wide then
+		-- #3572: the picture at the left, the name, the chip and what it does beside it, the button under the words
+		local left = CARD_PAD + WIDE_TILE + 10
+		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
+		entry.name.Size = UDim2.new(1, -(left + CARD_PAD), 0, WIDE_NAME_H)
+		local top = CARD_PAD + WIDE_NAME_H + 2
+		entry.perk.Position = UDim2.fromOffset(left, top)
+		local lift = if entry.perk.Visible then PERK_H + 4 else 0
+		entry.effect.Position = UDim2.fromOffset(left, top + lift)
+		local saleRoom = if entry.saleLow then SALE_ROOM else 0
+		entry.effect.Size =
+			UDim2.new(1, -(left + CARD_PAD), 1, -(top + lift + 6 + saleRoom + action + CARD_PAD))
+		entry.badge.AnchorPoint = if entry.saleLow then Vector2.new(0, 1) else Vector2.new(1, 0)
+		entry.badge.Position = if entry.saleLow
+			then UDim2.new(0, left, 1, -(CARD_PAD + action + 6))
+			else UDim2.new(1, -6, 0, 6)
 	else
 		local left = CARD_PAD + TILE + 8
 		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
@@ -601,7 +646,10 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
 	local worth = StoreLogic.worthLine(row, self._prices, self._ownedIds)
-	entry.effect.Text = if worth then row.effect .. "\n" .. worth else row.effect
+	-- #3572: a wide card has room for one short line, so it keeps the first line of what the item does
+	local firstLine = string.match(row.effect, "^[^\n]+") or row.effect
+	local effect = if entry.wide then firstLine else row.effect
+	entry.effect.Text = if worth then effect .. "\n" .. worth else effect
 	-- #2147: the gold chip, placed before the words are fitted under it
 	local perkText = row.perk or ""
 	local perkShown = perkText ~= "" and not entry.compact
@@ -713,9 +761,11 @@ function Store._layout(self: any)
 	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room. A tab with one card (the Cafe Pass)
 	-- gives it the whole width, so its long contents keep readable text on a phone.
 	local single = #StoreLogic.tabRows(self._rows, self._tab) == 1
-	local columns = if single then 1 elseif width < NARROW then 2 else GRID_COLUMNS
+	local columns = if single then 1 elseif width < NARROW or self._rework then 2 else GRID_COLUMNS
 	local cellW = math.floor((width - SCROLL_BAR - (columns - 1) * spacing) / columns)
-	local cellH = math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
+	local cellH = if self._rework
+		then math.clamp(math.floor((height - 2 * spacing) / 3), self._wideMin, WIDE_MAX)
+		else math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
 	self._grid.CellSize = UDim2.fromOffset(cellW, cellH)
 end
 
@@ -842,7 +892,9 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	self._empty.Visible = #rows == 0
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}
-	for order, row in rows do
+	-- #3572: with the rework on, each tab cheapest first (StoreLogic.cheapestFirst); the cards are ordered, not moved
+	local gridRows = if self._rework then StoreLogic.cheapestFirst(rows, prices) else rows
+	for order, row in gridRows do
 		local slot = "grid:" .. row.key
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._list, order)
 		entry.frame.LayoutOrder = order

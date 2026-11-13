@@ -385,6 +385,49 @@ return function()
 			end
 		)
 
+		-- #3871: trait effects work in the game (they were only shown on the card before)
+		it(
+			"pays a working cat's income, night income and XP traits, and the cafe-wide ones",
+			function()
+				local p = freshProfile()
+				local base = Economy.incomePerSecond(p)
+				local xp = Economy.catXpRate(p.cats.starter)
+				p.cats.starter.trait = { id = "cosmicFortune" } -- +100% income, bowl luck 0.25, rich rate 0.25
+				expect(Economy.incomePerSecond(p)).to.be.near(base * 2, 1e-9)
+				expect(Economy.nightTraitRate(p)).to.equal(0)
+				expect(Economy.traitBonus(p, "richRate")).to.be.near(0.25)
+				expect(Economy.traitBonus(p, "bowlLuck")).to.be.near(0.25)
+				expect(Economy.richRate(p)).to.be.near(1.25)
+				p.cats.starter.trait = { id = "eternalNight" } -- +150% night income, +150% XP, +2.5 studs/s
+				expect(Economy.incomePerSecond(p)).to.be.near(base, 1e-9)
+				expect(Economy.nightTraitRate(p)).to.be.near(base * 1.5, 1e-9)
+				expect(Economy.catXpRate(p.cats.starter)).to.be.near(xp * 2.5)
+				expect(Economy.traitBonus(p, "speed")).to.be.near(2.5)
+				-- a resting cat's trait counts nothing cafe wide
+				p.cats.starter.spotId = nil
+				expect(Economy.traitBonus(p, "speed")).to.equal(0)
+			end
+		)
+
+		it(
+			"settle pays the night income trait over the night part of a window only (#3871)",
+			function()
+				local epoch = 1000
+				local dusk = epoch + Config.ServerStartDaySeconds
+				local p = freshProfile(dusk - 20) -- 20 s of day, then 30 s of night
+				p.cats.starter.trait = { id = "nightOwl_rare" } -- +22% at night
+				local earned = Economy.settle(p, dusk + 30, epoch)
+				expect(earned).to.be.near(
+					1.5 * (20 + 30 * Config.NightIncomeMultiplier)
+						+ 1.5 * 0.22 * 30 * Config.NightIncomeMultiplier
+				)
+				-- without the clock it is all day: no night extra
+				p.lastTick = dusk
+				local rate = Economy.incomePerSecond(p)
+				expect(Economy.settle(p, dusk + 10)).to.be.near(rate * 10)
+			end
+		)
+
 		it("phaseMultiplier is 1 by day and NightIncomeMultiplier by night", function()
 			expect(Economy.phaseMultiplier("day")).to.equal(1)
 			expect(Economy.phaseMultiplier("night")).to.equal(Config.NightIncomeMultiplier)

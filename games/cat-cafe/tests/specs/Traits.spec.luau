@@ -71,17 +71,17 @@ return function()
 					expect(Traits.amount(t(base .. "_" .. rarity), kind)).to.be.near(amounts[i])
 				end
 			end
-			check("bigTipper", "income", { 0.05, 0.08, 0.12, 0.15 })
-			check("nightOwl", "nightIncome", { 0.10, 0.15, 0.22, 0.26 })
-			check("fastLearner", "xp", { 0.10, 0.15, 0.22, 0.26 })
-			check("luckyBowl", "bowlLuck", { 0.02, 0.03, 0.04, 0.05 })
-			check("quickPaws", "speed", { 0.3, 0.5, 0.7, 0.85 })
-			check("richFriend", "richRate", { 0.02, 0.03, 0.04, 0.05 })
+			check("bigTipper", "income", { 0.05, 0.08, 0.12, 0.25 })
+			check("nightOwl", "nightIncome", { 0.10, 0.15, 0.22, 0.40 })
+			check("fastLearner", "xp", { 0.10, 0.15, 0.22, 0.40 })
+			check("luckyBowl", "bowlLuck", { 0.02, 0.03, 0.04, 0.08 })
+			check("quickPaws", "speed", { 0.3, 0.5, 0.7, 1.2 })
+			check("richFriend", "richRate", { 0.02, 0.03, 0.04, 0.08 })
 			-- Epic's own pair (Derek 2026-11-12), each effect under the same effect in a Legendary
-			expect(Traits.amount(t("treasureNose"), "income")).to.be.near(0.10)
-			expect(Traits.amount(t("treasureNose"), "bowlLuck")).to.be.near(0.04)
-			expect(Traits.amount(t("nightSprinter"), "nightIncome")).to.be.near(0.18)
-			expect(Traits.amount(t("nightSprinter"), "speed")).to.be.near(0.6)
+			expect(Traits.amount(t("treasureNose"), "income")).to.be.near(0.20)
+			expect(Traits.amount(t("treasureNose"), "bowlLuck")).to.be.near(0.08)
+			expect(Traits.amount(t("nightSprinter"), "nightIncome")).to.be.near(0.35)
+			expect(Traits.amount(t("nightSprinter"), "speed")).to.be.near(1.2)
 			expect(Traits.fullTitle(t("quickPaws_epic"))).to.equal("Epic Quick Paws")
 		end)
 
@@ -95,13 +95,13 @@ return function()
 				end
 				expect(got :: any).to.deepEqual(effects)
 			end
-			check("goldenWhiskers", "legendary", { income = 0.18, richRate = 0.06 })
-			check("moonlitHunter", "legendary", { nightIncome = 0.30, bowlLuck = 0.06 })
-			check("prodigy", "legendary", { xp = 0.30, income = 0.10 })
-			check("lightningTail", "legendary", { speed = 1.0, xp = 0.20 })
-			check("cosmicFortune", "mythic", { income = 0.40, bowlLuck = 0.12, richRate = 0.12 })
-			check("eternalNight", "mythic", { nightIncome = 0.60, xp = 0.75, speed = 1.5 })
-			check("starSage", "mythic", { xp = 1.0, income = 0.25, bowlLuck = 0.10 })
+			check("goldenWhiskers", "legendary", { income = 0.45, richRate = 0.15 })
+			check("moonlitHunter", "legendary", { nightIncome = 0.75, bowlLuck = 0.15 })
+			check("prodigy", "legendary", { xp = 0.75, income = 0.30 })
+			check("lightningTail", "legendary", { speed = 2.0, xp = 0.50 })
+			check("cosmicFortune", "mythic", { income = 1.0, bowlLuck = 0.25, richRate = 0.25 })
+			check("eternalNight", "mythic", { nightIncome = 1.5, xp = 1.5, speed = 2.5 })
+			check("starSage", "mythic", { xp = 2.5, income = 0.75, bowlLuck = 0.20 })
 		end)
 
 		it("names and words a trait for the card", function()
@@ -112,13 +112,13 @@ return function()
 				"+8% this cat's income",
 			})
 			expect(Traits.effectLines(t("lightningTail")) :: any).to.deepEqual({
-				"+1 studs/s walk and carry speed",
-				"+20% this cat's XP",
+				"+2 studs/s walk and carry speed",
+				"+50% this cat's XP",
 			})
 			expect(Traits.effectLines(t("eternalNight")) :: any).to.deepEqual({
-				"+60% this cat's night income",
-				"+75% this cat's XP",
-				"+1.5 studs/s walk and carry speed",
+				"+150% this cat's night income",
+				"+150% this cat's XP",
+				"+2.5 studs/s walk and carry speed",
 			})
 			expect(#Traits.effectLines(t("nothing"))).to.equal(0)
 		end)
@@ -259,13 +259,13 @@ return function()
 			expect(Traits.incomeMultiplier(t("nightOwl_uncommon"), false)).to.equal(1)
 			expect(Traits.incomeMultiplier(t("nightOwl_uncommon"), true)).to.be.near(1.15)
 			expect(Traits.incomeMultiplier(t("luckyBowl_rare"), true)).to.equal(1)
-			-- a combo adds its income parts: Golden Whiskers +18%, Eternal Night +60% at night only
-			expect(Traits.incomeMultiplier(t("goldenWhiskers"), false)).to.be.near(1.18)
+			-- a combo adds its income parts: Golden Whiskers +45%, Eternal Night +150% at night only
+			expect(Traits.incomeMultiplier(t("goldenWhiskers"), false)).to.be.near(1.45)
 			expect(Traits.incomeMultiplier(t("eternalNight"), false)).to.equal(1)
-			expect(Traits.incomeMultiplier(t("eternalNight"), true)).to.be.near(1.6)
-			expect(Traits.incomeMultiplier(t("cosmicFortune"), true)).to.be.near(1.4)
+			expect(Traits.incomeMultiplier(t("eternalNight"), true)).to.be.near(2.5)
+			expect(Traits.incomeMultiplier(t("cosmicFortune"), true)).to.be.near(2.0)
 			expect(Traits.xpMultiplier(t("fastLearner_common"))).to.be.near(1.1)
-			expect(Traits.xpMultiplier(t("starSage"))).to.be.near(2.0)
+			expect(Traits.xpMultiplier(t("starSage"))).to.be.near(3.5)
 			expect(Traits.xpMultiplier(t("bigTipper_rare"))).to.equal(1)
 			expect(Traits.xpMultiplier(nil)).to.equal(1)
 		end)
@@ -273,32 +273,32 @@ return function()
 		it(
 			"counts only the best working cats of a cafe-wide effect, single and combo alike (QA checks 2 and 3)",
 			function()
-				-- bowl luck from 4 cats, mixed: the best 3 (12 + 10 + 6), at most 36%
+				-- bowl luck from 4 cats, mixed: the best 3 (25 + 20 + 15), at most 50%
 				local four =
 					{ t("luckyBowl_rare"), t("cosmicFortune"), t("moonlitHunter"), t("starSage") }
-				expect(Traits.cafeBonus(four, "bowlLuck")).to.be.near(0.28)
+				expect(Traits.cafeBonus(four, "bowlLuck")).to.be.near(0.50)
 				local mythic = {
 					t("cosmicFortune"),
 					t("cosmicFortune"),
 					t("cosmicFortune"),
 					t("cosmicFortune"),
 				}
-				expect(Traits.cafeBonus(mythic, "bowlLuck")).to.be.near(0.36)
-				expect(Traits.cafeBonus(mythic, "bowlLuck") <= 0.36).to.equal(true)
+				expect(Traits.cafeBonus(mythic, "bowlLuck")).to.be.near(0.50)
+				expect(Traits.cafeBonus(mythic, "bowlLuck") <= 0.50).to.equal(true)
 				-- speed from Quick Paws, Lightning Tail and Eternal Night: the best one only
 				local paws = { t("quickPaws_rare"), t("lightningTail"), t("eternalNight") }
-				expect(Traits.cafeBonus(paws, "speed")).to.be.near(1.5)
+				expect(Traits.cafeBonus(paws, "speed")).to.be.near(2.5)
 				expect(Traits.cafeBonus({ t("quickPaws_common"), t("lightningTail") }, "speed")).to.be.near(
-					1.0
+					2.0
 				)
-				-- rich rate: the best 2, at most 24%
-				expect(Traits.cafeBonus(mythic, "richRate")).to.be.near(0.24)
+				-- rich rate: the best 2, at most 40%
+				expect(Traits.cafeBonus(mythic, "richRate")).to.be.near(0.40)
 				expect(
 					Traits.cafeBonus(
 						{ t("richFriend_rare"), t("goldenWhiskers"), t("richFriend_common") },
 						"richRate"
 					)
-				).to.be.near(0.10)
+				).to.be.near(0.19)
 				-- per-cat effects count nothing cafe wide
 				expect(Traits.cafeBonus(mythic, "income")).to.equal(0)
 				expect(Traits.cafeBonus(mythic, "xp")).to.equal(0)
@@ -308,11 +308,11 @@ return function()
 
 		it("keeps every cafe-wide cap at the spec's maximum (section 5)", function()
 			expect(Traits.KINDS.bowlLuck.best).to.equal(3)
-			expect(Traits.KINDS.bowlLuck.cap).to.equal(0.36)
+			expect(Traits.KINDS.bowlLuck.cap).to.equal(0.50)
 			expect(Traits.KINDS.speed.best).to.equal(1)
-			expect(Traits.KINDS.speed.cap).to.equal(1.5)
+			expect(Traits.KINDS.speed.cap).to.equal(2.5)
 			expect(Traits.KINDS.richRate.best).to.equal(2)
-			expect(Traits.KINDS.richRate.cap).to.equal(0.24)
+			expect(Traits.KINDS.richRate.cap).to.equal(0.40)
 			-- no trait's own amount beats its kind's cap
 			for _, def in Traits.LIST do
 				for _, effect in def.effects do

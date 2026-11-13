@@ -2304,7 +2304,11 @@ local function followRiftRun()
 		if beat == "hush" or beat == "done" then
 			token += 1
 			local mine = token
-			music.ducks["riftRun"] = if beat == "hush" then SCENE_DUCK else nil
+			if beat == "hush" then
+				music.ducks["riftRun"] = SCENE_DUCK
+			else
+				music.ducks["riftRun"] = nil
+			end
 			applyDucks(music)
 			if beat == "hush" then
 				task.delay(RIFT_DUCK_LIMIT, function()

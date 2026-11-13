@@ -141,6 +141,7 @@ local CARD = Vector2.new(0, 142) -- two cards a row; the width follows the windo
 local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse needs
 -- an achievement card's prize pictures (#3694 Review-QA 2026-11-13: 26 read as very small)
 local CARD_CHIP = 34
+local CLIP_INSET = 3 -- px between a clipping chip area's left edge and its first chip (the 2 px outline stays whole)
 local GAP = Theme.sizes.gap
 -- #3961: the family look (batch 2 mock): a picture for what each quest asks, upper case CLAIM and a sky SWAP
 local QUEST_PICTURE = 44
@@ -642,8 +643,9 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	local chipArea: Frame = Create("Frame", {
 		Name = "Prize",
 		BackgroundTransparency = 1,
-		Position = UDim2.new(split, 104, 0, 38),
-		Size = UDim2.new(1 - split, -(104 + ACTION_W + gap), 0, CHIP + 4),
+		-- UI gate strokeclip: the area starts CLIP_INSET px left of the chips so the clip keeps their outlines
+		Position = UDim2.new(split, 104 - CLIP_INSET, 0, 38),
+		Size = UDim2.new(1 - split, -(104 - CLIP_INSET + ACTION_W + gap), 0, CHIP + 4),
 		-- Review-QA (daa09e07): at the 9 px text floor the chip row stays wider than the area keepClear leaves, so the
 		-- area clips it: whatever does not fit is cut at the area's edge, never drawn under the button
 		ClipsDescendants = true,
@@ -655,9 +657,9 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		tile = CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.fromScale(0, 0.5),
+		position = UDim2.new(0, CLIP_INSET, 0.5, 0),
 		fitTo = chipArea,
-		fitPad = 2,
+		fitPad = 2 + CLIP_INSET,
 		maxPictures = 2, -- F94: two pictures a quest
 	})
 	local actionPosition = UDim2.new(1, -10, 0.5, 0)
@@ -737,10 +739,10 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 	local chipArea: Frame = Create("Frame", {
 		Name = "Prize",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(12, 82),
+		Position = UDim2.fromOffset(12 - CLIP_INSET, 82),
 		-- Studio (5e74d9b4): the chips ended only 2 px before Claim and ran up to 8 px under it on 667 x 375; they now
 		-- stop 18 px short of it
-		Size = UDim2.new(1, -(24 + ACTION_W), 0, CARD_CHIP + 22),
+		Size = UDim2.new(1, -(24 - CLIP_INSET + ACTION_W), 0, CARD_CHIP + 22),
 		-- Review-QA (daa09e07): at the 9 px text floor the chip row stays wider than the area keepClear leaves, so the
 		-- area clips it: whatever does not fit is cut at the area's edge, never drawn under the button
 		ClipsDescendants = true,
@@ -752,9 +754,9 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		tile = CARD_CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.fromScale(0, 0.5),
+		position = UDim2.new(0, CLIP_INSET, 0.5, 0),
 		fitTo = chipArea,
-		fitPad = 2,
+		fitPad = 2 + CLIP_INSET,
 	})
 	local actionPosition = UDim2.new(1, -10, 1, -10)
 	local claim = Button.new({

@@ -103,6 +103,8 @@
 --   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
 -- - `quietStart` (#4005): a new player's first 15 minutes of play on the account (shared/QuietStart) hide other players'
 --   pop ups, refuse trade requests to them and hold the extra tips and cards. It starts OFF (OFF_BY_DEFAULT).
+-- - `quietAway` (#4035): while a player's net is out in a catching area, the food bowl cards wait until they are
+--   back (town, a cafe or a camp; client/UI UI.bait.busy). Client only. It starts OFF (OFF_BY_DEFAULT).
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -155,6 +157,7 @@ LiveFlags.KEYS = {
 	"storeRework", -- #3572: the reworked Store layout
 	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
 	"quietStart", -- #4005: a new player's first 15 minutes without other players' pop ups (shared/QuietStart)
+	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -188,6 +191,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	storeRework = true,
 	indexTo70 = true,
 	quietStart = true,
+	quietAway = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

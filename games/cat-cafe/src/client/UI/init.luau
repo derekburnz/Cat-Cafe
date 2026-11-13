@@ -2563,6 +2563,31 @@ function UI.bait.busy(): boolean
 		or (hud ~= nil and hud:isCarrying())
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
+		or UI.bait.away() -- #4035: out catching in an area
+end
+
+-- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
+-- popups when out looking for and catching cats"): with the quietAway switch on, the bowl cards wait while the
+-- player's net is out (the server's NetHidden is clear only in a catching area's wild part, outside its camp), and
+-- come one at a time once they are back in town, a cafe or a camp. The bowl chip still shows its "!" meanwhile.
+function UI.bait.away(): boolean
+	local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+	if
+		not LiveFlags.shown(
+			"quietAway",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "quietAway")
+		)
+	then
+		return false
+	end
+	local character = Players.LocalPlayer.Character
+	-- NetHidden is off in an area's wild part outside its camp, and on while carrying (CatService.markCamps), so a
+	-- carry counts as away too: the run back to camp stays quiet (review of #4040)
+	return character ~= nil
+		and (
+			character:GetAttribute("NetHidden") ~= true
+			or character:GetAttribute("CarryingCatId") ~= nil
+		)
 end
 
 -- #3846: Effects/BigTraitCut.playing, set by the controller as UI.mysticPool.cutting: pop-up cards (bait, gift) wait
@@ -9573,7 +9598,8 @@ do
 	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
 
 	function UI.newKind.on(): boolean
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		return LiveFlags.shown(
 			NewKind.FLAG,
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
@@ -9597,7 +9623,8 @@ do
 			return
 		end
 		kind.tags = require(script.Screens.NewKindTags).new()
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		kind.watch = ReplicatedStorage
 			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
 			:Connect(UI.newKind.refresh)

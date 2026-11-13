@@ -112,7 +112,8 @@ local NEXT_WIDTH = 116
 local SKIP_ACTION = "CatCafeIntroSkip"
 local NEXT_ACTION = "CatCafeIntroNext" -- #2182: Space, Enter and gamepad A
 local SKIP_DIM = 0.5 -- Skip's label and outline while its bar fills
-local SKIP_POP = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, true) -- to 1.1 and back
+-- to 1.05 and back (#3773: at 1.1 the bigger pill touched Next for the pop)
+local SKIP_POP = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, true)
 -- #2702: Skip's one flash as it turns ready, and the gold ring spreading SKIP_RING_GROW px out from it
 local SKIP_FLASH = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local SKIP_RING = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -1367,7 +1368,7 @@ function Intro._showSkip(self: any, wait: number)
 	)
 end
 
--- Skip's look: dimmed while its bar fills (false), full once ready (true pops it to 1.1 and back; nil, a
+-- Skip's look: dimmed while its bar fills (false), full once ready (true pops it to 1.05 and back; nil, a
 -- replay's, does not).
 function Intro._readySkip(self: any, ready: boolean?)
 	self._skipReady = ready ~= false
@@ -1377,7 +1378,7 @@ function Intro._readySkip(self: any, ready: boolean?)
 	self._skipLabelStroke.Transparency = alpha
 	if ready == true then
 		self._skipFill.Size = UDim2.fromScale(1, 1)
-		Tween.to(self._skipScale, SKIP_POP, { Scale = 1.1 })
+		Tween.to(self._skipScale, SKIP_POP, { Scale = 1.05 })
 	end
 	if ready ~= false then
 		self:_flashSkip()

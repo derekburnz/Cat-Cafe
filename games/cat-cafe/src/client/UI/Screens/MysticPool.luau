@@ -1304,10 +1304,10 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		BackgroundTransparency = 1,
 		ClipsDescendants = true,
 		Position = if short
-			then UDim2.new(0.55, left - math.floor((left + right) * 0.55) + 6, 0, 4)
+			then UDim2.new(0.55, left - math.floor((left + right) * 0.55) + 10, 0, 4) -- 4 px clear of "Lv 22"
 			else UDim2.fromOffset(left, 45),
 		Size = if short
-			then UDim2.new(0.45, -(math.ceil((left + right) * 0.45) + 6), 0, 18)
+			then UDim2.new(0.45, -(math.ceil((left + right) * 0.45) + 10), 0, 18)
 			else UDim2.new(1, -(left + right), 0, 18),
 		ZIndex = 7,
 		Parent = frame,

@@ -70,7 +70,13 @@ local SWITCH = "riftRun"
 local TEST_ATTRIBUTE = "RiftRunTest"
 local STEP = "EffectsRiftRun"
 local KIT = "RiftRun"
-local OURS = "Effects" -- our own ScreenGuis (this one, BigTraitCut's) stay up while the windows hide
+-- the cutscene's own ScreenGuis, which stay up while every other window, marker and label hides
+local OURS = {
+	EffectsRiftRun = true,
+	EffectsBigTraitCut = true,
+	EffectsBigTraitScene = true,
+	EffectsBigTraitLadder = true,
+}
 local FONT = Font.new(
 	"rbxasset://fonts/families/FredokaOne.json",
 	Enum.FontWeight.Regular,
@@ -838,21 +844,23 @@ local function hideWindows(): () -> ()
 	if playerGui == nil then
 		return function() end
 	end
-	local hidden: { ScreenGui } = {}
+	-- Review-QA on #4029: the HUD's pointer arrow (a marker drawn over the world) showed through, so billboards in
+	-- the PlayerGui hide too, at any depth
+	local hidden: { LayerCollector } = {}
 	local function hide(child: Instance)
-		if not child:IsA("ScreenGui") then
+		if not (child:IsA("ScreenGui") or child:IsA("BillboardGui")) then
 			return
 		end
-		local gui = child :: ScreenGui
-		if gui.Enabled and string.sub(gui.Name, 1, #OURS) ~= OURS then
+		local gui = child :: LayerCollector
+		if gui.Enabled and not OURS[gui.Name] then
 			gui.Enabled = false
 			table.insert(hidden, gui)
 		end
 	end
-	for _, child in playerGui:GetChildren() do
+	for _, child in playerGui:GetDescendants() do
 		hide(child)
 	end
-	local added = playerGui.ChildAdded:Connect(hide)
+	local added = playerGui.DescendantAdded:Connect(hide)
 	local back = false
 	return function()
 		if back then
@@ -943,11 +951,17 @@ function RiftRun.play(
 	local realm = buildRealm(plan, lite)
 	local catModel = makeCat(cat and cat.catId, cat and cat.gold)
 	local rig: Pose.Rig? = nil
+	local rest: { CFrame } = {}
 	if catModel ~= nil then
 		catModel:PivotTo(CFrame.new(realm.origin + Vector3.new(0, r.dropHeight + 20, 0)))
 		catModel.Parent = Context.folder() -- in the world now so Pose can bind it; far off and out of sight
 		local bound = Pose.bind(catModel)
 		rig = if bound ~= nil and not bound.usesMotors then bound else nil
+		if rig ~= nil then
+			-- drawn from the pose as bound every frame (as CafeWalk, #2329): a part read back a hair off is never
+			-- taken as where the cat is, so it cannot drift away
+			rest = Pose.rest(rig :: Pose.Rig)
+		end
 	end
 	local grade = Instance.new("ColorCorrectionEffect")
 	grade.Name = "EffectsRiftRun"
@@ -1370,7 +1384,7 @@ function RiftRun.play(
 				else
 					Logic.gait(o, speed, stride)
 				end
-				Pose.hold(boundRig, floor)
+				Pose.holdRest(boundRig, rest, floor)
 				Pose.draw(boundRig, o, -1)
 			else
 				model:PivotTo(floor)
@@ -1492,8 +1506,12 @@ function RiftRun.play(
 		local catAt = at
 		local wantEye: Vector3
 		local wantLook: Vector3
-		local chaseEye = Vector3.new(catAt.X * 0.5, origin.Y + c.up + hop * 0.3, catAt.Z + c.back)
-		local chaseLook = Vector3.new(catAt.X * 0.3, origin.Y + c.lookUp, catAt.Z - c.ahead)
+		-- the camera half follows the cat across its lanes (offsets from the path's middle line)
+		local across = catAt.X - origin.X
+		local chaseEye =
+			Vector3.new(origin.X + across * 0.5, origin.Y + c.up + hop * 0.3, catAt.Z + c.back)
+		local chaseLook =
+			Vector3.new(origin.X + across * 0.3, origin.Y + c.lookUp, catAt.Z - c.ahead)
 		if t < r.runStart + 0.6 then
 			local k = Logic.smoothstep01((t - r.dropAt) / (r.runStart + 0.6 - r.dropAt))
 			wantEye = (origin + c.introEye):Lerp(chaseEye, k)

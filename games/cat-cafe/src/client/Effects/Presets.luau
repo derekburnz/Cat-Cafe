@@ -5319,13 +5319,14 @@ Presets.riftRun = {
 	beamsFrom = 6, -- and from this one two light columns
 	-- the realm's look
 	sky = {
-		Color3.fromRGB(14, 8, 34), -- top
-		Color3.fromRGB(30, 14, 64),
-		Color3.fromRGB(58, 22, 98),
-		Color3.fromRGB(112, 40, 132),
-		Color3.fromRGB(196, 84, 150), -- the horizon's glow
-		Color3.fromRGB(70, 26, 96),
-		Color3.fromRGB(20, 10, 40), -- under
+		-- Neon glows brighter than its colour (Review-QA on #4029 read the first sky as pale pink), so these are dark
+		Color3.fromRGB(8, 4, 22), -- top
+		Color3.fromRGB(18, 8, 42),
+		Color3.fromRGB(36, 12, 66),
+		Color3.fromRGB(70, 22, 92),
+		Color3.fromRGB(128, 48, 108), -- the horizon's glow
+		Color3.fromRGB(44, 14, 64),
+		Color3.fromRGB(12, 6, 26), -- under
 	},
 	skyHalf = 120, -- the sky's walls this far to either side
 	skyAhead = 230, -- and ahead
@@ -5358,7 +5359,7 @@ Presets.riftRun = {
 	ringTear = 1.2, -- seconds before the leap it tears the rest of the way open
 	grade = {
 		tint = Color3.fromRGB(236, 222, 255),
-		brightness = 0.02,
+		brightness = -0.02,
 		contrast = 0.12,
 		saturation = 0.1,
 	},

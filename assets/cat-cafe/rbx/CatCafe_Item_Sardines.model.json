@@ -12,15 +12,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.15,
-       -0.04
+       -0.16,
+       0.07,
+       0.01
       ],
       "orientation": [
        [
-        0.9994,
+        0.9781,
         0.0,
-        0.0349
+        -0.2079
        ],
        [
         0.0,
@@ -28,22 +28,22 @@
         0.0
        ],
        [
-        -0.0349,
+        0.2079,
         0.0,
-        0.9994
+        0.9781
        ]
       ]
      }
     },
     "Size": [
-     0.1728,
-     0.162,
-     0.54
+     0.231,
+     0.132,
+     0.55
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.8039,
+     0.8235,
+     0.8549
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -55,15 +55,15 @@
     "PivotOffset": {
      "CFrame": {
       "position": [
-       -0.0014,
-       -0.15,
-       0.04
+       0.1544,
+       -0.07,
+       -0.043
       ],
       "orientation": [
        [
-        0.9994,
+        0.9781,
         0.0,
-        -0.0349
+        0.2079
        ],
        [
         0.0,
@@ -71,9 +71,9 @@
         0.0
        ],
        [
-        0.0349,
+        -0.2079,
         0.0,
-        0.9994
+        0.9781
        ]
       ]
      }
@@ -100,8 +100,8 @@
      "CFrame": {
       "position": [
        0.15,
-       0.06,
-       0.02
+       0.07,
+       0.03
       ],
       "orientation": [
        [
@@ -123,14 +123,14 @@
      }
     },
     "Size": [
-     0.1728,
-     0.162,
-     0.54
+     0.231,
+     0.132,
+     0.55
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.8039,
+     0.8235,
+     0.8549
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -157,9 +157,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.15,
-       0.035,
-       0.02
+       0.1046,
+       0.0755,
+       0.0526
       ],
       "orientation": [
        [
@@ -181,14 +181,14 @@
      }
     },
     "Size": [
-     0.156,
-     0.1144,
-     0.4784
+     0.1201,
+     0.1109,
+     0.462
     ],
     "Color": [
-     0.6627,
-     0.6863,
-     0.7216
+     0.4314,
+     0.7569,
+     1.0
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -215,23 +215,338 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2226,
-       0.06,
-       0.3111
+       0.198,
+       0.0755,
+       0.018
       ],
       "orientation": [
        [
+        0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.0,
+        0.9703
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1056,
+     0.1034,
+     0.418
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2619,
+       0.07,
+       0.3195
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.1908,
+        -0.9816
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -0.9816,
+        -0.1908
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0192,
+     0.143,
+     0.143
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1872,
+       0.07,
+       0.3382
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.6293,
+        -0.7771
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -0.7771,
+        0.6293
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0192,
+     0.143,
+     0.143
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0592,
+       0.07,
+       0.098
+      ],
+      "orientation": [
+       [
+        0.0,
         -0.9703,
+        0.2419
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.2419,
+        0.9703
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0165,
+     0.132,
+     0.132
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1501,
+       0.1305,
+       -0.0607
+      ],
+      "orientation": [
+       [
+        0.7771,
+        0.0,
+        0.6293
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.6293,
+        0.0,
+        0.7771
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0495,
+     0.0248,
+     0.099
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1194,
+       0.1222,
+       -0.1154
+      ],
+      "orientation": [
+       [
+        0.9945,
+        0.0,
+        0.1045
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1045,
+        0.0,
+        0.9945
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.11,
+     0.0165,
+     0.0121
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0848,
+       0.1195,
+       -0.1635
+      ],
+      "orientation": [
+       [
+        0.9703,
         0.0,
         0.2419
        ],
        [
         0.0,
-        -1.0,
+        1.0,
         0.0
        ],
        [
-        0.2419,
+        -0.2419,
         0.0,
         0.9703
        ]
@@ -239,14 +554,246 @@
      }
     },
     "Size": [
-     0.03,
-     0.2,
-     0.2
+     0.0605,
+     0.0302,
+     0.0605
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0834,
+       0.1332,
+       -0.1688
+      ],
+      "orientation": [
+       [
+        0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.0,
+        0.9703
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0352,
+     0.0176,
+     0.0352
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2107,
+       0.0755,
+       0.0105
+      ],
+      "orientation": [
+       [
+        0.9781,
+        0.0,
+        -0.2079
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2079,
+        0.0,
+        0.9781
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1201,
+     0.1109,
+     0.462
     ],
     "Color": [
      0.4314,
      0.7569,
      1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1116,
+       0.0755,
+       0.0203
+      ],
+      "orientation": [
+       [
+        0.9781,
+        0.0,
+        -0.2079
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2079,
+        0.0,
+        0.9781
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1056,
+     0.1034,
+     0.418
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1864,
+       0.07,
+       0.3193
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.6018,
+        -0.7986
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -0.7986,
+        -0.6018
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0192,
+     0.143,
+     0.143
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -265,38 +812,38 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0516,
-       0.1,
-       -0.1741
+       -0.2617,
+       0.07,
+       0.3033
       ],
       "orientation": [
        [
+        0.0,
+        -0.225,
+        -0.9744
+       ],
+       [
         1.0,
         0.0,
         0.0
        ],
        [
         0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
+        -0.9744,
+        0.225
        ]
       ]
      }
     },
     "Size": [
-     0.04,
-     0.04,
-     0.04
+     0.0192,
+     0.143,
+     0.143
     ],
     "Color": [
-     0.1686,
-     0.1686,
-     0.2078
+     0.7647,
+     0.8157,
+     0.8706
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -304,7 +851,8 @@
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
    }
   },
   {
@@ -314,154 +862,38 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.16,
-       0.06,
-       0.0
+       -0.2714,
+       0.07,
+       0.0313
       ],
       "orientation": [
        [
-        0.9781,
         0.0,
-        -0.2079
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.2079,
-        0.0,
-        0.9781
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1728,
-     0.162,
-     0.54
-    ],
-    "Color": [
-     0.4314,
-     0.7569,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   },
-   "children": [
-    {
-     "name": "Mesh",
-     "className": "SpecialMesh",
-     "properties": {
-      "MeshType": "Sphere"
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Item_Sardines",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.16,
-       0.035,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.9781,
-        0.0,
-        -0.2079
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.2079,
-        0.0,
-        0.9781
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.156,
-     0.1144,
-     0.4784
-    ],
-    "Color": [
-     0.6627,
-     0.6863,
-     0.7216
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   },
-   "children": [
-    {
-     "name": "Mesh",
-     "className": "SpecialMesh",
-     "properties": {
-      "MeshType": "Sphere"
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Item_Sardines",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2224,
-       0.06,
-       0.2934
-      ],
-      "orientation": [
-       [
         -0.9781,
-        0.0,
         -0.2079
        ],
        [
+        1.0,
         0.0,
-        -1.0,
         0.0
        ],
        [
-        -0.2079,
         0.0,
+        -0.2079,
         0.9781
        ]
       ]
      }
     },
     "Size": [
-     0.03,
-     0.2,
-     0.2
+     0.0165,
+     0.132,
+     0.132
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.7647,
+     0.8157,
+     0.8706
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -480,15 +912,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1684,
-       0.1,
-       -0.1956
+       -0.1202,
+       0.1305,
+       -0.0715
       ],
       "orientation": [
        [
-        1.0,
+        0.9744,
         0.0,
-        0.0
+        0.225
        ],
        [
         0.0,
@@ -496,17 +928,182 @@
         0.0
        ],
        [
+        -0.225,
         0.0,
-        0.0,
-        1.0
+        0.9744
        ]
       ]
      }
     },
     "Size": [
-     0.04,
-     0.04,
-     0.04
+     0.0495,
+     0.0248,
+     0.099
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1237,
+       0.1222,
+       -0.1341
+      ],
+      "orientation": [
+       [
+        0.9397,
+        0.0,
+        -0.342
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.342,
+        0.0,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.11,
+     0.0165,
+     0.0121
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1338,
+       0.1195,
+       -0.1925
+      ],
+      "orientation": [
+       [
+        0.9781,
+        0.0,
+        -0.2079
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2079,
+        0.0,
+        0.9781
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0605,
+     0.0302,
+     0.0605
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1327,
+       0.1332,
+       -0.1979
+      ],
+      "orientation": [
+       [
+        0.9781,
+        0.0,
+        -0.2079
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2079,
+        0.0,
+        0.9781
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0352,
+     0.0176,
+     0.0352
     ],
     "Color": [
      0.1686,
@@ -520,7 +1117,16 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
-   }
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
   },
   {
    "name": "CatCafe_Item_Sardines",
@@ -530,7 +1136,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.125,
+       0.14,
        -0.04
       ],
       "orientation": [
@@ -553,14 +1159,72 @@
      }
     },
     "Size": [
-     0.156,
-     0.1144,
-     0.4784
+     0.231,
+     0.132,
+     0.55
     ],
     "Color": [
-     0.6627,
-     0.6863,
-     0.7216
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0491,
+       0.1455,
+       -0.0273
+      ],
+      "orientation": [
+       [
+        0.9994,
+        0.0,
+        0.0349
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.0349,
+        0.0,
+        0.9994
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1201,
+     0.1109,
+     0.462
+    ],
+    "Color": [
+     0.4314,
+     0.7569,
+     1.0
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -587,23 +1251,23 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0105,
-       0.15,
-       0.2598
+       0.0495,
+       0.1455,
+       -0.0417
       ],
       "orientation": [
        [
-        -0.9994,
+        0.9994,
         0.0,
         0.0349
        ],
        [
         0.0,
-        -1.0,
+        1.0,
         0.0
        ],
        [
-        0.0349,
+        -0.0349,
         0.0,
         0.9994
        ]
@@ -611,14 +1275,72 @@
      }
     },
     "Size": [
-     0.03,
-     0.2,
-     0.2
+     0.1056,
+     0.1034,
+     0.418
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0492,
+       0.14,
+       0.2665
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.3907,
+        -0.9205
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -0.9205,
+        -0.3907
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0192,
+     0.143,
+     0.143
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -637,33 +1359,298 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.057,
-       0.19,
-       -0.2399
+       -0.0277,
+       0.14,
+       0.2692
       ],
       "orientation": [
        [
+        0.0,
+        -0.454,
+        -0.891
+       ],
+       [
         1.0,
         0.0,
         0.0
        ],
        [
         0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
+        -0.891,
+        0.454
        ]
       ]
      }
     },
     "Size": [
-     0.04,
-     0.04,
-     0.04
+     0.0192,
+     0.143,
+     0.143
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1029,
+       0.14,
+       0.0076
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9994,
+        0.0349
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0349,
+        0.9994
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0165,
+     0.132,
+     0.132
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0189,
+       0.2005,
+       -0.1287
+      ],
+      "orientation": [
+       [
+        0.891,
+        0.0,
+        0.454
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.454,
+        0.0,
+        0.891
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0495,
+     0.0248,
+     0.099
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0003,
+       0.1922,
+       -0.1886
+      ],
+      "orientation": [
+       [
+        0.9945,
+        0.0,
+        -0.1045
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.1045,
+        0.0,
+        0.9945
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.11,
+     0.0165,
+     0.0121
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0236,
+       0.1895,
+       -0.2428
+      ],
+      "orientation": [
+       [
+        0.9994,
+        0.0,
+        0.0349
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.0349,
+        0.0,
+        0.9994
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0605,
+     0.0302,
+     0.0605
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Sardines",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0238,
+       0.2032,
+       -0.2483
+      ],
+      "orientation": [
+       [
+        0.9994,
+        0.0,
+        0.0349
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.0349,
+        0.0,
+        0.9994
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0352,
+     0.0176,
+     0.0352
     ],
     "Color": [
      0.1686,
@@ -677,7 +1664,16 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
-   }
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
   }
  ],
  "properties": {

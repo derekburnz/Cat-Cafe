@@ -13,14 +13,14 @@
      "CFrame": {
       "position": [
        0.0,
-       0.22,
+       0.13,
        0.0
       ],
       "orientation": [
        [
-        1.0,
+        0.9397,
         0.0,
-        0.0
+        0.342
        ],
        [
         0.0,
@@ -28,22 +28,22 @@
         0.0
        ],
        [
+        -0.342,
         0.0,
-        0.0,
-        1.0
+        0.9397
        ]
       ]
      }
     },
     "Size": [
-     0.385,
-     0.434,
-     0.7
+     0.399,
+     0.228,
+     0.95
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.949,
+     0.7216,
+     0.5412
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -56,14 +56,14 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.22,
+       -0.13,
        0.0
       ],
       "orientation": [
        [
-        1.0,
+        0.9397,
         0.0,
-        0.0
+        -0.342
        ],
        [
         0.0,
@@ -71,9 +71,9 @@
         0.0
        ],
        [
+        0.342,
         0.0,
-        0.0,
-        1.0
+        0.9397
        ]
       ]
      }
@@ -99,15 +99,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.17,
-       0.02
+       -0.0738,
+       0.1395,
+       0.0471
       ],
       "orientation": [
        [
-        1.0,
+        0.9397,
         0.0,
-        0.0
+        0.342
        ],
        [
         0.0,
@@ -115,22 +115,22 @@
         0.0
        ],
        [
+        -0.342,
         0.0,
-        0.0,
-        1.0
+        0.9397
        ]
       ]
      }
     },
     "Size": [
-     0.3,
-     0.3,
-     0.54
+     0.2075,
+     0.1915,
+     0.798
     ],
     "Color": [
-     0.8667,
-     0.949,
-     1.0
+     0.851,
+     0.4,
+     0.1804
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -157,38 +157,96 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.24,
-       0.45
+       0.0803,
+       0.1395,
+       -0.0292
       ],
       "orientation": [
        [
-        -1.0,
+        0.9397,
         0.0,
-        0.0
+        0.342
        ],
        [
         0.0,
-        -1.0,
+        1.0,
         0.0
        ],
        [
+        -0.342,
         0.0,
-        0.0,
-        1.0
+        0.9397
        ]
       ]
      }
     },
     "Size": [
-     0.05,
-     0.48,
-     0.48
+     0.1824,
+     0.1786,
+     0.722
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Salmon",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2444,
+       0.13,
+       0.4772
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0872,
+        -0.9962
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -0.9962,
+        -0.0872
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0333,
+     0.247,
+     0.247
+    ],
+    "Color": [
+     0.7098,
+     0.3765,
+     0.1843
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -207,38 +265,38 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.45,
-       0.0
+       0.1195,
+       0.13,
+       0.5227
       ],
       "orientation": [
        [
-        -1.0,
+        0.0,
+        -0.7071,
+        -0.7071
+       ],
+       [
+        1.0,
         0.0,
         0.0
        ],
        [
         0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
+        -0.7071,
+        0.7071
        ]
       ]
      }
     },
     "Size": [
-     0.04,
-     0.24,
-     0.24
+     0.0333,
+     0.247,
+     0.247
     ],
     "Color": [
-     0.4314,
-     0.7569,
-     1.0
+     0.7098,
+     0.3765,
+     0.1843
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -257,38 +315,146 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.12,
-       0.3,
-       -0.2
+       -0.1436,
+       0.13,
+       0.1332
       ],
       "orientation": [
        [
+        0.0,
+        -0.9397,
+        0.342
+       ],
+       [
         1.0,
         0.0,
         0.0
        ],
        [
         0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
+        0.342,
+        0.9397
        ]
       ]
      }
     },
     "Size": [
-     0.07,
-     0.07,
-     0.07
+     0.0285,
+     0.228,
+     0.228
     ],
     "Color": [
-     0.1686,
-     0.1686,
-     0.2078
+     0.7098,
+     0.3765,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Item_Salmon",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0163,
+       0.2345,
+       -0.1558
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0855,
+     0.0428,
+     0.171
+    ],
+    "Color": [
+     0.7098,
+     0.3765,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Salmon",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0788,
+       0.2202,
+       -0.2443
+      ],
+      "orientation": [
+       [
+        0.9781,
+        0.0,
+        0.2079
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2079,
+        0.0,
+        0.9781
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.19,
+     0.0285,
+     0.0209
+    ],
+    "Color": [
+     0.7098,
+     0.3765,
+     0.1843
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -306,15 +472,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.12,
-       0.3,
-       -0.2
+       -0.147,
+       0.2155,
+       -0.3206
       ],
       "orientation": [
        [
-        1.0,
+        0.9397,
         0.0,
-        0.0
+        0.342
        ],
        [
         0.0,
@@ -322,17 +488,75 @@
         0.0
        ],
        [
+        -0.342,
         0.0,
-        0.0,
-        1.0
+        0.9397
        ]
       ]
      }
     },
     "Size": [
-     0.07,
-     0.07,
-     0.07
+     0.1045,
+     0.0523,
+     0.1045
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_Salmon",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1503,
+       0.2393,
+       -0.3295
+      ],
+      "orientation": [
+       [
+        0.9397,
+        0.0,
+        0.342
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.342,
+        0.0,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0608,
+     0.0304,
+     0.0608
     ],
     "Color": [
      0.1686,
@@ -346,7 +570,16 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
-   }
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
   }
  ],
  "properties": {

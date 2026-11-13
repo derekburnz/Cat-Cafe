@@ -37,33 +37,84 @@ def build_food_bowl_premium(mat):
 
 
 def build_kibble(mat):
-    """Small kibble bag."""
+    """#3945 a heap of kibble on the bowl's floor: round bits and little fish-shaped bits in three bakes, a few tipped
+    up on the heap so it reads as a pile from the street (it was a bag standing in the bowl)."""
     b = Builder()
-    b.box_base((0, 0, 0), (0.7, 0.4, 0.9), "treat_tan")
-    b.box((0, -0.21, 0.5), (0.5, 0.02, 0.4), "bowl_red", bevel=False)
-    b.box((0, -0.22, 0.5), (0.3, 0.02, 0.2), "fur_black", bevel=False)
-    b.box_base((0, 0, 0.9), (0.72, 0.42, 0.1), "treat_tan")
+    b.sphere((0, 0, 0.0), 0.36, "kibble", segments=12, rings=5, scale=(1, 1, 0.3))             # the heap under them
+    bits = ((0.0, 0.0, 0.1, 0, 0, "kibble"), (0.14, 0.06, 0.08, 30, 20, "treat_tan"),
+            (-0.13, 0.09, 0.08, -25, 60, "fur_caramel"), (0.05, -0.15, 0.08, 15, -40, "treat_tan"),
+            (-0.07, -0.1, 0.1, -10, 10, "kibble"), (0.2, -0.1, 0.05, 40, 80, "fur_caramel"),
+            (-0.22, -0.04, 0.05, -35, 30, "treat_tan"), (0.08, 0.2, 0.05, 20, -15, "kibble"),
+            (-0.1, 0.22, 0.04, -30, 45, "treat_tan"), (0.25, 0.12, 0.03, 45, 0, "kibble"))
+    for (x, y, z, tilt, turn, sw) in bits:                                                       # round bits
+        x, y = 1.25 * x, 1.25 * y                                                                # spread over it
+        z += 0.06 - 0.14 * (x * x + y * y)                                                       # on the heap's top
+        R = _rz(turn) @ Matrix.Rotation(math.radians(tilt), 3, "X")
+        b.cyl((x, y, z), 0.065, 0.04, sw, segments=8, bevel=False, rot=R)
+        b.cyl((x, y, z), 0.022, 0.045, "fur_toffee", segments=6, bevel=False, rot=R)           # the hole's shadow
+    for (x, y, z, turn, sw) in ((0.02, 0.08, 0.15, 35, "fur_caramel"), (-0.16, -0.14, 0.1, -60, "kibble"),
+                                (0.15, -0.2, 0.08, 100, "fur_caramel")):                       # fish-shaped bits
+        R = _rz(turn)
+        b.sphere((x, y, z), 0.07, sw, segments=8, rings=4, scale=(0.6, 1.0, 0.45), rot=R)
+        tx, ty = -math.sin(math.radians(turn)) * 0.08, math.cos(math.radians(turn)) * 0.08
+        b.cyl((x + tx, y + ty, z), 0.04, 0.03, sw, segments=3, bevel=False, rot=R @ _rz(-90))
     return [b.finalize("CatCafe_Item_Kibble", mat)]
 
 
 def build_tuna_can(mat):
+    """#3945 an opened tuna can: a steel can with a blue label and a fish on it, the lid peeled up at the back, flaked
+    tuna heaped over the rim."""
     b = Builder()
-    b.cyl_base((0, 0, 0), 0.35, 0.3, "metal", segments=12)
-    b.cyl_base((0, 0, 0.07), 0.36, 0.16, "fish_blue", segments=12, bevel=False)
-    b.ring((0, 0, 0.28), 0.36, 0.05, 0.04, "metal", segments=12, bevel=False)
-    b.box((0, -0.365, 0.15), (0.3, 0.01, 0.1), "offwhite", bevel=False)
+    b.cyl_base((0, 0, 0), 0.33, 0.26, "metal", segments=14)
+    b.cyl_base((0, 0, 0.05), 0.335, 0.15, "shirt_blue", segments=14, bevel=False)               # the label
+    b.ring((0, 0, 0.255), 0.34, 0.035, 0.03, "fur_silver", segments=14, bevel=False)          # the rolled rim
+    b.ring((0, 0, 0.01), 0.34, 0.03, 0.02, "fur_silver", segments=14, bevel=False)
+    b.sphere((0.0, -0.338, 0.125), 0.07, "offwhite", segments=8, rings=4, scale=(1.0, 0.15, 0.55))   # fish on it
+    b.cyl((0.075, -0.338, 0.125), 0.035, 0.012, "offwhite", segments=3, bevel=False,
+          rot=Matrix.Rotation(math.radians(90), 3, "X") @ _rz(180))
+    b.sphere((0, 0, 0.27), 0.29, "fur_peach", segments=12, rings=5, scale=(1, 1, 0.32))         # the flaked tuna
+    for (x, y, z, r, sw) in ((0.1, 0.05, 0.33, 0.07, "fur_apricot"), (-0.12, 0.02, 0.32, 0.065, "fur_peach"),
+                             (0.0, -0.12, 0.33, 0.06, "fur_apricot"), (-0.03, 0.12, 0.35, 0.06, "skin_light"),
+                             (0.15, -0.1, 0.3, 0.05, "skin_light")):
+        b.ico((x, y, z), r, sw, subdivisions=1, scale=(1.2, 1, 0.7))
+    tilt = Matrix.Rotation(math.radians(-70), 3, "X")                                           # the lid, peeled up
+    b.cyl((0, 0.36, 0.4), 0.3, 0.025, "fur_silver", segments=14, bevel=False, rot=tilt)
+    b.ring((0, 0.355, 0.4), 0.3, 0.03, 0.03, "metal", segments=14, bevel=False, rot=tilt)
+    b.box((0, 0.32, 0.43), (0.12, 0.02, 0.05), "metal", bevel=False, rot=tilt)                  # the ring pull
     return [b.finalize("CatCafe_Item_TunaCan", mat)]
 
 
+def _fish(b, x, y, z, turn, length, back, side, belly, fin, eye=True):
+    """#3945 a fish lying on its side, head toward -Y before `turn` (degrees about Z), `length` long: a `side` body,
+    a `back` stripe along its top edge (+X) and a `belly` along the other, a forked tail, a back fin, a side fin, a
+    gill line and an eye with a white."""
+    R = _rz(turn)
+    L = length
+
+    def at(px, py, pz):
+        v = R @ Vector((px * L, py * L, pz * L))
+        return (x + v.x, y + v.y, z + v.z)
+
+    b.sphere(at(0, 0, 0), 0.5 * L, side, segments=12, rings=6, scale=(0.42, 1.0, 0.24), rot=R)
+    b.sphere(at(0.09, 0.02, 0.01), 0.42 * L, back, segments=10, rings=5, scale=(0.26, 1.0, 0.24), rot=R)
+    b.sphere(at(-0.09, 0.0, 0.01), 0.4 * L, belly, segments=10, rings=5, scale=(0.24, 0.95, 0.235), rot=R)
+    for side_ in (-1, 1):                                                                        # the forked tail
+        b.cyl(at(side_ * 0.07, 0.56, 0), 0.13 * L, 0.035 * L, fin, segments=3, bevel=False,
+              rot=R @ _rz(-90 + side_ * 25))
+    b.cyl(at(0.19, 0.08, 0), 0.12 * L, 0.03 * L, fin, segments=3, bevel=False, rot=R)           # the back fin
+    b.sphere(at(-0.04, -0.16, 0.11), 0.09 * L, fin, segments=8, rings=4, scale=(0.5, 1.0, 0.25),
+             rot=R @ _rz(25))                                                                    # the side fin
+    b.box(at(-0.01, -0.27, 0.095), (0.2 * L, 0.022 * L, 0.03 * L), fin, bevel=False, rot=R @ _rz(-8))  # gill line
+    if eye:
+        b.sphere(at(0.03, -0.37, 0.09), 0.055 * L, "offwhite", segments=8, rings=4, scale=(1, 1, 0.5), rot=R)
+        b.sphere(at(0.03, -0.38, 0.115), 0.032 * L, "fur_black", segments=8, rings=4, scale=(1, 1, 0.5), rot=R)
+
+
 def build_salmon(mat):
-    """A whole fish, head toward -Y."""
+    """#3945 a whole salmon lying on the kibble, across the bowl: a peach body with a deeper back, a pearl belly, a
+    forked tail and fins (it was a blue fish standing up)."""
     b = Builder()
-    b.sphere((0, 0, 0.22), 0.35, "fish_blue", segments=10, rings=6, scale=(0.55, 1.0, 0.62))
-    b.sphere((0, 0.02, 0.17), 0.3, "fish_belly", segments=10, rings=6, scale=(0.5, 0.9, 0.5))
-    b.cyl((0, 0.45, 0.24), 0.24, 0.05, "fish_blue", segments=3, bevel=False, rot=(math.radians(90), "Y"))
-    b.cyl((0, 0.0, 0.45), 0.12, 0.04, "fish_blue", segments=3, bevel=False, rot=(math.radians(90), "Y"))
-    for x in (-0.12, 0.12):
-        b.box((x, -0.2, 0.3), (0.07, 0.07, 0.07), "fur_black", bevel=False)
+    _fish(b, 0, 0, 0.13, 20, 0.95, "fur_ginger", "fur_apricot", "pearl", "fur_copper")
     return [b.finalize("CatCafe_Item_Salmon", mat)]
 
 
@@ -242,83 +293,109 @@ def _rz(deg):
 
 
 def build_sardines(mat):
-    """Three sardines fanned on the kibble, silver bellies, heads toward -Y."""
+    """#3945 three silver sardines fanned on the kibble with blue backs, the middle one on top."""
     b = Builder()
-    for (x, y, z, a) in ((-0.15, 0.02, 0.06, 14), (0.16, 0.0, 0.06, -12), (0.0, -0.04, 0.15, 2)):
-        R = _rz(a)
-        b.sphere((x, y, z), 0.27, "fish_blue", segments=8, rings=4, scale=(0.32, 1.0, 0.3), rot=R)
-        b.sphere((x, y, z - 0.025), 0.26, "metal", segments=8, rings=4, scale=(0.3, 0.92, 0.22), rot=R)
-        tx, ty = -math.sin(math.radians(a)) * 0.3, math.cos(math.radians(a)) * 0.3
-        b.cyl((x + tx, y + ty, z), 0.1, 0.03, "fish_blue", segments=3, bevel=False,
-              rot=R @ Matrix.Rotation(math.radians(90), 3, "Y"))                                   # tail fin
-        ex, ey = math.sin(math.radians(a)) * 0.2, -math.cos(math.radians(a)) * 0.2
-        b.box((x + ex + 0.05, y + ey, z + 0.04), (0.04, 0.04, 0.04), "fur_black", bevel=False)  # eye
+    for (x, y, z, a) in ((-0.15, 0.03, 0.07, 14), (0.16, 0.01, 0.07, -12), (0.0, -0.04, 0.14, 2)):
+        _fish(b, x, y, z, a, 0.55, "fish_blue", "fur_silver", "pearl", "fur_mist")
     return [b.finalize("CatCafe_Item_Sardines", mat)]
 
 
 def build_caviar(mat):
-    """A little round tin of caviar with a gold rim and a pearl spoon."""
+    """#3945 a round caviar tin, navy with a gold rim, heaped with shining black pearls, its lid with a gold fish
+    leaning on its side and a pearl spoon across the top."""
     b = Builder()
-    b.cyl_base((0, 0, 0), 0.3, 0.12, "galaxy_blue", segments=12)
-    b.ring((0, 0, 0.13), 0.31, 0.04, 0.03, "rarity_legend", segments=12, bevel=False)
-    b.cyl_base((0, 0, 0.12), 0.27, 0.04, "fur_black", segments=12, bevel=False)
-    b.sphere((0, 0, 0.15), 0.22, "fur_black", segments=10, rings=4, scale=(1, 1, 0.35))         # heaped pearls
-    for (x, y) in ((0.08, -0.05), (-0.1, 0.06), (0.02, 0.12), (-0.04, -0.12), (0.14, 0.08)):
-        b.ico((x, y, 0.21), 0.035, "galaxy_blue", subdivisions=1)
-    b.box((0.18, -0.22, 0.2), (0.07, 0.42, 0.03), "offwhite", bevel=False, rot=_rz(-35))       # spoon
-    b.sphere((0.05, -0.04, 0.21), 0.07, "offwhite", segments=8, rings=4, scale=(1, 1.3, 0.3))
-    b.ring((0, 0, 0.0), 0.32, 0.05, 0.02, "rarity_legend", segments=12, bevel=False)
+    b.cyl_base((0, 0, 0), 0.27, 0.13, "galaxy_blue", segments=14)
+    b.ring((0, 0, 0.13), 0.28, 0.04, 0.03, "gold_mid", segments=14, bevel=False)
+    b.ring((0, 0, 0.0), 0.28, 0.04, 0.025, "gold_mid", segments=14, bevel=False)
+    b.sphere((0, 0, 0.14), 0.24, "fur_black", segments=12, rings=5, scale=(1, 1, 0.38))         # heaped pearls
+    pearls = ((0.08, -0.05, 0.215), (-0.1, 0.06, 0.21), (0.02, 0.12, 0.205), (-0.04, -0.12, 0.205),
+              (0.14, 0.08, 0.19), (-0.15, -0.06, 0.19), (0.0, 0.0, 0.23), (0.12, -0.13, 0.18))
+    for i, (px, py, pz) in enumerate(pearls):
+        b.ico((px, py, pz), 0.04, ("fur_ink", "night_sky")[i % 2], subdivisions=1)
+        b.ico((px - 0.012, py - 0.012, pz + 0.025), 0.012, "fur_silver", subdivisions=1)      # each one's shine
+    tilt = Matrix.Rotation(math.radians(-72), 3, "X")                                           # the lid, leaning
+    b.cyl((0, 0.31, 0.2), 0.27, 0.03, "galaxy_blue", segments=14, bevel=False, rot=tilt)
+    b.ring((0, 0.305, 0.2), 0.28, 0.035, 0.035, "gold_mid", segments=14, bevel=False, rot=tilt)
+    b.sphere((0, 0.29, 0.21), 0.09, "gold_light", segments=8, rings=4, scale=(1.0, 0.2, 0.5))   # its gold fish
+    b.cyl((0.1, 0.29, 0.21), 0.045, 0.015, "gold_light", segments=3, bevel=False,
+          rot=Matrix.Rotation(math.radians(90), 3, "X") @ _rz(180))
+    b.box((0.12, -0.2, 0.25), (0.05, 0.32, 0.025), "pearl", bevel=False, rot=_rz(-35))           # the spoon
+    b.sphere((0.02, -0.05, 0.255), 0.07, "pearl", segments=8, rings=4, scale=(1, 1.35, 0.3), rot=_rz(-35))
     return [b.finalize("CatCafe_Item_Caviar", mat)]
 
 
 def build_moon_milk(mat):
-    """A pool of moon milk on the kibble with a small crescent moon and two stars over it."""
+    """#3945 a lilac saucer of moon milk on the kibble, a pale swirl on the milk, a crescent moon and three stars
+    over it."""
     b = Builder()
-    b.cyl_base((0, 0, 0), 0.36, 0.04, "milk", segments=14, bevel=False)
-    b.sphere((0, 0, 0.04), 0.3, "milk", segments=10, rings=4, scale=(1, 1, 0.12))
-    b.crescent((0, 0.0, 0.42), 0.17, 0.12, 0.06, "sparkle")
-    b.cyl((0, 0, 0.2), 0.02, 0.14, "sparkle", segments=4, bevel=False)                        # moon stalk
-    b.star((-0.22, -0.05, 0.35), 0.07, 0.03, 0.03, "sparkle", rot=(math.radians(90), "X"))
-    b.star((0.24, 0.02, 0.48), 0.06, 0.025, 0.03, "sparkle", rot=(math.radians(90), "X"))
+    b.cyl_base((0, 0, 0), 0.36, 0.05, "pastel_lilac", segments=16, radius2=0.4)                # the saucer
+    b.ring((0, 0, 0.07), 0.41, 0.05, 0.04, "velvet_lilac", segments=16, bevel=False)
+    b.cyl_base((0, 0, 0.04), 0.35, 0.04, "milk", segments=16, bevel=False)                      # the milk
+    b.ring((0, 0, 0.085), 0.2, 0.035, 0.01, "pearl", segments=12, bevel=False)                 # its swirl
+    b.ring((0.04, 0.02, 0.087), 0.1, 0.03, 0.01, "pearl", segments=10, bevel=False)
+    for (x, y) in ((0.22, -0.12), (-0.2, 0.16), (0.12, 0.22)):                                   # bubbles
+        b.sphere((x, y, 0.085), 0.025, "milk", segments=6, rings=3, scale=(1, 1, 0.6))
+    b.crescent((0, 0.0, 0.5), 0.17, 0.12, 0.06, "sparkle")
+    b.cyl((0, 0, 0.24), 0.018, 0.2, "pastel_butter", segments=6, bevel=False)                   # the moon's stalk
+    for (x, z, r) in ((-0.24, 0.38, 0.07), (0.25, 0.56, 0.06), (0.12, 0.3, 0.045)):
+        b.star((x, -0.02, z), r, r * 0.45, 0.03, "sparkle", rot=(math.radians(90), "X"))
     return [b.finalize("CatCafe_Item_MoonMilk", mat)]
 
 
 def build_star_treat(mat):
-    """A gold star biscuit leaning on a smaller one, flecked with sparkle."""
+    """#3945 two baked star biscuits with gold icing, one flat and one leaning on it, sugar sparkles on top."""
     b = Builder()
-    b.star((0.1, 0.08, 0.04), 0.2, 0.09, 0.06, "treat_tan")
+    b.star((0.1, 0.08, 0.03), 0.2, 0.09, 0.06, "treat_tan")
+    b.star((0.1, 0.08, 0.065), 0.16, 0.072, 0.02, "fur_golden")                                # its icing
     tilt = Matrix.Rotation(math.radians(55), 3, "X")
-    b.star((-0.02, -0.04, 0.2), 0.27, 0.12, 0.08, "rarity_legend", rot=tilt)
-    for (x, z) in ((-0.08, 0.27), (0.07, 0.2), (0.0, 0.33)):
-        b.box((x, -0.11, z), (0.04, 0.02, 0.04), "sparkle", bevel=False, rot=tilt)
+    b.star((-0.02, -0.04, 0.2), 0.27, 0.12, 0.08, "treat_tan", rot=tilt)
+    b.star((-0.02, -0.075, 0.225), 0.22, 0.1, 0.02, "rarity_legend", rot=tilt)                # its icing
+    for (x, y, z) in ((-0.08, -0.12, 0.27), (0.07, -0.11, 0.2), (0.0, -0.1, 0.33), (-0.1, -0.08, 0.17),
+                      (0.12, 0.1, 0.08), (0.05, 0.02, 0.08)):
+        b.box((x, y, z), (0.035, 0.02, 0.035), "sparkle", bevel=False, rot=tilt)
     return [b.finalize("CatCafe_Item_StarTreat", mat)]
 
 
 def build_honey_cream(mat):
-    """#3462 a swirl of whipped cream on the kibble with honey over it and a little wooden dipper."""
+    """#3462, #3945 a tall swirl of whipped cream on the kibble, honey running down it and pooled round its foot, a
+    grooved wooden dipper leaning in."""
     b = Builder()
-    b.cyl_base((0, 0, 0), 0.36, 0.04, "milk", segments=14, bevel=False)
-    b.sphere((0, 0, 0.1), 0.28, "milk", segments=8, rings=3, scale=(1, 1, 0.4))
-    b.sphere((0.01, 0, 0.24), 0.19, "milk", segments=8, rings=3, scale=(1, 1, 0.45))
-    b.sphere((0, 0, 0.35), 0.1, "milk", segments=6, rings=3, scale=(1, 1, 0.7))
-    for (x, y, z, w, d, turn) in ((0.0, -0.2, 0.15, 0.3, 0.07, 0), (0.19, 0.03, 0.15, 0.07, 0.28, 0),      # honey over
-                                  (-0.14, 0.12, 0.16, 0.26, 0.07, 40), (0.0, -0.1, 0.29, 0.2, 0.06, -15)):  # the swirl
-        b.box((x, y, z), (w, d, 0.04), "rarity_legend", bevel=False, rot=Matrix.Rotation(math.radians(turn), 3, "Z"))
+    b.cyl_base((0, 0, 0), 0.36, 0.035, "fur_golden", segments=16, bevel=False)                 # the honey pool
+    for i, (r, z, h) in enumerate(((0.29, 0.03, 0.12), (0.23, 0.13, 0.11), (0.17, 0.23, 0.1), (0.11, 0.32, 0.09))):
+        dx = 0.015 * (-1) ** i
+        b.sphere((dx, 0.0, z + h / 2), r, "milk", segments=12, rings=5, scale=(1, 1, h / r))   # the swirl's turns
+    b.cyl((0.0, 0.0, 0.44), 0.06, 0.08, "milk", segments=8, radius2=0.0)                        # its tip
+    for k in range(5):                                                                            # honey down it
+        a = math.radians(30 + 72 * k)
+        rr, z = 0.24 - 0.02 * k, 0.24 - 0.025 * k
+        b.box((rr * math.cos(a), rr * math.sin(a), z), (0.05, 0.035, 0.18), "rarity_legend", bevel=False,
+              rot=_rz(math.degrees(a) + 90) @ Matrix.Rotation(math.radians(-22), 3, "X"))
+        b.sphere((0.27 * math.cos(a), 0.27 * math.sin(a), 0.07), 0.035, "rarity_legend", segments=6, rings=3)
+    b.ring((0, 0, 0.36), 0.12, 0.04, 0.025, "rarity_legend", segments=10, bevel=False)          # honey on top
     tilt = Matrix.Rotation(math.radians(35), 3, "Y")
-    b.cyl((0.24, 0.0, 0.36), 0.02, 0.4, "caramel_wood", segments=6, bevel=False, rot=tilt)     # the dipper
-    b.cyl((0.14, 0.0, 0.22), 0.06, 0.1, "caramel_wood", segments=8, bevel=False, rot=tilt)
+    b.cyl((0.24, 0.0, 0.4), 0.02, 0.42, "caramel_wood", segments=6, bevel=False, rot=tilt)     # the dipper
+    for k in range(3):                                                                            # its grooved head
+        t = 0.15 + 0.03 * k
+        b.cyl((0.24 - 0.57 * t, 0.0, 0.4 - 0.82 * t), 0.055, 0.025, "fur_toffee" if k % 2 else "caramel_wood",
+              segments=8, bevel=False, rot=tilt)
     return [b.finalize("CatCafe_Item_HoneyCream", mat)]
 
 
 def build_comet_treat(mat):
-    """#3462 a round sky-blue biscuit with a white star on it, tipped up on the kibble, a tail of light behind."""
+    """#3462, #3945 a round sky-blue biscuit with a darker baked rim and a white star, tipped up on the kibble, a
+    tapering three-colour tail of light behind it and sparkles round it."""
     b = Builder()
     tilt = Matrix.Rotation(math.radians(60), 3, "X")
-    b.cyl((0, 0, 0.2), 0.24, 0.1, "pastel_sky", segments=14, rot=tilt)
+    b.cyl((0, 0, 0.2), 0.24, 0.1, "pastel_sky", segments=16, rot=tilt)
+    b.ring((0, -0.003, 0.2), 0.245, 0.04, 0.105, "fur_puddle", segments=16, bevel=False, rot=tilt)   # baked rim
     b.star((0, -0.05, 0.23), 0.14, 0.065, 0.03, "offwhite", rot=tilt)
-    for (x, sw, h) in ((-0.1, "pastel_sky", 0.24), (0.0, "offwhite", 0.32), (0.1, "sparkle", 0.2)):
-        b.box((x, 0.14, 0.36 + h / 2), (0.05, 0.04, h), sw, bevel=False, rot=Matrix.Rotation(math.radians(-25), 3, "X"))
-    b.star((0.2, 0.05, 0.5), 0.05, 0.022, 0.03, "sparkle", rot=(math.radians(90), "X"))
+    b.star((0, -0.06, 0.235), 0.08, 0.036, 0.02, "sparkle", rot=tilt)
+    back = Matrix.Rotation(math.radians(-68), 3, "X")                                          # out behind, a little up
+    for (x, sw, h, r) in ((-0.11, "pastel_sky", 0.3, 0.05), (0.0, "offwhite", 0.4, 0.06),
+                          (0.11, "sparkle", 0.26, 0.045)):
+        b.cyl((x, 0.1 + 0.46 * h, 0.3 + 0.19 * h), r, h, sw, segments=8, bevel=False, radius2=0.008, rot=back)
+    for (x, y, z, r) in ((0.24, 0.05, 0.5, 0.06), (-0.24, 0.1, 0.45, 0.05), (0.05, 0.25, 0.68, 0.045)):
+        b.star((x, y, z), r, r * 0.45, 0.03, "sparkle", rot=(math.radians(90), "X"))
     return [b.finalize("CatCafe_Item_CometTreat", mat)]
 
 
@@ -341,18 +418,18 @@ def build_tip_pile(mat):
 ASSETS = {
     "CatCafe_Item_FoodBowl": (build_food_bowl, 300),
     "CatCafe_Item_FoodBowl_Premium": (build_food_bowl_premium, 400),
-    "CatCafe_Item_Kibble": (build_kibble, 300),
-    "CatCafe_Item_TunaCan": (build_tuna_can, 300),
-    "CatCafe_Item_Salmon": (build_salmon, 400),
+    "CatCafe_Item_Kibble": (build_kibble, 900),
+    "CatCafe_Item_TunaCan": (build_tuna_can, 900),
+    "CatCafe_Item_Salmon": (build_salmon, 900),
     "CatCafe_Item_Net_L1": (lambda m: build_net(1, m), 2200),     # 2026-11-03 redesign: round rim, diamond mesh
     "CatCafe_Item_Net_L2": (lambda m: build_net(2, m), 2200),
     "CatCafe_Item_Net_L3": (lambda m: build_net(3, m), 2600),
     "CatCafe_Item_Net_L4": (lambda m: build_net(4, m), 2600),
-    "CatCafe_Item_Sardines": (build_sardines, 400),
-    "CatCafe_Item_Caviar": (build_caviar, 600),
-    "CatCafe_Item_MoonMilk": (build_moon_milk, 300),
-    "CatCafe_Item_StarTreat": (build_star_treat, 300),
-    "CatCafe_Item_HoneyCream": (build_honey_cream, 300),     # #3462 the Day Cart's own baits
-    "CatCafe_Item_CometTreat": (build_comet_treat, 300),
+    "CatCafe_Item_Sardines": (build_sardines, 1600),
+    "CatCafe_Item_Caviar": (build_caviar, 1400),
+    "CatCafe_Item_MoonMilk": (build_moon_milk, 900),
+    "CatCafe_Item_StarTreat": (build_star_treat, 600),
+    "CatCafe_Item_HoneyCream": (build_honey_cream, 1100),     # #3462 the Day Cart's own baits
+    "CatCafe_Item_CometTreat": (build_comet_treat, 900),
     "CatCafe_Prop_TipPile": (build_tip_pile, 600),
 }

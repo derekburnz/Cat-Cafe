@@ -1,6 +1,6 @@
 # Mouse Dash (#3296): the Cat Arcade's new game, replacing Circle Streak
 
-Draft v2, 2026-11-11, Design-Agent. This replaces [new-activities.md](new-activities.md) section 4 (the paused v1: six holes, one miss ends the run, milestones to 50).
+Draft v2, 2026-11-11, Design-Agent; as built in 4a and 4b (updated 2026-11-13). This replaces [new-activities.md](new-activities.md) section 4 (the paused v1: six holes, one miss ends the run, milestones to 50).
 
 Derek, 2026-11-11 23:30 UTC: "build mouse dash if making it high enough quality it honestly should replace the current game". Earlier (Derek2, 2026-11-11): "arcade game 1 free attempt daily". The game is a player's idea and keeps its credit line on the card.
 
@@ -60,6 +60,12 @@ The first three mice of a player's first ever run are slow (2.0 s windows), with
 - A golden mouse is up for max(0.75 x the wave's window, the 0.40 s floor): the floor applies after the golden scale, so it is never shorter than a phone can manage. A golden mouse that gets away does not break the streak; only a grey mouse escaping or a tapped kitten does.
 - Ping allowance: the full round trip, at most `CatchLatencyCapSeconds` (0.15 s), because the pop also has to travel to the client. (Section 4 said half.)
 - A first run's three safe mice break nothing when missed: no heart and no streak.
+
+### 4b. Changed on launch night (Derek on the live game, 2026-11-12; PRs #3714, #3723)
+- **Every miss costs a heart** ("make them always cost lives"). A tap on an empty hole now costs a heart and the paw is still dizzy for 0.4 s (`MouseDashDizzySeconds`); a tap while dizzy does nothing. This replaces section 2's "costs no heart". An escaped mouse and a tapped kitten cost one as before.
+- **A run clock** ("make a timer for how long left in the minigame"): a run has `MouseDashRunSeconds` 180 from its first mouse, counted down on screen. A perfect win takes up to about 110 s, so the clock only ends a slow run. A run that ends on the clock ends as `time`, pays its milestones like any other end and plays the end sound.
+- **The card** follows the arcade mock (#3553): a lit sign, the free play pill, the records, the next prize with its picture, a big green Play button, and Prizes and Leaderboard buttons that each open their own list.
+- **While playing** a banner shows only the next prize from the current score. The banners sit in the window's header, never over the holes (#3766).
 
 ## 5. Look, feel and controls
 The bar is "would you play this again right away". These are part of the build, not polish for later.

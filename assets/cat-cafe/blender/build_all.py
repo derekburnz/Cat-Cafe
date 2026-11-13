@@ -110,6 +110,7 @@ import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
 import spot_clear  # noqa: E402
+import storepacks  # noqa: E402
 import seasondecor  # noqa: E402
 import sewer  # noqa: E402
 import themes  # noqa: E402
@@ -129,7 +130,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag]
+           arcadecabinet, mysticpool, moneybag, storepacks]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},

@@ -2814,6 +2814,25 @@ Presets.storeBurst = {
 
 -- The arcade cabinet's idle glow (#3062; Effects/ArcadeGlow): its `screen` part drifts through `colours`, one every
 -- `step` seconds, and `emitter` sparkles rise `lift` studs over its top, within `within` studs.
+-- The Mystic Pool's quiet pointer (#3821, Effects/PoolBeacon): a PointLight `lift` studs over the liquid, `range`
+-- studs, `brightness` at its fullest, breathing down by `breathDip` over `breathSeconds` (far under 3 Hz), and
+-- `rate` slow `emitter` sparkles a second in the liquid's colour lightened by `whiten`. Full within `full` studs,
+-- fading to nothing at `within`. `colour` stands in when the liquid is not found. Updated every `tick` seconds.
+Presets.poolBeacon = {
+	lift = 1.2,
+	range = 12,
+	brightness = 1.4,
+	breathSeconds = 4,
+	breathDip = 0.35,
+	emitter = "waitBeacon",
+	rate = 2,
+	whiten = 0.35,
+	full = 30,
+	within = 60,
+	colour = Color3.fromRGB(150, 120, 230),
+	tick = 0.2,
+}
+
 Presets.arcadeGlow = {
 	screen = "Screen",
 	step = 2.5,

@@ -3635,6 +3635,23 @@ function Logic.cannonLandingFocus(focus: Vector3): Vector3
 	return if focus.Magnitude > most then focus.Unit * most else focus
 end
 
+-- #3821 (Effects/PoolBeacon): 1 within `full` studs, 0 at `within` and past it, a straight fade between.
+function Logic.beaconFade(distance: number, full: number, within: number): number
+	if distance <= full then
+		return 1
+	end
+	if distance >= within or within <= full then
+		return 0
+	end
+	return 1 - (distance - full) / (within - full)
+end
+
+-- #3821: a slow breath, 1 at its top and 1 - `dip` at its bottom, one cycle every `seconds`.
+function Logic.beaconBreath(now: number, seconds: number, dip: number): number
+	local wave = 0.5 + 0.5 * math.cos(2 * math.pi * now / seconds)
+	return 1 - dip * (1 - wave)
+end
+
 -- #3743: the pooled burst emitters are one per preset and tint (Particles.burst). A tint that keeps changing (the
 -- Lucky Cat's rainbow twinkle asks a new colour every twinkle) made a new emitter each time and kept it for the
 -- session, thousands in a long one. Tinted emitters now live in a short recently-used list: `touchKey` moves `key`

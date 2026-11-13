@@ -1204,3 +1204,12 @@ Derek, 2026-11-12: "make secrets have a special glow also when you see them arou
 |---|---|
 | Small mint and cream puffs left at the heels of a player who wears the Speed Shoes, carries a cat and is on the move with feet on the ground: 8 a second, each gone in under half a second, so about 4 on screen. Nothing while standing, in the air or with no cat, because the shoes only speed up carrying. A steady thin stream, nothing blinks | character attribute `SpeedShoes == true` (server, where the shoes are put on) or a child named `CatCafe_Item_SpeedShoes`; `CarryingCatId`; the Humanoid's `MoveDirection` and `FloorMaterial` |
 | The nearest wearers within 50 studs show it, your own first, sharing the potion glow count of the budget (3 on a phone); Low performance shows none | checked 4 times a second |
+
+## Mystic Pool pointer (#3821, 2026-11-13)
+
+Effects/PoolBeacon, Presets.poolBeacon. A quiet way to notice the pool at its spot beside spawn (#3715), with no sign post and nothing in the middle of town.
+
+| Look | Hook |
+|---|---|
+| A soft PointLight just over the liquid, in the liquid's own colour, breathing slowly (one breath every 4 s, down by about a third), and 2 slow sparkles a second drifting up off the pool in a lighter tint of that colour. Full within 30 studs, fading to nothing at 60 and off past it | the station tagged `shared/Traits.TAG`, its `_Liquid_Glow` model for the middle and colour |
+| One light and about 4 particles on screen. Reduce Motion: the light holds still, no sparkles. Low performance: the light only. Never paused for a roll | checked 5 times a second |

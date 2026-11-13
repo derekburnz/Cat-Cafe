@@ -30,6 +30,34 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-13 05:30 UTC, Growth-Agent): live changes since #3778 that the board did not name. Start with a
+	-- table (#3679, new servers from about 04:00 UTC), catch reach on touch (touchCatchReach on 03:34 UTC), Park gate
+	-- paw trail (parkGateTrail on 03:37 UTC), bright intro Skip (#3795). Friday rows (Speed Shoes, Secret cats, pet a
+	-- cat, station menus) go in with their switches, not here.
+	{
+		id = "start_with_a_table",
+		date = "2026-11-13",
+		icon = "faster",
+		text = "Cafe starts with a table",
+	},
+	{
+		id = "touch_catch_reach",
+		date = "2026-11-13",
+		icon = "fix",
+		text = "Easier catches on phones",
+	},
+	{
+		id = "park_gate_trail",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Paw trail to the Park gate",
+	},
+	{
+		id = "intro_skip_button",
+		date = "2026-11-13",
+		icon = "fix",
+		text = "Brighter Skip in the intro",
+	},
 	-- #2718 refresh (11-13 00:30 UTC): the 02:30 UTC restart of 2026-11-13 and what went live since #3434. Merge with
 	-- that publish. Take out "epic_trait_tier" if #3719 is not on main at the publish.
 	{

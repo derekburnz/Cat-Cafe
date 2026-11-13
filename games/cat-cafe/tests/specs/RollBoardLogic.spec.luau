@@ -158,23 +158,37 @@ return function()
 	end)
 
 	describe("RollBoardLogic.rollSteps (#3615)", function()
-		it("moves one row at a time in list order and stops on the landing row", function()
-			for landing = 1, 5 do
-				local steps = RollBoardLogic.rollSteps(5, landing)
-				expect(#steps).to.equal(10 + landing)
-				expect(steps[#steps].index).to.equal(landing)
-				for at = 2, #steps do
-					expect(steps[at].index).to.equal(steps[at - 1].index % 5 + 1)
-					-- it only ever slows: no pause that could look like a near miss
-					expect(steps[at].rest >= steps[at - 1].rest).to.equal(true)
+		it(
+			"walks down from the top row to the landing row and never lights a row under it",
+			function()
+				for landing = 1, 5 do
+					local steps = RollBoardLogic.rollSteps(5, landing)
+					expect(#steps).to.equal(landing)
+					expect(steps[1].index).to.equal(1)
+					expect(steps[#steps].index).to.equal(landing)
+					for at = 1, #steps do
+						-- no rarer row (further down the list) is ever lit before the landing
+						expect(steps[at].index <= landing).to.equal(true)
+						if at > 1 then
+							expect(steps[at].index).to.equal(steps[at - 1].index + 1)
+							-- it only ever slows: no pause that could look like a near miss
+							expect(steps[at].rest >= steps[at - 1].rest).to.equal(true)
+						end
+					end
 				end
 			end
-		end)
+		)
 
-		it("takes the same time whatever the row's prize, and has no steps for no rows", function()
-			expect(#RollBoardLogic.rollSteps(0, 1)).to.equal(0)
-			expect(RollBoardLogic.rollSteps(4, 9)[12].index).to.equal(4)
-		end)
+		it(
+			"lights the top row straight away, clamps a landing past the end, and has no steps for no rows",
+			function()
+				expect(#RollBoardLogic.rollSteps(0, 1)).to.equal(0)
+				expect(#RollBoardLogic.rollSteps(4, 1)).to.equal(1)
+				local past = RollBoardLogic.rollSteps(4, 9)
+				expect(#past).to.equal(4)
+				expect(past[4].index).to.equal(4)
+			end
+		)
 	end)
 
 	describe("sizeOffsetY (#3683)", function()

@@ -151,6 +151,7 @@ LiveFlags.KEYS = {
 	"picnicTreats",
 	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
 	"storeRework", -- #3572: the reworked Store layout
+	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -182,6 +183,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	picnicTreats = true,
 	traitBundles = true,
 	storeRework = true,
+	indexTo70 = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

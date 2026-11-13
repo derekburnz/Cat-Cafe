@@ -37,6 +37,11 @@ return function()
 			expect(p.widthMin >= 2).to.equal(true)
 			expect(p.far <= 0.2).to.equal(true)
 			expect(p.halo.wide > 1 and p.far + p.halo.add < 1).to.equal(true)
+			-- and a ground glow the arch cannot hide, breathing slowly (never near a flash)
+			local g = s.glow
+			expect(g.radius >= 3).to.equal(true)
+			expect(g.bright < g.dim and g.dim < 1).to.equal(true)
+			expect(1 / (2 * g.seconds) < 1).to.equal(true)
 		end)
 
 		it("meows near the cat, well apart, a few times at most", function()

@@ -35,6 +35,8 @@ type Call = {
 	foot: Part, -- unseen, under the pillar
 	beam: Beam,
 	halo: Beam, -- the soft glow around the pillar
+	ground: Part, -- the warm glow on the ground under the trap
+	breathe: Tween?,
 	bubble: BillboardGui,
 	card: Frame,
 	rock: Tween?,
@@ -109,6 +111,10 @@ local function clear()
 		if c.rock ~= nil then
 			c.rock:Cancel()
 		end
+		if c.breathe ~= nil then
+			c.breathe:Cancel()
+		end
+		c.ground:Destroy()
 		c.foot:Destroy()
 		c.bubble:Destroy()
 	end
@@ -159,6 +165,37 @@ local function make(model: Model): Call?
 	halo.Parent = foot
 	foot.CFrame = CFrame.new(top)
 	foot.Parent = Context.folder()
+
+	-- the ground glow, flat under the trap (a cylinder lies along its X axis, so it is turned to stand on end)
+	local g = s.glow
+	local base = frame.Position - Vector3.new(0, Logic.halfExtents(frame, size).Y, 0)
+	local ground = Context.effectPart(
+		"StuckCallGlow",
+		Vector3.new(g.thick, g.radius * 2, g.radius * 2),
+		p.colour
+	)
+	ground.Shape = Enum.PartType.Cylinder
+	ground.Material = Enum.Material.Neon
+	ground.Transparency = g.bright
+	ground.CFrame = CFrame.new(base + Vector3.new(0, g.thick / 2 + 0.02, 0))
+		* CFrame.Angles(0, 0, math.pi / 2)
+	local light = Instance.new("PointLight")
+	light.Color = p.colour
+	light.Range = g.range
+	light.Brightness = g.brightness
+	light.Shadows = false
+	light.Parent = ground
+	ground.Parent = Context.folder()
+	local breathe: Tween? = nil
+	if not Context.reducedMotion() then
+		local made = TweenService:Create(
+			ground,
+			TweenInfo.new(g.seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+			{ Transparency = g.dim }
+		)
+		made:Play()
+		breathe = made
+	end
 
 	local bubble = Instance.new("BillboardGui")
 	bubble.Name = "EffectsStuckCall"
@@ -219,6 +256,8 @@ local function make(model: Model): Call?
 		foot = foot,
 		beam = beam,
 		halo = halo,
+		ground = ground,
+		breathe = breathe,
 		bubble = bubble,
 		card = card,
 		rock = rock,

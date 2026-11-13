@@ -4985,6 +4985,19 @@ Presets.stuckCall = {
 		topFade = 0.5,
 		halo = { wide = 2.6, add = 0.6 },
 	},
+	-- Review-QA's second look: from the camp pad the Alleyway's street arch hides the pillar, so the trap also
+	-- wears a warm `glow` on the ground, `radius` studs across, that breathes slowly between `bright` and `dim`
+	-- see-through over `seconds` each way (well under once a second; held at `bright` with Reduce Motion), and a
+	-- soft warm light of `range` studs.
+	glow = {
+		radius = 4,
+		thick = 0.05,
+		bright = 0.35,
+		dim = 0.65,
+		seconds = 1.6,
+		range = 14,
+		brightness = 2,
+	},
 	bubble = {
 		text = "Help! 🐾",
 		above = 4.4, -- studs over the cat's top, clear of the "!" and its gem

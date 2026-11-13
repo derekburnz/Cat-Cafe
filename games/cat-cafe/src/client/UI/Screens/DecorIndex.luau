@@ -81,6 +81,7 @@ local PROGRESS_HEIGHT = 28
 local RALLY_POOL = "rally" -- shared Catalog.RALLY_POOL: the Rescue Rally's own crate, never sold (F101)
 local RALLY_SOURCE = "From the Rescue Rally, every weekend"
 local RALLY_LOCKED = "Rally Crate"
+local RALLY_TAB_SHORT = "Rally (weekends)" -- #3931: the Rally tab in the short screen's column, with RALLY_SOURCE's news
 local FULL_MILESTONE = "decor10" -- the whole page's milestone (all 12 since F80), whose claim puts on the gold frame
 
 local DecorIndex = {}
@@ -558,6 +559,9 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 		chip.frame.BackgroundColor3 = if selected then chip.color else CARD.card
 		chip.border.Color = if selected then Theme.colors.outline else CARD.cardStroke
 		chip.label.TextColor3 = if selected then Theme.colors.white else CARD.text
+		chip.label.Text = if self._rail and chip.pool == RALLY_POOL
+			then RALLY_TAB_SHORT
+			else chip.name
 		chip.count.Text = if have >= all and all > 0
 			then "Complete!"
 			else ("%d / %d"):format(have, all)
@@ -595,7 +599,9 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 		self:_buildPage(open)
 	end
 	local rally = open == RALLY_POOL
-	self._source.Visible = rally
+	-- #3931: beside the short screen's tab column the line would push the Rally's pieces out of view; the Rally tab
+	-- says "weekends" there instead
+	self._source.Visible = rally and not self._rail
 	local shown = 0
 	for pool, cells in self._cells do
 		local onPage = pool == open

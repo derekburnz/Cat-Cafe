@@ -5292,7 +5292,11 @@ local SCENES = {
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Collection", true)
 		local source = window and window:FindFirstChild("Source", true)
-		assert(source and source.Visible, "uigate: the Rally page does not say where its pieces come from (#1766)")
+		-- #3931: beside a short screen's tab column the Rally tab itself says "weekends"
+		local rallyTab = window and window:FindFirstChild("rally", true)
+		local tabName = rallyTab and rallyTab:FindFirstChild("Name") :: TextLabel?
+		local onTab = tabName ~= nil and string.find(tabName.Text, "weekend") ~= nil
+		assert(source and (source.Visible or onTab), "uigate: the Rally page does not say where its pieces come from (#1766)")
 		local locked = 0
 		for _, child in window:GetDescendants() do
 			if child:IsA("TextLabel") and child.Text == "Rally Crate" and child.Visible then
@@ -5312,44 +5316,48 @@ local SCENES = {
 		local decor = window:FindFirstChild("DecorIndex", true) :: Instance
 		local bar = decor:FindFirstChild("Pages") :: GuiObject
 		assert(bar, "uigate: no Decor Index tab row (#3931)")
-		local x0, x1 = bar.AbsolutePosition.X, bar.AbsolutePosition.X + bar.AbsoluteSize.X
-		local y0, y1 = bar.AbsolutePosition.Y, bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
-		-- on a short screen the tabs stand in a scrolling column on the left: only their width must fit there
-		local rail = (bar :: ScrollingFrame).ScrollingDirection == Enum.ScrollingDirection.Y
-		local tabs = 0
-		for _, tab in bar:GetChildren() do
-			if tab:IsA("TextButton") then
-				tabs += 1
-				local p, z = tab.AbsolutePosition, tab.AbsoluteSize
-				local across = p.X >= x0 - 1 and p.X + z.X <= x1 + 1
-				local down = rail or (p.Y >= y0 - 1 and p.Y + z.Y <= y1 + 1)
-				assert(across and down, "uigate: the " .. tab.Name .. " tab is cut off (#3931)")
-				local name = tab:FindFirstChild("Name") :: TextLabel
-				assert(name and name.TextFits, "uigate: the " .. tab.Name .. " tab's name does not fit (#3931)")
-			end
-		end
-		assert(tabs >= 9, "uigate: only " .. tabs .. " Decor Index tabs (#3931)")
-		local progress = decor:FindFirstChild("Progress") :: GuiObject
-		if rail then
-			assert(not progress.Visible, "uigate: the completion line shows beside the tab column (#3931)")
-		else
-			assert(progress.AbsolutePosition.Y >= y1 - 1, "uigate: the completion line sits under the tabs (#3931)")
-		end
-		-- Review-QA: decor in view under (or beside) the tabs with no scrolling: a cell with at least a third of it
-		-- showing (the Index's next reward card sits over the cells on every page)
-		task.wait(0.2)
-		local grid = decor:FindFirstChild("Grid", true) :: GuiObject
-		local g0, g1 = grid.AbsolutePosition, grid.AbsolutePosition + grid.AbsoluteSize
-		local whole = 0
-		for _, cell in grid:GetDescendants() do
-			if cell:IsA("Frame") and cell.Visible and cell.Parent and cell.Parent.Name == "Cells" then
-				local p, z = cell.AbsolutePosition, cell.AbsoluteSize
-				if p.X >= g0.X - 1 and p.Y >= g0.Y - 1 and p.X + z.X <= g1.X + 1 and p.Y + z.Y / 3 <= g1.Y + 1 then
-					whole += 1
+		-- Review-QA: each page checked from a named tab, whatever page the scene before left open
+		for _, pool in { "alley", "rally" } do
+			press("Collection", "Pages." .. pool)
+			task.wait(0.2)
+			local x0, x1 = bar.AbsolutePosition.X, bar.AbsolutePosition.X + bar.AbsoluteSize.X
+			local y0, y1 = bar.AbsolutePosition.Y, bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
+			-- on a short screen the tabs stand in a scrolling column on the left: only their width must fit there
+			local rail = (bar :: ScrollingFrame).ScrollingDirection == Enum.ScrollingDirection.Y
+			local tabs = 0
+			for _, tab in bar:GetChildren() do
+				if tab:IsA("TextButton") then
+					tabs += 1
+					local p, z = tab.AbsolutePosition, tab.AbsoluteSize
+					local across = p.X >= x0 - 1 and p.X + z.X <= x1 + 1
+					local down = rail or (p.Y >= y0 - 1 and p.Y + z.Y <= y1 + 1)
+					assert(across and down, "uigate: the " .. tab.Name .. " tab is cut off (#3931)")
+					local name = tab:FindFirstChild("Name") :: TextLabel
+					assert(name and name.TextFits, "uigate: the " .. tab.Name .. " tab's name does not fit (#3931)")
 				end
 			end
+			assert(tabs >= 9, "uigate: only " .. tabs .. " Decor Index tabs (#3931)")
+			local progress = decor:FindFirstChild("Progress") :: GuiObject
+			if rail then
+				assert(not progress.Visible, "uigate: the completion line shows beside the tab column (#3931)")
+			else
+				assert(progress.AbsolutePosition.Y >= y1 - 1, "uigate: the completion line sits under the tabs (#3931)")
+			end
+			-- decor in view under (or beside) the tabs with no scrolling: a cell with at least a third of it showing
+			-- (the Index's next reward card sits over the cells on every page)
+			local grid = decor:FindFirstChild("Grid", true) :: GuiObject
+			local g0, g1 = grid.AbsolutePosition, grid.AbsolutePosition + grid.AbsoluteSize
+			local seen = 0
+			for _, cell in grid:GetDescendants() do
+				if cell:IsA("Frame") and cell.Visible and cell.Parent and cell.Parent.Name == "Cells" then
+					local p, z = cell.AbsolutePosition, cell.AbsoluteSize
+					if p.X >= g0.X - 1 and p.Y >= g0.Y - 1 and p.X + z.X <= g1.X + 1 and p.Y + z.Y / 3 <= g1.Y + 1 then
+						seen += 1
+					end
+				end
+			end
+			assert(seen >= 1, "uigate: no decor cell shows under the Decor Index tabs on the " .. pool .. " page (#3931)")
 		end
-		assert(whole >= 1, "uigate: no decor cell shows under the Decor Index tabs (#3931)")
 	end },
 	-- #3722: the Decor Index builds no cells at start-up; a page's cells are made the first time it shows
 	{ "DecorIndexLazy", function()

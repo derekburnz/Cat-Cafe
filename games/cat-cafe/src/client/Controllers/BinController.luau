@@ -563,7 +563,13 @@ local function onInput(input: InputObject, processed: boolean)
 	-- on whatever row the roll was passing. Now the light jumps to the prize (the effect's skip) and holds there
 	-- SKIP_HOLD seconds before the bar is asked for.
 	endShow()
+	-- Review-QA on #3910: the server's own roll timer may start the bar inside the hold; a press then would count as a
+	-- bar press (and could cost a paw), so it is sent only while the bar has not come
+	local skipped = play
 	task.delay(SKIP_HOLD, function()
+		if play ~= skipped or (UI :: any).rescue.isActive() then
+			return
+		end
 		Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
 	end)
 end

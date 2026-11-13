@@ -34,7 +34,7 @@ local BinRoll = {}
 
 function BinRoll.steps(count: number, target: number): { { index: number, at: number } }
 	local p = Presets.binRoll
-	return Logic.binRollSteps(count, target, p.laps, p.first, p.last)
+	return Logic.binRollSteps(count, target, p.laps, p.first, p.last, p.slow)
 end
 
 function BinRoll.seconds(count: number, target: number): number

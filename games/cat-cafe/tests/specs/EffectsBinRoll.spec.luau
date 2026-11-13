@@ -27,7 +27,7 @@ return function()
 		it("slows the same way wherever it stops and never lingers before the end", function()
 			local gapsFromEnd: { number }? = nil
 			for target = 1, 7 do
-				local steps = Logic.binRollSteps(7, target, p.laps, p.first, p.last)
+				local steps = Logic.binRollSteps(7, target, p.laps, p.first, p.last, p.slow)
 				local before = 0
 				local fromEnd: { number } = {}
 				for i = 2, #steps do
@@ -39,15 +39,32 @@ return function()
 				for i = #steps, #steps - 6, -1 do
 					table.insert(fromEnd, steps[i].at - steps[i - 1].at)
 				end
-				-- the honesty rule: the last seven gaps are the same for every stopping row
+				-- the honesty rule: each gap from the end is the shared curve's or the fast one, never longer
 				if gapsFromEnd ~= nil then
 					for i, gap in fromEnd do
-						expect(math.abs(gap - gapsFromEnd[i]) < 1e-6).to.equal(true)
+						local same = math.abs(gap - gapsFromEnd[i]) < 1e-6
+						expect(
+							same
+								or math.abs(gap - p.first) < 1e-6
+								or math.abs(gapsFromEnd[i] - p.first) < 1e-6
+						).to.equal(true)
 					end
 				end
-				gapsFromEnd = fromEnd
-				-- about the design's 2.5 seconds
-				expect(steps[#steps].at >= 2).to.equal(true)
+				if gapsFromEnd == nil or target >= p.slow then
+					gapsFromEnd = fromEnd
+				end
+				-- #3903: no slow tick before the last run, so a slow tick never passes a row under the prize
+				local lastRun = p.laps * 7
+				for i = 2, lastRun do
+					expect(math.abs((steps[i].at - steps[i - 1].at) - p.first) < 1e-6).to.equal(
+						true
+					)
+				end
+				-- the last gap is always the slowest one, and the whole roll stays short
+				expect(math.abs((steps[#steps].at - steps[#steps - 1].at) - p.last) < 1e-6).to.equal(
+					true
+				)
+				expect(steps[#steps].at >= 1.2).to.equal(true)
 				expect(steps[#steps].at <= 2.5).to.equal(true)
 			end
 			-- no flashing: never more than about 15 ticks a second

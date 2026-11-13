@@ -2153,7 +2153,7 @@
      "CFrame": {
       "position": [
        8.4,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -2177,7 +2177,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -2201,105 +2201,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.4,
-       15.25,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.4,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.8,
+       7.5,
        14.05,
        -0.34
       ],
@@ -2323,7 +2225,7 @@
      }
     },
     "Size": [
-     1.8,
+     1.2,
      0.6,
      0.08
     ],
@@ -2398,7 +2300,7 @@
      "CFrame": {
       "position": [
        6.0,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -2422,7 +2324,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -2447,7 +2349,7 @@
      "CFrame": {
       "position": [
        4.8,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -2471,7 +2373,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -2519,202 +2421,6 @@
      }
     },
     "Size": [
-     1.8,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.0,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.8,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.0,
-       14.05,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.8,
-       14.05,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.6,
      0.6,
      0.08
@@ -2790,7 +2496,7 @@
      "CFrame": {
       "position": [
        3.0,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -2814,154 +2520,7 @@
     },
     "Size": [
      0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.0,
-       15.25,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.0,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.0,
-       14.05,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -3035,7 +2594,7 @@
      "CFrame": {
       "position": [
        0.0,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -3059,7 +2618,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -3083,105 +2642,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       15.25,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6,
+       -0.9,
        14.05,
        -0.34
       ],
@@ -3205,7 +2666,7 @@
      }
     },
     "Size": [
-     1.8,
+     1.2,
      0.6,
      0.08
     ],
@@ -3280,7 +2741,7 @@
      "CFrame": {
       "position": [
        -2.4,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -3304,7 +2765,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -3329,7 +2790,7 @@
      "CFrame": {
       "position": [
        -3.6,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -3353,7 +2814,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -3379,202 +2840,6 @@
       "position": [
        -3.0,
        15.25,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.4,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.6,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.4,
-       14.05,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.6,
-       14.05,
        -0.34
       ],
       "orientation": [
@@ -3672,7 +2937,7 @@
      "CFrame": {
       "position": [
        -4.8,
-       15.85,
+       14.95,
        -0.34
       ],
       "orientation": [
@@ -3696,7 +2961,7 @@
     },
     "Size": [
      0.6,
-     0.6,
+     2.4,
      0.08
     ],
     "Color": [
@@ -3720,106 +2985,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.1,
+       -5.4,
        15.25,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.8,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.8,
-       14.05,
        -0.34
       ],
       "orientation": [
@@ -3917,7 +3084,56 @@
      "CFrame": {
       "position": [
        -7.2,
-       15.85,
+       14.95,
+       -0.34
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     2.4,
+     0.08
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -7.8,
+       15.25,
        -0.34
       ],
       "orientation": [
@@ -3965,8 +3181,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.5,
-       15.25,
+       -8.1,
+       14.05,
        -0.34
       ],
       "orientation": [
@@ -4014,104 +3230,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.2,
-       14.65,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.8,
-       14.05,
-       -0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8,
-     0.6,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        5.33,
        13.22,
        -0.33
@@ -4162,7 +3280,7 @@
      "CFrame": {
       "position": [
        5.33,
-       12.96,
+       12.57,
        -0.33
       ],
       "orientation": [
@@ -4186,7 +3304,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     1.04,
      0.06
     ],
     "Color": [
@@ -4198,154 +3316,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.33,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.33,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.33,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -4407,7 +3378,7 @@
      "CFrame": {
       "position": [
        4.55,
-       12.96,
+       12.57,
        -0.33
       ],
       "orientation": [
@@ -4431,7 +3402,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     1.04,
      0.06
     ],
     "Color": [
@@ -4443,7 +3414,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -4456,7 +3427,7 @@
      "CFrame": {
       "position": [
        4.03,
-       12.96,
+       12.57,
        -0.33
       ],
       "orientation": [
@@ -4480,7 +3451,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     1.04,
      0.06
     ],
     "Color": [
@@ -4492,203 +3463,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.55,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.03,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.55,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.03,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -4724,202 +3499,6 @@
      }
     },
     "Size": [
-     0.78,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.51,
-       13.22,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.47,
-       13.22,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.51,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.47,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.26,
      0.26,
      0.06
@@ -4970,7 +3549,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     1.3,
      0.06
     ],
     "Color": [
@@ -4982,7 +3561,56 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.47,
+       12.7,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     1.3,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -5043,8 +3671,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.47,
-       12.7,
+       3.25,
+       12.44,
        -0.33
       ],
       "orientation": [
@@ -5092,155 +3720,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.38,
+       2.73,
        12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.52,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.6,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.52,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.51,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.47,
-       12.18,
        -0.33
       ],
       "orientation": [
@@ -5289,7 +3770,7 @@
      "CFrame": {
       "position": [
        1.95,
-       13.22,
+       12.7,
        -0.33
       ],
       "orientation": [
@@ -5313,105 +3794,7 @@
     },
     "Size": [
      0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.17,
-       13.22,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.82,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.52,
-     0.26,
+     1.3,
      0.06
     ],
     "Color": [
@@ -5436,6 +3819,55 @@
      "CFrame": {
       "position": [
        1.17,
+       12.7,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     1.3,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.69,
        12.96,
        -0.33
       ],
@@ -5484,253 +3916,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.95,
+       1.43,
        12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.3,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.52,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.95,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.17,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.95,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.17,
-       12.18,
        -0.33
       ],
       "orientation": [
@@ -5828,7 +4015,7 @@
      "CFrame": {
       "position": [
        0.13,
-       12.96,
+       12.83,
        -0.33
       ],
       "orientation": [
@@ -5852,7 +4039,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     0.52,
      0.06
     ],
     "Color": [
@@ -5864,7 +4051,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -5876,7 +4063,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.13,
+       -0.26,
        12.7,
        -0.33
       ],
@@ -5900,7 +4087,7 @@
      }
     },
     "Size": [
-     0.78,
+     0.52,
      0.26,
      0.06
     ],
@@ -5926,7 +4113,7 @@
      "CFrame": {
       "position": [
        -0.39,
-       12.44,
+       12.31,
        -0.33
       ],
       "orientation": [
@@ -5950,7 +4137,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     0.52,
      0.06
     ],
     "Color": [
@@ -5962,7 +4149,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -5974,7 +4161,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.13,
+       0.0,
        12.18,
        -0.33
       ],
@@ -5998,7 +4185,7 @@
      }
     },
     "Size": [
-     0.78,
+     0.52,
      0.26,
      0.06
     ],
@@ -6073,104 +4260,6 @@
      "CFrame": {
       "position": [
        -0.91,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.43,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.91,
        12.7,
        -0.33
       ],
@@ -6195,105 +4284,7 @@
     },
     "Size": [
      0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.43,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.04,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.52,
-     0.26,
+     0.78,
      0.06
     ],
     "Color": [
@@ -6317,7 +4308,105 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.3,
+       -1.43,
+       12.83,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     0.52,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.17,
+       12.31,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     0.52,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.43,
        12.18,
        -0.33
       ],
@@ -6341,8 +4430,57 @@
      }
     },
     "Size": [
-     0.52,
      0.26,
+     0.26,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.95,
+       12.7,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     1.3,
      0.06
     ],
     "Color": [
@@ -6366,251 +4504,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.95,
-       13.22,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.47,
-       13.22,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.95,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.47,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.95,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -2.47,
        12.7,
        -0.33
@@ -6636,7 +4529,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     1.3,
      0.06
     ],
     "Color": [
@@ -6648,105 +4541,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.95,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -2.47,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -6782,7 +4577,7 @@
      }
     },
     "Size": [
-     0.78,
+     0.26,
      0.26,
      0.06
     ],
@@ -6795,7 +4590,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -6857,7 +4652,7 @@
      "CFrame": {
       "position": [
        -2.99,
-       12.96,
+       12.57,
        -0.33
       ],
       "orientation": [
@@ -6881,105 +4676,7 @@
     },
     "Size": [
      0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.51,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.25,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.78,
-     0.26,
+     1.04,
      0.06
     ],
     "Color": [
@@ -7003,57 +4700,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.99,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -3.51,
-       12.44,
+       12.57,
        -0.33
       ],
       "orientation": [
@@ -7077,7 +4725,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     1.04,
      0.06
     ],
     "Color": [
@@ -7089,7 +4737,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -7101,57 +4749,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -2.99,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.51,
-       12.18,
+       -3.25,
+       12.7,
        -0.33
       ],
       "orientation": [
@@ -7249,7 +4848,7 @@
      "CFrame": {
       "position": [
        -4.03,
-       12.96,
+       12.57,
        -0.33
       ],
       "orientation": [
@@ -7273,105 +4872,7 @@
     },
     "Size": [
      0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.55,
-       12.96,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.16,
-       12.7,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.52,
-     0.26,
+     1.04,
      0.06
     ],
     "Color": [
@@ -7395,8 +4896,57 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.03,
-       12.44,
+       -4.55,
+       12.96,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     0.26,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -4.29,
+       12.7,
        -0.33
       ],
       "orientation": [
@@ -7445,7 +4995,7 @@
      "CFrame": {
       "position": [
        -4.55,
-       12.44,
+       12.31,
        -0.33
       ],
       "orientation": [
@@ -7469,7 +5019,7 @@
     },
     "Size": [
      0.26,
-     0.26,
+     0.52,
      0.06
     ],
     "Color": [
@@ -7481,105 +5031,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.03,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -4.55,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -7641,7 +5093,56 @@
      "CFrame": {
       "position": [
        -5.07,
-       12.96,
+       12.57,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.26,
+     1.04,
+     0.06
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.33,
+       12.7,
        -0.33
       ],
       "orientation": [
@@ -7689,8 +5190,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.2,
-       12.7,
+       -5.46,
+       12.18,
        -0.33
       ],
       "orientation": [
@@ -7738,104 +5239,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.07,
-       12.44,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.26,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.33,
-       12.18,
-       -0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.78,
-     0.26,
-     0.06
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -8.55,
        15.175,
        0.34
@@ -7886,7 +5289,7 @@
      "CFrame": {
       "position": [
        -9.0,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -7910,7 +5313,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -7922,7 +5325,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -7934,105 +5337,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.0,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.0,
-       13.825,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.55,
+       -8.325,
        13.375,
        0.34
       ],
@@ -8056,7 +5361,7 @@
      }
     },
     "Size": [
-     1.35,
+     0.9,
      0.45,
      0.08
     ],
@@ -8131,7 +5436,7 @@
      "CFrame": {
       "position": [
        -7.2,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -8155,105 +5460,7 @@
     },
     "Size": [
      0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.3,
-       14.725,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.75,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.35,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -8277,57 +5484,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.2,
-       13.825,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -6.3,
-       13.825,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -8351,7 +5509,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -8363,7 +5521,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -8375,57 +5533,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.2,
-       13.375,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.3,
-       13.375,
+       -6.75,
+       14.275,
        0.34
       ],
       "orientation": [
@@ -8523,7 +5632,7 @@
      "CFrame": {
       "position": [
        -5.4,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -8547,56 +5656,7 @@
     },
     "Size": [
      0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.175,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -8620,57 +5680,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.4,
-       13.825,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.4,
-       13.375,
+       -4.95,
+       14.275,
        0.34
       ],
       "orientation": [
@@ -8768,7 +5779,7 @@
      "CFrame": {
       "position": [
        -3.6,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -8792,56 +5803,7 @@
     },
     "Size": [
      0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.375,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -8865,8 +5827,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.6,
-       13.825,
+       -3.15,
+       14.275,
        0.34
       ],
       "orientation": [
@@ -8914,7 +5876,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.15,
+       -2.925,
        13.375,
        0.34
       ],
@@ -8938,7 +5900,7 @@
      }
     },
     "Size": [
-     1.35,
+     0.9,
      0.45,
      0.08
     ],
@@ -9013,7 +5975,7 @@
      "CFrame": {
       "position": [
        -0.9,
-       14.725,
+       14.5,
        0.34
       ],
       "orientation": [
@@ -9037,7 +5999,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     0.9,
      0.08
     ],
     "Color": [
@@ -9049,7 +6011,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -9061,7 +6023,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.45,
+       -0.225,
        14.275,
        0.34
       ],
@@ -9085,7 +6047,7 @@
      }
     },
     "Size": [
-     1.35,
+     0.9,
      0.45,
      0.08
     ],
@@ -9111,7 +6073,7 @@
      "CFrame": {
       "position": [
        0.0,
-       13.825,
+       13.6,
        0.34
       ],
       "orientation": [
@@ -9135,7 +6097,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     0.9,
      0.08
     ],
     "Color": [
@@ -9147,7 +6109,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -9159,7 +6121,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.45,
+       -0.675,
        13.375,
        0.34
       ],
@@ -9183,7 +6145,7 @@
      }
     },
     "Size": [
-     1.35,
+     0.9,
      0.45,
      0.08
     ],
@@ -9258,7 +6220,7 @@
      "CFrame": {
       "position": [
        1.35,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -9282,7 +6244,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -9294,154 +6256,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.35,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.35,
-       13.825,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.35,
-       13.375,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -9503,7 +6318,7 @@
      "CFrame": {
       "position": [
        2.7,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -9527,105 +6342,7 @@
     },
     "Size": [
      0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.6,
-       14.725,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.925,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -9649,8 +6366,57 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.7,
-       13.825,
+       3.6,
+       14.725,
+       0.34
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.45,
+     0.08
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_SignArch",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.15,
+       14.275,
        0.34
       ],
       "orientation": [
@@ -9699,7 +6465,7 @@
      "CFrame": {
       "position": [
        3.6,
-       13.825,
+       13.6,
        0.34
       ],
       "orientation": [
@@ -9723,7 +6489,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     0.9,
      0.08
     ],
     "Color": [
@@ -9735,105 +6501,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.7,
-       13.375,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.6,
-       13.375,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -9895,7 +6563,7 @@
      "CFrame": {
       "position": [
        4.5,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -9919,56 +6587,7 @@
     },
     "Size": [
      0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.725,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -9992,8 +6611,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       4.5,
-       13.825,
+       4.95,
+       14.275,
        0.34
       ],
       "orientation": [
@@ -10041,7 +6660,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       4.95,
+       5.175,
        13.375,
        0.34
       ],
@@ -10065,7 +6684,7 @@
      }
     },
     "Size": [
-     1.35,
+     0.9,
      0.45,
      0.08
     ],
@@ -10140,7 +6759,7 @@
      "CFrame": {
       "position": [
        6.3,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -10164,56 +6783,7 @@
     },
     "Size": [
      0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.525,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -10237,8 +6807,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.3,
-       13.825,
+       6.75,
+       14.275,
        0.34
       ],
       "orientation": [
@@ -10286,7 +6856,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.75,
+       6.975,
        13.375,
        0.34
       ],
@@ -10310,7 +6880,7 @@
      }
     },
     "Size": [
-     1.35,
+     0.9,
      0.45,
      0.08
     ],
@@ -10385,7 +6955,7 @@
      "CFrame": {
       "position": [
        8.55,
-       14.725,
+       14.05,
        0.34
       ],
       "orientation": [
@@ -10409,7 +6979,7 @@
     },
     "Size": [
      0.45,
-     0.45,
+     1.8,
      0.08
     ],
     "Color": [
@@ -10421,154 +6991,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.55,
-       14.275,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.55,
-       13.825,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_SignArch",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.55,
-       13.375,
-       0.34
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.08
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }

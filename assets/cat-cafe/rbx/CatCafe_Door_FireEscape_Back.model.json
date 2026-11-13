@@ -5656,7 +5656,7 @@
          "CFrame": {
           "position": [
            0.92,
-           3.915,
+           3.7725,
            -0.355
           ],
           "orientation": [
@@ -5680,7 +5680,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -5704,105 +5704,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.92,
-           3.82,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.92,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.825,
+           0.7775,
            3.63,
            -0.355
           ],
@@ -5826,105 +5728,7 @@
          }
         },
         "Size": [
-         0.285,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.54,
-           4.01,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.54,
-           3.915,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
+         0.19,
          0.095,
          0.03
         ],
@@ -5974,7 +5778,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.475,
          0.03
         ],
         "Color": [
@@ -5998,56 +5802,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.54,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.445,
+           0.3975,
            3.63,
            -0.355
           ],
@@ -6071,7 +5826,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -6146,7 +5901,7 @@
          "CFrame": {
           "position": [
            0.16,
-           3.915,
+           3.7725,
            -0.355
           ],
           "orientation": [
@@ -6170,7 +5925,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -6195,7 +5950,7 @@
          "CFrame": {
           "position": [
            -0.03,
-           3.915,
+           3.7725,
            -0.355
           ],
           "orientation": [
@@ -6219,203 +5974,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.16,
-           3.82,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.03,
-           3.82,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.16,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.03,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -6463,7 +6022,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.095,
          0.095,
          0.03
         ],
@@ -6538,7 +6097,7 @@
          "CFrame": {
           "position": [
            -0.22,
-           3.915,
+           3.8675,
            -0.355
           ],
           "orientation": [
@@ -6562,7 +6121,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.19,
          0.03
         ],
         "Color": [
@@ -6586,7 +6145,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.315,
+           -0.3625,
            3.82,
            -0.355
           ],
@@ -6610,7 +6169,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -6636,7 +6195,7 @@
          "CFrame": {
           "position": [
            -0.41,
-           3.725,
+           3.6775,
            -0.355
           ],
           "orientation": [
@@ -6660,7 +6219,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.19,
          0.03
         ],
         "Color": [
@@ -6684,7 +6243,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.315,
+           -0.2675,
            3.63,
            -0.355
           ],
@@ -6708,7 +6267,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -6783,7 +6342,7 @@
          "CFrame": {
           "position": [
            -0.6,
-           3.915,
+           3.7725,
            -0.355
           ],
           "orientation": [
@@ -6807,105 +6366,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.6475,
-           3.82,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.19,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.6,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -6930,6 +6391,55 @@
          "CFrame": {
           "position": [
            -0.695,
+           3.82,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.7425,
            3.63,
            -0.355
           ],
@@ -6953,7 +6463,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -7028,7 +6538,7 @@
          "CFrame": {
           "position": [
            -0.98,
-           3.915,
+           3.7725,
            -0.355
           ],
           "orientation": [
@@ -7052,105 +6562,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.17,
-           3.915,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.98,
-           3.82,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -7199,7 +6611,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.285,
          0.03
         ],
         "Color": [
@@ -7223,105 +6635,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.98,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.17,
-           3.725,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.0275,
+           -1.075,
            3.63,
            -0.355
           ],
@@ -7345,7 +6659,7 @@
          }
         },
         "Size": [
-         0.19,
+         0.095,
          0.095,
          0.03
         ],
@@ -7407,8 +6721,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.684,
-           4.01,
+           0.883,
+           3.3625,
            -0.355
           ],
           "orientation": [
@@ -7431,8 +6745,8 @@
          }
         },
         "Size": [
-         0.09,
-         0.09,
+         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -7450,8 +6764,8 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -1.196,
-           -4.01,
+           -1.997,
+           -3.3625,
            -0.135
           ],
           "orientation": [
@@ -7486,202 +6800,6 @@
          "CFrame": {
           "position": [
            1.075,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.979,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.075,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.979,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.075,
            3.3625,
            -0.355
           ],
@@ -7706,7 +6824,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -7755,105 +6873,7 @@
         },
         "Size": [
          0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.075,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.979,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -7901,55 +6921,6 @@
          }
         },
         "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.883,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
          0.048,
          0.048,
          0.03
@@ -7976,7 +6947,56 @@
          "CFrame": {
           "position": [
            0.739,
-           3.4585,
+           3.3625,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.24,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.835,
+           3.4105,
            -0.355
           ],
           "orientation": [
@@ -8024,8 +7044,400 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.859,
-           3.4105,
+           0.787,
+           3.3625,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.595,
+           3.4585,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.144,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.595,
+           3.3385,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.192,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.403,
+           3.4585,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.144,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.403,
+           3.3385,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.192,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.451,
+           3.2665,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.355,
+           3.2665,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.259,
+           3.3625,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.24,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.187,
+           3.2665,
            -0.355
           ],
           "orientation": [
@@ -8049,1084 +7461,6 @@
         },
         "Size": [
          0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.739,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.883,
-           3.3625,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.763,
-           3.3625,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.883,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.739,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.883,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.739,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.595,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.595,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.595,
-           3.3625,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.595,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.595,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.403,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.403,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.403,
-           3.3625,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.403,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.403,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.259,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.259,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.259,
-           3.3625,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.259,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.211,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
          0.048,
          0.03
         ],
@@ -9201,7 +7535,7 @@
          "CFrame": {
           "position": [
            -0.029,
-           3.4105,
+           3.3865,
            -0.355
           ],
           "orientation": [
@@ -9225,7 +7559,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -9249,7 +7583,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.077,
+           -0.101,
            3.3625,
            -0.355
           ],
@@ -9273,7 +7607,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.096,
          0.048,
          0.03
         ],
@@ -9299,7 +7633,7 @@
          "CFrame": {
           "position": [
            -0.125,
-           3.3145,
+           3.2905,
            -0.355
           ],
           "orientation": [
@@ -9323,7 +7657,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -9347,7 +7681,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.077,
+           -0.053,
            3.2665,
            -0.355
           ],
@@ -9371,203 +7705,7 @@
          }
         },
         "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.221,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.317,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.221,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.317,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
+         0.096,
          0.048,
          0.03
         ],
@@ -9617,7 +7755,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -9666,105 +7804,7 @@
         },
         "Size": [
          0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.221,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.317,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -9812,202 +7852,6 @@
          }
         },
         "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.413,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.557,
-           3.4585,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.437,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.557,
-           3.4105,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
          0.048,
          0.048,
          0.03
@@ -10058,7 +7902,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -10082,7 +7926,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.533,
+           -0.557,
            3.3625,
            -0.355
           ],
@@ -10106,8 +7950,8 @@
          }
         },
         "Size": [
-         0.096,
          0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -10131,8 +7975,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.413,
-           3.3145,
+           -0.461,
+           3.4105,
            -0.355
           ],
           "orientation": [
@@ -10180,106 +8024,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.557,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.413,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.557,
-           3.2665,
+           -0.509,
+           3.3625,
            -0.355
           ],
           "orientation": [
@@ -10377,7 +8123,7 @@
          "CFrame": {
           "position": [
            -0.653,
-           3.4105,
+           3.3385,
            -0.355
           ],
           "orientation": [
@@ -10401,7 +8147,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.192,
          0.03
         ],
         "Color": [
@@ -10474,7 +8220,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.677,
+           -0.701,
            3.3625,
            -0.355
           ],
@@ -10498,204 +8244,57 @@
          }
         },
         "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.749,
+           3.2905,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
          0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.653,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.749,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.653,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.749,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
          0.03
         ],
         "Color": [
@@ -10769,7 +8368,7 @@
          "CFrame": {
           "position": [
            -0.893,
-           3.4105,
+           3.3385,
            -0.355
           ],
           "orientation": [
@@ -10793,7 +8392,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.192,
          0.03
         ],
         "Color": [
@@ -10817,105 +8416,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.893,
-           3.3625,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.893,
-           3.3145,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.893,
+           -0.845,
            3.2665,
            -0.355
           ],
@@ -10939,7 +8440,56 @@
          }
         },
         "Size": [
-         0.144,
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.941,
+           3.2665,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
          0.048,
          0.03
         ],
@@ -11014,7 +8564,7 @@
          "CFrame": {
           "position": [
            -1.037,
-           3.4105,
+           3.3865,
            -0.355
           ],
           "orientation": [
@@ -11038,7 +8588,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -11062,7 +8612,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.085,
+           -1.109,
            3.3625,
            -0.355
           ],
@@ -11086,7 +8636,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.096,
          0.048,
          0.03
         ],
@@ -11112,7 +8662,7 @@
          "CFrame": {
           "position": [
            -1.133,
-           3.3145,
+           3.2905,
            -0.355
           ],
           "orientation": [
@@ -11136,7 +8686,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -11160,7 +8710,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.085,
+           -1.061,
            3.2665,
            -0.355
           ],
@@ -11184,7 +8734,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.096,
          0.048,
          0.03
         ],
@@ -11259,7 +8809,56 @@
          "CFrame": {
           "position": [
            -1.229,
-           3.4105,
+           3.3385,
+           -0.355
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.192,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.277,
+           3.3625,
            -0.355
           ],
           "orientation": [
@@ -11307,8 +8906,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.253,
-           3.3625,
+           -1.301,
+           3.2665,
            -0.355
           ],
           "orientation": [
@@ -11356,8 +8955,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.229,
-           3.3145,
+           1.684,
+           4.01,
            -0.355
           ],
           "orientation": [
@@ -11380,57 +8979,8 @@
          }
         },
         "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_FireEscape_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.277,
-           3.2665,
-           -0.355
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
+         0.09,
+         0.09,
          0.03
         ],
         "Color": [

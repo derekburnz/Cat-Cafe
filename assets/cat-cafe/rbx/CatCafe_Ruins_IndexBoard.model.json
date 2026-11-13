@@ -386,7 +386,7 @@
      "CFrame": {
       "position": [
        1.7,
-       9.05,
+       8.75,
        -0.18
       ],
       "orientation": [
@@ -410,154 +410,7 @@
     },
     "Size": [
      0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.7,
-       8.85,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.7,
-       8.65,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.7,
-       8.45,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.2,
+     0.8,
      0.06
     ],
     "Color": [
@@ -581,8 +434,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.1,
-       9.25,
+       1.9,
+       8.45,
        -0.18
       ],
       "orientation": [
@@ -630,106 +483,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.5,
-       9.25,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0,
-       9.05,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5,
-       9.05,
+       1.5,
+       8.45,
        -0.18
       ],
       "orientation": [
@@ -802,7 +557,7 @@
     },
     "Size": [
      0.2,
-     0.2,
+     1.0,
      0.06
     ],
     "Color": [
@@ -814,7 +569,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -826,7 +581,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.6,
+       0.5,
        8.85,
        -0.18
       ],
@@ -850,8 +605,8 @@
      }
     },
     "Size": [
-     0.4,
      0.2,
+     1.0,
      0.06
     ],
     "Color": [
@@ -863,7 +618,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -875,8 +630,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.1,
-       8.65,
+       0.9,
+       9.05,
        -0.18
       ],
       "orientation": [
@@ -924,106 +679,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.5,
-       8.65,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.1,
-       8.45,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5,
-       8.45,
+       0.7,
+       8.85,
        -0.18
       ],
       "orientation": [
@@ -1121,7 +778,7 @@
      "CFrame": {
       "position": [
        0.1,
-       9.05,
+       8.75,
        -0.18
       ],
       "orientation": [
@@ -1145,7 +802,7 @@
     },
     "Size": [
      0.2,
-     0.2,
+     0.8,
      0.06
     ],
     "Color": [
@@ -1157,105 +814,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3,
-       9.05,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1,
-       8.85,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -1292,7 +851,7 @@
     },
     "Size": [
      0.2,
-     0.2,
+     0.6,
      0.06
     ],
     "Color": [
@@ -1304,7 +863,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -1316,105 +875,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1,
-       8.65,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3,
-       8.65,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
+       -0.1,
        8.45,
        -0.18
       ],
@@ -1438,7 +899,7 @@
      }
     },
     "Size": [
-     0.4,
+     0.2,
      0.2,
      0.06
     ],
@@ -1513,7 +974,56 @@
      "CFrame": {
       "position": [
        -0.7,
-       9.05,
+       8.75,
+       -0.18
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2,
+     0.8,
+     0.06
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Ruins_IndexBoard",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9,
+       8.85,
        -0.18
       ],
       "orientation": [
@@ -1561,8 +1071,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.8,
-       8.85,
+       -1.0,
+       8.45,
        -0.18
       ],
       "orientation": [
@@ -1610,106 +1120,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.7,
-       8.65,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9,
-       8.45,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -1.5,
-       9.25,
+       9.15,
        -0.18
       ],
       "orientation": [
@@ -1733,7 +1145,7 @@
     },
     "Size": [
      0.2,
-     0.2,
+     0.4,
      0.06
     ],
     "Color": [
@@ -1758,7 +1170,7 @@
      "CFrame": {
       "position": [
        -1.9,
-       9.25,
+       9.15,
        -0.18
       ],
       "orientation": [
@@ -1782,105 +1194,7 @@
     },
     "Size": [
      0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.5,
-       9.05,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.9,
-       9.05,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
+     0.4,
      0.06
     ],
     "Color": [
@@ -1954,7 +1268,7 @@
      "CFrame": {
       "position": [
        -1.5,
-       8.65,
+       8.55,
        -0.18
       ],
       "orientation": [
@@ -1978,7 +1292,7 @@
     },
     "Size": [
      0.2,
-     0.2,
+     0.4,
      0.06
     ],
     "Color": [
@@ -2003,7 +1317,7 @@
      "CFrame": {
       "position": [
        -1.9,
-       8.65,
+       8.55,
        -0.18
       ],
       "orientation": [
@@ -2027,105 +1341,7 @@
     },
     "Size": [
      0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.5,
-       8.45,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
-     0.06
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Ruins_IndexBoard",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.9,
-       8.45,
-       -0.18
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.2,
+     0.4,
      0.06
     ],
     "Color": [

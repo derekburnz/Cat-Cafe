@@ -3161,7 +3161,7 @@
          "CFrame": {
           "position": [
            0.595,
-           3.915,
+           3.7725,
            -0.395
           ],
           "orientation": [
@@ -3185,7 +3185,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -3209,105 +3209,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.595,
-           3.82,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.595,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.5,
+           0.4525,
            3.63,
            -0.395
           ],
@@ -3331,105 +3233,7 @@
          }
         },
         "Size": [
-         0.285,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.215,
-           4.01,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.215,
-           3.915,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
+         0.19,
          0.095,
          0.03
         ],
@@ -3479,7 +3283,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.475,
          0.03
         ],
         "Color": [
@@ -3503,56 +3307,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.215,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.12,
+           0.0725,
            3.63,
            -0.395
           ],
@@ -3576,7 +3331,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -3651,7 +3406,7 @@
          "CFrame": {
           "position": [
            -0.165,
-           3.915,
+           3.7725,
            -0.395
           ],
           "orientation": [
@@ -3675,7 +3430,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -3700,7 +3455,7 @@
          "CFrame": {
           "position": [
            -0.355,
-           3.915,
+           3.7725,
            -0.395
           ],
           "orientation": [
@@ -3724,203 +3479,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.165,
-           3.82,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.355,
-           3.82,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.165,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.355,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -3968,7 +3527,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.095,
          0.095,
          0.03
         ],
@@ -4043,7 +3602,7 @@
          "CFrame": {
           "position": [
            -0.545,
-           3.915,
+           3.8675,
            -0.395
           ],
           "orientation": [
@@ -4067,7 +3626,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.19,
          0.03
         ],
         "Color": [
@@ -4091,7 +3650,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.64,
+           -0.6875,
            3.82,
            -0.395
           ],
@@ -4115,7 +3674,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -4141,7 +3700,7 @@
          "CFrame": {
           "position": [
            -0.735,
-           3.725,
+           3.6775,
            -0.395
           ],
           "orientation": [
@@ -4165,7 +3724,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.19,
          0.03
         ],
         "Color": [
@@ -4189,7 +3748,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.64,
+           -0.5925,
            3.63,
            -0.395
           ],
@@ -4213,7 +3772,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -4288,7 +3847,7 @@
          "CFrame": {
           "position": [
            -0.925,
-           3.915,
+           3.7725,
            -0.395
           ],
           "orientation": [
@@ -4312,105 +3871,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.9725,
-           3.82,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.19,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.925,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -4435,6 +3896,55 @@
          "CFrame": {
           "position": [
            -1.02,
+           3.82,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.0675,
            3.63,
            -0.395
           ],
@@ -4458,7 +3968,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -4533,7 +4043,7 @@
          "CFrame": {
           "position": [
            -1.305,
-           3.915,
+           3.7725,
            -0.395
           ],
           "orientation": [
@@ -4557,105 +4067,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.495,
-           3.915,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.305,
-           3.82,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -4704,7 +4116,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.285,
          0.03
         ],
         "Color": [
@@ -4728,107 +4140,156 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.305,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.495,
-           3.725,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.3525,
+           -1.4,
            3.63,
            -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.59,
+           4.01,
+           -0.245
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.685,
+           3.7725,
+           -0.245
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.38,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5425,
+           3.63,
+           -0.245
           ],
           "orientation": [
            [
@@ -4875,349 +4336,6 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.59,
-           4.01,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.285,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.685,
-           3.915,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.685,
-           3.82,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.685,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.59,
-           3.63,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.285,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.305,
-           4.01,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.305,
-           3.915,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
            -0.305,
            3.82,
            -0.245
@@ -5243,7 +4361,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.475,
          0.03
         ],
         "Color": [
@@ -5267,56 +4385,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.305,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.21,
+           -0.1625,
            3.63,
            -0.245
           ],
@@ -5340,7 +4409,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -5415,7 +4484,7 @@
          "CFrame": {
           "position": [
            0.075,
-           3.915,
+           3.7725,
            -0.245
           ],
           "orientation": [
@@ -5439,7 +4508,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -5464,7 +4533,7 @@
          "CFrame": {
           "position": [
            0.265,
-           3.915,
+           3.7725,
            -0.245
           ],
           "orientation": [
@@ -5488,203 +4557,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.075,
-           3.82,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.265,
-           3.82,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.075,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.265,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -5732,7 +4605,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.095,
          0.095,
          0.03
         ],
@@ -5807,7 +4680,7 @@
          "CFrame": {
           "position": [
            0.455,
-           3.915,
+           3.8675,
            -0.245
           ],
           "orientation": [
@@ -5831,7 +4704,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.19,
          0.03
         ],
         "Color": [
@@ -5855,7 +4728,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.55,
+           0.5975,
            3.82,
            -0.245
           ],
@@ -5879,7 +4752,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -5905,7 +4778,7 @@
          "CFrame": {
           "position": [
            0.645,
-           3.725,
+           3.6775,
            -0.245
           ],
           "orientation": [
@@ -5929,7 +4802,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.19,
          0.03
         ],
         "Color": [
@@ -5953,7 +4826,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.55,
+           0.5025,
            3.63,
            -0.245
           ],
@@ -5977,7 +4850,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -6052,7 +4925,7 @@
          "CFrame": {
           "position": [
            0.835,
-           3.915,
+           3.7725,
            -0.245
           ],
           "orientation": [
@@ -6076,105 +4949,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.8825,
-           3.82,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.19,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.835,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -6199,6 +4974,55 @@
          "CFrame": {
           "position": [
            0.93,
+           3.82,
+           -0.245
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.9775,
            3.63,
            -0.245
           ],
@@ -6222,7 +5046,7 @@
          }
         },
         "Size": [
-         0.285,
+         0.19,
          0.095,
          0.03
         ],
@@ -6297,7 +5121,7 @@
          "CFrame": {
           "position": [
            1.215,
-           3.915,
+           3.7725,
            -0.245
           ],
           "orientation": [
@@ -6321,105 +5145,7 @@
         },
         "Size": [
          0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.405,
-           3.915,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.215,
-           3.82,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
+         0.38,
          0.03
         ],
         "Color": [
@@ -6468,7 +5194,7 @@
         },
         "Size": [
          0.095,
-         0.095,
+         0.285,
          0.03
         ],
         "Color": [
@@ -6492,105 +5218,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.215,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.405,
-           3.725,
-           -0.245
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.095,
-         0.095,
-         0.03
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.2625,
+           1.31,
            3.63,
            -0.245
           ],
@@ -6614,7 +5242,7 @@
          }
         },
         "Size": [
-         0.19,
+         0.095,
          0.095,
          0.03
         ],
@@ -6676,8 +5304,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.359,
-           4.01,
+           0.75,
+           3.3625,
            -0.395
           ],
           "orientation": [
@@ -6700,8 +5328,8 @@
          }
         },
         "Size": [
-         0.09,
-         0.09,
+         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -6719,8 +5347,8 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -1.521,
-           -4.01,
+           -2.13,
+           -3.3625,
            -0.175
           ],
           "orientation": [
@@ -6754,251 +5382,6 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.75,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.654,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.75,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.654,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.75,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
            0.654,
            3.3625,
            -0.395
@@ -7024,105 +5407,7 @@
         },
         "Size": [
          0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.75,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.654,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -7170,7 +5455,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.048,
          0.048,
          0.03
         ],
@@ -7196,7 +5481,7 @@
          "CFrame": {
           "position": [
            0.558,
-           3.4585,
+           3.3625,
            -0.395
           ],
           "orientation": [
@@ -7220,7 +5505,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -7245,7 +5530,56 @@
          "CFrame": {
           "position": [
            0.414,
-           3.4585,
+           3.3625,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.24,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.51,
+           3.4105,
            -0.395
           ],
           "orientation": [
@@ -7293,8 +5627,400 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.534,
-           3.4105,
+           0.462,
+           3.3625,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.27,
+           3.4585,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.144,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.27,
+           3.3385,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.192,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.078,
+           3.4585,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.144,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.078,
+           3.3385,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.192,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.126,
+           3.2665,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.03,
+           3.2665,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.066,
+           3.3625,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.24,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.138,
+           3.2665,
            -0.395
           ],
           "orientation": [
@@ -7318,1084 +6044,6 @@
         },
         "Size": [
          0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.414,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.558,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.438,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.558,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.414,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.558,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.414,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.27,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.27,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.27,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.27,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.27,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.078,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.078,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.078,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.078,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.078,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.066,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.066,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.066,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.066,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.114,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
          0.048,
          0.03
         ],
@@ -8470,7 +6118,7 @@
          "CFrame": {
           "position": [
            -0.354,
-           3.4105,
+           3.3865,
            -0.395
           ],
           "orientation": [
@@ -8494,7 +6142,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -8518,7 +6166,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.402,
+           -0.426,
            3.3625,
            -0.395
           ],
@@ -8542,7 +6190,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.096,
          0.048,
          0.03
         ],
@@ -8568,7 +6216,7 @@
          "CFrame": {
           "position": [
            -0.45,
-           3.3145,
+           3.2905,
            -0.395
           ],
           "orientation": [
@@ -8592,7 +6240,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -8616,7 +6264,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.402,
+           -0.378,
            3.2665,
            -0.395
           ],
@@ -8640,203 +6288,7 @@
          }
         },
         "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.546,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.642,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.546,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.642,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
+         0.096,
          0.048,
          0.03
         ],
@@ -8886,7 +6338,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -8935,105 +6387,7 @@
         },
         "Size": [
          0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.546,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.642,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -9081,202 +6435,6 @@
          }
         },
         "Size": [
-         0.144,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.738,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.882,
-           3.4585,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.762,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.882,
-           3.4105,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
          0.048,
          0.048,
          0.03
@@ -9327,7 +6485,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -9351,7 +6509,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.858,
+           -0.882,
            3.3625,
            -0.395
           ],
@@ -9375,8 +6533,8 @@
          }
         },
         "Size": [
-         0.096,
          0.048,
+         0.24,
          0.03
         ],
         "Color": [
@@ -9400,8 +6558,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.738,
-           3.3145,
+           -0.786,
+           3.4105,
            -0.395
           ],
           "orientation": [
@@ -9449,106 +6607,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.882,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.738,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.882,
-           3.2665,
+           -0.834,
+           3.3625,
            -0.395
           ],
           "orientation": [
@@ -9646,7 +6706,7 @@
          "CFrame": {
           "position": [
            -0.978,
-           3.4105,
+           3.3385,
            -0.395
           ],
           "orientation": [
@@ -9670,7 +6730,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.192,
          0.03
         ],
         "Color": [
@@ -9743,7 +6803,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.002,
+           -1.026,
            3.3625,
            -0.395
           ],
@@ -9767,204 +6827,57 @@
          }
         },
         "Size": [
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.074,
+           3.2905,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
          0.096,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.978,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.074,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.978,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.074,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
          0.03
         ],
         "Color": [
@@ -10038,7 +6951,7 @@
          "CFrame": {
           "position": [
            -1.218,
-           3.4105,
+           3.3385,
            -0.395
           ],
           "orientation": [
@@ -10062,7 +6975,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.192,
          0.03
         ],
         "Color": [
@@ -10086,105 +6999,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.218,
-           3.3625,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.218,
-           3.3145,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.218,
+           -1.17,
            3.2665,
            -0.395
           ],
@@ -10208,7 +7023,56 @@
          }
         },
         "Size": [
-         0.144,
+         0.048,
+         0.048,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.266,
+           3.2665,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
          0.048,
          0.03
         ],
@@ -10283,7 +7147,7 @@
          "CFrame": {
           "position": [
            -1.362,
-           3.4105,
+           3.3865,
            -0.395
           ],
           "orientation": [
@@ -10307,7 +7171,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -10331,7 +7195,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.41,
+           -1.434,
            3.3625,
            -0.395
           ],
@@ -10355,7 +7219,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.096,
          0.048,
          0.03
         ],
@@ -10381,7 +7245,7 @@
          "CFrame": {
           "position": [
            -1.458,
-           3.3145,
+           3.2905,
            -0.395
           ],
           "orientation": [
@@ -10405,7 +7269,7 @@
         },
         "Size": [
          0.048,
-         0.048,
+         0.096,
          0.03
         ],
         "Color": [
@@ -10429,7 +7293,7 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.41,
+           -1.386,
            3.2665,
            -0.395
           ],
@@ -10453,7 +7317,7 @@
          }
         },
         "Size": [
-         0.144,
+         0.096,
          0.048,
          0.03
         ],
@@ -10528,7 +7392,56 @@
          "CFrame": {
           "position": [
            -1.554,
-           3.4105,
+           3.3385,
+           -0.395
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.048,
+         0.192,
+         0.03
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.602,
+           3.3625,
            -0.395
           ],
           "orientation": [
@@ -10576,8 +7489,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.578,
-           3.3625,
+           -1.626,
+           3.2665,
            -0.395
           ],
           "orientation": [
@@ -10625,8 +7538,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.554,
-           3.3145,
+           1.359,
+           4.01,
            -0.395
           ],
           "orientation": [
@@ -10649,57 +7562,8 @@
          }
         },
         "Size": [
-         0.048,
-         0.048,
-         0.03
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PanedGlass_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.602,
-           3.2665,
-           -0.395
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.144,
-         0.048,
+         0.09,
+         0.09,
          0.03
         ],
         "Color": [

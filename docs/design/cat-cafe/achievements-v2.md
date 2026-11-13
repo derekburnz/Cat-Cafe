@@ -1,6 +1,6 @@
 # Achievements: easier targets, more steps, a prize of its own kind per line (#3694)
 
-Status 2026-11-13: sections 1, 2 and 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, prize notes in 4a); section 3 and the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
+Status 2026-11-13: sections 1 to 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, the new ones in 3a, prize notes in 4a), except `a_pet25`, which waits for the pet a cat server build; the chat titles built too (section 5). Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
 
 ## Rules for the change
 
@@ -71,6 +71,23 @@ Cat Spotter (`a_catch25`), Cat Herder (`a_catch250`), Cat Tamer (`a_catch1000`),
 
 An achievement whose feature switch is off is hidden until the switch is on, and does not count in "x of y claimed" until then. With everything on the page holds 70 (44 now, 15 steps, 11 new).
 
+### 3a. As built
+
+| Id | Name | Counter (save `stats`, or measure) | Switch |
+|---|---|---|---|
+| `a_bin10`, `a_bin50` | Bin Diver, Treasure Hunter | `binWins` | `alleyBin` |
+| `a_yard10` | Lucky Picker | `yardPicks` | `yardSaleRoll` |
+| `a_traits10`, `a_traits50` | Pool Regular, Pool Wizard | `traitRolls` (every roll, a first or a re-roll) | `traits` |
+| `a_dash10` | Mouse Chaser | `dashRuns` (every game played to its end or quit) | `mouseDash` |
+| `a_secret1`, `a_secret3` | Secret Spotter, Secret Keeper | `secretCats` (Secret kinds in the collection) | `secretCats` |
+| `a_rest1h` | Cozy Napper | `restSeconds` (added when a rest ends or the player leaves), shown in hours | `afkCafe` |
+| `a_goldcrate5` | Golden Opener | `goldenCratesOpened` | none |
+
+- The six counters are new `stats` fields with no save version bump, as #1934 did: an older server drops them, which only loses those counts. They start at 0 on the day they ship, except Secret cats, which reads the collection.
+- `flag` on the achievement names the live switch. While it is off the server leaves the achievement out of the view, refuses its claim ("Not open yet") and Claim all skips it; the window shows a row with a `flag` only once its view arrives, and "x of y claimed" counts the rows shown. With every switch on the page holds 69.
+- `a_pet25` is left out until the pet a cat server part (#3651, switch `petCats`) is built; it then needs a `pets` counter and the same `flag`.
+- Prizes (section 4's table): Rummage Bin and Yard Sale pay an Alley Crate (M) and a Golden Alley Crate (L); Mouse Dash 2 spins; Secret cats the finding line; resting the play time line; golden crates by size. The Mystic Pool's 1 and 3 Trait Tokens are paid as the golden fish they cost (10 and 30, `Traits.COST_FISH` a roll), since a prize cannot carry tokens yet.
+
 ## 4. Rewards: each line pays its own kind of thing
 
 Today the prize depends only on the size: S a spin, M a Money Potion, L a Classic Crate, XL a Golden Classic Crate and a Big Money Potion, each with money and pass XP. New rule: the money and the Cafe Pass XP by size stay exactly as they are, and the **item** comes from the achievement's line. `Types.AchievementDef` gains an optional `prize` that replaces the size's item; without it the size's item is used as today.
@@ -105,3 +122,11 @@ Today the prize depends only on the size: S a spin, M a Money Potion, L a Classi
 - Section 3's lines (Rummage Bin, Yard Sale, Mystic Pool, Mouse Dash) get their rows when their achievements are added; Trait Tokens will need a prize field of their own then.
 
 **Titles (second step, own PR if the title system needs work):** the XL achievements also give a chat title with the achievement's name: Cat Legend, Steady Hands, Devoted, Week Champion, Gold Rush. A player who already claimed one gets the title on the next join.
+
+## 5. Chat titles (as built)
+
+The five big achievements the issue names give a chat title with the achievement's name: Cat Legend (`a_catch10k`), Steady Hands (`a_perfect5k`), Devoted (`a_hours100`), Week Champion (`a_week10`) and Gold Rush (`a_gold50`). They are chat tags (`ChatTags.ACHIEVEMENT_TITLES`, ids `title_*`), offered after the Grand Opener tag and before the leaderboard ranks, and listed in the Bag's Titles tab as "Achievement: <name>" while locked.
+
+- Read from the save's claimed achievements every time, so nothing new is saved and a player who claimed one before has it on the next join.
+- A claim shows it at once: the server refreshes the tag and the Titles tab after the claim. With no title picked, the first one the player has in the order shows, as for every tag.
+- The other XL achievements (Every Cat, Grand Opening, Coin Mountain, Master Cat, Secret Keeper) give no title yet.

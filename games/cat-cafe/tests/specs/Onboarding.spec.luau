@@ -341,6 +341,42 @@ return function()
 		end)
 	end)
 
+	describe("startAchieved (#3660)", function()
+		it(
+			"marks the table step and the first table for a save that starts with one, nothing without",
+			function()
+				expect(next(Onboarding.startAchieved(0))).to.equal(nil)
+				local achieved = Onboarding.startAchieved(1)
+				expect(achieved[tostring(Onboarding.index("tut_3_shown"))]).to.equal(true)
+				expect(achieved[tostring(Onboarding.index("first_table"))]).to.equal(true)
+			end
+		)
+
+		it("lets the funnel run on past both steps, logging each in its place", function()
+			local state = fresh()
+			state.achieved = Onboarding.startAchieved(1)
+			expect(Onboarding.reached(state, "first_table")).to.equal(true)
+			Onboarding.reach(state, "loaded")
+			Onboarding.reach(state, "tut_0_shown")
+			Onboarding.reach(state, "tut_1_shown")
+			Onboarding.reach(state, "catch_card_opened")
+			Onboarding.reach(state, "first_checkin")
+			Onboarding.reach(state, "next_goal_shown")
+			local logged = Onboarding.reach(state, "first_role_assigned") :: any
+			expect(logged[#logged]).to.equal("tut_3_shown")
+			Onboarding.reach(state, "first_customer_served")
+			Onboarding.reach(state, "second_cat")
+			-- the bait bowl is bought in Upgrades: the window step, then the table in its place, then on
+			Onboarding.reach(state, "tut_4_shown")
+			local bought = Onboarding.reach(state, "bowl_bought") :: any
+			expect(bought[1]).to.equal("first_window_opened")
+			expect(bought[2]).to.equal("first_table")
+			Onboarding.reach(state, "first_tip_collected")
+			expect(Onboarding.reached(state, "bowl_bought")).to.equal(true)
+			expect(Onboarding.furthest(state)).to.equal("bowl_bought")
+		end)
+	end)
+
 	describe("reachIntro", function()
 		it("logs each intro step once, in order, and nothing behind the furthest", function()
 			local state = fresh()

@@ -154,6 +154,21 @@ function Logic.nearest<K>(candidates: { Candidate<K> }, radius: number, limit: n
 	return keys
 end
 
+-- #3523: whether the Speed Shoes' trail runs on a character. The shoes only speed up carrying, so it takes the
+-- shoes, a cat in the arms, feet on the ground and at least `least` of full walking input (0 to 1).
+function Logic.shoeTrailOn(
+	wears: boolean,
+	carrying: boolean,
+	moving: number,
+	grounded: boolean,
+	least: number
+): boolean
+	if moving ~= moving then
+		return false
+	end
+	return wears and carrying and grounded and moving >= least
+end
+
 -- Logic.nearest over `first`, then the nearest of `rest` in whatever is left of `limit`, so a crowd of `rest` never
 -- takes a slot one of `first` needs (Rare and better strays ahead of Commons for the rarity gem).
 function Logic.nearestFirst<K>(
@@ -3472,8 +3487,8 @@ function Logic.mysticIntroWave(s: number): number
 	return 1 - (1 - p.waveLow) * swing
 end
 
--- #3444 (Effects/CannonGlide): when, in seconds after the launch, the flight's camera goes back to the game's own: `over` seconds before the
--- flyer drops back into sight, so it is long done before the feet touch (#3444).
+-- #3444 (Effects/CannonGlide): when, in seconds after the launch, the flight's camera goes back to the game's own:
+-- `over` seconds before the flyer drops back into sight, so it is long done before the feet touch.
 function Logic.cannonHandBackAt(): number
 	return Presets.cannonPose.drop - Presets.cannonCamera.over
 end
@@ -3576,6 +3591,31 @@ function Logic.petHeart(
 	local scale = 0.5 + 0.5 * math.clamp(k / 0.2, 0, 1)
 	local fade = if k <= 0 then 1 else math.clamp((t - 0.6) / 0.4, 0, 1)
 	return Vector3.new(side * fan * k, up, 0), scale, fade
+end
+
+-- #3548, #3549: the pitch (radians, negative looking down) and distance (studs) of the view handed back to the game's camera, from the ones
+-- the camera had at launch. Both are kept inside a normal play view, so a camera that was looking straight down or
+-- was far out at launch (a cutscene, a zoom, a bad first frame) never becomes a far overhead landing.
+function Logic.cannonLanding(pitch: number, distance: number): (number, number)
+	local k = Presets.cannonCamera
+	if pitch ~= pitch then
+		pitch = math.rad(k.pitchRest)
+	end
+	if distance ~= distance then
+		distance = k.distanceRest
+	end
+	return math.clamp(pitch, math.rad(k.pitchLow), math.rad(k.pitchHigh)),
+		math.clamp(distance, k.distanceMin, k.distanceMax)
+end
+
+-- #3548: the landing view's focus from the root, from the one the camera had at launch: no further from the root
+-- than `focusMax` studs, so the view is always on the player.
+function Logic.cannonLandingFocus(focus: Vector3): Vector3
+	local most = Presets.cannonCamera.focusMax
+	if focus ~= focus then
+		return Vector3.zero
+	end
+	return if focus.Magnitude > most then focus.Unit * most else focus
 end
 
 return Logic

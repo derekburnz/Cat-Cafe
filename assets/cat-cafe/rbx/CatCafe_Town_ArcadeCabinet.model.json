@@ -3359,8 +3359,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.445,
-         6.67,
+         1.53,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -3383,8 +3383,8 @@
        }
       },
       "Size": [
-       0.255,
        0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -3402,8 +3402,8 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -1.445,
-         -6.67,
+         -1.53,
+         -6.4575,
          1.005
         ],
         "orientation": [
@@ -3437,155 +3437,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.53,
-         6.585,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.53,
-         6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.53,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          1.445,
-         6.33,
+         6.67,
          -1.005
         ],
         "orientation": [
@@ -3609,6 +3462,55 @@
       },
       "Size": [
        0.255,
+       0.085,
+       0.03
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Town_ArcadeCabinet_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.4025,
+         6.33,
+         -1.005
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.17,
        0.085,
        0.03
       ],
@@ -3683,7 +3585,7 @@
        "CFrame": {
         "position": [
          1.19,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -3707,7 +3609,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -3732,7 +3634,7 @@
        "CFrame": {
         "position": [
          1.02,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -3756,7 +3658,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -3804,202 +3706,6 @@
        }
       },
       "Size": [
-       0.255,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.19,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.02,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.19,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.02,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
        0.085,
        0.085,
        0.03
@@ -4075,7 +3781,7 @@
        "CFrame": {
         "position": [
          0.765,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -4099,154 +3805,7 @@
       },
       "Size": [
        0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.765,
-         6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.765,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.765,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -4320,7 +3879,7 @@
        "CFrame": {
         "position": [
          0.34,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -4344,7 +3903,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -4369,7 +3928,7 @@
        "CFrame": {
         "position": [
          0.17,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -4393,7 +3952,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -4419,202 +3978,6 @@
         "position": [
          0.255,
          6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.255,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.34,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.17,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.34,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.17,
-         6.33,
          -1.005
         ],
         "orientation": [
@@ -4712,7 +4075,7 @@
        "CFrame": {
         "position": [
          0.0,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -4736,7 +4099,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -4809,8 +4172,204 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.0425,
+         -0.085,
          6.5,
+         -1.005
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.085,
+       0.085,
+       0.03
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Town_ArcadeCabinet_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.17,
+         6.3725,
+         -1.005
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.085,
+       0.17,
+       0.03
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Town_ArcadeCabinet_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.425,
+         6.67,
+         -1.005
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.255,
+       0.085,
+       0.03
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Town_ArcadeCabinet_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.34,
+         6.4575,
+         -1.005
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.085,
+       0.34,
+       0.03
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Town_ArcadeCabinet_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4675,
+         6.33,
          -1.005
         ],
         "orientation": [
@@ -4858,447 +4417,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.17,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.17,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.425,
-         6.67,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.255,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.34,
-         6.585,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.34,
-         6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.34,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.425,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.255,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -0.765,
          6.67,
          -1.005
@@ -5349,7 +4467,7 @@
        "CFrame": {
         "position": [
          -0.68,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -5373,7 +4491,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -5398,7 +4516,7 @@
        "CFrame": {
         "position": [
          -0.85,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -5422,7 +4540,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -5448,202 +4566,6 @@
         "position": [
          -0.765,
          6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.255,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.68,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.85,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.68,
-         6.33,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.85,
-         6.33,
          -1.005
         ],
         "orientation": [
@@ -5741,7 +4663,7 @@
        "CFrame": {
         "position": [
          -1.02,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -5765,105 +4687,7 @@
       },
       "Size": [
        0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.19,
-         6.585,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.02,
-         6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -5912,7 +4736,7 @@
       },
       "Size": [
        0.085,
-       0.085,
+       0.255,
        0.03
       ],
       "Color": [
@@ -5936,105 +4760,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.02,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.19,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.0625,
+         -1.105,
          6.33,
          -1.005
         ],
@@ -6058,7 +4784,7 @@
        }
       },
       "Size": [
-       0.17,
+       0.085,
        0.085,
        0.03
       ],
@@ -6133,7 +4859,7 @@
        "CFrame": {
         "position": [
          -1.36,
-         6.585,
+         6.4575,
          -1.005
         ],
         "orientation": [
@@ -6157,105 +4883,7 @@
       },
       "Size": [
        0.085,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.4025,
-         6.5,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.17,
-       0.085,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       0.4196,
-       0.5059
-      ],
-      "Material": "Neon",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Town_ArcadeCabinet_Glow",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.36,
-         6.415,
-         -1.005
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.085,
-       0.085,
+       0.34,
        0.03
       ],
       "Color": [
@@ -6280,6 +4908,55 @@
        "CFrame": {
         "position": [
          -1.445,
+         6.5,
+         -1.005
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.085,
+       0.085,
+       0.03
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Town_ArcadeCabinet_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.4875,
          6.33,
          -1.005
         ],
@@ -6303,7 +4980,7 @@
        }
       },
       "Size": [
-       0.255,
+       0.17,
        0.085,
        0.03
       ],

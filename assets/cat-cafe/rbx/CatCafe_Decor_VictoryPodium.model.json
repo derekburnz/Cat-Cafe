@@ -287,104 +287,6 @@
      "CFrame": {
       "position": [
        0.0,
-       1.16,
-       -0.62
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.04
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_VictoryPodium",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.06,
-       1.04,
-       -0.62
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.12,
-     0.04
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_VictoryPodium",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
        0.92,
        -0.62
       ],
@@ -409,7 +311,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.6,
      0.04
     ],
     "Color": [
@@ -421,7 +323,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -433,8 +335,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.8,
+       0.12,
+       1.04,
        -0.62
       ],
       "orientation": [
@@ -482,7 +384,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
+       0.12,
        0.68,
        -0.62
       ],
@@ -506,7 +408,56 @@
      }
     },
     "Size": [
-     0.36,
+     0.12,
+     0.12,
+     0.04
+    ],
+    "Color": [
+     0.1843,
+     0.2431,
+     0.3608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_VictoryPodium",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.12,
+       0.68,
+       -0.62
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
      0.12,
      0.04
     ],
@@ -777,7 +728,7 @@
      "CFrame": {
       "position": [
        1.22,
-       0.775,
+       0.735,
        -0.62
       ],
       "orientation": [
@@ -801,7 +752,7 @@
     },
     "Size": [
      0.08,
-     0.08,
+     0.16,
      0.04
     ],
     "Color": [
@@ -825,7 +776,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.3,
+       1.34,
        0.695,
        -0.62
       ],
@@ -849,7 +800,7 @@
      }
     },
     "Size": [
-     0.24,
+     0.16,
      0.08,
      0.04
     ],
@@ -875,7 +826,7 @@
      "CFrame": {
       "position": [
        1.38,
-       0.615,
+       0.575,
        -0.62
       ],
       "orientation": [
@@ -899,7 +850,7 @@
     },
     "Size": [
      0.08,
-     0.08,
+     0.16,
      0.04
     ],
     "Color": [
@@ -923,7 +874,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.3,
+       1.26,
        0.535,
        -0.62
       ],
@@ -947,7 +898,7 @@
      }
     },
     "Size": [
-     0.24,
+     0.16,
      0.08,
      0.04
     ],
@@ -1218,7 +1169,7 @@
      "CFrame": {
       "position": [
        -1.38,
-       0.625,
+       0.505,
        -0.62
       ],
       "orientation": [
@@ -1242,7 +1193,7 @@
     },
     "Size": [
      0.08,
-     0.08,
+     0.32,
      0.04
     ],
     "Color": [
@@ -1266,7 +1217,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.3,
+       -1.26,
        0.545,
        -0.62
       ],
@@ -1290,7 +1241,7 @@
      }
     },
     "Size": [
-     0.24,
+     0.16,
      0.08,
      0.04
     ],
@@ -1315,56 +1266,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.38,
-       0.465,
-       -0.62
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.08,
-     0.08,
-     0.04
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_VictoryPodium",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.3,
+       -1.26,
        0.385,
        -0.62
       ],
@@ -1388,7 +1290,7 @@
      }
     },
     "Size": [
-     0.24,
+     0.16,
      0.08,
      0.04
     ],

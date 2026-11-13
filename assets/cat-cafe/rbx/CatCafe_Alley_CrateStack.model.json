@@ -1316,7 +1316,7 @@
      "CFrame": {
       "position": [
        3.56,
-       4.19,
+       3.95,
        -1.29
       ],
       "orientation": [
@@ -1340,7 +1340,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.6,
      0.02
     ],
     "Color": [
@@ -1352,7 +1352,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -1365,154 +1365,105 @@
      "CFrame": {
       "position": [
        3.08,
-       4.19,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.5,
-       4.07,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.14,
-       4.07,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.56,
        3.95,
+       -1.29
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.6,
+     0.02
+    ],
+    "Color": [
+     0.4784,
+     0.2902,
+     0.1647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_CrateStack",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.44,
+       4.07,
+       -1.29
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.12,
+     0.02
+    ],
+    "Color": [
+     0.4784,
+     0.2902,
+     0.1647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_CrateStack",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.2,
+       4.07,
        -1.29
       ],
       "orientation": [
@@ -1609,251 +1560,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.08,
-       3.95,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.56,
-       3.83,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.08,
-       3.83,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.56,
-       3.71,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       3.08,
-       3.71,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        2.72,
        4.19,
        -1.29
@@ -1904,7 +1610,7 @@
      "CFrame": {
       "position": [
        2.72,
-       4.07,
+       3.89,
        -1.29
       ],
       "orientation": [
@@ -1928,7 +1634,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.48,
      0.02
     ],
     "Color": [
@@ -1952,105 +1658,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.72,
-       3.95,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.72,
-       3.83,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.72,
+       2.84,
        3.71,
        -1.29
       ],
@@ -2074,55 +1682,6 @@
      }
     },
     "Size": [
-     0.36,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.36,
-       4.19,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.12,
      0.12,
      0.02
@@ -2148,8 +1707,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.36,
-       4.07,
+       2.6,
+       3.71,
        -1.29
       ],
       "orientation": [
@@ -2222,7 +1781,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.6,
      0.02
     ],
     "Color": [
@@ -2234,7 +1793,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -2246,56 +1805,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.36,
-       3.83,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       2.24,
+       2.18,
        3.71,
        -1.29
       ],
@@ -2319,7 +1829,7 @@
      }
     },
     "Size": [
-     0.36,
+     0.24,
      0.12,
      0.02
     ],
@@ -2345,7 +1855,7 @@
      "CFrame": {
       "position": [
        1.88,
-       4.19,
+       3.95,
        -1.29
       ],
       "orientation": [
@@ -2369,7 +1879,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.6,
      0.02
     ],
     "Color": [
@@ -2381,7 +1891,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -2442,7 +1952,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.82,
+       1.76,
        4.07,
        -1.29
       ],
@@ -2466,55 +1976,6 @@
      }
     },
     "Size": [
-     0.24,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.88,
-       3.95,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
      0.12,
      0.12,
      0.02
@@ -2540,57 +2001,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.82,
+       1.76,
        3.83,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.88,
-       3.71,
        -1.29
       ],
       "orientation": [
@@ -4011,7 +3423,7 @@
      "CFrame": {
       "position": [
        0.84,
-       1.47,
+       1.29,
        -1.29
       ],
       "orientation": [
@@ -4035,7 +3447,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.48,
      0.02
     ],
     "Color": [
@@ -4059,106 +3471,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.78,
+       0.72,
        1.35,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.84,
-       1.23,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.84,
-       1.11,
        -1.29
       ],
       "orientation": [
@@ -4256,7 +3570,7 @@
      "CFrame": {
       "position": [
        0.24,
-       1.47,
+       1.29,
        -1.29
       ],
       "orientation": [
@@ -4280,7 +3594,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.48,
      0.02
     ],
     "Color": [
@@ -4304,105 +3618,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.24,
-       1.35,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.24,
-       1.23,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.24,
+       0.36,
        1.11,
        -1.29
       ],
@@ -4426,7 +3642,56 @@
      }
     },
     "Size": [
-     0.36,
+     0.12,
+     0.12,
+     0.02
+    ],
+    "Color": [
+     0.4784,
+     0.2902,
+     0.1647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_CrateStack",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.12,
+       1.11,
+       -1.29
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
      0.12,
      0.02
     ],
@@ -4501,7 +3766,7 @@
      "CFrame": {
       "position": [
        -0.12,
-       1.47,
+       1.41,
        -1.29
       ],
       "orientation": [
@@ -4525,7 +3790,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.24,
      0.02
     ],
     "Color": [
@@ -4549,7 +3814,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.24,
+       -0.3,
        1.35,
        -1.29
       ],
@@ -4573,7 +3838,7 @@
      }
     },
     "Size": [
-     0.36,
+     0.24,
      0.12,
      0.02
     ],
@@ -4599,7 +3864,7 @@
      "CFrame": {
       "position": [
        -0.36,
-       1.23,
+       1.17,
        -1.29
       ],
       "orientation": [
@@ -4623,7 +3888,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.24,
      0.02
     ],
     "Color": [
@@ -4647,7 +3912,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.24,
+       -0.18,
        1.11,
        -1.29
       ],
@@ -4671,7 +3936,7 @@
      }
     },
     "Size": [
-     0.36,
+     0.24,
      0.12,
      0.02
     ],
@@ -4697,202 +3962,6 @@
      "CFrame": {
       "position": [
        -0.6,
-       1.59,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.84,
-       1.59,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6,
-       1.47,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.84,
-       1.47,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.72,
        1.35,
        -1.29
       ],
@@ -4916,8 +3985,8 @@
      }
     },
     "Size": [
-     0.36,
      0.12,
+     0.6,
      0.02
     ],
     "Color": [
@@ -4929,56 +3998,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6,
-       1.23,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -4991,7 +4011,7 @@
      "CFrame": {
       "position": [
        -0.84,
-       1.23,
+       1.35,
        -1.29
       ],
       "orientation": [
@@ -5015,7 +4035,7 @@
     },
     "Size": [
      0.12,
-     0.12,
+     0.6,
      0.02
     ],
     "Color": [
@@ -5027,7 +4047,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -5039,57 +4059,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6,
-       1.11,
-       -1.29
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.12,
-     0.02
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_CrateStack",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.84,
-       1.11,
+       -0.72,
+       1.35,
        -1.29
       ],
       "orientation": [

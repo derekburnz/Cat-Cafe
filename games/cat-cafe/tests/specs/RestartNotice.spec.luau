@@ -100,7 +100,13 @@ return function()
 				expect(RestartNotice.text(0, at + 1800)).to.equal(
 					"Updating now. Join again for a 1-hour party and a gift! Your cafe is saved."
 				)
-				for _, now in { at - 3601, at + 1801, at - 86400, at + 86400 } do
+				-- #3535: the Friday update, a day later, says it too
+				local friday = RestartNotice.LAUNCHES[2]
+				expect(os.date("!%Y-%m-%d %H:%M", friday)).to.equal("2026-11-13 22:00")
+				expect(RestartNotice.text(30, friday - 30)).to.equal(
+					"Quick update in 30 seconds, then a 1-hour party and a gift! Your cafe is saved."
+				)
+				for _, now in { at - 3601, at + 1801, at - 86400, friday + 1801, friday + 86400 } do
 					expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
 					expect(RestartNotice.text(0, now)).to.equal(RestartNotice.text(0))
 				end

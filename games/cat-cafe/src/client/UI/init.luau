@@ -1506,6 +1506,8 @@ function UI.init(config: Types.InitConfig)
 			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on)
 		end
+		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
+		hudInstance:holdBanner("window", UI.rollBusy.window)
 	end)
 
 	catch = CatchPrompt.new(parent)
@@ -2217,6 +2219,11 @@ function UI.setRollBusy(on: boolean)
 	local view = toasts
 	if view then
 		view:setBusy(UI.rollBusy.window or on)
+	end
+	-- Derek 2026-11-13: the event and day strip stays down through the roll too
+	local board = hud
+	if board then
+		board:holdBanner("roll", on)
 	end
 end
 function UI.announce(text: string, rarity: string?): boolean
@@ -9538,7 +9545,8 @@ do
 		end
 		local current = hud
 		if current then
-			current:setEvent(EventLogic.chip(view, seen, now))
+			local chipLines, chipKind = EventLogic.chip(view, seen, now)
+			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards

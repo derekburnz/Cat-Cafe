@@ -131,6 +131,8 @@ local IDS: { [string]: string } = {
 	Icon_Clean_HoneyCream = "rbxassetid://101594576071338",
 	Icon_Clean_CometTreat = "rbxassetid://130150324251209",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
+	Icon_Clean_TipJar = "rbxassetid://88738180093821", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
+	Icon_Clean_TipPile = "rbxassetid://120928045593770", -- #4046: the tip piles quest's (🪙 draws blank too)
 	Icon_Clean_Kibble = "rbxassetid://73553280032864", -- its own bowl of kibble (run 41851955780, 11-04)
 	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
 	Icon_Hud_Store = "rbxassetid://93922915271593",

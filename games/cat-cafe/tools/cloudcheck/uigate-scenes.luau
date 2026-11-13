@@ -1382,15 +1382,12 @@ local function startCatch(strayId, rarity, count, first, shrink)
 	}
 	for index = 1, count do
 		local spot = spots[(index - 1) % #spots + 1]
-		table.insert(
-			list,
-			{
-				startsAt = t + first + (index - 1) * 0.7,
-				shrinkSeconds = shrink,
-				x = spot[1],
-				y = spot[2],
-			}
-		)
+		table.insert(list, {
+			startsAt = t + first + (index - 1) * 0.7,
+			shrinkSeconds = shrink,
+			x = spot[1],
+			y = spot[2],
+		})
 	end
 	UI.catch.show({
 		strayId = strayId,
@@ -2822,16 +2819,14 @@ local SCENES = {
 			UI.setCarrying(
 				{ catId = Catalog.cats[1].id, catName = "Mochi", rarity = "Rare" } :: any
 			)
-			UI.catch.show(
-				{
-					strayId = "gate_pad",
-					catId = Catalog.cats[2].id,
-					catName = "Mochi",
-					rarity = "Rare",
-					keyCode = Enum.KeyCode.E,
-					gamepadKeyCode = Enum.KeyCode.ButtonX,
-				} :: any
-			)
+			UI.catch.show({
+				strayId = "gate_pad",
+				catId = Catalog.cats[2].id,
+				catName = "Mochi",
+				rarity = "Rare",
+				keyCode = Enum.KeyCode.E,
+				gamepadKeyCode = Enum.KeyCode.ButtonX,
+			} :: any)
 			UIShim.advance(0.3)
 			local card = UIShim.playerGui:FindFirstChild("CatCafeCatch") :: ScreenGui
 			local glyph = (card:FindFirstChild("Key", true) :: any).Glyph :: TextLabel
@@ -2912,6 +2907,10 @@ local SCENES = {
 			assert(banner:FindFirstChild("Ring"), "uigate: the status banner has no ring (#2885)")
 			for _, name in { "LuckyDay", "EventChip", "EventNext" } do
 				local line = banner:FindFirstChild(name, true) :: TextLabel
+				-- Derek 2026-11-13: on a narrow phone the strip may leave the day or the shower to its card (HUD._fitBanner)
+				if name ~= "EventChip" and line == nil then
+					continue
+				end
 				assert(
 					line and line.Visible,
 					"uigate: the banner has no " .. name .. " line (#2885)"
@@ -3031,6 +3030,59 @@ local SCENES = {
 					end
 				end
 			end
+			-- Derek 2026-11-13 ("stretch it long not downward ... 3 days Event timeleft and if clicked it shows the more
+			-- details"): one thin row of at most three pieces, a name and its time left each; a tap on one opens the card
+			-- with the event's full words
+			local k = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+			assert(
+				banner.AbsoluteSize.Y <= 40 * k,
+				("uigate: the status strip is %d px tall, more than one row"):format(
+					banner.AbsoluteSize.Y
+				)
+			)
+			local pieces = 0
+			for _, piece in banner:GetChildren() do
+				if piece:IsA("GuiObject") and piece.Visible then
+					pieces += 1
+				end
+			end
+			assert(
+				pieces >= 1 and pieces <= 3,
+				("uigate: the status strip has %d pieces, not 1 to 3"):format(pieces)
+			)
+			local chip = banner:FindFirstChild("EventChip") :: TextLabel
+			assert(
+				chip
+					and not chip.Text:find("ends in", 1, true)
+					and not chip.Text:find("money", 1, true),
+				"uigate: the strip's event piece is not a name and its time: "
+					.. tostring(chip and chip.Text)
+			)
+			local stripCard = hud:FindFirstChild("DayCard", true) :: GuiObject
+			if not stripCard.Visible then
+				press("CatCafeHUD", "EventChip.Tap")
+			end
+			local full = stripCard:FindFirstChild("EventLines") :: TextLabel
+			assert(
+				stripCard.Visible and full and full.Visible and full.Text:find("x2 money", 1, true),
+				"uigate: a tap on the strip did not open the card with the event's full words"
+			)
+			press("CatCafeHUD", "EventChip.Tap")
+			assert(
+				not stripCard.Visible,
+				"uigate: a second tap on the strip did not close its card"
+			)
+			-- Derek 2026-11-13 ("random flashes of the ui during catch minigames"): through a catch the strip stays down on
+			-- every tick of the event's countdown, and is back after
+			startCatch("gate_strip", "Rare", 3, 0.2, 3)
+			for _ = 1, 6 do
+				UIShim.advance(0.5)
+				assert(not banner.Visible, "uigate: the status strip flashed on mid-catch")
+			end
+			UI.catch.hideCircles()
+			UI.catch.hide()
+			UIShim.advance(0.5)
+			assert(banner.Visible, "uigate: the status strip did not come back after the catch")
 			-- let the day's and the party's toasts age past TipQueue.TOAST_QUIET, so the scenes after start on a quiet
 			-- moment (FirstVisitAway's card waits for one)
 			UIShim.advance(21)
@@ -3423,16 +3475,12 @@ local SCENES = {
 	{
 		"MysticPoolFree",
 		function()
-			local window = mysticPool(
-				nil,
-				nil,
-				{
-					tokens = 0,
-					freeLeft = 5,
-					held = 0,
-					nextAt = workspace:GetServerTimeNow() + 3 * 3600,
-				}
-			)
+			local window = mysticPool(nil, nil, {
+				tokens = 0,
+				freeLeft = 5,
+				held = 0,
+				nextAt = workspace:GetServerTimeNow() + 3 * 3600,
+			})
 			local roll = window:FindFirstChild("Roll", true)
 			press("MysticPool", "Change")
 			local picker = window:FindFirstChild("Picker", true)
@@ -3880,14 +3928,20 @@ local SCENES = {
 					"uigate: bundle " .. index .. "'s label does not fit (#4006)"
 				)
 			end
-			local odds = side:FindFirstChild("Odds")
+			-- Derek 2026-11-13: the panel keeps it simple (no odds of its own); the card's odds pills show beside it
+			local line = side:FindFirstChild("Line") :: TextLabel
 			assert(
-				odds and odds.Visible and odds.Text:find("Mythic 5%", 1, true) and odds.TextFits,
-				"uigate: the token panel shows no roll odds before Buy (#4006)"
+				line and line.Visible and line.TextFits and not line.Text:find("%", 1, true),
+				"uigate: the token panel's line is missing, cut or still has odds"
 			)
 			assert(
-				odds.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y,
-				"uigate: the odds sit under Buy (#4006)"
+				line.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y,
+				"uigate: the token line sits under Buy (#4006)"
+			)
+			local pills = window:FindFirstChild("OddsPills", true) :: GuiObject?
+			assert(
+				pills ~= nil and pills.Visible and pills.AbsoluteSize.Y > 0,
+				"uigate: no roll odds on screen beside the token panel (monetization-policy 2.1)"
 			)
 			local roll = window:FindFirstChild("Roll", true)
 			assert(
@@ -4911,15 +4965,12 @@ local SCENES = {
 		"BaitWow",
 		function()
 			local now = workspace:GetServerTimeNow()
-			UI.bait.set(
-				{
-					lureId = Catalog.lures[1].id,
-					readyAt = now + 250,
-					placedAt = now - 50,
-					wow = true,
-				},
-				1
-			)
+			UI.bait.set({
+				lureId = Catalog.lures[1].id,
+				readyAt = now + 250,
+				placedAt = now - 50,
+				wow = true,
+			}, 1)
 			UI.bait.openPicker()
 			local window = baitWindow()
 			local title = window:FindFirstChild("Status", true):FindFirstChild("Title", true).Text
@@ -5062,9 +5113,12 @@ local SCENES = {
 			)
 			UI.recap.shown = false
 			UI.recap.lastInput = os.clock() - 30 -- idle
-			UI.recap.show(
-				{ minutes = 16, newCats = 3, earned = 12500, tomorrow = { kind = "treat", day = 7 } } :: any
-			)
+			UI.recap.show({
+				minutes = 16,
+				newCats = 3,
+				earned = 12500,
+				tomorrow = { kind = "treat", day = 7 },
+			} :: any)
 			local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
 			local card = gui and gui:FindFirstChild("Card", true) :: Frame?
 			assert(card and card.Visible, "uigate: no session recap card when idle (#2123)")
@@ -5837,15 +5891,12 @@ local SCENES = {
 				{ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 },
 				1
 			)
-			UI.bait.set(
-				{
-					lureId = Catalog.lures[2].id,
-					readyAt = now + 95,
-					placedAt = now - 30,
-					night = true,
-				},
-				2
-			)
+			UI.bait.set({
+				lureId = Catalog.lures[2].id,
+				readyAt = now + 95,
+				placedAt = now - 30,
+				night = true,
+			}, 2)
 			UI.bait.openPicker()
 			assertBowlTabs(1, "is in bowl 1")
 		end,
@@ -6709,14 +6760,11 @@ local SCENES = {
 		"SpinAllChain",
 		function()
 			UI.spin.open()
-			UI.spin.allResult(
-				{
-					{ slice = 1, amount = 100 },
-					{ slice = 2, amount = 3 },
-					{ slice = 3, amount = 1 },
-				},
-				{ { kind = "coins", amount = 100 } }
-			)
+			UI.spin.allResult({
+				{ slice = 1, amount = 100 },
+				{ slice = 2, amount = 3 },
+				{ slice = 3, amount = 1 },
+			}, { { kind = "coins", amount = 100 } })
 			UIShim.advance(0.5)
 			local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
 			local spins = window:FindFirstChild("Spins", true)
@@ -6829,14 +6877,12 @@ local SCENES = {
 				passBoosts = before.passBoosts or false,
 				goldenFish = before.goldenFish or 0,
 			}
-			UI.update(
-				{
-					goldenFish = 1200,
-					mystery = { backpack = true, long_net = true },
-					mysterySeen = true,
-					mysteryOpen = false,
-				} :: any
-			)
+			UI.update({
+				goldenFish = 1200,
+				mystery = { backpack = true, long_net = true },
+				mysterySeen = true,
+				mysteryOpen = false,
+			} :: any)
 			UI.mystery.open()
 		end,
 	},
@@ -6853,15 +6899,13 @@ local SCENES = {
 			}
 			local RS = game:GetService("ReplicatedStorage")
 			RS:SetAttribute("LiveFlag_bagColours", true)
-			UI.update(
-				{
-					goldenFish = 1200,
-					mystery = { backpack = true },
-					mysterySeen = true,
-					mysteryOpen = true,
-					bagColours = false,
-				} :: any
-			)
+			UI.update({
+				goldenFish = 1200,
+				mystery = { backpack = true },
+				mysterySeen = true,
+				mysteryOpen = true,
+				bagColours = false,
+			} :: any)
 			UI.mystery.open()
 			local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 			local window = modals and modals:FindFirstChild("MysteryMarket", true)
@@ -7750,22 +7794,19 @@ local SCENES = {
 		function()
 			local window = mouseDashCard(false)
 			UI.mouseDash.began(8, 3, workspace:GetServerTimeNow())
-			UI.mouseDash.over(
-				8,
-				{
-					points = 42,
-					seconds = 51,
-					reason = "quit",
-					win = false,
-					best = 42,
-					bestSeconds = 51,
-					newBest = true,
-					paid = { 30, 40 },
-					today = { 10, 20, 30, 40 },
-					legend = false,
-					mouser = true,
-				}
-			)
+			UI.mouseDash.over(8, {
+				points = 42,
+				seconds = 51,
+				reason = "quit",
+				win = false,
+				best = 42,
+				bestSeconds = 51,
+				newBest = true,
+				paid = { 30, 40 },
+				today = { 10, 20, 30, 40 },
+				legend = false,
+				mouser = true,
+			})
 			task.wait(0.1)
 			local last = window:FindFirstChild("LastGame", true)
 			assert(
@@ -7806,22 +7847,19 @@ local SCENES = {
 				not window:FindFirstChild("Board", true).Visible,
 				"uigate: the board is still up after the window closed (#3296)"
 			)
-			UI.mouseDash.over(
-				9,
-				{
-					points = 12,
-					seconds = 20,
-					reason = "quit",
-					win = false,
-					best = 37,
-					bestSeconds = 44,
-					newBest = false,
-					paid = { 10 },
-					today = { 10 },
-					legend = false,
-					mouser = false,
-				}
-			)
+			UI.mouseDash.over(9, {
+				points = 12,
+				seconds = 20,
+				reason = "quit",
+				win = false,
+				best = 37,
+				bestSeconds = 44,
+				newBest = false,
+				paid = { 10 },
+				today = { 10 },
+				legend = false,
+				mouser = false,
+			})
 			UI.mouseDash.open()
 			local last = window:FindFirstChild("LastGame", true)
 			assert(
@@ -8327,15 +8365,12 @@ local SCENES = {
 			assert(#long == 48, "uigate: the long idea is " .. #long .. " bytes")
 			local rows = {}
 			for i = 1, 6 do
-				table.insert(
-					rows,
-					{
-						idea = long,
-						version = 1234,
-						name = "LongestDisplayName0" .. i,
-						supporter = i == 1,
-					}
-				) -- a 20 character name, the most
+				table.insert(rows, {
+					idea = long,
+					version = 1234,
+					name = "LongestDisplayName0" .. i,
+					supporter = i == 1,
+				}) -- a 20 character name, the most
 			end
 			UI.thanksBoard(rows, false)
 			task.wait(0.1)
@@ -9108,12 +9143,10 @@ local SCENES = {
 			assert(count, "uigate: no count on the Potions tile (#3937)")
 			count = count :: TextLabel
 			local full = game:GetService("Workspace"):GetServerTimeNow() + 1440 * 60 -- PotionMaxMinutes: no room for another
-			UI.update(
-				{
-					potions = { quick_bait_potion = 16, tip_potion = 2 },
-					buffs = { quick_bait_potion = full },
-				} :: any
-			)
+			UI.update({
+				potions = { quick_bait_potion = 16, tip_potion = 2 },
+				buffs = { quick_bait_potion = full },
+			} :: any)
 			UIShim.advance(0.1)
 			assert(
 				count.Visible and count.Text == "2",
@@ -9264,16 +9297,14 @@ local SCENES = {
 	{
 		"BagFood",
 		function()
-			UI.update(
-				{
-					catFood = {
-						small_cat_snack = 2,
-						cat_snack = 3,
-						big_cat_snack = 1,
-						cat_feast = 1,
-					},
-				} :: any
-			)
+			UI.update({
+				catFood = {
+					small_cat_snack = 2,
+					cat_snack = 3,
+					big_cat_snack = 1,
+					cat_feast = 1,
+				},
+			} :: any)
 			UI.open("Potions")
 			press("Potions", "FoodTab")
 			local window = UIShim.playerGui:FindFirstChild("Potions", true)
@@ -9894,7 +9925,11 @@ local SCENES = {
 						speed = 0.5,
 						zoneEndsAt = t + 5,
 					},
-					{ id = id, first = first, items = { { kind = "lure", id = "tuna", count = 2 } } } :: any
+					{
+						id = id,
+						first = first,
+						items = { { kind = "lure", id = "tuna", count = 2 } },
+					} :: any
 				)
 				assert(
 					not barGui.Enabled,
@@ -10305,15 +10340,13 @@ local SCENES = {
 			UI.net.setEnabled(true)
 			UI.shove.setEnabled(true)
 			Scenes._tackle = true
-			UI.catch.show(
-				{
-					strayId = "gate_rescue",
-					catId = Catalog.cats[2].id,
-					catName = "Mochi",
-					rarity = "Rare",
-					kind = "rescue",
-				} :: any
-			)
+			UI.catch.show({
+				strayId = "gate_rescue",
+				catId = Catalog.cats[2].id,
+				catName = "Mochi",
+				rarity = "Rare",
+				kind = "rescue",
+			} :: any)
 			Scenes._rescueCard = true
 			UIShim.advance(0.6)
 			local tackle = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
@@ -12306,12 +12339,10 @@ local SCENES = {
 		"WelcomeBackHook",
 		function()
 			Scenes._returnHook = true
-			UI.update(
-				{
-					tipsSeen = { stuck_cat = true, codes_cat = true },
-					returnHook = { kind = "treat", day = 2 },
-				} :: any
-			)
+			UI.update({
+				tipsSeen = { stuck_cat = true, codes_cat = true },
+				returnHook = { kind = "treat", day = 2 },
+			} :: any)
 			UI.showOfflineEarnings(48200, 3 * 3600)
 			local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
 			local card = popups and popups:FindFirstChild("Offline", true) :: Frame?
@@ -13100,14 +13131,12 @@ local SCENES = {
 			local before: any = UI.getState()
 			Scenes._secondCat =
 				{ tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
-			UI.update(
-				{
-					tier = 1,
-					tutorialStep = 3,
-					money = 120,
-					secondCat = { now = 2.5, with = 2.5, cats = 1, bonus = 50 },
-				} :: any
-			)
+			UI.update({
+				tier = 1,
+				tutorialStep = 3,
+				money = 120,
+				secondCat = { now = 2.5, with = 2.5, cats = 1, bonus = 50 },
+			} :: any)
 			UIShim.advance(0.1)
 			local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 			assert(goal.Visible, "uigate: no goal card for the second cat (#3022)")
@@ -13343,16 +13372,14 @@ local SCENES = {
 			local before: any = UI.getState()
 			Scenes._secondCat = Scenes._secondCat
 				or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
-			UI.update(
-				{
-					tier = 1,
-					tutorialStep = 5,
-					money = 120,
-					secondCat = false,
-					stuckGoal = false,
-					newKindGoal = 3,
-				} :: any
-			)
+			UI.update({
+				tier = 1,
+				tutorialStep = 5,
+				money = 120,
+				secondCat = false,
+				stuckGoal = false,
+				newKindGoal = 3,
+			} :: any)
 			UIShim.advance(0.1)
 			local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 			assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
@@ -13385,15 +13412,13 @@ local SCENES = {
 			UI.update({ newKindGoal = 3 } :: any) -- back for the picture
 			UIShim.advance(0.1)
 			-- the catch card's line
-			UI.catch.show(
-				{
-					strayId = "gate_new",
-					catId = Catalog.cats[2].id,
-					catName = "Mochi",
-					rarity = "Rare",
-					newKind = "New kind! 3/5 for Cozy Cafe",
-				} :: any
-			)
+			UI.catch.show({
+				strayId = "gate_new",
+				catId = Catalog.cats[2].id,
+				catName = "Mochi",
+				rarity = "Rare",
+				newKind = "New kind! 3/5 for Cozy Cafe",
+			} :: any)
 			UIShim.advance(0.3)
 			local prompt = UIShim.playerGui:FindFirstChild("Hint", true) :: TextLabel
 			local hint: TextLabel? = nil
@@ -13414,28 +13439,24 @@ local SCENES = {
 				(hint :: TextLabel).Visible and (hint :: TextLabel).TextFits,
 				"uigate: the New kind line is hidden or does not fit (#3529)"
 			)
-			UI.catch.show(
-				{
-					strayId = "gate_new",
-					catId = Catalog.cats[2].id,
-					catName = "Mochi",
-					rarity = "Rare",
-				} :: any
-			)
+			UI.catch.show({
+				strayId = "gate_new",
+				catId = Catalog.cats[2].id,
+				catName = "Mochi",
+				rarity = "Rare",
+			} :: any)
 			UIShim.advance(0.1)
 			assert(
 				not (hint :: TextLabel).Visible,
 				"uigate: a repeat kind still shows the New kind line (#3529)"
 			)
-			UI.catch.show(
-				{
-					strayId = "gate_new",
-					catId = Catalog.cats[2].id,
-					catName = "Mochi",
-					rarity = "Rare",
-					newKind = "New kind! 3/5 for Cozy Cafe",
-				} :: any
-			)
+			UI.catch.show({
+				strayId = "gate_new",
+				catId = Catalog.cats[2].id,
+				catName = "Mochi",
+				rarity = "Rare",
+				newKind = "New kind! 3/5 for Cozy Cafe",
+			} :: any)
 			UIShim.advance(0.3)
 		end,
 	},
@@ -17707,15 +17728,13 @@ function Scenes.close()
 	if Scenes._secondCat then
 		local was = Scenes._secondCat -- #3022's second cat goal scene: the tier goal and the sample cafe back
 		Scenes._secondCat = nil
-		UI.update(
-			{
-				secondCat = false,
-				stuckGoal = false,
-				tier = was.tier,
-				money = was.money,
-				tutorialStep = was.tutorialStep,
-			} :: any
-		)
+		UI.update({
+			secondCat = false,
+			stuckGoal = false,
+			tier = was.tier,
+			money = was.money,
+			tutorialStep = was.tutorialStep,
+		} :: any)
 	end
 	if Scenes._goalFolded then
 		Scenes._goalFolded = nil
@@ -17748,13 +17767,11 @@ function Scenes.close()
 		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", nil)
 		UI.update({ tier = 3 })
 	end
-	UI.rally.update(
-		rallyState({
-			active = false,
-			endsAt = 0,
-			startsAt = workspace:GetServerTimeNow() + 3 * 86400,
-		})
-	) -- F101: no Rally
+	UI.rally.update(rallyState({
+		active = false,
+		endsAt = 0,
+		startsAt = workspace:GetServerTimeNow() + 3 * 86400,
+	})) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	UI.setCarrying(nil) -- no carry banner
 	UI.store.preview({}, {}) -- no pass on sale or owned (the HUD's Store tile shows either way, #1167)

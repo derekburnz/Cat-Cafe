@@ -61,6 +61,7 @@ type Row = {
 	effect: TextLabel,
 	line: TextLabel,
 	buy: Button.Button,
+	card: boolean?, -- a picture card (its corner chip is narrow)
 }
 
 local MAX_SIZE = Vector2.new(620, 460)
@@ -928,10 +929,15 @@ function CornerShop._pictureCard(
 			self:_press(itemId)
 		end,
 	})
-	table.insert(
-		self._rows,
-		{ itemId = itemId, frame = frame, icon = icon, effect = effect, line = line, buy = buy }
-	)
+	table.insert(self._rows, {
+		itemId = itemId,
+		frame = frame,
+		icon = icon,
+		effect = effect,
+		line = line,
+		buy = buy,
+		card = true,
+	})
 end
 
 function CornerShop._paint(self: any)
@@ -965,7 +971,10 @@ function CornerShop._paint(self: any)
 		-- the tier gate, else what is left this restock ("x2 left", #1456, the friend 11-05: "show amount in stock");
 		-- still no chances or daily limits in the window (#1190): a family past its limit shows no count, only "Back at sunrise" (#1671)
 		local shown = withExtra(item, self:_extra(item.itemId))
-		row.line.Text = gate or CornerShopLogic.stockLine(shown)
+		-- Review-QA's Studio pass of #4032: on a picture card "Opens at Tier 6" was cut in the corner chip; its grey
+		-- button already reads "Tier 6", so the chip is only the lock there
+		local gateWords = if gate ~= nil and row.card == true then "🔒" else gate
+		row.line.Text = gateWords or CornerShopLogic.stockLine(shown)
 		local view = CornerShopLogic.button(shown, def, coins, room, tier)
 		row.buy:setText(view.text)
 		row.buy:setEnabled(view.enabled)

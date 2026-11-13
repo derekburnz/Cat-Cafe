@@ -128,7 +128,8 @@ export type HUD = {
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
 	setRallySoon: (self: HUD, line: string?) -> (),
 	setGift: (self: HUD, tier: string?) -> (), -- #2614: a Mystery gift waits on your plot in this wrap, or nil
-	setEvent: (self: HUD, lines: { string }?, kind: string?) -> (),
+	setEvent: (self: HUD, lines: { string }?, kind: string?, strip: { string }?) -> (),
+	holdBanner: (self: HUD, reason: string, on: boolean) -> (),
 	setEventBoost: (self: HUD, boost: BoostList.EventBoost?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
@@ -429,9 +430,14 @@ local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
 local LUCKY_GAP = 8 -- #2084: between that circle and the first letter (#2416: clear of the words' outline too)
 local DAY_CARD_W = 300 -- #1572: the day line's card
 local BANNER_RING = 2.5 -- #2885: the status banner's ring
-local BANNER_PAD_X = 10
+local BANNER_PAD_X = 8
 local BANNER_PAD_Y = 4
 local BANNER_GAP = 2 -- between its lines
+-- Derek 2026-11-13 ("stretch it long not downward it's taking up a lot of screen maybe narrow it down to 3 days Event
+-- timeleft and if clicked it shows the more details"): the banner is one thin strip of at most BANNER_MOST pieces
+-- side by side, a name and its time left each, BANNER_ITEM_GAP apart; a tap on any opens the card with the rest
+local BANNER_ITEM_GAP = 10
+local BANNER_MOST = 3
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
@@ -1287,6 +1293,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
 		),
 	})
+	-- Derek 2026-11-13: the strip's details at the card's top, the event's full lines and the Rally's (_renderCardTop)
+	self._dayEvent = Create("TextLabel", {
+		Name = "EventLines",
+		LayoutOrder = 0,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+		Visible = false,
+		ZIndex = DAY_CARD_Z + 1,
+		Parent = self._dayCard,
+	})
+	self._eventCard = nil :: string?
 	-- #1572 (luck-and-rare-moments.md 1h): under the day kinds, the pity sign's lines, ticking while the card is open
 	self._dayPity = Create("TextLabel", {
 		Name = "Pity",
@@ -1395,17 +1419,21 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			PaddingRight = UDim.new(0, BANNER_PAD_X),
 		}),
 		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Vertical,
-			HorizontalAlignment = if TOUCH
-				then Enum.HorizontalAlignment.Left
-				else Enum.HorizontalAlignment.Center, -- #3178: centred under the clock at the top middle
-			Padding = UDim.new(0, BANNER_GAP),
+			FillDirection = Enum.FillDirection.Horizontal, -- Derek 2026-11-13: one long strip, not a stack
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, BANNER_ITEM_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
 	self._banner = banner
+	self._bannerHold = {} :: { [string]: boolean } -- why the strip steps aside (holdBanner)
+	-- the event, the day kinds, the event's next shower, then the Rally: the first BANNER_MOST that show
+	-- (_paintBanner), fewer where a narrow phone's top right icons leave less room (_fitBanner)
 	local bannerLines: { GuiObject } =
-		{ luckyRow, self._rallyLine, self._eventLine, self._eventNext }
+		{ self._eventLine, luckyRow, self._eventNext, self._rallyLine }
+	self._bannerFit = BANNER_MOST
+	self._bannerWanted = ""
 	self._bannerLines = bannerLines
 	for order, bannerLine in bannerLines do
 		bannerLine.AnchorPoint = Vector2.new(0, 0)
@@ -1417,6 +1445,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			text.AutomaticSize = Enum.AutomaticSize.X
 			text.TextTruncate = Enum.TextTruncate.None
 			text.TextXAlignment = Enum.TextXAlignment.Left
+			-- a finger-tall tap over the piece and half the gaps beside it opens the card (the day line has its own)
+			local tap: TextButton = Create("TextButton", {
+				Name = "Tap",
+				Text = "",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
+				Size = UDim2.new(1, BANNER_ITEM_GAP, 0, Scale.tapHeight(Theme.sizes.touchMin)),
+				ZIndex = text.ZIndex + 1,
+				Parent = text,
+			})
+			table.insert(
+				self._connections,
+				tap.Activated:Connect(function()
+					self:_toggleDayCard()
+				end)
+			)
 		end
 		bannerLine.Parent = banner
 		table.insert(
@@ -3501,14 +3546,29 @@ function HUD._renderLuckyLine(self: any)
 	self._luckyClover.Visible = view ~= nil and view.luckyDay == true
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
 	self._luckyRow.Visible = self._luckyLine.Visible
-	if not self._luckyLine.Visible then
-		self._dayCard.Visible = false
+	-- Derek 2026-11-13: the card opens from any piece of the strip, so it keeps open without the day line
+	self._dayCardText.Visible = self._luckyLine.Visible
+end
+
+-- Derek 2026-11-13: the card's top lines, the running event's full words ("Cafe Party · x2 money · ends in 1:59:40",
+-- "next shower 9:12") and the Rally's countdown
+function HUD._renderCardTop(self: any)
+	local parts: { string } = {}
+	local event: string? = self._eventCard
+	if event ~= nil then
+		table.insert(parts, event)
 	end
+	if self._rallySoon ~= nil then
+		table.insert(parts, "🏁 " .. self._rallySoon)
+	end
+	local label: TextLabel = self._dayEvent
+	label.Text = table.concat(parts, "\n")
+	label.Visible = #parts > 0
 end
 
 -- #1572: the day line's card, open or shut.
 function HUD._toggleDayCard(self: any)
-	self._dayCard.Visible = not self._dayCard.Visible and self._luckyLine.Visible
+	self._dayCard.Visible = not self._dayCard.Visible and self._banner.Visible
 	if not self._dayCard.Visible then
 		return
 	end
@@ -3544,6 +3604,7 @@ function HUD.setRallySoon(self: any, line: string?)
 	self._rallySoon = line
 	self._rallyLine.Text = if line ~= nil then "🏁 " .. line else ""
 	self._rallyLine.Visible = line ~= nil and self._clock.Visible
+	self:_renderCardTop()
 	self:_layoutRight()
 end
 
@@ -3604,20 +3665,24 @@ function HUD.setEventBoost(self: any, boost: BoostList.EventBoost?)
 end
 
 -- #2487: the Cafe Event chip's lines (EventLogic.chip), nil to hide it; kind "running" paints it gold.
-function HUD.setEvent(self: any, lines: { string }?, kind: string?)
+function HUD.setEvent(self: any, lines: { string }?, kind: string?, strip: { string }?)
 	local text = if lines ~= nil and #lines > 0 then table.concat(lines, "\n") else nil
 	local key = if text ~= nil then (kind or "") .. "|" .. text else nil
 	if key == self._event then
 		return
 	end
 	self._event = key
+	self._eventCard = text
+	self:_renderCardTop()
+	-- Derek 2026-11-13: the strip's short words (EventLogic.strip), the full lines in the card
+	local words: { string }? = if strip ~= nil and #strip > 0 then strip else lines
 	local line: TextLabel = self._eventLine
 	local nextLine: TextLabel = self._eventNext
-	line.Text = if lines ~= nil and lines[1] ~= nil then lines[1] else ""
+	line.Text = if words ~= nil and words[1] ~= nil then words[1] else ""
 	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
 	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
 	-- sees the event too
-	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
+	nextLine.Text = if words ~= nil and words[2] ~= nil then words[2] else ""
 	local showLine = text ~= nil
 	local showNext = showLine and nextLine.Text ~= ""
 	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): its countdown
@@ -3783,16 +3848,33 @@ end
 
 -- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
 function HUD._bannerHeight(self: any): number
-	local shown = 0
-	for _, line in self._bannerLines :: { GuiObject } do
-		if line.Visible and (line ~= self._luckyRow or self._luckyLine.Visible) then
-			shown += 1
-		end
-	end
-	if shown == 0 then
+	if #self:_bannerShown() == 0 then
 		return 0
 	end
-	return BANNER_PAD_Y * 2 + shown * NIGHT_LINE + (shown - 1) * BANNER_GAP
+	return BANNER_PAD_Y * 2 + NIGHT_LINE -- Derek 2026-11-13: one row
+end
+
+-- the strip's pieces that want to show, in order (the first BANNER_MOST go in it)
+function HUD._bannerShown(self: any): { GuiObject }
+	local shown: { GuiObject } = {}
+	for _, line in self._bannerLines :: { GuiObject } do
+		if line.Visible and (line ~= self._luckyRow or self._luckyLine.Visible) then
+			table.insert(shown, line)
+		end
+	end
+	return shown
+end
+
+-- Derek 2026-11-13 ("random flashes of the ui during catch minigames and rummage minigames ... shouldn't show at
+-- all"): the strip steps aside while `reason` holds (the Rummage Bin's roll, the arcade or the Mystic Pool open), as
+-- it does through a catch or rescue (HUD._applyFocus)
+function HUD.holdBanner(self: any, reason: string, on: boolean)
+	local hold: { [string]: boolean } = self._bannerHold
+	if (hold[reason] == true) == on then
+		return
+	end
+	hold[reason] = if on then true else nil
+	self:_layoutRight()
 end
 
 -- #2885: shown while any line is, ringed in the moment's colour: the Cafe Event's (gold while it runs), else the
@@ -3804,7 +3886,40 @@ function HUD._paintBanner(self: any)
 	end
 	local event: TextLabel = self._eventLine
 	local lucky = self._luckyRow.Visible and self._luckyLine.Visible
-	local shown = self:_bannerHeight() > 0
+	-- the first BANNER_MOST pieces in the strip; one past them waits out of it (its card line still says it)
+	local wanted = self:_bannerShown()
+	local names: { string } = {}
+	for _, line in wanted do
+		table.insert(names, line.Name)
+	end
+	local signature = table.concat(names, ",")
+	if signature ~= self._bannerWanted then
+		self._bannerWanted = signature
+		self._bannerFit = BANNER_MOST -- a new set of pieces gets the whole room again
+	end
+	local most = math.min(BANNER_MOST, self._bannerFit)
+	for _, line in self._bannerLines :: { GuiObject } do
+		local index = table.find(wanted, line)
+		local inStrip = index == nil or index <= most
+		local parent: Instance? = if inStrip then banner else nil
+		if line.Parent ~= parent then
+			line.Parent = parent
+		end
+	end
+	local shown = #wanted > 0
+	if not shown then
+		self._dayCard.Visible = false
+	end
+	-- Derek 2026-11-13: through a catch, a rescue or the Rummage Bin's roll it stays down. A repaint mid-catch (the
+	-- event's countdown ticks each second) used to set it back, and the catch's focus hid it again: the flash.
+	if self._catching or next(self._bannerHold) ~= nil then
+		if self._catching then
+			self._focusHidden[banner] = if shown then true else nil
+		end
+		banner.Visible = false
+		self._dayCard.Visible = false
+		return
+	end
 	local ring = banner:FindFirstChild("Ring") :: UIStroke?
 	if ring then
 		ring.Color = if event.Visible
@@ -3864,9 +3979,53 @@ function HUD._placeBanner(self: any)
 	end
 	left = math.max(left, self:_leftClear()) -- clear of the menu grid and its arrow tab
 	banner.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
+	if not self._fitQueued then
+		self._fitQueued = true
+		task.defer(function()
+			self._fitQueued = false
+			self:_fitBanner()
+		end)
+	end
 	self._dayCard.AnchorPoint = Vector2.new(0, 0)
 	self._dayCard.Position =
 		UDim2.fromOffset(math.floor(left), math.floor(top + self:_bannerHeight() + 4))
+end
+
+-- Derek 2026-11-13 (touch): the strip stops short of what sits to its right on its own height (the top right icons,
+-- the goal card and its tab). Once its words are measured, a strip that runs into one drops its last piece (the card
+-- a tap opens still has it) until it fits or one is left.
+function HUD._fitBanner(self: any)
+	local banner: Frame? = self._banner
+	if self._gone or banner == nil or not banner.Visible then
+		return
+	end
+	local root: Frame = self._root
+	local at, size = banner.AbsolutePosition, banner.AbsoluteSize
+	local right = at.X + size.X
+	local room = math.huge
+	for _, child in root:GetChildren() do
+		if
+			child ~= banner
+			and child ~= self._dayCard
+			and child:IsA("GuiObject")
+			and child.Visible
+		then
+			local piece = child :: GuiObject
+			local pAt, pSize = piece.AbsolutePosition, piece.AbsoluteSize
+			local beside = pAt.X > at.X + size.X / 2 and pSize.X > 0 and pSize.Y > 0
+			local level = pAt.Y < at.Y + size.Y and pAt.Y + pSize.Y > at.Y
+			if beside and level then
+				room = math.min(room, pAt.X)
+			end
+		end
+	end
+	room -= Theme.sizes.gap * Scale.get()
+	local inStrip = math.min(#self:_bannerShown(), BANNER_MOST, self._bannerFit)
+	if right > room and inStrip > 1 then
+		self._bannerFit = inStrip - 1
+		self:_paintBanner()
+		self:_placeBanner()
+	end
 end
 
 -- #2614: a Mystery gift waits on this player's plot in the `tier` wrap ("common", "rare", "super"), or nil when none

@@ -993,8 +993,8 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
-	-- panel beside the card, never over it: the token, "More rolls", the roll's odds (monetization-policy 2.1: before
-	-- anything is bought) and a Buy per bundle with its price. Derek 20:12 UTC: "don't give them an X option", so it stays
+	-- panel beside the card, never over it: the token, "More rolls", "1 Trait Token = 1 roll" (the odds are the
+	-- card's pills beside it, monetization-policy 2.1) and a Buy per bundle with its price. Derek 20:12 UTC: "don't give them an X option", so it stays
 	-- while the card is open once the free rolls are used (MysticPoolLogic.bundles); the card moves left so the two sit
 	-- centred together and the panel never covers it.
 	-- No countdowns, no "best value", no struck-out prices.
@@ -1045,8 +1045,10 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		ZIndex = 6,
 		Parent = head,
 	})
+	-- Derek 2026-11-13 ("no need to say odds they are already on screen just keep it simple"): the token's one line;
+	-- the card's odds pills stay in view beside the panel, so the odds still show before any Buy
 	text({
-		Name = "Odds",
+		Name = "Line",
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		TextSize = Theme.sizes.textTiny,
@@ -1054,7 +1056,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextTruncate = Enum.TextTruncate.None,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = CARD.subtext,
-		Text = MysticPoolLogic.SIDE_LINE .. ". " .. MysticPoolLogic.oddsLine(),
+		Text = MysticPoolLogic.SIDE_LINE,
 		LayoutOrder = 2,
 		ZIndex = 6,
 		Parent = side,

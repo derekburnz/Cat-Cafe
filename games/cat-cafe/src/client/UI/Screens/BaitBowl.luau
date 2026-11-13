@@ -109,6 +109,11 @@ local COLUMN_W = 0.34 -- the status column's share of the window's width
 local COLUMN_PICTURE = 56
 local INFO = 40 -- the round "i" that opens a food's odds (its Details), grown to the tap size on a phone
 local COLUMN_USE_W = 84
+-- Derek 2026-11-13 ("the little blue detail buttons overlapping other buttons"): a clean button draws its outline
+-- past its box and a hover grows it round its middle (Button.OUTLINE, Button.HOVER_SCALE), so the row's two buttons
+-- keep both outlines, the hover and a clear 6 px between them, and Use keeps the same clear of the card's edge
+local ROW_GAP = 2 * Button.OUTLINE + math.ceil(COLUMN_USE_W * (Button.HOVER_SCALE - 1) / 2) + 6
+local ROW_RIGHT = 12 + Button.OUTLINE + math.ceil(COLUMN_USE_W * (Button.HOVER_SCALE - 1) / 2)
 local TITLE = "Bait bowl"
 local SUBTITLE = "Put food in and a cat comes to your door"
 
@@ -488,6 +493,9 @@ function BaitBowl._placeColumn(self: any)
 	sub.BackgroundTransparency = 0
 	sub.TextColor3 = PAL.text
 	sub.FontFace = Theme.fonts.bodyBold
+	-- Studio 2026-11-13: "Tame it or let it go. The food is used either way." wraps in full, never cut
+	sub.TextWrapped = true
+	sub.TextTruncate = Enum.TextTruncate.None
 	sub.LayoutOrder = 2
 	sub.Parent = middle
 	Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sub })
@@ -538,7 +546,7 @@ function BaitBowl._buildRows(self: any)
 	-- #3961: the picture card's words take the width the round "i" leaves (narrower than Details)
 	local useW = if column then COLUMN_USE_W else BUTTON.X
 	local infoW = if column then Scale.tapHeight(INFO, Theme.sizes.buttonDepth) else DETAILS_W
-	local textWidth = -(TEXT_LEFT + useW + infoW + 8 + 24)
+	local textWidth = -(TEXT_LEFT + useW + infoW + ROW_RIGHT + ROW_GAP + 6)
 	if column then
 		topHeight = math.max(topHeight, ICON + 22) -- the name, the grade chip and the count, one line each
 	end
@@ -648,7 +656,7 @@ function BaitBowl._buildRows(self: any)
 			style = "primary",
 			size = UDim2.fromOffset(useW, buttonH),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -12, 0.5, 0),
+			position = UDim2.new(1, -ROW_RIGHT, 0.5, 0),
 			textSize = Theme.sizes.textBody,
 			parent = top,
 			onClick = function()
@@ -664,7 +672,7 @@ function BaitBowl._buildRows(self: any)
 				then UDim2.fromOffset(infoW, infoW)
 				else UDim2.fromOffset(DETAILS_W, detailsH),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -(12 + useW + 8), 0.5, 0),
+			position = UDim2.new(1, -(ROW_RIGHT + useW + ROW_GAP), 0.5, 0),
 			textSize = Theme.sizes.textSmall,
 			parent = top,
 			onClick = function()
@@ -694,9 +702,11 @@ function BaitBowl._buildRows(self: any)
 			LayoutOrder = 2,
 			Parent = row,
 		})
+		-- Studio 2026-11-13: in the family look the odds start a clear line under the round "i" and USE
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, 16),
 			PaddingRight = UDim.new(0, 16),
+			PaddingTop = UDim.new(0, if column then 8 else 0),
 			PaddingBottom = UDim.new(0, 12),
 			Parent = detail,
 		})
@@ -1122,20 +1132,21 @@ function BaitBowl._renderRefill(self: any, state: Types.PlayerState, action: str
 	local selected: number = self._selected
 	local shown = ownsBowl(state) and self:_takesFood(selected)
 	self._refill.instance.Visible = shown
+	local stacked = action ~= nil
+	if self._column then
+		-- #3961: Refill at the column's foot with its food beside it, the action over it when both show. Studio
+		-- 2026-11-13: with no bowl yet (no Refill) the Upgrades button still sits at the column's foot, inside it
+		local gap = Theme.sizes.gap
+		self._action.instance.Position =
+			UDim2.new(0.5, 0, 1, if stacked and shown then -(10 + REFILL.Y + gap) else -10)
+		self._refill.instance.Position = UDim2.new(1, -10, 1, -10)
+		self._refillFood.frame.Position = UDim2.new(0, 10, 1, -10 - (REFILL.Y - REFILL_ICON) / 2)
+	end
 	if not shown then
 		self._refillFood.frame.Visible = false
 		return
 	end
 	local food: Types.LureDef? = FoodOrder.best(self._foods or {}, state.lures)
-	local stacked = action ~= nil
-	if self._column then
-		-- #3961: Refill at the column's foot with its food beside it, the action over it when both show
-		local gap = Theme.sizes.gap
-		self._action.instance.Position =
-			UDim2.new(0.5, 0, 1, if stacked then -(10 + REFILL.Y + gap) else -10)
-		self._refill.instance.Position = UDim2.new(1, -10, 1, -10)
-		self._refillFood.frame.Position = UDim2.new(0, 10, 1, -10 - (REFILL.Y - REFILL_ICON) / 2)
-	end
 	local y = if stacked then (STATUS_HEIGHT - REFILL.Y) / 2 - 2 else 0
 	if not self._column then
 		self._action.instance.Position =

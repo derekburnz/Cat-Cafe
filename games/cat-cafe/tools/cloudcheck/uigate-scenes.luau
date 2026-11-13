@@ -3222,11 +3222,77 @@ local SCENES = {
 			end
 		end
 		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
+		-- Derek 2026-11-13 ("the little blue detail buttons overlapping other buttons"): each row's Details (the round
+		-- "i") and Use keep both outlines, the hover grow and a clear gap apart, and Use the same clear of the card's edge
+		local Button = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.Button")
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local k = Scale.get() -- the window's UIScale: an outline is that much thinner on a phone
+		local reach = (Button.OUTLINE + 2) * k
+		for _, lure in Catalog.lures do
+			local row = window:FindFirstChild(lure.id, true)
+			local use = row and row:FindFirstChild("Use", true)
+			local details = row and row:FindFirstChild("Details", true)
+			if row and row.Visible and use and details then
+				local useLeft = use.AbsolutePosition.X
+				local detailsRight = details.AbsolutePosition.X + details.AbsoluteSize.X
+				local rowRight = row.AbsolutePosition.X + row.AbsoluteSize.X
+				local useRight = useLeft + use.AbsoluteSize.X
+				assert(
+					useLeft - detailsRight >= 2 * reach + 4 * k,
+					("uigate: %s's Details and Use are %.0f px apart, their outlines touch"):format(lure.id, useLeft - detailsRight)
+				)
+				assert(
+					rowRight - useRight >= reach + 6 * k,
+					("uigate: %s's Use is %.0f px from the card's edge"):format(lure.id, rowRight - useRight)
+				)
+			end
+		end
 		-- #3462: the Day Cart's own foods are off the list while its Tier 6 shelf is shut (the cartTier6 switch)
 		for _, id in { "honey_cream", "comet_treat" } do
 			local row = window:FindFirstChild(id, true)
 			assert(row and row:IsA("GuiObject") and not row.Visible, "uigate: " .. id .. " is listed with the cart's shelf shut (#3462)")
 		end
+	end },
+	-- Studio 2026-11-13 (#3976): in the family look, before the bowl is bought the Upgrades button sits at the status
+	-- column's foot inside it (it ran under the food list), and a waiting cat's line wraps in full in the column
+	{ "BaitNoBowl", function()
+		local before: any = UI.getState()
+		local levels = table.clone(before.upgradeLevels or {})
+		levels.lure_bowl = 0
+		UI.update({ upgradeLevels = levels } :: any)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local status = window:FindFirstChild("Status", true) :: GuiObject
+		local action = status and status:FindFirstChild("Action", true) :: GuiObject?
+		if action and action.Visible and status.Size.X.Scale < 1 then -- the column, only in the family look
+			local left, right = status.AbsolutePosition.X, status.AbsolutePosition.X + status.AbsoluteSize.X
+			local bottom = status.AbsolutePosition.Y + status.AbsoluteSize.Y
+			local a, b = action.AbsolutePosition, action.AbsolutePosition + action.AbsoluteSize
+			assert(
+				a.X >= left and b.X <= right and b.Y <= bottom,
+				("uigate: the Upgrades button (%.0f to %.0f) runs out of the status column (%.0f to %.0f)"):format(a.X, b.X, left, right)
+			)
+		end
+		UI.update({ upgradeLevels = before.upgradeLevels } :: any)
+	end },
+	{ "BaitCatWaiting", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 5, placedAt = now - 300 }, 1)
+		UI.setCarrying({ catId = Catalog.cats[1].id, catName = Catalog.cats[1].name, rarity = Catalog.cats[1].rarity })
+		UI.bait.arrived({ catId = Catalog.cats[2].id, stars = 2 }, 1) -- held while carrying, so it waits at the bowl
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local status = window:FindFirstChild("Status", true) :: GuiObject
+		local sub: TextLabel? = nil
+		for _, piece in status:GetDescendants() do
+			if piece:IsA("TextLabel") and string.find(piece.Text, "either way", 1, true) then
+				sub = piece
+			end
+		end
+		assert(sub, "uigate: no \"Tame it or let it go\" line at a waiting cat")
+		assert((sub :: TextLabel).TextFits, "uigate: the waiting cat's line is cut: " .. (sub :: TextLabel).Text)
+		UI.setCarrying(nil)
+		UI.bait.set(nil, 1)
 	end },
 	-- #1612 / #1609: compact food rows, rarest first, no "Attracts" chip and no odds on the row; Details on the Star
 	-- Treat opens its odds with the gold line and the split under them

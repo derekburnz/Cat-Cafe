@@ -290,6 +290,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		mystery = profile.mystery, -- #2565
 		mysterySeen = profile.mysterySeen,
 		bagColours = profile.bagColours, -- #3699
+		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line

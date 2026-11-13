@@ -1017,6 +1017,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.mysterySeen = raw.mysterySeen == true
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
+	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
 	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none

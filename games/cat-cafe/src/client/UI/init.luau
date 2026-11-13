@@ -6857,8 +6857,8 @@ do
 					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
 				)
 			end,
-			saveColours = function(main: string, trim: string)
-				UI.events.setBagColours:Fire(main, trim)
+			saveColours = function(main: string, trim: string, kind: string?)
+				UI.events.setBagColours:Fire(main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
 			end,
 		})
 		mystery.view = view

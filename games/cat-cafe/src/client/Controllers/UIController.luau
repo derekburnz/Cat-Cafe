@@ -1148,6 +1148,7 @@ local function applyState(s: Types.PlayerState)
 		mysterySeen = s.mysterySeen,
 		mysteryOpen = s.mysteryOpen,
 		bagColours = s.bagColours or false, -- #3699: false for the built colours, as UI.update skips a nil
+		shoeColours = s.shoeColours or false, -- #4049, the same way
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
 		signStyle = s.signStyle or "",
@@ -1323,8 +1324,8 @@ local function wireIntents()
 	end
 	-- #3699: Save on the Backpack's colour picker; the server checks both ids and that the Backpack is owned
 	if looseEvents.setBagColours ~= nil then
-		looseEvents.setBagColours:Connect(function(main: string, trim: string)
-			Net.fire("SetBagColours", main, trim)
+		looseEvents.setBagColours:Connect(function(main: string, trim: string, kind: string?)
+			Net.fire("SetBagColours", main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
 		end)
 	end
 	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock

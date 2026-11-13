@@ -1283,6 +1283,9 @@ export type SessionRecapView = {
 	goals: { ReturnGoalView }?, -- #2916: the next goals with their progress (shared/ReturnGoals)
 }
 
+-- #3651 (shared/Pet): the cat petted last and when its heart ends (os.time).
+export type PetSave = { uid: string, untilAt: number }
+
 export type PlayerProfile = {
 	version: number,
 	coins: number,
@@ -1303,6 +1306,7 @@ export type PlayerProfile = {
 	lures: { [string]: number },
 	bait: BaitState?,
 	bait2: BaitState?, -- #1161: the Second Bait Bowl's bait (save version 34), nil when that bowl is empty
+	pet: PetSave?, -- #3651: the happy cat (shared/Pet), nil with no heart; no version step, see Pet
 	freshCatch: FreshCatchState, -- F94 (save version 18; the dealer's saved counts went with it)
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },

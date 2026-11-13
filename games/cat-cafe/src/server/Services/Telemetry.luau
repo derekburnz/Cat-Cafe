@@ -56,8 +56,8 @@ local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
-local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
@@ -1284,7 +1284,11 @@ end
 -- the report counts once a player (FunnelUserTotalCount); no save field is needed. Only with the `secretCats` switch.
 local function logRarity(player: Player, profile: Profile)
 	local session = sessions[player]
-	if session == nil or session.rarityStep == nil or not LiveFlagService.on(Catching.SECRET_FLAG) then
+	if
+		session == nil
+		or session.rarityStep == nil
+		or not LiveFlagService.on(Catching.SECRET_FLAG)
+	then
 		return
 	end
 	local logged = session.rarityStep :: number

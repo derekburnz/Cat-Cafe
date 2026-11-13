@@ -1021,7 +1021,6 @@ function RiftRun.play(
 	local tore = false
 	local darkened = false
 	local lastDark = -1
-	local passed = 0
 	local kickAt = -10
 	local kickSize = 0
 	local wordAt = -10
@@ -1435,7 +1434,6 @@ function RiftRun.play(
 				end
 			end
 			if not gate.passed and t >= gate.at then
-				passed = i
 				passGate(gate, i, now)
 			end
 			local flareAt = gate.flareAt

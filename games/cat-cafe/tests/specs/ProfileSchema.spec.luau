@@ -2591,4 +2591,22 @@ return function()
 			expect(next(ProfileSchema.migrate(raw, 1000).firstVisits)).never.to.be.ok()
 		end)
 	end)
+
+	describe("the Backpack's colours (#3699, no version bump)", function()
+		it("keeps two known colour ids, and drops anything else and the built pair", function()
+			local raw: any = ProfileSchema.template(1000)
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+			raw.bagColours = { main = "navy", trim = "honey", extra = 1 }
+			expect(ProfileSchema.migrate(raw, 1000).bagColours :: any).to.deepEqual({
+				main = "navy",
+				trim = "honey",
+			})
+			raw.bagColours = { main = "plum", trim = "rose" } -- the built colours save as nothing
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+			raw.bagColours = { main = "neon", trim = "honey" }
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+			raw.bagColours = "navy"
+			expect(ProfileSchema.migrate(raw, 1000).bagColours).to.equal(nil)
+		end)
+	end)
 end

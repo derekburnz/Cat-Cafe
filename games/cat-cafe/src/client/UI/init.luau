@@ -3405,6 +3405,20 @@ UI.rankSpot = {
 	moment = nil :: any,
 }
 
+-- #3683: the HUD day clock's box on screen in viewport px (left, right, bottom), nil while it is not showing. For
+-- the Rummage Bin's board, which comes down from under it (BinController).
+function UI.clockBox(): (number?, number?, number?)
+	local frame: GuiObject? = if hud ~= nil then hud:clockFrame() else nil
+	if frame == nil then
+		return nil, nil, nil
+	end
+	local inset = if hud ~= nil and hud.screenGui.IgnoreGuiInset
+		then 0
+		else game:GetService("GuiService"):GetGuiInset().Y
+	local at, size = frame.AbsolutePosition, frame.AbsoluteSize
+	return at.X, at.X + size.X, at.Y + size.Y + inset
+end
+
 function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?): boolean
 	local close = UI.rankSpot.close
 	if close ~= nil then

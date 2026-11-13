@@ -5273,7 +5273,8 @@ do
 			and state.tipsSeen ~= nil
 			and not tipKnown("pet")
 		then
-			UI.tips.show("pet")
+			local tips: any = (UI :: any).tips -- show is filled in further down this block
+			tips.show("pet")
 		end
 	end)
 

@@ -795,6 +795,16 @@ RETIRED = {f"CatCafe_{a}_{k}" for a in ("Park", "Neighbourhood", "Woods", "Sewer
     f"CatCafe_Camp_{a}" for a in ("Park", "Neighbourhood", "Woods", "Sewer")}
 
 
+# #3790: models only the server clones into Workspace (the area sets, backdrops and camps). They go to rbx-server/,
+# which Rojo syncs into ServerStorage.ServerAssets, so devices do not hold a second copy of every area (49,000 parts).
+SERVER_ONLY = {f"CatCafe_{a}_SetF85" for a in ("Park", "Neighbourhood", "Woods", "Sewer")} | {
+    f"CatCafe_{a}_BackdropF85" for a in ("Park", "Neighbourhood", "Woods", "Sewer")} | {
+    f"CatCafe_Camp_{a}F85" for a in ("Park", "Neighbourhood", "Woods", "Sewer")} | {
+    "CatCafe_Desert_Set", "CatCafe_Ruins_Set", "CatCafe_Alleyway_Backdrop", "CatCafe_Desert_Backdrop",
+    "CatCafe_Ruins_Backdrop", "CatCafe_Town_Backdrop", "CatCafe_Camp_Alleyway", "CatCafe_Camp_Desert",
+    "CatCafe_Camp_Ruins"}
+
+
 def all_assets():
     out = {}
     for m in MODULES:
@@ -903,7 +913,8 @@ def main():
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
-        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
+        rbx_dir = os.path.join(os.path.dirname(args.rbx), "rbx-server") if name in SERVER_ONLY else args.rbx
+        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)
         spots_ok = None
         if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
             blo, bhi = common.bounds(objs)

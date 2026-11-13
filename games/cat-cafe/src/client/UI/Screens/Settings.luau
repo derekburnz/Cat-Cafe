@@ -177,7 +177,7 @@ local RESET_HOLD_SECONDS = 5 -- the server kicks at once; still here after this,
 local CONFIRM_W = 380 -- the reset confirm card's widest
 local TIPS_DONE_SECONDS = 2 -- the button reads "Done" this long after a press
 -- #3961: the tabs over the list, a full tap tall
-local TAB_H = Scale.tapHeight(40)
+local TAB_H = Scale.tapHeight(40, Theme.sizes.buttonDepth)
 local TAB_GAP = 6
 type TabDef = { id: string, icon: string, label: string }
 local TABS: { TabDef } = {
@@ -235,7 +235,7 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._tab = TABS[1].id
 	self._tabOf = {} :: { [GuiObject]: string } -- the tab each row and header sits on
 	self._allowed = {} :: { [GuiObject]: boolean } -- false: hidden on every tab (showTrading and the like)
-	self._tabButtons = {} :: { [string]: TextButton }
+	self._tabButtons = {} :: { [string]: Button.Button }
 	self._buildTab = "help" -- the tab the next built row sits on
 
 	local panel = Panel.new({
@@ -268,26 +268,22 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._tabsRow = tabs
 	for index, tab in TABS do
 		local id = tab.id
-		local button: TextButton = Create("TextButton", {
-			Name = tab.label,
-			AutoButtonColor = false,
-			BackgroundColor3 = PAL.card,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1 / #TABS, 0, 1, 0),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			TextColor3 = PAL.subtext,
-			TextTruncate = Enum.TextTruncate.AtEnd,
-			Text = tab.icon .. " " .. tab.label,
-			LayoutOrder = index,
-			Parent = tabs,
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-		table.insert(
-			self._connections,
-			button.Activated:Connect(function()
+		-- the Bag's, the Store's and the Market's tabs: gold while open, plain otherwise (#1771)
+		local button = Button.new({
+			name = tab.label,
+			text = tab.label,
+			icon = tab.icon,
+			style = if id == self._tab then "gold" else "ghost",
+			size = UDim2.new(1 / #TABS, 0, 1, 0),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = index,
+			parent = tabs,
+			sound = "uiTab",
+			onClick = function()
 				self:_setTab(id)
-			end)
-		)
+			end,
+		})
+		table.insert(self._buttons, button)
 		self._tabButtons[id] = button
 	end
 
@@ -691,7 +687,6 @@ function Settings._setTab(self: any, id: string)
 	if self._tab == id then
 		return
 	end
-	Sound.play("uiClick")
 	self._tab = id
 	self:cancelReset()
 	self._list.CanvasPosition = Vector2.zero
@@ -699,7 +694,7 @@ function Settings._setTab(self: any, id: string)
 end
 
 -- #3961: each row shows on its own tab while it is allowed; a tab with no row allowed loses its button, and the
--- others share the row. The open tab is green.
+-- others share the row. The open tab is gold.
 function Settings._applyTab(self: any)
 	local has: { [string]: boolean } = {}
 	for instance, tab in self._tabOf do
@@ -726,12 +721,10 @@ function Settings._applyTab(self: any)
 	end
 	shown = math.max(shown, 1)
 	for _, tab in TABS do
-		local button: TextButton = self._tabButtons[tab.id]
-		local on = tab.id == self._tab
-		button.Visible = has[tab.id] == true
-		button.Size = UDim2.new(1 / shown, -TAB_GAP * (shown - 1) / shown, 1, 0)
-		button.BackgroundColor3 = if on then Theme.colors.mintDark else PAL.card
-		button.TextColor3 = if on then Theme.colors.white else PAL.subtext
+		local button: Button.Button = self._tabButtons[tab.id]
+		button.instance.Visible = has[tab.id] == true
+		button.instance.Size = UDim2.new(1 / shown, -TAB_GAP * (shown - 1) / shown, 1, 0)
+		button:setStyle(if tab.id == self._tab then "gold" else "ghost")
 	end
 end
 

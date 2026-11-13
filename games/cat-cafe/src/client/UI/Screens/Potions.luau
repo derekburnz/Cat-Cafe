@@ -86,7 +86,9 @@ local TAB_H = 40
 local ALL_W = 188 -- #3326: "Use all potions"
 local ALL_H = 42 -- over the 36 px a mouse needs (the UI gate's tap check)
 local ASK_H = 150 -- its confirm card
-local TAB_W = 104 -- four tabs fit the small phone's window (136 while there were three)
+-- #3961 (Derek 2026-11-13: "easy to navigate on phone and pc"): the four tabs share the whole row, a bigger tap than
+-- the 104 px they had, and line up with the list under them
+local TAB_SIZE = UDim2.new(0.25, -math.ceil(Theme.sizes.gap * 3 / 4), 0, TAB_H - 4)
 local EQUIP_W = 104 -- the Titles tab's Equip button
 local FOOD_W = 104 -- the Feed button
 local PENDING_SECONDS = 3 -- a sent Use with no answer stops counting on its row after this long (#3190)
@@ -218,7 +220,7 @@ function Potions.new(callbacks: Callbacks): Potions
 			icon = Theme.icons.potion,
 			image = ShopIcons.hud("Potion"), -- #1771: the HUD's Potions picture; the glyph shows until it loads
 			style = "gold",
-			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
+			size = TAB_SIZE,
 			textSize = Theme.sizes.textBody,
 			layoutOrder = 1,
 			parent = tabs,
@@ -233,7 +235,7 @@ function Potions.new(callbacks: Callbacks): Potions
 			icon = ShopIcons.SNACK_GLYPH,
 			image = ShopIcons.market("Treats"), -- #1771: the Fish Market's treat
 			style = "ghost",
-			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
+			size = TAB_SIZE,
 			textSize = Theme.sizes.textBody,
 			layoutOrder = 2,
 			parent = tabs,
@@ -248,7 +250,7 @@ function Potions.new(callbacks: Callbacks): Potions
 			icon = Theme.icons.food,
 			image = ShopIcons.hud("Bowl"), -- #1771: the HUD's Bowl picture
 			style = "ghost",
-			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
+			size = TAB_SIZE,
 			textSize = Theme.sizes.textBody,
 			layoutOrder = 3,
 			parent = tabs,
@@ -263,7 +265,7 @@ function Potions.new(callbacks: Callbacks): Potions
 			text = "Titles",
 			icon = Theme.icons.tag,
 			style = "ghost",
-			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
+			size = TAB_SIZE,
 			textSize = Theme.sizes.textBody,
 			layoutOrder = 4,
 			parent = tabs,

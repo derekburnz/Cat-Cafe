@@ -5412,6 +5412,11 @@ do
 		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
 			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
 		end
+		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
+		-- no ask card while a roll or its reveal plays (UI.rollBusy)
+		if UI.rollBusy.on then
+			return false
+		end
 		card:show(ask)
 		if not news then
 			pace.shown()
@@ -5913,10 +5918,12 @@ do
 	local function busy(): boolean
 		local cards: any = UI
 		local perkCard = cards.perks.card
-		return FirstVisitLogic.yields(
-			if modal ~= nil then modal:current() else nil,
-			perkCard ~= nil and perkCard:isShowing()
-		)
+		-- a roll or its reveal (UI.rollBusy) takes the screen as a window does
+		return UI.rollBusy.on
+			or FirstVisitLogic.yields(
+				if modal ~= nil then modal:current() else nil,
+				perkCard ~= nil and perkCard:isShowing()
+			)
 	end
 
 	local function present(token: number, away: () -> boolean)

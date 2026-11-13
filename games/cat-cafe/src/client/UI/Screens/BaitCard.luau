@@ -20,8 +20,8 @@ local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
-local Tween = require(script.Parent.Parent.Components.Tween)
 local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
+local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {

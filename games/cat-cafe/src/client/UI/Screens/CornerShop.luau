@@ -19,6 +19,8 @@ local Button = require(script.Parent.Parent.Components.Button)
 local BuyAllCard = require(script.Parent.Parent.Components.BuyAllCard)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
+local GridFit = require(script.Parent.Parent.Components.GridFit)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -99,7 +101,9 @@ local GAP = Theme.sizes.gap
 local ALL_KINDS: { [string]: boolean } = { potion = true, food = true, bait = true }
 local ALL_W = 110
 -- #3961: the family look's picture cards (batch 1 mock), three across under each section's header
-local CARD_PICTURE = 56
+local CARD_PICTURE = 46 -- #4007: a little smaller, four cards a row
+local EFFECT_H = 42 -- #4007: three short lines on the narrower card
+local MIN_CELL = 128 -- #4007: the narrowest card that still fits its name and Buy
 local ALL_PENDING_SECONDS = 3
 
 local CornerShop = {}
@@ -551,6 +555,12 @@ end
 
 -- #3961: a section's grid of picture cards, under its header
 function CornerShop._grid(self: any, kind: string, order: number): Frame
+	local layout: UIGridLayout = Create("UIGridLayout", {
+		CellSize = GridFit.cell(GridFit.FEWEST, GAP, self:_cardHeight()),
+		CellPadding = UDim2.fromOffset(GAP, GAP),
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	})
 	local grid: Frame = Create("Frame", {
 		Name = "Grid_" .. kind,
 		BackgroundTransparency = 1,
@@ -559,20 +569,17 @@ function CornerShop._grid(self: any, kind: string, order: number): Frame
 		Visible = kind == self._tab,
 		LayoutOrder = order,
 		Parent = self._list,
-	}, {
-		Create("UIGridLayout", {
-			CellSize = UDim2.new(1 / 3, -GAP, 0, self:_cardHeight()),
-			CellPadding = UDim2.fromOffset(GAP, GAP),
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
+	}, { layout :: Instance })
+	-- #4007: four a row where they fit, else three
+	GridFit.fit(grid, layout, MIN_CELL, GAP, function(): number
+		return self:_cardHeight()
+	end)
 	self._grids[kind] = grid
 	return grid
 end
 
 function CornerShop._cardHeight(self: any): number
-	return 8 + CARD_PICTURE + 4 + 20 + 30 + 4 + self._buyH + 8
+	return 8 + CARD_PICTURE + 4 + 20 + EFFECT_H + 4 + self._buyH + 8
 end
 
 -- #1599: a section's header over its rows ("Potions").
@@ -879,11 +886,12 @@ function CornerShop._pictureCard(
 		Text = if def then def.name else itemId,
 		Parent = frame,
 	})
+	FitText.shrink(name) -- #4007: a long name on a narrow card shrinks a little instead of cutting off
 	MenuFamily.outline(name, 1.5)
 	local effect = text({
 		Name = "Effect",
 		Position = UDim2.fromOffset(6, y + 20),
-		Size = UDim2.new(1, -12, 0, 30),
+		Size = UDim2.new(1, -12, 0, EFFECT_H),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = CARD.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,

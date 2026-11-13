@@ -7728,6 +7728,10 @@ do
 						:PromptProductPurchase(game:GetService("Players").LocalPlayer, productId)
 				end)
 			end,
+			-- #3940: the list's Sort and Show chips, saved on the account
+			remember = function(key: string, value: any)
+				UI.events.setSetting:Fire(key, value)
+			end,
 			close = function()
 				if modalView:current() == MysticPoolLogic.WINDOW then
 					modalView:close()

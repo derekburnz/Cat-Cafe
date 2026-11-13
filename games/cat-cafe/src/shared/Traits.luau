@@ -48,7 +48,9 @@ Traits.ROLL_RARITY_ATTRIBUTE = "BigRollRarity" -- the rolled trait's rarity id
 Traits.ROLL_AT_ATTRIBUTE = "BigRollAt" -- server time, set last
 Traits.PROMPT = "MysticPoolPrompt"
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
-Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")
+-- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost"); #4006 (Derek 2026-11-13:
+-- "up the amount for trait rerolls to 20 or 25 gold fish per reroll"): 20, was 10
+Traits.COST_FISH = 20
 Traits.COST_TOKENS = 1
 Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token, on its own timer
 Traits.TOKEN_HOLD = 2

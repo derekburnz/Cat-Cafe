@@ -37,11 +37,32 @@ Settings.kinds = {
 	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): the HUD's goal card folded
 	-- into its one-line chip (touch only reads it). Off by default, so new players see their goal
 	goalFolded = "switch",
+	-- #3940 (Derek 2026-11-13: "mystic pool remembers your filter settings for working/etc and keeps them next time you
+	-- open"): the pick-a-cat list's Sort, its direction and the Show chips that are on (CatPickLogic.packShown)
+	catPickSort = "choice",
+	catPickFlipped = "switch",
+	catPickShow = "choice",
 } :: { [string]: Kind }
+
+-- #3940: every way the four Show chips can be on, as CatPickLogic.packShown writes them (chip names in this order,
+-- joined by commas; "" for none, which is All)
+local SHOW_CHIPS = { "Working", "Resting", "No trait", "Has trait" }
+local showChoices: { string } = {}
+for mask = 0, 2 ^ #SHOW_CHIPS - 1 do
+	local on: { string } = {}
+	for index, chip in SHOW_CHIPS do
+		if bit32.btest(mask, 2 ^ (index - 1)) then
+			table.insert(on, chip)
+		end
+	end
+	table.insert(showChoices, table.concat(on, ","))
+end
 
 -- A choice key -> the strings it takes, the default first.
 Settings.choices = {
 	tradeRequests = { "everyone", "friends", "off" },
+	catPickSort = { "Money", "Level", "Rarity" }, -- CatPickLogic.MENU_SORTS, Money the default
+	catPickShow = showChoices,
 } :: { [string]: { string } }
 
 function Settings.defaults(): Types.Settings
@@ -62,6 +83,9 @@ function Settings.defaults(): Types.Settings
 		autoEquip = true,
 		catIncome = true,
 		goalFolded = false,
+		catPickSort = "Money",
+		catPickFlipped = false,
+		catPickShow = "",
 	}
 end
 

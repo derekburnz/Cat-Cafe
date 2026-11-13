@@ -182,6 +182,10 @@ local function questStat(catalog: Types.Catalog?, id: string): string?
 	return nil
 end
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
+-- #4025 (Derek 2026-11-13: "ui with weekly the quests blend in and is hard to see", daily and achievements too): a
+-- claimed card stays a light card, a shade darker than the cream, so its ink title, count and prize words still read;
+-- the green "✓ Claimed" and its place at the bottom say it is done
+local CLAIMED_CARD = Color3.fromHex("E6DAC6")
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
 local SYNC_GRACE = 0.5 -- a sync this soon after a press may predate it (one round trip)
 local CLAIM_ALL_W = 150 -- fits right of the three tabs at the window's narrowest (636 px of tab row)
@@ -977,7 +981,7 @@ function Quests._renderRow(
 		Tween.popIn(row.check, 0.6)
 	end
 	row.claimed = claimed
-	row.frame.BackgroundColor3 = if claimed then PAL.panel else CREAM.card
+	row.frame.BackgroundColor3 = if claimed then CLAIMED_CARD else CREAM.card
 	row.frame.LayoutOrder = QuestLogic.rowOrder(slot, claimed)
 end
 
@@ -1043,7 +1047,7 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 		end
 		entry.claimed = row.claimed
 		entry.frame.BackgroundColor3 = if row.claimed
-			then PAL.panel
+			then CLAIMED_CARD
 			elseif row.ready then CREAM.goldCard
 			else CREAM.card
 		if row.ready then

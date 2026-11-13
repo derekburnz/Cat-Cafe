@@ -3302,7 +3302,7 @@ function HUD.setTutorial(self: any, text: string?)
 			Tween.popIn(self._tutorial, 0.92)
 		end
 		if self._tutorial.Text ~= text then
-			self._tutorial.TextWrapped = false
+			-- #3865: the wrap stays as it was until the new line is measured, so a long line never flashes "..."
 			self._tutorial.Text = text
 			self:_wrapTutorial(text)
 		end

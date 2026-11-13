@@ -135,7 +135,7 @@ MysticPool.__index = MysticPool
 -- #3864: `offered`, once the token offer has shown this session (a "No thanks" holds for the session)
 local remembered = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, offered = false }
 
-local function text(props: { [string]: any }): TextLabel
+local function text(props: { [string]: any }, children: { Instance }?): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
@@ -148,7 +148,19 @@ local function text(props: { [string]: any }): TextLabel
 	for key, value in props do
 		merged[key] = value
 	end
-	return Create("TextLabel", merged)
+	return Create("TextLabel", merged, children)
+end
+
+-- #3950 (Derek 2026-11-13: "the trait doesn't show rarity very well ... maybe bold it and make it stronger colored"):
+-- a trait's rarity is shown on a pill filled with its own colour, never as pale words. The words on it are white,
+-- or dark ink on a light fill (Legendary's gold), so they read on every rarity.
+local function inkOn(fill: Color3): Color3
+	local light = 0.299 * fill.R + 0.587 * fill.G + 0.114 * fill.B
+	return if light > 0.62 then Theme.colors.ink else Theme.colors.white
+end
+-- a trait's name in its rarity's colour on the cream card: the colour itself, a little deeper so pale ones read
+local function deep(color: Color3): Color3
+	return if MenuFamily.on() then color:Lerp(Theme.colors.ink, 0.35) else color
 end
 
 -- A page over the card's content: a little past its edges (and the bottom row's button lips), so nothing under it
@@ -203,14 +215,22 @@ local function traitCard(
 		ZIndex = z + 1,
 		Parent = frame,
 	})
+	-- #3950: "Now · Epic" on a pill of the rarity's colour, centred under the name
 	local rarity = text({
 		Name = "Rarity",
-		Position = UDim2.fromOffset(8, 27),
-		Size = UDim2.new(1, -16, 0, 15),
+		AnchorPoint = Vector2.new(0.5, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0.5, 0, 0, 27),
+		Size = UDim2.fromOffset(0, 17),
 		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textTiny,
+		TextSize = Theme.sizes.textTiny + 1,
+		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = z + 1,
 		Parent = frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7) }),
 	})
 	local lines: { TextLabel } = {}
 	for index = 1, EFFECT_LINES do
@@ -246,18 +266,23 @@ end
 local function fill(card: TraitCard, trait: MysticPoolLogic.Card, head: string?, none: string?)
 	local color = Color3.fromHex(trait.color)
 	card.name.Text = trait.name
-	card.name.TextColor3 = if trait.has then MenuFamily.onCard(color) else CARD.subtext
+	card.name.TextColor3 = if trait.has then deep(color) else CARD.subtext
 	local rarity = if trait.has then trait.rarity else none or ""
 	card.rarity.Text = if head ~= nil and rarity ~= ""
 		then head .. " · " .. rarity
 		else head or rarity
-	card.rarity.TextColor3 = if trait.has then MenuFamily.onCard(color) else CARD.subtext
+	-- #3950: the rarity on a pill of its colour, a thick border of it and a faint wash of it over the card
+	card.rarity.BackgroundTransparency = if trait.has then 0 else 1
+	card.rarity.BackgroundColor3 = color
+	card.rarity.TextColor3 = if trait.has then inkOn(color) else CARD.subtext
 	for index, label in card.lines do
 		label.Text = trait.lines[index] or ""
 	end
+	card.frame.BackgroundColor3 = if trait.has then CARD.card:Lerp(color, 0.12) else CARD.card
 	local stroke = card.frame:FindFirstChildWhichIsA("UIStroke") :: UIStroke?
 	if stroke then
 		stroke.Color = if trait.has then color else CARD.cardStroke
+		stroke.Thickness = if trait.has then 4 else Theme.sizes.stroke
 	end
 end
 
@@ -1271,26 +1296,61 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		Parent = facts,
 	})
 	-- its trait in the rarity's colour, so the list shows which cats still have none
+	-- #3950: a trait shows as a bold pill of its rarity's colour; none is grey words
 	local trait = MysticPoolLogic.card(cat.trait)
-	text({
-		Name = "Trait",
+	local traitColor = Color3.fromHex(trait.color)
+	local traitRow: Frame = Create("Frame", {
+		Name = "TraitRow",
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
 		Position = if short
 			then UDim2.new(0.55, left - math.floor((left + right) * 0.55) + 6, 0, 4)
 			else UDim2.fromOffset(left, 45),
 		Size = if short
 			then UDim2.new(0.45, -(math.ceil((left + right) * 0.45) + 6), 0, 18)
 			else UDim2.new(1, -(left + right), 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = if trait.has
-			then MenuFamily.onCard(Color3.fromHex(trait.color))
-			else CARD.subtext,
-		TextXAlignment = if short then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
-		Text = if trait.has
-			then (if short then trait.name else "Trait: " .. trait.name)
-			else trait.name,
 		ZIndex = 7,
 		Parent = frame,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = if short
+				then Enum.HorizontalAlignment.Right
+				else Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
+	if trait.has then
+		text({
+			Name = "Trait",
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = traitColor,
+			Size = UDim2.new(0, 0, 1, 0),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = inkOn(traitColor),
+			TextTruncate = Enum.TextTruncate.None,
+			Text = if short then trait.name else "Trait: " .. trait.name,
+			ZIndex = 7,
+			Parent = traitRow,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }),
+		})
+	else
+		text({
+			Name = "Trait",
+			Size = UDim2.fromScale(1, 1),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = CARD.subtext,
+			TextXAlignment = if short then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
+			Text = trait.name,
+			ZIndex = 7,
+			Parent = traitRow,
+		})
+	end
 	local uid = cat.uid
 	local button = Button.new({
 		name = "Pick",

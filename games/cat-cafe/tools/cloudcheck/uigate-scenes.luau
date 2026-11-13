@@ -2594,8 +2594,12 @@ local SCENES = {
 			rows += if row:IsA("Frame") then 1 else 0
 		end
 		assert(rows >= 10, "uigate: the cat list has only " .. rows .. " cats (#3196)")
-		local trait = list:FindFirstChild("gate_1"):FindFirstChild("Trait")
+		local trait = list:FindFirstChild("gate_1"):FindFirstChild("Trait", true)
 		assert(trait.Text:find("Golden Whiskers", 1, true), "uigate: the row reads " .. trait.Text .. " (#3196)")
+		-- #3950: a trait is a bold pill of its rarity's colour that fits its row
+		assert(trait.BackgroundTransparency == 0 and trait.TextFits, "uigate: the row's trait is not a whole pill (#3950)")
+		local holder = trait.Parent :: GuiObject
+		assert(trait.AbsolutePosition.X + trait.AbsoluteSize.X <= holder.AbsolutePosition.X + holder.AbsoluteSize.X + 1, "uigate: the trait pill spills off its row (#3950)")
 		-- #3874 (Derek 2026-11-13: "a search bar and a filter menu that they can pop up and close with an X. Make the
 		-- default sort by money"): the search box, Filter and Back share one row and the list starts right under it;
 		-- on a short screen at least three whole rows show at once

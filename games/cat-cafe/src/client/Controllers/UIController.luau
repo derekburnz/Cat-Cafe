@@ -106,6 +106,15 @@ UIController.state = nil :: Types.PlayerState?
 UIController.leaderboards = nil :: Types.LeaderboardSync?
 
 -- #1645: the crate pieces, then the Cafe Pass decor (Catalog.passDecor), for the UI's crateDecor list.
+-- #3694: each achievement's prize with its line's item, for the Quests cards (the server pays the same).
+local function achievementPrizesById(): { [string]: Types.IndexPrize }
+	local out: { [string]: Types.IndexPrize } = {}
+	for _, def in Catalog.achievements do
+		out[def.id] = Catalog.achievementPrize(def)
+	end
+	return out
+end
+
 local function passAndCrateDecor(): { Types.DecorDef }
 	local list: { Types.DecorDef } = table.clone(Catalog.crateDecor)
 	for _, def in Catalog.passDecor do
@@ -398,6 +407,7 @@ local stuckGoal = {
 	rescuing = false,
 	on = false,
 	target = nil :: Instance?,
+	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
 local function stuckGoalActive(s: Types.PlayerState): boolean
@@ -664,12 +674,16 @@ local function refreshTutorial(s: Types.PlayerState)
 				stuckGoal.arrived = true
 				stuckGoal.shownAt = os.clock()
 			end
-			showTutorial(
-				s,
-				if where == "cat" then StuckGoal.LINE else StuckGoal.TOWN_LINE,
-				target,
-				if where == "cat" then StuckGoal.LABEL else "Cannon"
-			)
+			if where == "cat" and stuckGoal.aside then
+				UI.tutorial.hide()
+			else
+				showTutorial(
+					s,
+					if where == "cat" then StuckGoal.LINE else StuckGoal.TOWN_LINE,
+					target,
+					if where == "cat" then StuckGoal.LABEL else "Cannon"
+				)
+			end
 		end
 		stuckGoal.target = target
 	elseif newKindTrail(s) then
@@ -3182,6 +3196,7 @@ function UIController.start()
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
 		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
 		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
+		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
@@ -3223,7 +3238,19 @@ function UIController.start()
 			elseif on and where == "cannon" then
 				target = townCannon()
 			end
-			if target ~= stuckGoal.target then
+			local distance: number? = nil
+			if on and where == "cat" and target ~= nil and target:IsA("BasePart") then
+				local character = Players.LocalPlayer.Character
+				local root = if character ~= nil
+					then character:FindFirstChild("HumanoidRootPart")
+					else nil
+				if root ~= nil and root:IsA("BasePart") then
+					distance = ((target :: any).Position - root.Position).Magnitude
+				end
+			end
+			local aside = StuckGoal.aside(distance, stuckGoal.aside)
+			if target ~= stuckGoal.target or aside ~= stuckGoal.aside then
+				stuckGoal.aside = aside
 				refreshTutorial(current)
 			end
 			if on ~= stuckGoal.on then

@@ -25,6 +25,11 @@ StuckGoal.LINE = "A cat is stuck near the camp! Free it"
 StuckGoal.LABEL = "Stuck cat"
 StuckGoal.TRAIL_SECONDS = 120 -- the pointer goes this long after it first showed
 StuckGoal.FOLLOWED_STUDS = 25 -- the player came this near the stuck cat: rescue_trail_followed
+-- Follow-up on #3515 (Review-QA's Studio look at #3528): near the trap the marker card, its arrow and the trail's dots
+-- lay over the cat's own glow and Help bubble. Within ASIDE_STUDS the pointer steps aside so the cat's call takes
+-- over; it comes back past ASIDE_BACK_STUDS, so it does not flicker at the edge.
+StuckGoal.ASIDE_STUDS = 30
+StuckGoal.ASIDE_BACK_STUDS = 40
 -- The step_time names (Telemetry.custom "step_time", field 1), each once a session.
 StuckGoal.SHOWN = "rescue_trail_shown"
 StuckGoal.FOLLOWED = "rescue_trail_followed"
@@ -54,6 +59,15 @@ function StuckGoal.where(area: string?, areasOpen: boolean): Where
 		return "none"
 	end
 	return if area == StuckGoal.AREA then "cat" else "cannon"
+end
+
+-- Whether the pointer stands aside for a player `distance` studs from the stuck cat (nil when either is not there),
+-- given whether it stood aside a moment ago.
+function StuckGoal.aside(distance: number?, was: boolean): boolean
+	if distance == nil then
+		return false
+	end
+	return distance <= (if was then StuckGoal.ASIDE_BACK_STUDS else StuckGoal.ASIDE_STUDS)
 end
 
 -- Whether a player at `player` has come to the stuck cat at `cat` (flat distance).

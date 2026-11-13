@@ -376,7 +376,8 @@ function Quests.new(callbacks: Callbacks): Quests
 		text = "Claim all",
 		style = "primary",
 		size = UDim2.fromOffset(CLAIM_ALL_W, tabHeight),
-		textSize = Theme.sizes.textBody,
+		-- Review-QA's Studio pass 2026-11-13: cut to "Claim al" on a phone in the family look
+		textSize = if MenuFamily.on() then Theme.sizes.textSmall + 1 else Theme.sizes.textBody,
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.fromScale(1, 0),
 		parent = content,
@@ -556,10 +557,14 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		Parent = frame,
 	})
 	-- the bar and count on the left half, what it pays on the right half of the second line
-	local fill = bar(frame, UDim2.fromOffset(left, 48), UDim2.new(0.42, -left, 0, BAR))
+	-- Review-QA's Studio pass 2026-11-13: CLAIM and SWAP covered the last prize chip ("+1") in the family look;
+	-- there the bar is shorter and the chips end a clear gap before the button
+	local split = if family then 0.34 else 0.42
+	local gap = if family then 28 else 16
+	local fill = bar(frame, UDim2.fromOffset(left, 48), UDim2.new(split, -left, 0, BAR))
 	local count = text({
 		Name = "Count",
-		Position = UDim2.new(0.42, 6, 0, 44),
+		Position = UDim2.new(split, 6, 0, 44),
 		Size = UDim2.fromOffset(96, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
@@ -569,8 +574,8 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	local chipArea: Frame = Create("Frame", {
 		Name = "Prize",
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0.42, 104, 0, 38),
-		Size = UDim2.new(0.58, -(104 + ACTION_W + 16), 0, CHIP + 4),
+		Position = UDim2.new(split, 104, 0, 38),
+		Size = UDim2.new(1 - split, -(104 + ACTION_W + gap), 0, CHIP + 4),
 		Parent = frame,
 	})
 	local chips = PrizeChips.new({

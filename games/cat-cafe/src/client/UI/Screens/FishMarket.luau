@@ -138,6 +138,8 @@ local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
 -- once, so this only runs out on a lagging server; 6 s lets a slow answer land first. A result after the wait still
 -- plays its reveal (result() does not check the wait).
 local PENDING_SECONDS = 6
+-- #3991: the longest a queued Open may wait: its turn behind an open in flight and the spam limit after it
+local QUEUE_MAX_SECONDS = PENDING_SECONDS + 4
 -- #2577: after a wait runs out with no answer, the button reads "Try again" this long
 local RETRY_SECONDS = 3
 -- #2290: a Buy waits this long after it is sent; its answer (a sync) ends the wait sooner, and a
@@ -476,20 +478,47 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self:_buildSummary(panel.body)
 
 	-- four times a second the range check; once a second the pending presses
+	-- #3991 (Derek 2026-11-13: "sometimes crate opening gets stuck"): the waits run out first and each step is
+	-- guarded, so a failure anywhere in a refresh can never leave the Open buttons on "..." for good
 	local rangeClock, clock = 0, 0
+	local warned = false
+	local function guarded(step: () -> ())
+		local ok, problem = pcall(step :: any)
+		if not ok and not warned then
+			warned = true
+			warn("[FishMarket] " .. tostring(problem))
+		end
+	end
 	self._tick = RunService.Heartbeat:Connect(function(dt: number)
 		rangeClock += dt
 		if rangeClock >= 0.25 then
 			rangeClock = 0
-			self:_checkRange()
-			if self:_expirePending() then
-				self:_refresh() -- #2290: a wait that ran out frees its button within a quarter second
+			local expired = false
+			guarded(function()
+				expired = self:_expirePending()
+			end)
+			guarded(function()
+				self:_checkRange()
+			end)
+			if expired then
+				guarded(function()
+					self:_refresh() -- #2290: a wait that ran out frees its button within a quarter second
+				end)
 			end
 		end
 		clock += dt
 		if clock >= 1 then
 			clock = 0
-			self:_refresh()
+			guarded(function()
+				self:_refresh()
+			end)
+		end
+	end)
+	-- #3991: opening the window drops a press still queued from before, so its buttons start fresh
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if self.frame.Visible and self._queued ~= nil then
+			self._queued = nil
+			self._queuedAt = nil
 		end
 	end)
 	return self :: FishMarket
@@ -1610,6 +1639,13 @@ function FishMarket._expirePending(self: any): boolean
 		self._callbacks.toast("That didn't go through. Try again!", "warn") -- #3080: a refusal, so it shows
 		self:_flushQueued()
 	end
+	-- #3991: a queued press that has waited longer than any answer could take is dropped, so it never holds "..."
+	local queuedAt: number? = self._queuedAt
+	if self._queued ~= nil and queuedAt ~= nil and now - queuedAt > QUEUE_MAX_SECONDS then
+		self._queued = nil
+		self._queuedAt = nil
+		any = true
+	end
 	return any
 end
 
@@ -1671,6 +1707,7 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 		-- reads "..." instead of every Open on the tab
 		if self._queued == nil then
 			self._queued = crate.id
+			self._queuedAt = os.clock()
 			self:_flushQueued()
 		end
 		self:_refresh()

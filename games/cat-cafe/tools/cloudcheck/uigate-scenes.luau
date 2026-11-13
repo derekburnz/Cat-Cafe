@@ -3711,7 +3711,7 @@ local SCENES = {
 		assert(shown, "uigate: the invite card didn't show (#2797)")
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		local title = ask and ask:FindFirstChild("Title", true)
-		assert(title and string.find(title.Text, "you both get", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
+		assert(title and string.find(title.Text, "% tips", 1, true) and string.find(title.Text, "20 each", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
 	end },
 	-- #2798 (Derek2: the Cozy Cafe countdown is the gift icon's tooltip, not a new strip): standing in your cafe, the
 	-- Rewards list says when the next Cozy gift comes; once the bag waits on the counter the tile wears the red "!"

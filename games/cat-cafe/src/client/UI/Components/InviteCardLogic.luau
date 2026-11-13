@@ -7,8 +7,13 @@
 -- InviteCard reports are analytics only. Pure, so the cloud specs check it.
 --   due(view, played, good) -> boolean   show it now (before the calm-moment wait)
 --   goodRarity(rarity) -> boolean        Rare or better
---   title(view) -> string                "Invite a friend: you both get 🐟 20 when they start playing!"
+--   title(view) -> string                "Invite a friend: +10% tips together and 🐟 20 each!"
+--                                        (#3954: the pal tip bonus, shared Pals.bonus, so it matches the tips)
 --   played(sent, sentAt, now) -> number? the server's playSeconds counted on from when it came
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Pals = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Pals")) :: any
 
 local InviteCardLogic = {}
 
@@ -39,12 +44,16 @@ function InviteCardLogic.due(view: unknown, played: number?, good: boolean): boo
 	return good or played >= by
 end
 
+-- #3954 (Home recs: co-play days rank, and the pal tip bonus was hard to find): the card names the tips bonus first,
+-- then the fish
 function InviteCardLogic.title(view: unknown): string
+	local tips = math.floor((Pals.bonus(1) :: number) * 100 + 0.5)
 	local fish = if type(view) == "table" then (view :: any).fish else nil
 	if type(fish) ~= "number" or fish <= 0 then
-		return "Invite a friend to play with you!"
+		return ("Invite a friend: +%d%% tips while you play together!"):format(tips)
 	end
-	return ("Invite a friend: you both get 🐟 %d when they start playing!"):format(fish)
+	-- two lines on a 705 x 338 phone: the fish come once they start playing, as before
+	return ("Invite a friend: +%d%% tips together and 🐟 %d each!"):format(tips, fish :: number)
 end
 
 function InviteCardLogic.played(sent: unknown, sentAt: number, now: number): number?

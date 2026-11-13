@@ -1,0 +1,58 @@
+# Come back tomorrow: a reason before the first session ends (#3772)
+
+Spec by Design-Agent, 2026-11-13, for Growth-Agent's ask. Picks made under Derek's standing OK ("go with your recommendations", 2026-11-13 01:31 UTC). Build: Gameplay-Engineer (server, save, switch) and the UI side (card and lines). Test: Review-QA-Agent.
+
+## 1. Why
+
+Day 1 return is 3.55% (46th percentile, genre middle 8.30%) and day 7 is 0% (3rd percentile), while average playtime is at the 97th percentile. Players like the session and do not come back. Home recommendations weigh play days, so the return is the number that matters most now.
+
+What already exists and stays:
+- The recap card at 15 minutes in a first session (`RecapFirstSessionSeconds` 900) with one "Tomorrow" line (`ReturnHook`), and at 40 minutes later.
+- The welcome back card on a rejoin with offline earnings and one line.
+- The Daily Treat, 7 days, which grows from 300 coins on day 1 to a golden crate on day 7.
+
+What is missing: a first-day player has nothing of their own that waits for them tomorrow, and many leave before the 15 minute recap.
+
+## 2. The change
+
+### 2a. A gift for coming back (new)
+
+- **What:** once per account, on the first join on a later UTC day than the account's first day, the player gets **a golden crate of their best open area** (`highest_golden`, banked like any crate). For a new player that is the Golden Alley Crate.
+- **When it pays:** at once on that join, with the welcome back card, no claim button. A player who comes back three days later still gets it: it never expires and nothing is lost by waiting.
+- **Who:** accounts whose `telemetry.firstDay` is on or after `Config.ReturnGiftFromDay` (the UTC day number the feature ships), so existing players are not all paid at once. An account with `firstDay` 0 (from before save version 19) never gets it.
+- **Save:** `returnGift: boolean`, true once paid. A new save version, because an older server would drop it and pay it again during a rollout.
+- **Switch:** `returnGift`, off by default (`LiveFlags.OFF_BY_DEFAULT`). Off, nothing pays and no line names it. Turn it on once no older server is running.
+- **Earned, not bought.** Nothing here is sold, and the crate's odds are already shown wherever it is opened.
+
+### 2b. The Tomorrow card (new, first session only)
+
+- **When:** once per account, in the first session, after **8 minutes of play** and after the tutorial, at a calm moment (the recap card's rules: not catching, carrying, in a minigame or a menu, idle for 5 seconds). It is the first-session recap moved earlier and made about tomorrow; the 15 minute recap then does not show in that session.
+- **The card:** slides up from the bottom, no dark background, a close button, auto-hides after 12 seconds. Up to three lines, each only when true:
+  1. A crate picture and "Come back tomorrow for a golden crate" (only while the gift is due and the switch is on).
+  2. "Tomorrow: Daily Treat day 2, 10 golden fish and a spin", the next day's prize from `Catalog.dailyTreat`, when today's treat is claimed. If it is not claimed yet: "Today's Daily Treat is waiting at the Town Square" (no button, no arrow).
+  3. "Your cafe earns up to $N while you're away", with N = income per second x `OfflineRate` x `OfflineCapSeconds` (the pass values when owned), shortened like every money number.
+- **Words:** no countdown, no "don't leave", no "you'll lose", no store link. Settings' "Session recap" toggle hides it too.
+
+### 2c. Lines that already exist
+
+- **Recap card, later sessions:** unchanged.
+- **ReturnHook order:** "gift" goes first while the gift is due: recap "Tomorrow: a golden crate for coming back"; join "Welcome back gift: a golden crate!". Then bait, treat and quests as today.
+
+## 3. Not doing (and why)
+
+- **A bigger day 2 Daily Treat:** the ladder already grows to day 7, and making day 2 bigger moves value without telling anyone. The card in 2b tells them instead.
+- **Notifications or a login streak that resets:** a streak that breaks is loss framing for a young audience.
+- **A timer to the next day:** no countdown pressure.
+
+## 4. Funnel and measure
+
+- `tomorrow_card` with the lines shown (`gift`, `treat`, `offline`) and how long it was up; `return_gift_paid` with the days since the first join.
+- Read `returned_next_day` (#3695) and Creator Hub day 1 retention by device for 7 days before and after the switch goes on. Read over at least 300 new players.
+
+## 5. QA
+
+- A fresh account sees the Tomorrow card once at about 8 minutes, after the tutorial and only when idle, and not the 15 minute recap that session.
+- Each line shows only when true; the offline number matches Config and the pass.
+- Next UTC day: the welcome back card says "Welcome back gift: a golden crate!" and the crate is banked once. A second join that day pays nothing. Two servers during a rollout pay once.
+- An account from before `ReturnGiftFromDay` gets no gift and no gift line.
+- With `returnGift` off nothing pays and no line names the gift; the card still shows lines 2 and 3.

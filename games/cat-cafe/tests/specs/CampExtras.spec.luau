@@ -112,6 +112,7 @@ return function()
 				local save = emptied(2)
 				local ready = treatsAt(save, 2, T + 5 * HOUR)
 				expect(CampExtras.autoClaim("picnic", ready.picnic)).to.equal(nil)
+				expect((CampExtras.walkUp("picnic", ready.picnic))).to.equal("treats") -- #3938: its pick card
 				local name, action = CampExtras.promptText("picnic", ready.picnic, T + 5 * HOUR)
 				expect(name).to.equal("Picnic Treats")
 				expect(action).to.equal("Pick one treat")
@@ -459,6 +460,15 @@ return function()
 			local line, ready = CampExtras.pickerLine(view, "neighbourhood", T)
 			expect(line).to.equal("Yard Sale: free crate !")
 			expect(ready).to.equal(true)
+			-- #3615: with the lucky pick on, the line and the prompt name the pick, not a crate
+			local picking = at(save, 3, T)
+			picking.yardSale.pick = {}
+			expect((CampExtras.pickerLine(picking, "neighbourhood", T))).to.equal(
+				"Yard Sale: free lucky pick !"
+			)
+			expect(select(2, CampExtras.promptText("yardSale", picking.yardSale, T))).to.equal(
+				"Free lucky pick"
+			)
 			save.yardSale.lastClaimAt = T
 			save.yardSale.claims += 1
 			local soldOut, readyAfter =
@@ -598,6 +608,31 @@ return function()
 			local pick = table.clone(view) :: any
 			pick.pick = { { crateId = "classic_crate", chance = 100 } }
 			expect((CampExtras.autoClaim(CampExtras.YARD_SALE, pick))).to.equal(nil)
+		end)
+
+		it("opens the station's card when nothing waits, or it is shut (#3938)", function()
+			local fresh = at(CampExtras.fresh(T), 5, T)
+			for _, id in CampExtras.COLLECT do
+				expect((CampExtras.walkUp(id, (fresh :: any)[id]))).to.equal("collect")
+			end
+			local empty = CampExtras.view(emptied(5), 5, T)
+			for _, id in CampExtras.COLLECT do
+				expect((CampExtras.walkUp(id, (empty :: any)[id]))).to.equal("info")
+			end
+			local shut = at(CampExtras.fresh(T), 1, T)
+			expect((CampExtras.walkUp("pond", shut.pond))).to.equal("info")
+			expect((CampExtras.walkUp(CampExtras.YARD_SALE, shut.yardSale))).to.equal("info")
+			-- the Yard Sale: its free crate as before, else its own card (a lucky pick is pressed there)
+			local yard = at(CampExtras.fresh(T), 3, T).yardSale
+			local how, crateId = CampExtras.walkUp(CampExtras.YARD_SALE, yard)
+			expect(how).to.equal("yard")
+			expect(crateId).to.equal((CampExtras.nextYardCrate(yard) :: any).crateId)
+			local taken = table.clone(yard)
+			taken.held = 0
+			expect((CampExtras.walkUp(CampExtras.YARD_SALE, taken))).to.equal("yardCard")
+			local pick = table.clone(yard) :: any
+			pick.pick = { { crateId = "classic_crate", chance = 100 } }
+			expect((CampExtras.walkUp(CampExtras.YARD_SALE, pick))).to.equal("yardCard")
 		end)
 	end)
 

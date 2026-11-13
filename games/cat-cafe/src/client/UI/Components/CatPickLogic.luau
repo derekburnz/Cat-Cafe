@@ -2,7 +2,8 @@
 -- #3700 (Derek 2026-11-12: "make the picking the cat menu better and make sure to add rarity/level sorting"): the
 -- order, the filters and the row words of a "pick a cat" list, shared by every menu that has one (cat-picker.md).
 -- Used first by the Mystic Pool. Pure: no instances.
---   SORTS, sorted(cats, sort, flipped)   Rarity (the default), Level, Money or Name; `flipped` turns the order round
+--   SORTS, sorted(cats, sort, flipped)   Money (the default since #3874), Rarity, Level or Name; `flipped` turns it
+--   MENU_SORTS, menuSort(sort)           Money, Level, Rarity: the Filter pop-up's sorts (#3874)
 --   FILTERS, match(cat, query, filter)   All, Resting, Working, No trait, Has trait, with the search words
 --   rarity(cat), coatTag(cat)            "Mythical" and "GOLD" / "RAINBOW" for the row's tags
 --   line(cat, rate)                      "Lv 37 · Working · +$410/s"
@@ -16,7 +17,22 @@ local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 local CatPickLogic = {}
 
 CatPickLogic.SORTS = { "Rarity", "Level", "Money", "Name" }
-CatPickLogic.DEFAULT_SORT = "Rarity"
+-- #3874 (Derek 2026-11-13: "Make the default sort by money"): Rarity before
+CatPickLogic.DEFAULT_SORT = "Money"
+-- #3874 (Derek 2026-11-13: "just sort by level/rarity/money(s)", then "a search bar and a filter menu"): the sorts
+-- and filters in the Filter pop-up
+CatPickLogic.MENU_SORTS = { "Money", "Level", "Rarity" }
+CatPickLogic.MENU_FILTERS = { "All", "Working", "Resting", "No trait", "Has trait" }
+
+-- `sort` when the Filter pop-up has it, else the default (a remembered Name sort from before #3874).
+function CatPickLogic.menuSort(sort: string?): string
+	for _, name in CatPickLogic.MENU_SORTS do
+		if name == sort then
+			return name
+		end
+	end
+	return CatPickLogic.DEFAULT_SORT
+end
 CatPickLogic.FILTERS = { "All", "Resting", "Working", "No trait", "Has trait" }
 
 local COAT_RANK: { [string]: number } = { rainbow = 2, gold = 1 }

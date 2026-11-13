@@ -42,6 +42,7 @@ local RollBoard = require(script.Parent.Parent.UI.Components.RollBoard)
 local RollBoardLogic = require(script.Parent.Parent.UI.Components.RollBoardLogic)
 local RummageBin = require(Shared:WaitForChild("RummageBin"))
 local Scale = require(script.Parent.Parent.UI.Scale)
+local ShopIcons = require(script.Parent.Parent.UI.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local UI = require(script.Parent.Parent.UI)
 local UserInputService = game:GetService("UserInputService")
@@ -274,6 +275,10 @@ local function boardView(): RollBoardLogic.View
 	})
 end
 
+-- #3885 (Review-QA's Studio look): after a win the board stays away until the prize's pop has landed in the hands,
+-- so the picture rises out of a clear bin and not over the board's rows.
+local POP_HOLD = 1.3 -- seconds: Presets.binRoll.prize.seconds and a little more
+local popHold = 0 -- os.clock() before which the board stays hidden
 -- Shows each bin's board to a player standing near it, with what it says now; hides it otherwise.
 local function boardRefresh()
 	local on = rollOn()
@@ -285,6 +290,7 @@ local function boardRefresh()
 			and prompt.Enabled
 			and near[model] == true
 			and not (UI :: any).rescue.isActive()
+			and os.clock() >= popHold
 		local found = if shown then boardFor(model) else boards[model]
 		if found == nil then
 			continue
@@ -443,9 +449,18 @@ end
 -- The show before the bar: the roll or the reveal, until the bar comes or the player skips.
 local showing: { skip: (() -> ())? }? = nil
 
+-- Review-QA on #3904: the pop-ups wait while the roll plays (UI.setRollBusy), so a shout-out never crosses the board.
+local function quiet(on: boolean)
+	local set = (UI :: any).setRollBusy
+	if type(set) == "function" then
+		(set :: (boolean) -> ())(on)
+	end
+end
+
 local function endShow()
 	local show = showing
 	showing = nil
+	quiet(false)
 	if show ~= nil and show.skip ~= nil then
 		show.skip()
 	end
@@ -479,6 +494,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	end
 	local show: { skip: (() -> ())? } = { skip = nil }
 	showing = show
+	quiet(true)
 	local model, fx = firstBin(), binFx()
 	local function rollTo(at: number)
 		if play == playing then
@@ -493,6 +509,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 		if showing == show then
 			show.skip = nil
 		end
+		quiet(false)
 		if index ~= nil then
 			rollTo(index)
 		end
@@ -519,6 +536,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	landed() -- no effects module: the board just shows the row
 end
 
+local SKIP_HOLD = 0.6 -- seconds the prize's row stays lit after a skip, before the bar
 local SKIP_KEYS: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.Space] = true,
 	[Enum.KeyCode.E] = true,
@@ -547,13 +565,53 @@ local function onInput(input: InputObject, processed: boolean)
 	if kind == Enum.UserInputType.Keyboard and not SKIP_KEYS[input.KeyCode] then
 		return
 	end
+	-- Review-QA on #3904 (a near miss): a skip once asked for the bar at once, so the board hid with its light still
+	-- on whatever row the roll was passing. Now the light jumps to the prize (the effect's skip) and holds there
+	-- SKIP_HOLD seconds before the bar is asked for.
 	endShow()
-	Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
+	-- Review-QA on #3910: the server's own roll timer may start the bar inside the hold; a press then would count as a
+	-- bar press (and could cost a paw), so it is sent only while the bar has not come
+	local skipped = play
+	task.delay(SKIP_HOLD, function()
+		if play ~= skipped or (UI :: any).rescue.isActive() then
+			return
+		end
+		Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
+	end)
+end
+
+-- #3885: the prize's picture for its pop out of the bin, the same pictures as the loot card's (Screens/LootCard).
+local function prizePicture(row: RummageBin.Row): string?
+	if row.lure ~= nil then
+		return ShopIcons.food(row.lure)
+	elseif row.crate ~= nil then
+		return ShopIcons.crate(row.crate)
+	elseif row.potion ~= nil then
+		return ShopIcons.potion(row.potion)
+	end
+	return ShopIcons.prize("fish")
+end
+
+-- Where the prize lands: the player's right hand, or the middle of the body for a rig without one (nil: no body).
+local function hands(): Vector3?
+	local character = Players.LocalPlayer.Character
+	if character == nil then
+		return nil
+	end
+	for _, name in { "RightHand", "Right Arm", "HumanoidRootPart" } do
+		local part = character:FindFirstChild(name)
+		if part ~= nil and part:IsA("BasePart") then
+			return (part :: BasePart).Position
+		end
+	end
+	return nil
 end
 
 local function onWin(rowId: string, _first: boolean)
 	endShow()
 	play = nil
+	popHold = os.clock() + POP_HOLD
+	task.delay(POP_HOLD + 0.05, boardRefresh)
 	boardRefresh()
 	if BinController.onPrize ~= nil then
 		BinController.onPrize(nil, nil)
@@ -566,16 +624,11 @@ local function onWin(rowId: string, _first: boolean)
 		return
 	end
 	local tier = RummageBin.tier(row)
+	local picture = prizePicture(row :: RummageBin.Row)
 	setLook(model, false) -- the empty look first, so the lid that hops is the one that shows
 	pcall(function()
 		fx.win(model, tier)
-		fx.hop(model, function(): Vector3?
-			local character = Players.LocalPlayer.Character
-			local root = if character ~= nil
-				then character:FindFirstChild("HumanoidRootPart")
-				else nil
-			return if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
-		end, tier)
+		fx.hop(model, hands, tier, picture)
 	end)
 end
 
@@ -628,11 +681,13 @@ local function padStep()
 				playing.barSeen = true
 				playing.rolling = false
 				showing = nil -- the bar is here: the show is over and a tap is the bar's
+				quiet(false)
 				moved = true
 			end
 		elseif playing.barSeen or os.clock() > playing.untilAt then
 			play = nil -- the bar ended without a win, or never came (the server ended the run)
 			showing = nil
+			quiet(false)
 			moved = true
 			-- #3683: with the click prompt silenced the pad is the only way in, so a finished bar arms it again
 			-- once the server's wait after a miss is over; a player who stays on the ring gets the next try

@@ -1489,6 +1489,10 @@ Presets.motion = {
 		seconds = 4.2,
 		every = 75,
 		hold = 24,
+		-- #3923 (Derek 2026-11-13: "sometimes the cats randomly sit up when you move around cafe even when resting
+		-- should just be asleep"): a resting cafe cat no longer sits up; it naps the whole rest. A cat in a
+		-- player's arms still loafs awake. true brings the sit-ups back.
+		resting = false,
 	},
 	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
 	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day, eyes half shut. The paw stays up
@@ -4805,6 +4809,7 @@ Presets.binRoll = {
 	laps = 2,
 	first = 0.067,
 	last = 0.45,
+	slow = 4, -- #3903: the last ticks that slow down, all inside the final run to the prize (no near miss)
 	rattle = 4,
 	rattleHz = 7,
 	good = 0.15,
@@ -4826,6 +4831,23 @@ Presets.binRoll = {
 	reveal = 0.45, -- seconds a fixed prize's reveal takes (no roll)
 	-- the prize's hop from the bin to the player
 	hop = { seconds = 0.55, height = 3, size = 0.7, sparkles = 4 },
+	-- #3885 (Derek 2026-11-13: "show a quick animation of the item popping out of the bin into your hands"): with the
+	-- prize's picture the hop is the picture itself. It pops `rise` studs up out of the bin growing from `from` to its
+	-- full `size` (studs wide) over the first `popShare` of `seconds`, then arcs `height` studs over to the hands and
+	-- ends at `catch` of its size, with `sparkles` at the pop and again at the catch.
+	prize = {
+		seconds = 1.1,
+		popShare = 0.4,
+		rise = 2.5,
+		height = 2,
+		size = 2.2,
+		from = 0.3,
+		catch = 0.6,
+		sparkles = 6,
+		-- Review-QA's Studio look: the catch's few sparkles did not read, so the hands get a bigger burst and a ring
+		catchSparkles = 16,
+		catchRing = 4, -- studs wide
+	},
 	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
 	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
 	-- Yard Sale stall) just skips this.

@@ -633,6 +633,7 @@ return function()
 				ArcadeMilestones = true, -- #3062: a table, checked in Circles.spec
 				UpdateGift = true, -- #2997: the update gift, a table, checked in Codes.spec
 				UpdateGiftNext = true, -- #3535: the gift after it, checked in Codes.spec
+				Giveaways = true, -- Derek 2026-11-13: the 15:30 UTC giveaways, checked in Codes.spec
 				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
 				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec

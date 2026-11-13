@@ -855,27 +855,38 @@ return function()
 		end
 	)
 	describe(
-		"waveShoutOut: a wave's Mythical told to the whole server (F58, data-model section 9)",
+		"hearsSpawn: only players with the area open hear a rare cat's spawn (#3897)",
 		function()
-			it("names the area and not the cat, and says gold when it is", function()
-				expect(Catching.waveShoutOut("Mythical", "base", "Woods")).to.equal(
-					"A Mythical cat appeared in the Woods!"
-				)
-				expect(Catching.waveShoutOut("Mythical", "gold", "Alleyway")).to.equal(
-					"A gold Mythical cat appeared in the Alleyway!"
-				)
-				expect(Catching.waveShoutOut("Mythical", nil, "Park")).to.equal(
-					"A Mythical cat appeared in the Park!"
-				)
+			it("tells a player whose tier has the area, and not one below it", function()
+				expect(Catching.hearsSpawn(2, 2)).to.equal(true)
+				expect(Catching.hearsSpawn(5, 2)).to.equal(true)
+				expect(Catching.hearsSpawn(1, 2)).to.equal(false)
 			end)
-
-			it("says nothing for any other rarity, gold or not", function()
-				for _, rarity in { "Common", "Rare", "Epic", "Legendary" } do
-					expect(Catching.waveShoutOut(rarity :: any, "gold", "Sewer")).never.to.be.ok()
-				end
+			it("tells nobody about an unknown area or a player with no tier", function()
+				expect(Catching.hearsSpawn(5, nil)).to.equal(false)
+				expect(Catching.hearsSpawn(nil, 1)).to.equal(false)
 			end)
 		end
 	)
+	describe("waveShoutOut: a wave's Mythical told to the area's players (F58, #3897)", function()
+		it("names the area and not the cat, and says gold when it is", function()
+			expect(Catching.waveShoutOut("Mythical", "base", "Woods")).to.equal(
+				"A Mythical cat appeared in the Woods!"
+			)
+			expect(Catching.waveShoutOut("Mythical", "gold", "Alleyway")).to.equal(
+				"A gold Mythical cat appeared in the Alleyway!"
+			)
+			expect(Catching.waveShoutOut("Mythical", nil, "Park")).to.equal(
+				"A Mythical cat appeared in the Park!"
+			)
+		end)
+
+		it("says nothing for any other rarity, gold or not", function()
+			for _, rarity in { "Common", "Rare", "Epic", "Legendary" } do
+				expect(Catching.waveShoutOut(rarity :: any, "gold", "Sewer")).never.to.be.ok()
+			end
+		end)
+	end)
 
 	describe("chase and announce edges (QA, F57 and F58)", function()
 		it(

@@ -26,6 +26,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CampExtras = require(Shared:WaitForChild("CampExtras")) :: any
 local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+local Config = require(Shared:WaitForChild("Config")) :: any
 local RummageBin = require(Shared:WaitForChild("RummageBin")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
@@ -282,6 +283,56 @@ function CampExtrasLogic.bangShows(state: unknown, extraId: string): boolean
 	end
 	local held = view.held
 	return type(held) == "number" and held > 0
+end
+
+-- #3938: the station card a walk-up opens when nothing waits (Screens/StationInfo): its name, picture, what it gives
+-- and the timer line the prompt shows ("Next in 4 h 14 m", "Opens at Tier 3").
+export type Info = { title: string, icon: string, picture: string, gives: string, status: string }
+
+local PICTURES: { [string]: string } =
+	{ picnic = "Picnic", yardSale = "YardSale", pond = "Pond", lostFound = "LostFound" }
+
+local function potionName(potionId: string): string
+	local potion: any = Catalog.getPotion(potionId)
+	return if potion ~= nil then potion.name else "potion"
+end
+
+function CampExtrasLogic.gives(extraId: string): string
+	if extraId == "picnic" then
+		return string.format(
+			"A free %s every %s, holds %d.",
+			potionName(Config.PicnicPotion),
+			CampExtras.waitText(Config.PicnicEverySeconds),
+			Config.PicnicHold
+		)
+	elseif extraId == "pond" then
+		return string.format(
+			"%d golden fish every %s, holds %d.",
+			Config.PondFishPerStep,
+			CampExtras.waitText(Config.PondStepSeconds),
+			Config.PondHold
+		)
+	elseif extraId == "lostFound" then
+		return string.format(
+			"A find every %s, holds %d: fish, potions, spins, crates or a lost cat.",
+			CampExtras.waitText(Config.LostFoundEverySeconds),
+			Config.LostFoundHold
+		)
+	elseif extraId == CampExtrasLogic.YARD_SALE then
+		return "A free crate for the Market."
+	end
+	return ""
+end
+
+function CampExtrasLogic.info(extraId: string, view: SharedTypes.CampExtraView, now: number): Info
+	local title, status = CampExtras.promptText(extraId, view, now)
+	return {
+		title = title,
+		icon = CampExtrasLogic.icon(extraId),
+		picture = PICTURES[extraId] or "Picnic",
+		gives = CampExtrasLogic.gives(extraId),
+		status = status,
+	}
 end
 
 return CampExtrasLogic

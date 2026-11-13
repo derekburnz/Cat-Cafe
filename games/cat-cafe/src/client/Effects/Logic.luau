@@ -77,9 +77,11 @@ export type PlotChange = "claim" | "release" | "rankUp"
 export type AreasTurn = "dusk" | "sunrise"
 export type PrizeTier = "small" | "good" | "jackpot"
 
--- A phone or tablet (touch with no keyboard) gets the low budget.
-function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
-	if touch and not keyboard then
+-- A phone or tablet gets the low budget: touch with no keyboard, or (#3918) touch with a keyboard but no mouse, as
+-- an iPad or Android tablet in a keyboard case. A touch screen laptop has a mouse or trackpad and stays "high".
+-- `mouse` nil (an older caller) leaves the keyboard rule alone.
+function Logic.tier(touch: boolean, keyboard: boolean, mouse: boolean?): Presets.Tier
+	if touch and (not keyboard or mouse == false) then
 		return "low"
 	end
 	return "high"
@@ -1635,6 +1637,22 @@ end
 function Logic.hopArc(from: Vector3, to: Vector3, height: number, alpha: number): Vector3
 	local k = math.clamp(alpha, 0, 1)
 	return from + (to - from) * k + Vector3.new(0, 4 * height * k * (1 - k), 0)
+end
+
+-- #3885: where the Rummage Bin's prize picture is at `alpha` (0 to 1 of Presets.binRoll.prize.seconds) and how big,
+-- as a share of its full size. It rises straight up out of the bin top `from` by `rise` studs while it grows (eased
+-- out), then arcs over to `to` (the hands) and shrinks to `catch`.
+function Logic.binPrizePop(from: Vector3, to: Vector3, alpha: number): (Vector3, number)
+	local p = Presets.binRoll.prize
+	local k = math.clamp(alpha, 0, 1)
+	local top = from + Vector3.new(0, p.rise, 0)
+	if k < p.popShare then
+		local t = k / p.popShare
+		local eased = 1 - (1 - t) * (1 - t)
+		return from:Lerp(top, eased), p.from + (1 - p.from) * eased
+	end
+	local t = (k - p.popShare) / (1 - p.popShare)
+	return Logic.hopArc(top, to, p.height, t), 1 + (p.catch - 1) * t
 end
 
 -- The Lucky Cat's paw at time t (Presets.luckyPaw), radians about its shoulder's X: a smooth beckon forward and back,
@@ -3513,15 +3531,20 @@ end
 -- The Rummage Bin's prize roll (#3608, Derek 2026-11-12: "ticks through the options a couple times before landing
 -- on one"; Effects/BinRoll). The marker goes down the `count` rows in list order, `laps` whole times round, then on
 -- to row `target` (the prize the server already picked) and stops. Returns each tick as { index, at }: the row lit
--- and the seconds after the start. The gaps are `first` seconds until the last `count` ticks, which slow in even
--- steps to `last`. Honesty rule (design section 3): that slowdown is the same wherever the roll stops, so it never
--- lingers on one row longer than the same tick of any other roll would, and no better prize is ever dangled.
+-- and the seconds after the start. #3903 (no near miss): the laps tick at an even `first`, and only the last run
+-- from row 1 to the prize slows: the last `slow` rows lit before the prize (fewer for a prize near the top, none
+-- for row 1) stay lit longer, growing evenly to `last`. No row under the prize (the rare rows at the foot) ever
+-- lingers before it lands. Honesty
+-- rule (design section 3): the gap at each tick from the end is the same curve wherever the roll stops (or the fast
+-- `first`), so it never lingers on one row longer than the same tick of any other roll, and no better prize is ever
+-- dangled.
 function Logic.binRollSteps(
 	count: number,
 	target: number,
 	laps: number,
 	first: number,
-	last: number
+	last: number,
+	slow: number?
 ): { { index: number, at: number } }
 	local steps: { { index: number, at: number } } = {}
 	if count < 1 then
@@ -3529,12 +3552,17 @@ function Logic.binRollSteps(
 	end
 	local goal = math.clamp(math.floor(target), 1, count)
 	local total = math.max(0, math.floor(laps)) * count + goal
+	local curve = math.max(1, math.floor(slow or 4)) -- the slow-down's length in ticks, the same for every roll
+	-- the gap after a tick is how long its row stays lit; only rows of the last run before the prize may linger
+	local slowTicks = math.min(goal - 1, curve)
 	local at = 0
 	for step = 1, total do
 		table.insert(steps, { index = (step - 1) % count + 1, at = at })
-		-- ticks still to come after this one; the last `count` gaps grow evenly from `first` to `last`
-		local left = total - step
-		local share = if left >= count then 0 else (count - left) / count
+		-- #3903 (no near miss, Review-QA on the Yard Sale's same pattern): the laps run at an even `first`, and only
+		-- the last run, from row 1 down to the prize, slows, its gaps growing evenly to `last`. So the slow ticks
+		-- never pass a row under the prize (the rare rows at the foot of the list) before it lands.
+		local left = total - step -- ticks still to come after this one
+		local share = if left < 1 or left > slowTicks then 0 else (curve - left + 1) / curve
 		at += first + (last - first) * share
 	end
 	return steps

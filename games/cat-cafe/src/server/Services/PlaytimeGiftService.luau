@@ -24,6 +24,7 @@ local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ReturnGift = require(ReplicatedStorage.Shared.ReturnGift)
 local Telemetry = require(script.Parent.Telemetry)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local UpdateGift = require(ReplicatedStorage.Shared.UpdateGift)
 
 local PlaytimeGiftService = {}
@@ -78,6 +79,41 @@ local function updateGift(player: Player): boolean
 		UpdateGift.crateCount(gift)
 	)
 	return true
+end
+
+-- Config.Giveaways (Derek 2026-11-13, the 15:30 UTC update): each once per account while it is live, marked in
+-- codesRedeemed under its id like the update gift before it pays. Golden fish and spins through Payout with the update
+-- gift's banner; Trait Tokens banked with a toast. True when one was paid this tick.
+local function giveaways(player: Player): boolean
+	local profile = DataService.get(player)
+	if profile == nil then
+		return false
+	end
+	local now = os.time()
+	for _, gift in Config.Giveaways do
+		if not UpdateGift.due(profile.codesRedeemed, gift, now) then
+			continue
+		end
+		profile.codesRedeemed[UpdateGift.key(gift.id)] = now
+		local tokens = gift.traitTokens or 0
+		if tokens > 0 then
+			local added = Traits.give(profile.traits, tokens)
+			Telemetry.custom(player, "trait_token", added, { "giveaway" })
+			Net.toast(
+				player,
+				string.format("Giveaway! +%d Trait Tokens for the Mystic Pool", added),
+				"good"
+			)
+		end
+		if gift.fish > 0 or gift.spins > 0 then
+			Payout.pay(player, profile, UpdateGift.prize(gift, Economy.tier(profile)), "giveaway")
+			Net.fire(player, "UpdateGiftNotice", "paid", gift.fish, gift.spins, 0, 0)
+		end
+		Telemetry.custom(player, "update_gift", 1, { gift.id })
+		CafeService.sync(player)
+		return true -- one a tick, so two never land in the same second
+	end
+	return false
 end
 
 -- #3772: the welcome back gift, on the first second a returning player is loaded on a later UTC day than their
@@ -152,6 +188,10 @@ function PlaytimeGiftService.start()
 				local giftOk, giftErr = pcall(updateGift, player)
 				if not giftOk then
 					warn("[PlaytimeGiftService] update gift: " .. tostring(giftErr))
+				end
+				local awayOk, awayErr = pcall(giveaways, player)
+				if not awayOk then
+					warn("[PlaytimeGiftService] giveaway: " .. tostring(awayErr))
 				end
 				local returnOk, returnErr = pcall(returnGift, player)
 				if not returnOk then

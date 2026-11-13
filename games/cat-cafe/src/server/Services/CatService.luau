@@ -260,6 +260,20 @@ local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boole
 	return Economy.tier(profile) >= area.tier
 end
 
+-- #3897: a rare cat's spawn banner goes only to the players who have its area open, never to the whole server.
+local function announceToArea(areaId: string, text: string, rarity: Types.Rarity)
+	local area = Catalog.getArea(areaId)
+	for _, player in Players:GetPlayers() do
+		local profile = DataService.get(player)
+		if
+			profile ~= nil
+			and Catching.hearsSpawn(Economy.tier(profile), if area ~= nil then area.tier else nil)
+		then
+			Net.fire(player, "Announce", text, rarity)
+		end
+	end
+end
+
 -- The gold luck a stray or a rescue trap in the area rolls with (F54, golden-fish.md section 5): the highest among
 -- the players in the server whose tier has the area open, a running Gold Rush Potion included (F73), 0 when nobody
 -- has. The coat shows from the spawn, the
@@ -839,7 +853,8 @@ local function freeSpawnPoint(
 	return if pick ~= nil then pool[pick] else nil
 end
 
--- #3470: a wild Secret stray is out. Everyone in the server gets the banner and chat line with its area's name, and
+-- #3470: a wild Secret stray is out. The players with its area open (#3897) get the banner and chat line with its
+-- area's name, and
 -- it is logged as `secret_spawn` (a server event with no player of its own: under the first player here).
 local function secretSpawned(stray: Stray)
 	local areaDef = Catalog.getArea(stray.area)
@@ -849,7 +864,7 @@ local function secretSpawned(stray: Stray)
 		if areaDef ~= nil then areaDef.name else stray.area
 	)
 	if text ~= nil then
-		Net.fireAll("Announce", text, stray.def.rarity)
+		announceToArea(stray.area, text, stray.def.rarity)
 	end
 	local someone: Player? = DataService.loadedPlayers()[1]
 	if someone ~= nil then
@@ -1286,14 +1301,14 @@ local function placeWave(entry: WavePlace)
 	)
 	if point ~= nil then
 		local stray = spawnAt(areaDef.id, point, rarity)
-		-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
-		-- up); a tutorial or bait Mythical is not a wave's
+		-- F58: the server hears of a wave's Mythical; since #3897 only the players with the area open (Derek:
+		-- the rest were flooded with banners for places they can't go); a tutorial or bait Mythical is not a wave's
 		-- #3470: one that turned Secret has had its own line (secretSpawned)
 		local text = if stray.def.rarity == rarity
 			then Catching.waveShoutOut(rarity, stray.variant, areaDef.name, entry.lucky)
 			else nil
 		if text ~= nil then
-			Net.fireAll("Announce", text, rarity)
+			announceToArea(stray.area, text :: string, rarity)
 		end
 	end
 end

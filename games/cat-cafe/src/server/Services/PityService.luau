@@ -43,6 +43,7 @@ local Workspace = game:GetService("Workspace")
 local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Catching = require(ReplicatedStorage.Shared.Catching)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -213,17 +214,18 @@ local function noteSeen()
 	end
 end
 
--- The banner to every player, with the tier that opens the area for anyone who can't go there yet.
+-- The banner to the players who have the area open (#3897, Derek 2026-11-13: no banners for areas they can't go to
+-- yet; before, those players got it with "(opens at Tier N)").
 local function announceSpawn(c: Current)
 	local area = Catalog.getArea(c.areaId)
 	for _, player in Players:GetPlayers() do
 		local profile = DataService.get(player)
-		local opensAt = if area ~= nil
-				and profile ~= nil
-				and profile.tier < area.tier
-			then area.tier
-			else nil
-		Net.fire(player, "Announce", Pity.spawnText(c.kind, c.areaId, opensAt), c.kind)
+		if
+			profile ~= nil
+			and Catching.hearsSpawn(profile.tier, if area ~= nil then area.tier else nil)
+		then
+			Net.fire(player, "Announce", Pity.spawnText(c.kind, c.areaId), c.kind)
+		end
 	end
 	Net.fireAll("PityAnnounce", c.kind, c.areaId, "out", nil)
 end
@@ -536,12 +538,13 @@ local function startShower(
 	local area = Catalog.getArea(pick.areaId)
 	for _, player in Players:GetPlayers() do
 		local profile = DataService.get(player)
-		local opensAt = if area ~= nil
-				and profile ~= nil
-				and profile.tier < area.tier
-			then area.tier
-			else nil
-		Net.fire(player, "Announce", CafeEvents.showerText(pick, opensAt), pick.kind)
+		-- #3897: only the players with the area open
+		if
+			profile ~= nil
+			and Catching.hearsSpawn(profile.tier, if area ~= nil then area.tier else nil)
+		then
+			Net.fire(player, "Announce", CafeEvents.showerText(pick), pick.kind)
+		end
 	end
 	logShower(nil, s, "spawned")
 end

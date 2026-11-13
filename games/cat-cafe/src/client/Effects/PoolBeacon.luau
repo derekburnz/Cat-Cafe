@@ -82,11 +82,12 @@ local function step(now: number)
 			if emitter == nil then
 				local preset = Presets.emitters[p.emitter]
 				if preset ~= nil then
-					emitter =
+					local made =
 						Particles.make(preset, b.colour:Lerp(Presets.palette.offwhite, p.whiten))
-					emitter.Name = "PoolBeaconMotes"
-					emitter.Parent = b.holder
-					b.emitter = emitter
+					made.Name = "PoolBeaconMotes"
+					made.Parent = b.holder
+					b.emitter = made
+					emitter = made
 				end
 			end
 			if emitter ~= nil then

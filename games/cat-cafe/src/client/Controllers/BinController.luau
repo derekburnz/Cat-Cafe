@@ -279,7 +279,12 @@ local function boardRefresh()
 	local on = rollOn()
 	local view: RollBoardLogic.View? = nil
 	for model, prompt in models do
-		local shown = on and prompt ~= nil and prompt.Enabled and near[model] == true
+		-- #3861 (Review-QA: the board overlapped the bar's title card): it steps away while the bar runs
+		local shown = on
+			and prompt ~= nil
+			and prompt.Enabled
+			and near[model] == true
+			and not (UI :: any).rescue.isActive()
 		local found = if shown then boardFor(model) else boards[model]
 		if found == nil then
 			continue

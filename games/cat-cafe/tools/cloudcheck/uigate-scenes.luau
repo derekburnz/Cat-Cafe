@@ -10582,6 +10582,37 @@ local SCENES = {
 		assert(shown["Golden Whiskers"], "uigate: my cat's trait is not on its trade tile (#3710)")
 		assert(shown["Big Tipper"], "uigate: Sam's cat's trait is not on its trade tile (#3710)")
 	end },
+	-- #3932 (Derek: "in trade the search bar is missing"): the search over the list keeps the matching cards, and says
+	-- so when none match; the list shows a fourth card a row on a phone
+	{ "TradeSearch", function()
+		UI.trade.state(tradeState())
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals").Root.Container:FindFirstChild("Trade")
+		local picks = window:FindFirstChild("Picks", true)
+		local search = picks:FindFirstChild("Search", true)
+		local list = picks:FindFirstChild("List")
+		assert(search and search:IsA("TextBox") and search.Visible, "uigate: the Trade list has no search (#3932)")
+		local function shown(): number
+			local count = 0
+			for _, card in list:GetChildren() do
+				if card:IsA("GuiObject") and card.Visible then
+					count += 1
+				end
+			end
+			return count
+		end
+		local all = shown()
+		search.Text = "zzzz"
+		assert(shown() == 0, "uigate: a search for nothing still shows " .. shown() .. " cards (#3932)")
+		local empty = list.Parent:FindFirstChild("Empty")
+		assert(empty.Visible and empty.Text == 'Nothing matches "zzzz"', "uigate: the empty search reads " .. empty.Text .. " (#3932)")
+		search.Text = "  LEGENDARY "
+		local legendary = shown()
+		search.Text = "common"
+		local common = shown()
+		assert(legendary + common >= 1 and legendary < all and common < all, "uigate: the rarity search shows " .. legendary .. " and " .. common .. " of " .. all .. " cards (#3932)")
+		search.Text = ""
+		assert(shown() == all, "uigate: clearing the search did not bring every card back (#3932)")
+	end },
 	-- F102: Sam just added a cat: "Changed!" over Sam's side, the new tile flashing, both Ready cleared
 	{ "TradeChanged", function()
 		local state = tradeState()

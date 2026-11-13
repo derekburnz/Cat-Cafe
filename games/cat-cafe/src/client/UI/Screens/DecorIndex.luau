@@ -214,6 +214,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		Size = UDim2.new(0, 124, 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.text, -- #3982: on the window's body (cocoa), not on a cream card
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = progress,
 	})

@@ -16,10 +16,12 @@
 -- #3458: the bar needs BinHits hits, its own number.
 -- #3608, behind the `binRoll` switch (RummageBin.ROLL_FLAG): the prize is rolled BEFORE the bar, from
 -- Config.BinRollTable, and kept in the save's `prize` (a row id) until the player wins it: a miss, a leave or a
--- rejoin never loses or rerolls it. The fixed first prizes are kept the same way but are not rolled. The server
--- tells the client the row and how it came (MODE_ROLL: just rolled, play the roll; MODE_FIXED: a fixed first
--- prize, reveal it; MODE_WAITING: it was waiting, straight to the bar) with the BinRolled remote, then sends the
--- bar after the show. With the switch off everything above is as it was.
+-- rejoin never loses or rerolls it. The server tells the client the row and how it came (MODE_ROLL: just rolled,
+-- play the roll; MODE_WAITING: it was waiting, straight to the bar) with the BinRolled remote, then sends the bar
+-- after the show. With the switch off everything above is as it was.
+-- #3680 (Derek 2026-11-12: "the animation should always play no scripted starting rewards"): with `binRoll` on there
+-- are NO fixed first prizes; an account's first rummages roll like every other (they keep BinFirstEase and the
+-- shorter BinFirstRepeatSeconds wait). BinFirstPrizes and MODE_FIXED serve only the switch-off path (#3857).
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)

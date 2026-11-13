@@ -309406,6 +309406,65 @@
       }
     },
     {
+      "name": "CatCafe_Snowy_Backdrop",
+      "category": "Snowy",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_Snowy_Backdrop",
+        "CatCafe_Snowy_Backdrop_Ground",
+        "CatCafe_Snowy_Backdrop_Hills",
+        "CatCafe_Snowy_Backdrop_HillsFar",
+        "CatCafe_Snowy_Backdrop_Snow"
+      ],
+      "triangles": 52248,
+      "budget": 60000,
+      "size_studs": {
+        "x": 725.33,
+        "y": 1165.61,
+        "z": 844.48
+      },
+      "size_roblox": [
+        725.33,
+        844.48,
+        1165.61
+      ],
+      "bounds_min": [
+        -361.03,
+        -589.08,
+        -672.0
+      ],
+      "bounds_max": [
+        364.3,
+        576.52,
+        172.48
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowy_Backdrop.model.json",
+      "rbx_parts": 2304,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Snowy_Backdrop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Snowy_Backdrop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "52248/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "46850 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-672.00 (want 0)",
+          "centered": "footprint center x=1.63 y=-6.28"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Plot_LuckyCat_0",
       "category": "Plot",
       "module": "luckycat",

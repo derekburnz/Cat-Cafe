@@ -24,7 +24,12 @@ local events: { [Player]: number } = {}
 -- #3773: the most seconds an intro_skip reports; a longer number is a paused or stuck client, so it is dropped
 local SKIP_SECONDS_MAX = 600
 
-local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown, rawSeconds: unknown)
+local function onIntroDone(
+	player: Player,
+	rawShot: unknown,
+	rawReplay: unknown,
+	rawSeconds: unknown
+)
 	local shot = Guard.int(rawShot, 0, Intro.SHOTS)
 	local replay = Guard.bool(rawReplay)
 	local profile = DataService.get(player)

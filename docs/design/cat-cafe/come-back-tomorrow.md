@@ -17,7 +17,7 @@ What is missing: a first-day player has nothing of their own that waits for them
 
 ### 2a. A gift for coming back (new)
 
-- **What:** once per account, on the first join on a later UTC day than the account's first day, the player gets **a golden crate of their best open area** (`highest_golden`, banked like any crate). For a new player that is the Golden Alley Crate.
+- **What:** once per account, on the first join on a later UTC day than the account's first day, the player gets **a golden crate of their best open area** (`highest_golden`, as `Prizes.crateFor` resolves it, banked like any crate).
 - **When it pays:** at once on that join, with the welcome back card, no claim button. A player who comes back three days later still gets it: it never expires and nothing is lost by waiting.
 - **Who:** accounts whose `telemetry.firstDay` is on or after `Config.ReturnGiftFromDay` (the UTC day number the feature ships), so existing players are not all paid at once. An account with `firstDay` 0 (from before save version 19) never gets it.
 - **Save:** `returnGift: boolean`, true once paid. A new save version, because an older server would drop it and pay it again during a rollout.
@@ -29,7 +29,7 @@ What is missing: a first-day player has nothing of their own that waits for them
 - **When:** once per account, in the first session, after **8 minutes of play** and after the tutorial, at a calm moment (the recap card's rules: not catching, carrying, in a minigame or a menu, idle for 5 seconds). It is the first-session recap moved earlier and made about tomorrow; the 15 minute recap then does not show in that session.
 - **The card:** slides up from the bottom, no dark background, a close button, auto-hides after 12 seconds. Up to three lines, each only when true:
   1. A crate picture and "Come back tomorrow for a golden crate" (only while the gift is due and the switch is on).
-  2. "Tomorrow: Daily Treat day 2, 10 golden fish and a spin", the next day's prize from `Catalog.dailyTreat`, when today's treat is claimed. If it is not claimed yet: "Today's Daily Treat is waiting at the Town Square" (no button, no arrow).
+  2. "Tomorrow: Daily Treat day 2, 10 golden fish and a spin", the next day's prize from `Catalog.dailyTreat`, when today's treat is claimed. If it is not claimed yet: "Today's Daily Treat is waiting for you" (no button, no arrow).
   3. "Your cafe earns up to $N while you're away", with N = income per second x `OfflineRate` x `OfflineCapSeconds` (the pass values when owned), shortened like every money number.
 - **Words:** no countdown, no "don't leave", no "you'll lose", no store link. Settings' "Session recap" toggle hides it too.
 

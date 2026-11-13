@@ -7637,6 +7637,21 @@ local SCENES = {
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
 	end },
+	-- #3880: step 4 with the table and the Bait bowl bought: the Upgrades window's X glows (with the arrow and the
+	-- spotlight), and not once the tutorial is done
+	{ "TutorialUpgradeClose", function()
+		local levels = { tables = 1, lure_bowl = 1, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 4, tier = 1, upgradeLevels = levels } :: any)
+		UI.open("Upgrades")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Upgrades", true)
+		local close = window and window:FindFirstChild("Close", true)
+		assert(close, "uigate: the Upgrades window has no X (#3880)")
+		assert(close:FindFirstChild("TutorialGlow"), "uigate: the Upgrades X does not glow after the bowl is bought (#3880)")
+		local bowl = window:FindFirstChild("lure_bowl", true)
+		assert(bowl and bowl:FindFirstChild("TutorialGlow") == nil, "uigate: the owned Bait bowl row still glows (#3880)")
+		task.wait(0.2) -- the arrow and spotlight settle on the X for the picture
+	end },
 	-- #2912: at step 3 with coins for a table, a Buy button stands on the tutorial strip, on screen, clear of the strip
 	-- and with its words fitting; short of coins it is gone
 	{ "TutorialBuy", function()

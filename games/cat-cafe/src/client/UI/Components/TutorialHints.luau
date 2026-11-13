@@ -7,6 +7,7 @@
 --   upgrade(step, levels) -> string?          #1796: the upgrade the step asks for, "tables" at step 3 and "lure_bowl"
 --                                             at step 4 until it is owned, so the HUD's Upgrades tile and that row in
 --                                             Upgrades glow (Components/TutorialGlow); nil otherwise
+--   closeUpgrades(step, levels) -> boolean    #3880: the table and bowl are bought, so Upgrades' X glows
 --   view(state, spots, device?) -> View       #2697: the view of a player's state, for line and ask
 --   ask(view) -> string?                      #2697: what the step asks for ("catch", "job", "more", "second",
 --                                             "table", "bowl", "food", "waiting" or "arrived"), so each screen rings its own part
@@ -161,6 +162,14 @@ function TutorialHints.upgrade(step: number?, levels: { [string]: number }?): st
 		return TutorialHints.BOWL
 	end
 	return nil
+end
+
+-- #3880 (Derek 2026-11-13: "show an arrow to the X of upgrades menu and dim screen after the table and bait bowl
+-- upgrade"): the table and the Bait bowl are both bought (step 4 with the bowl owned), so the next thing is outside
+-- and an open Upgrades window's X glows, with the tutorial's arrow and spotlight.
+function TutorialHints.closeUpgrades(step: number?, levels: { [string]: number }?): boolean
+	local owned: { [string]: number } = levels or {}
+	return step == 4 and (owned[TutorialHints.BOWL] or 0) >= 1
 end
 
 -- #2912 (Nov 10 read: 105 caught a second cat, 93 bought the first table): the strip's Buy button, which buys the

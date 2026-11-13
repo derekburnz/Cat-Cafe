@@ -4,6 +4,7 @@
 -- for a rainbow one, with ✨ or 🌈 in the corner), the cat's picture, "Lv 4" on the top left and what it earns a
 -- second at the foot ("+$24/s" in green on their side, "$24/s" on yours). A cat that cannot go into the offer
 -- (locked, or one only its owner may keep) is dimmed with 🔒; one already in the offer is dimmed with a green ✓.
+-- #3710: a cat with a Mystic Pool trait wears the trait's name on a dark band over the rate, in its rarity's colour.
 -- `flash` turns the card yellow for a moment, for "Changed!".
 --   TradeTile.new(props)  props.onClick makes the whole card a button
 --   tile:set(view)        the cat and its words; nil empties the cell (a dashed slot)
@@ -35,6 +36,7 @@ export type View = {
 	rate: string?, -- the foot line; nil hides it
 	good: boolean?, -- the rate in green (their cats, earning for you)
 	status: ("locked" | "offered")?,
+	trait: { name: string, color: Color3 }?, -- #3710: nil for a cat with no trait
 }
 
 export type TradeTile = {
@@ -132,6 +134,27 @@ function TradeTile.new(props: Props): TradeTile
 		Parent = frame,
 	}) :: TextLabel
 	Outline.text(self._rate, 1.5)
+	-- #3710: the trait's name on a dark band right above the rate
+	self._trait = Create("TextLabel", {
+		Name = "Trait",
+		BackgroundColor3 = Theme.colors.cocoaDeep,
+		BackgroundTransparency = 0.2,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -(small + 1)),
+		Size = UDim2.new(1, -4, 0, 14),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = 12, -- 9 px on a phone
+		TextColor3 = Theme.colors.white,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+		Visible = false,
+		ZIndex = 5,
+		Parent = frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 4) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 2), PaddingRight = UDim.new(0, 2) }),
+	}) :: TextLabel
 	-- the dim cover over a cat that cannot go, or is already in the offer
 	self._cover = Create("Frame", {
 		Name = "Cover",
@@ -186,6 +209,7 @@ function TradeTile.set(self: any, view: View?)
 		self._level.Visible = false
 		self._coat.Visible = false
 		self._rate.Visible = false
+		self._trait.Visible = false
 		self._cover.Visible = false
 		self._wash.Color = ColorSequence.new(PAL.card)
 		frame.BackgroundTransparency = 0.5
@@ -232,6 +256,13 @@ function TradeTile.set(self: any, view: View?)
 	self._rate.Visible = rate ~= nil
 	self._rate.Text = rate or ""
 	self._rate.TextColor3 = if view.good then Theme.colors.mint else Theme.colors.white
+	local trait = view.trait
+	self._trait.Visible = trait ~= nil
+	if trait then
+		self._trait.Text = trait.name
+		-- lightened a little so Rare's blue and Mythic's purple read on the dark band
+		self._trait.TextColor3 = trait.color:Lerp(Theme.colors.white, 0.3)
+	end
 	self._cover.Visible = view.status ~= nil
 	self._mark.Text = if view.status == "offered" then "✓" else Theme.icons.lock
 	self._mark.TextColor3 = if view.status == "offered"

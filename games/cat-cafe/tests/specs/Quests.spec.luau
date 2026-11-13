@@ -148,9 +148,9 @@ return function()
 		)
 
 		it(
-			"has 44 achievements, each measuring something real, with a prize for its size",
+			"has 59 achievements (#3694: 44 and 15 steps), each measuring something real, with a prize for its size",
 			function()
-				expect(#Catalog.achievements).to.equal(44)
+				expect(#Catalog.achievements).to.equal(59)
 				local stats = ProfileSchema.template(0).stats :: any
 				local special = {
 					lifetimeCoins = true,
@@ -575,7 +575,7 @@ return function()
 				expect(row.claimed).to.equal(id == first.id)
 				expect(row.progress <= (Catalog.getAchievement(id) :: any).needs).to.equal(true)
 			end
-			expect(n).to.equal(44)
+			expect(n).to.equal(59)
 		end)
 	end)
 

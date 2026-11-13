@@ -2,7 +2,8 @@
 # List the game's badges, or create release badges (#1957, release.md section 1) through Open Cloud's legacy badges
 # API, so they no longer need Creator Hub on Derek's PC. Run by .github/workflows/badges.yml.
 #
-#   badges.sh list                 every badge of the universe (public API, no key): id, name, description, enabled
+#   badges.sh list                 every badge of the universe (public API, no key): id, name, enabled, how many
+#                                  players hold it and got it in the last day, description
 #   badges.sh create key[,key...]  creates each listed badge from the table below, at most 5 a run, with its icon from
 #                                  assets/cat-cafe/exports/icons/, enabled
 #
@@ -50,7 +51,9 @@ list() {
 	local cursor="" page
 	while :; do
 		page=$(curl -sS --fail-with-body "https://badges.roblox.com/v1/universes/$UNIVERSE_ID/badges?limit=100&sortOrder=Asc${cursor:+&cursor=$cursor}")
-		jq -r '.data[] | "\(.id)  \(.name)  (\(if .enabled then "on" else "off" end))  \(.description)"' <<<"$page"
+		# #3617: with how many players hold it and how many got it in the last day (counts only), so a badge that is
+		# never awarded stands out
+		jq -r '.data[] | "\(.id)  \(.name)  (\(if .enabled then "on" else "off" end))  awarded \(.statistics.awardedCount // "?") (last day \(.statistics.pastDayAwardedCount // "?"))  \(.description)"' <<<"$page"
 		cursor=$(jq -r '.nextPageCursor // empty' <<<"$page")
 		[ -n "$cursor" ] || break
 	done

@@ -263,7 +263,7 @@ return function()
 			end
 		)
 
-		it("is wider and slower for an early rummage", function()
+		it("is wider, at the same marker speed, for an early rummage", function()
 			local plain = RummageBin.challenge(false, 100, half)
 			local early = RummageBin.challenge(true, 100, half)
 			local ease = Config.BinFirstEase
@@ -277,7 +277,7 @@ return function()
 			expect((early.zoneWidth :: number) <= 1).to.equal(true)
 			expect(early.hitsNeeded).to.equal(5) -- #3458: the easy first rummages need the 5 hits too
 			expect(early.zoneWidth).to.be.near(0.352, 1e-9)
-			expect(early.speed).to.be.near(0.48, 1e-9)
+			expect(early.speed).to.be.near(0.80, 1e-9)
 		end)
 
 		it("five hits in the zone win and three misses end it with nothing", function()

@@ -3,7 +3,7 @@
 -- trait reroll stand"). About 7 seconds, this player only:
 --   1. the camera eases from the player to a low front view of the pool and the moon arch;
 --   2. Sage Sorrel raises his staff and waves it, and the liquid steps through its five colours (grey, green, blue,
---      gold, purple) with a bubble burst on each;
+--      gold, pink-red) with a bubble burst on each;
 --   3. a cat's silhouette rises from the liquid in a soft sparkle while a card line reads the preset's words;
 --   4. the camera eases back to the player and `onDone` runs (Gameplay opens the pool's menu there).
 --

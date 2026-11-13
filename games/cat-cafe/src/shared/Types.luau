@@ -713,6 +713,7 @@ export type TradeTile = {
 	charm: number?,
 	rateForMe: number,
 	earnsNow: number?, -- #3211: the viewer's own cat: what it earns this second (0 with no job); the totals use it
+	trait: TraitData?, -- #3710: the cat's Mystic Pool trait, which moves with it (shared/Trade)
 }
 -- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
 -- adds while placed (0.05 is +5%).
@@ -1445,6 +1446,8 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #2912: true from the first bait cat resolved until the first rescue starts (shared/StuckGoal.waiting)
+	stuckGoal: boolean?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
 	-- reads as Config.IntroAutoPlay

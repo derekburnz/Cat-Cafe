@@ -80,6 +80,33 @@ Every item can be bought at any time at full price, and each one comes back on s
 - **The packed cat** (Animation-Engineer): awake, with an ear wiggle and a look around every few seconds. Reduce Motion keeps it still.
 - **The cart and Juniper** (Model-Agent), plus the card (UI-Engineer, `Screens/MysteryMarket.luau`).
 
+## 3a. Bag colours (#3699)
+
+Status 2026-11-12: spec, not built yet. Derek, 21:04 UTC: "create an issue to let people customize their bag color at the featured shop anytime let them change the purple and pink to different colors". Design-Agent's picks:
+
+**1. Cost: free, every change.** Derek asked for "anytime", and a colour change gives no advantage. No coins, golden fish or Robux, no cooldown beyond the remote's rate limit. Only players who own the bag can change it; others see the row greyed with "Get the Backpack to pick its colours".
+
+**2. Colours: one list of 12, offered for both parts.** A player can pick any of the 12 for the main part (purple today) and any of the 12 for the trim (pink today), the same one for both if they like.
+
+| id | Name | id | Name |
+|---|---|---|---|
+| `plum` | Plum (today's purple, default main) | `sky` | Sky Blue |
+| `rose` | Rose (today's pink, default trim) | `navy` | Navy |
+| `berry` | Berry Red | `mint` | Mint |
+| `pumpkin` | Pumpkin | `forest` | Forest Green |
+| `honey` | Honey Yellow | `cocoa` | Cocoa Brown |
+| `cream` | Cream | `charcoal` | Charcoal |
+
+Model-Agent sets the exact colour values so they sit in the Cozy Cream style and read on the dark outline; `plum` and `rose` must match today's bag exactly so nobody's bag changes on the day it ships. No pure black, no neon. Gold and rainbow are left out on purpose (those looks belong to gold and rainbow cats).
+
+**3. Where:** on the Backpack's own card in the Featured Shop window. An owner's card shows a "Colours" button where the price button was. It opens a small panel in the same window: a picture of the bag on the left that changes as you tap, two rows of 12 swatches ("Bag" and "Trim") on the right, and "Save" and "Reset". Two columns of six swatches on a phone, swatches big enough for a thumb. Nothing is applied until Save.
+
+**Other rules**
+- The server takes two ids from the list and nothing else; an unknown id is refused. Saved with the player, default `plum` and `rose`. Other players see it on the worn bag.
+- The Featured item picture in the shop keeps the default colours.
+- Words: "Bag colours", "Bag", "Trim", "Save", "Reset". No "NEW" dot after the first open.
+- Switch `bagColours`, off until reviewed. No restart needed.
+
 ## 4. Candidate items for the rotation (Derek2 picks)
 
 Each one is permanent, bought once with golden fish, and not random.

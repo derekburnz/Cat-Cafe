@@ -24,6 +24,7 @@ local CampCollect = {}
 
 local TAG = "CampExtra" -- shared/CampExtras.TAG
 local started = false
+local goldenAt: number? = nil -- #3615: os.clock() of the last lucky pick that landed on a golden crate
 
 -- The placed model of `extraId` nearest `near`, within `reach` studs.
 local function modelOf(extraId: string, near: Vector3, reach: number): Model?
@@ -86,6 +87,22 @@ local function collected(extraId: unknown, position: unknown)
 		end
 		Particles.ring(ground + Vector3.new(0, 0.05, 0), def.colour, def.ring, c.ringSeconds)
 	end)
+	-- #3615: a golden crate from the lucky pick gets the bigger show over the stall's own burst
+	local landedGold: number? = goldenAt
+	if
+		extraId == "yardSale"
+		and landedGold
+		and os.clock() - landedGold <= c.yardSaleGold.within
+	then
+		goldenAt = nil
+		local g = c.yardSaleGold
+		local gold = Presets.palette.golden
+		local at = top + Vector3.new(0, def.above, 0)
+		Particles.burst("dingSparkle", at, g.sparkles, gold)
+		Particles.confetti(at, g.confetti, { gold, Presets.palette.sparkle })
+		Particles.ring(ground + Vector3.new(0, 0.06, 0), gold, g.ring, c.ringSeconds)
+		Particles.beam(ground, gold, g.column.width, g.column.height, g.column.seconds)
+	end
 end
 
 function CampCollect.start()
@@ -97,6 +114,9 @@ function CampCollect.start()
 	if onCollect ~= nil then
 		onCollect:Connect(collected)
 	end
+	Moments.YardSaleLanded:Connect(function(golden: boolean)
+		goldenAt = if golden == true then os.clock() else nil
+	end)
 end
 
 return CampCollect

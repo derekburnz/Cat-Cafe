@@ -16,6 +16,22 @@ Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 a
 - **Ready glow:** when a potion waits, a soft warm glow sits under the parasol (VFX, a single PointLight, inside the night glow budget). It's off while refilling.
 - **Numbers:** unchanged. One Money Potion every 6 hours, holding 2.
 
+## 2a. Picnic Treats (#3715, Derek 2026-11-12; spec, not built yet)
+
+Derek, 22:29 UTC: the Mystic Pool moves to spawn and "make the park have a separate station make something you draft go with whatever you recommend". The Picnic Basket keeps the Park's spot and its model, and becomes the one station where the player chooses the prize.
+
+- Walking into its circle opens a small card: "Picnic Treats. Pick one treat."
+- Three treats, each with a picture and a Pick button: **Sandwich** (1 Money Potion), **Lemonade** (1 Swift Potion), **Cupcake** (1 Lucky Potion).
+- One pick every **4 hours**, holding **1**. After a pick the card reads "Next picnic in 3 h 12 min" with the treats greyed.
+- Free, never sold, never random. Unlock stays Tier 2.
+- The shared "!" and the ready glow work as today.
+- Server: the pick is one of three fixed ids, validated and rate limited, with the timer on the server. Telemetry `picnic_pick` with the treat id.
+- At most 6 potions a day (the old basket gave 4 Money Potions a day).
+- Until it is built the basket stands on its spot with the numbers of section 2. On the day it ships a player holding potions in the basket has one pick ready.
+- Layout draft in the Library: `Design-Agent/for-derek-2026-11-12/mystic-pool-spawn-park-treats.png`.
+
+The Mystic Pool at spawn (`trait-station.md`): Design-Agent's picks are that it opens to every player past the tutorial and that the free Trait Token every 12 hours stays with the pool on its own timer.
+
 ## 3. Yard Sale (Neighbourhood, Tier 3) (#1154)
 
 - **Station:** `CatCafe_Camp_Neighbourhood_YardSaleStall`. A folding table under a little striped awning, with cardboard boxes and a hand-painted "Yard Sale" sign on a stake. It's solid, climbable and finished on every side.

@@ -103,4 +103,31 @@ return function()
 			expect(answer:face()).to.equal(nil)
 		end)
 	end)
+
+	describe("the slide-in ask's reasons (#3657)", function()
+		it(
+			"offers four reasons after a plain face or a thumbs down, none after a thumbs up",
+			function()
+				expect(#FeedbackLogic.reasons("ok")).to.equal(4)
+				expect(#FeedbackLogic.reasons("no")).to.equal(4)
+				expect(#FeedbackLogic.reasons("love")).to.equal(0)
+				expect(#FeedbackLogic.reasons("nonsense")).to.equal(0)
+				local ids = {}
+				for _, reason in FeedbackLogic.reasons("no") do
+					table.insert(ids, reason.id)
+					expect(#reason.label > 0).to.equal(true)
+				end
+				expect(table.concat(ids, ",")).to.equal("too_hard,confusing,boring,laggy")
+			end
+		)
+
+		it("turns the answer into a chip the server takes, or none", function()
+			expect(FeedbackLogic.reasonChip("boring")).to.equal("boring")
+			expect(FeedbackLogic.reasonChip("laggy")).to.equal("laggy")
+			expect(FeedbackLogic.reasonChip(FeedbackLogic.SKIP)).to.equal(nil)
+			expect(FeedbackLogic.reasonChip(nil)).to.equal(nil)
+			expect(FeedbackLogic.reasonChip("more_cats")).to.equal(nil)
+			expect(FeedbackLogic.reasonChip("x")).to.equal(nil)
+		end)
+	end)
 end

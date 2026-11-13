@@ -89,7 +89,13 @@ type Row = {
 	button: Button.Button,
 }
 
-type ConfirmCard = { tile: TradeTile.TradeTile, frame: Frame, name: TextLabel, rarity: TextLabel }
+type ConfirmCard = {
+	tile: TradeTile.TradeTile,
+	frame: Frame,
+	name: TextLabel,
+	rarity: TextLabel,
+	trait: TextLabel, -- #3710
+}
 type PieceCard = {
 	tile: TradeItemTile.TradeItemTile,
 	frame: Frame,
@@ -114,6 +120,7 @@ local FISH = "fish" -- #2745: the picker's key and the uid TradeOffer takes for 
 local MAX_SIZE = Vector2.new(760, 420)
 local GRID_GAP = 6
 local CONFIRM_TILE = 60
+local CONFIRM_TRAIT_H = 14 -- #3710: the trait line under a confirm card's rarity
 local CONFIRM_TITLE_W = 76 -- "You give" beside its row on the confirm face
 local COLUMN_W = 220
 local ROW_H = 56
@@ -825,7 +832,7 @@ function Trade._buildConfirm(self: any, content: Frame)
 		Parent = content,
 	})
 	self._confirmFace = confirm
-	local cardH = CONFIRM_TILE + 34
+	local cardH = CONFIRM_TILE + 34 + CONFIRM_TRAIT_H
 	-- each row's title sits on its left, so both rows and the red line fit the phone's short panel
 	local function row(name: string, y: number, title: string): (ScrollingFrame, TextLabel)
 		text({
@@ -915,7 +922,8 @@ function Trade._confirmCard(_self: any, row: any, index: number): ConfirmCard
 	local frame: Frame = Create("Frame", {
 		Name = "Card" .. index,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(CONFIRM_TILE + 30, CONFIRM_TILE + 34), -- room for a name like "Garbage Bag Cat"
+		-- room for a name like "Garbage Bag Cat" and (#3710) the trait line
+		Size = UDim2.fromOffset(CONFIRM_TILE + 30, CONFIRM_TILE + 34 + CONFIRM_TRAIT_H),
 		LayoutOrder = index,
 		Parent = row.scroll,
 	})
@@ -946,7 +954,22 @@ function Trade._confirmCard(_self: any, row: any, index: number): ConfirmCard
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Parent = frame,
 	})
-	local card: ConfirmCard = { tile = tile, frame = frame, name = name, rarity = rarity }
+	-- #3710: the cat's trait in full under its rarity ("Big Tipper" in the trait rarity's colour)
+	local trait = text({
+		Name = "Trait",
+		-- 4 px past the card on each side (the gap between cards is wider), so "Golden Whiskers" is whole
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, CONFIRM_TILE + 32),
+		Size = UDim2.new(1, 8, 0, CONFIRM_TRAIT_H),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textTiny,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Visible = false,
+		Parent = frame,
+	})
+	local card: ConfirmCard =
+		{ tile = tile, frame = frame, name = name, rarity = rarity, trait = trait }
 	row.cards[index] = card
 	return card
 end
@@ -1216,6 +1239,14 @@ function Trade._renderPlayers(self: any)
 	self._rule.TextColor3 = if resting then PAL.red else PAL.subtext
 end
 
+-- #3710: a trait as a tile draws it
+local function traitView(tag: TradeLogic.TraitTag?): { name: string, color: Color3 }?
+	if tag == nil then
+		return nil
+	end
+	return { name = tag.name, color = Color3.fromHex(tag.color) }
+end
+
 local function tileView(self: any, tile: Types.TradeTile, good: boolean): TradeTile.View?
 	local def: Types.CatDef? = self._catById[tile.catId]
 	if def == nil then
@@ -1227,6 +1258,7 @@ local function tileView(self: any, tile: Types.TradeTile, good: boolean): TradeT
 		level = tile.level,
 		rate = TradeLogic.rate(tile.rateForMe, good),
 		good = good,
+		trait = traitView(TradeLogic.trait(tile.trait)),
 	}
 end
 
@@ -1454,6 +1486,7 @@ function Trade._renderPicks(self: any)
 				variant = pick.variant,
 				level = pick.level,
 				rate = TradeLogic.rate(pick.rating, false),
+				trait = traitView(pick.trait),
 				status = if pick.status == "offered"
 					then "offered"
 					elseif pick.status == "ok" then nil
@@ -1573,6 +1606,12 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 					else ""
 			) .. cat.rarity
 			card.rarity.TextColor3 = Theme.rarityLight(cat.rarity) -- the light rarity colour that reads on a dark card (#1028)
+			local tag = TradeLogic.trait(cat.trait)
+			card.trait.Visible = tag ~= nil
+			if tag then
+				card.trait.Text = tag.name
+				card.trait.TextColor3 = Color3.fromHex(tag.color):Lerp(Theme.colors.white, 0.3)
+			end
 		end
 		for index = #cats + 1, #row.cards do
 			row.cards[index].frame.Visible = false

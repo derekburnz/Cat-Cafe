@@ -162,4 +162,65 @@ return function()
 			expect(CampExtrasLogic.prizeTitle("picnic", nil)).to.equal("Picnic Basket")
 		end)
 	end)
+	describe(
+		"CampExtrasLogic.binLine and withBin (the Rummage Bin on the Cat Cannon card)",
+		function()
+			it(
+				"shows Ready with the dot while the bin is full, Empty for now while it waits, never a countdown",
+				function()
+					local full = CampExtrasLogic.binLine("alley", NOW - 1, NOW, true)
+					expect(full.name).to.equal("Rummage Bin")
+					expect(full.state).to.equal("Ready")
+					expect(full.ready).to.equal(true)
+					expect(CampExtrasLogic.binLine("alley", nil, NOW, true).ready).to.equal(true)
+					local empty = CampExtrasLogic.binLine("alley", NOW + 600, NOW, true)
+					expect(empty.state).to.equal("Empty for now")
+					expect(empty.ready).to.equal(false)
+					expect(string.find(empty.state, "%d")).to.equal(nil)
+				end
+			)
+
+			it("is only on the bin's own area, and gone while the bin is switched off", function()
+				expect(CampExtrasLogic.binLine("park", NOW - 1, NOW, true)).to.equal(nil)
+				expect(CampExtrasLogic.binLine("town", NOW - 1, NOW, true)).to.equal(nil)
+				expect(CampExtrasLogic.binLine("alley", NOW - 1, NOW, false)).to.equal(nil)
+			end)
+
+			it("has no button: the bin is played at the bin", function()
+				expect(
+					CampExtrasLogic.remoteAction(
+						CampExtrasLogic.binLine("alley", NOW - 1, NOW, true)
+					)
+				).to.equal(nil)
+			end)
+
+			it(
+				"gives the card's one line to the station unless only the bin has something waiting",
+				function()
+					local bin = CampExtrasLogic.binLine("alley", NOW - 1, NOW, true)
+					local waiting = CampExtrasLogic.binLine("alley", NOW + 60, NOW, true)
+					local station = {
+						extraId = "picnic",
+						icon = "x",
+						name = "Picnic Basket",
+						state = "Next in 2 h",
+						ready = false,
+					}
+					local stationReady = {
+						extraId = "picnic",
+						icon = "x",
+						name = "Picnic Basket",
+						state = "1 ready",
+						ready = true,
+					}
+					expect(CampExtrasLogic.withBin(nil, bin)).to.equal(bin)
+					expect(CampExtrasLogic.withBin(nil, nil)).to.equal(nil)
+					expect(CampExtrasLogic.withBin(station, nil)).to.equal(station)
+					expect(CampExtrasLogic.withBin(station, bin)).to.equal(bin)
+					expect(CampExtrasLogic.withBin(stationReady, bin)).to.equal(stationReady)
+					expect(CampExtrasLogic.withBin(station, waiting)).to.equal(station)
+				end
+			)
+		end
+	)
 end

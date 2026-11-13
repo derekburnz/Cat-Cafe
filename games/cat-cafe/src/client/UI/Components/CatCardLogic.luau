@@ -44,6 +44,19 @@ function CatCardLogic.trait(trait: { id: string }?): (string?, { string })
 	return title, Traits.effectLines(trait)
 end
 
+CatCardLogic.NO_TRAIT = "No trait yet. Roll one at the Mystic Pool."
+
+-- #3717 (Derek 2026-11-12: "in the cat menu rework show the trait of cat in this little menu here"): the trait row
+-- of the Cats menu's small detail card: its title (rich text, as `trait`) and its effects, one to a line. For a cat with no trait the title is NO_TRAIT while the `traits` switch is on (`open`), and nil while it is
+-- off, so the row hides.
+function CatCardLogic.traitRow(trait: { id: string }?, open: boolean): (string?, string)
+	local title, lines = CatCardLogic.trait(trait)
+	if title ~= nil then
+		return title, table.concat(lines, "\n")
+	end
+	return if open then CatCardLogic.NO_TRAIT else nil, ""
+end
+
 -- The big line and the small one under it: "Biscuit" over "Pirate Cat" for a named cat, else the catalog name alone.
 function CatCardLogic.names(custom: string?, catalogName: string): (string, string?)
 	if custom and custom ~= "" and custom ~= catalogName then

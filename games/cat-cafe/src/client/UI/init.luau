@@ -2197,12 +2197,22 @@ end
 UI.shoutout = { at = nil :: number? }
 -- Review-QA on #3904: a shout-out slid across the Rummage Bin's board mid-roll. While a roll or reveal plays
 -- (BinController) the pop-ups wait, as on a busy window (Toasts.setBusy); `window` is the open window's own part.
-UI.rollBusy = { on = false, window = false }
+-- Review-QA on #4002 (Studio): after Give up the rich customer's card came up half a second later over the board's
+-- next roll (the pad starts the next try by itself). The cards (not the toasts) also wait CALM seconds after a roll
+-- or its bar ends: `held()`.
+UI.rollBusy = { on = false, window = false, offAt = nil :: number?, CALM = 5 }
+function UI.rollBusy.held(): boolean
+	local offAt = UI.rollBusy.offAt
+	return UI.rollBusy.on or (offAt ~= nil and os.clock() - offAt < UI.rollBusy.CALM)
+end
 function UI.setRollBusy(on: boolean)
 	if UI.rollBusy.on == on then
 		return
 	end
 	UI.rollBusy.on = on
+	if not on then
+		UI.rollBusy.offAt = os.clock()
+	end
 	local view = toasts
 	if view then
 		view:setBusy(UI.rollBusy.window or on)
@@ -5414,7 +5424,7 @@ do
 		end
 		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
 		-- no ask card while a roll or its reveal plays (UI.rollBusy)
-		if UI.rollBusy.on then
+		if UI.rollBusy.held() then
 			return false
 		end
 		card:show(ask)
@@ -5919,7 +5929,7 @@ do
 		local cards: any = UI
 		local perkCard = cards.perks.card
 		-- a roll or its reveal (UI.rollBusy) takes the screen as a window does
-		return UI.rollBusy.on
+		return UI.rollBusy.held()
 			or FirstVisitLogic.yields(
 				if modal ~= nil then modal:current() else nil,
 				perkCard ~= nil and perkCard:isShowing()

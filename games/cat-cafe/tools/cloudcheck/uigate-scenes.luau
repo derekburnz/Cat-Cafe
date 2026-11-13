@@ -1718,10 +1718,16 @@ local SCENES = {
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Decor", true) :: Instance?
 		assert(window, "uigate: no Decor window")
+		-- only the main grid's cards: a frame named by a decor id (the Lawn tab's own cards stay through a catalog)
+		local ids: { [string]: boolean } = {}
+		local DecorPieces = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.DecorPieces") :: any
+		for _, decor in DecorPieces.all(catalogLikeTheGame()) do
+			ids[decor.id] = true
+		end
 		local function cards(): number
 			local count = 0
 			for _, each in (window :: Instance):GetDescendants() do
-				if each:IsA("Frame") and each:FindFirstChild("Action") and each:FindFirstChild("Name") then
+				if each:IsA("Frame") and ids[each.Name] and each:FindFirstChild("Action") then
 					count += 1
 				end
 			end

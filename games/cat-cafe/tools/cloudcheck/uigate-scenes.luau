@@ -2330,7 +2330,8 @@ local SCENES = {
 		end
 		-- #3178: on a PC the clock and banner are at the top middle, where toasts stack; a toast keeps clear of them
 		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
-			press("CatCafeHUD", "LuckyDay.Tap") -- the day card open under the banner, the lowest of the three
+			-- the day card open under the banner, the lowest of the three (the event's piece is always in the strip)
+			press("CatCafeHUD", "EventChip.Tap")
 			local dayCard = hud:FindFirstChild("DayCard", true) :: GuiObject
 			assert(dayCard and dayCard.Visible, "uigate: the day card did not open (#3178)")
 			UI.toast("Welcome back! +$12,345 while you were away", "info") -- the stack places itself again
@@ -10134,11 +10135,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		for _ = 1, 3 do
 			UIShim.advance(1.1)
 			UI.cafeEvent.tick()
-			assert(not chip.Visible and not (nextLine and nextLine.Visible), "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+			-- the whole strip stays down mid-catch, so its pieces keep their own state for the catch's end
+			local strip = chip:FindFirstAncestor("StatusBanner") :: GuiObject?
+			local down = strip ~= nil and not strip.Visible
+			assert(down or (not chip.Visible and not (nextLine and nextLine.Visible)), "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
 		end
 		UI.catch.hideCircles()
 		UI.catch.hide()
 		UIShim.advance(0.5)
+		-- Review-QA 2026-11-13: the whole strip at once, before the next tick (it once came back a piece short for 1 s)
+		local strip = chip:FindFirstAncestor("StatusBanner") :: GuiObject?
+		assert(strip == nil or strip.Visible, "uigate: the strip did not come back after the catch (#2860)")
+		assert(chip.Visible and (nextLine == nil or nextLine.Visible), "uigate: the strip came back a piece short after the catch (#2860)")
 		UI.cafeEvent.tick()
 		assert(chip.Visible and (nextLine == nil or nextLine.Visible), "uigate: the Cafe Event chip did not come back after the catch (#2860)")
 	end },

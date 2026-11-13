@@ -196,7 +196,7 @@ function BagColours.colorFor(built: Color3, picks: Picks): Color3
 	if row == nil or id == default then
 		return built
 	end
-	return BagColours.shade(built, slot, row.color)
+	return BagColours.shade(built, slot :: any, row.color) -- the old solver reads `slot` as a plain string here
 end
 
 -- Colours every part of `pack` (a worn or shown Backpack) for `picks`. Safe to call again with other picks: each

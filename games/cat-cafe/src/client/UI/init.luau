@@ -1484,6 +1484,14 @@ function UI.init(config: Types.InitConfig)
 	modalInstance.changed:Connect(function(name: string?)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
+		-- Derek 2026-11-13: no pop-up bubbles while playing the arcade or rerolling traits (Toasts.setBusy)
+		-- (required here, not at the top: the file is at the 200 local limit)
+		local view = toasts
+		if view then
+			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
+			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
+			view:setBusy(name == dashWindow or name == "Arcade" or name == poolWindow)
+		end
 	end)
 
 	catch = CatchPrompt.new(parent)
@@ -2183,6 +2191,11 @@ UI.shoutout = { at = nil :: number? }
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
+	-- Derek 2026-11-13: dropped, sting and all, while Mouse Dash or the Mystic Pool is open (Toasts.setBusy)
+	local view = toasts
+	if view and view:isBusy() then
+		return false
+	end
 	if not ToastRules.announce(rarity, now, UI.shoutout.at, Scale.isTouch()) then
 		return false
 	end

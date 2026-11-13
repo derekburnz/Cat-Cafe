@@ -603,6 +603,9 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 	if view.treats ~= nil then
 		return nil, nil -- Picnic Treats: the player picks on the card, walking up never picks for them
 	end
+	if extraId == "lostFound" then
+		return nil, nil -- #3955: the ring opens the Lost and Found's card; Claim there shows what turned up
+	end
 	if extraId == CampExtras.YARD_SALE then
 		-- #3615: a lucky pick is pressed on the card, where its board rolls; walking up never spends it
 		if view.pick ~= nil then

@@ -8854,6 +8854,63 @@ local SCENES = {
 		end
 		assert(pills >= 2, "uigate: the Yard Sale crate shows " .. pills .. " odds pills (#3953)")
 	end },
+	-- #3955: the Lost and Found's card with two finds waiting: the picture with its "2 WAITING" pill, what can turn
+	-- up with chances, and Claim; pressing Claim sends CollectCampExtra("lostFound"), and the answer's reveal shows the
+	-- find large on the card in place of a toast
+	{ "LostFound", function()
+		local extras = campExtras(0, false)
+		extras.lostFound = { open = true, held = 2 }
+		UI.campExtras.update(extras)
+		UI.campExtras.openLostFound()
+		task.wait(0.2)
+		assert(UI.isOpen() == "LostFound", "uigate: the Lost and Found card did not open (#3955)")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("LostFound", true)
+		assert(card, "uigate: no Lost and Found card (#3955)")
+		local status = card:FindFirstChild("Status", true) :: TextLabel
+		assert(status and status.Text == "2 WAITING", "uigate: the Lost and Found pill reads " .. tostring(status and status.Text))
+		local finds = card:FindFirstChild("Finds", true) :: Instance
+		local tiles = 0
+		for _, tile in finds:GetChildren() do
+			if tile:IsA("Frame") then
+				tiles += 1
+			end
+		end
+		assert(tiles >= 5, "uigate: the Lost and Found shows " .. tiles .. " finds (#3955)")
+		local sent: string? = nil
+		local connection = UI.events.collectCampExtra:Connect(function(extraId: string)
+			sent = extraId
+		end)
+		press("LostFound", "Claim")
+		connection:Disconnect()
+		assert(sent == "lostFound", "uigate: Claim sent " .. tostring(sent) .. " (#3955)")
+	end },
+	{ "LostFoundReveal", function()
+		local extras = campExtras(0, false)
+		extras.lostFound = { open = true, held = 1 }
+		UI.campExtras.update(extras)
+		UI.campExtras.openLostFound()
+		task.wait(0.2)
+		UI.campExtras.collected("lostFound", { "+25 golden fish" }, { fish = 25 })
+		task.wait(0.1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("LostFound", true)
+		local reveal = card and card:FindFirstChild("Reveal", true) :: GuiObject
+		assert(reveal and reveal.Visible, "uigate: the Lost and Found find is not revealed on the card (#3955)")
+		local words = reveal:FindFirstChild("Words") :: TextLabel
+		assert(words and words.Text == "+25 golden fish", "uigate: the reveal reads " .. tostring(words and words.Text))
+	end },
+	{ "LostFoundWait", function()
+		local extras = campExtras(0, false)
+		extras.lostFound = { open = true, held = 0, nextAt = workspace:GetServerTimeNow() + 4800 }
+		UI.campExtras.update(extras)
+		UI.campExtras.openLostFound()
+		task.wait(0.2)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("LostFound", true)
+		local title = card and card:FindFirstChild("Heading", true) :: TextLabel
+		assert(title and title.Text == "Nothing found yet", "uigate: the empty Lost and Found reads " .. tostring(title and title.Text))
+	end },
 	-- #3615: the Yard Sale card as the lucky pick (the `yardSaleRoll` switch): the board with one row per crate a
 	-- Tier 4 player can win, chances to one decimal, and the Lucky pick button
 	{ "YardSalePick", function()

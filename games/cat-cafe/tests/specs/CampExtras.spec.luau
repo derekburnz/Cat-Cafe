@@ -574,23 +574,23 @@ return function()
 	end)
 
 	describe("walk-up claims (#2498)", function()
-		it(
-			"takes what waits at the basket, pond and lost and found, and nothing while empty or shut",
-			function()
-				local fresh = at(CampExtras.fresh(T), 5, T)
-				for _, id in CampExtras.COLLECT do
-					local view = (fresh :: any)[id]
-					expect(view.held > 0).to.equal(true)
-					expect((CampExtras.autoClaim(id, view))).to.equal("collect")
-				end
-				local empty = CampExtras.view(emptied(5), 5, T)
-				for _, id in CampExtras.COLLECT do
-					expect((CampExtras.autoClaim(id, (empty :: any)[id]))).to.equal(nil)
-				end
-				local shut = at(CampExtras.fresh(T), 1, T)
-				expect((CampExtras.autoClaim("pond", shut.pond))).to.equal(nil)
+		it("takes what waits at the basket and pond, and nothing while empty or shut", function()
+			local fresh = at(CampExtras.fresh(T), 5, T)
+			for _, id in CampExtras.COLLECT do
+				local view = (fresh :: any)[id]
+				expect(view.held > 0).to.equal(true)
+				-- #3955: the Lost and Found's ring opens its card instead; Claim there sends the collect
+				expect((CampExtras.autoClaim(id, view))).to.equal(
+					if id == "lostFound" then nil else "collect"
+				)
 			end
-		)
+			local empty = CampExtras.view(emptied(5), 5, T)
+			for _, id in CampExtras.COLLECT do
+				expect((CampExtras.autoClaim(id, (empty :: any)[id]))).to.equal(nil)
+			end
+			local shut = at(CampExtras.fresh(T), 1, T)
+			expect((CampExtras.autoClaim("pond", shut.pond))).to.equal(nil)
+		end)
 
 		it("takes the Yard Sale's free crate while it waits, and nothing once taken", function()
 			local save = CampExtras.fresh(T)

@@ -1023,6 +1023,11 @@ function UI.init(config: Types.InitConfig)
 				UI.campExtras.openPicnic()
 				return
 			end
+			-- #3955: the Lost and Found's button opens its card, where the find is revealed
+			if extraId == "lostFound" then
+				UI.campExtras.openLostFound(true)
+				return
+			end
 			UI.events.collectCampExtra:Fire(extraId)
 		end,
 		-- #3082: Open on a card's strip: the station's own card takes the picker's place
@@ -6950,6 +6955,7 @@ end
 do
 	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
 	local YardSale = require(script.Screens.YardSale)
+	local LostFound = require(script.Screens.LostFound) -- #3955
 	local ReadyBang = require(script.Components.ReadyBang)
 	local MarketBang = require(script.Components.MarketBang)
 	local RescueBang = require(script.Components.RescueBang)
@@ -6964,6 +6970,8 @@ do
 		late = nil :: any, -- #2651 part 4: the last LateStationsState
 		yard = nil :: YardSale.YardSale?,
 		picnic = nil :: PicnicTreats.PicnicTreats?, -- #3715: the Picnic Treats pick card
+		lost = nil :: LostFound.LostFound?, -- #3955: the Lost and Found's card
+		lostAnywhere = false, -- #3955: opened from the Cannon menu, walking away does not close it
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
 		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
@@ -6976,8 +6984,9 @@ do
 		return if current ~= nil then current.yardSale else nil
 	end
 
-	-- Studs from this player's character to the Yard Sale's model, or nil while either is streamed out.
-	local function yardDistance(): number?
+	-- Studs from this player's character to a camp extra's model (the Yard Sale's by default), or nil while either is
+	-- streamed out.
+	local function yardDistance(extraId: string?): number?
 		local character = Players.LocalPlayer.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		if root == nil or not root:IsA("BasePart") then
@@ -6986,7 +6995,7 @@ do
 		for _, model in CollectionService:GetTagged(CAMP_TAG) do
 			if
 				model:IsA("Model")
-				and model:GetAttribute("ExtraId") == CampExtrasLogic.YARD_SALE
+				and model:GetAttribute("ExtraId") == (extraId or CampExtrasLogic.YARD_SALE)
 				and model:IsDescendantOf(Workspace)
 			then
 				return ((model :: Model):GetPivot().Position - (root :: BasePart).Position).Magnitude
@@ -7095,6 +7104,38 @@ do
 		})
 		camp.picnic = picnic
 		picnic:setView(if camp.state ~= nil then camp.state.picnic else nil)
+		-- #3955: the Lost and Found's card; its Claim sends the same CollectCampExtra the ring used to
+		local lost = LostFound.new({
+			collect = function()
+				UI.events.collectCampExtra:Fire("lostFound")
+			end,
+			close = function()
+				if modalView:current() == "LostFound" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				if camp.lostAnywhere then
+					return false
+				end
+				local distance = yardDistance("lostFound")
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		camp.lost = lost
+		lost:setView(if camp.state ~= nil then (camp.state :: any).lostFound else nil)
+		if currentCatalog then
+			lost:setCatalog(currentCatalog)
+		end
+		modalView:register("LostFound", {
+			frame = lost.frame,
+			onOpen = function()
+				lost:opened()
+			end,
+			onClose = function()
+				lost:closed()
+			end,
+		})
 		modalView:register("PicnicTreats", {
 			frame = picnic.frame,
 			onOpen = function()
@@ -7138,6 +7179,10 @@ do
 	end
 
 	function UI.campExtras.setCatalog(catalog: Types.Catalog)
+		local lost = camp.lost
+		if lost then
+			lost:setCatalog(catalog)
+		end
 		local yard = camp.yard
 		if yard then
 			yard:setCatalog(catalog)
@@ -7173,6 +7218,10 @@ do
 		if picnic then
 			picnic:setView(extras.picnic)
 		end
+		local lost = camp.lost
+		if lost then
+			lost:setView((extras :: any).lostFound)
+		end
 	end
 
 	-- #3715: whether the server runs Picnic Treats (the basket's view carries its treats).
@@ -7190,6 +7239,16 @@ do
 		modalView:open("PicnicTreats")
 	end
 
+	-- #3955: the Lost and Found's ring or prompt (or, `anywhere`, the Cat Cannon menu): its card.
+	function UI.campExtras.openLostFound(anywhere: boolean?)
+		local modalView = modal
+		if camp.lost == nil or modalView == nil then
+			return
+		end
+		camp.lostAnywhere = anywhere == true
+		modalView:open("LostFound")
+	end
+
 	-- The Yard Sale's prompt: its card with today's crates.
 	function UI.campExtras.openYardSale(view: Types.CampExtraView?, anywhere: boolean?)
 		camp.yardAnywhere = anywhere == true -- #3213: from the Cannon menu, walking away does not close it
@@ -7205,6 +7264,13 @@ do
 	-- CampExtraResult ok: the prize toast, the extra's name and what it paid as at most two pictures ("Fish Pond" and
 	-- the gold fish "x14"); with no prize the server's words say it ("Fish Pond: +14 golden fish").
 	function UI.campExtras.collected(extraId: string, paid: { string }?, prize: Types.IndexPrize?)
+		-- #3955: with its card open the Lost and Found's find shows there, large, in place of the toast
+		local lost = camp.lost
+		local modalView = modal
+		if extraId == "lostFound" and lost and modalView and modalView:current() == "LostFound" then
+			lost:found(prize, paid)
+			return
+		end
 		if toasts then
 			toasts:prize(
 				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
@@ -7231,6 +7297,10 @@ do
 		if picnic and extraId == "picnic" then
 			picnic:refused()
 		end
+		local lost = camp.lost
+		if lost and extraId == "lostFound" then
+			lost:refused()
+		end
 	end
 
 	-- UI.destroy: the card goes with the modal and the "!" with the UI; the state stays for the next build.
@@ -7245,6 +7315,11 @@ do
 			picnic:destroy()
 		end
 		camp.picnic = nil
+		local lost = camp.lost
+		if lost then
+			lost:destroy()
+		end
+		camp.lost = nil
 		local bang = camp.bang
 		if bang then
 			bang:destroy()

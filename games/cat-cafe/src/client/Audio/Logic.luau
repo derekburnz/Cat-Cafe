@@ -818,6 +818,7 @@ local BEAT_CUES: { [string]: string } = {
 	rodCast = "campSplash",
 	basketOpen = "campBasket",
 	lidRattle = "campRattle",
+	stuckCall = "strayCall", -- #2912: the starter trap's cat calls for help (Effects/StuckCall)
 }
 
 function Logic.beatCue(beat: any): string?

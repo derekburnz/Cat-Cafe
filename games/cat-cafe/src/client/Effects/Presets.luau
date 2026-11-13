@@ -4979,6 +4979,62 @@ Presets.lootCard = {
 	bounceSeconds = 0.22,
 }
 
+-- The stuck cat that calls for help (#2912, Design-Agent 2026-11-12): while this player's save waits for its first
+-- rescue (ProfileSync `stuckGoal`), the cat in the Alleyway's starter trap (its `Starter` attribute) wears a warm,
+-- `pillar` of light that can be seen from the camp (the Secret beam's maths, shorter and warm; it holds still),
+-- a `bubble` over it that rocks gently like a waving paw, its trap gives a small `wiggle` now and then, and the cat
+-- meows (`meow`, Audio's strayCall) as you come near, a few times at most. All of it goes when the rescue bar opens
+-- or someone else is on that cat. Nothing counts down and nothing says hurry. No arrow (Derek's no-arrows rule).
+-- Reduce Motion keeps the bubble and the trap still.
+Presets.stuckCall = {
+	checkEvery = 0.5,
+	-- Review-QA's Studio look (2026-11-12): at 0.4 studs, pale and 35% see-through it could not be made out by day
+	-- from the camp. It is now golden, at least `widthMin` 2 studs wide, nearly solid from afar (`far`), only half
+	-- additive (`emission`, so it holds its colour against a bright sky) and wears a soft `halo` `wide` times its
+	-- width that is `add` more see-through.
+	pillar = {
+		colour = Presets.palette.golden,
+		emission = 0.5,
+		height = 90,
+		lift = 1,
+		perStud = 0.03,
+		widthMin = 2,
+		widthMax = 4,
+		far = 0.12,
+		near = 0.85,
+		nearWithin = 18,
+		fadeOver = 25,
+		topFade = 0.5,
+		halo = { wide = 2.6, add = 0.6 },
+	},
+	-- Review-QA's second look: from the camp pad the Alleyway's street arch hides the pillar, so the trap also
+	-- wears a warm `glow` on the ground, `radius` studs across, that breathes slowly between `bright` and `dim`
+	-- see-through over `seconds` each way (well under once a second; held at `bright` with Reduce Motion), and a
+	-- soft warm light of `range` studs.
+	glow = {
+		colour = Color3.fromRGB(255, 150, 48), -- warm orange, apart from the guide trail's yellow dots
+		radius = 4,
+		thick = 0.05,
+		bright = 0.35,
+		dim = 0.65,
+		seconds = 1.6,
+		range = 14,
+		brightness = 2,
+	},
+	bubble = {
+		text = "Help! 🐾",
+		above = 4.4, -- studs over the cat's top, clear of the "!" and its gem
+		width = 4.6,
+		height = 1.5,
+		within = 70,
+		hideWithin = 10, -- the Rescue card shows from here
+		rock = 6, -- degrees each way
+		rockSeconds = 0.9, -- one way
+	},
+	wiggle = { every = 5, within = 80, hits = 1, needed = 3 }, -- a trapShake as small as a rescue's first hit
+	meow = { near = 60, gap = 45, most = 4 },
+}
+
 -- The Neighborhood's trampoline (#3690; Effects/Trampoline). A model whose name ends in `suffix` is one; its mat is
 -- the part at most `matThin` studs thin and at least `matWide` wide. A landing from above (the feet no more than
 -- `under` studs below the mat's top, within the mat's radius plus `edge`) throws the character `height` studs up,

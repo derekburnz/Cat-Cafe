@@ -272,6 +272,39 @@ function Logic.secretBeam(distance: number): (number, number)
 	return width, b.near + (b.far - b.near) * share
 end
 
+-- The stuck cat that calls for help (#2912, Presets.stuckCall). Whether it calls now: the save waits for its first
+-- rescue (`waiting`, ProfileSync's stuckGoal), this player is not on a rescue bar (`busy`) and nobody is rescuing
+-- that cat (`lockedBy`, the model's attribute: 0 or nil when free).
+function Logic.stuckCallOn(waiting: unknown, busy: boolean, lockedBy: unknown): boolean
+	return waiting == true and not busy and (lockedBy == nil or lockedBy == 0)
+end
+
+-- Its light pillar seen from `distance` studs: the width in studs, wider the further you are so it stays a thin
+-- line, and how see-through its foot is, fading as you come close so it never covers the cat.
+function Logic.stuckPillar(distance: number): (number, number)
+	local b = Presets.stuckCall.pillar
+	local away = math.max(distance, 0)
+	local width = math.clamp(away * b.perStud, b.widthMin, b.widthMax)
+	local share = math.clamp((away - b.nearWithin) / b.fadeOver, 0, 1)
+	return width, b.near + (b.far - b.near) * share
+end
+
+-- Whether the cat meows now: within `near` studs, `gap` seconds after the last one, `most` times at most.
+function Logic.stuckMeowDue(
+	lastAt: number?,
+	calls: number,
+	now: number,
+	distance: number,
+	near: number,
+	gap: number,
+	most: number
+): boolean
+	if calls >= most or distance > near then
+		return false
+	end
+	return lastAt == nil or now - lastAt >= gap
+end
+
 -- Where a Secret stray's beam stands `dt` seconds on, gliding from `at` to the beacon's `target` (the server's word
 -- every 2 seconds): Presets.secretStray.glide of the way a second, there at once when `target` is past `snap` studs.
 function Logic.secretGlide(at: Vector3, target: Vector3, dt: number): Vector3

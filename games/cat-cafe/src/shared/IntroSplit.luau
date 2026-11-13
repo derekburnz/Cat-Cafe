@@ -14,6 +14,11 @@ local IntroSplit = {}
 IntroSplit.FLAG = "introSplit" -- LiveFlags, off by default
 IntroSplit.ON = "intro_on" -- the scene plays itself on the first join
 IntroSplit.OFF = "intro_off" -- no scene: the ? Tutorial tile glows and replays it
+-- #4001: the intro test, its arm from a Creator Hub Experiment's `introMode` (IntroModeService; Derek 19:31 UTC: "make
+-- the ABC test"): "full" plays today's intro on the first join, "short" the three shot intro, "none" puts the save in
+-- OFF (no scene, straight to the tutorial steps). An arm from the config joins whatever the `introSplit` switch says.
+IntroSplit.FULL = "intro_full"
+IntroSplit.SHORT = "intro_short"
 IntroSplit.EVENT = "intro_group" -- Telemetry.custom, once as a save joins the test (field 1: the group)
 IntroSplit.FIRST_SESSIONS = 1 -- stats.sessions at most this as the save loads
 
@@ -24,7 +29,12 @@ end
 
 -- A saved group made safe, or nil.
 function IntroSplit.valid(raw: unknown): string?
-	if raw == IntroSplit.ON or raw == IntroSplit.OFF then
+	if
+		raw == IntroSplit.ON
+		or raw == IntroSplit.OFF
+		or raw == IntroSplit.FULL
+		or raw == IntroSplit.SHORT
+	then
 		return raw :: string
 	end
 	return nil
@@ -40,10 +50,30 @@ function IntroSplit.joins(
 	return on and group == nil and sessions <= IntroSplit.FIRST_SESSIONS and not introSeen
 end
 
+-- #4001: the group an Experiment's introMode value puts a new save in, or nil (no experiment, or another value).
+function IntroSplit.fromMode(mode: unknown): string?
+	if mode == "full" then
+		return IntroSplit.FULL
+	elseif mode == "short" then
+		return IntroSplit.SHORT
+	elseif mode == "none" then
+		return IntroSplit.OFF
+	end
+	return nil
+end
+
 -- Whether the intro plays itself on a join for a save in `group`: Config.IntroAutoPlay (`base`) for everyone, or
 -- the scene half while the switch is on. With the switch off again nobody new gets the scene.
 function IntroSplit.plays(group: string?, on: boolean, base: boolean): boolean
-	return base or (on and group == IntroSplit.ON)
+	return base
+		or group == IntroSplit.FULL
+		or group == IntroSplit.SHORT
+		or (on and group == IntroSplit.ON)
+end
+
+-- #4001: whether the intro this save plays itself is the short one.
+function IntroSplit.short(group: string?): boolean
+	return group == IntroSplit.SHORT
 end
 
 -- A funnel step's custom fields with the group as field 3 (fields 1 and 2 padded with "-"); unchanged with no group.

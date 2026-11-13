@@ -1484,6 +1484,9 @@ export type PlayerState = {
 	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
 	-- reads as Config.IntroAutoPlay
 	introAuto: boolean?,
+	-- #4001: the save is in the short intro test's "short" arm (shared/IntroSplit.SHORT): its first play is the short
+	-- intro; nil or false plays the long one there (a replay is always the short one)
+	introShort: boolean?,
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)

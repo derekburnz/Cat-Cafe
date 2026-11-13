@@ -309,6 +309,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stuckGoal = StuckGoal.waiting(profile), -- #2912
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
+		introShort = Telemetry.introShort(profile), -- #4001: the short intro test's "short" arm
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
 		hideCredit = profile.hideCredit == true, -- #1083: the Settings row "Show my name on the Thank You board"

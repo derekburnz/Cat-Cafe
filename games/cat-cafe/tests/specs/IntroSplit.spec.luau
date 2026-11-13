@@ -76,5 +76,25 @@ return function()
 			profile.telemetry.introGroup = "half"
 			expect(ProfileSchema.migrate(profile, 1700000000).telemetry.introGroup).to.equal(nil)
 		end)
+
+		it(
+			"#4001: an Experiment's introMode picks full, short or none, and full and short play themselves",
+			function()
+				expect(IntroSplit.fromMode("full")).to.equal(IntroSplit.FULL)
+				expect(IntroSplit.fromMode("short")).to.equal(IntroSplit.SHORT)
+				expect(IntroSplit.valid(IntroSplit.FULL)).to.equal(IntroSplit.FULL)
+				expect(IntroSplit.plays(IntroSplit.FULL, false, false)).to.equal(true)
+				expect(IntroSplit.fromMode("none")).to.equal(IntroSplit.OFF)
+				expect(IntroSplit.fromMode("long")).to.equal(nil)
+				expect(IntroSplit.fromMode(nil)).to.equal(nil)
+				expect(IntroSplit.valid(IntroSplit.SHORT)).to.equal(IntroSplit.SHORT)
+				-- the short arm plays whatever the switch says; none never does
+				expect(IntroSplit.plays(IntroSplit.SHORT, false, false)).to.equal(true)
+				expect(IntroSplit.plays(IntroSplit.OFF, true, false)).to.equal(false)
+				expect(IntroSplit.short(IntroSplit.SHORT)).to.equal(true)
+				expect(IntroSplit.short(IntroSplit.ON)).to.equal(false)
+				expect(IntroSplit.short(nil)).to.equal(false)
+			end
+		)
 	end)
 end

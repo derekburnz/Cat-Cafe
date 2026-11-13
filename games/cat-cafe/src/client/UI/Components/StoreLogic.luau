@@ -63,6 +63,21 @@ function StoreLogic.railTabs(rework: boolean): { Tab }
 	return out
 end
 
+-- #3572: the reworked Store's header line under its title, by tab (the mock's words): what a tab's items are and
+-- that prices are in Robux. The Codes tab keeps the window's own line.
+StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
+local SUBTITLES: { [string]: string } = {
+	featured = "Passes are yours to keep. Prices are in Robux.",
+	cats = "Passes are yours to keep. Prices are in Robux.",
+	passes = "Passes are yours to keep. Prices are in Robux.",
+	potions = "Potions are used from your Bag. Prices are in Robux.",
+	cafePass = "Prices are in Robux.",
+}
+
+function StoreLogic.subtitle(tab: string): string
+	return SUBTITLES[tab] or StoreLogic.SUBTITLE_DEFAULT
+end
+
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
 export type Price = {
 	robux: number?,

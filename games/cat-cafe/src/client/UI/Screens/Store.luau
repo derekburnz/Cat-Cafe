@@ -785,6 +785,10 @@ function Store.showTab(self: any, tab: string)
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end
+	if self._rework then
+		-- #3572: the tab's header line
+		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab))
+	end
 	-- #1823 §4: opening a tab clears its New dot, and the server saves it once
 	if self._new[self._tab] then
 		self._new[self._tab] = nil

@@ -2595,29 +2595,120 @@ local SCENES = {
 		assert(rows >= 10, "uigate: the cat list has only " .. rows .. " cats (#3196)")
 		local trait = list:FindFirstChild("gate_1"):FindFirstChild("Trait")
 		assert(trait.Text:find("Golden Whiskers", 1, true), "uigate: the row reads " .. trait.Text .. " (#3196)")
-		-- #3700: Sort chips (Rarity first and in use), the rarity's word on every row, and the Has trait filter
-		local tools = window:FindFirstChild("Picker", true):FindFirstChild("Tools")
-		local sortWords = tools:FindFirstChild("SortRarity"):FindFirstChildWhichIsA("TextLabel", true)
-		assert(sortWords.Text:find("Rarity", 1, true), "uigate: the Rarity sort chip reads " .. sortWords.Text .. " (#3700)")
+		-- #3874 (Derek 2026-11-13: "a search bar and a filter menu that they can pop up and close with an X. Make the
+		-- default sort by money"): the search box, Filter and Back share one row and the list starts right under it;
+		-- on a short screen at least three whole rows show at once
+		local picker = window:FindFirstChild("Picker", true)
+		local tools = picker:FindFirstChild("Tools")
+		local search = tools:FindFirstChild("Search")
+		assert(search and search:IsA("TextBox"), "uigate: the search box is not on the tool row (#3874)")
+		for _, name in { "Filter", "Back" } do
+			local button = tools:FindFirstChild(name)
+			assert(button, "uigate: the tool row has no " .. name .. " (#3874)")
+			assert(
+				math.abs(button.AbsolutePosition.Y - search.AbsolutePosition.Y) <= 1,
+				"uigate: " .. name .. " is not on the search box's row (#3874)"
+			)
+			assert(
+				button.AbsolutePosition.X >= search.AbsolutePosition.X + search.AbsoluteSize.X,
+				"uigate: " .. name .. " overlaps the search box (#3874)"
+			)
+		end
+		assert(search.AbsoluteSize.X >= 120, ("uigate: the search box is only %d px wide (#3874)"):format(search.AbsoluteSize.X))
+		assert(search.PlaceholderText:find("cats", 1, true), "uigate: the search hint reads " .. search.PlaceholderText .. " (#3874)")
+		assert(list.AbsolutePosition.Y <= tools.AbsolutePosition.Y + tools.AbsoluteSize.Y + 12, "uigate: the list does not start under the tool row (#3874)")
 		assert(list:FindFirstChild("gate_1"):FindFirstChild("Rarity", true), "uigate: a row has no rarity tag (#3700)")
-		press("MysticPool", "Picker.Tools.Hastrait")
+		local fit = list.AbsoluteSize.Y / (list:FindFirstChild("gate_1").AbsoluteSize.Y + 6)
+		print(("[MysticPoolPicker] %.1f rows show at once"):format(fit))
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isShort() then
+			assert(fit >= 3, ("uigate: only %.1f rows show at once on this short screen (#3874)"):format(fit))
+		end
+		-- the list runs by money by default: each shown row earns no more than the one above
+		local function order(): { string }
+			local rows = {}
+			for _, row in list:GetChildren() do
+				if row:IsA("Frame") and row.Visible then
+					table.insert(rows, row)
+				end
+			end
+			table.sort(rows, function(x, y)
+				return x.LayoutOrder < y.LayoutOrder
+			end)
+			local names = {}
+			for _, row in rows do
+				table.insert(names, row.Name)
+			end
+			return names
+		end
+		local cats = (UI.getState() :: any).cats
+		local byMoney = order()
+		for index = 2, #byMoney do
+			local above, below = cats[byMoney[index - 1]], cats[byMoney[index]]
+			assert(
+				(tonumber(above.rating) or 0) >= (tonumber(below.rating) or 0),
+				("uigate: the list is not by money: %s above %s (#3874)"):format(byMoney[index - 1], byMoney[index])
+			)
+		end
+		-- Filter pops up the Sort and Show chips with an X; Money is in use; Has trait and a sort work at once
+		local menu = picker:FindFirstChild("FilterMenu")
+		assert(not menu.Visible, "uigate: the Filter pop-up is open before Filter is pressed (#3874)")
+		press("MysticPool", "Picker.Tools.Filter")
+		assert(menu.Visible, "uigate: Filter did not open its pop-up (#3874)")
+		local money = menu:FindFirstChild("SortMoney"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(money.Text:find("Money", 1, true) and money.Text:find("▼", 1, true), "uigate: the Money sort chip reads " .. money.Text .. " (#3874)")
+		assert(menu:FindFirstChild("SortName") == nil, "uigate: the pop-up still has a Name sort (#3874)")
+		press("MysticPool", "Picker.FilterMenu.Hastrait")
 		local shown = 0
 		for _, row in list:GetChildren() do
 			shown += if row:IsA("Frame") and row.Visible then 1 else 0
 		end
 		local withTrait = 0
-		for _, cat in (UI.getState() :: any).cats do
+		for _, cat in cats do
 			withTrait += if cat.trait ~= nil then 1 else 0
 		end
 		assert(withTrait >= 1, "uigate: the sample cats have no trait for the Has trait filter (#3700)")
-		assert(
-			shown == withTrait,
-			("uigate: Has trait shows %d cats, %d have a trait (#3700)"):format(shown, withTrait)
-		)
-		press("MysticPool", "Picker.Tools.All")
-		press("MysticPool", "Picker.Tools.SortLevel")
+		assert(shown == withTrait, ("uigate: Has trait shows %d cats, %d have a trait (#3700)"):format(shown, withTrait))
+		local filterWords = tools:FindFirstChild("Filter"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(filterWords.Text:find("•", 1, true), "uigate: Filter does not show that a filter is on: " .. filterWords.Text .. " (#3874)")
+		press("MysticPool", "Picker.FilterMenu.All")
+		press("MysticPool", "Picker.FilterMenu.SortLevel")
 		for _ = 1, 10 do
 			UIShim.advance(1 / 60)
+		end
+		local byLevel = order()
+		for index = 2, #byLevel do
+			local above, below = cats[byLevel[index - 1]], cats[byLevel[index]]
+			assert(
+				(tonumber(above.level) or 1) >= (tonumber(below.level) or 1),
+				("uigate: Level does not sort: %s above %s (#3874)"):format(byLevel[index - 1], byLevel[index])
+			)
+		end
+		press("MysticPool", "Picker.FilterMenu.Close")
+		assert(not menu.Visible, "uigate: the X did not close the Filter pop-up (#3874)")
+	end },
+	-- #3874: the Filter pop-up left open, for the picture: Sort and Show over the list, the X at the top right
+	{ "MysticPoolFilter", function()
+		local window = mysticPool(nil, "gate_1")
+		press("MysticPool", "Change")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
+		press("MysticPool", "Picker.Tools.Filter")
+		local menu = window:FindFirstChild("Picker", true):FindFirstChild("FilterMenu")
+		assert(menu.Visible, "uigate: Filter did not open its pop-up (#3874)")
+		local close = menu:FindFirstChild("Close")
+		local bottom = menu.AbsolutePosition.Y + menu.AbsoluteSize.Y
+		local card = window.AbsolutePosition.Y + window.AbsoluteSize.Y
+		assert(bottom <= card, ("uigate: the Filter pop-up runs %d px past the card (#3874)"):format(bottom - card))
+		assert(close.AbsolutePosition.X + close.AbsoluteSize.X <= menu.AbsolutePosition.X + menu.AbsoluteSize.X + 1, "uigate: the X sits outside the pop-up (#3874)")
+		for _, name in { "SortMoney", "SortLevel", "SortRarity", "All", "Working", "Resting", "Notrait", "Hastrait" } do
+			local chip = menu:FindFirstChild(name)
+			assert(chip, "uigate: the pop-up has no " .. name .. " (#3874)")
+			assert(
+				chip.AbsolutePosition.X + chip.AbsoluteSize.X <= close.AbsolutePosition.X - 2 or chip.AbsolutePosition.Y >= close.AbsolutePosition.Y + close.AbsoluteSize.Y,
+				"uigate: " .. name .. " runs under the X (#3874)"
+			)
+			assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= menu.AbsolutePosition.X + menu.AbsoluteSize.X, "uigate: " .. name .. " runs out of the pop-up (#3874)")
 		end
 	end },
 	-- #3196: a re-roll waiting: the old trait and the new one side by side, Keep old and Take new the same size and

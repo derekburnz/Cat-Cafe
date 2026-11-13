@@ -1137,3 +1137,8 @@ Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on i
 ## 2026-11-13 The first bowl cat's card has one button (#3815, Design-Agent)
 - **Why:** about 31% of players who put the first food in the bowl never pressed Tame or Let go, and that card ends the tutorial's step 4 (#3158). Derek's overnight blanket OK (2026-11-13 01:31 UTC) covers going with the recommendation.
 - **What:** while the tutorial is on step 4 the bait card shows one wide glowing "Tame it!" with the tutorial arrow, and no X or Let go. Later bowl cats are unchanged. Spec: `docs/design/cat-cafe/first-hour.md` section 7.
+
+## 2026-11-13 The Mystic Pool cat picker has one small tool row and a Filter pop-up (#3874, #3875, Design-Agent)
+- **Why:** Derek (priority): "make that just one small row on the top so I can see more cats at the same time on mobile". The search row plus the sideways Sort and Show row left about two cats visible on the smallest phones.
+- **What:** one row with a small search box, Filter and Back (Derek's follow-up: "a search bar and a filter menu that they can pop up and close with an X. Make the default sort by money"). Filter pops up Sort (Money, the new default, Level, Rarity) and Show over the list with an X. The Name sort is gone and the count is in the search hint. On short screens the rows have two lines and a slimmer Pick (touch pad still 44 px). Spec: `docs/design/cat-cafe/cat-picker.md`, "One small row on top and a Filter pop-up".
+- **Also (#3875):** Keep old and Take new could stay grey. The card now ends a wait older than 4 s on every repaint, its once-a-second repaint is protected, and a tap on a grey choice after 1.5 s sends it again.

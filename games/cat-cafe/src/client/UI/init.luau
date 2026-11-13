@@ -26,8 +26,6 @@ local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
 local BugReportLogic = require(script.Components.BugReportLogic)
-local BusyMouseDash = require(script.Components.MouseDashLogic) -- the busy windows (Toasts.setBusy)
-local BusyMysticPool = require(script.Components.MysticPoolLogic)
 local CafeSigns = require(script.Screens.CafeSigns)
 local Cannon = require(script.Screens.Cannon)
 local CannonCard = require(script.Screens.CannonCard)
@@ -1487,11 +1485,12 @@ function UI.init(config: Types.InitConfig)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
 		-- Derek 2026-11-13: no pop-up bubbles while playing the arcade or rerolling traits (Toasts.setBusy)
+		-- (required here, not at the top: the file is at the 200 local limit)
 		local view = toasts
 		if view then
-			view:setBusy(
-				name == BusyMouseDash.WINDOW or name == "Arcade" or name == BusyMysticPool.WINDOW
-			)
+			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
+			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
+			view:setBusy(name == dashWindow or name == "Arcade" or name == poolWindow)
 		end
 	end)
 

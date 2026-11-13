@@ -1171,3 +1171,6 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-13 The Index's Decor tabs wrap into rows (#3931, Design-Agent)
 - **Why:** Derek, 15:35 UTC: "the decor menu side gets cut off for the new areas in index". With the new areas the tabs scrolled off the right edge.
 - **What:** each tab gets an equal share of its row; one row while that is at least 100 px, else the fewest rows (up to 3) at 84 px or more, so every area shows without scrolling. The completion line and the page move down under the rows. UI gate scene IndexDecorTabsFit.
+## 2026-11-13 Thank You cards shrink their words instead of cutting them (#3926, Design-Agent)
+- **Why:** Derek, 15:27 UTC: "a lot of thank you for ideas get cut off". An idea of up to 48 bytes had one 21 px line on its card and ended in "...".
+- **What:** the idea takes every line above the credit and shrinks to fit (down to 11 px, 0.17 studs); the credit wraps to two small lines for a long name; What's new rows shrink the same way. The UI gate's shim now takes a SurfaceGui's FixedSize CanvasSize as its face, so scene ThanksBoardFit checks the board at its real 486 x 333 px.

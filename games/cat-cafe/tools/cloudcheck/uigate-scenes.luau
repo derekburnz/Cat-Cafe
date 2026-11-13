@@ -5254,6 +5254,32 @@ local SCENES = {
 		end)
 	end },
 	-- #1618 (Derek2 11-05: "don't even need that button just remove it"): no Sell extras card in the cat room
+	-- #3926 (Derek 2026-11-13: "a lot of thank you for ideas get cut off"): a 48 byte idea and a long name fit their card
+	{ "ThanksBoardFit", function()
+		local long = "Let cats nap on a sunny window seat in each cafe" -- IdeaCredits.IDEA_BYTES (48)
+		assert(#long == 48, "uigate: the long idea is " .. #long .. " bytes")
+		local rows = {}
+		for i = 1, 6 do
+			table.insert(rows, { idea = long, version = 1234, name = "LongestDisplayName0" .. i, supporter = i == 1 }) -- a 20 character name, the most
+		end
+		UI.thanksBoard(rows, false)
+		task.wait(0.1)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeThanksBoard")
+		assert(gui, "uigate: no Thank You board (#3926)")
+		-- the board's 7.6 x 5.2 stud Screen at 64 px a stud, which PixelsPerStud gives it in game
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.FixedSize
+		gui.CanvasSize = Vector2.new(486, 333)
+		task.wait(0.1)
+		local cards = 0
+		for _, piece in gui:GetDescendants() do
+			if piece:IsA("TextLabel") and (piece.Name == "Idea" or piece.Name == "Credit") and piece.Text ~= "" then
+				assert(piece.TextFits, "uigate: a Thank You card's " .. piece.Name .. " is cut off: " .. piece.Text .. " (#3926)")
+				cards += 1
+			end
+		end
+		assert(cards == 12, "uigate: " .. cards .. " card lines on the board, wanted 12 (#3926)")
+		UI.thanksBoard({}, false)
+	end },
 	{ "CatsNoSellExtras", function()
 		UI.open("Cats")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")

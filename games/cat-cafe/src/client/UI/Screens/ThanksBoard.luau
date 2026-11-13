@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local ThanksBoardLogic = require(script.Parent.Parent.Components.ThanksBoardLogic)
@@ -67,6 +68,8 @@ local NEW_TITLE = 40
 local NEW_ROW = 30
 local NEW_CREDIT = 18
 local NEW_DATE_W = 60
+local CARD_CREDIT = 26 -- the credit at a card's foot (#3926): one line, or two small ones for a long name
+local CARD_TEXT_MIN = 11 -- px: 0.17 studs, the smallest a card's words shrink to (#3926)
 
 local function partOf(model: Instance, name: string): BasePart?
 	local part = model:FindFirstChild(name, true)
@@ -282,15 +285,19 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			Parent = row,
 		})
 		IconArt.set(icon, line.glyph)
-		text({
-			Name = "Text",
-			Position = UDim2.fromOffset(34, 2),
-			Size = UDim2.new(1, -34 - NEW_DATE_W, 0, 26), -- 28 characters fit beside the date at this size
-			FontFace = Theme.fonts.display,
-			TextSize = 22, -- 0.34 studs at 64 px a stud, still readable from a few steps
-			Text = line.text,
-			Parent = row,
-		})
+		-- #3926: a long update shrinks to fit beside the date instead of ending in "..."
+		FitText.shrink(
+			text({
+				Name = "Text",
+				Position = UDim2.fromOffset(34, 2),
+				Size = UDim2.new(1, -34 - NEW_DATE_W, 0, 26), -- 28 characters fit beside the date at this size
+				FontFace = Theme.fonts.display,
+				TextSize = 22, -- 0.34 studs at 64 px a stud, still readable from a few steps
+				Text = line.text,
+				Parent = row,
+			}),
+			CARD_TEXT_MIN
+		)
 		text({
 			Name = "Date",
 			AnchorPoint = Vector2.new(1, 0),
@@ -302,16 +309,19 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			Text = line.date,
 			Parent = row,
 		})
-		text({
-			Name = "Credit",
-			Position = UDim2.fromOffset(34, NEW_ROW - 2),
-			Size = UDim2.new(1, -34, 0, 16),
-			TextSize = 16,
-			TextColor3 = BERRY,
-			Text = line.credit or "",
-			Visible = line.credit ~= nil,
-			Parent = row,
-		})
+		FitText.shrink(
+			text({
+				Name = "Credit",
+				Position = UDim2.fromOffset(34, NEW_ROW - 2),
+				Size = UDim2.new(1, -34, 0, 16),
+				TextSize = 16,
+				TextColor3 = BERRY,
+				Text = line.credit or "",
+				Visible = line.credit ~= nil,
+				Parent = row,
+			}),
+			CARD_TEXT_MIN
+		)
 	end
 	self._newRows = list
 end
@@ -403,24 +413,35 @@ function ThanksBoard._card(self: any, index: number): Frame
 		Create("UICorner", { CornerRadius = UDim.new(0, 10) }),
 		Create("UIStroke", { Color = Color3.fromRGB(226, 205, 178), Thickness = 2 }),
 	})
-	text({
-		Name = "Idea",
-		Position = UDim2.fromOffset(10, 6),
-		Size = UDim2.new(1, -20, 0.55, -6),
-		FontFace = Theme.fonts.display,
-		TextSize = 21,
-		TextWrapped = true,
-		TextYAlignment = Enum.TextYAlignment.Top,
-		Parent = made,
-	})
-	text({
-		Name = "Credit",
-		Position = UDim2.new(0, 10, 0.55, 2),
-		Size = UDim2.new(1, -20, 0.45, -8),
-		TextSize = 16,
-		TextColor3 = BERRY,
-		Parent = made,
-	})
+	-- #3926 (Derek 2026-11-13: "a lot of thank you for ideas get cut off"): the idea takes every line above the credit
+	-- and its words shrink to fit (down to CARD_TEXT_MIN) instead of ending in "...", as does the credit line
+	FitText.shrink(
+		text({
+			Name = "Idea",
+			Position = UDim2.fromOffset(10, 5),
+			Size = UDim2.new(1, -20, 1, -(5 + CARD_CREDIT + 6)),
+			FontFace = Theme.fonts.display,
+			TextSize = 21,
+			TextWrapped = true,
+			TextYAlignment = Enum.TextYAlignment.Top,
+			Parent = made,
+		}),
+		CARD_TEXT_MIN
+	)
+	FitText.shrink(
+		text({
+			Name = "Credit",
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(0, 10, 1, -4),
+			Size = UDim2.new(1, -20, 0, CARD_CREDIT),
+			TextSize = 16,
+			TextWrapped = true,
+			TextYAlignment = Enum.TextYAlignment.Bottom,
+			TextColor3 = BERRY,
+			Parent = made,
+		}),
+		CARD_TEXT_MIN
+	)
 	self._cards[index] = made
 	return made
 end

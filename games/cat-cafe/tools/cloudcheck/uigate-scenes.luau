@@ -5981,6 +5981,7 @@ local SCENES = {
 	end },
 	{ "Potions", function()
 		UI.open("Potions")
+		press("Potions", "PotionsTab") -- #3961: BagTitles, earlier in the run, leaves the Titles tab open
 		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
 		assert(badgeDraws("Potions", "118552497512285"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
@@ -6013,6 +6014,7 @@ local SCENES = {
 	{ "PotionsFastUse", function()
 		UI.update({ potions = { tip_potion = 3 }, buffs = {} })
 		UI.open("Potions")
+		press("Potions", "PotionsTab")
 		UIShim.advance(0.2)
 		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
 		local function texts(): string
@@ -6039,6 +6041,7 @@ local SCENES = {
 		UI.update({ potions = {}, buffs = {} })
 		UI.update({ potions = { tip_potion = 3, swift_potion = 2 }, buffs = {} })
 		UI.open("Potions")
+		press("Potions", "PotionsTab")
 		UIShim.advance(0.2)
 		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
 		local row = window:FindFirstChild("UseAllRow", true) :: GuiObject
@@ -6048,6 +6051,37 @@ local SCENES = {
 		assert(ask and ask.Visible, "uigate: Use all potions did not ask first (#3326)")
 		local line = (ask:FindFirstChild("Line", true) :: TextLabel).Text
 		assert(line == "Money x3, Swift x2", "uigate: the confirm card reads " .. line)
+	end },
+	-- #3961 (batch 4 mock): the potions on picture cards two to a row, each with its Use inside its card
+	{ "PotionsCards", function()
+		UI.update({ potions = {}, buffs = {} })
+		UI.update({ potions = { tip_potion = 3, swift_potion = 2, lucky_potion = 1 }, buffs = {} })
+		UI.open("Potions")
+		press("Potions", "PotionsTab")
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Potions", true) :: GuiObject
+		local grid = window:FindFirstChild("PotionGrid", true) :: GuiObject
+		assert(grid and grid.Visible, "uigate: no potion cards grid (#3961)")
+		local tip = grid:FindFirstChild("tip_potion") :: GuiObject
+		local swift = grid:FindFirstChild("swift_potion") :: GuiObject
+		assert(tip and swift, "uigate: a potion has no card (#3961)")
+		local rows: { [number]: number } = {}
+		local paired = false
+		for _, child in grid:GetChildren() do
+			if child:IsA("Frame") then
+				local y = math.floor(child.AbsolutePosition.Y + 0.5)
+				rows[y] = (rows[y] or 0) + 1
+				paired = paired or rows[y] >= 2
+			end
+		end
+		assert(paired, "uigate: no two potion cards sit side by side (#3961)")
+		for _, potion in { tip, swift } do
+			local use = potion:FindFirstChild("Use", true) :: GuiObject
+			assert(
+				use.AbsolutePosition.X + use.AbsoluteSize.X <= potion.AbsolutePosition.X + potion.AbsoluteSize.X + 1,
+				"uigate: a potion's Use runs out of its card (#3961)"
+			)
+		end
 	end },
 	{ "PotionsUseAllHidden", function()
 		UI.update({ potions = { tip_potion = 3 }, buffs = {} })

@@ -81,7 +81,6 @@ export type Potions = {
 
 local ROW_H = 76
 local TILE = 56
-local USE_W = 104
 local TAB_H = 40
 local ALL_W = 188 -- #3326: "Use all potions"
 local ALL_H = 42 -- over the 36 px a mouse needs (the UI gate's tap check)
@@ -90,6 +89,10 @@ local ASK_H = 150 -- its confirm card
 -- the 104 px they had, and line up with the list under them
 local TAB_SIZE = UDim2.new(0.25, -math.ceil(Theme.sizes.gap * 3 / 4), 0, TAB_H - 4)
 local EQUIP_W = 104 -- the Titles tab's Equip button
+-- #3961 (batch 4 mock, Bag): the potions as picture cards two to a row, the bottle at the left, the name and what it
+-- does beside it, and Use (and Use xN) along the bottom right with the time left at the bottom left
+local POTION_H = 124
+local POTION_USE_W = 84
 local FOOD_W = 104 -- the Feed button
 local PENDING_SECONDS = 3 -- a sent Use with no answer stops counting on its row after this long (#3190)
 local SEND_GAP = 0.55 -- UsePotion is 2 a second on the server (Net.luau); queued presses go this far apart
@@ -398,6 +401,21 @@ function Potions.new(callbacks: Callbacks): Potions
 	})
 
 	-- with an empty bag, one line on where potions come from, under the rows
+	-- #3961: the potion cards' grid, under Use all potions
+	self._potionGrid = Create("Frame", {
+		Name = "PotionGrid",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 1,
+		Parent = self._list,
+	}, {
+		Create("UIGridLayout", {
+			CellSize = UDim2.new(0.5, -math.ceil(Theme.sizes.gap / 2), 0, POTION_H),
+			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 	self._hint = text({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 40),
@@ -1147,8 +1165,8 @@ function Potions._row(self: any, potionId: string): Row
 		Name = potionId,
 		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, ROW_H),
-		Parent = self._list,
+		Size = UDim2.new(1, 0, 0, POTION_H), -- the grid's cell
+		Parent = self._potionGrid,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
@@ -1157,8 +1175,7 @@ function Potions._row(self: any, potionId: string): Row
 		Name = "Tile",
 		BackgroundColor3 = Theme.potionColor(potionId),
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 10, 0.5, 0),
+		Position = UDim2.fromOffset(10, 10),
 		Size = UDim2.fromOffset(TILE, TILE),
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
@@ -1201,35 +1218,38 @@ function Potions._row(self: any, potionId: string): Row
 		PaddingRight = UDim.new(0, 6),
 		Parent = count,
 	})
-	local textLeft = TILE + 24
-	local textRight = USE_W + 20 -- _refresh widens it while Use all shows
+	local textLeft = TILE + 20
 	local name = text({
 		Name = "PotionName",
-		Position = UDim2.fromOffset(textLeft, 12),
-		Size = UDim2.new(1, -(textLeft + textRight), 0, 26),
+		Position = UDim2.fromOffset(textLeft, 10),
+		Size = UDim2.new(1, -(textLeft + 10), 0, 24),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 3,
+		TextSize = Theme.sizes.textBody + 2,
 		Parent = frame,
 	})
+	FitText.shrink(name)
+	-- what it does and for how long, on two lines in the card's half width ("Luck +50% and double gold on bait  ·
+	-- 10 min")
 	local effect = text({
 		Name = "Effect",
-		Position = UDim2.fromOffset(textLeft, 40),
-		Size = UDim2.new(1, -(textLeft + textRight), 0, 22),
-		TextSize = Theme.sizes.textSmall + 1,
+		Position = UDim2.fromOffset(textLeft, 36),
+		Size = UDim2.new(1, -(textLeft + 10), 0, 34),
+		TextSize = Theme.sizes.textSmall,
 		TextColor3 = CARD.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = frame,
 	})
-	FitText.shrink(effect) -- #2207: "Luck +50% and double gold on bait  ·  10 min" whole on a phone
-	-- "8:12 left" over the Use button while it runs
+	-- "8:12 left" at the bottom left, level with the Use button, while it runs
 	local left = text({
 		Name = "Left",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -10, 0, 4),
-		Size = UDim2.fromOffset(USE_W, 18),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 12, 1, -29),
+		Size = UDim2.new(1, -(POTION_USE_W + 32), 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = CARD.good,
-		TextXAlignment = Enum.TextXAlignment.Center,
 		Visible = false,
 		Parent = frame,
 	})
@@ -1241,7 +1261,7 @@ function Potions._row(self: any, potionId: string): Row
 		name = "Use",
 		text = "Use",
 		style = "primary",
-		size = UDim2.fromOffset(USE_W, 38),
+		size = UDim2.fromOffset(POTION_USE_W, 38),
 		anchorPoint = Vector2.new(1, 1),
 		position = UDim2.new(1, -10, 1, -10),
 		textSize = Theme.sizes.textBody + 1,
@@ -1254,9 +1274,9 @@ function Potions._row(self: any, potionId: string): Row
 		name = "UseAll",
 		text = "Use all",
 		style = "teal",
-		size = UDim2.fromOffset(USE_W, 38),
+		size = UDim2.fromOffset(POTION_USE_W, 38),
 		anchorPoint = Vector2.new(1, 1),
-		position = UDim2.new(1, -(USE_W + 18), 1, -10),
+		position = UDim2.new(1, -(POTION_USE_W + 16), 1, -10),
 		textSize = Theme.sizes.textBody + 1,
 		parent = frame,
 		onClick = function()
@@ -1321,10 +1341,9 @@ function Potions._refresh(self: any)
 		row.useAll.instance.Visible = many
 		row.useAll:setText(("Use x%d"):format(view.fit))
 		row.useAll:setEnabled(many)
-		local textRight = if many then 2 * USE_W + 28 else USE_W + 20
-		local textLeft = TILE + 24
-		row.name.Size = UDim2.new(1, -(textLeft + textRight), 0, 26)
-		row.effect.Size = UDim2.new(1, -(textLeft + textRight), 0, 22)
+		-- the time left keeps clear of the buttons beside it
+		local buttonsW = if many then 2 * POTION_USE_W + 6 else POTION_USE_W
+		row.left.Size = UDim2.new(1, -(buttonsW + 32), 0, 18)
 		any = true
 	end
 	for id, row in self._rows do

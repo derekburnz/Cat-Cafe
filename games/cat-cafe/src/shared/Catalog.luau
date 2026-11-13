@@ -2153,6 +2153,15 @@ Catalog.achievements = {
 		size = "S",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_catch25",
+		name = "Cat Spotter",
+		text = "Catch 25 cats",
+		measure = "catsCaught",
+		needs = 25,
+		size = "S",
+	},
+	{
 		id = "a_catch100",
 		name = "Cat Catcher",
 		text = "Catch 100 cats",
@@ -2161,8 +2170,26 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_catch250",
+		name = "Cat Herder",
+		text = "Catch 250 cats",
+		measure = "catsCaught",
+		needs = 250,
+		size = "M",
+	},
+	{
 		id = "a_catch1k",
 		name = "Cat Wrangler",
+		text = "Catch 500 cats",
+		measure = "catsCaught",
+		needs = 500,
+		size = "L",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_catch1000",
+		name = "Cat Tamer",
 		text = "Catch 1,000 cats",
 		measure = "catsCaught",
 		needs = 1000,
@@ -2171,9 +2198,9 @@ Catalog.achievements = {
 	{
 		id = "a_catch10k",
 		name = "Cat Legend",
-		text = "Catch 10,000 cats",
+		text = "Catch 2,500 cats",
 		measure = "catsCaught",
-		needs = 10000,
+		needs = 2500,
 		size = "XL",
 	},
 	{
@@ -2183,6 +2210,15 @@ Catalog.achievements = {
 		measure = "rareCatches",
 		needs = 1,
 		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_rare25",
+		name = "Rare Seeker",
+		text = "Catch 25 Rare or better cats",
+		measure = "rareCatches",
+		needs = 25,
+		size = "M",
 	},
 	{
 		id = "a_rare100",
@@ -2201,11 +2237,20 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_gold10",
+		name = "Gold Seeker",
+		text = "Catch 10 gold cats",
+		measure = "goldCatches",
+		needs = 10,
+		size = "L",
+	},
+	{
 		id = "a_gold50",
 		name = "Gold Rush",
-		text = "Catch 50 gold cats",
+		text = "Catch 25 gold cats",
 		measure = "goldCatches",
-		needs = 50,
+		needs = 25,
 		size = "XL",
 	},
 	{
@@ -2215,6 +2260,15 @@ Catalog.achievements = {
 		measure = "perfectCircles",
 		needs = 1,
 		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_perfect100",
+		name = "Sure Paws",
+		text = "Land 100 perfect circles",
+		measure = "perfectCircles",
+		needs = 100,
+		size = "M",
 	},
 	{
 		id = "a_perfect500",
@@ -2227,9 +2281,9 @@ Catalog.achievements = {
 	{
 		id = "a_perfect5k",
 		name = "Steady Hands",
-		text = "Land 5,000 perfect circles",
+		text = "Land 2,000 perfect circles",
 		measure = "perfectCircles",
-		needs = 5000,
+		needs = 2000,
 		size = "XL",
 	},
 	{
@@ -2241,11 +2295,20 @@ Catalog.achievements = {
 		size = "S",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_rescue25",
+		name = "Helping Hand",
+		text = "Rescue 25 stuck cats",
+		measure = "rescues",
+		needs = 25,
+		size = "M",
+	},
+	{
 		id = "a_rescue250",
 		name = "Rescue Hero",
-		text = "Rescue 250 stuck cats",
+		text = "Rescue 100 stuck cats",
 		measure = "rescues",
-		needs = 250,
+		needs = 100,
 		size = "L",
 	},
 	{
@@ -2257,11 +2320,20 @@ Catalog.achievements = {
 		size = "S",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_bait25",
+		name = "Bowl Regular",
+		text = "Tame 25 cats at your bait bowl",
+		measure = "baitsTamed",
+		needs = 25,
+		size = "M",
+	},
+	{
 		id = "a_bait200",
 		name = "Bait Master",
-		text = "Tame 200 cats at your bait bowl",
+		text = "Tame 100 cats at your bait bowl",
 		measure = "baitsTamed",
-		needs = 200,
+		needs = 100,
 		size = "L",
 	},
 	{
@@ -2371,9 +2443,9 @@ Catalog.achievements = {
 	{
 		id = "a_tips2k",
 		name = "Head Waiter",
-		text = "Collect 2,000 tip piles",
+		text = "Collect 1,000 tip piles",
 		measure = "tipPilesCollected",
-		needs = 2000,
+		needs = 1000,
 		size = "L",
 	},
 	{
@@ -2441,6 +2513,24 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_hours1",
+		name = "Settling In",
+		text = "Play for 1 hour",
+		measure = "playtimeSeconds",
+		needs = 3600,
+		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_hours5",
+		name = "Happy Visitor",
+		text = "Play for 5 hours",
+		measure = "playtimeSeconds",
+		needs = 18000,
+		size = "M",
+	},
+	{
 		id = "a_hours10",
 		name = "Cafe Regular",
 		text = "Play for 10 hours",
@@ -2449,19 +2539,46 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_hours25",
+		name = "Cafe Fixture",
+		text = "Play for 25 hours",
+		measure = "playtimeSeconds",
+		needs = 90000,
+		size = "L",
+	},
+	{
 		id = "a_hours100",
 		name = "Devoted",
-		text = "Play for 100 hours",
+		text = "Play for 50 hours",
 		measure = "playtimeSeconds",
-		needs = 360000,
+		needs = 180000,
 		size = "XL",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_quests10",
+		name = "Quest Starter",
+		text = "Finish 10 daily quests",
+		measure = "dailyQuestsDone",
+		needs = 10,
+		size = "S",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_quests30",
+		name = "Quest Fan",
+		text = "Finish 30 daily quests",
+		measure = "dailyQuestsDone",
+		needs = 30,
+		size = "M",
 	},
 	{
 		id = "a_quests100",
 		name = "Quest Keeper",
-		text = "Finish 100 daily quests",
+		text = "Finish 60 daily quests",
 		measure = "dailyQuestsDone",
-		needs = 100,
+		needs = 60,
 		size = "L",
 	},
 	{
@@ -2473,12 +2590,30 @@ Catalog.achievements = {
 		size = "M",
 	},
 	{
+		-- #3694: a step between, so one is always close
+		id = "a_week3",
+		name = "Week Keeper",
+		text = "Finish every weekly quest in 3 weeks",
+		measure = "weeklySetsDone",
+		needs = 3,
+		size = "L",
+	},
+	{
 		id = "a_week10",
 		name = "Week Champion",
-		text = "Finish every weekly quest in 10 weeks",
+		text = "Finish every weekly quest in 5 weeks",
 		measure = "weeklySetsDone",
-		needs = 10,
+		needs = 5,
 		size = "XL",
+	},
+	{
+		-- #3694: a step between, so one is always close
+		id = "a_level10",
+		name = "Rising Star",
+		text = "Raise a cat to level 10",
+		measure = "topCatLevel",
+		needs = 10,
+		size = "M",
 	},
 	{
 		id = "a_level25",
@@ -2514,6 +2649,91 @@ Catalog.achievementPrizes = {
 	},
 } :: { [string]: Types.IndexPrize }
 
+-- #3694 (Derek 2026-11-12: "make the rewards slightly more unique/diff"; achievements-v2.md section 4): the coins,
+-- coinSeconds and pass XP stay by size, and the item comes from the achievement's line, keyed by its measure. A line
+-- with no row for a size, or a measure with no line, pays the size's item as before. "highest" is the crate of the
+-- player's best open area and "highest_golden" its golden crate (shared/Prizes). Everything here is earned in play;
+-- none of it is sold for Robux.
+type AchievementLine = { [string]: Types.IndexPrize }
+local CATCHING: AchievementLine = {
+	S = { lures = { tuna = 2 } },
+	M = { lures = { salmon = 1, tuna = 1 } },
+	L = { crates = { highest = 1 } },
+	XL = { crates = { highest_golden = 1 }, lures = { caviar = 1 } },
+}
+local FINDING: AchievementLine = {
+	S = { spins = 1 },
+	M = { crates = { highest = 1 } },
+	L = { crates = { highest_golden = 1 } },
+	XL = { crates = { highest_golden = 2 } },
+}
+local QUESTS: AchievementLine = {
+	S = { spins = 2 },
+	M = { spins = 3 },
+	L = { spins = 5, fish = 10 },
+	XL = { crates = { classic_golden_crate = 1 }, spins = 5 },
+}
+local PLAYING: AchievementLine = {
+	S = { fish = 5 },
+	M = { fish = 10 },
+	L = { fish = 25, potions = { tip_potion = 1 } },
+	XL = { fish = 50, potions = { big_tip_potion = 1 } },
+}
+local ACHIEVEMENT_LINES: { [string]: AchievementLine } = {
+	catsCaught = CATCHING,
+	rareCatches = CATCHING,
+	goldCatches = {
+		M = { potions = { lucky_potion = 1 } },
+		L = { potions = { lucky_potion = 2 } },
+		XL = { crates = { classic_golden_crate = 1 }, potions = { gold_rush_potion = 1 } },
+	},
+	perfectCircles = {
+		S = { potions = { steady_potion = 1 } },
+		M = { potions = { steady_potion = 2 } },
+		L = { potions = { steady_potion = 3 }, fish = 10 },
+		XL = { crates = { classic_golden_crate = 1 }, potions = { steady_potion = 3 } },
+	},
+	rescues = {
+		S = { potions = { swift_potion = 1 } },
+		M = { potions = { swift_potion = 2 } },
+		L = { potions = { swift_potion = 3 }, crates = { classic_crate = 1 } },
+	},
+	baitsTamed = {
+		S = { lures = { tuna = 2 } },
+		M = { lures = { salmon = 2 } },
+		L = { lures = { caviar = 1, salmon = 1 } },
+	},
+	distinctCats = FINDING,
+	goldCats = FINDING,
+	mythicalCats = FINDING,
+	dailyQuestsDone = QUESTS,
+	weeklySetsDone = QUESTS,
+	playtimeSeconds = PLAYING,
+	topCatLevel = {
+		M = { potions = { tip_potion = 1 } },
+		L = { potions = { tip_potion = 2 } },
+		XL = { potions = { big_tip_potion = 1 }, crates = { classic_golden_crate = 1 } },
+	},
+}
+Catalog.achievementLines = ACHIEVEMENT_LINES
+
+-- #3694: what one achievement pays: its size's coins and pass XP with its line's item, or the size's whole prize when
+-- its line has no row for that size. A new table each call, so callers may keep it.
+local PRIZE_BY_SIZE = { "coins", "coinSeconds", "passXp" }
+function Catalog.achievementPrize(def: Types.AchievementDef): Types.IndexPrize
+	local base = Catalog.achievementPrizes[def.size]
+	local line = Catalog.achievementLines[def.measure]
+	local item = if line then line[def.size] else nil
+	if base == nil or item == nil then
+		return table.clone((base or {}) :: Types.IndexPrize)
+	end
+	local prize: { [string]: any } = table.clone(item :: any)
+	for _, key in PRIZE_BY_SIZE do
+		prize[key] = (base :: any)[key]
+	end
+	return prize :: Types.IndexPrize
+end
+
 Catalog.questsById = {} :: { [string]: Types.QuestDef }
 Catalog.questPools = {} :: { [string]: string } -- quest id -> its pool
 for _, pools in { Catalog.quests.daily, Catalog.quests.weekly } do
@@ -2537,6 +2757,18 @@ for _, def in Catalog.achievements do
 	table.freeze(def)
 end
 table.freeze(Catalog.achievements)
+for _, line in Catalog.achievementLines do
+	for _, prize in line do
+		for _, part in prize :: { [string]: any } do
+			if type(part) == "table" and not table.isfrozen(part) then
+				table.freeze(part)
+			end
+		end
+		if not table.isfrozen(prize) then
+			table.freeze(prize)
+		end
+	end
+end
 for _, prizes in { Catalog.questPrizes, Catalog.achievementPrizes } do
 	for _, prize in prizes do
 		for _, part in prize :: { [string]: any } do
@@ -3161,6 +3393,25 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, crates = { classic_crate = 1 } },
 	},
+	-- #3576 (Derek 2026-11-12: "add codes for 2000visits,10likes and update2 when it's out"): two thank-you codes, on
+	-- as soon as a server has them, and the second update's code, on by the clock at the update (Thursday 2026-11-12
+	-- 22:00 UTC; unknown before it). Prizes are Design-Agent's, beside `update1` and `500visits` in size; no end.
+	["2000visits"] = {
+		id = "2000visits",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, crates = { classic_crate = 2 } },
+	},
+	["10likes"] = {
+		id = "10likes",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	update2 = {
+		id = "update2",
+		active = true,
+		startsAt = 1794520800, -- 2026-11-12 22:00 UTC
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { big_tip_potion = 2 } },
+	},
 	group = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set
@@ -3194,8 +3445,10 @@ end
 -- equally among that rarity's pieces. Every crate shows these odds before it opens (monetization-policy).
 local CRATE_ODDS =
 	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
+-- #3665 (Derek 2026-11-12: "buff gold crates chance of legendary / mythic so its not only always epics"): 70, 24, 6
+-- (was 80, 17.5, 2.5). A plain crate's lucky twentieth keeps the old numbers in its own table (Crates.LUCKY_ODDS).
 local GOLDEN_CRATE_ODDS =
-	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
+	{ Common = 0, Rare = 0, Epic = 70, Legendary = 24, Mythical = 6 } :: { [string]: number }
 -- F101: the Rally Crate is never sold and has no golden twin (`sold` and `golden` false).
 local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boolean? } } = {
 	{ area = "alley", name = "Alley" },

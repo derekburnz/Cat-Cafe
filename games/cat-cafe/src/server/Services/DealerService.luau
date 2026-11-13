@@ -354,7 +354,10 @@ end
 
 function DealerService.start()
 	Net.on("BuyDealerFood", onBuyDealerFood)
-	Net.on("BuyDealerAll", onBuyDealerAll) -- #2573
+	-- #2573. #3646: a Buy all dropped by the rate limit is answered with the stock, which ends the client's wait
+	Net.on("BuyDealerAll", onBuyDealerAll, function(player: Player)
+		sendStock(player, true)
+	end)
 	ClockService.changed:Connect(onPhase)
 	onPhase(ClockService.phase())
 	Players.PlayerRemoving:Connect(function(player)

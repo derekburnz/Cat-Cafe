@@ -151,6 +151,7 @@ return function()
 						-- #3106: a new player's first delivery and first cat are back
 						"🧺 Mochi is on its way to your cafe!",
 						"Your first cat! Mochi is your Waiter now ($2/s)",
+						"Welcome back! Your cats earned $113K while you rested 💤", -- #3573
 					}
 				do
 					expect(ToastRules.kept(line)).to.equal(true)

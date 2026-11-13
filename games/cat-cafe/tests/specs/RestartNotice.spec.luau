@@ -59,25 +59,25 @@ return function()
 			"counts down calmly in minutes, then seconds, then now, says the cafe is saved and promises the event",
 			function()
 				expect(RestartNotice.text(600)).to.equal(
-					"A quick update is coming in 10 minutes, then a 10-minute event! Keep playing, your cafe is saved."
+					"A quick update is coming in 10 minutes, then a 30-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(120)).to.equal(
-					"A quick update is coming in 2 minutes, then a 10-minute event! Keep playing, your cafe is saved."
+					"A quick update is coming in 2 minutes, then a 30-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(60)).to.equal(
-					"A quick update is coming in 1 minute, then a 10-minute event! Keep playing, your cafe is saved."
+					"A quick update is coming in 1 minute, then a 30-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(150)).to.equal(
-					"A quick update is coming in 3 minutes, then a 10-minute event! Keep playing, your cafe is saved."
+					"A quick update is coming in 3 minutes, then a 30-minute event! Keep playing, your cafe is saved."
 				)
 				expect(RestartNotice.text(30)).to.equal(
-					"Quick update in 30 seconds, then a 10-minute event! Your cafe is saved."
+					"Quick update in 30 seconds, then a 30-minute event! Your cafe is saved."
 				)
 				expect(RestartNotice.text(0.4)).to.equal(
-					"Quick update in 1 second, then a 10-minute event! Your cafe is saved."
+					"Quick update in 1 second, then a 30-minute event! Your cafe is saved."
 				)
 				expect(RestartNotice.text(0)).to.equal(
-					"Updating now. Join again for a 10-minute event! Your cafe is saved."
+					"Updating now. Join again for a 30-minute event! Your cafe is saved."
 				)
 			end
 		)

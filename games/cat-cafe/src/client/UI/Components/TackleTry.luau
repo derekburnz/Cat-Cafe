@@ -3,7 +3,8 @@
 -- card pointing at the Tackle bar the first time it could be used: the tackling lesson seen, this player's tackle
 -- ready and someone else carrying a cat within a lunge (Config.TackleLungeStuds, with REACH_SLACK for the walk in).
 --   due(input)                     the pure rule, for the spec
---   carriers(players, me)          the others on the server and whether each carries a cat, read off their characters
+--   carriers(players, me, now)     the others on the server and whether each carries a cat, read off their characters
+--                                  (#3677: not one inside their new player shield, shielded(untilAt, now))
 --   cueTarget(input)               #2558: which carrier the big "Q Tackle!" cue hangs over (Components/TackleCue), the
 --                                  nearest within the same reach while the tackle is ready, for this player's first
 --                                  CUE_HITS landed tackles of the session; nil for none
@@ -71,9 +72,17 @@ function TackleTry.cueTarget(input: CueInput): number?
 	return best
 end
 
+-- #3677 (Derek 2026-11-12: "not show the tackle pop up when nearby someone with a cat IF they have the immunity
+-- still"): true while a player's new player shield runs. `untilAt` is their TackleShieldUntil attribute (a server
+-- time, set and cleared by ShoveService), `now` the server time. A tackle on them does nothing, so nothing offers one.
+function TackleTry.shielded(untilAt: unknown, now: number): boolean
+	return type(untilAt) == "number" and untilAt == untilAt and now < untilAt
+end
+
 -- Every other player with a character: its root (and that root's position) and whether it carries a cat
--- (CarryingCatId).
-function TackleTry.carriers(players: { Player }, me: Player?): { Carrier }
+-- (CarryingCatId) that a tackle could knock loose: a carrier inside their shield (#3677) counts as not carrying, so
+-- neither the big cue nor the tackle_try tip points at them. `now` is the server time.
+function TackleTry.carriers(players: { Player }, me: Player?, now: number): { Carrier }
 	local found: { Carrier } = {}
 	for _, player in players do
 		local character = player.Character
@@ -84,7 +93,8 @@ function TackleTry.carriers(players: { Player }, me: Player?): { Carrier }
 				else nil
 			table.insert(found, {
 				position = if part ~= nil then part.Position else nil,
-				carrying = character:GetAttribute("CarryingCatId") ~= nil,
+				carrying = character:GetAttribute("CarryingCatId") ~= nil
+					and not TackleTry.shielded(player:GetAttribute("TackleShieldUntil"), now),
 				root = part,
 			})
 		end

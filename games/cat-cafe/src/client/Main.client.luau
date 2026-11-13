@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
+local AfkController = require(script.Parent.Controllers.AfkController)
 local Audio = require(script.Parent.Audio)
 local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
@@ -19,11 +20,14 @@ local Effects = require(script.Parent.Effects)
 local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
 local LateStationsController = require(script.Parent.Controllers.LateStationsController)
+local MemoryWatchController = require(script.Parent.Controllers.MemoryWatchController)
 local Moments = require(script.Parent.Moments)
 local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
+local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
 local RallyController = require(script.Parent.Controllers.RallyController)
+local RankSpotController = require(script.Parent.Controllers.RankSpotController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local SpaPoolController = require(script.Parent.Controllers.SpaPoolController)
@@ -40,17 +44,21 @@ UIController.start()
 WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
+MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
+ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
+RankSpotController.start() -- #3555: the first rank up's walk-through, behind rankUpSpotlight
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
+AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines

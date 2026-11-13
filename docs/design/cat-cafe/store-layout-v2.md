@@ -6,8 +6,8 @@ Status: specced 2026-11-06, decided overnight under Derek2's go-ahead ("go with 
 
 One hero card on top, then a row of three small cards (a 3 x 1 row on desktop and tablet, and a scroll row on phone).
 
-- **Hero card** (full width, about 40% of the panel's height). It shows the bundle that fits the player: the Starter Bundle until it is bought, then the King Cat bundle. When both are owned, it shows the Cafe Pass. The left half is the main item's picture (the cat's portrait or the theme's preview), with the title in FredokaOne under it. The right half holds the contents row, the Worth line and the price button (section 2).
-- **Small cards, in order:** the Cafe Pass (with "Season ends in X days", taken from the real season end in cafe-pass.md, never restarted), then the two best sellers from the last 7 days of sales. The growth thread fills that list. Until it has data, use 2x Money and Long Nap.
+- **Hero card** (full width, about 40% of the panel's height). It shows the bundle that fits the player: the Starter Bundle until it is bought, then the King Cat bundle. When both are owned, it shows the Cafe Pass. (Replaced on 2026-11-12 by the order in section 8: after the Starter Bundle the hero is the Royal Cat.) The left half is the main item's picture (the cat's portrait or the theme's preview), with the title in FredokaOne under it. The right half holds the contents row, the Worth line and the price button (section 2).
+- **Small cards, in order:** the Cafe Pass (with "Season ends in X days", taken from the real season end in cafe-pass.md, never restarted), then the two best sellers from the last 7 days of sales. The growth thread fills that list. Until it has data, use 2x Money and Long Nap. (Replaced on 2026-11-12 by the three picks in section 8.)
 - Nothing slides or rotates by itself, and there's no auto-play carousel.
 
 ## 2. The bundle card
@@ -40,7 +40,7 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 
 ## 6. QA checks
 
-1. A new account sees the Starter Bundle as the hero card. After buying it, the hero becomes the King Cat bundle without a rejoin.
+1. A new account sees the Starter Bundle as the hero card. After buying it, the hero becomes the Royal Cat without a rejoin (section 8; it was the King Cat bundle before 2026-11-12).
 2. The Worth line equals the sum of the live part prices, rounded down to R$5, and is hidden when a price fetch fails.
 3. No card has more than one badge, and "Best Value" appears only when the Worth line is at least 1.25 times the price.
 4. An owned pass shows "Yours" and greyed out, with no buy prompt. Owning one part of a bundle lowers its Worth line.
@@ -53,3 +53,47 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 - **Contents, in icon order:** the King Cat, the Grand Cafe theme, the Royal Crest crown sign, one decor piece and one allowed potion set. Gameplay-Engineer picks the decor piece and potion set from items that already exist, and they stay fixed. A buyer who already owns the Grand theme pass keeps it, and the bundle's Worth line counts only the parts they don't have (section 4).
 - **Badge:** "Best Value" when the live Worth reaches 1.25 x the price, which it should for a new buyer once the King Cat sells alone at R$799, since the Grand theme is a pass of its own.
 - **The King Cat alone** in the Cats tab: R$799 (R$399 in launch week), on a new pass that Derek2 creates by hand. Its card stays hidden until `KingCatPassId` is set in Config. Until then the cat counts at R$0 in the Worth line (section 2: a part not sold alone), so the badge may be missing at first. That's honest, and it fixes itself once the pass exists.
+
+## 8. Featured order, half prices and the Sale badge (Derek, 2026-11-12; #3562, #3572)
+
+Derek: "make the featured bundles better as it shows bad packs right now never show potion bundles unless they are only thing left, should focus on cats bundles 2x money being cheap etc", then "make the prizes of anything not being bought yet half'd" and "put a sale badge on it also rework the store with model agent". This section replaces the pick order in section 1. The Featured order is built in #3593 (code only); the Sale badge is built in #3594 and shows nothing until the prices change; the price change itself (announced on #3572 before it runs) and the layout rework are not done yet.
+
+**Featured order (#3562).**
+- Hero, first one not owned: Starter Bundle, Royal Cat, King Cat Pack, Cafe Pass (while a season runs), Grand Cafe Theme.
+- Three picks, first three not owned and not the hero: the money ladder's next step (2x Money first, the cheapest item), Royal Cat, King Cat Pack, Second Bait Bowl, Extra Slot, VIP, Long Nap, Cafe Pass, then the other passes.
+- Potion packs show on Featured only when every pass and every other product is owned. They stay on the Potions tab. As built, "potion packs" means every card of `StoreLogic.PRODUCTS`, so the Steady Paw Pack is treated the same as Potion Pack XS, S, M and L.
+- A card that is off sale or has no price yet is skipped. No badges other than Sale, no timers, nothing pre-selected.
+
+**Half prices (#3572).** The items were picked by Derek's rule from Growth-Agent's read of 2026-11-12, which is kept in the private Library, not here.
+
+| Robux item | Was | Now |
+|---|---|---|
+| Golden Pond | 99 | 49 |
+| Extra Slot | 149 | 75 |
+| Uniform Styles | 149 | 75 |
+| Cafe Style | 249 | 125 |
+| Royal Cat | 599 | 299 |
+| King Cat | 799 | 399 |
+| Grand Cafe Theme | 799 | 399 |
+| King Cat Pack | 999 | 499 |
+| Potion Pack XS | 10 | 5 |
+| Potion Pack S | 25 | 13 |
+| Potion Pack M | 49 | 25 |
+| Potion Pack L | 99 | 49 |
+| Steady Paw Pack | 25 | 13 |
+| Thank You Badge | 25 | 13 |
+| Cafe Pass | 299 | 149 |
+
+Derek halved Potion Pack L as well so the bigger pack is never the worse deal. Unchanged: 2x, 3x and 4x Money, VIP, Long Nap, Cat Accessories, Second Bait Bowl, Garden Decor Pack, Sign Style Pack and the Starter Bundle. The Jukebox Pass is off sale. Managed pricing stays on in Creator Hub (Derek).
+
+No golden fish price changes. Derek's pick was to halve only the Fresh Catch potions, but that shelf left the game on 2026-11-10 (#3118) and its potions sell for coins on the Day Cart, so there is nothing to halve (Gameplay-Engineer's finding on #3572). Crates, perks, the Backpack and the Long Net stay. **Crates are never halved without a look at duplicate refunds:** a duplicate piece refunds 10 to 150 golden fish, about 18 a crate on average at normal odds, so a crate at 20 would nearly pay for itself.
+
+**Sale badge.**
+- On the halved items only. The card shows a "Sale" tag, the old price struck through and the new price. The button shows the new price.
+- It has to be true: the old price is the real price of 2026-11-12, kept in `Config.StoreWasPrice`. If the live price is not the half price, no badge and no old price show.
+- It shows for 30 days from the day the prices change, then comes off and the half price is simply the price. No end date is shown.
+- A static tag. No countdown, no "ends soon", no flashing.
+- As built (#3594): `Config.StoreWasPrice` holds the 15 items and `Config.StoreSaleEnds` is 2026-12-13 00:00 UTC. The tag reads "SALE" in the card's one badge spot, ahead of Best Value. It needs no switch: it shows only while Roblox's live price is exactly the half price, so a player whose regional price differs sees the plain price and no tag. The Golden Pond is in the table but has no Store card yet.
+
+**Layout rework.** Mock OK'd by Derek: `Model-Agent/store-rework-3572/store-rework-3572.png`. Left rail Featured, Cats, Passes, Potions, Cafe Pass, Codes. Two columns on a phone, a picture on every card, a green "Yours" tick on owned cards, the money ladder as one card with its next step. Same family as the station menus (#3558). A card's line must say what the item really does (the Golden Pond collects from anywhere, it does not make more fish).
+

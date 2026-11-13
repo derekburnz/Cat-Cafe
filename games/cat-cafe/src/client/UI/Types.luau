@@ -70,6 +70,7 @@ export type Catalog = {
 	questPrizes: { [string]: IndexPrize }?,
 	achievements: { AchievementDef }?,
 	achievementPrizes: { [string]: IndexPrize }?,
+	achievementPrizesById: { [string]: IndexPrize }?, -- #3694: Catalog.achievementPrize for each id
 	dailyTreat: { DailyTreatDay }?, -- F70: Catalog.dailyTreat, the Daily Treat card's seven days (data-model 11e)
 }
 
@@ -290,6 +291,7 @@ export type PlayerState = {
 	luck: number?,
 	luckSources: { LuckSource }?,
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
+	introAuto: boolean?, -- #3666: the intro plays itself for this player; nil reads as Config.IntroAutoPlay
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
 	catFood: { [string]: number }?, -- #1181: cat food id -> how many are in the Bag (FeedCat feeds one)
 	hideCredit: boolean?, -- #1083: true while the player keeps their name off the Thank You board
@@ -350,6 +352,7 @@ export type PartialState = {
 	luck: number?,
 	luckSources: { LuckSource }?,
 	introSeen: boolean?,
+	introAuto: boolean?,
 	potions: { [string]: number }?,
 	catFood: { [string]: number }?, -- #1181: the Bag's cat food
 	hideCredit: boolean?, -- #1083: the Settings row's current value
@@ -381,6 +384,11 @@ export type PartialState = {
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 	-- #3022: the goal card's "Catch a 2nd cat", false once it ends (UI.update skips a nil, so the card would stay)
 	secondCat: (SharedTypes.SecondCatView | false)?,
+	-- #2912: the goal card's "Free a stuck cat" while the pointer is up (UIController; false once it ends)
+	stuckGoal: boolean?,
+	-- #3529: the kinds owned for the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal
+	-- (UIController; false once it ends, as UI.update skips a nil)
+	newKindGoal: (number | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
 	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
@@ -445,6 +453,7 @@ export type CatchInfo = {
 	-- v0.10 F67: the stray's Returning attribute, a dropped cat walking back to where it was caught; the card says
 	-- so, since at home it needs the circles again
 	returning: boolean?,
+	newKind: string?, -- #3529: the "New kind! 3/5 for Cozy Cafe" line when the player has never owned this kind
 }
 
 -- Net circles (F26, data-model section 10), from shared Types. Times are server time

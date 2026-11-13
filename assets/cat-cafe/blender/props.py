@@ -2065,7 +2065,7 @@ def comet_trail(ctx):
         G.ico(tuple(tip - d * f + a * th * 0.4), th * r, col)
 
 
-def sun_hat(ctx):
+def sandy_sun_hat(ctx):
     """#2739 Sandy (Common, Desert): a woven straw sun hat with a teal band."""
     P = ctx.pen("head")
     P.cyl((0, 0, 0.02), 0.6, 0.04, "treat_tan", segments=16)                                       # brim
@@ -2243,7 +2243,70 @@ def desert_flower(ctx):
     P.ico(tuple(c + Vector((0, -0.035, 0))), 0.055, "pastel_butter")
 
 
+def orbit_ring(ctx):
+    """#3470 Nebula (Secret): its own little solar system. A tilted glowing ring floats round the top of its head
+    with a ringed pink planet and a mint moon riding it, and a crescent moon stands between the ears."""
+    P, w = ctx.pen("head"), ctx.hw
+    G = ctx.piece("Glow", "head", (0, 0, 0.1))
+    tilt = _ry(14) @ _rx(-10)
+    G.ring((0, 0.02, 0.1), w + 0.2, 0.07, 0.05, "aurora_violet", rot=tilt, segments=16)
+    for ang, r, sw, belt in ((205, 0.105, "neon_pink", "sparkle"), (25, 0.07, "mint", None)):
+        a = math.radians(ang)
+        at = Vector((0, 0.02, 0.1)) + tilt @ Vector(((w + 0.2) * math.cos(a), (w + 0.2) * math.sin(a), 0))
+        P.ico(tuple(at), r, sw)
+        if belt:                                                           # the planet's own ring
+            P.ring(tuple(at), r + 0.055, 0.03, 0.018, belt, rot=_ry(-25) @ _rx(20), segments=10)
+    c = Vector((0, 0.06, 0.36))                                            # the crescent, standing up, facing front
+    for k in range(7):
+        a = math.radians(-78 + 26 * k)
+        t = 0.11 - 0.022 * abs(k - 3)                                      # fat in the middle, thin at the horns
+        G.box(tuple(c + Vector((-0.19 * math.cos(a) + 0.07, 0, 0.19 * math.sin(a)))), (t, 0.07, 0.1), "sparkle",
+              rot=_ry(math.degrees(-a)))
+
+
+def star_trail(ctx):
+    """#3470 Nebula's second prop: a constellation over its back, three stars joined by thin lines of light."""
+    P = ctx.pen("back")
+    G = ctx.piece("Stars_Glow", "back", (0, 0, 0.3))
+    pts = [Vector((-0.2, -0.22, 0.26)), Vector((0.12, 0.04, 0.4)), Vector((-0.06, 0.32, 0.3))]
+    for a, b in zip(pts, pts[1:]):
+        G.bar(tuple(a), tuple(b), 0.025, 0.025, "aurora_violet")
+    P.box((pts[0].x, pts[0].y, pts[0].z / 2), (0.03, 0.03, pts[0].z), "aurora_violet")   # a thread down to the coat
+    for p, r in zip(pts, (0.13, 0.17, 0.12)):
+        G.star(tuple(p), r, r * 0.45, 0.05, "sparkle", rot=_rx(90))
+
+
+def glitch_pixels(ctx):
+    """#3470 Glitch (Secret): it is coming apart into pixels. Cubes break off its left ear and climb away in steps,
+    and two bright slices of its head have slid out sideways like a torn scanline."""
+    P, w, d = ctx.pen("head"), ctx.hw, ctx.hd
+    G = ctx.piece("Glow", "head", (0, 0, 0.1))
+    steps = ((0.32, 0.02, 0.33, 0.2, "sign_teal"), (0.5, 0.06, 0.5, 0.17, "neon_pink"), (0.62, 0.0, 0.68, 0.14, "sign_teal"),
+             (0.76, 0.05, 0.82, 0.11, "night_sky"), (0.84, 0.0, 0.97, 0.08, "neon_pink"))
+    for x, y, z, sz, sw in steps:                                          # loose pixels: they hang in the air
+        (G if sw == "neon_pink" else P).box((x, y, z), (sz, sz, sz), sw)
+    for sx, z, edge, y in ((1, -0.2, "neon_pink", -0.05), (-1, -0.44, "mint", 0.05)):
+        P.box((sx * (w + 0.06), y, z), (0.16, 2 * d - 0.08, 0.12), "sign_teal")     # a slice of the head, slid out
+        G.box((sx * (w + 0.165), y, z), (0.05, 2 * d - 0.08, 0.12), edge)           # its bright torn edge
+
+
+def error_sprite(ctx):
+    """#3470 Glitch's second prop: a broken sprite hovering over its back, the pink and black checker of a missing
+    texture, with loose pixels falling off it toward the tail."""
+    P = ctx.pen("back")
+    G = ctx.piece("Sprite_Glow", "back", (0, 0, 0.3))
+    P.box((0, 0.0, 0.1), (0.05, 0.05, 0.2), "night_sky")                   # its stalk
+    for i in range(3):
+        for j in range(3):
+            pink = (i + j) % 2 == 0
+            (G if pink else P).box((0, -0.14 + 0.14 * i, 0.27 + 0.14 * j), (0.07, 0.14, 0.14), "neon_pink" if pink else "night_sky")
+    for k, (y, z, sz, sw) in enumerate(((0.3, 0.4, 0.1, "neon_pink"), (0.42, 0.28, 0.08, "sign_teal"), (0.52, 0.17, 0.06, "neon_pink"))):
+        (G if sw == "neon_pink" else P).box((0.02 * (-1) ** k, y, z), (sz, sz, sz), sw)
+    P.bar((0, 0.2, 0.34), (0.0, 0.52, 0.17), 0.025, 0.025, "night_sky")
+
+
 PROPS = {
+    "Nebula": ("Head", orbit_ring), "Glitch": ("Head", glitch_pixels),   # #3470, Derek 2026-11-12: more unique
     "CafeGhost": ("Head", chef_hat),   # #3470
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -2275,7 +2338,7 @@ PROPS = {
     "Glyph": ("Face", glyph_kohl), "Torch": ("Back", torch_sling), "Gargoyle": ("Back", gargoyle_wings),
     "Mosaic": ("Head", mosaic_band), "Golem": ("Back", golem_stones), "JadeGuardian": ("Head", jade_crown),
     # #2739 theme extras, batch 1 (Derek2 2026-11-09): Commons that were plain, now each with one prop
-    "Tuxedo": ("Face", monocle), "Sandy": ("Head", sun_hat), "Dune": ("Head", sand_goggles),
+    "Tuxedo": ("Face", monocle), "Sandy": ("Head", sandy_sun_hat), "Dune": ("Head", sand_goggles),
     "Dusty": ("Neck", neckerchief), "Sunny": ("Face", sun_shades), "Pebble": ("Head", pebble_stack),
     "Ivy": ("Neck", ivy_garland),
     # #2739 batch 2
@@ -2285,6 +2348,7 @@ PROPS = {
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
 PROPS2 = {
+    "Nebula": ("Back", star_trail), "Glitch": ("Back", error_sprite),   # #3470
     "Neon": ("Back", saxophone), "Gardener": ("Back", watering_can), "Gnome": ("Face", gnome_beard),
     "Plumber": ("Back", wrench),
     # Set 4 Q2 (Derek 2026-10-29): the Neighbourhood, Woods and Sewer cats; the Unicorn Cat keeps just its horn
@@ -2321,7 +2385,9 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           # #2739 batch 2
           "Toadstool": {"Glow": "Prop"}, "Gnome": {"Glow": "Prop"}, "Gears": {"Glow": "Prop"},
           "Bottlecap": {"Glow": "Prop"}, "Scarab": {"Glow": "Prop"}, "Mosaic": {"Glow": "Prop"},
-          "Mirage": {"Tail_Glow": "Tail"}}
+          "Mirage": {"Tail_Glow": "Tail"},
+          # #3470 the Secret cats' lit parts
+          "Nebula": {"Glow": "Prop", "Stars_Glow": "Prop2"}, "Glitch": {"Glow": "Prop", "Sprite_Glow": "Prop2"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

@@ -55,6 +55,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ShortNumber = require(script.Parent.ShortNumber)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
 
 export type ButtonView = {
 	text: string,
@@ -76,7 +77,11 @@ export type Pick = {
 	level: number,
 	rating: number,
 	status: PickStatus,
+	trait: TraitTag?, -- #3710
 }
+
+-- #3710: a cat's Mystic Pool trait as a trade card shows it: "Big Tipper", "Rare" and the rarity's colour ("#3F8FE0")
+export type TraitTag = { name: string, rarity: string, color: string }
 
 -- #1574: a decor or lawn piece in the Decor tab; "theyHave" is greyed with "They already have this"
 export type PieceStatus = "ok" | "offered" | "locked" | "theyHave"
@@ -149,6 +154,7 @@ type Cat = {
 	rating: number?,
 	locked: boolean?,
 	name: string?,
+	trait: any,
 }
 
 type Def = { name: string, rarity: string, exclusive: boolean? }
@@ -216,6 +222,19 @@ function TradeLogic.compact(n: number): string
 		) .. UNITS[unit]
 	end
 	return string.format("%d", math.floor(value)) .. UNITS[unit]
+end
+
+-- #3710: the trait of a cat in a trade (a TradeTile's or a CatView's `trait`), or nil for no trait or an id this
+-- client does not know (a newer server's).
+function TradeLogic.trait(trait: any): TraitTag?
+	if type(trait) ~= "table" or type(trait.id) ~= "string" then
+		return nil
+	end
+	local def = Traits.get(trait.id)
+	if def == nil then
+		return nil
+	end
+	return { name = def.name, rarity = def.rarity.name, color = tostring(def.rarity.color) }
 end
 
 -- A cat card's earnings, short: "$24/s", "+$1.2K/s" on their side. The totals use the HUD's numbers.
@@ -373,6 +392,7 @@ function TradeLogic.myCats(
 				level = cat.level or 1,
 				rating = cat.rating or 0,
 				status = status,
+				trait = TradeLogic.trait(cat.trait),
 			}
 			table.insert(picks, pick)
 		end

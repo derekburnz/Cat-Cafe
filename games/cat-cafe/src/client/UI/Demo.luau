@@ -12,6 +12,7 @@ local BugReport = require(Shared:WaitForChild("BugReport"))
 local CatLock = require(script.Parent.Components.CatLock)
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
+local Crates = require(Shared:WaitForChild("Crates"))
 local DealerPlan = require(Shared:WaitForChild("Dealer"))
 local DecorPieces = require(script.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Components.Format)
@@ -897,7 +898,7 @@ function Demo.run(UI: any): () -> ()
 	for _, crate in DEMO_CRATES do
 		cratesById[crate.id] = crate
 		if crate.golden then
-			goldenOdds[crate.area] = crate.odds
+			goldenOdds[crate.area] = Crates.LUCKY_ODDS -- #3665
 		end
 	end
 	local rarityOf: { [string]: string } = {}

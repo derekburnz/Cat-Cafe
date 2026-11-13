@@ -449,11 +449,16 @@ function Onboarding.fromOld(funnel: number?, step: number): number
 	return if step >= caught then Onboarding.COUNT else 0
 end
 
--- Marks `stepName` reached and returns the steps to log now, in order: the steps it implies that were not reached
--- yet, this step and every held step right after, or nothing when it is already logged or an earlier step is missing
--- (it is held). Mutates `state`.
-function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { StepName }
+-- Marks `stepName` reached. `log`: the steps to log now, in order: the steps it implies that were not reached yet,
+-- this step and every held step right after, or nothing when it is already logged or an earlier step is missing (it
+-- is held). #3530: `held` names the steps this call put on hold (reached now, logged later) and `released` the logged
+-- ones that had been on hold, so a caller can time a step when it happens and not when the funnel catches up.
+-- Mutates `state`.
+export type Reach = { log: { StepName }, held: { StepName }, released: { [string]: boolean } }
+function Onboarding.reachDetail(state: Types.TelemetryState, stepName: StepName): Reach
 	local toLog: { StepName } = {}
+	local held: { StepName } = {}
+	local released: { [string]: boolean } = {}
 	-- names are plain strings here (IMPLIES' lists read back as strings); what is logged is STEPS', typed
 	local function go(name: string)
 		local step = indexOf[name]
@@ -472,6 +477,7 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 		end
 		if step > state.onboardingStep + 1 then
 			state.achieved[tostring(step)] = true
+			table.insert(held, Onboarding.STEPS[step])
 			return
 		end
 		state.onboardingStep = step
@@ -480,10 +486,149 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 			state.onboardingStep += 1
 			state.achieved[tostring(state.onboardingStep)] = nil
 			table.insert(toLog, Onboarding.STEPS[state.onboardingStep])
+			released[Onboarding.STEPS[state.onboardingStep]] = true
 		end
 	end
 	go(stepName)
-	return toLog
+	-- a step held and let go inside this one call was never waiting: it is timed once, as logged
+	for index = #held, 1, -1 do
+		if released[held[index]] then
+			released[held[index]] = nil
+			table.remove(held, index)
+		end
+	end
+	return { log = toLog, held = held, released = released }
+end
+
+-- The steps to log now, in order (reachDetail's `log`). Mutates `state`.
+function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { StepName }
+	return Onboarding.reachDetail(state, stepName).log
+end
+
+-- Version 7 (#3695; Derek 2026-11-13: "make a new onboarding with the exact steps a player would have to take to
+-- progress and keep it clean joined, loaded, all tutorial steps 1 by 1, then tiers and catching cats in next area"):
+-- `onboarding_v7`, the clean funnel. STEPS above stays as the ledger other code reads through `reached` (StuckGoal,
+-- FirstFive, StepGaps, the second cat's stray), and is no longer sent to Roblox as a funnel. The clean funnel is a
+-- second, shorter list read off the ledger, the cafe's tier and the areas the player has caught in: only what every
+-- player must do, in the order the game asks for it. Out of it on purpose: the optional rescue, the cards and windows
+-- a client reports, coming back the next day, the Store, the Cafe Pass and Robux. Its place is its own telemetry
+-- field (cleanStep), so a server still on v6 during a rollout never reads it.
+Onboarding.CLEAN_FUNNEL = "onboarding_v7"
+
+-- One clean step: `ledger` a step of STEPS reached, `tier` the cafe at that tier or over, `area` a cat caught there.
+type CleanRule = { name: string, ledger: StepName?, tier: number?, area: string? }
+local CLEAN_RULES: { CleanRule } = {
+	{ name = "joined", ledger = "joined" },
+	{ name = "loaded", ledger = "loaded" },
+	{ name = "first_move", ledger = "first_move" },
+	{ name = "first_cannon", ledger = "first_cannon" },
+	{ name = "entered_alley", ledger = "entered_alley" },
+	{ name = "near_stray", ledger = "near_stray" },
+	{ name = "catch_started", ledger = "catch_started" },
+	{ name = "first_catch", ledger = "first_catch" },
+	{ name = "first_checkin", ledger = "first_checkin" },
+	{ name = "first_role_assigned", ledger = "first_role_assigned" },
+	-- the tutorial's "catch another cat" goal: the table can be bought first, but every cafe that goes on gets a second
+	-- cat, and it is where phones lose the most players (Growth-Agent, the 7 day read), so it has its own step
+	{ name = "second_cat", ledger = "second_cat" },
+	{ name = "first_table", ledger = "first_table" },
+	{ name = "bowl_bought", ledger = "bowl_bought" },
+	{ name = "first_bait", ledger = "first_bait" },
+	{ name = "first_bait_resolved", ledger = "first_bait_resolved" }, -- the tutorial's last step
+	{ name = "tier_2", tier = 2 },
+	{ name = "park_catch", area = "park" },
+	{ name = "tier_3", tier = 3 },
+	{ name = "neighbourhood_catch", area = "neighbourhood" },
+	{ name = "tier_4", tier = 4 },
+	{ name = "woods_catch", area = "woods" },
+	{ name = "tier_5", tier = 5 },
+	{ name = "sewer_catch", area = "sewer" },
+	{ name = "tier_6", tier = 6 },
+	{ name = "desert_catch", area = "desert" },
+	{ name = "tier_7", tier = 7 },
+	{ name = "ruins_catch", area = "ruins" },
+}
+
+-- The names in order; the step number is the index (tools/opencloud/analytics.sh reads this list).
+Onboarding.CLEAN_STEPS = {
+	"joined",
+	"loaded",
+	"first_move",
+	"first_cannon",
+	"entered_alley",
+	"near_stray",
+	"catch_started",
+	"first_catch",
+	"first_checkin",
+	"first_role_assigned",
+	"second_cat",
+	"first_table",
+	"bowl_bought",
+	"first_bait",
+	"first_bait_resolved",
+	"tier_2",
+	"park_catch",
+	"tier_3",
+	"neighbourhood_catch",
+	"tier_4",
+	"woods_catch",
+	"tier_5",
+	"sewer_catch",
+	"tier_6",
+	"desert_catch",
+	"tier_7",
+	"ruins_catch",
+} :: { string }
+Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
+Onboarding.CLEAN_TUTORIAL = 15 -- first_bait_resolved, the tutorial's last step: the tiers and areas come after
+
+-- The areas the clean funnel asks about, for a caller that gathers CleanFacts.
+Onboarding.CLEAN_AREAS =
+	{ "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } :: { string }
+
+-- What the clean funnel needs beside the ledger: the cafe's tier and the areas with a catch.
+export type CleanFacts = { tier: number, areas: { [string]: boolean } }
+
+-- The clean step numbers to log now, in order, for a player whose furthest logged clean step is `logged` (0 before
+-- joined): every step past it that is done, stopping at the first that is not. Pure, mutates nothing.
+function Onboarding.cleanDue(
+	state: Types.TelemetryState,
+	logged: number,
+	facts: CleanFacts
+): { number }
+	local out: { number } = {}
+	for step = math.max(0, logged) + 1, Onboarding.CLEAN_COUNT do
+		local rule = CLEAN_RULES[step]
+		local done = false
+		if rule.ledger ~= nil then
+			done = Onboarding.reached(state, rule.ledger)
+		elseif rule.tier ~= nil then
+			done = facts.tier >= rule.tier
+		elseif rule.area ~= nil then
+			done = facts.areas[rule.area] == true
+		end
+		if not done then
+			break
+		end
+		table.insert(out, step)
+	end
+	return out
+end
+
+-- The furthest clean step logged, for the events that say where a player was: "none" before joined and "done" for a
+-- player through it or out of it (a veteran who never started it).
+function Onboarding.cleanFurthest(state: Types.TelemetryState): string
+	local step = state.cleanStep or 0
+	if step >= Onboarding.CLEAN_COUNT then
+		return "done"
+	end
+	return Onboarding.CLEAN_STEPS[step] or "none"
+end
+
+-- Where a save that never had the clean funnel starts it: out of it (CLEAN_COUNT) once the ledger shows a first
+-- catch, since the funnel counts only players who start on it; else 0, from joined.
+function Onboarding.cleanStart(state: Types.TelemetryState): number
+	return if Onboarding.reached(state, "first_catch") then Onboarding.CLEAN_COUNT else 0
 end
 
 -- The intro funnel: logs `stepName` when it is past the furthest intro step logged, and returns whether it did. A
@@ -575,6 +720,69 @@ function Onboarding.firstHourDue(logged: number, playSeconds: number): { number 
 	local seconds = if playSeconds ~= playSeconds then 0 else playSeconds
 	for step = math.max(0, logged) + 1, Onboarding.FIRST_HOUR_COUNT do
 		if seconds < Onboarding.FIRST_HOUR_SECONDS[step] then
+			break
+		end
+		table.insert(out, step)
+	end
+	return out
+end
+
+-- #3695 (Derek 2026-11-13: "a funnel for more in depth minutes, moved, 30 seconds, 1 min, 2,3,4,5,10,15,30,1h,2h,3h,
+-- 6h,12h"): `playtime_v1`, one run per player like first_hour, which it replaces (first_hour_v3 is no longer sent;
+-- its names above stay for the report's older rows and for saves). joined, then moved (the ledger's first_move), then
+-- each PLAYTIME_SECONDS mark of account play time. A player who never moves stays at joined, as the order says. Its
+-- place is its own telemetry field (playtimeStep); a save that logged any of first_hour_v3 leaves it.
+Onboarding.PLAYTIME_FUNNEL = "playtime_v1"
+Onboarding.PLAYTIME_STEPS = {
+	"joined",
+	"moved",
+	"played_30s",
+	"played_1m",
+	"played_2m",
+	"played_3m",
+	"played_4m",
+	"played_5m",
+	"played_10m",
+	"played_15m",
+	"played_30m",
+	"played_1h",
+	"played_2h",
+	"played_3h",
+	"played_6h",
+	"played_12h",
+} :: { string }
+Onboarding.PLAYTIME_COUNT = #Onboarding.PLAYTIME_STEPS
+Onboarding.PLAYTIME_MOVED = 2 -- the step that needs the first move and no play time
+-- the play time each step needs, by index (joined and moved need none)
+Onboarding.PLAYTIME_SECONDS = {
+	0,
+	0,
+	30,
+	60,
+	120,
+	180,
+	240,
+	300,
+	600,
+	900,
+	1800,
+	3600,
+	7200,
+	10800,
+	21600,
+	43200,
+} :: { number }
+
+-- The playtime_v1 step numbers to log now, in order, for a player at `playSeconds` of account play whose furthest
+-- logged step is `logged` (0 before joined) and who has `moved` or not: every step past `logged` that is reached.
+function Onboarding.playtimeDue(logged: number, playSeconds: number, moved: boolean): { number }
+	local out: { number } = {}
+	local seconds = if playSeconds ~= playSeconds then 0 else playSeconds
+	for step = math.max(0, logged) + 1, Onboarding.PLAYTIME_COUNT do
+		if step >= Onboarding.PLAYTIME_MOVED and not moved then
+			break
+		end
+		if seconds < Onboarding.PLAYTIME_SECONDS[step] then
 			break
 		end
 		table.insert(out, step)

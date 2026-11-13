@@ -380,9 +380,41 @@ local Config = {
 	-- the event's cosmetic gets EventRepeatGiftIncomeMinutes of income instead. The workflow keeps big events
 	-- EventBigMinGapSeconds apart. At most EventScheduleMax records are read.
 	EventPollSeconds = 60,
+	-- #3572 (Derek 2026-11-12: "make the prizes of anything not being bought yet half'd", "put a sale badge on it"): the
+	-- Store's Sale badge, by Store card key. `was` is the real Robux price the item had on 2026-11-12 and `now` the
+	-- half price Derek OK'd. Roblox only tells the game today's price, so the card shows the badge and the struck old
+	-- price only while Roblox's price is exactly `now` (a player whose regional price differs sees the plain price),
+	-- and only before StoreSaleEnds (os.time: 2026-12-13 00:00 UTC, 30 days on; never shown to players, no countdown).
+	-- After that the half price is simply the price. Every key is a Store card (StoreLogic.spec checks); the Golden
+	-- Pond pass (99 to 49) is sold at the camp pond, not on a Store card, so it is not here.
+	StoreWasPrice = {
+		extraSlot = { was = 149, now = 75 },
+		uniforms = { was = 149, now = 75 },
+		cafeStyle = { was = 249, now = 125 },
+		royalCat = { was = 599, now = 299 },
+		kingCat = { was = 799, now = 399 },
+		grandTheme = { was = 799, now = 399 },
+		kingPack = { was = 999, now = 499 },
+		potionXS = { was = 10, now = 5 },
+		potionS = { was = 25, now = 13 },
+		potionM = { was = 49, now = 25 },
+		potionL = { was = 99, now = 49 },
+		steadyPaw = { was = 25, now = 13 },
+		thankYou = { was = 25, now = 13 },
+		cafePass = { was = 299, now = 149 },
+	} :: { [string]: { was: number, now: number } },
+	StoreSaleEnds = 1797120000,
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,
+	-- #3573: resting in your own cafe (shared/AfkCafe). No input and no movement for AfkCafeSeconds in the cafe or on
+	-- its doorstep doubles the cats' cafe pay, in the event money slot above (so never more than EventMoneyMax).
+	AfkCafeSeconds = 120,
+	AfkCafeMoney = 2,
+	-- #3602: a resting player who has had no input this long is sent back into the game (shared/AfkCafe, switch
+	-- `autoRejoin`). Roblox disconnects at 20 minutes without input, so this leaves two minutes for the teleport
+	-- and its retries.
+	AutoRejoinSeconds = 18 * 60,
 	EventLuckMax = 1.0,
 	EventShowerMax = 12,
 	EventShowerGapMinSeconds = 300,
@@ -470,8 +502,11 @@ local Config = {
 	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
 	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
-	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
-	AnnounceMinRarity = "Legendary",
+	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic).
+	-- Derek 2026-11-12 ("make rainbow/gold finds also changed to only legendary + and make normals only mythic+ it
+	-- has a bit of clutter right now"): Mythical for a plain coat (was Legendary); a gold or rainbow coat from
+	-- Catching.COAT_SHOUT_FROM
+	AnnounceMinRarity = "Mythical",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 20, -- #3448: 16 until the rings grew to radius 8; #3112: 12 until the walk-up rings grew to radius 6
@@ -641,15 +676,20 @@ local Config = {
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
 	-- with no sprint (#3181: anyone else may catch it too, and a new one comes). Below TutorialGuaranteedStrayStep
 	-- nobody can tackle them either.
-	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
-	-- and a replay from the ? tile
-	IntroAutoPlay = true,
+	-- #1575 (Derek, 2026-11-05) had the intro play on a first join. #3162 (2026-11-12): off again on the numbers
+	-- (loaded to first move took 27 s and lost 9% of new players): a new player gets control at once, the ? tile
+	-- glows and replays the intro. Back to true restores the first join play.
+	IntroAutoPlay = false,
 	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
 	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
-	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set
-	-- these for each new Event. #3450 (Derek 2026-11-12): the ask comes 3 to 10 minutes into the session.
-	UpdateEventId = "4928565040176562804" :: string?, -- "Mystic Pool + Mouse Dash" (#3424)
-	UpdateEventStartsAt = 1794520800 :: number?, -- 2026-11-12 22:00 UTC
+	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Add
+	-- each new Event here. #3450 (Derek 2026-11-12): the ask comes 3 to 10 minutes into the session.
+	-- Since 2026-11-13 (Derek: "make sure for the next event its prompting people in game to mark interested") this is
+	-- a list, and the ask is for the first Event on it that has not started, so two listed Events need one change.
+	UpdateEvents = {
+		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
+		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
+	} :: { { id: string, startsAt: number } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
@@ -783,7 +823,9 @@ local Config = {
 	LeaderboardRefreshSeconds = 120,
 	LeaderboardSize = 50,
 	LeaderboardBoardRows = 10,
-	LeaderboardRateMax = 10000000,
+	-- #3688: the money boards' safety net against a bad number. It was 10,000,000, which top cafes passed, so they
+	-- all read $10M a second; now far above anything a cafe can reach, and still a whole number the store holds exactly
+	LeaderboardRateMax = 1000000000000000,
 	LeaderboardCrownRank = 10,
 	LeaderboardFaceSwapSeconds = 15,
 	-- #3466 (a player's idea): one gold system line in chat for everyone here when a player in the top
@@ -962,6 +1004,11 @@ local Config = {
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
 	YardSaleClaimHours = 4,
+	-- #3609 (Derek 2026-11-12, table OK'd 15:09 UTC; camp-stations.md section 3a), behind the `yardSaleRoll` switch: a
+	-- free lucky pick every YardSaleRollHours that always wins a crate (shared/YardPick). The four groups' chances add
+	-- to 1; `area` and `goldenArea` are split evenly over the player's open areas. Never sold, and nothing changes it.
+	YardSaleRollHours = 2,
+	YardSaleTable = { classic = 0.38, area = 0.50, goldenClassic = 0.08, goldenArea = 0.04 },
 	PondFishPerStep = 1,
 	PondStepSeconds = 900, -- #2237: 4 an hour, was 600
 	PondHold = 24, -- #2237: still 6 hours' worth, was 36
@@ -999,11 +1046,13 @@ local Config = {
 	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
 	-- #3458 (Derek 2026-11-12: "make the game require 5 hits and medium bit faster and a lot smaller area"): the
 	-- bin's own hit count (BinHits, never the rescue's), its zone 0.42 to 0.22 and its marker 0.64 to 0.80. The
-	-- first BinFirstUses rummages keep BinFirstEase (0.35 at 0.48) and need the 5 hits too.
+	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
+	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
+	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
 	BinHits = 5,
 	BinZoneWidth = 0.22,
 	BinBarSpeed = 0.80,
-	BinFirstEase = { zone = 1.6, speed = 0.6 },
+	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost
 	-- also"): an account's first three wins are these fixed prizes in order, their own rows apart from BinTable, so
 	-- they never change the rolled chances. A row may hold more than one thing; `count` is how many of its lure,
@@ -1023,6 +1072,37 @@ local Config = {
 			potion: string?,
 		}
 	},
+	-- #3608 (Derek 2026-11-12: "ticks through the options a couple times before landing on one ... then you play the
+	-- minigame for that reward and make the rewards decent"; table OK'd 15:09 UTC with 2 Salmon and 8 golden fish):
+	-- behind the `binRoll` switch the prize is rolled from BinRollTable BEFORE the bar and kept for the player until
+	-- they win it (shared/RummageBin). Rows are in the board's order, most common on top; chances add to 1; `tier`
+	-- (1 to 3) sets how big the effects are. Nothing here is sold. The pad in front of the bin starts a rummage for
+	-- a player who has stood on it BinPadDwellSeconds; the roll shows for BinRollSeconds (a tap skips it) and a
+	-- fixed first prize, which is not rolled, for BinRevealSeconds.
+	BinRollTable = {
+		{ id = "tuna", chance = 0.28, lure = "tuna", count = 2, fish = 3, tier = 1 },
+		{ id = "fish", chance = 0.22, fish = 10, tier = 1 },
+		{ id = "salmon", chance = 0.15, lure = "salmon", count = 2, fish = 8, tier = 1 },
+		{ id = "crate", chance = 0.15, crate = "alley_crate", tier = 2 },
+		{ id = "potion", chance = 0.12, potion = "lucky_potion", tier = 2 },
+		{ id = "golden", chance = 0.05, crate = "alley_golden_crate", tier = 3 },
+		{ id = "bigmoney", chance = 0.03, potion = "big_tip_potion", tier = 3 },
+	} :: {
+		{
+			id: string,
+			chance: number?,
+			count: number?,
+			lure: string?,
+			fish: number?,
+			crate: string?,
+			potion: string?,
+			tier: number?,
+		}
+	},
+	BinPadRadius = 4,
+	BinPadDwellSeconds = 0.5,
+	BinRollSeconds = 2.5,
+	BinRevealSeconds = 1,
 	BinTable = {
 		{ id = "tuna", chance = 0.34, lure = "tuna", count = 2 },
 		{ id = "fish", chance = 0.25, fish = 8 },
@@ -1133,7 +1213,10 @@ local Config = {
 	MouseDashPairChance = 0.20,
 	MouseDashPairKittenFrom = 40,
 	MouseDashHeartBackEvery = 10, -- catches in a row for a heart back
-	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole
+	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole (which costs a heart since 2026-11-12)
+	-- Derek 2026-11-12, on the live game: "make a timer for how long left in the minigame". A run has this long from
+	-- its first mouse; a perfect 100 point win takes up to about 110 s, so the clock ends only a slow run.
+	MouseDashRunSeconds = 180,
 	MouseDashFirstRunMice = 3, -- a first ever run opens with this many slow mice that cannot cost a heart
 	MouseDashFirstRunWindow = 2.0,
 	MouseDashMouserAt = 50, -- points for the Mouser title
@@ -1142,11 +1225,15 @@ local Config = {
 	-- #3420, #3424 (Derek 2026-11-12: "a giveaway of 100 gold fish to everyone 3 minute after restart"): the Thursday
 	-- 2026-11-12 launch gift, from 22:03 UTC, three minutes after the 22:00 restart. Saturday 2026-11-14's update
 	-- sets the weekly one again (id "2026-11-14", from 1794675600, fish 15, spins 1).
-	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0 } :: {
+	-- #3779 (Derek 2026-11-13: "its just giving 100 gold fish per person that logs in now and its not turned off"):
+	-- `to` ends a gift. The launch gift ended at 02:00 UTC on 2026-11-13; what was paid stays paid. Every gift from
+	-- now on carries a `to`.
+	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0, to = 1794535200 } :: {
 		id: string,
 		from: number,
 		fish: number,
 		spins: number,
+		to: number?,
 	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
@@ -1320,6 +1407,11 @@ local Config = {
 		LandingPadRadius = 8,
 		LandingClearStuds = 3,
 		CannonRangeStuds = 10,
+		-- #3671 (Derek 2026-11-12: "expand the town square cannon circle a bit"): the Town Square cannon's own reach;
+		-- its ring fills it (WalkUp.EDGE_SLACK inside), radius 9.5 (about 7.3 before), where the camps' stay as they
+		-- were. The spawn is 14 studs from the cannon and the nearest landing spot 11, both outside the ring, and the
+		-- landing circle's edge (10 studs out) stays half a stud clear of it
+		TownCannonRangeStuds = 11.5,
 		CampDropMarginStuds = 2,
 		CampDropOutStuds = 3,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within

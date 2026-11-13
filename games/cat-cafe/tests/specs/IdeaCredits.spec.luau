@@ -13,14 +13,12 @@ return function()
 
 	describe("sanitize", function()
 		it("keeps a good credit and drops anything that is not one", function()
-			expect(
-				IdeaCredits.sanitize({
-					userId = 7,
-					idea = "Cats nap on benches",
-					version = 190,
-					addedAt = 5,
-				}) :: any
-			).to.deepEqual({
+			expect(IdeaCredits.sanitize({
+				userId = 7,
+				idea = "Cats nap on benches",
+				version = 190,
+				addedAt = 5,
+			}) :: any).to.deepEqual({
 				userId = 7,
 				idea = "Cats nap on benches",
 				version = 190,
@@ -86,15 +84,11 @@ return function()
 		it(
 			"lists the newest first with the display name, and 'a player' when hidden or not looked up",
 			function()
-				local rows = IdeaCredits.rows(
-					{
-						credit(1, "Old idea", 10),
-						credit(2, "New idea", 30),
-						credit(3, "Middle idea", 20),
-					},
-					{ [1] = "MochiPie", [2] = "Biscuit" },
-					{ [2] = true }
-				)
+				local rows = IdeaCredits.rows({
+					credit(1, "Old idea", 10),
+					credit(2, "New idea", 30),
+					credit(3, "Middle idea", 20),
+				}, { [1] = "MochiPie", [2] = "Biscuit" }, { [2] = true })
 				expect(rows :: any).to.deepEqual({
 					{ idea = "New idea", version = 190, name = IdeaCredits.ANON }, -- hidden
 					{ idea = "Middle idea", version = 190, name = IdeaCredits.ANON }, -- lookup failed

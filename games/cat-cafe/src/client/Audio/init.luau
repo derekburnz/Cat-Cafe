@@ -19,6 +19,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Beats = require(script.Beats)
+local BinRoll = require(script.Parent.Effects.BinRoll)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
@@ -26,9 +27,11 @@ local EventBanner = require(script.Parent.Effects.EventBanner)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
+local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
+local Trampoline = require(script.Parent.Effects.Trampoline)
 
 local Audio = {}
 
@@ -66,6 +69,9 @@ local groups: { [string]: SoundGroup } = {}
 local holder: Folder? = nil
 local pools: { [string]: { Voice } } = {}
 local bedSounds: { [string]: Sound } = {}
+-- #3656: when each kept bed Sound was made, and how many times its cue has been rebuilt after failing to load
+local bedMade: { [string]: number } = {}
+local bedReloads: { [string]: number } = {}
 local lastPlayed: { [string]: number } = {}
 local warned: { [string]: boolean } = {}
 local rng = Random.new()
@@ -264,7 +270,21 @@ end
 local function loopSound(cueId: string): Sound?
 	local kept: Sound? = bedSounds[cueId]
 	if kept ~= nil then
-		return kept
+		local tries = bedReloads[cueId] or 0
+		if
+			not Logic.shouldReload(
+				kept.IsLoaded,
+				os.clock() - (bedMade[cueId] or os.clock()),
+				tries
+			)
+		then
+			return kept
+		end
+		-- #3656: it never loaded, so drop it and fetch the file again below
+		bedReloads[cueId] = tries + 1
+		bedSounds[cueId] = nil
+		kept:Stop()
+		kept:Destroy()
 	end
 	local cue = Cues[cueId]
 	if cue == nil then
@@ -278,6 +298,7 @@ local function loopSound(cueId: string): Sound?
 	sound.Looped = true
 	sound.SoundId = id
 	bedSounds[cueId] = sound
+	bedMade[cueId] = os.clock()
 	return sound
 end
 
@@ -2163,6 +2184,20 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	CrateReelTick = function()
 		Audio.play("uiReelTick")
 	end,
+	-- #3615: the Yard Sale lucky pick's board: the reel's tick as each row lights, and at the stop the reel's thunk,
+	-- with the gold reveal chime after it for a golden crate (Logic.yardLandCues).
+	YardSaleTick = function()
+		Audio.play("uiReelTick")
+	end,
+	YardSaleLanded = function(golden: any)
+		local stop, chime = Logic.yardLandCues(golden)
+		Audio.play(stop)
+		if chime ~= nil then
+			task.delay(Logic.YARD_CHIME_AFTER, function()
+				Audio.play(chime)
+			end)
+		end
+	end,
 	CrateReelLanded = function(rarity: any)
 		Audio.play("uiReelStop")
 		local cue = Logic.pullSting(rarity, nil)
@@ -2191,6 +2226,36 @@ local function followPool()
 		local cue, scaleStep = Logic.poolCue(beat, step)
 		if cue ~= nil then
 			Audio.play(cue, if cue == "poolReveal" then nil else at, scaleStep)
+		end
+	end)
+end
+
+-- #3690: this player's bounce on the trampoline, in 3D at the mat.
+local function followTrampoline()
+	Trampoline.onBounce(function(mat)
+		Audio.play(Logic.TRAMPOLINE_CUE, mat.Position)
+	end)
+end
+
+-- #3608: the Rummage Bin's roll ticks and lands on the effect's own beats, for the player rolling (flat).
+local function followBinRoll()
+	BinRoll.onBeat(function(beat)
+		local cue = Logic.binRollCue(beat)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
+-- #3651: petting a cat: a soft heart chime and a short purr, both in 3D at the cat.
+local function followPetCat()
+	PetCat.onBeat(function(beat, at)
+		local cue, loop, seconds = Logic.petCatCue(beat)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+		if loop ~= nil then
+			task.delay(seconds, Audio.loop(loop, at))
 		end
 	end)
 end
@@ -2226,6 +2291,9 @@ function Audio.start()
 	followBeats()
 	followPool()
 	followPoolIntro()
+	followBinRoll()
+	followTrampoline()
+	followPetCat()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
 end

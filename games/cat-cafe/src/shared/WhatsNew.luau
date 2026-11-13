@@ -30,6 +30,91 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-13 00:30 UTC): the 02:30 UTC restart of 2026-11-13 and what went live since #3434. Merge with
+	-- that publish. Take out "epic_trait_tier" if #3719 is not on main at the publish.
+	{
+		id = "mystic_pool_at_spawn",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Mystic Pool now at spawn",
+	},
+	{
+		id = "epic_trait_tier",
+		date = "2026-11-13",
+		icon = "new",
+		text = "New Epic trait tier",
+	},
+	{
+		id = "rarer_traits_more_often",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Rare traits come up more",
+	},
+	{
+		id = "mouse_dash_menu_clock",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Mouse Dash: new menu, clock",
+	},
+	{
+		id = "trade_shows_traits",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Trades show cat traits",
+	},
+	{
+		id = "update_party_1113",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Party: 2x money 30 min",
+	},
+	-- #3420, #3424: the Thursday 2026-11-12 launch (22:00 UTC). Merge this only with the launch publish, and only
+	-- the rows whose feature is switched on at the launch.
+	{
+		id = "mystic_pool_traits",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Mystic Pool: cat traits",
+	},
+	{
+		id = "mouse_dash",
+		date = "2026-11-12",
+		icon = "new",
+		text = "New Arcade game: Mouse Dash",
+	},
+	-- #3457 (Derek 2026-11-12: "also update whats new board with the update restart")
+	{
+		id = "update_party_1112",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Update Party: 2x money hour",
+	},
+	{
+		id = "update_gift_1112",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Gift: 100 golden fish",
+	},
+	{
+		id = "rich_money_bags",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Rich customers leave bags",
+	},
+	-- #3462: on at the launch (the `cartTier6` switch goes on right after the restart); take this row out if it does not
+	{
+		id = "day_cart_top_shelf",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Day Cart: Tier 6 top shelf",
+	},
+	-- #3448: take this row out if the bigger circles are not on main at the launch
+	{
+		id = "bigger_station_circles",
+		date = "2026-11-12",
+		icon = "look",
+		text = "Bigger station circles",
+	},
 	-- #2718 refresh (11-12 09:10): player-facing changes since #3369, 148 merges, that are on without a switch. The
 	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) has no named credit (#3472).
 	{

@@ -54,6 +54,8 @@
 #                 "New kind!" line and the five cats pointer (#3529); client and telemetry only, after review and QA
 #   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
 #                 open at the change keeps its look until it is opened again
+#   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
+#                 only once every server runs a build that has them (an older one drops the owned pair)
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -67,10 +69,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|fxLite true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|fxLite
+#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|fxLite true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|fxLite
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak and fxLite, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours and menuFamily (their default), so no key needs delete
+# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak and fxLite, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily and speedShoes (their default), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -80,7 +82,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|fxLite true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|fxLite" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|fxLite true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|fxLite" >&2
 	exit 2
 }
 
@@ -158,6 +160,7 @@ show_key() {
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
 	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;
 	menuFamily) if [ "$raw" = true ]; then meaning="Station menu family look ON in every server"; else meaning="Station menu family look off (its default)"; fi ;;
+	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	fxLite) if [ "$raw" = false ]; then meaning="lighter effects budget OFF (phones back on the full phone budget)"; else meaning="lighter effects budget on phones and graphics quality 1 to 3"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
@@ -208,6 +211,7 @@ show() {
 	show_key rankUpSpotlight
 	show_key bagColours
 	show_key menuFamily
+	show_key speedShoes
 	show_key fxLite
 }
 
@@ -228,7 +232,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours | menuFamily | fxLite) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours | menuFamily | speedShoes | fxLite) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -239,7 +243,7 @@ clear)
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
 	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | fxLite) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours | menuFamily) write "$2" false ;;
+	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours | menuFamily | speedShoes) write "$2" false ;;
 	*) usage ;;
 	esac
 	;;

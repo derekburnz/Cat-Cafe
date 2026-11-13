@@ -291969,7 +291969,7 @@
         "CatCafe_Park_SetF85_215_Poplar",
         "CatCafe_Park_SetF85_216_Poplar"
       ],
-      "triangles": 113156,
+      "triangles": 124872,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -292386,7 +292386,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 5611,
+      "rbx_parts": 5207,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -292399,10 +292399,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "113156/150000 tris",
+          "budget": "124872/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71584 faces on swatch centers",
+          "uv": "78654 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"
@@ -307082,7 +307082,7 @@
         "CatCafe_Lawn_SandwichBoard",
         "CatCafe_Lawn_SandwichBoard_Chalk"
       ],
-      "triangles": 796,
+      "triangles": 568,
       "budget": 800,
       "size_studs": {
         "x": 1.49,
@@ -307107,7 +307107,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_SandwichBoard.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 43,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_SandwichBoard.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_SandwichBoard.glb"
@@ -307119,10 +307119,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "796/800 tris",
+          "budget": "568/800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "382 faces on swatch centers",
+          "uv": "268 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.16 y=-0.17"
@@ -307809,7 +307809,7 @@
         "CatCafe_Lawn_FlowerCart_Lantern_Swing",
         "CatCafe_Lawn_FlowerCart_Lantern_Glow"
       ],
-      "triangles": 2472,
+      "triangles": 2244,
       "budget": 2500,
       "size_studs": {
         "x": 3.32,
@@ -307858,7 +307858,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_FlowerCart.model.json",
-      "rbx_parts": 234,
+      "rbx_parts": 215,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_FlowerCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_FlowerCart.glb"
@@ -307870,10 +307870,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2472/2500 tris",
+          "budget": "2244/2500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1195 faces on swatch centers",
+          "uv": "1081 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=-0.25 y=-0.23"
@@ -307892,7 +307892,7 @@
         "CatCafe_Lawn_CatTreeSign_Star_Spin",
         "CatCafe_Lawn_CatTreeSign_Toy_Swing"
       ],
-      "triangles": 2368,
+      "triangles": 2152,
       "budget": 2500,
       "size_studs": {
         "x": 3.5,
@@ -307941,7 +307941,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_CatTreeSign.model.json",
-      "rbx_parts": 197,
+      "rbx_parts": 179,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.glb"
@@ -307951,10 +307951,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "2368/2500 tris",
+          "budget": "2152/2500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1108 faces on swatch centers",
+          "uv": "1000 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.02 y=0.00"
@@ -314744,7 +314744,7 @@
         "CatCafe_Plot_YardFence",
         "CatCafe_Plot_YardFence_Barrier"
       ],
-      "triangles": 3960,
+      "triangles": 3600,
       "budget": 8000,
       "size_studs": {
         "x": 46.4,
@@ -314770,7 +314770,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence.model.json",
-      "rbx_parts": 294,
+      "rbx_parts": 264,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence.glb"
@@ -314783,10 +314783,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3960/8000 tris",
+          "budget": "3600/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2484 faces on swatch centers",
+          "uv": "2304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=23.09"
@@ -322338,7 +322338,8 @@
         "CatCafe_NPC_Townsfolk_Trader_Tail",
         "CatCafe_NPC_Townsfolk_Trader_LegF1",
         "CatCafe_NPC_Townsfolk_Trader_LegF2",
-        "CatCafe_NPC_Townsfolk_Trader_Prop"
+        "CatCafe_NPC_Townsfolk_Trader_Prop",
+        "CatCafe_NPC_Townsfolk_Trader_Glow"
       ],
       "triangles": 952,
       "budget": 1500,
@@ -322409,6 +322410,11 @@
           0.0,
           -0.09,
           0.97
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Glow": [
+          0.02,
+          -0.24,
+          1.66
         ]
       },
       "part_pivots_roblox": {
@@ -322456,6 +322462,11 @@
           0.0,
           0.97,
           -0.09
+        ],
+        "CatCafe_NPC_Townsfolk_Trader_Glow": [
+          -0.02,
+          1.66,
+          -0.24
         ]
       },
       "studio": "#2687 townsfolk cat (an NPC, not in the collection): sit it on a camp growth model's Townsfolk_<n> Attachment, feet on the floor. Its pieces are child Models pivoted at their joints (part_pivots_roblox), the eyes, ears and hat (_Prop) inside the Head, for the idle and greet loops. Nothing collides.",

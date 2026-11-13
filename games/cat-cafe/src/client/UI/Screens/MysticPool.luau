@@ -1067,7 +1067,7 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		LayoutOrder = 3,
 		Size = UDim2.new(0, 0, 1, 0),
 		Text = CatPickLogic.line(cat, Format.rate(tonumber(cat.rating) or 0)),
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text, -- on the row's card (cream in the family look: white did not read there)
 		TextSize = Theme.sizes.textSmall,
 		ZIndex = 7,
 		Parent = facts,

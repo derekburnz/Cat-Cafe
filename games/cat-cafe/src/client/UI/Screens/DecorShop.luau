@@ -30,6 +30,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
@@ -659,7 +660,9 @@ function DecorShop._build(self: any)
 		})
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = owned })
 
-		text({
+		-- a long name ("Watering Can Planter") shrinks to fit the card instead of ending in dots (Studio look,
+		-- 2026-11-13)
+		FitText.shrink(text({
 			Name = "Name",
 			Position = UDim2.fromOffset(10, 92 + ART_LIFT),
 			Size = UDim2.new(1, -20, 0, 22),
@@ -667,7 +670,7 @@ function DecorShop._build(self: any)
 			TextSize = Theme.sizes.textBody,
 			Text = decor.name,
 			Parent = card,
-		})
+		}))
 		text({
 			Name = "Effect",
 			Position = UDim2.fromOffset(10, 114 + ART_LIFT),

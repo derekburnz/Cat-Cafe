@@ -6,9 +6,8 @@
 --     window that colours itself from its palette changes with no code of its own),
 --   a row of party bulbs along the top of its title band, a round picture badge that sits straight, and no ears
 --     (Components/Panel reads `on()`).
--- A screen takes its palette as `local PAL = MenuFamily.pal`: each read gives the family's colour while the switch
--- is on and Theme.dark's otherwise, so a window opened after the switch flips has the new look and a window built
--- before keeps the one it was built with.
+-- A screen takes its palette as `local PAL = MenuFamily.pal`: each read gives the family's colour when the switch
+-- was on at this session's start and Theme.dark's otherwise (`on` keeps its first answer).
 -- Every text colour of PALETTE reads at 4.5:1 or better on the card, and white, `subtext`, `good` and `gold` do on
 -- the body too (measured when the colours were picked; the UI gate checks the windows).
 
@@ -45,11 +44,23 @@ MenuFamily.BULBS = 14
 MenuFamily.BULB_SIZE = 6
 MenuFamily.BULB_COLORS = { Color3.fromHex("FFF096"), Color3.fromHex("FFFFFF") }
 
+-- One look for a whole session: the switch is read the first time anything asks (the UI's build at the start) and
+-- kept. Windows take some colours when they are built and others each time they paint, so a switch that flipped
+-- mid-session left cream cards under white words (Quests, the Mystic Pool's cat list) and an old Store beside new
+-- windows (Studio look, 2026-11-13). A flip now reaches each player at their next join.
+local latched: boolean? = nil
+
 function MenuFamily.on(): boolean
-	return LiveFlags.shown(
+	local was = latched
+	if was ~= nil then
+		return was
+	end
+	local now = LiveFlags.shown(
 		MenuFamily.FLAG,
 		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MenuFamily.FLAG)
 	)
+	latched = now
+	return now
 end
 
 -- The family's picture cards (the mocks' cream cards on the violet body): the colours for a card and for what sits

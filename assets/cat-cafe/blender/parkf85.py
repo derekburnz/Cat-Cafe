@@ -176,7 +176,7 @@ def _stream(s, mat):
     """A stream 6 wide between stone kerbs 0.7 high, out of a culvert in the west wall and into a drain at
     STREAM_END, where a kerb closes it and an iron grate takes the water; east of it is open lawn, so a player walks
     round its end, crosses on the footbridge or hops the rails. An iron rail on each kerb and round the end,
-    TALL_RAIL high with gilded tips, no barrier (#2813)."""
+    TALL_RAIL high with gilded ball tips, no barrier (#2813)."""
     b, water, decor = Builder(), Builder(), Builder()
     z0, z1 = STREAM_Z - 3.0, STREAM_Z + 3.0
     E = STREAM_END
@@ -226,14 +226,14 @@ def _stream(s, mat):
             for k in range(n + 1):
                 px = a0 + 0.3 + (a1 - a0 - 0.6) * k / n
                 b.box_base(bl(px, zc, kt), (0.16, 0.16, TALL_RAIL - kt), "fur_black", bevel=False)
-                b.pyramid(bl(px, zc, TALL_RAIL), 0.26, 0.4, "gold_mid")
+                b.sphere(bl(px, zc, TALL_RAIL + 0.12), 0.14, "gold_mid", segments=8, rings=5)   # one Ball, not 3 (#3743)
             for (h, t) in RAIL_BARS:
                 b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
     xe = E + 0.4                                                          # the rail round the end
     for k in range(12):
         b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, 0.7), (0.16, 0.16, TALL_RAIL - 0.7), "fur_black",
                    bevel=False)
-        b.pyramid(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, TALL_RAIL), 0.26, 0.4, "gold_mid")
+        b.sphere(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, TALL_RAIL + 0.12), 0.14, "gold_mid", segments=8, rings=5)
     for (h, t) in RAIL_BARS:
         b.box(bl(xe, STREAM_Z, h), (0.12, z1 - z0 + 0.8, t), "fur_black", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),

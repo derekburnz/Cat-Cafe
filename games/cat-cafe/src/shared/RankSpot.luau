@@ -8,7 +8,7 @@
 -- out of the safe area or spending the coins only hides it. Behind the live switch `rankUpSpotlight` (off).
 --   FLAG, SEEN, ATTRIBUTE, FREE_SECONDS, TELEMETRY, WINDOW, WORDS
 --   due(on, tier, seen, blocker, area) -> boolean                 the server's word
---   putsAway(shownFor) -> boolean                                 a press on the dim: for good, or only hidden
+--   putsAway(shownFor, was?, window?) -> boolean                  a press on the dim: for good, or only hidden
 --   phase(due, was, freeSeconds, window) -> "none" | "button" | "confirm"
 
 local RankSpot = {}
@@ -58,8 +58,13 @@ function RankSpot.phase(due: boolean, was: Phase, freeSeconds: number, window: s
 	return "none"
 end
 
--- Whether a press on the dim `shownFor` seconds after the walk-through showed puts it away for good.
-function RankSpot.putsAway(shownFor: number): boolean
+-- Whether a press on the dim `shownFor` seconds after the walk-through showed puts it away for good. Never while
+-- another window is up (`window` as in `phase`, `was` what is showing): that press was for the window, such as a
+-- gift card's Close, so the walk-through only hides and comes back at the next free moment.
+function RankSpot.putsAway(shownFor: number, was: Phase?, window: string?): boolean
+	if window ~= nil and not (was == "confirm" and window == RankSpot.WINDOW) then
+		return false
+	end
 	return shownFor >= RankSpot.KEEP_SECONDS
 end
 

@@ -4,7 +4,8 @@
 -- MysterySaleShare of its price (rounded to the nearest 5). The week runs on the global clock, so every server shows
 -- the same item at the same moment: slot = floor((now - MysteryEpoch) / MysteryRotateSeconds), and the featured item
 -- is mysteryItems[slot % #items + 1]. MysteryEpoch is a Saturday 00:00 UTC, so each sale starts with the Saturday
--- update. Nothing is random, nothing is limited and nothing is sold for Robux (rule 9, section 2d). Pure: `now` is
+-- update. #3535: Config.MysteryFeatured names featured weeks by date (an update's own item), which win over the
+-- rotation while they run; an item with a `flag` is on the shelf only while that live switch is on. Nothing is random, nothing is limited and nothing is sold for Robux (rule 9, section 2d). Pure: `now` is
 -- os.time() on the server and the server clock on the client.
 
 local Catalog = require(script.Parent.Catalog)
@@ -23,8 +24,22 @@ function MysteryMarket.slot(now: number): number
 	return math.floor((now - Config.MysteryEpoch) / Config.MysteryRotateSeconds)
 end
 
--- The id of the item on sale in the week of `now`, or nil when the shelf is empty.
+-- The dated featured week running at `now` (Config.MysteryFeatured), or nil.
+local function dated(now: number): { from: number, to: number, id: string }?
+	for _, entry in Config.MysteryFeatured do
+		if now >= entry.from and now < entry.to and Catalog.getMysteryItem(entry.id) ~= nil then
+			return entry
+		end
+	end
+	return nil
+end
+
+-- The id of the item on sale at `now`, or nil when the shelf is empty: a dated week's item, else the rotation's.
 function MysteryMarket.featuredAt(now: number): string?
+	local entry = dated(now)
+	if entry ~= nil then
+		return entry.id
+	end
 	local items = Catalog.mysteryItems
 	if #items == 0 then
 		return nil
@@ -32,14 +47,30 @@ function MysteryMarket.featuredAt(now: number): string?
 	return items[MysteryMarket.slot(now) % #items + 1].id
 end
 
+-- Whether `item` is on the shelf: always, or only while its live switch is on (`flags`: key -> on).
+function MysteryMarket.listed(item: Types.MysteryItem, flags: { [string]: boolean }?): boolean
+	return item.flag == nil or (flags ~= nil and flags[item.flag] == true)
+end
+
 -- The id of next week's featured item (the window's "?" teaser), or nil when the shelf is empty.
 function MysteryMarket.nextFeatured(now: number): string?
 	return MysteryMarket.featuredAt(MysteryMarket.nextAt(now))
 end
 
--- When this week's sale ends and the next one starts (os.time() seconds).
+-- When this sale ends and the next one starts (os.time() seconds): the end of a dated week, else the rotation's
+-- next week or the start of a dated week, whichever comes first.
 function MysteryMarket.nextAt(now: number): number
-	return Config.MysteryEpoch + (MysteryMarket.slot(now) + 1) * Config.MysteryRotateSeconds
+	local entry = dated(now)
+	if entry ~= nil then
+		return entry.to
+	end
+	local nextAt = Config.MysteryEpoch + (MysteryMarket.slot(now) + 1) * Config.MysteryRotateSeconds
+	for _, later in Config.MysteryFeatured do
+		if later.from > now and later.from < nextAt and Catalog.getMysteryItem(later.id) ~= nil then
+			nextAt = later.from
+		end
+	end
+	return nextAt
 end
 
 -- The sale price of a full price `cost`: MysterySaleShare of it, to the nearest 5.

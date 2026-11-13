@@ -116,6 +116,9 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown, raw
 	}, window)
 	if blocker ~= nil then
 		refuse(blocker)
+		if blocker == CornerShop.NO_COINS then
+			CafeService.sync(player) -- #3693: the device's counter was ahead; show it the settled coins
+		end
 		return
 	end
 	local price = CornerShop.priceOf(row, tier)
@@ -222,7 +225,13 @@ local function onBuyAll(player: Player, rawKind: unknown, rawWindow: unknown)
 		end
 	end
 	if count == 0 then
-		refuse("Not enough coins")
+		-- #3693: the true reason, not always "Not enough coins", and the settled coins go to the device: its counter
+		-- runs a little ahead between syncs, and a Buy all it still thought it could afford came back every time
+		refuse(CornerShop.whyNone(state, window, kind, tier, profile.coins, {
+			catFood = profile.catFood,
+			lures = profile.lures,
+		}))
+		CafeService.sync(player)
 		return
 	end
 	Net.toast(

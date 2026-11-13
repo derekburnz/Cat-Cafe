@@ -569,7 +569,7 @@ function CornerShop._grid(self: any, kind: string, order: number): Frame
 		Visible = kind == self._tab,
 		LayoutOrder = order,
 		Parent = self._list,
-	}, { layout })
+	}, { layout :: Instance })
 	-- #4007: four a row where they fit, else three
 	GridFit.fit(grid, layout, MIN_CELL, GAP, function(): number
 		return self:_cardHeight()

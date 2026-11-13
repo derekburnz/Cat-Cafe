@@ -101,7 +101,10 @@ export type Budget = {
 -- (skill section 7). "high" is a PC. "console" is an Xbox or PlayStation (#2871): it runs at the "high" tier, but
 -- with a budget between the phone's and the PC's, since an Xbox One or PS4 is far slower than a gaming PC and the
 -- console pass watches the frame rate in a busy Alleyway. "lowPerformance" is the Low performance setting on any
--- device: under the phone budget everywhere, with half the steady particles.
+-- device: under the phone budget everywhere, with half the steady particles. "lite" (#3794, the `fxLite` switch) is
+-- a phone, or any device with graphics quality set to 1 to 3: between the phone budget and Low performance, for the
+-- phones' frame rate (about 47 fps against 65 on PC): fewer moving cats at 20 Hz, fewer and thinner steady emitters,
+-- smaller bursts, fewer Highlights, and no decor motion or bunting flutter.
 Presets.budget = {
 	low = {
 		animatedCats = 8,
@@ -216,6 +219,44 @@ Presets.budget = {
 		crownGlints = 3,
 		shopCatEmitters = 1,
 		waterfalls = 2,
+	},
+	lite = {
+		animatedCats = 5,
+		animRadius = 50,
+		animHz = 20,
+		steadyEmitters = 3,
+		rateScale = 0.7,
+		goldEmitters = 2,
+		butterflies = 3,
+		ambientRadius = 70,
+		chimneyRadius = 120,
+		burstScale = 0.4,
+		maxBurst = 10,
+		confetti = 10,
+		areaPuffs = 3,
+		napLabels = 3,
+		rushLines = 1,
+		signatureCats = 2,
+		decorEffects = 1,
+		lawnEffects = 2,
+		potionGlows = 2,
+		cloudPuffs = 8,
+		campfires = 1,
+		pullConfetti = 16,
+		rainbowCats = 4,
+		rainbowOutlines = 1,
+		rallyPops = 4,
+		pennants = 0,
+		decorMotion = 0,
+		netTrails = 2,
+		luckyShimmers = 1,
+		campDrips = 1,
+		campFish = 1,
+		rallyBoards = 1,
+		cafeOrders = 0,
+		crownGlints = 1,
+		shopCatEmitters = 1,
+		waterfalls = 1,
 	},
 	lowPerformance = {
 		animatedCats = 4,

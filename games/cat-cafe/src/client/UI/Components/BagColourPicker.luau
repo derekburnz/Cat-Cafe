@@ -3,6 +3,8 @@
 -- window. Top row: Reset, Save and Back. Left: a drawn bag that changes as the player taps. Right: two blocks of
 -- twelve swatches, "Bag" and "Trim", six to a row. Nothing is sent until Save; Reset picks the built colours again
 -- (and is saved by Save like any pick). Back returns to the shelf without saving.
+-- On a short screen (a phone held sideways) the two blocks do not both fit beside the bag, so a Bag and Trim pair
+-- of tabs under the drawn bag shows one block at a time and the list never needs a scroll to reach Trim.
 --   BagColourPicker.new(parent, callbacks) -> picker
 --   picker:open(saved)      show it, starting from the saved picks
 --   picker:saved(saved)     the server's answer: the saved picks as they stand now
@@ -40,6 +42,7 @@ BagColourPicker.__index = BagColourPicker
 BagColourPicker.SWATCH = 44 -- a thumb's width
 BagColourPicker.COLUMNS = 6
 BagColourPicker.TOUCH_COLUMNS = 4
+BagColourPicker.SLOTS = { "main", "trim" }
 local GAP = 6
 local LEFT_W = 112
 local PREVIEW = 104
@@ -174,6 +177,30 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 		Outline.border(part[1], 2, Theme.colors.black)
 	end
 
+	-- a short screen: Bag and Trim tabs under the bag, one block of swatches at a time
+	self._tabbed = Scale.isShort()
+	self._slot = "main"
+	self._tabs = {} :: { [string]: any }
+	if self._tabbed then
+		local tabW = math.floor((LEFT_W - 6) / 2)
+		for index, slot in BagColourPicker.SLOTS do
+			local words = if slot == "main" then BagColours.WORDS.main else BagColours.WORDS.trim
+			self._tabs[slot] = Button.new({
+				name = "Tab_" .. slot,
+				text = words,
+				style = "ghost",
+				size = UDim2.fromOffset(tabW, tap),
+				position = UDim2.fromOffset(8 + (index - 1) * (tabW + 6), top + PREVIEW + 6),
+				textSize = Theme.sizes.textSmall,
+				parent = frame,
+				onClick = function()
+					self._slot = slot
+					self:_paint()
+				end,
+			})
+		end
+	end
+
 	self._save = Button.new({
 		name = "Save",
 		text = BagColours.WORDS.save,
@@ -230,7 +257,8 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 		then BagColourPicker.TOUCH_COLUMNS
 		else BagColourPicker.COLUMNS
 	local rows = math.ceil(#BagColours.LIST / columns)
-	for order, slot in { "main", "trim" } do
+	self._grids = {} :: { [string]: Frame }
+	for order, slot in BagColourPicker.SLOTS do
 		self._names[slot] = label({
 			Name = slot .. "Name",
 			Size = UDim2.new(1, 0, 0, 20),
@@ -253,6 +281,7 @@ function BagColourPicker.new(parent: Instance, callbacks: Callbacks): BagColourP
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		})
+		self._grids[slot] = grid
 		for index, row in BagColours.LIST do
 			local id = row.id
 			local button: TextButton = Create("TextButton", {
@@ -312,6 +341,14 @@ function BagColourPicker._paint(self: any)
 		local words = if slot == "main" then BagColours.WORDS.main else BagColours.WORDS.trim
 		self._names[slot].Text = if row ~= nil then words .. ": " .. row.name else words
 	end
+	if self._tabbed then
+		for slot, tab in self._tabs do
+			local on = slot == self._slot
+			tab:setStyle(if on then "primary" else "ghost")
+			self._names[slot].Visible = on
+			self._grids[slot].Visible = on
+		end
+	end
 	local defaults = BagColours.picks(nil)
 	self._save:setText(if self._pending then "..." else BagColours.WORDS.save)
 	self._save:setEnabled(self:_changed() and not self._pending)
@@ -340,6 +377,7 @@ function BagColourPicker.open(self: any, saved: BagColours.Picks?)
 	self._picks = BagColours.picks(saved)
 	self._pending = false
 	self._token += 1
+	self._slot = "main"
 	self.shown = true
 	self.frame.Visible = true
 	self:_paint()
@@ -369,6 +407,9 @@ function BagColourPicker.destroy(self: any)
 	self._back:destroy()
 	self._save:destroy()
 	self._reset:destroy()
+	for _, tab in self._tabs do
+		tab:destroy()
+	end
 	self.frame:Destroy()
 end
 

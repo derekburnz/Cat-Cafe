@@ -98,17 +98,34 @@ end
 -- setting is on. The tier reads "low" then, so what else scales by Effects.tier() (the street's customers)
 -- comes down too.
 -- A console (`console`, a ten-foot screen; #2871) keeps the "high" tier but takes Presets.budget.console.
+-- #3794: `lite` (Logic.wantsLite) takes Presets.budget.lite at the "low" tier, under Low performance and over the rest.
 function Logic.budgetFor(
 	device: Presets.Tier,
 	lowPerformance: boolean,
-	console: boolean?
+	console: boolean?,
+	lite: boolean?
 ): (Presets.Tier, Presets.Budget)
 	if lowPerformance then
 		return "low", Presets.budget.lowPerformance
+	elseif lite == true then
+		return "low", Presets.budget.lite
 	elseif console == true and device == "high" then
 		return device, Presets.budget.console
 	end
 	return device, Presets.budget[device]
+end
+
+-- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and this is a phone or tablet (the
+-- "low" device tier) or its graphics quality is set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is
+-- Automatic, which says nothing about the device, and 4 to 10 are left as they are).
+Logic.LITE_QUALITY_MAX = 3
+
+function Logic.wantsLite(switchOn: boolean, device: Presets.Tier, quality: number?): boolean
+	if not switchOn then
+		return false
+	end
+	return device == "low"
+		or (quality ~= nil and quality >= 1 and quality <= Logic.LITE_QUALITY_MAX)
 end
 
 -- One circle from CatchResult: "perfect", "good" or "miss" (catching v0.4), or the v0.3 score 1, 0.5 or 0.
@@ -3633,6 +3650,24 @@ end
 function Logic.beaconBreath(now: number, seconds: number, dip: number): number
 	local wave = 0.5 + 0.5 * math.cos(2 * math.pi * now / seconds)
 	return 1 - dip * (1 - wave)
+end
+
+-- #3743: the pooled burst emitters are one per preset and tint (Particles.burst). A tint that keeps changing (the
+-- Lucky Cat's rainbow twinkle asks a new colour every twinkle) made a new emitter each time and kept it for the
+-- session, thousands in a long one. Tinted emitters now live in a short recently-used list: `touchKey` moves `key`
+-- to the newest end (adding it when new) and returns the oldest key once the list holds more than `cap`, which the
+-- caller retires.
+Logic.BURST_TINTS_MAX = 48
+function Logic.touchKey(order: { string }, key: string, cap: number): string?
+	local at = table.find(order, key)
+	if at ~= nil then
+		table.remove(order, at)
+	end
+	table.insert(order, key)
+	if #order > cap then
+		return table.remove(order, 1)
+	end
+	return nil
 end
 
 return Logic

@@ -22049,7 +22049,7 @@
       },
       "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight.model.json",
-      "rbx_parts": 133,
+      "rbx_parts": 93,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight.glb"
@@ -22557,7 +22557,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Midnight for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Sit.model.json",
-      "rbx_parts": 138,
+      "rbx_parts": 98,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight_Sit.glb"
@@ -23092,7 +23092,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Midnight_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Work.model.json",
-      "rbx_parts": 148,
+      "rbx_parts": 108,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight_Work.glb"
@@ -29978,7 +29978,7 @@
       },
       "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom.model.json",
-      "rbx_parts": 200,
+      "rbx_parts": 140,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom.glb"
@@ -30498,7 +30498,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Blossom for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Sit.model.json",
-      "rbx_parts": 201,
+      "rbx_parts": 141,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom_Sit.glb"
@@ -31045,7 +31045,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Blossom_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Work.model.json",
-      "rbx_parts": 217,
+      "rbx_parts": 157,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom_Work.glb"
@@ -33208,7 +33208,7 @@
       },
       "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Munchkin.model.json",
-      "rbx_parts": 98,
+      "rbx_parts": 78,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Munchkin.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Munchkin.glb"
@@ -33732,7 +33732,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Munchkin for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Munchkin_Sit.model.json",
-      "rbx_parts": 98,
+      "rbx_parts": 78,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Munchkin_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Munchkin_Sit.glb"
@@ -34283,7 +34283,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Munchkin_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Munchkin_Work.model.json",
-      "rbx_parts": 116,
+      "rbx_parts": 96,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Munchkin_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Munchkin_Work.glb"
@@ -39704,7 +39704,7 @@
       },
       "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Marshmallow.model.json",
-      "rbx_parts": 82,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Marshmallow.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Marshmallow.glb"
@@ -40224,7 +40224,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Marshmallow for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Marshmallow_Sit.model.json",
-      "rbx_parts": 78,
+      "rbx_parts": 68,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Marshmallow_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Marshmallow_Sit.glb"
@@ -40771,7 +40771,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Marshmallow_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Marshmallow_Work.model.json",
-      "rbx_parts": 94,
+      "rbx_parts": 84,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Marshmallow_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Marshmallow_Work.glb"
@@ -104745,7 +104745,7 @@
       },
       "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MapleMuffin.model.json",
-      "rbx_parts": 146,
+      "rbx_parts": 106,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin.glb"
@@ -105266,7 +105266,7 @@
       "exclusive": true,
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_MapleMuffin for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MapleMuffin_Sit.model.json",
-      "rbx_parts": 148,
+      "rbx_parts": 108,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Sit.glb"
@@ -105814,7 +105814,7 @@
       "exclusive": true,
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_MapleMuffin_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MapleMuffin_Work.model.json",
-      "rbx_parts": 164,
+      "rbx_parts": 124,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Work.glb"
@@ -109566,7 +109566,7 @@
       },
       "studio": "Prop: the Neck prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Neck, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Dusty.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 51,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Dusty.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Dusty.glb"
@@ -110082,7 +110082,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Dusty for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Neck prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Neck, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Dusty_Sit.model.json",
-      "rbx_parts": 52,
+      "rbx_parts": 50,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Dusty_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Dusty_Sit.glb"
@@ -110625,7 +110625,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Dusty_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Neck prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Neck, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Dusty_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 68,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Dusty_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Dusty_Work.glb"
@@ -112768,7 +112768,7 @@
       },
       "studio": "Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fennec.model.json",
-      "rbx_parts": 66,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Fennec.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Fennec.glb"
@@ -113288,7 +113288,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Fennec for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fennec_Sit.model.json",
-      "rbx_parts": 66,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Fennec_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Fennec_Sit.glb"
@@ -113835,7 +113835,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Fennec_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fennec_Work.model.json",
-      "rbx_parts": 84,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Fennec_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Fennec_Work.glb"
@@ -138911,7 +138911,7 @@
       },
       "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula.model.json",
-      "rbx_parts": 149,
+      "rbx_parts": 119,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula.glb"
@@ -139459,7 +139459,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Nebula for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Sit.model.json",
-      "rbx_parts": 153,
+      "rbx_parts": 123,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Sit.glb"
@@ -140032,7 +140032,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Nebula_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Work.model.json",
-      "rbx_parts": 163,
+      "rbx_parts": 133,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Nebula_Work.glb"
@@ -164479,7 +164479,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Midnight when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Gold.model.json",
-      "rbx_parts": 133,
+      "rbx_parts": 93,
       "gates": {
         "pass": true,
         "failed": [],
@@ -164983,7 +164983,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Midnight_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Gold_Sit.model.json",
-      "rbx_parts": 138,
+      "rbx_parts": 98,
       "gates": {
         "pass": true,
         "failed": [],
@@ -165514,7 +165514,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Midnight_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Gold_Work.model.json",
-      "rbx_parts": 148,
+      "rbx_parts": 108,
       "gates": {
         "pass": true,
         "failed": [],
@@ -172350,7 +172350,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blossom when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Gold.model.json",
-      "rbx_parts": 200,
+      "rbx_parts": 140,
       "gates": {
         "pass": true,
         "failed": [],
@@ -172866,7 +172866,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blossom_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Gold_Sit.model.json",
-      "rbx_parts": 201,
+      "rbx_parts": 141,
       "gates": {
         "pass": true,
         "failed": [],
@@ -173409,7 +173409,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blossom_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Gold_Work.model.json",
-      "rbx_parts": 217,
+      "rbx_parts": 157,
       "gates": {
         "pass": true,
         "failed": [],
@@ -175556,7 +175556,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Munchkin when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Munchkin_Gold.model.json",
-      "rbx_parts": 98,
+      "rbx_parts": 78,
       "gates": {
         "pass": true,
         "failed": [],
@@ -176076,7 +176076,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Munchkin_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Munchkin_Gold_Sit.model.json",
-      "rbx_parts": 98,
+      "rbx_parts": 78,
       "gates": {
         "pass": true,
         "failed": [],
@@ -176623,7 +176623,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Munchkin_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Munchkin_Gold_Work.model.json",
-      "rbx_parts": 116,
+      "rbx_parts": 96,
       "gates": {
         "pass": true,
         "failed": [],
@@ -182004,7 +182004,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Marshmallow when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Marshmallow_Gold.model.json",
-      "rbx_parts": 82,
+      "rbx_parts": 72,
       "gates": {
         "pass": true,
         "failed": [],
@@ -182520,7 +182520,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Marshmallow_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Marshmallow_Gold_Sit.model.json",
-      "rbx_parts": 78,
+      "rbx_parts": 68,
       "gates": {
         "pass": true,
         "failed": [],
@@ -183063,7 +183063,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Marshmallow_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Marshmallow_Gold_Work.model.json",
-      "rbx_parts": 94,
+      "rbx_parts": 84,
       "gates": {
         "pass": true,
         "failed": [],
@@ -243169,7 +243169,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Dusty when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Neck prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Neck, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Dusty_Gold.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 49,
       "gates": {
         "pass": true,
         "failed": [],
@@ -243681,7 +243681,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Dusty_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Neck prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Neck, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Dusty_Gold_Sit.model.json",
-      "rbx_parts": 50,
+      "rbx_parts": 48,
       "gates": {
         "pass": true,
         "failed": [],
@@ -244220,7 +244220,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Dusty_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Neck prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Neck, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Dusty_Gold_Work.model.json",
-      "rbx_parts": 68,
+      "rbx_parts": 66,
       "gates": {
         "pass": true,
         "failed": [],
@@ -246347,7 +246347,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Fennec when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fennec_Gold.model.json",
-      "rbx_parts": 66,
+      "rbx_parts": 54,
       "gates": {
         "pass": true,
         "failed": [],
@@ -246863,7 +246863,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Fennec_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fennec_Gold_Sit.model.json",
-      "rbx_parts": 66,
+      "rbx_parts": 54,
       "gates": {
         "pass": true,
         "failed": [],
@@ -247406,7 +247406,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Fennec_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fennec_Gold_Work.model.json",
-      "rbx_parts": 84,
+      "rbx_parts": 72,
       "gates": {
         "pass": true,
         "failed": [],
@@ -272300,7 +272300,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Nebula when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Gold.model.json",
-      "rbx_parts": 149,
+      "rbx_parts": 119,
       "gates": {
         "pass": true,
         "failed": [],
@@ -272844,7 +272844,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Nebula_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Gold_Sit.model.json",
-      "rbx_parts": 153,
+      "rbx_parts": 123,
       "gates": {
         "pass": true,
         "failed": [],
@@ -273413,7 +273413,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Nebula_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Stars_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Nebula_Gold_Work.model.json",
-      "rbx_parts": 163,
+      "rbx_parts": 133,
       "gates": {
         "pass": true,
         "failed": [],
@@ -276724,7 +276724,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Dealer.model.json",
-      "rbx_parts": 259,
+      "rbx_parts": 169,
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Dealer.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Dealer.glb"
@@ -277524,7 +277524,7 @@
         -0.3
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_StageCatTree.model.json",
-      "rbx_parts": 97,
+      "rbx_parts": 67,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_StageCatTree.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_StageCatTree.glb"
@@ -280182,7 +280182,7 @@
         0
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_MoonMilk.model.json",
-      "rbx_parts": 50,
+      "rbx_parts": 30,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_MoonMilk.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_MoonMilk.glb"
@@ -280241,7 +280241,7 @@
         0
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_StarTreat.model.json",
-      "rbx_parts": 43,
+      "rbx_parts": 23,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_StarTreat.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_StarTreat.glb"
@@ -280357,7 +280357,7 @@
         0
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_CometTreat.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 24,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_CometTreat.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_CometTreat.glb"
@@ -280936,7 +280936,7 @@
         "body": "walk"
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_LeafBeret.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 37,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Accessory_LeafBeret.fbx",
         "assets/cat-cafe/exports/CatCafe_Accessory_LeafBeret.glb"
@@ -281827,7 +281827,7 @@
         "body": "sit"
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Cape.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 27,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Accessory_Cape.fbx",
         "assets/cat-cafe/exports/CatCafe_Accessory_Cape.glb"
@@ -282257,7 +282257,7 @@
       ],
       "studio": "F32: the night dealer's cart (DealerService clones it at night). The Bulb and Bulbs are lit at night. The dealer's own cat sits on the cushion at the back of the counter: Cat_Body, Cat_Head and the other hinged sitting-cat pieces, its hood Cat_Prop inside the Head Model; it can idle like any cat.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_DealerCart.model.json",
-      "rbx_parts": 647,
+      "rbx_parts": 427,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_DealerCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_DealerCart.glb"
@@ -283641,7 +283641,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5.model.json",
-      "rbx_parts": 54,
+      "rbx_parts": 44,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Tier5.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Tier5.glb"
@@ -285473,7 +285473,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Park_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_NightFence.model.json",
-      "rbx_parts": 323,
+      "rbx_parts": 293,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_NightFence.glb"
@@ -285541,7 +285541,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Park_GateF85. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_NightFenceF85.model.json",
-      "rbx_parts": 303,
+      "rbx_parts": 273,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_NightFenceF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_NightFenceF85.glb"
@@ -285607,7 +285607,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Neighbourhood_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_NightFence.model.json",
-      "rbx_parts": 323,
+      "rbx_parts": 293,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFence.glb"
@@ -285675,7 +285675,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Neighbourhood_GateF85. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_NightFenceF85.model.json",
-      "rbx_parts": 303,
+      "rbx_parts": 273,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFenceF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFenceF85.glb"
@@ -285741,7 +285741,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Woods_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_NightFence.model.json",
-      "rbx_parts": 323,
+      "rbx_parts": 293,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_NightFence.glb"
@@ -285809,7 +285809,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Sewer_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_NightFence.model.json",
-      "rbx_parts": 323,
+      "rbx_parts": 293,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_NightFence.glb"
@@ -285877,7 +285877,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Desert_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Desert_NightFence.model.json",
-      "rbx_parts": 303,
+      "rbx_parts": 273,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Desert_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Desert_NightFence.glb"
@@ -285943,7 +285943,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Ruins_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Ruins_NightFence.model.json",
-      "rbx_parts": 303,
+      "rbx_parts": 273,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Ruins_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Ruins_NightFence.glb"
@@ -286009,7 +286009,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Alley_ArchStreet. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_NightFence.model.json",
-      "rbx_parts": 351,
+      "rbx_parts": 321,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_NightFence.glb"
@@ -286371,7 +286371,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F52: the golden fish coin, a world pickup or prize; gold parts are Metal. Its HUD picture is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_FishCoin.model.json",
-      "rbx_parts": 102,
+      "rbx_parts": 101,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_FishCoin.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_FishCoin.glb"
@@ -286558,7 +286558,7 @@
       ],
       "studio": "F53: the Golden Fish Market in the street plaza (x -8.5, z 64, rotY -90); WorldBuilder tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is lit at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_FishMarket.model.json",
-      "rbx_parts": 500,
+      "rbx_parts": 499,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_FishMarket.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_FishMarket.glb"
@@ -289603,7 +289603,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_SpinWheel.model.json",
-      "rbx_parts": 511,
+      "rbx_parts": 501,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_SpinWheel.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_SpinWheel.glb"
@@ -296052,7 +296052,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_SetF85.model.json",
-      "rbx_parts": 5223,
+      "rbx_parts": 5221,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_SetF85.glb"
@@ -297300,7 +297300,7 @@
         "CatCafe_Sewer_SetF85_169_Grate",
         "CatCafe_Sewer_SetF85_170_Grate"
       ],
-      "triangles": 132598,
+      "triangles": 128622,
       "budget": 150000,
       "size_studs": {
         "x": 119.2,
@@ -297843,7 +297843,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetF85.model.json",
-      "rbx_parts": 7051,
+      "rbx_parts": 6868,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.glb"
@@ -297855,15 +297855,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "132598/150000 tris",
+          "budget": "128622/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "68282 faces on swatch centers",
+          "uv": "66350 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.07"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_SetF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_SetF85.png"
     },
     {
       "name": "CatCafe_Plot_BackDoor",
@@ -301930,7 +301932,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_GoldRush.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_GoldRush.model.json",
-      "rbx_parts": 30,
+      "rbx_parts": 20,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_GoldRush.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_GoldRush.glb"
@@ -302089,7 +302091,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_BigGoldRush.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_BigGoldRush.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 41,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigGoldRush.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigGoldRush.glb"
@@ -302712,7 +302714,7 @@
       },
       "studio": "F63 Cat Collector: the client pivots it on the plot's CollectorSpot (floor centre, front into the room) and tags it CatCollector. A sitting grey tabby (scale 1.45, 2.7 tall to the hat) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the bowler is the child Model _Prop inside Head, the tweed coat _Coat rides the body and the magnifying glass _Lens is inside LegF2, whose paw is raised to his right eye. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Collector.model.json",
-      "rbx_parts": 117,
+      "rbx_parts": 115,
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Collector.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Collector.glb"
@@ -304768,7 +304770,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Cannon.model.json",
-      "rbx_parts": 470,
+      "rbx_parts": 450,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Cannon.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Cannon.glb"
@@ -304940,7 +304942,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Alleyway.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Alleyway.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Alleyway.glb"
@@ -305052,7 +305054,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Park.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Park.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Park.glb"
@@ -305164,7 +305166,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Neighbourhood.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Neighbourhood.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Neighbourhood.glb"
@@ -305276,7 +305278,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Woods.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Woods.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Woods.glb"
@@ -305388,7 +305390,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Sewer.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Sewer.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Sewer.glb"
@@ -305502,7 +305504,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Desert.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Desert.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Desert.glb"
@@ -305616,7 +305618,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Ruins.model.json",
-      "rbx_parts": 375,
+      "rbx_parts": 355,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Ruins.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Ruins.glb"
@@ -307941,7 +307943,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_CatTreeSign.model.json",
-      "rbx_parts": 179,
+      "rbx_parts": 169,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.glb"
@@ -308078,7 +308080,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GoldenCatFountain.model.json",
-      "rbx_parts": 183,
+      "rbx_parts": 173,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatFountain.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_GoldenCatFountain.glb"
@@ -311292,7 +311294,7 @@
       "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_KittyCupcake.model.json",
-      "rbx_parts": 24,
+      "rbx_parts": 20,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Menu_KittyCupcake.fbx",
         "assets/cat-cafe/exports/CatCafe_Menu_KittyCupcake.glb"
@@ -311345,7 +311347,7 @@
       "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_HotCocoa.model.json",
-      "rbx_parts": 36,
+      "rbx_parts": 32,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Menu_HotCocoa.fbx",
         "assets/cat-cafe/exports/CatCafe_Menu_HotCocoa.glb"
@@ -311451,7 +311453,7 @@
       "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_Sundae.model.json",
-      "rbx_parts": 21,
+      "rbx_parts": 17,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Menu_Sundae.fbx",
         "assets/cat-cafe/exports/CatCafe_Menu_Sundae.glb"
@@ -317904,7 +317906,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_GrandOpeningRibbon.model.json",
-      "rbx_parts": 119,
+      "rbx_parts": 115,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_GrandOpeningRibbon.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_GrandOpeningRibbon.glb"
@@ -319958,7 +319960,7 @@
       },
       "studio": "Tier 6 (tier6-7-areas.md section 4). Place it at the Desert's centre on its floor with the camp's turn (180: the camp on the north edge), like the F85 sets. The floor is sand right out to the walls. Nothing invisible stands inside the area (#2897): the dunes, humps and drifts are WedgeParts that collide where they are drawn and the blockers have no _Barrier, so a player may climb them; the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The rescue spots (points_roblox trap_sand_dune, trap_clay_urn, trap_collapsed_canopy) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Desert_Set.model.json",
-      "rbx_parts": 4068,
+      "rbx_parts": 4642,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Desert_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Desert_Set.glb"
@@ -320452,7 +320454,7 @@
         "CatCafe_Ruins_Set_220_Rubble",
         "CatCafe_Ruins_Set_220_Rubble_Decor"
       ],
-      "triangles": 136002,
+      "triangles": 134874,
       "budget": 150000,
       "size_studs": {
         "x": 140.0,
@@ -321221,7 +321223,7 @@
       },
       "studio": "Tier 7 (tier6-7-areas.md section 5). Place it at the Ruins' centre on its floor with the camp's turn (0: the camp on the south edge, toward the town), like the F85 sets. Every blocker has a _Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -300 and the east bridge bay (a 9 high parapet barrier). The rescue spots (points_roblox trap_rubble_pile, trap_stone_urn, trap_bridge_ledge) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Ruins_Set.model.json",
-      "rbx_parts": 6952,
+      "rbx_parts": 6858,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.glb"
@@ -321233,10 +321235,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "136002/150000 tris",
+          "budget": "134874/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "77206 faces on swatch centers",
+          "uv": "76642 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.33 (want 0)",
           "centered": "footprint center x=0.00 y=0.00",
@@ -323591,7 +323593,7 @@
       },
       "studio": "#3314 (trait-station.md section 1): the Mystic Pool, the Picnic station reworked into the trait station. _Liquid_Glow is Neon and walk-through; Effects/MysticPool recolours it during a roll. Sage Sorrel's hat rides his Head Model and his staff his right arm (LegF2). Attachments: PromptAnchor, BangAnchor, GlowAnchor, PoolDrop (the liquid's surface) and StaffTip (the orb). _Runes_Glow (the stones' star runes) is Neon all day; _Lantern_Bulb (the moon arch's two lanterns) lights at night with the other _Bulb parts. The arch, kerb and stones collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_MysticPool.model.json",
-      "rbx_parts": 553,
+      "rbx_parts": 453,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Park_MysticPool.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Park_MysticPool.glb"

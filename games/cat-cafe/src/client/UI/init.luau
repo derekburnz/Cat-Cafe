@@ -2474,7 +2474,8 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
-			if two then index else nil
+			if two then index else nil,
+			state.tutorialStep == 4 -- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
 		)
 	end
 	renderBait()
@@ -5846,13 +5847,24 @@ UI.firstVisit = { kind = nil :: string?, token = 0, carded = false }
 do
 	local FirstVisitLogic = require(script.Components.FirstVisitLogic)
 
+	-- #3620: a window or the "Unlocked!" perk card is up. (any: UI.perks is filled further down this file, and the CI
+	-- type check loses the whole UI table's shape when it is read here by its own type)
+	local function busy(): boolean
+		local cards: any = UI
+		local perkCard = cards.perks.card
+		return FirstVisitLogic.yields(
+			if modal ~= nil then modal:current() else nil,
+			perkCard ~= nil and perkCard:isShowing()
+		)
+	end
+
 	local function present(token: number, away: () -> boolean)
 		local visit = UI.firstVisit
 		local kind = visit.kind
 		if visit.token ~= token or kind == nil then
 			return -- the visit ended, or another came, while it waited
 		end
-		if not initialized or not UI.tips.quiet() then
+		if not initialized or not UI.tips.quiet() or busy() then
 			task.delay(1, present, token, away)
 			return
 		end
@@ -5888,6 +5900,26 @@ do
 					end
 				end,
 			}, true) -- news, not an ask: AskPacing does not hold it back (#2880)
+			if not visit.carded then
+				task.delay(1, present, token, away) -- the card's slot is taken (another card, or its own way out)
+			else
+				-- #3620: a window or the perk card that opens over the shown card takes the screen; the card
+				-- steps aside and comes back when it has closed, while the visit lasts
+				task.spawn(function()
+					while visit.token == token and visit.carded do
+						task.wait(FirstVisitLogic.YIELD_STEP)
+						if visit.token == token and visit.carded and busy() then
+							local card = askCard
+							if card ~= nil and card:isShowing() then
+								card:hide("hidden") -- its answer clears `carded`
+							end
+							visit.carded = false
+							present(token, away)
+							return
+						end
+					end
+				end)
+			end
 		end
 	end
 

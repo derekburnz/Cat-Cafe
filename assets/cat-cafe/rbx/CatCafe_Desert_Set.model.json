@@ -68696,7 +68696,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -70931,7 +70931,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -71411,33 +71411,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -47.0,
+         -47.3656,
          4.25,
-         -216.3
+         -213.3224
         ],
         "orientation": [
          [
           -0.9925,
-          0.0996,
-          -0.0703
+          0.0,
+          0.1219
          ],
          [
           0.0,
-          -0.5767,
-          -0.817
+          1.0,
+          0.0
          ],
          [
           -0.1219,
-          -0.8109,
-          0.5724
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        16.4,
-       4.9018,
-       6.9442
+       8.5,
+       6.0
       ],
       "Color": [
        0.8431,
@@ -71455,8 +71455,8 @@
        "CFrame": {
         "position": [
          -73.01,
-         -168.2626,
-         123.9758
+         -4.25,
+         -205.9599
         ],
         "orientation": [
          [
@@ -71465,14 +71465,14 @@
           -0.1219
          ],
          [
-          0.0996,
-          -0.5767,
-          -0.8109
+          0.0,
+          1.0,
+          0.0
          ],
          [
-          -0.0703,
-          -0.817,
-          0.5724
+          0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
@@ -71864,55 +71864,6 @@
        0.902,
        0.8118,
        0.6588
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -47.3656,
-         0.0,
-         -213.3224
-        ],
-        "orientation": [
-         [
-          0.9925,
-          0.0996,
-          0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          0.817
-         ],
-         [
-          0.1219,
-          -0.8109,
-          -0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       16.4,
-       4.9018,
-       3.4601
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -73302,82 +73253,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.0,
-         4.0,
-         -213.7
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          -0.0996,
-          0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       16.4,
-       4.6135,
-       6.5357
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -32.6559,
-         0.0,
+         4.0,
          -210.8975
         ],
         "orientation": [
          [
-          0.9925,
-          -0.0996,
-          -0.0703
+          -0.9925,
+          0.0,
+          -0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.1219,
-          -0.8109,
-          -0.5724
+          0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        16.4,
-       4.6135,
-       3.2566
+       8.0,
+       5.6471
       ],
       "Color": [
        0.8431,
@@ -74774,7 +74676,7 @@
         "position": [
          -19.0,
          3.75,
-         -215.0
+         -212.3529
         ],
         "orientation": [
          [
@@ -74784,70 +74686,21 @@
          ],
          [
           0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.0,
-          -0.817,
-          0.5767
-         ]
-        ]
-       }
-      },
-      "Size": [
-       16.4,
-       4.3251,
-       6.1273
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -19.0,
-         0.0,
-         -212.3529
-        ],
-        "orientation": [
-         [
           1.0,
-          0.0,
           0.0
          ],
          [
           0.0,
-          -0.5767,
-          0.817
-         ],
-         [
           0.0,
-          -0.817,
-          -0.5767
+          -1.0
          ]
         ]
        }
       },
       "Size": [
        16.4,
-       4.3251,
-       3.053
+       7.5,
+       5.2941
       ],
       "Color": [
        0.8431,
@@ -76242,82 +76095,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -57.0,
-         2.635,
-         -214.2
-        ],
-        "orientation": [
-         [
-          -0.9781,
-          -0.1699,
-          0.1199
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.2079,
-          -0.7991,
-          0.5641
-         ]
-        ]
-       }
-      },
-      "Size": [
-       6.0,
-       3.0391,
-       4.3054
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -56.6133,
-         0.0,
+         2.635,
          -212.3806
         ],
         "orientation": [
          [
-          0.9781,
-          -0.1699,
-          -0.1199
+          -0.9781,
+          0.0,
+          -0.2079
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.2079,
-          -0.7991,
-          -0.5641
+          0.2079,
+          0.0,
+          -0.9781
          ]
         ]
        }
       },
       "Size": [
        6.0,
-       3.0391,
-       2.1453
+       5.27,
+       3.72
       ],
       "Color": [
        0.8431,
@@ -77712,82 +77516,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -60.5,
-         1.36,
-         -213.0
-        ],
-        "orientation": [
-         [
-          -0.9272,
-          -0.306,
-          0.216
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.3746,
-          -0.7575,
-          0.5347
-         ]
-        ]
-       }
-      },
-      "Size": [
-       4.0,
-       1.5686,
-       2.2222
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -60.1404,
-         0.0,
+         1.36,
          -212.1099
         ],
         "orientation": [
          [
-          0.9272,
-          -0.306,
-          -0.216
+          -0.9272,
+          0.0,
+          -0.3746
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.3746,
-          -0.7575,
-          -0.5347
+          0.3746,
+          0.0,
+          -0.9272
          ]
         ]
        }
       },
       "Size": [
        4.0,
-       1.5686,
-       1.1072
+       2.72,
+       1.92
       ],
       "Color": [
        0.8431,
@@ -79182,82 +78937,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         22.0,
-         4.25,
-         -216.3
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          0.0996,
-          -0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          -0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.4,
-       4.9018,
-       6.9442
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          21.6344,
-         0.0,
+         4.25,
          -213.3224
         ],
         "orientation": [
          [
-          0.9925,
-          0.0996,
-          0.0703
+          -0.9925,
+          0.0,
+          0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          0.1219,
-          -0.8109,
-          -0.5724
+          -0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.4,
-       4.9018,
-       3.4601
+       8.5,
+       6.0
       ],
       "Color": [
        0.8431,
@@ -80652,82 +80358,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         34.0,
-         4.0,
-         -213.7
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          -0.0996,
-          0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.4,
-       4.6135,
-       6.5357
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          34.3441,
-         0.0,
+         4.0,
          -210.8975
         ],
         "orientation": [
          [
-          0.9925,
-          -0.0996,
-          -0.0703
+          -0.9925,
+          0.0,
+          -0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.1219,
-          -0.8109,
-          -0.5724
+          0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.4,
-       4.6135,
-       3.2566
+       8.0,
+       5.6471
       ],
       "Color": [
        0.8431,
@@ -82124,7 +81781,7 @@
         "position": [
          46.0,
          3.75,
-         -215.0
+         -212.3529
         ],
         "orientation": [
          [
@@ -82134,70 +81791,21 @@
          ],
          [
           0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.0,
-          -0.817,
-          0.5767
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.4,
-       4.3251,
-       6.1273
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         46.0,
-         0.0,
-         -212.3529
-        ],
-        "orientation": [
-         [
           1.0,
-          0.0,
           0.0
          ],
          [
           0.0,
-          -0.5767,
-          0.817
-         ],
-         [
           0.0,
-          -0.817,
-          -0.5767
+          -1.0
          ]
         ]
        }
       },
       "Size": [
        14.4,
-       4.3251,
-       3.053
+       7.5,
+       5.2941
       ],
       "Color": [
        0.8431,
@@ -83592,82 +83200,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         55.0,
-         2.635,
-         -214.2
-        ],
-        "orientation": [
-         [
-          -0.9781,
-          0.1699,
-          -0.1199
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          -0.2079,
-          -0.7991,
-          0.5641
-         ]
-        ]
-       }
-      },
-      "Size": [
-       6.0,
-       3.0391,
-       4.3054
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          54.6133,
-         0.0,
+         2.635,
          -212.3806
         ],
         "orientation": [
          [
-          0.9781,
-          0.1699,
-          0.1199
+          -0.9781,
+          0.0,
+          0.2079
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          0.2079,
-          -0.7991,
-          -0.5641
+          -0.2079,
+          0.0,
+          -0.9781
          ]
         ]
        }
       },
       "Size": [
        6.0,
-       3.0391,
-       2.1453
+       5.27,
+       3.72
       ],
       "Color": [
        0.8431,
@@ -85062,82 +84621,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         58.5,
-         1.36,
-         -213.0
-        ],
-        "orientation": [
-         [
-          -0.9272,
-          0.306,
-          -0.216
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          -0.3746,
-          -0.7575,
-          0.5347
-         ]
-        ]
-       }
-      },
-      "Size": [
-       4.0,
-       1.5686,
-       2.2222
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_076_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          58.1404,
-         0.0,
+         1.36,
          -212.1099
         ],
         "orientation": [
          [
-          0.9272,
-          0.306,
-          0.216
+          -0.9272,
+          0.0,
+          0.3746
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          0.3746,
-          -0.7575,
-          -0.5347
+          -0.3746,
+          0.0,
+          -0.9272
          ]
         ]
        }
       },
       "Size": [
        4.0,
-       1.5686,
-       1.1072
+       2.72,
+       1.92
       ],
       "Color": [
        0.8431,
@@ -86177,33 +85687,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.75,
+         -34.1156,
          4.25,
-         -151.3
+         -148.3224
         ],
         "orientation": [
          [
           -0.9925,
-          0.0996,
-          -0.0703
+          0.0,
+          0.1219
          ],
          [
           0.0,
-          -0.5767,
-          -0.817
+          1.0,
+          0.0
          ],
          [
           -0.1219,
-          -0.8109,
-          0.5724
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.9,
-       4.9018,
-       6.9442
+       8.5,
+       6.0
       ],
       "Color": [
        0.8431,
@@ -86221,8 +85731,8 @@
        "CFrame": {
         "position": [
          -51.9373,
-         -116.8747,
-         87.702
+         -4.25,
+         -143.0591
         ],
         "orientation": [
          [
@@ -86231,14 +85741,14 @@
           -0.1219
          ],
          [
-          0.0996,
-          -0.5767,
-          -0.8109
+          0.0,
+          1.0,
+          0.0
          ],
          [
-          -0.0703,
-          -0.817,
-          0.5724
+          0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
@@ -86630,55 +86140,6 @@
        0.902,
        0.8118,
        0.6588
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -34.1156,
-         0.0,
-         -148.3224
-        ],
-        "orientation": [
-         [
-          0.9925,
-          0.0996,
-          0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          0.817
-         ],
-         [
-          0.1219,
-          -0.8109,
-          -0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.9,
-       4.9018,
-       3.4601
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -88068,82 +87529,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -21.25,
-         4.0,
-         -148.7
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          -0.0996,
-          0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.9,
-       4.6135,
-       6.5357
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -20.9059,
-         0.0,
+         4.0,
          -145.8975
         ],
         "orientation": [
          [
-          0.9925,
-          -0.0996,
-          -0.0703
+          -0.9925,
+          0.0,
+          -0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.1219,
-          -0.8109,
-          -0.5724
+          0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.9,
-       4.6135,
-       3.2566
+       8.0,
+       5.6471
       ],
       "Color": [
        0.8431,
@@ -89540,7 +88952,7 @@
         "position": [
          -8.75,
          3.75,
-         -150.0
+         -147.3529
         ],
         "orientation": [
          [
@@ -89550,70 +88962,21 @@
          ],
          [
           0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.0,
-          -0.817,
-          0.5767
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.9,
-       4.3251,
-       6.1273
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.75,
-         0.0,
-         -147.3529
-        ],
-        "orientation": [
-         [
           1.0,
-          0.0,
           0.0
          ],
          [
           0.0,
-          -0.5767,
-          0.817
-         ],
-         [
           0.0,
-          -0.817,
-          -0.5767
+          -1.0
          ]
         ]
        }
       },
       "Size": [
        14.9,
-       4.3251,
-       3.053
+       7.5,
+       5.2941
       ],
       "Color": [
        0.8431,
@@ -91008,82 +90371,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         3.75,
-         4.25,
-         -151.3
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          0.0996,
-          -0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          -0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.9,
-       4.9018,
-       6.9442
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          3.3844,
-         0.0,
+         4.25,
          -148.3224
         ],
         "orientation": [
          [
-          0.9925,
-          0.0996,
-          0.0703
+          -0.9925,
+          0.0,
+          0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          0.1219,
-          -0.8109,
-          -0.5724
+          -0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.9,
-       4.9018,
-       3.4601
+       8.5,
+       6.0
       ],
       "Color": [
        0.8431,
@@ -92478,82 +91792,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -43.0,
-         2.635,
-         -149.2
-        ],
-        "orientation": [
-         [
-          -0.9781,
-          -0.1699,
-          0.1199
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.2079,
-          -0.7991,
-          0.5641
-         ]
-        ]
-       }
-      },
-      "Size": [
-       6.0,
-       3.0391,
-       4.3054
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -42.6133,
-         0.0,
+         2.635,
          -147.3806
         ],
         "orientation": [
          [
-          0.9781,
-          -0.1699,
-          -0.1199
+          -0.9781,
+          0.0,
+          -0.2079
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.2079,
-          -0.7991,
-          -0.5641
+          0.2079,
+          0.0,
+          -0.9781
          ]
         ]
        }
       },
       "Size": [
        6.0,
-       3.0391,
-       2.1453
+       5.27,
+       3.72
       ],
       "Color": [
        0.8431,
@@ -93948,82 +93213,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -46.5,
-         1.36,
-         -148.0
-        ],
-        "orientation": [
-         [
-          -0.9272,
-          -0.306,
-          0.216
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.3746,
-          -0.7575,
-          0.5347
-         ]
-        ]
-       }
-      },
-      "Size": [
-       4.0,
-       1.5686,
-       2.2222
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -46.1404,
-         0.0,
+         1.36,
          -147.1099
         ],
         "orientation": [
          [
-          0.9272,
-          -0.306,
-          -0.216
+          -0.9272,
+          0.0,
+          -0.3746
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.3746,
-          -0.7575,
-          -0.5347
+          0.3746,
+          0.0,
+          -0.9272
          ]
         ]
        }
       },
       "Size": [
        4.0,
-       1.5686,
-       1.1072
+       2.72,
+       1.92
       ],
       "Color": [
        0.8431,
@@ -95418,82 +94634,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         40.25,
-         4.25,
-         -151.3
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          0.0996,
-          -0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          -0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.9,
-       4.9018,
-       6.9442
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          39.8844,
-         0.0,
+         4.25,
          -148.3224
         ],
         "orientation": [
          [
-          0.9925,
-          0.0996,
-          0.0703
+          -0.9925,
+          0.0,
+          0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          0.1219,
-          -0.8109,
-          -0.5724
+          -0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.9,
-       4.9018,
-       3.4601
+       8.5,
+       6.0
       ],
       "Color": [
        0.8431,
@@ -96888,82 +96055,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         52.75,
-         4.0,
-         -148.7
-        ],
-        "orientation": [
-         [
-          -0.9925,
-          -0.0996,
-          0.0703
-         ],
-         [
-          0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.1219,
-          -0.8109,
-          0.5724
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.9,
-       4.6135,
-       6.5357
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          53.0941,
-         0.0,
+         4.0,
          -145.8975
         ],
         "orientation": [
          [
-          0.9925,
-          -0.0996,
-          -0.0703
+          -0.9925,
+          0.0,
+          -0.1219
          ],
          [
           0.0,
-          -0.5767,
-          0.817
+          1.0,
+          0.0
          ],
          [
-          -0.1219,
-          -0.8109,
-          -0.5724
+          0.1219,
+          0.0,
+          -0.9925
          ]
         ]
        }
       },
       "Size": [
        14.9,
-       4.6135,
-       3.2566
+       8.0,
+       5.6471
       ],
       "Color": [
        0.8431,
@@ -98360,7 +97478,7 @@
         "position": [
          65.25,
          3.75,
-         -150.0
+         -147.3529
         ],
         "orientation": [
          [
@@ -98370,70 +97488,21 @@
          ],
          [
           0.0,
-          -0.5767,
-          -0.817
-         ],
-         [
-          0.0,
-          -0.817,
-          0.5767
-         ]
-        ]
-       }
-      },
-      "Size": [
-       14.5,
-       4.3251,
-       6.1273
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_077_DuneRidge",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         65.25,
-         0.0,
-         -147.3529
-        ],
-        "orientation": [
-         [
           1.0,
-          0.0,
           0.0
          ],
          [
           0.0,
-          -0.5767,
-          0.817
-         ],
-         [
           0.0,
-          -0.817,
-          -0.5767
+          -1.0
          ]
         ]
        }
       },
       "Size": [
        14.5,
-       4.3251,
-       3.053
+       7.5,
+       5.2941
       ],
       "Color": [
        0.8431,
@@ -153472,7 +152541,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -154143,7 +153212,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -156402,7 +155471,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -157073,7 +156142,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -157744,7 +156813,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -164703,7 +163772,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -165374,7 +164443,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -166045,7 +165114,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -166521,7 +165590,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166571,7 +165640,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166621,7 +165690,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166721,7 +165790,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166771,7 +165840,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166821,7 +165890,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166921,7 +165990,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -166971,7 +166040,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167021,7 +166090,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167169,7 +166238,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -167530,7 +166599,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167580,7 +166649,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167630,7 +166699,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167730,7 +166799,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167780,7 +166849,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -167830,7 +166899,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168076,7 +167145,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -168437,7 +167506,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168487,7 +167556,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168537,7 +167606,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168637,7 +167706,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168687,7 +167756,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168737,7 +167806,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -168983,7 +168052,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -169344,7 +168413,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169394,7 +168463,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169444,7 +168513,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169544,7 +168613,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169594,7 +168663,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169644,7 +168713,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169744,7 +168813,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169794,7 +168863,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169844,7 +168913,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -169992,7 +169061,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -170353,7 +169422,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -170403,7 +169472,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -170453,7 +169522,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -170553,7 +169622,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -170603,7 +169672,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -170653,7 +169722,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -170899,7 +169968,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -171260,7 +170329,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171310,7 +170379,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171360,7 +170429,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171460,7 +170529,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171510,7 +170579,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171560,7 +170629,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171660,7 +170729,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171710,7 +170779,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171760,7 +170829,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -171908,7 +170977,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -173738,7 +172807,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -173787,7 +172856,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -173836,7 +172905,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -173934,7 +173003,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -173983,7 +173052,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -174032,7 +173101,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -174535,82 +173604,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -19.5,
-         2.5,
-         253.5
-        ],
-        "orientation": [
-         [
-          0.7071,
-          -0.6565,
-          0.2626
-         ],
-         [
-          0.0,
-          -0.3714,
-          -0.9285
-         ],
-         [
-          0.7071,
-          0.6565,
-          -0.2626
-         ]
-        ]
-       }
-      },
-      "Size": [
-       18.0,
-       1.857,
-       4.6424
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_157_Pyramid",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -18.7929,
-         0.0,
+         2.5,
          252.7929
         ],
         "orientation": [
          [
-          -0.7071,
-          -0.6565,
-          -0.2626
+          0.7071,
+          0.0,
+          -0.7071
          ],
          [
           0.0,
-          -0.3714,
-          0.9285
+          1.0,
+          0.0
          ],
          [
-          -0.7071,
-          0.6565,
-          0.2626
+          0.7071,
+          0.0,
+          0.7071
          ]
         ]
        }
       },
       "Size": [
        18.0,
-       1.857,
-       0.7428
+       5.0,
+       2.0
       ],
       "Color": [
        0.8431,
@@ -176005,82 +175025,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -22.5,
-         1.3,
-         211.5
-        ],
-        "orientation": [
-         [
-          -0.7071,
-          -0.6125,
-          0.3534
-         ],
-         [
-          0.0,
-          -0.4997,
-          -0.8662
-         ],
-         [
-          0.7071,
-          -0.6125,
-          0.3534
-         ]
-        ]
-       }
-      },
-      "Size": [
-       9.0,
-       1.2993,
-       2.2521
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_157_Pyramid",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -21.9697,
-         0.0,
+         1.3,
          212.0303
         ],
         "orientation": [
          [
-          0.7071,
-          -0.6125,
-          -0.3534
+          -0.7071,
+          0.0,
+          -0.7071
          ],
          [
           0.0,
-          -0.4997,
-          0.8662
+          1.0,
+          0.0
          ],
          [
-          -0.7071,
-          -0.6125,
-          -0.3534
+          0.7071,
+          0.0,
+          -0.7071
          ]
         ]
        }
       },
       "Size": [
        9.0,
-       1.2993,
-       0.7496
+       2.6,
+       1.5
       ],
       "Color": [
        0.8431,
@@ -177475,82 +176446,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         19.5,
-         2.5,
-         253.5
-        ],
-        "orientation": [
-         [
-          0.7071,
-          0.6565,
-          -0.2626
-         ],
-         [
-          0.0,
-          -0.3714,
-          -0.9285
-         ],
-         [
-          -0.7071,
-          0.6565,
-          -0.2626
-         ]
-        ]
-       }
-      },
-      "Size": [
-       18.0,
-       1.857,
-       4.6424
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_157_Pyramid",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          18.7929,
-         0.0,
+         2.5,
          252.7929
         ],
         "orientation": [
          [
-          -0.7071,
-          0.6565,
-          0.2626
+          0.7071,
+          0.0,
+          0.7071
          ],
          [
           0.0,
-          -0.3714,
-          0.9285
+          1.0,
+          0.0
          ],
          [
-          0.7071,
-          0.6565,
-          0.2626
+          -0.7071,
+          0.0,
+          0.7071
          ]
         ]
        }
       },
       "Size": [
        18.0,
-       1.857,
-       0.7428
+       5.0,
+       2.0
       ],
       "Color": [
        0.8431,
@@ -178945,82 +177867,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         22.5,
-         1.3,
-         211.5
-        ],
-        "orientation": [
-         [
-          -0.7071,
-          0.6125,
-          -0.3534
-         ],
-         [
-          0.0,
-          -0.4997,
-          -0.8662
-         ],
-         [
-          -0.7071,
-          -0.6125,
-          0.3534
-         ]
-        ]
-       }
-      },
-      "Size": [
-       9.0,
-       1.2993,
-       2.2521
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_157_Pyramid",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          21.9697,
-         0.0,
+         1.3,
          212.0303
         ],
         "orientation": [
          [
-          0.7071,
-          0.6125,
-          0.3534
+          -0.7071,
+          0.0,
+          0.7071
          ],
          [
           0.0,
-          -0.4997,
-          0.8662
+          1.0,
+          0.0
          ],
          [
-          0.7071,
-          -0.6125,
-          -0.3534
+          -0.7071,
+          0.0,
+          -0.7071
          ]
         ]
        }
       },
       "Size": [
        9.0,
-       1.2993,
-       0.7496
+       2.6,
+       1.5
       ],
       "Color": [
        0.8431,
@@ -180417,7 +179290,7 @@
         "position": [
          0.0,
          2.2,
-         254.0
+         253.3
         ],
         "orientation": [
          [
@@ -180427,70 +179300,21 @@
          ],
          [
           0.0,
-          -0.3032,
-          -0.9529
-         ],
-         [
-          0.0,
-          0.9529,
-          -0.3032
-         ]
-        ]
-       }
-      },
-      "Size": [
-       22.0,
-       1.3341,
-       4.1929
-      ],
-      "Color": [
-       0.8431,
-       0.7255,
-       0.5294
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Desert_Set_157_Pyramid",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.0,
-         253.3
-        ],
-        "orientation": [
-         [
-          -1.0,
-          0.0,
+          1.0,
           0.0
          ],
          [
           0.0,
-          -0.3032,
-          0.9529
-         ],
-         [
           0.0,
-          0.9529,
-          0.3032
+          1.0
          ]
         ]
        }
       },
       "Size": [
        22.0,
-       1.3341,
-       0.4245
+       4.4,
+       1.4
       ],
       "Color": [
        0.8431,
@@ -182037,7 +180861,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -182708,7 +181532,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -183379,7 +182203,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -184050,7 +182874,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -186258,7 +185082,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -186308,7 +185132,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -186358,7 +185182,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -187204,7 +186028,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -187254,7 +186078,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -187304,7 +186128,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -191397,7 +190221,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -191447,7 +190271,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -191497,7 +190321,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -192343,7 +191167,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -192393,7 +191217,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -192443,7 +191267,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -193289,7 +192113,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -193339,7 +192163,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -193389,7 +192213,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -194235,7 +193059,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -194285,7 +193109,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -194335,7 +193159,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -201779,7 +200603,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -201829,7 +200653,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -201879,7 +200703,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -201929,7 +200753,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -201979,7 +200803,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202029,7 +200853,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202079,7 +200903,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202129,7 +200953,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202179,7 +201003,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202229,7 +201053,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202279,7 +201103,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202329,7 +201153,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202379,7 +201203,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202429,7 +201253,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202479,7 +201303,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202529,7 +201353,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -202826,7 +201650,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -202876,7 +201700,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -202926,7 +201750,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -202976,7 +201800,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203026,7 +201850,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203274,7 +202098,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203324,7 +202148,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203374,7 +202198,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203524,7 +202348,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203574,7 +202398,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -203624,7 +202448,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -204969,7 +203793,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205019,7 +203843,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205069,7 +203893,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205119,7 +203943,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205169,7 +203993,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205219,7 +204043,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205269,7 +204093,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205319,7 +204143,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205369,7 +204193,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205419,7 +204243,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205469,7 +204293,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205519,7 +204343,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205569,7 +204393,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205619,7 +204443,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205669,7 +204493,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -205719,7 +204543,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -206016,7 +204840,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206066,7 +204890,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206116,7 +204940,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206166,7 +204990,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206216,7 +205040,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206464,7 +205288,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206514,7 +205338,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206564,7 +205388,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206714,7 +205538,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206764,7 +205588,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -206814,7 +205638,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -208159,7 +206983,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208209,7 +207033,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208259,7 +207083,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208309,7 +207133,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208359,7 +207183,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208409,7 +207233,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208459,7 +207283,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208509,7 +207333,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208559,7 +207383,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208609,7 +207433,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208659,7 +207483,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208709,7 +207533,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208759,7 +207583,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208809,7 +207633,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208859,7 +207683,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -208909,7 +207733,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -209206,7 +208030,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209256,7 +208080,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209306,7 +208130,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209356,7 +208180,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209406,7 +208230,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209654,7 +208478,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209704,7 +208528,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209754,7 +208578,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209904,7 +208728,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -209954,7 +208778,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -210004,7 +208828,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -211349,7 +210173,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211399,7 +210223,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211449,7 +210273,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211499,7 +210323,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211549,7 +210373,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211599,7 +210423,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211649,7 +210473,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211699,7 +210523,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211749,7 +210573,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211799,7 +210623,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211849,7 +210673,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211899,7 +210723,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211949,7 +210773,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -211999,7 +210823,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -212049,7 +210873,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -212099,7 +210923,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -212396,7 +211220,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212446,7 +211270,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212496,7 +211320,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212546,7 +211370,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212596,7 +211420,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212844,7 +211668,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212894,7 +211718,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -212944,7 +211768,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -213094,7 +211918,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -213144,7 +211968,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -213194,7 +212018,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -213418,7 +212242,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -213468,7 +212292,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -213625,7 +212449,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -213675,7 +212499,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -213832,7 +212656,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -213882,7 +212706,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -215365,7 +214189,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -216391,7 +215215,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -216615,7 +215439,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -216665,7 +215489,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -216822,7 +215646,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -216872,7 +215696,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -217029,7 +215853,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -217079,7 +215903,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -217978,7 +216802,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218078,7 +216902,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218291,7 +217115,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218341,7 +217165,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218441,7 +217265,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218491,7 +217315,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218654,7 +217478,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218704,7 +217528,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218754,7 +217578,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -218867,7 +217691,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -219359,7 +218183,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -219459,7 +218283,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -219672,7 +218496,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -219722,7 +218546,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -219822,7 +218646,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -219872,7 +218696,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -220035,7 +218859,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -220085,7 +218909,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -220135,7 +218959,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -220248,7 +219072,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -221324,7 +220148,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -221766,7 +220590,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -221866,7 +220690,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222079,7 +220903,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222129,7 +220953,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222229,7 +221053,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222279,7 +221103,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222442,7 +221266,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222492,7 +221316,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222542,7 +221366,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -222655,7 +221479,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223147,7 +221971,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223247,7 +222071,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223460,7 +222284,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223510,7 +222334,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223610,7 +222434,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223660,7 +222484,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223823,7 +222647,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223873,7 +222697,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -223923,7 +222747,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -224036,7 +222860,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -224310,7 +223134,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -224360,7 +223184,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -224517,7 +223341,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -224567,7 +223391,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -224724,7 +223548,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -224774,7 +223598,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -226257,7 +225081,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -226699,7 +225523,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -226799,7 +225623,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227012,7 +225836,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227062,7 +225886,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227162,7 +225986,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227212,7 +226036,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227375,7 +226199,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227425,7 +226249,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227475,7 +226299,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -227588,7 +226412,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -228664,7 +227488,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229106,7 +227930,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229206,7 +228030,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229419,7 +228243,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229469,7 +228293,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229569,7 +228393,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229619,7 +228443,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229782,7 +228606,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229832,7 +228656,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229882,7 +228706,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -229995,7 +228819,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -231071,7 +229895,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
@@ -236392,7 +235216,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -247856,7 +246680,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -249755,7 +248579,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"
@@ -252973,7 +251797,7 @@
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Ball"

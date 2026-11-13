@@ -137,6 +137,8 @@ LiveFlags.KEYS = {
 	"speedShoes",
 	"petCats",
 	"returnGift",
+	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
+	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {

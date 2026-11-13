@@ -325,7 +325,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -374,7 +374,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -423,7 +423,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -472,7 +472,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -521,7 +521,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -570,7 +570,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -1057,7 +1057,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1106,7 +1106,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1155,7 +1155,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1204,7 +1204,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1253,7 +1253,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1302,7 +1302,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1351,7 +1351,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1400,7 +1400,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1449,7 +1449,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1498,7 +1498,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1547,7 +1547,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -1602,7 +1602,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "PivotOffset": {
@@ -1680,7 +1680,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -1729,7 +1729,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -1815,7 +1815,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "PivotOffset": {
@@ -1893,7 +1893,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -1942,7 +1942,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2028,7 +2028,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "PivotOffset": {
@@ -2106,7 +2106,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2155,7 +2155,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2204,7 +2204,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2290,7 +2290,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "PivotOffset": {
@@ -2368,7 +2368,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2417,7 +2417,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2466,7 +2466,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -2631,7 +2631,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -2683,7 +2683,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -2699,19 +2699,19 @@
          "CFrame": {
           "position": [
            0.1145,
-           0.8532,
+           0.7179,
            -0.6573
           ],
           "orientation": [
            [
             0.0,
-            -0.7634,
-            -0.6459
+            1.0,
+            0.0
            ],
            [
             0.0,
-            0.6459,
-            -0.7634
+            0.0,
+            1.0
            ],
            [
             1.0,
@@ -2723,8 +2723,8 @@
         },
         "Size": [
          0.0416,
-         0.1747,
-         0.1479
+         0.2289,
+         0.2705
         ],
         "Color": [
          0.851,
@@ -2735,111 +2735,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Dusty_Work_Prop",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           0.7179,
-           -0.6573
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.7634,
-            0.6459
-           ],
-           [
-            0.0,
-            0.6459,
-            0.7634
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0416,
-         0.1747,
-         0.2065
-        ],
-        "Color": [
-         0.851,
-         0.298,
-         0.2314
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Dusty_Work_Prop",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           0.7179,
-           -0.6573
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.7634,
-            -0.6459
-           ],
-           [
-            0.0,
-            0.6459,
-            0.7634
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0416,
-         0.1747,
-         0.2065
-        ],
-        "Color": [
-         0.851,
-         0.298,
-         0.2314
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -2855,22 +2751,22 @@
          "CFrame": {
           "position": [
            -0.1145,
-           0.8532,
+           0.7179,
            -0.6573
           ],
           "orientation": [
            [
             0.0,
-            0.7634,
-            0.6459
+            0.0,
+            1.0
            ],
            [
             0.0,
-            0.6459,
-            -0.7634
+            -1.0,
+            0.0
            ],
            [
-            -1.0,
+            1.0,
             0.0,
             0.0
            ]
@@ -2879,8 +2775,8 @@
         },
         "Size": [
          0.0416,
-         0.1747,
-         0.1479
+         0.2705,
+         0.2289
         ],
         "Color": [
          0.851,
@@ -2891,7 +2787,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -2943,7 +2839,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -2995,7 +2891,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -3047,7 +2943,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        },
@@ -3099,7 +2995,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Ball"
@@ -3220,7 +3116,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "PivotOffset": {
@@ -3332,7 +3228,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -3381,7 +3277,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -3430,7 +3326,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -3479,7 +3375,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -3565,7 +3461,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "PivotOffset": {
@@ -3643,7 +3539,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -3777,7 +3673,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -3827,7 +3723,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -3877,7 +3773,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -3926,7 +3822,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
@@ -3975,7 +3871,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Ball"
@@ -4093,7 +3989,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "PivotOffset": {
@@ -4171,7 +4067,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4226,7 +4122,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder",
@@ -4305,7 +4201,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -4355,7 +4251,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -4405,7 +4301,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -4492,7 +4388,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Ball",
@@ -4571,7 +4467,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -4621,7 +4517,7 @@
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
-        "CastShadow": true,
+        "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
         "Shape": "Cylinder"
@@ -4739,7 +4635,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "PivotOffset": {
@@ -4817,7 +4713,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -4903,7 +4799,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "PivotOffset": {
@@ -4981,7 +4877,7 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }

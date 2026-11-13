@@ -83,6 +83,15 @@
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
+-- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
+--   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
+--   publish that added the row is running, since an older server's save check drops an item id it does not know.
+-- - `petCats` (#3651): the Pet prompt on the cats in a player's own cafe; the petted cat is the happy cat, earning
+--   Config.PetMoneyBoost times its pay for Config.PetSeconds (shared/Pet). It starts OFF (OFF_BY_DEFAULT); off, no
+--   prompt shows, no pet is taken and a running heart pays nothing extra.
+-- - `returnGift` (#3772): a golden crate once per account on the first join on a later UTC day than its first, for
+--   accounts first seen from Config.ReturnGiftFromDay, and the recap's "come back tomorrow" line for it
+--   (shared/ReturnGift). It starts OFF (OFF_BY_DEFAULT).
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -125,6 +134,10 @@ LiveFlags.KEYS = {
 	"rankUpSpotlight",
 	"bagColours",
 	"menuFamily",
+	"speedShoes",
+	"petCats",
+	"returnGift",
+	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -150,6 +163,9 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankUpSpotlight = true,
 	bagColours = true,
 	menuFamily = true,
+	speedShoes = true,
+	petCats = true,
+	returnGift = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

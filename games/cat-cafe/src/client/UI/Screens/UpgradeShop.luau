@@ -400,7 +400,9 @@ function UpgradeShop._buildRows(self: any)
 				then UDim2.fromOffset(GRID_LEFT, 50)
 				else UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
 			Size = if grid
-				then UDim2.new(1, -(GRID_LEFT + 8), 0, 30)
+				-- the Bait bowl's second line can wrap on a card two across: room for a third line, whose short
+				-- tail ends left of the button (Studio look, 2026-11-13)
+				then UDim2.new(1, -(GRID_LEFT + 8), 0, if twoLines then 44 else 30)
 				else UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, if twoLines then 36 else 20),
 			TextSize = if grid then Theme.sizes.textTiny else Theme.sizes.textSmall,
 			TextWrapped = grid,

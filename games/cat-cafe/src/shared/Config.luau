@@ -307,8 +307,12 @@ local Config = {
 	FirstBaitCatLeadSeconds = 4,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
-	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes
-	RecapFirstSessionSeconds = 900,
+	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes.
+	-- #3772 (come-back-tomorrow.md 2b): 8 minutes, was 15, as many first sessions end before 15 minutes
+	RecapFirstSessionSeconds = 480,
+	-- #3772 (shared/ReturnGift): the welcome back gift is for accounts whose first UTC day (os.time() // 86400) is this
+	-- day or later; 20770 is 2026-11-13, the day it shipped
+	ReturnGiftFromDay = 20770,
 	-- #1947 (like-prompts.md section 3, Set 10 Q3): the like card's gift at LikeGiftMinutes of play on the account, of
 	-- LikeGiftIncomeMinutes of income and a Tip Potion; the favourite card's at FavGiftMinutes, of FavGiftIncomeMinutes
 	-- of income and a small potion pack (shared/PlaytimeGifts). The card waits for GiftIdleSeconds of calm (client).
@@ -410,6 +414,14 @@ local Config = {
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,
+	-- #3651 (shared/Pet, switch `petCats`; Derek 2026-11-12: "increase how much money they make by 2x ... make it 1
+	-- hour long", one cat at a time): the happy cat's own pay is times PetMoneyBoost for PetSeconds after a pet, in
+	-- online cafe pay only and never above EventMoneyMax together with the event money slot above. A pet is taken
+	-- from within PetRangeStuds of the cat, PetCooldownSeconds apart.
+	PetMoneyBoost = 2,
+	PetSeconds = 3600,
+	PetCooldownSeconds = 3,
+	PetRangeStuds = 10,
 	-- #3573: resting in your own cafe (shared/AfkCafe). No input and no movement for AfkCafeSeconds in the cafe or on
 	-- its doorstep doubles the cats' cafe pay, in the event money slot above (so never more than EventMoneyMax).
 	AfkCafeSeconds = 120,
@@ -915,6 +927,15 @@ local Config = {
 	MysteryEpoch = 1794009600,
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
+	-- #3535: featured weeks set by date, which win over the weekly rotation (shared/MysteryMarket.featuredAt). `from`
+	-- and `to` are os.time() seconds; outside them the rotation runs. Friday 2026-11-13 22:00 UTC, the update: the
+	-- Speed Shoes for a week (so the Backpack is back at its full price from that moment), then the Long Net until
+	-- Saturday 2026-11-28 00:00 UTC, where the rotation's own week starts and carries on with the Backpack.
+	MysteryFeatured = {
+		{ from = 1794607200, to = 1795212000, id = "speed_shoes" },
+		{ from = 1795212000, to = 1795824000, id = "long_net" },
+	} :: { { from: number, to: number, id: string } },
+	SpeedShoesCarryBonus = 3, -- #3535: walk speed the Speed Shoes add while carrying a cat (16 to 19), never up to the walk speed with no cat
 	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
 	MysteryMarketRange = 22, -- #3448: 18 until the rings grew to radius 8; #3112: 14 before the radius 6 rings; BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
@@ -1232,13 +1253,21 @@ local Config = {
 	MouseDashMouserAt = 50, -- points for the Mouser title
 	-- #2997 (shared/UpdateGift): the gift each Saturday content update carries, paid once per id from `from` (os.time())
 	-- on. Change `id` and `from` with each Saturday update (17:00 UTC); nil turns it off.
-	-- #3420, #3424 (Derek 2026-11-12: "a giveaway of 100 gold fish to everyone 3 minute after restart"): the Thursday
-	-- 2026-11-12 launch gift, from 22:03 UTC, three minutes after the 22:00 restart. Saturday 2026-11-14's update
-	-- sets the weekly one again (id "2026-11-14", from 1794675600, fish 15, spins 1).
+	-- #3535 (Derek 2026-11-12: Friday's update, "instead of golden fish giveaway 3 different golden crates"): Friday
+	-- 2026-11-13 from 22:03 UTC, three minutes after that update's restart. A Classic and an Alleyway Golden Crate
+	-- and the golden crate of the best area the player has opened (a second Classic for a player whose best is the
+	-- Alleyway; shared/UpdateGift.prize).
 	-- #3779 (Derek 2026-11-13: "its just giving 100 gold fish per person that logs in now and its not turned off"):
-	-- `to` ends a gift. The launch gift ended at 02:00 UTC on 2026-11-13; what was paid stays paid. Every gift from
-	-- now on carries a `to`.
-	UpdateGift = { id = "2026-11-12", from = 1794520980, fish = 100, spins = 0, to = 1794535200 } :: {
+	-- `to` ends a gift, and every gift carries one. The launch gift (id "2026-11-12", 100 fish) ended at 02:00 UTC
+	-- on 2026-11-13; what was paid stays paid. Friday's ends when Saturday's starts.
+	UpdateGift = {
+		id = "2026-11-13",
+		from = 1794607380,
+		fish = 0,
+		spins = 0,
+		crates = { classic_golden_crate = 1, alley_golden_crate = 1, highest_golden = 1 },
+		to = 1794675600,
+	} :: {
 		id: string,
 		from: number,
 		fish: number,
@@ -1246,18 +1275,15 @@ local Config = {
 		crates: { [string]: number }?,
 		to: number?,
 	}?,
-	-- #3535 (Derek 2026-11-12: Friday's update, "instead of golden fish giveaway 3 different golden crates"): the
-	-- gift after UpdateGift, which keeps paying until this one's `from`: Friday 2026-11-13 22:03 UTC, three minutes
-	-- after that update's restart. A Classic and an Alleyway Golden Crate and the golden crate of the best area the
-	-- player has opened (a second Classic for a player whose best is the Alleyway; shared/UpdateGift.prize).
-	-- #3779: it ends (`to`) at Saturday 2026-11-14 17:00 UTC, when Saturday's weekly gift starts.
+	-- The gift after UpdateGift, which takes over at its own `from` (shared/UpdateGift.pick).
+	-- #3497: the weekly gift again, Saturday 2026-11-14 17:00 UTC for one week. It is set here ahead of time so the
+	-- servers started by Friday's restart already carry it: a later publish reaches new servers only.
 	UpdateGiftNext = {
-		id = "2026-11-13",
-		from = 1794607380,
-		fish = 0,
-		spins = 0,
-		crates = { classic_golden_crate = 1, alley_golden_crate = 1, highest_golden = 1 },
-		to = 1794675600,
+		id = "2026-11-14",
+		from = 1794675600,
+		fish = 15,
+		spins = 1,
+		to = 1795280400,
 	} :: {
 		id: string,
 		from: number,

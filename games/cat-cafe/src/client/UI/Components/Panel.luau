@@ -178,15 +178,17 @@ function Panel.new(props: Props): Panel
 		local bulbs: Frame = Create("Frame", {
 			Name = "Bulbs",
 			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(BADGE_SIZE, 3),
+			-- on the band's top edge, half over it: lower down they ran through the title's letters (Studio look,
+			-- 2026-11-13). A child of the panel, not of the header: the body clips, and would cut each bulb in half
+			Position = UDim2.fromOffset(BADGE_SIZE, -math.floor(MenuFamily.BULB_SIZE / 2)),
 			Size = UDim2.new(
 				1,
 				-(BADGE_SIZE + HEADER_HEIGHT + Theme.sizes.padding),
 				0,
 				MenuFamily.BULB_SIZE
 			),
-			ZIndex = 2,
-			Parent = header,
+			ZIndex = 3,
+			Parent = frame,
 		})
 		for i = 1, MenuFamily.BULBS do
 			local bulb: Frame = Create("Frame", {

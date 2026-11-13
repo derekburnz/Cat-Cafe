@@ -39,9 +39,11 @@ def _post(b, x, z, base=-0.2):
     b.ball((x, POST_TOP + 0.12 + 0.15, z), 0.17, "offwhite")
 
 
-def _run(b, a, c, fixed, along_x, inward):
+def _run(b, a, c, fixed, along_x, inward, rails=True, pickets=True):
     """Rails and pickets between two posts at a and c on a line (x = fixed for a side run, z = fixed for the back),
-    pickets on the yard side (`inward` +1 or -1 along the other axis)."""
+    pickets on the yard side (`inward` +1 or -1 along the other axis). `rails` False leaves the rails out and
+    `pickets` False the pickets, so a whole line's rails go through its posts in one piece (#3743: 2 parts a line,
+    not 2 a span)."""
     lo, hi = min(a, c) + POST / 2, max(a, c) - POST / 2
     out0, out1 = fixed - inward * 0.14, fixed - inward * 0.02           # the rails, behind the pickets
     in0, in1 = fixed - inward * 0.02, fixed + inward * (PICKET_T - 0.02)
@@ -53,8 +55,10 @@ def _run(b, a, c, fixed, along_x, inward):
         else:
             b.span((v0, y0, u0), (v1, y1, u1), swatch)
 
-    for y0, y1 in RAILS:
+    for y0, y1 in RAILS if rails else ():
         box(lo, hi, out0, out1, y0, y1, "offwhite")
+    if not pickets:
+        return
     n = max(1, int((hi - lo - 0.16) / PITCH + 1e-6))
     start = (lo + hi) / 2 - (n - 1) * PITCH / 2
     for k in range(n):
@@ -106,9 +110,11 @@ def build_yard_fence(mat):
         for z in side_zs[:-1]:
             _post(b, sx * SIDE_X, z)
         for z0, z1 in zip(side_zs, side_zs[1:]):
-            _run(b, z0, z1, sx * SIDE_X, False, -sx)
+            _run(b, z0, z1, sx * SIDE_X, False, -sx, rails=False)
+        _run(b, side_zs[0], side_zs[-1], sx * SIDE_X, False, -sx, pickets=False)
     for x0, x1 in zip(back_xs, back_xs[1:]):
-        _run(b, x0, x1, BACK_Z, True, -1)
+        _run(b, x0, x1, BACK_Z, True, -1, rails=False)
+    _run(b, back_xs[0], back_xs[-1], BACK_Z, True, -1, pickets=False)
     _roses(b, -SIDE_X, BACK_Z, 1, -1)
     _roses(b, SIDE_X, BACK_Z, -1, -1)
     _bird_house(b, 0.0, BACK_Z)

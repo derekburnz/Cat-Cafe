@@ -23,96 +23,123 @@ return function()
 		local SATURDAY = 1794675600 -- 2026-11-14 17:00 UTC
 		local gift: UpdateGift.Gift = { id = "2026-11-14", from = SATURDAY, fish = 15, spins = 1 }
 
+		it("ends a gift at `to`, and a gift with no end keeps paying (#3779)", function()
+			-- the launch gift's own numbers: 100 fish from 22:03 UTC Thursday 2026-11-12 to 02:00 UTC Friday
+			local launch: UpdateGift.Gift =
+				{ id = "2026-11-12", from = 1794520980, fish = 100, spins = 0, to = 1794535200 }
+			local to = launch.to :: number
+			expect(UpdateGift.due({}, launch, to - 1)).to.equal(true)
+			expect(UpdateGift.due({}, launch, to)).to.equal(false)
+			expect(UpdateGift.due({}, launch, to + 86400)).to.equal(false)
+			-- a gift with no end still pays, and one that ends before it starts gives no notice
+			expect(UpdateGift.due({}, gift, SATURDAY + 86400 * 30)).to.equal(true)
+			local dead: UpdateGift.Gift =
+				{ id = "x1", from = SATURDAY, fish = 5, spins = 0, to = SATURDAY - 10 }
+			expect(UpdateGift.soon({}, dead, SATURDAY - 60)).to.equal(nil)
+			expect(UpdateGift.due({}, dead, SATURDAY + 1)).to.equal(false)
+			expect(UpdateGift.words(launch)).to.equal("Update gift! 🐟 100")
+			expect(UpdateGift.prize(launch) :: any).to.deepEqual({ fish = 100 })
+			-- the weekly gift keeps its words and prize
+			expect(UpdateGift.words(gift)).to.equal("Update gift! 🐟 15 + 1 spin")
+			expect(UpdateGift.prize(gift) :: any).to.deepEqual({ fish = 15, spins = 1 })
+		end)
+
 		it(
-			"is the launch's 100 golden fish, from 22:03 UTC on Thursday 2026-11-12 (#3420)",
+			"has Friday's three golden crates from 22:03 UTC on 2026-11-13 (#3535), then Saturday's weekly gift (#3497)",
 			function()
-				local live = assert(Config.UpdateGift)
-				expect(live.id).to.equal("2026-11-12")
-				expect(os.date("!%Y-%m-%d %H:%M %A", live.from)).to.equal(
-					"2026-11-12 22:03 Thursday"
+				local friday, weekly = assert(Config.UpdateGift), assert(Config.UpdateGiftNext)
+				expect(friday.id).to.equal("2026-11-13")
+				expect(os.date("!%Y-%m-%d %H:%M %A", friday.from)).to.equal(
+					"2026-11-13 22:03 Friday"
 				)
-				expect(live.fish).to.equal(100)
-				expect(live.spins).to.equal(0)
-				-- #3779: it ended at 02:00 UTC on Friday 2026-11-13 and pays nobody new after that
-				expect(os.date("!%Y-%m-%d %H:%M %A", live.to)).to.equal("2026-11-13 02:00 Friday")
-				local to = live.to :: number
-				expect(UpdateGift.due({}, live, to - 1)).to.equal(true)
-				expect(UpdateGift.due({}, live, to)).to.equal(false)
-				expect(UpdateGift.due({}, live, to + 86400)).to.equal(false)
-				-- a gift with no end still pays, and one that ends before it starts gives no notice
-				expect(UpdateGift.due({}, gift, SATURDAY + 86400 * 30)).to.equal(true)
-				local dead: UpdateGift.Gift =
-					{ id = "x1", from = SATURDAY, fish = 5, spins = 0, to = SATURDAY - 10 }
-				expect(UpdateGift.soon({}, dead, SATURDAY - 60)).to.equal(nil)
-				expect(UpdateGift.due({}, dead, SATURDAY + 1)).to.equal(false)
-				expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 100")
-				expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 100 })
-				-- the weekly gift keeps its words and prize
-				expect(UpdateGift.words(gift)).to.equal("Update gift! 🐟 15 + 1 spin")
-				expect(UpdateGift.prize(gift) :: any).to.deepEqual({ fish = 15, spins = 1 })
+				expect(friday.fish + friday.spins).to.equal(0)
+				expect(UpdateGift.crateCount(friday)).to.equal(3)
+				expect(UpdateGift.words(friday)).to.equal("Update gift! 3 golden crates")
+				-- #3779: it ends when Saturday's weekly gift starts, so it pays nobody new after that
+				expect(os.date("!%Y-%m-%d %H:%M %A", friday.to)).to.equal(
+					"2026-11-14 17:00 Saturday"
+				)
+				local ends = friday.to :: number
+				expect(UpdateGift.due({}, friday, ends - 1)).to.equal(true)
+				expect(UpdateGift.due({}, friday, ends)).to.equal(false)
+				-- Saturday's: 15 golden fish and a spin, for one week, and no crates
+				expect(weekly.id).to.equal("2026-11-14")
+				expect(weekly.from).to.equal(ends)
+				expect(weekly.fish).to.equal(15)
+				expect(weekly.spins).to.equal(1)
+				expect(UpdateGift.crateCount(weekly)).to.equal(0)
+				expect(os.date("!%Y-%m-%d %H:%M %A", weekly.to)).to.equal(
+					"2026-11-21 17:00 Saturday"
+				)
+				expect(UpdateGift.words(weekly)).to.equal("Update gift! 🐟 15 + 1 spin")
+				-- before Friday's starts nothing pays and the notice is Friday's own, in its last minutes
+				local pays, notice = UpdateGift.pick(friday, weekly, friday.from - 60)
+				expect(pays).to.equal(friday)
+				expect(notice).to.equal(friday)
+				expect(UpdateGift.due({}, pays, friday.from - 60)).to.equal(false)
+				expect(UpdateGift.soon({}, notice, friday.from - 60)).to.equal(60)
+				-- Friday's pays until Saturday's `from`, with Saturday's notice in the minutes before it
+				pays, notice = UpdateGift.pick(friday, weekly, friday.from)
+				expect(pays).to.equal(friday)
+				expect(notice).to.equal(weekly)
+				expect(UpdateGift.due({}, pays, friday.from)).to.equal(true)
+				pays, notice = UpdateGift.pick(friday, weekly, weekly.from - 1)
+				expect(pays).to.equal(friday)
+				expect(notice).to.equal(weekly)
+				pays, notice = UpdateGift.pick(friday, weekly, weekly.from)
+				expect(pays).to.equal(weekly)
+				expect(notice).to.equal(weekly)
+				expect(UpdateGift.due({}, pays, weekly.from)).to.equal(true)
+				-- an account paid Friday's crates still gets Saturday's
+				expect(UpdateGift.due({ [UpdateGift.key(friday.id)] = 1 }, weekly, weekly.from)).to.equal(
+					true
+				)
+				pays, notice = UpdateGift.pick(friday, nil, weekly.from)
+				expect(pays).to.equal(friday)
+				expect(notice).to.equal(friday)
+				local coming = friday
+				-- a Tier 1 player's best area is the Alleyway, whose crate the gift already names: a second Classic
+				expect(UpdateGift.prize(coming, 1) :: any).to.deepEqual({
+					crates = { classic_golden_crate = 2, alley_golden_crate = 1 },
+				})
+				-- from Tier 2 the third crate is the best open area's, always one the player can open
+				expect(UpdateGift.prize(coming, 2) :: any).to.deepEqual({
+					crates = {
+						classic_golden_crate = 1,
+						alley_golden_crate = 1,
+						park_golden_crate = 1,
+					},
+				})
+				local Catalog = require(Shared.Catalog)
+				local Crates = require(Shared.Crates)
+				for tier = 1, #Catalog.tiers do
+					local total = 0
+					for id, count in (UpdateGift.prize(coming, tier) :: any).crates do
+						total += count
+						local crate = assert(Catalog.getCrate(id))
+						expect(crate.golden).to.equal(true)
+						local profile: any = { crates = { [id] = 1 }, goldenFish = 0 }
+						expect(Crates.openBlocker(profile, tier, id)).to.equal(nil)
+					end
+					expect(total).to.equal(3)
+				end
+				-- the banners
+				expect(UpdateGift.banner("soon", 0, 0, 180, 3) :: any).to.deepEqual({
+					title = "A gift is coming!",
+					lines = { "3 golden crates for everyone", "in 3 minutes" },
+				})
+				expect(UpdateGift.banner("paid", 0, 0, 0, 3) :: any).to.deepEqual({
+					title = "A gift for everyone!",
+					lines = { "+3 golden crates", "Thanks for playing!" },
+				})
+				expect((UpdateGift.banner("paid", 0, 0, 0, 1) :: any).lines[1]).to.equal(
+					"+1 golden crate"
+				)
+				expect(UpdateGift.banner("paid", 0, 0, 0, 0)).to.equal(nil)
+				expect(UpdateGift.banner("paid", 0, 0, 0, 11)).to.equal(nil)
+				expect(UpdateGift.banner("paid", 0, 0, 0, "3")).to.equal(nil)
 			end
 		)
-
-		it("has Friday's three golden crates next, from 22:03 UTC on 2026-11-13 (#3535)", function()
-			local live, coming = assert(Config.UpdateGift), assert(Config.UpdateGiftNext)
-			expect(coming.id).to.equal("2026-11-13")
-			expect(os.date("!%Y-%m-%d %H:%M %A", coming.from)).to.equal("2026-11-13 22:03 Friday")
-			expect(coming.fish + coming.spins).to.equal(0)
-			expect(UpdateGift.crateCount(coming)).to.equal(3)
-			expect(UpdateGift.crateCount(live)).to.equal(0)
-			expect(UpdateGift.words(coming)).to.equal("Update gift! 3 golden crates")
-			-- #3779: it ends when Saturday's weekly gift starts, so it pays nobody new after that
-			expect(os.date("!%Y-%m-%d %H:%M %A", coming.to)).to.equal("2026-11-14 17:00 Saturday")
-			local ends = coming.to :: number
-			expect(UpdateGift.due({}, coming, ends - 1)).to.equal(true)
-			expect(UpdateGift.due({}, coming, ends)).to.equal(false)
-			-- Thursday's pays until Friday's `from`, with Friday's notice in the minutes before it; then Friday's
-			local pays, notice = UpdateGift.pick(live, coming, coming.from - 1)
-			expect(pays).to.equal(live)
-			expect(notice).to.equal(coming)
-			pays, notice = UpdateGift.pick(live, coming, coming.from)
-			expect(pays).to.equal(coming)
-			expect(notice).to.equal(coming)
-			pays, notice = UpdateGift.pick(live, nil, coming.from)
-			expect(pays).to.equal(live)
-			expect(notice).to.equal(live)
-			-- a Tier 1 player's best area is the Alleyway, whose crate the gift already names: a second Classic
-			expect(UpdateGift.prize(coming, 1) :: any).to.deepEqual({
-				crates = { classic_golden_crate = 2, alley_golden_crate = 1 },
-			})
-			-- from Tier 2 the third crate is the best open area's, always one the player can open
-			expect(UpdateGift.prize(coming, 2) :: any).to.deepEqual({
-				crates = { classic_golden_crate = 1, alley_golden_crate = 1, park_golden_crate = 1 },
-			})
-			local Catalog = require(Shared.Catalog)
-			local Crates = require(Shared.Crates)
-			for tier = 1, #Catalog.tiers do
-				local total = 0
-				for id, count in (UpdateGift.prize(coming, tier) :: any).crates do
-					total += count
-					local crate = assert(Catalog.getCrate(id))
-					expect(crate.golden).to.equal(true)
-					local profile: any = { crates = { [id] = 1 }, goldenFish = 0 }
-					expect(Crates.openBlocker(profile, tier, id)).to.equal(nil)
-				end
-				expect(total).to.equal(3)
-			end
-			-- the banners
-			expect(UpdateGift.banner("soon", 0, 0, 180, 3) :: any).to.deepEqual({
-				title = "A gift is coming!",
-				lines = { "3 golden crates for everyone", "in 3 minutes" },
-			})
-			expect(UpdateGift.banner("paid", 0, 0, 0, 3) :: any).to.deepEqual({
-				title = "A gift for everyone!",
-				lines = { "+3 golden crates", "Thanks for playing!" },
-			})
-			expect((UpdateGift.banner("paid", 0, 0, 0, 1) :: any).lines[1]).to.equal(
-				"+1 golden crate"
-			)
-			expect(UpdateGift.banner("paid", 0, 0, 0, 0)).to.equal(nil)
-			expect(UpdateGift.banner("paid", 0, 0, 0, 11)).to.equal(nil)
-			expect(UpdateGift.banner("paid", 0, 0, 0, "3")).to.equal(nil)
-		end)
 
 		it(
 			"gives notice once in the 5 minutes before an unpaid gift, never after (#3420)",

@@ -850,6 +850,43 @@ return function()
 			end
 		end)
 
+		it("says why a Buy all buys nothing (#3693)", function()
+			local window = windowFor("potion", 3)
+			-- no coins: that is the reason
+			expect(CornerShop.whyNone(fresh(window), window, "potion", 5, 0, NONE)).to.equal(
+				CornerShop.NO_COINS
+			)
+			-- every row bought out this time: nothing left, never "Not enough coins"
+			local state = fresh(window)
+			for _, item in CornerShop.stock(window) do
+				state.bought[item.itemId] = item.amount
+			end
+			expect(CornerShop.whyNone(state, window, "potion", 5, 1e12, NONE)).to.equal(
+				CornerShop.NOTHING_LEFT
+			)
+			-- every bait stack full: the row's own reason
+			local baitWindow = windowFor("bait", 1)
+			local lures = {}
+			for _, row in Catalog.cornerShop do
+				if row.lureId ~= nil then
+					lures[row.lureId] = CornerShop.LURE_MAX
+				end
+			end
+			local why = CornerShop.whyNone(
+				fresh(baitWindow),
+				baitWindow,
+				"bait",
+				7,
+				1e13,
+				{ catFood = {}, lures = lures }
+			)
+			expect(why ~= CornerShop.NO_COINS and why ~= CornerShop.NOTHING_LEFT).to.equal(true)
+			-- and whenever planAll buys something there is no call for it: with coins for all, the plan is not empty
+			expect(#CornerShop.planAll(fresh(window), window, "potion", 5, 1e12, NONE) >= 1).to.equal(
+				true
+			)
+		end)
+
 		it(
 			"buys what fits with few coins, and nothing above the tier, the Bag or LURE_MAX",
 			function()

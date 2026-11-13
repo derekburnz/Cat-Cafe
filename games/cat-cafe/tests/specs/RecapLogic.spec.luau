@@ -112,6 +112,11 @@ return function()
 			)
 			expect(RecapLogic.tomorrow({ kind = "treat" })).to.equal("Tomorrow: your Daily Treat")
 			expect(RecapLogic.tomorrow({ kind = "quests" })).to.equal("Tomorrow: new daily quests")
+			-- #3772: the welcome back gift
+			expect(RecapLogic.tomorrow({ kind = "gift" })).to.equal(
+				"Come back tomorrow for a golden crate"
+			)
+			expect((RecapLogic.hook({ kind = "gift" }) :: any).kind).to.equal("gift")
 		end)
 
 		it("names a Daily Treat day's prize after its coins, two things at most", function()

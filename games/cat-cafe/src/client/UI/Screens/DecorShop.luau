@@ -30,6 +30,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
@@ -84,6 +85,8 @@ local ART_H = if Scale.isTouch() then 104 else 76
 local ART_LIFT = ART_H - 76 -- how far the name, effect and button move down
 local CARD_TOP = 152 + ART_LIFT -- the card above its button: art, name, effect
 local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished")
+local DECOR_BUILD_AFTER = 4 -- #3722: seconds after the catalog arrives before the quiet build of the cards starts
+local DECOR_BUILD_BATCH = 4 -- cards a frame in the quiet build
 local CHIP_GAP = 10 -- the chips share the row's width equally (#1120), so none is squished or scrolled off
 local EQUIP_W = 156 -- Equip Best, in the header left of the X
 local EQUIP_W_TOUCH = 128 -- #2403: narrower beside the X's bigger touch reach
@@ -139,6 +142,9 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._styleLive = false -- #1624: the player owns a style to pick
 	self._state = nil :: Types.PlayerState?
 	self._dirty = true
+	self._cardNext = 0 -- #3722: how many of self._decor have a card so far
+	self._cardsBuilt = true
+	self._cardToken = 0
 	self._spots = nil :: { used: number, open: number }? -- the decor spots in use and open, from the last render
 	-- a phone's buttons grow to a 44 px face
 	self._chipHeight = Scale.tapHeight(CHIP_HEIGHT, Theme.sizes.buttonDepth)
@@ -517,211 +523,249 @@ function DecorShop._build(self: any)
 	end
 	self:_layoutChips()
 
-	for index, decor in all do
-		local piece = DecorPieces.info(decor)
-		local card: Frame = Create("Frame", {
-			Name = decor.id,
-			BackgroundColor3 = CARD.card,
-			BorderSizePixel = 0,
-			LayoutOrder = index,
-			Parent = self._grid,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
-		})
+	-- #3722: the cards (about 4,000 instances) are not built here, inside UI.init's start-up run: a quiet build
+	-- lays a few a frame once the game has started, and opening the window finishes the rest at once
+	self:_queueCards()
+end
 
-		-- art
-		local art: Frame = Create("Frame", {
-			Name = "Art",
-			-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a piece with a rarity sits on a soft
-			-- tint of its rarity's colour, so the card reads as its pill does; one without keeps its category's colour
-			BackgroundColor3 = if piece.rarity
-				then Theme.rarityColor(piece.rarity):Lerp(Theme.colors.white, ART_TINT)
-				else CATEGORY_COLORS[decor.category] or Theme.colors.mint,
-			BackgroundTransparency = if piece.kind then 1 else 0,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(10, 10),
-			Size = UDim2.new(1, -20, 0, ART_H),
-			Parent = card,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
-		local icon: ItemIcon.ItemIcon? = nil
-		if piece.kind then
-			-- a crate piece: its model (or its kind's glyph) on a tile in its rarity colour, and the rarity
-			local pieceIcon = ItemIcon.new({
-				parent = art,
-				size = UDim2.fromOffset(ART_H, ART_H),
-				anchorPoint = Vector2.new(0.5, 0),
-				position = UDim2.fromScale(0.5, 0),
-			})
-			pieceIcon:set(
-				decor.asset,
-				DecorPieces.kindIcon(piece.kind, Theme.icons.decor),
-				piece.rarity,
-				ShopIcons.decor(decor.id)
-			)
-			icon = pieceIcon
-		else
-			-- the piece's clean picture (#1072) on its coloured block; the first letter stands in until it loads
-			-- (DecorDef.asset names the 3D model, not an image)
-			local letter = text({
-				Size = UDim2.fromScale(1, 1),
-				FontFace = Theme.fonts.display,
-				TextSize = if ART_H > 76 then 44 else 34,
-				TextColor3 = Theme.colors.paper,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = decor.name:sub(1, 1),
-				Parent = art,
-			})
-			local picture = ShopIcons.decor(decor.id)
-			if picture then
-				IconArt.setImage(letter, picture, 0.86)
-			end
-		end
-		-- #1711: the rarity pill on every piece with a rarity, the first four Classic Crate pieces (no kind) too
-		-- #1721: a Cafe Pass piece wears a "Cafe Pass" tag in its place (it is never found in crates)
-		local passPiece = (decor :: any).source == "pass"
-		-- #1822: a piece from a bundle names it ("King Cat Pack", Catalog.passDecor's pack), else the Cafe Pass
-		local passName: string = (decor :: any).pack or "Cafe Pass"
-		-- #2006 (Derek2: "make it have low boost and a rarity attached"): a pass piece with a rarity wears the rarity
-		-- pill like any crate piece; its pass is named on its button ("From the Garden Decor Pack")
-		local packPill = passPiece and piece.rarity == nil
-		if piece.rarity or passPiece then
-			local rarity = text({
-				Name = "Rarity",
-				BackgroundTransparency = 0,
-				BackgroundColor3 = if packPill
-					then Theme.colors.berry
-					else Theme.rarityColor(piece.rarity),
-				Position = UDim2.fromOffset(16, 16),
-				AutomaticSize = Enum.AutomaticSize.X,
-				Size = UDim2.fromOffset(0, 20),
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textTiny,
-				TextColor3 = if packPill
-					then Theme.colors.white
-					else Theme.rarityTextColor(piece.rarity),
-				TextXAlignment = Enum.TextXAlignment.Center,
-				TextTruncate = Enum.TextTruncate.None,
-				Text = if packPill then passName else piece.rarity or "",
-				ZIndex = 3,
-				Parent = card,
-			})
-			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = rarity })
-			Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 8),
-				PaddingRight = UDim.new(0, 8),
-				Parent = rarity,
-			})
-		end
-		-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
-		local unlock: TextLabel? = nil
-		if IndexRewards.isIndexDecor(decor) then
-			unlock = text({
-				Name = "Unlock",
-				BackgroundColor3 = Theme.colors.outline,
-				BackgroundTransparency = 0.25,
-				AnchorPoint = Vector2.new(0, 1),
-				Position = UDim2.fromScale(0, 1),
-				Size = UDim2.new(1, 0, 0, 32),
-				FontFace = Theme.fonts.bodyBold,
-				TextSize = Theme.sizes.textTiny,
-				TextColor3 = Theme.colors.white,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				TextWrapped = true,
-				TextTruncate = Enum.TextTruncate.None,
-				ZIndex = 2,
-				Parent = art,
-			})
-			Create(
-				"UICorner",
-				{ CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = unlock }
-			)
-			Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 4),
-				PaddingRight = UDim.new(0, 4),
-				Parent = unlock,
-			})
-		end
-		local owned = text({
-			Name = "Owned",
-			BackgroundColor3 = Theme.colors.good,
-			BackgroundTransparency = 0,
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -16, 0, 16),
-			Size = UDim2.fromOffset(56, 20),
+-- #3722: one card, for the decor at `index` in self._decor (highest rarity first)
+function DecorShop._makeCard(self: any, index: number, decor: Types.DecorDef)
+	local piece = DecorPieces.info(decor)
+	local card: Frame = Create("Frame", {
+		Name = decor.id,
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
+		LayoutOrder = index,
+		Parent = self._grid,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+
+	-- art
+	local art: Frame = Create("Frame", {
+		Name = "Art",
+		-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a piece with a rarity sits on a soft
+		-- tint of its rarity's colour, so the card reads as its pill does; one without keeps its category's colour
+		BackgroundColor3 = if piece.rarity
+			then Theme.rarityColor(piece.rarity):Lerp(Theme.colors.white, ART_TINT)
+			else CATEGORY_COLORS[decor.category] or Theme.colors.mint,
+		BackgroundTransparency = if piece.kind then 1 else 0,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(10, 10),
+		Size = UDim2.new(1, -20, 0, ART_H),
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
+	local icon: ItemIcon.ItemIcon? = nil
+	if piece.kind then
+		-- a crate piece: its model (or its kind's glyph) on a tile in its rarity colour, and the rarity
+		local pieceIcon = ItemIcon.new({
+			parent = art,
+			size = UDim2.fromOffset(ART_H, ART_H),
+			anchorPoint = Vector2.new(0.5, 0),
+			position = UDim2.fromScale(0.5, 0),
+		})
+		pieceIcon:set(
+			decor.asset,
+			DecorPieces.kindIcon(piece.kind, Theme.icons.decor),
+			piece.rarity,
+			ShopIcons.decor(decor.id)
+		)
+		icon = pieceIcon
+	else
+		-- the piece's clean picture (#1072) on its coloured block; the first letter stands in until it loads
+		-- (DecorDef.asset names the 3D model, not an image)
+		local letter = text({
+			Size = UDim2.fromScale(1, 1),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.colors.goodText,
+			TextSize = if ART_H > 76 then 44 else 34,
+			TextColor3 = Theme.colors.paper,
 			TextXAlignment = Enum.TextXAlignment.Center,
-			Text = "Owned",
-			Visible = false,
-			Parent = card,
+			Text = decor.name:sub(1, 1),
+			Parent = art,
 		})
-		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = owned })
-
-		text({
-			Name = "Name",
-			Position = UDim2.fromOffset(10, 92 + ART_LIFT),
-			Size = UDim2.new(1, -20, 0, 22),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			Text = decor.name,
-			Parent = card,
-		})
-		text({
-			Name = "Effect",
-			Position = UDim2.fromOffset(10, 114 + ART_LIFT),
-			Size = UDim2.new(1, -20, 0, 18),
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = CARD.subtext,
-			-- #2006: never "+0%": a piece with no bonus yet says where it comes from instead
-			Text = if piece.kind and (decor.bonus or 0) > 0
-				then ("+%s money while in use"):format(Format.percent(decor.bonus or 0))
-				elseif passPiece then "From the " .. passName
-				else decor.effect or decor.description or "",
-			Parent = card,
-		})
-
-		local action = Button.new({
-			name = "Action",
-			text = Format.money(decor.cost),
-			style = "primary",
-			size = UDim2.new(1, -20, 0, self._actionHeight),
-			position = UDim2.new(0, 10, 1, -(self._actionHeight + 10)),
-			textSize = Theme.sizes.textSmall + 1,
-			parent = card,
-			onClick = function()
-				local entry = self._cards[decor.id]
-				if entry.mode == "buy" then
-					self._callbacks.buyDecor(decor.id)
-				elseif entry.mode == "place" or entry.mode == "use" then
-					self._callbacks.toggleDecor(decor.id, true)
-				elseif entry.mode == "remove" then
-					self._callbacks.toggleDecor(decor.id, false)
-				end
-			end,
-		})
-
-		self._cards[decor.id] = {
-			frame = card,
-			owned = owned,
-			action = action,
-			unlock = unlock,
-			icon = icon,
-			def = decor,
-			chip = DecorPieces.chip(decor),
-			piece = piece.kind ~= nil,
-			crateOnly = piece.kind ~= nil or decor.source == "crate", -- F97: never sold for coins
-			kind = piece.kind,
-			mode = "buy",
-		}
+		local picture = ShopIcons.decor(decor.id)
+		if picture then
+			IconArt.setImage(letter, picture, 0.86)
+		end
 	end
-	self:_setFilter(
-		if self._filter == LAWN_CHIP and self._lawnLive
-			then LAWN_CHIP
-			elseif self._filter == STYLE_CHIP and self._styleLive then STYLE_CHIP
-			else "All"
-	)
+	-- #1711: the rarity pill on every piece with a rarity, the first four Classic Crate pieces (no kind) too
+	-- #1721: a Cafe Pass piece wears a "Cafe Pass" tag in its place (it is never found in crates)
+	local passPiece = (decor :: any).source == "pass"
+	-- #1822: a piece from a bundle names it ("King Cat Pack", Catalog.passDecor's pack), else the Cafe Pass
+	local passName: string = (decor :: any).pack or "Cafe Pass"
+	-- #2006 (Derek2: "make it have low boost and a rarity attached"): a pass piece with a rarity wears the rarity
+	-- pill like any crate piece; its pass is named on its button ("From the Garden Decor Pack")
+	local packPill = passPiece and piece.rarity == nil
+	if piece.rarity or passPiece then
+		local rarity = text({
+			Name = "Rarity",
+			BackgroundTransparency = 0,
+			BackgroundColor3 = if packPill
+				then Theme.colors.berry
+				else Theme.rarityColor(piece.rarity),
+			Position = UDim2.fromOffset(16, 16),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 20),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = if packPill
+				then Theme.colors.white
+				else Theme.rarityTextColor(piece.rarity),
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = if packPill then passName else piece.rarity or "",
+			ZIndex = 3,
+			Parent = card,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = rarity })
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8),
+			Parent = rarity,
+		})
+	end
+	-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
+	local unlock: TextLabel? = nil
+	if IndexRewards.isIndexDecor(decor) then
+		unlock = text({
+			Name = "Unlock",
+			BackgroundColor3 = Theme.colors.outline,
+			BackgroundTransparency = 0.25,
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.fromScale(0, 1),
+			Size = UDim2.new(1, 0, 0, 32),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = Theme.colors.white,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			ZIndex = 2,
+			Parent = art,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = unlock })
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 4),
+			PaddingRight = UDim.new(0, 4),
+			Parent = unlock,
+		})
+	end
+	local owned = text({
+		Name = "Owned",
+		BackgroundColor3 = Theme.colors.good,
+		BackgroundTransparency = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -16, 0, 16),
+		Size = UDim2.fromOffset(56, 20),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.goodText,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Owned",
+		Visible = false,
+		Parent = card,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = owned })
+
+	-- a long name ("Watering Can Planter") shrinks to fit the card instead of ending in dots (Studio look,
+	-- 2026-11-13)
+	FitText.shrink(text({
+		Name = "Name",
+		Position = UDim2.fromOffset(10, 92 + ART_LIFT),
+		Size = UDim2.new(1, -20, 0, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		Text = decor.name,
+		Parent = card,
+	}))
+	text({
+		Name = "Effect",
+		Position = UDim2.fromOffset(10, 114 + ART_LIFT),
+		Size = UDim2.new(1, -20, 0, 18),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = CARD.subtext,
+		-- #2006: never "+0%": a piece with no bonus yet says where it comes from instead
+		Text = if piece.kind and (decor.bonus or 0) > 0
+			then ("+%s money while in use"):format(Format.percent(decor.bonus or 0))
+			elseif passPiece then "From the " .. passName
+			else decor.effect or decor.description or "",
+		Parent = card,
+	})
+
+	local action = Button.new({
+		name = "Action",
+		text = Format.money(decor.cost),
+		style = "primary",
+		size = UDim2.new(1, -20, 0, self._actionHeight),
+		position = UDim2.new(0, 10, 1, -(self._actionHeight + 10)),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = card,
+		onClick = function()
+			local entry = self._cards[decor.id]
+			if entry.mode == "buy" then
+				self._callbacks.buyDecor(decor.id)
+			elseif entry.mode == "place" or entry.mode == "use" then
+				self._callbacks.toggleDecor(decor.id, true)
+			elseif entry.mode == "remove" then
+				self._callbacks.toggleDecor(decor.id, false)
+			end
+		end,
+	})
+
+	self._cards[decor.id] = {
+		frame = card,
+		owned = owned,
+		action = action,
+		unlock = unlock,
+		icon = icon,
+		def = decor,
+		chip = DecorPieces.chip(decor),
+		piece = piece.kind ~= nil,
+		crateOnly = piece.kind ~= nil or decor.source == "crate", -- F97: never sold for coins
+		kind = piece.kind,
+		mode = "buy",
+	}
+end
+
+-- #3722: builds up to `limit` more cards (all that are left when nil); once the last is built the filter and the
+-- counts line are applied again over every card
+function DecorShop._buildCards(self: any, limit: number?)
+	if self._cardsBuilt then
+		return
+	end
+	local all: { Types.DecorDef } = self._decor
+	local stop = if limit ~= nil then math.min(#all, self._cardNext + limit) else #all
+	for index = self._cardNext + 1, stop do
+		self:_makeCard(index, all[index])
+	end
+	self._cardNext = stop
+	if stop >= #all then
+		self._cardsBuilt = true
+		self:_setFilter(
+			if self._filter == LAWN_CHIP and self._lawnLive
+				then LAWN_CHIP
+				elseif self._filter == STYLE_CHIP and self._styleLive then STYLE_CHIP
+				else "All"
+		)
+	end
+end
+
+function DecorShop._queueCards(self: any)
+	self._cardNext = 0
+	self._cardsBuilt = false
+	self._cardToken += 1
+	local token: number = self._cardToken
+	task.delay(DECOR_BUILD_AFTER, function()
+		while token == self._cardToken and not self._cardsBuilt do
+			self:_buildCards(DECOR_BUILD_BATCH)
+			task.wait()
+		end
+		-- a window opened and painted before the last card is painted again in full
+		if token == self._cardToken and self.frame.Visible and self._state then
+			self:render(self._state)
+		end
+	end)
 end
 
 function DecorShop.setCatalog(self: any, catalog: Types.Catalog)
@@ -760,6 +804,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		return
 	end
 	self._dirty = false
+	self:_buildCards() -- #3722: whatever the quiet build has not reached yet
 	if self._filter == LAWN_CHIP then
 		self._lawnTab:render(state)
 	end
@@ -867,6 +912,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 end
 
 function DecorShop.destroy(self: any)
+	self._cardToken += 1
 	for _, chip in self._chips do
 		chip.button:destroy()
 	end

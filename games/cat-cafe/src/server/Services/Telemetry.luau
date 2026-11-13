@@ -95,6 +95,7 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
 	| "afk_start"
 	| "afk_end"
@@ -166,6 +167,7 @@ export type CustomEvent =
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "intro_skip" -- #3773: a first play skipped; value the whole seconds watched; version:shot, device
+	| "return_gift_paid" -- #3772 (shared/ReturnGift): the welcome back gift paid; value the UTC days since the first day
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
 	| "collector_visit" -- F63: "arrived", "traded", "declined", "timeout" or "withdrawn", catId:variant, offer value

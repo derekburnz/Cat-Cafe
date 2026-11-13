@@ -3,7 +3,8 @@
 # with the workflow token emails everyone on the PR and leaves a jobless "check" run behind that ends as a failure,
 # which is how automerge used to bring branches up to date (Derek asked for the mail to stop, 2026-10-27).
 # Writes main=<sha> to $GITHUB_OUTPUT: the main commit the checked tree contains. automerge.sh merges only when
-# that is still main.
+# that is still main. Also writes tree=<sha>, the checked tree itself: check.yml marks a tree that passed so the same
+# tree is not checked twice.
 #   - pull_request: actions/checkout already checked out GitHub's test merge of the PR into main, whose first
 #     parent is that main.
 #   - workflow_dispatch on a branch: merge main in here (the commit automerge.sh passed, or the latest main).
@@ -26,4 +27,5 @@ else
 	fi
 fi
 echo "main=$main" >>"${GITHUB_OUTPUT:?}"
+echo "tree=$(git rev-parse 'HEAD^{tree}')" >>"$GITHUB_OUTPUT"
 echo "Checking $(git rev-parse HEAD), which contains main $main."

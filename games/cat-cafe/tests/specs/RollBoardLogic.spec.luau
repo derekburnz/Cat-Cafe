@@ -176,4 +176,24 @@ return function()
 			expect(RollBoardLogic.rollSteps(4, 9)[12].index).to.equal(4)
 		end)
 	end)
+
+	describe("sizeOffsetY (#3683)", function()
+		it("keeps the board's bottom on its point when the clock is not in the way", function()
+			expect(RollBoardLogic.sizeOffsetY(400, 300, 320, 200, nil, nil, nil)).to.equal(0.5)
+			expect(RollBoardLogic.sizeOffsetY(400, 300, 320, 200, 60, 300, 500)).to.equal(0.5) -- top at 100
+			expect(RollBoardLogic.sizeOffsetY(100, 150, 100, 200, 60, 300, 500)).to.equal(0.5) -- beside it
+		end)
+
+		it("comes down just enough to clear the clock, and no more than LOWER_MOST", function()
+			-- top at 20, the clock ends at 60: 40 px down of 200
+			expect(RollBoardLogic.sizeOffsetY(400, 220, 320, 200, 60, 300, 500)).to.be.near(
+				0.3,
+				0.0001
+			)
+			expect(RollBoardLogic.sizeOffsetY(400, 50, 320, 200, 60, 300, 500)).to.be.near(
+				0.5 - RollBoardLogic.LOWER_MOST,
+				0.0001
+			)
+		end)
+	end)
 end

@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
+local BagColours = require(ReplicatedStorage.Shared.BagColours)
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -580,22 +581,27 @@ local PERCH_ABOVE = 0.5
 
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
-	if stray.mood == "Sleepy" then
+	-- #3545: a Secret roams fast and far and never settles for a nap
+	local secret = stray.def.rarity == Catalog.SECRET
+	local speed = if secret then Config.SecretWanderSpeed else Config.StrayWanderSpeed
+	local radius = if secret then Config.SecretWanderRadius else Config.StrayWanderRadius
+	local pause = if secret then Config.SecretWanderPauseScale else 1
+	if stray.mood == "Sleepy" and not secret then
 		stray.model:SetAttribute("Napping", true) -- #1884 (7a): curled up from the start
 	end
 	while stray.alive do
-		task.wait(rng:NextNumber(3, 7))
+		task.wait(rng:NextNumber(3, 7) * pause)
 		if not canWander(stray) then
 			continue
 		end
-		if stray.mood == "Sleepy" then
+		if stray.mood == "Sleepy" and not secret then
 			-- #1884 (7a): a Sleepy cat never wanders; a swing wakes it (setLock) and it curls up again after
 			if stray.model:GetAttribute("Napping") ~= true then
 				stray.model:SetAttribute("Napping", true)
 			end
 			continue
 		end
-		if rng:NextNumber() < NAP_CHANCE and not nap(stray) then
+		if not secret and rng:NextNumber() < NAP_CHANCE and not nap(stray) then
 			continue
 		end
 		-- A stray spawned up on a porch, a rock or the Sewer's catwalk (the area sets' cat spots) stays there until a
@@ -603,7 +609,6 @@ local function wander(stray: Stray)
 		if stray.home.Y > area.floorY + PERCH_ABOVE then
 			continue
 		end
-		local radius = Config.StrayWanderRadius
 		local at = stray.model:GetPivot().Position
 		local target = WorldBuilder.clampToArea(
 			area,
@@ -614,7 +619,7 @@ local function wander(stray: Stray)
 		)
 		stray.walk += 1
 		local walk = stray.walk
-		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, function()
+		Mover.walkTo(stray.model, clearPath(at, target), speed, function()
 			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 	end
@@ -1446,6 +1451,21 @@ local function hasBackpack(player: Player): boolean
 	return profile ~= nil and profile.mystery.backpack == true
 end
 
+-- #3699: the worn Backpack in its owner's two colour picks (the built colours with the switch off or nothing picked).
+-- The server colours the parts, so every player sees them.
+local function tintBackpack(player: Player)
+	local character = player.Character
+	local pack = if character ~= nil then HeldCat.pack(character) else nil
+	local profile = DataService.get(player)
+	if pack == nil or profile == nil then
+		return
+	end
+	BagColours.tint(
+		pack,
+		BagColours.picks(if LiveFlagService.on(BagColours.FLAG) then profile.bagColours else nil)
+	)
+end
+
 -- #2719: the Backpack's owner wears it (HeldCat.wearPack), at spawn and after the buy; every player sees it.
 local function wearBackpack(player: Player)
 	local character = player.Character
@@ -1460,6 +1480,7 @@ local function wearBackpack(player: Player)
 	local pack = AssetRegistry.clone(HeldCat.PACK_ASSET)
 	if HeldCat.wearPack(pack, character) then
 		pack.Parent = character
+		tintBackpack(player) -- #3699
 	else
 		pack:Destroy()
 	end
@@ -3503,6 +3524,11 @@ end
 -- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
 function CatService.wearBackpack(player: Player)
 	wearBackpack(player)
+end
+
+-- #3699: recolours the worn Backpack from the save (MysteryMarketService, right after a pick).
+function CatService.tintBackpack(player: Player)
+	tintBackpack(player)
 end
 
 function CatService.packedOf(player: Player): string?

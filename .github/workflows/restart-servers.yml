@@ -16,17 +16,20 @@ on:
 
 permissions:
   contents: read
+  actions: read # wait-publish-lane.sh reads the publish and restart runs
 
-# Never alongside a publish, so a restart cannot land between the Saved upload and the live one.
+# Never alongside a publish, so a restart cannot land between the Saved upload and the live one. A restart shares
+# publish-hand with hand-started publishes; an automatic publish (group publish) is waited for by the first step,
+# so a finished main check can no longer cancel a restart that is still waiting (2026-11-13).
 concurrency:
-  group: publish
+  group: publish-hand
   cancel-in-progress: false
 
 jobs:
   restart:
     name: Restart running servers onto the newest version
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45 # 20 for the restart plus up to 25 waiting for an automatic publish
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
       UNIVERSE_ID: "10773193456" # the Cat Cafe experience
@@ -35,6 +38,12 @@ jobs:
         working-directory: games/cat-cafe
     steps:
       - uses: actions/checkout@v5
+
+      - name: Wait for an automatic publish that started first
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/wait-publish-lane.sh 25 hand
 
       - name: Check the publish key is set
         run: |

@@ -674,6 +674,14 @@ export type Stats = {
 	purrfectStreak: number,
 	bestPurrfectStreak: number,
 	teamRescuesHelped: number,
+	-- #3694 section 3 (no new version): counters for the newer features' achievements: Rummage Bin wins, Yard Sale
+	-- lucky picks, Mystic Pool rolls, Mouse Dash games played, golden crates opened and seconds rested in the cafe
+	binWins: number,
+	yardPicks: number,
+	traitRolls: number,
+	dashRuns: number,
+	goldenCratesOpened: number,
+	restSeconds: number,
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -820,6 +828,7 @@ export type AchievementDef = {
 	measure: string,
 	needs: number,
 	size: AchievementSize,
+	flag: string?, -- #3694 section 3: a LiveFlags key; while that switch is off the achievement is hidden
 }
 -- ProfileSync's quests: each slot's text, progress and claim, the reset times (os.time()) and what is spent.
 export type QuestView = {
@@ -1312,6 +1321,9 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
+	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
+	bagColours: { main: string, trim: string }?,
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1424,6 +1436,7 @@ export type PlayerState = {
 	fishPerks: { [string]: number },
 	mystery: { [string]: boolean }, -- #2565
 	mysterySeen: boolean,
+	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax

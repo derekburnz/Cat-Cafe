@@ -1156,6 +1156,7 @@ local function applyState(s: Types.PlayerState)
 		mystery = s.mystery,
 		mysterySeen = s.mysterySeen,
 		mysteryOpen = s.mysteryOpen,
+		bagColours = s.bagColours or false, -- #3699: false for the built colours, as UI.update skips a nil
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
 		signStyle = s.signStyle or "",
@@ -1327,6 +1328,12 @@ local function wireIntents()
 	if looseEvents.mysterySeen ~= nil then
 		looseEvents.mysterySeen:Connect(function()
 			Net.fire("MarkMysterySeen")
+		end)
+	end
+	-- #3699: Save on the Backpack's colour picker; the server checks both ids and that the Backpack is owned
+	if looseEvents.setBagColours ~= nil then
+		looseEvents.setBagColours:Connect(function(main: string, trim: string)
+			Net.fire("SetBagColours", main, trim)
 		end)
 	end
 	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock
@@ -2957,8 +2964,14 @@ local function wireServerEvents()
 	-- show as a banner falls back to the toast.
 	Net.on(
 		"UpdateGiftNotice",
-		function(kind: unknown, fish: unknown, spins: unknown, secondsLeft: unknown)
-			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft)
+		function(
+			kind: unknown,
+			fish: unknown,
+			spins: unknown,
+			secondsLeft: unknown,
+			crates: unknown
+		)
+			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft, crates) -- #3535: crates
 			if banner == nil then
 				return
 			end

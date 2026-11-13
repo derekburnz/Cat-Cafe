@@ -68,6 +68,20 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "Party: 2x money 30 min",
 	},
+	-- #2718 (Design-Agent, 11-13 01:46 UTC): two changes the board did not name yet. The pick a cat menu (#3749, no
+	-- switch, merged 11-13 01:15 UTC) and resting in your cafe (afkCafe, on live since 11-12 15:41 UTC).
+	{
+		id = "mystic_pool_pick_cat",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Mystic Pool: pick your cat",
+	},
+	{
+		id = "rest_in_cafe_double_pay",
+		date = "2026-11-12",
+		icon = "new",
+		text = "Rest in your cafe: 2x pay",
+	},
 	-- #3420, #3424: the Thursday 2026-11-12 launch (22:00 UTC). Merge this only with the launch publish, and only
 	-- the rows whose feature is switched on at the launch.
 	{
@@ -116,12 +130,14 @@ WhatsNew.rows = table.freeze({
 		text = "Bigger station circles",
 	},
 	-- #2718 refresh (11-12 09:10): player-facing changes since #3369, 148 merges, that are on without a switch. The
-	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) has no named credit (#3472).
+	-- launch's own rows are #3434's and go above these. The top 10 join line (#3466) was a player's idea, credited
+	-- since 2026-11-13 (Derek; the credit row c13 was added with the idea-credits workflow).
 	{
 		id = "top_ten_hello",
 		date = "2026-11-12",
 		icon = "new",
 		text = "Top 10 players get a hello",
+		creditId = "c13",
 	},
 	{
 		id = "spa_sort_toggle",

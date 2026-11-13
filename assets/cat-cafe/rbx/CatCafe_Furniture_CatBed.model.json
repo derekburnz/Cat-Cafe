@@ -207,15 +207,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.0887,
+       1.0722,
        0.4,
-       0.2166
+       0.2873
       ],
       "orientation": [
        [
-        0.9808,
+        0.9659,
         0.0,
-        -0.1951
+        -0.2588
        ],
        [
         0.0,
@@ -223,9 +223,9 @@
         0.0
        ],
        [
-        0.1951,
+        0.2588,
         0.0,
-        0.9808
+        0.9659
        ]
       ]
      }
@@ -233,7 +233,7 @@
     "Size": [
      0.38,
      0.6,
-     0.5275
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -256,15 +256,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.0887,
+       1.0722,
        0.73,
-       0.2166
+       0.2873
       ],
       "orientation": [
        [
-        0.9808,
+        0.9659,
         0.0,
-        -0.1951
+        -0.2588
        ],
        [
         0.0,
@@ -272,9 +272,9 @@
         0.0
        ],
        [
-        0.1951,
+        0.2588,
         0.0,
-        0.9808
+        0.9659
        ]
       ]
      }
@@ -282,7 +282,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -305,15 +305,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9229,
+       0.7849,
        0.4,
-       0.6167
+       0.7849
       ],
       "orientation": [
        [
-        0.8315,
+        0.7071,
         0.0,
-        -0.5556
+        -0.7071
        ],
        [
         0.0,
@@ -321,9 +321,9 @@
         0.0
        ],
        [
-        0.5556,
+        0.7071,
         0.0,
-        0.8315
+        0.7071
        ]
       ]
      }
@@ -331,7 +331,7 @@
     "Size": [
      0.38,
      0.6,
-     0.5275
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -354,15 +354,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9229,
+       0.7849,
        0.73,
-       0.6167
+       0.7849
       ],
       "orientation": [
        [
-        0.8315,
+        0.7071,
         0.0,
-        -0.5556
+        -0.7071
        ],
        [
         0.0,
@@ -370,9 +370,9 @@
         0.0
        ],
        [
-        0.5556,
+        0.7071,
         0.0,
-        0.8315
+        0.7071
        ]
       ]
      }
@@ -380,7 +380,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -403,15 +403,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.6167,
+       0.2873,
        0.4,
-       0.9229
+       1.0722
       ],
       "orientation": [
        [
-        0.5556,
+        0.2588,
         0.0,
-        -0.8315
+        -0.9659
        ],
        [
         0.0,
@@ -419,9 +419,9 @@
         0.0
        ],
        [
-        0.8315,
+        0.9659,
         0.0,
-        0.5556
+        0.2588
        ]
       ]
      }
@@ -429,7 +429,7 @@
     "Size": [
      0.38,
      0.6,
-     0.5275
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -452,15 +452,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.6167,
+       0.2873,
        0.73,
-       0.9229
+       1.0722
       ],
       "orientation": [
        [
-        0.5556,
+        0.2588,
         0.0,
-        -0.8315
+        -0.9659
        ],
        [
         0.0,
@@ -468,9 +468,9 @@
         0.0
        ],
        [
-        0.8315,
+        0.9659,
         0.0,
-        0.5556
+        0.2588
        ]
       ]
      }
@@ -478,7 +478,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -501,15 +501,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2166,
+       -0.2873,
        0.4,
-       1.0887
+       1.0722
       ],
       "orientation": [
        [
-        0.1951,
+        -0.2588,
         0.0,
-        -0.9808
+        -0.9659
        ],
        [
         0.0,
@@ -517,9 +517,9 @@
         0.0
        ],
        [
-        0.9808,
+        0.9659,
         0.0,
-        0.1951
+        -0.2588
        ]
       ]
      }
@@ -527,7 +527,7 @@
     "Size": [
      0.38,
      0.6,
-     0.5275
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -550,15 +550,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2166,
+       -0.2873,
        0.73,
-       1.0887
+       1.0722
       ],
       "orientation": [
        [
-        0.1951,
+        -0.2588,
         0.0,
-        -0.9808
+        -0.9659
        ],
        [
         0.0,
@@ -566,9 +566,9 @@
         0.0
        ],
        [
-        0.9808,
+        0.9659,
         0.0,
-        0.1951
+        -0.2588
        ]
       ]
      }
@@ -576,7 +576,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -599,15 +599,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2166,
+       -0.7849,
        0.4,
-       1.0887
+       0.7849
       ],
       "orientation": [
        [
-        -0.1951,
+        -0.7071,
         0.0,
-        -0.9808
+        -0.7071
        ],
        [
         0.0,
@@ -615,9 +615,9 @@
         0.0
        ],
        [
-        0.9808,
+        0.7071,
         0.0,
-        -0.1951
+        -0.7071
        ]
       ]
      }
@@ -625,7 +625,7 @@
     "Size": [
      0.38,
      0.6,
-     0.5275
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -648,15 +648,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2166,
+       -0.7849,
        0.73,
-       1.0887
+       0.7849
       ],
       "orientation": [
        [
-        -0.1951,
+        -0.7071,
         0.0,
-        -0.9808
+        -0.7071
        ],
        [
         0.0,
@@ -664,9 +664,9 @@
         0.0
        ],
        [
-        0.9808,
+        0.7071,
         0.0,
-        -0.1951
+        -0.7071
        ]
       ]
      }
@@ -674,7 +674,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -697,15 +697,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6167,
+       -1.0722,
        0.4,
-       0.9229
+       0.2873
       ],
       "orientation": [
        [
-        -0.5556,
+        -0.9659,
         0.0,
-        -0.8315
+        -0.2588
        ],
        [
         0.0,
@@ -713,9 +713,9 @@
         0.0
        ],
        [
-        0.8315,
+        0.2588,
         0.0,
-        -0.5556
+        -0.9659
        ]
       ]
      }
@@ -723,7 +723,7 @@
     "Size": [
      0.38,
      0.6,
-     0.5275
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -746,15 +746,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6167,
+       -1.0722,
        0.73,
-       0.9229
+       0.2873
       ],
       "orientation": [
        [
-        -0.5556,
+        -0.9659,
         0.0,
-        -0.8315
+        -0.2588
        ],
        [
         0.0,
@@ -762,9 +762,9 @@
         0.0
        ],
        [
-        0.8315,
+        0.2588,
         0.0,
-        -0.5556
+        -0.9659
        ]
       ]
      }
@@ -772,7 +772,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -795,15 +795,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9229,
-       0.4,
-       0.6167
+       -1.0722,
+       0.3906,
+       -0.2873
       ],
       "orientation": [
        [
-        -0.8315,
+        -0.9659,
         0.0,
-        -0.5556
+        0.2588
        ],
        [
         0.0,
@@ -811,17 +811,17 @@
         0.0
        ],
        [
-        0.5556,
+        -0.2588,
         0.0,
-        -0.8315
+        -0.9659
        ]
       ]
      }
     },
     "Size": [
      0.38,
-     0.6,
-     0.5275
+     0.5812,
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -844,15 +844,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9229,
-       0.73,
-       0.6167
+       -1.0722,
+       0.7112,
+       -0.2873
       ],
       "orientation": [
        [
-        -0.8315,
+        -0.9659,
         0.0,
-        -0.5556
+        0.2588
        ],
        [
         0.0,
@@ -860,9 +860,9 @@
         0.0
        ],
        [
-        0.5556,
+        -0.2588,
         0.0,
-        -0.8315
+        -0.9659
        ]
       ]
      }
@@ -870,7 +870,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -893,15 +893,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0887,
-       0.4,
-       0.2166
+       -0.7849,
+       0.33,
+       -0.7849
       ],
       "orientation": [
        [
-        -0.9808,
+        -0.7071,
         0.0,
-        -0.1951
+        0.7071
        ],
        [
         0.0,
@@ -909,17 +909,17 @@
         0.0
        ],
        [
-        0.1951,
+        -0.7071,
         0.0,
-        -0.9808
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
      0.38,
-     0.6,
-     0.5275
+     0.46,
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -942,15 +942,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0887,
-       0.73,
-       0.2166
+       -0.7849,
+       0.59,
+       -0.7849
       ],
       "orientation": [
        [
-        -0.9808,
+        -0.7071,
         0.0,
-        -0.1951
+        0.7071
        ],
        [
         0.0,
@@ -958,9 +958,9 @@
         0.0
        ],
        [
-        0.1951,
+        -0.7071,
         0.0,
-        -0.9808
+        -0.7071
        ]
       ]
      }
@@ -968,7 +968,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -991,15 +991,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0887,
-       0.3947,
-       -0.2166
+       -0.2873,
+       0.2694,
+       -1.0722
       ],
       "orientation": [
        [
-        -0.9808,
+        -0.2588,
         0.0,
-        0.1951
+        0.9659
        ],
        [
         0.0,
@@ -1007,17 +1007,213 @@
         0.0
        ],
        [
-        -0.1951,
+        -0.9659,
         0.0,
-        -0.9808
+        -0.2588
        ]
       ]
      }
     },
     "Size": [
      0.38,
-     0.5893,
-     0.5275
+     0.3388,
+     0.6998
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_CatBed",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2873,
+       0.4688,
+       -1.0722
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.06,
+     0.6798
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_CatBed",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2873,
+       0.2694,
+       -1.0722
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.38,
+     0.3388,
+     0.6998
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_CatBed",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2873,
+       0.4688,
+       -1.0722
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.06,
+     0.6798
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_CatBed",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7849,
+       0.33,
+       -0.7849
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.38,
+     0.46,
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -1040,15 +1236,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0887,
-       0.7193,
-       -0.2166
+       0.7849,
+       0.59,
+       -0.7849
       ],
       "orientation": [
        [
-        -0.9808,
+        0.7071,
         0.0,
-        0.1951
+        0.7071
        ],
        [
         0.0,
@@ -1056,9 +1252,9 @@
         0.0
        ],
        [
-        -0.1951,
+        -0.7071,
         0.0,
-        -0.9808
+        0.7071
        ]
       ]
      }
@@ -1066,7 +1262,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,
@@ -1089,15 +1285,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9229,
-       0.3568,
-       -0.6167
+       1.0722,
+       0.3906,
+       -0.2873
       ],
       "orientation": [
        [
-        -0.8315,
+        0.9659,
         0.0,
-        0.5556
+        0.2588
        ],
        [
         0.0,
@@ -1105,17 +1301,17 @@
         0.0
        ],
        [
-        -0.5556,
+        -0.2588,
         0.0,
-        -0.8315
+        0.9659
        ]
       ]
      }
     },
     "Size": [
      0.38,
-     0.5136,
-     0.5275
+     0.5812,
+     0.6998
     ],
     "Color": [
      0.9098,
@@ -1138,15 +1334,15 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9229,
-       0.6436,
-       -0.6167
+       1.0722,
+       0.7112,
+       -0.2873
       ],
       "orientation": [
        [
-        -0.8315,
+        0.9659,
         0.0,
-        0.5556
+        0.2588
        ],
        [
         0.0,
@@ -1154,9 +1350,9 @@
         0.0
        ],
        [
-        -0.5556,
+        -0.2588,
         0.0,
-        -0.8315
+        0.9659
        ]
       ]
      }
@@ -1164,595 +1360,7 @@
     "Size": [
      0.24,
      0.06,
-     0.5075
-    ],
-    "Color": [
-     0.7882,
-     0.7216,
-     0.9098
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6167,
-       0.3032,
-       -0.9229
-      ],
-      "orientation": [
-       [
-        -0.5556,
-        0.0,
-        0.8315
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.8315,
-        0.0,
-        -0.5556
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.38,
-     0.4064,
-     0.5275
-    ],
-    "Color": [
-     0.9098,
-     0.6275,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6167,
-       0.5364,
-       -0.9229
-      ],
-      "orientation": [
-       [
-        -0.5556,
-        0.0,
-        0.8315
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.8315,
-        0.0,
-        -0.5556
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.06,
-     0.5075
-    ],
-    "Color": [
-     0.7882,
-     0.7216,
-     0.9098
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2166,
-       0.2653,
-       -1.0887
-      ],
-      "orientation": [
-       [
-        -0.1951,
-        0.0,
-        0.9808
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9808,
-        0.0,
-        -0.1951
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.38,
-     0.3307,
-     0.5275
-    ],
-    "Color": [
-     0.9098,
-     0.6275,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2166,
-       0.4607,
-       -1.0887
-      ],
-      "orientation": [
-       [
-        -0.1951,
-        0.0,
-        0.9808
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9808,
-        0.0,
-        -0.1951
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.06,
-     0.5075
-    ],
-    "Color": [
-     0.7882,
-     0.7216,
-     0.9098
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2166,
-       0.2653,
-       -1.0887
-      ],
-      "orientation": [
-       [
-        0.1951,
-        0.0,
-        0.9808
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9808,
-        0.0,
-        0.1951
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.38,
-     0.3307,
-     0.5275
-    ],
-    "Color": [
-     0.9098,
-     0.6275,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2166,
-       0.4607,
-       -1.0887
-      ],
-      "orientation": [
-       [
-        0.1951,
-        0.0,
-        0.9808
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9808,
-        0.0,
-        0.1951
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.06,
-     0.5075
-    ],
-    "Color": [
-     0.7882,
-     0.7216,
-     0.9098
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.6167,
-       0.3032,
-       -0.9229
-      ],
-      "orientation": [
-       [
-        0.5556,
-        0.0,
-        0.8315
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.8315,
-        0.0,
-        0.5556
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.38,
-     0.4064,
-     0.5275
-    ],
-    "Color": [
-     0.9098,
-     0.6275,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.6167,
-       0.5364,
-       -0.9229
-      ],
-      "orientation": [
-       [
-        0.5556,
-        0.0,
-        0.8315
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.8315,
-        0.0,
-        0.5556
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.06,
-     0.5075
-    ],
-    "Color": [
-     0.7882,
-     0.7216,
-     0.9098
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9229,
-       0.3568,
-       -0.6167
-      ],
-      "orientation": [
-       [
-        0.8315,
-        0.0,
-        0.5556
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.5556,
-        0.0,
-        0.8315
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.38,
-     0.5136,
-     0.5275
-    ],
-    "Color": [
-     0.9098,
-     0.6275,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9229,
-       0.6436,
-       -0.6167
-      ],
-      "orientation": [
-       [
-        0.8315,
-        0.0,
-        0.5556
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.5556,
-        0.0,
-        0.8315
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.06,
-     0.5075
-    ],
-    "Color": [
-     0.7882,
-     0.7216,
-     0.9098
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0887,
-       0.3947,
-       -0.2166
-      ],
-      "orientation": [
-       [
-        0.9808,
-        0.0,
-        0.1951
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.1951,
-        0.0,
-        0.9808
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.38,
-     0.5893,
-     0.5275
-    ],
-    "Color": [
-     0.9098,
-     0.6275,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_CatBed",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0887,
-       0.7193,
-       -0.2166
-      ],
-      "orientation": [
-       [
-        0.9808,
-        0.0,
-        0.1951
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.1951,
-        0.0,
-        0.9808
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.24,
-     0.06,
-     0.5075
+     0.6798
     ],
     "Color": [
      0.7882,

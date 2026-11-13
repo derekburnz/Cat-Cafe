@@ -338,6 +338,7 @@ local function onYardSalePick(player: Player)
 	local yard = profile.campExtras.yardSale
 	yard.lastClaimAt = now -- the next pick is YardSaleRollHours from now
 	yard.claims += 1
+	profile.stats.yardPicks += 1 -- #3694 section 3
 	Telemetry.custom(player, "yard_pick", 1, { row.crateId, tostring(tier) })
 	local won: Types.IndexPrize = { crates = { [row.crateId] = 1 } }
 	Net.fire(player, "YardSalePicked", index, row.crateId, row.tier)

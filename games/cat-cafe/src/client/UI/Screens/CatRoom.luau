@@ -112,6 +112,7 @@ local FEED_TILE = 40
 local FEED_H = 54 -- the square and its "+40" strip
 local TRAIT_TITLE_H = 18 -- #3717: the trait's name
 local FEED_GAP = 8
+local FEED_CLEAR = 6 -- #3989: the "+600" strips keep this far above the actions row
 local FEED_HOLD = 0.4 -- seconds a finger stays down before a held tile starts feeding again
 local FEED_REPEAT = 0.3 -- seconds between feeds while held (FeedCat allows 4 a second)
 
@@ -256,7 +257,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._autoTaps = {} -- #2076: the pressed value, held as Settings holds a tap (SettingsList.shown)
 	local setAuto = callbacks.setAutoEquip
 	if setAuto ~= nil and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
-		self._crew.Size = UDim2.new(1, -(ACTION_W + 12), 1, 0)
+		self._crew.Size = UDim2.new(1, -(ACTION_W + 20), 1, 0) -- #3989: a clear gap before the switch
 		self._auto = Button.new({
 			name = "AutoEquip",
 			text = "Auto Equip: Off",
@@ -1503,12 +1504,20 @@ function CatRoom._placeFeed(self: any)
 	local body = self._feedRow.Parent :: GuiObject
 	local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
 	local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
-	local squeezed = self._feedRow.Visible and bodyH > 0 and top + FEED_H > actionsTop
+	local squeezed = self._feedRow.Visible and bodyH > 0 and top + FEED_H + FEED_CLEAR > actionsTop
+	local rateCovered = false
 	if squeezed then
-		top = math.max(0, math.min(self._favTop, actionsTop - FEED_H))
+		top = math.max(0, math.min(self._favTop, actionsTop - FEED_H - FEED_CLEAR))
 		-- _renderDetail shows them again on the next refresh (closing Feed is one)
 		self._detailBuffs.Visible = false
 		self._detailInfo.Visible = false
+		-- #3989 (Review-QA, Studio 667 x 375 with a mouse): pushed up that far, the tiles take the rate line's place
+		-- too, rather than draw over "+$1.5/s · Barista 1"
+		rateCovered = top < self._favTop - 2
+	end
+	self._detailRate.Visible = not rateCovered
+	if rateCovered then
+		self._detailKeep.Visible = false
 	end
 	self._feedRow.Position = UDim2.fromOffset(10, top)
 	local descTop = top + (if self._feedRow.Visible then FEED_H + 6 else 0)

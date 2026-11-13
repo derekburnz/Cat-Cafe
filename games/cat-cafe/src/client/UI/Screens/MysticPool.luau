@@ -1029,8 +1029,8 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		tokenPicture(card, UDim2.fromOffset(6, 4), OFFER_PICTURE, 13)
 		local heading = text({
 			Name = "Heading",
-			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 6),
-			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 22),
+			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 4),
+			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody + 2,
 			TextXAlignment = Enum.TextXAlignment.Left,
@@ -1040,8 +1040,9 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		})
 		local rolls = text({
 			Name = "Rolls",
-			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 28),
-			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 16),
+			-- #3989 (Review-QA): ends 6 px above the Buy button, not on its top edge
+			Position = UDim2.fromOffset(OFFER_PICTURE + 12, 24),
+			Size = UDim2.new(1, -(OFFER_PICTURE + 16), 0, 14),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			TextXAlignment = Enum.TextXAlignment.Left,

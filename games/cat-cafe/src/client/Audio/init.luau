@@ -2271,7 +2271,11 @@ local function followBigTrait()
 		if beat == "hush" or beat == "done" then
 			sceneToken += 1
 			local token = sceneToken
-			music.ducks["traitScene"] = if beat == "hush" then SCENE_DUCK else nil
+			if beat == "hush" then
+				music.ducks["traitScene"] = SCENE_DUCK
+			else
+				music.ducks["traitScene"] = nil
+			end
 			applyDucks(music)
 			if beat == "hush" then
 				task.delay(SCENE_DUCK_LIMIT, function()

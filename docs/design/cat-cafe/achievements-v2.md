@@ -1,6 +1,6 @@
 # Achievements: easier targets, more steps, a prize of its own kind per line (#3694)
 
-Status 2026-11-13: sections 1 and 2 and the Devoted fault built by Design-Agent (names of the new steps in 2a); sections 3 and 4 and the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
+Status 2026-11-13: sections 1, 2 and 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, prize notes in 4a); section 3 and the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
 
 ## Rules for the change
 
@@ -96,5 +96,12 @@ Today the prize depends only on the size: S a spin, M a Money Potion, L a Classi
 - At most two pictures on a prize, three on XL (the existing rule).
 - Everything here is earned in play. Golden fish, spins, crates, Trait Tokens, Lucky and Gold Rush Potions are never sold for Robux, and nothing on this page can be bought.
 - If a lure or potion named here does not exist under that name in `Catalog`, use the nearest one of the same worth and say so in the PR.
+
+### 4a. As built
+
+- The lines are keyed by the achievement's measure (`Catalog.achievementLines`), so a new step on a line gets its line's item without a field of its own. `Catalog.achievementPrize(def)` merges the size's coins, coinSeconds and pass XP with the line's item; the server pays it and the Quests cards show the same.
+- Lines with no row for a size (rescues XL, bait XL, gold S, cat levels S) and every line not in the table pay the size's prize as before.
+- Spins go to the spin bank, which stops at its cap as it does for every spin prize.
+- Section 3's lines (Rummage Bin, Yard Sale, Mystic Pool, Mouse Dash) get their rows when their achievements are added; Trait Tokens will need a prize field of their own then.
 
 **Titles (second step, own PR if the title system needs work):** the XL achievements also give a chat title with the achievement's name: Cat Legend, Steady Hands, Devoted, Week Champion, Gold Rush. A player who already claimed one gets the title on the next join.

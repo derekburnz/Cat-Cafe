@@ -23,7 +23,9 @@ local UpdateGift = {}
 
 UpdateGift.PREFIX = "gift"
 
-export type Gift = { id: string, from: number, fish: number, spins: number }
+-- #3779: `to` (os.time(), optional) ends a gift: from then on it pays nobody new and gives no notice. The launch gift
+-- had no end, so every account that joined for the first time since kept getting its 100 fish.
+export type Gift = { id: string, from: number, fish: number, spins: number, to: number? }
 
 function UpdateGift.key(id: string): string
 	return UpdateGift.PREFIX .. string.gsub(id, "%W", "")
@@ -36,6 +38,9 @@ end
 function UpdateGift.due(redeemed: { [string]: number }, gift: Gift?, now: number): boolean
 	if gift == nil or type(gift.id) ~= "string" or gift.id == "" or now < gift.from then
 		return false
+	end
+	if gift.to ~= nil and now >= gift.to then
+		return false -- #3779: the gift is over
 	end
 	return redeemed[UpdateGift.key(gift.id)] == nil
 end
@@ -52,6 +57,9 @@ function UpdateGift.soon(redeemed: { [string]: number }, gift: Gift?, now: numbe
 		return nil
 	end
 	local left = gift.from - now
+	if gift.to ~= nil and gift.to <= gift.from then
+		return nil -- #3779: a gift that ends before it starts never pays, so it promises nothing
+	end
 	if
 		left <= 0
 		or left > UpdateGift.NOTICE_SECONDS

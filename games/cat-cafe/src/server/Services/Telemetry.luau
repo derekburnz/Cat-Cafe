@@ -877,7 +877,9 @@ end
 
 -- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
 function Telemetry.introShort(profile: Profile): boolean
-	return IntroSplit.short(profile.telemetry.introGroup)
+	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
+	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
+	return profile.telemetry.introGroup == IntroSplit.SHORT
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its

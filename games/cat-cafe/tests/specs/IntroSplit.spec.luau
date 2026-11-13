@@ -91,9 +91,6 @@ return function()
 				-- the short arm plays whatever the switch says; none never does
 				expect(IntroSplit.plays(IntroSplit.SHORT, false, false)).to.equal(true)
 				expect(IntroSplit.plays(IntroSplit.OFF, true, false)).to.equal(false)
-				expect(IntroSplit.short(IntroSplit.SHORT)).to.equal(true)
-				expect(IntroSplit.short(IntroSplit.ON)).to.equal(false)
-				expect(IntroSplit.short(nil)).to.equal(false)
 			end
 		)
 	end)

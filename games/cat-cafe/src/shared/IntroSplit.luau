@@ -71,11 +71,6 @@ function IntroSplit.plays(group: string?, on: boolean, base: boolean): boolean
 		or (on and group == IntroSplit.ON)
 end
 
--- #4001: whether the intro this save plays itself is the short one.
-function IntroSplit.short(group: string?): boolean
-	return group == IntroSplit.SHORT
-end
-
 -- A funnel step's custom fields with the group as field 3 (fields 1 and 2 padded with "-"); unchanged with no group.
 function IntroSplit.fields(group: string?, fields: { string }): { string }
 	if group == nil then

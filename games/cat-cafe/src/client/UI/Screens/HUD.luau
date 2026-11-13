@@ -189,6 +189,7 @@ export type HUD = {
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
+local Pals = require(Shared:WaitForChild("Pals")) :: any -- #3954: the Menu's Invite row names the pal tip bonus
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
 local StuckGoal = require(Shared:WaitForChild("StuckGoal")) -- #2912: the goal card's "Free a stuck cat"
 
@@ -4402,7 +4403,8 @@ function HUD._popText(self: any, id: string): string
 		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
 		return if row then GiftLadderLogic.line(row) else "Gift"
 	elseif id == "Invite" then
-		return "Invite friends"
+		-- #3954: the row names the pal tip bonus (shared Pals.bonus), so the Menu says why to invite
+		return ("Invite: +%d%% tips"):format(math.floor((Pals.bonus(1) :: number) * 100 + 0.5))
 	end
 	return id
 end

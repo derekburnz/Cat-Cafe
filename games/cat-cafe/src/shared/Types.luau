@@ -208,6 +208,8 @@ export type IndexMilestone = {
 	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
 	-- `needs` is then the least it asks
 	whole: boolean?,
+	-- #3992: shown and paid only while the `indexTo70` switch is on (shared/IndexRewards.lateOpen)
+	late: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`

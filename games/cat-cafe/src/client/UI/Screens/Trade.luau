@@ -112,6 +112,7 @@ local TABS: { { id: Tab, label: string, icon: string } } = {
 	{ id = "crates", label = "Crates", icon = "📦" }, -- #2745: shown while the server's cratesOn says so
 }
 local TAB_W = 96 -- #3350: room for the symbol (70 with the name alone)
+local SEARCH_MIN_W = 96 -- #3932: the search box beside the tabs; under this the tabs drop to their symbols
 local PIECE_ORDER = 100 -- pieces follow the cats in a grid or a confirm row
 local CRATE_ORDER = 150 -- #2745: crates follow the pieces
 local FISH_ORDER = 190 -- #2745: then the golden fish
@@ -197,6 +198,7 @@ function Trade.new(callbacks: Callbacks): Trade
 	self._pieceTiles = {} :: { [string]: TradeItemTile.TradeItemTile } -- #1574: the Decor tab's pieces by id
 	self._pieces = {} :: { TradeLogic.PiecePick }
 	self._tab = "cats" :: Tab
+	self._query = "" -- #3932: the search over the list on the right
 	self._tabH = Scale.tapHeight(36) -- taller than the grids' titles: a full tap with a mouse or a thumb
 	self._tabButtons = {} :: { [Tab]: TextButton }
 	self._crateById = {} :: { [string]: TradeLogic.CrateInfo } -- #2745: Catalog.crates by id
@@ -436,7 +438,12 @@ function Trade._buildOffer(self: any, content: Frame)
 			Name = name,
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(x, 0),
-			Size = UDim2.new(0, math.max(COLUMN_W, gridW), 1, 0),
+			Size = UDim2.new(
+				0,
+				if Scale.isShort() then gridW + 8 else math.max(COLUMN_W, gridW),
+				1,
+				0
+			),
 			Parent = offer,
 		})
 		local header: Frame = Create("Frame", {
@@ -499,7 +506,9 @@ function Trade._buildOffer(self: any, content: Frame)
 		})
 		return frame, label, ready, changed, grid, total
 	end
-	local columnW = math.max(COLUMN_W, gridW)
+	-- #3932 (Derek: "a lot is cut off"): on a short screen the two grids' columns hug their grids, so the list on the
+	-- right gets a fourth card a row
+	local columnW = if Scale.isShort() then gridW + 8 else math.max(COLUMN_W, gridW)
 	local _mine, mineTitle, mineReady, mineChanged, mineGrid, mineTotal =
 		column("Mine", 0, "You give")
 	local _theirs, theirsTitle, theirsReady, theirsChanged, theirsGrid, theirsTotal =
@@ -608,6 +617,36 @@ function Trade._buildOffer(self: any, content: Frame)
 		end)
 		self._tabButtons[id] = button
 	end
+	-- #3932: the search, in the rest of the tabs' row (sized in _layoutTabs as the Crates tab comes and goes)
+	local search: TextBox = Create("TextBox", {
+		Name = "Search",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.new(0, SEARCH_MIN_W, 1, 0),
+		LayoutOrder = #TABS + 1,
+		ClearTextOnFocus = false,
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
+		PlaceholderText = "🔍 Search",
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+		Parent = tabs,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 8) }),
+	})
+	self._search = search
+	self._tabsRow = tabs
+	self._searchConnection = search:GetPropertyChangedSignal("Text"):Connect(function()
+		self._query = search.Text
+		if self._picksList ~= nil then
+			self._picksList.CanvasPosition = Vector2.zero
+		end
+		self:_renderPicks()
+	end)
 	local scroll: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundColor3 = PAL.card,
@@ -1373,6 +1412,40 @@ function Trade._setTab(self: any, tab: Tab)
 	self:_tick()
 end
 
+-- #3932: the tabs and the search share the row over the list: each tab with its symbol and name while the search
+-- keeps SEARCH_MIN_W, else the symbols alone (a phone with the Crates tab), and the search takes the rest.
+function Trade._layoutTabs(self: any)
+	local row: Frame? = self._tabsRow
+	if row == nil then
+		return
+	end
+	local shown = 0
+	for _, tab in TABS do
+		local button = self._tabButtons[tab.id]
+		if button ~= nil and button.Visible then
+			shown += 1
+		end
+	end
+	-- the row's width in our own pixels: the screen's UIScale is read off the Cats tab, whose width is ours
+	local cats: TextButton? = self._tabButtons.cats
+	local scale = if cats ~= nil
+			and cats.Size.X.Offset > 0
+			and cats.AbsoluteSize.X > 0
+		then cats.AbsoluteSize.X / cats.Size.X.Offset
+		else 1
+	local width = row.AbsoluteSize.X / scale
+	local small = width > 0 and width - shown * (TAB_W + 4) < SEARCH_MIN_W
+	local tabW = if small then self._tabH else TAB_W
+	for _, tab in TABS do
+		local button = self._tabButtons[tab.id]
+		if button ~= nil then
+			button.Size = UDim2.new(0, tabW, 1, 0)
+			button.Text = if small then tab.icon else tab.icon .. " " .. tab.label
+		end
+	end
+	self._search.Size = UDim2.new(1, -shown * (tabW + 4), 1, 0)
+end
+
 -- #1574: the Decor tab's pieces: every owned crate decor and lawn piece that can be traded.
 function Trade._renderPieces(self: any, show: boolean): number
 	local trade: Types.TradeState? = self._trade
@@ -1392,6 +1465,13 @@ function Trade._renderPieces(self: any, show: boolean): number
 			self:_offeredPieces(),
 			trade.theyHave
 		)
+		local kept: { TradeLogic.PiecePick } = {}
+		for _, pick in pieces do
+			if TradeLogic.matches(self._query, { pick.name, pick.rarity }) then
+				table.insert(kept, pick)
+			end
+		end
+		pieces = kept
 	end
 	self._pieces = pieces
 	local seen: { [string]: boolean } = {}
@@ -1460,6 +1540,22 @@ function Trade._renderPicks(self: any)
 	local picks: { TradeLogic.Pick } = if catsTab
 		then TradeLogic.myCats(if state then state.cats :: any else nil, defOf, self:_offered())
 		else {}
+	-- #3932: the search keeps the cards whose name, rarity or trait holds it
+	local query = self._query
+	if query ~= "" then
+		local kept: { TradeLogic.Pick } = {}
+		for _, pick in picks do
+			if
+				TradeLogic.matches(
+					query,
+					{ pick.name, pick.rarity, pick.trait and pick.trait.name }
+				)
+			then
+				table.insert(kept, pick)
+			end
+		end
+		picks = kept
+	end
 	self._picks = picks
 	local seen: { [string]: boolean } = {}
 	for index, pick in picks do
@@ -1503,8 +1599,10 @@ function Trade._renderPicks(self: any)
 	end
 	local pieces = self:_renderPieces(self._tab == "decor")
 	local crates = self:_renderCrates(self._tab == "crates")
-	self._picksEmpty.Text = if catsTab
-		then "No cats to trade yet"
+	self:_layoutTabs()
+	self._picksEmpty.Text = if self._query ~= "" and string.find(self._query, "%S") ~= nil
+		then TradeLogic.noMatch(self._query)
+		elseif catsTab then "No cats to trade yet"
 		elseif self._tab == "decor" then "No decor to trade yet"
 		else "No crates to trade yet"
 	self._picksEmpty.Visible = if catsTab
@@ -1535,6 +1633,13 @@ function Trade._renderCrates(self: any, show: boolean): number
 		crates = TradeLogic.myCrates(state.crates, function(id: string): TradeLogic.CrateInfo?
 			return self._crateById[id]
 		end, self:_offeredCrates(), (trade :: any).crateBlocked)
+		local kept: { TradeLogic.CratePick } = {}
+		for _, pick in crates do
+			if TradeLogic.matches(self._query, { pick.name }) then
+				table.insert(kept, pick)
+			end
+		end
+		crates = kept
 	end
 	self._crates = crates
 	local seen: { [string]: boolean } = {}
@@ -1996,6 +2101,7 @@ end
 
 function Trade.destroy(self: any)
 	self._alive = false
+	self._searchConnection:Disconnect()
 	for _, tile in self._pickTiles do
 		tile:destroy()
 	end

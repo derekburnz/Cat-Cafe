@@ -9569,7 +9569,11 @@ local SCENES = {
 		face.BackgroundColor3 = Color3.fromHex("2B2F3A")
 		face.AnchorPoint = Vector2.new(0.5, 0.5)
 		face.Position = UDim2.fromScale(0.5, 0.5)
-		face.Size = UDim2.fromOffset(400, 300) -- a 10 x 7.5 stud face at 40 px a stud, inside a small phone's height
+		-- a 10 x 7.5 stud face at 40 px a stud, inside a small phone's height; #3518: on a 705 x 338 phone the 300 px
+		-- face ran 7 px past the bottom under the top bar's inset, so it shrinks to the room below the bar there
+		local inset = game:GetService("GuiService"):GetGuiInset().Y
+		local faceHeight = math.min(300, workspace.CurrentCamera.ViewportSize.Y - inset - 8)
+		face.Size = UDim2.fromOffset(faceHeight * 4 / 3, faceHeight)
 		face.Parent = gui
 		for _, child in surface:GetChildren() do
 			child.Parent = face

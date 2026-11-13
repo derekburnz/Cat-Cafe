@@ -56,3 +56,12 @@ Group-owned, upload-image run 43317865668 from main at 22:13 UTC, moderation Rev
 | CatCafe_Icon_Hud_Gift | 95020228483506 |
 | CatCafe_Icon_Bin_TunaFish | 126800641723638 |
 | CatCafe_Icon_Bin_SalmonFish | 92399966043098 |
+
+## Picnic Treats pictures (2026-11-12, #3715)
+Group-owned, upload-image run 43328998969 from main at 23:33 UTC, moderation Reviewing at upload.
+
+| Picture | Id |
+|---|---|
+| CatCafe_Icon_Hud_PicnicSandwich | 132726319271125 |
+| CatCafe_Icon_Hud_PicnicLemonade | 81662521137810 |
+| CatCafe_Icon_Hud_PicnicCupcake | 70925840022035 |

@@ -30,6 +30,14 @@ The order is the spec's creation order (5 badges a day from 2026-11-07):
   22 MetOwner       Met the Owner (#3324): Blossom (Legendary) in a little gold crown waving a raised paw, with
                     wave marks and a twinkle, on sky blue
 
+The six of #3618 (badges-order.md), made after the 22:
+  23 HomeSweetHome  a ginger cat on the mat in the cafe's open arched doorway, a heart above, on blush
+  24 FixingUp       a new round cafe table with a hammer leaning across it and twinkles, on butter
+  25 Liftoff        the teal and white cat cannon tipped up, a ginger cat flying out of a puff of cloud, on sky blue
+  26 CornerCafe     Corner Cafe (Tier 1): the cafe's hanging wooden sign with a pink paw print, on butter
+  27 SunstoneCafe   Sunstone Cafe (Tier 6): a cut orange sunstone in a gold sun with twelve rays, on warm sand
+  28 WonderCafe     Wonder Cafe (Tier 7): a big cut diamond under a crown of gold stars, on night blue
+
 Built in Blender axes (x right, -y toward the camera, z up), the medal's face in the XZ plane; nothing here is a game
 model.
 """
@@ -527,6 +535,147 @@ def met_owner(mat):
     return _fin(b, "MetOwner", mat) + cat
 
 
+def home_sweet_home(mat):
+    """Home Sweet Home (#3618): a ginger cat sitting on the mat in the cafe's open arched doorway, a heart above."""
+    b = Builder()
+    _medal(b, "blush")
+    y = -0.2
+    b.box((0, y, -0.35), (1.9, 0.2, 1.5), "offwhite", bevel=False)                              # the door frame
+    b.cyl((0, y + 0.01, 0.4), 0.95, 0.18, "offwhite", segments=28, rot=X, bevel=False)
+    b.box((0, y - 0.06, -0.38), (1.5, 0.14, 1.44), "lamp_warm", bevel=False)                    # warm light inside
+    b.cyl((0, y - 0.05, 0.34), 0.75, 0.12, "lamp_warm", segments=28, rot=X, bevel=False)
+    b.box((-0.95, y - 0.12, -0.38), (0.42, 0.1, 1.44), "caramel_wood", bevel=False)             # the open door
+    b.cyl((-0.84, y - 0.2, -0.35), 0.06, 0.06, "brass", segments=10, rot=X)
+    b.box((0, y - 0.45, -1.1), (2.1, 0.7, 0.08), "apron_pink", bevel=False)                     # the mat
+    b.prism((0, y - 0.2, 1.05), _heart(0.3), 0.08, "bowl_red", rot=X)
+    _twinkle(b, 1.3, -0.4, 0.7, 0.3)
+    cat = place(_cat("Ginger", mat), at=(0.1, -0.6, -1.05), scale=0.95, yaw=-14)
+    return _fin(b, "HomeSweetHome", mat) + cat
+
+
+def fixing_up(mat):
+    """Fixing Up (#3618): a new round cafe table with a hammer leaning across it and twinkles: the first upgrade."""
+    b = Builder()
+    _medal(b, "pastel_butter")
+    y = -0.45
+    b.cyl((-0.25, y, -1.05), 0.6, 0.12, "dark_wood", segments=20)                              # the table's foot
+    b.cyl((-0.25, y, -0.6), 0.12, 0.85, "dark_wood", segments=12)                              # its leg
+    b.cyl((-0.25, y, -0.12), 1.05, 0.16, "caramel_wood", segments=32)                          # the top
+    b.cyl((-0.25, y, -0.03), 0.95, 0.04, "treat_tan", segments=32)
+    a = math.radians(52)                                                                       # the hammer
+    hx, hz = 0.55, 0.45
+    b.box((hx, y - 0.5, hz), (0.16, 0.16, 1.7), "kibble", rot=(-(a - math.pi / 2), "Y"))       # its handle
+    tx, tz = hx + 0.8 * math.cos(a), hz + 0.8 * math.sin(a)
+    b.box((tx, y - 0.5, tz), (0.42, 0.36, 0.95), "metal", rot=(-a, "Y"))                       # its head
+    b.box((tx, y - 0.5, tz), (0.46, 0.4, 0.3), "concrete_dark", rot=(-a, "Y"))
+    b.box((hx - 0.62 * math.cos(a), y - 0.5, hz - 0.62 * math.sin(a)), (0.2, 0.2, 0.42), "bowl_red",
+          rot=(-(a - math.pi / 2), "Y"))                                                       # the grip
+    _twinkle(b, -1.05, -0.6, 0.85, 0.5)
+    _twinkle(b, -0.35, -0.6, 1.3, 0.28)
+    _twinkle(b, 1.3, -0.6, -0.6, 0.3)
+    return _fin(b, "FixingUp", mat)
+
+
+def liftoff(mat):
+    """Liftoff (#3618): the teal and white cat cannon, tipped up, and a ginger cat flying out of a puff of cloud."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    y = -0.4
+    a = math.radians(52)                                                                       # the barrel's lean
+    cx, cz = -0.55, -0.6
+    ux, uz = math.cos(a), math.sin(a)
+    R_ = (math.pi / 2 - a, "Y")
+    b.cyl((cx, y, cz), 0.5, 1.5, "offwhite", segments=24, rot=R_, radius2=0.42)                # the barrel
+    for t, sw, h in ((-0.6, "sign_teal", 0.3), (0.0, "gold_mid", 0.12), (0.62, "sign_teal", 0.22)):
+        r = 0.5 - 0.08 * (t + 0.75) / 1.5 + 0.04
+        b.cyl((cx + ux * t, y, cz + uz * t), r, h, sw, segments=24, rot=R_)                    # its bands
+    b.cyl((cx + ux * 0.75, y - 0.02, cz + uz * 0.75), 0.3, 0.06, "fur_black", segments=20, rot=R_)   # the mouth
+    b.cyl((cx - 0.05, y - 0.5, cz - 0.4), 0.48, 0.14, "sign_teal", segments=24, rot=X)         # the wheel
+    b.cyl((cx - 0.05, y - 0.58, cz - 0.4), 0.3, 0.06, "gold_mid", segments=20, rot=X)
+    b.cyl((cx - 0.05, y - 0.62, cz - 0.4), 0.1, 0.06, "sign_teal", segments=12, rot=X)
+    b.box((cx - 0.05, y, -1.12), (1.5, 0.7, 0.16), "sign_teal")                                 # the base
+    mx, mz = cx + ux * 1.0, cz + uz * 1.0
+    for dx, dz, r in ((0.0, 0.0, 0.3), (0.28, -0.12, 0.24), (-0.26, 0.14, 0.22), (0.1, 0.26, 0.22)):
+        b.sphere((mx + dx, y + 0.1, mz + dz), r, "offwhite", segments=12, rot=None, rings=6)   # the puff
+    for k in (-1, 0, 1):                                                                       # speed lines
+        ox, oz = -uz * 0.3 * k, ux * 0.3 * k
+        b.box((mx + ux * 0.62 + ox, y + 0.1, mz + uz * 0.62 + oz), (0.4 if k else 0.5, 0.05, 0.07), "offwhite",
+              bevel=False, rot=(-a, "Y"))
+    _star(b, -1.2, -0.3, 0.95, 0.26, "gold_mid")
+    _twinkle(b, 1.3, -0.3, -0.75, 0.3)
+    cat = place(_cat("Ginger", mat), at=(0.72, -0.6, 0.2), scale=0.7, yaw=-20, roll=-28)
+    return _fin(b, "Liftoff", mat) + cat
+
+
+def corner_cafe(mat):
+    """Corner Cafe (Tier 1, #3618): the cafe's hanging wooden sign on its bracket, a pink paw print on a cream face."""
+    b = Builder()
+    _medal(b, "pastel_butter")
+    y = -0.4
+    b.box((-1.25, y, 0.1), (0.2, 0.3, 2.3), "dark_wood")                                        # the post
+    b.box((-0.2, y, 1.05), (2.3, 0.26, 0.18), "dark_wood")                                      # the arm
+    b.box((-0.95, y, 0.72), (0.7, 0.2, 0.14), "dark_wood", rot=(math.radians(45), "Y"))         # its brace
+    b.sphere((1.0, y, 1.05), 0.16, "gold_mid", segments=10, rings=6)
+    for x in (-0.35, 0.65):                                                                    # two chains
+        b.box((x, y, 0.8), (0.07, 0.07, 0.4), "gold_dark", bevel=False)
+    b.box((0.15, y, -0.1), (1.9, 0.3, 1.5), "caramel_wood")                                     # the board
+    b.box((0.15, y - 0.16, -0.1), (1.6, 0.06, 1.2), "cream", bevel=False)
+    _paw(b, 0.15, y - 0.22, -0.2, 1.25, "nose_pink")
+    _twinkle(b, 1.35, -0.5, -1.0, 0.3)
+    return _fin(b, "CornerCafe", mat)
+
+
+def sunstone_cafe(mat):
+    """Sunstone Cafe (Tier 6, #3618): a cut orange sunstone in a gold sun with twelve rays, on warm sand."""
+    b = Builder()
+    _medal(b, "lamp_warm")
+    y = -0.3
+    for k in range(12):                                                                        # the rays
+        t = math.radians(30 * k)
+        L, w = (0.62, 0.2) if k % 2 == 0 else (0.42, 0.15)
+        r = 0.98 + L / 2
+        b.prism((r * math.cos(t), y, r * math.sin(t)), [(-L / 2, -w), (L / 2, 0.0), (-L / 2, w)], 0.12,
+                "eye_amber" if k % 2 == 0 else "gold_mid", rot=_ray(t))
+    b.cyl((0, y, 0), 0.98, 0.16, "gold_mid", segments=36, rot=X)                               # the sun's disc
+    b.cyl((0, y - 0.09, 0), 0.82, 0.06, "gold_light", segments=36, rot=X)
+    b.cyl((0, y - 0.16, 0), 0.7, 0.14, "fur_rust_red", segments=8, rot=X)                      # the stone, eight sided
+    b.cyl((0, y - 0.26, 0), 0.46, 0.1, "eye_copper", segments=8, rot=X, radius2=0.7)           # its cut crown
+    b.cyl((0, y - 0.32, 0), 0.46, 0.03, "fur_marmalade", segments=8, rot=X)                    # the table facet
+    _twinkle(b, 0.2, -0.75, 0.18, 0.34)
+    _twinkle(b, 1.25, -0.5, 1.15, 0.26)
+    return _fin(b, "SunstoneCafe", mat)
+
+
+def _ray(t):
+    """Stands a prism up to face the camera and turns it to point outward at angle t in the medal's plane."""
+    from mathutils import Matrix
+    return Matrix.Rotation(-t, 3, "Y") @ Matrix.Rotation(math.radians(90), 3, "X")
+
+
+def wonder_cafe(mat):
+    """Wonder Cafe (Tier 7, #3618): a big cut diamond in sky, violet and pink over a gold crown of stars, at night."""
+    b = Builder()
+    _medal(b, "night_sky")
+    y = -0.3
+    z0 = 0.25                                                                                  # the girdle's height
+    top = [(-1.15, 0.0), (1.15, 0.0), (0.62, 0.62), (-0.62, 0.62)]
+    b.prism((0, y, z0), [(-1.15, 0.0), (0.0, -1.5), (1.15, 0.0), (0.62, 0.62), (-0.62, 0.62)], 0.2, "fish_blue",
+            rot=X)                                                                             # the whole stone
+    b.prism((0, y - 0.11, z0 + 0.3), [(x, z - 0.3) for x, z in top], 0.04, "pastel_sky", rot=X)      # the crown
+    b.prism((0, y - 0.13, z0 + 0.36), [(-0.45, -0.34), (0.45, -0.34), (0.3, 0.24), (-0.3, 0.24)], 0.04, "fish_belly",
+            rot=X)                                                                             # the table facet
+    b.prism((0, y - 0.11, z0 - 0.6), [(-0.42, 0.58), (0.0, -0.88), (0.42, 0.58)], 0.04, "aurora_violet", rot=X)
+    b.prism((-0.62, y - 0.11, z0 - 0.3), [(-0.5, 0.28), (0.18, 0.28), (0.5, -0.9)], 0.04, "rarity_epic", rot=X)
+    b.prism((0.62, y - 0.11, z0 - 0.3), [(-0.18, 0.28), (0.5, 0.28), (-0.5, -0.9)], 0.04, "rarity_mythic", rot=X)
+    for k in range(5):                                                                         # a crown of stars
+        t = math.radians(150 - 30 * k)
+        _star(b, 1.45 * math.cos(t), -0.4, -0.05 + 1.3 * math.sin(t), 0.3 if k == 2 else 0.24, "gold_mid")
+    _twinkle(b, -1.2, -0.5, -0.75, 0.36, "gold_light")
+    _twinkle(b, 1.15, -0.5, -0.95, 0.26, "gold_light")
+    _twinkle(b, 0.3, -0.6, 0.62, 0.3)
+    return _fin(b, "WonderCafe", mat)
+
+
 # name -> builder, in the spec's creation order (release.md section 1)
 BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, "GrandOpening": grand_opening,
           "Purrfect": purrfect, "BaitCat": bait_cat, "RareFind": rare_find, "LegendaryFind": legendary_find,
@@ -534,4 +683,7 @@ BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, 
           "CatCollector": cat_collector, "CatExpert": cat_expert, "GoldenCoat": golden_coat,
           "RainbowCoat": rainbow_coat, "PageComplete": page_complete, "HelpingPaw": helping_paw,
           "FirstTrade": first_trade, "PurrfectStreak": purrfect_streak, "PartyGuest": party_guest,
-          "MetOwner": met_owner}
+          "MetOwner": met_owner,
+          # #3618 (badges-order.md): the six new ones, made five a day inside the free allowance
+          "HomeSweetHome": home_sweet_home, "FixingUp": fixing_up, "Liftoff": liftoff, "CornerCafe": corner_cafe,
+          "SunstoneCafe": sunstone_cafe, "WonderCafe": wonder_cafe}

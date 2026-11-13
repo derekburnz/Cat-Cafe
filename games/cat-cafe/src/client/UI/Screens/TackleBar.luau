@@ -68,6 +68,9 @@ export type TackleBar = {
 	result: (self: TackleBar, ok: boolean, outcome: string?) -> (),
 	ready: (self: TackleBar) -> boolean, -- #2302: shown and full, a press would lunge
 	pulse: (self: TackleBar) -> (), -- #2302: one pop, while the "tackle them" tip points at it
+	-- #3752: the bar's top edge in design pixels from the screen's bottom (negative) while the bar shows; nil while
+	-- it is hidden and on touch, where the Tackle is the round button by the jump button
+	top: (self: TackleBar) -> number?,
 	destroy: (self: TackleBar) -> (),
 }
 
@@ -533,6 +536,13 @@ function TackleBar.ready(self: any): boolean
 end
 
 -- #2302: one pop so the eye finds the bar the "tackle them" tip talks about.
+function TackleBar.top(self: any): number?
+	if self._touch or not self.screenGui.Enabled then
+		return nil
+	end
+	return self._callbacks.lift() - self._height
+end
+
 function TackleBar.pulse(self: any)
 	if self.screenGui.Enabled then
 		Tween.popIn(self._bar, 0.85)

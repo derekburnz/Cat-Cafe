@@ -5827,6 +5827,28 @@ local SCENES = {
 	-- button and the potion timers; a tap greys it with the seconds left. With a mouse it stays the bar.
 	-- #3342 (Derek2: "tackling immunity for the first 5 minutes"): while the join shield runs, a "🛡️ Safe m:ss" chip
 	-- sits just over the Tackle bar or button, clear of it, and goes once the shield is over
+	-- #3752: at a stuck cat's trap in a catching area the Rescue card and the Tackle bar (or the touch Tackle button)
+	-- both show, and neither covers the other
+	{ "RescueOverTackle", function()
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UI.catch.show({ strayId = "gate_rescue", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", kind = "rescue" } :: any)
+		Scenes._rescueCard = true
+		UIShim.advance(0.6)
+		local tackle = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local bar = tackle:FindFirstChild("Tackle", true) :: GuiObject
+		assert(tackle.Enabled and bar.Visible, "uigate: no Tackle beside the Rescue card (#3752)")
+		local catchGui = UIShim.playerGui:FindFirstChild("CatCafeCatch") :: ScreenGui
+		local card = catchGui:FindFirstChild("Card", true) :: GuiObject
+		assert(catchGui.Enabled and card.Visible, "uigate: no Rescue card (#3752)")
+		local c0, c1 = card.AbsolutePosition, card.AbsolutePosition + card.AbsoluteSize
+		local b0, b1 = bar.AbsolutePosition, bar.AbsolutePosition + bar.AbsoluteSize
+		local clear = c1.X <= b0.X + 0.5 or b1.X <= c0.X + 0.5 or c1.Y <= b0.Y + 0.5 or b1.Y <= c0.Y + 0.5
+		assert(clear, string.format("uigate: the Rescue card (bottom %d) covers the Tackle (top %d) (#3752)", c1.Y, b0.Y))
+		assert(c0.Y >= 0, "uigate: the Rescue card left the screen over the Tackle bar (#3752)")
+	end },
 	{ "TackleShield", function()
 		local me = game:GetService("Players").LocalPlayer
 		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
@@ -9884,6 +9906,10 @@ function Scenes.close()
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away
+	end
+	if Scenes._rescueCard then
+		Scenes._rescueCard = nil
+		UI.catch.hide() -- #3752's scene
 	end
 	if Scenes._tackle then
 		Scenes._tackle = nil

@@ -3785,12 +3785,12 @@ UI.catch.promptTouch = false
 -- (Screens/LootCard). It lists the server's items; since #3885 it shows as the prize lands in the hands.
 local LOOT_AFTER_POP_SECONDS = 0.9 -- #3885: as the prize's picture lands in the hands (Presets.binRoll.prize)
 UI.loot = { card = nil :: any, token = 0 }
-function UI.loot.show(win: unknown, after: number?)
+function UI.loot.show(win: unknown, after: number?, hint: string?)
 	UI.loot.token += 1
 	local token = UI.loot.token
 	local function show()
 		if UI.loot.token == token and UI.loot.card ~= nil then
-			UI.loot.card:show(win)
+			UI.loot.card:show(win, hint)
 		end
 	end
 	if after ~= nil and after > 0 then
@@ -4263,7 +4263,10 @@ do
 			if win ~= nil and type(win.id) == "string" and done and success then
 				rescueBar:hide()
 				endRescue(true)
-				UI.loot.show(win, LOOT_AFTER_POP_SECONDS)
+				-- the banner's line ("Put it in your bowl", "Open it at the Golden Fish Market") goes on the loot card
+				local _, hint =
+					RummageBin.winWords(win.id, win.first == true, (win :: any).rolled == true)
+				UI.loot.show(win, LOOT_AFTER_POP_SECONDS, hint)
 				return
 			end
 			rescueBar:update(hits, pawsLeft, done, success, bar, nil)

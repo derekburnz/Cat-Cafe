@@ -5963,8 +5963,9 @@ local SCENES = {
 	-- #3050: a win closes the bar on the prize's name (no toast, #3080): every prize's two lines fit the banner, the
 	-- first Tuna points at the bowl, and the tap catcher goes so a phone can move again
 	{ "RummageBinWin", function()
+		-- #3885: a win closes the bar at once; the loot card names the prize and carries the banner's line
 		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
-		local function win(id: string, first: boolean): (TextLabel, TextLabel)
+		local function win(id: string, first: boolean): TextLabel
 			UI.rescue.show("bin_alley", binChallenge())
 			local t = workspace:GetServerTimeNow()
 			UI.rescue.update("bin_alley", 2, 3, true, true, {
@@ -5973,28 +5974,22 @@ local SCENES = {
 				phase = 0.4,
 				speed = 0.5,
 				zoneEndsAt = t + 5,
-			}, { id = id, first = first })
-			local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel
-			local detail = barGui:FindFirstChild("Detail", true) :: TextLabel
-			assert(outcome.TextFits, "uigate: the bin's prize title does not fit: " .. outcome.Text .. " (#3050)")
-			assert(detail.TextFits, "uigate: the bin's prize line does not fit: " .. detail.Text .. " (#3050)")
-			return outcome, detail
+			}, { id = id, first = first, items = { { kind = "lure", id = "tuna", count = 2 } } } :: any)
+			assert(not barGui.Enabled, "uigate: the bin's bar stays up after a win: " .. id .. " (#3885)")
+			UIShim.advance(1)
+			local card = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true)
+			assert(card.Visible, "uigate: no loot card after a bin win: " .. id .. " (#3885)")
+			local hint = card:FindFirstChild("Hint") :: TextLabel
+			assert(not hint.Visible or hint.TextFits, "uigate: the loot card's hint does not fit: " .. hint.Text .. " (#3885)")
+			return hint
 		end
 		for _, id in { "fish", "salmon", "potion", "crate", "golden" } do
-			local outcome = win(id, false)
-			assert(outcome.Text ~= "Rescued!" and outcome.Text ~= "Found something!", "uigate: the bin's win does not name its prize: " .. id .. " (#3050)")
+			win(id, false)
 			UIShim.advance(3)
 		end
-		-- #3460: the first win is the fixed first prize, 2 Tuna and 10 golden fish
-		local outcome, detail = win("first_tuna", true)
-		assert(outcome.Text == "2 Tuna and more!", "uigate: the first win reads " .. outcome.Text .. ", not 2 Tuna and more! (#3460)")
-		assert(detail.Text:find("Put it in your bowl", 1, true), "uigate: the first Tuna does not point at the bowl (#3050)")
-		for _, id in { "first_crate", "first_salmon" } do
-			UIShim.advance(3)
-			win(id, false) -- the other fixed prizes' titles fit too
-		end
-		UIShim.advance(3)
-		win("first_tuna", true)
+		-- #3460: the first Tuna still points at the bowl, now on the loot card
+		local hint = win("first_tuna", true)
+		assert(hint.Visible and hint.Text:find("Put it in your bowl", 1, true), "uigate: the first Tuna does not point at the bowl (#3050, #3885)")
 		local tap = barGui:FindFirstChild("Tap")
 		assert(tap and not tap.Visible, "uigate: the tap catcher still covers the screen after a bin win (#3050)")
 		local toasts = UIShim.playerGui:FindFirstChild("CatCafeToasts")
